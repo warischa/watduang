@@ -1,0 +1,294 @@
+<!doctype html>
+<!--
+  PROTOTYPE — ของทิ้ง ไม่ใช่โค้ดจริง
+  ticket: .scratch/free-game/issues/06-player-shell-prototype.md
+
+  คำถาม: หน้าตั้งผู้เล่น 2-10 คน + จังหวะส่งมือถือวนกัน ควรเป็นแบบไหน
+  3 variant สลับด้วย ?variant=A|B|C หรือปุ่มลูกศรล่างจอ / กดลูกศรซ้ายขวาบนคีย์บอร์ด
+
+  variant ต่างกันที่ "วิธีเข้าถึง" ไม่ใช่หน้าตา:
+    A  ListBuilder  — พิมพ์ชื่อทีละคน · เปิดเผยด้วยการแตะ
+    B  CountFirst   — เลือกจำนวนก่อน ชื่อเป็น default แก้ทีหลัง · เปิดเผยด้วยการกดค้าง
+    C  Roster       — จำคนที่เคยเล่น แตะเลือกว่าคืนนี้ใครอยู่ · เปิดเผยด้วยการปัดขึ้น
+
+  กฎจากแผนที่ที่ prototype นี้ต้องไม่ละเมิด:
+    - บทลงโทษเป็นกลาง วงตกลงกันเอง เว็บไม่บอกใบ้
+    - ไม่มีภาพเครื่องดื่มทุกชนิด
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PROTOTYPE — หน้าตั้งผู้เล่น</title>
+<style>
+  :root{
+    --bg:#12101a; --card:#1e1b2b; --line:#332e47;
+    --ink:#f4f1ff; --dim:#a29cba; --hot:#ff5c8a; --go:#5ce0b0;
+    --tap:64px; /* ปุ่มหลักห้ามเล็กกว่านี้ — มือไม่นิ่ง ที่แสงน้อย */
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:500 17px/1.5 -apple-system,"Noto Sans Thai",system-ui,sans-serif;
+    padding-bottom:96px;overscroll-behavior:none}
+  .wrap{max-width:460px;margin:0 auto;padding:20px 18px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--dim);font-size:14px;margin:0 0 22px}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .btn{display:block;width:100%;min-height:var(--tap);border-radius:16px;
+    background:var(--hot);color:#fff;font-weight:800;font-size:19px;margin-top:14px}
+  .btn[disabled]{opacity:.3}
+  .btn.ghost{background:transparent;border:2px solid var(--line);color:var(--dim);
+    min-height:52px;font-size:16px;font-weight:600}
+  input{width:100%;min-height:56px;border-radius:14px;border:2px solid var(--line);
+    background:var(--card);color:var(--ink);padding:0 16px;font:inherit}
+  input:focus{outline:0;border-color:var(--hot)}
+
+  /* ---- ผู้เล่น ---- */
+  .row{display:flex;align-items:center;gap:10px;background:var(--card);
+    border-radius:14px;padding:12px 14px;margin-bottom:8px}
+  .row .n{width:26px;color:var(--dim);font-size:14px;flex:none}
+  .row .x{width:40px;height:40px;flex:none;color:var(--dim);font-size:22px}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin:6px 0 4px}
+  .chip{min-height:52px;padding:0 18px;border-radius:26px;background:var(--card);
+    border:2px solid var(--line);display:flex;align-items:center;font-weight:600}
+  .chip.on{border-color:var(--go);background:#1b3630;color:var(--go)}
+  .nums{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:4px 0 8px}
+  .num{height:var(--tap);border-radius:16px;background:var(--card);
+    border:2px solid var(--line);font-size:21px;font-weight:800}
+  .num.on{background:var(--hot);border-color:var(--hot);color:#fff}
+
+  /* ---- ส่งมือถือ / เปิดเผย ---- */
+  .stage{min-height:64vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;gap:16px}
+  .who{font-size:40px;font-weight:900;line-height:1.15}
+  .hint{color:var(--dim);font-size:15px;max-width:280px}
+  .disc{width:230px;height:230px;border-radius:50%;background:var(--card);
+    border:3px solid var(--line);display:flex;align-items:center;justify-content:center;
+    font-size:19px;font-weight:800;color:var(--dim);position:relative;overflow:hidden;
+    touch-action:none;user-select:none}
+  .disc .fill{position:absolute;inset:auto 0 0 0;height:0%;background:var(--hot);opacity:.35}
+  .prompt{font-size:27px;font-weight:800;line-height:1.35}
+  .forfeit{border:2px dashed var(--line);border-radius:16px;padding:16px;
+    color:var(--dim);font-size:15px;max-width:320px}
+
+  /* ---- แถบสลับ variant (ไม่ใช่ส่วนหนึ่งของดีไซน์) ---- */
+  .switcher{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99;
+    display:flex;align-items:center;gap:4px;background:#fff;color:#111;
+    border-radius:999px;padding:5px;box-shadow:0 8px 30px #000a;font-size:13px;font-weight:700}
+  .switcher button{width:40px;height:40px;border-radius:999px;font-size:19px}
+  .switcher .lbl{padding:0 10px;white-space:nowrap}
+
+  /* ---- state panel (rule: surface the state) ---- */
+  .state{position:fixed;top:0;left:0;right:0;z-index:98;background:#000d;
+    font:600 11px/1.5 ui-monospace,monospace;color:#8de;padding:6px 10px;
+    white-space:pre-wrap;word-break:break-all}
+  .wrap{padding-top:44px}
+</style>
+
+<div class="state" id="state"></div>
+<div class="wrap" id="app"></div>
+<div class="switcher">
+  <button id="prev">‹</button><span class="lbl" id="lbl"></span><button id="next">›</button>
+</div>
+
+<script>
+const VARIANTS = {
+  A: 'พิมพ์ทีละคน · แตะเปิด',
+  B: 'เลือกจำนวนก่อน · กดค้างเปิด',
+  C: 'จำคนเก่า · ปัดขึ้นเปิด',
+};
+const ROSTER_KEY = 'proto_roster';
+
+// คำท้าเป็นกลาง ไม่อ้างอิงเครื่องดื่มใดๆ ตามกฎในแผนที่
+const PROMPTS = [
+  'เล่าเรื่องที่ไม่เคยบอกใครในวงนี้',
+  'ทำเสียงสัตว์ที่คนซ้ายมือเลือกให้',
+  'โชว์รูปที่ 4 ในแกลเลอรี',
+  'พูดชมคนขวามือ 3 อย่าง แบบจริงใจ',
+  'เลียนแบบท่าทางคนในวง ให้คนอื่นทาย',
+  'ตอบคำถามอะไรก็ได้ที่วงถาม 1 ข้อ',
+];
+
+let V = new URLSearchParams(location.search).get('variant') || 'A';
+if (!VARIANTS[V]) V = 'A';
+
+let s;
+function reset() {
+  s = { screen: 'setup', players: [], turn: 0, round: 1, prompt: '', loser: null, draft: '' };
+  if (V === 'B') s.count = 0;
+  if (V === 'C') s.roster = load(), s.picked = new Set();
+}
+// localStorage โยน SecurityError บน data: URL, โหมดส่วนตัว, และเบราว์เซอร์ที่บล็อกคุกกี้
+// → fallback เป็น memory เพื่อให้เกมไม่ตายทั้งหน้าเพราะเรื่องจำชื่อ
+let memRoster = [];
+const load = () => { try { return JSON.parse(localStorage[ROSTER_KEY]) || memRoster } catch { return memRoster } };
+const save = names => {
+  const m = [...new Set([...load(), ...names])];
+  memRoster = m;
+  try { localStorage[ROSTER_KEY] = JSON.stringify(m) } catch {}
+};
+
+const el = (h) => { const d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstElementChild };
+const esc = t => t.replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+
+function start() {
+  if (V === 'B' && !s.players.length) s.players = Array.from({ length: s.count }, (_, i) => 'คนที่ ' + (i + 1));
+  if (V === 'C') s.players = [...s.picked];
+  save(s.players);
+  s.screen = 'pass'; s.turn = 0; render();
+}
+function reveal() {
+  s.prompt = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+  s.screen = 'prompt'; render();
+}
+function done() {
+  s.turn++;
+  if (s.turn >= s.players.length) {
+    s.loser = s.players[Math.floor(Math.random() * s.players.length)];
+    s.screen = 'result';
+  } else s.screen = 'pass';
+  render();
+}
+
+/* ---------- SETUP: ต่างกันจริงทั้งสามแบบ ---------- */
+function setupA() {                                   // text-entry list
+  const rows = s.players.map((p, i) => `
+    <div class="row"><span class="n">${i + 1}</span><span style="flex:1">${esc(p)}</span>
+    <button class="x" data-del="${i}">×</button></div>`).join('');
+  return `<h1>ใครเล่นบ้าง</h1><p class="sub">พิมพ์ชื่อทีละคน · ${s.players.length}/10</p>
+    ${rows}
+    ${s.players.length < 10 ? `<input id="nm" placeholder="ชื่อผู้เล่น" value="${esc(s.draft)}" autocomplete="off">
+      <button class="btn ghost" id="add">+ เพิ่มคน</button>` : ''}
+    <button class="btn" id="go" ${s.players.length < 2 ? 'disabled' : ''}>เริ่มเล่น</button>`;
+}
+function setupB() {                                   // number picker
+  const nums = Array.from({ length: 9 }, (_, i) => i + 2)
+    .map(n => `<button class="num ${s.count === n ? 'on' : ''}" data-c="${n}">${n}</button>`).join('');
+  const chips = s.players.map((p, i) =>
+    `<button class="chip" data-ren="${i}">${esc(p)}</button>`).join('');
+  return `<h1>วงนี้กี่คน</h1><p class="sub">แตะตัวเลข แล้วเริ่มได้เลย — ชื่อค่อยแก้ทีหลังก็ได้</p>
+    <div class="nums">${nums}</div>
+    ${s.players.length ? `<p class="sub" style="margin:16px 0 0">แตะชื่อเพื่อแก้</p><div class="chips">${chips}</div>` : ''}
+    <button class="btn" id="go" ${!s.count ? 'disabled' : ''}>เริ่มเล่น</button>`;
+}
+function setupC() {                                   // selection grid
+  const chips = s.roster.map(p =>
+    `<button class="chip ${s.picked.has(p) ? 'on' : ''}" data-tog="${esc(p)}">${esc(p)}</button>`).join('');
+  return `<h1>คืนนี้ใครอยู่</h1>
+    <p class="sub">${s.roster.length ? 'แตะเลือกคนที่มา · เลือกแล้ว ' + s.picked.size + ' คน' : 'ยังไม่เคยเล่น — เพิ่มคนก่อน'}</p>
+    <div class="chips">${chips}</div>
+    <input id="nm" placeholder="เพิ่มคนใหม่" value="${esc(s.draft)}" autocomplete="off">
+    <button class="btn ghost" id="add">+ เพิ่มเข้าวง</button>
+    <button class="btn" id="go" ${s.picked.size < 2 ? 'disabled' : ''}>เริ่มเล่น</button>`;
+}
+
+/* ---------- PASS + REVEAL: กลไกเปิดต่างกันตาม variant ---------- */
+function passScreen() {
+  const who = s.players[s.turn];
+  if (V === 'A') return `<div class="stage"><p class="hint">ส่งมือถือให้</p>
+    <div class="who">${esc(who)}</div>
+    <button class="disc" id="rv">แตะเพื่อดู</button>
+    <p class="hint">คนอื่นห้ามแอบดู</p></div>`;
+  if (V === 'B') return `<div class="stage"><p class="hint">ส่งมือถือให้</p>
+    <div class="who">${esc(who)}</div>
+    <div class="disc" id="hold"><div class="fill" id="fill"></div><span id="ht">กดค้างไว้</span></div>
+    <p class="hint">กดค้างกันเปิดพลาด — ปล่อยแล้วเริ่มใหม่</p></div>`;
+  return `<div class="stage"><p class="hint">ส่งมือถือให้</p>
+    <div class="who">${esc(who)}</div>
+    <div class="disc" id="swipe"><span>ปัดขึ้น ↑</span></div>
+    <p class="hint">ปัดขึ้นเพื่อเปิด</p></div>`;
+}
+function promptScreen() {
+  return `<div class="stage"><p class="hint">${esc(s.players[s.turn])} · รอบ ${s.round}</p>
+    <div class="prompt">${esc(s.prompt)}</div>
+    <button class="btn" id="ok" style="max-width:300px">ทำแล้ว — ส่งต่อ</button></div>`;
+}
+function resultScreen() {
+  return `<div class="stage"><p class="hint">จบรอบ ${s.round}</p>
+    <div class="who" style="color:var(--hot)">${esc(s.loser)}</div>
+    <p class="prompt" style="font-size:22px">แพ้รอบนี้</p>
+    <div class="forfeit">โดนบทลงโทษที่วงตกลงกันไว้<br><span style="opacity:.6">เว็บไม่กำหนดให้ — วงตัดสินเอง</span></div>
+    <button class="btn" id="again" style="max-width:300px">รอบต่อไป</button>
+    <button class="btn ghost" id="rs" style="max-width:300px">เริ่มใหม่</button></div>`;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML =
+    s.screen === 'setup' ? ({ A: setupA, B: setupB, C: setupC })[V]() :
+    s.screen === 'pass' ? passScreen() :
+    s.screen === 'prompt' ? promptScreen() : resultScreen();
+
+  document.getElementById('lbl').textContent = V + ' — ' + VARIANTS[V];
+  document.getElementById('state').textContent =
+    `variant=${V} screen=${s.screen} round=${s.round} turn=${s.turn}/${s.players.length} ` +
+    `players=[${s.players.join(', ')}]` + (V === 'C' ? ` roster=${s.roster.length}` : '');
+
+  wire(app);
+}
+
+function wire(app) {
+  const q = id => document.getElementById(id);
+  const addName = () => {
+    const i = q('nm'); const v = (i.value || '').trim(); if (!v) return;
+    if (V === 'C') { if (!s.roster.includes(v)) s.roster.push(v); s.picked.add(v); save([v]); }
+    else if (s.players.length < 10) s.players.push(v);
+    s.draft = ''; render(); setTimeout(() => q('nm') && q('nm').focus(), 0);
+  };
+  q('add') && (q('add').onclick = addName);
+  q('nm') && (q('nm').oninput = e => s.draft = e.target.value);
+  q('nm') && (q('nm').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); addName(); } });
+  q('go') && (q('go').onclick = start);
+  q('ok') && (q('ok').onclick = done);
+  q('rv') && (q('rv').onclick = reveal);
+  q('again') && (q('again').onclick = () => { s.round++; s.turn = 0; s.screen = 'pass'; render(); });
+  q('rs') && (q('rs').onclick = () => { reset(); render(); });
+
+  app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { s.players.splice(+b.dataset.del, 1); render(); });
+  app.querySelectorAll('[data-c]').forEach(b => b.onclick = () => {
+    s.count = +b.dataset.c; s.players = Array.from({ length: s.count }, (_, i) => 'คนที่ ' + (i + 1)); render();
+  });
+  app.querySelectorAll('[data-ren]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.ren; const v = prompt('ชื่อ', s.players[i]); if (v && v.trim()) s.players[i] = v.trim(); render();
+  });
+  app.querySelectorAll('[data-tog]').forEach(b => b.onclick = () => {
+    const n = b.dataset.tog; s.picked.has(n) ? s.picked.delete(n) : s.picked.add(n); render();
+  });
+
+  // B: กดค้าง 900ms
+  const hold = q('hold');
+  if (hold) {
+    let t, raf, t0; const fill = q('fill'), txt = q('ht');
+    const stop = () => { clearTimeout(t); cancelAnimationFrame(raf); fill.style.height = '0%'; txt.textContent = 'กดค้างไว้'; };
+    const go = e => {
+      e.preventDefault(); t0 = performance.now(); txt.textContent = 'ค้างไว้…';
+      const step = () => { const p = Math.min(1, (performance.now() - t0) / 900); fill.style.height = p * 100 + '%'; if (p < 1) raf = requestAnimationFrame(step); };
+      raf = requestAnimationFrame(step); t = setTimeout(reveal, 900);
+    };
+    hold.addEventListener('pointerdown', go);
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => hold.addEventListener(ev, stop));
+  }
+  // C: ปัดขึ้น
+  const sw = q('swipe');
+  if (sw) {
+    let y0 = null;
+    sw.addEventListener('pointerdown', e => y0 = e.clientY);
+    sw.addEventListener('pointerup', e => { if (y0 !== null && y0 - e.clientY > 60) reveal(); y0 = null; });
+  }
+}
+
+/* ---------- switcher ---------- */
+const keys = Object.keys(VARIANTS);
+function setV(d) {
+  V = keys[(keys.indexOf(V) + d + keys.length) % keys.length];
+  const u = new URL(location); u.searchParams.set('variant', V); history.replaceState(null, '', u);
+  reset(); render();
+}
+document.getElementById('prev').onclick = () => setV(-1);
+document.getElementById('next').onclick = () => setV(1);
+addEventListener('keydown', e => {
+  if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+  if (e.key === 'ArrowLeft') setV(-1);
+  if (e.key === 'ArrowRight') setV(1);
+});
+
+reset(); render();
+</script>
