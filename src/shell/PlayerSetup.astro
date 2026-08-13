@@ -77,7 +77,10 @@ const { min, max } = Astro.props as Props;
   startBtn.addEventListener('click', () => {
     let players: string[];
     if (selected.size > 0) {
-      players = [...selected];
+      // ponytail: clamp ที่นี่ที่เดียว — ทุกเกมออกสตาร์ทผ่านบรรทัดนี้ ทางกรอกจำนวนข้างล่าง clamp อยู่แล้ว
+      // แต่ทางเลือกจากรายชื่อไม่เคย clamp เลย เกมที่มีของจำกัดต่อคน (เช่น siamsi 24 ใบ) จึงพังกลางรอบ
+      // เพดาน: เกินแล้วตัดท้ายทิ้งเงียบๆ — ถ้าต้องบอกผู้เล่นค่อยเพิ่มข้อความตอนนั้น
+      players = [...selected].slice(0, max);
     } else {
       const count = Math.min(max, Math.max(min, Number(countInput.value) || min));
       players = Array.from({ length: count }, (_, i) => `คนที่ ${i + 1}`);

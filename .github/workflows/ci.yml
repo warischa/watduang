@@ -39,8 +39,10 @@ jobs:
       - name: Unit tests
         run: node --test 'src/**/*.test.mjs'
 
+      # npm run build ไม่ใช่ npx astro build — prebuild ใน package.json ต้องได้ทำงาน
+      # ไม่งั้น gate ที่กันเกมไม่มีรูป OG มีผลแค่ตอนเรียกอีกสะกดหนึ่งเท่านั้น
       - name: Build
-        run: npx astro build
+        run: npm run build
 
       # CSP checked against dist/staticwebapp.config.json (the deployed artifact), not the
       # repo-root source — Azure SWA only reads config from inside app_location. This also
@@ -88,7 +90,20 @@ jobs:
           fi
 
           status=0
-          for path in "/" "/games/" "/game/timebomb/"; do
+          # ทุกเกมที่ build ออกมาต้องถูก smoke ไม่ใช่แค่เกมที่จำชื่อได้ตอนเขียนไฟล์นี้ —
+          # ลิสต์เดิม hardcode /game/timebomb/ ไว้ เกมที่ 2 เป็นต้นไปจึงไม่เคยถูกยิงเลย
+          GAME_PATHS=$(for d in dist/game/*/; do [ -d "$d" ] || continue; echo "/game/$(basename "$d")/"; done)
+          # เทียบจำนวนหน้าที่ build ได้กับจำนวนเกมใน manifest — แค่ "มีมากกว่าศูนย์" ยัง green ได้
+          # ทั้งที่เกมหนึ่งหายไป (manifest ถูก revert แต่ไฟล์เกมยังอยู่ → validate ผ่าน, smoke ผ่าน, prod 404)
+          BUILT=$(printf '%s\n' "$GAME_PATHS" | grep -c . || true)
+          EXPECTED=$(node --input-type=module -e "const {games} = await import('./src/games/manifest.ts'); console.log(games.length)")
+          if [ "$BUILT" -ne "$EXPECTED" ]; then
+            echo "::error::Built $BUILT game page(s) but manifest declares $EXPECTED"
+            kill "$SERVER_PID" 2>/dev/null || true
+            exit 1
+          fi
+          echo "smoke: $BUILT game page(s) (matches manifest) + 2 core pages"
+          for path in "/" "/games/" $GAME_PATHS; do
             body=$(curl -sf "http://localhost:4321${path}") || { echo "::error::curl failed for ${path}"; status=1; continue; }
             if ! echo "$body" | grep -qi '<title>'; then
               echo "::error::No <title> tag found for ${path}"

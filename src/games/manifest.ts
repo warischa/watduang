@@ -5,8 +5,9 @@ import type { GameModule } from './types';
 // นามสกุล .ts เขียนไว้เต็มๆ ตั้งใจ: scripts/validate-games.mjs import ไฟล์นี้ด้วย node ตรงๆ
 // ซึ่ง ESM ของ node เดานามสกุลให้ไม่ได้ · Vite/Astro รับ .ts อยู่แล้ว
 import timebomb from './timebomb.ts';
+import siamsi from './siamsi.ts';
 
-export const games: GameModule[] = [timebomb];
+export const games: GameModule[] = [timebomb, siamsi];
 
 export const byId = (id: string): GameModule | undefined =>
   games.find((g) => g.id === id);

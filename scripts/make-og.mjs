@@ -99,18 +99,32 @@ const sub = fit([tagline, `เล่นฟรี ${game.players[0]}-${game.playe
 const subTop = 398 - ((sub.lines.length - 1) * 68) / 2; // จัดบล็อกคำโปรยให้กึ่งกลางอยู่ที่เดิมเสมอ
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-// ponytail: เครื่องหมายเดียวกันทุกเกม (วงกลม+ฟิวส์+ประกายไฟ = ทรงเรขาคณิตล้วน ไม่ผิดกฎเนื้อหา)
-// เพดาน: ถ้าเกมไหนอยากได้เครื่องหมายของตัวเอง ค่อยแตกเป็น map ต่อ id ตอนนั้น
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect x="0" y="0" width="1200" height="630" fill="${BG}"/>
-  <rect x="0" y="0" width="1200" height="10" fill="#ff5a3c"/>
-  <g transform="translate(950 330)">
+// ponytail: map ต่อ id ตามเพดานที่จดไว้ตอน timebomb — ถึงเวลาแตกแล้วเพราะ siamsi ได้รูประเบิดไปด้วย
+// เกมที่ยังไม่มีเครื่องหมายจะได้การ์ดตัวหนังสือล้วน ตั้งใจให้ fallback เป็น "ไม่มีรูป" ไม่ใช่ "รูปเกมอื่น"
+// ทุกเครื่องหมายเป็นทรงเรขาคณิตล้วน ไม่มีขวด/กระป๋อง/แก้ว ตามกฎเนื้อหา
+const MARKS = {
+  timebomb: `
     <circle cx="0" cy="30" r="118" fill="#20233a" stroke="#ff5a3c" stroke-width="8"/>
     <rect x="-24" y="-108" width="48" height="32" rx="8" fill="#ff5a3c"/>
     <path d="M 0 -108 C 28 -148 74 -138 90 -172" fill="none" stroke="#f5c451" stroke-width="12" stroke-linecap="round"/>
     <circle cx="94" cy="-178" r="19" fill="#f5c451"/>
-    <circle cx="-42" cy="-4" r="24" fill="#2c3050"/>
-  </g>
+    <circle cx="-42" cy="-4" r="24" fill="#2c3050"/>`,
+  // กระบอกเซียมซี + ไม้สามอัน อันกลางสีทองคือใบที่จั่วได้
+  siamsi: `
+    <rect x="-40" y="-158" width="16" height="164" rx="8" fill="#2c3050" transform="rotate(-16 -32 6)"/>
+    <rect x="-8" y="-190" width="16" height="196" rx="8" fill="#f5c451"/>
+    <rect x="24" y="-152" width="16" height="158" rx="8" fill="#2c3050" transform="rotate(16 32 6)"/>
+    <rect x="-52" y="0" width="104" height="196" rx="14" fill="#20233a" stroke="#ff5a3c" stroke-width="8"/>
+    <ellipse cx="0" cy="0" rx="52" ry="13" fill="#20233a" stroke="#ff5a3c" stroke-width="8"/>`,
+};
+// hasOwn ไม่ใช่ MARKS[id] ตรงๆ — id อย่าง `constructor` ผ่าน regex ของ validator ได้
+// แล้วจะดึงของจาก prototype มายัดใส่ SVG แทนที่จะตกไปที่ fallback
+const mark = Object.hasOwn(MARKS, id) ? `  <g transform="translate(950 330)">${MARKS[id]}\n  </g>` : '';
+
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect x="0" y="0" width="1200" height="630" fill="${BG}"/>
+  <rect x="0" y="0" width="1200" height="10" fill="#ff5a3c"/>
+${mark}
   <text x="90" y="235" font-family="${FONT}" font-weight="bold" font-size="${title.size}" fill="#ffffff">${esc(title.lines[0])}</text>
 ${sub.lines
   .map(
