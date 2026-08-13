@@ -3,7 +3,7 @@
 เว็บรวมเกมกลุ่มเล่นฟรี 2-10 คน บนเครื่องเดียว (ส่งมือถือวนกัน) ภาษาไทยก่อน หารายได้จาก Google AdSense
 แบรนด์อังกฤษ: **PartyPick** (เสนอ รอยืนยัน) — อยู่ที่ `/en/` ไม่ซื้อโดเมนที่สอง
 
-**สถานะ:** ยังไม่เริ่มเขียนโค้ด · การตัดสินใจทั้งหมดอยู่ในแผนที่ [`.scratch/free-game/map.md`](.scratch/free-game/map.md)
+**สถานะ:** ยังไม่เริ่มเขียนโค้ด · การตัดสินใจทั้งหมดอยู่ในแผนที่ [#1](https://github.com/warischa/watduang/issues/1)
 
 ## Stack
 
@@ -11,7 +11,7 @@ Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla T
 
 **1 เกม = 1 ไฟล์ + 1 บรรทัดใน manifest → 1 URL static** ผ่าน `getStaticPaths()` · path routing เท่านั้น **ห้ามใช้ hash route** — SEO คือโมเดลธุรกิจของเว็บนี้ ไม่ใช่ฟีเจอร์
 
-รายละเอียดเต็ม: [`.scratch/free-game/issues/05-stack-and-url-structure.md`](.scratch/free-game/issues/05-stack-and-url-structure.md)
+รายละเอียดเต็ม: [#6](https://github.com/warischa/watduang/issues/6)
 
 ## กฎที่ห้ามละเมิด
 
@@ -36,7 +36,6 @@ next:
 - [ ] [#9](https://github.com/warischa/watduang/issues/9) จด `watduang.com` — `whois` ขึ้นเจ้าของ
 - [ ] [#12](https://github.com/warischa/watduang/issues/12) Keyword Planner — `research/keyword-planner.md` มี volume จริง
 - [ ] ยืนยันหรือเปลี่ยน PartyPick — บรรทัดแบรนด์ข้างบนตัดคำว่า "รอยืนยัน" ออก
-- [ ] ลบสำเนาเก่า `.scratch/free-game/issues/*.md` หลังไม่ต้องเทียบแล้ว — GitHub เป็นตัวจริง
 
 inflight: working tree สะอาด · ไม่มี PR เปิด (เช็คแล้ว) · ไม่มี bg task (เช็คแล้ว) · GitHub เปิดค้าง #9 #12
 
@@ -44,7 +43,7 @@ inflight: working tree สะอาด · ไม่มี PR เปิด (เ�
 
 ### Issue tracker
 
-GitHub Issues ผ่าน `gh` CLI · repo: [`warischa/watduang`](https://github.com/warischa/watduang) (private) · **แผนที่คือ issue #1** พร้อม sub-issue 11 ใบ · เลขใบ + 1 = เลข issue · ไฟล์ใน `.scratch/free-game/issues/` เป็นสำเนาก่อนย้าย **ถือว่าเก่า อ่าน GitHub แทน** ดู `docs/agents/issue-tracker.md`
+GitHub Issues ผ่าน `gh` CLI · repo: [`warischa/watduang`](https://github.com/warischa/watduang) (private) · **แผนที่คือ issue #1** พร้อม sub-issue 11 ใบ · เลขใบ + 1 = เลข issue · **GitHub เป็นแหล่งความจริงเดียว** สำเนาใน `.scratch/` ลบแล้ว · ดู `docs/agents/issue-tracker.md`
 
 ### Triage labels
 

@@ -16,7 +16,7 @@ Neither exists yet in this repo — that is expected and fine.
 
 ## Where decisions currently live
 
-Until `docs/adr/` exists, the durable decisions for this project are in the wayfinder map at [`.scratch/free-game/map.md`](../../.scratch/free-game/map.md) and its tickets under `.scratch/free-game/issues/`. Read the map's **Decisions so far** section before proposing anything that touches stack, SEO, monetisation, or content rules — several decisions there were reversed once already, and the map records which way they landed.
+Until `docs/adr/` exists, the durable decisions for this project are in GitHub Issues: the wayfinder map is [#1](https://github.com/warischa/watduang/issues/1), its 11 tickets are #2–#12. Read the map's **Decisions so far** section (`gh issue view 1`) before proposing anything that touches stack, SEO, monetisation, or content rules — several decisions there were reversed once already, and the map records which way they landed.
 
 ## File structure
 

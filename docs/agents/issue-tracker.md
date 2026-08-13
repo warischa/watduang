@@ -25,9 +25,9 @@ The map is **issue #1** (`wayfinder:map`) with 11 sub-issues. All 10 labels exis
 | 10 | #11 | grilling | closed |
 | 11 | #12 | task | **open** |
 
-### ⚠ Two copies now exist — GitHub wins
+### GitHub is the only copy
 
-`.scratch/free-game/issues/*.md` are the pre-migration originals. They are **stale the moment anyone comments on GitHub**. Read GitHub; treat the markdown files as history. They have not been deleted only because deleting is the owner's call — propose removing them once nobody needs the side-by-side.
+The pre-migration markdown originals under `.scratch/free-game/` were deleted 2026-08-13 once GitHub was confirmed a superset. There is no local copy to fall back on — `gh issue view <n>` is the source of truth.
 
 `.scratch/free-game/research/` and `.scratch/free-game/prototypes/` are **not** duplicates — they are artifacts the issues link to. Keep them.
 
@@ -73,11 +73,3 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 - **Claim**: `gh issue edit <n> --add-assignee @me` — the session's first write.
 - **Resolve**: `gh issue comment <n> --body "<answer>"`, then `gh issue close <n>`, then append a context pointer (gist + link) to the map's Decisions-so-far.
 
-### Migration note
-
-The existing map lives at `.scratch/free-game/map.md` with 11 tickets in `.scratch/free-game/issues/`. When migrating, preserve:
-
-- ticket numbering (`01`–`11`) in issue titles so existing cross-references keep resolving
-- the `Blocked by:` lines → native GitHub dependencies
-- resolved tickets → closed issues with their `## Answer` posted as a comment
-- research artifacts under `.scratch/free-game/research/` stay as repo files; link them from the issues
