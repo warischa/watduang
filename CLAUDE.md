@@ -3,7 +3,7 @@
 เว็บรวมเกมกลุ่มเล่นฟรี 2-10 คน บนเครื่องเดียว (ส่งมือถือวนกัน) ภาษาไทยก่อน หารายได้จาก Google AdSense
 แบรนด์อังกฤษ: **PartyPick** (เสนอ รอยืนยัน) — อยู่ที่ `/en/` ไม่ซื้อโดเมนที่สอง
 
-**สถานะ:** scaffold + เกมแรกลงแล้ว (`02708ed`) · การตัดสินใจทั้งหมดอยู่ในแผนที่ [#1](https://github.com/warischa/watduang/issues/1)
+**สถานะ:** 2 เกมลงแล้ว (`timebomb` · `siamsi`) · การตัดสินใจทั้งหมดอยู่ในแผนที่ [#1](https://github.com/warischa/watduang/issues/1)
 
 ## Stack
 
@@ -25,22 +25,24 @@ Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla T
 
 เหตุผลของทุกการตัดสินใจอยู่ใน GitHub issues — **ห้ามเขียนซ้ำที่นี่ อ้างเลขเอา** · map = [#1](https://github.com/warischa/watduang/issues/1) · archive: `docs/sessions-archive.md`
 
-### S2026-08-13#5
+### S2026-08-13#6
 
-done: scaffold #13 → `02708ed` push แล้ว · **CI เขียวครบรอบแรก** deploy skip ถูกเพราะยังไม่มี secret · **DoD #13 ข้อ 1-3 ปิด เหลือข้อ 4** · REFUTE 1 รอบ 6 findings แก้ครบ · map #1 ลิงก์ตาย 14 → 0 · **ผลรันจริง + แก้มติ 9 ข้อ + ของที่รู้แต่ยังไม่แก้ →** [#13 comment](https://github.com/warischa/watduang/issues/13#issuecomment-5278598792)
+done: **เกม 2 `siamsi` เซียมซีปาร์ตี้ (fortune) ลงแล้ว** `aa5a251` — CI เขียวครบ 11 step, smoke ยิง 2 เกมจริง · การ์ดแชร์ `/` `/games/` `/404` `d254a8d` · siamsi กู้รอบค้างตอนรีเฟรช `e3fd74f` · 14 tests · REFUTE 1 รอบ 6 findings แก้ 5 เลื่อน 1
 
-dec: why ทุกข้ออยู่ในคอมเมนต์นั้น — `build.format=directory` + `trailingSlash=always` · manifest static import ตอน build ส่วน island รับ `id` ผ่าน `data-game-id` แล้ว `import.meta.glob` · CSP header-only และไฟล์ต้องอยู่ `public/staticwebapp.config.json` (ที่รากไม่ถึง prod) · pin wildcard Google ไม่ไล่ exact host · `script-src` ไม่มี `unsafe-inline` → snippet AdSense ต้อง external · `ads===false` บังคับ · field ใหม่ `tagline` · ไม่อัป astro แม้ audit เตือน
+dec: fork เลือก fortune ก่อน party — ข้าม gate #12 ได้เฉพาะเกมนี้ (เกณฑ์เปลี่ยนเป็น "พื้นถ้าดีมานด์ศูนย์" + ตรง head term) · **เกม 3–7 ยังติด #12** · checkpoint ทำเฉพาะ siamsi (รอบยาวเป็นนาที vs timebomb 30 วิ) เก็บเป็นเลขใบไม่ใช่ index · **ช่อง checkpoint มีช่องเดียวใช้ร่วมทุกเกม ต้องเช็คป้ายชื่อเกมก่อนกู้** · การ์ดแชร์ default ที่ `Base.astro` ที่เดียว · ตัดมติ #10 ทิ้ง
 
-⚠ รูป OG อย่าใช้ Pillow — เครื่องนี้ไม่มี libraqm สระไทยกลายเป็นวงกลมจุดทั้งที่ draw สำเร็จ → `node scripts/make-og.mjs <id>` แล้วเปิดดูด้วยตา
+⚠ ก่อนสร้างรูป OG หรือรัน build — สระไทยแตกเงียบ · `npx astro build` ข้าม gate → `docs/runbook.md`
 
 next:
 - [ ] DoD #13 ข้อ 4 มือถือจริง (เจ้าของเว็บ) — จอไม่ดับ + เสียงออก iOS · **ปิดข้อนี้ = ปิดใบ #13**
-- [ ] #12 Keyword Planner **= gate เกม 2–7** (เจ้าของเว็บ)
-- [ ] #9 จด `watduang.com` (เจ้าของเว็บ) — `whois` ขึ้นเจ้าของ
+- [ ] #12 Keyword Planner **= gate เกม 3–7** (เจ้าของเว็บ)
+- [ ] #9 จด `watduang.com` (เจ้าของเว็บ) — `whois` ยังว่าง ยังไม่มีใครจด
 - [ ] ยืนยัน/เปลี่ยน PartyPick — ตัด "รอยืนยัน" ออก
-- [ ] Azure SWA เฟส 2 deploy จริง (**ยืนยันก่อน**) — หลัง CI เขียว
+- [ ] Azure SWA เฟส 2 — เจ้าของเว็บตั้ง secret `AZURE_STATIC_WEB_APPS_API_TOKEN` แล้วบอก · push ถัดไป Deploy ต้องไม่ขึ้น skipped ใน `gh run view` · **ด่านเดียวที่พิสูจน์ CSP/AdSense**
+- [ ] siamsi ยังไม่มีเทสคลุมสายไฟ DOM (save/resume เรียกถูกจังหวะไหม) — พิสูจน์ตอนเล่นมือถือจริง
 
 inflight: tree สะอาด · push ครบถึง `origin/main` · ไม่มี PR เปิด (เช็คแล้ว) · ไม่มี bg task
+
 ## Agent skills
 
 ### Issue tracker
