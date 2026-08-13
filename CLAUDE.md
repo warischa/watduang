@@ -25,21 +25,21 @@ Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla T
 
 เหตุผลของทุกการตัดสินใจอยู่ใน GitHub issues — **ห้ามเขียนซ้ำที่นี่ อ้างเลขเอา** · map = [#1](https://github.com/warischa/watduang/issues/1) · archive: `docs/sessions-archive.md`
 
-### S2026-08-13#6
+### S2026-08-13#7
 
-done: **เกม 2 `siamsi` เซียมซีปาร์ตี้ (fortune) ลงแล้ว** `aa5a251` — CI เขียวครบ 11 step, smoke ยิง 2 เกมจริง · การ์ดแชร์ `/` `/games/` `/404` `d254a8d` · siamsi กู้รอบค้างตอนรีเฟรช `e3fd74f` · 14 tests · REFUTE 1 รอบ 6 findings แก้ 5 เลื่อน 1
+done: **เกม 2 `siamsi` ลง CI เขียว 11 step** `aa5a251` · การ์ดแชร์ `/` `/games/` `/404` `d254a8d` · siamsi กู้รอบค้างตอนรีเฟรช `e3fd74f` · 14 tests · **grilling รอบใหญ่ → `CONTEXT.md` + ADR 0001-0004 + spec [#14] แตกเป็นตั๋ว [#15] → [#16][#17][#18]**
 
-dec: fork เลือก fortune ก่อน party — ข้าม gate #12 ได้เฉพาะเกมนี้ (เกณฑ์เปลี่ยนเป็น "พื้นถ้าดีมานด์ศูนย์" + ตรง head term) · **เกม 3–7 ยังติด #12** · checkpoint ทำเฉพาะ siamsi (รอบยาวเป็นนาที vs timebomb 30 วิ) เก็บเป็นเลขใบไม่ใช่ index · **ช่อง checkpoint มีช่องเดียวใช้ร่วมทุกเกม ต้องเช็คป้ายชื่อเกมก่อนกู้** · การ์ดแชร์ default ที่ `Base.astro` ที่เดียว · ตัดมติ #10 ทิ้ง
+dec: **why อยู่ใน ADR อ้างเลขเอา** — 0001 หมวด=เจตนาคนค้นไม่ใช่กลไก · 0002 siamsi=เกมที่ 8 แยกจาก `daily-fortune` ด้วยวง/เดี่ยว · **0003 gate เลิกใช้ #12 → organic clicks <300/เดือน ที่เดือน 6 นับจาก tool+3 เกมขึ้น prod · ไม่ถึง = ดัน `/en/`** · 0004 เครื่องมือ 4 ตัว `/tool/<slug>` ไม่ผ่าน GameModule แต่ต้องใช้ roster ร่วมกับเกม
 
-⚠ ก่อนสร้างรูป OG หรือรัน build — สระไทยแตกเงียบ · `npx astro build` ข้าม gate → `docs/runbook.md`
+⚠ ก่อนสร้างรูป OG · รัน build · หรือยื่นตัวเลือกให้เจ้าของเว็บตัดสิน → อ่าน `docs/runbook.md` ก่อน
 
 next:
-- [ ] DoD #13 ข้อ 4 มือถือจริง (เจ้าของเว็บ) — จอไม่ดับ + เสียงออก iOS · **ปิดข้อนี้ = ปิดใบ #13**
-- [ ] #12 Keyword Planner **= gate เกม 3–7** (เจ้าของเว็บ)
-- [ ] #9 จด `watduang.com` (เจ้าของเว็บ) — `whois` ยังว่าง ยังไม่มีใครจด
-- [ ] ยืนยัน/เปลี่ยน PartyPick — ตัด "รอยืนยัน" ออก
-- [ ] Azure SWA เฟส 2 — เจ้าของเว็บตั้ง secret `AZURE_STATIC_WEB_APPS_API_TOKEN` แล้วบอก · push ถัดไป Deploy ต้องไม่ขึ้น skipped ใน `gh run view` · **ด่านเดียวที่พิสูจน์ CSP/AdSense**
-- [ ] siamsi ยังไม่มีเทสคลุมสายไฟ DOM (save/resume เรียกถูกจังหวะไหม) — พิสูจน์ตอนเล่นมือถือจริง
+- [ ] **[#15] วงล้อสุ่ม + โครงหน้าเครื่องมือ — เริ่มได้เลย** จบแล้วปลด [#16][#17][#18] ทำขนานได้
+- [ ] DoD #13 ข้อ 4 มือถือจริง (เจ้าของเว็บ) — **ปิดข้อนี้ = ปิดใบ #13** · เช็คสายไฟ checkpoint ของ siamsi ไปด้วย (เทสคลุมไม่ถึง)
+- [ ] #9 จด `watduang.com` (เจ้าของเว็บ) — `whois` ยังว่าง
+- [ ] Azure SWA เฟส 2 — เจ้าของเว็บตั้ง secret `AZURE_STATIC_WEB_APPS_API_TOKEN` · Deploy ต้องไม่ขึ้น skipped ใน `gh run view` · **ด่านเดียวที่พิสูจน์ CSP/AdSense**
+- [ ] GitHub ค้างรออนุญาต: ผูก #14 เข้า #1 · แก้ #12 ให้เลิกอ้างเป็น gate (ADR-0003) · เปิดใบ gate ใหม่ · เปิดใบให้ `siamsi`
+- [ ] ยืนยัน/เปลี่ยน PartyPick
 
 inflight: tree สะอาด · push ครบถึง `origin/main` · ไม่มี PR เปิด (เช็คแล้ว) · ไม่มี bg task
 
@@ -55,4 +55,4 @@ GitHub Issues ผ่าน `gh` CLI · repo: [`warischa/watduang`](https://githu
 
 ### Domain docs
 
-single-context — `CONTEXT.md` + `docs/adr/` ที่ราก (ยังไม่มีทั้งคู่ สร้างเมื่อจำเป็นจริง) ดู `docs/agents/domain.md`
+single-context — `CONTEXT.md` (glossary) + `docs/adr/` ที่ราก **มีแล้วทั้งคู่ ใช้คำตาม glossary และเคารพ ADR** ดู `docs/agents/domain.md`
