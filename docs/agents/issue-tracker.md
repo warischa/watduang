@@ -2,15 +2,18 @@
 
 Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
-## ⚠ Not operable yet
+**Repo:** [`warischa/watduang`](https://github.com/warischa/watduang) (private) — created 2026-08-13
 
-As of 2026-08-13 this directory is **not a git repository** and no GitHub repo exists. Every command below fails until:
+## ⚠ The map has not been migrated yet
 
-1. `git init` in the repo root
-2. A GitHub repo is created and set as `origin`
-3. The 11 existing wayfinder tickets under `.scratch/free-game/` are migrated to GitHub issues (or deliberately left as-is)
+The `gh` commands below work, but **GitHub Issues is currently empty**. The live wayfinder map and all 11 tickets are still markdown files under `.scratch/free-game/`.
 
-Until then, treat `.scratch/free-game/` as the live tracker — that is where the map and its tickets actually are.
+**Until the migration runs, `.scratch/free-game/` is the tracker.** Do not go looking in GitHub Issues for the map — you will find nothing and conclude, wrongly, that no planning exists.
+
+Still to do:
+
+1. Create the labels (see `triage-labels.md` — neither the triage set nor the `wayfinder:*` set exists yet)
+2. Migrate the map + 11 tickets (see migration note at the bottom of this file)
 
 ## Conventions
 
