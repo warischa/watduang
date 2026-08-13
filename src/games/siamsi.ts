@@ -67,6 +67,91 @@ export function nextTurn(current: number, playerCount: number): { index: number;
   return { index: next, roundOver: false };
 }
 
+// ---- กันรีเฟรชกลางรอบ ----
+// รอบ siamsi ยาวเป็นนาที (คนละตา ผลัดกันอ่านออกเสียง) ต่างจาก timebomb ที่จบใน 30 วิ
+// หน้าต่างที่จะโดนรีเฟรช/สลับแอปจน iOS ทิ้งแท็บจึงกว้างกว่ากันคนละอันดับ เชลล์มีที่เก็บให้แล้ว
+//
+// เก็บเป็น "เลขใบ" ไม่ใช่ index — index ผูกกับลำดับใน FORTUNES ถ้าวันหลังแก้เด็ค blob เก่า
+// จะชี้ไปใบอื่นแบบเงียบๆ ส่วนเลขใบเป็นตัวตนของใบนั้นจริง หาไม่เจอ = ทิ้ง blob ไปเลย
+type Checkpoint = {
+  game: 'siamsi';
+  players: string[];
+  deck: number[];
+  holder: number;
+  results: { player: string; n: number }[];
+  phase: 'turn' | 'drawn';
+  drawn: number | null;
+};
+
+export type RoundState = {
+  players: string[];
+  deck: number[];
+  holder: number;
+  results: { player: string; fortune: Fortune }[];
+  phase: 'turn' | 'drawn';
+  drawn: Fortune | null;
+};
+
+export function toCheckpoint(s: RoundState): Checkpoint {
+  return {
+    game: 'siamsi',
+    players: [...s.players],
+    deck: s.deck.map((i) => FORTUNES[i].number),
+    holder: s.holder,
+    results: s.results.map((r) => ({ player: r.player, n: r.fortune.number })),
+    phase: s.phase,
+    drawn: s.drawn ? s.drawn.number : null,
+  };
+}
+
+/**
+ * แปลง blob ที่อ่านมาจาก storage กลับเป็นสถานะรอบ — คืน null ถ้าใช้ไม่ได้ทุกกรณี
+ * ช่อง checkpoint ในเชลล์มีช่องเดียวใช้ร่วมกันทุกเกม จึงต้องเช็คป้ายชื่อเกมก่อนเสมอ
+ */
+export function resumeFrom(raw: unknown, current: readonly string[]): RoundState | null {
+  const cp = raw as Partial<Checkpoint> | null;
+  if (!cp || cp.game !== 'siamsi') return null;
+  if (!Array.isArray(cp.players) || !Array.isArray(cp.deck) || !Array.isArray(cp.results)) return null;
+  if (cp.phase !== 'turn' && cp.phase !== 'drawn') return null;
+
+  // วงเปลี่ยนคน = blob เก่าใช้ไม่ได้ ต่อให้รูปร่างถูกทุกอย่าง
+  // เว้นตอน session ไม่มีรายชื่อเลย (startRound ถอยไปใช้ชื่อสำรอง) — ไม่มีวงให้เทียบ
+  // ถ้าเทียบดื้อๆ ทางนั้นจะกู้ไม่ได้ตลอดกาลแบบเงียบๆ · ล้างกลุ่มนี้ล้าง checkpoint ให้อยู่แล้ว
+  if (current.length > 0 && (cp.players.length !== current.length || cp.players.some((n, i) => n !== current[i]))) {
+    return null;
+  }
+
+  const byNumber = (n: unknown): Fortune | undefined =>
+    typeof n === 'number' ? FORTUNES.find((f) => f.number === n) : undefined;
+
+  const deck: number[] = [];
+  for (const n of cp.deck) {
+    const idx = FORTUNES.findIndex((f) => f.number === n);
+    if (idx < 0) return null;
+    deck.push(idx);
+  }
+
+  const results: { player: string; fortune: Fortune }[] = [];
+  for (const r of cp.results) {
+    const fortune = byNumber(r?.n);
+    if (!fortune || typeof r?.player !== 'string') return null;
+    results.push({ player: r.player, fortune });
+  }
+
+  // ใบที่จั่วไปแล้ว + ใบที่เหลือ ต้องเท่ากับจำนวนคนพอดี และห้ามซ้ำกัน — blob ที่เพี้ยนจะตกตรงนี้
+  if (deck.length + results.length !== cp.players.length) return null;
+  const numbers = [...deck.map((i) => FORTUNES[i].number), ...results.map((r) => r.fortune.number)];
+  if (new Set(numbers).size !== numbers.length) return null;
+
+  if (typeof cp.holder !== 'number' || cp.holder < 0 || cp.holder >= cp.players.length) return null;
+
+  // ตอน phase 'turn' ใบที่จั่วต้องเป็น null เสมอตามวงจรของรอบ (passToNext ล้างก่อนเปลี่ยน phase)
+  const drawn = cp.phase === 'drawn' ? (byNumber(cp.drawn) ?? null) : null;
+  if (cp.phase === 'drawn' && !drawn) return null;
+
+  return { players: [...cp.players], deck, holder: cp.holder, results, phase: cp.phase, drawn };
+}
+
 // ---- สถานะรอบปัจจุบัน (มีเกมเดียวต่อหนึ่งหน้า) ----
 
 type Phase = 'idle' | 'turn' | 'drawn' | 'summary';
@@ -174,6 +259,14 @@ function renderSummary(): void {
 
 // ---- วงจรของรอบ ----
 
+/** เขียน checkpoint ทุกครั้งที่สถานะรอบขยับ — เขียนเฉพาะกลางรอบ จบรอบแล้วล้างที่ passToNext */
+function save(): void {
+  if (phase !== 'turn' && phase !== 'drawn') return;
+  gameCtx?.session.saveCheckpoint(
+    toCheckpoint({ players, deck, holder, results, phase, drawn: drawnThisTurn }),
+  );
+}
+
 function startRound(): void {
   if (phase !== 'idle') return;
   const roster = gameCtx?.session.players ?? [];
@@ -182,6 +275,7 @@ function startRound(): void {
   holder = 0;
   results = [];
   phase = 'turn';
+  save();
   renderTurn();
 }
 
@@ -192,6 +286,7 @@ function drawForHolder(): void {
   drawnThisTurn = fortune;
   results.push({ player: players[holder], fortune });
   phase = 'drawn';
+  save();
   renderDrawn();
 }
 
@@ -203,16 +298,34 @@ function passToNext(): void {
   if (roundOver) {
     gameCtx?.session.markPlayed('siamsi');
     phase = 'summary';
+    // รอบจบแล้วต้องล้าง ไม่งั้นรีเฟรชที่หน้าสรุปจะเด้งกลับไปกลางรอบที่เล่นจบไปแล้ว
+    gameCtx?.session.saveCheckpoint(null);
     renderSummary();
     return;
   }
   phase = 'turn';
+  save();
   renderTurn();
 }
 
 function mountInto(stage: HTMLElement, ctx: GameContext): void {
   stageEl = stage;
   gameCtx = ctx;
+
+  // กู้รอบที่ค้างอยู่ถ้ามีและยังใช้ได้ — ไม่ต้องมีป้ายบอก หน้าจอตาถัดไปอธิบายตัวเองอยู่แล้ว
+  const resumed = resumeFrom(ctx.session.checkpoint, ctx.session.players);
+  if (resumed) {
+    players = resumed.players;
+    deck = resumed.deck;
+    holder = resumed.holder;
+    results = resumed.results;
+    drawnThisTurn = resumed.drawn;
+    phase = resumed.phase;
+    if (phase === 'drawn') renderDrawn();
+    else renderTurn();
+    return;
+  }
+
   phase = 'idle';
   renderIdle();
 }

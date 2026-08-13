@@ -2,7 +2,7 @@
 // เช็คเฉพาะ pure helper ที่ export จาก siamsi.ts (ไม่ต้องมี DOM)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDeck, draw, nextTurn, FORTUNES } from './siamsi.ts';
+import { buildDeck, draw, nextTurn, toCheckpoint, resumeFrom, FORTUNES } from './siamsi.ts';
 
 test('deck มี 24 ใบ เลขไม่ซ้ำกัน', () => {
   assert.equal(FORTUNES.length, 24);
@@ -73,4 +73,53 @@ test('buildDeck สับจริง ไม่ใช่คืนลำดับ
 test('ผู้เล่นมากกว่าจำนวนใบ ต้องโยน error ไม่ใช่คืนกองสั้นๆ เงียบๆ', () => {
   assert.throws(() => buildDeck(FORTUNES.length + 1), /มากกว่าใบเซียมซี/);
   assert.equal(buildDeck(FORTUNES.length).length, FORTUNES.length);
+});
+
+// ---- กันรีเฟรชกลางรอบ ----
+// ทุกเทสส่ง checkpoint ผ่าน JSON ก่อนเสมอ เพราะ localStorage ทำแบบนั้นเป๊ะ
+// เทสที่ส่ง object ตรงๆ จะไม่เจอ field ที่ serialize ไม่รอด
+const store = (cp) => JSON.parse(JSON.stringify(cp));
+
+/** สถานะจริงกลางรอบ: 3 คน จั่วไปแล้ว 1 ใบ กำลังอยู่หน้าใบที่จั่วได้ */
+function midRound() {
+  const players = ['เอ', 'บี', 'ซี'];
+  const { fortune, remaining } = draw(buildDeck(players.length, () => 0.5));
+  return {
+    players,
+    deck: remaining,
+    holder: 0,
+    results: [{ player: 'เอ', fortune }],
+    phase: 'drawn',
+    drawn: fortune,
+  };
+}
+
+test('เก็บลง storage แล้วกู้กลับมาได้สถานะเดิมเป๊ะ', () => {
+  const s = midRound();
+  assert.deepEqual(resumeFrom(store(toCheckpoint(s)), s.players), s);
+});
+
+test('blob ที่ใช้ไม่ได้ต้องคืน null ทุกกรณี ไม่ใช่กู้มาแบบเพี้ยน', () => {
+  const s = midRound();
+  const ok = store(toCheckpoint(s));
+  const cases = [
+    ['ไม่มี checkpoint', null, s.players],
+    ['ของเกมอื่น (ช่องเก็บใช้ร่วมกันทุกเกม)', { ...ok, game: 'timebomb' }, s.players],
+    ['วงเปลี่ยนคน', ok, ['เอ', 'บี', 'ดี']],
+    ['วงคนน้อยลง', ok, ['เอ', 'บี']],
+    ['เลขใบไม่มีอยู่จริง', { ...ok, deck: [999, ...ok.deck.slice(1)] }, s.players],
+    ['จำนวนใบไม่ตรงจำนวนคน', { ...ok, deck: ok.deck.slice(1) }, s.players],
+    ['ใบซ้ำกับที่จั่วไปแล้ว', { ...ok, deck: [ok.results[0].n, ...ok.deck.slice(1)] }, s.players],
+    ['holder เกินจำนวนคน', { ...ok, holder: 99 }, s.players],
+    ['phase drawn แต่ไม่มีใบ', { ...ok, drawn: null }, s.players],
+    ['phase ที่ไม่ควรถูกกู้', { ...ok, phase: 'summary' }, s.players],
+  ];
+  for (const [name, blob, players] of cases) {
+    assert.equal(resumeFrom(blob, players), null, `ควรคืน null: ${name}`);
+  }
+});
+
+test('session ไม่มีรายชื่อ (ชื่อสำรอง) ต้องยังกู้ได้ ไม่ใช่เงียบไปเฉยๆ', () => {
+  const s = midRound();
+  assert.deepEqual(resumeFrom(store(toCheckpoint(s)), []), s);
 });
