@@ -109,6 +109,20 @@ jobs:
               echo "::error::No <title> tag found for ${path}"
               status=1
             fi
+            # og:image ต้องมีและต้องโหลดได้จริง — meta ที่ชี้ไปไฟล์ที่ไม่มีคือลิงก์เปล่าตอนแชร์
+            # ซึ่งพังเงียบสนิท ไม่มีอะไรในเว็บแตกให้เห็น
+            og=$(echo "$body" | grep -o 'property="og:image" content="[^"]*"' | head -1 | sed 's/.*content="//; s/"$//')
+            if [ -z "$og" ]; then
+              echo "::error::No og:image for ${path}"
+              status=1
+            else
+              # https* ไม่ใช่ https\? — \? เป็นส่วนขยาย GNU ที่ทดสอบบน mac ไม่ได้ ตัวนี้ POSIX ล้วน
+              og_path=$(echo "$og" | sed 's|^https*://[^/]*||')
+              if ! curl -sf -o /dev/null "http://localhost:4321${og_path}"; then
+                echo "::error::og:image does not resolve for ${path} -> ${og}"
+                status=1
+              fi
+            fi
           done
 
           kill "$SERVER_PID" 2>/dev/null || true

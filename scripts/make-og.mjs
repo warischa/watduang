@@ -42,10 +42,20 @@ if (!fonts.error && !(fonts.stdout ?? '').includes(FONT)) {
 }
 
 // import แบบเดียวกับ scripts/validate-games.mjs — manifest.ts เขียนนามสกุล .ts เต็ม ไม่ต้องมี resolve hook
+// การ์ดระดับเว็บ (หน้าแรก · หน้ารวมเกม · 404) ไม่ใช่เกมจึงไม่มีใน manifest — ทำเป็น entry
+// รูปทรงเดียวกับเกม โค้ดวัดตัวอักษร/wrap/เรนเดอร์ข้างล่างจะได้ไม่ต้องรู้เลยว่ามีเคสนี้อยู่
+const SITE = {
+  id: 'site',
+  names: { th: 'วัดดวง' },
+  // บรรทัดจำนวนคนข้างล่างขึ้นต้นด้วย "เล่นฟรี" อยู่แล้ว ตรงนี้จึงห้ามซ้ำคำนั้น
+  tagline: 'เกมกลุ่มบนมือถือเครื่องเดียว ส่งวนกันทั้งวง',
+  players: [2, 10],
+};
+
 const { games } = await import(path.join(root, 'src/games/manifest.ts'));
-const game = games.find((g) => g.id === id);
+const game = id === SITE.id ? SITE : games.find((g) => g.id === id);
 if (!game) {
-  console.error(`make-og: ไม่มีเกม id "${id}" ใน src/games/manifest.ts (มีอยู่: ${games.map((g) => g.id).join(', ')})`);
+  console.error(`make-og: ไม่มีเกม id "${id}" ใน src/games/manifest.ts (มีอยู่: ${games.map((g) => g.id).join(', ')}, site)`);
   process.exit(1);
 }
 
@@ -109,6 +119,12 @@ const MARKS = {
     <path d="M 0 -108 C 28 -148 74 -138 90 -172" fill="none" stroke="#f5c451" stroke-width="12" stroke-linecap="round"/>
     <circle cx="94" cy="-178" r="19" fill="#f5c451"/>
     <circle cx="-42" cy="-4" r="24" fill="#2c3050"/>`,
+  // การ์ดระดับเว็บ: วงวัดดวง เข็มชี้ขึ้น — ไม่ผูกกับเกมใดเกมหนึ่ง
+  site: `
+    <circle cx="0" cy="20" r="120" fill="none" stroke="#ff5a3c" stroke-width="8"/>
+    <circle cx="0" cy="20" r="74" fill="#20233a"/>
+    <path d="M 0 20 L 52 -46" fill="none" stroke="#f5c451" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="0" cy="20" r="16" fill="#f5c451"/>`,
   // กระบอกเซียมซี + ไม้สามอัน อันกลางสีทองคือใบที่จั่วได้
   siamsi: `
     <rect x="-40" y="-158" width="16" height="164" rx="8" fill="#2c3050" transform="rotate(-16 -32 6)"/>
