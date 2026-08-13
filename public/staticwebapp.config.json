@@ -1,0 +1,13 @@
+{
+  "navigationFallback": {
+    "rewrite": "/404.html",
+    "exclude": ["/_astro/*", "/*.{png,jpg,jpeg,gif,svg,ico,webp,css,js,json,webmanifest,txt,xml}"]
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".webmanifest": "application/manifest+json"
+  },
+  "globalHeaders": {
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' *.googlesyndication.com *.doubleclick.net *.google.com *.adtrafficquality.google *.googleadservices.com; style-src 'self' 'unsafe-inline'; frame-src 'self' *.googlesyndication.com *.doubleclick.net *.google.com *.adtrafficquality.google; img-src 'self' data: *.googlesyndication.com *.doubleclick.net *.google.com *.adtrafficquality.google *.gstatic.com; connect-src 'self' *.googlesyndication.com *.doubleclick.net *.google.com *.adtrafficquality.google; object-src 'none'"
+  }
+}

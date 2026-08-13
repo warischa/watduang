@@ -1,0 +1,64 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import { games } from '../../games/manifest';
+import type { GameModule } from '../../games/types';
+
+export function getStaticPaths() {
+  return games.map((game) => ({ params: { id: game.id }, props: { game } }));
+}
+
+const { game } = Astro.props as { game: GameModule };
+---
+
+<GameLayout game={game} />
+
+<script>
+  import type { GameContext, GameModule } from '../../games/types';
+  import { loadRoster } from '../../shell/roster';
+  import { loadSession } from '../../shell/session';
+
+  // negative-glob lazy loader — ห้าม import manifest.ts/game module ตรงนี้ (CONTRACT.md)
+  const mods = import.meta.glob<{ default: GameModule }>([
+    '../../games/*.ts',
+    '!../../games/_*.ts',
+    '!../../games/manifest.ts',
+    '!../../games/types.ts',
+  ]);
+
+  const stage = document.getElementById('stage') as HTMLElement;
+  const id = stage.dataset.gameId!;
+  const load = mods[`../../games/${id}.ts`];
+
+  let game: GameModule | null = null;
+
+  function dispose(): void {
+    game?.dispose();
+  }
+
+  // ไม่มี client router (ClientRouter) ในโปรเจกต์นี้ — ทุกการนำทางคือ full page load อยู่แล้ว
+  // ใช้ pagehide เพราะบน iOS event ตอนออกจากหน้าแบบอื่นยิงไม่ครบ
+  // persisted = หน้าเข้า bfcache ไม่ได้ถูกทิ้ง → ห้าม dispose เพราะพอกลับมา visibilitychange
+  // จะพา handleVisibility() ต่อรอบเดิมให้เอง (จับ deadline ที่เลยไปแล้วด้วย)
+  window.addEventListener('pagehide', (event) => {
+    if (!event.persisted) dispose();
+  });
+
+  document.addEventListener('watduang:start', async (event) => {
+    const { players } = (event as CustomEvent<{ players: string[] }>).detail;
+
+    const roster = loadRoster();
+    const session = loadSession();
+    session.setPlayers(players);
+
+    const ctx: GameContext = { roster, session };
+
+    if (!game) {
+      game = (await load()).default;
+    }
+    // ปิดรอบก่อนหน้าให้สนิทเสมอก่อน mount — mount ซ้อนโดยไม่ dispose = AudioContext ค้าง (iOS จำกัดจำนวน),
+    // wake lock รั่ว, visibilitychange ซ้อนกันทุกครั้ง ยิง event นี้กี่ครั้งก็เหลือรอบเดียว เพราะคู่
+    // dispose+mount ทำงาน sync ติดกัน (ไม่มี await คั่น) และ dispose ตอนยังไม่เคย mount เป็น no-op
+    game.dispose();
+    game.mount(stage, ctx);
+  });
+</script>

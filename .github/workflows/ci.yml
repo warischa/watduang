@@ -1,0 +1,110 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+# CSP note: no report-uri/report-to directive is set in staticwebapp.config.json —
+# there is no collector endpoint yet. Add CSP reporting once one exists.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HAS_DEPLOY_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Check Node major version (>=22 required for type-stripping in validate-games.mjs)
+        run: |
+          node -v
+          major=$(node -p "process.versions.node.split('.')[0]")
+          if [ "$major" -lt 22 ]; then
+            echo "::error::Node major version $major < 22 — scripts/validate-games.mjs needs built-in .ts type stripping (Node >=22.18)."
+            exit 1
+          fi
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Validate games
+        run: node scripts/validate-games.mjs
+
+      # node --test <dir> ไม่ทำงานบน node 22 (มันตีความ dir เป็น module path) ต้องใช้ glob
+      - name: Unit tests
+        run: node --test 'src/**/*.test.mjs'
+
+      - name: Build
+        run: npx astro build
+
+      # CSP checked against dist/staticwebapp.config.json (the deployed artifact), not the
+      # repo-root source — Azure SWA only reads config from inside app_location. This also
+      # guards the defect where the file silently fails to ship.
+      # AdSense's activation snippet is inline JS; script-src has no 'unsafe-inline' by design
+      # (our own bundles are external _astro/*.js under 'self'), so when the ad tag is
+      # integrated it must live in an external self-hosted script file, not inline.
+      - name: CSP allowlist check (dist artifact)
+        run: |
+          node -e "
+            const cfg = JSON.parse(require('fs').readFileSync('dist/staticwebapp.config.json', 'utf8'));
+            const csp = cfg.globalHeaders && cfg.globalHeaders['Content-Security-Policy'];
+            if (!csp) { console.error('No Content-Security-Policy in globalHeaders'); process.exit(1); }
+            const required = [
+              '*.googlesyndication.com',
+              '*.doubleclick.net',
+              '*.google.com',
+              '*.adtrafficquality.google',
+              'style-src',
+            ];
+            const missing = required.filter((src) => !csp.includes(src));
+            if (missing.length) {
+              console.error('CSP missing required Google source expression(s): ' + missing.join(', '));
+              process.exit(1);
+            }
+            console.log('CSP allowlist check ok');
+          "
+
+      - name: Smoke test (portability — dist/ must serve standalone, no Azure runtime)
+        run: |
+          npx serve@14 dist/ -l 4321 &
+          SERVER_PID=$!
+          READY=0
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4321/ > /dev/null; then
+              READY=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$READY" -ne 1 ]; then
+            echo "::error::Server did not become ready within timeout"
+            kill "$SERVER_PID" 2>/dev/null || true
+            exit 1
+          fi
+
+          status=0
+          for path in "/" "/games/" "/game/timebomb/"; do
+            body=$(curl -sf "http://localhost:4321${path}") || { echo "::error::curl failed for ${path}"; status=1; continue; }
+            if ! echo "$body" | grep -qi '<title>'; then
+              echo "::error::No <title> tag found for ${path}"
+              status=1
+            fi
+          done
+
+          kill "$SERVER_PID" 2>/dev/null || true
+          exit $status
+
+      - name: Deploy to Azure Static Web Apps
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DEPLOY_TOKEN == 'true' }}
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: 'upload'
+          app_location: 'dist'
+          skip_app_build: true

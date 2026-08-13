@@ -1,0 +1,98 @@
+---
+interface Props { min: number; max: number }
+const { min, max } = Astro.props as Props;
+---
+<div id="player-setup" data-min={min} data-max={max}>
+  <div id="setup-number-picker">
+    <label for="player-count">จำนวนคนเล่น</label>
+    <input id="player-count" type="number" min={min} max={max} value={min} />
+  </div>
+
+  <div id="setup-roster-grid">
+    <p>เลือกชื่อจากกลุ่มเดิม หรือเพิ่มชื่อใหม่ — ไม่เลือกก็ได้ จะใช้ "คนที่ 1, 2, 3…" ตามจำนวนด้านบน</p>
+    <ul id="roster-list"></ul>
+    <input id="roster-add-name" type="text" placeholder="เพิ่มชื่อใหม่" />
+    <button id="roster-add-btn" type="button">เพิ่ม</button>
+  </div>
+
+  <button id="start-round" type="button">เริ่มรอบ</button>
+</div>
+
+<!-- อยู่นอก #player-setup ตั้งใจ: พอเริ่มรอบแล้ว setup ถูกซ่อน ปุ่มนี้ต้องยังกดได้
+     ไม่งั้นเปลี่ยนกลุ่มไม่ได้เลยจนกว่าจะรีโหลดเอง -->
+<button id="clear-group" type="button">ล้างกลุ่มนี้</button>
+
+<script>
+  import { loadRoster } from './roster';
+  import { loadSession } from './session';
+
+  const root = document.getElementById('player-setup') as HTMLElement;
+  const min = Number(root.dataset.min);
+  const max = Number(root.dataset.max);
+
+  const roster = loadRoster();
+  const session = loadSession();
+
+  const rosterList = document.getElementById('roster-list') as HTMLUListElement;
+  const countInput = document.getElementById('player-count') as HTMLInputElement;
+  const addNameInput = document.getElementById('roster-add-name') as HTMLInputElement;
+  const addBtn = document.getElementById('roster-add-btn') as HTMLButtonElement;
+  const startBtn = document.getElementById('start-round') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-group') as HTMLButtonElement;
+
+  const selected = new Set<string>();
+
+  function renderRosterList(): void {
+    rosterList.innerHTML = '';
+    for (const name of roster.names()) {
+      const li = document.createElement('li');
+      const label = document.createElement('label');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = selected.has(name);
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) selected.add(name);
+        else selected.delete(name);
+      });
+      label.appendChild(checkbox);
+      label.append(` ${name}`);
+      li.appendChild(label);
+      rosterList.appendChild(li);
+    }
+  }
+
+  // ทั้งสองโหมดอยู่พร้อมกันเสมอ (issue #7) — ถ้าซ่อนช่องรายชื่อตอน roster ว่าง
+  // ปุ่ม "เพิ่ม" จะโดนซ่อนไปด้วย แล้วไม่มีใครสร้าง roster ครั้งแรกได้เลย
+  renderRosterList();
+
+  addBtn.addEventListener('click', () => {
+    const name = addNameInput.value.trim();
+    if (!name) return;
+    roster.add(name);
+    selected.add(name);
+    addNameInput.value = '';
+    renderRosterList();
+  });
+
+  startBtn.addEventListener('click', () => {
+    let players: string[];
+    if (selected.size > 0) {
+      players = [...selected];
+    } else {
+      const count = Math.min(max, Math.max(min, Number(countInput.value) || min));
+      players = Array.from({ length: count }, (_, i) => `คนที่ ${i + 1}`);
+    }
+    if (players.length === 0) return;
+    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players }, bubbles: true }));
+    // ปุ่มนี้อยู่เหนือจอเล่น — กดกลางรอบ = ล้มรอบทิ้ง จึงซ่อนทั้งแผงหลังเริ่มแล้ว
+    // ทางกลับ: "เล่นอีกรอบ" อยู่ในจอเกม · "ล้างกลุ่มนี้" อยู่นอกแผงนี้จึงยังกดได้กลางรอบ
+    root.hidden = true;
+  });
+
+  clearBtn.addEventListener('click', () => {
+    session.clear();
+    // ponytail: reload แทนการรื้อ UI เอง — ได้ teardown ครบทุกชั้นฟรี (pagehide → game.dispose(),
+    // แผง setup กลับมา, selection ล้าง) ถ้าวันหนึ่งมี client router ค่อยเปลี่ยนเป็น reset ในที่
+    location.reload();
+  });
+</script>

@@ -1,0 +1,20 @@
+---
+import Base from '../../layouts/Base.astro';
+import { games } from '../../games/manifest';
+---
+
+<Base title="เกมทั้งหมด — วัดดวง" description="รวมเกมปาร์ตี้เล่นฟรีทุกเกม เลือกเล่นได้เลย">
+  <main>
+    <h1>เกมทั้งหมด</h1>
+    <ul>
+      {
+        games.map((game) => (
+          <li>
+            <a href={`/game/${game.id}/`}>{game.names.th}</a>
+            <p>{game.seo.description}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</Base>

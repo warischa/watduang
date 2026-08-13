@@ -1,0 +1,42 @@
+---
+import Base from './Base.astro';
+import PlayerSetup from '../shell/PlayerSetup.astro';
+import PassPhone from '../shell/PassPhone.astro';
+import type { GameModule } from '../games/types';
+
+interface Props {
+  game: GameModule;
+}
+
+const { game } = Astro.props as Props;
+
+const howToJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: game.seo.title,
+  step: game.seo.steps.map((text) => ({ '@type': 'HowToStep', text })),
+};
+---
+
+<Base title={game.seo.title} description={game.seo.description} ogImage={`/og/${game.og}`}>
+  <main>
+    <h1>{game.names.th}</h1>
+
+    <PlayerSetup min={game.players[0]} max={game.players[1]} />
+
+    <div id="stage" data-game-id={game.id}></div>
+
+    <PassPhone />
+
+    <section id="how-to-play">
+      <h2>วิธีเล่น</h2>
+      <ol>
+        {game.seo.steps.map((step) => <li>{step}</li>)}
+      </ol>
+
+      {game.ads && <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>}
+    </section>
+  </main>
+
+  <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
+</Base>
