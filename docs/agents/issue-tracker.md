@@ -4,16 +4,32 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 
 **Repo:** [`warischa/watduang`](https://github.com/warischa/watduang) (private) — created 2026-08-13
 
-## ⚠ The map has not been migrated yet
+## ✅ Migrated 2026-08-13 — GitHub Issues is canonical
 
-The `gh` commands below work, but **GitHub Issues is currently empty**. The live wayfinder map and all 11 tickets are still markdown files under `.scratch/free-game/`.
+The map is **issue #1** (`wayfinder:map`) with 11 sub-issues. All 10 labels exist. Dependencies use GitHub's native issue-dependency API.
 
-**Until the migration runs, `.scratch/free-game/` is the tracker.** Do not go looking in GitHub Issues for the map — you will find nothing and conclude, wrongly, that no planning exists.
+**Ticket number → issue number: add 1.** Ticket `07` is issue `#8`.
 
-Still to do:
+| ticket | issue | type | state |
+|---|---|---|---|
+| — | #1 | map | open |
+| 01 | #2 | research | closed |
+| 02 | #3 | research | closed |
+| 03 | #4 | research | closed |
+| 04 | #5 | grilling | closed |
+| 05 | #6 | grilling | closed |
+| 06 | #7 | prototype | closed |
+| 07 | #8 | grilling | **open** |
+| 08 | #9 | task | **open** |
+| 09 | #10 | grilling | closed |
+| 10 | #11 | grilling | closed |
+| 11 | #12 | task | **open** |
 
-1. Create the labels (see `triage-labels.md` — neither the triage set nor the `wayfinder:*` set exists yet)
-2. Migrate the map + 11 tickets (see migration note at the bottom of this file)
+### ⚠ Two copies now exist — GitHub wins
+
+`.scratch/free-game/issues/*.md` are the pre-migration originals. They are **stale the moment anyone comments on GitHub**. Read GitHub; treat the markdown files as history. They have not been deleted only because deleting is the owner's call — propose removing them once nobody needs the side-by-side.
+
+`.scratch/free-game/research/` and `.scratch/free-game/prototypes/` are **not** duplicates — they are artifacts the issues link to. Keep them.
 
 ## Conventions
 

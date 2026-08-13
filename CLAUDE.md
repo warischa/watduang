@@ -25,7 +25,7 @@ Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla T
 
 ### Issue tracker
 
-GitHub Issues ผ่าน `gh` CLI · repo: [`warischa/watduang`](https://github.com/warischa/watduang) (private) · **แต่ GitHub Issues ยังว่างเปล่า — แผนที่ wayfinder 11 ใบยังอยู่ใน `.scratch/free-game/` และนั่นคือ tracker ตัวจริงจนกว่าจะย้ายเสร็จ** ดู `docs/agents/issue-tracker.md`
+GitHub Issues ผ่าน `gh` CLI · repo: [`warischa/watduang`](https://github.com/warischa/watduang) (private) · **แผนที่คือ issue #1** พร้อม sub-issue 11 ใบ · เลขใบ + 1 = เลข issue · ไฟล์ใน `.scratch/free-game/issues/` เป็นสำเนาก่อนย้าย **ถือว่าเก่า อ่าน GitHub แทน** ดู `docs/agents/issue-tracker.md`
 
 ### Triage labels
 
