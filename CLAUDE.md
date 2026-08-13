@@ -25,24 +25,23 @@ Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla T
 
 เหตุผลของทุกการตัดสินใจอยู่ใน GitHub issues — **ห้ามเขียนซ้ำที่นี่ อ้างเลขเอา** · map = [#1](https://github.com/warischa/watduang/issues/1) · archive: `docs/sessions-archive.md`
 
-### S2026-08-13#4
+### S2026-08-13#5
 
-done: scaffold #13 → `02708ed` (28 ไฟล์ · **ยังไม่ push**) — Astro static ล้วน + `GameModule` contract + shell + เกม `timebomb` + CI 8 ขั้น · DoD #13 ข้อ 1-2 ติ๊กแล้ว · REFUTE 1 รอบ 6 findings แก้ครบ · map #1 ลิงก์ตาย 14 → 0 · **ผลรันจริง + แก้มติ 9 ข้อ + ของที่รู้แต่ยังไม่แก้ →** [#13 comment](https://github.com/warischa/watduang/issues/13#issuecomment-5278598792)
+done: scaffold #13 → `02708ed` push แล้ว — Astro static ล้วน + `GameModule` contract + shell + เกม `timebomb` · **CI เขียวครบรอบแรก** ([run](https://github.com/warischa/watduang/actions/runs/31688423219)) deploy skip ถูกต้องเพราะยังไม่มี secret · **DoD #13 ข้อ 1-3 ปิดแล้ว เหลือข้อ 4 ข้อเดียว** · REFUTE 1 รอบ 6 findings แก้ครบ · map #1 ลิงก์ตาย 14 → 0 · **ผลรันจริง + แก้มติ 9 ข้อ + ของที่รู้แต่ยังไม่แก้ →** [#13 comment](https://github.com/warischa/watduang/issues/13#issuecomment-5278598792)
 
 dec: why ทุกข้ออยู่ในคอมเมนต์นั้น — `build.format=directory` + `trailingSlash=always` · manifest static import ตอน build ส่วน island รับ `id` ผ่าน `data-game-id` แล้ว `import.meta.glob` · CSP header-only และไฟล์ต้องอยู่ `public/staticwebapp.config.json` (ที่รากไม่ถึง prod) · pin wildcard Google ไม่ไล่ exact host · `script-src` ไม่มี `unsafe-inline` → snippet AdSense ต้อง external · `ads===false` บังคับ · field ใหม่ `tagline` · ไม่อัป astro แม้ audit เตือน
 
 ⚠ รูป OG อย่าใช้ Pillow — เครื่องนี้ไม่มี libraqm สระไทยกลายเป็นวงกลมจุดทั้งที่ draw สำเร็จ → `node scripts/make-og.mjs <id>` แล้วเปิดดูด้วยตา
 
 next:
-- [ ] push `02708ed` — CI รันครั้งแรก = ปิด DoD #13 ข้อ 3 (Actions เขียวครบ 8 ขั้น)
-- [ ] DoD #13 ข้อ 4 มือถือจริง (เจ้าของเว็บ) — จอไม่ดับ + เสียงออก iOS
+- [ ] DoD #13 ข้อ 4 มือถือจริง (เจ้าของเว็บ) — จอไม่ดับ + เสียงออก iOS · **ปิดข้อนี้ = ปิดใบ #13**
 - [ ] #12 Keyword Planner **= gate เกม 2–7** (เจ้าของเว็บ)
 - [ ] #9 จด `watduang.com` (เจ้าของเว็บ) — `whois` ขึ้นเจ้าของ
 - [ ] ยืนยัน/เปลี่ยน PartyPick — ตัด "รอยืนยัน" ออก
 - [ ] เจ้าของเว็บชี้ขาด: doc ค้าง "ตัดสิน #10 ทนายรีวิว" แต่ #10 ปิดแล้วมติ "ได้ ทั้งสองแกนผ่าน" — ตัดทิ้งหรือเปิดใบใหม่
 - [ ] Azure SWA เฟส 2 deploy จริง (**ยืนยันก่อน**) — หลัง CI เขียว
 
-inflight: tree สะอาด · `02708ed` ยังไม่ push · ไม่มี PR เปิด (เช็คแล้ว) · ไม่มี bg task
+inflight: tree สะอาด · push ครบถึง `origin/main` · ไม่มี PR เปิด (เช็คแล้ว) · ไม่มี bg task
 ## Agent skills
 
 ### Issue tracker
