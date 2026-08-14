@@ -46,27 +46,62 @@ not get a silent path of its own.
 
 ## Consequence
 
-- The prompt's condition must be **game-specific**. A `siamsi` checkpoint raising a prompt on
+- The **start** prompt's condition must be **game-specific**. A `siamsi` checkpoint raising a prompt on
   `timebomb`'s page would be #23's symptom 2 in new clothes — that symptom was a game-agnostic
   condition, and the `game` field on the checkpoint envelope exists to make the correct test possible.
+  This binds a start, which only ever governs the round *this page* would begin. It does **not** bind the
+  clear prompt below, whose reach is wider — see that section for why the same test would be a bug there.
 - `เริ่มรอบใหม่` clears the checkpoint before starting, or the fresh round inherits the stale one.
 - ADR-0004 and ADR-0007 still bind across both branches: party size clamps on **use**, never on
   **store**. Starting a new round must not rewrite the saved group.
 - This is a shell-level rule, not a `siamsi` one. Any future game with a resume step inherits it.
 
-## What this does NOT cover — one silent path survives
+## The other path — `ล้างกลุ่มนี้`, settled by #25
 
-This decision governs **starting** a round. It does not govern `ล้างกลุ่มนี้`.
+This decision was written governing **starting** a round only, and left `ล้างกลุ่มนี้` as a silent path:
+pressing it mid-round wiped the session, the checkpoint, and the saved group with no question asked,
+under a label that names the group rather than the round. That behaviour was pre-existing — the #23 work
+did not introduce it — but it was the same family of failure, so [#25](https://github.com/warischa/watduang/issues/25)
+was filed and the site owner settled it, 2026-08-14: **the clear button asks too.** With a round in
+progress it raises the same shape of two-button question, and these are the approved strings:
 
-Pressing that button mid-round still wipes the session, the checkpoint, and the saved group with no
-question asked, and its label names the group rather than the round — so a player reaching for it to
-tidy up the name list can destroy a live round without being told. It is reachable mid-round because the
-button sits outside the panel that hides once a round starts.
+- `ยังมีรอบที่เล่นค้างอยู่ ถ้าล้างกลุ่มนี้ รอบที่ค้างจะหายไปด้วย` — the question. It names the round, which the
+  button's own label never did.
+- `ล้างและทิ้งรอบที่ค้าง` — clear the group **and** drop the round in progress.
+- `ยกเลิก` — nothing happens: not the session, not the group, not even the reload. It is also what takes
+  focus when the question opens. A click fires on Enter *keydown*, so focusing the destructive button
+  would place it under a key still being held: auto-repeat, or a habitual second Enter, would confirm a
+  question the player never read. The start prompt already focuses its safe branch for the same reason.
 
-That behaviour is **pre-existing** and was not introduced by the #23 work, but it is the same family of
-failure this ADR is about, and an honest reading of the title above stops at round-start. Whether the
-clear button should route through the same two-button question is a product decision the site owner
-owns; it is filed as [#25](https://github.com/warischa/watduang/issues/25) rather than decided here.
+Two differences from the start prompt above are load-bearing, and copying the start machinery wholesale
+gets both wrong:
+
+- **The condition is site-wide, not game-specific: any checkpoint at all, never `checkpoint.game ===
+  gameId`.** `session.clear()` empties the one slot every game shares (`src/shell/session.ts`), so this
+  press destroys a round belonging to *any* game. With the start prompt's game-matched test, pressing
+  clear on `timebomb`'s page would still wipe a live `siamsi` round without a word — the very failure
+  being fixed, one page over. `planClear` therefore takes no `gameId` argument at all: a game-matched
+  implementation is not expressible through its signature.
+- **It shares no state with the start flow — but the open question is itself state.** The semantics are
+  confirm/cancel, not resume-vs-fresh, and no group is held across it the way `pendingStart` holds one at
+  a start, so it is a sibling of that block rather than a branch of it. It still inherits #23's
+  reset-on-transition discipline, and pre-merge review found the case that proves it: because the question
+  renders outside the panel, hiding the panel does not take it away. Open it, then start or resume, and it
+  sits beside the live round with `ล้างและทิ้งรอบที่ค้าง` armed — a button that clears without asking again.
+  One tap would destroy the round the player had just chosen to keep. Every shell-level start or resume
+  therefore closes the question first. `เล่นอีกรอบ` is a second door — it mounts the next round directly
+  without passing through the shell, so an open question can survive it. That path is left as it is: the
+  question stays on screen and its confirm button still names exactly what it destroys, which makes it
+  labelled loss, not the silent loss this ADR exists to close.
+
+The question renders **outside `#player-setup`**, alongside the button it answers for. The panel hides
+itself once a round starts (`root.hidden = true`); a question inside it would be invisible in the one
+situation it exists for, leaving `ล้างกลุ่มนี้` looking like a dead control mid-round.
+
+Tool pages are untouched: `clearsSession={false}` means the press is a no-op before the question is ever
+reached, so a tool still cannot see or clear a game's round (ADR-0004). Both the button and the question
+stay in the DOM on every page, `hidden` and never removed — removing either would null-deref the island
+script and take the whole setup panel down with it (#23).
 
 ## The fact that would change this
 

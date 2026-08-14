@@ -47,6 +47,20 @@ export function planStart(
   return gameId !== undefined && checkpoint?.game === gameId ? 'ask' : 'start';
 }
 
+/**
+ * #25 — ล้างกลุ่มนี้ empties the whole session slot, and that slot is site-wide (session.ts clear()):
+ * any round in progress dies with it, not only one belonging to the page being viewed. So the question
+ * is "is there a live round at all", and this function deliberately takes no gameId. planStart's
+ * checkpoint.game === gameId test is right for a start — it only governs the round THIS page would
+ * begin — and wrong here: with it, a press on timebomb's page would silently destroy a live siamsi
+ * round. A checkpoint with no game tag still counts; the slot is emptied either way.
+ *
+ * confirmed = the player pressed the labelled ล้างและทิ้งรอบที่ค้าง button. An answer is never re-asked.
+ */
+export function planClear(checkpoint: Checkpoint | null, confirmed: boolean): 'ask' | 'clear' {
+  return !confirmed && checkpoint !== null ? 'ask' : 'clear';
+}
+
 /** selected คือวงเต็มตามที่ผู้ใช้ติ๊กไว้ (หรือ "คนที่ 1..count" ตอนไม่ได้ติ๊กใครเลย)
  *  warned = ผู้ใช้เพิ่งเห็นคำเตือนเกิน-max แล้วกดซ้ำเพื่อยืนยันไปต่อ */
 export function resolveStart(

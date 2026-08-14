@@ -2,7 +2,7 @@
 // เช็คตรรกะล้วนๆ ที่ export จาก player-select.ts (ไม่ต้องมี DOM/localStorage)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveStart, numberedPlayers, planStart } from './player-select.ts';
+import { resolveStart, numberedPlayers, planStart, planClear } from './player-select.ts';
 
 test('เกิน max: ตัดคนท้ายไปเล่น สั่งเตือนก่อนถ้ายังไม่เคยเตือน', () => {
   const selected = ['เอ', 'บี', 'ซี', 'ดี'];
@@ -82,4 +82,27 @@ test('#23 the player answered: กลับไปเล่นรอบที่�
   assert.equal(planStart(cp('siamsi'), 'siamsi', 'fresh'), 'discard-then-start');
   // an answer is honoured even if the slot changed under us — a labelled choice is never re-asked
   assert.equal(planStart(null, 'siamsi', 'fresh'), 'discard-then-start');
+});
+
+// ---- #25: ล้างกลุ่มนี้ mid-round is a question too — and its condition is NOT planStart's ----
+
+test('#25 a round in progress: pressing ล้างกลุ่มนี้ must ask before wiping it', () => {
+  assert.equal(planClear(cp('siamsi'), false), 'ask');
+});
+
+test('#25 the condition is site-wide, not game-matched — session.clear() empties the one slot every game shares', () => {
+  // The discriminating case, and the reason planClear takes no gameId: copying planStart's
+  // checkpoint.game === gameId test would let a press on timebomb's page destroy a live siamsi round.
+  assert.equal(planClear(cp('timebomb'), false), 'ask', "another game's live round dies here too");
+  // a blob with no game tag is still a round someone is inside — the slot is emptied either way
+  assert.equal(planClear({ players: ['เอ'] }, false), 'ask');
+});
+
+test('#25 no round in progress: clearing the group is unchanged — no question, no extra tap', () => {
+  assert.equal(planClear(null, false), 'clear');
+});
+
+test('#25 the player pressed ล้างและทิ้งรอบที่ค้าง: the labelled answer goes through and is never re-asked', () => {
+  assert.equal(planClear(cp('siamsi'), true), 'clear');
+  assert.equal(planClear(null, true), 'clear');
 });

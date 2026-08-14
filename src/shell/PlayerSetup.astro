@@ -2,8 +2,9 @@
 interface Props { min: number; max: number; ctaLabel?: string; clearsSession?: boolean; gameId?: string }
 const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, gameId } = Astro.props as Props;
 ---
-<!-- data-game-id โผล่เฉพาะหน้าเกม (#23) — เป็นตัวบอกว่า checkpoint ในช่องรวมเป็นของหน้านี้ไหม
-     ห้าม import เกมมาถามที่นี่ และห้ามเดาจาก URL — id เดินมาทาง prop จาก GameLayout -->
+<!-- data-game-id is emitted on game pages only (#23) — it is what tells the island whether the
+     checkpoint in the shared slot belongs to this page. Never import a game to ask, and never guess
+     from the URL: the id arrives as a prop from GameLayout. -->
 <div id="player-setup" data-min={min} data-max={max} data-game-id={gameId}>
   <div id="setup-number-picker">
     <label for="player-count">จำนวนคนเล่น</label>
@@ -18,12 +19,14 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     <button id="roster-add-btn" type="button">เพิ่ม</button>
   </div>
 
-  <!-- hidden ตอนไม่มีอะไรจะบอก — ไม่มี style block ที่นี่ <p> ว่างจึงกินระยะขอบของ UA ไปเปล่าๆ ทุกหน้า -->
+  <!-- hidden while there is nothing to say — there is no style block here, so an empty <p> would eat
+       the UA margin on every page for nothing -->
   <p id="setup-error" role="alert" hidden></p>
   <button id="start-round" type="button">{ctaLabel}</button>
 
-  <!-- #23: มีรอบค้างของเกมนี้ = ต้องถาม ไม่ใช่เลือกให้ ทั้งสองทางไม่มีทางไหนทำรอบหายแบบเงียบๆ
-       role="alert" เพื่อให้ประกาศตอนถูกปลด hidden เหมือน #setup-error -->
+  <!-- #23: a live round of this game is a question, not a choice made on the player's behalf. Neither
+       branch can lose a round silently.
+       role="alert" so it is announced when the hidden attribute drops, same as #setup-error -->
   <div id="resume-choice" hidden>
     <p role="alert">ยังมีรอบที่เล่นค้างอยู่ จะกลับไปเล่นต่อ หรือเริ่มรอบใหม่กับวงที่เลือกไว้?</p>
     <button id="resume-round" type="button">กลับไปเล่นรอบที่ค้าง</button>
@@ -31,9 +34,10 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   </div>
 </div>
 
-<!-- อยู่นอก #player-setup ตั้งใจ: พอเริ่มรอบแล้ว setup ถูกซ่อน ปุ่มนี้ต้องยังกดได้
-     ไม่งั้นเปลี่ยนกลุ่มไม่ได้เลยจนกว่าจะรีโหลดเอง
-     data-clears-session โผล่เฉพาะตอนถูกปิด (clearsSession={false}) — HTML ของเกมจึงเหมือนเดิมทุกไบต์
+<!-- Deliberately outside #player-setup: the panel hides itself once a round starts, and this button has
+     to stay pressable — otherwise the group cannot be changed at all short of a manual reload.
+     data-clears-session is emitted only when the button is switched off (clearsSession={false}), so a
+     game page's HTML is byte-for-byte what it always was.
 
      hidden on tool pages (#23): with clearsSession={false} the click handler is a deliberate no-op
      (ADR-0004 — a tool must not touch the session or the checkpoint a game is mid-round on), and a
@@ -42,15 +46,26 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
      and kill the whole island — taking the setup panel with it. -->
 <button id="clear-group" type="button" data-clears-session={clearsSession ? undefined : 'no'} hidden={!clearsSession}>ล้างกลุ่มนี้</button>
 
+<!-- #25: this button empties the site-wide session slot, so mid-round it destroys the round while its
+     label only mentions the group. It asks first, with two labelled buttons (ADR-0008's shape).
+     Outside #player-setup like the button it answers for: root.hidden = true swallows the panel once a
+     round starts, and a question the player cannot see would turn ล้างกลุ่มนี้ into a dead control.
+     role="alert" so it is announced when the hidden attribute drops, same as #setup-error -->
+<div id="clear-choice" hidden>
+  <p role="alert">ยังมีรอบที่เล่นค้างอยู่ ถ้าล้างกลุ่มนี้ รอบที่ค้างจะหายไปด้วย</p>
+  <button id="clear-confirm" type="button">ล้างและทิ้งรอบที่ค้าง</button>
+  <button id="clear-cancel" type="button">ยกเลิก</button>
+</div>
+
 <script>
   import { loadRoster, loadGroup, saveGroup } from './roster';
   import { loadSession } from './session';
-  import { resolveStart, numberedPlayers, planStart, type ResumeChoice } from './player-select';
+  import { resolveStart, numberedPlayers, planStart, planClear, type ResumeChoice } from './player-select';
 
   const root = document.getElementById('player-setup') as HTMLElement;
   const min = Number(root.dataset.min);
   const max = Number(root.dataset.max);
-  // undefined บนหน้าเครื่องมือ — ที่นั่นไม่มีเกมให้กู้ จึงไม่มีรอบค้างให้ถามถึง (#23)
+  // undefined on tool pages — there is no game to resume there, so no live round to ask about (#23)
   const gameId = root.dataset.gameId;
 
   const roster = loadRoster();
@@ -66,62 +81,80 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   const resumeChoiceEl = document.getElementById('resume-choice') as HTMLElement;
   const resumeBtn = document.getElementById('resume-round') as HTMLButtonElement;
   const freshBtn = document.getElementById('fresh-round') as HTMLButtonElement;
+  const clearChoiceEl = document.getElementById('clear-choice') as HTMLElement;
+  const clearConfirmBtn = document.getElementById('clear-confirm') as HTMLButtonElement;
+  const clearCancelBtn = document.getElementById('clear-cancel') as HTMLButtonElement;
 
-  // จริงจนกว่าจะกด "เริ่มรอบ" ซ้ำ — คลิกแรกเกิน max แค่เตือน คลิกสองไปต่อ (#21)
-  // ต้องรีเซ็ตทุกครั้งที่วงเปลี่ยน ไม่งั้นเตือนครั้งเดียวจบตลอดชีวิตหน้า
+  // True until "เริ่มรอบ" is pressed a second time — the first click over max only warns (#21).
+  // Must reset whenever the group changes, or one warning would last the whole life of the page.
   let overMaxWarned = false;
 
-  // วงเดิมติ๊กไว้ให้เลย — เดินจากหน้าเครื่องมือเข้าเกมแล้วต้องไม่ต้องติ๊กใหม่ทั้งวง (#15)
-  // loadGroup() ตัดชื่อที่หายจาก roster ออกให้แล้ว · ครั้งแรก/ไม่เคยเริ่มรอบ = เซ็ตว่างเหมือนเดิม
+  // The last group comes pre-ticked — walking from a tool page into a game must not mean ticking it
+  // all over again (#15). loadGroup() has already dropped names that left the roster · first visit or
+  // never started a round = the empty set, as before.
   const selected = new Set<string>(loadGroup());
 
-  // ปลด hidden ก่อนแล้วค่อยใส่ข้อความ role="alert" จึงประกาศตอนที่มันมองเห็นอยู่จริง
+  // Drop hidden first, then set the text: role="alert" announces only while the node is visible
   function showError(text: string): void {
     errorEl.hidden = text === '';
     errorEl.textContent = text;
-    // ทุกทางที่ปฏิเสธ/เตือนก่อนเริ่มรอบวิ่งผ่านฟังก์ชันนี้ที่เดียว (เกิน max, ต่ำกว่า min) — ปฏิเสธแล้ว
-    // คำถามเรื่องรอบค้างที่ยังเปิดอยู่ถือวงเดิมที่แผงเพิ่งไม่รับไว้ กด "เริ่มรอบใหม่" ตอนนั้นจะเริ่มด้วยวงนั้น
-    // ห้ามให้คำเตือนกับคำถามอยู่บนจอพร้อมกัน — แผงต้องไม่ชี้ไปที่ทางที่ตัวเองเพิ่งปิด (#23)
+    // Every refusal or warning before a start runs through this one function (over max, below min).
+    // Having refused, an open resume question would still be holding the group the panel just turned
+    // down, and pressing "เริ่มรอบใหม่" would start with it. A warning and a question must never share
+    // the screen: the panel must not point at the path it has just closed (#23).
     if (text !== '') cancelResumeChoice();
   }
 
-  // #23: วงที่กำลังจะเริ่ม รอคำตอบเรื่องรอบที่ค้างอยู่ — null = ยังไม่ได้ถามใคร
+  // #23: the group waiting on an answer about the live round — null = nobody has been asked yet
   let pendingStart: string[] | null = null;
 
-  // วงเปลี่ยนหลังคำถามโผล่แล้ว = คำถามเดิมถือวงเก่าไว้ ปิดไปแล้วให้กดเริ่มรอบใหม่อีกที
-  // ไม่งั้น "เริ่มรอบใหม่" จะเริ่มด้วยวงก่อนหน้าที่ผู้เล่นเพิ่งแก้ — เงียบและผิดใจแบบเดียวกับที่ #23 แก้อยู่
+  // The group changed after the question appeared = the question is holding the old one. Close it and
+  // make them press start again; otherwise "เริ่มรอบใหม่" starts with the group the player just edited
+  // away — silent and wrong in exactly the way #23 fixed.
   function cancelResumeChoice(): void {
     pendingStart = null;
     resumeChoiceEl.hidden = true;
   }
 
-  /** ทางออกเดียวของการเริ่มรอบ — ทั้งปุ่ม "เริ่มรอบ" และทางลัด "คนที่ N" วิ่งผ่านที่นี่
-   *  มีรอบค้างของเกมหน้านี้ = ถามก่อน (planStart) ไม่มี = เริ่มเลยเหมือนเดิม */
+  /** The one way out of a start — both "เริ่มรอบ" and the "คนที่ N" shortcut run through here.
+   *  A live round of this page's game = ask first (planStart); no round = start as before. */
   function requestStart(playing: string[], choice?: ResumeChoice): void {
+    // #25: an unanswered clear question stays on screen after the panel hides — it lives outside the
+    // panel on purpose — with ล้างและทิ้งรอบที่ค้าง still armed, and that button clears without asking
+    // again. Open it, then start or resume, and one tap kills the round the player just chose to keep.
+    // Every shell-level start or resume closes it first. "เล่นอีกรอบ" is a second door: it calls
+    // mountInto directly (siamsi.ts, timebomb.ts) and never passes here, so an open question can
+    // survive that one — but it stays on screen with its label intact, so that path is labelled
+    // loss, not the silent loss #25 closes.
+    clearChoiceEl.hidden = true;
     const session = loadSession();
     const action = planStart(session.checkpoint, gameId, choice);
     if (action === 'ask') {
       pendingStart = playing;
       resumeChoiceEl.hidden = false;
-      resumeBtn.focus(); // ปุ่มโผล่ท้ายแผง — พาสายตาและ screen reader ไปถึงคำถามที่เพิ่งขึ้น
+      resumeBtn.focus(); // the buttons open at the foot of the panel — take eyes and screen reader there
       return;
     }
-    // "เริ่มรอบใหม่" = ทิ้งรอบเก่าตามที่ผู้เล่นสั่งไว้ชัดๆ ต้องล้างก่อน mount ไม่งั้นเกม resume เจอ blob เดิม
-    // แล้วรอบ "ใหม่" กลายเป็นรอบเก่า (siamsi.ts mountInto อ่าน checkpoint ก่อนทุกครั้ง)
+    // "เริ่มรอบใหม่" = drop the old round, which the player asked for in as many words. It has to be
+    // cleared before the game mounts, or resume finds the old blob and the "new" round IS the old one
+    // (siamsi.ts mountInto reads the checkpoint every time).
     if (action === 'discard-then-start') session.saveCheckpoint(null);
-    // ทาง "กลับไปเล่นรอบที่ค้าง" ยังส่งวงที่ติ๊กไว้ตามปกติ — เกมจะทับด้วยรายชื่อใน checkpoint เองตอน resume
-    // ถ้า blob เสียจน resume ไม่ได้ วงที่ติ๊กนี้คือทางถอย จอจึงไม่ว่างเปล่า
-    // คำถามได้คำตอบแล้ว ล้างทิ้งก่อนออก — วันนี้ root.hidden ปิดแผงอยู่แล้ว แต่ถ้าวันหน้ามีทางเปิดแผงซ้ำ
-    // คำถามค้างจะถือวงเก่าไว้เงียบๆ · playing เป็นพารามิเตอร์ในมือแล้ว ล้าง pendingStart จึงไม่กระทบ
+    // The resume path still passes the ticked group along — the game overwrites it from the checkpoint's
+    // own roster while resuming. If the blob is too broken to resume, that group is the fallback and the
+    // screen is not left empty.
+    // The question has its answer, so clear it before leaving: today root.hidden closes the panel anyway,
+    // but if a way to reopen the panel ever appears, a stale question would sit there holding the old
+    // group · playing is a parameter already in hand, so clearing pendingStart costs nothing here.
     cancelResumeChoice();
     document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players: playing }, bubbles: true }));
-    // ปุ่มเริ่มรอบอยู่เหนือจอเล่น — กดกลางรอบ = ล้มรอบทิ้ง จึงซ่อนทั้งแผงหลังเริ่มแล้ว
-    // ทางกลับ: "เล่นอีกรอบ" อยู่ในจอเกม · "ล้างกลุ่มนี้" อยู่นอกแผงนี้จึงยังกดได้กลางรอบ
+    // The start button sits above the game stage — pressing it mid-round would tear the round down, so
+    // the whole panel hides once a round is running.
+    // Ways back: "เล่นอีกรอบ" lives in the game screen · "ล้างกลุ่มนี้" is outside this panel and stays pressable.
     root.hidden = true;
   }
 
-  // แก้จำนวนคนหลังคำถามโผล่ = วงเปลี่ยน ต้องปิดคำถามเหมือนตอนติ๊กชื่อ
-  // ไม่มีบรรทัดนี้: กด "คนที่ N" ที่ 4 คน → คำถามโผล่ → แก้เป็น 6 → "เริ่มรอบใหม่" ได้ 4 คน เงียบๆ
+  // Editing the count after the question appeared = the group changed; close it, same as ticking a name.
+  // Without this line: press "คนที่ N" at 4 → question opens → change to 6 → "เริ่มรอบใหม่" silently starts 4.
   countInput.addEventListener('input', cancelResumeChoice);
 
   resumeBtn.addEventListener('click', () => {
@@ -154,8 +187,8 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     }
   }
 
-  // ทั้งสองโหมดอยู่พร้อมกันเสมอ (issue #7) — ถ้าซ่อนช่องรายชื่อตอน roster ว่าง
-  // ปุ่ม "เพิ่ม" จะโดนซ่อนไปด้วย แล้วไม่มีใครสร้าง roster ครั้งแรกได้เลย
+  // Both modes are always on screen together (issue #7) — hiding the name grid while the roster is
+  // empty would hide the "เพิ่ม" button with it, and nobody could ever build the first roster.
   renderRosterList();
 
   addBtn.addEventListener('click', () => {
@@ -170,8 +203,9 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     renderRosterList();
   });
 
-  // #22: ทางลัดเข้าโหมด "คนที่ 1, 2, 3…" ตรงๆ แม้วงเดิมถูกติ๊กอยู่เต็ม — ไม่แตะ selected/saveGroup เลย
-  // ต่างจาก startBtn ตรงที่ไม่ผ่าน resolveStart: numberedPlayers clamp อยู่ในช่วง [min, max] แล้ว จึงไม่มีเกิน max ให้เตือนหรือต่ำกว่า min ให้ปฏิเสธ
+  // #22: a direct route into "คนที่ 1, 2, 3…" even while the old group is fully ticked — it never
+  // touches selected or saveGroup. Unlike startBtn it skips resolveStart: numberedPlayers already
+  // clamps into [min, max], so there is nothing over max to warn about and nothing below min to refuse.
   // #23: this button is never hidden any more. It used to disappear whenever ANY checkpoint existed,
   // because pressing it fired setPlayers("คนที่ N") and the resume path then failed a name gate and
   // dropped the live round. A checkpoint now carries its own roster and is resumed from itself
@@ -184,8 +218,9 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   });
 
   startBtn.addEventListener('click', () => {
-    // ponytail: clamp ที่นี่ที่เดียว — ทุกเกมออกสตาร์ทผ่านบรรทัดนี้ ทางกรอกจำนวนข้างล่าง clamp อยู่แล้ว
-    // แต่ทางเลือกจากรายชื่อไม่เคย clamp เลย เกมที่มีของจำกัดต่อคน (เช่น siamsi 24 ใบ) จึงพังกลางรอบ
+    // ponytail: clamp in this one place — every game starts through this line. The count input clamps
+    // already, but the pick-from-names path never did, so a game with a per-player limit (siamsi's 24
+    // cards) broke mid-round.
     let fullSelection: string[];
     if (selected.size > 0) {
       fullSelection = [...selected];
@@ -195,8 +230,8 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
 
     const result = resolveStart(fullSelection, min, max, overMaxWarned);
 
-    // เกิน max แล้วยังไม่เคยเตือน — คลิกแรกแค่บอก คลิกซ้ำถึงไปต่อ (#21)
-    // วงที่บันทึกไว้ยังเป็นชุดเต็มเสมอ ไม่มีจุดไหน clamp ก่อนเก็บ (ดูบันทึกที่ saveGroup ด้านล่าง)
+    // Over max and not warned yet — the first click only tells, the second goes ahead (#21).
+    // The stored group is always the full set; nothing clamps before storing (see the note at saveGroup).
     if (result.needsOverMaxWarning) {
       overMaxWarned = true;
       showError(`หน้านี้เล่นได้สูงสุด ${max} คน — ${result.sittingOut.join(', ')} จะไม่ได้เล่นรอบนี้ (ยังอยู่ในกลุ่มเดิม ไม่หายไปไหน) กดอีกครั้งเพื่อเริ่มรอบ`);
@@ -204,41 +239,75 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     }
     overMaxWarned = false;
 
-    // เลือกน้อยกว่า min แล้ว clamp ขึ้นไม่ได้ — ต้องปฏิเสธให้เห็นเป็นตัวหนังสือ ไม่ใช่ return เงียบ (#15)
-    // ของเดิมเช็คแค่ === 0 เกมที่ต้องการ 2 คนขึ้นไปจึงเริ่มด้วยคนเดียวได้ แล้วแผงซ่อนตัว = ทางตัน
+    // Fewer than min and no way to clamp upwards — refuse in words, not with a silent return (#15).
+    // The old check was === 0, so a game needing 2 players could start with one and then the panel hid
+    // itself: a dead end.
     if (result.belowMin) {
       const need = Math.max(min, 1);
       showError(`ยังเริ่มไม่ได้ — เลือกไว้ ${result.playing.length} ชื่อ แต่ต้องมีอย่างน้อย ${need} คน เลือกเพิ่มอีก ${need - result.playing.length} ชื่อ`);
       return;
     }
     showError('');
-    // บันทึกหลังผ่านด่าน min เท่านั้น — วงที่ถูกปฏิเสธไม่ควรตามไปติ๊กค้างที่หน้าอื่น
-    // เก็บ [...selected] ไม่ใช่ result.playing: playing ผ่าน clamp มาแล้ว และช่องกรอกจำนวนให้ชื่อ "คนที่ N" ที่ไม่ใช่คนใน roster
-    // ตั้งใจเก็บ "วงเต็มตามที่ตั้งใจ" ไม่ใช่ "วงที่เล่นได้จริงบนหน้านี้" — clamp ตอนใช้ ไม่ clamp ตอนเก็บ
-    // เคยลองเก็บตัวที่ clamp แล้ว: เดินผ่านหน้า max เล็กครั้งเดียว วงหายถาวร ซึ่งแย่กว่าปัญหาที่แก้
-    // selected ว่าง = มาทางช่องกรอกจำนวน (บรรทัด fullSelection ด้านบน) ไม่ใช่ "ตั้งใจล้างวง"
-    // เขียน [] ทับตรงนี้ = วงเดิมหายถาวร ต้องกลับมาติ๊กใหม่ทั้งวง (#15)
-    // (#23: ไม่ทำให้รอบที่ค้างอยู่หายอีกแล้ว — checkpoint พารายชื่อของตัวเองไป จึงไม่มีด่านเทียบชื่อให้ตก)
-    // การล้างวงมีปุ่มของมันอยู่แล้ว (#clear-group) จึงไม่ต้องล้างเป็นผลข้างเคียงของการเริ่มรอบ
+    // Stored only once the min gate passes — a group that was refused should not follow the player to
+    // another page.
+    // It stores [...selected], not result.playing: playing has been clamped, and the count input yields
+    // "คนที่ N" names that are not roster members.
+    // Deliberately stores "the group as intended", not "the group this page can seat" — clamp on use,
+    // never on store. Storing the clamped set was tried: one walk past a page with a small max and the
+    // group was gone for good, which is worse than the problem it solved.
+    // selected empty = the player came through the count input (the fullSelection lines above), not
+    // "clear my group". Writing [] here would lose the group for good and it would have to be ticked
+    // again from scratch (#15).
+    // (#23: it no longer costs a live round either — the checkpoint carries its own roster, so there is
+    // no name gate left to fail.)
+    // Clearing the group has a button of its own (#clear-group); it need not be a side effect of starting.
     if (selected.size > 0) saveGroup([...selected]);
-    // วงถูกบันทึกไปแล้วก่อนถึงคำถามเรื่องรอบค้าง ตั้งใจ: ผู้เล่นติ๊กวงนี้จริง prefill ครั้งหน้าจึงควรเป็นวงนี้
-    // ไม่ว่าเขาจะเลือกกลับไปเล่นรอบเก่าหรือเริ่มใหม่ (ADR-0004: เก็บวงเต็ม ไม่ clamp ตอนเก็บ)
+    // The group is stored before the live-round question is asked, on purpose: the player really did tick
+    // this group, so next time's prefill should be it — whichever branch they choose (ADR-0004: store the
+    // full group, clamp on use).
     requestStart(result.playing);
   });
 
-  clearBtn.addEventListener('click', () => {
-    // หน้าเครื่องมือส่ง clearsSession={false} มา (ADR-0004: เครื่องมือห้ามแตะ session)
-    // checkpoint มีช่องเดียวร่วมกันทั้งเว็บ ล้างจากหน้าเครื่องมือ = เกมที่ค้างกลางรอบหายทันทีโดยไม่เตือน
-    // ความหมายของปุ่มยังเดิม: ล้าง "รอบนี้" ไม่ใช่ล้าง roster (roster อยู่ localStorage จึงรอดทั้งสองทาง)
-    // #data-loss: saveGroup([]) ต้องอยู่ gate เดียวกับ session.clear() — เดิมอยู่นอก if จึงล้าง "วง" (prefill)
-    // จากหน้าเครื่องมือได้แม้ session ยังไม่ถูกแตะ กลับไปหน้าเกมแล้ว prefill ว่างต้องติ๊กใหม่ทั้งวง (#15)
-    // ตัวรอบเองรอดแล้วตั้งแต่ #23 (checkpoint พารายชื่อไปเอง) แต่ gate นี้ยังต้องอยู่ — เครื่องมือห้ามแตะของวง
+  // #25: this button empties the session slot, and that slot is site-wide — a live round of ANY game
+  // dies with it, not only this page's. So the condition is "is there a round at all", never planStart's
+  // game-matched test (planClear takes no gameId for that reason): with a game-matched test, pressing
+  // clear on timebomb's page would still destroy a live siamsi round without a word.
+  // The open question is itself state: it arms ล้างและทิ้งรอบที่ค้าง, which clears without asking again. It
+  // holds no group the way the start flow's pendingStart does, so pressing ล้างกลุ่มนี้ again merely reopens
+  // it — but it still inherits #23's reset-on-transition rule, and requestStart closes it before a round
+  // begins or resumes. Left open across that transition it sits armed beside a live round (found in
+  // pre-merge review, and it is the same one-tap loss this ticket exists to close).
+  function requestClear(confirmed: boolean): void {
+    // Tool pages pass clearsSession={false} (ADR-0004: a tool must not touch the session).
+    // The button's meaning is unchanged: it clears "this round", not the roster (the roster lives in
+    // localStorage and survives either way).
+    // #data-loss: saveGroup([]) must sit behind the same gate as session.clear(). It used to sit outside
+    // the if, so a tool page could wipe the group (the prefill) even while the session went untouched,
+    // and the player walking back into a game had to tick the whole group again (#15). The round itself
+    // has been safe since #23, but this gate stays: a tool must not touch the group either.
     if (clearBtn.dataset.clearsSession !== 'no') {
-      loadSession().clear();
+      const session = loadSession();
+      if (planClear(session.checkpoint, confirmed) === 'ask') {
+        clearChoiceEl.hidden = false;
+        // Focus the SAFE branch, as the resume prompt does. click fires on Enter keydown, so focusing
+        // ล้างและทิ้งรอบที่ค้าง would put the destructive button under a key that is still held: OS auto-repeat
+        // or a habitual second Enter would confirm a question the player never got to read.
+        clearCancelBtn.focus();
+        return;
+      }
+      session.clear();
       saveGroup([]);
     }
-    // ponytail: reload แทนการรื้อ UI เอง — ได้ teardown ครบทุกชั้นฟรี (pagehide → game.dispose(),
-    // แผง setup กลับมา, selection ล้าง) ถ้าวันหนึ่งมี client router ค่อยเปลี่ยนเป็น reset ในที่
+    // ponytail: reload rather than tearing the UI down by hand — teardown at every layer comes free
+    // (pagehide → game.dispose(), the setup panel returns, the selection is cleared). If a client router
+    // ever lands, turn this into an in-place reset.
     location.reload();
+  }
+
+  clearBtn.addEventListener('click', () => requestClear(false));
+  clearConfirmBtn.addEventListener('click', () => requestClear(true));
+  clearCancelBtn.addEventListener('click', () => {
+    clearChoiceEl.hidden = true;
+    clearBtn.focus(); // hiding the focused button would drop focus to <body> and lose the keyboard's place
   });
 </script>
