@@ -1,0 +1,271 @@
+---
+import Base from '../../layouts/Base.astro';
+import PlayerSetup from '../../shell/PlayerSetup.astro';
+import { games } from '../../games/manifest';
+---
+
+<Base
+  title="วงล้อสุ่มชื่อ — วัดดวง"
+  description="วงล้อสุ่มชื่อออนไลน์ ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน หมุนเสร็จกดต่อเข้าเกมได้เลยโดยไม่ต้องพิมพ์ชื่อใหม่"
+>
+  <main>
+    <h1>วงล้อสุ่มชื่อ</h1>
+    <p>ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน — หมุนเสร็จกดต่อเข้าเกมได้เลย รายชื่อไหลต่อไปเอง</p>
+
+    <PlayerSetup min={2} max={10} ctaLabel="ใส่ชื่อลงวงล้อ" clearsSession={false} />
+
+    <section id="wheel" aria-labelledby="wheel-heading">
+      <h2 id="wheel-heading">วงล้อ</h2>
+
+      <div id="wheel-disc" class="wheel-disc" aria-hidden="true"></div>
+
+      <p id="wheel-result" class="wheel-result" role="status" aria-live="polite"></p>
+      <p id="wheel-note" class="wheel-note" role="status" aria-live="polite">
+        ยังหมุนไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงวงล้อ"
+      </p>
+
+      <div class="wheel-actions">
+        <button id="wheel-spin" type="button" disabled aria-describedby="wheel-note">หมุน</button>
+        <button id="wheel-reset" type="button">คืนทุกชื่อเข้าวงล้อ</button>
+      </div>
+
+      <p class="wheel-toggle">
+        <label for="wheel-eliminate">
+          <input id="wheel-eliminate" type="checkbox" /> เอาคนที่ออกแล้วออกจากวงล้อ
+        </label>
+      </p>
+
+      <ul id="wheel-names" class="wheel-names"></ul>
+
+      <!-- ทางต่อเข้าเกมอยู่ติดกับตัวเครื่องมือ ไม่ใช่ใต้โฆษณา — #11 บอกว่านี่คือเหตุผลที่เครื่องมือมีอยู่
+           รายชื่อไหลต่อผ่าน roster (localStorage) ไม่ผ่าน session จึงไม่ทับ checkpoint ของเกมที่ค้างอยู่ -->
+      <nav class="wheel-next" aria-label="เล่นเกมต่อ">
+        <h3>เล่นเกมต่อด้วยวงเดิม</h3>
+        <ul>
+          {games.map((game) => <li><a href={`/game/${game.id}/`}>{game.names.th}</a></li>)}
+        </ul>
+      </nav>
+    </section>
+
+    <!-- โฆษณาอยู่ใต้ตัวเครื่องมือเสมอ (ADR-0004) · จองที่ด้วย min-height ไว้ก่อน เนื้อหาจึงไม่กระโดดตอนโหลด
+         และห้าม inject อะไรเหนือ content -->
+    <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
+
+    <section id="how-to-use">
+      <h2>วิธีใช้</h2>
+      <ol>
+        <li>เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด "ใส่ชื่อลงวงล้อ"</li>
+        <li>กด "หมุน" หนึ่งครั้งต่อหนึ่งคน ผลขึ้นเป็นตัวหนังสือว่าใครโดน</li>
+        <li>อยากไล่ทีละคนจนครบวง ให้ติ๊ก "เอาคนที่ออกแล้วออกจากวงล้อ" แล้วหมุนต่อ</li>
+      </ol>
+      <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: var(--space-md);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+  }
+
+  /* จอ 320px: ขนาดวงล้ออิงความกว้างจอ ไม่ใช่ค่าคงที่ จึงล้นด้านข้างไม่ได้ */
+  .wheel-disc {
+    width: min(220px, 60vw);
+    aspect-ratio: 1;
+    margin: var(--space-md) auto;
+    border: 8px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+  }
+
+  /* จองที่ให้ผลไว้ก่อน เนื้อหาข้างล่างจึงไม่ขยับตอนชื่อโผล่ · ชื่อยาวตัดบรรทัดแทนดันจอ */
+  .wheel-result {
+    min-height: 2em;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .wheel-note {
+    min-height: 3em;
+    margin: var(--space-xs) 0 var(--space-md);
+    color: var(--color-muted);
+  }
+
+  /* ปุ่มพับลงบรรทัดใหม่แทนล้นออกข้าง เมื่อจอแคบกว่าปุ่มสองปุ่มรวมกัน */
+  .wheel-actions,
+  .wheel-names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .wheel-names {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-md) 0;
+  }
+
+  .wheel-names li {
+    overflow-wrap: anywhere;
+  }
+
+  .wheel-names .is-out {
+    color: var(--color-muted);
+    text-decoration: line-through;
+  }
+
+  @keyframes wheel-spin {
+    to {
+      transform: rotate(1440deg);
+    }
+  }
+
+  .wheel-disc.is-spinning {
+    animation: wheel-spin 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  /* ปิดอนิเมชัน — ผลยังออกเป็นตัวหนังสือใน #wheel-result เหมือนเดิม (สคริปต์เฉลยทันทีไม่ต้องรอ) */
+  @media (prefers-reduced-motion: reduce) {
+    .wheel-disc.is-spinning {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { pickName } from '../../tools/wheel';
+
+  const disc = document.getElementById('wheel-disc') as HTMLElement;
+  const resultEl = document.getElementById('wheel-result') as HTMLElement;
+  const noteEl = document.getElementById('wheel-note') as HTMLElement;
+  const namesEl = document.getElementById('wheel-names') as HTMLUListElement;
+  const spinBtn = document.getElementById('wheel-spin') as HTMLButtonElement;
+  const resetBtn = document.getElementById('wheel-reset') as HTMLButtonElement;
+  const eliminateBox = document.getElementById('wheel-eliminate') as HTMLInputElement;
+
+  const SPIN_MS = 1200;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  let players: string[] = [];
+  // ใครออกไปแล้ว — อยู่ใน memory อย่างเดียวโดยตั้งใจ รีเฟรชแล้วเริ่มรอบใหม่
+  // (ชื่อยังอยู่เพราะ roster เป็น localStorage) · ห้ามเก็บลง shell/session.ts เพราะ checkpoint
+  // มีช่องเดียวร่วมกันทั้งเว็บ เครื่องมือแตะเมื่อไหร่ = เกมที่ค้างกลางรอบอยู่หายทันที
+  const spun = new Set<string>();
+  let spinning = false;
+  let spinTimer = 0;
+
+  function remaining(): string[] {
+    return eliminateBox.checked ? players.filter((name) => !spun.has(name)) : players;
+  }
+
+  function render(): void {
+    namesEl.innerHTML = '';
+    for (const name of players) {
+      const isOut = eliminateBox.checked && spun.has(name);
+      const li = document.createElement('li');
+      // สถานะบอกด้วยตัวหนังสือ ไม่ใช่สีหรือเส้นขีดอย่างเดียว
+      li.textContent = isOut ? `${name} (ออกแล้ว)` : name;
+      if (isOut) li.classList.add('is-out');
+      namesEl.appendChild(li);
+    }
+
+    const left = remaining();
+    // เหลือคนเดียวก็ยังกดหมุนได้ — คนสุดท้ายต้องได้ผลของตัวเองเหมือนคนอื่น ไม่ใช่เศษเหลือที่ไม่มีใครประกาศ
+    spinBtn.disabled = spinning || players.length < 2 || left.length === 0;
+
+    if (spinning) {
+      noteEl.textContent = 'กำลังหมุน…';
+    } else if (players.length === 0) {
+      noteEl.textContent = 'ยังหมุนไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงวงล้อ"';
+    } else if (players.length < 2) {
+      // เข้าไม่ถึงแล้วตั้งแต่ PlayerSetup ปฏิเสธการเริ่มที่ต่ำกว่า min — กันไว้ไม่ให้ปุ่มตายเงียบถ้าหลุดมา
+      // (roster อยู่ localStorage จึงไม่หาย รีเฟรชคือทางกลับที่ถูก)
+      noteEl.textContent = `วงล้อมีชื่อเดียว (${players[0]}) ต้องมีอย่างน้อย 2 ชื่อถึงจะหมุนได้ — รีเฟรชหน้านี้แล้วเลือกชื่อใหม่`;
+    } else if (left.length === 0) {
+      // จบรอบ: ประกาศครั้งเดียวว่าออกครบ · #wheel-result ยังค้างชื่อคนสุดท้ายไว้ในฐานะ "ผล" ไม่ใช่คนละคำตอบ
+      noteEl.textContent = `ออกครบทั้ง ${players.length} คนแล้ว — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
+    } else if (left.length === 1) {
+      // บอกว่าใครเหลือ ไม่ตัดสินแทนวงล้อ — คำว่า "โดน" ออกได้จาก #wheel-result ที่เดียว
+      noteEl.textContent = `เหลือ ${left[0]} คนเดียวในวงล้อ — กด "หมุน" อีกครั้งเพื่อเฉลยคนสุดท้าย`;
+    } else {
+      noteEl.textContent = '';
+    }
+  }
+
+  function spin(): void {
+    const left = remaining();
+    let picked: string;
+    if (left.length === 1) {
+      // เหลือคนเดียว = ไม่มีอะไรให้สุ่ม แต่ต้องเฉลยออกมาเป็นผล
+      // (pickName ตั้งใจ throw ที่ต่ำกว่า 2 คน — การเลือกที่ไม่ใช่การสุ่มจึงไม่ควรยัดเข้าไปในนั้น)
+      picked = left[0]!;
+    } else {
+      try {
+        picked = pickName(left);
+      } catch (error) {
+        // ด่านสุดท้าย — ปกติปุ่มถูกปิดไปก่อนแล้ว แต่ถ้าหลุดมาถึงตรงนี้ ผู้ใช้ต้องเห็นเหตุผลเป็นตัวหนังสือ
+        // พร้อมทางออก ไม่ใช่ปุ่มตายเงียบๆ หรือ error ค้างอยู่ใน console เท่านั้น
+        const reason = error instanceof Error ? error.message : 'หมุนไม่ได้';
+        noteEl.textContent = `${reason} — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
+        spinBtn.disabled = true;
+        return;
+      }
+    }
+
+    spinning = true;
+    resultEl.textContent = '';
+    render();
+
+    const reveal = (): void => {
+      spinning = false;
+      disc.classList.remove('is-spinning');
+      spun.add(picked);
+      // อ่านสถานะตอนเฉลย ไม่ใช่ตอนเริ่มหมุน — ติ๊ก/ปลดติ๊กกลางหมุนได้
+      // ที่นี่พูดได้แค่ "ใครโดน" ซึ่งเป็นอดีตที่ไม่มีวันเปลี่ยน · สถานะของรอบ (ครบยัง เหลือใคร) เป็นของ note
+      // ที่ render() คุมอยู่คนเดียว ไม่งั้นปลดติ๊กหลังจบรอบแล้วผลจะค้างประกาศว่า "ครบทุกคนแล้ว" ทั้งที่วงล้อเต็มอีกครั้ง
+      const done = eliminateBox.checked && remaining().length === 0;
+      resultEl.textContent = done ? `โดน: ${picked} (คนสุดท้าย)` : `โดน: ${picked}`;
+      render();
+    };
+
+    if (reduceMotion.matches) {
+      reveal();
+      return;
+    }
+
+    disc.classList.remove('is-spinning');
+    void disc.offsetWidth; // reflow — ไม่งั้นกดหมุนซ้ำติดๆ อนิเมชันไม่เริ่มรอบใหม่
+    disc.classList.add('is-spinning');
+    spinTimer = window.setTimeout(reveal, SPIN_MS);
+  }
+
+  // แผงกรอกรายชื่อตัวเดียวกับที่เกมใช้ — เครื่องมือเป็นแค่ผู้ฟัง ไม่แก้พฤติกรรมของมัน
+  document.addEventListener('watduang:start', (event) => {
+    players = (event as CustomEvent<{ players: string[] }>).detail.players;
+    spun.clear();
+    resultEl.textContent = '';
+    render();
+  });
+
+  spinBtn.addEventListener('click', spin);
+
+  resetBtn.addEventListener('click', () => {
+    // กดกลางหมุน: ต้องยกเลิก reveal ที่ค้างอยู่ ไม่งั้นอีก 1.2 วิมันจะเติมผลที่เพิ่งล้างไปกลับมาเอง
+    window.clearTimeout(spinTimer);
+    spinning = false;
+    disc.classList.remove('is-spinning');
+    spun.clear();
+    resultEl.textContent = '';
+    render();
+  });
+
+  eliminateBox.addEventListener('change', render);
+
+  render();
+</script>

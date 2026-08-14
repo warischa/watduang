@@ -1,6 +1,6 @@
 ---
-interface Props { min: number; max: number }
-const { min, max } = Astro.props as Props;
+interface Props { min: number; max: number; ctaLabel?: string; clearsSession?: boolean }
+const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } = Astro.props as Props;
 ---
 <div id="player-setup" data-min={min} data-max={max}>
   <div id="setup-number-picker">
@@ -9,21 +9,24 @@ const { min, max } = Astro.props as Props;
   </div>
 
   <div id="setup-roster-grid">
-    <p>เลือกชื่อจากกลุ่มเดิม หรือเพิ่มชื่อใหม่ — ไม่เลือกก็ได้ จะใช้ "คนที่ 1, 2, 3…" ตามจำนวนด้านบน</p>
+    <p>เลือกชื่อจากกลุ่มเดิม หรือเพิ่มชื่อใหม่ — วงที่เล่นล่าสุดจะถูกติ๊กไว้ให้ เอาติ๊กออกให้หมดถ้าอยากใช้ "คนที่ 1, 2, 3…" ตามจำนวนด้านบน</p>
     <ul id="roster-list"></ul>
     <input id="roster-add-name" type="text" placeholder="เพิ่มชื่อใหม่" />
     <button id="roster-add-btn" type="button">เพิ่ม</button>
   </div>
 
-  <button id="start-round" type="button">เริ่มรอบ</button>
+  <!-- hidden ตอนไม่มีอะไรจะบอก — ไม่มี style block ที่นี่ <p> ว่างจึงกินระยะขอบของ UA ไปเปล่าๆ ทุกหน้า -->
+  <p id="setup-error" role="alert" hidden></p>
+  <button id="start-round" type="button">{ctaLabel}</button>
 </div>
 
 <!-- อยู่นอก #player-setup ตั้งใจ: พอเริ่มรอบแล้ว setup ถูกซ่อน ปุ่มนี้ต้องยังกดได้
-     ไม่งั้นเปลี่ยนกลุ่มไม่ได้เลยจนกว่าจะรีโหลดเอง -->
-<button id="clear-group" type="button">ล้างกลุ่มนี้</button>
+     ไม่งั้นเปลี่ยนกลุ่มไม่ได้เลยจนกว่าจะรีโหลดเอง
+     data-clears-session โผล่เฉพาะตอนถูกปิด (clearsSession={false}) — HTML ของเกมจึงเหมือนเดิมทุกไบต์ -->
+<button id="clear-group" type="button" data-clears-session={clearsSession ? undefined : 'no'}>ล้างกลุ่มนี้</button>
 
 <script>
-  import { loadRoster } from './roster';
+  import { loadRoster, loadGroup, saveGroup } from './roster';
   import { loadSession } from './session';
 
   const root = document.getElementById('player-setup') as HTMLElement;
@@ -31,16 +34,24 @@ const { min, max } = Astro.props as Props;
   const max = Number(root.dataset.max);
 
   const roster = loadRoster();
-  const session = loadSession();
 
   const rosterList = document.getElementById('roster-list') as HTMLUListElement;
   const countInput = document.getElementById('player-count') as HTMLInputElement;
   const addNameInput = document.getElementById('roster-add-name') as HTMLInputElement;
   const addBtn = document.getElementById('roster-add-btn') as HTMLButtonElement;
   const startBtn = document.getElementById('start-round') as HTMLButtonElement;
+  const errorEl = document.getElementById('setup-error') as HTMLElement;
   const clearBtn = document.getElementById('clear-group') as HTMLButtonElement;
 
-  const selected = new Set<string>();
+  // วงเดิมติ๊กไว้ให้เลย — เดินจากหน้าเครื่องมือเข้าเกมแล้วต้องไม่ต้องติ๊กใหม่ทั้งวง (#15)
+  // loadGroup() ตัดชื่อที่หายจาก roster ออกให้แล้ว · ครั้งแรก/ไม่เคยเริ่มรอบ = เซ็ตว่างเหมือนเดิม
+  const selected = new Set<string>(loadGroup());
+
+  // ปลด hidden ก่อนแล้วค่อยใส่ข้อความ role="alert" จึงประกาศตอนที่มันมองเห็นอยู่จริง
+  function showError(text: string): void {
+    errorEl.hidden = text === '';
+    errorEl.textContent = text;
+  }
 
   function renderRosterList(): void {
     rosterList.innerHTML = '';
@@ -53,6 +64,7 @@ const { min, max } = Astro.props as Props;
       checkbox.addEventListener('change', () => {
         if (checkbox.checked) selected.add(name);
         else selected.delete(name);
+        showError('');
       });
       label.appendChild(checkbox);
       label.append(` ${name}`);
@@ -71,6 +83,7 @@ const { min, max } = Astro.props as Props;
     roster.add(name);
     selected.add(name);
     addNameInput.value = '';
+    showError('');
     renderRosterList();
   });
 
@@ -85,7 +98,20 @@ const { min, max } = Astro.props as Props;
       const count = Math.min(max, Math.max(min, Number(countInput.value) || min));
       players = Array.from({ length: count }, (_, i) => `คนที่ ${i + 1}`);
     }
-    if (players.length === 0) return;
+    // เลือกน้อยกว่า min แล้ว clamp ขึ้นไม่ได้ — ต้องปฏิเสธให้เห็นเป็นตัวหนังสือ ไม่ใช่ return เงียบ (#15)
+    // ของเดิมเช็คแค่ === 0 เกมที่ต้องการ 2 คนขึ้นไปจึงเริ่มด้วยคนเดียวได้ แล้วแผงซ่อนตัว = ทางตัน
+    const need = Math.max(min, 1);
+    if (players.length < need) {
+      showError(`ยังเริ่มไม่ได้ — เลือกไว้ ${players.length} ชื่อ แต่ต้องมีอย่างน้อย ${need} คน เลือกเพิ่มอีก ${need - players.length} ชื่อ`);
+      return;
+    }
+    showError('');
+    // บันทึกหลังผ่านด่าน min เท่านั้น — วงที่ถูกปฏิเสธไม่ควรตามไปติ๊กค้างที่หน้าอื่น
+    // เก็บ [...selected] ไม่ใช่ players: players ผ่าน clamp มาแล้ว (:94) และช่องกรอกจำนวนให้ชื่อ "คนที่ N" ที่ไม่ใช่คนใน roster
+    // ตั้งใจเก็บ "วงเต็มตามที่ตั้งใจ" ไม่ใช่ "วงที่เล่นได้จริงบนหน้านี้" — clamp ตอนใช้ ไม่ clamp ตอนเก็บ
+    // เคยลองเก็บตัวที่ clamp แล้ว: เดินผ่านหน้า max เล็กครั้งเดียว วงหายถาวร ซึ่งแย่กว่าปัญหาที่แก้
+    // ผลข้างเคียงที่ยังเหลือ: ติ๊กเกิน max แล้วคนท้ายโดนตัดเงียบซ้ำทุกหน้า — ต้องบอกผู้ใช้ ดูใบที่เปิดไว้
+    saveGroup([...selected]);
     document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players }, bubbles: true }));
     // ปุ่มนี้อยู่เหนือจอเล่น — กดกลางรอบ = ล้มรอบทิ้ง จึงซ่อนทั้งแผงหลังเริ่มแล้ว
     // ทางกลับ: "เล่นอีกรอบ" อยู่ในจอเกม · "ล้างกลุ่มนี้" อยู่นอกแผงนี้จึงยังกดได้กลางรอบ
@@ -93,7 +119,13 @@ const { min, max } = Astro.props as Props;
   });
 
   clearBtn.addEventListener('click', () => {
-    session.clear();
+    // หน้าเครื่องมือส่ง clearsSession={false} มา (ADR-0004: เครื่องมือห้ามแตะ session)
+    // checkpoint มีช่องเดียวร่วมกันทั้งเว็บ ล้างจากหน้าเครื่องมือ = เกมที่ค้างกลางรอบหายทันทีโดยไม่เตือน
+    // ความหมายของปุ่มยังเดิม: ล้าง "รอบนี้" ไม่ใช่ล้าง roster (roster อยู่ localStorage จึงรอดทั้งสองทาง)
+    if (clearBtn.dataset.clearsSession !== 'no') loadSession().clear();
+    // ไม่ผ่าน clearsSession: "วง" ไม่ใช่ session — เครื่องมือก็ล้างวงของตัวเองได้ แค่ห้ามแตะ checkpoint
+    // ขาดบรรทัดนี้ปุ่มนี้กลายเป็น no-op ทันทีที่เรา prefill: reload แล้ววงเดิมติ๊กกลับมาครบ (roster ยังไม่ถูกแตะ เหมือนเดิม)
+    saveGroup([]);
     // ponytail: reload แทนการรื้อ UI เอง — ได้ teardown ครบทุกชั้นฟรี (pagehide → game.dispose(),
     // แผง setup กลับมา, selection ล้าง) ถ้าวันหนึ่งมี client router ค่อยเปลี่ยนเป็น reset ในที่
     location.reload();

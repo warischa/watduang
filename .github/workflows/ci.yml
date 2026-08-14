@@ -71,6 +71,61 @@ jobs:
             console.log('CSP allowlist check ok');
           "
 
+      # Astro inlines a page script when it has no imports and is under assetsInlineLimit —
+      # CSP script-src has no 'unsafe-inline', so an inlined script is silently blocked in prod.
+      # จับ <script> ที่ไม่มี src ทุกแบบ ไม่ใช่แค่สะกด type="module": <script is:inline> ที่เขียนมือ
+      # ออกมาเป็น <script> เปล่า โดน CSP บล็อกเหมือนกันแต่ grep สะกดเดียวมองไม่เห็น
+      # allowlist ของชนิดที่ CSP คุม ไม่ใช่ blocklist ของ ld+json — data block จริง (ld+json, json)
+      # CSP ไม่บล็อก จึงต้องไม่เป็น false positive ที่ทำให้มีคนมาถอด gate ทิ้ง
+      # ⚠ importmap และ speculationrules **ไม่ใช่** data block ที่ปลอดภัย — script-src-elem คุมทั้งคู่
+      # (spec เพิ่มคีย์เวิร์ด 'inline-speculation-rules' มาเพราะเหตุนี้ · Chrome ปฏิเสธ inline import map
+      # ภายใต้ CSP เข้ม) ถ้าไม่จับ วันหนึ่งมีคนใส่ import map แล้ว module ทั้งหน้าหยุดโหลดโดย gate เขียว
+      - name: CSP inline-script gate (dist artifact)
+        run: |
+          node - <<'NODE'
+          const { readdirSync, readFileSync } = require('fs');
+          const { join } = require('path');
+          const JS_TYPES = new Set([
+            '', 'module', 'text/javascript', 'application/javascript',
+            'text/ecmascript', 'application/ecmascript', 'text/jscript', 'application/x-javascript',
+            // MIME เก่าที่เบราว์เซอร์ยังรันเป็น JS — CSP บล็อกเหมือนกัน
+            'text/x-javascript', 'text/x-ecmascript', 'application/x-ecmascript', 'text/livescript',
+            'text/javascript1.0', 'text/javascript1.1', 'text/javascript1.2',
+            'text/javascript1.3', 'text/javascript1.4', 'text/javascript1.5',
+            // ไม่ใช่ JS แต่ script-src-elem คุม — inline แล้วโดนบล็อกเงียบเหมือนกัน
+            'importmap', 'speculationrules',
+          ]);
+          const files = [];
+          (function walk(dir) {
+            for (const entry of readdirSync(dir, { withFileTypes: true })) {
+              const full = join(dir, entry.name);
+              if (entry.isDirectory()) walk(full);
+              else if (entry.name.endsWith('.html')) files.push(full);
+            }
+          })('dist');
+          let bad = false;
+          for (const file of files) {
+            for (const tag of readFileSync(file, 'utf8').match(/<script\b[^>]*>/gi) || []) {
+              if (/[\s"']src\s*=/i.test(tag)) continue; // ขอบเขตหน้า src กัน data-src ถูกนับเป็น src ของจริง
+              const attr = tag.match(/[\s"']type\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/i);
+              const type = (attr ? attr[2] ?? attr[3] ?? attr[4] : '').trim().toLowerCase();
+              if (!JS_TYPES.has(type)) continue;
+              console.log('::error file=' + file + '::' + file + ' has an inline script with no src: ' + tag +
+                " — CSP script-src 'self' has no 'unsafe-inline', so this script is blocked and the page silently does nothing in production");
+              bad = true;
+            }
+          }
+          if (bad) process.exit(1);
+          console.log('CSP inline-script gate ok — ' + files.length + ' HTML file(s), every <script> has src or is a non-JS data block');
+          NODE
+
+      - name: Sitemap covers tool pages
+        run: |
+          if ! grep -q '/tool/wheel/' dist/sitemap-0.xml; then
+            echo "::error::dist/sitemap-0.xml missing /tool/wheel/ — tool pages must be discoverable"
+            exit 1
+          fi
+
       - name: Smoke test (portability — dist/ must serve standalone, no Azure runtime)
         run: |
           npx serve@14 dist/ -l 4321 &
@@ -102,8 +157,19 @@ jobs:
             kill "$SERVER_PID" 2>/dev/null || true
             exit 1
           fi
-          echo "smoke: $BUILT game page(s) (matches manifest) + 2 core pages"
-          for path in "/" "/games/" $GAME_PATHS; do
+          # เทียบ dist/tool/*/ กับลิสต์ slug ที่ประกาศไว้ตรงนี้ (ไม่ใช่ derive จาก src/pages/tool/ —
+          # src เป็นตัวสร้าง ถ้าหน้าเครื่องมือหายไป src ก็หายไปด้วย baseline กับ output จะหดพร้อมกันแล้วผ่านเงียบๆ)
+          EXPECTED_TOOL_SLUGS="wheel"
+          TOOL_PATHS=$(for d in dist/tool/*/; do [ -d "$d" ] || continue; echo "/tool/$(basename "$d")/"; done)
+          for slug in $EXPECTED_TOOL_SLUGS; do
+            if [ ! -d "dist/tool/$slug" ]; then
+              echo "::error::Expected tool page 'dist/tool/${slug}/' not found in build output"
+              kill "$SERVER_PID" 2>/dev/null || true
+              exit 1
+            fi
+          done
+          echo "smoke: $BUILT game page(s) (matches manifest) + tool page(s) ($EXPECTED_TOOL_SLUGS) + core pages"
+          for path in "/" "/games/" "/tools/" $GAME_PATHS $TOOL_PATHS; do
             body=$(curl -sf "http://localhost:4321${path}") || { echo "::error::curl failed for ${path}"; status=1; continue; }
             if ! echo "$body" | grep -qi '<title>'; then
               echo "::error::No <title> tag found for ${path}"
