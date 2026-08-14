@@ -1,0 +1,174 @@
+{
+  "box07_freshState": {
+    "disabled": true,
+    "noteText": "ยังแบ่งไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด \"ใส่ชื่อลงสนาม\""
+  },
+  "box08_rosterAfterReload": {
+    "items": [
+      "เอ",
+      "บี",
+      "ซี",
+      "ดี",
+      "อี",
+      "เอฟ",
+      "จี"
+    ]
+  },
+  "box01_box03_firstSplit": {
+    "teams": [
+      [
+        "เอ",
+        "ดี",
+        "จี"
+      ],
+      [
+        "ซี",
+        "อี"
+      ],
+      [
+        "บี",
+        "เอฟ"
+      ]
+    ],
+    "headings": [
+      "ทีม 1 — 3 คน (ได้คนเกิน)",
+      "ทีม 2 — 2 คน",
+      "ทีม 3 — 2 คน"
+    ]
+  },
+  "box01_verify": {
+    "teamCount": 3,
+    "totalMembers": 7,
+    "expectedTotal": 7,
+    "noneMissing": true,
+    "noDuplicates": true
+  },
+  "box03_verify": {
+    "sizes": [
+      3,
+      2,
+      2
+    ],
+    "extraTagCount": 1
+  },
+  "box05_verify": {
+    "split1": [
+      [
+        "เอ",
+        "ดี",
+        "จี"
+      ],
+      [
+        "ซี",
+        "อี"
+      ],
+      [
+        "บี",
+        "เอฟ"
+      ]
+    ],
+    "split2": [
+      [
+        "ซี",
+        "เอฟ",
+        "เอ"
+      ],
+      [
+        "ดี",
+        "อี"
+      ],
+      [
+        "จี",
+        "บี"
+      ]
+    ],
+    "identical": false
+  },
+  "box04_verify": {
+    "teamCount": 2,
+    "teams": [
+      [
+        "เอฟ",
+        "บี",
+        "เอ",
+        "ซี"
+      ],
+      [
+        "อี",
+        "ดี",
+        "จี"
+      ]
+    ],
+    "flatLen": 7
+  },
+  "box06_verify": {
+    "disabled": true,
+    "noteText": "ขอ 99 ทีมไม่ได้ เพราะมีคนแค่ 7 คน"
+  },
+  "box11_verify": {
+    "children": [
+      {
+        "tag": "H1",
+        "id": null,
+        "cls": null
+      },
+      {
+        "tag": "P",
+        "id": null,
+        "cls": null
+      },
+      {
+        "tag": "DIV",
+        "id": "player-setup",
+        "cls": null
+      },
+      {
+        "tag": "BUTTON",
+        "id": "clear-group",
+        "cls": null
+      },
+      {
+        "tag": "DIV",
+        "id": "clear-choice",
+        "cls": null
+      },
+      {
+        "tag": "SCRIPT",
+        "id": null,
+        "cls": null
+      },
+      {
+        "tag": "SECTION",
+        "id": "team",
+        "cls": null
+      },
+      {
+        "tag": "DIV",
+        "id": null,
+        "cls": "ad-slot"
+      },
+      {
+        "tag": "SECTION",
+        "id": "how-to-use",
+        "cls": null
+      }
+    ],
+    "adMinHeight": "250px",
+    "adIsAfterTeamSection": true
+  },
+  "box12_verify": {
+    "reducedMotionMatches": false,
+    "sampleHeadingText": "ทีม 1 — 4 คน (ได้คนเกิน)"
+  },
+  "box09_verify": {
+    "checkedOnGamePage": [
+      "เอ",
+      "บี",
+      "ซี",
+      "ดี",
+      "อี",
+      "เอฟ",
+      "จี"
+    ]
+  }
+}

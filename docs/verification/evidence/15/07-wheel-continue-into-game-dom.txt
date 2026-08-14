@@ -1,0 +1,24 @@
+{
+  "links": [
+    "/game/timebomb/",
+    "/game/siamsi/"
+  ],
+  "followedHref": "/game/timebomb/",
+  "gamePage": {
+    "setupHidden": false,
+    "rosterItems": [
+      {
+        "name": "เอ",
+        "checked": true
+      },
+      {
+        "name": "บี",
+        "checked": true
+      },
+      {
+        "name": "ซี",
+        "checked": true
+      }
+    ]
+  }
+}

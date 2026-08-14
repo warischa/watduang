@@ -1,0 +1,9 @@
+{
+  "adExists": true,
+  "adMinHeight": "250px",
+  "adRectTop": 1072.125,
+  "wheelSectionBottom": 1056.125,
+  "adIsAfterWheelSection": true,
+  "bodyFirstElementChild": "MAIN",
+  "mainIsFirstBodyChild": true
+}

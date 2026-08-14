@@ -1,0 +1,40 @@
+{
+  "box07_wheelRoster": {
+    "names": [
+      "เอ",
+      "บี",
+      "ซี"
+    ],
+    "ticked": [
+      "เอ",
+      "บี",
+      "ซี"
+    ]
+  },
+  "box08_gameRoster": {
+    "names": [
+      "เอ",
+      "บี",
+      "ซี"
+    ],
+    "ticked": [
+      "เอ",
+      "บี",
+      "ซี"
+    ],
+    "startRoundVisible": true
+  },
+  "box07_drawRosterOnReopen": {
+    "names": [
+      "เอ",
+      "บี",
+      "ซี"
+    ],
+    "ticked": [
+      "เอ",
+      "บี",
+      "ซี"
+    ]
+  },
+  "consoleErrors": []
+}

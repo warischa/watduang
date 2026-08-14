@@ -1,0 +1,16 @@
+{
+  "matchMedia": {
+    "value": true
+  },
+  "animationCount": {
+    "value": 0
+  },
+  "resultIsText": {
+    "value": {
+      "nodeType": 3,
+      "text": "ได้: 1",
+      "role": "status",
+      "ariaLive": "polite"
+    }
+  }
+}

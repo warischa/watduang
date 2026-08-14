@@ -1,0 +1,35 @@
+[
+  {
+    "spinDisabledBefore": false,
+    "midFlight": {
+      "resultText": "",
+      "noteText": "กำลังหมุน…"
+    },
+    "after": {
+      "resultText": "โดน: เอ",
+      "spinDisabledAfter": false
+    }
+  },
+  {
+    "spinDisabledBefore": false,
+    "midFlight": {
+      "resultText": "",
+      "noteText": "กำลังหมุน…"
+    },
+    "after": {
+      "resultText": "โดน: บี",
+      "spinDisabledAfter": false
+    }
+  },
+  {
+    "spinDisabledBefore": false,
+    "midFlight": {
+      "resultText": "",
+      "noteText": "กำลังหมุน…"
+    },
+    "after": {
+      "resultText": "โดน: บี",
+      "spinDisabledAfter": false
+    }
+  }
+]

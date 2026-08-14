@@ -1,0 +1,7 @@
+{
+  "resultRole": "status",
+  "resultAriaLive": "polite",
+  "resultText": "โดน: บี",
+  "outLiText": "บี (ออกแล้ว)",
+  "outLiHasNonTextCue": true
+}

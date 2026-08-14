@@ -10,6 +10,7 @@
     "prebuild": "node scripts/validate-games.mjs",
     "build": "astro build",
     "preview": "astro preview",
+    "test": "node --test 'src/**/*.test.mjs'",
     "validate": "node scripts/validate-games.mjs"
   },
   "dependencies": {

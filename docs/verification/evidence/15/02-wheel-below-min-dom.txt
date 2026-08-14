@@ -1,0 +1,7 @@
+{
+  "rootHidden": false,
+  "errorHidden": false,
+  "errorText": "ยังเริ่มไม่ได้ — เลือกไว้ 1 ชื่อ แต่ต้องมีอย่างน้อย 2 คน เลือกเพิ่มอีก 1 ชื่อ",
+  "spinDisabled": true,
+  "resultAfterClickAttempt": ""
+}

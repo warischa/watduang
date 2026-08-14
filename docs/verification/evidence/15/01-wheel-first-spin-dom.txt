@@ -1,0 +1,8 @@
+{
+  "resultText": "โดน: เอ",
+  "noteText": "",
+  "namesList": [
+    "เอ",
+    "บี"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "box06_oneNameState": {
+    "drawGoDisabled": true,
+    "note": "ยังจับไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด \"ใส่ชื่อลงกล่อง\""
+  },
+  "box01_afterStart": {
+    "drawGoDisabled": false,
+    "note": "เหลือในกล่อง 3 คน",
+    "remaining": [
+      "เอ",
+      "บี",
+      "ซี"
+    ]
+  },
+  "box01_drawTwo": {
+    "result": "จับได้: ซี, เอ",
+    "note": "เหลือในกล่องแค่ 1 คน จับ 2 คนไม่ได้ — ลดจำนวน หรือกด \"เริ่มรอบใหม่\"",
+    "remaining": [
+      "บี"
+    ]
+  },
+  "box04_overRequest": {
+    "drawGoDisabled": true,
+    "note": "เหลือในกล่องแค่ 1 คน จับ 2 คนไม่ได้ — ลดจำนวน หรือกด \"เริ่มรอบใหม่\""
+  },
+  "box02_drawLast": {
+    "result": "จับได้: บี",
+    "note": "จับครบทั้ง 3 คนแล้ว — กด \"เริ่มรอบใหม่\" เพื่อคืนทุกชื่อเข้ากล่อง",
+    "remaining": [],
+    "drawGoDisabled": true
+  },
+  "box05_reset": {
+    "remaining": [
+      "เอ",
+      "บี",
+      "ซี"
+    ],
+    "note": "เหลือในกล่อง 3 คน",
+    "result": "",
+    "drawGoDisabled": false
+  },
+  "box10_adSlot": {
+    "adExists": true,
+    "adMinHeight": "250px",
+    "order_drawBeforeAd": true,
+    "order_adBeforeHow": true,
+    "childrenOfMainCount": 9
+  },
+  "consoleErrors": []
+}

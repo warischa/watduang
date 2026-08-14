@@ -1,0 +1,10 @@
+[
+  {
+    "name": "เอ",
+    "checked": true
+  },
+  {
+    "name": "บี",
+    "checked": true
+  }
+]

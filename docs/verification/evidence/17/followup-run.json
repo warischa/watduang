@@ -1,0 +1,25 @@
+{
+  "box08_editPropagation": {
+    "addedOnTeamPage": [
+      "ไก่เพิ่มใหม่"
+    ],
+    "seenOnDrawPage": [
+      "ไก่เพิ่มใหม่"
+    ],
+    "nameFlowedAcross": true
+  },
+  "box09_linkAffordance": {
+    "hrefs": [
+      "/game/timebomb/",
+      "/game/siamsi/"
+    ]
+  },
+  "box03_evenSplitCalibration": {
+    "headings": [
+      "ทีม 1 — 2 คน",
+      "ทีม 2 — 2 คน",
+      "ทีม 3 — 2 คน"
+    ],
+    "extraTagCount": 0
+  }
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "resultText": "โดน: เอ",
+    "noteText": "",
+    "spinDisabled": false
+  },
+  {
+    "resultText": "โดน: บี",
+    "noteText": "เหลือ ซี คนเดียวในวงล้อ — กด \"หมุน\" อีกครั้งเพื่อเฉลยคนสุดท้าย",
+    "spinDisabled": false
+  },
+  {
+    "resultText": "โดน: ซี (คนสุดท้าย)",
+    "noteText": "ออกครบทั้ง 3 คนแล้ว — กด \"คืนทุกชื่อเข้าวงล้อ\" เพื่อเริ่มรอบใหม่",
+    "spinDisabled": true
+  }
+]

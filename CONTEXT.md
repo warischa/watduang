@@ -13,6 +13,32 @@ _Avoid_: สุ่ม (กว้างเกินไป — เป็นกล�
 กลุ่มคนที่นั่งอยู่ด้วยกันและใช้มือถือเครื่องเดียวร่วมกัน เป็นหน่วยนับของผู้ใช้จริงบนเว็บนี้ — หนึ่งวงคือหนึ่งเครื่อง ไม่ใช่หนึ่งคน
 _Avoid_: กลุ่ม, ห้อง, room, party (party เป็นชื่อหมวด ไม่ใช่คน)
 
+**คนที่ N** (unnamed วง): a วง that ticked nobody still starts — the count input's number fills in as
+"คนที่ 1, 2, 3…" (#22), clamped into the page's `[min, max]` the same way a ticked roster is. Since that
+clamp always yields at least `min` names, an empty tick-set never reaches the below-min refusal; only a
+*partial* tick (more than 0 but fewer than min) does.
+
+For the #22 button (`src/shell/PlayerSetup.astro:216-218`, `startNumberedBtn`) this is unremarkable — the
+player actively chose numbered mode. The named เริ่มรอบ button (`src/shell/PlayerSetup.astro:224-232`,
+`startBtn`) takes the same fallback silently: with 0 ticked names it substitutes the synthesized
+"คนที่ N" set for the player's actual (empty) selection *before* `resolveStart`
+(`src/shell/player-select.ts:66-82`) ever runs, so the below-min guard evaluates the substitute, never the
+real selection. That is a deliberate design decision, not a nonevent — worth stating plainly, not waving
+off.
+
+Reconciled against [ADR-0007](docs/adr/0007-party-size-rule-constrains-the-set-not-the-location.md): its
+invariant is "a guard must enumerate the full party, never a partial or remaining pool." The substitute
+`fullSelection` here is a complete synthesized set, not a partial pool, so it does not violate that
+invariant on its literal terms. It does share the enabling condition ADR-0007's scoring flagged for the
+`saveGroup([])` defect — an empty `selected` set being read as meaningful rather than "nothing chosen
+yet" — but `saveGroup` itself is separately guarded (`if (selected.size > 0) saveGroup(...)`, same file,
+a few lines below `startBtn`'s substitution), so the stored group is never at risk here; only the
+below-min refusal's reach is. Judged intended given #7 (an empty roster is this panel's normal starting
+state, not an error state, and the count field is a companion input, not a leftover) — but the practical
+consequence, that the refusal gate can never fire while the panel is untouched beyond its `min`-defaulted
+count field, is the fact this entry exists to surface.
+_Avoid_: treating an empty tick-set as an error state — it is the count-only path, not a broken one
+
 **เกม**:
 สิ่งที่วงเล่นด้วยกัน มีรอบ มีลำดับตา และจบด้วยผลลัพธ์ร่วมของวง หนึ่งเกมคือหนึ่งไฟล์และหนึ่ง URL
 _Avoid_: มินิเกม, โหมด (โหมดคือของที่อยู่ข้างในเกม)

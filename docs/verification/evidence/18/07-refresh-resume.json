@@ -1,0 +1,17 @@
+{
+  "beforeRefresh": {
+    "value": {
+      "min": "3",
+      "max": "77",
+      "storage": "{\"min\":3,\"max\":77}",
+      "probe": "still-old-document"
+    }
+  },
+  "afterRefresh": {
+    "value": {
+      "min": "3",
+      "max": "77",
+      "storage": "{\"min\":3,\"max\":77}"
+    }
+  }
+}

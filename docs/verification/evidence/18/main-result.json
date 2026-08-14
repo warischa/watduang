@@ -1,0 +1,90 @@
+{
+  "box06_equalRange": {
+    "value": {
+      "disabled": true,
+      "note": "ช่วงตัวเลขต้องมีอย่างน้อย 2 ค่า (ตอนนี้มี 1 ค่า)"
+    }
+  },
+  "box06_minGtMax": {
+    "value": {
+      "disabled": true,
+      "note": "ช่วงตัวเลขผิด: ต่ำสุด (10) ต้องไม่มากกว่าสูงสุด (1)"
+    }
+  },
+  "box01_draws": [
+    "ได้: 4",
+    "ได้: 8",
+    "ได้: 8",
+    "ได้: 10",
+    "ได้: 7",
+    "ได้: 5",
+    "ได้: 3",
+    "ได้: 1"
+  ],
+  "box01_allInRange": true,
+  "box02_beforeToggle": {
+    "value": false
+  },
+  "box02_afterToggleOn": {
+    "value": {
+      "checked": true,
+      "note": "เหลือ 10 จาก 10 ค่าในรอบนี้"
+    }
+  },
+  "box02_afterToggleOff": {
+    "value": {
+      "checked": false,
+      "note": ""
+    }
+  },
+  "box04_twoDraws": [
+    {
+      "result": "ได้: 2",
+      "note": "เหลือ 1 จาก 2 ค่าในรอบนี้",
+      "disabled": false
+    },
+    {
+      "result": "ได้: 1",
+      "note": "สุ่มครบทุกเลขในช่วง 1-2 แล้ว — กด \"เริ่มรอบใหม่\" เพื่อสุ่มต่อ",
+      "disabled": true
+    }
+  ],
+  "box04_exhaustedState": {
+    "value": {
+      "disabled": true,
+      "note": "สุ่มครบทุกเลขในช่วง 1-2 แล้ว — กด \"เริ่มรอบใหม่\" เพื่อสุ่มต่อ",
+      "result": "ได้: 1"
+    }
+  },
+  "box05_afterReset": {
+    "value": {
+      "disabled": false,
+      "note": "เหลือ 2 จาก 2 ค่าในรอบนี้",
+      "result": ""
+    }
+  },
+  "box05_drawsAfterReset": [
+    "ได้: 2",
+    "ได้: 1"
+  ],
+  "box09_domOrder": {
+    "value": {
+      "childrenOrder": [
+        "h1.",
+        "p.",
+        "number",
+        "div.ad-slot",
+        "how-to-use"
+      ],
+      "adMinHeightStyle": "250px",
+      "adTopGreaterThanNumberBottom": true,
+      "firstChildIsNumberSection": false
+    }
+  },
+  "box09_afterSettle": {
+    "value": {
+      "firstChildStillNumberSection": false,
+      "childCount": 5
+    }
+  }
+}

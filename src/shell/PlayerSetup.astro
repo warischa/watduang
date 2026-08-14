@@ -225,6 +225,12 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     if (selected.size > 0) {
       fullSelection = [...selected];
     } else {
+      // 0 ticked names substitutes a synthesized "คนที่ 1..N" set for the player's actual (empty)
+      // selection BEFORE resolveStart runs (same #22 fallback startNumberedBtn uses explicitly) — the
+      // guard at result.belowMin below never sees the empty selection, only the substitute. Since
+      // numberedPlayers clamps to at least min, belowMin can never fire from this branch; the refusal
+      // gate only ever triggers on a partial tick. Deliberate, not a non-event: see CONTEXT.md's
+      // "คนที่ N" entry for why this does not repeat the ADR-0007-scored guard-sees-the-wrong-set defect.
       fullSelection = numberedPlayers(Number(countInput.value), min, max);
     }
 

@@ -1,0 +1,13 @@
+{
+  "reducedMotionFlagActive": {
+    "reduced": true
+  },
+  "textReadability": {
+    "resultText": "จับได้: เอ",
+    "resultTextNonEmpty": true,
+    "ariaLive": "polite",
+    "role": "status",
+    "colorAlone": "rgb(26, 26, 26)"
+  },
+  "consoleErrors": []
+}
