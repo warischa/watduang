@@ -42,6 +42,22 @@ The pre-migration markdown originals under `.scratch/free-game/` were deleted 20
 
 Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
+### เลขใบ vs เลข issue
+
+หัวข้อของ issue ขึ้นต้นด้วย **เลขใบ** ซึ่งไม่ใช่เลข issue — **เลขใบ + 1 = เลข issue**
+(ใบ 12 = issue #13) ตอนสร้างใบใหม่ต้องคำนวณจากเลข issue ถัดไป ไม่ใช่นับจากใบล่าสุด
+
+อย่าจดจำนวน issue หรือจำนวน sub-issue ไว้ในเอกสารใดๆ — นับจาก `gh` เอาตอนที่ต้องใช้
+ตัวเลขที่จดไว้จะเน่าเงียบและไม่มีใครกลับไปแก้
+
+### `.scratch/` — อย่า gitignore ทั้งโฟลเดอร์
+
+สำเนา issue และ map ใน `.scratch/` ถูกลบไปแล้วตอนย้ายมา GitHub แต่
+`.scratch/free-game/{research,prototypes}/` **ยังมีไฟล์ที่ track อยู่** — งานวิจัย demand,
+นโยบายโฆษณา, กฎหมาย, และ prototype ของ player shell
+
+ถ้า gitignore ทั้ง `.scratch/` ของพวกนี้จะหลุดออกจาก repo เงียบๆ โดยไม่มีอะไรแตกให้เห็น
+
 ## Pull requests as a triage surface
 
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_

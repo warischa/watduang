@@ -3,7 +3,7 @@
 เว็บรวมเกมกลุ่มเล่นฟรี 2-10 คน บนเครื่องเดียว (ส่งมือถือวนกัน) ภาษาไทยก่อน หารายได้จาก Google AdSense
 แบรนด์อังกฤษ: **PartyPick** (เสนอ รอยืนยัน) — อยู่ที่ `/en/` ไม่ซื้อโดเมนที่สอง
 
-**สถานะ:** 2 เกมลงแล้ว (`timebomb` · `siamsi`) · การตัดสินใจทั้งหมดอยู่ในแผนที่ [#1](https://github.com/warischa/watduang/issues/1)
+สถานะสดอยู่ที่ § Current state ข้างล่าง — ที่นี่ไม่เขียนซ้ำ
 
 ## Stack
 
@@ -29,7 +29,7 @@ Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla T
 
 done: **เกม 2 `siamsi` ลง CI เขียว 11 step** `aa5a251` · การ์ดแชร์ `/` `/games/` `/404` `d254a8d` · siamsi กู้รอบค้างตอนรีเฟรช `e3fd74f` · 14 tests · **grilling รอบใหญ่ → `CONTEXT.md` + ADR 0001-0004 + spec [#14] แตกเป็นตั๋ว [#15] → [#16][#17][#18]**
 
-dec: **why อยู่ใน ADR อ้างเลขเอา** — 0001 หมวด=เจตนาคนค้นไม่ใช่กลไก · 0002 siamsi=เกมที่ 8 แยกจาก `daily-fortune` ด้วยวง/เดี่ยว · **0003 gate เลิกใช้ #12 → organic clicks <300/เดือน ที่เดือน 6 นับจาก tool+3 เกมขึ้น prod · ไม่ถึง = ดัน `/en/`** · 0004 เครื่องมือ 4 ตัว `/tool/<slug>` ไม่ผ่าน GameModule แต่ต้องใช้ roster ร่วมกับเกม
+dec: why อยู่ใน `docs/adr/` — 0001 หมวด · 0002 siamsi=เกม 8 · 0004 เครื่องมือ 4 ตัว `/tool/<slug>` ต้องใช้ roster ร่วม · **0003 คือเกณฑ์ที่ยังมีชีวิต: organic clicks <300/เดือน ที่เดือน 6 นับจาก tool+3 เกมขึ้น prod → ไม่ถึง = ดัน `/en/`**
 
 ⚠ ก่อนสร้างรูป OG · รัน build · หรือยื่นตัวเลือกให้เจ้าของเว็บตัดสิน → อ่าน `docs/runbook.md` ก่อน
 
@@ -45,14 +45,8 @@ inflight: tree สะอาด · push ครบถึง `origin/main` · ไ�
 
 ## Agent skills
 
-### Issue tracker
+**GitHub Issues คือแหล่งความจริงเดียว** — แผนที่คือ [#1](https://github.com/warischa/watduang/issues/1) · วิธีทำงานกับ tracker และกติกาเลขใบ: `docs/agents/issue-tracker.md`
 
-GitHub Issues ผ่าน `gh` CLI · repo: [`warischa/watduang`](https://github.com/warischa/watduang) (private) · **แผนที่คือ issue #1** พร้อม sub-issue 11 ใบ · เลขใบ + 1 = เลข issue · **GitHub เป็นแหล่งความจริงเดียว** สำเนา issue+map ใน `.scratch/` ลบแล้ว แต่ `.scratch/free-game/{research,prototypes}/` ยังมีของ track อยู่ 4 ไฟล์ — อย่า gitignore ทั้งโฟลเดอร์ · ดู `docs/agents/issue-tracker.md`
+ก่อนเขียนโค้ด: ใช้คำตาม `CONTEXT.md` และเคารพ `docs/adr/` · label: `docs/agents/triage-labels.md` · โดเมน: `docs/agents/domain.md`
 
-### Triage labels
-
-ชุดมาตรฐานทั้งห้า ชื่อ label ตรงกับชื่อบทบาท ดู `docs/agents/triage-labels.md`
-
-### Domain docs
-
-single-context — `CONTEXT.md` (glossary) + `docs/adr/` ที่ราก **มีแล้วทั้งคู่ ใช้คำตาม glossary และเคารพ ADR** ดู `docs/agents/domain.md`
+การบันทึกเซสชัน (window · บ้านของข้อมูล · สิ่งที่ห้ามอยู่ในไฟล์นี้): `.claude/commands/save-session.md`
