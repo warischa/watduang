@@ -159,7 +159,7 @@ jobs:
           fi
           # เทียบ dist/tool/*/ กับลิสต์ slug ที่ประกาศไว้ตรงนี้ (ไม่ใช่ derive จาก src/pages/tool/ —
           # src เป็นตัวสร้าง ถ้าหน้าเครื่องมือหายไป src ก็หายไปด้วย baseline กับ output จะหดพร้อมกันแล้วผ่านเงียบๆ)
-          EXPECTED_TOOL_SLUGS="wheel"
+          EXPECTED_TOOL_SLUGS="wheel draw team number"
           TOOL_PATHS=$(for d in dist/tool/*/; do [ -d "$d" ] || continue; echo "/tool/$(basename "$d")/"; done)
           for slug in $EXPECTED_TOOL_SLUGS; do
             if [ ! -d "dist/tool/$slug" ]; then

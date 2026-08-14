@@ -1,0 +1,239 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="สุ่มเลข — วัดดวง"
+  description="สุ่มเลขในช่วงออนไลน์ ตั้งค่าต่ำสุด-สูงสุดแล้วกดสุ่ม เลือกได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้หรือไม่"
+>
+  <main>
+    <h1>สุ่มเลข</h1>
+    <p>ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม — เลือกโหมดได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้ไหม</p>
+
+    <section id="number" aria-labelledby="number-heading">
+      <h2 id="number-heading">ช่วงตัวเลข</h2>
+
+      <p class="number-field">
+        <label for="number-min">ต่ำสุด</label>
+        <input id="number-min" type="number" step="1" inputmode="numeric" />
+        <label for="number-max">สูงสุด</label>
+        <input id="number-max" type="number" step="1" inputmode="numeric" />
+      </p>
+
+      <p class="number-toggle">
+        <label for="number-no-repeat">
+          <input id="number-no-repeat" type="checkbox" /> เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้
+        </label>
+      </p>
+
+      <p id="number-result" class="number-result" role="status" aria-live="polite"></p>
+      <p id="number-note" class="number-note" role="status" aria-live="polite"></p>
+
+      <div class="number-actions">
+        <button id="number-go" type="button" disabled aria-describedby="number-note">สุ่ม</button>
+        <button id="number-reset" type="button">เริ่มรอบใหม่</button>
+      </div>
+    </section>
+
+    <!-- Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
+         and nothing may be injected above content -->
+    <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
+
+    <section id="how-to-use">
+      <h2>วิธีใช้</h2>
+      <ol>
+        <li>ใส่ค่าต่ำสุดและสูงสุดของช่วงที่จะสุ่ม</li>
+        <li>อยากให้เลขที่ออกแล้วไม่ออกซ้ำ ให้ติ๊ก "เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้"</li>
+        <li>กด "สุ่ม" ผลขึ้นเป็นตัวหนังสือทันที กดต่อได้เรื่อยๆ จนกว่าจะกด "เริ่มรอบใหม่"</li>
+      </ol>
+      <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: var(--space-md);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+  }
+
+  .number-field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: var(--space-md) 0;
+  }
+
+  /* Number input: wide enough for multiple digits, doesn't overflow a 320px screen */
+  .number-field input {
+    width: 5rem;
+    padding: var(--space-xs);
+    font-size: 1rem;
+  }
+
+  .number-toggle {
+    margin: var(--space-sm) 0 var(--space-md);
+  }
+
+  /* Reserves space for the result so content below doesn't shift when a number appears */
+  .number-result {
+    min-height: 2em;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .number-note {
+    min-height: 3em;
+    margin: var(--space-xs) 0 var(--space-md);
+    color: var(--color-muted);
+  }
+
+  /* Buttons wrap to a new line instead of overflowing when the screen is narrower than both buttons combined */
+  .number-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+</style>
+
+<script>
+  import { pickNumber } from '../../tools/number';
+
+  const minInput = document.getElementById('number-min') as HTMLInputElement;
+  const maxInput = document.getElementById('number-max') as HTMLInputElement;
+  const noRepeatBox = document.getElementById('number-no-repeat') as HTMLInputElement;
+  const resultEl = document.getElementById('number-result') as HTMLElement;
+  const noteEl = document.getElementById('number-note') as HTMLElement;
+  const goBtn = document.getElementById('number-go') as HTMLButtonElement;
+  const resetBtn = document.getElementById('number-reset') as HTMLButtonElement;
+
+  // Latest range lives in localStorage to survive a refresh — equivalent to other tools' roster, but pure
+  // numeric data, so it doesn't go through shell/roster.ts (that stores people's names, a different data domain)
+  const STORAGE_KEY = 'watduang:tool:number-range';
+
+  function loadRange(): { min: number; max: number } {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as { min: number; max: number };
+        if (Number.isFinite(saved.min) && Number.isFinite(saved.max)) return saved;
+      }
+    } catch {
+      // Private mode or storage disabled — silently fall back to defaults instead of breaking the page
+    }
+    return { min: 1, max: 10 };
+  }
+
+  function saveRange(min: number, max: number): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ min, max }));
+    } catch {
+      // No storage — the tool still works, it just won't survive a refresh
+    }
+  }
+
+  const initial = loadRange();
+  minInput.value = String(initial.min);
+  maxInput.value = String(initial.max);
+
+  // Which numbers have already come out in no-repeat mode — deliberately memory-only, refresh starts a new round
+  let drawn: number[] = [];
+
+  function currentRange(): { min: number; max: number } | null {
+    const min = Math.floor(Number(minInput.value));
+    const max = Math.floor(Number(maxInput.value));
+    if (!Number.isFinite(min) || !Number.isFinite(max)) return null;
+    return { min, max };
+  }
+
+  function render(): void {
+    const range = currentRange();
+
+    if (!range) {
+      goBtn.disabled = true;
+      noteEl.textContent = 'กรอกต่ำสุดและสูงสุดให้ครบเป็นตัวเลข';
+      return;
+    }
+
+    const { min, max } = range;
+
+    if (min > max) {
+      goBtn.disabled = true;
+      noteEl.textContent = `ช่วงตัวเลขผิด: ต่ำสุด (${min}) ต้องไม่มากกว่าสูงสุด (${max})`;
+      return;
+    }
+
+    const rangeSize = max - min + 1;
+    if (rangeSize < 2) {
+      goBtn.disabled = true;
+      noteEl.textContent = `ช่วงตัวเลขต้องมีอย่างน้อย 2 ค่า (ตอนนี้มี ${rangeSize} ค่า)`;
+      return;
+    }
+
+    if (noRepeatBox.checked) {
+      const left = rangeSize - drawn.length;
+      if (left <= 0) {
+        goBtn.disabled = true;
+        noteEl.textContent = `สุ่มครบทุกเลขในช่วง ${min}-${max} แล้ว — กด "เริ่มรอบใหม่" เพื่อสุ่มต่อ`;
+        return;
+      }
+      goBtn.disabled = false;
+      noteEl.textContent = `เหลือ ${left} จาก ${rangeSize} ค่าในรอบนี้`;
+      return;
+    }
+
+    goBtn.disabled = false;
+    noteEl.textContent = '';
+  }
+
+  function draw(): void {
+    const range = currentRange();
+    if (!range) return;
+
+    try {
+      const picked = pickNumber(range.min, range.max, noRepeatBox.checked ? drawn : [], Math.random);
+      if (noRepeatBox.checked) drawn.push(picked);
+      resultEl.textContent = `ได้: ${picked}`;
+    } catch (error) {
+      // Last resort — the button is normally disabled first, but if this is reached the user must see the reason as text
+      const reason = error instanceof Error ? error.message : 'สุ่มไม่ได้';
+      noteEl.textContent = reason;
+    }
+    render();
+  }
+
+  minInput.addEventListener('input', () => {
+    const range = currentRange();
+    if (range && range.min <= range.max && range.max - range.min + 1 >= 2) saveRange(range.min, range.max);
+    drawn = []; // Range changed — numbers drawn in the old range can't decide the new one
+    render();
+  });
+
+  maxInput.addEventListener('input', () => {
+    const range = currentRange();
+    if (range && range.min <= range.max && range.max - range.min + 1 >= 2) saveRange(range.min, range.max);
+    drawn = [];
+    render();
+  });
+
+  noRepeatBox.addEventListener('change', () => {
+    drawn = []; // Switching mode = start a new count, avoids stale state carrying across modes
+    render();
+  });
+
+  goBtn.addEventListener('click', draw);
+
+  resetBtn.addEventListener('click', () => {
+    drawn = [];
+    resultEl.textContent = '';
+    render();
+  });
+
+  render();
+</script>

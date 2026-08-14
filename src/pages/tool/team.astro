@@ -1,0 +1,226 @@
+---
+import Base from '../../layouts/Base.astro';
+import PlayerSetup from '../../shell/PlayerSetup.astro';
+import { games } from '../../games/manifest';
+---
+
+<Base
+  title="แบ่งทีม — วัดดวง"
+  description="แบ่งทีมออนไลน์ ใส่ชื่อแล้วเลือกจำนวนทีม สุ่มแบ่งให้ทันทีแบบยุติธรรม เปลี่ยนจำนวนทีมแล้วแบ่งใหม่ได้เรื่อยๆ กดต่อเข้าเกมได้เลย"
+>
+  <main>
+    <h1>แบ่งทีม</h1>
+    <p>ใส่ชื่อลงสนาม เลือกจำนวนทีม แล้วสุ่มแบ่งให้ทันที — คนเกินกระจายให้เห็นชัดว่าทีมไหนได้เพิ่ม</p>
+
+    <PlayerSetup min={2} max={10} ctaLabel="ใส่ชื่อลงสนาม" clearsSession={false} />
+
+    <section id="team" aria-labelledby="team-heading">
+      <h2 id="team-heading">แบ่งทีม</h2>
+
+      <p class="team-field">
+        <label for="team-count">จำนวนทีม</label>
+        <input id="team-count" type="number" min="1" value="2" inputmode="numeric" />
+      </p>
+
+      <p id="team-note" class="team-note" role="status" aria-live="polite">
+        ยังแบ่งไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงสนาม"
+      </p>
+
+      <div class="team-actions">
+        <button id="team-split" type="button" disabled aria-describedby="team-note">แบ่งทีม</button>
+      </div>
+
+      <ul id="team-result" class="team-list" role="status" aria-live="polite"></ul>
+
+      <!-- Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists
+           Names flow through roster (localStorage), not session, so it doesn't overwrite an in-progress game checkpoint -->
+      <nav class="team-next" aria-label="เล่นเกมต่อ">
+        <h3>เล่นเกมต่อด้วยวงเดิม</h3>
+        <ul>
+          {games.map((game) => <li><a href={`/game/${game.id}/`}>{game.names.th}</a></li>)}
+        </ul>
+      </nav>
+    </section>
+
+    <!-- Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
+         and nothing may be injected above content -->
+    <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
+
+    <section id="how-to-use">
+      <h2>วิธีใช้</h2>
+      <ol>
+        <li>เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด "ใส่ชื่อลงสนาม"</li>
+        <li>ใส่จำนวนทีมที่ต้องการ แล้วกด "แบ่งทีม" ผลขึ้นเป็นรายชื่อแยกทีมทันที</li>
+        <li>เปลี่ยนจำนวนทีมเมื่อไหร่ก็แบ่งใหม่ให้ทันทีโดยไม่ต้องพิมพ์ชื่อซ้ำ กด "แบ่งทีม" ซ้ำเพื่อสุ่มใหม่ด้วยจำนวนทีมเดิม</li>
+      </ol>
+      <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: var(--space-md);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+  }
+
+  .team-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: var(--space-md) 0;
+  }
+
+  /* Count input: wide enough for 2 digits, doesn't overflow a 320px screen */
+  .team-field input {
+    width: 4rem;
+    padding: var(--space-xs);
+    font-size: 1rem;
+  }
+
+  .team-note {
+    min-height: 3em;
+    margin: 0 0 var(--space-md);
+    color: var(--color-muted);
+  }
+
+  .team-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  /* Reserves space for the result so content below doesn't shift when teams appear */
+  .team-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-md) 0;
+    min-height: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .team-list li {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: var(--space-sm);
+  }
+
+  .team-list .team-heading {
+    margin: 0 0 var(--space-xs);
+    font-weight: 700;
+  }
+
+  .team-list .team-members {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+</style>
+
+<script>
+  import { splitTeams } from '../../tools/team';
+
+  const countInput = document.getElementById('team-count') as HTMLInputElement;
+  const noteEl = document.getElementById('team-note') as HTMLElement;
+  const resultEl = document.getElementById('team-result') as HTMLUListElement;
+  const splitBtn = document.getElementById('team-split') as HTMLButtonElement;
+
+  let players: string[] = [];
+  // Whether a split already exists — controls whether changing the team count should re-split immediately or just update the status text
+  let hasResult = false;
+
+  function currentCount(): number {
+    return Math.floor(Number(countInput.value));
+  }
+
+  // Reason splitting isn't possible right now (shown to the user), or null if ready to split
+  function blockedReason(): string | null {
+    if (players.length < 2) {
+      return 'ยังแบ่งไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงสนาม"';
+    }
+    const count = currentCount();
+    if (!Number.isInteger(count) || count < 1) {
+      return 'จำนวนทีมต้องเป็นเลขจำนวนเต็มตั้งแต่ 1 ขึ้นไป';
+    }
+    if (count > players.length) {
+      return `ขอ ${count} ทีมไม่ได้ เพราะมีคนแค่ ${players.length} คน`;
+    }
+    return null;
+  }
+
+  function render(): void {
+    const reason = blockedReason();
+    splitBtn.disabled = reason !== null;
+    if (reason) {
+      noteEl.textContent = reason;
+    } else if (!hasResult) {
+      noteEl.textContent = `พร้อมแบ่ง ${players.length} คน เป็น ${currentCount()} ทีม`;
+    } else {
+      noteEl.textContent = '';
+    }
+  }
+
+  function renderTeams(teams: string[][]): void {
+    resultEl.innerHTML = '';
+    const sizes = teams.map((t) => t.length);
+    const minSize = Math.min(...sizes);
+    teams.forEach((team, i) => {
+      const li = document.createElement('li');
+      // Status conveyed by text, not color alone — reads as plain text
+      const extra = team.length > minSize ? ' (ได้คนเกิน)' : '';
+      const heading = document.createElement('p');
+      heading.className = 'team-heading';
+      heading.textContent = `ทีม ${i + 1} — ${team.length} คน${extra}`;
+      const members = document.createElement('p');
+      members.className = 'team-members';
+      members.textContent = team.join(', ');
+      li.appendChild(heading);
+      li.appendChild(members);
+      resultEl.appendChild(li);
+    });
+  }
+
+  function split(): void {
+    const reason = blockedReason();
+    if (reason) {
+      noteEl.textContent = reason;
+      return;
+    }
+    let teams: string[][];
+    try {
+      // Not passing random = uses splitTeams' own Math.random — re-randomizes every call, no memoization
+      teams = splitTeams(players, currentCount());
+    } catch (error) {
+      // Last resort — the button is normally disabled first, but if this is reached the user must see the reason as text
+      const reasonText = error instanceof Error ? error.message : 'แบ่งทีมไม่ได้';
+      noteEl.textContent = reasonText;
+      return;
+    }
+    hasResult = true;
+    renderTeams(teams);
+    render();
+  }
+
+  // Same name-entry panel the games use — the tool is just a listener, it doesn't change its behavior
+  document.addEventListener('watduang:start', (event) => {
+    players = (event as CustomEvent<{ players: string[] }>).detail.players;
+    hasResult = false;
+    resultEl.innerHTML = '';
+    render();
+  });
+
+  splitBtn.addEventListener('click', split);
+
+  // Team count changed: update the live status text on every keystroke, but only re-split once the
+  // value is committed (blur/Enter/spinner) — re-splitting mid-type would flash a wrong-count result
+  countInput.addEventListener('input', render);
+  countInput.addEventListener('change', () => {
+    if (hasResult) split();
+  });
+
+  render();
+</script>

@@ -1,0 +1,211 @@
+---
+import Base from '../../layouts/Base.astro';
+import PlayerSetup from '../../shell/PlayerSetup.astro';
+import { games } from '../../games/manifest';
+---
+
+<Base
+  title="จับฉลาก — วัดดวง"
+  description="จับฉลากออนไลน์ ใส่ชื่อลงกล่องแล้วเลือกว่าจะจับกี่คน กดจับได้ทันที ไม่ซ้ำคนเดิมในรอบเดียวกัน"
+>
+  <main>
+    <h1>จับฉลาก</h1>
+    <p>ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p>
+
+    <PlayerSetup min={2} max={10} ctaLabel="ใส่ชื่อลงกล่อง" clearsSession={false} />
+
+    <section id="draw" aria-labelledby="draw-heading">
+      <h2 id="draw-heading">กล่องฉลาก</h2>
+
+      <p class="draw-field">
+        <label for="draw-count">จับกี่คน</label>
+        <input id="draw-count" type="number" min="1" value="1" inputmode="numeric" />
+      </p>
+
+      <p id="draw-result" class="draw-result" role="status" aria-live="polite"></p>
+      <p id="draw-note" class="draw-note" role="status" aria-live="polite">
+        ยังจับไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงกล่อง"
+      </p>
+
+      <div class="draw-actions">
+        <button id="draw-go" type="button" disabled aria-describedby="draw-note">จับฉลาก</button>
+        <button id="draw-reset" type="button">เริ่มรอบใหม่</button>
+      </div>
+
+      <h3>ยังอยู่ในกล่อง</h3>
+      <ul id="draw-remaining" class="draw-names"></ul>
+
+      <!-- Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists
+           Names flow through roster (localStorage), not session, so it doesn't overwrite an in-progress game checkpoint -->
+      <nav class="draw-next" aria-label="เล่นเกมต่อ">
+        <h3>เล่นเกมต่อด้วยวงเดิม</h3>
+        <ul>
+          {games.map((game) => <li><a href={`/game/${game.id}/`}>{game.names.th}</a></li>)}
+        </ul>
+      </nav>
+    </section>
+
+    <!-- Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
+         and nothing may be injected above content -->
+    <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
+
+    <section id="how-to-use">
+      <h2>วิธีใช้</h2>
+      <ol>
+        <li>เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด "ใส่ชื่อลงกล่อง"</li>
+        <li>เลือกจำนวนที่จะจับ แล้วกด "จับฉลาก" ผลขึ้นเป็นตัวหนังสือทันที</li>
+        <li>จับต่อได้เรื่อยๆ คนที่จับไปแล้วจะไม่ถูกจับซ้ำ จนกว่าจะกด "เริ่มรอบใหม่"</li>
+      </ol>
+      <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: var(--space-md);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+  }
+
+  .draw-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: var(--space-md) 0;
+  }
+
+  /* Count input: wide enough for 2 digits, doesn't overflow a 320px screen */
+  .draw-field input {
+    width: 4rem;
+    padding: var(--space-xs);
+    font-size: 1rem;
+  }
+
+  /* Reserves space for the result so content below doesn't shift when a name appears · long names wrap instead of pushing the layout */
+  .draw-result {
+    min-height: 2em;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .draw-note {
+    min-height: 3em;
+    margin: var(--space-xs) 0 var(--space-md);
+    color: var(--color-muted);
+  }
+
+  /* Buttons wrap to a new line instead of overflowing when the screen is narrower than both buttons combined */
+  .draw-actions,
+  .draw-names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .draw-names {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-md) 0;
+  }
+
+  .draw-names li {
+    overflow-wrap: anywhere;
+  }
+</style>
+
+<script>
+  import { drawNames } from '../../tools/draw';
+
+  const countInput = document.getElementById('draw-count') as HTMLInputElement;
+  const resultEl = document.getElementById('draw-result') as HTMLElement;
+  const noteEl = document.getElementById('draw-note') as HTMLElement;
+  const remainingEl = document.getElementById('draw-remaining') as HTMLUListElement;
+  const drawBtn = document.getElementById('draw-go') as HTMLButtonElement;
+  const resetBtn = document.getElementById('draw-reset') as HTMLButtonElement;
+
+  let players: string[] = [];
+  // Who's already been drawn — deliberately memory-only, refresh starts a new round
+  // (names persist because roster is localStorage) · must not go into shell/session.ts because checkpoint
+  // is one slot shared across the whole site — the tool touching it would wipe an in-progress game instantly
+  // Never saveGroup() with the remaining list — roster is shared by every tool/game; trimming here and saving = other people's names vanish site-wide
+  const drawn = new Set<string>();
+
+  function remaining(): string[] {
+    return players.filter((name) => !drawn.has(name));
+  }
+
+  function render(): void {
+    const left = remaining();
+
+    remainingEl.innerHTML = '';
+    for (const name of left) {
+      const li = document.createElement('li');
+      li.textContent = name;
+      remainingEl.appendChild(li);
+    }
+
+    const count = Math.floor(Number(countInput.value));
+    const validCount = Number.isFinite(count) && count >= 1;
+
+    if (players.length < 2) {
+      drawBtn.disabled = true;
+      noteEl.textContent = 'ยังจับไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงกล่อง"';
+    } else if (left.length === 0) {
+      drawBtn.disabled = true;
+      noteEl.textContent = `จับครบทั้ง ${players.length} คนแล้ว — กด "เริ่มรอบใหม่" เพื่อคืนทุกชื่อเข้ากล่อง`;
+    } else if (!validCount) {
+      drawBtn.disabled = true;
+      noteEl.textContent = 'จำนวนที่จะจับต้องเป็นเลขจำนวนเต็มตั้งแต่ 1 ขึ้นไป';
+    } else if (count > left.length) {
+      drawBtn.disabled = true;
+      noteEl.textContent = `เหลือในกล่องแค่ ${left.length} คน จับ ${count} คนไม่ได้ — ลดจำนวน หรือกด "เริ่มรอบใหม่"`;
+    } else {
+      drawBtn.disabled = false;
+      noteEl.textContent = `เหลือในกล่อง ${left.length} คน`;
+    }
+  }
+
+  function draw(): void {
+    const left = remaining();
+    const count = Math.floor(Number(countInput.value));
+
+    let picked: string[];
+    try {
+      picked = drawNames(left, count);
+    } catch (error) {
+      // Last resort — the button is normally disabled first, but if this is reached the user must see the reason as text
+      const reason = error instanceof Error ? error.message : 'จับฉลากไม่ได้';
+      noteEl.textContent = reason;
+      return;
+    }
+
+    for (const name of picked) drawn.add(name);
+    resultEl.textContent = picked.length === 1 ? `จับได้: ${picked[0]}` : `จับได้: ${picked.join(', ')}`;
+    render();
+  }
+
+  // Same name-entry panel the games use — the tool is just a listener, it doesn't change its behavior
+  document.addEventListener('watduang:start', (event) => {
+    players = (event as CustomEvent<{ players: string[] }>).detail.players;
+    drawn.clear();
+    resultEl.textContent = '';
+    render();
+  });
+
+  drawBtn.addEventListener('click', draw);
+
+  resetBtn.addEventListener('click', () => {
+    drawn.clear();
+    resultEl.textContent = '';
+    render();
+  });
+
+  countInput.addEventListener('input', render);
+
+  render();
+</script>
