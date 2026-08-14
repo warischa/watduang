@@ -44,6 +44,21 @@ The prescription "put it on the page" would not have prevented it; "enumerate th
 If an `.astro` component test harness ever exists here, the tension disappears and the guard could
 live in either place on its own merits. Until then, extraction is what makes the rule testable.
 
+**Scored S2026-08-14#5 — still untested, and the cost is now measured.** No harness appeared, and the
+#23 work paid the price twice over. Extraction worked exactly as this ADR predicted for the pure parts:
+`planStart(checkpoint, gameId, choice)` went into `player-select.ts` and its foreign-game guard was
+proved non-vacuous by substituting the game-agnostic condition and watching a test fail. But the fix for
+the defect an adversarial review found — `#player-count` having no listener, so editing the count after
+the resume prompt appeared started a round with the stale roster — is a single `addEventListener` line
+inside `PlayerSetup.astro`. There is nothing to extract: the bug *is* the wiring. It ships with zero unit
+coverage and passes CI either way.
+
+What stood in for the missing harness was a browser probe calibrated both ways: with the listener patched
+out of `dist/`, it reproduced the wrong 4-player round; after a clean rebuild the same click is a no-op.
+That is a working substitute, not an equivalent one — it lives in a session scratchpad and CI never runs
+it. The honest reading of this ADR today is that extraction covers the logic and nothing covers the
+wiring.
+
 ## Related
 
 Instrument used to verify the page-level behaviour (and three ways it produced confidently wrong
