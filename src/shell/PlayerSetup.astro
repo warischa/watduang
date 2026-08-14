@@ -6,10 +6,11 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
   <div id="setup-number-picker">
     <label for="player-count">จำนวนคนเล่น</label>
     <input id="player-count" type="number" min={min} max={max} value={min} />
+    <button id="start-numbered" type="button">เริ่มแบบ "คนที่ 1, 2, 3…"</button>
   </div>
 
   <div id="setup-roster-grid">
-    <p>เลือกชื่อจากกลุ่มเดิม หรือเพิ่มชื่อใหม่ — วงที่เล่นล่าสุดจะถูกติ๊กไว้ให้ เอาติ๊กออกให้หมดถ้าอยากใช้ "คนที่ 1, 2, 3…" ตามจำนวนด้านบน</p>
+    <p>เลือกชื่อจากกลุ่มเดิม หรือเพิ่มชื่อใหม่ — วงที่เล่นล่าสุดจะถูกติ๊กไว้ให้ ถ้าอยากเล่นแบบไม่ใช้ชื่อ กดปุ่ม "เริ่มแบบ คนที่ 1, 2, 3…" ด้านบนได้เลย กลุ่มเดิมยังอยู่ครบ</p>
     <ul id="roster-list"></ul>
     <input id="roster-add-name" type="text" placeholder="เพิ่มชื่อใหม่" />
     <button id="roster-add-btn" type="button">เพิ่ม</button>
@@ -28,6 +29,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
 <script>
   import { loadRoster, loadGroup, saveGroup } from './roster';
   import { loadSession } from './session';
+  import { resolveStart, numberedPlayers } from './player-select';
 
   const root = document.getElementById('player-setup') as HTMLElement;
   const min = Number(root.dataset.min);
@@ -40,8 +42,13 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
   const addNameInput = document.getElementById('roster-add-name') as HTMLInputElement;
   const addBtn = document.getElementById('roster-add-btn') as HTMLButtonElement;
   const startBtn = document.getElementById('start-round') as HTMLButtonElement;
+  const startNumberedBtn = document.getElementById('start-numbered') as HTMLButtonElement;
   const errorEl = document.getElementById('setup-error') as HTMLElement;
   const clearBtn = document.getElementById('clear-group') as HTMLButtonElement;
+
+  // จริงจนกว่าจะกด "เริ่มรอบ" ซ้ำ — คลิกแรกเกิน max แค่เตือน คลิกสองไปต่อ (#21)
+  // ต้องรีเซ็ตทุกครั้งที่วงเปลี่ยน ไม่งั้นเตือนครั้งเดียวจบตลอดชีวิตหน้า
+  let overMaxWarned = false;
 
   // วงเดิมติ๊กไว้ให้เลย — เดินจากหน้าเครื่องมือเข้าเกมแล้วต้องไม่ต้องติ๊กใหม่ทั้งวง (#15)
   // loadGroup() ตัดชื่อที่หายจาก roster ออกให้แล้ว · ครั้งแรก/ไม่เคยเริ่มรอบ = เซ็ตว่างเหมือนเดิม
@@ -64,6 +71,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
       checkbox.addEventListener('change', () => {
         if (checkbox.checked) selected.add(name);
         else selected.delete(name);
+        overMaxWarned = false;
         showError('');
       });
       label.appendChild(checkbox);
@@ -83,36 +91,66 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
     roster.add(name);
     selected.add(name);
     addNameInput.value = '';
+    overMaxWarned = false;
     showError('');
     renderRosterList();
   });
 
+  // #22: ทางลัดเข้าโหมด "คนที่ 1, 2, 3…" ตรงๆ แม้วงเดิมถูกติ๊กอยู่เต็ม — ไม่แตะ selected/saveGroup เลย
+  // ต่างจาก startBtn ตรงที่ไม่ผ่าน resolveStart: numberedPlayers clamp อยู่ในช่วง [min, max] แล้ว จึงไม่มีเกิน max ให้เตือนหรือต่ำกว่า min ให้ปฏิเสธ
+  // F2: บนหน้าเกม ปุ่มนี้ยิง setPlayers("คนที่ N") ทันที (game/[id].astro) รอบที่ค้างอยู่จึงตกด่านเทียบชื่อ
+  // ตอน resume (siamsi.ts) — กดพลาดครั้งเดียวหลังรีเฟรชกลางวง = รอบหาย จึงซ่อนไว้ตราบที่ยังมี checkpoint
+  // รอบที่เริ่มจากรายชื่อกู้ได้ด้วยปุ่ม "เริ่มรอบ" ตามเดิม — แต่รอบที่เริ่มแบบ "คนที่ N" ยังกู้ไม่ได้เลย
+  // (checkpoint แท็กชื่อ "คนที่ N" ไว้ แต่ prefill ติ๊กวงเดิมกลับมา ชื่อจึงไม่ตรงด่านเทียบ) — #23
+  // หน้าเครื่องมือไม่เคยเรียก setPlayers ปุ่มจึงปลอดภัยและไม่ต้องซ่อน
+  if (clearBtn.dataset.clearsSession !== 'no' && loadSession().checkpoint) {
+    startNumberedBtn.hidden = true;
+  }
+
+  startNumberedBtn.addEventListener('click', () => {
+    const players = numberedPlayers(Number(countInput.value), min, max);
+    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players }, bubbles: true }));
+    root.hidden = true;
+  });
+
   startBtn.addEventListener('click', () => {
-    let players: string[];
+    // ponytail: clamp ที่นี่ที่เดียว — ทุกเกมออกสตาร์ทผ่านบรรทัดนี้ ทางกรอกจำนวนข้างล่าง clamp อยู่แล้ว
+    // แต่ทางเลือกจากรายชื่อไม่เคย clamp เลย เกมที่มีของจำกัดต่อคน (เช่น siamsi 24 ใบ) จึงพังกลางรอบ
+    let fullSelection: string[];
     if (selected.size > 0) {
-      // ponytail: clamp ที่นี่ที่เดียว — ทุกเกมออกสตาร์ทผ่านบรรทัดนี้ ทางกรอกจำนวนข้างล่าง clamp อยู่แล้ว
-      // แต่ทางเลือกจากรายชื่อไม่เคย clamp เลย เกมที่มีของจำกัดต่อคน (เช่น siamsi 24 ใบ) จึงพังกลางรอบ
-      // เพดาน: เกินแล้วตัดท้ายทิ้งเงียบๆ — ถ้าต้องบอกผู้เล่นค่อยเพิ่มข้อความตอนนั้น
-      players = [...selected].slice(0, max);
+      fullSelection = [...selected];
     } else {
-      const count = Math.min(max, Math.max(min, Number(countInput.value) || min));
-      players = Array.from({ length: count }, (_, i) => `คนที่ ${i + 1}`);
+      fullSelection = numberedPlayers(Number(countInput.value), min, max);
     }
+
+    const result = resolveStart(fullSelection, min, max, overMaxWarned);
+
+    // เกิน max แล้วยังไม่เคยเตือน — คลิกแรกแค่บอก คลิกซ้ำถึงไปต่อ (#21)
+    // วงที่บันทึกไว้ยังเป็นชุดเต็มเสมอ ไม่มีจุดไหน clamp ก่อนเก็บ (ดูบันทึกที่ saveGroup ด้านล่าง)
+    if (result.needsOverMaxWarning) {
+      overMaxWarned = true;
+      showError(`หน้านี้เล่นได้สูงสุด ${max} คน — ${result.sittingOut.join(', ')} จะไม่ได้เล่นรอบนี้ (ยังอยู่ในกลุ่มเดิม ไม่หายไปไหน) กดอีกครั้งเพื่อเริ่มรอบ`);
+      return;
+    }
+    overMaxWarned = false;
+
     // เลือกน้อยกว่า min แล้ว clamp ขึ้นไม่ได้ — ต้องปฏิเสธให้เห็นเป็นตัวหนังสือ ไม่ใช่ return เงียบ (#15)
     // ของเดิมเช็คแค่ === 0 เกมที่ต้องการ 2 คนขึ้นไปจึงเริ่มด้วยคนเดียวได้ แล้วแผงซ่อนตัว = ทางตัน
-    const need = Math.max(min, 1);
-    if (players.length < need) {
-      showError(`ยังเริ่มไม่ได้ — เลือกไว้ ${players.length} ชื่อ แต่ต้องมีอย่างน้อย ${need} คน เลือกเพิ่มอีก ${need - players.length} ชื่อ`);
+    if (result.belowMin) {
+      const need = Math.max(min, 1);
+      showError(`ยังเริ่มไม่ได้ — เลือกไว้ ${result.playing.length} ชื่อ แต่ต้องมีอย่างน้อย ${need} คน เลือกเพิ่มอีก ${need - result.playing.length} ชื่อ`);
       return;
     }
     showError('');
     // บันทึกหลังผ่านด่าน min เท่านั้น — วงที่ถูกปฏิเสธไม่ควรตามไปติ๊กค้างที่หน้าอื่น
-    // เก็บ [...selected] ไม่ใช่ players: players ผ่าน clamp มาแล้ว (:94) และช่องกรอกจำนวนให้ชื่อ "คนที่ N" ที่ไม่ใช่คนใน roster
+    // เก็บ [...selected] ไม่ใช่ result.playing: playing ผ่าน clamp มาแล้ว และช่องกรอกจำนวนให้ชื่อ "คนที่ N" ที่ไม่ใช่คนใน roster
     // ตั้งใจเก็บ "วงเต็มตามที่ตั้งใจ" ไม่ใช่ "วงที่เล่นได้จริงบนหน้านี้" — clamp ตอนใช้ ไม่ clamp ตอนเก็บ
     // เคยลองเก็บตัวที่ clamp แล้ว: เดินผ่านหน้า max เล็กครั้งเดียว วงหายถาวร ซึ่งแย่กว่าปัญหาที่แก้
-    // ผลข้างเคียงที่ยังเหลือ: ติ๊กเกิน max แล้วคนท้ายโดนตัดเงียบซ้ำทุกหน้า — ต้องบอกผู้ใช้ ดูใบที่เปิดไว้
-    saveGroup([...selected]);
-    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players }, bubbles: true }));
+    // selected ว่าง = มาทางช่องกรอกจำนวน (บรรทัด fullSelection ด้านบน) ไม่ใช่ "ตั้งใจล้างวง"
+    // เขียน [] ทับตรงนี้ = วงเดิมหายถาวร แล้ว siamsi ที่ค้างอยู่ resume ไม่ได้ (siamsi.ts:120)
+    // การล้างวงมีปุ่มของมันอยู่แล้ว (#clear-group) จึงไม่ต้องล้างเป็นผลข้างเคียงของการเริ่มรอบ
+    if (selected.size > 0) saveGroup([...selected]);
+    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players: result.playing }, bubbles: true }));
     // ปุ่มนี้อยู่เหนือจอเล่น — กดกลางรอบ = ล้มรอบทิ้ง จึงซ่อนทั้งแผงหลังเริ่มแล้ว
     // ทางกลับ: "เล่นอีกรอบ" อยู่ในจอเกม · "ล้างกลุ่มนี้" อยู่นอกแผงนี้จึงยังกดได้กลางรอบ
     root.hidden = true;
@@ -122,10 +160,13 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
     // หน้าเครื่องมือส่ง clearsSession={false} มา (ADR-0004: เครื่องมือห้ามแตะ session)
     // checkpoint มีช่องเดียวร่วมกันทั้งเว็บ ล้างจากหน้าเครื่องมือ = เกมที่ค้างกลางรอบหายทันทีโดยไม่เตือน
     // ความหมายของปุ่มยังเดิม: ล้าง "รอบนี้" ไม่ใช่ล้าง roster (roster อยู่ localStorage จึงรอดทั้งสองทาง)
-    if (clearBtn.dataset.clearsSession !== 'no') loadSession().clear();
-    // ไม่ผ่าน clearsSession: "วง" ไม่ใช่ session — เครื่องมือก็ล้างวงของตัวเองได้ แค่ห้ามแตะ checkpoint
-    // ขาดบรรทัดนี้ปุ่มนี้กลายเป็น no-op ทันทีที่เรา prefill: reload แล้ววงเดิมติ๊กกลับมาครบ (roster ยังไม่ถูกแตะ เหมือนเดิม)
-    saveGroup([]);
+    // #data-loss: saveGroup([]) ต้องอยู่ gate เดียวกับ session.clear() — เดิมอยู่นอก if จึงล้าง "วง" (prefill)
+    // จากหน้าเครื่องมือได้แม้ session ยังไม่ถูกแตะ กลับไปหน้าเกมแล้ว prefill ว่าง → synthesize "คนที่ N" →
+    // แท็กใน checkpoint ไม่ตรง → รอบที่ยังไม่จบถูกทิ้งทั้งที่ยังแก้ทัน (siamsi.ts:120)
+    if (clearBtn.dataset.clearsSession !== 'no') {
+      loadSession().clear();
+      saveGroup([]);
+    }
     // ponytail: reload แทนการรื้อ UI เอง — ได้ teardown ครบทุกชั้นฟรี (pagehide → game.dispose(),
     // แผง setup กลับมา, selection ล้าง) ถ้าวันหนึ่งมี client router ค่อยเปลี่ยนเป็น reset ในที่
     location.reload();
