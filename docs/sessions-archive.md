@@ -1,6 +1,7 @@
 # Sessions archive
 
-Rolled-out state entries from `CLAUDE.md` § Current state, newest first. Append-only.
+Rolled-out state entries from `SESSION-HANDOFF.md` § Current state, newest first. Append-only.
+(เคยอยู่ใน `CLAUDE.md` — ย้ายบ้าน 2026-08-14 ดู `.claude/commands/save-session.md`)
 
 A resume never reads this file — it reads the live entry in `CLAUDE.md`. This exists so the live
 window stays at one entry without losing history.
