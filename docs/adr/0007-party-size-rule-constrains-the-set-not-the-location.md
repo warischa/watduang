@@ -66,18 +66,41 @@ gone, its counts unrebuildable, and re-deriving it cost a second full browser wa
 risk and the next save paid for it — so the practice changed rather than the warning being repeated.
 Verification evidence is now committed (`docs/verification/`, [ADR-0009](0009-a-dod-box-whose-proof-set-we-do-not-own-is-mis-scoped.md)).
 
-The party-size reasoning itself gained a **confirmed** result. The below-minimum refusal gate is not
-merely narrow on the named-start path, it is **provably unreachable**: `PlayerSetup.astro:225-232`
+The party-size reasoning itself gained a result recorded at the time as **confirmed** — ⚠ **since
+REFUTED, see the next block.** The below-minimum refusal gate was read as not
+merely narrow on the named-start path but **provably unreachable**: `PlayerSetup.astro:225-232`
 substitutes `numberedPlayers(count, min, max)` for an empty selection *before* `resolveStart` evaluates
 its guard, every caller passes `min >= 2` (`tool/draw.astro`, `tool/team.astro`, `tool/wheel.astro`, and
 `GameLayout.astro:27` via `game.players[0]`), `numberedPlayers` clamps with `Math.max(min, count || min)`
 (`player-select.ts:18-21`), and `scripts/validate-games.mjs:58-59` enforces `min >= 2` in CI *ahead of*
 the tests. Verified across every call site, not inferred from one.
 
+**Scored again S2026-08-14#8 — that "provably unreachable" result is REFUTED. The gate fires.**
+`PlayerSetup.astro:225` takes the *other* branch — `if (selected.size > 0) fullSelection = [...selected]`
+— handing the raw tick-set to `resolveStart`, so a **partial** tick (more than 0, fewer than `min`) sets
+`belowMin` at `player-select.ts:79`. It was caught firing during the browser walk:
+`docs/verification/tools-15-18/15.md:34` records `#setup-error` visible with
+`"ยังเริ่มไม่ได้ — เลือกไว้ 1 ชื่อ แต่ต้องมีอย่างน้อย 2 คน เลือกเพิ่มอีก 1 ชื่อ"`. Everything cited
+above proves only that the **empty-selection branch** cannot reach it — true, and narrower than what
+was written.
+
+What made the overshoot possible is worth keeping: `CONTEXT.md:18-19` already carried the correct,
+narrower statement the same day — "an empty tick-set never reaches the below-min refusal; only a
+*partial* tick (more than 0 but fewer than min) does" — and this ADR cited that very entry while
+asserting the opposite. Widening a scored result to "provably unreachable" / "can never fire" is where
+scope breaks quietly; the cited source was the available check and went unread.
+
+Consequence: the guard is **load-bearing and must not be deleted**. The "wants its own issue" item
+below was **retired, not done** — the site owner declined it once the premise was shown false, and
+`src/shell/player-setup.test.mjs` now pins the branch-local fact under a test name scoped to that
+path. Full account: `docs/verification/dod-closeout-15-18.md`.
+
 That does **not** violate this ADR's invariant — the substituted set is a *complete* synthesized set,
 not a partial or remaining pool, and `saveGroup` is separately guarded. But it shares the enabling
-condition this ADR scored for `saveGroup([])`: an empty selection read as meaningful. A guard that can
-never fire is documented in `CONTEXT.md` under `คนที่ N` and still wants its own issue.
+condition this ADR scored for `saveGroup([])`: an empty selection read as meaningful. The narrower true
+statement — the guard is unreachable from the empty-selection branch only — is documented in
+`CONTEXT.md` under `คนที่ N`. It gets no issue of its own: the refuted premise above was the reason
+one was wanted.
 
 ## Related
 
