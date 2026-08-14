@@ -59,6 +59,26 @@ That is a working substitute, not an equivalent one — it lives in a session sc
 it. The honest reading of this ADR today is that extraction covers the logic and nothing covers the
 wiring.
 
+**Scored again S2026-08-14#7 — the scratchpad warning above came true, and the fix is now policy.**
+The previous entry flagged that the working substitute "lives in a session scratchpad and CI never runs
+it". One session later that scratchpad was empty: the entire per-box verdict record for #15–#18 was
+gone, its counts unrebuildable, and re-deriving it cost a second full browser walk. This ADR named the
+risk and the next save paid for it — so the practice changed rather than the warning being repeated.
+Verification evidence is now committed (`docs/verification/`, [ADR-0009](0009-a-dod-box-whose-proof-set-we-do-not-own-is-mis-scoped.md)).
+
+The party-size reasoning itself gained a **confirmed** result. The below-minimum refusal gate is not
+merely narrow on the named-start path, it is **provably unreachable**: `PlayerSetup.astro:225-232`
+substitutes `numberedPlayers(count, min, max)` for an empty selection *before* `resolveStart` evaluates
+its guard, every caller passes `min >= 2` (`tool/draw.astro`, `tool/team.astro`, `tool/wheel.astro`, and
+`GameLayout.astro:27` via `game.players[0]`), `numberedPlayers` clamps with `Math.max(min, count || min)`
+(`player-select.ts:18-21`), and `scripts/validate-games.mjs:58-59` enforces `min >= 2` in CI *ahead of*
+the tests. Verified across every call site, not inferred from one.
+
+That does **not** violate this ADR's invariant — the substituted set is a *complete* synthesized set,
+not a partial or remaining pool, and `saveGroup` is separately guarded. But it shares the enabling
+condition this ADR scored for `saveGroup([])`: an empty selection read as meaningful. A guard that can
+never fire is documented in `CONTEXT.md` under `คนที่ N` and still wants its own issue.
+
 ## Related
 
 Instrument used to verify the page-level behaviour (and three ways it produced confidently wrong

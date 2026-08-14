@@ -73,7 +73,7 @@ Known ceilings, both confirmed by a real run in this session, not inferred from 
   see Trap 3 below) — call `session.wipe()` yourself when a test needs a clean slate, `driver.mjs`
   will not do it for you.
 
-## Three traps that produced wrong answers here
+## Four traps that produced wrong answers here
 
 Each of these passed a plausible-looking check while measuring nothing.
 
@@ -100,11 +100,25 @@ it nearly produced a false bug report against working code. Before trusting any 
 evaluate it at a moment when it MUST be false. On these pages the valid signal is
 `!document.querySelector('#start-round')?.offsetParent` — the setup panel hides when a round starts.
 
+When the claim covers a SET, calibrate per member. S2026-08-14#7 proved "refuses below the minimum"
+against **1 ticked name** and called it done — but "fewer than 2" has another member, **0 ticked
+names**, and that one does not refuse at all: it substitutes a generated `คนที่ N` set and starts
+(`src/shell/PlayerSetup.astro:225-234`). One member passing is not the set passing, and a pre-merge
+review caught it on three separate boxes.
+
 **3. `sessionStorage` is per-tab.** Every `cdp.mjs` run opens a new tab, so a game checkpoint written
 by one run is invisible to the next — a positive control will come back empty and look like the bug
 does not exist. In `cdp.mjs`, anything involving a checkpoint must seed and observe in ONE tab via
 `CDP_STAGE2`. In `driver.mjs`, this is the default: `session.nav()` navigates the same tab, so
 seed-then-observe is just two `nav()` calls in one script.
+
+**4. A wipe on `about:blank` clears nothing.** `localStorage` is per-origin, so `session.wipe()` issued
+before navigating — while the tab still sits on `about:blank` — clears that blank page's storage and
+leaves the target origin untouched. The run then starts with a **dirty roster** and every
+"fresh device" claim in it is false, while looking perfectly clean. Navigate to
+`http://localhost:4321/...` FIRST, then wipe, then reload. Verify the wipe landed by reading the
+roster key back on-origin and asserting it is empty — an unverified wipe is indistinguishable from
+no wipe at all. Cost the #15 walk its first run.
 
 ## Reduced motion
 
