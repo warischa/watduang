@@ -24,6 +24,26 @@ Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla T
 
 ⚠ ก่อนสร้างรูป OG · รัน build · หรือยื่นตัวเลือกให้เจ้าของเว็บตัดสิน → อ่าน `docs/runbook.md` ก่อน
 
+## Language
+
+**Write English. Ship Thai.** Effective 2026-08-14 — everything an agent reads or writes is English;
+everything a player reads is Thai. The two never swap.
+
+| Surface | Language |
+|---|---|
+| Every `.md` in this repo — `CLAUDE.md`, `SESSION-HANDOFF.md`, `docs/**`, ADRs, runbook, `CONTEXT.md` | **English** |
+| Code comments, identifiers, commit messages, PR bodies, GitHub issue bodies | **English** |
+| `src/**` user-facing strings, UI copy, game and tool content, `seo.*` fields, OG text | **Thai — never translate.** This is a Thai-first product; the copy IS the product |
+| Domain terms that *are* Thai words (`วัดดวง`, `เซียมซี`, `วงล้อสุ่ม`) | keep the Thai term verbatim inside English prose |
+
+Quote Thai UI copy verbatim when a doc needs to cite it — quoting is not translating.
+
+Chat mirrors the reader: English in → English out, ไทย เข้า → ไทย ออก. Chat language never changes
+what a file gets written in — a Thai conversation still produces English docs.
+
+Existing Thai docs convert on touch unless a session is told otherwise; a file being edited gets
+rewritten in English in that same edit, not left half-converted.
+
 ## Agent skills
 
 **GitHub Issues คือแหล่งความจริงเดียว** — แผนที่คือ [#1](https://github.com/warischa/watduang/issues/1) · วิธีทำงานกับ tracker และกติกาเลขใบ: `docs/agents/issue-tracker.md`
