@@ -1,7 +1,7 @@
 # วัดดวง · watduang.com
 
 Free party games for groups of 2–10 on a single phone passed around. Thai-first. Revenue from Google AdSense.
-English brand: **PartyPick** (proposed, unconfirmed) — lives at `/en/`, no second domain.
+English brand: **PartyPick** — lives at `/en/`, no second domain. Confirmed: ADR-0006.
 
 **Live state, next queue, and inflight live in `SESSION-HANDOFF.md` at the root — that file is their home, not a supplement.**
 Resume must read it as the primary state source. This file holds only the stable things you must know **before** acting, and never repeats state.
@@ -22,7 +22,7 @@ Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 
 **CSP** — must let AdSense through, or ads silently fail to render (do not copy `admin-tools-dev`'s CSP verbatim — that site is deliberately strict because PDPA is its selling point) · page scripts must never inline: ADR-0005.
 
-⚠ Before generating an OG image · running a build · or putting a choice to the site owner → read `docs/runbook.md` first.
+⚠ Before generating an OG image · running a build · verifying anything the way CI does · or putting a choice to the site owner → read `docs/runbook.md` first.
 
 ## Language
 

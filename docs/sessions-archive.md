@@ -3,16 +3,32 @@
 Rolled-out state entries from `SESSION-HANDOFF.md` § Current state, newest first. Append-only.
 (เคยอยู่ใน `CLAUDE.md` — ย้ายบ้าน 2026-08-14 ดู `.claude/commands/save-session.md`)
 
-A resume never reads this file — it reads the live entry in `CLAUDE.md`. This exists so the live
-window stays at one entry without losing history.
+A resume never reads this file — it reads the live entry in `SESSION-HANDOFF.md`. This exists so the
+live window stays at one entry without losing history.
 
-Window: **N=1** (one live entry in `CLAUDE.md`; older entries roll here at the first save of a new session).
+Window: **N=1** (one live entry in `SESSION-HANDOFF.md`; older entries roll here at the first save of a new session).
 
 ---
 
 
 <!-- Keep entry ids out of this prose. Roll verification asserts the archive holds exactly one
      copy of a rolled header, and a stray mention here would make that assert lie. -->
+### S2026-08-14#2
+
+done: **[#15] tool 1 shipped `24fe2c8`** — `/tool/wheel/` · `/tools/` · `src/tools/wheel.ts` + mutation-proven tests · shell shared with games · **fixed the CSP defect that silently blocked page JS, + 3 new gates in `ci.yml`** · 20 tests · `/tools/` no longer orphaned `0a485ee` · docs → pointers `bb9c1dc` · tracker: opened #19 #20 · #12 is no longer a gate · linked #14 #19 #20 under #1 · dep #19←#9 · **pushed, and CI went green on GitHub with all 3 new gates on their first real run** (`31763743017`, Deploy still skipped — no secret yet) · state moved out of `CLAUDE.md` into this file `2143101` · language policy `d3279d4` · `CLAUDE.md` converted to English this save
+
+dec: ADR-0005 (page JS must never inline) · ADR-0004 §added-during-#15 (indirect session access · remembered group · absence baseline) · **the real gate is now ticket #19, not #12** (ADR-0003) · state home = this file, which **overrides master save-session** — reason recorded in `.claude/commands/save-session.md`, do not move it back without reading that · language = write English, ship Thai (`CLAUDE.md` § Language); Thai docs convert on touch, `docs/sessions-archive.md` never
+
+next:
+- [ ] **[#16][#17][#18] can run in parallel now** — frame is reusable per ADR-0004 · add the slug to `EXPECTED_TOOL_SLUGS` in `ci.yml` · done = build + `node --test` green, and the absence gate goes red when the page is `mv`d away
+- [ ] #13 DoD item 4, real phone (site owner) — **closing it closes #13** · same session, also check #20: siamsi mid-round → refresh → must restore the round
+- [ ] #9 register `watduang.com` (site owner) — `whois` still free (checked 2026-08-14) · #19 is blocked by it
+- [ ] Azure SWA phase 2 — site owner sets secret `AZURE_STATIC_WEB_APPS_API_TOKEN` · done = Deploy no longer shows skipped in `gh run view` · **the only thing that can prove CSP/AdSense for real**
+- [ ] 2 REFUTE findings still unfiled (awaiting permission) — both written up in ADR-0004 §added-during-#15: silent drop on the `max` side · discoverability of the "คนที่ 1..N" mode
+- [ ] confirm or change PartyPick
+
+inflight: tree clean · no open PRs (checked) · no background tasks · pushed this round
+
 
 ### S2026-08-13#7
 
