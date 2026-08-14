@@ -1,6 +1,6 @@
 # Site owner checklist
 
-Three things no agent can do — each runnable start-to-finish without asking a question back.
+Four things no agent can do — each runnable start-to-finish without asking a question back.
 Rationale for every decision lives in the linked issues; this doc restates only the steps.
 
 ## 1. Register `watduang.com` — [#9](https://github.com/warischa/watduang/issues/9)
@@ -16,7 +16,7 @@ Rationale for every decision lives in the linked issues; this doc restates only 
 
 **How you know it worked:** look up `watduang.com` on a public whois tool (for example `lookup.icann.org`) — it should show a registration/expiry date and your registrar's name instead of "available". In the registrar's dashboard, the domain's Privacy and Auto-Renew toggles should both show "On". All of this can be checked immediately after checkout — there is no waiting period.
 
-**What it unblocks:** immediately after the domain exists, connect Google Search Console to it — that's the only next step any issue asks for (#19's checklist item 2). Do not set up DNS records, SWA custom domain, or anything else — no issue asks for it yet.
+**What it unblocks:** immediately after the domain exists, connect Google Search Console to it — that's the only next step any issue asks for (#19's checklist item 2). DNS records and the SWA custom domain are §4 below, and that step also needs §2 (the app deployed) done first — do not attempt it until both §1 and §2 are checked off.
 
 Note: #19's 6-month organic-clicks gate does not start counting the day you register. Its month 1 begins when the first `/tools/` page **and** the third game are live in production (#19's own wording) — registering the domain only removes the block on connecting Search Console.
 
@@ -64,10 +64,30 @@ In English: on one real phone, play `timebomb` for real — start → pass it ar
 - Note the extra tap: resuming now goes through a two-button question (`กลับไปเล่นรอบที่ค้าง` / `เริ่มรอบใหม่`) rather than resuming on its own — that is deliberate, see [ADR-0008](adr/0008-starting-a-round-never-resumes-or-discards-one-silently.md). A refresh that comes straight back into the round *without* asking would be a bug worth reporting.
 
 **Steps:**
-- [ ] Open the site's Azure URL on one real phone — find it in the Azure portal: Static Web Apps → the app → **Overview** → the URL shown at the top of the page (it looks like `something.azurestaticapps.net`). `watduang.com` itself will not point at the site yet — connecting the domain is a separate step no issue has asked for yet (see §1's "What it unblocks" note above).
+- [ ] Open the site's Azure URL on one real phone — find it in the Azure portal: Static Web Apps → the app → **Overview** → the URL shown at the top of the page (it looks like `something.azurestaticapps.net`). `watduang.com` itself will not point at the site yet — connecting the domain is §4 below, done after this section.
 - [ ] Run the `timebomb` sequence above.
 - [ ] Run both `siamsi` mid-round refresh checks above — normal-started, then numbered.
 
 **How you know it worked:** all of the above hold true on the phone, with no workaround needed.
 
 **What it unblocks:** ticking #13 DoD item 4 closes issue #13 (its other three DoD boxes are already checked). The `siamsi` item closes the one open task left on #20.
+
+## 4. Connect `watduang.com` to the Azure Static Web App
+
+**Why blocked on you:** adding a custom domain needs the registrar account from §1 and the Azure resource from §2 — both are yours, an agent has credentials for neither.
+
+**This section cannot start until §1 (domain registered) and §2 (app deployed) are both done.** The exact target values below (the app's default hostname) only exist once §2's resource is created.
+
+**Steps:**
+- [ ] Get the app's default hostname: Azure portal → Static Web Apps → the app → **Overview** → copy the URL shown there without `https://` (it looks like `something.azurestaticapps.net`). You'll paste this exact value into DNS records below.
+- [ ] **`www.watduang.com` (subdomain) — do this one first:** at your registrar's DNS management page (the same account from §1), add a **CNAME** record: Host/Name `www`, Value/Target = the default hostname you copied above, TTL default/automatic.
+- [ ] In the Azure portal: Static Web Apps → the app → **Custom domains** (left menu) → **+ Add** → enter `www.watduang.com` → Azure detects this as a CNAME-validated subdomain automatically → click **Add**. Wait for the status to change from validating to **Ready** (can take up to a few hours for DNS to propagate — refresh the Custom domains page to check).
+- [ ] **`watduang.com` (apex/root domain):** in the Azure portal: Static Web Apps → the app → **Custom domains** → **+ Add** → enter `watduang.com`. Azure shows validation type **TXT** and displays the exact TXT record value to use. Copy that value.
+- [ ] At the registrar's DNS management page, add a **TXT** record: Host/Name `@` (root), Value = the exact token Azure just showed you. Save, then go back to the Azure portal and click **Validate** (or wait — Azure re-checks automatically) until it accepts the TXT record.
+- [ ] After the TXT record validates, the Azure portal shows the next record it needs to route traffic to the apex — this is normally an **ALIAS** or **ANAME** record (a plain A/static-IP record is not offered because Azure Static Web Apps has no fixed IP). Add whatever record type and value the portal displays, at the registrar's DNS management page, with Host/Name `@` (root).
+- [ ] If the registrar's DNS panel has no ALIAS or ANAME record type available, move the domain's **nameservers** to a DNS provider that does support one — Azure DNS or Cloudflare. At the registrar's domain settings page, find "Nameservers" (sometimes "DNS management" or "Custom DNS") and switch it from the registrar's default to the new provider's nameserver addresses (Azure DNS: create a DNS zone for `watduang.com` first, then use the 4 nameservers listed under that zone's **Overview**; Cloudflare: add `watduang.com` as a site, then use the 2 nameservers it assigns). Save the change, then run `dig NS watduang.com` (or `nslookup -type=NS watduang.com`) to confirm it took — it should return the new provider's nameservers, not the registrar's; this can take up to 24-48 hours to propagate. Once it shows the new nameservers, create the ALIAS/ANAME record for `@` pointing at the same target from the previous step, in the new provider's DNS zone — then continue this section unchanged.
+- [ ] Set the canonical domain: in the Azure portal's **Custom domains** list, find `watduang.com` showing status **Ready** → open its **···** menu → **Set as default domain**. Wait for the status to stay **Ready** (can take up to a few hours for DNS to propagate — refresh the Custom domains page to check).
+
+**How you know it worked:** the Azure portal's **Custom domains** page lists both `watduang.com` and `www.watduang.com` with status **Ready**, not "Validating" or an error, and `watduang.com` is marked **Default**. Open `https://watduang.com` and `https://www.watduang.com` in a browser on any device — both must load the live site with a valid padlock/certificate (Azure issues the TLS certificate automatically once validation succeeds — no separate certificate step is needed).
+
+**What it unblocks:** `watduang.com` finally points at the deployed site instead of only the `azurestaticapps.net` URL — the domain bought in §1 and the app deployed in §2 are now the same site a visitor reaches, on one canonical hostname.

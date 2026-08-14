@@ -35,12 +35,12 @@ jobs:
       - name: Validate games
         run: node scripts/validate-games.mjs
 
-      # node --test <dir> ไม่ทำงานบน node 22 (มันตีความ dir เป็น module path) ต้องใช้ glob
+      # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob
       - name: Unit tests
         run: node --test 'src/**/*.test.mjs'
 
-      # npm run build ไม่ใช่ npx astro build — prebuild ใน package.json ต้องได้ทำงาน
-      # ไม่งั้น gate ที่กันเกมไม่มีรูป OG มีผลแค่ตอนเรียกอีกสะกดหนึ่งเท่านั้น
+      # npm run build, not npx astro build — the prebuild in package.json must actually run,
+      # otherwise the gate that blocks games with no OG image only fires when invoked the other way.
       - name: Build
         run: npm run build
 
@@ -73,13 +73,15 @@ jobs:
 
       # Astro inlines a page script when it has no imports and is under assetsInlineLimit —
       # CSP script-src has no 'unsafe-inline', so an inlined script is silently blocked in prod.
-      # จับ <script> ที่ไม่มี src ทุกแบบ ไม่ใช่แค่สะกด type="module": <script is:inline> ที่เขียนมือ
-      # ออกมาเป็น <script> เปล่า โดน CSP บล็อกเหมือนกันแต่ grep สะกดเดียวมองไม่เห็น
-      # allowlist ของชนิดที่ CSP คุม ไม่ใช่ blocklist ของ ld+json — data block จริง (ld+json, json)
-      # CSP ไม่บล็อก จึงต้องไม่เป็น false positive ที่ทำให้มีคนมาถอด gate ทิ้ง
-      # ⚠ importmap และ speculationrules **ไม่ใช่** data block ที่ปลอดภัย — script-src-elem คุมทั้งคู่
-      # (spec เพิ่มคีย์เวิร์ด 'inline-speculation-rules' มาเพราะเหตุนี้ · Chrome ปฏิเสธ inline import map
-      # ภายใต้ CSP เข้ม) ถ้าไม่จับ วันหนึ่งมีคนใส่ import map แล้ว module ทั้งหน้าหยุดโหลดโดย gate เขียว
+      # Catches every kind of <script> with no src, not just the type="module" spelling: a hand-written
+      # <script is:inline> comes out as a bare <script>, gets blocked by CSP the same way, but a single-spelling
+      # grep misses it.
+      # This is an allowlist of the types CSP governs, not a blocklist of ld+json — a real data block
+      # (ld+json, json) is not blocked by CSP, so it must not be a false positive that gets people to rip the gate out.
+      # ⚠ importmap and speculationrules are **not** a safe data block — script-src-elem governs both
+      # (the spec added the 'inline-speculation-rules' keyword for exactly this reason · Chrome rejects an inline
+      # import map under a strict CSP). Miss this and one day someone adds an import map and every module on
+      # the page stops loading while the gate stays green.
       - name: CSP inline-script gate (dist artifact)
         run: |
           node - <<'NODE'
@@ -88,11 +90,11 @@ jobs:
           const JS_TYPES = new Set([
             '', 'module', 'text/javascript', 'application/javascript',
             'text/ecmascript', 'application/ecmascript', 'text/jscript', 'application/x-javascript',
-            // MIME เก่าที่เบราว์เซอร์ยังรันเป็น JS — CSP บล็อกเหมือนกัน
+            // Old MIME types browsers still run as JS — CSP blocks these the same way
             'text/x-javascript', 'text/x-ecmascript', 'application/x-ecmascript', 'text/livescript',
             'text/javascript1.0', 'text/javascript1.1', 'text/javascript1.2',
             'text/javascript1.3', 'text/javascript1.4', 'text/javascript1.5',
-            // ไม่ใช่ JS แต่ script-src-elem คุม — inline แล้วโดนบล็อกเงียบเหมือนกัน
+            // Not JS but script-src-elem governs it — inline gets silently blocked the same way
             'importmap', 'speculationrules',
           ]);
           const files = [];
@@ -106,7 +108,7 @@ jobs:
           let bad = false;
           for (const file of files) {
             for (const tag of readFileSync(file, 'utf8').match(/<script\b[^>]*>/gi) || []) {
-              if (/[\s"']src\s*=/i.test(tag)) continue; // ขอบเขตหน้า src กัน data-src ถูกนับเป็น src ของจริง
+              if (/[\s"']src\s*=/i.test(tag)) continue; // word-boundary before src stops data-src from counting as a real src
               const attr = tag.match(/[\s"']type\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/i);
               const type = (attr ? attr[2] ?? attr[3] ?? attr[4] : '').trim().toLowerCase();
               if (!JS_TYPES.has(type)) continue;
@@ -152,11 +154,12 @@ jobs:
           fi
 
           status=0
-          # ทุกเกมที่ build ออกมาต้องถูก smoke ไม่ใช่แค่เกมที่จำชื่อได้ตอนเขียนไฟล์นี้ —
-          # ลิสต์เดิม hardcode /game/timebomb/ ไว้ เกมที่ 2 เป็นต้นไปจึงไม่เคยถูกยิงเลย
+          # Every built game must be smoke-tested, not just the ones whose names we remembered when writing this file —
+          # the old list hardcoded /game/timebomb/, so game #2 onward never got hit at all.
           GAME_PATHS=$(for d in dist/game/*/; do [ -d "$d" ] || continue; echo "/game/$(basename "$d")/"; done)
-          # เทียบจำนวนหน้าที่ build ได้กับจำนวนเกมใน manifest — แค่ "มีมากกว่าศูนย์" ยัง green ได้
-          # ทั้งที่เกมหนึ่งหายไป (manifest ถูก revert แต่ไฟล์เกมยังอยู่ → validate ผ่าน, smoke ผ่าน, prod 404)
+          # Compares the number of pages built against the number of games in the manifest — "more than zero"
+          # alone can still stay green while one game is missing (manifest reverted but the game file still
+          # exists → validate passes, smoke passes, prod 404s).
           BUILT=$(printf '%s\n' "$GAME_PATHS" | grep -c . || true)
           EXPECTED=$(node --input-type=module -e "const {games} = await import('./src/games/manifest.ts'); console.log(games.length)")
           if [ "$BUILT" -ne "$EXPECTED" ]; then
@@ -164,8 +167,9 @@ jobs:
             kill "$SERVER_PID" 2>/dev/null || true
             exit 1
           fi
-          # เทียบ dist/tool/*/ กับลิสต์ slug ที่ประกาศไว้ตรงนี้ (ไม่ใช่ derive จาก src/pages/tool/ —
-          # src เป็นตัวสร้าง ถ้าหน้าเครื่องมือหายไป src ก็หายไปด้วย baseline กับ output จะหดพร้อมกันแล้วผ่านเงียบๆ)
+          # Compares dist/tool/*/ against the slug list declared right here (not derived from src/pages/tool/ —
+          # src is the source that generates it; if a tool page disappears, src disappears with it, so baseline
+          # and output would shrink together and pass silently).
           EXPECTED_TOOL_SLUGS="wheel draw team number"
           TOOL_PATHS=$(for d in dist/tool/*/; do [ -d "$d" ] || continue; echo "/tool/$(basename "$d")/"; done)
           for slug in $EXPECTED_TOOL_SLUGS; do
@@ -182,14 +186,14 @@ jobs:
               echo "::error::No <title> tag found for ${path}"
               status=1
             fi
-            # og:image ต้องมีและต้องโหลดได้จริง — meta ที่ชี้ไปไฟล์ที่ไม่มีคือลิงก์เปล่าตอนแชร์
-            # ซึ่งพังเงียบสนิท ไม่มีอะไรในเว็บแตกให้เห็น
+            # og:image must exist and must actually load — a meta tag pointing at a file that isn't there
+            # is a blank link when shared, which fails completely silently with nothing visibly broken on the site.
             og=$(echo "$body" | grep -o 'property="og:image" content="[^"]*"' | head -1 | sed 's/.*content="//; s/"$//')
             if [ -z "$og" ]; then
               echo "::error::No og:image for ${path}"
               status=1
             else
-              # https* ไม่ใช่ https\? — \? เป็นส่วนขยาย GNU ที่ทดสอบบน mac ไม่ได้ ตัวนี้ POSIX ล้วน
+              # https* not https\? — \? is a GNU extension that doesn't test on mac; this one is pure POSIX
               og_path=$(echo "$og" | sed 's|^https*://[^/]*||')
               if ! curl -sf -o /dev/null "http://localhost:4321${og_path}"; then
                 echo "::error::og:image does not resolve for ${path} -> ${og}"

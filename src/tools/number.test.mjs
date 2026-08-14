@@ -19,6 +19,10 @@ test('random เกือบ 1 ได้ค่าสูงสุด ไม่ห
   assert.equal(pickNumber(1, 10, [], () => 0.999999), 10);
 });
 
+test('random คืนค่า 1 พอดี ไม่หลุดขอบบน', () => {
+  assert.equal(pickNumber(1, 10, [], () => 1), 10);
+});
+
 test('โหมดห้ามซ้ำ: สุ่มไล่ 1..5 จนครบ ได้ครบ 5 ค่าไม่ซ้ำ', () => {
   const drawn = [];
   const seen = new Set();

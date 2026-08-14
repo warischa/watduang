@@ -39,6 +39,14 @@ test('ผลจับฉลากทุกชื่อต้องอยู่�
   }
 });
 
+test('random คืนค่า 1 พอดี ไม่หลุดขอบท้ายกล่อง', () => {
+  const names = ['เอ', 'บี', 'ซี'];
+  const result = drawNames(names, 3, () => 1);
+  for (const name of result) {
+    assert.ok(names.includes(name), `ได้ ${name} ซึ่งไม่อยู่ในกล่อง`);
+  }
+});
+
 test('เริ่มรอบใหม่ (เรียกด้วยกล่องเต็ม) คืนสิทธิ์จับได้ครบทุกคนอีกครั้ง', () => {
   const names = ['เอ', 'บี', 'ซี'];
   const roundOne = drawNames(names, 3, () => 0.5);

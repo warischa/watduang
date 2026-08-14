@@ -52,6 +52,13 @@ test('RNG stream เดิม เรียกซ้ำต้องได้ผ�
   assert.deepEqual(teamsA, teamsB);
 });
 
+test('random คืนค่า 1 พอดี ไม่หลุดขอบท้ายลิสต์ระหว่างสับ Fisher-Yates', () => {
+  const teams = splitTeams(NAMES6, 3, () => 1);
+  const flat = teams.flat();
+  assert.deepEqual([...flat].sort(), [...NAMES6].sort());
+  assert.equal(flat.length, NAMES6.length);
+});
+
 // The caller passes the live roster in — shuffling it in place instead of a copy would reorder
 // the shared name list for every other tool and game.
 test('ลิสต์ที่ส่งเข้าไปต้องไม่ถูกสับ — ฟังก์ชันทำงานบนสำเนาเท่านั้น', () => {

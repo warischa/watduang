@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { resolveStart, numberedPlayers } from './player-select.ts';
 
 const src = readFileSync(new URL('./PlayerSetup.astro', import.meta.url), 'utf8');
 const scriptAt = src.indexOf('<script>');
@@ -75,6 +76,51 @@ test('#25 the clear path decides through planClear, with no game matching inline
   const wipe = body.indexOf('session.clear()');
   assert.ok(wipe > 0, 'positive control: this is the function that wipes the session');
   assert.ok(guard < wipe, 'the guard must come before the wipe');
+});
+
+/** the body of `elementVar.addEventListener('event', () => {...})` in the island script — same
+ *  brace-matching as fnBody above, needed because startBtn's handler is an anonymous arrow function
+ *  bound via addEventListener, not a `function name(...)` declaration. */
+function listenerBody(elementVar, event) {
+  const needle = `${elementVar}.addEventListener('${event}', () => {`;
+  const start = script.indexOf(needle);
+  assert.ok(start >= 0, `${needle} not found in the island script`);
+  const open = script.indexOf('{', start);
+  let depth = 0;
+  for (let i = open; i < script.length; i += 1) {
+    if (script[i] === '{') depth += 1;
+    else if (script[i] === '}') {
+      depth -= 1;
+      if (depth === 0) return script.slice(open + 1, i).replace(/\/\/.*$/gm, '');
+    }
+  }
+  return assert.fail(`unbalanced braces after ${needle}`);
+}
+
+// 0 players ticked: startBtn substitutes a synthesized "คนที่ 1..N" set for the empty selection BEFORE
+// resolveStart runs (see the long comment on this branch in PlayerSetup.astro). numberedPlayers always
+// clamps up to at least min, so belowMin can never fire from this path — the guard is provably dead code
+// here (a separate issue tracks removing it; this test only pins the fact, it does not act on it).
+test('0 players ticked: startBtn substitutes numberedPlayers before resolveStart runs, so belowMin can never fire from this path', () => {
+  const body = listenerBody('startBtn', 'click');
+  assert.match(body, /selected\.size > 0/, 'positive control: this really is the zero-selection branch');
+  assert.match(
+    body,
+    /fullSelection = numberedPlayers\(Number\(countInput\.value\), min, max\)/,
+    '0 ticked names must fall back to a synthesized "คนที่ 1..N" set',
+  );
+  assert.ok(
+    body.indexOf('numberedPlayers(') < body.indexOf('resolveStart('),
+    'the substitution must happen before resolveStart runs, or belowMin would see the real empty selection',
+  );
+
+  // The consequence, proven with the real functions rather than trusted from the comment: numberedPlayers
+  // clamps to at least min, so feeding its output straight into resolveStart can never trip belowMin —
+  // for any min/max the zero-selected branch might run under.
+  for (const [min, max] of [[1, 4], [2, 6], [3, 3]]) {
+    const r = resolveStart(numberedPlayers(0, min, max), min, max, false);
+    assert.equal(r.belowMin, false, `min=${min} max=${max}: belowMin fired from the substituted set`);
+  }
 });
 
 /** true when the element sits inside #player-setup — i.e. root.hidden = true takes it off screen. */
