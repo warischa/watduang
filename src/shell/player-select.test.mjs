@@ -2,7 +2,7 @@
 // เช็คตรรกะล้วนๆ ที่ export จาก player-select.ts (ไม่ต้องมี DOM/localStorage)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveStart, numberedPlayers } from './player-select.ts';
+import { resolveStart, numberedPlayers, planStart } from './player-select.ts';
 
 test('เกิน max: ตัดคนท้ายไปเล่น สั่งเตือนก่อนถ้ายังไม่เคยเตือน', () => {
   const selected = ['เอ', 'บี', 'ซี', 'ดี'];
@@ -60,4 +60,26 @@ test('#22 numberedPlayers: clamp ลงถึง max ถ้ากรอกมา
 
 test('#22 numberedPlayers: count ไม่ใช่ตัวเลข (NaN/0) ถอยไปใช้ min', () => {
   assert.deepEqual(numberedPlayers(0, 2, 5), ['คนที่ 1', 'คนที่ 2']);
+});
+
+// ---- #23: a live round in progress is a question, never a silent choice ----
+const cp = (game) => ({ game, players: ['เอ', 'บี'] });
+
+test('#23 a checkpoint for the game on this page: the start must ask, not choose either way', () => {
+  assert.equal(planStart(cp('siamsi'), 'siamsi'), 'ask');
+});
+
+test('#23 symptom-2 guard: only THIS page game raises the prompt — never another game, never a tool page', () => {
+  assert.equal(planStart(cp('timebomb'), 'siamsi'), 'start', 'timebomb blob must not prompt on siamsi');
+  assert.equal(planStart(cp('siamsi'), 'timebomb'), 'start', 'siamsi blob must not prompt on timebomb');
+  assert.equal(planStart(cp('siamsi'), undefined), 'start', 'tool page has no game to resume');
+  assert.equal(planStart(null, 'siamsi'), 'start', 'no checkpoint at all');
+  assert.equal(planStart({ players: [] }, 'siamsi'), 'start', 'blob with no game tag owns nothing');
+});
+
+test('#23 the player answered: กลับไปเล่นรอบที่ค้าง starts as-is, เริ่มรอบใหม่ drops the round first', () => {
+  assert.equal(planStart(cp('siamsi'), 'siamsi', 'resume'), 'start');
+  assert.equal(planStart(cp('siamsi'), 'siamsi', 'fresh'), 'discard-then-start');
+  // an answer is honoured even if the slot changed under us — a labelled choice is never re-asked
+  assert.equal(planStart(null, 'siamsi', 'fresh'), 'discard-then-start');
 });

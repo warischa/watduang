@@ -9,6 +9,15 @@ export interface Roster {
   clear(): void;
 }
 
+/**
+ * A mid-round save. The game decides every field except the two the envelope names: `game` says
+ * whose blob it is (one slot is shared site-wide) and `players` is the round's own roster, so a
+ * round is resumed from the checkpoint instead of from whatever the setup panel currently shows (#23).
+ * The shape a game writes is still its own business — validate before trusting it, the blob on disk
+ * was written by a past version of the code.
+ */
+export type Checkpoint = { game: string; players: string[] } & Record<string, unknown>;
+
 /** สถานะของ "วงนี้" เท่านั้น — หมดอายุเองได้ ไม่ผูกกับ roster */
 export interface GameSession {
   /** ผู้เล่นในวงรอบนี้ — subset ของ roster หรือชื่อชั่วคราว P1..Pn */
@@ -18,9 +27,9 @@ export interface GameSession {
   /** id ของเกมที่วงนี้เล่นไปแล้ว — ใช้ตอนแนะนำเกมถัดไปเมื่อมีเกม >= 2 */
   played: string[];
   markPlayed(id: string): void;
-  /** สถานะกลางรอบ กันรีเฟรชแล้วหาย — เกมกำหนดรูปร่างเอง */
-  checkpoint: Record<string, unknown> | null;
-  saveCheckpoint(cp: Record<string, unknown> | null): void;
+  /** สถานะกลางรอบ กันรีเฟรชแล้วหาย — เกมกำหนดรูปร่างเอง นอกจาก game/players ที่ envelope บังคับ */
+  checkpoint: Checkpoint | null;
+  saveCheckpoint(cp: Checkpoint | null): void;
   /** ปุ่ม "ล้างกลุ่มนี้" — ล้าง session ไม่แตะ roster */
   clear(): void;
 }

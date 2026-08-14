@@ -1,5 +1,5 @@
 // สถานะของ "วงนี้" — sessionStorage + หมดอายุเอง (6 ชม.) ไม่ผูกกับ roster
-import type { GameSession } from '../games/types';
+import type { Checkpoint, GameSession } from '../games/types';
 
 const KEY = 'watduang:session';
 const MAX_AGE_MS = 6 * 60 * 60 * 1000;
@@ -7,7 +7,7 @@ const MAX_AGE_MS = 6 * 60 * 60 * 1000;
 interface StoredSession {
   players: string[];
   played: string[];
-  checkpoint: Record<string, unknown> | null;
+  checkpoint: Checkpoint | null;
   stamp: number;
 }
 
@@ -56,7 +56,7 @@ export function loadSession(): GameSession {
       }
       write({ players: session.players, played: session.played, checkpoint: session.checkpoint, stamp: 0 });
     },
-    saveCheckpoint(cp: Record<string, unknown> | null): void {
+    saveCheckpoint(cp: Checkpoint | null): void {
       session.checkpoint = cp;
       write({ players: session.players, played: session.played, checkpoint: session.checkpoint, stamp: 0 });
     },

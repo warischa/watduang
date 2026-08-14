@@ -120,9 +120,16 @@ jobs:
           NODE
 
       - name: Sitemap covers tool pages
+        # Checks all four, not just wheel. The single-page version of this gate stayed green on a
+        # sitemap with /tool/draw/ deleted — verified by doctoring dist/sitemap-0.xml, 2026-08-14.
+        # SEO is this site's business model, so a tool page silently leaving the sitemap is not cosmetic.
         run: |
-          if ! grep -q '/tool/wheel/' dist/sitemap-0.xml; then
-            echo "::error::dist/sitemap-0.xml missing /tool/wheel/ — tool pages must be discoverable"
+          missing=''
+          for tool in wheel draw team number; do
+            grep -q "/tool/$tool/" dist/sitemap-0.xml || missing="$missing /tool/$tool/"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::dist/sitemap-0.xml missing:$missing — tool pages must be discoverable"
             exit 1
           fi
 

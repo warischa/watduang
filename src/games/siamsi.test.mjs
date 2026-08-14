@@ -81,14 +81,13 @@ test('ผู้เล่นมากกว่าจำนวนใบ ต้อ�
 const store = (cp) => JSON.parse(JSON.stringify(cp));
 
 /** สถานะจริงกลางรอบ: 3 คน จั่วไปแล้ว 1 ใบ กำลังอยู่หน้าใบที่จั่วได้ */
-function midRound() {
-  const players = ['เอ', 'บี', 'ซี'];
+function midRound(players = ['เอ', 'บี', 'ซี']) {
   const { fortune, remaining } = draw(buildDeck(players.length, () => 0.5));
   return {
     players,
     deck: remaining,
     holder: 0,
-    results: [{ player: 'เอ', fortune }],
+    results: [{ player: players[0], fortune }],
     phase: 'drawn',
     drawn: fortune,
   };
@@ -105,8 +104,13 @@ test('blob ที่ใช้ไม่ได้ต้องคืน null ทุ
   const cases = [
     ['ไม่มี checkpoint', null, s.players],
     ['ของเกมอื่น (ช่องเก็บใช้ร่วมกันทุกเกม)', { ...ok, game: 'timebomb' }, s.players],
-    ['วงเปลี่ยนคน', ok, ['เอ', 'บี', 'ดี']],
-    ['วงคนน้อยลง', ok, ['เอ', 'บี']],
+    // A roster that disagrees with the blob is no longer a rejection reason (#23) — the two cases
+    // that used to live here ('วงเปลี่ยนคน', 'วงคนน้อยลง') are now the two resume tests below.
+    // Only a blob that is structurally unusable may return null; a live round must never be dropped.
+    // The roster now leaves this function and becomes session.players (#23), so it is validated here:
+    // a non-string name used to survive every other check and end up in storage and on screen.
+    ['รายชื่อในบล็อบไม่ใช่สตริง', { ...ok, players: ['เอ', 42, 'ซี'] }, s.players],
+    ['รายชื่อว่าง', { ...ok, players: [] }, s.players],
     ['เลขใบไม่มีอยู่จริง', { ...ok, deck: [999, ...ok.deck.slice(1)] }, s.players],
     ['จำนวนใบไม่ตรงจำนวนคน', { ...ok, deck: ok.deck.slice(1) }, s.players],
     ['ใบซ้ำกับที่จั่วไปแล้ว', { ...ok, deck: [ok.results[0].n, ...ok.deck.slice(1)] }, s.players],
@@ -122,4 +126,20 @@ test('blob ที่ใช้ไม่ได้ต้องคืน null ทุ
 test('session ไม่มีรายชื่อ (ชื่อสำรอง) ต้องยังกู้ได้ ไม่ใช่เงียบไปเฉยๆ', () => {
   const s = midRound();
   assert.deepEqual(resumeFrom(store(toCheckpoint(s)), []), s);
+});
+
+// #23 — the checkpoint owns its roster. Both inputs below are the ones the null-case table above
+// used to reject, so a re-introduced name gate turns these red instead of losing a round in silence.
+test('a numbered round resumes even when the panel hands back a different saved group', () => {
+  const s = midRound(['คนที่ 1', 'คนที่ 2', 'คนที่ 3']);
+  const resumed = resumeFrom(store(toCheckpoint(s)), ['เอ', 'บี']);
+  assert.deepEqual(resumed, s);
+  // the restored roster is the checkpoint's, never the panel's — mountInto pushes it back into session
+  assert.deepEqual(resumed.players, ['คนที่ 1', 'คนที่ 2', 'คนที่ 3']);
+});
+
+test('untick then re-tick the same names — order changed, round still resumes', () => {
+  const s = midRound();
+  const reTicked = [...s.players].reverse(); // Set iteration order after un/re-ticking
+  assert.deepEqual(resumeFrom(store(toCheckpoint(s)), reTicked), s);
 });

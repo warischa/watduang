@@ -107,19 +107,21 @@ export function toCheckpoint(s: RoundState): Checkpoint {
 /**
  * แปลง blob ที่อ่านมาจาก storage กลับเป็นสถานะรอบ — คืน null ถ้าใช้ไม่ได้ทุกกรณี
  * ช่อง checkpoint ในเชลล์มีช่องเดียวใช้ร่วมกันทุกเกม จึงต้องเช็คป้ายชื่อเกมก่อนเสมอ
+ *
+ * The checkpoint owns its roster (#23): `current` is accepted and deliberately ignored. Resuming
+ * used to require cp.players to match the setup panel element-wise, which silently destroyed a live
+ * round on a "คนที่ N" start and on an untick/re-tick of the identical group (a Set reorders).
+ * The param stays in the signature so a test can hand in a diverging roster and prove it does not
+ * matter — see the two resume tests in siamsi.test.mjs. Structural trust still lives here, because
+ * every blob was written by a past version of the code.
  */
 export function resumeFrom(raw: unknown, current: readonly string[]): RoundState | null {
+  void current; // ignored on purpose — see above; keeps the param honest instead of silently unused
   const cp = raw as Partial<Checkpoint> | null;
   if (!cp || cp.game !== 'siamsi') return null;
   if (!Array.isArray(cp.players) || !Array.isArray(cp.deck) || !Array.isArray(cp.results)) return null;
   if (cp.phase !== 'turn' && cp.phase !== 'drawn') return null;
-
-  // วงเปลี่ยนคน = blob เก่าใช้ไม่ได้ ต่อให้รูปร่างถูกทุกอย่าง
-  // เว้นตอน session ไม่มีรายชื่อเลย (startRound ถอยไปใช้ชื่อสำรอง) — ไม่มีวงให้เทียบ
-  // ถ้าเทียบดื้อๆ ทางนั้นจะกู้ไม่ได้ตลอดกาลแบบเงียบๆ · ล้างกลุ่มนี้ล้าง checkpoint ให้อยู่แล้ว
-  if (current.length > 0 && (cp.players.length !== current.length || cp.players.some((n, i) => n !== current[i]))) {
-    return null;
-  }
+  if (cp.players.length === 0 || cp.players.some((n) => typeof n !== 'string')) return null;
 
   const byNumber = (n: unknown): Fortune | undefined =>
     typeof n === 'number' ? FORTUNES.find((f) => f.number === n) : undefined;
@@ -315,6 +317,13 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
   // กู้รอบที่ค้างอยู่ถ้ามีและยังใช้ได้ — ไม่ต้องมีป้ายบอก หน้าจอตาถัดไปอธิบายตัวเองอยู่แล้ว
   const resumed = resumeFrom(ctx.session.checkpoint, ctx.session.players);
   if (resumed) {
+    // The checkpoint is the source of truth for who is playing — the shell wrote whatever the panel
+    // showed a moment ago (game/[id].astro), which is transient and may be a different group entirely.
+    // Writing it back keeps session.players and the round in agreement for the rest of the round.
+    // Resume overriding the panel's selection is not a silent decision any more: with a live
+    // checkpoint for this game, PlayerSetup asks first (#resume-choice) and only "กลับไปเล่นรอบที่ค้าง"
+    // reaches this branch. "เริ่มรอบใหม่" clears the slot there, so mounting finds nothing to resume.
+    ctx.session.setPlayers(resumed.players);
     players = resumed.players;
     deck = resumed.deck;
     holder = resumed.holder;

@@ -22,7 +22,9 @@ const howToJsonLd = {
   <main>
     <h1>{game.names.th}</h1>
 
-    <PlayerSetup min={game.players[0]} max={game.players[1]} />
+    <!-- gameId ให้แผงรู้ว่า checkpoint ที่ค้างอยู่เป็นของหน้านี้หรือของเกมอื่น (#23)
+         หน้าเครื่องมือไม่ส่ง prop นี้ จึงไม่มีรอบให้ถามถึงเลย -->
+    <PlayerSetup min={game.players[0]} max={game.players[1]} gameId={game.id} />
 
     <div id="stage" data-game-id={game.id}></div>
 

@@ -1,5 +1,6 @@
 // ตรรกะล้วนๆ ไม่แตะ DOM/localStorage — ให้ PlayerSetup.astro เรียกใช้ตอนกดเริ่มรอบ (#21)
 // รับ "วงเต็มที่ติ๊กไว้" เข้ามาเสมอ ไม่ใช่ pool ที่เหลือหลัง clamp แล้ว (ADR-0004 แก้ไขเรื่องนี้ไว้)
+import type { Checkpoint } from '../games/types.ts';
 
 export interface StartResolution {
   /** คนที่จะได้เล่นจริงในหน้านี้ — ผ่าน clamp ที่ max แล้ว */
@@ -17,6 +18,33 @@ export interface StartResolution {
 export function numberedPlayers(count: number, min: number, max: number): string[] {
   const n = Math.min(max, Math.max(min, count || min));
   return Array.from({ length: n }, (_, i) => `คนที่ ${i + 1}`);
+}
+
+/** What the player told us at the prompt — undefined until they have been asked. */
+export type ResumeChoice = 'resume' | 'fresh';
+
+/**
+ * #23 — a round in progress may only end by a labelled choice. With a checkpoint belonging to the
+ * game on THIS page, both start buttons must ask instead of deciding: resuming silently throws away
+ * the group the player just ticked, and starting silently throws away the round they are mid-way
+ * through. Once they answer, the answer is final.
+ *
+ * The game tag is what keeps this specific to one page. Matching on "any checkpoint exists" is the
+ * defect #23 removed: a siamsi blob would raise a prompt on timebomb's page, which has no resume at
+ * all. gameId is undefined on tool pages — nothing to resume there, so they never prompt.
+ *
+ * ponytail: whether the blob is actually *usable* stays the game's business (siamsi resumeFrom) —
+ * the shell must not import a game module to find out. A corrupt same-game blob still prompts, and
+ * resuming it lands on the game's own idle screen rather than losing anything.
+ */
+export function planStart(
+  checkpoint: Checkpoint | null,
+  gameId: string | undefined,
+  choice?: ResumeChoice,
+): 'ask' | 'start' | 'discard-then-start' {
+  if (choice === 'fresh') return 'discard-then-start';
+  if (choice === 'resume') return 'start';
+  return gameId !== undefined && checkpoint?.game === gameId ? 'ask' : 'start';
 }
 
 /** selected คือวงเต็มตามที่ผู้ใช้ติ๊กไว้ (หรือ "คนที่ 1..count" ตอนไม่ได้ติ๊กใครเลย)

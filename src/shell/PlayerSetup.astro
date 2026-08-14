@@ -1,8 +1,10 @@
 ---
-interface Props { min: number; max: number; ctaLabel?: string; clearsSession?: boolean }
-const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } = Astro.props as Props;
+interface Props { min: number; max: number; ctaLabel?: string; clearsSession?: boolean; gameId?: string }
+const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, gameId } = Astro.props as Props;
 ---
-<div id="player-setup" data-min={min} data-max={max}>
+<!-- data-game-id โผล่เฉพาะหน้าเกม (#23) — เป็นตัวบอกว่า checkpoint ในช่องรวมเป็นของหน้านี้ไหม
+     ห้าม import เกมมาถามที่นี่ และห้ามเดาจาก URL — id เดินมาทาง prop จาก GameLayout -->
+<div id="player-setup" data-min={min} data-max={max} data-game-id={gameId}>
   <div id="setup-number-picker">
     <label for="player-count">จำนวนคนเล่น</label>
     <input id="player-count" type="number" min={min} max={max} value={min} />
@@ -19,21 +21,37 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
   <!-- hidden ตอนไม่มีอะไรจะบอก — ไม่มี style block ที่นี่ <p> ว่างจึงกินระยะขอบของ UA ไปเปล่าๆ ทุกหน้า -->
   <p id="setup-error" role="alert" hidden></p>
   <button id="start-round" type="button">{ctaLabel}</button>
+
+  <!-- #23: มีรอบค้างของเกมนี้ = ต้องถาม ไม่ใช่เลือกให้ ทั้งสองทางไม่มีทางไหนทำรอบหายแบบเงียบๆ
+       role="alert" เพื่อให้ประกาศตอนถูกปลด hidden เหมือน #setup-error -->
+  <div id="resume-choice" hidden>
+    <p role="alert">ยังมีรอบที่เล่นค้างอยู่ จะกลับไปเล่นต่อ หรือเริ่มรอบใหม่กับวงที่เลือกไว้?</p>
+    <button id="resume-round" type="button">กลับไปเล่นรอบที่ค้าง</button>
+    <button id="fresh-round" type="button">เริ่มรอบใหม่</button>
+  </div>
 </div>
 
 <!-- อยู่นอก #player-setup ตั้งใจ: พอเริ่มรอบแล้ว setup ถูกซ่อน ปุ่มนี้ต้องยังกดได้
      ไม่งั้นเปลี่ยนกลุ่มไม่ได้เลยจนกว่าจะรีโหลดเอง
-     data-clears-session โผล่เฉพาะตอนถูกปิด (clearsSession={false}) — HTML ของเกมจึงเหมือนเดิมทุกไบต์ -->
-<button id="clear-group" type="button" data-clears-session={clearsSession ? undefined : 'no'}>ล้างกลุ่มนี้</button>
+     data-clears-session โผล่เฉพาะตอนถูกปิด (clearsSession={false}) — HTML ของเกมจึงเหมือนเดิมทุกไบต์
+
+     hidden on tool pages (#23): with clearsSession={false} the click handler is a deliberate no-op
+     (ADR-0004 — a tool must not touch the session or the checkpoint a game is mid-round on), and a
+     button that does nothing is its own defect. Hidden in the template, not removed: the script
+     below reads #clear-group for both the handler and the data flag, and a null there would throw
+     and kill the whole island — taking the setup panel with it. -->
+<button id="clear-group" type="button" data-clears-session={clearsSession ? undefined : 'no'} hidden={!clearsSession}>ล้างกลุ่มนี้</button>
 
 <script>
   import { loadRoster, loadGroup, saveGroup } from './roster';
   import { loadSession } from './session';
-  import { resolveStart, numberedPlayers } from './player-select';
+  import { resolveStart, numberedPlayers, planStart, type ResumeChoice } from './player-select';
 
   const root = document.getElementById('player-setup') as HTMLElement;
   const min = Number(root.dataset.min);
   const max = Number(root.dataset.max);
+  // undefined บนหน้าเครื่องมือ — ที่นั่นไม่มีเกมให้กู้ จึงไม่มีรอบค้างให้ถามถึง (#23)
+  const gameId = root.dataset.gameId;
 
   const roster = loadRoster();
 
@@ -45,6 +63,9 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
   const startNumberedBtn = document.getElementById('start-numbered') as HTMLButtonElement;
   const errorEl = document.getElementById('setup-error') as HTMLElement;
   const clearBtn = document.getElementById('clear-group') as HTMLButtonElement;
+  const resumeChoiceEl = document.getElementById('resume-choice') as HTMLElement;
+  const resumeBtn = document.getElementById('resume-round') as HTMLButtonElement;
+  const freshBtn = document.getElementById('fresh-round') as HTMLButtonElement;
 
   // จริงจนกว่าจะกด "เริ่มรอบ" ซ้ำ — คลิกแรกเกิน max แค่เตือน คลิกสองไปต่อ (#21)
   // ต้องรีเซ็ตทุกครั้งที่วงเปลี่ยน ไม่งั้นเตือนครั้งเดียวจบตลอดชีวิตหน้า
@@ -58,7 +79,58 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
   function showError(text: string): void {
     errorEl.hidden = text === '';
     errorEl.textContent = text;
+    // ทุกทางที่ปฏิเสธ/เตือนก่อนเริ่มรอบวิ่งผ่านฟังก์ชันนี้ที่เดียว (เกิน max, ต่ำกว่า min) — ปฏิเสธแล้ว
+    // คำถามเรื่องรอบค้างที่ยังเปิดอยู่ถือวงเดิมที่แผงเพิ่งไม่รับไว้ กด "เริ่มรอบใหม่" ตอนนั้นจะเริ่มด้วยวงนั้น
+    // ห้ามให้คำเตือนกับคำถามอยู่บนจอพร้อมกัน — แผงต้องไม่ชี้ไปที่ทางที่ตัวเองเพิ่งปิด (#23)
+    if (text !== '') cancelResumeChoice();
   }
+
+  // #23: วงที่กำลังจะเริ่ม รอคำตอบเรื่องรอบที่ค้างอยู่ — null = ยังไม่ได้ถามใคร
+  let pendingStart: string[] | null = null;
+
+  // วงเปลี่ยนหลังคำถามโผล่แล้ว = คำถามเดิมถือวงเก่าไว้ ปิดไปแล้วให้กดเริ่มรอบใหม่อีกที
+  // ไม่งั้น "เริ่มรอบใหม่" จะเริ่มด้วยวงก่อนหน้าที่ผู้เล่นเพิ่งแก้ — เงียบและผิดใจแบบเดียวกับที่ #23 แก้อยู่
+  function cancelResumeChoice(): void {
+    pendingStart = null;
+    resumeChoiceEl.hidden = true;
+  }
+
+  /** ทางออกเดียวของการเริ่มรอบ — ทั้งปุ่ม "เริ่มรอบ" และทางลัด "คนที่ N" วิ่งผ่านที่นี่
+   *  มีรอบค้างของเกมหน้านี้ = ถามก่อน (planStart) ไม่มี = เริ่มเลยเหมือนเดิม */
+  function requestStart(playing: string[], choice?: ResumeChoice): void {
+    const session = loadSession();
+    const action = planStart(session.checkpoint, gameId, choice);
+    if (action === 'ask') {
+      pendingStart = playing;
+      resumeChoiceEl.hidden = false;
+      resumeBtn.focus(); // ปุ่มโผล่ท้ายแผง — พาสายตาและ screen reader ไปถึงคำถามที่เพิ่งขึ้น
+      return;
+    }
+    // "เริ่มรอบใหม่" = ทิ้งรอบเก่าตามที่ผู้เล่นสั่งไว้ชัดๆ ต้องล้างก่อน mount ไม่งั้นเกม resume เจอ blob เดิม
+    // แล้วรอบ "ใหม่" กลายเป็นรอบเก่า (siamsi.ts mountInto อ่าน checkpoint ก่อนทุกครั้ง)
+    if (action === 'discard-then-start') session.saveCheckpoint(null);
+    // ทาง "กลับไปเล่นรอบที่ค้าง" ยังส่งวงที่ติ๊กไว้ตามปกติ — เกมจะทับด้วยรายชื่อใน checkpoint เองตอน resume
+    // ถ้า blob เสียจน resume ไม่ได้ วงที่ติ๊กนี้คือทางถอย จอจึงไม่ว่างเปล่า
+    // คำถามได้คำตอบแล้ว ล้างทิ้งก่อนออก — วันนี้ root.hidden ปิดแผงอยู่แล้ว แต่ถ้าวันหน้ามีทางเปิดแผงซ้ำ
+    // คำถามค้างจะถือวงเก่าไว้เงียบๆ · playing เป็นพารามิเตอร์ในมือแล้ว ล้าง pendingStart จึงไม่กระทบ
+    cancelResumeChoice();
+    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players: playing }, bubbles: true }));
+    // ปุ่มเริ่มรอบอยู่เหนือจอเล่น — กดกลางรอบ = ล้มรอบทิ้ง จึงซ่อนทั้งแผงหลังเริ่มแล้ว
+    // ทางกลับ: "เล่นอีกรอบ" อยู่ในจอเกม · "ล้างกลุ่มนี้" อยู่นอกแผงนี้จึงยังกดได้กลางรอบ
+    root.hidden = true;
+  }
+
+  // แก้จำนวนคนหลังคำถามโผล่ = วงเปลี่ยน ต้องปิดคำถามเหมือนตอนติ๊กชื่อ
+  // ไม่มีบรรทัดนี้: กด "คนที่ N" ที่ 4 คน → คำถามโผล่ → แก้เป็น 6 → "เริ่มรอบใหม่" ได้ 4 คน เงียบๆ
+  countInput.addEventListener('input', cancelResumeChoice);
+
+  resumeBtn.addEventListener('click', () => {
+    if (pendingStart) requestStart(pendingStart, 'resume');
+  });
+
+  freshBtn.addEventListener('click', () => {
+    if (pendingStart) requestStart(pendingStart, 'fresh');
+  });
 
   function renderRosterList(): void {
     rosterList.innerHTML = '';
@@ -73,6 +145,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
         else selected.delete(name);
         overMaxWarned = false;
         showError('');
+        cancelResumeChoice();
       });
       label.appendChild(checkbox);
       label.append(` ${name}`);
@@ -93,24 +166,21 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
     addNameInput.value = '';
     overMaxWarned = false;
     showError('');
+    cancelResumeChoice();
     renderRosterList();
   });
 
   // #22: ทางลัดเข้าโหมด "คนที่ 1, 2, 3…" ตรงๆ แม้วงเดิมถูกติ๊กอยู่เต็ม — ไม่แตะ selected/saveGroup เลย
   // ต่างจาก startBtn ตรงที่ไม่ผ่าน resolveStart: numberedPlayers clamp อยู่ในช่วง [min, max] แล้ว จึงไม่มีเกิน max ให้เตือนหรือต่ำกว่า min ให้ปฏิเสธ
-  // F2: บนหน้าเกม ปุ่มนี้ยิง setPlayers("คนที่ N") ทันที (game/[id].astro) รอบที่ค้างอยู่จึงตกด่านเทียบชื่อ
-  // ตอน resume (siamsi.ts) — กดพลาดครั้งเดียวหลังรีเฟรชกลางวง = รอบหาย จึงซ่อนไว้ตราบที่ยังมี checkpoint
-  // รอบที่เริ่มจากรายชื่อกู้ได้ด้วยปุ่ม "เริ่มรอบ" ตามเดิม — แต่รอบที่เริ่มแบบ "คนที่ N" ยังกู้ไม่ได้เลย
-  // (checkpoint แท็กชื่อ "คนที่ N" ไว้ แต่ prefill ติ๊กวงเดิมกลับมา ชื่อจึงไม่ตรงด่านเทียบ) — #23
-  // หน้าเครื่องมือไม่เคยเรียก setPlayers ปุ่มจึงปลอดภัยและไม่ต้องซ่อน
-  if (clearBtn.dataset.clearsSession !== 'no' && loadSession().checkpoint) {
-    startNumberedBtn.hidden = true;
-  }
-
+  // #23: this button is never hidden any more. It used to disappear whenever ANY checkpoint existed,
+  // because pressing it fired setPlayers("คนที่ N") and the resume path then failed a name gate and
+  // dropped the live round. A checkpoint now carries its own roster and is resumed from itself
+  // (siamsi.ts resumeFrom), so the hazard is gone — and with it the state where the panel copy at the
+  // top of this file pointed at a control that was not on screen, on every game page including ones
+  // with no resume at all. It routes through requestStart like "เริ่มรอบ" does, so a live round of this
+  // game reaches the same two-button question here too — no entry point discards a round on its own.
   startNumberedBtn.addEventListener('click', () => {
-    const players = numberedPlayers(Number(countInput.value), min, max);
-    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players }, bubbles: true }));
-    root.hidden = true;
+    requestStart(numberedPlayers(Number(countInput.value), min, max));
   });
 
   startBtn.addEventListener('click', () => {
@@ -147,13 +217,13 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
     // ตั้งใจเก็บ "วงเต็มตามที่ตั้งใจ" ไม่ใช่ "วงที่เล่นได้จริงบนหน้านี้" — clamp ตอนใช้ ไม่ clamp ตอนเก็บ
     // เคยลองเก็บตัวที่ clamp แล้ว: เดินผ่านหน้า max เล็กครั้งเดียว วงหายถาวร ซึ่งแย่กว่าปัญหาที่แก้
     // selected ว่าง = มาทางช่องกรอกจำนวน (บรรทัด fullSelection ด้านบน) ไม่ใช่ "ตั้งใจล้างวง"
-    // เขียน [] ทับตรงนี้ = วงเดิมหายถาวร แล้ว siamsi ที่ค้างอยู่ resume ไม่ได้ (siamsi.ts:120)
+    // เขียน [] ทับตรงนี้ = วงเดิมหายถาวร ต้องกลับมาติ๊กใหม่ทั้งวง (#15)
+    // (#23: ไม่ทำให้รอบที่ค้างอยู่หายอีกแล้ว — checkpoint พารายชื่อของตัวเองไป จึงไม่มีด่านเทียบชื่อให้ตก)
     // การล้างวงมีปุ่มของมันอยู่แล้ว (#clear-group) จึงไม่ต้องล้างเป็นผลข้างเคียงของการเริ่มรอบ
     if (selected.size > 0) saveGroup([...selected]);
-    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players: result.playing }, bubbles: true }));
-    // ปุ่มนี้อยู่เหนือจอเล่น — กดกลางรอบ = ล้มรอบทิ้ง จึงซ่อนทั้งแผงหลังเริ่มแล้ว
-    // ทางกลับ: "เล่นอีกรอบ" อยู่ในจอเกม · "ล้างกลุ่มนี้" อยู่นอกแผงนี้จึงยังกดได้กลางรอบ
-    root.hidden = true;
+    // วงถูกบันทึกไปแล้วก่อนถึงคำถามเรื่องรอบค้าง ตั้งใจ: ผู้เล่นติ๊กวงนี้จริง prefill ครั้งหน้าจึงควรเป็นวงนี้
+    // ไม่ว่าเขาจะเลือกกลับไปเล่นรอบเก่าหรือเริ่มใหม่ (ADR-0004: เก็บวงเต็ม ไม่ clamp ตอนเก็บ)
+    requestStart(result.playing);
   });
 
   clearBtn.addEventListener('click', () => {
@@ -161,8 +231,8 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true } 
     // checkpoint มีช่องเดียวร่วมกันทั้งเว็บ ล้างจากหน้าเครื่องมือ = เกมที่ค้างกลางรอบหายทันทีโดยไม่เตือน
     // ความหมายของปุ่มยังเดิม: ล้าง "รอบนี้" ไม่ใช่ล้าง roster (roster อยู่ localStorage จึงรอดทั้งสองทาง)
     // #data-loss: saveGroup([]) ต้องอยู่ gate เดียวกับ session.clear() — เดิมอยู่นอก if จึงล้าง "วง" (prefill)
-    // จากหน้าเครื่องมือได้แม้ session ยังไม่ถูกแตะ กลับไปหน้าเกมแล้ว prefill ว่าง → synthesize "คนที่ N" →
-    // แท็กใน checkpoint ไม่ตรง → รอบที่ยังไม่จบถูกทิ้งทั้งที่ยังแก้ทัน (siamsi.ts:120)
+    // จากหน้าเครื่องมือได้แม้ session ยังไม่ถูกแตะ กลับไปหน้าเกมแล้ว prefill ว่างต้องติ๊กใหม่ทั้งวง (#15)
+    // ตัวรอบเองรอดแล้วตั้งแต่ #23 (checkpoint พารายชื่อไปเอง) แต่ gate นี้ยังต้องอยู่ — เครื่องมือห้ามแตะของวง
     if (clearBtn.dataset.clearsSession !== 'no') {
       loadSession().clear();
       saveGroup([]);
