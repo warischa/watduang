@@ -52,4 +52,6 @@ record no longer what was written.
 
 Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md`
 
+⚠ Proving anything in a browser (320px · reduced-motion · refresh-and-resume) → `docs/agents/browser-verification.md` first — `--window-size` does not reflow the layout, and a screenshot of it will lie to you
+
 Session saving (window · where each fact lives · what must never sit in this file): `.claude/commands/save-session.md`
