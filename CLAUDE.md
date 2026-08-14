@@ -25,23 +25,23 @@ Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla T
 
 เหตุผลของทุกการตัดสินใจอยู่ใน GitHub issues — **ห้ามเขียนซ้ำที่นี่ อ้างเลขเอา** · map = [#1](https://github.com/warischa/watduang/issues/1) · archive: `docs/sessions-archive.md`
 
-### S2026-08-13#7
+### S2026-08-14#1
 
-done: **เกม 2 `siamsi` ลง CI เขียว 11 step** `aa5a251` · การ์ดแชร์ `/` `/games/` `/404` `d254a8d` · siamsi กู้รอบค้างตอนรีเฟรช `e3fd74f` · 14 tests · **grilling รอบใหญ่ → `CONTEXT.md` + ADR 0001-0004 + spec [#14] แตกเป็นตั๋ว [#15] → [#16][#17][#18]**
+done: **[#15] เครื่องมือ 1 ลง `24fe2c8`** — `/tool/wheel/` · `/tools/` · `src/tools/wheel.ts` + เทส mutation-proven · shell ใช้ร่วมกับเกม · **แก้ CSP ที่ทำให้ page JS โดนบล็อกเงียบ + 3 ด่านใน `ci.yml`** · 20 tests · `/tools/` เลิกกำพร้า `0a485ee` · docs → pointer `bb9c1dc` · tracker: เปิด #19 #20 · #12 เลิกเป็น gate · ผูก #14 #19 #20 เข้า #1 · dep #19←#9
 
-dec: why อยู่ใน `docs/adr/` — 0001 หมวด · 0002 siamsi=เกม 8 · 0004 เครื่องมือ 4 ตัว `/tool/<slug>` ต้องใช้ roster ร่วม · **0003 คือเกณฑ์ที่ยังมีชีวิต: organic clicks <300/เดือน ที่เดือน 6 นับจาก tool+3 เกมขึ้น prod → ไม่ถึง = ดัน `/en/`**
+dec: ADR-0005 (page JS ห้าม inline) · ADR-0004 §เพิ่มตอน #15 (session ทางอ้อม · วงที่จำไว้ · baseline ของหน้าหาย) · **gate ตัวจริงคือใบ #19 แล้ว ไม่ใช่ #12** (ADR-0003)
 
 ⚠ ก่อนสร้างรูป OG · รัน build · หรือยื่นตัวเลือกให้เจ้าของเว็บตัดสิน → อ่าน `docs/runbook.md` ก่อน
 
 next:
-- [ ] **[#15] วงล้อสุ่ม + โครงหน้าเครื่องมือ — เริ่มได้เลย** จบแล้วปลด [#16][#17][#18] ทำขนานได้
-- [ ] DoD #13 ข้อ 4 มือถือจริง (เจ้าของเว็บ) — **ปิดข้อนี้ = ปิดใบ #13** · เช็คสายไฟ checkpoint ของ siamsi ไปด้วย (เทสคลุมไม่ถึง)
-- [ ] #9 จด `watduang.com` (เจ้าของเว็บ) — `whois` ยังว่าง
-- [ ] Azure SWA เฟส 2 — เจ้าของเว็บตั้ง secret `AZURE_STATIC_WEB_APPS_API_TOKEN` · Deploy ต้องไม่ขึ้น skipped ใน `gh run view` · **ด่านเดียวที่พิสูจน์ CSP/AdSense**
-- [ ] GitHub ค้างรออนุญาต: ผูก #14 เข้า #1 · แก้ #12 ให้เลิกอ้างเป็น gate (ADR-0003) · เปิดใบ gate ใหม่ · เปิดใบให้ `siamsi`
+- [ ] **[#16][#17][#18] ทำขนานได้เลย** — โครงใช้ซ้ำได้ตาม ADR-0004 · เพิ่ม slug ใน `EXPECTED_TOOL_SLUGS` ที่ `ci.yml` · เสร็จ = build + `node --test` เขียว และด่าน absence แดงเมื่อ `mv` หน้าออก
+- [ ] DoD #13 ข้อ 4 มือถือจริง (เจ้าของเว็บ) — **ปิดข้อนี้ = ปิดใบ #13** · รอบเดียวกันเช็ค #20 ด้วย: siamsi กลางวง → รีเฟรช → ต้องกู้รอบเดิมได้
+- [ ] #9 จด `watduang.com` (เจ้าของเว็บ) — `whois` ยังว่าง (เช็ค 2026-08-14) · #19 blocked by ใบนี้
+- [ ] Azure SWA เฟส 2 — เจ้าของเว็บตั้ง secret `AZURE_STATIC_WEB_APPS_API_TOKEN` · เสร็จ = Deploy ไม่ขึ้น skipped ใน `gh run view` · **ด่านเดียวที่พิสูจน์ CSP/AdSense**
+- [ ] ยังไม่ได้เปิดใบ 2 เรื่องที่ REFUTE เจอ (รออนุญาต) — ทั้งคู่อยู่ใน ADR-0004 §เพิ่มตอน #15: ด้าน `max` ตัดเงียบ · ทางไปโหมด "คนที่ 1..N"
 - [ ] ยืนยัน/เปลี่ยน PartyPick
 
-inflight: tree สะอาด · push ครบถึง `origin/main` · ไม่มี PR เปิด (เช็คแล้ว) · ไม่มี bg task
+inflight: tree สะอาด · ไม่มี PR เปิด (เช็คแล้ว) · ไม่มี bg task · push แล้วในรอบนี้
 
 ## Agent skills
 
