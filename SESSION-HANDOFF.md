@@ -1,23 +1,23 @@
 # Session handoff — วัดดวง
 
-**นี่คือบ้านของสถานะสด ไม่ใช่ไฟล์ประกอบ** — `CLAUDE.md` ไม่มี § Current state แล้ว resume อ่านไฟล์นี้เป็นแหล่งหลัก
+**This is the home of live state, not a supplement** — `CLAUDE.md` no longer has a § Current state; resume reads this file as the primary source.
 
-รูปแบบ · window · budget · roll: `.claude/commands/save-session.md` · เหตุผลของทุกการตัดสินใจอยู่ใน GitHub issues และ `docs/adr/` — **ห้ามเขียนซ้ำที่นี่ อ้างเลขเอา** · map = [#1](https://github.com/warischa/watduang/issues/1) · archive: `docs/sessions-archive.md`
+Format · window · budget · roll: `.claude/commands/save-session.md` · Rationale for every decision lives in GitHub issues and `docs/adr/` — **never restate it here, cite the number** · map = [#1](https://github.com/warischa/watduang/issues/1) · archive: `docs/sessions-archive.md`
 
 ## Current state
 
-### S2026-08-14#1
+### S2026-08-14#2
 
-done: **[#15] เครื่องมือ 1 ลง `24fe2c8`** — `/tool/wheel/` · `/tools/` · `src/tools/wheel.ts` + เทส mutation-proven · shell ใช้ร่วมกับเกม · **แก้ CSP ที่ทำให้ page JS โดนบล็อกเงียบ + 3 ด่านใน `ci.yml`** · 20 tests · `/tools/` เลิกกำพร้า `0a485ee` · docs → pointer `bb9c1dc` · tracker: เปิด #19 #20 · #12 เลิกเป็น gate · ผูก #14 #19 #20 เข้า #1 · dep #19←#9
+done: **[#15] tool 1 shipped `24fe2c8`** — `/tool/wheel/` · `/tools/` · `src/tools/wheel.ts` + mutation-proven tests · shell shared with games · **fixed the CSP defect that silently blocked page JS, + 3 new gates in `ci.yml`** · 20 tests · `/tools/` no longer orphaned `0a485ee` · docs → pointers `bb9c1dc` · tracker: opened #19 #20 · #12 is no longer a gate · linked #14 #19 #20 under #1 · dep #19←#9 · **pushed, and CI went green on GitHub with all 3 new gates on their first real run** (`31763743017`, Deploy still skipped — no secret yet) · state moved out of `CLAUDE.md` into this file `2143101` · language policy `d3279d4` · `CLAUDE.md` converted to English this save
 
-dec: ADR-0005 (page JS ห้าม inline) · ADR-0004 §เพิ่มตอน #15 (session ทางอ้อม · วงที่จำไว้ · baseline ของหน้าหาย) · **gate ตัวจริงคือใบ #19 แล้ว ไม่ใช่ #12** (ADR-0003)
+dec: ADR-0005 (page JS must never inline) · ADR-0004 §added-during-#15 (indirect session access · remembered group · absence baseline) · **the real gate is now ticket #19, not #12** (ADR-0003) · state home = this file, which **overrides master save-session** — reason recorded in `.claude/commands/save-session.md`, do not move it back without reading that · language = write English, ship Thai (`CLAUDE.md` § Language); Thai docs convert on touch, `docs/sessions-archive.md` never
 
 next:
-- [ ] **[#16][#17][#18] ทำขนานได้เลย** — โครงใช้ซ้ำได้ตาม ADR-0004 · เพิ่ม slug ใน `EXPECTED_TOOL_SLUGS` ที่ `ci.yml` · เสร็จ = build + `node --test` เขียว และด่าน absence แดงเมื่อ `mv` หน้าออก
-- [ ] DoD #13 ข้อ 4 มือถือจริง (เจ้าของเว็บ) — **ปิดข้อนี้ = ปิดใบ #13** · รอบเดียวกันเช็ค #20 ด้วย: siamsi กลางวง → รีเฟรช → ต้องกู้รอบเดิมได้
-- [ ] #9 จด `watduang.com` (เจ้าของเว็บ) — `whois` ยังว่าง (เช็ค 2026-08-14) · #19 blocked by ใบนี้
-- [ ] Azure SWA เฟส 2 — เจ้าของเว็บตั้ง secret `AZURE_STATIC_WEB_APPS_API_TOKEN` · เสร็จ = Deploy ไม่ขึ้น skipped ใน `gh run view` · **ด่านเดียวที่พิสูจน์ CSP/AdSense**
-- [ ] ยังไม่ได้เปิดใบ 2 เรื่องที่ REFUTE เจอ (รออนุญาต) — ทั้งคู่อยู่ใน ADR-0004 §เพิ่มตอน #15: ด้าน `max` ตัดเงียบ · ทางไปโหมด "คนที่ 1..N"
-- [ ] ยืนยัน/เปลี่ยน PartyPick
+- [ ] **[#16][#17][#18] can run in parallel now** — frame is reusable per ADR-0004 · add the slug to `EXPECTED_TOOL_SLUGS` in `ci.yml` · done = build + `node --test` green, and the absence gate goes red when the page is `mv`d away
+- [ ] #13 DoD item 4, real phone (site owner) — **closing it closes #13** · same session, also check #20: siamsi mid-round → refresh → must restore the round
+- [ ] #9 register `watduang.com` (site owner) — `whois` still free (checked 2026-08-14) · #19 is blocked by it
+- [ ] Azure SWA phase 2 — site owner sets secret `AZURE_STATIC_WEB_APPS_API_TOKEN` · done = Deploy no longer shows skipped in `gh run view` · **the only thing that can prove CSP/AdSense for real**
+- [ ] 2 REFUTE findings still unfiled (awaiting permission) — both written up in ADR-0004 §added-during-#15: silent drop on the `max` side · discoverability of the "คนที่ 1..N" mode
+- [ ] confirm or change PartyPick
 
-inflight: tree สะอาด · ไม่มี PR เปิด (เช็คแล้ว) · ไม่มี bg task · push แล้วในรอบนี้
+inflight: tree clean · no open PRs (checked) · no background tasks · pushed this round

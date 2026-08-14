@@ -1,28 +1,28 @@
 # วัดดวง · watduang.com
 
-เว็บรวมเกมกลุ่มเล่นฟรี 2-10 คน บนเครื่องเดียว (ส่งมือถือวนกัน) ภาษาไทยก่อน หารายได้จาก Google AdSense
-แบรนด์อังกฤษ: **PartyPick** (เสนอ รอยืนยัน) — อยู่ที่ `/en/` ไม่ซื้อโดเมนที่สอง
+Free party games for groups of 2–10 on a single phone passed around. Thai-first. Revenue from Google AdSense.
+English brand: **PartyPick** (proposed, unconfirmed) — lives at `/en/`, no second domain.
 
-**สถานะสด คิวถัดไป และ inflight อยู่ที่ `SESSION-HANDOFF.md` ที่ราก — นั่นคือบ้านของมัน ไม่ใช่ไฟล์ประกอบ**
-resume ต้องอ่านไฟล์นั้นเป็นแหล่งสถานะหลัก · ไฟล์นี้เก็บเฉพาะของนิ่งที่ต้องรู้**ก่อน**ลงมือ และไม่เขียนสถานะซ้ำ
+**Live state, next queue, and inflight live in `SESSION-HANDOFF.md` at the root — that file is their home, not a supplement.**
+Resume must read it as the primary state source. This file holds only the stable things you must know **before** acting, and never repeats state.
 
 ## Stack
 
-Astro + TypeScript · **ไม่มี framework ตอน runtime** (vanilla TS ใน island) · CSS ธรรมดา + custom properties · Azure Static Web Apps (Standard) · GitHub Actions · Cloudflare Web Analytics
+Astro + TypeScript · **no runtime framework** (vanilla TS in islands) · plain CSS + custom properties · Azure Static Web Apps (Standard) · GitHub Actions · Cloudflare Web Analytics
 
-**1 เกม = 1 ไฟล์ + 1 บรรทัดใน manifest → 1 URL static** ผ่าน `getStaticPaths()` · path routing เท่านั้น **ห้ามใช้ hash route** — SEO คือโมเดลธุรกิจของเว็บนี้ ไม่ใช่ฟีเจอร์
+**1 game = 1 file + 1 manifest line → 1 static URL** via `getStaticPaths()` · path routing only, **no hash routes** — SEO is this site's business model, not a feature.
 
-รายละเอียดเต็ม: [#6](https://github.com/warischa/watduang/issues/6)
+Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 
-## กฎที่ห้ามละเมิด
+## Rules that must not be broken
 
-**เนื้อหา** — ห้ามภาพขวด กระป๋อง หรือแก้วที่มีโลโก้ **ที่ไหนก็ตาม รวม OG image และ thumbnail** (พลิกเข้ามาตรา 32/1 ทันที) · ห้ามคำท้าที่ชักจูงให้ทำร้ายร่างกายจริง (เสี่ยงถูกปิดบัญชี AdSense จริง) · ไม่มียี่ห้อ ไม่มีลิงก์ร้าน ไม่มี affiliate แอลกอฮอล์ · คุมคำหยาบ · ไม่ต้องมี age gate
+**Content** — no images of bottles, cans, or branded glasses **anywhere, including OG images and thumbnails** (that alone triggers Thai Alcohol Act §32/1) · no dares that push players toward real physical harm (a genuine AdSense account-termination risk) · no brands, no shop links, no alcohol affiliates · keep profanity in check · no age gate needed.
 
-**Portability** — build ต้องออกมาเป็น `dist/` static ล้วน และของที่ผูกกับ Azure ต้องอยู่ใน 2 ไฟล์เท่านั้น (`staticwebapp.config.json` + deploy step) · ทดสอบด้วย `npx serve dist/` ใน CI · ห้ามใช้ SWA auth · ห้ามมี Azure SDK ใน build · path เป็น relative ทั้งหมด
+**Portability** — the build must produce pure static `dist/`, and everything Azure-specific must live in exactly 2 files (`staticwebapp.config.json` + the deploy step) · CI proves it with `npx serve dist/` · no SWA auth · no Azure SDK in the build · all paths relative.
 
-**CSP** — ต้องเปิดให้ AdSense ผ่าน ไม่งั้นโฆษณาไม่ขึ้นแบบเงียบๆ (อย่าคัดลอก CSP ของ `admin-tools-dev` มาตรงๆ — เว็บนั้นตั้งใจให้แน่นเพราะจุดขายคือ PDPA) · สคริปต์ของหน้าห้าม inline: ADR-0005
+**CSP** — must let AdSense through, or ads silently fail to render (do not copy `admin-tools-dev`'s CSP verbatim — that site is deliberately strict because PDPA is its selling point) · page scripts must never inline: ADR-0005.
 
-⚠ ก่อนสร้างรูป OG · รัน build · หรือยื่นตัวเลือกให้เจ้าของเว็บตัดสิน → อ่าน `docs/runbook.md` ก่อน
+⚠ Before generating an OG image · running a build · or putting a choice to the site owner → read `docs/runbook.md` first.
 
 ## Language
 
@@ -42,12 +42,14 @@ Chat mirrors the reader: English in → English out, ไทย เข้า → 
 what a file gets written in — a Thai conversation still produces English docs.
 
 Existing Thai docs convert on touch unless a session is told otherwise; a file being edited gets
-rewritten in English in that same edit, not left half-converted.
+rewritten in English in that same edit, not left half-converted. `docs/sessions-archive.md` is the one
+exception and is never converted — it holds verbatim past entries, and translating them would make the
+record no longer what was written.
 
 ## Agent skills
 
-**GitHub Issues คือแหล่งความจริงเดียว** — แผนที่คือ [#1](https://github.com/warischa/watduang/issues/1) · วิธีทำงานกับ tracker และกติกาเลขใบ: `docs/agents/issue-tracker.md`
+**GitHub Issues are the single source of truth** — the map is [#1](https://github.com/warischa/watduang/issues/1) · how to work the tracker, and the ticket-number rule: `docs/agents/issue-tracker.md`
 
-ก่อนเขียนโค้ด: ใช้คำตาม `CONTEXT.md` และเคารพ `docs/adr/` · label: `docs/agents/triage-labels.md` · โดเมน: `docs/agents/domain.md`
+Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md`
 
-การบันทึกเซสชัน (window · บ้านของข้อมูล · สิ่งที่ห้ามอยู่ในไฟล์นี้): `.claude/commands/save-session.md`
+Session saving (window · where each fact lives · what must never sit in this file): `.claude/commands/save-session.md`
