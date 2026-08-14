@@ -105,7 +105,13 @@ script and take the whole setup panel down with it (#23).
 
 ## The fact that would change this
 
-If a game ever appears whose rounds are cheap to lose — short enough that a discarded round costs
+For the clear half: if a second game ever ships checkpoints, or [#24](https://github.com/warischa/watduang/issues/24)
+resolves to per-game slots, then `planClear`'s deliberately absent `gameId` becomes over-broad — the
+condition and the question's copy would both have to become game-aware. Today `session.clear()` is
+site-wide and only siamsi writes a checkpoint, which is what makes the any-checkpoint predicate correct
+rather than merely convenient.
+
+For the start half: if a game ever appears whose rounds are cheap to lose — short enough that a discarded round costs
 nothing — the prompt becomes friction rather than protection, and that game would earn a silent
 selection-wins path. No such game exists today; both shipped games are built around passing one phone
 through a full circle.
