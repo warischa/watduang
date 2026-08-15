@@ -115,6 +115,59 @@ test('a checkpoint writer landing between a closure\'s creation and its own setP
   );
 });
 
+// F1 (ADR-0010, open finding S2026-08-15#2) — the sibling caller 65d3d3c did not cover. siamsi.ts:344
+// is a SECOND setPlayers on the closure the start handler built, and on first mount `await load()`
+// (game/[id].astro:56) separates it from that closure's creation. The panel is live in that gap:
+// ล้างกลุ่มนี้ → clear() (PlayerSetup.astro:304) empties the record and location.reload() (:310) is a
+// macrotask away, so the module's continuation can land first. Same detector as the test above —
+// slots.size is raw record presence — plus planStart as the symptom the player actually meets.
+test('F1: the resume path\'s late setPlayers must not rebuild a record that was discarded meanwhile', () => {
+  slots.clear();
+  // A live round is already in the slot — this is the refresh-resume entry (#20), the only path that
+  // reaches siamsi.ts:344 at all.
+  const shell = loadSession();
+  shell.setPlayers(['Alice', 'Bob']);
+  shell.saveCheckpoint(midRound(7));
+
+  // watduang:start → game/[id].astro:50-51: one closure, its own setPlayers, back-to-back. It captures
+  // the live checkpoint as its snapshot, which is what a rebuilt record would carry back in.
+  const game = loadSession();
+  game.setPlayers(['Alice', 'Bob']);
+  // Positive control: this closure really can write, so a later "no record" is a refusal and not a
+  // harness that was never able to create one.
+  assert.equal(slots.size, 1);
+  assert.equal(loadSession().checkpoint.phase, 'drawn');
+
+  // ...await load() suspends. ล้างกลุ่มนี้ → requestClear(true) loads a FRESH snapshot and clears.
+  loadSession().clear();
+  assert.equal(slots.size, 0);
+
+  // The module resolves before the reload commits: mountInto resumes off the stale snapshot and writes
+  // the checkpoint's roster back (siamsi.ts:344) — a second setPlayers on a closure created long before.
+  game.setPlayers(['Alice', 'Bob']);
+  assert.equal(slots.size, 0, 'a late resume-path setPlayers re-created the record the player discarded');
+  assert.equal(
+    planStart(loadSession().checkpoint, 'siamsi'),
+    'start',
+    'the panel offered to resume a round the player discarded — ADR-0008 says a discard is final',
+  );
+});
+
+// Anti-over-fix control for the guard above, and the reason it cannot simply refuse every later
+// setPlayers: while the record is still there, siamsi.ts:344 writing the checkpoint's roster back is
+// the whole of refresh-resume (#20) keeping session.players and the round in agreement. Must hold both
+// before and after the F1 fix.
+test('a later setPlayers still updates a record that is still there — refresh-resume keeps working', () => {
+  slots.clear();
+  const game = loadSession();
+  game.setPlayers(['Alice', 'Bob']); // start handler's own call
+  game.saveCheckpoint(midRound(7));
+
+  game.setPlayers(['เอ', 'บี']); // siamsi.ts:344 — the checkpoint's roster, written back on resume
+  assert.deepEqual(loadSession().players, ['เอ', 'บี'], 'resume must still be able to write its roster');
+  assert.equal(loadSession().checkpoint.phase, 'drawn', 'and must not drop the round it just resumed');
+});
+
 test('a discard is final — a write racing in through a stale session closure must not resurrect it', () => {
   slots.clear();
   // The shell creates the record when the round starts (game/[id].astro: setPlayers on watduang:start)

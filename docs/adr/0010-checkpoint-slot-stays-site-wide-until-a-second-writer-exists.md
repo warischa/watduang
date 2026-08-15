@@ -102,11 +102,11 @@ The fact that would change this: any reader of `session.players` running *before
 page's own start, or any checkpoint writer landing between a closure's creation and that closure's
 own `setPlayers` call. The first does not exist today — the only cross-page reader is resume
 (covered above), and `src/shell/PlayerSetup.astro:131,296` read only the checkpoint. **The second
-does exist**, and is recorded below.
+did exist** — recorded and fixed below.
 
-## Open finding S2026-08-15#2 — a late `setPlayers` can resurrect a discarded record
+## Finding S2026-08-15#2 — a late `setPlayers` could resurrect a discarded record · FIXED
 
-Found while scoring the claim above. **Not fixed.** `src/games/siamsi.ts:344` is a *second*
+Found while scoring the claim above, and fixed in the same session. `src/games/siamsi.ts:344` is a *second*
 `setPlayers` on the closure the start handler created, and on first mount `await load()`
 (`src/pages/game/[id].astro:56`) separates it from that closure's creation. The panel stays live in
 that gap: ล้างกลุ่มนี้ → `session.clear()` (`src/shell/PlayerSetup.astro:304`) empties the record,
@@ -123,8 +123,29 @@ browser-side race window, argued from `65d3d3c`'s own reproduction rather than o
 that would kill this finding: proof the pending module continuation can never run between
 `session.clear()` and the reload committing.
 
-Do not spot-fix it — re-run `65d3d3c`'s reproduction harness first, and treat it as ADR-0008-class:
-a discard must stay discarded.
+**The fix:** `loadSession()` now carries a per-closure `mayCreate`, true only until the first
+`setPlayers` on that closure; every later `setPlayers` passes `create = false` and inherits
+`65d3d3c`'s refusal in `write()` when the record is gone. `siamsi.ts` is untouched — the guard sits
+at the chokepoint every caller routes through, not on siamsi's resume path.
+
+Be precise about what that guard does: it keys on **call ordinality within one closure**. The flag
+refuses nothing itself, does not track whether this closure created the record, and does not detect
+the `clear()`. Its safety rests on `src/pages/game/[id].astro:50-51` being the *first* `setPlayers`
+on every closure a game module receives.
+
+The fact that would change this: a page that hands a game a session closure whose first `setPlayers`
+happens inside the game. That page silently loses the protection — the same locality this ADR scores
+above, one level up.
+
+Proof: `src/shell/session.test.mjs` pins the F1 ordering (red before the guard, green after) and an
+anti-over-fix control — a later `setPlayers` must still update a record that is still there, which is
+issue #20's refresh-resume path. Positive control run against `65d3d3c^`: the ADR-0008 "a discard is
+final" test goes red there and green at HEAD, so the apparatus does reproduce the known-bad case.
+
+Note for future sessions: `65d3d3c`'s original browser harness is **not in the tree** — it lived
+under a `.claude/worktrees/` path that the same commit gitignored. Its runnable descendant is the
+ADR-0008 block in `src/shell/session.test.mjs`. Evidence kept outside the repo does not survive the
+session that made it.
 
 ## Related
 
