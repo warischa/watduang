@@ -219,6 +219,7 @@ ADR-0008 case — but it is still unspecified behaviour of the slot.
 ## Related
 
 - [#24](https://github.com/warischa/watduang/issues/24) — the ticket this answers
-- [#26](https://github.com/warischa/watduang/issues/26) — the finding above, filed and closed (fix `4b14565`)
+- [#26](https://github.com/warischa/watduang/issues/26) — the S2026-08-15#2 finding, filed and closed (fix `4b14565`)
+- [#27](https://github.com/warischa/watduang/issues/27) — the two unguarded orderings from S2026-08-15#3: pinned, unreachable today, with the trip-wire that reopens them
 - ADR-0008 — starting a round never resumes or discards one silently
 - ADR-0009 — a DoD box whose proof set we do not own is mis-scoped
