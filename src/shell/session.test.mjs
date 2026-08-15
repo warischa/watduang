@@ -70,6 +70,51 @@ test('negative control: a clean discard with no racing click leaves the slot emp
   assert.equal(slots.size, 0, 'ล้างและทิ้งรอบที่ค้าง must empty the slot');
 });
 
+// ADR-0010's closing lines flagged a suspected clobber: game B's start (setPlayers) might stomp
+// game A's still-live checkpoint, since both write the same site-wide slot. On this ordering they
+// don't collide — but not because setPlayers re-reads storage. session.checkpoint is the snapshot
+// loadSession() captured at load time (session.ts:67), and setPlayers writes that same snapshot
+// back unchanged (session.ts:70); the only re-read write() does is existence-only, "does the key
+// still exist at all" (session.ts:53). What actually keeps this safe is that every start calls
+// loadSession() and setPlayers() back-to-back with nothing in between (game/[id].astro:50-51) — no
+// writer gets a chance to land between a closure's creation and its own setPlayers. The next test
+// pins what happens when that adjacency is broken.
+test('game B start (setPlayers) preserves game A checkpoint — refutes the ADR-0010 clobber claim', () => {
+  slots.clear();
+  const gameA = loadSession();
+  gameA.setPlayers(['Alice', 'Bob']);
+  gameA.saveCheckpoint(midRound(7));
+
+  const gameB = loadSession();
+  gameB.setPlayers(['Chai', 'Dao']);
+
+  assert.equal(loadSession().checkpoint.phase, 'drawn', 'game B start must not clobber game A checkpoint');
+});
+
+// Boundary pin, not a bug report: a closure captured BEFORE another closure's saveCheckpoint holds a
+// stale snapshot (checkpoint: null), and its own later setPlayers writes that stale snapshot straight
+// back — clobbering the checkpoint the other closure saved in between. Production never reaches this
+// ordering: every start calls loadSession() and setPlayers() back-to-back inside one handler
+// (game/[id].astro:50-51), so nothing can land between a closure's creation and its own setPlayers.
+// This test exists so that if that adjacency is ever broken, this is the failure that fires.
+test('a checkpoint writer landing between a closure\'s creation and its own setPlayers drops it', () => {
+  slots.clear();
+  loadSession().setPlayers(['Alice', 'Bob']); // creates the record, same as a start in production
+  const gameB = loadSession(); // hostile ordering: snapshot taken BEFORE game A's checkpoint save
+
+  const gameA = loadSession();
+  gameA.saveCheckpoint(midRound(7));
+  // positive control: the save really landed, so the drop below is a clobber and not "never wrote"
+  assert.equal(loadSession().checkpoint.phase, 'drawn');
+
+  gameB.setPlayers(['Chai', 'Dao']); // gameB's snapshot predates the save — writes checkpoint: null back
+  assert.equal(
+    loadSession().checkpoint,
+    null,
+    'a closure created before the checkpoint save clobbers it on its own later setPlayers',
+  );
+});
+
 test('a discard is final — a write racing in through a stale session closure must not resurrect it', () => {
   slots.clear();
   // The shell creates the record when the round starts (game/[id].astro: setPlayers on watduang:start)

@@ -1,20 +1,20 @@
-// ตรรกะล้วนๆ ไม่แตะ DOM/localStorage — ให้ PlayerSetup.astro เรียกใช้ตอนกดเริ่มรอบ (#21)
-// รับ "วงเต็มที่ติ๊กไว้" เข้ามาเสมอ ไม่ใช่ pool ที่เหลือหลัง clamp แล้ว (ADR-0004 แก้ไขเรื่องนี้ไว้)
+// Pure logic — no DOM/localStorage — called by PlayerSetup.astro when the start button is pressed (#21)
+// Always takes in the full ticked group, never the pool left after clamping (ADR-0004 fixed this)
 import type { Checkpoint } from '../games/types.ts';
 
 export interface StartResolution {
-  /** คนที่จะได้เล่นจริงในหน้านี้ — ผ่าน clamp ที่ max แล้ว */
+  /** Who actually plays on this page — already clamped to max */
   playing: string[];
-  /** คนที่ถูกตัดออกเพราะเกิน max ของหน้านี้ — ยังอยู่ในวงที่บันทึกไว้ ไม่ได้หายไปไหน */
+  /** Who got cut for exceeding this page's max — still in the saved group, not lost */
   sittingOut: string[];
-  /** true = ยังเริ่มไม่ได้ (ต่ำกว่า min) ต้องปฏิเสธ */
+  /** true = can't start yet (below min), must refuse */
   belowMin: boolean;
-  /** true = เกิน max แล้วต้องเตือนให้เห็นก่อน (ยังไม่เคยเตือนรอบนี้) */
+  /** true = over max and needs a warning shown first (not yet warned this round) */
   needsOverMaxWarning: boolean;
 }
 
-/** สร้างรายชื่อ "คนที่ 1..N" จากจำนวนที่กรอก — clamp ให้อยู่ในช่วง [min, max] ของหน้านั้นเสมอ
- *  ใช้ทั้งตอน selected ว่าง (implicit) และตอนกดปุ่ม "คนที่ 1, 2, 3…" ตรงๆ (#22) */
+/** Builds "คนที่ 1..N" labels from the entered count — always clamps to [min, max] for that page.
+ *  Used both when selected is empty (implicit) and when the "คนที่ 1, 2, 3…" button is pressed directly (#22) */
 export function numberedPlayers(count: number, min: number, max: number): string[] {
   const n = Math.min(max, Math.max(min, count || min));
   return Array.from({ length: n }, (_, i) => `คนที่ ${i + 1}`);
@@ -61,8 +61,8 @@ export function planClear(checkpoint: Checkpoint | null, confirmed: boolean): 'a
   return !confirmed && checkpoint !== null ? 'ask' : 'clear';
 }
 
-/** selected คือวงเต็มตามที่ผู้ใช้ติ๊กไว้ (หรือ "คนที่ 1..count" ตอนไม่ได้ติ๊กใครเลย)
- *  warned = ผู้ใช้เพิ่งเห็นคำเตือนเกิน-max แล้วกดซ้ำเพื่อยืนยันไปต่อ */
+/** selected is the full group as ticked by the user (or "คนที่ 1..count" when nobody ticked anyone)
+ *  warned = user just saw the over-max warning and pressed again to confirm continuing */
 export function resolveStart(
   selected: string[],
   min: number,

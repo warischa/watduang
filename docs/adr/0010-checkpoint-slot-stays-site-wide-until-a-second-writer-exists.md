@@ -5,13 +5,15 @@ Date: 2026-08-15 · Status: accepted · Issue: [#24](https://github.com/warischa
 ## Context
 
 The shell keeps one checkpoint slot for the whole site. A white-box audit this session traced every
-read and every write of it: 4 writes (`siamsi.ts:267` `save()`, `siamsi.ts:304` clear-on-round-over,
-`PlayerSetup.astro:141` discard-then-start, `session.ts:68` `clear()`), 2 preserving rewrites
-(`session.ts:51`, `:57`), and 3 reads (`siamsi.ts:318`, `PlayerSetup.astro:131`, `:296`).
+read and every write of it: 4 writes (`siamsi.ts:281` `save()`, `siamsi.ts:320` clear-on-round-over,
+`PlayerSetup.astro:141` discard-then-start, `session.ts:82` `clear()`), 2 preserving rewrites
+(`session.ts:68` `setPlayers`, `:72` `markPlayed`), and 3 reads (`siamsi.ts:335`,
+`PlayerSetup.astro:131`, `:296`). Line references re-verified against the tree at S2026-08-15#2 —
+the originals were written before `65d3d3c` reshaped `siamsi.ts` and had drifted.
 
-Result: **every guard is read-side.** `resumeFrom` checks the game label (`siamsi.ts:121`) and
+Result: **every guard is read-side.** `resumeFrom` checks the game label (`siamsi.ts:125`) and
 `planStart` checks `checkpoint?.game === gameId` (`player-select.ts:47`). The write side has none —
-`saveCheckpoint` (`session.ts:59-62`) never compares `cp.game` to what is already in the slot.
+`saveCheckpoint` (`session.ts:78-81`) never compares `cp.game` to what is already in the slot.
 
 Unreachable today: `manifest.ts:10` is `[timebomb, siamsi]` and `timebomb.ts` has zero checkpoint
 references. Siamsi is the sole writer. But `_template.ts`, the scaffold game 3 is copied from,
@@ -68,7 +70,61 @@ A second checkpoint-writing game entering `manifest.ts`. At that moment the coll
 more than one round is at stake.
 
 Also open, found by the same design pass and **not** fixed: game B's start still clobbers shared
-`session.players` via `[id].astro:52`.
+`session.players` via `[id].astro:51`. **Scored S2026-08-15#2 — REFUTED at this scope only.** The
+ADR's decision above (keep one site-wide checkpoint slot; defer per-game keying) stands; only this
+closing clobber claim is wrong.
+
+Every reader of `session.players` runs *after* its own page's `setPlayers`. The start handler sets
+players before it mounts (`src/pages/game/[id].astro:51,62`), and the เล่นอีกรอบ path re-mounts via
+`mountInto` on the closure start already populated (`src/games/siamsi.ts:269`,
+`src/games/timebomb.ts:147`) — so `src/games/siamsi.ts:210,290`, `src/games/timebomb.ts:87,187` and
+`src/games/_template.ts:33` always see the panel's fresh selection, never a stale one from a
+previous game. The only cross-page reader is resume, and `resumeFrom` deliberately ignores
+`current` — the checkpoint owns its roster (`src/games/siamsi.ts:122-123`) and restores
+`session.players` from the blob (`src/games/siamsi.ts:344`); the design comment at
+`src/games/siamsi.ts:338-343` names this transience as intended.
+
+Game B's start also preserves game A's checkpoint on the ordering the start handler uses:
+`loadSession()` and `setPlayers()` sit back-to-back (`src/pages/game/[id].astro:50-51`), and
+`setPlayers` writes back the same snapshot `session.checkpoint` it loaded
+(`src/shell/session.ts:67,70`), never a fresh read. Break that adjacency and the checkpoint does
+clobber, pinned both ways by `src/shell/session.test.mjs`: the safe ordering in "game B start
+(setPlayers) preserves game A checkpoint" and the hostile ordering in the boundary-pin test that
+follows it. **That adjacency is local to the start handler's own pair — it is not a property of the
+codebase.** See the open finding below.
+
+Two sub-claims were already covered by committed calibrated checks:
+`src/games/siamsi.test.mjs:129-141` (resume with diverging/empty roster) and
+`src/shell/session.test.mjs:36-41` (players/checkpoint persistence). The one sub-claim that rested
+only on reading `session.ts:70` now has its own test.
+
+The fact that would change this: any reader of `session.players` running *before* the current
+page's own start, or any checkpoint writer landing between a closure's creation and that closure's
+own `setPlayers` call. The first does not exist today — the only cross-page reader is resume
+(covered above), and `src/shell/PlayerSetup.astro:131,296` read only the checkpoint. **The second
+does exist**, and is recorded below.
+
+## Open finding S2026-08-15#2 — a late `setPlayers` can resurrect a discarded record
+
+Found while scoring the claim above. **Not fixed.** `src/games/siamsi.ts:344` is a *second*
+`setPlayers` on the closure the start handler created, and on first mount `await load()`
+(`src/pages/game/[id].astro:56`) separates it from that closure's creation. The panel stays live in
+that gap: ล้างกลุ่มนี้ → `session.clear()` (`src/shell/PlayerSetup.astro:304`) empties the record,
+and `location.reload()` (`:310`) is a macrotask away. If the module resolves first, `:344` runs with
+`create = true` and rebuilds the record *with its checkpoint* — the discarded round un-discards.
+
+This is the failure `65d3d3c` closed for the `#ss-draw` / `#ss-pass` writers. The resume path is a
+sibling caller that fix did not cover, which is why "`setPlayers` is the sole creator and always runs
+first" held as written and still left this open — it runs first, and then again later.
+
+Confirmed: the storage semantics, by probe against the real `src/shell/session.ts` (after `clear()`,
+a `:344`-shaped `setPlayers` leaves a record carrying a `siamsi` checkpoint). Not measured: the
+browser-side race window, argued from `65d3d3c`'s own reproduction rather than observed. The fact
+that would kill this finding: proof the pending module continuation can never run between
+`session.clear()` and the reload committing.
+
+Do not spot-fix it — re-run `65d3d3c`'s reproduction harness first, and treat it as ADR-0008-class:
+a discard must stay discarded.
 
 ## Related
 
