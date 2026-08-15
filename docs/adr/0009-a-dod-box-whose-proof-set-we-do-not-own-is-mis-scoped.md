@@ -76,6 +76,24 @@ disputes, then the screenshot economy was wrong and visual evidence must be comm
 the repo weight. The three reduced-motion boxes are the likeliest place to find out, since they are
 `UNDECIDED` precisely because the tools have no motion to suppress.
 
+## Outcome, S2026-08-15#5
+
+**Flip-fact not triggered — screenshot economy holds.** The prediction above named the reduced-motion
+boxes as the likeliest place to discover that committed text is insufficient. `pick-loser`'s
+reduced-motion axis was settled without any visual evidence: `document.getAnimations()` sampled 0
+across both runs, which distinguishes *no animation exists* from *could not tell* at runtime and
+yields **N/A** rather than `UNDECIDED`. Text artifacts were enough. Still untested for a box where
+motion actually exists.
+
+**Application refined, same session.** This ADR's "browser behaviour → ours → walk it; converges" was
+read once as demanding a fresh capture at every HEAD that touches the wiring. That reading makes the
+proof set *future development*, which never terminates — the exact mis-scoping this ADR exists to
+prevent, applied to itself. The correction: a capture is pinned to its commit, and the re-trigger must
+be **decidable per commit**. The seam that decides it is enumerated in
+`docs/agents/browser-verification.md` § "When a committed capture goes stale — and when it does not".
+Note the reason is *not* that future commits are unowned — they are ours; it is that a per-commit seam
+test terminates. Evidence: [#20](https://github.com/warischa/watduang/issues/20) closed on it.
+
 ## Related
 
 Verification practice and the traps that produced confidently wrong answers:

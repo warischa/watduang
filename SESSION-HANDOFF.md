@@ -6,20 +6,21 @@ Format · window · budget · roll: `.claude/commands/save-session.md` · Ration
 
 ## Current state
 
-### S2026-08-15#4
+### S2026-08-15#5
 
-done: **game 3 `pick-loser` shipped · F1's two orderings closed by identity CAS — `9c9a080`** (8 files, +608/−221). `write()` moved inside `loadSession()` as an identity-CAS chokepoint; `mayCreate` + existence check DELETED, not layered; identity commits only after a successful `setItem` (a swallowed quota error can no longer make the guard a permanent silent no-op); legacy no-id records still match. Guard enumerates captured-id vs stored-id, both minted by `session.ts` → owned set, converges (ADR-0009). `pick-loser` = 0-content, writes no checkpoint → ADR-0010's second-writer condition NOT triggered (scored in that ADR). ADR-0010 15678B→8344B: both Finding bodies moved byte-identical (shasum `2b26337`) to `docs/verification/adr-0010-findings.md` + § Supersession. 96/96 (was 87) · tsc 0 · build 0 · every guard non-vacuous by its own mutant (M1→5/9/10/13 · M2→11 · M3→12 · M4→13 · M5→14 · aging→15) · pos control recalibrated vs the NEW mechanism: pass 11/fail 4 of 15. #27 commented + closed. REFUTE round 1 → 5 CONFIRMED, all dispositioned.
+done: **`e0c4479` pushed · #20 CLOSED · capture-staleness bounded · AdSense gap filed** — `c5461e7` (+150/−1) + `a5806df` (+9/−2) pushed, CI green on both. New § in `docs/agents/browser-verification.md` bounding when a committed capture goes stale; REFUTE round 1 ruled draft 1 **unsafe** (seam list missed the two `.astro` files the unit suite cites by line but never executes; over-generalised to visual checks) — both fixed, `a5806df` pinned visual verdicts. `pick-loser` proved at `e0c4479` → `docs/verification/evidence/pick-loser/01`: 320px PROVEN · reduced-motion N/A (`getAnimations()`=0 both runs) · refresh-clean PROVEN · collision-guard PROVEN (siamsi checkpoint byte-identical through a full pick-loser round + refresh, still resumed). #10 · #24 · #28(+amend) · #29 · `site-owner-checklist.md` §5 + `:47` · ADR-0009 § Outcome scored. 96/96 · tree clean.
 
-dec: **§32/1 keyword `ใครแพ้หมดแก้ว` DROPPED from `pick-loser`** — ticket 09 (#10) round-2 approval was reversed the same day by an unresolved lawyer-review note; owner took ticket 09 option ข · S2026-08-15#3's "leave the orderings open as a trip-wire" **REVERSED** — its premise (no new caller) expired when game 3 landed in the same session · aged-record refusal KEPT: `read()` already reported empty, so the old `write()` disagreeing was the bug (pinned, test 15) · findings moved byte-identical + annotated, never rewritten — the calibration record is what the verdict rests on
+dec: **capture staleness = point-in-time + decidable re-trigger** — rule in `docs/agents/browser-verification.md`, reasoning scored in ADR-0009 § Outcome; reason is that a per-commit seam test **terminates**, NOT that future commits are "unowned" (that misreads ADR-0009 — do not re-derive it) · seam list is illustrative, not exhaustive · **visual captures sit outside the rule** — pinned to their commit, re-triggered by ANY shared CSS/layout/script-loading change · #20 needed no third capture; "fresh at HEAD" would have made the box permanently unclosable · **deploy chain alone does NOT unblock the 4 ad-slot boxes** — prior state claim wrong: no AdSense account, no pub-ID, no `ca-pub` in `src/` → #29 · aged-record silence is by design → #28, no code · agent claim REFUTED: CI's sitemap gate already loops all 4 tools (`ci.yml:130`)
 
 next:
-- [ ] `git push` — `9c9a080` is local only, `main` ahead of `origin/main`. Done when `git status -sb` shows no ahead-count
-- [ ] ticket 09 (#10) — record there that the keyword angle was dropped for `pick-loser`, else it gets re-proposed for game 4. The §32/1 gate itself stays OPEN: lawyer review before any page using that angle launches
-- [ ] `pick-loser` browser proof unrun — 320px · reduced-motion · refresh-and-resume · via `docs/agents/browser-verification.md`
-- [ ] aged-record refusal is silent — no user-facing signal, though `siamsi.ts:207` already has a failed-resume string. Decide surface-or-leave
-- [ ] deploy chain — `bash scripts/site-owner-wizard.sh` §1/§2/§4, owner-run · unblocks 4 ad-slot boxes (#15-#18) + #13's real-device box
-- [ ] #12 seeds verified ready S#4; measurement itself owner-run (Google Ads login)
+- [ ] #29 AdSense account + pub-ID — owner-run (Google identity + payment details; an agent must never enter them). Done when #29 boxes 1-2 tick
+- [ ] deploy chain `bash scripts/site-owner-wizard.sh` §1/§2/§4 — owner-run. Done when `gh secret list` lists `AZURE_STATIC_WEB_APPS_API_TOKEN`. ⚠ **consequence: from that moment `git push` to `main` IS a production deploy** (`ci.yml:208` flips) — every push pre-auth void, re-gate it
+- [ ] #28 aged-record 6h bound — owner accepts or changes it; no code. If changed, `MAX_AGE_MS` (`session.ts:5`) + `session.test.mjs:413`'s 7h fixture move together
+- [ ] #12 keyword measurement — owner-run (Google Ads login)
+- [ ] `docs/verification/tools-15-18/15.md:135-137` calls #15-14 UNPROVABLE against the **old** box text — **annotate, never rewrite**: it records a walk
+- [ ] CI actions on deprecated Node 20 (`checkout@v4`, `setup-node@v4` forced onto 24) — informational, not failing. Done when both bumped and CI green
+- [ ] #24 dormant until a 2nd checkpoint writer exists (ADR-0010)
 
-inflight: measured at save — `9c9a080` committed, **NOT pushed** · open PRs: checked, none · GitHub writes: #27 commented + closed · 8 subagents returned, 0 escalations, 0 verify failures
+inflight: measured at save — tree clean · `a5806df` pushed, no ahead-count · open PRs: checked, none · CI green on `c5461e7` + `a5806df` · GitHub writes: #10 · #24 · #28(+amend) · #20 closed · #29 (body repaired after a shell-quoting truncation — re-verified full) · 4 subagents returned, 1 claim refuted, 0 verify failures
 
-spent: queue 6→6 · batches 3 · ended early: no — all 4 selected directions delivered
+spent: queue 6→7 · batches 1 · ended early: no — every Required/High item Done or owner-Blocked
