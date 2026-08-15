@@ -77,8 +77,13 @@ export function normalizeName(raw: string): string {
   // Zero-width chars are stripped before trim: `\s` does not match them, so a name pasted from
   // LINE or Facebook can carry an invisible U+200B and hash differently from the identical-looking
   // typed name — which would quietly break the "two phones agree" promise above.
+  // SARA AM has two spellings that render identically and NFC does not fold: the single \u0E33 (U+0E33)
+  // that Thai keyboards emit, and NIKHAHIT + SARA AA (U+0E4D U+0E32) that some PDFs and older
+  // systems emit. Names like \u0E19\u0E49\u0E33, \u0E04\u0E33, \u0E17\u0E33 are common enough that leaving this would break the same
+  // "two phones agree" promise the zero-width strip below protects.
   return raw
     .normalize('NFC')
+    .replace(/\u0E4D\u0E32/g, '\u0E33')
     .replace(/[\u200B-\u200D\uFEFF]/g, '')
     .trim()
     .replace(/\s+/g, ' ')

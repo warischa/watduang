@@ -1,0 +1,26 @@
+{
+  "box": "Box E -- the 'no motion' claim. love-match.ts is claimed to contain no .animate(, matchMedia, requestAnimationFrame, or timer, so there is nothing for a reduced-motion guard to suppress. Verified rather than trusted: document.getAnimations() and a computed-style scan of every node under #stage for a non-'none' animation-name or a nonzero transition-duration, both with reduced motion emulated and with it allowed, on the pick screen and the result screen.",
+  "method": "Two separate real headless Chrome launches, per docs/agents/browser-verification.md's --force-prefers-reduced-motion recipe: the existing instance on :9222 (no flag = 'normal') and a second instance on :9223 with --force-prefers-reduced-motion --user-data-dir=/tmp/cdp-prof-lm-rm. Same box-e.mjs script run against both via CDP_PORT=9222 / CDP_PORT=9223 (scripts/driver.mjs reads CDP_PORT from the environment). Calibrated the emulation flag itself both ways in-page (matchMedia('(prefers-reduced-motion: reduce)').matches): false on :9222, true on :9223 -- the flag is confirmed to have actually flipped runtime behaviour, not just been passed on the command line. The scan (`animationName.split(',')` and `transitionDuration.split(',').map(parseFloat)`, taking the max across every comma-separated value, per the trap that '0s, 0.3s' is not caught by a naive first-value check) walked the stage element itself plus every descendant, on both the pick screen (2-person roster, ก้อง/ฟ้า, added via named-entry) and the result screen (after picking ก้อง then ฟ้า), in both Chrome instances -- four scans total.",
+  "capturedAtCommit": "b06db57",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M src/games/manifest.ts', '?? public/og/love-match.png', '?? src/games/love-match.test.mjs', '?? src/games/love-match.ts'. The capture reflects the tree as it stood at run time.",
+  "verdict": "PROVEN",
+  "noAnimationsPresent": true,
+  "reducedMotionFlagCalibratedBothWays": true,
+  "contentReadableInBothMotionStates": true,
+  "consoleErrorsEmpty": true,
+  "reducedMotionSuppressionVerdict": "N/A -- there is no animation or transition anywhere under #stage in either state, so there is nothing for a suppression guard to suppress. Per docs/agents/browser-verification.md this is recorded as N/A, not as a passing suppression check.",
+  "observation": {
+    "normal_9222": {
+      "reducedMotionMatchesAtSetup": false,
+      "pickScreen": { "nodeCount": 5, "offenders": [], "getAnimationsCount": 0, "reducedMotionMatches": false, "stageTextNonEmpty": true },
+      "resultScreen": { "nodeCount": 8, "offenders": [], "getAnimationsCount": 0, "reducedMotionMatches": false, "score": "44%", "line": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว", "scoreNonEmpty": true, "lineNonEmpty": true }
+    },
+    "reducedMotion_9223": {
+      "reducedMotionMatchesAtSetup": true,
+      "pickScreen": { "nodeCount": 5, "offenders": [], "getAnimationsCount": 0, "reducedMotionMatches": true, "stageTextNonEmpty": true },
+      "resultScreen": { "nodeCount": 8, "offenders": [], "getAnimationsCount": 0, "reducedMotionMatches": true, "score": "44%", "line": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว", "scoreNonEmpty": true, "lineNonEmpty": true }
+    }
+  },
+  "note": "Zero offenders (non-'none' animation-name or nonzero transition-duration, parsed per comma-separated value) across all 4 scans (2 screens x 2 motion states), document.getAnimations() empty in every scan, and score+line non-empty in every scan -- the claim that this module carries no motion to suppress is confirmed by measurement, not taken on the implementer's word.",
+  "consoleErrors": []
+}

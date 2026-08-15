@@ -1,0 +1,32 @@
+{
+  "box": "Box C -- determinism across reload. Same pair, same click order, reloaded, same Bangkok day -> identical score and line.",
+  "method": "scripts/driver.mjs, one CDP tab. Wiped storage on-origin, added ก้อง and ฟ้า via the named-entry path, clicked #start-round, picked ก้อง then ฟ้า, recorded the score/line/date paragraphs. Navigated (full reload, same tab) back to /game/love-match/, verified the reload landed back on the SETUP panel (not a resumed round -- checked #player-setup.hidden === false and empty #stage, matching love-match's no-mid-round-checkpoint design), verified the roster was still pre-ticked (ก้อง, ฟ้า) without re-adding, clicked #start-round again, and picked ก้อง then ฟ้า again in the SAME order (this box tests reload-determinism, not order-independence, which is Box B) -- then compared the score/line/date paragraphs bit for bit. Recorded process.env-side UTC timestamps (node's own Date.now, not the page's) immediately before and after the whole run so a Bangkok-midnight straddle (UTC 17:00:00) would be visible rather than assumed away.",
+  "capturedAtCommit": "b06db57",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M src/games/manifest.ts', '?? public/og/love-match.png', '?? src/games/love-match.test.mjs', '?? src/games/love-match.ts'. The capture reflects the tree as it stood at run time.",
+  "verdict": "PROVEN",
+  "scoreIdenticalAfterReload": true,
+  "lineIdenticalAfterReload": true,
+  "dateIdenticalAfterReload": true,
+  "reloadLandsOnSetupNotResume": true,
+  "noMidnightStraddle": true,
+  "consoleErrorsEmpty": true,
+  "bangkokDayThisVerdictRestsOn": "2026-08-16",
+  "observation": {
+    "utcStart": "2026-08-15T17:38:19.865Z",
+    "utcEnd": "2026-08-15T17:38:23.549Z",
+    "elapsedMs": 3684,
+    "note_on_utc_window": "Both timestamps are 2026-08-15T17:38:xx UTC, i.e. ~38 minutes after the 2026-08-15T17:00:00Z Bangkok-midnight boundary that started the current Bangkok day (2026-08-16). The whole run (under 4 seconds) sits entirely inside that day, roughly 23h20m before the next boundary -- no straddle occurred.",
+    "wipeVerified": { "ls": 0, "ss": 0 },
+    "rosterAfterAdd": ["ก้อง", "ฟ้า"],
+    "afterReload": { "setupHidden": false, "stageEmpty": true },
+    "rosterAfterReload": ["ก้อง", "ฟ้า"],
+    "firstScore": "44%",
+    "firstLine": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว",
+    "firstDate": "ดวงคู่ประจำวันที่ 16 สิงหาคม 2569",
+    "secondScore": "44%",
+    "secondLine": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว",
+    "secondDate": "ดวงคู่ประจำวันที่ 16 สิงหาคม 2569"
+  },
+  "note": "Score, line, and the displayed Bangkok date string are byte-identical before and after a real full-page reload for the same pair in the same order. Consistent with Box A/B's independent cross-check against the pure scoreFor/lineFor functions.",
+  "consoleErrors": []
+}

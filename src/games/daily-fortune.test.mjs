@@ -85,6 +85,15 @@ test('names normalise: surrounding and internal spaces, Latin case, Thai composi
   }
   // A name that is nothing but zero-width must not masquerade as a real one.
   assert.equal(normalizeName('\u200B\uFEFF'), '');
+
+  // SARA AM: '\u0E33' is U+0E33 on a Thai keyboard, but NIKHAHIT + SARA AA (U+0E4D U+0E32) renders
+  // identically and comes out of some PDFs and older systems. NFC does not fold the two, so
+  // without an explicit rule the same-looking name draws a different fortune.
+  const amComposed = '\u0E19\u0E33';       // NO NU + SARA AM
+  const amDecomposed = '\u0E19\u0E4D\u0E32'; // NO NU + NIKHAHIT + SARA AA
+  assert.notEqual(amComposed, amDecomposed, 'these must differ as strings, or this proves nothing');
+  assert.equal(normalizeName(amDecomposed), amComposed, 'SARA AM spellings did not unify');
+  assert.equal(fortuneFor(amDecomposed, day), fortuneFor(amComposed, day), 'SARA AM changed the fortune');
 });
 
 test('the date is Bangkok\'s, not the device\'s and not UTC', () => {

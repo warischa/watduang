@@ -9,8 +9,9 @@ import siamsi from './siamsi.ts';
 import pickLoser from './pick-loser.ts';
 import shortStick from './short-stick.ts';
 import dailyFortune from './daily-fortune.ts';
+import loveMatch from './love-match.ts';
 
-export const games: GameModule[] = [timebomb, siamsi, pickLoser, shortStick, dailyFortune];
+export const games: GameModule[] = [timebomb, siamsi, pickLoser, shortStick, dailyFortune, loveMatch];
 
 export const byId = (id: string): GameModule | undefined =>
   games.find((g) => g.id === id);

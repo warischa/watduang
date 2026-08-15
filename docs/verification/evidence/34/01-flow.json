@@ -1,0 +1,46 @@
+{
+  "box": "Box A -- love-match (/game/love-match/) flow: pick person 1 -> pick person 2 -> reveal -> result, walked end to end in a real browser (mount() had never executed in any engine before this run)",
+  "method": "scripts/driver.mjs, one CDP tab, real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), against a real build (npm run build + npx serve dist/ -l 4321). Navigated to http://localhost:4321/game/love-match/, wiped storage on-origin (nav to localhost FIRST, never about:blank) and verified localStorage.length === 0 / sessionStorage.length === 0 immediately after the wipe. Roster was seeded via the NAMED-ENTRY path, not #start-numbered: typed 'ก้อง' into #roster-add-name (dispatching a real 'input' event) and clicked #roster-add-btn, then repeated for 'ฟ้า' -- both auto-select (PlayerSetup.astro's addBtn handler calls selected.add(name)), confirmed via #roster-list checkbox state (checkedCount: 2) before clicking #start-round. #start-round's listener in src/pages/game/[id].astro is async (awaits a dynamic import before game.mount()), so a 400ms settle was inserted after the click before reading DOM state -- an earlier attempt without this wait read the stage as empty and looked like a failure that was actually a race, not a bug. Calibrated the discriminating detector pair BEFORE and AFTER each transition (trap 2): #lm-reset absent pre-pick / present after picking person 1; #lm-again absent on the pick screen / present on the result screen. Picked by exact chip textContent (not chip index -- the picked person's chip is removed from the DOM on the second screen, per renderPick's `if (index === first) return`). Score/line/pair paragraphs were discriminated by their distinct inline-style substrings ('16vw' = score, '5.5vw' = line, '1.25rem' = pair) since love-match.ts's LINE_STYLE and PAIR_STYLE both also contain 'overflow-wrap:anywhere', making that alone ambiguous.",
+  "capturedAtCommit": "b06db57",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M src/games/manifest.ts', '?? public/og/love-match.png', '?? src/games/love-match.test.mjs', '?? src/games/love-match.ts'. The capture reflects the tree as it stood at run time, including the untracked love-match.ts/test/og files this box exists to prove.",
+  "verdict": "PROVEN",
+  "flowReachesResult": true,
+  "pickScreenUsable": true,
+  "scoreNonEmpty": true,
+  "lineNonEmpty": true,
+  "stageNeverBlank": true,
+  "consoleErrorsEmpty": true,
+  "scoreLineMatchesPureFunction": true,
+  "observation": {
+    "wipeVerified": { "ls": 0, "ss": 0 },
+    "preAddRosterCount": 0,
+    "rosterAfterAdd": { "rosterItems": ["ก้อง", "ฟ้า"], "checkedCount": 2 },
+    "pickScreenDetector": {
+      "hasChips": true,
+      "hasAgain": false,
+      "hasReset": false,
+      "stageText": "แตะเลือกคนแรกก้องฟ้า"
+    },
+    "midPickDetector": {
+      "hasReset": true,
+      "stageText": "เลือกคู่ของ ก้องฟ้าเลือกคนแรกใหม่"
+    },
+    "resultScreenDetector": { "hasAgain": true, "hasChips": 1 },
+    "twoNamesUsed": ["ก้อง", "ฟ้า"],
+    "observedScore": "44%",
+    "observedLine": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว",
+    "observedPairParagraph": "ก้อง กับ ฟ้า",
+    "observedDateParagraph": "ดวงคู่ประจำวันที่ 16 สิงหาคม 2569",
+    "bangkokDay": "2026-08-16",
+    "resultScreenAllParagraphs": [
+      "ดวงคู่ประจำวันที่ 16 สิงหาคม 2569",
+      "ก้อง กับ ฟ้า",
+      "44%",
+      "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว",
+      "สลับลำดับชื่อก็ได้ผลเท่าเดิม วันนี้กดกี่ครั้งก็เท่าเดิม พรุ่งนี้ค่อยมาดูใหม่"
+    ],
+    "crossCheckAgainstPureFunction": "node -e evaluated scoreFor('ก้อง','ฟ้า','2026-08-16') === 44 and lineFor('ก้อง','ฟ้า','2026-08-16') === the exact string above, computed offline via the same love-match.ts module before this browser run -- the DOM values match the pure function bit for bit."
+  },
+  "note": "Both screens rendered non-empty markup in a real page (mount() executing for the first time in any engine, per the brief). Score (44%) and line quoted verbatim above are the exact strings rendered live in the DOM, and independently match scoreFor/lineFor computed by importing love-match.ts directly in node.",
+  "consoleErrors": []
+}

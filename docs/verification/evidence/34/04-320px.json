@@ -1,0 +1,47 @@
+{
+  "box": "Box D -- 320px reflow. Real 320px viewport via session.setWidth (not --window-size, which does not reflow -- confirmed innerWidth === 320 in-page, per docs/agents/browser-verification.md trap 1). Overflow measured (scrollWidth/clientWidth/overflowingElements), not eyeballed, on the pick screen and the result screen, with a 10-person roster and the pair that renders the pool's single longest line for today's Bangkok date.",
+  "method": "Solved offline first (node -e importing src/games/love-match.ts directly, Node 22's native TS-import support -- the same mechanism love-match.test.mjs relies on): computed the pool's longest line across all 31 lines in BANDS (67 characters, and there are two lines tied at that length), then searched all 45 unordered pairs among a candidate 10-name roster for scoreFor/lineFor on Bangkok date 2026-08-16, and found the pair (เจ, ปอ) draws one of those two 67-char lines on this date -- confirmed globally-longest, not merely longest-in-sample. Then drove the live page: session.setWidth(320, 900), wiped storage on-origin, re-asserted width after the wipe's internal reload, added all 10 names (ก้อง ฟ้า ตูน แนน บอส มิ้น เจ ปอ หมิว ต้น) via the named-entry path (all 10 auto-checked), clicked #start-round, measured the pick screen (10 chips rendered), then picked เจ then ปอ by exact chip textContent and measured the result screen. Overflow probe per browser-verification.md's calibrated snippet: `over = [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > clientWidth + 0.5)`. Widest chip row computed by grouping chip getBoundingClientRect()s by rounded `top` (chips are flex-wrap) and taking max(right) - min(left) per row.",
+  "capturedAtCommit": "b06db57",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M src/games/manifest.ts', '?? public/og/love-match.png', '?? src/games/love-match.test.mjs', '?? src/games/love-match.ts'. The capture reflects the tree as it stood at run time.",
+  "verdict": "PROVEN",
+  "innerWidthIs320": true,
+  "noHorizontalOverflow": true,
+  "renderedPairProducesPoolLongestLine": true,
+  "consoleErrorsEmpty": true,
+  "poolLongestLineLength": 67,
+  "poolLinesTiedAtMax": [
+    "ดวงคู่นี้วันนี้เหมือนนัดกันคนละที่ ตั้งใจดีกันทั้งคู่แต่ยังไม่บรรจบ",
+    "วันนี้คู่นี้ต้องใช้ความใจเย็นมากกว่าคำพูด อดใจไว้แล้วจะผ่านไปได้สวย"
+  ],
+  "bangkokDayThisWalkRestsOn": "2026-08-16",
+  "roster10": ["ก้อง", "ฟ้า", "ตูน", "แนน", "บอส", "มิ้น", "เจ", "ปอ", "หมิว", "ต้น"],
+  "chosenPair": ["เจ", "ปอ"],
+  "observation": {
+    "widthAfterWipeAndReload": { "innerWidth": 320 },
+    "rosterAdded": { "checkedCount": 10 },
+    "pickScreen": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "overflowingElements": 0,
+      "chipCount": 10,
+      "chipRowCount": 2,
+      "chipRowSpansPx": [291.015625, 120.6875],
+      "widestRowPx": 291.015625
+    },
+    "resultScreen": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "overflowingElements": 0,
+      "score": "45%",
+      "line": "วันนี้คู่นี้ต้องใช้ความใจเย็นมากกว่าคำพูด อดใจไว้แล้วจะผ่านไปได้สวย",
+      "lineLength": 67,
+      "pairParagraph": "เจ กับ ปอ",
+      "lineBoundingBoxPx": { "top": 291.578125, "left": 8, "width": 304, "height": 62.5625, "right": 312 }
+    },
+    "crossCheckAgainstPureFunction": "scoreFor('เจ','ปอ','2026-08-16') === 45 and lineFor(...) === the 67-char line quoted above, computed offline via love-match.ts before the browser run -- matches the DOM exactly."
+  },
+  "note": "Widest chip row (291px) and the line's bounding box (304px wide) both sit inside the 320px clientWidth with room (8px page margin each side accounts for the 304-vs-320 gap). overflowingElements is 0 on both screens, and innerWidth === 320 confirms the viewport genuinely reflowed rather than being a --window-size crop.",
+  "consoleErrors": []
+}

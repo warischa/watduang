@@ -1,0 +1,39 @@
+{
+  "box": "Box B -- love-match's central claim: (a,b) and (b,a) are the same reading. Proved in the live page for two different pairs, each in both orders, reloading between each order to rule out any in-memory-only agreement.",
+  "method": "scripts/driver.mjs, one CDP tab per script run against the same served build as Box A. For pair 1 (ก้อง / ฟ้า): wiped storage on-origin, added both names via #roster-add-name/#roster-add-btn (auto-checked), clicked #start-round (waited 400ms for the async mount listener), picked ก้อง then ฟ้า by exact chip textContent, read the result. Then navigated (full reload, same tab) back to /game/love-match/ and verified the reload lands on the SETUP panel, not a resumed round (love-match saves no mid-round checkpoint by design, and the module's own comment says so -- checked rather than assumed, via #player-setup.hidden === false and an empty #stage). The last-used group was pre-ticked automatically after reload (roster survives in localStorage) -- verified via the checked checkbox labels before proceeding, without re-adding names. Clicked #start-round again and picked ฟ้า then ก้อง (order reversed). The pair paragraph (identified by its unique '1.25rem' inline-style substring) is the positive control that order really was reversed: it read 'ก้อง กับ ฟ้า' first and 'ฟ้า กับ ก้อง' second -- if both had printed the same string, the swap would not have been proven. Repeated the whole sequence for a second, unrelated pair (ตูน / แนน) after a fresh on-origin wipe.",
+  "capturedAtCommit": "b06db57",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M src/games/manifest.ts', '?? public/og/love-match.png', '?? src/games/love-match.test.mjs', '?? src/games/love-match.ts'. The capture reflects the tree as it stood at run time.",
+  "verdict": "PROVEN",
+  "bothOrdersAgree": true,
+  "pairTextGenuinelySwapped": true,
+  "reloadLandsOnSetupNotResume": true,
+  "consoleErrorsEmpty": true,
+  "observation": {
+    "pair1": {
+      "names": ["ก้อง", "ฟ้า"],
+      "wipeVerified": { "ls": 0, "ss": 0 },
+      "AB": { "clickOrder": ["ก้อง", "ฟ้า"], "pairParagraph": "ก้อง กับ ฟ้า", "score": "44%", "line": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว" },
+      "afterReload": { "setupHidden": false, "stageEmpty": true, "rosterPreTicked": ["ก้อง", "ฟ้า"] },
+      "BA": { "clickOrder": ["ฟ้า", "ก้อง"], "pairParagraph": "ฟ้า กับ ก้อง", "score": "44%", "line": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว" },
+      "scoreAgrees": true,
+      "lineAgrees": true
+    },
+    "pair2": {
+      "names": ["ตูน", "แนน"],
+      "wipeVerified": { "ls": 0, "ss": 0 },
+      "AB": { "clickOrder": ["ตูน", "แนน"], "pairParagraph": "ตูน กับ แนน", "score": "58%", "line": "คู่นี้พอดีกันแบบไม่ต้องพยายาม อยู่ด้วยกันแล้วเวลาผ่านไปเร็ว" },
+      "afterReload": { "setupHidden": false, "stageEmpty": true, "rosterPreTicked": ["ตูน", "แนน"] },
+      "BA": { "clickOrder": ["แนน", "ตูน"], "pairParagraph": "แนน กับ ตูน", "score": "58%", "line": "คู่นี้พอดีกันแบบไม่ต้องพยายาม อยู่ด้วยกันแล้วเวลาผ่านไปเร็ว" },
+      "scoreAgrees": true,
+      "lineAgrees": true
+    }
+  },
+  "allFourObserved": [
+    { "pair": "ก้อง,ฟ้า", "order": "AB", "score": "44%", "line": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว" },
+    { "pair": "ก้อง,ฟ้า", "order": "BA", "score": "44%", "line": "วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว" },
+    { "pair": "ตูน,แนน", "order": "AB", "score": "58%", "line": "คู่นี้พอดีกันแบบไม่ต้องพยายาม อยู่ด้วยกันแล้วเวลาผ่านไปเร็ว" },
+    { "pair": "ตูน,แนน", "order": "BA", "score": "58%", "line": "คู่นี้พอดีกันแบบไม่ต้องพยายาม อยู่ด้วยกันแล้วเวลาผ่านไปเร็ว" }
+  ],
+  "note": "Both pairs agree across both orders on both score and line, in a real reload (not merely an in-memory re-render). The pair paragraph swapping confirms the click order genuinely differed each time.",
+  "consoleErrors": []
+}
