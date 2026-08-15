@@ -137,8 +137,15 @@ but only sometimes the unit suite's to answer. Which case you are in decides eve
 **This section applies only to a capture with a named, executing unit twin** — a wiring/state proof
 whose logic real tests actually run. It does **not** apply to `320px` reflow, reduced-motion, or any
 visual capture: those have no unit equivalent in this repo, nothing re-checks them, and concluding
-from CSS is the exact failure this tooling exists to replace. Treat those as stale on **any** shared
-CSS, layout, or script-loading change, and re-run them.
+from CSS is the exact failure this tooling exists to replace.
+
+A visual verdict is still **pinned to its own `capturedAtCommit`** — it remains a true statement about
+that commit, and stays readable as one forever. What differs is only the re-trigger, which is wider
+and has no seam list to narrow it: **any shared CSS, layout, or script-loading change re-triggers a
+visual capture.** So do not read a visual PROVEN as current, and do not read it as void either — read
+it as "true at that commit, re-run before relying on it now." Worked example:
+`docs/verification/evidence/pick-loser/01-pick-loser-browser.json` records `320px` PROVEN and
+reduced-motion N/A at `e0c4479`; both are pinned there and re-trigger on the next shared-CSS change.
 
 **Re-run a wiring capture when the browser-owned seam changes. The seam includes — and this list is
 illustrative, not exhaustive:**
