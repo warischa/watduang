@@ -150,5 +150,6 @@ session that made it.
 ## Related
 
 - [#24](https://github.com/warischa/watduang/issues/24) — the ticket this answers
+- [#26](https://github.com/warischa/watduang/issues/26) — the finding above, filed and closed (fix `4b14565`)
 - ADR-0008 — starting a round never resumes or discards one silently
 - ADR-0009 — a DoD box whose proof set we do not own is mis-scoped
