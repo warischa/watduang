@@ -125,7 +125,7 @@ step "Turn on auto-renew" \
 valid. An expired domain after the site ranks is hard to get back."
 
 maybe_verify "public whois lookup for watduang.com" \
-  "whois watduang.com 2>/dev/null | head -20"
+  "if command -v whois >/dev/null 2>&1; then whois watduang.com 2>/dev/null | head -20; else echo 'whois not found on this machine -- check via the web instead, e.g. https://www.whois.com/whois/watduang.com'; fi"
 
 # ── §2: Azure SWA phase 2 — deploy token ───────────────────────────────────
 echo
