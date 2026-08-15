@@ -103,6 +103,20 @@ reached, so a tool still cannot see or clear a game's round (ADR-0004). Both the
 stay in the DOM on every page, `hidden` and never removed — removing either would null-deref the island
 script and take the whole setup panel down with it (#23).
 
+## Flip-fact evaluated 2026-08-15 — NOT yet met
+
+Checked against the code, not from memory: `manifest.ts:10` is `[timebomb, siamsi]` and `timebomb.ts`
+has zero checkpoint references, so **siamsi is still the sole checkpoint writer**, and #24 resolved to
+*keep* the site-wide slot (ADR-0010). Neither branch of the condition below has fired; `planClear`'s
+absent `gameId` remains correct. Re-evaluate when a second writer enters the manifest.
+
+Separately, this ADR's invariant was found **violated in implementation** the same day and fixed in
+`65d3d3c`: a stale session closure let a `#ss-draw`/`#ss-pass` click landing between `clear()` and
+`location.reload()` re-write the checkpoint, after which เริ่มรอบ offered `กลับไปเล่นรอบที่ค้าง` for a
+round the player had explicitly discarded — a discard that silently un-discarded. Reproduced 12/12 in
+a real browser across 3 write paths with positive and negative controls, 0/12 after the fix. The
+decision below was sound; the shell did not honour it.
+
 ## The fact that would change this
 
 For the clear half: if a second game ever ships checkpoints, or [#24](https://github.com/warischa/watduang/issues/24)

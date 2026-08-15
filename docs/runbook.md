@@ -131,3 +131,39 @@ steering someone into the wrong call.
 
 **Don't:** assume "closed issue = done, don't read it" — a closed issue is where the decision lives,
 not where abandoned work goes.
+
+## Driving the site in a headless browser
+
+`scripts/driver.mjs` + CDP on `:9222`, against a real `npm run build` served by `npx serve dist/ -l 4321`.
+`docs/agents/browser-verification.md` governs — read it first.
+
+**Do:**
+
+```bash
+# wipe storage ON THE ORIGIN — a wipe issued from about:blank clears nothing
+# siamsi needs BOTH clicks to be genuinely mid-round:
+#   start-round  -> mounts the game idle
+#   #ss-start    -> actually enters phase 'turn'
+```
+
+**Don't:** assume `start-round` alone put you mid-round — a harness that skips `#ss-start` reads
+`phase: null` and then reports a clean pass on a state that never existed.
+
+Before trusting any null result, run both controls: a positive one (the detector sees a write you
+know happens) and a negative one (the thing is absent when it should be). Pick the detector to match
+the failure — checking `checkpoint` misses a variant that revives the record with `checkpoint: null`;
+raw record presence catches it.
+
+## Thai character classes in grep are locale-dependent
+
+Unlocaled `grep '[ก-๛]'` mis-collates and invents matches — 42 false positives on one file, and a
+second run of the same pipeline disagreed with the first.
+
+**Do:**
+
+```bash
+LC_ALL=en_US.UTF-8 grep -n '[ก-๛]' file     # force the locale, every time
+```
+
+**Don't:** reach for `grep -P` — BSD grep on macOS has no PCRE. For anything load-bearing, do the
+scan in python (`re.compile(r'[฀-๿]')`); a shell probe that contradicts itself proves nothing.
