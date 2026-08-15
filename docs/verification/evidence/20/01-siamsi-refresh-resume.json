@@ -1,0 +1,54 @@
+{
+  "box": "เล่น siamsi ให้ถึงกลางวง → รีเฟรชหน้า → ต้องกู้รอบเดิมกลับมาได้ ไม่ใช่เริ่มใหม่",
+  "method": "scripts/driver.mjs, one CDP tab, http://localhost:4321/game/siamsi/ served from a real build (npm run build + npx serve dist/ -l 4321). Wiped storage on-origin (never about:blank), seeded a 3-name roster through the real UI (roster-add-name/roster-add-btn), started the round, drew for player 1, passed, drew for player 2 — leaving phase 'drawn' with 2 results banked, 1 card left in the deck, holder=1 (mid-round, not turn 1 and not the summary). Captured sessionStorage's watduang:session.checkpoint and the rendered DOM, refreshed the tab (session.nav to the same URL, same tab so sessionStorage survives), pressed \"เริ่มรอบ\" again (the resume question only surfaces on that click, per player-select.ts planStart — it does not pop up unprompted on load), observed the resume-choice prompt, pressed \"กลับไปเล่นรอบที่ค้าง\", then re-captured checkpoint + DOM.",
+  "verdict": "PASS",
+  "wipeVerified": true,
+  "resumePromptShown": true,
+  "resumePromptDetail": {
+    "resumeChoiceVisible": true,
+    "resumeButtonPresent": true,
+    "resumeButtonText": "กลับไปเล่นรอบที่ค้าง"
+  },
+  "note": "ADR-0008 satisfied: no auto-resume on plain reload. The panel loads fresh (idle) after refresh; the player must press \"เริ่มรอบ\" again, which is what triggers planStart's same-game-checkpoint check and shows the labelled resume-choice prompt. Only pressing \"กลับไปเล่นรอบที่ค้าง\" reaches the resumed round.",
+  "before": {
+    "checkpoint": {
+      "game": "siamsi",
+      "players": ["หนึ่ง", "สอง", "สาม"],
+      "deck": [5],
+      "holder": 1,
+      "results": [
+        { "player": "หนึ่ง", "n": 14 },
+        { "player": "สอง", "n": 2 }
+      ],
+      "phase": "drawn",
+      "drawn": 2
+    },
+    "dom": {
+      "phase": "drawn",
+      "drawnNumberText": "2",
+      "panelHidden": true
+    }
+  },
+  "after": {
+    "checkpoint": {
+      "game": "siamsi",
+      "players": ["หนึ่ง", "สอง", "สาม"],
+      "deck": [5],
+      "holder": 1,
+      "results": [
+        { "player": "หนึ่ง", "n": 14 },
+        { "player": "สอง", "n": 2 }
+      ],
+      "phase": "drawn",
+      "drawn": 2
+    },
+    "dom": {
+      "phase": "drawn",
+      "drawnNumberText": "2",
+      "panelHidden": true
+    }
+  },
+  "checkpointMatches": true,
+  "domMatches": true,
+  "consoleErrors": []
+}

@@ -1,36 +1,36 @@
-// node --test src/games/ — ไม่มี framework ไม่มี dependency
-// เช็คเฉพาะ pure helper ที่ export จาก siamsi.ts (ไม่ต้องมี DOM)
+// node --test src/games/ — no framework, no dependency
+// checks only the pure helpers exported from siamsi.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildDeck, draw, nextTurn, toCheckpoint, resumeFrom, FORTUNES } from './siamsi.ts';
 
-test('deck มี 24 ใบ เลขไม่ซ้ำกัน', () => {
+test('deck has 24 cards, numbers do not repeat', () => {
   assert.equal(FORTUNES.length, 24);
   const numbers = new Set(FORTUNES.map((f) => f.number));
   assert.equal(numbers.size, 24);
 });
 
-test('ไม่มีการจั่วซ้ำตลอดวง — buildDeck แล้วจั่วจนหมดสำหรับผู้เล่นทุกจำนวน', () => {
+test('no repeat draws across a round — buildDeck then draw to empty for every player count', () => {
   for (const playerCount of [2, 5, 10]) {
     let deck = buildDeck(playerCount, Math.random);
     assert.equal(deck.length, playerCount);
     const seen = new Set();
     for (let i = 0; i < playerCount; i++) {
       const { fortune, remaining } = draw(deck);
-      assert.ok(!seen.has(fortune.number), `เลข ${fortune.number} จั่วซ้ำ`);
+      assert.ok(!seen.has(fortune.number), `card ${fortune.number} drawn twice`);
       seen.add(fortune.number);
       deck = remaining;
     }
-    assert.equal(deck.length, 0); // deck ต้องหมดพอดีหลังจั่วครบทุกคน
+    assert.equal(deck.length, 0); // deck must be exactly empty once everyone has drawn
     assert.equal(seen.size, playerCount);
   }
 });
 
-test('จั่วจาก deck ว่างต้อง throw', () => {
+test('drawing from an empty deck must throw', () => {
   assert.throws(() => draw([]), /empty/);
 });
 
-test('รอบจบพอดีหลังผู้เล่นครบ N คน', () => {
+test('round ends exactly after N players', () => {
   const playerCount = 4;
   let current = 0;
   let turns = 0;
@@ -42,45 +42,46 @@ test('รอบจบพอดีหลังผู้เล่นครบ N �
     roundOver = result.roundOver;
   }
   assert.equal(turns, playerCount);
-  assert.equal(current, 0); // วนกลับมาที่คนแรกพร้อมรอบใหม่
+  assert.equal(current, 0); // wraps back to the first player with a fresh round
 });
 
-test('reshuffle คืน deck เต็มทุกครั้ง — buildDeck(24) ต้องได้ครบ 24 ใบไม่ซ้ำทุกรอบที่เรียก', () => {
+test('reshuffle returns a full deck every time — buildDeck(24) must yield all 24 cards, no repeats, on every call', () => {
   for (let attempt = 0; attempt < 2; attempt++) {
     const deck = buildDeck(24, Math.random);
     assert.equal(deck.length, 24);
     const numbers = new Set(deck.map((i) => FORTUNES[i].number));
-    assert.equal(numbers.size, 24); // ครบทุกใบ ไม่มีใบไหนถูกทิ้งค้างจากรอบก่อน
+    assert.equal(numbers.size, 24); // every card present, none left over from a prior round
   }
 });
 
-// REFUTE ชี้ว่าเทสชุดแรกไม่ได้บังคับให้สับจริง — เปลี่ยน buildDeck เป็น slice เฉยๆ ก็ยังเขียว
-// ทั้งที่ "เล่นอีกรอบ" ต้องได้ลำดับใหม่ เทสนี้ยิงด้วย rand ที่คุมค่าได้ ผลจึงตรวจสอบได้จริง
-test('buildDeck สับจริง ไม่ใช่คืนลำดับเดิม', () => {
-  // rand คงที่ 0 → Fisher-Yates สลับ order[i] กับ order[0] ทุกรอบ = ผลที่คำนวณล่วงหน้าได้
+// REFUTE flagged that the first test suite didn't force a real shuffle — swapping buildDeck for a
+// plain slice still passed, even though "play another round" must yield a new order. This test
+// pins a controllable rand so the result is actually checkable.
+test('buildDeck really shuffles, not just returns the original order', () => {
+  // rand fixed at 0 → Fisher-Yates swaps order[i] with order[0] every round = a precomputable result
   const expected = (() => {
     const order = FORTUNES.map((_, i) => i);
     for (let i = order.length - 1; i > 0; i--) [order[i], order[0]] = [order[0], order[i]];
     return order.slice(0, 5);
   })();
   assert.deepEqual(buildDeck(5, () => 0), expected);
-  assert.notDeepEqual(buildDeck(5, () => 0), [0, 1, 2, 3, 4], 'buildDeck คืนลำดับเดิม = ไม่ได้สับ');
+  assert.notDeepEqual(buildDeck(5, () => 0), [0, 1, 2, 3, 4], 'buildDeck returned the original order = not shuffled');
 
-  // rand ต่างกันต้องให้ลำดับต่างกัน ไม่งั้นแปลว่า rand ไม่ถูกใช้เลย
+  // different rand must give a different order, otherwise rand isn't being used at all
   assert.notDeepEqual(buildDeck(8, () => 0), buildDeck(8, () => 0.99));
 });
 
-test('ผู้เล่นมากกว่าจำนวนใบ ต้องโยน error ไม่ใช่คืนกองสั้นๆ เงียบๆ', () => {
+test('more players than cards must throw, not silently return a short deck', () => {
   assert.throws(() => buildDeck(FORTUNES.length + 1), /มากกว่าใบเซียมซี/);
   assert.equal(buildDeck(FORTUNES.length).length, FORTUNES.length);
 });
 
-// ---- กันรีเฟรชกลางรอบ ----
-// ทุกเทสส่ง checkpoint ผ่าน JSON ก่อนเสมอ เพราะ localStorage ทำแบบนั้นเป๊ะ
-// เทสที่ส่ง object ตรงๆ จะไม่เจอ field ที่ serialize ไม่รอด
+// ---- guard against a mid-round refresh ----
+// every test sends the checkpoint through JSON first, because localStorage does exactly that —
+// a test sending the raw object would miss fields that don't survive serialize
 const store = (cp) => JSON.parse(JSON.stringify(cp));
 
-/** สถานะจริงกลางรอบ: 3 คน จั่วไปแล้ว 1 ใบ กำลังอยู่หน้าใบที่จั่วได้ */
+/** real mid-round state: 3 players, 1 card drawn already, sitting in front of the next draw */
 function midRound(players = ['เอ', 'บี', 'ซี']) {
   const { fortune, remaining } = draw(buildDeck(players.length, () => 0.5));
   return {
@@ -93,37 +94,39 @@ function midRound(players = ['เอ', 'บี', 'ซี']) {
   };
 }
 
-test('เก็บลง storage แล้วกู้กลับมาได้สถานะเดิมเป๊ะ', () => {
+test('saved to storage and restored gives back the exact same state', () => {
   const s = midRound();
   assert.deepEqual(resumeFrom(store(toCheckpoint(s)), s.players), s);
 });
 
-test('blob ที่ใช้ไม่ได้ต้องคืน null ทุกกรณี ไม่ใช่กู้มาแบบเพี้ยน', () => {
+test('an unusable blob must return null in every case, not resume in a corrupted state', () => {
   const s = midRound();
   const ok = store(toCheckpoint(s));
   const cases = [
-    ['ไม่มี checkpoint', null, s.players],
-    ['ของเกมอื่น (ช่องเก็บใช้ร่วมกันทุกเกม)', { ...ok, game: 'timebomb' }, s.players],
+    ['no checkpoint', null, s.players],
+    ['another game (storage slot is shared across games)', { ...ok, game: 'timebomb' }, s.players],
     // A roster that disagrees with the blob is no longer a rejection reason (#23) — the two cases
     // that used to live here ('วงเปลี่ยนคน', 'วงคนน้อยลง') are now the two resume tests below.
     // Only a blob that is structurally unusable may return null; a live round must never be dropped.
     // The roster now leaves this function and becomes session.players (#23), so it is validated here:
     // a non-string name used to survive every other check and end up in storage and on screen.
-    ['รายชื่อในบล็อบไม่ใช่สตริง', { ...ok, players: ['เอ', 42, 'ซี'] }, s.players],
-    ['รายชื่อว่าง', { ...ok, players: [] }, s.players],
-    ['เลขใบไม่มีอยู่จริง', { ...ok, deck: [999, ...ok.deck.slice(1)] }, s.players],
-    ['จำนวนใบไม่ตรงจำนวนคน', { ...ok, deck: ok.deck.slice(1) }, s.players],
-    ['ใบซ้ำกับที่จั่วไปแล้ว', { ...ok, deck: [ok.results[0].n, ...ok.deck.slice(1)] }, s.players],
-    ['holder เกินจำนวนคน', { ...ok, holder: 99 }, s.players],
-    ['phase drawn แต่ไม่มีใบ', { ...ok, drawn: null }, s.players],
-    ['phase ที่ไม่ควรถูกกู้', { ...ok, phase: 'summary' }, s.players],
+    ['blob players are not strings', { ...ok, players: ['เอ', 42, 'ซี'] }, s.players],
+    ['empty players list', { ...ok, players: [] }, s.players],
+    ['card number does not exist', { ...ok, deck: [999, ...ok.deck.slice(1)] }, s.players],
+    ['card count does not match player count', { ...ok, deck: ok.deck.slice(1) }, s.players],
+    ['card already drawn appears again', { ...ok, deck: [ok.results[0].n, ...ok.deck.slice(1)] }, s.players],
+    ['holder exceeds player count', { ...ok, holder: 99 }, s.players],
+    ['holder does not match phase turn (should equal results.length)', { ...ok, phase: 'turn', drawn: null, holder: 0 }, s.players],
+    ['holder does not match phase drawn (should equal results.length - 1)', { ...ok, holder: 1 }, s.players],
+    ['phase drawn but no card', { ...ok, drawn: null }, s.players],
+    ['phase that should never be resumed', { ...ok, phase: 'summary' }, s.players],
   ];
   for (const [name, blob, players] of cases) {
-    assert.equal(resumeFrom(blob, players), null, `ควรคืน null: ${name}`);
+    assert.equal(resumeFrom(blob, players), null, `should return null: ${name}`);
   }
 });
 
-test('session ไม่มีรายชื่อ (ชื่อสำรอง) ต้องยังกู้ได้ ไม่ใช่เงียบไปเฉยๆ', () => {
+test('a session with no roster (fallback names) must still resume, not silently drop the round', () => {
   const s = midRound();
   assert.deepEqual(resumeFrom(store(toCheckpoint(s)), []), s);
 });

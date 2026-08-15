@@ -1,8 +1,8 @@
-// เซียมซีปาร์ตี้ — ส่งมือถือวนกัน แต่ละคนจั่วดวงหนึ่งใบ ครบทุกคนแล้วดูสรุป
-// นามสกุล .ts ในเส้นทาง import จำเป็นสำหรับ `node --test` (Node ไม่เดานามสกุลให้) — Vite/tsc รับได้ทั้งคู่
+// Siamsi Party — pass the phone around, each player draws one fortune, see the summary once everyone's drawn
+// The .ts extension on the import path is required for `node --test` (Node does not guess extensions) — Vite/tsc both accept it
 import type { GameContext, GameModule } from './types.ts';
 
-// ---- ดวงชะตา + deck: ส่วนที่คำนวณได้ล้วน ทดสอบได้โดยไม่ต้องมี DOM (ดู siamsi.test.mjs) ----
+// ---- Fortunes + deck: pure and calculable, testable with no DOM (see siamsi.test.mjs) ----
 
 export interface Fortune {
   number: number;
@@ -10,7 +10,7 @@ export interface Fortune {
   prompt: string;
 }
 
-// deck คงที่ 24 ใบ — ห้ามพาดพิงแอลกอฮอล์/การพนัน/เลขเสี่ยงโชคที่ตีความเป็นตัวเลขทำนายเงินได้
+// Fixed 24-card deck — no reference to alcohol/gambling/lucky numbers that could read as a money-prediction number
 export const FORTUNES: readonly Fortune[] = [
   { number: 1, text: 'วันนี้ดวงเฮง ยิ้มไว้เดี๋ยวโชคตามมาเอง', prompt: 'ให้คนทางซ้ายทายว่าจริงไหม' },
   { number: 2, text: 'มีคนแอบชื่นชมคุณอยู่เงียบๆ', prompt: 'ให้ทุกคนช่วยกันเดาว่าใคร' },
@@ -38,10 +38,12 @@ export const FORTUNES: readonly Fortune[] = [
   { number: 24, text: 'วันนี้โชคเข้าข้าง ลองอะไรใหม่ๆ ได้เลย', prompt: 'ให้วงโหวตว่าคุณควรลองอะไรต่อ' },
 ];
 
-/** สับ index ของ deck ทั้งหมดแล้วตัดมาแค่จำนวนผู้เล่น — รับประกันไม่ซ้ำและหมดพอดีเมื่อจั่วครบทุกคน */
+/** Shuffles every deck index then slices to the player count — guaranteed no duplicates and an exact
+ *  empty deck once everyone has drawn */
 export function buildDeck(playerCount: number, rand: () => number = Math.random): number[] {
-  // ถ้าคนเยอะกว่าใบในกอง slice จะเงียบๆ คืนน้อยกว่าที่ขอ แล้วคนท้ายๆ จะจั่วจากกองว่าง
-  // ให้ดังตรงนี้แทน — เกมที่ประกาศ players.max > จำนวนใบ ต้องรู้ตอน build ไม่ใช่ตอนผู้เล่นกด
+  // If there are more players than cards, slice would silently return fewer than asked and the last
+  // players would draw from an empty deck. Throw here instead — a game declaring players.max > deck
+  // size must fail at build time, not when a player presses the button.
   if (playerCount > FORTUNES.length) {
     throw new Error(`siamsi: ผู้เล่น ${playerCount} คน มากกว่าใบเซียมซี ${FORTUNES.length} ใบ`);
   }
@@ -53,26 +55,28 @@ export function buildDeck(playerCount: number, rand: () => number = Math.random)
   return order.slice(0, playerCount);
 }
 
-/** จั่วใบบนสุดของ deck — คืนดวงที่จั่วได้และ deck ที่เหลือ (ไม่แก้ไข array เดิม) */
+/** Draws the top card of the deck — returns the drawn fortune and the remaining deck (does not mutate the original array) */
 export function draw(deck: readonly number[]): { fortune: Fortune; remaining: number[] } {
   if (deck.length === 0) throw new Error('deck is empty — reshuffle before drawing');
   const [next, ...remaining] = deck;
   return { fortune: FORTUNES[next], remaining };
 }
 
-/** ผู้เล่นคนที่ current เพิ่งจั่วเสร็จ — คืนคนถัดไปและบอกว่ารอบจบหรือยัง */
+/** The player at index `current` just finished drawing — returns the next index and whether the round is over */
 export function nextTurn(current: number, playerCount: number): { index: number; roundOver: boolean } {
   const next = current + 1;
   if (next >= playerCount) return { index: 0, roundOver: true };
   return { index: next, roundOver: false };
 }
 
-// ---- กันรีเฟรชกลางรอบ ----
-// รอบ siamsi ยาวเป็นนาที (คนละตา ผลัดกันอ่านออกเสียง) ต่างจาก timebomb ที่จบใน 30 วิ
-// หน้าต่างที่จะโดนรีเฟรช/สลับแอปจน iOS ทิ้งแท็บจึงกว้างกว่ากันคนละอันดับ เชลล์มีที่เก็บให้แล้ว
+// ---- Surviving a refresh mid-round ----
+// A siamsi round runs minutes long (one turn per player, read aloud in turn), unlike timebomb which
+// ends in 30s. The window where a refresh/app-switch lets iOS drop the tab is an order of magnitude
+// wider — the shell already gives us storage for this.
 //
-// เก็บเป็น "เลขใบ" ไม่ใช่ index — index ผูกกับลำดับใน FORTUNES ถ้าวันหลังแก้เด็ค blob เก่า
-// จะชี้ไปใบอื่นแบบเงียบๆ ส่วนเลขใบเป็นตัวตนของใบนั้นจริง หาไม่เจอ = ทิ้ง blob ไปเลย
+// Stored as the card's number, not its index — the index is tied to FORTUNES' order, and editing the
+// deck later would make an old blob silently point at a different card. The number is the card's real
+// identity; not found = throw the blob away.
 type Checkpoint = {
   game: 'siamsi';
   players: string[];
@@ -105,8 +109,8 @@ export function toCheckpoint(s: RoundState): Checkpoint {
 }
 
 /**
- * แปลง blob ที่อ่านมาจาก storage กลับเป็นสถานะรอบ — คืน null ถ้าใช้ไม่ได้ทุกกรณี
- * ช่อง checkpoint ในเชลล์มีช่องเดียวใช้ร่วมกันทุกเกม จึงต้องเช็คป้ายชื่อเกมก่อนเสมอ
+ * Converts a blob read back from storage into round state — returns null whenever it can't be used.
+ * The shell's checkpoint slot is shared across every game, so the game tag must always be checked first.
  *
  * The checkpoint owns its roster (#23): `current` is accepted and deliberately ignored. Resuming
  * used to require cp.players to match the setup panel element-wise, which silently destroyed a live
@@ -140,21 +144,29 @@ export function resumeFrom(raw: unknown, current: readonly string[]): RoundState
     results.push({ player: r.player, fortune });
   }
 
-  // ใบที่จั่วไปแล้ว + ใบที่เหลือ ต้องเท่ากับจำนวนคนพอดี และห้ามซ้ำกัน — blob ที่เพี้ยนจะตกตรงนี้
+  // Drawn cards + remaining cards must equal the player count exactly, with no duplicates — a corrupt blob falls here
   if (deck.length + results.length !== cp.players.length) return null;
   const numbers = [...deck.map((i) => FORTUNES[i].number), ...results.map((r) => r.fortune.number)];
   if (new Set(numbers).size !== numbers.length) return null;
 
   if (typeof cp.holder !== 'number' || cp.holder < 0 || cp.holder >= cp.players.length) return null;
 
-  // ตอน phase 'turn' ใบที่จั่วต้องเป็น null เสมอตามวงจรของรอบ (passToNext ล้างก่อนเปลี่ยน phase)
+  // holder must agree with results.length for the current phase — save() only ever writes one of
+  // these two shapes (see startRound/drawForHolder/passToNext), so any other holder is a corrupt blob.
+  // 'turn': nobody has drawn for `holder` yet, so results.length === holder.
+  // 'drawn': `holder` just drew and got pushed onto results, so holder === results.length - 1.
+  if (cp.phase === 'turn' && cp.holder !== results.length) return null;
+  if (cp.phase === 'drawn' && cp.holder !== results.length - 1) return null;
+
+  // During phase 'turn' the drawn card must always be null, per the round's own cycle
+  // (passToNext clears it before changing phase).
   const drawn = cp.phase === 'drawn' ? (byNumber(cp.drawn) ?? null) : null;
   if (cp.phase === 'drawn' && !drawn) return null;
 
   return { players: [...cp.players], deck, holder: cp.holder, results, phase: cp.phase, drawn };
 }
 
-// ---- สถานะรอบปัจจุบัน (มีเกมเดียวต่อหนึ่งหน้า) ----
+// ---- Current round state (one game per page) ----
 
 type Phase = 'idle' | 'turn' | 'drawn' | 'summary';
 
@@ -184,12 +196,16 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
-// ---- หน้าจอ ----
+// ---- Screens ----
 
-function renderIdle(): void {
+function renderIdle(resumeFailed = false): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+
+  if (resumeFailed) {
+    stage.appendChild(el('p', 'กู้รอบที่ค้างไม่ได้ — ข้อมูลรอบเดิมเสียหาย เริ่มรอบใหม่ได้เลย'));
+  }
 
   const names = gameCtx?.session.players ?? [];
   stage.appendChild(el('p', `วง ${names.length || '-'} คน — ส่งมือถือวนไปเรื่อยๆ`));
@@ -259,9 +275,9 @@ function renderSummary(): void {
   stage.appendChild(hub);
 }
 
-// ---- วงจรของรอบ ----
+// ---- Round lifecycle ----
 
-/** เขียน checkpoint ทุกครั้งที่สถานะรอบขยับ — เขียนเฉพาะกลางรอบ จบรอบแล้วล้างที่ passToNext */
+/** Writes the checkpoint every time round state moves — only writes mid-round; passToNext clears it when the round ends */
 function save(): void {
   if (phase !== 'turn' && phase !== 'drawn') return;
   gameCtx?.session.saveCheckpoint(
@@ -300,7 +316,7 @@ function passToNext(): void {
   if (roundOver) {
     gameCtx?.session.markPlayed('siamsi');
     phase = 'summary';
-    // รอบจบแล้วต้องล้าง ไม่งั้นรีเฟรชที่หน้าสรุปจะเด้งกลับไปกลางรอบที่เล่นจบไปแล้ว
+    // Must clear once the round is over, or a refresh on the summary screen would bounce back into a round that already finished
     gameCtx?.session.saveCheckpoint(null);
     renderSummary();
     return;
@@ -314,8 +330,10 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
   stageEl = stage;
   gameCtx = ctx;
 
-  // กู้รอบที่ค้างอยู่ถ้ามีและยังใช้ได้ — ไม่ต้องมีป้ายบอก หน้าจอตาถัดไปอธิบายตัวเองอยู่แล้ว
-  const resumed = resumeFrom(ctx.session.checkpoint, ctx.session.players);
+  // Resume a live round if there is one and it is usable — the next-turn screen explains itself,
+  // no message needed on that path.
+  const checkpoint = ctx.session.checkpoint;
+  const resumed = resumeFrom(checkpoint, ctx.session.players);
   if (resumed) {
     // The checkpoint is the source of truth for who is playing — the shell wrote whatever the panel
     // showed a moment ago (game/[id].astro), which is transient and may be a different group entirely.
@@ -336,7 +354,9 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
   }
 
   phase = 'idle';
-  renderIdle();
+  // A checkpoint tagged for this game that still failed to resume is a corrupt blob, not a plain
+  // fresh start — say so. A checkpoint for a different game (or none at all) stays silent here.
+  renderIdle(checkpoint?.game === 'siamsi');
 }
 
 function teardown(): void {
@@ -372,7 +392,7 @@ const game: GameModule = {
     ],
   },
   og: 'siamsi.png',
-  ads: false, // จอเล่น = ห้ามมี ad slot เสมอ
+  ads: false, // the play screen must never have an ad slot
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

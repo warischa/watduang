@@ -23,21 +23,25 @@ Counted from the reports, not from any agent's self-report: **30 PROVEN · 0 FAI
 (#15-09 #16-10 #17-11 #18-09) blocked on Google plus a deploy that does not exist yet, and the 4
 red-green boxes below.
 
-## Ticked: 36 of 41
+## Ticked: 37 of 41
 
 | Group | Count | Basis |
 |---|---|---|
-| PROVEN | 29 | report verdict, minus the one withheld below |
+| PROVEN | 30 | report verdict; the one formerly withheld got its artifact on 2026-08-15 |
 | red-green, after rewording | 4 | #15-14 #16-13 #17-14 #18-12 — see below |
 | reduced-motion, after annotation | 3 | #16-11 #17-12 #18-10 — see below |
 
-## Withheld: 5 of 41
+## Withheld: 4 of 41
 
-- **#16-08** — "มีทางกดต่อเข้าเกมโดยรายชื่อวงไหลต่อไปครบ". Verdict is PROVEN, but the pressable-path
-  half has no committed artifact. Withheld deliberately. #15-07 and #17-09 make the same claim and
-  *do* carry committed link evidence; #16 does not.
 - **#15-09 #16-10 #17-11 #18-09** — the ad-slot boxes. Externally owned (Google + a production
   deploy). Unblocking event is named in `docs/site-owner-checklist.md` §2.
+
+### Released 2026-08-15: #16-08
+
+Was withheld because the pressable-path half had no committed artifact, while #15-07 and #17-09 made
+the same claim and did. `docs/verification/evidence/16/08-draw-continue-into-game-dom.txt` closes it:
+`.draw-next` on the result page carries `href="/game/timebomb/"` and `href="/game/siamsi/"`, and
+following the first lands on the game page with the roster present and pre-ticked, `consoleErrors: []`.
 
 ## The 4 red-green boxes: why they were reworded
 

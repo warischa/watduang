@@ -1,0 +1,33 @@
+{
+  "drawResult": "จับได้: ซี",
+  "drawNextOuterHTML": "<nav class=\"draw-next\" aria-label=\"เล่นเกมต่อ\" data-astro-cid-5ucpmwjy=\"\"> <h3 data-astro-cid-5ucpmwjy=\"\">เล่นเกมต่อด้วยวงเดิม</h3> <ul data-astro-cid-5ucpmwjy=\"\"> <li data-astro-cid-5ucpmwjy=\"\"><a href=\"/game/timebomb/\" data-astro-cid-5ucpmwjy=\"\">ระเบิดเวลา</a></li><li data-astro-cid-5ucpmwjy=\"\"><a href=\"/game/siamsi/\" data-astro-cid-5ucpmwjy=\"\">เซียมซีปาร์ตี้</a></li> </ul> </nav>",
+  "links": [
+    {
+      "href": "/game/timebomb/",
+      "text": "ระเบิดเวลา"
+    },
+    {
+      "href": "/game/siamsi/",
+      "text": "เซียมซีปาร์ตี้"
+    }
+  ],
+  "followedHref": "/game/timebomb/",
+  "gamePage": {
+    "setupHidden": false,
+    "rosterItems": [
+      {
+        "name": "เอ",
+        "checked": true
+      },
+      {
+        "name": "บี",
+        "checked": true
+      },
+      {
+        "name": "ซี",
+        "checked": true
+      }
+    ]
+  },
+  "consoleErrors": []
+}

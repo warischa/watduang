@@ -20,7 +20,7 @@ vowel that has to compose with it produces the same dotted-circle result).
 
 ```bash
 node scripts/make-og.mjs <game-id>
-node scripts/make-og.mjs site      # การ์ดระดับเว็บ ใช้กับหน้าที่ไม่ใช่เกมทุกหน้า
+node scripts/make-og.mjs site      # site-wide card, for every non-game page
 ```
 
 **Verify:** open the PNG and look at it, every time. "Ran clean" is not evidence here — broken and
@@ -42,8 +42,8 @@ call.
 **Do:**
 
 ```bash
-npm run build        # ไม่ใช่ npx astro build
-npx tsc --noEmit     # ต้องรันแยก build ไม่ทำให้
+npm run build        # not npx astro build
+npx tsc --noEmit     # run separately, build doesn't do this
 ```
 
 CI calls `npm run build` in `.github/workflows/ci.yml` for the same reason — if someone ever reverts
@@ -70,8 +70,8 @@ glob for exactly this reason.
 **Do:**
 
 ```bash
-bash -c "node --test 'src/**/*.test.mjs'"   # ไม่ใช่ node --test src/tools/
-bash -c 'cmd > /dev/null 2>&1; echo EXIT=$?' # จับ exit ตรงๆ ไม่ผ่าน pipe
+bash -c "node --test 'src/**/*.test.mjs'"   # not node --test src/tools/
+bash -c 'cmd > /dev/null 2>&1; echo EXIT=$?' # catch exit directly, not through a pipe
 ```
 
 **Verify a gate:** calibrate both ways — it must pass on a known-good input and fail on a known-bad
