@@ -44,7 +44,7 @@ Rotation: resetting the token (portal **Reset token**, or `az staticwebapp secre
 
 **How you know it worked:** `.github/workflows/ci.yml` reads the secret at the job level (`HAS_DEPLOY_TOKEN`) and consumes it in the "Deploy to Azure Static Web Apps" step. That step only runs `if` the event is a `push` to `refs/heads/main` **and** the token is set. So: push a commit to `main`, open the run in the GitHub Actions tab (repo → **Actions** tab → click the newest run), and confirm the "Deploy to Azure Static Web Apps" step is no longer reported as `skipped`. This typically finishes within a few minutes of the push — refresh the run page to see it update. Checking a pull-request run will always show it `skipped` regardless of the secret — that is not a sign of failure.
 
-**What it unblocks:** this is **the only thing that can prove CSP/AdSense for real** — until the site is actually deployed and live, ad rendering under the CSP is unverified.
+**What it unblocks:** a live deploy is **necessary** to prove CSP/AdSense for real — until the site is actually deployed and live, ad rendering under the CSP is unverified. It is **not sufficient on its own**: the four ad-slot boxes ([#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)) also need an AdSense publisher ID, which is §5. Doing §2 alone does not close them.
 
 ## 3. Real-phone pass — [#13](https://github.com/warischa/watduang/issues/13) DoD item 4 + [#20](https://github.com/warischa/watduang/issues/20)
 
@@ -91,3 +91,23 @@ In English: on one real phone, play `timebomb` for real — start → pass it ar
 **How you know it worked:** the Azure portal's **Custom domains** page lists both `watduang.com` and `www.watduang.com` with status **Ready**, not "Validating" or an error, and `watduang.com` is marked **Default**. Open `https://watduang.com` and `https://www.watduang.com` in a browser on any device — both must load the live site with a valid padlock/certificate (Azure issues the TLS certificate automatically once validation succeeds — no separate certificate step is needed).
 
 **What it unblocks:** `watduang.com` finally points at the deployed site instead of only the `azurestaticapps.net` URL — the domain bought in §1 and the app deployed in §2 are now the same site a visitor reaches, on one canonical hostname.
+
+## 5. AdSense account + publisher ID — [#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)
+
+**Why blocked on you:** an AdSense account is tied to your Google identity, your address, and your payment and tax details. An agent has none of these and must never enter them.
+
+**This section cannot start until §1, §2 and §4 are done.** AdSense reviews a *live site on its real domain* — there is nothing to submit until `watduang.com` loads the deployed site.
+
+**Steps:**
+- [ ] Go to `adsense.google.com`, sign in with the Google account you want to own this revenue, and follow its sign-up flow. It asks for your country, address, and payment details — enter these yourself.
+- [ ] Add `watduang.com` as a site in the AdSense dashboard and request review. Approval commonly takes days to weeks; there is no way to shorten it.
+- [ ] Copy your **publisher ID** — it looks like `ca-pub-0000000000000000`. This is the value the site needs. It is not a secret in the credential sense (it ships in the page), but paste it into the repo yourself or hand it to an agent explicitly.
+- [ ] Once approved, tell whoever is doing the integration that §5 is done and give them the publisher ID.
+
+⚠ **Do not paste Google's activation snippet into a page.** AdSense gives you an inline `<script>` block. This site's CSP sets no `'unsafe-inline'` in `script-src` by design, and CI has a gate that fails the build on any inline page script ([ADR-0005](adr/0005-page-js-must-never-inline.md); the gate and its reasoning are at `.github/workflows/ci.yml:47-53`). The ad tag has to be integrated as an **external, self-hosted script file** served under `'self'`, exactly like the site's own `_astro/*.js` bundles. Pasting the snippet inline will fail CI, and loosening the CSP to make it pass is the one fix that is not allowed.
+
+⚠ **Pages that carry `ads: false` keep it.** That flag is a deliberate content-policy decision, not an oversight — see [#5](https://github.com/warischa/watduang/issues/5). Enabling ads there is a separate decision with legal and policy weight, never a side effect of switching AdSense on.
+
+**How you know it worked:** the AdSense dashboard shows your site as **Ready** (not "Getting ready" or "Needs attention"), and you have a `ca-pub-` publisher ID in hand. At that point `grep -r "ca-pub" src/` still returns nothing — that is expected; wiring the ID into the site is the implementation step this section unblocks, not part of this section.
+
+**What it unblocks:** the four ad-slot DoD boxes on [#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18), **together with §2** — a live deploy proves ad rendering under the real CSP, and this section supplies the ID there is nothing to render without. Neither section closes those boxes alone.

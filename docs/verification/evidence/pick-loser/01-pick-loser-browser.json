@@ -1,0 +1,78 @@
+{
+  "box": "game 3 pick-loser (/game/pick-loser/) — 320px reflow, reduced-motion, and refresh behaviour, including the shared-checkpoint-slot collision guard from ADR-0010",
+  "method": "scripts/driver.mjs, CDP against a real headless Chrome, served from a real build (npm run build + npx serve dist/ -l 4321) at commit e0c4479. Axis 1 and 3 used one Chrome launched plain (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222). Axis 2 launched a second Chrome identically but with --force-prefers-reduced-motion on port 9223, run against the same script as the plain instance. Storage wiped on-origin (never about:blank) and the wipe verified by reading the key back empty before every fresh run. All UI actions (roster-add-name/roster-add-btn, start-round, pl-pick, ss-start/ss-draw/ss-pass, resume-round) were driven through real DOM clicks, never by writing state directly.",
+  "capturedAtCommit": "e0c4479",
+  "note-on-tree-state": "git status at capture time showed one unrelated uncommitted change (docs/agents/browser-verification.md, +30 lines, a new 'when a committed capture goes stale' section) that this walk did not make and did not touch. HEAD itself was e0c4479 and clean of that file's committed content; noting it for provenance since evidence/20's practice is to record any tree deviation from a clean HEAD.",
+
+  "axis1_320px_reflow": {
+    "verdict": "PROVEN",
+    "method": "Emulation.setDeviceMetricsOverride to 320x700 (session.setWidth), confirmed via innerWidth === 320 read back from the page — not a --window-size flag. Measured document.documentElement.scrollWidth vs clientWidth and counted elements whose getBoundingClientRect().right exceeds clientWidth, at four stages of a full pick: setup panel, roster filled (3 names added), round started (pick-loser's idle screen mounted), and result (after clicking pl-pick).",
+    "observation": {
+      "innerWidthConfirmed320": true,
+      "stages": {
+        "setup": { "innerWidth": 320, "scrollWidth": 320, "clientWidth": 320, "overflowingElements": 0 },
+        "rosterFilled": { "innerWidth": 320, "scrollWidth": 320, "clientWidth": 320, "overflowingElements": 0 },
+        "started": { "innerWidth": 320, "scrollWidth": 320, "clientWidth": 320, "overflowingElements": 0 },
+        "result": { "innerWidth": 320, "scrollWidth": 320, "clientWidth": 320, "overflowingElements": 0 }
+      }
+    },
+    "consoleErrors": []
+  },
+
+  "axis2_reduced_motion": {
+    "verdict": "N/A",
+    "reason": "pick-loser has no CSS or JS animation/transition anywhere in its rendered path — confirmed by source grep (no @keyframes/transition/animation touching src/games/pick-loser.ts, src/styles/tokens.css, or the setup panel's actual rules) and, per the playbook's own rule against inferring from markup, by a runtime document.getAnimations() sample immediately before and 5x/50ms after clicking pl-pick, in BOTH Chrome launches. Zero animations were observed in either run at every sample point. Per docs/agents/browser-verification.md: 'a page with no animation at all is N/A, not pass' — recording this as PASS would be a false accessibility claim.",
+    "matchMediaFlipVerifiedBothWays": {
+      "plainLaunch_port9222": { "reducedMotionMatches": false },
+      "forcedFlagLaunch_port9223": { "reducedMotionMatches": true }
+    },
+    "animationActivity": {
+      "plainLaunch": { "beforePick": 0, "samplesAfterPick_50msApart": [0, 0, 0, 0, 0] },
+      "forcedFlagLaunch": { "beforePick": 0, "samplesAfterPick_50msApart": [0, 0, 0, 0, 0] }
+    },
+    "consoleErrors": []
+  },
+
+  "axis3a_refresh_starts_clean": {
+    "verdict": "PROVEN",
+    "reason": "pick-loser writes no checkpoint by design (src/games/pick-loser.ts:4-5; ADR-0010 — siamsi is the sole checkpoint writer), so 'refresh and resume the round' is N/A by design, not a resume feature to test. pick() is synchronous (idle -> result in one click handler, no await), so there is no true async mid-pick window; the two real refresh points tested were (i) round started, pl-pick on screen, nothing picked yet, and (ii) immediately after a result was shown.",
+    "observation": {
+      "refreshWithPickOnScreenNotYetClicked": {
+        "setupPanelHidden": false,
+        "plPickPresent": false,
+        "plAgainPresent": false,
+        "meaning": "page reloaded to the fresh idle setup panel, not the pick-loser stage at all — clean start, no half-state"
+      },
+      "refreshAfterResultShown": {
+        "setupPanelHidden": false,
+        "plPickPresent": false,
+        "plAgainPresent": false,
+        "setupErrorHidden": true,
+        "meaning": "page reloaded to the fresh idle setup panel again, no resurrected result screen, no error banner shown"
+      }
+    },
+    "consoleErrors": []
+  },
+
+  "axis3b_collision_guard": {
+    "verdict": "PROVEN",
+    "wordingNoteForParent": "The brief's phrasing ('must not have written to, cleared, or restamped the shared slot' / 'if it changed in ANY way, FAILED') is stricter than what ADR-0010 claims and stricter than the code can ever satisfy for ANY writer, including siamsi's own turns: session.ts's write() (src/shell/session.ts:82-107) unconditionally rewrites the WHOLE session record with a fresh stamp on every call, and pick-loser's own markPlayed('pick-loser') call (src/games/pick-loser.ts:96) is exactly such a call, routed through the one chokepoint every writer shares. ADR-0010's actual, narrower claim is that the checkpoint sub-field survives byte-identical ('markPlayed... preserves the loaded snapshot') — not that the enclosing record's stamp or played array are frozen. Verdict below is scored against that narrower, code-accurate claim: the checkpoint sub-object. The two literal changes observed (stamp advancing, played gaining 'pick-loser') are both correct, intended writes -- not a collision -- and are named explicitly below rather than silently omitted.",
+    "method": "Seeded a live siamsi checkpoint mid-round through the real UI (3-name roster, start-round, ss-start, ss-draw for player 1, ss-pass, ss-draw for player 2 -- leaving phase 'drawn', 2 results banked, holder=1 -- same technique as docs/verification/evidence/20/01-siamsi-refresh-resume.json). Captured sessionStorage['watduang:session'] (before). Navigated to /game/pick-loser/ in the SAME tab, confirmed no resume prompt appears on pick-loser's own page (planStart's checkpoint.game === gameId test correctly reports false since checkpoint.game is 'siamsi'), played a full pick-loser round through pl-pick, refreshed, then re-captured sessionStorage['watduang:session'] (after). Then crossed back to /game/siamsi/, pressed start-round, confirmed the resume-choice prompt now DOES appear (checkpoint.game === 'siamsi' matches this page), pressed resume-round, and confirmed the round actually resumes at the seeded state.",
+    "observation": {
+      "resumeChoiceHiddenOnPickLoserPage": true,
+      "panelVisibleOnPickLoserPage": true,
+      "before_watduang_session": "{\"id\":\"msuaqsvs-1\",\"players\":[\"หนึ่ง\",\"สอง\",\"สาม\"],\"played\":[],\"checkpoint\":{\"game\":\"siamsi\",\"players\":[\"หนึ่ง\",\"สอง\",\"สาม\"],\"deck\":[22],\"holder\":1,\"results\":[{\"player\":\"หนึ่ง\",\"n\":8},{\"player\":\"สอง\",\"n\":6}],\"phase\":\"drawn\",\"drawn\":6},\"stamp\":1786793547857}",
+      "after_watduang_session": "{\"id\":\"msuaqsvs-1\",\"players\":[\"หนึ่ง\",\"สอง\",\"สาม\"],\"played\":[\"pick-loser\"],\"checkpoint\":{\"game\":\"siamsi\",\"players\":[\"หนึ่ง\",\"สอง\",\"สาม\"],\"deck\":[22],\"holder\":1,\"results\":[{\"player\":\"หนึ่ง\",\"n\":8},{\"player\":\"สอง\",\"n\":6}],\"phase\":\"drawn\",\"drawn\":6},\"stamp\":1786793550565}",
+      "fullBlobByteIdentical": false,
+      "fullBlobDiff": ["played: [] -> [\"pick-loser\"] (pick-loser's own markPlayed call, correct and intended)", "stamp: 1786793547857 -> 1786793550565 (session.ts write() always restamps the whole record on any write, for every writer)"],
+      "checkpointSubFieldByteIdentical": true,
+      "resumeAskedOnSiamsiPage": true,
+      "resumedRoundState": {
+        "panelHidden": true,
+        "ssPassPresent": true,
+        "note": "ss-pass being present means the resumed round landed back on the 'drawn' screen, i.e. phase 'drawn' — matching the seeded checkpoint exactly, not a fresh/discarded round"
+      }
+    },
+    "consoleErrors": []
+  }
+}
