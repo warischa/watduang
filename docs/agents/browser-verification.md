@@ -73,7 +73,7 @@ Known ceilings, both confirmed by a real run in this session, not inferred from 
   see Trap 3 below) — call `session.wipe()` yourself when a test needs a clean slate, `driver.mjs`
   will not do it for you.
 
-## Four traps that produced wrong answers here
+## Five traps that produced wrong answers here
 
 Each of these passed a plausible-looking check while measuring nothing.
 
@@ -119,6 +119,16 @@ leaves the target origin untouched. The run then starts with a **dirty roster** 
 `http://localhost:4321/...` FIRST, then wipe, then reload. Verify the wipe landed by reading the
 roster key back on-origin and asserting it is empty — an unverified wipe is indistinguishable from
 no wipe at all. Cost the #15 walk its first run.
+
+**5. A capture can straddle a boundary the page itself owns.** `daily-fortune` and `love-match` key
+their result to the **Asia/Bangkok date** and store nothing, so at Bangkok midnight — **UTC
+17:00:00** — every name's reading legitimately changes. A determinism walk whose samples span that
+instant sees one name produce two answers and reports `FAILED` against correct code. This nearly
+happened: the #33 walk was running at exactly UTC 17:00:00. Check the clock before driving anything
+date-keyed, keep every sample inside one Bangkok day, and record in the evidence **which** Bangkok
+day the verdict rests on — a determinism verdict that does not name its day cannot be re-checked
+later. Generalises: when a page's output is a function of a clock, a run is only valid inside one
+tick of that clock.
 
 ## Reduced motion
 

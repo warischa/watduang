@@ -6,23 +6,22 @@ Format · window · budget · roll: `.claude/commands/save-session.md` · Ration
 
 ## Current state
 
-### S2026-08-15#6
+### S2026-08-15#7
 
-done: **`c72ff15` pushed · 4 stale red-green verdicts annotated · kill-tests calibrated both ways · owner checklist made owner-runnable** — 6 files +16/−6, CI `31891059300` green. `docs/verification/tools-15-18/{15,16,17,18}.md` each got a dated annotation — pure insertion, `--numstat` 2/0, verdict lines untouched (they record a walk). Calibration: reverted each clamp singly, ran only that tool's suite — wheel/draw/number each red in **exactly** the named test, team 1/10, all green on restore → "gap closed" is measured, not cited. `ci.yml:16,18` actions→v5, both `success` in CI; deploy step `skipped` (secrets total_count=0 → that push was NOT a prod deploy). `site-owner-checklist.md` 5 drift fixes, load-bearing = add-secret consequence warning. #1 commented (`issuecomment-5302760777`). 96/96.
+done: **5 commits, CI green on each, deploy step `skipped` every time (0 secrets)** — `90b3364` game 3 จับไม้สั้น `short-stick` · `0e9271b` timebomb pulse guarded for reduced-motion + ADR-0011 + 2 doc fixes · `bba2b11` whois guard · `b06db57` game 4 วัดดวงวันนี้ `daily-fortune` (53 คำทำนาย) · `f7538e7` game 5 ดวงความรัก `love-match` (31 lines / 5 bands) + SARA AM unified in the shared `normalizeName`. **6 games live**; #5's v1 table complete except locked rows 4/5. Filed #30 #31 #32 #33 #34; closed #30 #31 #32. 122 tests. Browser evidence `docs/verification/evidence/{30,31,33,34}/`. `issue-tracker.md` state table **deleted** (wrong in both directions inside one session) → `gh` is the only state source. Session crossed Bangkok midnight; entry keeps the 08-15 stamp because 5 commits + 3 issue comments already cite `S2026-08-15#7`.
 
-dec: **games 2–7 pause SUPERSEDED — no gate, no owner left** — ADR-0003 (`a4eda47`) replaced #12's go/no-go with #19's Search-Console-clicks gate; #12's own body disclaims itself, worksheet never existed. Traps: ~230-item content library is **NOT** re-authorized (ADR-0003:13,19 = risk ordering, not a gate) · pause clause hyperlinks `issues/12` directly so **ticket=NN+1 does NOT apply there** (3 numbering schemes in that one comment) · #19 gates the `/en/` pivot not the build, blocked by #9 · the 2 verification docs never contradicted — different questions (non-vacuity of the Aug-14 suite vs red-green provenance), so the annotation frames gap-found→gap-closed, not supersession · `site-owner-checklist.md:33` = **job** level (`ci.yml:13-14`), not workflow level
+dec: **ADR-0011 (new)** = content library unlocks per game by risk class, not wholesale · rows 6+7 unlocked, row 5 dare-library locked (the one account-termination risk), **row 4 explicitly undecided — not swept in** · its advice-register rule was reworded mid-session: the first wording carried 2 clauses of different width and 3 items in row 6's own pool fell between them · determinism IS what separates `daily-fortune` from เซียมซี (ADR-0002), not styling — random-per-tap would be a re-skin · none of the 3 new games writes a checkpoint → ADR-0010 unfired, เซียมซี still sole writer · #12 **not closable** — ADR-0003:23 forbids it and the body disclaimer it demanded already exists · manual-review rule kept universal, not dare-library-only
 
 next:
-- [ ] games 2–7 unblocked — pick the next game per ADR-0004 ordering + #5's list. Done when its page + tests ship, CI green
-- [ ] #29 AdSense account + pub-ID — owner-run (Google identity + payment details; an agent must never enter them). Done when #29 boxes 1-2 tick
+- [ ] **owner reads 53 items (#33) + 31 lines (#34)** — last box on each, gates ADR-0011, no agent may tick (ADR-0009). Done when both boxes tick
+- [ ] row 4 locked until rows 6/7 show results · row 5 locked (ADR-0011)
+- [ ] #29 AdSense account + pub-ID — owner-run (Google identity + payment; an agent must never enter them). Done when #29 boxes 1-2 tick
 - [ ] deploy chain `bash scripts/site-owner-wizard.sh` §1/§2/§4 — owner-run. Done when `gh secret list` non-empty. ⚠ from that moment `git push` to `main` IS a production deploy (`ci.yml:209`) — every push pre-auth void, re-gate it
-- [ ] #28 aged-record 6h — owner accepts or changes; if changed, `MAX_AGE_MS` (`session.ts:5`) + `session.test.mjs:413`'s 7h fixture move together
-- [ ] #12 no longer a gate (own body says so) — close or relabel; GitHub write, needs owner go
-- [ ] #1 body ~L81 still reads "pause live" — commented, not edited; body edit needs owner go
-- [ ] `scripts/site-owner-wizard.sh:159-160` (`gh secret list` — owner may lack gh) + `:198` (`dig NS`, no `nslookup` fallback) — found, not fixed
+- [ ] #13 #14 #15-#18 blocked on the ad-slot box alone — needs #29; no agent work closes them
 - [ ] #24 dormant until a 2nd checkpoint writer exists (ADR-0010)
+- [ ] home page links `/games/` but names no game — 6 game keywords get no internal link from the highest-authority page, while the tools line names all 4. Owner copy call
+- [ ] #12 relabel-only if ever touched
 
-inflight: measured at save — tree: `SESSION-HANDOFF.md` + `docs/sessions-archive.md` modified (this save only) · `c72ff15` pushed, no ahead-count · open PRs: checked, none · CI green on `c72ff15` · open issues: 13 · GitHub writes this session: #1 comment only
+inflight: measured at save — tree: this save only · `f7538e7` pushed, 0 ahead · open PRs: checked, none · CI green on `f7538e7` (`31899402100`) · open issues: 12 · GitHub writes this session: 5 filed, 3 closed, #1 body annotated (1 line, round-trip verified)
 
-spent: queue 7→8 · batches 1 · ended early: no — every agent-doable item Done, rest owner-blocked
-
+spent: queue 10→8 · batches 5 · ctx 38% at save · ended early: no — every agent-doable item Done, rest owner-blocked
