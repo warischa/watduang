@@ -1,4 +1,17 @@
-# DoD verification reports — #15-18
+# DoD verification reports and evidence
+
+## Where evidence goes
+
+`evidence/<issue-number>/*.json` — one file per DoD box, for any issue. Every file carries these
+keys, and a walk that omits them cannot be dated later: `box` · `method` · `capturedAtCommit`
+(`git rev-parse --short HEAD`) · `capturedAtCommitNote` (say whether the tree was dirty and list the
+uncommitted files — required by ADR-0009's provenance rule) · `verdict` (`PROVEN` / `FAILED` /
+`UNPROVABLE` / `UNDECIDED`) · per-check booleans **named after the invariant, not the mechanism**
+(`countdownStillUpdates`, not `rafGuardAdded`).
+
+A both-ways check is the norm, not extra credit: proving an animation does not run under
+reduced motion is vacuous on its own, because it also passes on a page that renders nothing.
+Prove the content is still there in both states.
 
 ## What this is
 

@@ -6,24 +6,21 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 
 ## ✅ Migrated 2026-08-13 — GitHub Issues is canonical
 
-The map is **issue #1** (`wayfinder:map`) with 11 sub-issues. All 10 labels exist. Dependencies use GitHub's native issue-dependency API.
+The map is **issue #1** (`wayfinder:map`). All 10 labels exist. Dependencies use GitHub's native issue-dependency API.
 
-**Ticket number → issue number: add 1.** Ticket `07` is issue `#8`.
+**Ticket number → issue number: add 1.** Ticket `07` is issue `#8`. The 2026-08-13 migration created tickets `01`–`11` as issues `#2`–`#12`; everything after that was filed on GitHub directly and has no ticket-number twin beyond the same +1 rule.
 
-| ticket | issue | type | state |
-|---|---|---|---|
-| — | #1 | map | open |
-| 01 | #2 | research | closed |
-| 02 | #3 | research | closed |
-| 03 | #4 | research | closed |
-| 04 | #5 | grilling | closed |
-| 05 | #6 | grilling | closed |
-| 06 | #7 | prototype | closed |
-| 07 | #8 | grilling | closed |
-| 08 | #9 | task | **open** |
-| 09 | #10 | grilling | closed |
-| 10 | #11 | grilling | closed |
-| 11 | #12 | task | **open** |
+**Issue state is not mirrored here.** Ask GitHub:
+
+```
+gh issue list --state all --json number,state,title
+```
+
+A state table used to live in this file. It was wrong in both directions twice in a single session
+(2026-08-15: ticket `07` listed open while closed, ticket `10` "corrected" to open while closed),
+because a hand-maintained copy of a live source rots between the moment it is written and the next
+time anyone reads it. Deriving state costs one command; trusting a stale row costs a re-litigated
+decision.
 
 ### GitHub is the only copy
 

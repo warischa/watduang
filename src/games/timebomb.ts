@@ -211,8 +211,15 @@ function frame(): void {
       if (audioCtx) tick(audioCtx, urgency);
       pulseLevel = 1;
     }
-    pulseLevel = Math.max(0.3, pulseLevel - 0.04);
-    if (pulseEl) pulseEl.style.opacity = pulseLevel.toFixed(2);
+    // matchMedia read here, not module scope — node --test imports this file, no `window` there.
+    // ponytail: per-frame on purpose — it honours an OS toggle flipped mid-round, and detonation
+    // timing measured within 21ms of the unguarded path. Cache it only if a frame budget says to.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (pulseEl) pulseEl.style.opacity = '1';
+    } else {
+      pulseLevel = Math.max(0.3, pulseLevel - 0.04);
+      if (pulseEl) pulseEl.style.opacity = pulseLevel.toFixed(2);
+    }
   }
 
   rafId = requestAnimationFrame(frame);

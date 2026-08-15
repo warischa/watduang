@@ -1,0 +1,34 @@
+{
+  "box": "timebomb (/game/timebomb/) — pulseEl opacity guarded by prefers-reduced-motion, rAF sampler and detonation left running, proven both ways",
+  "method": "Two separate real headless Chrome launches (docs/agents/browser-verification.md's documented mechanism), each with its own --user-data-dir: plain launch on port 9222 (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222) and a second on port 9223 identical except --force-prefers-reduced-motion. scripts/driver.mjs run against both via CDP_PORT, against the same real build served by npx serve dist/ -l 4321. Each run: navigated to /game/timebomb/, wiped storage on-origin and confirmed localStorage.length+sessionStorage.length === 0 after the wipe, read matchMedia('(prefers-reduced-motion: reduce)').matches to confirm the flag actually flipped, confirmed #tb-pulse absent before arming and present after (detector calibration, trap 2), stubbed Math.random = () => 0 before arming so pickDeadline resolves to exactly now + FUSE_MIN_MS (15_000ms) for a bounded detonation wait, monkeypatched window.requestAnimationFrame to count invocations before arming, clicked #start-numbered then #tb-start, sampled document.hidden/visibilityState (control for the `if (!document.hidden)` guard around the pulse block), sampled #tb-pulse.style.opacity six times ~180ms apart across ~1s, sampled the rAF counter twice ~1s apart, and polled for #tb-again (renderBoom's replay button) up to 20s to confirm detonation.",
+  "capturedAtCommit": "90b3364",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M docs/agents/issue-tracker.md', ' M docs/verification/README.md', ' M src/games/timebomb.ts', '?? docs/adr/0011-the-content-library-unlocks-by-risk-class-not-wholesale.md'. Only src/games/timebomb.ts is this task's change; the other two modified files and the untracked ADR predate this session and are unrelated to the reduced-motion guard.",
+  "verdict": "PROVEN",
+  "matchMediaFlipVerifiedBothWays": {
+    "plainLaunch_port9222": { "reducedMotionMatches": false },
+    "forcedFlagLaunch_port9223": { "reducedMotionMatches": true }
+  },
+  "opacityConstantUnderReducedMotion": true,
+  "countdownStillUpdates": true,
+  "pulseRunsWhenMotionAllowed": true,
+  "detonationFires": true,
+  "reducedMotionOff_port9222": {
+    "pulseElementExistsBeforeArm": false,
+    "pulseElementExistsAfterArm": true,
+    "visibility": { "hidden": false, "vis": "visible" },
+    "opacitySamples_180msApart": ["0.72", "0.3", "0.3", "0.3", "0.3", "0.68"],
+    "rafCounter": { "first": 139, "afterOneSecond": 259 },
+    "detonation": { "detonated": true, "elapsedMsFromSampleStart": 13054 }
+  },
+  "reducedMotionOn_port9223": {
+    "pulseElementExistsBeforeArm": false,
+    "pulseElementExistsAfterArm": true,
+    "visibility": { "hidden": false, "vis": "visible" },
+    "opacitySamples_180msApart": ["1", "1", "1", "1", "1", "1"],
+    "rafCounter": { "first": 139, "afterOneSecond": 260 },
+    "detonation": { "detonated": true, "elapsedMsFromSampleStart": 13075 }
+  },
+  "note": "This game renders no remaining-time text — renderTicking() only paints a static label ('ฟิวส์กำลังเดิน'), #tb-warn, #tb-holder (which changes only on a manual pass click, not per frame), and #tb-pulse's opacity. frame()'s only per-frame DOM write is pulseEl.style.opacity. The brief's literal check 2 ('read the displayed remaining-time text twice and assert it changed') is therefore unprovable as written on this game — there is no on-screen countdown text to sample. countdownStillUpdates is proven instead by on-time detonation in both states: #tb-again only exists after renderBoom(), which is only reachable from frame() observing now >= deadline — a frozen clock sampler could never reach it, so detonation firing under reduced motion IS the non-vacuous liveness proof the brief's check 2 is protecting against, with no attribution ambiguity. A requestAnimationFrame counter was also monkeypatched into the page before arming as corroboration and rose in both states (OFF: 139->259, ON: 139->260); it is weaker evidence on its own since the patch is global and could count other rAF consumers on the page, so it is reported as corroboration, not as the primary proof. Opacity itself is also structural, not just numeric, evidence the new branch executed: reduced-motion ON reads style.opacity === '1' (a value this code assigns), never the empty string an untouched inline style would show, so the guard branch demonstrably ran; reduced-motion OFF shows the pre-existing pulseLevel-driven values (0.3-0.72), so the else branch demonstrably ran in the other launch — same code, same launch flag as the only variable. Ordered runs OFF-then-ON so the OFF opacity variance served as the positive control before trusting the ON constant-opacity result. Timing check: startWait begins after ~1.1s of opacity sampling plus ~1s of rAF sampling had already elapsed post-arm, so 13.05s + ~2s pre-elapsed reconciles with the stubbed deadline of now + FUSE_MIN_MS (15_000ms); the two runs landing 21ms apart (13054 vs 13075) is itself evidence Math.random = () => 0 took effect, since live randomness would have spread detonation across the full 30s fuse range. Field names pinned as required: opacityConstantUnderReducedMotion, countdownStillUpdates, pulseRunsWhenMotionAllowed, detonationFires.",
+  "consoleErrors": { "reducedMotionOff_port9222": [], "reducedMotionOn_port9223": [] },
+  "typecheck": { "command": "npx tsc --noEmit", "exit": 0, "note": "npm run validate does not run tsc (it runs scripts/validate-games.mjs only); ran tsc separately per docs/runbook.md's 'build — must go through npm run, nothing else' section since astro build never typechecks. Confirms window.matchMedia in the new frame() branch typechecks clean under this repo's DOM lib config." }
+}
