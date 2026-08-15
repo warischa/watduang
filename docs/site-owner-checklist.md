@@ -1,6 +1,6 @@
 # Site owner checklist
 
-Four things no agent can do — each runnable start-to-finish without asking a question back.
+Five things no agent can do. §1 and §2 are runnable start-to-finish right now; §3, §4, and §5 are gated on earlier sections — each says exactly what it's waiting on.
 Rationale for every decision lives in the linked issues; this doc restates only the steps.
 
 ## 1. Register `watduang.com` — [#9](https://github.com/warischa/watduang/issues/9)
@@ -30,6 +30,8 @@ Note: #19's 6-month organic-clicks gate does not start counting the day you regi
 - [ ] Get the resource's deployment token: open the Static Web App resource → **Overview** (left menu) → **Manage deployment token** → click the copy icon next to the token value shown.
 - [ ] In GitHub: open this repo in your browser → **Settings** tab → **Secrets and variables** (left sidebar) → **Actions** → **New repository secret**. In the "Name" field type exactly `AZURE_STATIC_WEB_APPS_API_TOKEN`. In the "Secret" field paste the value you copied. Click **Add secret**.
 
+⚠ **The moment you click Add secret, every future `git push` to `main` — by anyone, not just you — becomes a real production deploy.** `ci.yml` checks whether this secret exists at the job level (`:13-14`); it doesn't check whether you meant to arm it. There is no separate "go live" switch — the secret existing IS the switch. If you're not ready for that yet, don't add the secret. To turn it back off later: delete the secret at the same GitHub Settings screen — the next push after that will skip the deploy step again, same as today.
+
 ⚠ **Add the secret by hand — do not let the Azure portal connect GitHub for you, at the create step above or afterward.** The portal's own
 "deploy from GitHub" flow generates *its own* secret name with a random suffix appended
 (`AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_00AD12A10`) and commits *its own* workflow file to this repo automatically —
@@ -42,7 +44,7 @@ one that CI depends on.
 Rotation: resetting the token (portal **Reset token**, or `az staticwebapp secrets reset-api-key`) does
 **not** update GitHub. Deploys fail until you paste the new value into the same secret.
 
-**How you know it worked:** `.github/workflows/ci.yml` reads the secret at the job level (`HAS_DEPLOY_TOKEN`) and consumes it in the "Deploy to Azure Static Web Apps" step. That step only runs `if` the event is a `push` to `refs/heads/main` **and** the token is set. So: push a commit to `main`, open the run in the GitHub Actions tab (repo → **Actions** tab → click the newest run), and confirm the "Deploy to Azure Static Web Apps" step is no longer reported as `skipped`. This typically finishes within a few minutes of the push — refresh the run page to see it update. Checking a pull-request run will always show it `skipped` regardless of the secret — that is not a sign of failure.
+**How you know it worked:** immediately after clicking **Add secret**, this repo's **Settings → Secrets and variables → Actions** page lists `AZURE_STATIC_WEB_APPS_API_TOKEN` (the value itself is never shown again — that's normal). That confirms the secret exists; it does not by itself confirm a deploy. To confirm an actual deploy, you need a push to `main` — but per the warning above, that's not a free test: it's a real production deploy, the same one every future push to `main` will now trigger. When one happens (yours or anyone else's), open the GitHub **Actions** tab → click that run → confirm the "Deploy to Azure Static Web Apps" step is no longer reported as `skipped`. This typically finishes within a few minutes of the push. Checking a pull-request run will always show it `skipped` regardless of the secret — that is not a sign of failure.
 
 **What it unblocks:** a live deploy is **necessary** to prove CSP/AdSense for real — until the site is actually deployed and live, ad rendering under the CSP is unverified. It is **not sufficient on its own**: the four ad-slot boxes ([#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)) also need an AdSense publisher ID, which is §5. Doing §2 alone does not close them.
 
@@ -104,10 +106,10 @@ In English: on one real phone, play `timebomb` for real — start → pass it ar
 - [ ] Copy your **publisher ID** — it looks like `ca-pub-0000000000000000`. This is the value the site needs. It is not a secret in the credential sense (it ships in the page), but paste it into the repo yourself or hand it to an agent explicitly.
 - [ ] Once approved, tell whoever is doing the integration that §5 is done and give them the publisher ID.
 
-⚠ **Do not paste Google's activation snippet into a page.** AdSense gives you an inline `<script>` block. This site's CSP sets no `'unsafe-inline'` in `script-src` by design, and CI has a gate that fails the build on any inline page script ([ADR-0005](adr/0005-page-js-must-never-inline.md); the gate and its reasoning are at `.github/workflows/ci.yml:47-53`). The ad tag has to be integrated as an **external, self-hosted script file** served under `'self'`, exactly like the site's own `_astro/*.js` bundles. Pasting the snippet inline will fail CI, and loosening the CSP to make it pass is the one fix that is not allowed.
+⚠ **Do not paste Google's activation snippet into a page.** AdSense gives you an inline `<script>` block. This site's CSP sets no `'unsafe-inline'` in `script-src` by design, and CI has a gate that fails the build on any inline page script ([ADR-0005](adr/0005-page-js-must-never-inline.md); the gate is the "CSP inline-script gate (dist artifact)" step in `.github/workflows/ci.yml`, around `:85`). The ad tag has to be integrated as an **external, self-hosted script file** served under `'self'`, exactly like the site's own `_astro/*.js` bundles. Pasting the snippet inline will fail CI, and loosening the CSP to make it pass is the one fix that is not allowed.
 
 ⚠ **Pages that carry `ads: false` keep it.** That flag is a deliberate content-policy decision, not an oversight — see [#5](https://github.com/warischa/watduang/issues/5). Enabling ads there is a separate decision with legal and policy weight, never a side effect of switching AdSense on.
 
-**How you know it worked:** the AdSense dashboard shows your site as **Ready** (not "Getting ready" or "Needs attention"), and you have a `ca-pub-` publisher ID in hand. At that point `grep -r "ca-pub" src/` still returns nothing — that is expected; wiring the ID into the site is the implementation step this section unblocks, not part of this section.
+**How you know it worked:** the AdSense dashboard shows your site as **Ready** (not "Getting ready" or "Needs attention"), and you have a `ca-pub-` publisher ID in hand. Nothing on the live site changes yet at that point — wiring the ID into the site is the implementation step this section unblocks, not part of this section.
 
 **What it unblocks:** the four ad-slot DoD boxes on [#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18), **together with §2** — a live deploy proves ad rendering under the real CSP, and this section supplies the ID there is nothing to render without. Neither section closes those boxes alone.
