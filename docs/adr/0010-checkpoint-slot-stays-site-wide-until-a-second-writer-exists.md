@@ -147,6 +147,75 @@ under a `.claude/worktrees/` path that the same commit gitignored. Its runnable 
 ADR-0008 block in `src/shell/session.test.mjs`. Evidence kept outside the repo does not survive the
 session that made it.
 
+## Finding S2026-08-15#3 — the race was the wrong target; two unguarded orderings exist instead
+
+The queued task was "measure F1's browser race window" — the claim that a module continuation
+resolves before `location.reload()` commits. That measurement was **not** attempted, on purpose.
+
+**Why the browser probe was dropped.** The set it would sample — interleavings of a module
+continuation against the navigation commit — is owned by the browser's scheduler and the HTML
+navigation task queue, not by us. A negative reading on one Chrome build converges on nothing, so
+"no interleaving observed" is unfalsifiable as an exit criterion. Sampling a set we do not own
+never terminates.
+
+**The race is spec-permitted, not unreachable.** `location.reload()` queues a navigation and
+script keeps running — `src/shell/session.ts:41` already recorded this ("a macrotask away").
+Any attempt to prove the interleaving impossible would have been proving a false statement. Do not
+record "the race cannot happen"; record that it is permitted and **bounded at the seam**.
+
+**What replaced it.** Orderings of calls on the `loadSession()` closure surface are finite and
+ours, so they were enumerated in `src/shell/session.test.mjs` (+4 tests, 83 → 87). Four orderings,
+along two axes — closure created before/after the discard × first `setPlayers` spent/unspent:
+
+| Ordering | Outcome |
+|---|---|
+| FRESH — discard, then a new closure's first `setPlayers` | **must create.** Anti-over-fix control: "no create after a discard" is the wrong invariant |
+| FRESH-THEN-STALE — closure creates round 2 after discard 1, then discard 2 | refused, and a second late call still refused. `mayCreate` is per-closure one-shot, not a global post-discard rule |
+| **STALE, first `setPlayers` unspent** | **unguarded.** Record and checkpoint return; `planStart` → `'ask'` |
+| **STALE, record re-exists** | **unguarded.** `write()`'s check is existence-based, not identity-based, so the stale snapshot overwrites the new round |
+
+The last two tests pin the **hole**, not the guard. They are green today because they assert the
+violation; closing either hole flips its own pin red by design.
+
+**Both holes are unreachable in production today** — by call-site accident, not by construction:
+
+- `src/pages/game/[id].astro:50-51` are adjacent statements with no suspend between them, so a
+  closure's first `setPlayers` is synchronous with its own creation. The only `await` (`load()`,
+  `:56`) comes after. No closure can be stale-with-unspent-first-call.
+- `clear()` (`src/shell/PlayerSetup.astro:304`) is always chained to `location.reload()` (`:310`)
+  in the same handler; a same-document new round requires a second `watduang:start`, which builds a
+  fresh closure.
+- `gameCtx` is module-level, overwritten on every `mountInto` (`src/games/siamsi.ts:331`,
+  `src/games/timebomb.ts:260`) and nulled by `teardown()` (`siamsi.ts:372`). The replay button
+  reads it **at click time** (`siamsi.ts:266-267`), not render time, so `siamsi.ts:344` always
+  fires on the current mount's closure. No holder of a stale closure with a reachable write path
+  exists.
+
+The second hole's class also covers `markPlayed` and `saveCheckpoint` (`timebomb.ts:230`,
+`siamsi.ts:283`) — both write the full stale snapshot under the same existence-only check. Same
+unreachability argument; named here so a future writer inherits the warning.
+
+**The facts that would invert this** (both pinned in the test comments): any `setPlayers` caller
+other than `[id].astro:51` and `siamsi.ts:344` that has a suspend between its `loadSession()` and
+its *first* `setPlayers`; or any record creation that does not require a fresh user gesture — a
+client router or an auto-start. Either turns a boundary pin into a live ADR-0008 violation.
+
+**Calibration.** Positive control: deleting only `mayCreate = false;` (leaving `65d3d3c`'s
+write-level existence check intact) goes red 9/2, caught by the assertion at
+`session.test.mjs:260` — "a stale closure re-created the round the player discarded" — inside the
+test declared at `:246`. Over-fix direction also run: blunt
+(all 11 red), but test 8's own message fires, so its create-path assertion is load-bearing rather
+than decorative. Both pins were additionally proven non-vacuous by mutation — a hole-closing mutant
+for each flips exactly its own pin.
+
+**What this does not cover.** The browser interleaving itself, by construction. Whether a queued
+`watduang:start` can be replayed after a clear, since dispatch lives in the DOM. `MAX_AGE_MS` aging
+is expressible at this seam but is a different invariant — the key survives aging, so `write()`'s
+existence check passes while `read()` reports empty. And a double-fired `watduang:start` on first
+mount interleaves two **fresh** closures, each spending its first `setPlayers` before its first
+suspend: that is last-write-wins between two new rounds, with no discard involved, so it is not an
+ADR-0008 case — but it is still unspecified behaviour of the slot.
+
 ## Related
 
 - [#24](https://github.com/warischa/watduang/issues/24) — the ticket this answers

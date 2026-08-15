@@ -204,3 +204,129 @@ test('a discard is final — a write racing in through a stale session closure m
     'the panel offered to resume a round the player discarded — ADR-0008 says a discard is final',
   );
 });
+
+// ---- Ordering enumeration (ADR-0010). Replaces a planned browser/CDP interleaving probe: the timing
+// of a click landing between clear() and location.reload() belongs to the browser scheduler and the
+// HTML navigation task queue, so measuring it converges on nothing. What IS ours and finite is the
+// order of calls on the loadSession() closure surface, and the two axes that decide the outcome:
+//
+//   1. was the closure created BEFORE or AFTER the discard   (stale vs fresh)
+//   2. had it already spent its first setPlayers before the discard   (mayCreate, session.ts:81)
+//
+// The guard protects STALE closures, not all post-discard creation — a fresh closure creating after a
+// discard is a new round starting, and refusing that would break every start. Each test below names
+// which quadrant it is in. slots.size stays the detector: it is the whole of storage, so it reads raw
+// record presence, which checkpoint: null cannot (see the block header above).
+
+// FRESH closure. The anti-over-fix control for the whole guard: "no create after a discard" would be a
+// WRONG invariant, and this is the test that would catch someone asserting it. Reachable constantly in
+// production — it is every round started after ล้างและทิ้งรอบที่ค้าง and its reload.
+test('fresh closure: a discard does not stop the NEXT round from being created', () => {
+  slots.clear();
+  const first = loadSession();
+  first.setPlayers(['Alice', 'Bob']);
+  first.saveCheckpoint(midRound(7));
+  loadSession().clear();
+  assert.equal(slots.size, 0);
+
+  // After the reload, watduang:start fires again: a brand-new closure, its own first setPlayers.
+  const nextRound = loadSession();
+  nextRound.setPlayers(['เอ', 'บี']);
+  assert.equal(slots.size, 1, 'a closure created after the discard must still be able to start a round');
+  assert.deepEqual(loadSession().players, ['เอ', 'บี']);
+  // ...and the new round is genuinely new: the discarded round did not ride back in on it.
+  assert.equal(loadSession().checkpoint, null, 'the new round inherited the discarded round\'s checkpoint');
+});
+
+// FRESH-THEN-STALE. "Fresh" is not a property a closure keeps: mayCreate is one-shot per closure, so
+// the closure that legitimately created the second round is itself stale once THAT round is discarded.
+// This is the ordering that proves the guard is per-closure-first-call and not "anything after the
+// first discard is refused" — two discards, and the same closure is on the allowed side of one and the
+// refused side of the other.
+test('a closure that legitimately created after one discard is stale after the next', () => {
+  slots.clear();
+  loadSession().setPlayers(['Alice', 'Bob']);
+  loadSession().clear();
+
+  const round2 = loadSession();
+  round2.setPlayers(['เอ', 'บี']); // allowed: fresh closure, first setPlayers — round 2 starts
+  assert.equal(slots.size, 1);
+  round2.saveCheckpoint(midRound(7));
+
+  loadSession().clear(); // ล้างและทิ้งรอบที่ค้าง again — now round2's closure is the stale one
+  assert.equal(slots.size, 0);
+
+  round2.setPlayers(['เอ', 'บี']); // siamsi.ts:344 writing the roster back, one discard too late
+  assert.equal(slots.size, 0, 'a stale closure re-created the round the player discarded');
+  round2.setPlayers(['เอ', 'บี']); // the refusal is not one-shot either
+  assert.equal(slots.size, 0, 'the second late setPlayers got past a refusal the first one earned');
+  assert.equal(
+    planStart(loadSession().checkpoint, 'siamsi'),
+    'start',
+    'the panel offered to resume a round the player discarded — ADR-0008 says a discard is final',
+  );
+});
+
+// Boundary pin, NOT an endorsement — this ordering resurrects the discarded round, checkpoint and all.
+// mayCreate is still true, because the closure never spent its first setPlayers before the discard.
+// Unreachable today for one reason only: src has exactly two setPlayers callers — game/[id].astro:51,
+// which runs sync on the line after its own loadSession() (:50), and siamsi.ts:344, which is always a
+// SECOND call on that same closure. PlayerSetup holds closures (:130, :295) but never calls setPlayers.
+// The fact that would change this: any new caller that lets a suspend — an await, a click handler, a
+// promise — sit between loadSession() and that closure's FIRST setPlayers. Then this test is the live
+// ADR-0008 violation it is currently only describing, and it should be made to fail.
+test('unguarded: a closure whose FIRST setPlayers lands after the discard re-creates the round', () => {
+  slots.clear();
+  const shell = loadSession();
+  shell.setPlayers(['Alice', 'Bob']);
+  shell.saveCheckpoint(midRound(7));
+
+  const pending = loadSession(); // created BEFORE the discard, first setPlayers not spent yet
+  loadSession().clear();
+  assert.equal(slots.size, 0);
+
+  pending.setPlayers(['Alice', 'Bob']);
+  assert.equal(slots.size, 1, 'behaviour changed — an unspent first setPlayers is now refused');
+  assert.equal(
+    planStart(loadSession().checkpoint, 'siamsi'),
+    'ask',
+    'the discarded round came back with it, and the panel would offer to resume it',
+  );
+});
+
+// Boundary pin, NOT an endorsement — the same resurrection through the other door. The refusal is
+// write()'s existence check (session.ts:54), which asks "is there a record" and not "is this closure
+// still entitled to write". So once ANY record exists again, a stale closure is unblocked and writes
+// its pre-discard snapshot over it — the discarded checkpoint returns and the new round's roster is
+// gone. That existence-only test is deliberate (session.ts:76-79): #20's refresh-resume needs a later
+// setPlayers to keep updating a record that is still there. What makes it hard to reach is not the
+// reload — that is a macrotask away (session.ts:41), which is the whole premise of F1 — it is that the
+// only creator is watduang:start → game/[id].astro:51, and that needs a SECOND gesture: a tap on
+// เริ่มรอบ landing inside the same pre-reload window as the ล้างและทิ้งรอบที่ค้าง tap that opened it
+// (PlayerSetup.astro:304 → :310). Two gestures in one macrotask window, not one.
+// The fact that would change this: any creation that does not need a fresh user gesture — a client
+// router replacing the reload, an auto-start, or a queued watduang:start replayed after the clear.
+test('unguarded: once a new record exists, a stale closure writes its discarded snapshot into it', () => {
+  slots.clear();
+  loadSession().setPlayers(['Alice', 'Bob']);
+  const game = loadSession();
+  game.setPlayers(['Alice', 'Bob']); // its first setPlayers, spent before the discard
+  game.saveCheckpoint(midRound(7));
+
+  loadSession().clear();
+  const round2 = loadSession();
+  round2.setPlayers(['เอ', 'บี']); // a new round is created — the existence check now passes again
+  assert.equal(loadSession().checkpoint, null);
+
+  game.setPlayers(['Alice', 'Bob']); // stale, create = false, but the record is there so write() lets it
+  assert.deepEqual(
+    loadSession().players,
+    ['Alice', 'Bob'],
+    'behaviour changed — a stale closure no longer overwrites a record it did not create',
+  );
+  assert.equal(
+    planStart(loadSession().checkpoint, 'siamsi'),
+    'ask',
+    'the discarded round rode back in on the stale snapshot, over the top of the new round',
+  );
+});

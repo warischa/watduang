@@ -1,6 +1,8 @@
 {
   "box": "เล่น siamsi ให้ถึงกลางวง → รีเฟรชหน้า → ต้องกู้รอบเดิมกลับมาได้ ไม่ใช่เริ่มใหม่",
-  "method": "scripts/driver.mjs, one CDP tab, http://localhost:4321/game/siamsi/ served from a real build (npm run build + npx serve dist/ -l 4321). Wiped storage on-origin (never about:blank), seeded a 3-name roster through the real UI (roster-add-name/roster-add-btn), started the round, drew for player 1, passed, drew for player 2 — leaving phase 'drawn' with 2 results banked, 1 card left in the deck, holder=1 (mid-round, not turn 1 and not the summary). Captured sessionStorage's watduang:session.checkpoint and the rendered DOM, refreshed the tab (session.nav to the same URL, same tab so sessionStorage survives), pressed \"เริ่มรอบ\" again (the resume question only surfaces on that click, per player-select.ts planStart — it does not pop up unprompted on load), observed the resume-choice prompt, pressed \"กลับไปเล่นรอบที่ค้าง\", then re-captured checkpoint + DOM.",
+  "method": "scripts/driver.mjs, one CDP tab, http://localhost:4321/game/siamsi/ served from a real build (npm run build + npx serve dist/ -l 4321) at commit 5ffcfc4. Wiped storage on-origin (never about:blank), seeded a 3-name roster through the real UI (roster-add-name/roster-add-btn), clicked start-round (PlayerSetup's panel-to-game transition), clicked ss-start (siamsi's own idle-to-turn button), drew for player 1, passed, drew for player 2 — leaving phase 'drawn' with 2 results banked, 1 card left in the deck, holder=1 (mid-round, not turn 1 and not the summary). Captured sessionStorage's watduang:session.checkpoint and the rendered DOM, refreshed the tab (session.nav to the same URL, same tab so sessionStorage survives), pressed \"เริ่มรอบ\" again (the resume question only surfaces on that click, per player-select.ts planStart — it does not pop up unprompted on load), observed the resume-choice prompt, pressed \"กลับไปเล่นรอบที่ค้าง\", then re-captured checkpoint + DOM.",
+  "capturedAtCommit": "5ffcfc4",
+  "capturedAtCommitNote": "Re-captured against HEAD 5ffcfc4 (2026-08-15 11:15:26 +0700), after 4b14565 (loadSession per-closure mayCreate fix, 2026-08-15 11:08:36 +0700) landed. The prior capture predated 4b14565 and was mis-scoped per ADR-0009's provenance rule; the box is unchanged, only the capture's provenance was stale.",
   "verdict": "PASS",
   "wipeVerified": true,
   "resumePromptShown": true,
@@ -14,18 +16,18 @@
     "checkpoint": {
       "game": "siamsi",
       "players": ["หนึ่ง", "สอง", "สาม"],
-      "deck": [5],
+      "deck": [21],
       "holder": 1,
       "results": [
-        { "player": "หนึ่ง", "n": 14 },
-        { "player": "สอง", "n": 2 }
+        { "player": "หนึ่ง", "n": 24 },
+        { "player": "สอง", "n": 9 }
       ],
       "phase": "drawn",
-      "drawn": 2
+      "drawn": 9
     },
     "dom": {
       "phase": "drawn",
-      "drawnNumberText": "2",
+      "drawnNumberText": "9",
       "panelHidden": true
     }
   },
@@ -33,18 +35,18 @@
     "checkpoint": {
       "game": "siamsi",
       "players": ["หนึ่ง", "สอง", "สาม"],
-      "deck": [5],
+      "deck": [21],
       "holder": 1,
       "results": [
-        { "player": "หนึ่ง", "n": 14 },
-        { "player": "สอง", "n": 2 }
+        { "player": "หนึ่ง", "n": 24 },
+        { "player": "สอง", "n": 9 }
       ],
       "phase": "drawn",
-      "drawn": 2
+      "drawn": 9
     },
     "dom": {
       "phase": "drawn",
-      "drawnNumberText": "2",
+      "drawnNumberText": "9",
       "panelHidden": true
     }
   },
