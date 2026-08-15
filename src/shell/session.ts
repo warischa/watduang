@@ -4,81 +4,111 @@ import type { Checkpoint, GameSession } from '../games/types';
 const KEY = 'watduang:session';
 const MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
+/** A record written before identities existed. sessionStorage keeps it for the whole 6h window, so on
+ *  the deploy that added the field there are live sessions in this shape. It has no owner, so every
+ *  closure loaded off it shares this one — pre-identity behaviour among peers, and no create right. */
+const LEGACY_ID = 'legacy';
+
 interface StoredSession {
+  /** Which round this is. Minted on create, never rewritten; absent only on a legacy record. */
+  id?: string;
   players: string[];
   played: string[];
   checkpoint: Checkpoint | null;
   stamp: number;
 }
 
-function read(): StoredSession {
+let minted = 0;
+/** Unique within a tab: the counter covers one page, the timestamp covers reloads of the same tab. */
+const mintId = (): string => `${Date.now().toString(36)}-${++minted}`;
+
+/** The live record, or null when there is none. Absent, aged out and unparseable all read the same —
+ *  aging matters here because the key outlives MAX_AGE_MS, and an aged record must not block a start. */
+function readRaw(): StoredSession | null {
   try {
     const raw = sessionStorage.getItem(KEY);
-    if (!raw) return { players: [], played: [], checkpoint: null, stamp: Date.now() };
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredSession;
-    if (Date.now() - parsed.stamp > MAX_AGE_MS) {
-      return { players: [], played: [], checkpoint: null, stamp: Date.now() };
-    }
-    return {
-      players: Array.isArray(parsed.players) ? parsed.players : [],
-      played: Array.isArray(parsed.played) ? parsed.played : [],
-      checkpoint: parsed.checkpoint ?? null,
-      stamp: parsed.stamp,
-    };
+    return Date.now() - parsed.stamp > MAX_AGE_MS ? null : parsed;
   } catch {
-    return { players: [], played: [], checkpoint: null, stamp: Date.now() };
+    return null;
   }
 }
 
-/**
- * `create` = this writer is allowed to bring the record into existence. Every other writer may only
- * UPDATE a record that is still there, and re-reads storage to find out.
- *
- * Why re-read instead of trusting the closure: loadSession() hands out an independent mutable closure
- * per call — the shell holds one, the mounted game holds another (game/[id].astro builds ctx.session
- * once) — over a single storage key. clear() cannot invalidate a closure it does not know about, so
- * after a clear the game's closure is still live and still armed. Press ล้างและทิ้งรอบที่ค้าง mid-round
- * and location.reload() is a macrotask away; a tap that lands before unload ran save() through the
- * game's closure and setItem the discarded round straight back. After the reload the panel offered
- * กลับไปเล่นรอบที่ค้าง for the round the player had just thrown away — a discard that silently
- * un-discards, which is an ADR-0008 violation in substance. The round-over path did it too, reviving
- * the whole record through markPlayed + saveCheckpoint(null).
- *
- * Gone means gone, whoever still holds a handle. setPlayers is the one creator, because starting a
- * round is what brings a session into being — and only on its first call per closure, since a later
- * one is a resume writing back, not a start (see loadSession()). The guard defaults to refusing so a
- * writer added later inherits the safe side.
- */
-function write(stored: StoredSession, create = false): void {
-  try {
-    if (!create && sessionStorage.getItem(KEY) === null) return;
-    stored.stamp = Date.now();
-    sessionStorage.setItem(KEY, JSON.stringify(stored));
-  } catch {
-    // Quota full or Safari private mode — keep going in memory for this page, never throw.
-  }
+function read(): StoredSession {
+  const parsed = readRaw();
+  if (!parsed) return { players: [], played: [], checkpoint: null, stamp: Date.now() };
+  return {
+    id: parsed.id ?? LEGACY_ID,
+    players: Array.isArray(parsed.players) ? parsed.players : [],
+    played: Array.isArray(parsed.played) ? parsed.played : [],
+    checkpoint: parsed.checkpoint ?? null,
+    stamp: parsed.stamp,
+  };
 }
 
 export function loadSession(): GameSession {
   const stored = read();
 
   /**
-   * Only the FIRST setPlayers on a given closure may create. Starting a round is what brings a session
-   * into being, and the start handler's own call is that one: game/[id].astro:50-51 runs loadSession()
-   * and setPlayers() back-to-back, so nothing can land in between.
+   * The record this closure is talking about — captured at load, minted on create, null until it has
+   * one. Every write compares it against the record actually in the slot and refuses on a mismatch.
    *
-   * Later calls on the same closure are not starts. siamsi.ts:344 writes the checkpoint's roster back on
-   * resume, and on first mount `await load()` (game/[id].astro:56) separates it from the closure's
-   * creation by a macrotask. The panel is live in that gap: ล้างกลุ่มนี้ → clear() (PlayerSetup.astro:304)
-   * empties the record and location.reload() (:310) has not committed yet. With create still true that
-   * late call setItem the closure's stale snapshot back — record AND checkpoint — and the discarded round
-   * un-discarded, the same ADR-0008 violation 65d3d3c closed for the #ss-draw / #ss-pass writers.
+   * Why compare instead of trusting the closure: loadSession() hands out an independent mutable closure
+   * per call — the shell holds one, the mounted game holds another (game/[id].astro builds ctx.session
+   * once) — over a single storage key. clear() cannot invalidate a closure it does not know about, so
+   * after a clear the game's closure is still live and still armed. Press ล้างและทิ้งรอบที่ค้าง mid-round
+   * and location.reload() is a macrotask away; a tap that lands before unload ran save() through the
+   * game's closure and setItem the discarded round straight back. After the reload the panel offered
+   * กลับไปเล่นรอบที่ค้าง for the round the player had just thrown away — a discard that silently
+   * un-discards, which is an ADR-0008 violation in substance. The round-over path did it too, reviving
+   * the whole record through markPlayed + saveCheckpoint(null).
    *
-   * This flag decides nothing by itself: it only downgrades to create = false, and the refusal is
-   * write()'s existence check above. That is deliberate — refreshing into a resume, with the record still
-   * there, must keep updating (issue #20), and only a missing record means gone.
+   * An existence check ("is there a record") closed only half of that, and a per-closure first-call flag
+   * only the other half: a stale closure whose first setPlayers had not been spent still created over an
+   * absent record, and once any new round existed a stale closure wrote its pre-discard snapshot over it.
+   * Identity answers both with one question, so both mechanisms are gone. It stays compatible with issue
+   * #20's refresh-resume by construction: a closure updating the record it is actually talking about —
+   * siamsi.ts:344 writing the checkpoint's roster back — still matches.
    */
-  let mayCreate = true;
+  let myId: string | null = stored.id ?? null;
+
+  /**
+   * The one chokepoint all three writers route through. `create` = this writer may bring a record into
+   * existence; setPlayers is the only one, because starting a round is what brings a session into being
+   * (games/_template.ts:29-31 documents that to every future game). Defaults to refusing, so a writer
+   * added later inherits the safe side.
+   */
+  function write(create = false): void {
+    try {
+      const current = readRaw();
+      if (current === null) {
+        // Gone means gone, whoever still holds a handle: a closure that knew a record may not re-create
+        // it. Only one that never had an identity may start a round.
+        if (!create || myId !== null) return;
+      } else if (current.id !== undefined && current.id !== myId) {
+        // Someone else's round is in the slot. This closure's snapshot predates it — refuse.
+        return;
+      }
+      const id = myId ?? mintId();
+      sessionStorage.setItem(
+        KEY,
+        JSON.stringify({
+          id,
+          players: session.players,
+          played: session.played,
+          checkpoint: session.checkpoint,
+          stamp: Date.now(),
+        } satisfies StoredSession),
+      );
+      // Only now: minting before the write would make Safari private mode (setItem throws every time)
+      // look like a create that succeeded, and every later write would then refuse against an id that
+      // was never persisted — permanent silent no-ops instead of an in-memory session.
+      myId = id;
+    } catch {
+      // Quota full or Safari private mode — keep going in memory for this page, never throw.
+    }
+  }
 
   const session: GameSession = {
     players: stored.players,
@@ -86,18 +116,17 @@ export function loadSession(): GameSession {
     checkpoint: stored.checkpoint,
     setPlayers(names: string[]): void {
       session.players = names;
-      write({ players: session.players, played: session.played, checkpoint: session.checkpoint, stamp: 0 }, mayCreate);
-      mayCreate = false;
+      write(true);
     },
     markPlayed(id: string): void {
       if (!session.played.includes(id)) {
         session.played = [...session.played, id];
       }
-      write({ players: session.players, played: session.played, checkpoint: session.checkpoint, stamp: 0 });
+      write();
     },
     saveCheckpoint(cp: Checkpoint | null): void {
       session.checkpoint = cp;
-      write({ players: session.players, played: session.played, checkpoint: session.checkpoint, stamp: 0 });
+      write();
     },
     clear(): void {
       session.players = [];

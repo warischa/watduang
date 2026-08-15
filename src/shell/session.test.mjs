@@ -72,10 +72,11 @@ test('negative control: a clean discard with no racing click leaves the slot emp
 
 // ADR-0010's closing lines flagged a suspected clobber: game B's start (setPlayers) might stomp
 // game A's still-live checkpoint, since both write the same site-wide slot. On this ordering they
-// don't collide — but not because setPlayers re-reads storage. session.checkpoint is the snapshot
-// loadSession() captured at load time (session.ts:67), and setPlayers writes that same snapshot
-// back unchanged (session.ts:70); the only re-read write() does is existence-only, "does the key
-// still exist at all" (session.ts:53). What actually keeps this safe is that every start calls
+// don't collide — but not because setPlayers merges anything. session.checkpoint is the snapshot
+// loadSession() captured at load time, and setPlayers writes that same snapshot back unchanged; the
+// re-read write() does is an identity compare, "is the record in the slot still the one this closure
+// is talking about", and here it is — both closures hold the same record's id, so the guard passes by
+// design and gameB carries gameA's checkpoint back in. What actually keeps this safe is that every start calls
 // loadSession() and setPlayers() back-to-back with nothing in between (game/[id].astro:50-51) — no
 // writer gets a chance to land between a closure's creation and its own setPlayers. The next test
 // pins what happens when that adjacency is broken.
@@ -93,8 +94,10 @@ test('game B start (setPlayers) preserves game A checkpoint — refutes the ADR-
 
 // Boundary pin, not a bug report: a closure captured BEFORE another closure's saveCheckpoint holds a
 // stale snapshot (checkpoint: null), and its own later setPlayers writes that stale snapshot straight
-// back — clobbering the checkpoint the other closure saved in between. Production never reaches this
-// ordering: every start calls loadSession() and setPlayers() back-to-back inside one handler
+// back — clobbering the checkpoint the other closure saved in between. The identity guard does not
+// catch this and is not meant to: both closures hold the SAME record's id, so this is one round's own
+// writers disagreeing about its contents, not a discarded round coming back. Production never reaches
+// this ordering: every start calls loadSession() and setPlayers() back-to-back inside one handler
 // (game/[id].astro:50-51), so nothing can land between a closure's creation and its own setPlayers.
 // This test exists so that if that adjacency is ever broken, this is the failure that fires.
 test('a checkpoint writer landing between a closure\'s creation and its own setPlayers drops it', () => {
@@ -211,12 +214,13 @@ test('a discard is final — a write racing in through a stale session closure m
 // order of calls on the loadSession() closure surface, and the two axes that decide the outcome:
 //
 //   1. was the closure created BEFORE or AFTER the discard   (stale vs fresh)
-//   2. had it already spent its first setPlayers before the discard   (mayCreate, session.ts:81)
+//   2. is there a record in the slot when it writes, and is it the SAME one   (identity, session.ts)
 //
-// The guard protects STALE closures, not all post-discard creation — a fresh closure creating after a
-// discard is a new round starting, and refusing that would break every start. Each test below names
-// which quadrant it is in. slots.size stays the detector: it is the whole of storage, so it reads raw
-// record presence, which checkpoint: null cannot (see the block header above).
+// Both axes are now one question, which is the point of the identity guard: a closure may write only
+// the record it is talking about. Stale-vs-absent and stale-vs-newer are both refusals; a fresh
+// closure creating after a discard is a new round starting, and refusing that would break every
+// start. Each test below names which quadrant it is in. slots.size stays the detector: it is the
+// whole of storage, so it reads raw record presence, which checkpoint: null cannot (see above).
 
 // FRESH closure. The anti-over-fix control for the whole guard: "no create after a discard" would be a
 // WRONG invariant, and this is the test that would catch someone asserting it. Reachable constantly in
@@ -238,11 +242,11 @@ test('fresh closure: a discard does not stop the NEXT round from being created',
   assert.equal(loadSession().checkpoint, null, 'the new round inherited the discarded round\'s checkpoint');
 });
 
-// FRESH-THEN-STALE. "Fresh" is not a property a closure keeps: mayCreate is one-shot per closure, so
-// the closure that legitimately created the second round is itself stale once THAT round is discarded.
-// This is the ordering that proves the guard is per-closure-first-call and not "anything after the
-// first discard is refused" — two discards, and the same closure is on the allowed side of one and the
-// refused side of the other.
+// FRESH-THEN-STALE. "Fresh" is not a property a closure keeps: creating a round is what gives a
+// closure its identity, so the closure that legitimately created round 2 holds round 2's identity and
+// is itself stale once THAT round is discarded. This is the ordering that proves the guard tracks
+// which record a closure owns and is not "anything after the first discard is refused" — two
+// discards, and the same closure is on the allowed side of one and the refused side of the other.
 test('a closure that legitimately created after one discard is stale after the next', () => {
   slots.clear();
   loadSession().setPlayers(['Alice', 'Bob']);
@@ -267,15 +271,14 @@ test('a closure that legitimately created after one discard is stale after the n
   );
 });
 
-// Boundary pin, NOT an endorsement — this ordering resurrects the discarded round, checkpoint and all.
-// mayCreate is still true, because the closure never spent its first setPlayers before the discard.
-// Unreachable today for one reason only: src has exactly two setPlayers callers — game/[id].astro:51,
-// which runs sync on the line after its own loadSession() (:50), and siamsi.ts:344, which is always a
-// SECOND call on that same closure. PlayerSetup holds closures (:130, :295) but never calls setPlayers.
-// The fact that would change this: any new caller that lets a suspend — an await, a click handler, a
-// promise — sit between loadSession() and that closure's FIRST setPlayers. Then this test is the live
-// ADR-0008 violation it is currently only describing, and it should be made to fail.
-test('unguarded: a closure whose FIRST setPlayers lands after the discard re-creates the round', () => {
+// STALE, first setPlayers unspent. Was a boundary pin describing a hole; the identity guard closes it.
+// The closure loaded the record, so it captured that record's id — spending its first setPlayers is
+// irrelevant now, what it holds is an id for a record that no longer exists, and captured-id vs absent
+// is a refusal. Still unreachable in production (src has exactly two setPlayers callers:
+// game/[id].astro:51, sync on the line after its own loadSession() at :50, and siamsi.ts:344, always a
+// SECOND call on that same closure), so this pins the guard for the day a caller lets an await sit
+// between loadSession() and its FIRST setPlayers — the ordering that used to resurrect the round.
+test('a closure whose FIRST setPlayers lands after the discard is refused — its record is gone', () => {
   slots.clear();
   const shell = loadSession();
   shell.setPlayers(['Alice', 'Bob']);
@@ -286,27 +289,24 @@ test('unguarded: a closure whose FIRST setPlayers lands after the discard re-cre
   assert.equal(slots.size, 0);
 
   pending.setPlayers(['Alice', 'Bob']);
-  assert.equal(slots.size, 1, 'behaviour changed — an unspent first setPlayers is now refused');
+  assert.equal(slots.size, 0, 'an unspent first setPlayers re-created the record the player discarded');
   assert.equal(
     planStart(loadSession().checkpoint, 'siamsi'),
-    'ask',
-    'the discarded round came back with it, and the panel would offer to resume it',
+    'start',
+    'the panel offered to resume a round the player discarded — ADR-0008 says a discard is final',
   );
 });
 
-// Boundary pin, NOT an endorsement — the same resurrection through the other door. The refusal is
-// write()'s existence check (session.ts:54), which asks "is there a record" and not "is this closure
-// still entitled to write". So once ANY record exists again, a stale closure is unblocked and writes
-// its pre-discard snapshot over it — the discarded checkpoint returns and the new round's roster is
-// gone. That existence-only test is deliberate (session.ts:76-79): #20's refresh-resume needs a later
-// setPlayers to keep updating a record that is still there. What makes it hard to reach is not the
-// reload — that is a macrotask away (session.ts:41), which is the whole premise of F1 — it is that the
-// only creator is watduang:start → game/[id].astro:51, and that needs a SECOND gesture: a tap on
-// เริ่มรอบ landing inside the same pre-reload window as the ล้างและทิ้งรอบที่ค้าง tap that opened it
-// (PlayerSetup.astro:304 → :310). Two gestures in one macrotask window, not one.
-// The fact that would change this: any creation that does not need a fresh user gesture — a client
-// router replacing the reload, an auto-start, or a queued watduang:start replayed after the clear.
-test('unguarded: once a new record exists, a stale closure writes its discarded snapshot into it', () => {
+// STALE, record re-exists — the same resurrection through the other door, and the reason the guard
+// had to become identity-based. An existence check asks "is there a record" and not "is this closure
+// still entitled to write", so once ANY record existed again a stale closure was unblocked and wrote
+// its pre-discard snapshot over it: the discarded checkpoint back, the new round's roster gone. The
+// identity a closure captured is the difference — round 2 minted its own, so the stale closure's id
+// no longer matches what is in the slot. #20's refresh-resume is unaffected: a closure updating the
+// record it is actually talking about still matches (see the anti-over-fix control above).
+// All three writers route through the same chokepoint, so the refusal covers the sibling callers the
+// old check left open too — timebomb.ts:230 (markPlayed) and siamsi.ts:283 (saveCheckpoint).
+test('once a new record exists, a stale closure cannot write its discarded snapshot into it', () => {
   slots.clear();
   loadSession().setPlayers(['Alice', 'Bob']);
   const game = loadSession();
@@ -315,18 +315,128 @@ test('unguarded: once a new record exists, a stale closure writes its discarded 
 
   loadSession().clear();
   const round2 = loadSession();
-  round2.setPlayers(['เอ', 'บี']); // a new round is created — the existence check now passes again
+  round2.setPlayers(['เอ', 'บี']); // a new round is created, with an identity of its own
   assert.equal(loadSession().checkpoint, null);
 
-  game.setPlayers(['Alice', 'Bob']); // stale, create = false, but the record is there so write() lets it
+  game.setPlayers(['Alice', 'Bob']); // stale identity vs round 2's — the record exists, but not its record
   assert.deepEqual(
     loadSession().players,
-    ['Alice', 'Bob'],
-    'behaviour changed — a stale closure no longer overwrites a record it did not create',
+    ['เอ', 'บี'],
+    'a stale closure overwrote the roster of a round it did not create',
   );
+  game.saveCheckpoint(midRound(19)); // siamsi.ts:283, same chokepoint
+  game.markPlayed('siamsi'); // timebomb.ts:230, same chokepoint
+  assert.deepEqual(loadSession().played, [], 'a stale markPlayed landed on the new round');
   assert.equal(
     planStart(loadSession().checkpoint, 'siamsi'),
-    'ask',
+    'start',
     'the discarded round rode back in on the stale snapshot, over the top of the new round',
   );
+});
+
+// Preserved behaviour, now pinned: identity decides WHICH record a closure may write, and setPlayers
+// is still the only writer allowed to bring one into being. games/_template.ts:29-31 documents that
+// contract to every future game ("a checkpoint saved before setPlayers silently does nothing"), and
+// PlayerSetup.astro:141 leans on it — discard-then-start calls saveCheckpoint(null) on a panel closure
+// before any round exists, and that must not leave an empty record behind.
+test('only setPlayers creates: a checkpoint or markPlayed before any start writes nothing', () => {
+  slots.clear();
+  const session = loadSession();
+
+  session.saveCheckpoint(midRound(7));
+  assert.equal(slots.size, 0, 'saveCheckpoint created a record before any round had started');
+  session.markPlayed('siamsi');
+  assert.equal(slots.size, 0, 'markPlayed created a record before any round had started');
+
+  // positive control: the same closure, same empty slot — setPlayers can create, so the two refusals
+  // above are a refusal and not a harness that could never write.
+  session.setPlayers(['Alice', 'Bob']);
+  assert.equal(slots.size, 1);
+  assert.deepEqual(loadSession().players, ['Alice', 'Bob']);
+});
+
+// A record persisted before identities existed. sessionStorage keeps it for the whole 6h window, so
+// on the deploy that adds the field there are live sessions in exactly this shape — mid-round, mid-tab.
+// It is seeded straight into the Map on purpose: writing it through loadSession() would stamp it with
+// the very identity this test says is missing. A record with no identity matches every closure (that
+// is the pre-identity, existence-based behaviour) — but it must not hand one a create capability.
+test('legacy record with no identity: a closure loaded off it still writes, and still loses it on clear', () => {
+  slots.clear();
+  slots.set(
+    'watduang:session',
+    JSON.stringify({ players: ['Alice', 'Bob'], played: [], checkpoint: midRound(7), stamp: Date.now() }),
+  );
+
+  const game = loadSession();
+  assert.equal(game.checkpoint.phase, 'drawn', 'a legacy record must still load');
+  game.setPlayers(['เอ', 'บี']); // siamsi.ts:344 on resume, mid-window
+  assert.deepEqual(loadSession().players, ['เอ', 'บี'], 'refresh-resume broke for sessions that predate the field');
+  assert.equal(loadSession().checkpoint.phase, 'drawn', 'and it dropped the round it just resumed');
+
+  loadSession().clear();
+  game.setPlayers(['เอ', 'บี']);
+  assert.equal(slots.size, 0, 'a legacy closure re-created the record the player discarded');
+});
+
+// write() swallows a throwing setItem on purpose — Safari private mode and a full quota must not take
+// the page down, the session just stays in memory. The identity must be committed only AFTER setItem
+// returns, or that swallow turns into a permanent one: the closure would hold an id no record carries,
+// and every later write would compare it against an empty slot and refuse forever.
+test('a setItem that throws mints nothing — the closure can still write once storage comes back', () => {
+  slots.clear();
+  const realSetItem = sessionStorage.setItem;
+  sessionStorage.setItem = () => {
+    throw new Error('QuotaExceededError');
+  };
+
+  const game = loadSession();
+  game.setPlayers(['Alice', 'Bob']); // swallowed: nothing persisted, so nothing may be claimed either
+  assert.equal(slots.size, 0);
+
+  sessionStorage.setItem = realSetItem;
+  game.setPlayers(['Alice', 'Bob']);
+  assert.equal(slots.size, 1, 'a failed write left the closure holding an identity no record carries');
+  assert.deepEqual(loadSession().players, ['Alice', 'Bob']);
+});
+
+// F2 — an aged record must refuse a write, not resurrect it. read() already reports an aged record as
+// empty (readRaw()'s aging check, session.ts:32); the OLD write() disagreed — it only checked the key's
+// existence, so a save on a record older than MAX_AGE_MS still persisted and refreshed the stamp. That
+// disagreement was the bug: MAX_AGE_MS means gone, and write() must agree with read() about it.
+//
+// slots.size cannot detect this: the aged record is still one string in the map, before and after a
+// refused write. Byte-identity of the stored value is the observable that discriminates a real refusal
+// from a no-op that still touched storage — seeded directly into slots, same idiom as the legacy-record
+// test above, so the record carries an age no closure minted it with.
+test('an aged record refuses write() and read() reports it empty — MAX_AGE_MS means both agree', () => {
+  slots.clear();
+  const agedStamp = Date.now() - 7 * 60 * 60 * 1000; // > MAX_AGE_MS (6h)
+  slots.set(
+    'watduang:session',
+    JSON.stringify({ id: 'r1', players: ['Alice', 'Bob'], played: [], checkpoint: midRound(7), stamp: agedStamp }),
+  );
+  const before = slots.get('watduang:session');
+
+  const game = loadSession();
+  // read() half: an aged record loads as if it were not there at all.
+  assert.equal(game.checkpoint, null, 'an aged record must load as empty, not the stale checkpoint');
+  assert.deepEqual(game.players, []);
+
+  // write() half: a non-creating writer must refuse rather than persist over an aged record.
+  game.saveCheckpoint(midRound(19));
+  assert.equal(slots.get('watduang:session'), before, 'saveCheckpoint on an aged record must not persist');
+  assert.equal(loadSession().checkpoint, null, 'read() must still report the aged record empty after the refusal');
+
+  game.markPlayed('siamsi'); // same chokepoint as saveCheckpoint
+  assert.equal(slots.get('watduang:session'), before, 'markPlayed on an aged record must not persist');
+
+  // Anti-over-fix control: setPlayers is the one creator, and an aged record must not block a start
+  // (session.ts:26) — only non-creating writers refuse.
+  game.setPlayers(['เอ', 'บี']);
+  assert.notEqual(
+    slots.get('watduang:session'),
+    before,
+    'setPlayers must still be able to start a fresh round over an aged record',
+  );
+  assert.deepEqual(loadSession().players, ['เอ', 'บี']);
 });
