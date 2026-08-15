@@ -12,7 +12,26 @@ Window: **N=1** (one live entry in `SESSION-HANDOFF.md`; older entries roll here
 
 
 <!-- Keep entry ids out of this prose. Roll verification asserts the archive holds exactly one
-     copy of a rolled header, and a stray mention here would make that assert lie. -->### S2026-08-15#1
+     copy of a rolled header, and a stray mention here would make that assert lie. -->
+
+### S2026-08-15#2
+
+done: **F1 fixed, `4b14565`** — a late `setPlayers` could resurrect a discarded record. `65d3d3c` closed that window for `#ss-draw`/`#ss-pass`; the resume path (`siamsi.ts:344`, split from its closure by `await load()` at `[id].astro:56`) was the sibling caller it missed. Guard = per-closure `mayCreate` in `loadSession()`: only the first `setPlayers` creates, later ones inherit `write()`'s existence refusal. `siamsi.ts` untouched. **Mechanism = call ordinality within one closure** — the flag refuses nothing itself and does NOT detect `clear()`; safety rests on `[id].astro:50-51` being the first `setPlayers` on every closure a game gets. Proof: F1 ordering red→green · anti-over-fix control (#20's refresh-resume must still update) · positive control vs `65d3d3c^`. 83/83 · tsc 0 · build 0 · #26 (closed) · ADR-0010 · **`ab52d9d`** — ADR-0010's clobber claim scored REFUTED at claim scope only; 2 REFUTE rounds each killed a real defect (R1: stated mechanism false — `setPlayers` writes the load-time snapshot `session.ts:67,70`, only existence re-read `:53`; R2: adjacency is not universal → became F1) · ADR-0010 Context citations re-verified, **8 of 13 had drifted** when `65d3d3c` reshaped `siamsi.ts` · `player-select.ts` Thai comments → English, Thai string literals byte-identical · #20 DoD box ticked w/ `evidence/20/01-*` (1/1) · #24 comment posted · shellcheck clean on `site-owner-wizard.sh`
+
+dec: **`65d3d3c`'s browser harness is NOT in the tree** — it lived under `.claude/worktrees/`, gitignored by that same commit; runnable descendant = the ADR-0008 block in `session.test.mjs`. Evidence kept outside the repo does not survive its session · did NOT spot-fix `session.ts` when R1 surfaced it — those semantics were stabilized by a 12/12 repro; fixed only once chosen, with the positive control mandatory · #26 filed AND closed same session (fix shipped; left open it would read as pending at RH) · ADR-0010's decision (defer per-game keying) untouched and standing
+
+next:
+- [x] F1's browser race window — **superseded. Do NOT run the CDP probe.** The old DoD ("a CDP run shows the interleaving or proves it unreachable") was unreachable on both branches: the interleaving set is owned by the browser scheduler + HTML navigation queue, so sampling it never converges, and "prove it unreachable" targets a false statement — `session.ts:41` already records that `location.reload()` is a macrotask away, i.e. the race is spec-**permitted**. Replaced by ordering enumeration at the `loadSession()` seam (`session.test.mjs` +4, 83→87): 2 of 4 orderings are unguarded and now pinned by tests, both unreachable in production today by call-site accident, not by construction. Full record + the facts that would invert it: ADR-0010 § Finding S2026-08-15#3. `evidence/20/01-*` re-captured against HEAD — ADR-0009 provenance gap closed.
+- [ ] deploy chain — `bash scripts/site-owner-wizard.sh` §1/§2/§4, owner-run · unblocks 4 ad-slot boxes (#15-#18) + #13's real-device box · `--check` exits 0 (verified this session)
+- [ ] `docs/agents/triage-labels.md` is stale — claims the labels don't exist and "no repo exists"; both false, `gh label list` returns all 10 · done when it matches `gh`
+- [ ] owner glance: Thai failed-resume string on `siamsi.ts` (compliant, unreviewed)
+- [ ] #12 seeds ready; the measurement itself is owner-run (Google Ads login)
+
+inflight: measured at save — `ab52d9d` · `4b14565` · this save commit, all on `main`; push runs immediately after this commit · open PRs: checked, none · GitHub writes: #20 body edit, #24 comment, #26 create+close · 8 subagents returned, 0 escalations
+
+spent: queue 7→5 · batches 3
+
+### S2026-08-15#1
 
 done: **stale-closure checkpoint bug found + fixed, `65d3d3c`** (13 files, +607/−85) — a discarded round could come back: `loadSession()` hands out independent closures over one key, so a `#ss-draw`/`#ss-pass` click between `clear()`'s `removeItem` and `location.reload()` re-wrote the checkpoint via the game's stale `ctx.session`; after reload เริ่มรอบ offered กลับไปเล่นรอบที่ค้าง for the round just discarded. **Reproduced 12/12**, 3 write paths, positive+negative controls → **0/12 after**. Fix = `session.ts` `write(stored, create=false)`, never create only update; `setPlayers` is sole creator and always runs first (`[id].astro:50-51`, `siamsi.ts:344`). Regression detector is **raw record presence, NOT the checkpoint field** — one variant revives the record with `checkpoint:null`, indistinguishable from absent through `loadSession()` · **#16-08 ticked → 37 of 41** (`evidence/16/08-*`; identity by unique TEXT match + all-other-boxes-identical, asserted before AND after) · **#20's last DoD box proven** (`evidence/20/01-*`; mid-round state identical across refresh — plain reload does NOT auto-resume, เริ่มรอบ raises `#resume-choice`, both correct per ADR-0008) · `siamsi.ts` +holder-vs-`results.length` invariant +non-silent failed resume · `_template.ts` +shared-slot warning · `site-owner-wizard.sh` 16 owner steps · `keyword-planner-seeds.md` 11 items ×2 Thai seeds, zero invented volumes · Thai→English in 5 files · verified 79/79 · tsc 0 · build 0
 
