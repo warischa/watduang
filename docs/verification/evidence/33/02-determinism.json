@@ -1,0 +1,33 @@
+{
+  "box": "daily-fortune (/game/daily-fortune/) — determinism proven in a live browser, not just in Node: same name -> same fortune across a real page reload; different names -> generally different fortunes; still identical after a further reload",
+  "method": "scripts/driver.mjs, one CDP tab, real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), against a real build. Ran 7 attempts, each attempt a FULL session.nav(url) reload (a real Page.navigate, not a cached DOM node), followed by an on-origin storage wipe, remounting the game via #player-count=2 + #start-numbered click, then typing the given name into #df-name (real 'input' event) and clicking #df-go. Order: ก้อง, ฟ้า, ตูน, แนน, บอส, ก้อง, ก้อง -- the first and last ก้อง entries are separated by 5 other reloads/mounts/submits, so a repeated hit is not reading a leftover DOM node. Captured the fortune <p> (3rd paragraph on the result screen) AND the date paragraph (1st paragraph, 'ดวงประจำวันที่ ...') on every attempt, specifically to catch a Bangkok-midnight straddle (see boundary note below) rather than mis-attribute a legitimate day-rollover as a determinism bug.",
+  "capturedAtCommit": "bba2b11",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M docs/adr/0011-the-content-library-unlocks-by-risk-class-not-wholesale.md', ' M src/games/manifest.ts', '?? public/og/daily-fortune.png', '?? src/games/daily-fortune.test.mjs', '?? src/games/daily-fortune.ts'. The capture reflects the tree as it stood at run time, including the untracked daily-fortune.ts/test/og files this box exists to prove.",
+  "verdict": "PROVEN",
+  "sameNameSameFortune": true,
+  "distinctFortunesAcrossDifferentNames": true,
+  "identicalAfterFurtherReload": true,
+  "bangkokMidnightBoundaryNote": {
+    "crossingInstantUTC": "2026-08-15T17:00:00Z",
+    "crossingNote": "Asia/Bangkok rolled from 2026-08-15 to 2026-08-16 at this instant, moments before this walk began (system clock read Sun Aug 16 00:0x +07 2026 at capture time). This is a documented, accepted boundary in the spec (gh issue view 33, 'Known boundary, accepted') -- the fortune for every name is DESIGNED to change at Bangkok midnight because nothing is stored to pin it.",
+    "sampleWindow": "All 7 attempts ran within the first ~15 seconds of 2026-08-16 Bangkok time -- entirely AFTER the crossing, none before it and none straddling it.",
+    "dateLinesObservedAcrossAllAttempts": ["ดวงประจำวันที่ 16 สิงหาคม 2569"],
+    "straddledDay": false,
+    "conclusion": "The verdict above rests only on samples within a single Bangkok day (2026-08-16). A run that straddled the boundary would have shown two different date lines and a legitimate fortune change for a repeated name -- that is not what happened here; every date line read identically across all 7 attempts."
+  },
+  "observation": {
+    "attempts": [
+      { "name": "ก้อง", "dateLine": "ดวงประจำวันที่ 16 สิงหาคม 2569", "fortuneText": "วันนี้ร่างกายจะบอกว่าเหนื่อยก่อนที่ใจจะยอมรับ" },
+      { "name": "ฟ้า", "dateLine": "ดวงประจำวันที่ 16 สิงหาคม 2569", "fortuneText": "มีเกณฑ์ได้ข่าวดีจากคนไกล ช่วงบ่ายเป็นต้นไป" },
+      { "name": "ตูน", "dateLine": "ดวงประจำวันที่ 16 สิงหาคม 2569", "fortuneText": "วันนี้เหมือนเดินสวนทางกับดวงตัวเอง อะไรที่เคยง่ายจะกลายเป็นยาก" },
+      { "name": "แนน", "dateLine": "ดวงประจำวันที่ 16 สิงหาคม 2569", "fortuneText": "วันนี้จะมีเรื่องกวนใจตอนสาย แต่พอถึงเย็นก็ลืมไปแล้ว" },
+      { "name": "บอส", "dateLine": "ดวงประจำวันที่ 16 สิงหาคม 2569", "fortuneText": "วันนี้ความคิดแล่นกว่าปกติ ไอเดียที่ตันมานานจะโผล่มาเอง" },
+      { "name": "ก้อง", "dateLine": "ดวงประจำวันที่ 16 สิงหาคม 2569", "fortuneText": "วันนี้ร่างกายจะบอกว่าเหนื่อยก่อนที่ใจจะยอมรับ" },
+      { "name": "ก้อง", "dateLine": "ดวงประจำวันที่ 16 สิงหาคม 2569", "fortuneText": "วันนี้ร่างกายจะบอกว่าเหนื่อยก่อนที่ใจจะยอมรับ" }
+    ],
+    "distinctFortunesAcross5DistinctNames": 5,
+    "note_onCollisions": "All 5 distinct names (ก้อง, ฟ้า, ตูน, แนน, บอส) produced 5 distinct fortunes on 2026-08-16 -- zero collisions this run. The brief already notes a 53-item pool makes collisions expected and not a failure; this run simply did not hit one."
+  },
+  "note": "Determinism held across a real full-page reload (session.nav = Page.navigate, not a cached tab) for the same name 3 separate times, spread across an interleaved run with 5 other names/reloads in between -- and it held again on the final attempt, which is the 'reload and re-enter the same name' check the brief asks for explicitly.",
+  "consoleErrors": []
+}

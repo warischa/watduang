@@ -64,6 +64,32 @@ Every constraint on content that is ever unlocked stays in force, verbatim from 
 These are conditions on writing content at all, not on the dare library specifically. Rows 6 and 7
 are unlocked subject to them.
 
+### The advice-register rule (added 2026-08-15, rows 6 and 7)
+
+Fortune text has its own risk class, and it is not the dare library's. Recorded here because the
+unlock above is the first time this project writes any:
+
+> **Fortune text stays in horoscope register.** It may urge what horoscopes have always urged —
+> patience, kindness, holding your tongue, walking away from an argument. It may **not** name a
+> concrete medical, financial, or legal act to take or avoid: no `ควรลงทุน…`, no `หยุดยา…`,
+> no `ไปฟ้อง…`. The test is whether an item names such an act, not whether it urges anything at
+> all. When in doubt, cut.
+
+This wording is the second attempt. The first read "describes ดวง, it never prescribes action",
+which was two rules of different width in one sentence: three items in row 6's own pool
+(`พูดสิ่งที่อยากพูดออกไปแล้วจะโล่งใจ`, `เดินเลี่ยงดีกว่าเถียง`, `ช้าลงสักหน่อยแล้วจะรอด`) urge generic action while
+naming no medical, financial, or legal act. Under the broad reading a reviewer would have had to
+cut three harmless lines; under the narrow one the broad sentence was dead text. A rule that admits
+both readings decides nothing, so the narrow clause is now the operative test and the generic case
+is admitted explicitly.
+
+This is why row 6 ships as a flat pool rather than split by aspect. การเงิน and สุขภาพ sections are
+exactly where advice-register text leaks in, and a ความรัก section would also cannibalise row 7's
+own page — the self-competition [ADR-0002](0002-siamsi-is-the-eighth-game.md) forbids. Aspect pages
+remain available later as separate search intents under
+[ADR-0001](0001-category-means-search-intent.md), as new games with their own unlocks, not as
+sections of this one.
+
 ## The fact that would change this
 
 Evidence that fortune text carries a policy risk we have not modelled — for example an AdSense

@@ -1,0 +1,34 @@
+{
+  "box": "daily-fortune (/game/daily-fortune/) — renderAsk -> enter name -> submit -> reveal -> renderResult, walked end to end in a real browser (mount() had never executed in any engine before this run)",
+  "method": "scripts/driver.mjs, one CDP tab, real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), against a real build (npm run build + npx serve dist/ -l 4321). Navigated to http://localhost:4321/game/daily-fortune/, wiped storage on-origin (never about:blank) and verified localStorage.length === 0 / sessionStorage.length === 0 after the wipe. Mounted the game through the real UI: set #player-count to 2 (this game's own min), clicked #start-numbered (dispatches watduang:start with ['คนที่ 1','คนที่ 2'], which src/pages/game/[id].astro's listener turns into game.mount(stage, ctx)). Calibrated the result-screen detector BEFORE submitting (trap 2 in docs/agents/browser-verification.md: 'stage has non-empty text' is true on the ask screen too, so it proves nothing) -- read #df-again/#df-name presence on the ask screen and asserted the discriminating pair is false/true respectively, THEN typed the real Thai name 'ก้อง' into #df-name (dispatching a real 'input' event) and clicked #df-go (the actual submit path, not a synthetic form.submit()), then re-read the same pair after. The fortune line has no id, so it was selected as the <p> whose inline style matches FORTUNE_STYLE (contains both 'overflow-wrap:anywhere' and 'clamp(').",
+  "capturedAtCommit": "bba2b11",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M docs/adr/0011-the-content-library-unlocks-by-risk-class-not-wholesale.md', ' M src/games/manifest.ts', '?? public/og/daily-fortune.png', '?? src/games/daily-fortune.test.mjs', '?? src/games/daily-fortune.ts'. The capture reflects the tree as it stood at run time, including the untracked daily-fortune.ts/test/og files this box exists to prove.",
+  "verdict": "PROVEN",
+  "flowReachesResult": true,
+  "askScreenUsable": true,
+  "fortuneLineNonEmpty": true,
+  "stageNeverBlank": true,
+  "consoleErrorsEmpty": true,
+  "observation": {
+    "wipeVerified": { "ls": 0, "ss": 0 },
+    "askScreenDetector": {
+      "hasNameInput": true,
+      "hasGoButton": true,
+      "hasAgainButton": false,
+      "stageText": "ส่งมือถือให้เจ้าตัวพิมพ์ชื่อเอง แล้วกดดูดวงวันนี้ดูดวงวันนี้หรือแตะชื่อในวงได้เลยคนที่ 1คนที่ 2"
+    },
+    "resultScreenDetector": {
+      "hasNameInput": false,
+      "hasAgainButton": true
+    },
+    "fortuneText_forKong_on_2026-08-16": "วันนี้ร่างกายจะบอกว่าเหนื่อยก่อนที่ใจจะยอมรับ",
+    "resultScreenAllParagraphs": [
+      "ดวงประจำวันที่ 16 สิงหาคม 2569",
+      "ดวงวันนี้ของ ก้อง",
+      "วันนี้ร่างกายจะบอกว่าเหนื่อยก่อนที่ใจจะยอมรับ",
+      "กดกี่ครั้งวันนี้ก็ได้ดวงเดิม พรุ่งนี้ค่อยมาดูใหม่ เดี๋ยวดวงเปลี่ยน"
+    ]
+  },
+  "note": "Both screens rendered non-empty markup in a real page (mount() executing for the first time in any engine, per the brief). #df-name + #df-go present and #df-again absent on the ask screen; the reverse (#df-again present, #df-name absent) after submit -- consistent with renderResult's stage.replaceChildren() call. Fortune quoted verbatim above is the exact string returned by fortuneFor('ก้อง', '2026-08-16') as rendered live in the DOM.",
+  "consoleErrors": []
+}

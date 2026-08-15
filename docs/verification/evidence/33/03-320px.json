@@ -1,0 +1,29 @@
+{
+  "box": "daily-fortune (/game/daily-fortune/) — 320px viewport, ask screen and result screen (worst-case fortune lines), nothing overflows horizontally",
+  "method": "scripts/driver.mjs, one CDP tab, real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), against a real build (npm run build + npx serve dist/ -l 4321). Navigated to http://localhost:4321/game/daily-fortune/, wiped storage on-origin, Emulation.setDeviceMetricsOverride to 320x700 via session.setWidth, confirmed innerWidth read back as 320 (not a --window-size flag, which does not reflow). Before driving the browser, brute-forced the worst-case fortune lines OFFLINE in node against the real pool (node -e importing daily-fortune.ts directly, node 22's native TS support): worst by longest unbroken whitespace-free run = pool item 37 (56 chars, matches the brief's '56-character unbroken run' exactly), worst by total length = pool item 28 (69 chars, matches the brief's '69 characters' exactly). Then brute-forced short candidate names ('n'+integer) against fortuneFor(name, bangkokDate()) for TODAY's Bangkok date (2026-08-16) until one hashed to each target line: 'n8' -> the 56-char-run line, 'n29' -> the 69-char-total line. Measured document.documentElement.scrollWidth/clientWidth, counted elements whose getBoundingClientRect().right exceeds clientWidth+0.5, and read the fortune paragraph's own bounding box, for the ask screen and both worst-case result screens.",
+  "capturedAtCommit": "bba2b11",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M docs/adr/0011-the-content-library-unlocks-by-risk-class-not-wholesale.md', ' M src/games/manifest.ts', '?? public/og/daily-fortune.png', '?? src/games/daily-fortune.test.mjs', '?? src/games/daily-fortune.ts'. The capture reflects the tree as it stood at run time, including the untracked daily-fortune.ts/test/og files this box exists to prove.",
+  "verdict": "PROVEN",
+  "innerWidthConfirmed320": true,
+  "noHorizontalOverflow": true,
+  "observation": {
+    "innerWidth": 320,
+    "askScreen": { "scrollWidth": 320, "clientWidth": 320, "overflowingElements": 0 },
+    "resultScreen_worstByUnbrokenRun": {
+      "nameUsed": "n8",
+      "fortuneText": "มีของบางอย่างในบ้านที่วันนี้จะทำให้นึกถึงคนคนหนึ่งขึ้นมา",
+      "fortuneCharLength": 56,
+      "fortuneBoundingBox": { "x": 8, "y": 216.875, "width": 304, "height": 62.5625, "right": 312, "left": 8 },
+      "scrollWidth": 320, "clientWidth": 320, "overflowingElements": 0
+    },
+    "resultScreen_worstByTotalLength": {
+      "nameUsed": "n29",
+      "fortuneText": "เรื่องเก่าจะย้อนกลับมาให้คิดถึงอีกครั้ง จะยิ้มหรือถอนหายใจก็แล้วแต่ใจ",
+      "fortuneCharLength": 69,
+      "fortuneBoundingBox": { "x": 8, "y": 216.875, "width": 304, "height": 62.5625, "right": 312, "left": 8 },
+      "scrollWidth": 320, "clientWidth": 320, "overflowingElements": 0
+    }
+  },
+  "note": "This is the brief's named risk (overflow-wrap:anywhere was inferred, never measured) -- both worst-case lines, selected offline by brute force rather than by whatever ก้อง happened to hash to, wrapped inside a 304px-wide box (viewport 320 minus the stage's 8px margins each side) with bounding-box right edge at 312 < 320 and zero overflowing elements. scrollWidth === clientWidth === innerWidth === 320 on the ask screen and both result screens.",
+  "consoleErrors": []
+}

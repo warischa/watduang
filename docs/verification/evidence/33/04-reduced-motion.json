@@ -1,0 +1,27 @@
+{
+  "box": "daily-fortune (/game/daily-fortune/) — implementer's claim 'this game adds no animation at all, so no guard exists' verified rather than trusted, in both prefers-reduced-motion states",
+  "method": "Two separate real headless Chrome launches (docs/agents/browser-verification.md's documented mechanism, not Emulation.setEmulatedMedia): plain launch on port 9222 (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222) and a second launch on port 9223 identical except --force-prefers-reduced-motion, each its own --user-data-dir. Same scripts/driver.mjs script run against both via CDP_PORT=9222 / CDP_PORT=9223, against the same real build served by npx serve dist/ -l 4321. Each run: navigated to /game/daily-fortune/, wiped storage on-origin, confirmed matchMedia('(prefers-reduced-motion: reduce)').matches actually flipped between ports, read document.getAnimations().length on the ask screen and again after mounting + submitting a real name ('ก้อง') on the result screen. Because document.getAnimations() only reports CURRENTLY RUNNING animations and would miss a hover/focus-triggered CSS transition sitting dormant in a static sample, also computed-style-scanned every node under #stage for a non-'none' animation-name or a non-zero transition-duration on both screens, in both media states -- this is what the brief's 'if you find any animation or CSS transition reaching this page' asks for beyond a bare getAnimations() call.",
+  "capturedAtCommit": "bba2b11",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M docs/adr/0011-the-content-library-unlocks-by-risk-class-not-wholesale.md', ' M src/games/manifest.ts', '?? public/og/daily-fortune.png', '?? src/games/daily-fortune.test.mjs', '?? src/games/daily-fortune.ts'. The capture reflects the tree as it stood at run time, including the untracked daily-fortune.ts/test/og files this box exists to prove.",
+  "verdict": "PROVEN",
+  "matchMediaFlipVerifiedBothWays": {
+    "plainLaunch_port9222": { "reducedMotionMatches": false },
+    "forcedFlagLaunch_port9223": { "reducedMotionMatches": true }
+  },
+  "noAnimationsPresent": true,
+  "resultReadableBothStates": true,
+  "observation": {
+    "reducedMotionOff_port9222": {
+      "askScreen": { "runningAnimations": 0, "cssTransitionOrAnimationSuspectsUnderStage": [] },
+      "resultScreen": { "runningAnimations": 0, "cssTransitionOrAnimationSuspectsUnderStage": [] },
+      "resultStageTextNonEmpty": true
+    },
+    "reducedMotionOn_port9223": {
+      "askScreen": { "runningAnimations": 0, "cssTransitionOrAnimationSuspectsUnderStage": [] },
+      "resultScreen": { "runningAnimations": 0, "cssTransitionOrAnimationSuspectsUnderStage": [] },
+      "resultStageTextNonEmpty": true
+    }
+  },
+  "note": "The implementer's claim held under an active check, not by trust: zero running animations AND zero elements under #stage carrying a non-none computed animation-name or non-zero transition-duration, on both screens, in both media states -- with the exact same DOM path producing readable, non-empty result text in both. Per docs/agents/browser-verification.md's own rule ('A page with no animation at all is N/A, not pass -- recording a non-existent animation as a passing accessibility check is a lie in the tracker'), the invariant this box actually proves is narrower than 'the reduced-motion guard works': it is 'no animation or CSS transition reaches this page, in either media state, verified rather than assumed' -- there is nothing here for a reduced-motion guard to gate, and none exists, which is consistent with the source (src/games/daily-fortune.ts has no node.animate()/CSS animation/transition anywhere in its inline styles).",
+  "consoleErrors": []
+}
