@@ -19,7 +19,7 @@ The map is **issue #1** (`wayfinder:map`) with 11 sub-issues. All 10 labels exis
 | 04 | #5 | grilling | closed |
 | 05 | #6 | grilling | closed |
 | 06 | #7 | prototype | closed |
-| 07 | #8 | grilling | **open** |
+| 07 | #8 | grilling | closed |
 | 08 | #9 | task | **open** |
 | 09 | #10 | grilling | closed |
 | 10 | #11 | grilling | closed |

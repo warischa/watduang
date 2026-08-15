@@ -1,0 +1,33 @@
+{
+  "box": "short-stick (/game/short-stick/) — WAAPI reveal animation guarded by prefers-reduced-motion, proven both ways",
+  "method": "Two separate real headless Chrome launches (docs/agents/browser-verification.md's documented mechanism, not Emulation.setEmulatedMedia): plain launch on port 9222 (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222) and a second launch on port 9223 identical except --force-prefers-reduced-motion, each with its own --user-data-dir. Same scripts/driver.mjs script run against both via CDP_PORT=9222 / CDP_PORT=9223, against the same real build served by npx serve dist/ -l 4321. Each run: navigated to /game/short-stick/, wiped storage on-origin, read matchMedia('(prefers-reduced-motion: reduce)').matches to confirm the flag actually flipped, started a 4-player round (start-numbered), then repeatedly clicked the next available stick (synchronous click() dispatch, so any node.animate() call in the handler has already run by the time click() returns) and read document.getAnimations() immediately after each click plus 5 samples 50ms apart, at both the passing-screen reveal (renderPassing) and the final result-screen reveal (renderResult). The result screen's DOM text was captured in both runs to prove the outcome is on screen regardless of animation state.",
+  "capturedAtCommit": "c413f62",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M docs/agents/issue-tracker.md', ' M scripts/site-owner-wizard.sh', ' M src/games/manifest.ts', '?? public/og/short-stick.png', '?? src/games/short-stick.test.mjs', '?? src/games/short-stick.ts'. The capture reflects the tree as it stood at run time, including the untracked short-stick.ts/og/test files this box exists to prove.",
+  "verdict": "PROVEN",
+  "matchMediaFlipVerifiedBothWays": {
+    "plainLaunch_port9222": { "reducedMotionMatches": false },
+    "forcedFlagLaunch_port9223": { "reducedMotionMatches": true }
+  },
+  "reducedMotionOff": {
+    "animationRan": true,
+    "reveals": [
+      { "screen": "passing (คนที่ 1 -> คนที่ 2)", "animsRightAfterClick": ["running"], "samplesAfter_50msApart": [["running"],["running"],["running"],["running"],[]] },
+      { "screen": "passing (คนที่ 2 -> คนที่ 3)", "animsRightAfterClick": ["running"], "samplesAfter_50msApart": [["running"],["running"],["running"],["running"],[]] },
+      { "screen": "result (short stick surfaced)", "animsRightAfterClick": ["running"], "samplesAfter_50msApart": [["running"],["running"],["running"],["running"],[]] }
+    ],
+    "resultTextPresent": true,
+    "resultText": "ไม้สั้น!คนที่ 3 โดนวงตกลงกันเองว่าคนโดนต้องทำอะไรเล่นอีกรอบกลับไปหน้ารวมเกม"
+  },
+  "reducedMotionOn": {
+    "animationRan": false,
+    "reveals": [
+      { "screen": "passing (คนที่ 1 -> คนที่ 2)", "animsRightAfterClick": [], "samplesAfter_50msApart": [[],[],[],[],[]] },
+      { "screen": "result (short stick surfaced)", "animsRightAfterClick": [], "samplesAfter_50msApart": [[],[],[],[],[]] }
+    ],
+    "resultTextPresent": true,
+    "resultText": "ไม้สั้น!คนที่ 2 โดนวงตกลงกันเองว่าคนโดนต้องทำอะไรเล่นอีกรอบกลับไปหน้ารวมเกม",
+    "resultTitleText": "ไม้สั้น!"
+  },
+  "note": "Not vacuous: reduced-motion ON produced zero animations at every sample point in both the passing screen and the result screen (0 animations for the entire ~450ms window sampled), while the exact same DOM path with reduced-motion OFF produced a running WAAPI animation immediately after the click and through to completion. Both states render the same readable result text ('ไม้สั้น!' + '<player> โดน') — reduced-motion ON is not a page that renders nothing.",
+  "consoleErrors": []
+}

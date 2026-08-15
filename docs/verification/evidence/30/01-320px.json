@@ -1,0 +1,23 @@
+{
+  "box": "short-stick (/game/short-stick/) — 320px viewport, 10-player roster: usable, nothing overflows horizontally",
+  "method": "scripts/driver.mjs, one CDP tab, real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), against a real build (npm run build + npx serve dist/ -l 4321). Navigated to http://localhost:4321/game/short-stick/, wiped storage on-origin (never about:blank) and verified the wipe by reading localStorage/sessionStorage back empty. Emulation.setDeviceMetricsOverride to 320x700 via session.setWidth, confirmed by reading innerWidth back from the page (not a --window-size flag, which does not reflow). Seeded a 10-player roster via the start-numbered shortcut (player-count=10, #start-numbered click -> 'คนที่ 1'..'คนที่ 10'), which mounts the stick bundle. Measured document.documentElement.scrollWidth/clientWidth, counted elements whose getBoundingClientRect().right exceeds clientWidth, and read the bundle's own computed flex-wrap and bounding box.",
+  "capturedAtCommit": "c413f62",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M docs/agents/issue-tracker.md', ' M scripts/site-owner-wizard.sh', ' M src/games/manifest.ts', '?? public/og/short-stick.png', '?? src/games/short-stick.test.mjs', '?? src/games/short-stick.ts'. The capture reflects the tree as it stood at run time, including the untracked short-stick.ts/og/test files this box exists to prove.",
+  "verdict": "PROVEN",
+  "innerWidthConfirmed320": true,
+  "noHorizontalOverflow": true,
+  "observation": {
+    "wipeVerified": { "roster": null, "session": null },
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "overflowingElements": 0,
+    "stickCount": 10,
+    "panelHidden": true,
+    "bundleComputedDisplay": "flex",
+    "bundleComputedFlexWrap": "wrap",
+    "bundleBoundingBox": { "x": 8, "y": 229.875, "width": 304, "height": 212.78125, "right": 312, "bottom": 442.65625, "left": 8 }
+  },
+  "note": "10 sticks at min(44px,13vw)=41.6px width each, gap 0.5rem, inside a 304px-wide bundle wrapped onto multiple rows (bundle height 212.8px, several times a single 112px-tall stick) — confirms flex-wrap:wrap actually wrapped rather than the row silently overflowing. scrollWidth === clientWidth === innerWidth === 320 and zero elements crossed the right edge.",
+  "consoleErrors": []
+}

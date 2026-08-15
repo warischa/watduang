@@ -157,7 +157,7 @@ you — it creates a differently-named secret and its own workflow file that
 collides with this repo's ci.yml."
 
 maybe_verify "secret name is present in this repo (value is never shown)" \
-  "gh secret list --repo warischa/watduang 2>/dev/null | grep AZURE_STATIC_WEB_APPS_API_TOKEN"
+  "if command -v gh >/dev/null 2>&1; then gh secret list --repo warischa/watduang 2>/dev/null | grep AZURE_STATIC_WEB_APPS_API_TOKEN; else echo 'gh (GitHub CLI) not found on this machine -- check the same thing on the web instead: this repo on github.com -> Settings -> Secrets and variables -> Actions, and look for AZURE_STATIC_WEB_APPS_API_TOKEN in the Repository secrets list.'; fi"
 
 # ── §4: Connect watduang.com to the Azure Static Web App ───────────────────
 echo
@@ -195,15 +195,19 @@ the fallback is a NAMESERVER MIGRATION to a provider that has one (Azure
 DNS or Cloudflare) — NOT registrar-level domain forwarding. Forwarding
 breaks the apex canonical (see astro.config.mjs:5). Registrar settings →
 Nameservers → point at the new provider's nameservers, confirm with
-\`dig NS watduang.com\`, then create the ALIAS/ANAME record in that
-provider's zone instead, and continue this step unchanged."
+\`dig NS watduang.com\` (if this machine doesn't have \`dig\`, use \`nslookup
+-type=NS watduang.com\` instead -- more commonly installed; if neither
+command exists, check via the web instead, e.g.
+https://mxtoolbox.com/SuperTool.aspx?action=ns%3awatduang.com), then create the
+ALIAS/ANAME record in that provider's zone instead, and continue this step
+unchanged."
 
 step "Set watduang.com as the default domain" \
 "Azure portal → Custom domains list → watduang.com showing status Ready →
 ··· menu → Set as default domain. Wait for status to stay Ready."
 
 maybe_verify "DNS + live site for both hostnames" \
-  "dig +short CNAME www.watduang.com; dig +short TXT watduang.com; curl -s -o /dev/null -w 'watduang.com -> %{http_code}\n' https://watduang.com; curl -s -o /dev/null -w 'www.watduang.com -> %{http_code}\n' https://www.watduang.com"
+  "if command -v dig >/dev/null 2>&1; then dig +short CNAME www.watduang.com; dig +short TXT watduang.com; elif command -v nslookup >/dev/null 2>&1; then nslookup -type=CNAME www.watduang.com; nslookup -type=TXT watduang.com; else echo 'no dig or nslookup on this machine -- check DNS via the web instead, e.g. https://mxtoolbox.com/SuperTool.aspx?action=cname%3awww.watduang.com and https://mxtoolbox.com/SuperTool.aspx?action=txt%3awatduang.com'; fi; curl -s -o /dev/null -w 'watduang.com -> %{http_code}\n' https://watduang.com; curl -s -o /dev/null -w 'www.watduang.com -> %{http_code}\n' https://www.watduang.com"
 
 echo
 echo "Wizard done. Nothing above was performed automatically — every ☑ is yours."

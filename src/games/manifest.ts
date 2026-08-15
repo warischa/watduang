@@ -7,8 +7,9 @@ import type { GameModule } from './types';
 import timebomb from './timebomb.ts';
 import siamsi from './siamsi.ts';
 import pickLoser from './pick-loser.ts';
+import shortStick from './short-stick.ts';
 
-export const games: GameModule[] = [timebomb, siamsi, pickLoser];
+export const games: GameModule[] = [timebomb, siamsi, pickLoser, shortStick];
 
 export const byId = (id: string): GameModule | undefined =>
   games.find((g) => g.id === id);

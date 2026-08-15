@@ -1,0 +1,87 @@
+{
+  "box": "short-stick (/game/short-stick/) — refresh mid-sequence returns cleanly to setup (no silent resume, no silent discard), and a pre-existing live เซียมซี checkpoint in the shared slot survives untouched",
+  "method": "scripts/driver.mjs, one CDP tab (session persists across nav() calls in the same tab — required, sessionStorage is per-tab/per-origin), real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), against a real build (npm run build + npx serve dist/ -l 4321). Wiped storage on-origin and verified empty. Seeded a LIVE เซียมซี checkpoint through the real UI (played /game/siamsi/, not written directly): start-numbered with 3 players, ss-start (idle->turn), ss-draw (turn 1), ss-pass, ss-draw (turn 2) — leaving phase 'drawn', 2 results banked, 1 card left, holder=1 (mid-round, matching docs/verification/evidence/20's technique). Captured sessionStorage['watduang:session']. Crossed to /game/short-stick/ in the SAME tab, confirmed no popup fires merely from a foreign game's checkpoint sitting in the slot. Started a 10-player short-stick round (start-numbered), clicked sticks one at a time until landing on a genuine mid-sequence passing screen (one stick drawn, short stick not yet surfaced) -- when the short stick surfaced before any passing screen, rerolled via 'เล่นอีกรอบ' (never touches session/checkpoint) and tried again. Re-captured sessionStorage['watduang:session'] immediately before refresh. Refreshed (session.nav to the same URL, same tab). Captured post-refresh DOM state and sessionStorage['watduang:session'] again. Then pressed start-numbered a second time post-refresh to confirm short-stick neither silently resumes its own mid-sequence state nor silently discards the foreign checkpoint.",
+  "capturedAtCommit": "c413f62",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. git status --short showed: ' M docs/agents/issue-tracker.md', ' M scripts/site-owner-wizard.sh', ' M src/games/manifest.ts', '?? public/og/short-stick.png', '?? src/games/short-stick.test.mjs', '?? src/games/short-stick.ts'. The capture reflects the tree as it stood at run time, including the untracked short-stick.ts/og/test files this box exists to prove.",
+  "verdict": "PROVEN",
+  "resumePromptShownOnLanding": false,
+  "resumePromptShownAfterRefresh": false,
+  "returnsCleanlyToSetup": true,
+  "checkpointSurvived": true,
+  "before": {
+    "seededImmediatelyAfterSiamsiPlay": {
+      "id": "msuk4cd9-1",
+      "players": ["คนที่ 1", "คนที่ 2", "คนที่ 3"],
+      "played": [],
+      "checkpoint": {
+        "game": "siamsi",
+        "players": ["คนที่ 1", "คนที่ 2", "คนที่ 3"],
+        "deck": [19],
+        "holder": 1,
+        "results": [{ "player": "คนที่ 1", "n": 2 }, { "player": "คนที่ 2", "n": 11 }],
+        "phase": "drawn",
+        "drawn": 11
+      },
+      "stamp": 1786809298293
+    },
+    "immediatelyBeforeRefresh_afterShortStickSetPlayers": {
+      "id": "msuk4cd9-1",
+      "players": ["คนที่ 1", "คนที่ 2", "คนที่ 3", "คนที่ 4", "คนที่ 5", "คนที่ 6", "คนที่ 7", "คนที่ 8", "คนที่ 9", "คนที่ 10"],
+      "played": [],
+      "checkpoint": {
+        "game": "siamsi",
+        "players": ["คนที่ 1", "คนที่ 2", "คนที่ 3"],
+        "deck": [19],
+        "holder": 1,
+        "results": [{ "player": "คนที่ 1", "n": 2 }, { "player": "คนที่ 2", "n": 11 }],
+        "phase": "drawn",
+        "drawn": 11
+      },
+      "stamp": 1786809299400
+    },
+    "dom": {
+      "midSequenceStageText": "ไม้ยาว — รอดคนที่ 1 รอดไปได้ ส่งมือถือให้ คนที่ 2 ต่อเลยส่งต่อให้ คนที่ 2",
+      "ssPassPresent": true,
+      "meaning": "one stick drawn (คนที่ 1, long), passing screen shown, short stick not yet surfaced -- genuinely mid-sequence"
+    }
+  },
+  "after": {
+    "postRefresh": {
+      "id": "msuk4cd9-1",
+      "players": ["คนที่ 1", "คนที่ 2", "คนที่ 3", "คนที่ 4", "คนที่ 5", "คนที่ 6", "คนที่ 7", "คนที่ 8", "คนที่ 9", "คนที่ 10"],
+      "played": [],
+      "checkpoint": {
+        "game": "siamsi",
+        "players": ["คนที่ 1", "คนที่ 2", "คนที่ 3"],
+        "deck": [19],
+        "holder": 1,
+        "results": [{ "player": "คนที่ 1", "n": 2 }, { "player": "คนที่ 2", "n": 11 }],
+        "phase": "drawn",
+        "drawn": 11
+      },
+      "stamp": 1786809299400
+    },
+    "dom": {
+      "panelHidden": false,
+      "resumeChoiceHidden": true,
+      "setupErrorHidden": true,
+      "stageText": "",
+      "meaning": "page returned to the fresh idle setup panel -- no resurrected short-stick turn, no resume-choice prompt, no discard prompt, no error banner"
+    },
+    "afterPressingStartAgainPostRefresh": {
+      "resumeChoiceHidden": true,
+      "panelHidden": true,
+      "freshStickButtonCount": 10,
+      "meaning": "pressing start-round after refresh starts a brand-new short-stick round immediately with zero prompts -- planStart never asks because the live checkpoint's game ('siamsi') does not match this page's gameId ('short-stick'); short-stick has no round of its own to resume or discard, so neither branch fires"
+    }
+  },
+  "fullBlobByteIdentical_seedToAfterRefresh": false,
+  "fullBlobDiff": [
+    "players: [\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\"] -> [\"คนที่ 1\"..\"คนที่ 10\"] (short-stick's own session.setPlayers(roster) call at round start -- correct, intended shell-level write, same class as ADR-0010's pick-loser precedent)",
+    "stamp: 1786809298293 -> 1786809299400 (session.ts write() unconditionally restamps the whole record on every write, for every writer)",
+    "played: [] -> [] (unchanged -- short-stick's markPlayed('short-stick') never fired, because the round was deliberately stopped before the short stick surfaced)"
+  ],
+  "checkpointSubFieldByteIdentical": true,
+  "note": "The narrower, code-accurate claim -- the checkpoint sub-object, not the whole enclosing session record -- survived byte-for-byte from the moment it was seeded through short-stick's own play (which legitimately rewrites the top-level players/stamp via setPlayers) and across a real page refresh: game/siamsi/deck[19]/holder 1/both results/phase drawn/drawn 11, identical in the seeded snapshot, the pre-refresh snapshot, and the post-refresh snapshot. short-stick wrote no checkpoint of its own at any point (design confirmed by src/games/short-stick.ts:1-6) -- 'played' stayed empty because the round was stopped deliberately before completion, not because of a bug.",
+  "consoleErrors": []
+}
