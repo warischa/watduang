@@ -24,4 +24,4 @@ next:
 
 inflight: measured at save — tree: this save only · `f7538e7` pushed, 0 ahead · open PRs: checked, none · CI green on `f7538e7` (`31899402100`) · open issues: 12 · GitHub writes this session: 5 filed, 3 closed, #1 body annotated (1 line, round-trip verified)
 
-spent: queue 10→8 · batches 5 · ctx 38% at save · ended early: no — every agent-doable item Done, rest owner-blocked
+spent: queue 10→8 — **7 of RH's 10 resolved · 3 carried · 5 new surfaced** (churn, not shrink) · batches 5 · ctx 41% at save · ended early: no — every agent-doable item Done, rest owner-blocked
