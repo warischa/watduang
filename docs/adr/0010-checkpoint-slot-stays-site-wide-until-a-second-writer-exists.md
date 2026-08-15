@@ -69,6 +69,11 @@ A second checkpoint-writing game entering `manifest.ts`. At that moment the coll
 `planClear`'s condition and the precision of `รอบที่ค้าง` in the clear warning, which may by then mean
 more than one round is at stake.
 
+**Scored S2026-08-15#4 — NOT fired.** Game 3 (`pick-loser`) entered `manifest.ts`, but writes no
+checkpoint: its only session write is `markPlayed`, which preserves the loaded snapshot. Siamsi
+remains the sole checkpoint writer, so this ADR's decision stands unchanged and per-game keying stays
+deferred. The trigger is a second *checkpoint-writing* game, not merely a third game.
+
 Also open, found by the same design pass and **not** fixed: game B's start still clobbers shared
 `session.players` via `[id].astro:51`. **Scored S2026-08-15#2 — REFUTED at this scope only.** The
 ADR's decision above (keep one site-wide checkpoint slot; defer per-game keying) stands; only this

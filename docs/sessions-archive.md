@@ -14,6 +14,22 @@ Window: **N=1** (one live entry in `SESSION-HANDOFF.md`; older entries roll here
 <!-- Keep entry ids out of this prose. Roll verification asserts the archive holds exactly one
      copy of a rolled header, and a stray mention here would make that assert lie. -->
 
+### S2026-08-15#3
+
+done: **F1's resurrection window bounded at the seam, not measured in the browser — `68e4a03` · `a5b2ffd`** (5 files, +227/−16). Planned CDP probe DROPPED at the fork: the interleaving set is owned by the browser scheduler + HTML nav queue → sampling it never converges; and "prove it unreachable" targets a false statement (`session.ts:41` already records `location.reload()` is a macrotask away → the race is spec-**permitted**). Replaced by ordering enumeration at the `loadSession()` seam, `session.test.mjs` +4 (83→87). **Result is NOT the expected negative: 2 of 4 orderings are unguarded**, and the new tests pin the HOLE, not the guard — (a) stale closure whose first `setPlayers` is unspent; (b) `write()`'s check is existence-based, not identity-based, so a stale snapshot overwrites a new round (same class covers `markPlayed`/`saveCheckpoint`). Both unreachable in production today by call-site accident, not by construction. Calibrated both ways: pos control red 9/2 at `session.test.mjs:260`; each pin separately proven non-vacuous by a hole-closing mutant. REFUTE round 1 clean over 6 attacks. Also: `evidence/20/01-*` re-captured vs HEAD (ADR-0009 provenance gap closed) · `triage-labels.md` synced to `gh` 18/18 · 87/87 · tsc 0 · build 0 · ADR-0010 § Finding S2026-08-15#3 · #27 filed
+
+dec: **an exit criterion over a set you do NOT own is unfalsifiable** — enumerate a set you own instead (ADR-0010) · the 2 holes were deliberately NOT closed: unreachable today, closing them is speculative → tracked as a trip-wire (#27), not a fix task · **#26 was the wrong home** for the finding (CLOSED 04:10Z, verified via `gh`) → new issue, never a comment on a closed one · #2's stale CDP DoD retired in-place before the roll so RH cannot re-enter the dead end · prior save's manual roll had glued `### S2026-08-15#1` onto a `-->` line (not line-start, would not render) — fixed this save
+
+next:
+- [ ] deploy chain — `bash scripts/site-owner-wizard.sh` §1/§2/§4, owner-run · unblocks 4 ad-slot boxes (#15-#18) + #13's real-device box · `--check` exits 0 (verified S#2)
+- [ ] ADR-0010 is now 15.4KB (>12KB doc budget) — move its oldest finding sections to the archive at next touch · done when `check-budgets.sh` passes on it
+- [ ] owner glance: Thai failed-resume string on `siamsi.ts` (compliant, unreviewed)
+- [ ] #12 seeds ready; the measurement itself is owner-run (Google Ads login)
+
+inflight: measured at save — `68e4a03` + `a5b2ffd` pushed to `main`; tree clean before this save commit · open PRs: checked, none · GitHub writes: #27 created (labels `bug` + `needs-triage`) · 6 subagents returned, 0 escalations, 0 verify failures
+
+spent: queue 5→4 · batches 1 · ended early: 1 required pending (deploy chain — owner-run, blocked all session)
+
 ### S2026-08-15#2
 
 done: **F1 fixed, `4b14565`** — a late `setPlayers` could resurrect a discarded record. `65d3d3c` closed that window for `#ss-draw`/`#ss-pass`; the resume path (`siamsi.ts:344`, split from its closure by `await load()` at `[id].astro:56`) was the sibling caller it missed. Guard = per-closure `mayCreate` in `loadSession()`: only the first `setPlayers` creates, later ones inherit `write()`'s existence refusal. `siamsi.ts` untouched. **Mechanism = call ordinality within one closure** — the flag refuses nothing itself and does NOT detect `clear()`; safety rests on `[id].astro:50-51` being the first `setPlayers` on every closure a game gets. Proof: F1 ordering red→green · anti-over-fix control (#20's refresh-resume must still update) · positive control vs `65d3d3c^`. 83/83 · tsc 0 · build 0 · #26 (closed) · ADR-0010 · **`ab52d9d`** — ADR-0010's clobber claim scored REFUTED at claim scope only; 2 REFUTE rounds each killed a real defect (R1: stated mechanism false — `setPlayers` writes the load-time snapshot `session.ts:67,70`, only existence re-read `:53`; R2: adjacency is not universal → became F1) · ADR-0010 Context citations re-verified, **8 of 13 had drifted** when `65d3d3c` reshaped `siamsi.ts` · `player-select.ts` Thai comments → English, Thai string literals byte-identical · #20 DoD box ticked w/ `evidence/20/01-*` (1/1) · #24 comment posted · shellcheck clean on `site-owner-wizard.sh`
