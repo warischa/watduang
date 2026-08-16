@@ -75,7 +75,7 @@ Known ceilings, both confirmed by a real run in this session, not inferred from 
   see Trap 3 below) — call `session.wipe()` yourself when a test needs a clean slate, `driver.mjs`
   will not do it for you.
 
-## Five traps that produced wrong answers here
+## Six traps that produced wrong answers here
 
 Each of these passed a plausible-looking check while measuring nothing.
 
@@ -131,6 +131,19 @@ date-keyed, keep every sample inside one Bangkok day, and record in the evidence
 day the verdict rests on — a determinism verdict that does not name its day cannot be re-checked
 later. Generalises: when a page's output is a function of a clock, a run is only valid inside one
 tick of that clock.
+
+**6. `elementFromPoint` only sees the viewport, not the document.** It resolves a point in client
+coordinates against what is painted right now, so anything below `CDP_HEIGHT` returns `null` —
+including the site-wide footer in `Base.astro`, which is below the fold on every page by design. A
+reachability check written without a scroll reports `null` for a perfectly reachable link, and both
+obvious readings of that `null` are wrong: it does not mean overlapped, and dropping the check
+because it "doesn't work" removes the only thing proving the link is clickable. Call
+`el.scrollIntoView()` first, then read the point. Hit on the `8d84b19` footer walk — `/game/timebomb/`'s
+footer centre sat at y=595 in a 568px viewport. Note the asymmetry: `getBoundingClientRect()`'s
+horizontal fields are scroll-independent, so a `right <= 320` overflow assertion stays valid without
+scrolling; it is only the point-hit test that needs it. Generalises: a probe that reads *painted*
+state is scoped to the viewport, one that reads *layout* state is not — never assume a failing
+probe and a failing page are the same thing.
 
 ## Reduced motion
 
