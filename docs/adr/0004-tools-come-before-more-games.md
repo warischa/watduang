@@ -1,91 +1,91 @@
-# เครื่องมือสุ่มมาก่อนเกมที่ 3 — สี่ตัวตาม #11 ไม่ยุบเป็นตัวเดียว และไม่ผ่าน `GameModule`
+# Tools come before game #3 — the four per #11 don't collapse into one, and don't route through `GameModule`
 
-#11 ตัดสินไว้แล้วว่าเครื่องมือสุ่ม **4 ตัวส่งครบตั้งแต่ v1** (วงล้อ · จับฉลาก · แบ่งทีม · สุ่มเลข) และเครื่องมือคือ **"เนื้อเยื่อเชื่อม ไม่ใช่ประตูหน้า"** ส่วน #6 ลงตะปูว่า `/tool/<slug>` เอกพจน์ 1 เครื่องมือ = 1 URL
+#11 already decided: all 4 randomizer tools ship in v1 (วงล้อ · จับฉลาก · แบ่งทีม · สุ่มเลข), and tools are "connective tissue, not a front door." #6 pins `/tool/<slug>` singular — 1 tool = 1 URL.
 
-ADR ใบนี้เพิ่มสามอย่างที่ #11 กับ #6 ไม่ได้พูดถึง: **ลำดับ** (เครื่องมือมาก่อนเกมที่ 3) · **รูปร่างของโค้ด** (ไม่ผ่าน `GameModule`) · **โฆษณา** (วางใต้ตัวเครื่องมือ)
+This ADR adds three things #11 and #6 don't cover: **order** (tools before game #3) · **code shape** (doesn't route through `GameModule`) · **ads** (placed below the tool).
 
-## ทางที่ถูกปฏิเสธ — ยุบเหลือวงล้อตัวเดียวแล้วทำสุ่มชื่อ/สุ่มเลขเป็น preset
+## Rejected path — collapse into a single wheel, make name-draw/number-draw presets
 
-เคยเสนอไว้ในเซสชันเดียวกันนี้ ด้วยเหตุผลว่า `วงล้อสุ่ม` เป็นคำที่ใหญ่ที่สุด (#4 วัดได้ ~21 เท่าของหมวดเกม) จึงควรทุ่มไปทางเดียวและเลี่ยง thin content **ปฏิเสธ** เพราะ:
+Proposed earlier in this same session: since `วงล้อสุ่ม` is the biggest search term (#4 measured it at ~21x the games category), concentrate effort there and avoid thin content. **Rejected**, because:
 
-- #11 ตัดสินไปแล้วว่าส่งครบ 4 ตัวใน v1 โดยต้นทุนเกือบศูนย์ — การยุบไม่ได้ประหยัดอะไรจริง
-- แผน preset ทำ **สุ่มแบ่งทีมหายไปทั้งตัว** ซึ่งเป็นตัวที่ป้อน roster ให้เกมต่อ
-- เหตุผลที่ใช้เสนอ (วงล้อคือประตูหน้าบ้าน) คือสิ่งที่ #11 **เขียนดักไว้ล่วงหน้า**: *"หน้าเครื่องมือจะไม่ติดอันดับ `วงล้อสุ่ม` และนั่นคือแผน ไม่ใช่ความล้มเหลว"* พร้อม *"ห้ามตีความทีหลังว่า 'เครื่องมือไม่เวิร์ก' แล้วหันไปทุ่มกับมัน"*
+- #11 already decided to ship all 4 in v1 at near-zero cost — collapsing doesn't actually save anything.
+- The preset plan drops the team-split randomizer entirely, which is the tool that feeds a roster into the next game.
+- The reasoning behind that proposal (the wheel is the front door) is exactly what #11 already guarded against in writing: "the tools page won't rank for `วงล้อสุ่ม`, and that's the plan, not a failure" along with "never reinterpret this later as 'the tool doesn't work' and pivot resources into it."
 
-บันทึกไว้เพราะถ้าไม่เขียน อีกหกเดือนจะมีคนเสนอ preset ใหม่ด้วยเหตุผลเดิม
+Recorded here because if it isn't written down, someone will re-propose the same preset with the same reasoning in six months.
 
-## ไม่ผ่าน `GameModule`
+## Doesn't route through `GameModule`
 
-เครื่องมือไม่ใช่เกมตามนิยามใน `CONTEXT.md` — ไม่มีรอบ ไม่มีลำดับตา `GameModule` บังคับ `players[min,max]`, `seo.steps`, `category` ซึ่งไม่มีอันไหนเข้ากับวงล้อสุ่ม การยัดเข้าไปต้องทำให้ field ครึ่งหนึ่งเป็น optional และ validator เต็มไปด้วย `if`
+Tools aren't games per the `CONTEXT.md` definition — no rounds, no turn order. `GameModule` mandates `players[min,max]`, `seo.steps`, `category`, none of which fit `วงล้อสุ่ม`. Forcing it in would make half the fields optional and fill the validator with `if`s.
 
-ตรรกะบริสุทธิ์อยู่ที่ `src/tools/<slug>.ts` มีเทสข้างๆ ส่วนหน้าเป็น `.astro` ที่ import ไป — seam เดียว สูงที่สุดเท่าที่เป็นไปได้ และ CI เก็บให้เองจาก glob `src/**/*.test.mjs` โดยไม่ต้องแก้ workflow
+Pure logic lives at `src/tools/<slug>.ts` with a test alongside; the page is a `.astro` that imports it — a single seam, as high as possible, and CI already picks it up via the `src/**/*.test.mjs` glob with no workflow change needed.
 
-**เงื่อนไขจาก #11 ที่ห้ามหลุด:** เครื่องมือต้องใช้ `shell/PlayerSetup` ร่วมกับเกม และหมุนเสร็จต้องกดต่อเข้าเกมโดยรายชื่อไหลต่อได้ — หน้าเดี่ยวๆ ที่ไม่มี roster ลบจุดต่างข้อ 1 และ 2 ของเว็บทิ้ง
+**Condition from #11 that must not slip:** tools must share `PlayerSetup` with the games, and after spinning the player must be able to continue straight into a game with the roster carried over — a standalone page with no roster erases differentiators #1 and #2 of the site.
 
-## โฆษณา
+## Ads
 
-หน้าเครื่องมือ **มีโฆษณา วางใต้ตัวเครื่องมือ** — ตรงกับ #8 ที่ระบุ hub และ setup/rules/post-game เป็น inventory จริง จองพื้นที่ด้วย `min-height` และห้าม inject เหนือ content
+Tool pages **carry ads, placed below the tool** — matching #8, which names the hub and setup/rules/post-game as real inventory. Space is reserved with `min-height`, and injection above content is forbidden.
 
-ยอมรับตรงๆ ว่าการหมุนวงล้อก็มีจังหวะเฉลยเหมือนจอเล่นเกม ข้ออ้างที่ว่า "เครื่องมือใช้คนเดียวจึงไม่มีจังหวะส่งมือถือ" จึงไม่สะอาด 100%
+Honest admission: spinning the wheel has the same reveal beat as a game screen. The argument that "a tool is used solo, so there's no phone-passing beat" isn't 100% clean.
 
-## ผลที่ตามมา
+## Consequences
 
-เครื่องมือหลุดจาก `scripts/validate-games.mjs` — ไม่มีใครเช็ค `og`, `seo` ให้ การ์ดแชร์ยังได้อัตโนมัติจาก default ใน `Base.astro` ที่เหลือคุมด้วยสายตา จนกว่าจะเห็นว่า 4 ตัวมีสัญญาร่วมกันจริงแล้วค่อยสกัด contract พร้อม validator
+Tools fall outside `scripts/validate-games.mjs` — nothing checks `og`, `seo` for them. Share cards still come free from the defaults in `Base.astro`; everything else stays eyeballed until the 4 tools show a real shared contract worth extracting, with a validator.
 
-รากของความผิดพลาดที่เกือบเกิด: ตอนตั้งคำถามให้เจ้าของเว็บเลือก ยังไม่ได้อ่าน #11 กับ #6 — แบบเดียวกับที่ [ADR-0002](0002-siamsi-is-the-eighth-game.md) เกิดจากการไม่ได้อ่าน #5 **อ่านใบที่ปิดแล้วก่อนเปิดคำถามใหม่ ไม่ใช่หลังจากนั้น**
+Root of the near-miss: the site owner was asked to choose before #11 and #6 had been read — same failure mode as [ADR-0002](0002-siamsi-is-the-eighth-game.md), which came from not reading #5 first. Read closed decisions before opening a new question, not after.
 
-## เพิ่มตอนทำ [#15](https://github.com/warischa/watduang/issues/15) — สามข้อที่ตัวใบเดิมไม่ได้ครอบคลุม
+## Added during implementation of [#15](https://github.com/warischa/watduang/issues/15) — three things the original decision didn't cover
 
-### "เครื่องมือห้ามแตะ `session.ts`" รวมทางอ้อมด้วย
+### "Tools must not touch `session.ts`" includes indirect paths too
 
-`session.ts` มี checkpoint slot **เดียว** ใช้ร่วมทุกเกม เครื่องมือเขียนทับ = ทำลายการกู้รอบกลางวงของ `siamsi`
+`session.ts` has a **single** checkpoint slot shared across every game. A tool overwriting it destroys `siamsi`'s mid-round recovery.
 
-ข้อห้ามนี้ถูกละเมิดได้โดยไม่ต้องเขียนโค้ดแตะเลย: `PlayerSetup` เรนเดอร์ปุ่ม "ล้างกลุ่มนี้" ไว้**นอก** `#player-setup` โดยตั้งใจ (จะได้กดได้หลังแผงซ่อน) และปุ่มนั้นเรียก `session.clear()` พอหน้าเครื่องมือฝัง `PlayerSetup` ปุ่มก็ติดไปด้วย → เปิดวงล้อระหว่าง `siamsi` ค้างอยู่ แล้วกดปุ่มนั้น = checkpoint หายโดยไม่มีคำเตือน
+This rule can be broken without touching code at all: `PlayerSetup` deliberately renders the "ล้างกลุ่มนี้" button **outside** `#player-setup` (so it stays clickable once the panel is hidden), and that button calls `session.clear()`. Once a tool page embeds `PlayerSetup`, the button comes along with it → open the wheel while a `siamsi` round is mid-game, tap that button, and the checkpoint vanishes with no warning.
 
-แก้ด้วย prop `clearsSession` (default `true` เพื่อให้เกมเดิมไม่เปลี่ยน) หน้าเครื่องมือส่ง `false`
+Fixed with a `clearsSession` prop (default `true`, so existing games don't change). Tool pages pass `false`.
 
-**บทเรียนที่กว้างกว่านั้น: ข้อห้ามที่เขียนว่า "ห้าม import X" ไม่พอ ต้องตรวจว่าคอมโพเนนต์ที่ใช้ร่วมกันลากอะไรติดมาด้วย**
+**Broader lesson: a rule written as "don't import X" isn't enough — check what a shared component drags in with it.**
 
-### วงที่จำไว้ — clamp ตอนใช้ ไม่ clamp ตอนเก็บ
+### Remembered group — clamp on use, not on store
 
-`roster.ts` เก็บวงที่เลือกไว้ที่คีย์แยก `watduang:group` (`'watduang:roster'` รูปทรงเดิมไม่ถูกแตะ เพราะผู้ใช้เดิมมี `string[]` อยู่แล้ว) และ `loadGroup()` ตัดกับ roster ปัจจุบันเพื่อกันชื่อผีที่ถูกลบไปแล้วกลับมา
+`roster.ts` stores the selected group under a separate key, `watduang:group` (`'watduang:roster'`'s original shape is untouched, since existing users already have a `string[]` there), and `loadGroup()` intersects it against the current roster to keep deleted-name ghosts from coming back.
 
-เคยลองเก็บวงที่ผ่าน clamp แล้ว เพื่อปิดอาการ "ติ๊ก 11 บนหน้า `max=10` แล้วคนที่ 11 โดนตัดเงียบซ้ำทุกหน้า" — **ปฏิเสธ** เพราะทำให้เดินผ่านหน้า `max` เล็กครั้งเดียวแล้ววงหายถาวร คือแลก data loss กับความรำคาญ
+Tried storing the group already clamped, to close the symptom of "check 11 boxes on a `max=10` page, and the 11th gets silently dropped again on every visit." **Rejected**, because it means walking through a page with a smaller `max` just once permanently loses the group — trading data loss for mere annoyance.
 
-อาการเดิมยังอยู่และรู้ตัว: ด้าน `min` ปฏิเสธให้เห็นเป็นตัวหนังสือแล้ว ด้าน `max` ยังตัดเงียบ — เป็นใบ follow-up ไม่ใช่ของที่แก้ด้วยการเปลี่ยนที่เก็บ
+The original symptom stays, and it's known: the `min` side already surfaces a visible rejection, the `max` side still drops silently — that's a follow-up ticket, not something a storage change fixes.
 
-ผลข้างเคียงอีกข้อที่ยังไม่แก้: พอวงเดิมถูกติ๊กไว้ให้ ทางไปโหมด "คนที่ 1, 2, 3…" (ไม่เลือกใครเลย) ก็ค้นพบยากขึ้น ต้องเอาติ๊กออกให้หมดก่อน ข้อความใน `PlayerSetup` แก้ให้ตรงแล้วแต่ flow ยังไม่สวย — follow-up เช่นกัน
+Another unfixed side effect: once the previous group comes pre-checked, the path to "คนที่ 1, 2, 3…" mode (nobody selected) becomes harder to find — every checkbox has to be cleared first. The copy in `PlayerSetup` was corrected to match, but the flow itself still isn't clean — also a follow-up.
 
-### baseline ของ "หน้าหายไป" ต้องไม่ derive จาก `src/`
+### The baseline for "a page went missing" must not derive from `src/`
 
-#15 สั่งว่า CI ต้อง**ล้มเมื่อหน้าเครื่องมือหายไป** ซึ่ง glob ทำไม่ได้ — glob แจงสิ่งที่มีอยู่ จึงไม่มีวันล้มเพราะของขาด
+#15 requires CI to **fail when a tool page goes missing**, which a glob cannot do — a glob enumerates what exists, so it can never fail because something is gone.
 
-`src/pages/tool/` ก็ใช้เป็น baseline ไม่ได้ เพราะมันคือ**ตัวสร้าง** ลบหน้าออกแล้ว baseline หดตามพร้อม `dist/` → ผ่านเงียบ
+`src/pages/tool/` can't be the baseline either, because it's **the generator itself** — delete a page and the baseline shrinks right along with `dist/` → silent pass.
 
-baseline จึงเป็นรายการ slug ที่เขียนไว้ใน `ci.yml` เอง — เซตนี้**เราเป็นเจ้าของและจำกัดที่ 4 ตัวโดย #11** จึงลู่เข้า (ตรงข้ามกับเซตที่ library/attacker เป็นเจ้าของ ซึ่งไล่ patch ไม่มีวันจบ) เป็นแบบเดียวกับที่ `manifest.ts` เล่นบทนี้ให้หน้าเกม
+So the baseline is a slug list hardcoded in `ci.yml` itself — a set we own, and pinned at 4 by #11, so it converges (unlike a set a library or attacker owns, which never stops needing patches). Same role `manifest.ts` already plays for game pages.
 
-ถ้าวันหนึ่งเครื่องมือตัวที่ 5 เป็นไปได้ — เซตเลิกถูกตรึงโดย #11 — ต้องย้ายจากรายการใน `ci.yml` ไปเป็น tools manifest
+If a 5th tool ever becomes possible — the set stops being pinned by #11 — this must move from a list in `ci.yml` to a tools manifest.
 
-## เพิ่มตอนทำ [#16](https://github.com/warischa/watduang/issues/16) [#17](https://github.com/warischa/watduang/issues/17) [#18](https://github.com/warischa/watduang/issues/18) — สองข้อที่ REFUTE จับได้ก่อน merge
+## Added during implementation of [#16](https://github.com/warischa/watduang/issues/16) [#17](https://github.com/warischa/watduang/issues/17) [#18](https://github.com/warischa/watduang/issues/18) — two things REFUTE caught before merge
 
-### กฎขนาดวง บังคับที่หน้า ไม่ใช่ที่ตัวตรรกะ
+### Group-size rule enforced at the page, not in the logic
 
-`drawNames()` เคยบังคับ "อย่างน้อย 2 ชื่อ" กับพารามิเตอร์ `pool` แต่หน้าเครื่องมือส่ง**กองที่เหลือ**ลงมาเป็น `pool`
-พอเหลือคนสุดท้ายหนึ่งคน ปุ่มยังกดได้ กดแล้ว throw ทุกครั้ง คนสุดท้ายจึงไม่มีวันถูกจับ — และเทสตัวหนึ่ง**ยืนยันพฤติกรรมที่ผิดนั้นไว้แล้ว**
+`drawNames()` used to enforce "at least 2 names" on its `pool` parameter, but the tool page passes down the **remaining pile** as `pool`.
+Once one person is left, the button is still clickable; pressing it throws every time, so the last person can never be drawn — and one existing test **had already pinned that wrong behaviour in place**.
 
-รากคือกฎถูกบังคับกับ*เซตที่ผิด*: "ต้องมีคนอย่างน้อย 2 คนถึงจะเล่นได้" เป็นกฎของ**ขนาดวง** ไม่ใช่กฎของการจับแต่ละครั้ง
-`draw.astro` เช็ค `players.length` (วงเต็ม) อยู่แล้ว การ์ดในตัวตรรกะจึงซ้ำซ้อนและผิดพร้อมกัน — ลบทิ้ง ไม่ใช่ย้าย
+Root cause: the rule was enforced on the **wrong set**. "Need at least 2 people to play" is a **group-size** rule, not a per-draw rule.
+`draw.astro` already checks `players.length` (the full group), so the guard in the logic was redundant and wrong at the same time — deleted, not moved.
 
-เทียบกับ `splitTeams()` ที่เก็บ `MIN_NAMES` ไว้ได้ถูกต้อง เพราะมันรับวงเต็มเสมอ ไม่เคยรับกองที่หด
+Contrast with `splitTeams()`, which correctly keeps `MIN_NAMES`, because it always receives the full group, never a shrinking pile.
 
-**บทเรียนที่กว้างกว่านั้น: ก่อนใส่ guard ให้ถามว่าพารามิเตอร์ตัวนั้นคือเซตที่กฎพูดถึงจริงไหม — ตัวแปรชื่อ `pool` ไม่ได้แปลว่ามันคือวงทั้งวง**
+**Broader lesson: before adding a guard, ask whether that parameter is actually the set the rule is talking about — a variable named `pool` doesn't mean it's the whole group.**
 
-### ช่วงของ `pickNumber` ต้องมีเพดาน
+### `pickNumber`'s range needs a ceiling
 
-`pickNumber()` สร้าง array หนึ่งช่องต่อหนึ่งเลขในช่วง ก่อนสุ่มหยิบ ช่วง `1-999999999` = ~1e9 ช่อง แท็บค้าง/OOM บนมือถือ
-ไม่มีอะไรกั้นเลย เพราะ validation เดิมดูแค่ "ช่วงต้องมีอย่างน้อย 2 ค่า" ซึ่งเป็นขอบล่าง ไม่ใช่ขอบบน
+`pickNumber()` builds one array slot per number in the range before drawing. A range of `1-999999999` = ~1e9 slots — tab hangs/OOMs on mobile.
+Nothing capped it, because the existing validation only checked "range needs at least 2 values," which is the lower bound, not the upper one.
 
-เพดาน = `MAX_RANGE_SIZE = 10000` ปฏิเสธพร้อมเหตุผลภาษาไทย · เกมปาร์ตี้ไม่มีเคสที่ต้องการช่วงกว้างกว่านี้
-และเพดานทำให้ candidates array เล็กจนไม่ต้องเปลี่ยนอัลกอริทึม
+Ceiling = `MAX_RANGE_SIZE = 10000`, rejected with a Thai-language error message · party games have no case that needs a wider range than this.
+The ceiling also keeps the candidates array small enough that the algorithm itself doesn't need to change.
 
-**อาการตระกูลนี้เงียบสนิทในเทส** — เทสรันด้วยช่วงเล็กเสมอ ไม่มีทางเจอ ต้องมีเทสที่ยิงช่วงใหญ่ตรงๆ
+**This whole class of bug is silent in tests** — tests always run with small ranges, so it can never surface. Needs a test that fires a large range directly.

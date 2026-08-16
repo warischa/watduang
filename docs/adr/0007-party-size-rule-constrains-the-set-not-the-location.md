@@ -1,6 +1,6 @@
 # ADR-0004's party-size rule constrains the SET a guard enumerates, not where the guard lives
 
-Clarifies [ADR-0004](0004-tools-come-before-more-games.md) § "กฎขนาดวง บังคับที่หน้า ไม่ใช่ที่ตัวตรรกะ".
+Clarifies [ADR-0004](0004-tools-come-before-more-games.md) § "Group-size rule enforced at the page, not in the logic".
 Does not supersede it — the decision stands; its wording misled, and this records what it actually constrains.
 
 ## The problem the wording caused

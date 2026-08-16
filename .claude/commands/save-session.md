@@ -35,15 +35,40 @@ isn't injected removes the guardrail.
 
 | file | budget | why |
 |---|---|---|
-| `CLAUDE.md` whole file | **12KB** (master's value) | auto-loaded every session |
-| `SESSION-HANDOFF.md` whole file | **4KB** (master's value for this file type) | read on resume |
+| `CLAUDE.md` whole file | **12KB** | auto-loaded every session |
+| `SESSION-HANDOFF.md` whole file | **8KB** | read on resume |
+| every other `.md` under `docs/` and `.claude/` | **12KB** | routed into an agent's context on demand |
+| `docs/sessions-archive.md` · `docs/verification/**` · `.scratch/**` | **exempt** | append-only evidence records, never routed as a doc — the gate would only force splits that buy nothing |
+
+**Master owns those numbers — read them out of `check-budgets.sh`, never trust this table.** Master moved
+`SESSION-HANDOFF` 4→6→8KB on 2026-08-15; this table went on claiming 4KB "master's value" until 2026-08-16.
+A ceiling copied into prose goes stale the moment master moves it, silently, because nothing re-reads it.
+A repo wanting a ceiling *stricter* than master's must declare it in the doc itself — one line, `budgets: state=8KB file=20KB` — not assert it in a table the script never sees.
 
 **Never raise the ceiling to make the ratchet gate pass** — it's been as tight as 98.8% before; the fix is
-moving content out per the table below, not squeezing prose shorter, and not picking a new number · the 4KB
-figure above is what master already declares for `SESSION-HANDOFF`, not a number invented to pass.
+moving content out per the table below, not squeezing prose shorter, and not picking a new number.
 
 `check-budgets.sh` looks for a section named `## Current state` — it's now split across two files, so run it twice:
 `check-budgets.sh CLAUDE.md` for the file ceiling and `check-budgets.sh SESSION-HANDOFF.md` for state.
+
+**It gates ONE file per call** — one green line proves one file, and nothing sweeps the repo. That is how two
+docs sat over budget unnoticed. Sweep before saving:
+
+```bash
+cd "$(git rev-parse --show-toplevel)" && ! find . -name '*.md' \
+  -not -path './node_modules/*' -not -path './.git/*' -not -path './dist/*' \
+  -not -path './.scratch/*' -not -path './docs/verification/*' \
+  -not -name 'sessions-archive.md' \
+  -exec ~/.claude/scripts/check-budgets.sh {} \; | grep -v '^PASS'
+```
+
+Silence = every doc inside its ceiling. Anything printed is a FAIL/WARN plus its heaviest sections — route it into `next:`.
+
+**The leading `!` is load-bearing — don't drop it.** `grep -v` exits 1 when it matches *nothing*, so the raw
+pipeline exits **1 when every doc is healthy and 0 when one is over budget** — exactly backwards for a `&&`
+chain, and this file's own gate is "exit 1 blocks a `&&` chain". `!` flips it back. `find -exec … \;` also
+swallows `check-budgets.sh`'s own exit 1, so grep's status is the only signal there is. The `cd` is load-bearing
+too: the `./`-anchored exclusions stop matching from any other directory.
 
 ## Where each thing lives
 
