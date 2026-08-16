@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PlayerSetup from '../../shell/PlayerSetup.astro';
-import { games } from '../../games/manifest';
+import GameNav from '../../components/GameNav.astro';
 ---
 
 <Base
@@ -34,12 +34,7 @@ import { games } from '../../games/manifest';
 
       <!-- Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists
            Names flow through roster (localStorage), not session, so it doesn't overwrite an in-progress game checkpoint -->
-      <nav class="team-next" aria-label="เล่นเกมต่อ">
-        <h3>เล่นเกมต่อด้วยวงเดิม</h3>
-        <ul>
-          {games.map((game) => <li><a href={`/game/${game.id}/`}>{game.names.th}</a></li>)}
-        </ul>
-      </nav>
+      <GameNav navClass="team-next" />
     </section>
 
     <!-- Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load

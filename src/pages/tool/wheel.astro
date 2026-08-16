@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PlayerSetup from '../../shell/PlayerSetup.astro';
-import { games } from '../../games/manifest';
+import GameNav from '../../components/GameNav.astro';
 ---
 
 <Base
@@ -39,12 +39,7 @@ import { games } from '../../games/manifest';
 
       <!-- ทางต่อเข้าเกมอยู่ติดกับตัวเครื่องมือ ไม่ใช่ใต้โฆษณา — #11 บอกว่านี่คือเหตุผลที่เครื่องมือมีอยู่
            รายชื่อไหลต่อผ่าน roster (localStorage) ไม่ผ่าน session จึงไม่ทับ checkpoint ของเกมที่ค้างอยู่ -->
-      <nav class="wheel-next" aria-label="เล่นเกมต่อ">
-        <h3>เล่นเกมต่อด้วยวงเดิม</h3>
-        <ul>
-          {games.map((game) => <li><a href={`/game/${game.id}/`}>{game.names.th}</a></li>)}
-        </ul>
-      </nav>
+      <GameNav navClass="wheel-next" />
     </section>
 
     <!-- โฆษณาอยู่ใต้ตัวเครื่องมือเสมอ (ADR-0004) · จองที่ด้วย min-height ไว้ก่อน เนื้อหาจึงไม่กระโดดตอนโหลด

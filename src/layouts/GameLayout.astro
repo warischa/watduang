@@ -2,6 +2,7 @@
 import Base from './Base.astro';
 import PlayerSetup from '../shell/PlayerSetup.astro';
 import PassPhone from '../shell/PassPhone.astro';
+import GameNav from '../components/GameNav.astro';
 import type { GameModule } from '../games/types';
 
 interface Props {
@@ -39,6 +40,11 @@ const howToJsonLd = {
       {game.ads && <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>}
     </section>
   </main>
+
+  <!-- ponytail: outside <main> as #35 prescribed — safe only because GameLayout has no <style> block,
+       so there is no column width or font for the nav to fall out of. The moment <main> gets styled here,
+       move this inside it (that is what tool pages already do). -->
+  <GameNav navClass="game-next" excludeId={game.id} />
 
   <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
 </Base>

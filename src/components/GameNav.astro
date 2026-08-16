@@ -1,0 +1,18 @@
+---
+import { games } from '../games/manifest';
+
+interface Props {
+  navClass: string;
+  excludeId?: string;
+  heading?: string;
+}
+
+const { navClass, excludeId, heading = 'เล่นเกมต่อด้วยวงเดิม' } = Astro.props as Props;
+
+const shown = excludeId ? games.filter((g) => g.id !== excludeId) : games;
+---
+
+<nav class={navClass} aria-label="เล่นเกมต่อ">
+  <h3>{heading}</h3>
+  <ul>{shown.map((g) => <li><a href={`/game/${g.id}/`}>{g.names.th}</a></li>)}</ul>
+</nav>
