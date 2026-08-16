@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import GameNav from '../../components/GameNav.astro';
 ---
 
 <Base
@@ -34,6 +35,10 @@ import Base from '../../layouts/Base.astro';
         <button id="number-reset" type="button">เริ่มรอบใหม่</button>
       </div>
     </section>
+
+    <!-- Continue-path sits next to the tool, not under the ad (#11) — same placement as wheel/draw/team.
+         Inside <main> so it inherits the 34rem column and font; outside it the nav renders flush-left and UA-serif. -->
+    <GameNav navClass="number-next" heading="เล่นเกมต่อ" />
 
     <!-- Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
          and nothing may be injected above content -->
