@@ -90,7 +90,7 @@ read once as demanding a fresh capture at every HEAD that touches the wiring. Th
 proof set *future development*, which never terminates — the exact mis-scoping this ADR exists to
 prevent, applied to itself. The correction: a capture is pinned to its commit, and the re-trigger must
 be **decidable per commit**. The seam that decides it is enumerated in
-`docs/agents/browser-verification.md` § "When a committed capture goes stale — and when it does not".
+`docs/agents/capture-freshness.md` § "When a committed capture goes stale — and when it does not".
 Note the reason is *not* that future commits are unowned — they are ours; it is that a per-commit seam
 test terminates. Evidence: [#20](https://github.com/warischa/watduang/issues/20) closed on it.
 
