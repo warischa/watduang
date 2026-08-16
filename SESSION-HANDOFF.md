@@ -6,22 +6,21 @@ Format · window · budget · roll: `.claude/commands/save-session.md` · Ration
 
 ## Current state
 
-### S2026-08-15#7
+### S2026-08-16#1
 
-done: **5 commits, CI green on each, deploy step `skipped` every time (0 secrets)** — `90b3364` game 3 จับไม้สั้น `short-stick` · `0e9271b` timebomb pulse guarded for reduced-motion + ADR-0011 + 2 doc fixes · `bba2b11` whois guard · `b06db57` game 4 วัดดวงวันนี้ `daily-fortune` (53 คำทำนาย) · `f7538e7` game 5 ดวงความรัก `love-match` (31 lines / 5 bands) + SARA AM unified in the shared `normalizeName`. **6 games live**; #5's v1 table complete except locked rows 4/5. Filed #30 #31 #32 #33 #34; closed #30 #31 #32. 122 tests. Browser evidence `docs/verification/evidence/{30,31,33,34}/`. `issue-tracker.md` state table **deleted** (wrong in both directions inside one session) → `gh` is the only state source. Session crossed Bangkok midnight; entry keeps the 08-15 stamp because 5 commits + 3 issue comments already cite `S2026-08-15#7`.
+done: **5 commits, CI green on each, deploy `skipped` every time (0 secrets)** — `acbf966` home page links all 6 games + 4 tools, iterating `src/games/manifest.ts` (+ new `src/tools/manifest.ts`) + never-tick convention recorded in `issue-tracker.md` · `ae8d605` corrected a false blocker claim · `104dc15` `CDP_STAGE2` usable without experimenting · `8d84b19` site-wide brand footer in `Base.astro` — nothing linked home before · `4462686` trap 6. Closed #33 #34 (owner confirmed the 53+31 read → ADR-0011 owner gate discharged). Filed #35 crawl-sink, `bug`+`ready-for-agent`. 122 tests. 320px re-proven post-footer on `/` and `/game/timebomb/`, detector calibrated 908/320.
 
-dec: **ADR-0011 (new)** = content library unlocks per game by risk class, not wholesale · rows 6+7 unlocked, row 5 dare-library locked (the one account-termination risk), **row 4 explicitly undecided — not swept in** · its advice-register rule was reworded mid-session: the first wording carried 2 clauses of different width and 3 items in row 6's own pool fell between them · determinism IS what separates `daily-fortune` from เซียมซี (ADR-0002), not styling — random-per-tap would be a re-skin · none of the 3 new games writes a checkpoint → ADR-0010 unfired, เซียมซี still sole writer · #12 **not closable** — ADR-0003:23 forbids it and the body disclaimer it demanded already exists · manual-review rule kept universal, not dare-library-only
+dec: home enumerates games by **iterating the manifest, never hardcoding** — the roster grows (ADR-0002, ADR-0011 row 4) · names+links only, **never per-game `seo.description`** on home — that is where duplication with `/games/` starts · `src/tools/manifest.ts` is display data only, **not** ADR-0004's anticipated tools manifest; CI baseline slugs stay in `ci.yml:130,:173`, frozen at 4 by #11 · site-wide link is a **footer not a header**: `GameLayout` wraps `Base`, so it reaches game pages, and a game page is a phone mid-round · link-free game pages ruled a **bug, not intent** (owner) → #35
 
 next:
-- [ ] **owner reads 53 items (#33) + 31 lines (#34)** — last box on each, gates ADR-0011, no agent may tick (ADR-0009). Done when the owner confirms both sets read, then both issues close
+- [ ] **wizard §2 Azure token** — owner-run; unblocks #13's real-phone pass (checklist §3 runs on `azurestaticapps.net`, needs no domain). Done when `gh secret list` non-empty. ⚠ from that moment `git push` to `main` IS a production deploy (`ci.yml:13-14`) — every push pre-auth void, re-gate it
+- [ ] #9 register `watduang.com` — owner-run, payment. whois free 2026-08-16. Independent of §2, either order
+- [ ] #29 AdSense account + pub-ID — owner-run. Done when the `ca-pub-` ID is handed over, then #29 closes
+- [ ] #35 game pages are crawl sinks — `ready-for-agent`, but carries an owner-owned box (ADR-0009)
+- [ ] #15-#18 ad-slot box only — needs #29. #14 has no DoD boxes. #13 needs §2, not #29
 - [ ] row 4 locked until rows 6/7 show results · row 5 locked (ADR-0011)
-- [ ] #29 AdSense account + pub-ID — owner-run (Google identity + payment; an agent must never enter them). Done when the owner confirms the account shows Ready and hands over the `ca-pub-` ID, then #29 closes
-- [ ] deploy chain `bash scripts/site-owner-wizard.sh` §1/§2/§4 — owner-run. Done when `gh secret list` non-empty. ⚠ from that moment `git push` to `main` IS a production deploy (`ci.yml:209`) — every push pre-auth void, re-gate it
-- [ ] #15-#18 blocked on the ad-slot box alone — needs #29. #14 has **no DoD boxes at all**. #13 is **not** ad-blocked: its one open box is the real-phone pass (wake lock + iOS audio unlock), which needs wizard §2/deploy only — not the domain, not #29 (`docs/site-owner-checklist.md` §3 says it runs on the `azurestaticapps.net` URL). Verified 2026-08-16 by reading every open box. No agent work closes any of them
-- [ ] #24 dormant until a 2nd checkpoint writer exists (ADR-0010)
-- [ ] home page links `/games/` but names no game — 6 game keywords get no internal link from the highest-authority page, while the tools line names all 4. Owner copy call
-- [ ] #12 relabel-only if ever touched
+- [ ] #24 dormant until a 2nd checkpoint writer exists (ADR-0010) · #12 relabel-only if ever touched
 
-inflight: measured at save — tree: this save only · `f7538e7` pushed, 0 ahead · open PRs: checked, none · CI green on `f7538e7` (`31899402100`) · open issues: 14 · GitHub writes this session: 5 filed, 3 closed, #1 body annotated (1 line, round-trip verified)
+inflight: measured at save — tree clean, 0 ahead · open PRs: checked, none · CI green on `4462686` · open issues 13 · branch `worktree-agent-a3373c30e64ce69da` fully merged into main, deletable · GitHub writes: 1 filed, 2 closed
 
-spent: queue 10→8 — **7 of RH's 10 resolved · 3 carried · 5 new surfaced** (churn, not shrink) · batches 5 · ctx 41% at save · ended early: no — every agent-doable item Done, rest owner-blocked
+spent: queue 8→7 · batches 3 · ctx 26% at save · ended early: no — every agent-doable item Done, rest owner-gated
