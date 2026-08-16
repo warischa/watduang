@@ -4,6 +4,8 @@
 //
 // <probe.js> is evaluated inside the page as an async function body; whatever it returns is
 // printed as JSON. Everything else is env-var flags, documented in docs/agents/browser-verification.md.
+// Every env flag that names a probe (CDP_STAGE2) takes a FILE PATH, same as <probe.js> — not
+// inline script text.
 //
 // This exists because the tool pages' 320px and reduced-motion claims can only be settled in a
 // real browser, and installing Playwright for that would triple this project's dependency list.
@@ -80,10 +82,26 @@ const out = await evaluate(expr);
 // Mandatory for anything touching a game checkpoint: those live in sessionStorage, which is
 // per-tab, so a second cdp.mjs run opens a fresh tab and can never observe one. Getting this
 // wrong makes a positive control silently pass nothing.
+//
+// CDP_STAGE2 is a PATH to a probe file, same as the positional <probe.js> argument — not inline
+// script text. Prints stage-1's result first, then stage-2's: two-stage calibration in ONE
+// invocation is two JSON lines on stdout, not two separate cdp.mjs runs.
 if (process.env.CDP_STAGE2) {
+  report(out);
+  let stage2Src;
+  try {
+    stage2Src = await readFile(process.env.CDP_STAGE2, 'utf8');
+  } catch (err) {
+    console.log(JSON.stringify({
+      error: `CDP_STAGE2 must be a path to a probe file, not inline script text: readFile(${JSON.stringify(process.env.CDP_STAGE2)}) failed — ${err.message}`,
+    }));
+    await fetch(`http://127.0.0.1:${PORT}/json/close/${target.id}`);
+    ws.close();
+    process.exit(1);
+  }
   await send('Page.reload');
   await settle();
-  report(await evaluate(await readFile(process.env.CDP_STAGE2, 'utf8')));
+  report(await evaluate(stage2Src));
 } else {
   // Captures through the emulated viewport, so the image reflects a real reflow at CDP_WIDTH.
   if (process.env.CDP_SHOT) {

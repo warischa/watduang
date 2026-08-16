@@ -42,8 +42,10 @@ node scripts/cdp.mjs <url> <probe.js>
 |---|---|
 | `CDP_WIDTH` / `CDP_HEIGHT` | real emulated viewport (the page genuinely reflows) |
 | `CDP_KEEP=1` | do not wipe storage — ask what a *returning* user sees |
-| `CDP_STAGE2=<probe>` | reload in the SAME tab, then run a second probe and return its result |
-| `CDP_SHOT=<path.png>` | screenshot through the emulated viewport |
+| `CDP_STAGE2=<probe.js>` | **path to a second probe file** (not inline script text — same rule as the positional `<probe.js>` argument); reload in the SAME tab, evaluate that file, print its result |
+| `CDP_SHOT=<path.png>` | path to write the screenshot; the screenshot is captured through the emulated viewport |
+
+**What prints, and when.** Normal run (no `CDP_STAGE2`): one JSON line — the probe's return value, or `{ error }` on exception. With `CDP_STAGE2` set: **two** JSON lines from the one invocation — the first probe's result, then (after the same-tab reload) the second probe's result. That is the whole two-stage calibration: seed/measure with `<probe.js>`, reload, measure again with `CDP_STAGE2`, read both lines from stdout. If `CDP_STAGE2` cannot be read as a file, `cdp.mjs` prints `{ error: "CDP_STAGE2 must be a path to a probe file, not inline script text: ..." }` and exits 1 instead of a bare `ENOENT`.
 
 ## `driver.mjs` usage
 
