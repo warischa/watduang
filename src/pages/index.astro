@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import { games } from '../games/manifest';
+import { tools } from '../tools/manifest';
 ---
 
 <Base
@@ -9,7 +11,22 @@ import Base from '../layouts/Base.astro';
   <main>
     <h1>วัดดวง</h1>
     <p>เว็บรวมเกมกลุ่มเล่นฟรี 2-10 คน บนเครื่องเดียว ส่งมือถือวนกัน ไม่ต้องโหลดแอป</p>
+    <p>
+      {games.map((game) => (
+        <>
+          <a href={`/game/${game.id}/`}>{game.names.th}</a>{' '}
+        </>
+      ))}
+    </p>
     <p><a href="/games/">ดูเกมทั้งหมด</a></p>
-    <p><a href="/tools/">เครื่องมือสุ่ม</a> — วงล้อสุ่มชื่อ จับฉลาก แบ่งทีม สุ่มเลข ใช้รายชื่อร่วมกับเกมได้</p>
+    <p>
+      <a href="/tools/">เครื่องมือสุ่ม</a> —{' '}
+      {tools.map((tool) => (
+        <>
+          <a href={tool.href}>{tool.name}</a>{' '}
+        </>
+      ))}
+      ใช้รายชื่อร่วมกับเกมได้
+    </p>
   </main>
 </Base>

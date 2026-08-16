@@ -36,6 +36,8 @@ The pre-migration markdown originals under `.scratch/free-game/` were deleted 20
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
 - **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
 - **Close**: `gh issue close <number> --comment "..."`
+- **DoD boxes are never ticked**: an issue closes via a comment naming the evidence, and the checkboxes stay unticked as the record of what the DoD asked for.
+  An unticked box is therefore not proof work is undone — read `state` from open/closed (#30/#31/#32: closed, 0/7, 0/5, 0/4 ticked).
 
 Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
