@@ -41,9 +41,11 @@ const howToJsonLd = {
     </section>
   </main>
 
-  <!-- ponytail: outside <main> as #35 prescribed — safe only because GameLayout has no <style> block,
-       so there is no column width or font for the nav to fall out of. The moment <main> gets styled here,
-       move this inside it (that is what tool pages already do). -->
+  <!-- ponytail: outside <main> as #35 prescribed. Safe only while nothing gives <main> a width or font
+       this nav should share — today nothing does (tokens.css is :root-only). Watch <main> itself, not a
+       list of stylesheets: Astro bundles <style is:global>, a bare `import './x.css'`, and a <style> block
+       here all page-globally, so that set belongs to the bundler, not to this comment. The moment <main>
+       gets a width or font, move this inside it (that is what tool pages already do). -->
   <GameNav navClass="game-next" excludeId={game.id} />
 
   <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
