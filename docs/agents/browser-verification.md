@@ -75,7 +75,7 @@ Known ceilings, both confirmed by a real run in this session, not inferred from 
   see Trap 3 below) — call `session.wipe()` yourself when a test needs a clean slate, `driver.mjs`
   will not do it for you.
 
-## Six traps that produced wrong answers here
+## Seven traps that produced wrong answers here
 
 Each of these passed a plausible-looking check while measuring nothing.
 
@@ -144,6 +144,20 @@ horizontal fields are scroll-independent, so a `right <= 320` overflow assertion
 scrolling; it is only the point-hit test that needs it. Generalises: a probe that reads *painted*
 state is scoped to the viewport, one that reads *layout* state is not — never assume a failing
 probe and a failing page are the same thing.
+
+**7. `grep -c` counts matching *lines*, not matches.** `grep -c '<script'` on
+`dist/game/timebomb/index.html` reports `1`. The page carries **3** `<script>` tags — they share a
+line. An ADR-0005 check written that way therefore stays at `1` when a new inline script lands on an
+existing line, which is exactly how a bundler emits one. Count matches and then filter to what
+ADR-0005 actually gates: `grep -o '<script' | wc -l` for the true tag count, then keep only the
+`src`-less tags (the JSON-LD block is exempt per `docs/adr/0005:27`). On `1679a69` that gives
+tags=3, src-less=1 on a game page and tags=1, src-less=0 on `/tool/number/`. Hit on the #35
+sibling-nav review, where the DoD box asked only that the count "has not grown" — it had not, and
+the number was wrong the whole time, so the box would have passed either way. CI's CSP
+inline-script gate is the real check; this grep is a convenience that reads like a proof.
+Generalises: a detector that cannot distinguish "one match" from "several matches on one line" is
+not measuring the thing its name claims, and a check whose pass condition is "unchanged" inherits
+every blind spot of the thing it counts.
 
 ## Reduced motion
 
