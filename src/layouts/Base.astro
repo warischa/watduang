@@ -38,5 +38,24 @@ const ogImageURL = new URL(ogImage, Astro.site);
   </head>
   <body>
     <slot />
+
+    <footer>
+      {
+        Astro.url.pathname === '/' ? (
+          <span>วัดดวง</span>
+        ) : (
+          <a href="/">วัดดวง</a>
+        )
+      }
+    </footer>
   </body>
 </html>
+
+<style>
+  footer {
+    padding: var(--space-md);
+    text-align: center;
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+  }
+</style>
