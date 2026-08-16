@@ -1,12 +1,12 @@
-// ดวงความรัก — pick two people out of the วง and read how their ดวง sits together today.
+// Love Match — pick two people out of the circle and read how their fortune sits together today.
 // The reading is a pure function of (sorted normalized pair, Asia/Bangkok date): tap again and it is
 // the same answer, swap who you tapped first and it is still the same answer, tomorrow it is a new
-// one. Sorting is what makes ก้อง+ฟ้า and ฟ้า+ก้อง one pair — without it the game answers differently
+// one. Sorting is what makes name-A+name-B and name-B+name-A one pair — without it the game answers differently
 // by tap order, and the first thing a group does is tap the other way round to check (#34).
 // Determinism also kills reroll-until-you-like-it, which matters more here than in #33: a group
 // WILL re-roll a bad compatibility score if the game lets them.
 // No checkpoint by design: state is a pure function of two names and the date, so there is nothing
-// mid-round to persist and เซียมซี stays the sole checkpoint writer (ADR-0010). The only session
+// mid-round to persist and siamsi stays the sole checkpoint writer (ADR-0010). The only session
 // write here is markPlayed at reveal.
 // The .ts extension in the import path is required for `node --test` (Node does not guess
 // extensions) — Vite/tsc accept it.
@@ -25,7 +25,7 @@ export interface Band {
   readonly lines: readonly string[];
 }
 
-/** Every line describes the ดวง of the *pair*, never a verdict on one of the two people in the room,
+/** Every line describes the fortune of the *pair*, never a verdict on one of the two people in the room,
  *  and never assumes the two are or should be together — friends, colleagues and relatives play this
  *  (#34). Per ADR-0011 a line may urge what horoscopes have always urged (patience, kindness, letting
  *  an argument go) but may not name a medical, financial or legal act.
@@ -105,7 +105,7 @@ export const BANDS: readonly Band[] = [
  *  the two ends carry more weight than the middle. The test measures the resulting distribution
  *  rather than trusting this table.
  *  0..5 and 100 are deliberately unproducible: 0% reads as a verdict on two real people in the room
- *  rather than on their จังหวะ, and 100% is an absolute this game has no business claiming. Both
+ *  rather than on their timing, and 100% is an absolute this game has no business claiming. Both
  *  still resolve in bandFor() — the bands tile the full range, the draw just never lands there. */
 const WEIGHTS: readonly (readonly [from: number, to: number, slots: number])[] = [
   [6, 24, 2],
@@ -171,7 +171,7 @@ export function lineFor(a: string, b: string, today: string): string {
 let cleanup: Array<() => void> = [];
 let stageEl: HTMLElement | null = null;
 let gameCtx: GameContext | null = null;
-/** Roster index, not a name — two players in one วง may share a name and are still two picks. */
+/** Roster index, not a name — two players in one circle may share a name and are still two picks. */
 let firstIndex: number | null = null;
 
 // ponytail: `cleanup` grows across pick↔result cycles instead of being drained per render, so the
@@ -260,7 +260,7 @@ function renderResult(a: string, b: string, now: Date): void {
   // print a date that contradicts the reading below it. The Bangkok day, never the device's: two
   // phones in different timezones must agree on the same pair near midnight (Thailand is UTC+7, no
   // DST). Known and accepted, as in #33: at Bangkok midnight the reading flips mid-read, because
-  // nothing is stored to pin it — that is what "วันนี้" promises.
+  // nothing is stored to pin it — that is what "today" promises.
   const today = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Bangkok',
     year: 'numeric',

@@ -7,9 +7,10 @@ interface Props {
   ogImage?: string;
 }
 
-// การ์ดแชร์ต้องมีเสมอ — twitter:card ข้างล่างประกาศ summary_large_image ไว้ตายตัว หน้าที่ไม่ส่ง
-// ogImage มาจึงเคยประกาศการ์ดใหญ่โดยไม่มีรูป แชร์ลง LINE/FB แล้วได้ลิงก์เปล่า
-// default อยู่ตรงนี้ที่เดียว หน้าใหม่ทุกหน้าจึงได้การ์ดฟรีโดยไม่ต้องจำ (สร้างด้วย `node scripts/make-og.mjs site`)
+// The share card must always exist — twitter:card below hardcodes summary_large_image, so a page
+// that didn't pass ogImage used to declare a big card with no image, sharing to LINE/FB with a blank link.
+// The default lives here in exactly one place, so every new page gets a free card without remembering
+// to set one (generate with `node scripts/make-og.mjs site`).
 const { title, description, ogImage = '/og/site.png' } = Astro.props as Props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);

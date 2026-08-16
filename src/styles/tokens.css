@@ -1,5 +1,5 @@
-/* Design tokens only — ยังไม่มี visual design จริง ห้ามเพิ่ม selector อื่น
-   งานออกแบบจริงมาทีหลัง ต้องไม่ต้องรื้อไฟล์นี้ */
+/* Design tokens only — no real visual design yet, no other selectors go in here.
+   Real design work comes later and must not need to gut this file */
 :root {
   --color-bg: #ffffff;
   --color-text: #1a1a1a;

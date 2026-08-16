@@ -167,3 +167,22 @@ LC_ALL=en_US.UTF-8 grep -n '[ก-๛]' file     # force the locale, every time
 
 **Don't:** reach for `grep -P` — BSD grep on macOS has no PCRE. For anything load-bearing, do the
 scan in python (`re.compile(r'[฀-๿]')`); a shell probe that contradicts itself proves nothing.
+
+## A comment-only change still moves `dist/`
+
+Astro **emits HTML comments into built pages**. Every other comment channel is stripped: `.astro`
+frontmatter, CSS comments in `<style>`, and `//` / `/* */` inside `.ts`/`.mjs` and `<script>` all
+disappear. Only `<!-- -->` sitting in template position survives into the output. So a diff touching
+nothing but comments still changes built files, and a byte-identity check on `dist/` reports a
+failure that is not one. Measured on
+[#36](https://github.com/warischa/watduang/issues/36): 236 comment lines migrated, 0 user-facing
+strings touched, 9 of 38 `dist/` files differed.
+
+**Do:** strip HTML comments before comparing, and compare the *multiset* of rendered Thai runs on
+both sides — #36 went 193 → 193, drift 0. A plain count only falling catches a deletion; the multiset
+also catches a translation, which is the failure that actually matters here.
+
+**Don't:** conclude "comments never reach `dist`" from one grep. That was inferred this session from
+two probes and was wrong. One probe searched for `ระเบิดเวลา` — which is also the game's *name*, so it
+appears in `dist` whether or not the comment survives. An input where right and wrong agree measures
+nothing; pick a phrase that can only be comment prose.

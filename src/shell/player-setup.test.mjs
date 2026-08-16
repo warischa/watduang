@@ -46,7 +46,7 @@ function fnBody(name) {
 
 // Found in pre-merge review: the clear question renders OUTSIDE the panel (it has to — the panel hides
 // mid-round), so root.hidden = true does not take it away. Left open across a start it sits beside the
-// live round with ล้างและทิ้งรอบที่ค้าง armed, and that button clears without asking again: one tap kills the
+// live round with Clear-and-drop-pending-round armed, and that button clears without asking again: one tap kills the
 // round the player just chose to keep.
 test('#25 starting or resuming a round closes an unanswered clear question first', () => {
   const body = fnBody('requestStart');
@@ -97,7 +97,7 @@ function listenerBody(elementVar, event) {
   return assert.fail(`unbalanced braces after ${needle}`);
 }
 
-// 0 players ticked: startBtn substitutes a synthesized "คนที่ 1..N" set for the empty selection BEFORE
+// 0 players ticked: startBtn substitutes a synthesized "Player 1..N" set for the empty selection BEFORE
 // resolveStart runs (see the long comment on this branch in PlayerSetup.astro). numberedPlayers always
 // clamps up to at least min, so belowMin can never fire from this path — the guard is provably dead code
 // here (a separate issue tracks removing it; this test only pins the fact, it does not act on it).
@@ -138,7 +138,7 @@ function insidePanel(id) {
 
 // #25 — the clear button is pressable mid-round precisely because it lives outside the panel that
 // hides on start. Its question has to live out there with it: inside the panel, root.hidden = true
-// would swallow it and pressing ล้างกลุ่มนี้ mid-round would look like a dead control.
+// would swallow it and pressing Clear group mid-round would look like a dead control.
 test('#25 the clear confirmation sits outside #player-setup, next to the button it answers for', () => {
   // calibrates the helper both ways: ADR-0008's start prompt really is inside the panel
   assert.equal(insidePanel('resume-choice'), true, 'the start prompt belongs inside the panel');

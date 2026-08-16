@@ -1,4 +1,4 @@
-// กันจอดับระหว่างเล่น — ไม่มีใน iOS < 16.4 และ non-secure context ต้องคืน null แล้วให้ผู้เรียกโชว์คำเตือนเอง
+// Keeps the screen awake during play — unsupported on iOS < 16.4 and non-secure context; returns null and leaves warning the caller's job
 
 export interface WakeLockHandle {
   release(): void;
@@ -32,7 +32,7 @@ export async function requestWakeLock(): Promise<WakeLockHandle | null> {
         sentinel = await nav.wakeLock.request('screen');
         return true;
       } catch {
-        // NotAllowedError เมื่อ document ไม่ visible — คืน false เฉยๆ ไม่ throw
+        // NotAllowedError when the document isn't visible — just return false, do not throw
         return false;
       }
     },

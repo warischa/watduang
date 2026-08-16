@@ -1,4 +1,4 @@
-// เสียงสังเคราะห์ล้วน — OscillatorNode + GainNode เท่านั้น ไม่มีไฟล์เสียง ไม่มี dependency
+// Purely synthesized sound — OscillatorNode + GainNode only, no audio files, no dependency
 
 export function unlockAudio(): AudioContext | null {
   const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -31,7 +31,7 @@ function playTone(ctx: AudioContext, freq: number, duration: number, gainValue: 
   };
 }
 
-/** urgency 0..1 — ยิ่งใกล้ 1 เสียงยิ่งสูง สั้นลง */
+/** urgency 0..1 — closer to 1 means a higher, shorter tone */
 export function tick(ctx: AudioContext, urgency: number): void {
   const u = Math.min(1, Math.max(0, urgency));
   const freq = 440 + u * 660;

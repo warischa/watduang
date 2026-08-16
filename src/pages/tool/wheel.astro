@@ -37,13 +37,14 @@ import GameNav from '../../components/GameNav.astro';
 
       <ul id="wheel-names" class="wheel-names"></ul>
 
-      <!-- ทางต่อเข้าเกมอยู่ติดกับตัวเครื่องมือ ไม่ใช่ใต้โฆษณา — #11 บอกว่านี่คือเหตุผลที่เครื่องมือมีอยู่
-           รายชื่อไหลต่อผ่าน roster (localStorage) ไม่ผ่าน session จึงไม่ทับ checkpoint ของเกมที่ค้างอยู่ -->
+      <!-- The path into a game sits right next to the tool, not below the ad — #11 says this is the
+           whole reason the tool exists. Names flow forward via the roster (localStorage), not session,
+           so they never clobber a game's stranded checkpoint. -->
       <GameNav navClass="wheel-next" />
     </section>
 
-    <!-- โฆษณาอยู่ใต้ตัวเครื่องมือเสมอ (ADR-0004) · จองที่ด้วย min-height ไว้ก่อน เนื้อหาจึงไม่กระโดดตอนโหลด
-         และห้าม inject อะไรเหนือ content -->
+    <!-- The ad always sits below the tool (ADR-0004) · min-height reserves the space up front so content
+         doesn't jump on load, and nothing may be injected above the content. -->
     <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
 
     <section id="how-to-use">
@@ -67,7 +68,7 @@ import GameNav from '../../components/GameNav.astro';
     color: var(--color-text);
   }
 
-  /* จอ 320px: ขนาดวงล้ออิงความกว้างจอ ไม่ใช่ค่าคงที่ จึงล้นด้านข้างไม่ได้ */
+  /* 320px screen: the wheel's size tracks viewport width, not a fixed value, so it can't overflow sideways. */
   .wheel-disc {
     width: min(220px, 60vw);
     aspect-ratio: 1;
@@ -77,7 +78,7 @@ import GameNav from '../../components/GameNav.astro';
     border-radius: 50%;
   }
 
-  /* จองที่ให้ผลไว้ก่อน เนื้อหาข้างล่างจึงไม่ขยับตอนชื่อโผล่ · ชื่อยาวตัดบรรทัดแทนดันจอ */
+  /* Reserves space for the result up front so content below doesn't shift when a name appears · a long name wraps instead of pushing the layout. */
   .wheel-result {
     min-height: 2em;
     margin: 0;
@@ -92,7 +93,7 @@ import GameNav from '../../components/GameNav.astro';
     color: var(--color-muted);
   }
 
-  /* ปุ่มพับลงบรรทัดใหม่แทนล้นออกข้าง เมื่อจอแคบกว่าปุ่มสองปุ่มรวมกัน */
+  /* Buttons wrap onto a new line instead of overflowing sideways when the screen is narrower than both buttons combined. */
   .wheel-actions,
   .wheel-names {
     display: flex;
@@ -125,7 +126,7 @@ import GameNav from '../../components/GameNav.astro';
     animation: wheel-spin 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
 
-  /* ปิดอนิเมชัน — ผลยังออกเป็นตัวหนังสือใน #wheel-result เหมือนเดิม (สคริปต์เฉลยทันทีไม่ต้องรอ) */
+  /* Animation off — the result still shows as text in #wheel-result as before (the script reveals it immediately, no wait). */
   @media (prefers-reduced-motion: reduce) {
     .wheel-disc.is-spinning {
       animation: none;
@@ -148,9 +149,9 @@ import GameNav from '../../components/GameNav.astro';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let players: string[] = [];
-  // ใครออกไปแล้ว — อยู่ใน memory อย่างเดียวโดยตั้งใจ รีเฟรชแล้วเริ่มรอบใหม่
-  // (ชื่อยังอยู่เพราะ roster เป็น localStorage) · ห้ามเก็บลง shell/session.ts เพราะ checkpoint
-  // มีช่องเดียวร่วมกันทั้งเว็บ เครื่องมือแตะเมื่อไหร่ = เกมที่ค้างกลางรอบอยู่หายทันที
+  // Who's already out — deliberately memory-only, a refresh starts a fresh round
+  // (names survive because the roster is localStorage) · must never persist to shell/session.ts, because
+  // checkpoint is one slot shared site-wide — the moment a tool touches it, any game stranded mid-round is gone.
   const spun = new Set<string>();
   let spinning = false;
   let spinTimer = 0;
@@ -164,14 +165,14 @@ import GameNav from '../../components/GameNav.astro';
     for (const name of players) {
       const isOut = eliminateBox.checked && spun.has(name);
       const li = document.createElement('li');
-      // สถานะบอกด้วยตัวหนังสือ ไม่ใช่สีหรือเส้นขีดอย่างเดียว
+      // State is announced as text, not just color or strikethrough.
       li.textContent = isOut ? `${name} (ออกแล้ว)` : name;
       if (isOut) li.classList.add('is-out');
       namesEl.appendChild(li);
     }
 
     const left = remaining();
-    // เหลือคนเดียวก็ยังกดหมุนได้ — คนสุดท้ายต้องได้ผลของตัวเองเหมือนคนอื่น ไม่ใช่เศษเหลือที่ไม่มีใครประกาศ
+    // Spin still works with one person left — the last person deserves their own result like everyone else, not an unannounced leftover.
     spinBtn.disabled = spinning || players.length < 2 || left.length === 0;
 
     if (spinning) {
@@ -179,14 +180,14 @@ import GameNav from '../../components/GameNav.astro';
     } else if (players.length === 0) {
       noteEl.textContent = 'ยังหมุนไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงวงล้อ"';
     } else if (players.length < 2) {
-      // เข้าไม่ถึงแล้วตั้งแต่ PlayerSetup ปฏิเสธการเริ่มที่ต่ำกว่า min — กันไว้ไม่ให้ปุ่มตายเงียบถ้าหลุดมา
-      // (roster อยู่ localStorage จึงไม่หาย รีเฟรชคือทางกลับที่ถูก)
+      // Unreachable already — PlayerSetup rejects starting below min, this just guards against the
+      // button dying silently if that path is somehow reached (roster is localStorage so nothing is lost; refresh is the correct way back).
       noteEl.textContent = `วงล้อมีชื่อเดียว (${players[0]}) ต้องมีอย่างน้อย 2 ชื่อถึงจะหมุนได้ — รีเฟรชหน้านี้แล้วเลือกชื่อใหม่`;
     } else if (left.length === 0) {
-      // จบรอบ: ประกาศครั้งเดียวว่าออกครบ · #wheel-result ยังค้างชื่อคนสุดท้ายไว้ในฐานะ "ผล" ไม่ใช่คนละคำตอบ
+      // Round over: announce once that everyone's out · #wheel-result still holds the last name as "the result", not a separate answer.
       noteEl.textContent = `ออกครบทั้ง ${players.length} คนแล้ว — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
     } else if (left.length === 1) {
-      // บอกว่าใครเหลือ ไม่ตัดสินแทนวงล้อ — คำว่า "โดน" ออกได้จาก #wheel-result ที่เดียว
+      // States who's left, doesn't decide for the wheel — the word announcing "it's you" is only ever emitted by #wheel-result.
       noteEl.textContent = `เหลือ ${left[0]} คนเดียวในวงล้อ — กด "หมุน" อีกครั้งเพื่อเฉลยคนสุดท้าย`;
     } else {
       noteEl.textContent = '';
@@ -197,15 +198,16 @@ import GameNav from '../../components/GameNav.astro';
     const left = remaining();
     let picked: string;
     if (left.length === 1) {
-      // เหลือคนเดียว = ไม่มีอะไรให้สุ่ม แต่ต้องเฉลยออกมาเป็นผล
-      // (pickName ตั้งใจ throw ที่ต่ำกว่า 2 คน — การเลือกที่ไม่ใช่การสุ่มจึงไม่ควรยัดเข้าไปในนั้น)
+      // One person left = nothing to randomize, but it still has to be revealed as a result.
+      // (pickName deliberately throws below 2 names — a non-random pick doesn't belong forced into that.)
       picked = left[0]!;
     } else {
       try {
         picked = pickName(left);
       } catch (error) {
-        // ด่านสุดท้าย — ปกติปุ่มถูกปิดไปก่อนแล้ว แต่ถ้าหลุดมาถึงตรงนี้ ผู้ใช้ต้องเห็นเหตุผลเป็นตัวหนังสือ
-        // พร้อมทางออก ไม่ใช่ปุ่มตายเงียบๆ หรือ error ค้างอยู่ใน console เท่านั้น
+        // Last line of defense — the button is normally disabled before this, but if this is somehow
+        // reached, the user must see the reason as text with a way out, not a silently dead button or
+        // an error stuck only in the console.
         const reason = error instanceof Error ? error.message : 'หมุนไม่ได้';
         noteEl.textContent = `${reason} — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
         spinBtn.disabled = true;
@@ -221,9 +223,10 @@ import GameNav from '../../components/GameNav.astro';
       spinning = false;
       disc.classList.remove('is-spinning');
       spun.add(picked);
-      // อ่านสถานะตอนเฉลย ไม่ใช่ตอนเริ่มหมุน — ติ๊ก/ปลดติ๊กกลางหมุนได้
-      // ที่นี่พูดได้แค่ "ใครโดน" ซึ่งเป็นอดีตที่ไม่มีวันเปลี่ยน · สถานะของรอบ (ครบยัง เหลือใคร) เป็นของ note
-      // ที่ render() คุมอยู่คนเดียว ไม่งั้นปลดติ๊กหลังจบรอบแล้วผลจะค้างประกาศว่า "ครบทุกคนแล้ว" ทั้งที่วงล้อเต็มอีกครั้ง
+      // Reads state at reveal time, not at spin start — the checkbox can be toggled mid-spin.
+      // This can only ever say "who got picked", a past fact that never changes · round state (done yet,
+      // who's left) belongs to the note, owned solely by render() — otherwise unchecking after a round
+      // ends would leave the result stuck announcing "everyone's out" while the wheel is full again.
       const done = eliminateBox.checked && remaining().length === 0;
       resultEl.textContent = done ? `โดน: ${picked} (คนสุดท้าย)` : `โดน: ${picked}`;
       render();
@@ -235,12 +238,12 @@ import GameNav from '../../components/GameNav.astro';
     }
 
     disc.classList.remove('is-spinning');
-    void disc.offsetWidth; // reflow — ไม่งั้นกดหมุนซ้ำติดๆ อนิเมชันไม่เริ่มรอบใหม่
+    void disc.offsetWidth; // reflow — otherwise spinning again right away won't restart the animation
     disc.classList.add('is-spinning');
     spinTimer = window.setTimeout(reveal, SPIN_MS);
   }
 
-  // แผงกรอกรายชื่อตัวเดียวกับที่เกมใช้ — เครื่องมือเป็นแค่ผู้ฟัง ไม่แก้พฤติกรรมของมัน
+  // Same name-entry panel the games use — the tool is only a listener, it doesn't change its behavior.
   document.addEventListener('watduang:start', (event) => {
     players = (event as CustomEvent<{ players: string[] }>).detail.players;
     spun.clear();
@@ -251,7 +254,7 @@ import GameNav from '../../components/GameNav.astro';
   spinBtn.addEventListener('click', spin);
 
   resetBtn.addEventListener('click', () => {
-    // กดกลางหมุน: ต้องยกเลิก reveal ที่ค้างอยู่ ไม่งั้นอีก 1.2 วิมันจะเติมผลที่เพิ่งล้างไปกลับมาเอง
+    // Pressed mid-spin: the pending reveal must be cancelled, otherwise in 1.2s it fills back in the result that was just cleared.
     window.clearTimeout(spinTimer);
     spinning = false;
     disc.classList.remove('is-spinning');

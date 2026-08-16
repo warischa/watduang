@@ -13,7 +13,7 @@ _Avoid_: สุ่ม (กว้างเกินไป — เป็นกล�
 กลุ่มคนที่นั่งอยู่ด้วยกันและใช้มือถือเครื่องเดียวร่วมกัน เป็นหน่วยนับของผู้ใช้จริงบนเว็บนี้ — หนึ่งวงคือหนึ่งเครื่อง ไม่ใช่หนึ่งคน
 _Avoid_: กลุ่ม, ห้อง, room, party (party เป็นชื่อหมวด ไม่ใช่คน)
 
-**คนที่ N** (unnamed วง): a วง that ticked nobody still starts — the count input's number fills in as
+**คนที่ N** (unnamed วง · English alias for code comments: **numbered-players group**): a วง that ticked nobody still starts — the count input's number fills in as
 "คนที่ 1, 2, 3…" (#22), clamped into the page's `[min, max]` the same way a ticked roster is. Since that
 clamp always yields at least `min` names, an empty tick-set never reaches the below-min refusal; only a
 *partial* tick (more than 0 but fewer than min) does.

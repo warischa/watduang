@@ -1,9 +1,9 @@
-// วัดดวงวันนี้ — the phone passes, each player types their own name and reads today's fortune.
+// Daily Fortune — the phone passes, each player types their own name and reads today's fortune.
 // The fortune is a pure function of (normalized name, Asia/Bangkok date): tap again and it is the
 // same answer, tomorrow it is a different one. That determinism is what keeps this game distinct
-// from เซียมซี's random group draw (#33, ADR-0002) — it also kills reroll-until-you-like-it and
+// from siamsi's random group draw (#33, ADR-0002) — it also kills reroll-until-you-like-it and
 // makes two phones agree on the same name.
-// No checkpoint by design: there is nothing mid-round to persist, so เซียมซี stays the sole
+// No checkpoint by design: there is nothing mid-round to persist, so siamsi stays the sole
 // checkpoint writer (ADR-0010). The only session write here is markPlayed at reveal.
 // The .ts extension in the import path is required for `node --test` (Node does not guess
 // extensions) — Vite/tsc accept it.
@@ -12,8 +12,8 @@ import type { GameContext, GameModule } from './types.ts';
 // ---- The draw: pure and calculable, testable with no DOM (see daily-fortune.test.mjs) ----
 
 /** One flat pool, not split by aspect (#33): an aspect split multiplies hand-reviewed items past
- *  what ADR-0011 unlocked, and การเงิน/สุขภาพ sections are exactly where advice-register text leaks
- *  in. Every line describes ดวง and never prescribes a medical, financial or legal act. */
+ *  what ADR-0011 unlocked, and finance/health sections are exactly where advice-register text leaks
+ *  in. Every line describes the fortune and never prescribes a medical, financial or legal act. */
 export const FORTUNES: readonly string[] = [
   'วันนี้ดวงเปิดทาง เรื่องที่ค้างมานานจะขยับได้สักที',
   'มีเกณฑ์ได้ข่าวดีจากคนไกล ช่วงบ่ายเป็นต้นไป',
@@ -70,9 +70,9 @@ export const FORTUNES: readonly string[] = [
   'วันนี้เหมือนเดินสวนทางกับดวงตัวเอง อะไรที่เคยง่ายจะกลายเป็นยาก',
 ];
 
-/** The key half of the seed. Trim + collapse internal whitespace so `" ก้อง "`, `"ก้อง"` and
- *  `"ก้อง  ใหญ่"` behave; lowercase so a Latin name typed `"Bank"` / `"bank"` agrees (a no-op on
- *  Thai); NFC so the same Thai word typed on two keyboards hashes the same. */
+/** The key half of the seed. Trim + collapse internal whitespace so a padded Thai name and a
+ *  double-spaced Thai name behave the same; lowercase so a Latin name typed `"Bank"` / `"bank"`
+ *  agrees (a no-op on Thai); NFC so the same Thai word typed on two keyboards hashes the same. */
 export function normalizeName(raw: string): string {
   // Zero-width chars are stripped before trim: `\s` does not match them, so a name pasted from
   // LINE or Facebook can carry an invisible U+200B and hash differently from the identical-looking
@@ -101,7 +101,7 @@ const BANGKOK_DAY = new Intl.DateTimeFormat('en-CA', {
 /** "Today" as YYYY-MM-DD in Bangkok, never the device's day — two phones in different timezones
  *  must agree on the same name near midnight. Thailand is UTC+7 with no DST.
  *  Known and accepted (#33): at Bangkok midnight the fortune flips mid-read, because nothing is
- *  stored to pin it. That is what "วันนี้" promises. */
+ *  stored to pin it. That is what "today" promises. */
 export function bangkokDate(now: Date = new Date()): string {
   return BANGKOK_DAY.format(now);
 }
@@ -110,7 +110,7 @@ export function bangkokDate(now: Date = new Date()): string {
  *  avalanche finalizer: FNV-1a alone mixes its low bits weakly, and `% pool.length` reads exactly
  *  those, which leaves pool entries unreachable. `>>> 0` before the modulo is load-bearing — a
  *  negative index returns undefined, and every "same seed, same answer" test would still pass.
- *  Exported for row 7 (ดวงความรัก), the way short-stick imports pickLoser — one function, no layer. */
+ *  Exported for row 7 (Love Match), the way short-stick imports pickLoser — one function, no layer. */
 export function hashPick<T>(seed: string, pool: readonly T[]): T {
   if (pool.length === 0) throw new Error('hashPick: empty pool, nothing to draw from');
   let h = 0x811c9dc5;
@@ -125,8 +125,8 @@ export function hashPick<T>(seed: string, pool: readonly T[]): T {
 }
 
 /** Today's fortune for a typed name. This is the seam the whole game rests on: both halves of the
- *  seed must be in it — drop the date and it stops being วันนี้, drop the name and everyone in the
- *  วง reads the same line. */
+ *  seed must be in it — drop the date and it stops being "today", drop the name and everyone in the
+ *  circle reads the same line. */
 export function fortuneFor(name: string, today: string): string {
   return hashPick(`${normalizeName(name)}|${today}`, FORTUNES);
 }
@@ -203,7 +203,7 @@ function renderAsk(hint?: string): void {
 
   if (hint) stage.appendChild(el('p', hint));
 
-  // The setup panel already collected the วง — offer those names as one tap instead of retyping.
+  // The setup panel already collected the circle — offer those names as one tap instead of retyping.
   const names = [...new Set(gameCtx?.session.players ?? [])];
   if (names.length > 0) {
     stage.appendChild(el('p', 'หรือแตะชื่อในวงได้เลย'));

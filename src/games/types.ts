@@ -1,7 +1,7 @@
-// Contract ของทุกเกม — ทุกไฟล์ใน src/games/ ที่ไม่ขึ้นต้นด้วย _ ต้อง default-export GameModule
-// เหตุผลของ field ต่างๆ อยู่ใน issue #13 — ห้ามเขียนซ้ำที่นี่
+// Contract every game must satisfy — every file in src/games/ not starting with _ must default-export GameModule
+// The reasoning behind each field lives in issue #13 — do not duplicate it here
 
-/** รายชื่อผู้เล่นที่อยู่ข้ามรอบ ข้ามเกม — localStorage (ต้อง try/catch ทุกครั้ง) */
+/** Player list that persists across rounds and games — localStorage (must try/catch every access) */
 export interface Roster {
   names(): string[];
   add(name: string): void;
@@ -18,19 +18,21 @@ export interface Roster {
  */
 export type Checkpoint = { game: string; players: string[] } & Record<string, unknown>;
 
-/** สถานะของ "วงนี้" เท่านั้น — หมดอายุเองได้ ไม่ผูกกับ roster */
+/** State for "this group" only — can expire on its own, not tied to the roster */
 export interface GameSession {
-  /** ผู้เล่นในวงรอบนี้ — subset ของ roster หรือชื่อชั่วคราว P1..Pn */
+  /** Players in this group's round — a subset of the roster, or temporary names P1..Pn */
   players: string[];
-  /** ตั้งผู้เล่นแล้วเขียนลง storage ในจังหวะเดียว — อย่าเซ็ต players ตรงๆ มันจะไม่ถูกบันทึก */
+  /** Sets players and writes to storage in one step — never set players directly, it won't persist */
   setPlayers(names: string[]): void;
-  /** id ของเกมที่วงนี้เล่นไปแล้ว — ใช้ตอนแนะนำเกมถัดไปเมื่อมีเกม >= 2 */
+  /** ids of games this group already played — used to suggest the next game once there are >= 2 games.
+   *  "group" not "round" on purpose: a session spans several games for one sitting, so clearing it at
+   *  round end would destroy this list. Matches session.ts:1, which already said "this group". */
   played: string[];
   markPlayed(id: string): void;
-  /** สถานะกลางรอบ กันรีเฟรชแล้วหาย — เกมกำหนดรูปร่างเอง นอกจาก game/players ที่ envelope บังคับ */
+  /** Mid-round state, survives a refresh — the game defines its own shape, except game/players which the envelope enforces */
   checkpoint: Checkpoint | null;
   saveCheckpoint(cp: Checkpoint | null): void;
-  /** ปุ่ม "ล้างกลุ่มนี้" — ล้าง session ไม่แตะ roster */
+  /** The "clear this group" button — clears the session, never touches the roster */
   clear(): void;
 }
 
@@ -40,26 +42,26 @@ export interface GameContext {
 }
 
 export interface GameModule {
-  /** slug → /game/<id>/ — ต้องตรงกับชื่อไฟล์ */
+  /** slug -> /game/<id>/ — must match the filename */
   id: string;
   names: { th: string; en: string };
   category: 'party' | 'fortune';
   players: [min: number, max: number];
   keywords: string[];
-  /** ponytail: ยังไม่มีใครอ่าน — Vite แตก chunk ต่อไฟล์เกมให้เองแล้ว
-   *  เก็บไว้ตามสเปก #13 เผื่อเกมที่ต้องโหลด lib ก้อนใหญ่จริง */
+  /** ponytail: nothing reads this yet — Vite already splits a chunk per game file on its own.
+   *  Kept per the #13 spec in case a game genuinely needs to load a large lib */
   needs: string[];
-  /** hook สั้นๆ บรรทัดเดียวสำหรับการ์ด OG — seo.title ยาวไป seo.description ยิ่งยาว
-   *  ใช้โดย scripts/make-og.mjs · ไม่มีที่นี่แล้วการ์ดจะเหลือแต่ชื่อเกม */
+  /** A short one-line hook for the OG card — seo.title runs too long, seo.description longer still.
+   *  Used by scripts/make-og.mjs · without this the card is left with just the game name */
   tagline: string;
-  /** steps → หัวข้อ "วิธีเล่น" + HowTo JSON-LD */
+  /** steps -> the "how to play" heading + HowTo JSON-LD */
   seo: { title: string; description: string; steps: string[] };
-  /** ชื่อไฟล์ใน public/og/ เช่น "timebomb.png" — ห้ามมีขวด กระป๋อง หรือแก้วที่มีโลโก้ */
+  /** Filename in public/og/, e.g. "timebomb.png" — must never show a bottle, can, or logo'd glass */
   og: string;
-  /** false = ทั้งหน้าไม่มี ad slot — จอเล่นทุกจอต้องเป็น false */
+  /** false = the whole page has no ad slot — every gameplay screen must be false */
   ads: boolean;
   mount(stage: HTMLElement, ctx: GameContext): void;
-  /** ล้าง timer / listener / audio ทุกทางออก — บังคับ */
+  /** Clear timers / listeners / audio on every exit path — required */
   dispose(): void;
   onVisibility?(hidden: boolean): void;
 }

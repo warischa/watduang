@@ -1,5 +1,5 @@
 // node --test 'src/**/*.test.mjs' — no framework, no dependency
-// Covers the pure จับฉลาก logic exported from draw.ts (no DOM needed)
+// Covers the pure draw-lots logic exported from draw.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { drawNames } from './draw.ts';

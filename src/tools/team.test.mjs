@@ -1,5 +1,5 @@
 // node --test 'src/**/*.test.mjs' — no framework, no dependency
-// Covers the pure แบ่งทีม logic exported from team.ts (no DOM needed)
+// Covers the pure team-split logic exported from team.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { splitTeams } from './team.ts';

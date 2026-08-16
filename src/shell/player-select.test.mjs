@@ -1,5 +1,5 @@
-// node --test src/shell/ — ไม่มี framework ไม่มี dependency
-// เช็คตรรกะล้วนๆ ที่ export จาก player-select.ts (ไม่ต้องมี DOM/localStorage)
+// node --test src/shell/ — no framework, no dependency
+// Checks pure logic exported from player-select.ts (no DOM/localStorage needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveStart, numberedPlayers, planStart, planClear } from './player-select.ts';
@@ -84,7 +84,7 @@ test('#23 the player answered: กลับไปเล่นรอบที่�
   assert.equal(planStart(null, 'siamsi', 'fresh'), 'discard-then-start');
 });
 
-// ---- #25: ล้างกลุ่มนี้ mid-round is a question too — and its condition is NOT planStart's ----
+// ---- #25: Clear group mid-round is a question too — and its condition is NOT planStart's ----
 
 test('#25 a round in progress: pressing ล้างกลุ่มนี้ must ask before wiping it', () => {
   assert.equal(planClear(cp('siamsi'), false), 'ask');

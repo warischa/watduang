@@ -114,7 +114,7 @@ export function toCheckpoint(s: RoundState): Checkpoint {
  *
  * The checkpoint owns its roster (#23): `current` is accepted and deliberately ignored. Resuming
  * used to require cp.players to match the setup panel element-wise, which silently destroyed a live
- * round on a "คนที่ N" start and on an untick/re-tick of the identical group (a Set reorders).
+ * round on a numbered-player ("Player N") start and on an untick/re-tick of the identical group (a Set reorders).
  * The param stays in the signature so a test can hand in a diverging roster and prove it does not
  * matter — see the two resume tests in siamsi.test.mjs. Structural trust still lives here, because
  * every blob was written by a past version of the code.
@@ -339,8 +339,10 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
     // showed a moment ago (game/[id].astro), which is transient and may be a different group entirely.
     // Writing it back keeps session.players and the round in agreement for the rest of the round.
     // Resume overriding the panel's selection is not a silent decision any more: with a live
-    // checkpoint for this game, PlayerSetup asks first (#resume-choice) and only "กลับไปเล่นรอบที่ค้าง"
-    // reaches this branch. "เริ่มรอบใหม่" clears the slot there, so mounting finds nothing to resume.
+    // checkpoint for this game, PlayerSetup asks first (#resume-choice) and only #resume-round
+    // reaches this branch. #fresh-round clears the slot there, so mounting finds nothing to resume.
+    // Cited by element id, not by button label: the labels are Thai UI copy and cannot appear in a
+    // comment under #36, so the ids are the only greppable anchor left (PlayerSetup.astro:32-33).
     ctx.session.setPlayers(resumed.players);
     players = resumed.players;
     deck = resumed.deck;

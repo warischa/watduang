@@ -25,7 +25,7 @@ const midRound = (n) => ({
   drawn: n,
 });
 
-// #23 — "เริ่มรอบใหม่" abandons the round in progress on purpose. If the slot is not actually empty
+// #23 — "Start new round" abandons the round in progress on purpose. If the slot is not actually empty
 // before the game mounts, the game's resume finds the old blob and the "new" round IS the old one.
 test('#23 saveCheckpoint(null) empties the slot for real — a fresh round cannot inherit the old one', () => {
   slots.clear();
@@ -37,7 +37,7 @@ test('#23 saveCheckpoint(null) empties the slot for real — a fresh round canno
 
   session.saveCheckpoint(null);
   assert.equal(loadSession().checkpoint, null);
-  // clearing the round must not clear the วง — the ticked group is the player's, not the round's
+  // clearing the round must not clear the group — the ticked group is the player's, not the round's
   assert.deepEqual(loadSession().players, ['เอ', 'บี']);
 });
 
@@ -121,7 +121,7 @@ test('a checkpoint writer landing between a closure\'s creation and its own setP
 // F1 (ADR-0010, open finding S2026-08-15#2) — the sibling caller 65d3d3c did not cover. siamsi.ts:344
 // is a SECOND setPlayers on the closure the start handler built, and on first mount `await load()`
 // (game/[id].astro:56) separates it from that closure's creation. The panel is live in that gap:
-// ล้างกลุ่มนี้ → clear() (PlayerSetup.astro:304) empties the record and location.reload() (:310) is a
+// Clear group → clear() (PlayerSetup.astro:304) empties the record and location.reload() (:310) is a
 // macrotask away, so the module's continuation can land first. Same detector as the test above —
 // slots.size is raw record presence — plus planStart as the symptom the player actually meets.
 test('F1: the resume path\'s late setPlayers must not rebuild a record that was discarded meanwhile', () => {
@@ -141,7 +141,7 @@ test('F1: the resume path\'s late setPlayers must not rebuild a record that was 
   assert.equal(slots.size, 1);
   assert.equal(loadSession().checkpoint.phase, 'drawn');
 
-  // ...await load() suspends. ล้างกลุ่มนี้ → requestClear(true) loads a FRESH snapshot and clears.
+  // ...await load() suspends. Clear group → requestClear(true) loads a FRESH snapshot and clears.
   loadSession().clear();
   assert.equal(slots.size, 0);
 
@@ -183,7 +183,7 @@ test('a discard is final — a write racing in through a stale session closure m
   assert.equal(slots.size, 1);
   assert.equal(loadSession().checkpoint.phase, 'drawn');
 
-  // ล้างและทิ้งรอบที่ค้าง — PlayerSetup.requestClear(true) loads a FRESH snapshot and clears through it
+  // Clear-and-drop-pending-round — PlayerSetup.requestClear(true) loads a FRESH snapshot and clears through it
   loadSession().clear();
   assert.equal(slots.size, 0);
 
@@ -199,7 +199,7 @@ test('a discard is final — a write racing in through a stale session closure m
   assert.equal(slots.size, 0, 'markPlayed + saveCheckpoint(null) revived the discarded session record');
 
   // Harness variant F — the symptom the player actually met, one level up from storage: after the
-  // reload, pressing เริ่มรอบ offered กลับไปเล่นรอบที่ค้าง for the round they had explicitly thrown away.
+  // reload, pressing Start round offered Resume-pending-round for the round they had explicitly thrown away.
   // Same decision the shell makes, through the real planStart.
   assert.equal(
     planStart(loadSession().checkpoint, 'siamsi'),
@@ -224,7 +224,7 @@ test('a discard is final — a write racing in through a stale session closure m
 
 // FRESH closure. The anti-over-fix control for the whole guard: "no create after a discard" would be a
 // WRONG invariant, and this is the test that would catch someone asserting it. Reachable constantly in
-// production — it is every round started after ล้างและทิ้งรอบที่ค้าง and its reload.
+// production — it is every round started after Clear-and-drop-pending-round and its reload.
 test('fresh closure: a discard does not stop the NEXT round from being created', () => {
   slots.clear();
   const first = loadSession();
@@ -257,7 +257,7 @@ test('a closure that legitimately created after one discard is stale after the n
   assert.equal(slots.size, 1);
   round2.saveCheckpoint(midRound(7));
 
-  loadSession().clear(); // ล้างและทิ้งรอบที่ค้าง again — now round2's closure is the stale one
+  loadSession().clear(); // Clear-and-drop-pending-round again — now round2's closure is the stale one
   assert.equal(slots.size, 0);
 
   round2.setPlayers(['เอ', 'บี']); // siamsi.ts:344 writing the roster back, one discard too late

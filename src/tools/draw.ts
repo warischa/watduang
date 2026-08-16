@@ -1,4 +1,4 @@
-// Pure จับฉลาก logic — never touches DOM, localStorage, or sessionStorage.
+// Pure draw-lots logic — never touches DOM, localStorage, or sessionStorage.
 // Tracking who has already been drawn is the caller's job: it passes the remaining box down, same as wheel.ts.
 // There is deliberately no "at least 2 names" guard here — that is a party-size rule the page enforces against
 // the full roster. Enforcing it on `pool` would strand the last name, because `pool` IS the remaining box.

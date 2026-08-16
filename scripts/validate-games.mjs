@@ -5,8 +5,8 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// ไม่ต้องมี resolve hook: manifest.ts เขียนนามสกุล .ts เต็มในทุก import ของเกม
-// node จึงหาไฟล์เจอตรงๆ (Vite/Astro รับนามสกุลเต็มอยู่แล้ว)
+// No resolve hook needed: manifest.ts writes the full .ts extension on every game import,
+// so node finds the file directly (Vite/Astro already accept the full extension too)
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = path.join(root, 'src/games/manifest.ts');
 
@@ -44,7 +44,7 @@ games.forEach((g, i) => {
   if (!isStr(g?.names?.th)) err('names.th', 'must be a non-empty string');
   if (!isStr(g?.names?.en)) err('names.en', 'must be a non-empty string');
 
-  // การ์ด OG ใช้ field นี้เป็นบรรทัดฮุก — ว่างเมื่อไหร่ scripts/make-og.mjs หยุดทันที
+  // The OG card uses this field as its hook line — if it's empty, scripts/make-og.mjs stops immediately
   if (!isStr(g?.tagline) || g.tagline.trim() === '') err('tagline', 'must be a non-empty string');
 
   if (g?.category !== 'party' && g?.category !== 'fortune') {

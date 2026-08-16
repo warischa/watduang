@@ -1,4 +1,4 @@
-// Pure สุ่มเลขในช่วง logic — never touches DOM, localStorage, or sessionStorage.
+// Pure random-number-in-range logic — never touches DOM, localStorage, or sessionStorage.
 // No-repeat mode is the caller's job: it passes `drawn` (numbers already used) in and this filters them out.
 const MIN_RANGE_SIZE = 2;
 // ponytail: hard cap so the candidates array below can never blow up the tab. A party tool has no use for a

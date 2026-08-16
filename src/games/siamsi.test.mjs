@@ -106,7 +106,7 @@ test('an unusable blob must return null in every case, not resume in a corrupted
     ['no checkpoint', null, s.players],
     ['another game (storage slot is shared across games)', { ...ok, game: 'timebomb' }, s.players],
     // A roster that disagrees with the blob is no longer a rejection reason (#23) — the two cases
-    // that used to live here ('วงเปลี่ยนคน', 'วงคนน้อยลง') are now the two resume tests below.
+    // that used to live here (the roster-changed and roster-shrank cases) are now the two resume tests below.
     // Only a blob that is structurally unusable may return null; a live round must never be dropped.
     // The roster now leaves this function and becomes session.players (#23), so it is validated here:
     // a non-string name used to survive every other check and end up in storage and on screen.

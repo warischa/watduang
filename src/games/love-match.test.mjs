@@ -1,7 +1,7 @@
 // node --test src/games/love-match.test.mjs — no framework, no dependency
 // checks only the pure reading exported from love-match.ts (no DOM needed).
 // The invariant under test is the one the game exists for (#34): the reading is a pure function of
-// (sorted normalized pair, Bangkok date) — tap order cannot change it, the same วง on the same day
+// (sorted normalized pair, Bangkok date) — tap order cannot change it, the same circle on the same day
 // gets the same answer, and the score can never contradict the line printed next to it.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -108,7 +108,7 @@ test('a new day re-deals most pairs — measured, not assumed 100%', () => {
   assert.ok(scoreMoved / PAIRS.length >= 0.93, `only ${scoreMoved}/${PAIRS.length} scores moved overnight`);
   assert.ok(lineMoved / PAIRS.length >= 0.93, `only ${lineMoved}/${PAIRS.length} lines moved overnight`);
 
-  // And it is not one lucky pair of days — every day must move most of the วง, on both outputs.
+  // And it is not one lucky pair of days — every day must move most of the circle, on both outputs.
   for (let i = 1; i < DAYS.length; i++) {
     const s = PAIRS.filter(([a, b]) => scoreFor(a, b, DAYS[i - 1]) !== scoreFor(a, b, DAYS[i])).length;
     const l = PAIRS.filter(([a, b]) => lineFor(a, b, DAYS[i - 1]) !== lineFor(a, b, DAYS[i])).length;
@@ -175,7 +175,7 @@ test('the middling number is deliberately rare, and both ends are fat', () => {
 });
 
 test('a person paired with themselves reads, it does not crash', () => {
-  // Reachable for real: two players in one วง may share a name (the roster allows duplicates), and
+  // Reachable for real: two players in one circle may share a name (the roster allows duplicates), and
   // they are two different people who deserve a real reading — forcing a fixed 100% would be wrong.
   // The UI separately refuses the same roster INDEX twice; that is a screen rule, not this seam's.
   const day = '2026-08-15';

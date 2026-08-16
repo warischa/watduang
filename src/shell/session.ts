@@ -57,10 +57,10 @@ export function loadSession(): GameSession {
    * Why compare instead of trusting the closure: loadSession() hands out an independent mutable closure
    * per call — the shell holds one, the mounted game holds another (game/[id].astro builds ctx.session
    * once) — over a single storage key. clear() cannot invalidate a closure it does not know about, so
-   * after a clear the game's closure is still live and still armed. Press ล้างและทิ้งรอบที่ค้าง mid-round
+   * after a clear the game's closure is still live and still armed. Press Clear-and-drop-pending-round mid-round
    * and location.reload() is a macrotask away; a tap that lands before unload ran save() through the
    * game's closure and setItem the discarded round straight back. After the reload the panel offered
-   * กลับไปเล่นรอบที่ค้าง for the round the player had just thrown away — a discard that silently
+   * Resume-pending-round for the round the player had just thrown away — a discard that silently
    * un-discards, which is an ADR-0008 violation in substance. The round-over path did it too, reviving
    * the whole record through markPlayed + saveCheckpoint(null).
    *

@@ -1,9 +1,9 @@
-// รายชื่อผู้เล่นข้ามรอบ ข้ามเกม — localStorage (ทุกครั้งที่แตะ storage ต้อง try/catch, issue #7)
+// Player roster persists across rounds, across games — localStorage (every storage touch needs try/catch, issue #7)
 import type { Roster } from '../games/types';
 
 const KEY = 'watduang:roster';
-// "วง" = subset ของ roster ที่กำลังเล่นจริง — คนละคีย์กับ roster โดยตั้งใจ (#15)
-// ผู้ใช้เก่ามี string[] ดิบอยู่ใต้ KEY แล้ว เปลี่ยนรูปคีย์เดิมเป็น object = รายชื่อเขาหายเงียบๆ
+// "Group" = the subset of the roster actually playing — deliberately a separate key from roster (#15)
+// Existing users already have a raw string[] under KEY — reshaping that key into an object would silently lose their names
 const GROUP_KEY = 'watduang:group';
 
 function read(key: string): string[] {
@@ -21,19 +21,19 @@ function write(key: string, list: string[]): void {
   try {
     localStorage.setItem(key, JSON.stringify(list));
   } catch {
-    // เต็มโควต้าหรือ Safari private mode — เก็บใน memory ต่อไปในหน้านี้ ไม่ throw
+    // Quota full or Safari private mode — keep going in memory for this page, do not throw
   }
 }
 
-/** วงล่าสุดที่เริ่มรอบไปแล้ว — ตัดชื่อที่ไม่อยู่ใน roster แล้วทิ้ง ไม่ให้ลบชื่อแล้วมันกลับมาเป็นผีที่ติ๊กค้าง
- *  เรียงตามลำดับที่บันทึกไว้ (= ลำดับที่ผู้เล่นเลือก) ไม่ใช่ลำดับ roster */
+/** The last group that started a round — drops names no longer in the roster, so a removed name
+ *  never comes back as a stuck ghost tick. Ordered as saved (= the order the player picked), not roster order. */
 export function loadGroup(): string[] {
   const names = read(KEY);
   return read(GROUP_KEY).filter((n) => names.includes(n));
 }
 
-/** เก็บดิบ ไม่ clamp — เพดาน max เป็นของแต่ละหน้า ไม่ใช่ของ storage
- *  หน้าที่ max เล็กกว่าตัดตอนใช้เอง วงเดิมจึงไม่ถูกหั่นถาวรเพราะเดินผ่านหน้านั้นครั้งเดียว */
+/** Stores raw, no clamp — the max ceiling belongs to each page, not to storage.
+ *  A page with a smaller max clamps on use, so the old group is never permanently trimmed just because it passed through that page once. */
 export function saveGroup(names: string[]): void {
   write(GROUP_KEY, names);
 }

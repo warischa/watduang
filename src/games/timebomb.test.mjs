@@ -1,5 +1,5 @@
-// node --test src/games/ — ไม่มี framework ไม่มี dependency
-// เช็คเฉพาะเลขเวลาล้วนๆ ที่ export จาก timebomb.ts (ไม่ต้องมี DOM)
+// node --test src/games/ — no framework, no dependency
+// checks only the pure time numbers exported from timebomb.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { urgencyAt, pickDeadline, FUSE_MIN_MS, FUSE_MAX_MS } from './timebomb.ts';
@@ -13,11 +13,11 @@ test('urgency = 0 ตอนเริ่ม และ = 1 ตอนถึงก�
   assert.equal(urgencyAt(START + 15_000, START, DEADLINE), 0.5);
 });
 
-// เคสสลับแท็บออกไปนาน: elapsed/total แบบไม่ clamp จะคืนค่า > 1 — นี่คือบั๊กที่เทสต์นี้มีไว้จับ
+// the long-tab-switch-away case: an unclamped elapsed/total would return > 1 — this is the bug this test exists to catch
 test('urgency ค้างที่ 1 เมื่อเลยกำหนดไปไกลแล้ว', () => {
   assert.equal(urgencyAt(DEADLINE + 10 * 60_000, START, DEADLINE), 1);
   assert.equal(urgencyAt(START - 5_000, START, DEADLINE), 0);
-  assert.equal(urgencyAt(START, START, START), 1); // total = 0 ห้ามหารศูนย์
+  assert.equal(urgencyAt(START, START, START), 1); // total = 0 must never divide by zero
 });
 
 test('urgency ไม่ลดลงเลยตลอดช่วงที่สุ่มตัวอย่าง', () => {

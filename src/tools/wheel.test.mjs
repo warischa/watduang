@@ -1,5 +1,5 @@
-// node --test src/tools/ — ไม่มี framework ไม่มี dependency
-// เช็คตรรกะวงล้อสุ่มล้วนๆ ที่ export จาก wheel.ts (ไม่ต้องมี DOM)
+// node --test src/tools/ — no framework, no dependency
+// Covers the pure wheel logic exported from wheel.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { pickName } from './wheel.ts';
@@ -27,7 +27,7 @@ test('ทุกชื่อในลิสต์ต้องถูกสุ่�
   const reached = new Set();
   const steps = 1000;
   for (let i = 0; i < steps; i++) {
-    const r = i / steps; // ครอบคลุม [0, 1)
+    const r = i / steps; // covers [0, 1)
     reached.add(pickName(names, () => r));
   }
   for (const name of names) {

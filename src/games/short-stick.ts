@@ -1,7 +1,7 @@
-// จับไม้สั้น — one hidden stick per player, the phone passes, each player draws one.
+// Short Stick — one hidden stick per player, the phone passes, each player draws one.
 // The round ends the instant the short stick surfaces, not after everyone has drawn.
 // No checkpoint by design: the bundle derives from ctx.session.players at mount, lives in this
-// closure, and dies on refresh and on dispose(). เซียมซี stays the sole checkpoint writer
+// closure, and dies on refresh and on dispose(). siamsi stays the sole checkpoint writer
 // (ADR-0010) — the only session write here is markPlayed at round end, like timebomb/pick-loser.
 // The .ts extension in the import path is required for `node --test` (Node does not guess
 // extensions) — Vite/tsc accept both.

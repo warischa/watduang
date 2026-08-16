@@ -17,7 +17,7 @@ const { game } = Astro.props as { game: GameModule };
   import { loadRoster } from '../../shell/roster';
   import { loadSession } from '../../shell/session';
 
-  // negative-glob lazy loader — ห้าม import manifest.ts/game module ตรงนี้ (CONTRACT.md)
+  // negative-glob lazy loader — must not import manifest.ts/game module here (CONTRACT.md)
   const mods = import.meta.glob<{ default: GameModule }>([
     '../../games/*.ts',
     '!../../games/_*.ts',
@@ -35,10 +35,10 @@ const { game } = Astro.props as { game: GameModule };
     game?.dispose();
   }
 
-  // ไม่มี client router (ClientRouter) ในโปรเจกต์นี้ — ทุกการนำทางคือ full page load อยู่แล้ว
-  // ใช้ pagehide เพราะบน iOS event ตอนออกจากหน้าแบบอื่นยิงไม่ครบ
-  // persisted = หน้าเข้า bfcache ไม่ได้ถูกทิ้ง → ห้าม dispose เพราะพอกลับมา visibilitychange
-  // จะพา handleVisibility() ต่อรอบเดิมให้เอง (จับ deadline ที่เลยไปแล้วด้วย)
+  // No client router (ClientRouter) in this project — every navigation is already a full page load.
+  // Uses pagehide because on iOS other page-exit events don't fire reliably.
+  // persisted = the page entered bfcache and wasn't discarded → must not dispose, because on return
+  // visibilitychange will resume handleVisibility() for the same round on its own (catching an elapsed deadline too).
   window.addEventListener('pagehide', (event) => {
     if (!event.persisted) dispose();
   });
@@ -55,9 +55,10 @@ const { game } = Astro.props as { game: GameModule };
     if (!game) {
       game = (await load()).default;
     }
-    // ปิดรอบก่อนหน้าให้สนิทเสมอก่อน mount — mount ซ้อนโดยไม่ dispose = AudioContext ค้าง (iOS จำกัดจำนวน),
-    // wake lock รั่ว, visibilitychange ซ้อนกันทุกครั้ง ยิง event นี้กี่ครั้งก็เหลือรอบเดียว เพราะคู่
-    // dispose+mount ทำงาน sync ติดกัน (ไม่มี await คั่น) และ dispose ตอนยังไม่เคย mount เป็น no-op
+    // Always close the previous round cleanly before mount — mounting again without disposing leaks an
+    // AudioContext (iOS caps how many exist), leaks the wake lock, and stacks visibilitychange listeners;
+    // no matter how many times this event fires, only one round survives, because the dispose+mount pair
+    // runs sync back-to-back (no await between them) and dispose before any mount is a no-op.
     game.dispose();
     game.mount(stage, ctx);
   });

@@ -1,9 +1,10 @@
-// แหล่งความจริงเดียวว่ามีเกมอะไรบ้าง — getStaticPaths() และ scripts/validate-games.mjs อ่านไฟล์นี้
-// static import ตั้งใจ: build time ได้ object จริงไปตรวจ ไม่มีสำเนา metadata ให้ drift
-// โค้ดตรงนี้ไม่หลุดไปหา browser — หน้าเกมโหลด module ผ่าน import.meta.glob ฝั่ง client แทน
+// Single source of truth for which games exist — getStaticPaths() and scripts/validate-games.mjs
+// both read this file. Static import on purpose: build time gets the real object to validate, no
+// metadata copy that could drift. This code never leaks to the browser — the game page loads the
+// module via import.meta.glob on the client instead.
 import type { GameModule } from './types';
-// นามสกุล .ts เขียนไว้เต็มๆ ตั้งใจ: scripts/validate-games.mjs import ไฟล์นี้ด้วย node ตรงๆ
-// ซึ่ง ESM ของ node เดานามสกุลให้ไม่ได้ · Vite/Astro รับ .ts อยู่แล้ว
+// The .ts extension is spelled out in full on purpose: scripts/validate-games.mjs imports this file
+// with node directly, and node's ESM cannot guess the extension · Vite/Astro already accept .ts.
 import timebomb from './timebomb.ts';
 import siamsi from './siamsi.ts';
 import pickLoser from './pick-loser.ts';

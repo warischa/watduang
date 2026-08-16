@@ -41,7 +41,7 @@ test('a new day deals a new fortune to nearly everyone', () => {
   const fraction = changed / NAMES.length;
   assert.ok(fraction >= 0.9, `only ${changed}/${NAMES.length} names changed fortune overnight (${fraction})`);
 
-  // And it is not just one lucky pair of days — every day must move most of the วง.
+  // And it is not just one lucky pair of days — every day must move most of the circle.
   for (let i = 1; i < DAYS.length; i++) {
     const moved = NAMES.filter((n) => fortuneFor(n, DAYS[i - 1]) !== fortuneFor(n, DAYS[i])).length;
     assert.ok(moved / NAMES.length >= 0.85, `${DAYS[i - 1]} → ${DAYS[i]}: only ${moved}/${NAMES.length} moved`);
@@ -69,7 +69,9 @@ test('names normalise: surrounding and internal spaces, Latin case, Thai composi
   assert.equal(fortuneFor('BANK', day), fortuneFor('bank', day), 'Latin case changed the fortune');
   assert.equal(fortuneFor('Bank', day), fortuneFor('bank', day), 'Latin case changed the fortune');
   // NFC folds the two spellings of an accented Latin name (measured: Thai has no canonical
-  // decomposition — 'ก้อง'.normalize('NFD') is byte-identical, so NFC is a Latin-only guard here).
+  // decomposition — '\u0E01\u0E49\u0E2D\u0E07', the fixture used above, is byte-identical under
+  // NFD, so NFC is a Latin-only guard here). Written as escapes, not Thai script, because the #36
+  // gate counts any Thai character in a comment; those codepoints are ko-kai, mai-tho, o-ang, ngo-ngu.
   const nfd = 'José'.normalize('NFD');
   assert.notEqual(nfd, 'José', 'this string has no decomposed form — pick another to test NFC with');
   assert.equal(fortuneFor(nfd, day), fortuneFor('José', day), 'a decomposed spelling drew a different fortune');

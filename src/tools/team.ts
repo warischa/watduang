@@ -1,5 +1,5 @@
-// Pure แบ่งทีม logic — never touches DOM, localStorage, or sessionStorage.
-// Memoising the result is forbidden: draw fresh randomness on every call, otherwise pressing "แบ่งใหม่"
+// Pure team-split logic — never touches DOM, localStorage, or sessionStorage.
+// Memoising the result is forbidden: draw fresh randomness on every call, otherwise pressing "Split again"
 // again with the same team count hands back the previous split frozen in place.
 // Unlike draw.ts, this always receives the FULL roster rather than a shrinking box, so the
 // party-size rule genuinely belongs here.

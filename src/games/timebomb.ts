@@ -1,23 +1,25 @@
-// ระเบิดเวลา — ส่งมือถือวนกัน ใครถืออยู่ตอนระเบิดคนนั้นแพ้
-// นาฬิกาของเกมนี้คือ "เวลาสิ้นสุดแบบสัมบูรณ์" (deadline) เท่านั้น — ทุก frame คำนวณใหม่จาก
-// Date.now() ห้ามบวกสะสมจาก setTimeout/rAF เพราะ browser หรี่ timer ตอนสลับแท็บ แล้วนาฬิกาจะเพี้ยน
-// นามสกุล .ts ในเส้นทาง import จำเป็นสำหรับ `node --test` (Node ไม่เดานามสกุลให้) — Vite/tsc รับได้ทั้งคู่
+// Time Bomb — the phone passes around the circle, whoever holds it when it detonates loses.
+// This game's clock is the absolute deadline only — every frame recomputes fresh from
+// Date.now(). Never accumulate from setTimeout/rAF: the browser throttles timers on tab switch,
+// which would drift the clock.
+// The .ts extension in the import path is required for `node --test` (Node does not guess
+// extensions) — Vite/tsc accept both.
 import type { GameContext, GameModule } from './types.ts';
 import { boom, tick, unlockAudio } from '../shell/audio.ts';
 import { requestWakeLock, type WakeLockHandle } from '../shell/wake-lock.ts';
 
-// ---- เวลา: ส่วนที่คำนวณได้ล้วน ทดสอบได้โดยไม่ต้องมี DOM (ดู timebomb.test.mjs) ----
+// ---- Time: pure and calculable, testable with no DOM (see timebomb.test.mjs) ----
 
-/** ฟิวส์สั้นสุด/ยาวสุด — สุ่มในช่วงนี้ ผู้เล่นต้องเดาไม่ออก */
+/** Shortest/longest fuse — random within this range, players must not be able to guess it */
 export const FUSE_MIN_MS = 15_000;
 export const FUSE_MAX_MS = 45_000;
 
-/** คืน "เวลาที่จะระเบิด" เป็น timestamp สัมบูรณ์ ไม่ใช่ระยะเวลา */
+/** Returns the "detonation time" as an absolute timestamp, not a duration */
 export function pickDeadline(now: number, rand: () => number = Math.random): number {
   return now + FUSE_MIN_MS + Math.floor(rand() * (FUSE_MAX_MS - FUSE_MIN_MS + 1));
 }
 
-/** 0 ตอนเริ่ม → 1 ตอนถึงกำหนด และ "ค้างที่ 1" เมื่อเลยกำหนดไปแล้ว (เคสสลับแท็บออกไปนาน) */
+/** 0 at start → 1 at the deadline, and "stuck at 1" once past it (the long-tab-switch-away case) */
 export function urgencyAt(now: number, startedAt: number, deadline: number): number {
   const total = deadline - startedAt;
   if (total <= 0) return 1;
@@ -28,18 +30,18 @@ export function urgencyAt(now: number, startedAt: number, deadline: number): num
 const TICK_SLOW_MS = 900;
 const TICK_FAST_MS = 120;
 
-/** ระยะห่างของเสียงติ๊ก — ใช้จัดจังหวะเสียงเท่านั้น ไม่ใช่ตัวนับเวลา */
+/** Tick sound spacing — used to pace the sound only, not a timer */
 function tickIntervalMs(urgency: number): number {
   return TICK_SLOW_MS - (TICK_SLOW_MS - TICK_FAST_MS) * urgency;
 }
 
-// ---- สถานะรอบปัจจุบัน (มีเกมเดียวต่อหนึ่งหน้า) ----
+// ---- Current round state (one game per page) ----
 
 type Phase = 'idle' | 'ticking' | 'boom';
 
 let cleanup: Array<() => void> = [];
 let phase: Phase = 'idle';
-let round = 0; // token กัน callback ของรอบเก่ายิงใส่รอบใหม่
+let round = 0; // token guarding against a stale round's callback firing into the new round
 let stageEl: HTMLElement | null = null;
 let gameCtx: GameContext | null = null;
 let audioCtx: AudioContext | null = null;
@@ -71,9 +73,9 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
-// ---- หน้าจอ ----
+// ---- Screens ----
 
-/** คำเตือนบรรทัดเดียวตอนขอ wake lock ไม่ผ่าน — เกมยังเล่นได้ตามปกติ */
+/** One-line warning when the wake lock request fails — the game still plays normally */
 function paintWakeWarning(): void {
   const warn = stageEl?.querySelector('#tb-warn') as HTMLElement | null;
   if (warn) warn.hidden = !wakeWarned;
@@ -91,7 +93,7 @@ function renderIdle(): void {
   const startBtn = el('button', 'เริ่มจับเวลา');
   startBtn.id = 'tb-start';
   startBtn.type = 'button';
-  on(startBtn, 'click', arm); // ต้องอยู่ใน user gesture จริง — iOS ปลดล็อกเสียงให้เฉพาะตรงนี้
+  on(startBtn, 'click', arm); // must be a real user gesture — iOS only unlocks audio right here
   stage.appendChild(startBtn);
 }
 
@@ -153,16 +155,16 @@ function renderBoom(): void {
   stage.appendChild(hub);
 }
 
-// ---- วงจรของรอบ ----
+// ---- Round lifecycle ----
 
 function arm(): void {
   if (phase !== 'idle') return;
   const myRound = round;
 
-  // 1) เสียง — ต้องเรียกแบบ sync ใน gesture เดียวกัน
+  // 1) Audio — must be called sync within the same gesture
   audioCtx = unlockAudio();
 
-  // 2) กันจอดับ — ยิงคำขอใน gesture เดียวกัน ผลลัพธ์มาทีหลังได้
+  // 2) Wake lock — fire the request within the same gesture, the result can arrive later
   requestWakeLock()
     .then((handle) => {
       if (myRound !== round) {
@@ -175,7 +177,7 @@ function arm(): void {
     })
     .catch(() => {});
 
-  // 3) เวลาระเบิดแบบสัมบูรณ์
+  // 3) Absolute detonation time
   const now = Date.now();
   startedAt = now;
   deadline = pickDeadline(now);
@@ -193,7 +195,7 @@ function arm(): void {
   rafId = requestAnimationFrame(frame);
 }
 
-// rAF = ตัวสุ่มตัวอย่างเวลา ไม่ใช่ตัวนับเวลา — เวลาที่เหลือมาจาก deadline - Date.now() ทุกครั้ง
+// rAF is a time sampler, not a timer — remaining time comes from deadline - Date.now() every time
 function frame(): void {
   rafId = 0;
   if (phase !== 'ticking') return;
@@ -207,7 +209,7 @@ function frame(): void {
   if (!document.hidden) {
     const urgency = urgencyAt(now, startedAt, deadline);
     if (now >= nextTickAt) {
-      nextTickAt = now + tickIntervalMs(urgency); // ตั้งจากเวลาปัจจุบัน ไม่ใช่บวกสะสม
+      nextTickAt = now + tickIntervalMs(urgency); // set from the current time, never accumulated
       if (audioCtx) tick(audioCtx, urgency);
       pulseLevel = 1;
     }
@@ -233,24 +235,25 @@ function detonate(): void {
     rafId = 0;
   }
   if (audioCtx) boom(audioCtx);
-  navigator.vibrate?.([300, 120, 300]); // iOS ไม่มี Vibration API — ตรวจที่ตัวฟีเจอร์ ไม่ดู UA
+  navigator.vibrate?.([300, 120, 300]); // iOS has no Vibration API — feature-detect it, never sniff UA
   gameCtx?.session.markPlayed('timebomb');
   releaseWake();
   renderBoom();
 }
 
-/** ทางเข้าเดียวของการสลับ visible/hidden — เรียกซ้ำได้ ทั้งจาก DOM event และ hook ของ shell */
+/** Single entry point for the visible/hidden switch — safe to call repeatedly, from both the DOM
+ *  event and the shell's hook */
 function handleVisibility(hidden: boolean): void {
   if (phase !== 'ticking') return;
   if (hidden) {
-    wasHidden = true; // rAF หยุดเองตอนแท็บถูกซ่อน = ไม่มีเสียงถูกตั้งคิวไว้
+    wasHidden = true; // rAF stops on its own when the tab hides = no sound stays queued
     return;
   }
   if (!wasHidden) return;
   wasHidden = false;
   wake?.reacquire().catch(() => {});
   if (Date.now() >= deadline) {
-    detonate(); // หมดเวลาไปแล้วตอนอยู่หลังฉาก — ระเบิดทันที ห้ามนับต่อ
+    detonate(); // time already ran out while backgrounded — detonate now, never keep counting
     return;
   }
   nextTickAt = Date.now();
@@ -271,14 +274,14 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
 }
 
 function teardown(): void {
-  round += 1; // callback ที่ค้างอยู่ของรอบนี้จะรู้ตัวว่าตกรุ่นแล้ว
+  round += 1; // any pending callback from this round will know it is now stale
   phase = 'idle';
   if (rafId) cancelAnimationFrame(rafId);
   rafId = 0;
   cleanup.forEach((fn) => fn());
   cleanup = [];
   releaseWake();
-  audioCtx?.close().catch(() => {}); // ปิด context = ปิด oscillator/gain ทุกตัวที่ audio.ts สร้าง
+  audioCtx?.close().catch(() => {}); // closing the context closes every oscillator/gain audio.ts made
   audioCtx = null;
   pulseEl = null;
   wakeWarned = false;
@@ -308,7 +311,7 @@ const game: GameModule = {
     ],
   },
   og: 'timebomb.png',
-  ads: false, // จอเล่น = ห้ามมี ad slot เสมอ
+  ads: false, // play screen = never an ad slot
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);
