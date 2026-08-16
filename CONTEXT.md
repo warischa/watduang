@@ -1,17 +1,17 @@
 # วัดดวง
 
-คำศัพท์ของโดเมนนี้ — ใช้คำเดียวกันทั้งในโค้ด ในใบงาน และในข้อความที่ผู้เล่นเห็น
-ไฟล์นี้เป็น glossary อย่างเดียว ไม่ใช่สเปกและไม่ใช่ที่เก็บการตัดสินใจ (เหตุผลอยู่ใน `docs/adr/` · สถานะอยู่ใน `CLAUDE.md`)
+This domain's vocabulary — use the same word in code, in issues, and in the text players see.
+Glossary only. Not a spec, not where decisions are kept (rationale lives in `docs/adr/` · state lives in `SESSION-HANDOFF.md`)
 
 ## Language
 
 **ดวงตัดสิน**:
-แกนกลางของทั้งเว็บ — ผลลัพธ์ของรอบมาจากการสุ่ม ไม่ใช่จากฝีมือหรือการต่อรอง ทุกอย่างบนเว็บนี้เป็นรูปแบบหนึ่งของการให้ดวงตัดสิน ไม่ว่าจะออกมาเป็น "ใครโดน" หรือ "ดวงวันนี้เป็นยังไง" **เป็นแกนของเนื้อหาและถ้อยคำ ไม่ใช่เป้าหมาย SEO** — #4 ฆ่าสมมติฐาน "วัดดวงคือประตูหน้าบ้าน" ไปแล้ว และ #11 วางแบรนด์ไว้ที่เกมกลุ่ม
-_Avoid_: สุ่ม (กว้างเกินไป — เป็นกลไก ไม่ใช่แกน), เสี่ยงทาย
+The axis of the whole site — a round's outcome comes from chance, not from skill or negotiation. Everything here is one form of letting ดวงตัดสิน, whether it surfaces as "ใครโดน" or "ดวงวันนี้เป็นยังไง". **The axis of content and wording, not an SEO target** — #4 already killed the "วัดดวง is the front door" hypothesis, and #11 placed the brand on เกมกลุ่ม.
+_Avoid_: สุ่ม (too broad — a mechanism, not the axis), เสี่ยงทาย
 
 **วง**:
-กลุ่มคนที่นั่งอยู่ด้วยกันและใช้มือถือเครื่องเดียวร่วมกัน เป็นหน่วยนับของผู้ใช้จริงบนเว็บนี้ — หนึ่งวงคือหนึ่งเครื่อง ไม่ใช่หนึ่งคน
-_Avoid_: กลุ่ม, ห้อง, room, party (party เป็นชื่อหมวด ไม่ใช่คน)
+People sitting together sharing one phone. The real unit of users on this site — one วง is one device, not one person.
+_Avoid_: กลุ่ม, ห้อง, room, party (party is a หมวด name, not people)
 
 **คนที่ N** (unnamed วง · English alias for code comments: **numbered-players group**): a วง that ticked nobody still starts — the count input's number fills in as
 "คนที่ 1, 2, 3…" (#22), clamped into the page's `[min, max]` the same way a ticked roster is. Since that
@@ -40,29 +40,29 @@ count field, is the fact this entry exists to surface.
 _Avoid_: treating an empty tick-set as an error state — it is the count-only path, not a broken one
 
 **เกม**:
-สิ่งที่วงเล่นด้วยกัน มีรอบ มีลำดับตา และจบด้วยผลลัพธ์ร่วมของวง หนึ่งเกมคือหนึ่งไฟล์และหนึ่ง URL
-_Avoid_: มินิเกม, โหมด (โหมดคือของที่อยู่ข้างในเกม)
+What a วง plays together: has rounds, has turn order, ends in an outcome shared by the วง. One เกม is one file and one URL.
+_Avoid_: มินิเกม, โหมด (a โหมด is something that lives inside a เกม)
 
 **เครื่องมือ**:
-สิ่งที่ให้คำตอบทันทีโดยไม่มีรอบและไม่มีลำดับตา เช่น วงล้อสุ่ม สุ่มเลข สุ่มชื่อ คนเดียวก็ใช้ได้ ใช้ตอนไหนก็ได้ ไม่ต้องมีวง
-_Avoid_: เกมสุ่ม, ยูทิลิตี้ — และอย่าเรียกเครื่องมือว่าเกม เพราะคนที่ค้นหามันไม่ได้กำลังหาเกม
+Gives an answer at once, with no rounds and no turn order — such as วงล้อสุ่ม, สุ่มเลข, สุ่มชื่อ. One person alone can use it, at any time, with no วง.
+_Avoid_: เกมสุ่ม, ยูทิลิตี้ — and never call a เครื่องมือ a เกม: whoever searched for it was not looking for a เกม
 
 **โดน**:
-คนที่รอบนั้นเลือกได้ ไม่ว่าเกมจะเรียกผลนั้นว่าแพ้ ว่าเป็นคนทำ หรือว่าเป็นตาของใคร เว็บนี้จบหน้าที่ตรงที่บอกว่าใครโดน ไม่ได้บอกว่าคนโดนต้องทำอะไรต่อ
-_Avoid_: ผู้แพ้ (ใช้ได้ในข้อความของเกมที่มีแพ้ชนะจริง แต่อย่าใช้เป็นชื่อ concept กลาง), เหยื่อ, คนถูกลงโทษ
+The person that round picked, whatever the เกม calls that result — losing, being the one who does it, or whose turn it is. This site's job ends at saying who โดน; it never says what that person must do next.
+_Avoid_: ผู้แพ้ (usable in the text of a เกม that really has winning and losing, but never as the central concept name), เหยื่อ, คนถูกลงโทษ
 
 **คำทำนาย**:
-ข้อความหนึ่งใบในเกมหมวดวัดดวง เป็นเนื้อหาที่เราเขียนเองทั้งหมดและตรวจเองทุกใบ ไม่ใช่ข้อความที่ผู้เล่นพิมพ์
-_Avoid_: การ์ด (การ์ดคือรูปทรงที่แสดงผล ไม่ใช่ตัวเนื้อหา), ดวง (ดวงคือสิ่งที่ตัดสิน ไม่ใช่ข้อความ)
+One slip of text in a เกม of the วัดดวง หมวด. Content we write entirely ourselves and review slip by slip — never text a player typed.
+_Avoid_: การ์ด (a การ์ด is the shape that displays it, not the content itself), ดวง (ดวง is what decides, not the text)
 
 ## หมวด (category)
 
-หมวดในเว็บนี้แบ่งตาม **เจตนาของคนค้นหา** ไม่ได้แบ่งตามกลไกของเกม เหตุผลอยู่ใน [ADR-0001](docs/adr/0001-category-means-search-intent.md)
+หมวด on this site are split by **searcher intent**, not by เกม mechanics. Rationale: [ADR-0001](docs/adr/0001-category-means-search-intent.md)
 
 **วัดดวง (`fortune`)**:
-เกมที่ผลลัพธ์คือคำทำนายที่มีความหมายให้ตีความ คนที่มาหาหมวดนี้พิมพ์คำว่า "ดูดวง" หรือ "เซียมซี" เขามาหาคำตอบเกี่ยวกับตัวเอง
+A เกม whose result is a คำทำนาย carrying meaning to interpret. People who come to this หมวด type "ดูดวง" or "เซียมซี" — they came for an answer about themselves.
 _Avoid_: random, ดวงชะตา
 
 **ปาร์ตี้ (`party`)**:
-เกมที่ผลลัพธ์คือ "ใครโดน" คนที่มาหาหมวดนี้กำลังหาเครื่องมือตัดสินให้วง แม้กลไกข้างในจะเป็นการสุ่มเหมือนหมวดวัดดวงก็ตาม
-_Avoid_: เกมกลุ่ม (เป็นคำค้น ไม่ใช่ชื่อหมวด), สันทนาการ
+A เกม whose result is "ใครโดน". People who come to this หมวด are searching for a เครื่องมือ that decides for their วง, even though the mechanism inside is the same drawing of chance as the วัดดวง หมวด.
+_Avoid_: เกมกลุ่ม (a search query, not a หมวด name), สันทนาการ
