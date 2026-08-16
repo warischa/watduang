@@ -17,7 +17,7 @@ next:
 - [ ] row 4 locked until rows 6/7 show results · row 5 locked (ADR-0011)
 - [ ] #29 AdSense account + pub-ID — owner-run (Google identity + payment; an agent must never enter them). Done when the owner confirms the account shows Ready and hands over the `ca-pub-` ID, then #29 closes
 - [ ] deploy chain `bash scripts/site-owner-wizard.sh` §1/§2/§4 — owner-run. Done when `gh secret list` non-empty. ⚠ from that moment `git push` to `main` IS a production deploy (`ci.yml:209`) — every push pre-auth void, re-gate it
-- [ ] #13 #14 #15-#18 blocked on the ad-slot box alone — needs #29; no agent work closes them
+- [ ] #15-#18 blocked on the ad-slot box alone — needs #29. #14 has **no DoD boxes at all**. #13 is **not** ad-blocked: its one open box is the real-phone pass (wake lock + iOS audio unlock), which needs wizard §2/deploy only — not the domain, not #29 (`docs/site-owner-checklist.md` §3 says it runs on the `azurestaticapps.net` URL). Verified 2026-08-16 by reading every open box. No agent work closes any of them
 - [ ] #24 dormant until a 2nd checkpoint writer exists (ADR-0010)
 - [ ] home page links `/games/` but names no game — 6 game keywords get no internal link from the highest-authority page, while the tools line names all 4. Owner copy call
 - [ ] #12 relabel-only if ever touched
