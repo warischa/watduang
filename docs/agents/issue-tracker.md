@@ -10,6 +10,8 @@ The map is **issue #1** (`wayfinder:map`). All 10 labels exist. Dependencies use
 
 **Ticket number → issue number: add 1.** Ticket `07` is issue `#8`. The 2026-08-13 migration created tickets `01`–`11` as issues `#2`–`#12`; everything after that was filed on GitHub directly and has no ticket-number twin beyond the same +1 rule.
 
+⚠ **Never derive the next ticket number from `gh issue list`** — it shows open issues only, and PRs share the number space. On 2026-08-17 the open list topped out at `#29` while the real highest number was `#36`; a ticket prefix computed from that list would have been wrong by seven. Create the issue first, read the number GitHub actually assigned, then set the title from it — or query `--state all` across both issues and PRs.
+
 **Issue state is not mirrored here.** Ask GitHub:
 
 ```

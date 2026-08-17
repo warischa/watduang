@@ -22,6 +22,8 @@ Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 
 **CSP** — must let AdSense through, or ads silently fail to render (do not copy `admin-tools-dev`'s CSP verbatim — that site is deliberately strict because PDPA is its selling point) · page scripts must never inline: ADR-0005.
 
+**Game screens** — a game renders no `<a href>` inside `#stage`; a double-tap on a transition lands on it and leaves the round. The crawlable `/games/` link lives in static page chrome above the stage: ADR-0014.
+
 ⚠ Before generating an OG image · running a build · verifying anything the way CI does · or putting a choice to the site owner → read `docs/runbook.md` first.
 
 ## Language

@@ -44,3 +44,18 @@ If a player is observed losing a round through `GameNav` and reporting surprise,
 not carrying the weight this decision assigns it and the exit needs a prompt after all. Nothing
 instruments that today, so such evidence would arrive as a report, never as a metric — which means
 absence of reports is not confirmation.
+
+## 2026-08-17 — contested by measurement, do not read this as settled
+
+The flip-fact above anticipated a *report* about a deliberate tap on a labelled control. The evidence
+that arrived is different in kind and did not need a player: `GameNav`'s links can sit under a finger
+that never aimed at them. A transition shrinks `#stage`, chrome slides up into the coordinate just
+tapped, and the second tap of a double-tap opens another game. Measured at 320px — siamsi `#ss-again`
+at roster 7 with 24-character names resolves 25 of 60 sampled points to `/game/pick-loser/` and
+`/game/short-stick/`; pick-loser at roster 10 puts `/game/timebomb/` under the start button. Repro:
+`scripts/gamenav-again-grid-probe.mjs`, `scripts/gamenav-start-grid-probe.mjs`.
+
+This decision's reasoning rests on a label matching its effect. That reasoning does not reach an
+unaimed tap, so the closure above does not cover this case — it is not refuted, it is out of scope.
+[ADR-0014](0014-no-navigation-target-inside-the-stage.md) is in direct conflict, and the owner
+decision is #39. Re-opening no longer requires new evidence; the evidence exists.
