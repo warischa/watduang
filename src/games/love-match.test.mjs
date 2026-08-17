@@ -48,7 +48,7 @@ globalThis.document = fakeDocument;
 /** A GameContext stub with a fixed roster — enough surface for love-match.ts's mount/pick/dispose. */
 function makeCtx(players) {
   return {
-    roster: { names: () => [], add() {}, remove() {}, clear() {} },
+    roster: { names: () => [], add() {} },
     session: {
       players,
       setPlayers() {},

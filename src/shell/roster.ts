@@ -92,18 +92,5 @@ export function loadRoster(): Roster {
         write(KEY, list);
       });
     },
-    // ponytail: only add() takes the lock, because only add() has a caller (PlayerSetup.astro). Both of
-    // the following are the same unlocked read-modify-write add() just stopped being — they write back a
-    // `list` captured at load, so a concurrent tab's addition is erased. Locking them is not a one-line
-    // change: under the lock each would have to union memory with storage first and then subtract, or a
-    // degraded tab would delete names it never saw. Do that when either gets its first caller, not before.
-    remove(name: string): void {
-      list = list.filter((n) => n !== name);
-      write(KEY, list);
-    },
-    clear(): void {
-      list = [];
-      write(KEY, list);
-    },
   };
 }
