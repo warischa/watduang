@@ -23,4 +23,4 @@ next:
 
 inflight: measured at save — working tree carries only this save's own files · `0/0` with `origin/main` before this save · **open PRs: checked, none** · branches: `main` only · agent worktrees created and torn down, release verified · CI green on `ceba91c` (run 32043355492, Deploy `skipped`) · GitHub writes this session: 2 comments (gh#39, gh#37) + 1 close (gh#39); **0 issues filed — owner declined all 3** · committed direct to main, no PR
 
-spent: queue 6→7 · closed 4, filed 0, discovered 4 · batches 6 · ctx ~24% of 1M at save · ended early: no
+spent: queue 6→7 · closed 4, filed 0, discovered 4 · batches 6 · ctx ~28% of 1M at save · ended early: no
