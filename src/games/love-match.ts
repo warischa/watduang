@@ -173,6 +173,12 @@ let stageEl: HTMLElement | null = null;
 let gameCtx: GameContext | null = null;
 /** Roster index, not a name — two players in one group may share a name and are still two picks. */
 let firstIndex: number | null = null;
+// Chip nodes for the CURRENT pick screen, one per roster index — kept live across the two taps of a
+// pick so the first tap can mark a chip taken in place instead of rebuilding the row (#36: a rebuild
+// after tap 1 reflows every later chip under the player's finger, so tap 2 lands on the wrong person).
+let chipEls: HTMLButtonElement[] = [];
+let headerEl: HTMLParagraphElement | null = null;
+let backBtn: HTMLButtonElement | null = null;
 
 // ponytail: `cleanup` grows across pick↔result cycles instead of being drained per render, so the
 // removal closures pin detached nodes until dispose(). Bounded and released on every game switch —
@@ -198,10 +204,36 @@ function el<K extends keyof HTMLElementTagNameMap>(
 // 320px: every size comes off the viewport, never a constant, and both the names and the line wrap
 // instead of pushing the stage sideways.
 const CHIPS_STYLE = 'display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin:0.75rem 0';
+// Reserves 2 lines' worth of height for the header paragraph regardless of which of its two possible
+// strings is showing (the initial prompt vs. the "pick <name>'s partner" string built in pick() below) —
+// in em, so it tracks whatever font-size the header actually renders at. Without this, swapping the text
+// in place could still change the paragraph's own height if the new string wraps differently, and shift
+// the chip row underneath it — the same bug on a new axis (#36). Rendered at 320px: both strings stay
+// one line for names up to ~18 Thai characters, so day to day this is headroom, not an active fix — it
+// stays because a longer name can still wrap the second string to 2 lines. headerNameFor() truncates any
+// name past HEADER_NAME_MAX before it reaches this string, so the built string can never wrap past 2
+// lines — the reservation is a hard cap, not a "usually" cover for the common case.
+const HEADER_STYLE = 'min-height:2.8em;line-height:1.4;margin:0 0 0.5rem';
+// A name past this length is truncated (with an ellipsis) before it goes into the header string — see
+// headerNameFor(). Player names are never length-capped at write time everywhere they could originate
+// (an old, uncapped localStorage entry can outlive today's input maxlength), so this is the actual
+// backstop for HEADER_STYLE's 2-line reservation, not the input's maxlength.
+export const HEADER_NAME_MAX = 20;
+
+/** Truncates a player name for use inside the header string built in pick() below, so that string can
+ *  never wrap past HEADER_STYLE's 2-line reservation, regardless of how long the underlying name is. */
+function headerNameFor(name: string): string {
+  return name.length > HEADER_NAME_MAX ? `${name.slice(0, HEADER_NAME_MAX)}…` : name;
+}
 const SCORE_STYLE = 'font-size:clamp(2.6rem,16vw,4rem);font-weight:700;line-height:1.1;margin:0.5rem 0';
 const LINE_STYLE =
   'font-size:clamp(1.15rem,5.5vw,1.6rem);font-weight:700;line-height:1.7;overflow-wrap:anywhere';
 const PAIR_STYLE = 'font-size:1.25rem;font-weight:700;overflow-wrap:anywhere';
+// The "taken" look for the first-picked chip. Previously unauthored — the dimming rode entirely on the
+// browser's default `:disabled` UA styling, and a real device (iOS Safari, not the headless Chrome that
+// captured docs/verification/evidence) is not guaranteed to render that the same way. Values chosen to
+// stay close to what Chrome's default already produced, since the owner approved that exact look.
+const TAKEN_CHIP_STYLE = 'opacity:0.5';
 
 function hubLink(): HTMLAnchorElement {
   const hub = el('a', 'กลับไปหน้ารวมเกม');
@@ -209,10 +241,17 @@ function hubLink(): HTMLAnchorElement {
   return hub;
 }
 
+// Builds the whole pick screen once per round (initial mount, or after the result screen's "again"
+// button calls this again to start a new pick) — every chip stays for both taps of a pick, per #36.
+// `firstIndex` is always null when this runs; the first tap updates the existing nodes in place (see
+// pick()) instead of calling this again.
 function renderPick(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  chipEls = [];
+  headerEl = null;
+  backBtn = null;
 
   const roster = gameCtx?.session.players ?? [];
   // The setup panel refuses to start below players[0], so this is a guard, not a normal path.
@@ -222,33 +261,38 @@ function renderPick(): void {
     return;
   }
 
-  const first = firstIndex;
-  stage.appendChild(
-    el('p', first === null ? 'แตะเลือกคนแรก' : `เลือกคู่ของ ${roster[first]}`),
-  );
+  headerEl = el('p', 'แตะเลือกคนแรก', HEADER_STYLE);
+  stage.appendChild(headerEl);
 
   const chips = el('div', undefined, CHIPS_STYLE);
   roster.forEach((name, index) => {
-    // The same person cannot be both halves of the pair — a pick is an index, so two players who
-    // share a name are still offered separately, and their reading is a real one.
-    if (index === first) return;
     const chip = el('button', name);
     chip.type = 'button';
     on(chip, 'click', () => pick(index));
+    chipEls[index] = chip;
     chips.appendChild(chip);
   });
   stage.appendChild(chips);
 
-  if (first !== null) {
-    const back = el('button', 'เลือกคนแรกใหม่');
-    back.id = 'lm-reset';
-    back.type = 'button';
-    on(back, 'click', () => {
-      firstIndex = null;
-      renderPick();
-    });
-    stage.appendChild(back);
-  }
+  // Created once, hidden via the native `hidden` attribute rather than added/removed from the DOM —
+  // no CSS needed, and it keeps this screen's node set fixed for the same reason the chips are fixed.
+  const back = el('button', 'เลือกคนแรกใหม่');
+  back.id = 'lm-reset';
+  back.type = 'button';
+  back.hidden = true;
+  on(back, 'click', () => {
+    if (firstIndex !== null) {
+      const prev = chipEls[firstIndex];
+      prev.disabled = false;
+      prev.removeAttribute('aria-pressed');
+      prev.removeAttribute('style');
+    }
+    firstIndex = null;
+    if (headerEl) headerEl.textContent = 'แตะเลือกคนแรก';
+    back.hidden = true;
+  });
+  backBtn = back;
+  stage.appendChild(back);
 }
 
 function renderResult(a: string, b: string, now: Date): void {
@@ -290,10 +334,23 @@ function renderResult(a: string, b: string, now: Date): void {
 function pick(index: number): void {
   const roster = gameCtx?.session.players ?? [];
   if (firstIndex === null) {
+    // In place, not a re-render (#36): the chip row must stay exactly as the player saw it for the
+    // second tap. Taken chip is disabled (stops responding) and marked aria-pressed — still visible,
+    // dimmed by TAKEN_CHIP_STYLE, so it doesn't read as "nothing happened".
     firstIndex = index;
-    renderPick();
+    if (headerEl) headerEl.textContent = `เลือกคู่ของ ${headerNameFor(roster[index])}`;
+    const chip = chipEls[index];
+    if (chip) {
+      chip.disabled = true;
+      chip.setAttribute('style', TAKEN_CHIP_STYLE);
+      chip.setAttribute('aria-pressed', 'true');
+    }
+    if (backBtn) backBtn.hidden = false;
     return;
   }
+  // Same chip tapped twice fast: with the row no longer reflowing, the first chip is still on screen
+  // and still under the finger — without this guard a double-tap pairs someone with themselves (#36).
+  if (index === firstIndex) return;
   const a = roster[firstIndex];
   const b = roster[index];
   gameCtx?.session.markPlayed('love-match');
@@ -304,6 +361,9 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
   stageEl = stage;
   gameCtx = ctx;
   firstIndex = null;
+  chipEls = [];
+  headerEl = null;
+  backBtn = null;
   renderPick();
 }
 
@@ -311,6 +371,9 @@ function teardown(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
   firstIndex = null;
+  chipEls = [];
+  headerEl = null;
+  backBtn = null;
   stageEl?.replaceChildren();
   stageEl = null;
   gameCtx = null;

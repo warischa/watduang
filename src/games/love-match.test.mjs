@@ -1,12 +1,65 @@
 // node --test src/games/love-match.test.mjs — no framework, no dependency
-// checks only the pure reading exported from love-match.ts (no DOM needed).
+// Mostly checks the pure reading exported from love-match.ts (no DOM needed).
 // The invariant under test is the one the game exists for (#34): the reading is a pure function of
 // (sorted normalized pair, Bangkok date) — tap order cannot change it, the same group on the same day
 // gets the same answer, and the score can never contradict the line printed next to it.
+// The two DOM tests near the bottom (#36) cover a different seam — the pick SCREEN, not the reading —
+// using a hand-rolled fake `document` (no jsdom/happy-dom in this repo) that implements only what
+// love-match.ts's el()/on() actually touch: createElement, textContent, setAttribute/getAttribute,
+// appendChild, addEventListener, and a click() that fires stored listeners without checking attachment.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BANDS, SCORES, bandFor, lineFor, pairSeed, scoreFor } from './love-match.ts';
+import game, { BANDS, HEADER_NAME_MAX, SCORES, bandFor, lineFor, pairSeed, scoreFor } from './love-match.ts';
 import { normalizeName } from './daily-fortune.ts';
+
+// ---- Minimal fake DOM for the two #36 tests below — see the header comment for why. ----
+class FakeElement {
+  constructor(tagName) {
+    this.tagName = tagName;
+    this.children = [];
+    this._text = '';
+    this.style = {};
+    this._attrs = {};
+    this._listeners = {};
+    this.disabled = false;
+    this.hidden = false;
+  }
+  set textContent(v) { this._text = v; }
+  get textContent() { return this._text; }
+  setAttribute(k, v) { this._attrs[k] = String(v); }
+  getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null; }
+  removeAttribute(k) { delete this._attrs[k]; }
+  appendChild(child) { this.children.push(child); return child; }
+  replaceChildren() { this.children = []; }
+  addEventListener(type, fn) { (this._listeners[type] ??= []).push(fn); }
+  removeEventListener(type, fn) {
+    this._listeners[type] = (this._listeners[type] || []).filter((f) => f !== fn);
+  }
+  // No `disabled`/attachment check on purpose: a real disabled button also stops firing at the
+  // browser level, so this stub only needs to prove love-match.ts's OWN guard (pick()'s
+  // `index === firstIndex` check), not re-prove what the DOM spec already guarantees.
+  click() {
+    (this._listeners.click || []).forEach((fn) => fn());
+  }
+}
+const fakeDocument = { createElement: (tag) => new FakeElement(tag) };
+globalThis.document = fakeDocument;
+
+/** A GameContext stub with a fixed roster — enough surface for love-match.ts's mount/pick/dispose. */
+function makeCtx(players) {
+  return {
+    roster: { names: () => [], add() {}, remove() {}, clear() {} },
+    session: {
+      players,
+      setPlayers() {},
+      played: [],
+      markPlayed() {},
+      checkpoint: null,
+      saveCheckpoint() {},
+      clear() {},
+    },
+  };
+}
 
 // The test's OWN copy of the band boundaries, written as a literal on purpose. Deriving them from
 // BANDS would make a shifted boundary unkillable: bandFor() and the expectation would move together
@@ -231,4 +284,68 @@ test('the pair is ordered by code unit, so no locale can reorder it', () => {
   // And the date really is in the seed — drop it and every day would read the same.
   assert.ok(pairSeed(x, y, day).endsWith(day), 'the date is missing from the seed');
   assert.notEqual(pairSeed(x, y, day), pairSeed(x, y, '2026-08-16'));
+});
+
+// ---- #36: the pick SCREEN, not the reading — a rapid double-tap must not announce a pair the group
+// never chose. Both tests below drive the real mount()/pick() path through the fake DOM above. ----
+
+test('#36: a first tap does not reflow or rebuild the chip row', () => {
+  const stage = fakeDocument.createElement('div');
+  const players = ['เอ', 'บี', 'ซี'];
+  game.mount(stage, makeCtx(players));
+
+  const chipsBefore = stage.children[1].children.slice();
+  const textBefore = chipsBefore.map((c) => c.textContent);
+  assert.equal(chipsBefore.length, players.length, 'setup: one chip per player before any tap');
+
+  chipsBefore[0].click(); // tap 1: pick players[0]
+
+  const chipsAfter = stage.children[1].children.slice();
+  assert.equal(chipsAfter.length, chipsBefore.length, 'chip count changed after tap 1');
+  assert.deepEqual(chipsAfter.map((c) => c.textContent), textBefore, 'chip text/order changed after tap 1');
+  chipsAfter.forEach((chip, i) => {
+    assert.strictEqual(chip, chipsBefore[i], `chip at position ${i} is a different node after tap 1 — the row was rebuilt`);
+  });
+
+  game.dispose();
+});
+
+test('#36: a fast double-tap on one chip cannot pair a person with themselves', () => {
+  const stage = fakeDocument.createElement('div');
+  const players = ['เอ', 'บี', 'ซี'];
+  game.mount(stage, makeCtx(players));
+
+  const tapped = stage.children[1].children[0]; // players[0]'s chip — the exact node under the finger both times
+  tapped.click();
+  tapped.click();
+
+  // renderResult's pair paragraph is the only one styled with PAIR_STYLE (identified by its unique
+  // '1.25rem' substring, same discriminator used in docs/verification/evidence/34's browser capture).
+  const pairPara = stage.children.find((c) => (c.getAttribute('style') || '').includes('1.25rem'));
+  assert.equal(pairPara, undefined,
+    `a double-tap on one chip alone must not complete a pair at all, let alone a self-pair — got: ${pairPara && pairPara.textContent}`);
+
+  game.dispose();
+});
+
+test('a long player name cannot grow the header past its HEADER_NAME_MAX-truncated length', () => {
+  const stage = fakeDocument.createElement('div');
+  const longName = 'ก'.repeat(50); // far past a maxlength=24 input, and past any old uncapped localStorage name
+  const players = [longName, 'บี'];
+  game.mount(stage, makeCtx(players));
+
+  const header = stage.children[0];
+  stage.children[1].children[0].click(); // tap 1: pick players[0], the long name
+
+  // The header string is a fixed prefix plus the (possibly truncated) name plus an ellipsis when cut —
+  // so its length must never exceed prefix + HEADER_NAME_MAX + 1 (the ellipsis char), regardless of how
+  // long the underlying player name is.
+  const prefix = 'เลือกคู่ของ ';
+  assert.ok(
+    header.textContent.length <= prefix.length + HEADER_NAME_MAX + 1,
+    `header grew past its truncation budget: "${header.textContent}" (${header.textContent.length} chars)`,
+  );
+  assert.ok(header.textContent.includes('…'), 'a name past HEADER_NAME_MAX should be shown truncated with an ellipsis');
+
+  game.dispose();
 });
