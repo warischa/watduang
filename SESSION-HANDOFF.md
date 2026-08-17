@@ -20,6 +20,6 @@ next:
 - [ ] love-match nav clearance is "not reproduced", **not** "safe" — only centre-x was tried. Done when the grid probe runs against `#lm-again` at rosters 2–10
 - [ ] gh#37's remaining ghost-*action* pairs accepted as recoverable, not fixed (siamsi `217→232→248` · short-stick `111→93` where a ghost tap can draw the deciding stick · pick-loser `61→77` · timebomb `96→122` incl. `detonate()` firing from `frame()` · love-match `271→325/331`). Done when field evidence shows a ghost action losing a real round, or the acceptance is re-affirmed
 
-inflight: measured at save — working tree carries only this save's own files · `0/0` with `origin/main` before this save · **open PRs: checked, none** · branches: `main` only · CI green on `78af47b` (run 32012262344, Deploy `skipped` = no deploy fired) · GitHub writes this session: 3 issues filed + 2 comments + 2 retitles · committed direct to main, no PR
+inflight: measured at save — working tree carries only this save's own files · `0/0` with `origin/main` before this save · **open PRs: checked, none** · branches: `main` only · CI green on `78af47b` (run 32012262344, Deploy `skipped` = no deploy fired) · GitHub writes this session: 3 issues filed + 2 comments + 4 title edits (each issue created with a placeholder title, then set from the number GitHub actually assigned; gh#37 retitled twice, the second time when its scope widened from one game to six) · committed direct to main, no PR
 
 spent: queue 6→6 · closed 0, filed 3 · batches 4 · ctx: not measured (no transcript read) · ended early: no
