@@ -185,4 +185,7 @@ test('#25 the clear confirmation sits outside #player-setup, next to the button 
   assert.equal(insidePanel('resume-choice'), true, 'the start prompt belongs inside the panel');
   assert.equal(insidePanel('clear-group'), false, 'the clear button must stay pressable mid-round');
   assert.equal(insidePanel('clear-choice'), false, 'the clear question must stay visible mid-round');
+  // #39 — root.hidden = true swallows the panel the moment a round starts, which is exactly when a
+  // link click needs to be interceptable; inside the panel this dialog would be unreachable mid-round.
+  assert.equal(insidePanel('leave-confirm'), false, 'the leave-confirm dialog must stay reachable mid-round');
 });

@@ -20,3 +20,64 @@
   --radius-md: 8px;
   --radius-lg: 16px;
 }
+
+/* #39 — leave-confirm's dialog. Not scoped in PlayerSetup.astro on purpose: a scoped <style> block
+   stamps data-astro-cid on every element PlayerSetup renders, across all 9 pages that render it.
+   max-block-size is load-bearing, not cosmetic: without it, clearance from a tap under #leave-go
+   depends on Thai copy length crossed with the layout engine — exactly the unowned set ADR-0014
+   already rejected measuring. It is also what makes the anchoring below provable rather than
+   decorative: 45dvh < 50dvh is the whole reason the open dialog cannot reach across the split.
+
+   EVERY rule here is gated on [open], and that is a correctness gate, not tidiness. The UA sheet's
+   `dialog:not([open]) { display: none }` is what makes a closed <dialog> inert; an unconditional
+   `display: flex` here beats it on specificity, and the closed dialog then paints in normal flow with
+   two live buttons on all 9 pages — #leave-go among them, a navigation button with no guard in front
+   of it (measured: 178px tall at y=341, 480 hit-testable button points, and a real tap on it left the
+   round). Never move a declaration out of an [open] block. */
+#leave-confirm[open] {
+  max-block-size: 45dvh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  font-family: var(--font-sans);
+}
+
+/* Anchored to the viewport half the tap was NOT in (toggled from PlayerSetup.astro's click guard), and
+   flex-direction flips with it so #leave-go — last in DOM order — renders at the dialog's own edge
+   furthest from the tap: at-bottom keeps DOM order (go at the dialog's bottom, itself already the
+   bottom of the screen); at-top reverses it (go rises to the dialog's top, itself already the top of
+   the screen). DOM order stays [msg, stay, go] either way, so focus (#leave-stay) always lands on the
+   safe branch regardless of which way this renders.
+
+   margin-block: 0 and the `auto` inset are the two lines that make this real. `dialog:modal` ships
+   inset-block: 0 with `margin: auto`, so setting only ONE inset leaves the opposite one at 0 and the
+   auto margins re-centre the box — the class then changed nothing but flex order, and the dialog sat
+   mid-screen in both states (measured 369-547 vs 353-531 at a 900px viewport; clearance to #leave-go
+   from a tap at the split collapsed to 41px). Releasing the far inset to `auto` and zeroing the block
+   margins lets the near inset actually place the box.
+
+   The invariant this buys, for any viewport >= 320px tall: the dialog occupies at most 45dvh starting
+   one --space-md from its own edge, so its far edge stops at 0.45H + 16 (at-top) or 0.55H - 16
+   (at-bottom) — strictly inside the half the finger is not in, because 0.05H >= 16 whenever H >= 320.
+   margin-inline stays auto so the box is still centred horizontally between the two inline insets. */
+#leave-confirm[open].at-bottom,
+#leave-confirm[open].at-top {
+  position: fixed;
+  inset-inline: var(--space-md);
+  margin-block: 0;
+  margin-inline: auto;
+}
+#leave-confirm[open].at-bottom {
+  inset-block-start: auto;
+  inset-block-end: var(--space-md);
+  flex-direction: column;
+}
+#leave-confirm[open].at-top {
+  inset-block-start: var(--space-md);
+  inset-block-end: auto;
+  flex-direction: column-reverse;
+}

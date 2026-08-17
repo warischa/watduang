@@ -24,8 +24,10 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     <button id="roster-add-btn" type="button">เพิ่ม</button>
   </div>
 
-  {/* hidden while there is nothing to say — there is no style block here, so an empty p would eat
-      the UA margin on every page for nothing */}
+  {/* hidden while there is nothing to say — this file still carries no <style> block of its own, so
+      an empty p would eat the UA margin on every page for nothing. (#39: that stays true of THIS file —
+      #leave-confirm below is styled from tokens.css, not a scoped block here, for the reason given
+      on its own comment — so the claim this p relies on is unaffected by that addition.) */}
   <p id="setup-error" role="alert" hidden></p>
   <button id="start-round" type="button">{ctaLabel}</button>
 
@@ -66,6 +68,29 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   <button id="clear-confirm" type="button">ล้างและทิ้งรอบที่ค้าง</button>
   <button id="clear-cancel" type="button">ยกเลิก</button>
 </div>
+
+{/* #39: a tap-transition (stage shrinks, page chrome slides up) can put a GameNav link exactly where a
+    double-tap's second tap lands — the group leaves the round with no warning. This asks first, but only
+    while a round is actually live on THIS page (root.hidden — same bit #data-loss reads above), so a
+    reader who has not started anything yet still navigates freely.
+    Outside #player-setup like #clear-choice above, for the same reason: root.hidden hides the panel the
+    moment a round starts, which is exactly when this dialog needs to still be reachable.
+    #leave-go is a <button>, not an <a> — an anchor here would recreate the exact hazard this dialog
+    exists to remove (a second target waiting under the same finger).
+
+    Thai copy below is a PLACEHOLDER pending owner sign-off (precedent: gh#35 / ADR-0009 — this copy is
+    owner-owned, not an agent's call), AND it is bounded by what the predicate carries. root.hidden means
+    "a round was STARTED on this page", not "a round is running right now" — nothing ever un-hides the
+    panel, so a finished-round summary still reaches this dialog. The wording it replaced ended by
+    asserting that this round would END, which on that screen is simply false — the round already had.
+    What the bit does support is that the tap leaves the page, so that is all the question asks.
+    Same discipline as clearCopy in player-select.ts, which is worded to claim only its own bit.
+    Do not restore any claim about a round ending unless the predicate is narrowed to match. */}
+<dialog id="leave-confirm">
+  <p id="leave-confirm-msg" role="alert">ไปเกมอื่นตอนนี้ไหม</p>
+  <button id="leave-stay" type="button">เล่นรอบนี้ต่อ</button>
+  <button id="leave-go" type="button">ไปเกมอื่น</button>
+</dialog>
 
 <script>
   import { loadRoster, loadGroup, saveGroup } from './roster';
@@ -355,5 +380,55 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   clearCancelBtn.addEventListener('click', () => {
     clearChoiceEl.hidden = true;
     clearBtn.focus(); // hiding the focused button would drop focus to <body> and lose the keyboard's place
+  });
+
+  // #39 — a link click during a live round on this page asks first. Capture phase so this runs before
+  // the link's own navigation, and it is deliberately global (document, not #stage or GameNav): the
+  // hazard is page chrome sliding under a tap-transition, and enumerating every link that could end up
+  // there is exactly the maintenance burden ADR-0014 already rejected once. Only data-stable-exit
+  // (GameLayout's /games/ link, which never moves) opts out.
+  const leaveDlg = document.getElementById('leave-confirm') as HTMLDialogElement;
+  const leaveStayBtn = document.getElementById('leave-stay') as HTMLButtonElement;
+  const leaveGoBtn = document.getElementById('leave-go') as HTMLButtonElement;
+  let pendingHref: string | null = null;
+
+  document.addEventListener('click', (e) => {
+    // root.hidden is the same live-round bit requestClear reads above — no game on this page, or no
+    // round started on it yet, and there is nothing at risk: let every link behave normally.
+    if (gameId === undefined || !root.hidden) return;
+    // A modified or non-primary click is the round-PRESERVING action — cmd/ctrl/middle opens the
+    // sibling game in a new tab and leaves this round exactly where it is. Intercepting it and then
+    // honouring the answer with location.href turns the safe action into the destructive one: the
+    // player asked for a second tab and the current tab navigates instead. Let the browser have it.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    // Fail OPEN: a browser with no <dialog>.showModal cannot ask, and eating the click with no way to
+    // ask would strand the player worse than the double-tap this guard exists to stop.
+    if (typeof leaveDlg.showModal !== 'function') return;
+    const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;
+    if (!link) return;
+    e.preventDefault();
+    pendingHref = link.href;
+    // Anchors to the viewport half the finger is NOT in, and (via tokens.css) flips which end of the
+    // dialog #leave-go sits at, so the destructive button lands furthest from where the tap already is.
+    const tapY = e.clientY;
+    leaveDlg.classList.toggle('at-bottom', tapY < window.innerHeight / 2);
+    leaveDlg.classList.toggle('at-top', tapY >= window.innerHeight / 2);
+    leaveDlg.showModal();
+    leaveStayBtn.focus(); // same reason as resumeBtn/clearCancelBtn above: focus the safe branch
+  }, true);
+
+  // One clearing point for every way this dialog can shut — the stay button, Escape, and the close()
+  // the go branch issues below all end here. Clearing it per-button was the shipped defect: after a
+  // dismissal pendingHref still held the link, so any later press of #leave-go navigated on an answer
+  // the player had already given the other way. `close` is the event <dialog> fires for all of them,
+  // so a close path added later cannot forget to clear it.
+  leaveDlg.addEventListener('close', () => { pendingHref = null; });
+  leaveStayBtn.addEventListener('click', () => leaveDlg.close());
+  leaveGoBtn.addEventListener('click', () => {
+    // Read it out before close() fires the listener above and nulls it. No pendingHref = this press
+    // came from somewhere other than an intercepted link click, and there is nowhere to go.
+    const href = pendingHref;
+    leaveDlg.close();
+    if (href) location.href = href;
   });
 </script>

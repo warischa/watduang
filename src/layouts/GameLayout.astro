@@ -31,7 +31,10 @@ const howToJsonLd = {
          in document order, nothing that changes height at runtime sits above this line, so no re-render
          can move it under a finger — that is the whole reason it is here and not in the how-to section
          below the stage, whose y depends on the stage's height. */}
-    <p><a href="/games/">ดูเกมทั้งหมด</a></p>
+    {/* data-stable-exit (#39): this link never moves under a tap-transition (see the comment above),
+         so it is the one link exempted from the leave-confirm guard in PlayerSetup.astro — every other
+         link below #stage (GameNav's siblings, the footer's) still asks first mid-round. */}
+    <p><a href="/games/" data-stable-exit>ดูเกมทั้งหมด</a></p>
 
     {/* gameId lets the panel know whether a stranded checkpoint belongs to this page or another game (#23).
          Tool pages don't pass this prop, so there's no round to ask about at all. */}
@@ -52,7 +55,8 @@ const howToJsonLd = {
   </main>
 
   {/* ponytail: outside <main> as #35 prescribed. Safe only while nothing gives <main> a width or font
-       this nav should share — today nothing does (tokens.css is :root-only). Watch <main> itself, not a
+       this nav should share — today nothing does (tokens.css was :root-only; #39 added #leave-confirm
+       rules to it, still scoped to that one id, so <main> is still untouched). Watch <main> itself, not a
        list of stylesheets: Astro bundles <style is:global>, a bare `import './x.css'`, and a <style> block
        here all page-globally, so that set belongs to the bundler, not to this comment. The moment <main>
        gets a width or font, move this inside it (that is what tool pages already do). */}
