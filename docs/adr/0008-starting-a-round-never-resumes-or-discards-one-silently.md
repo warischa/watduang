@@ -63,25 +63,15 @@ pressing it mid-round wiped the session, the checkpoint, and the saved group wit
 under a label that names the group rather than the round. That behaviour was pre-existing — the #23 work
 did not introduce it — but it was the same family of failure, so [#25](https://github.com/warischa/watduang/issues/25)
 was filed and the site owner settled it, 2026-08-14: **the clear button asks too.** With a round in
-progress it raises the same shape of two-button question. There are now three cases, `clearCopy` in
-`src/shell/player-select.ts` picks between them, and these are the approved strings:
+progress it raises the same shape of two-button question. Three cases exist — stranded checkpoint, live
+round on this page, both at once — and `clearCopy` in `src/shell/player-select.ts` picks between them.
+The owner-approved strings for all three, and the rule that the copy must name every loss the confirm
+will actually cause, are in `docs/runbook.md` (#25). Owner approved the live-round and both-signals
+pairs on 2026-08-17, accepting that on siamsi's own page the both-case over-names one round; it never
+under-names, which was the requirement.
 
-- **Stranded checkpoint only** — the markup's own default; `clearCopy` returns `null` here rather than
-  duplicating these bytes:
-  - `ยังมีรอบที่เล่นค้างอยู่ ถ้าล้างกลุ่มนี้ รอบที่ค้างจะหายไปด้วย` — the question. It names the round, which
-    the button's own label never did.
-  - `ล้างและทิ้งรอบที่ค้าง` — clear the group **and** drop the round in progress.
-- **Live round on this page only** — approved verbatim by the site owner, 2026-08-17:
-  - `เริ่มรอบบนหน้านี้ไปแล้ว ถ้าล้างกลุ่มนี้ รอบนี้จะหายไปทั้งรอบ`
-  - `ล้างและทิ้งรอบนี้`
-- **Both signals present** — pending owner review, 2026-08-17:
-  - `เริ่มรอบบนหน้านี้ไปแล้ว และยังมีรอบที่เล่นค้างอยู่ด้วย ถ้าล้างกลุ่มนี้ ทั้งรอบนี้และรอบที่ค้างจะหายไป`
-  - `ล้างและทิ้งทุกรอบ`
-
-`ยกเลิก` — nothing happens: not the session, not the group, not even the reload. It is also what takes
-  focus when the question opens. A click fires on Enter *keydown*, so focusing the destructive button
-  would place it under a key still being held: auto-repeat, or a habitual second Enter, would confirm a
-  question the player never read. The start prompt already focuses its safe branch for the same reason.
+`ยกเลิก` — nothing happens: not the session, not the group, not even the reload. It also takes focus
+when the question opens, per the same runbook entry.
 
 Two differences from the start prompt above are load-bearing, and copying the start machinery wholesale
 gets both wrong:
@@ -121,12 +111,18 @@ reached, so a tool still cannot see or clear a game's round (ADR-0004). Both the
 stay in the DOM on every page, `hidden` and never removed — removing either would null-deref the island
 script and take the whole setup panel down with it (#23).
 
-## Flip-fact evaluated 2026-08-15 — NOT yet met
+## Flip-fact re-evaluated 2026-08-17 — still NOT met, but the 2026-08-15 reasoning was wrong
 
-Checked against the code, not from memory: `manifest.ts:10` is `[timebomb, siamsi]` and `timebomb.ts`
-has zero checkpoint references, so **siamsi is still the sole checkpoint writer**, and #24 resolved to
-*keep* the site-wide slot (ADR-0010). Neither branch of the condition below has fired; `planClear`'s
-absent `gameId` remains correct. Re-evaluate when a second writer enters the manifest.
+Checked against the code: the manifest now holds six games, not the two the 2026-08-15 entry read off
+it. That entry inferred safety from the manifest's *length*, which was never the load-bearing fact —
+**siamsi is still the sole checkpoint writer** (the five others only call `markPlayed`, which preserves
+the checkpoint), so `planClear`'s absent `gameId` remains correct and #24's resolution to keep the
+site-wide slot (ADR-0010) stands. Re-evaluate when a second *writer* enters, not when a game does;
+grep the `saveCheckpoint` callers rather than counting the manifest.
+
+What the length-based reading cost: a live round in the five non-checkpoint games was destroyed with no
+prompt, because the clear path asked only when a checkpoint existed. Fixed 2026-08-17 by `roundLive`
+(`src/shell/player-select.ts`, fed from `PlayerSetup.astro`); see ADR-0010's corrected premise.
 
 Separately, this ADR's invariant was found **violated in implementation** the same day and fixed in
 `65d3d3c`: a stale session closure let a `#ss-draw`/`#ss-pass` click landing between `clear()` and

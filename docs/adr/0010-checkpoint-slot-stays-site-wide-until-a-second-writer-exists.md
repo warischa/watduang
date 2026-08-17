@@ -15,8 +15,9 @@ Result: **every guard is read-side.** `resumeFrom` checks the game label (`siams
 `planStart` checks `checkpoint?.game === gameId` (`player-select.ts:47`). The write side has none —
 `saveCheckpoint` (`session.ts:127-129`) never compares `cp.game` to what is already in the slot.
 
-Unreachable today: `manifest.ts:10` is `[timebomb, siamsi]` and `timebomb.ts` has zero checkpoint
-references. Siamsi is the sole writer. But `_template.ts`, the scaffold game 3 is copied from,
+Unreachable today: siamsi is the sole `saveCheckpoint` caller — grep the callers, do not count the
+manifest (six games ship now; the four added since only call `markPlayed`, which preserves the
+checkpoint). But `_template.ts`, the scaffold a new game is copied from,
 mentioned the slot nowhere — so game 3 would have destroyed a live เซียมซี round on its first save,
 before any read-side guard could run.
 

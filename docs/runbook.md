@@ -186,3 +186,22 @@ also catches a translation, which is the failure that actually matters here.
 two probes and was wrong. One probe searched for `ระเบิดเวลา` — which is also the game's *name*, so it
 appears in `dist` whether or not the comment survives. An input where right and wrong agree measures
 nothing; pick a phrase that can only be comment prose.
+
+## The clear-round confirm — approved copy, and why it focuses cancel
+
+ADR-0008 is the decision; these are the operational details it relies on. Owner-approved (#25), and the
+rule is that the copy names **every** loss the confirm will actually cause — over-naming is acceptable,
+under-naming is not. `clearCopy` in `src/shell/player-select.ts` selects; `null` means "leave the
+template default alone". Any edit must keep these byte-identical — `PlayerSetup.astro` ships the first
+pair as markup and ADR-0008 quotes them.
+
+| case | question | confirm button |
+|---|---|---|
+| stranded checkpoint only (template default) | `ยังมีรอบที่เล่นค้างอยู่ ถ้าล้างกลุ่มนี้ รอบที่ค้างจะหายไปด้วย` | `ล้างและทิ้งรอบที่ค้าง` |
+| live round on this page | `เริ่มรอบบนหน้านี้ไปแล้ว ถ้าล้างกลุ่มนี้ รอบนี้จะหายไปทั้งรอบ` | `ล้างและทิ้งรอบนี้` |
+| both at once | `เริ่มรอบบนหน้านี้ไปแล้ว และยังมีรอบที่เล่นค้างอยู่ด้วย ถ้าล้างกลุ่มนี้ ทั้งรอบนี้และรอบที่ค้างจะหายไป` | `ล้างและทิ้งทุกรอบ` |
+
+`ยกเลิก` takes focus when the question opens, and that is load-bearing, not styling. A click fires on
+Enter **keydown**, so focusing the destructive button puts it under a key that may still be held —
+auto-repeat, or a habitual second Enter, confirms a question the player never read. Both prompts in
+`src/shell/PlayerSetup.astro` focus their safe branch for this reason.

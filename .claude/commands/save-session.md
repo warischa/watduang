@@ -5,13 +5,15 @@ this file holds only what this repo does differently from master, or what master
 
 ## Home of live state is `SESSION-HANDOFF.md` at the root, not `CLAUDE.md`
 
-**This directly overrides master** — master treats `SESSION-HANDOFF.md` as a fallback mode for projects
-with no structure yet, and tells you to demote it to a pointer once a state section exists. **This repo does the opposite, deliberately.**
+**No longer an override — master converged to this, checked 2026-08-17.** Master's § State home now
+declares `SESSION-HANDOFF.md` the ONE home for session state, and master's RH gives it precedence over
+any leftover state section. This section used to claim master said the opposite; it did, once. Kept as
+a statement of *what this repo does*, not as a deviation — re-check before treating it as either.
 
-Reason: `CLAUDE.md` gets injected into context every session; live state is the one section that changes
-every round and grows fastest (once ate 3023B of 6549B and hit the ceiling twice in a single save). Splitting
-them out gets two things: stable things you must know **before** acting no longer race state for bytes, and
-state bytes are never paid in a session that doesn't resume.
+Reason it was worth the fight: `CLAUDE.md` gets injected into context every session; live state is the
+one section that changes every round and grows fastest (once ate 3023B of 6549B and hit the ceiling twice
+in a single save). Splitting them out gets two things: stable things you must know **before** acting no
+longer race state for bytes, and state bytes are never paid in a session that doesn't resume.
 
 **Price to know and guard against:** `SESSION-HANDOFF.md` is **not auto-loaded** — an agent that doesn't run
 `/resume-project` sees no state at all · the guard is the line at the top of `CLAUDE.md` that says plainly
