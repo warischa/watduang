@@ -78,17 +78,19 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     #leave-go is a <button>, not an <a> — an anchor here would recreate the exact hazard this dialog
     exists to remove (a second target waiting under the same finger).
 
-    Thai copy below is a PLACEHOLDER pending owner sign-off (precedent: gh#35 / ADR-0009 — this copy is
-    owner-owned, not an agent's call), AND it is bounded by what the predicate carries. root.hidden means
-    "a round was STARTED on this page", not "a round is running right now" — nothing ever un-hides the
-    panel, so a finished-round summary still reaches this dialog. The wording it replaced ended by
-    asserting that this round would END, which on that screen is simply false — the round already had.
-    What the bit does support is that the tap leaves the page, so that is all the question asks.
+    Thai copy below is FINAL, owner-ruled #39: this dialog can only ask whether to leave, and that
+    ceiling is accepted as permanent rather than worked around. It is bounded by what the predicate
+    carries. root.hidden means "a round was STARTED on this page", not "a round is running right now" —
+    nothing ever un-hides the panel, so a finished-round summary still reaches this dialog. An earlier
+    wording ended by asserting that this round would END, which on that screen is simply false — the
+    round already had. Both buttons are bounded the same way: an earlier "เล่นรอบนี้ต่อ" promised to
+    resume a round that may already be over, so the stay button names the page, not the round.
     Same discipline as clearCopy in player-select.ts, which is worded to claim only its own bit.
-    Do not restore any claim about a round ending unless the predicate is narrowed to match. */}
+    Do not restore any claim about a round ending or resuming unless the predicate is narrowed to
+    match — and narrowing it means building round state this site does not have (ADR-0015). */}
 <dialog id="leave-confirm">
   <p id="leave-confirm-msg" role="alert">ไปเกมอื่นตอนนี้ไหม</p>
-  <button id="leave-stay" type="button">เล่นรอบนี้ต่อ</button>
+  <button id="leave-stay" type="button">อยู่หน้านี้ต่อ</button>
   <button id="leave-go" type="button">ไปเกมอื่น</button>
 </dialog>
 

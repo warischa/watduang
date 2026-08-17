@@ -74,7 +74,11 @@ exists; it was replaced for that reason, not for wording taste. This follows the
 precedent in the same file: over-naming what a control affects is fine, under-naming never is, and
 claiming a state that does not exist is neither.
 
-The Thai copy in the tree is a **placeholder pending owner sign-off** (#35 precedent, ADR-0009).
+**Owner ruling (#39): this ceiling is accepted as permanent.** The dialog asks only whether to leave,
+and both buttons are bounded the same way — an earlier stay button read `เล่นรอบนี้ต่อ`, which promises
+to resume a round that may already be over, so it names the page instead. The copy is final, not a
+placeholder. Stopping the stray tap was the goal; narrating what is at stake was never reachable
+without state this site does not have.
 
 ## Anti-recursion — the confirm must not become the bug
 
@@ -111,12 +115,22 @@ browsers without `<dialog>`, where the guard **fails open** by design.
   written here passed a page that linked to its own game, because it deleted the self-link before
   counting — it had only ever been calibrated against undercounting.
 
+## Not gated by CI
+
+Two checks were written and calibrated for this class and **deliberately not wired into `ci.yml`**
+(owner ruling, #39): `scripts/crawl-check-gamenav.mjs` and an `astro check` step. Both run only when
+someone runs them. Until they are wired, CI cannot catch a `GameNav` self-link regression, and it
+cannot catch a broken reference inside an `.astro` file at all — `npm run build` exits 0 on one and
+ships anchors with empty link text. The scripts and the proposed YAML are in the tree; the decision
+was to revisit them alongside the deploy chain rather than now.
+
 ## The fact that would change this
 
-If the owner's approved copy is long enough to exceed `45dvh`, `overflow: auto` scrolls the accept
-control out of the visible dialog and the clearance property stops describing what the finger can
-reach. The cap would then have to become a constraint on the message length rather than on the dialog.
+If copy long enough to exceed `45dvh` is ever introduced, `overflow: auto` scrolls the accept control
+out of the visible dialog and the clearance property stops describing what the finger can reach. The
+cap would then have to become a constraint on the message length rather than on the dialog.
 
-Separately: if a predicate for "a round is running now" ever exists, the copy can say what is actually
-at stake instead of only that the tap leaves the page. Today no such state exists anywhere on the site
-— siamsi is the sole checkpoint writer and its checkpoint is forward-only.
+Separately: if a predicate for "a round is running now" ever exists, the copy could say what is
+actually at stake instead of only that the tap leaves the page. Today no such state exists anywhere on
+the site — siamsi is the sole checkpoint writer and its checkpoint is forward-only. The owner has
+accepted that ceiling rather than built the state, so this is a live limit, not an oversight.
