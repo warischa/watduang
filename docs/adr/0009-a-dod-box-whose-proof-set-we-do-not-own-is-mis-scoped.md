@@ -94,6 +94,27 @@ be **decidable per commit**. The seam that decides it is enumerated in
 Note the reason is *not* that future commits are unowned — they are ours; it is that a per-commit seam
 test terminates. Evidence: [#20](https://github.com/warischa/watduang/issues/20) closed on it.
 
+## Outcome, S2026-08-17#2
+
+**Decision 1 extended: the harness is part of the evidence.** A two-tab `roster.add` race was proven
+fixed by a CDP drive whose *result* was committed (`docs/verification/evidence/34/11-*.json`) while
+the script that produced it sat in a session scratchpad. That is this ADR's own failure mode one
+level up — the verdict was reproducible in principle and unreproducible in practice, because
+re-running it needed an artifact that dies with the session. `scripts/roster-lock-two-tab-race.mjs`
+is now committed beside the repo's other drivers.
+
+So the rule reads: **the artifact a verdict rests on is committed — including the apparatus, not only
+the result.** It matters most where a capture carries a live tripwire, as capture 11 does: the lock
+it proves holds only while the `withLock` callback stays synchronous, and whoever trips that needs to
+re-run the proof, not re-invent it.
+
+**The ownership test decided two approaches this session, rather than describing them afterwards.** A
+timing-based settle gate for the love-match double-tap was rejected because it enumerates how long
+after a re-render a tap is stale — browser-scheduler-owned, never converges; the chosen fix
+enumerates our own DOM. And the race's DoD had been written "confirm or refute", where refute is
+unreachable for a scheduler-owned interleaving — re-framed to *reproduced* vs *not reproduced in N*,
+after which it reproduced 100 of 100 against unfixed code and 0 of 100 against fixed.
+
 ## Related
 
 Verification practice and the traps that produced confidently wrong answers:
