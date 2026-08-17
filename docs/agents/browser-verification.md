@@ -1,5 +1,7 @@
 # Verifying a page in a real browser
 
+Real iOS WebKit (no CDP path at all): [ios-webkit-verification.md](./ios-webkit-verification.md).
+
 Some Definition-of-done boxes cannot be settled from markup: "works at ~320px wide", "the spin
 animation stops when the device asks to reduce motion", "the round survives a refresh". Reading the
 CSS and concluding is how those boxes stayed unticked-but-assumed for three sessions.

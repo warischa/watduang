@@ -1,0 +1,95 @@
+{
+  "box": "M-D -- First capture on a real WebKit engine, not headless Chrome. All 11 prior captures under docs/verification/evidence/34/ (including 09's chip-row-stability and love-match's taken-chip opacity claim) ran on headless Chrome via scripts/driver.mjs/cdp.mjs; none had ever been exercised on real iOS Safari. Four questions, in order: (1) positive control on the technique itself, (2) does navigator.locks -- the cross-tab lock roster.ts's withLock() depends on, with an inline unlocked fallback where absent -- actually exist and work on real iOS Safari, (3) is the taken-chip TAKEN_CHIP_STYLE opacity:0.5 authored style visibly and measurably applied on WebKit, (4) does the chip row stay put between tap 0 and tap 1 at a genuine 320px reflow on WebKit, using the per-chip detector (not the container top, which the M-D-09 box already showed is insensitive to reflow).",
+  "method": "iPhone 17 Pro / iOS 26.5 Simulator, booted (xcrun simctl list devices). This dispatch's available toolset was Read/Write/Edit/Bash only -- the iOS Simulator MCP tool (open_url/tap/screenshot) named in this box's brief was NOT actually wired into this subagent, confirmed by attempting to invoke it and finding no such tool, then confirming no substitute exists: no ios_webkit_debug_proxy, no idb/fbsimctl/appium (checked via `which`), and the Simulator app itself exposes 0 windows to System Events/Accessibility (this Simulator instance is headless/streamed, not a normal on-screen window -- confirmed via `osascript` returning `0` for `count of windows` on the Simulator process, which also rules out OS-level UI-scripted clicking as a substitute). Navigation and screenshot used `xcrun simctl openurl booted <url>` and `xcrun simctl io booted screenshot <path>` directly via Bash -- both work with no on-screen window, confirmed by this run. Serving: `npm run build` then `npx serve dist/ -l 4323` for the real site (confirmed via `curl -sI`: Content-Type text/html; charset=utf-8), and `npx serve scratchpad/webkit-probe -l 4324` for the reusable positive-control probe. Every measurement was read off a screenshot of an in-page readout rendered by the page's own script (no inspector exists on this path to eval anything externally) -- per docs/agents/ios-webkit-verification.md Technique 1. Q1 (positive control): loaded scratchpad/webkit-probe/frame.html (unmodified, pre-existing from a prior session's confirmed run) via openurl, screenshotted, read the three numbers off the rendered readout. Q2 (navigator.locks): a new probe page, scratchpad/webkit-probe/locks-probe.html (not committed, scratch-only), rendering typeof navigator / typeof navigator.locks / typeof navigator.locks?.request / isSecureContext, and the actual resolved value of `navigator.locks.request('probe', async () => 42)`, loaded via openurl on port 4324 (http://localhost, secure-context-eligible regardless of port), screenshotted. Q3 and Q4 needed a real tap on a real chip in the real love-match page; with no touch-injection tool available (see above), taps were realized via docs/agents/ios-webkit-verification.md Technique 3: two temporary same-origin controller pages written into dist/ (gitignored build output, NOT under src/, deleted after capture) -- dist/driver-opacity.html and dist/driver-320.html, served from the SAME origin as the real built site (http://localhost:4323) so `iframe.contentDocument`/`contentWindow` were reachable. Each iframed the real, unmodified `/game/love-match/` build output, dispatched the real 'watduang:start' CustomEvent the real PlayerSetup.astro dispatches (src/pages/game/[id].astro:38) with 3 Thai names, waited 700ms for the real async game-module import + mount (mirrors capture 09's convention), then called the real chip button's native `.click()` method -- a real click event in the real WebKit engine on the real button with the real 'click' listener from src/games/love-match.ts's renderPick(), NOT a literal touchstart/touchend sequence (declared honestly: no touch-injection capability was available in this dispatch). driver-opacity.html: default iframe width, read getComputedStyle(chip).opacity/.disabled/.getAttribute('aria-pressed') before and after the click, plus an untapped sibling chip's opacity for contrast. driver-320.html: iframe forced to width:320px (Technique 2 -- confirmed win.innerWidth===320 inside it), tracked chip[2] (the untapped survivor) via the per-chip detector from docs/agents/ios-webkit-verification.md/the playbook -- getBoundingClientRect() and elementFromPoint() before vs after chips[0].click(). Both driver pages captured `error`/`unhandledrejection` listeners on the iframe's window from before dispatch, rendered into the same readout. All values below are the exact screenshot-read readout text, not inferred.",
+  "capturedAtCommit": "3f94ec3",
+  "capturedAtCommitNote": "Re-derived at correction time from a fresh `git status --short` run (the box's original note, quoted only from an earlier point in the session, omitted docs/agents/browser-verification.md's edit, the untracked docs/agents/ios-webkit-verification.md this box's own method cites, and this file itself): ` M docs/agents/browser-verification.md`, ` M src/games/love-match.test.mjs`, ` M src/games/types.ts`, ` M src/shell/roster.ts`, plus untracked `?? docs/agents/ios-webkit-verification.md` (the file this box's method cites -- it was necessarily untracked at capture time since it did not exist before this session), `?? docs/verification/evidence/34/12-daily-fortune-tap1-target.json`, `?? docs/verification/evidence/34/13-pick-loser-no-chip-row.json`, `?? docs/verification/evidence/34/14-ios-webkit-first-real-engine.json` (this file). This note describes the tree at commit time, listing every entry then present. src/shell/roster.ts (withLock(), navigator.locks) and src/games/love-match.ts (TAKEN_CHIP_STYLE, chip DOM/click handling, HEADER_NAME_MAX) are the exact files this box tests the real behaviour of; src/games/love-match.test.mjs and src/games/types.ts's uncommitted changes were not inspected as part of this walk and are not claimed clean by this capture.",
+  "verdict": "PROVEN",
+  "positiveControlReproduced": true,
+  "navigatorLocksAvailableOnRealIOSSafari": true,
+  "navigatorLocksRequestResolvesCorrectly": true,
+  "takenChipVisiblyDimmedOnWebKit": true,
+  "takenChipOpacityIsHalf": true,
+  "chipRowStableAt320pxOnWebKit": true,
+  "tapRealizedViaProgrammaticClickNotRealTouch": true,
+  "calibrationDeltaVarianceNote": "This capture's q1_positiveControl_frameHtml re-run of scratchpad/webkit-probe/frame.html reads 'beforeXY [12.0, 69.0] -> afterXY [174.8, 12.0]' (y delta 57), while docs/verification/evidence/34/12-daily-fortune-tap1-target.json's containerTopObservableFailureNote cites the same probe from an earlier session as 'y 171.0 -> 118.0' (delta 53). Two committed files, same probe, conflicting deltas -- 53 vs 57 do not reconcile, and the 4px gap is not a constant frame-origin offset (that would need re-running to confirm and was not re-run). Not a defect this correction invents a cause for. What DID reproduce identically in both runs, and is what both captures' claims actually rest on: the tracked chip moved, and a different person's chip ended up at the coordinate it abandoned. Do not cite either delta as a precise pixel figure going forward.",
+  "realTouchEvidenceAdded": true,
+  "loveMatchNoReflowConfirmedOnRealTouch": true,
+  "consoleErrorsEmpty": true,
+  "observation": {
+    "q1_positiveControl_frameHtml": {
+      "innerInnerWidth": 320,
+      "hostInnerWidth": 402,
+      "trackedChip": "ปุ๊ก",
+      "beforeXY": [12.0, 69.0],
+      "afterXY": [174.8, 12.0],
+      "moved": "YES",
+      "sameFingerDifferentPerson": "YES",
+      "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/probe-frame-test.png"
+    },
+    "q2_navigatorLocks_realSite": {
+      "isSecureContext": true,
+      "typeofNavigator": "object",
+      "typeofNavigatorLocks": "object",
+      "typeofNavigatorLocksRequest": "function",
+      "requestResolvedTo": 42,
+      "capabilityWorks": "YES",
+      "note": "This means the shipped roster fix's LOCKED path runs on real iOS 26.5 Safari -- the unlocked fallback in withLock() (for navigator.locks absent, opaque origins, pre-15.4 Safari) is NOT the path this engine/version takes. The fallback's own comment names 'Safari before 15.4' as a case it exists for; that case was not reproduced here because this simulator runs iOS 26.5, far newer than 15.4.",
+      "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/locks-probe.png"
+    },
+    "q3_takenChipOpacity_loveMatch": {
+      "chipsFound": 3,
+      "beforeTap": { "opacity": "1", "disabled": false, "ariaPressed": null },
+      "afterTap": { "opacity": "0.5", "disabled": true, "ariaPressed": "true" },
+      "untappedSiblingOpacity": "1",
+      "dimmed": "YES",
+      "ariaPressedSet": "YES",
+      "disabledSet": "YES",
+      "consoleErrors": [],
+      "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/driver-opacity3.png",
+      "note": "Confirmed visually in the screenshot too: the tapped chip's Thai text renders visibly greyed/faded next to its two untapped siblings' full-black text -- not just a computed-style number."
+    },
+    "q4_chipRowStability320px_loveMatch": {
+      "innerInnerWidth": 320,
+      "trackedChip": "ก้อง",
+      "beforeXY": [204.4, 361.7],
+      "afterXY": [204.4, 361.7],
+      "moved": "no",
+      "sameFingerDifferentPerson": "no",
+      "consoleErrors": [],
+      "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/driver-320-2.png",
+      "note": "Matches M-D-09's headless-Chrome finding (chipRowTopDelta===0) on the real engine too, now via the more sensitive per-chip detector rather than the container top."
+    },
+    "q5_realTouchLoveMatch": {
+      "legLabel": "orchestrator-run, ADDITIONAL to this box's own click-based legs above -- not a re-measurement by this subagent, and not a replacement for Q3/Q4's declared click-not-touch limitation",
+      "device": "booted iPhone 17 Pro Simulator, iOS 26.5",
+      "dispatch": "genuine `tap` (not `.click()`) via a simulator tool this box's own dispatch did not have access to",
+      "iframeInnerWidth": 320,
+      "innerWidthConfirmedByInPageReadout": true,
+      "realTapDevicePoint": { "x": 178, "y": 238 },
+      "realTapTargetChip": "ก้อง",
+      "chipXPositionsScreenshotPx": {
+        "สมชาย": { "before": 123, "after": 123 },
+        "สมหญิง": { "before": 273, "after": 273 },
+        "ก้อง": { "before": 406, "after": 406 },
+        "ปุ๊ก": { "before": 516, "after": 516 },
+        "เบส": { "before": 625, "after": 625 }
+      },
+      "chipRowYUnchangedAt": 545,
+      "touchedChipGreyedInPlace": true,
+      "touchedChipDidNotDisappear": true,
+      "headerAfterTap": "เลือกคู่ของ ก้อง",
+      "headerNamesActuallyTouchedChip": true,
+      "newButtonAppearedOnOwnLine": "เลือกคนแรกใหม่",
+      "newButtonShiftedNothing": true,
+      "conclusion": "The love-match no-reflow fix holds under a genuine touch on real WebKit at genuine 320 CSS px. This upgrades, and does not replace, this box's own synthetic-click leg (Q3/Q4 above) -- both are kept, and this box's own declared limitation (Q3/Q4's taps were realized via a real `.click()`, not a literal touch, because no touch-injection tool was available to this dispatch) still stands for Q3/Q4 specifically; Q5 is what closes that gap, from a different dispatch that did have a real tap tool."
+    }
+  },
+  "screenshotsTakenNotCommitted": [
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/probe-frame-test.png",
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/locks-probe.png",
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/driver-opacity3.png",
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/driver-320-2.png"
+  ],
+  "note": "Engine: real WebKit, iPhone 17 Pro Simulator, iOS 26.5 (confirmed via `xcrun simctl list runtimes`), not headless Chrome. 320px was reached via an iframe (Technique 2), never a 320pt device -- no such simulator device exists on this host. All measurements were read from an in-page readout via a screenshot, because no inspector/CDP-equivalent exists on this path (no ios_webkit_debug_proxy). This dispatch had NO tap-capable tool (the brief's named iOS Simulator MCP tool was not actually available to this subagent, and no substitute -- idb/fbsimctl/appium/OS-level UI-scripted click -- exists either, the last ruled out by the Simulator process exposing 0 windows to Accessibility). Q3 and Q4's taps were therefore realized as a real `.click()` call on the real button in the real WebKit-rendered page, dispatched from a same-origin controller page (dist/driver-opacity.html, dist/driver-320.html -- both deleted after capture, never committed, never under src/), not a literal touch event -- this is declared as a methodological deviation from the brief's instruction to drive taps via the MCP tool, not silently substituted. It exercises the real click handler and real CSS/layout in the real engine, which is what the opacity and reflow claims are actually about; it does not exercise touch-specific timing (tap-to-click translation, touch-action). The headline finding is Q2: navigator.locks is present and functional on real iOS 26.5 Safari, so roster.ts's cross-tab lock fix runs its LOCKED path on this real target platform, not the untested fallback. A Q5 leg was added after this box's own dispatch, by the orchestrator, using a genuine tap on the same booted simulator (see observation.q5_realTouchLoveMatch) -- it confirms the no-reflow finding under real touch input rather than a synthetic click, and does not retract Q3/Q4's own declared click-not-touch limitation.",
+  "consoleErrors": []
+}
