@@ -60,6 +60,16 @@ ADR-0013 locks `GameNav` as-is. Both cannot hold. **This ADR's invariant is curr
 inside the stage**, and the conflict is filed as #39 for an owner decision rather than patched. Do not
 read ADR-0013 as settled while #39 is open.
 
+**Resolved by [ADR-0015](0015-a-leave-confirm-guards-the-links-we-cannot-move.md).** The invariant
+above remains scoped to `#stage` and is unchanged. Outside the stage the links stay where they are and
+a leave-confirm changes what a stray tap costs instead of where the link sits. Two consequences for
+anyone verifying this ADR:
+
+- **Claim 2 of `scripts/no-nav-in-stage-probe.mjs` stays RED for siamsi and love-match, by design.**
+  It measures geometry, and the geometry is unchanged. A green claim 2 would mean the check was
+  weakened to match the fix.
+- Claim 0 (`stageHasNoAnchor`) is the machine-check for *this* ADR and stays green on all six games.
+
 ## The fact that would change this
 
 If a game genuinely needs an in-stage exit for gameplay reasons, the only convergent alternative is a
@@ -67,7 +77,11 @@ stage-height floor (`min-height` on `#stage`) so a shrinking screen cannot pull 
 that reintroduces exactly the unowned set rejected above, so it would need per-roster-size
 verification per game rather than one reading.
 
-Separately, the harness that proved this samples three points on **centre-x only**. That is why the
+Separately, the harness that proved this sampled three points on **centre-x only**. That is why the
 `GameNav` collisions were missed: the anchors sit ~7px off that axis. Any future verification of this
-invariant must grid-scan the whole control box, and must sample the `#start-round` transition, which
-the committed probe does not.
+invariant must grid-scan the whole control box and must sample the `#start-round` transition.
+Both now exist — `scripts/gamenav-again-grid-probe.mjs` and `scripts/gamenav-start-grid-probe.mjs` —
+and the centre-x probe has since had two of its own blind spots closed: an off-viewport control used
+to score a vacuous PASS (now INCONCLUSIVE), and the ordering bug that let one unmeasurable tap mask a
+game with real hits (now FAIL first). Neither hole was found by running the probe; both were found by
+reading it. Treat a green from any harness here as a claim about the points it sampled, nothing more.

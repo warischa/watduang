@@ -1,0 +1,82 @@
+Calibration for gh#38: does `astro check` catch a broken .astro reference, and does
+`astro build` already catch the same break?
+
+=== SETUP ===
+Deliberate break, one line, in src/components/GameNav.astro (a small existing file, used
+per the brief):
+
+  BEFORE: <ul>{shown.map((g) => <li><a href={`/game/${g.id}/`}>{g.names.th}</a></li>)}</ul>
+  AFTER:  <ul>{shown.map((g) => <li><a href={`/game/${g.id}/`}>{g.names.thisPropDoesNotExist}</a></li>)}</ul>
+
+`g.names` is typed `{ th: string; en: string }` (src/games/manifest.ts) — `thisPropDoesNotExist`
+does not exist on that type. This is exactly the class of bug gh#38 is about: a broken
+reference inside an .astro file that today's CI cannot see because `tsc`'s program holds
+0 .astro files (there is no typecheck script, and `astro build` does not run the TS checker).
+
+=== RESULT 1: `npx astro check` ON THE BROKEN FILE ===
+$ npx astro check
+[check] Getting diagnostics for Astro files in <repo>...
+src/components/GameNav.astro:17:65 - error ts(2339): Property 'thisPropDoesNotExist' does
+not exist on type '{ th: string; en: string; }'.
+
+  <ul>{shown.map((g) => <li><a href={`/game/${g.id}/`}>{g.names.thisPropDoesNotExist}</a></li>)}</ul>
+                                                                ~~~~~~~~~~~~~~~~~~~~
+
+Result (60 files):
+- 1 error
+- 0 warnings
+- 3 hints  (pre-existing — same 3 as the clean-tree run, see 01-astro-check-first-run.txt)
+
+EXIT: 1
+
+CALIBRATION PASSED: astro check exits non-zero and names the exact file:line:col of the
+deliberately broken reference.
+
+=== RESULT 2: `npm run build` ON THE SAME BROKEN FILE ===
+$ npm run build
+... (prebuild validate-games, astro build, vite build, 14 pages, sitemap) ...
+[build] 14 page(s) built in 414ms
+[build] Complete!
+EXIT: 0
+
+BUILD DOES NOT CATCH IT. The build passes clean, exit 0. Astro's build pipeline does not
+run the TypeScript checker — `g.names.thisPropDoesNotExist` compiles to `undefined` at
+render time with no error and no warning.
+
+=== RESULT 3: THE SHIPPED OUTPUT IS SILENTLY BROKEN ===
+Inspected dist/game/timebomb/index.html after the build above — the nav links render with
+empty text (the property that doesn't exist evaluates to `undefined`, which Astro renders
+as an empty string):
+
+  <nav class="game-next" aria-label="เล่นเกมต่อด้วยวงเดิม">
+    <h3>เล่นเกมต่อด้วยวงเดิม</h3>
+    <ul>
+      <li><a href="/game/siamsi/"></a></li>
+      <li><a href="/game/pick-loser/"></a></li>
+      <li><a href="/game/short-stick/"></a></li>
+      <li><a href="/game/daily-fortune/"></a></li>
+      <li><a href="/game/love-match/"></a></li>
+    </ul>
+  </nav>
+
+This ships to production as invisible/empty nav links. No CI step today (validate-games,
+citations, thai-comments, unit tests, build, CSP checks, sitemap check, smoke test) would
+catch this — the smoke test only greps for `<title>` and a resolvable `og:image`, it does
+not assert link text is non-empty.
+
+=== REVERT ===
+src/components/GameNav.astro restored to its original line (`g.names.th`).
+`git status --porcelain` after revert (and after `rm -rf dist`) shows only:
+
+  ?? docs/verification/evidence/38/
+
+No changes under src/. package.json / package-lock.json also unchanged — @astrojs/check
+and typescript were installed with `npm install --no-save` for this calibration only.
+
+=== RUNTIME (measured, not guessed; `time`, worktree at
+/Users/waris.c/claude/free-game/.claude/worktrees/agent-a046947c90b384f65) ===
+`npx astro check` (clean tree, deps already installed): 2.613s wall / 3.91s user
+`npm run build`: 0.937s wall / 1.59s user
+
+astro check is not free but is well under the cost of the existing "Smoke test" CI step,
+which spins up a static server and curls every page.

@@ -1,0 +1,39 @@
+=== FIRST RUN, clean tree, `npx astro check < /dev/null` (stdin closed — the same condition
+a CI runner has by default) ===
+
+To continue, Astro requires the following dependency to be installed: @astrojs/check.
+
+  Astro will run the following command:
+  If you skip this step, you can always run it yourself later
+
+ (boxed) npm i @astrojs/check typescript
+
+? Continue? (Y/n)
+EXIT CODE: 0
+
+=== FINDING ===
+`@astrojs/check` is not a project dependency (not in package.json). `npx astro check` on
+a clean tree with stdin closed prints an interactive "Continue? (Y/n)" prompt for
+installing @astrojs/check + typescript, gets EOF on stdin, and exits 0 WITHOUT RUNNING
+ANY CHECK. Zero errors, zero warnings — because nothing ran. A naive `astro check` step
+dropped into ci.yml today would be a silent no-op gate: always green, checking nothing.
+`@astrojs/check` must be added as an explicit devDependency before CI can use this
+command at all — `npm ci` alone will not install it.
+
+=== SECOND RUN, WITH @astrojs/check INSTALLED (`npm install --no-save @astrojs/check typescript`) ===
+$ npx astro check
+[content] Syncing content
+[content] Synced content
+[types] Generated 49ms
+[check] Getting diagnostics for Astro files in <repo>...
+
+3 warning-level hints found (see 02-astro-check-calibration.txt for the full text: one in
+scripts/daily-fortune-double-tap-probe.mjs, one in src/layouts/GameLayout.astro, one in
+src/shell/roster.ts) — all pre-existing, none introduced by this task.
+
+Result (60 files):
+- 0 errors
+- 0 warnings
+- 3 hints
+
+EXIT: 0

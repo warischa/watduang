@@ -45,7 +45,7 @@ not carrying the weight this decision assigns it and the exit needs a prompt aft
 instruments that today, so such evidence would arrive as a report, never as a metric — which means
 absence of reports is not confirmation.
 
-## 2026-08-17 — contested by measurement, do not read this as settled
+## 2026-08-17 — contested by measurement, then resolved by [ADR-0015](0015-a-leave-confirm-guards-the-links-we-cannot-move.md)
 
 The flip-fact above anticipated a *report* about a deliberate tap on a labelled control. The evidence
 that arrived is different in kind and did not need a player: `GameNav`'s links can sit under a finger
@@ -59,3 +59,14 @@ This decision's reasoning rests on a label matching its effect. That reasoning d
 unaimed tap, so the closure above does not cover this case — it is not refuted, it is out of scope.
 [ADR-0014](0014-no-navigation-target-inside-the-stage.md) is in direct conflict, and the owner
 decision is #39. Re-opening no longer requires new evidence; the evidence exists.
+
+**Resolution (#39, owner ruling).** This decision stands **unamended for aimed taps** — a labelled
+exit still needs no confirm, and `GameNav` is still not the #25 class. The unaimed tap was never
+inside its scope, and [ADR-0015](0015-a-leave-confirm-guards-the-links-we-cannot-move.md) governs
+that case instead: a confirm fires only when the page has started a round, which is a state gate, not
+a label judgement. The friction this ADR refused to spend — a prompt on every deliberate exit — is
+still not spent: a player who has started no round navigates straight through.
+
+The love-match reading that arrived with the ruling sharpens why no clearance argument was ever going
+to settle this: the collision reproduces at roster **2** with long names and not at rosters 3–10. A
+per-roster claim cannot be trusted in either direction.
