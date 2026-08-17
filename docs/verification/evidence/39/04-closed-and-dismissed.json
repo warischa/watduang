@@ -1,0 +1,1120 @@
+{
+  "purpose": "gh#39 follow-up. Four assertions the original six-step verify never made, each confirmed RED on the shipped guard before the fix and green after it. A. a CLOSED <dialog id=\"leave-confirm\"> must generate no boxes and answer no elementFromPoint, on all 9 pages that render PlayerSetup. B. after the guard is dismissed with the safe branch, no coordinate it occupied may navigate, and pendingHref must be clear. C. the at-top/at-bottom anchoring must survive a tap AT the class boundary (innerHeight / 2), the coordinate the shipped 215px figure never tested. D. a cmd/ctrl/shift/middle click must reach the browser untouched, because opening a sibling game in a second tab is the round-PRESERVING gesture.",
+  "probe": "scripts/leave-confirm-probe.mjs (run via scripts/driver.mjs, dist/ served at :4321, 320px wide)",
+  "detectorCalibration": "A: the grid scan that must find nothing while the dialog is closed must find its buttons while it is open, one pass per page, in that order — see detectorPerPage, every page reports buttonHitsWhileOpen > 0. D: the plain click on the same link must still be intercepted in the same pass, or a \"not intercepted\" result would only mean the guard was off. C: the run asserts the tap actually landed on the link (coversBoundary) instead of assuming the scroll worked; a miss reads VOID, not PASS.",
+  "viewports": {
+    "assertionsAandBandD": "320x900",
+    "assertionC_realTap": "320x356, solved per page rather than guessed. GameNav sits near the document end with only the footer below it, so scrollIntoView clamps at max scroll and the link stops a fixed K px above the viewport bottom; H = 2K is the one height where max scroll puts a link exactly on the split. At 900 no non-exempt link reaches y=450 at all, which is why the shipped verify never tested that coordinate.",
+    "assertionC_anchoringAt900": "320x900 with the class set directly — a CSS-placement question, not a tap, and the same viewport the 215px figure in 03-double-tap-postfix.json was taken at."
+  },
+  "controls": {
+    "note": "Three separate unfixed builds, each reverting ONE thing, so a red is attributable. A green run and a harness that quietly stopped working look identical; every red below was produced by the same probe file that produced the greens.",
+    "allFourDefectsPresent": "preFix",
+    "onlyTokensCssReverted": "preFix.C_reproduction.anchoringAt900_defectiveCssOnly",
+    "onlyModifierEarlyReturnReverted": "preFix.D_reproduction"
+  },
+  "preFix": {
+    "what": "tokens.css `display: flex` ungated by [open]; pendingHref cleared on no path; modified clicks intercepted.",
+    "A_closedDialogInert": {
+      "/game/timebomb/": "FAIL",
+      "/game/siamsi/": "FAIL",
+      "/game/pick-loser/": "FAIL",
+      "/game/short-stick/": "FAIL",
+      "/game/daily-fortune/": "FAIL",
+      "/game/love-match/": "FAIL",
+      "/tool/draw/": "FAIL",
+      "/tool/team/": "FAIL",
+      "/tool/wheel/": "FAIL"
+    },
+    "B_postDismissInert": {
+      "timebomb": "FAIL",
+      "siamsi": "FAIL",
+      "pick-loser": "FAIL",
+      "short-stick": "FAIL",
+      "daily-fortune": "FAIL",
+      "love-match": "FAIL"
+    },
+    "C_boundaryMeasured": {
+      "timebomb": "VOID",
+      "siamsi": "VOID",
+      "pick-loser": "VOID",
+      "short-stick": "VOID",
+      "daily-fortune": "VOID",
+      "love-match": "VOID"
+    },
+    "C_boundaryClearancePx": {
+      "timebomb": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 41,
+          "dialogClearancePx": 0
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 40,
+          "dialogClearancePx": 0
+        }
+      ],
+      "siamsi": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 41,
+          "dialogClearancePx": 0
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 40,
+          "dialogClearancePx": 0
+        }
+      ],
+      "pick-loser": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 41,
+          "dialogClearancePx": 0
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 40,
+          "dialogClearancePx": 0
+        }
+      ],
+      "short-stick": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 41,
+          "dialogClearancePx": 0
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 40,
+          "dialogClearancePx": 0
+        }
+      ],
+      "daily-fortune": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 41,
+          "dialogClearancePx": 0
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 40,
+          "dialogClearancePx": 0
+        }
+      ],
+      "love-match": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 41,
+          "dialogClearancePx": 0
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 40,
+          "dialogClearancePx": 0
+        }
+      ]
+    },
+    "D_modifiedClicksPassThrough": "not measured in this run",
+    "consoleErrors": 0,
+    "A_reproduction": {
+      "page": "/game/siamsi/ — identical on all 9",
+      "closedDialogBox": {
+        "left": 0,
+        "top": 533,
+        "right": 320,
+        "bottom": 711,
+        "width": 320,
+        "height": 178,
+        "clientRects": 1,
+        "display": "flex",
+        "position": "absolute"
+      },
+      "buttonHitsWhileClosed": 480,
+      "buttonHitsWhileOpen": 423,
+      "strayButtonSamples": [
+        {
+          "x": 19,
+          "y": 639,
+          "id": "leave-stay"
+        },
+        {
+          "x": 19,
+          "y": 644,
+          "id": "leave-stay"
+        },
+        {
+          "x": 19,
+          "y": 649,
+          "id": "leave-stay"
+        }
+      ],
+      "note": "A closed dialog painting a 178px panel with 480 hit-testable button points, one of them #leave-go."
+    },
+    "B_reproduction": {
+      "page": "/game/siamsi/",
+      "postDismiss": {
+        "guardOpenedByRealTap": true,
+        "goWhileOpen": {
+          "left": 33,
+          "top": 386,
+          "right": 287,
+          "bottom": 410,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "dismissedGoClientRects": 1,
+        "retapTrigger": {
+          "pathname": "/game/siamsi/",
+          "dialogOpen": true
+        },
+        "retapFormerGo": {
+          "pathname": "/game/timebomb/"
+        },
+        "retapClosedGo": {
+          "pathname": "/game/timebomb/",
+          "open": false,
+          "dialog": {
+            "left": 0,
+            "top": 533,
+            "right": 320,
+            "bottom": 711,
+            "clientRects": 1
+          },
+          "go": {
+            "left": 17,
+            "top": 670,
+            "right": 303,
+            "bottom": 694,
+            "clientRects": 1
+          },
+          "stay": {
+            "left": 17,
+            "top": 638,
+            "right": 303,
+            "bottom": 662,
+            "clientRects": 1
+          },
+          "msg": "เริ่มรอบบนหน้านี้ไปแล้ว ถ้าไปเกมอื่นตอนนี้ รอบนี้จะจบ"
+        },
+        "pendingHrefCleared": false,
+        "ghostGoPathname": "/game/timebomb/"
+      },
+      "note": "Dismissed with เล่นรอบนี้ต่อ, then a real tap where #leave-go had been navigated to /game/timebomb/ with no confirm at all. pendingHrefCleared false."
+    },
+    "C_reproduction": {
+      "boundary": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 41,
+          "dialogClearancePx": 0
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 40,
+          "dialogClearancePx": 0
+        }
+      ],
+      "note": "Clearance to #leave-go collapsed to 41px / 40px, and dialogClearancePx 0 means the tap point was INSIDE the dialog box. The second tap read dialogOpen false because the stray closed dialog from defect A was covering the link — hence verdictC VOID on that run.",
+      "anchoringAt900_defectiveCssOnly": {
+        "at-bottom": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            365,
+            519
+          ],
+          "leaveGoSpan": [
+            478,
+            502
+          ],
+          "entirelyInOppositeHalf": false,
+          "clearanceFromBoundaryTapPx": 28
+        },
+        "at-top": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            381,
+            535
+          ],
+          "leaveGoSpan": [
+            398,
+            422
+          ],
+          "entirelyInOppositeHalf": false,
+          "clearanceFromBoundaryTapPx": 28
+        }
+      },
+      "anchoringNote": "at-bottom and at-top place the box in the SAME mid-screen band (365-519 vs 381-535 against a split at 450) — entirelyInOppositeHalf false for both. The class changed flex order and nothing else, because dialog:modal ships inset-block: 0 with margin: auto and only one inset was overridden."
+    },
+    "D_reproduction": {
+      "verdicts": {
+        "timebomb": "FAIL",
+        "siamsi": "FAIL",
+        "pick-loser": "FAIL",
+        "short-stick": "FAIL",
+        "daily-fortune": "FAIL",
+        "love-match": "FAIL"
+      },
+      "siamsi": {
+        "plain": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/siamsi/"
+        },
+        "metaKey": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/siamsi/"
+        },
+        "ctrlKey": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/siamsi/"
+        },
+        "shiftKey": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/siamsi/"
+        },
+        "middle": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/siamsi/"
+        }
+      },
+      "note": "Every modifier variant reported guardIntercepted true and opened the dialog. Accepting it would have navigated the CURRENT tab, which is the round-killing action the gesture was avoiding."
+    },
+    "detectorPerPage": {
+      "/game/timebomb/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      },
+      "/game/siamsi/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      },
+      "/game/pick-loser/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      },
+      "/game/short-stick/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      },
+      "/game/daily-fortune/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      },
+      "/game/love-match/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      },
+      "/tool/draw/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      },
+      "/tool/team/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      },
+      "/tool/wheel/": {
+        "buttonHitsWhileOpen": 423,
+        "buttonHitsWhileClosed": 480,
+        "buttonHitsInFormerBoxAfterClose": 423,
+        "closedDialogClientRects": 1,
+        "closedDialogDisplay": "flex",
+        "verdict": "FAIL"
+      }
+    },
+    "dismissalPerGame": {
+      "timebomb": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 33,
+          "top": 386,
+          "right": 287,
+          "bottom": 410,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 1,
+        "pathnameAfterRetapTrigger": "/game/timebomb/",
+        "pathnameAfterRetapFormerGo": "/game/siamsi/",
+        "retapClosedGo": "/game/siamsi/",
+        "pendingHrefCleared": false,
+        "verdict": "FAIL"
+      },
+      "siamsi": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 33,
+          "top": 386,
+          "right": 287,
+          "bottom": 410,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 1,
+        "pathnameAfterRetapTrigger": "/game/siamsi/",
+        "pathnameAfterRetapFormerGo": "/game/timebomb/",
+        "retapClosedGo": "/game/timebomb/",
+        "pendingHrefCleared": false,
+        "verdict": "FAIL"
+      },
+      "pick-loser": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 33,
+          "top": 386,
+          "right": 287,
+          "bottom": 410,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 1,
+        "pathnameAfterRetapTrigger": "/game/pick-loser/",
+        "pathnameAfterRetapFormerGo": "/game/pick-loser/",
+        "retapClosedGo": "/game/timebomb/",
+        "pendingHrefCleared": false,
+        "verdict": "FAIL"
+      },
+      "short-stick": {
+        "guardOpenedByRealTap": false,
+        "goRectWhileOpen": {
+          "left": 33,
+          "top": 843,
+          "right": 287,
+          "bottom": 867,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": null,
+        "closedGoClientRects": null,
+        "pathnameAfterRetapTrigger": null,
+        "pathnameAfterRetapFormerGo": null,
+        "retapClosedGo": null,
+        "pendingHrefCleared": null,
+        "verdict": "FAIL"
+      },
+      "daily-fortune": {
+        "guardOpenedByRealTap": false,
+        "goRectWhileOpen": {
+          "left": 33,
+          "top": 843,
+          "right": 287,
+          "bottom": 867,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": null,
+        "closedGoClientRects": null,
+        "pathnameAfterRetapTrigger": null,
+        "pathnameAfterRetapFormerGo": null,
+        "retapClosedGo": null,
+        "pendingHrefCleared": null,
+        "verdict": "FAIL"
+      },
+      "love-match": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 33,
+          "top": 386,
+          "right": 287,
+          "bottom": 410,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 1,
+        "pathnameAfterRetapTrigger": "/game/love-match/",
+        "pathnameAfterRetapFormerGo": "/game/timebomb/",
+        "retapClosedGo": "/game/timebomb/",
+        "pendingHrefCleared": false,
+        "verdict": "FAIL"
+      }
+    }
+  },
+  "postFix": {
+    "what": "Every #leave-confirm rule gated on [open]; margin-block: 0 plus an `auto` far inset so the near inset actually places the box; pendingHref cleared from the dialog `close` event; modified and non-primary clicks early-return before the guard.",
+    "A_closedDialogInert": {
+      "/game/timebomb/": "PASS",
+      "/game/siamsi/": "PASS",
+      "/game/pick-loser/": "PASS",
+      "/game/short-stick/": "PASS",
+      "/game/daily-fortune/": "PASS",
+      "/game/love-match/": "PASS",
+      "/tool/draw/": "PASS",
+      "/tool/team/": "PASS",
+      "/tool/wheel/": "PASS"
+    },
+    "B_postDismissInert": {
+      "timebomb": "PASS",
+      "siamsi": "PASS",
+      "pick-loser": "PASS",
+      "short-stick": "PASS",
+      "daily-fortune": "PASS",
+      "love-match": "PASS"
+    },
+    "C_boundaryMeasured": {
+      "timebomb": "MEASURED",
+      "siamsi": "MEASURED",
+      "pick-loser": "MEASURED",
+      "short-stick": "MEASURED",
+      "daily-fortune": "MEASURED",
+      "love-match": "MEASURED"
+    },
+    "C_boundaryClearancePx": {
+      "timebomb": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 123,
+          "dialogClearancePx": 9
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 122,
+          "dialogClearancePx": 8
+        }
+      ],
+      "siamsi": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 123,
+          "dialogClearancePx": 9
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 122,
+          "dialogClearancePx": 8
+        }
+      ],
+      "pick-loser": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 123,
+          "dialogClearancePx": 9
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 122,
+          "dialogClearancePx": 8
+        }
+      ],
+      "short-stick": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 123,
+          "dialogClearancePx": 9
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 122,
+          "dialogClearancePx": 8
+        }
+      ],
+      "daily-fortune": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 122,
+          "dialogClearancePx": 8
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 122,
+          "dialogClearancePx": 8
+        }
+      ],
+      "love-match": [
+        {
+          "tapY": 177,
+          "side": "at-bottom (tap in top half)",
+          "leaveGoClearancePx": 123,
+          "dialogClearancePx": 9
+        },
+        {
+          "tapY": 178,
+          "side": "at-top (tap in bottom half)",
+          "leaveGoClearancePx": 122,
+          "dialogClearancePx": 8
+        }
+      ]
+    },
+    "D_modifiedClicksPassThrough": {
+      "timebomb": "PASS",
+      "siamsi": "PASS",
+      "pick-loser": "PASS",
+      "short-stick": "PASS",
+      "daily-fortune": "PASS",
+      "love-match": "PASS"
+    },
+    "consoleErrors": 0,
+    "assertionC_anchoringAt900": {
+      "timebomb": {
+        "at-bottom": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            730,
+            884
+          ],
+          "leaveGoSpan": [
+            843,
+            867
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        },
+        "at-top": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            16,
+            170
+          ],
+          "leaveGoSpan": [
+            33,
+            57
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        }
+      },
+      "siamsi": {
+        "at-bottom": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            730,
+            884
+          ],
+          "leaveGoSpan": [
+            843,
+            867
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        },
+        "at-top": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            16,
+            170
+          ],
+          "leaveGoSpan": [
+            33,
+            57
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        }
+      },
+      "pick-loser": {
+        "at-bottom": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            730,
+            884
+          ],
+          "leaveGoSpan": [
+            843,
+            867
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        },
+        "at-top": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            16,
+            170
+          ],
+          "leaveGoSpan": [
+            33,
+            57
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        }
+      },
+      "short-stick": {
+        "at-bottom": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            730,
+            884
+          ],
+          "leaveGoSpan": [
+            843,
+            867
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        },
+        "at-top": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            16,
+            170
+          ],
+          "leaveGoSpan": [
+            33,
+            57
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        }
+      },
+      "daily-fortune": {
+        "at-bottom": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            730,
+            884
+          ],
+          "leaveGoSpan": [
+            843,
+            867
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        },
+        "at-top": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            16,
+            170
+          ],
+          "leaveGoSpan": [
+            33,
+            57
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        }
+      },
+      "love-match": {
+        "at-bottom": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            730,
+            884
+          ],
+          "leaveGoSpan": [
+            843,
+            867
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        },
+        "at-top": {
+          "innerHeight": 900,
+          "dialogSpan": [
+            16,
+            170
+          ],
+          "leaveGoSpan": [
+            33,
+            57
+          ],
+          "entirelyInOppositeHalf": true,
+          "clearanceFromBoundaryTapPx": 393
+        }
+      }
+    },
+    "anchoringIsReal": "entirelyInOppositeHalf is true for both classes on all 6 game pages: at a 900px viewport at-bottom spans 730-884 and at-top spans 16-170, against a split at 450. Bounded by max-block-size: 45dvh — 0.45H + 16 < 0.5H holds for every viewport at least 320px tall, so this is a property of the rule, not of the coordinate that happened to be tapped.",
+    "modifierClicksPerGame": {
+      "timebomb": {
+        "plain": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/timebomb/"
+        },
+        "metaKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/timebomb/"
+        },
+        "ctrlKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/timebomb/"
+        },
+        "shiftKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/timebomb/"
+        },
+        "middle": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/timebomb/"
+        }
+      },
+      "siamsi": {
+        "plain": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/siamsi/"
+        },
+        "metaKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/siamsi/"
+        },
+        "ctrlKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/siamsi/"
+        },
+        "shiftKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/siamsi/"
+        },
+        "middle": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/siamsi/"
+        }
+      },
+      "pick-loser": {
+        "plain": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/pick-loser/"
+        },
+        "metaKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/pick-loser/"
+        },
+        "ctrlKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/pick-loser/"
+        },
+        "shiftKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/pick-loser/"
+        },
+        "middle": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/pick-loser/"
+        }
+      },
+      "short-stick": {
+        "plain": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/short-stick/"
+        },
+        "metaKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/short-stick/"
+        },
+        "ctrlKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/short-stick/"
+        },
+        "shiftKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/short-stick/"
+        },
+        "middle": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/short-stick/"
+        }
+      },
+      "daily-fortune": {
+        "plain": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/daily-fortune/"
+        },
+        "metaKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/daily-fortune/"
+        },
+        "ctrlKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/daily-fortune/"
+        },
+        "shiftKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/daily-fortune/"
+        },
+        "middle": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/daily-fortune/"
+        }
+      },
+      "love-match": {
+        "plain": {
+          "guardIntercepted": true,
+          "dialogOpen": true,
+          "pathname": "/game/love-match/"
+        },
+        "metaKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/love-match/"
+        },
+        "ctrlKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/love-match/"
+        },
+        "shiftKey": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/love-match/"
+        },
+        "middle": {
+          "guardIntercepted": false,
+          "dialogOpen": false,
+          "pathname": "/game/love-match/"
+        }
+      }
+    },
+    "detectorPerPage": {
+      "/game/timebomb/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      },
+      "/game/siamsi/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      },
+      "/game/pick-loser/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      },
+      "/game/short-stick/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      },
+      "/game/daily-fortune/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      },
+      "/game/love-match/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      },
+      "/tool/draw/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      },
+      "/tool/team/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      },
+      "/tool/wheel/": {
+        "buttonHitsWhileOpen": 200,
+        "buttonHitsWhileClosed": 0,
+        "buttonHitsInFormerBoxAfterClose": 0,
+        "closedDialogClientRects": 0,
+        "closedDialogDisplay": "none",
+        "verdict": "PASS"
+      }
+    },
+    "dismissalPerGame": {
+      "timebomb": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 100,
+          "top": 33,
+          "right": 220,
+          "bottom": 57,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 0,
+        "pathnameAfterRetapTrigger": "/game/timebomb/",
+        "pathnameAfterRetapFormerGo": "/game/timebomb/",
+        "retapClosedGo": "closed #leave-go generates no box",
+        "pendingHrefCleared": true,
+        "verdict": "PASS"
+      },
+      "siamsi": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 100,
+          "top": 33,
+          "right": 220,
+          "bottom": 57,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 0,
+        "pathnameAfterRetapTrigger": "/game/siamsi/",
+        "pathnameAfterRetapFormerGo": "/game/siamsi/",
+        "retapClosedGo": "closed #leave-go generates no box",
+        "pendingHrefCleared": true,
+        "verdict": "PASS"
+      },
+      "pick-loser": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 100,
+          "top": 33,
+          "right": 220,
+          "bottom": 57,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 0,
+        "pathnameAfterRetapTrigger": "/game/pick-loser/",
+        "pathnameAfterRetapFormerGo": "/game/pick-loser/",
+        "retapClosedGo": "closed #leave-go generates no box",
+        "pendingHrefCleared": true,
+        "verdict": "PASS"
+      },
+      "short-stick": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 100,
+          "top": 33,
+          "right": 220,
+          "bottom": 57,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 0,
+        "pathnameAfterRetapTrigger": "/game/short-stick/",
+        "pathnameAfterRetapFormerGo": "/game/short-stick/",
+        "retapClosedGo": "closed #leave-go generates no box",
+        "pendingHrefCleared": true,
+        "verdict": "PASS"
+      },
+      "daily-fortune": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 100,
+          "top": 33,
+          "right": 220,
+          "bottom": 57,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 0,
+        "pathnameAfterRetapTrigger": "/game/daily-fortune/",
+        "pathnameAfterRetapFormerGo": "/game/daily-fortune/",
+        "retapClosedGo": "closed #leave-go generates no box",
+        "pendingHrefCleared": true,
+        "verdict": "PASS"
+      },
+      "love-match": {
+        "guardOpenedByRealTap": true,
+        "goRectWhileOpen": {
+          "left": 100,
+          "top": 33,
+          "right": 220,
+          "bottom": 57,
+          "clientRects": 1
+        },
+        "dismissedDialogOpen": false,
+        "closedGoClientRects": 0,
+        "pathnameAfterRetapTrigger": "/game/love-match/",
+        "pathnameAfterRetapFormerGo": "/game/love-match/",
+        "retapClosedGo": "closed #leave-go generates no box",
+        "pendingHrefCleared": true,
+        "verdict": "PASS"
+      }
+    },
+    "measuredAgainst": "the final tree — re-run after the last comment-only edit, so this file rests on no build older than the source it describes"
+  }
+}

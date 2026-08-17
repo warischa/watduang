@@ -1,0 +1,546 @@
+{
+  "purpose": "Grid-scan probe of love-match #lm-again across rosters 2-10, short and long (20-24 char) Thai names — settles whether the GameNav double-tap collision found on siamsi #ss-again also hits love-match.",
+  "positiveControl": {
+    "game": "siamsi",
+    "control": "#ss-again",
+    "roster": 7,
+    "nameLength": "long (24-char)",
+    "before": "25/60 anchorHits — matches known-bad committed result",
+    "after": "25/60 anchorHits — unchanged after probe doc edit"
+  },
+  "runs": [
+    {
+      "roster": 2,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 2,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 2,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 2,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 499,
+            "bottom": 523
+          },
+          "total": 40,
+          "anchorHits": [
+            {
+              "x": 52,
+              "y": 501,
+              "anchorHref": "/game/timebomb/",
+              "anchorText": "ระเบิดเวลา",
+              "inGameNext": true
+            },
+            {
+              "x": 52,
+              "y": 506,
+              "anchorHref": "/game/timebomb/",
+              "anchorText": "ระเบิดเวลา",
+              "inGameNext": true
+            },
+            {
+              "x": 52,
+              "y": 511,
+              "anchorHref": "/game/timebomb/",
+              "anchorText": "ระเบิดเวลา",
+              "inGameNext": true
+            },
+            {
+              "x": 52,
+              "y": 516,
+              "anchorHref": "/game/timebomb/",
+              "anchorText": "ระเบิดเวลา",
+              "inGameNext": true
+            }
+          ],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 3,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี",
+        "ซี"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 3,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 3,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2",
+        "ผู้เล่นที่มีชื่อยาวมา3"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 3,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 499,
+            "bottom": 523
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 4,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี",
+        "ซี",
+        "ดี"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 4,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 4,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2",
+        "ผู้เล่นที่มีชื่อยาวมา3",
+        "ผู้เล่นที่มีชื่อยาวมาก4"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 4,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 499,
+            "bottom": 523
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 5,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี",
+        "ซี",
+        "ดี",
+        "อี"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 5,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 5,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2",
+        "ผู้เล่นที่มีชื่อยาวมา3",
+        "ผู้เล่นที่มีชื่อยาวมาก4",
+        "ผู้เล่นที่มีชื่อยาวมากม5"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 5,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 499,
+            "bottom": 523
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 8
+        }
+      }
+    },
+    {
+      "roster": 6,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี",
+        "ซี",
+        "ดี",
+        "อี",
+        "เอฟ"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 6,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 6,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2",
+        "ผู้เล่นที่มีชื่อยาวมา3",
+        "ผู้เล่นที่มีชื่อยาวมาก4",
+        "ผู้เล่นที่มีชื่อยาวมากม5",
+        "ผู้เล่นที่มีชื่อยาว6"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 6,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 0
+        }
+      }
+    },
+    {
+      "roster": 7,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี",
+        "ซี",
+        "ดี",
+        "อี",
+        "เอฟ",
+        "จี"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 7,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 7,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2",
+        "ผู้เล่นที่มีชื่อยาวมา3",
+        "ผู้เล่นที่มีชื่อยาวมาก4",
+        "ผู้เล่นที่มีชื่อยาวมากม5",
+        "ผู้เล่นที่มีชื่อยาว6",
+        "ผู้เล่นที่มีชื่อยาวม7"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 7,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 499,
+            "bottom": 523
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 0
+        }
+      }
+    },
+    {
+      "roster": 8,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี",
+        "ซี",
+        "ดี",
+        "อี",
+        "เอฟ",
+        "จี",
+        "เอช"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 8,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 40
+        }
+      }
+    },
+    {
+      "roster": 8,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2",
+        "ผู้เล่นที่มีชื่อยาวมา3",
+        "ผู้เล่นที่มีชื่อยาวมาก4",
+        "ผู้เล่นที่มีชื่อยาวมากม5",
+        "ผู้เล่นที่มีชื่อยาว6",
+        "ผู้เล่นที่มีชื่อยาวม7",
+        "ผู้เล่นที่มีชื่อยาวมา8"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 8,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 499,
+            "bottom": 523
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 0
+        }
+      }
+    },
+    {
+      "roster": 9,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี",
+        "ซี",
+        "ดี",
+        "อี",
+        "เอฟ",
+        "จี",
+        "เอช",
+        "ไอ"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 9,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 16
+        }
+      }
+    },
+    {
+      "roster": 9,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2",
+        "ผู้เล่นที่มีชื่อยาวมา3",
+        "ผู้เล่นที่มีชื่อยาวมาก4",
+        "ผู้เล่นที่มีชื่อยาวมากม5",
+        "ผู้เล่นที่มีชื่อยาว6",
+        "ผู้เล่นที่มีชื่อยาวม7",
+        "ผู้เล่นที่มีชื่อยาวมา8",
+        "ผู้เล่นที่มีชื่อยาวมาก9"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 9,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 499,
+            "bottom": 523
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 0
+        }
+      }
+    },
+    {
+      "roster": 10,
+      "nameKind": "short",
+      "players": [
+        "เอ",
+        "บี",
+        "ซี",
+        "ดี",
+        "อี",
+        "เอฟ",
+        "จี",
+        "เอช",
+        "ไอ",
+        "เจ"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 10,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 471,
+            "bottom": 495
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 16
+        }
+      }
+    },
+    {
+      "roster": 10,
+      "nameKind": "long",
+      "players": [
+        "ผู้เล่นที่มีชื่อยาว1",
+        "ผู้เล่นที่มีชื่อยาวม2",
+        "ผู้เล่นที่มีชื่อยาวมา3",
+        "ผู้เล่นที่มีชื่อยาวมาก4",
+        "ผู้เล่นที่มีชื่อยาวมากม5",
+        "ผู้เล่นที่มีชื่อยาว6",
+        "ผู้เล่นที่มีชื่อยาวม7",
+        "ผู้เล่นที่มีชื่อยาวมา8",
+        "ผู้เล่นที่มีชื่อยาวมาก9",
+        "ผู้เล่นที่มีชื่อยาวมาก10"
+      ],
+      "result": {
+        "game": "love-match",
+        "roster": 10,
+        "reachedAgain": true,
+        "scan": {
+          "rect": {
+            "left": 8,
+            "right": 57,
+            "top": 499,
+            "bottom": 523
+          },
+          "total": 40,
+          "anchorHits": [],
+          "gameNextCount": 0
+        }
+      }
+    }
+  ]
+}

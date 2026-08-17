@@ -66,7 +66,11 @@ const HELPERS = `
     if (!el) return { label, missing: true };
     const g = box(el);
     const pts = [[g.cx, g.cy], [g.cx, g.top + 2], [g.cx, g.bottom - 2]];
-    const inViewport = g.cy >= 0 && g.cy <= window.innerHeight;
+    // Every sampled point, not just the centre: the edge samples sit outside the centre row by
+    // construction, so a centre-only test called a control measurable while two of its three points
+    // were off-screen and silently returning null.
+    const inViewport = pts.every(([x, y]) =>
+      x >= 0 && x <= window.innerWidth && y >= 0 && y <= window.innerHeight);
     if (trigger) { await trigger(); } else { el.click(); await sleep(250); }
     const hits = pts.map(([x, y]) => hit(x, y));
     // Claim 0's count, plus how near a miss claim 1 was: the vertical gap between the tapped control
@@ -233,6 +237,21 @@ export default async function (session) {
     const inStageAnchorHits = taps.filter((t) => t.anchorInStageHit).length;
     const gameNextHits = taps.filter((t) => t.gameNextHit).length;
 
+    // Claims 1 and 2 are coordinate-based (document.elementFromPoint), which returns null for any point
+    // outside the viewport — a control below the fold then hits nothing not because it's safe but
+    // because it was never tested. Claim 0 is DOM-based (querySelectorAll) and immune to this, so it
+    // stays scored on walkUsable alone. A tap out of viewport makes claims 1/2 unmeasured, not passing.
+    const coordinateHitsMeasurable = taps.every((t) => t.inViewport !== false);
+    // Hits are scored BEFORE measurability, and the order is the whole point. A positive hit is a
+    // reproduction — some point in this walk really did land on a nav target — and no amount of
+    // unmeasured coordinate elsewhere in the same walk can retract it. Testing measurability first
+    // let one out-of-viewport tap downgrade a walk with real hits to INCONCLUSIVE, which is how a
+    // deliberately RED calibration run (siamsi, love-match) could come back looking merely unproven.
+    // INCONCLUSIVE therefore means exactly one thing: zero hits found, and at least one point that
+    // was never actually tested.
+    const scoreCoordinateClaim = (hits) =>
+      !walkUsable ? 'FAIL' : hits > 0 ? 'FAIL' : !coordinateHitsMeasurable ? 'INCONCLUSIVE' : 'PASS';
+
     games[id] = {
       beforeStart: env.value,
       rosterTicks: ticked.value,
@@ -251,9 +270,10 @@ export default async function (session) {
       nearestStageAnchorGapsPx: taps
         .filter((t) => t.stageAnchor)
         .map((t) => ({ label: t.label, gapBelowTappedBottomPx: t.stageAnchor.gapBelowTappedBottomPx })),
+      coordinateHitsMeasurable,
       stageHasNoAnchor: walkUsable && screensWithStageAnchor === 0 ? 'PASS' : 'FAIL',
-      noNavTargetHitInStage: walkUsable && inStageAnchorHits === 0 ? 'PASS' : 'FAIL',
-      hitNeverInGameNext: walkUsable && gameNextHits === 0 ? 'PASS' : 'FAIL',
+      noNavTargetHitInStage: scoreCoordinateClaim(inStageAnchorHits),
+      hitNeverInGameNext: scoreCoordinateClaim(gameNextHits),
       taps,
     };
   }
@@ -264,8 +284,8 @@ export default async function (session) {
     summary: {
       games: ids.length,
       claim0_stageHasNoAnchor: { pass: by('stageHasNoAnchor', 'PASS'), fail: by('stageHasNoAnchor', 'FAIL') },
-      claim1_noNavTargetHitInStage: { pass: by('noNavTargetHitInStage', 'PASS'), fail: by('noNavTargetHitInStage', 'FAIL') },
-      claim2_hitNeverInGameNext: { pass: by('hitNeverInGameNext', 'PASS'), fail: by('hitNeverInGameNext', 'FAIL') },
+      claim1_noNavTargetHitInStage: { pass: by('noNavTargetHitInStage', 'PASS'), fail: by('noNavTargetHitInStage', 'FAIL'), inconclusive: by('noNavTargetHitInStage', 'INCONCLUSIVE') },
+      claim2_hitNeverInGameNext: { pass: by('hitNeverInGameNext', 'PASS'), fail: by('hitNeverInGameNext', 'FAIL'), inconclusive: by('hitNeverInGameNext', 'INCONCLUSIVE') },
       perGame: Object.fromEntries(
         ids.map((i) => [
           i,
@@ -274,6 +294,7 @@ export default async function (session) {
             noNavTargetHitInStage: games[i].noNavTargetHitInStage,
             hitNeverInGameNext: games[i].hitNeverInGameNext,
             walkUsable: games[i].walkUsable,
+            coordinateHitsMeasurable: games[i].coordinateHitsMeasurable,
             transitions: games[i].transitions,
             screensWithStageAnchor: games[i].screensWithStageAnchor,
             inStageAnchorHits: games[i].inStageAnchorHits,

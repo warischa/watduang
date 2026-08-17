@@ -1,0 +1,208 @@
+{
+  "game": "siamsi",
+  "roster": 7,
+  "reachedAgain": true,
+  "scan": {
+    "rect": {
+      "left": 8,
+      "right": 83,
+      "top": 623,
+      "bottom": 647
+    },
+    "total": 60,
+    "anchorHits": [
+      {
+        "x": 52,
+        "y": 625,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 52,
+        "y": 630,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 52,
+        "y": 635,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 52,
+        "y": 640,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 52,
+        "y": 645,
+        "anchorHref": "/game/short-stick/",
+        "anchorText": "จับไม้สั้น",
+        "inGameNext": true
+      },
+      {
+        "x": 58,
+        "y": 625,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 58,
+        "y": 630,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 58,
+        "y": 635,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 58,
+        "y": 640,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 58,
+        "y": 645,
+        "anchorHref": "/game/short-stick/",
+        "anchorText": "จับไม้สั้น",
+        "inGameNext": true
+      },
+      {
+        "x": 64,
+        "y": 625,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 64,
+        "y": 630,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 64,
+        "y": 635,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 64,
+        "y": 640,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 64,
+        "y": 645,
+        "anchorHref": "/game/short-stick/",
+        "anchorText": "จับไม้สั้น",
+        "inGameNext": true
+      },
+      {
+        "x": 70,
+        "y": 625,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 70,
+        "y": 630,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 70,
+        "y": 635,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 70,
+        "y": 640,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 70,
+        "y": 645,
+        "anchorHref": "/game/short-stick/",
+        "anchorText": "จับไม้สั้น",
+        "inGameNext": true
+      },
+      {
+        "x": 76,
+        "y": 625,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 76,
+        "y": 630,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 76,
+        "y": 635,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 76,
+        "y": 640,
+        "anchorHref": "/game/pick-loser/",
+        "anchorText": "สุ่มคนโดน",
+        "inGameNext": true
+      },
+      {
+        "x": 76,
+        "y": 645,
+        "anchorHref": "/game/short-stick/",
+        "anchorText": "จับไม้สั้น",
+        "inGameNext": true
+      }
+    ],
+    "gameNextCount": 60
+  },
+  "doubleTap": {
+    "tapCoord": {
+      "x": 52,
+      "y": 625
+    },
+    "pathnameAfterTap": "/game/siamsi/",
+    "dialogOpen": true,
+    "leaveGoRect": {
+      "left": 99.71875,
+      "right": 220.28125,
+      "top": 33,
+      "bottom": 57
+    },
+    "leaveGoClearancePx": 570.0009465795321,
+    "pathnameAfterThirdTap": "/game/siamsi/"
+  }
+}

@@ -8,6 +8,10 @@
 //   session.setWidth(w,h)         -> Emulation.setDeviceMetricsOverride
 //   session.evaluate(exprString)  -> Runtime.evaluate, returns {value, error}
 //   session.wipe()                -> localStorage.clear(); sessionStorage.clear()
+//   session.tap(x, y)             -> real touchstart+touchend at a point (Input.dispatchTouchEvent) —
+//                                     unlike .click()+elementFromPoint, this drives Chrome's real
+//                                     touch-to-synthetic-click pipeline, so it proves navigation/guards
+//                                     actually fire, not just that an element sits at that point (#39)
 //   session.screenshot(path)
 //   session.consoleErrors         -> array, appended live from Runtime.exceptionThrown + console.error
 //   session.close()
@@ -62,6 +66,11 @@ const session = {
   },
   async wipe() {
     await this.evaluate('localStorage.clear(); sessionStorage.clear(); return true;');
+  },
+  async tap(x, y) {
+    await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await settle(400);
   },
   async evaluate(body) {
     const res = await send('Runtime.evaluate', {
