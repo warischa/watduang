@@ -48,6 +48,21 @@ export function loadRoster(): Roster {
     add(name: string): void {
       const trimmed = name.trim();
       if (!trimmed) return;
+      // #data-loss: re-read at the write, never at the load. localStorage is shared by every tab on the
+      // domain, so the list captured above can be stale by the time this runs: tab B adds a name, tab A
+      // adds another, and A writing its whole captured array back erases B's. Second hop, and the harm a
+      // player sees: loadGroup() filters the saved group by roster names, so the pre-ticked group shrinks
+      // with it.
+      // Union, not adoption. Storage replacing memory would break the promise write() makes four lines
+      // above: after a swallowed write (quota full, Safari private mode) storage is missing every name
+      // typed since, so adopting it would erase them from the rendered list while their ticks are still
+      // in `selected`. So this tab's names keep their typing order and whatever another tab added comes
+      // after — both survive, and the two only stay apart while writing is broken.
+      // ponytail: last-write-wins over a union is enough for a set of names typed by one person holding
+      // one phone — no lock, no version. Its ceiling: a union cannot express a deletion, so if remove or
+      // clear ever gets a caller (neither has one today) this add would resurrect a name another tab just
+      // deleted. That needs tombstones or a version, not another re-read.
+      list = [...list, ...read(KEY).filter((n) => !list.includes(n))];
       if (list.includes(trimmed)) return;
       list = [...list, trimmed];
       write(KEY, list);

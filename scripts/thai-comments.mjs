@@ -318,6 +318,11 @@ async function main() {
   for (const a of ambiguousLines) process.stderr.write(`ambiguous (Thai in both a comment and a string) ${a}\n`);
   process.stderr.write(`files scanned: ${files.length} · Thai comment lines: ${total} · ambiguous: ${ambiguousLines.length}`);
   process.stderr.write(skipped.size ? ` · skipped (no analyzer): ${[...skipped].map(([e, n]) => `${e} x${n}`).join(', ')}\n` : '\n');
+
+  // The gate: a Thai comment line or an ambiguous (comment+string on one line) hit must fail CI.
+  // Ambiguous is not a free pass — it is exactly the channel a real hit could hide behind if it
+  // only failed on `total`.
+  if (total > 0 || ambiguousLines.length > 0) process.exitCode = 1;
 }
 
 await main();

@@ -63,12 +63,22 @@ pressing it mid-round wiped the session, the checkpoint, and the saved group wit
 under a label that names the group rather than the round. That behaviour was pre-existing — the #23 work
 did not introduce it — but it was the same family of failure, so [#25](https://github.com/warischa/watduang/issues/25)
 was filed and the site owner settled it, 2026-08-14: **the clear button asks too.** With a round in
-progress it raises the same shape of two-button question, and these are the approved strings:
+progress it raises the same shape of two-button question. There are now three cases, `clearCopy` in
+`src/shell/player-select.ts` picks between them, and these are the approved strings:
 
-- `ยังมีรอบที่เล่นค้างอยู่ ถ้าล้างกลุ่มนี้ รอบที่ค้างจะหายไปด้วย` — the question. It names the round, which the
-  button's own label never did.
-- `ล้างและทิ้งรอบที่ค้าง` — clear the group **and** drop the round in progress.
-- `ยกเลิก` — nothing happens: not the session, not the group, not even the reload. It is also what takes
+- **Stranded checkpoint only** — the markup's own default; `clearCopy` returns `null` here rather than
+  duplicating these bytes:
+  - `ยังมีรอบที่เล่นค้างอยู่ ถ้าล้างกลุ่มนี้ รอบที่ค้างจะหายไปด้วย` — the question. It names the round, which
+    the button's own label never did.
+  - `ล้างและทิ้งรอบที่ค้าง` — clear the group **and** drop the round in progress.
+- **Live round on this page only** — approved verbatim by the site owner, 2026-08-17:
+  - `เริ่มรอบบนหน้านี้ไปแล้ว ถ้าล้างกลุ่มนี้ รอบนี้จะหายไปทั้งรอบ`
+  - `ล้างและทิ้งรอบนี้`
+- **Both signals present** — pending owner review, 2026-08-17:
+  - `เริ่มรอบบนหน้านี้ไปแล้ว และยังมีรอบที่เล่นค้างอยู่ด้วย ถ้าล้างกลุ่มนี้ ทั้งรอบนี้และรอบที่ค้างจะหายไป`
+  - `ล้างและทิ้งทุกรอบ`
+
+`ยกเลิก` — nothing happens: not the session, not the group, not even the reload. It is also what takes
   focus when the question opens. A click fires on Enter *keydown*, so focusing the destructive button
   would place it under a key still being held: auto-repeat, or a habitual second Enter, would confirm a
   question the player never read. The start prompt already focuses its safe branch for the same reason.
@@ -76,12 +86,20 @@ progress it raises the same shape of two-button question, and these are the appr
 Two differences from the start prompt above are load-bearing, and copying the start machinery wholesale
 gets both wrong:
 
-- **The condition is site-wide, not game-specific: any checkpoint at all, never `checkpoint.game ===
-  gameId`.** `session.clear()` empties the one slot every game shares (`src/shell/session.ts`), so this
-  press destroys a round belonging to *any* game. With the start prompt's game-matched test, pressing
-  clear on `timebomb`'s page would still wipe a live `siamsi` round without a word — the very failure
-  being fixed, one page over. `planClear` therefore takes no `gameId` argument at all: a game-matched
-  implementation is not expressible through its signature.
+- **The condition is site-wide, not game-specific, and it is now two signals, not one: a stranded
+  checkpoint OR a round live on this page — never `checkpoint.game === gameId`.** `session.clear()`
+  empties the one slot every game shares (`src/shell/session.ts`), so a stranded checkpoint belongs to
+  *any* game, not just the one on screen; a game-matched test on that signal would let a press on
+  `timebomb`'s page wipe a live `siamsi` round without a word — the very failure being fixed, one page
+  over. The second signal, `roundLive`, is site-local by construction: it reads `root.hidden` on the
+  page itself, which `PlayerSetup.astro` sets when a round starts on *this* page and never clears back to
+  `false`. So the predicate `planClear` actually implements is **"this page has started a round"**, not
+  "a round is live right now" — a finished round still on screen also prompts, one extra tap on a screen
+  with nothing left to lose. `planClear` takes no `gameId` argument at all: a game-matched implementation
+  is not expressible through its signature, and would be wrong for the checkpoint half regardless.
+  siamsi is the only checkpoint writer and writes mid-round, so on siamsi's own page both signals name
+  the *same* round; the both-signals copy above reads as two rounds when there is one. It over-names
+  there and under-names nowhere else — the direction this ADR already errs toward.
 - **It shares no state with the start flow — but the open question is itself state.** The semantics are
   confirm/cancel, not resume-vs-fresh, and no group is held across it the way `pendingStart` holds one at
   a start, so it is a sibling of that block rather than a branch of it. It still inherits #23's
@@ -136,5 +154,5 @@ through a full circle.
 - [#24](https://github.com/warischa/watduang/issues/24) — one checkpoint slot site-wide. Independent of
   this decision, but it governs whether two games can hold a round each in the first place.
 - [#7](https://github.com/warischa/watduang/issues/7) — the roster-state panel design this defers to.
-- `docs/runbook.md` § "ก่อนเปิดคำถามใหม่ — อ่านใบที่ปิดแล้วก่อน" — why #7 was read before the owner was
-  asked, rather than after.
+- `docs/runbook.md` § "Read closed issues before opening a new question" — why #7 was read before the
+  owner was asked, rather than after.

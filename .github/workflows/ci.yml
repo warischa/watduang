@@ -35,6 +35,19 @@ jobs:
       - name: Validate games
         run: node scripts/validate-games.mjs
 
+      # --selftest first: proves findCitations still matches something before trusting the
+      # live scan's "all clear" — a regex regression that matches nothing would otherwise
+      # leave this guard permanently green.
+      - name: Check doc citations
+        run: node scripts/check-citations.mjs --selftest && node scripts/check-citations.mjs
+
+      # --selftest first, same reason as above: proves the comment/string split still works before
+      # trusting a 0 count. "Write English. Ship Thai." (#36) — a Thai comment line, or a line where
+      # a comment and a string both carry Thai (ambiguous, unresolved), fails the build; a skipped
+      # file (no analyzer, e.g. .sh) only warns.
+      - name: Check Thai code comments
+        run: node scripts/thai-comments.mjs --selftest && node scripts/thai-comments.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob
       - name: Unit tests
         run: node --test 'src/**/*.test.mjs'

@@ -56,9 +56,69 @@ export function planStart(
  * round. A checkpoint with no game tag still counts; the slot is emptied either way.
  *
  * confirmed = the player pressed the labelled Clear-and-drop-pending-round button. An answer is never re-asked.
+ *
+ * #data-loss — the checkpoint alone was never the liveness test. Only siamsi writes a checkpoint (1 of
+ * 6 games), and it empties the slot the moment a round ends, so "slot is empty" covered a live round of
+ * the other five games and every fresh session. roundLive is the shell's own bit: PlayerSetup sets
+ * root.hidden = true when a round starts, and asked nothing about it here. Either signal alone is
+ * enough — a stranded blob is a round someone can still go back to, and a round on screen is one they
+ * are inside right now.
+ *
+ * The bit says "this page has started a round", not "a round is being played this second" — nothing
+ * ever un-hides the panel, so a finished round still asks. One extra tap on a screen with nothing left
+ * to lose, which is the side to err on; the copy is worded to claim only what the bit carries.
  */
-export function planClear(checkpoint: Checkpoint | null, confirmed: boolean): 'ask' | 'clear' {
-  return !confirmed && checkpoint !== null ? 'ask' : 'clear';
+export function planClear(
+  checkpoint: Checkpoint | null,
+  confirmed: boolean,
+  roundLive = false,
+): 'ask' | 'clear' {
+  return !confirmed && (checkpoint !== null || roundLive) ? 'ask' : 'clear';
+}
+
+/**
+ * ADR-0008: the confirm must name exactly what it destroys. planClear says *whether* to ask; this says
+ * *what the question is*, and there are three answers because the two signals are independent.
+ *
+ * null = leave the template alone. The stranded-checkpoint pair (question opener
+ * `\u0e22\u0e31\u0e07\u0e21\u0e35\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48\u0e40\u0e25\u0e48\u0e19\u0e04\u0e49\u0e32\u0e07\u0e2d\u0e22\u0e39\u0e48 …`,
+ * "there is still a round left hanging..." / button label
+ * `\u0e25\u0e49\u0e32\u0e07\u0e41\u0e25\u0e30\u0e17\u0e34\u0e49\u0e07\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48\u0e04\u0e49\u0e32\u0e07`,
+ * "clear and drop the stranded round") is the markup's own default, quoted byte for byte in ADR-0008 —
+ * it is not duplicated here, so there is one copy of those bytes in the repo and check-citations keeps
+ * resolving.
+ *
+ * The both case is its own string, not the live-round one: the press destroys the round on this page AND
+ * the stranded blob, and `\u0e23\u0e2d\u0e1a\u0e19\u0e35\u0e49` ("this round") names only the first. That
+ * is the loss going unnamed — exactly what this ADR exists to close.
+ *
+ * It reads as two rounds, and sometimes there is one. siamsi is the sole checkpoint writer (ADR-0010)
+ * and writes mid-round, so on siamsi's own page both signals describe the SAME round; a checkpoint
+ * stranded by another game is a second one. planClear takes no gameId on purpose (#25) and neither does
+ * this, so the two cases are indistinguishable from here. The string therefore over-names on siamsi's
+ * own page and under-names in neither case — the direction the whole flow already errs in ("a finished
+ * round asks too, which costs a tap and loses nothing"). Do not "fix" it with a game-matched test: that
+ * is the #25 bug, one page over.
+ *
+ * Every non-null case returns BOTH strings. Nothing puts the template text back on cancel and
+ * root.hidden never returns to false, so a case that swapped one string would leave the other stale for
+ * the rest of the page's life.
+ */
+export function clearCopy(
+  checkpoint: Checkpoint | null,
+  roundLive: boolean,
+): { message: string; confirmLabel: string } | null {
+  if (!roundLive) return null;
+  if (checkpoint !== null) {
+    return {
+      message: 'เริ่มรอบบนหน้านี้ไปแล้ว และยังมีรอบที่เล่นค้างอยู่ด้วย ถ้าล้างกลุ่มนี้ ทั้งรอบนี้และรอบที่ค้างจะหายไป',
+      confirmLabel: 'ล้างและทิ้งทุกรอบ',
+    };
+  }
+  return {
+    message: 'เริ่มรอบบนหน้านี้ไปแล้ว ถ้าล้างกลุ่มนี้ รอบนี้จะหายไปทั้งรอบ',
+    confirmLabel: 'ล้างและทิ้งรอบนี้',
+  };
 }
 
 /** selected is the full group as ticked by the user (or "Player 1..count" when nobody ticked anyone)

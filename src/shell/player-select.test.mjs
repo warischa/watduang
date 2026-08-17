@@ -2,7 +2,7 @@
 // Checks pure logic exported from player-select.ts (no DOM/localStorage needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveStart, numberedPlayers, planStart, planClear } from './player-select.ts';
+import { resolveStart, numberedPlayers, planStart, planClear, clearCopy } from './player-select.ts';
 
 test('เกิน max: ตัดคนท้ายไปเล่น สั่งเตือนก่อนถ้ายังไม่เคยเตือน', () => {
   const selected = ['เอ', 'บี', 'ซี', 'ดี'];
@@ -99,10 +99,70 @@ test('#25 the condition is site-wide, not game-matched — session.clear() empti
 });
 
 test('#25 no round in progress: clearing the group is unchanged — no question, no extra tap', () => {
-  assert.equal(planClear(null, false), 'clear');
+  assert.equal(planClear(null, false, false), 'clear');
+});
+
+// ---- #data-loss: an empty checkpoint slot is not "no round" ----
+// Only siamsi writes a checkpoint — 1 of 6 games. Every other game's round is live with the slot empty,
+// and so is a siamsi round the moment it ends (saveCheckpoint(null)). The checkpoint was the whole test,
+// so on a fresh session mid-timebomb or mid-short-stick, \u0e25\u0e49\u0e32\u0e07\u0e01\u0e25\u0e38\u0e48\u0e21\u0e19\u0e35\u0e49 tore the round down without a word.
+// The shell already owns the missing bit: it sets root.hidden itself when a round starts.
+
+test('#data-loss a live round with an EMPTY checkpoint slot must still ask — the slot is not the liveness test', () => {
+  assert.equal(planClear(null, false, true), 'ask');
+});
+
+test('#data-loss the two signals are independent — either one alone is enough to ask', () => {
+  // calibrates both ways: with neither signal there is nothing to lose and no question is raised
+  assert.equal(planClear(null, false, false), 'clear', 'no round at all: unchanged, no extra tap');
+  assert.equal(planClear(cp('siamsi'), false, false), 'ask', 'a stranded checkpoint alone still asks');
+  assert.equal(planClear(cp('siamsi'), false, true), 'ask', 'both at once asks once, not twice');
+});
+
+test('#data-loss a labelled answer is still final — a live round does not re-raise the question', () => {
+  assert.equal(planClear(null, true, true), 'clear');
+  assert.equal(planClear(cp('siamsi'), true, true), 'clear');
 });
 
 test('#25 the player pressed ล้างและทิ้งรอบที่ค้าง: the labelled answer goes through and is never re-asked', () => {
   assert.equal(planClear(cp('siamsi'), true), 'clear');
   assert.equal(planClear(null, true), 'clear');
+});
+
+// ---- #data-loss: the question has to name every loss the confirm button will cause (ADR-0008) ----
+// Three cases, because the two signals are independent: a stranded checkpoint, a round started on this
+// page, or both at once. A press destroys everything both signals stand for, so copy that names only one
+// of them leaves the other loss unnamed — which is the exact failure ADR-0008 exists to close.
+
+test('#data-loss a stranded checkpoint alone keeps the template copy — ADR-0008 approved those bytes', () => {
+  // null = do not touch the DOM, so the two strings quoted in ADR-0008 stay the shipped default
+  assert.equal(clearCopy(cp('siamsi'), false), null);
+  assert.equal(clearCopy(null, false), null, 'nothing to lose either: no swap');
+});
+
+test('#data-loss a live round with an empty slot names the round on this page, question and button both', () => {
+  const copy = clearCopy(null, true);
+  assert.equal(copy.message, 'เริ่มรอบบนหน้านี้ไปแล้ว ถ้าล้างกลุ่มนี้ รอบนี้จะหายไปทั้งรอบ');
+  assert.equal(copy.confirmLabel, 'ล้างและทิ้งรอบนี้');
+});
+
+test('#data-loss both signals at once: the copy names BOTH losses, not just the round on this page', () => {
+  // siamsi mid-round → walk to short-stick → start a round → \u0e25\u0e49\u0e32\u0e07\u0e01\u0e25\u0e38\u0e48\u0e21\u0e19\u0e35\u0e49. The press destroys the
+  // short-stick round on screen AND the stranded siamsi checkpoint; live-round-only copy names one.
+  const both = clearCopy(cp('siamsi'), true);
+  const liveOnly = clearCopy(null, true);
+  assert.notEqual(both.message, liveOnly.message, 'the both case cannot reuse the round-only wording');
+  assert.match(both.message, /รอบบนหน้านี้/, 'the round started on this page must be named');
+  assert.match(both.message, /รอบที่ค้าง/, 'the stranded round must be named too — it dies in the same press');
+  assert.match(both.confirmLabel, /^ล้างและทิ้ง/, "the button names what it destroys — ADR-0008's rule");
+  assert.notEqual(both.confirmLabel, liveOnly.confirmLabel, 'and it cannot claim to drop only this round');
+});
+
+test('#data-loss no case is a partial swap — every non-default case sets both strings', () => {
+  // Nothing restores the template text on cancel, and root.hidden never goes back to false, so a case
+  // that swapped only one string would leave the other stale for the rest of the page's life.
+  for (const checkpoint of [null, cp('siamsi')]) {
+    const copy = clearCopy(checkpoint, true);
+    assert.ok(copy.message.length > 0 && copy.confirmLabel.length > 0);
+  }
 });

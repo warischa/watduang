@@ -69,10 +69,20 @@ A second checkpoint-writing game entering `manifest.ts`. At that moment the coll
 `planClear`'s condition and the precision of `รอบที่ค้าง` in the clear warning, which may by then mean
 more than one round is at stake.
 
-**Scored S2026-08-15#4 — NOT fired.** Game 3 (`pick-loser`) entered `manifest.ts`, but writes no
-checkpoint: its only session write is `markPlayed`, which preserves the loaded snapshot. Siamsi
-remains the sole checkpoint writer, so this ADR's decision stands unchanged and per-game keying stays
-deferred. The trigger is a second *checkpoint-writing* game, not merely a third game.
+**Scored S2026-08-15#4 — NOT fired for collision, but the scoring reasoning was incomplete.** Game 3
+(`pick-loser`) entered `manifest.ts`; its only session write is `markPlayed`, which preserves the
+loaded checkpoint. Siamsi remains the sole checkpoint writer, so the *collision* verdict stands: this
+ADR's decision is unchanged and per-game keying stays deferred — the trigger is still a second
+*checkpoint-writing* game.
+
+"Writes no checkpoint" was then read as evidence the game was safe generally. It is not: the shared
+unit this ADR protects is the session record, not the checkpoint field. A checkpoint-free game still
+has a live round living in that same record, and `session.clear()` empties the whole record for every
+game regardless of whether a checkpoint was ever written. Containment only ever held for checkpoint
+collision — it was never a liveness argument. That gap left the clear-confirmation prompt blind to a
+live round in any checkpoint-free game; the liveness half is now covered separately by a `roundLive`
+check in `planClear` (`src/shell/player-select.ts`), fed from the panel's own hidden-state
+(`src/shell/PlayerSetup.astro`) — not by anything site-wide-vs-per-game keying could have prevented.
 
 Also open, found by the same design pass and **not** fixed: game B's start still clobbers shared
 `session.players` via `[id].astro:51`. **Scored S2026-08-15#2 — REFUTED at this scope only.** The

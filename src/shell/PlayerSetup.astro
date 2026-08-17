@@ -2,9 +2,14 @@
 interface Props { min: number; max: number; ctaLabel?: string; clearsSession?: boolean; gameId?: string }
 const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, gameId } = Astro.props as Props;
 ---
-<!-- data-game-id is emitted on game pages only (#23) — it is what tells the island whether the
-     checkpoint in the shared slot belongs to this page. Never import a game to ask, and never guess
-     from the URL: the id arrives as a prop from GameLayout. -->
+{/* Every comment in this template is a JS-style brace comment, never an HTML one: Astro renders an HTML
+    comment straight into the built page, so a note like this one would ship English engineering prose to
+    a Thai-first player on all nine pages this island renders on. npm test and npm run build are both
+    blind to that; the guard lives in player-setup.test.mjs, and the proof is grepping dist/, not the source.
+
+    data-game-id is emitted on game pages only (#23) — it is what tells the island whether the
+    checkpoint in the shared slot belongs to this page. Never import a game to ask, and never guess
+    from the URL: the id arrives as a prop from GameLayout. */}
 <div id="player-setup" data-min={min} data-max={max} data-game-id={gameId}>
   <div id="setup-number-picker">
     <label for="player-count">จำนวนคนเล่น</label>
@@ -19,14 +24,14 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     <button id="roster-add-btn" type="button">เพิ่ม</button>
   </div>
 
-  <!-- hidden while there is nothing to say — there is no style block here, so an empty <p> would eat
-       the UA margin on every page for nothing -->
+  {/* hidden while there is nothing to say — there is no style block here, so an empty p would eat
+      the UA margin on every page for nothing */}
   <p id="setup-error" role="alert" hidden></p>
   <button id="start-round" type="button">{ctaLabel}</button>
 
-  <!-- #23: a live round of this game is a question, not a choice made on the player's behalf. Neither
-       branch can lose a round silently.
-       role="alert" so it is announced when the hidden attribute drops, same as #setup-error -->
+  {/* #23: a live round of this game is a question, not a choice made on the player's behalf. Neither
+      branch can lose a round silently.
+      role="alert" so it is announced when the hidden attribute drops, same as #setup-error */}
   <div id="resume-choice" hidden>
     <p role="alert">ยังมีรอบที่เล่นค้างอยู่ จะกลับไปเล่นต่อ หรือเริ่มรอบใหม่กับวงที่เลือกไว้?</p>
     <button id="resume-round" type="button">กลับไปเล่นรอบที่ค้าง</button>
@@ -34,25 +39,30 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   </div>
 </div>
 
-<!-- Deliberately outside #player-setup: the panel hides itself once a round starts, and this button has
-     to stay pressable — otherwise the group cannot be changed at all short of a manual reload.
-     data-clears-session is emitted only when the button is switched off (clearsSession={false}), so a
-     game page's HTML is byte-for-byte what it always was.
+{/* Deliberately outside #player-setup: the panel hides itself once a round starts, and this button has
+    to stay pressable — otherwise the group cannot be changed at all short of a manual reload.
+    data-clears-session is emitted only when the button is switched off (clearsSession false), so a
+    game page's HTML is byte-for-byte what it always was.
 
-     hidden on tool pages (#23): with clearsSession={false} the click handler is a deliberate no-op
-     (ADR-0004 — a tool must not touch the session or the checkpoint a game is mid-round on), and a
-     button that does nothing is its own defect. Hidden in the template, not removed: the script
-     below reads #clear-group for both the handler and the data flag, and a null there would throw
-     and kill the whole island — taking the setup panel with it. -->
+    hidden on tool pages (#23): with clearsSession false the click handler is a deliberate no-op
+    (ADR-0004 — a tool must not touch the session or the checkpoint a game is mid-round on), and a
+    button that does nothing is its own defect. Hidden in the template, not removed: the script
+    below reads #clear-group for both the handler and the data flag, and a null there would throw
+    and kill the whole island — taking the setup panel with it. */}
 <button id="clear-group" type="button" data-clears-session={clearsSession ? undefined : 'no'} hidden={!clearsSession}>ล้างกลุ่มนี้</button>
 
-<!-- #25: this button empties the site-wide session slot, so mid-round it destroys the round while its
-     label only mentions the group. It asks first, with two labelled buttons (ADR-0008's shape).
-     Outside #player-setup like the button it answers for: root.hidden = true swallows the panel once a
-     round starts, and a question the player cannot see would turn the Clear-group button into a dead control.
-     role="alert" so it is announced when the hidden attribute drops, same as #setup-error -->
+{/* #25: this button empties the site-wide session slot, so mid-round it destroys the round while its
+    label only mentions the group. It asks first, with two labelled buttons (ADR-0008's shape).
+    Outside #player-setup like the button it answers for: root.hidden = true swallows the panel once a
+    round starts, and a question the player cannot see would turn the Clear-group button into a dead control.
+    role="alert" so it is announced when the hidden attribute drops, same as #setup-error
+
+    #data-loss: the two strings below are the stranded-checkpoint wording (ADR-0008's approved pair) and
+    stay the default. A round live on THIS page is a different loss, and both at once is a third; those
+    two get their own wording from clearCopy, swapped in at runtime by requestClear. The template still
+    ships this pair byte for byte, so ADR-0008's quoted strings keep resolving. */}
 <div id="clear-choice" hidden>
-  <p role="alert">ยังมีรอบที่เล่นค้างอยู่ ถ้าล้างกลุ่มนี้ รอบที่ค้างจะหายไปด้วย</p>
+  <p id="clear-choice-msg" role="alert">ยังมีรอบที่เล่นค้างอยู่ ถ้าล้างกลุ่มนี้ รอบที่ค้างจะหายไปด้วย</p>
   <button id="clear-confirm" type="button">ล้างและทิ้งรอบที่ค้าง</button>
   <button id="clear-cancel" type="button">ยกเลิก</button>
 </div>
@@ -60,7 +70,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
 <script>
   import { loadRoster, loadGroup, saveGroup } from './roster';
   import { loadSession } from './session';
-  import { resolveStart, numberedPlayers, planStart, planClear, type ResumeChoice } from './player-select';
+  import { resolveStart, numberedPlayers, planStart, planClear, clearCopy, type ResumeChoice } from './player-select';
 
   const root = document.getElementById('player-setup') as HTMLElement;
   const min = Number(root.dataset.min);
@@ -82,6 +92,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   const resumeBtn = document.getElementById('resume-round') as HTMLButtonElement;
   const freshBtn = document.getElementById('fresh-round') as HTMLButtonElement;
   const clearChoiceEl = document.getElementById('clear-choice') as HTMLElement;
+  const clearChoiceMsg = document.getElementById('clear-choice-msg') as HTMLElement;
   const clearConfirmBtn = document.getElementById('clear-confirm') as HTMLButtonElement;
   const clearCancelBtn = document.getElementById('clear-cancel') as HTMLButtonElement;
 
@@ -293,7 +304,24 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     // has been safe since #23, but this gate stays: a tool must not touch the group either.
     if (clearBtn.dataset.clearsSession !== 'no') {
       const session = loadSession();
-      if (planClear(session.checkpoint, confirmed) === 'ask') {
+      // #data-loss: the checkpoint was never the liveness test. Only siamsi writes one — 1 of 6 games —
+      // and it empties the slot at round end, so an empty slot covered a live short-stick or timebomb
+      // round and every fresh session, and the tap below reloaded the page and took the round with it.
+      // The bit was here all along: requestStart sets root.hidden when a round begins. Read inside this
+      // gate, never above it — a tool page hides its own round too and must stay a no-op (ADR-0004).
+      const roundLive = root.hidden;
+      if (planClear(session.checkpoint, confirmed, roundLive) === 'ask') {
+        // The template's copy says \u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48\u0e04\u0e49\u0e32\u0e07 — the round left hanging — which is true of a stranded
+        // checkpoint and false of the round on screen: mid short-stick with a stale siamsi blob in the
+        // slot it names the abandoned siamsi round while the button under it kills the live one, and both
+        // of them die in that press. clearCopy owns which of the three cases this is and the strings that
+        // name it; null means the template's default already says the true thing. Assigned as a pair and
+        // before the question is shown — role="alert" announces the text that is there when hidden drops.
+        const copy = clearCopy(session.checkpoint, roundLive);
+        if (copy) {
+          clearChoiceMsg.textContent = copy.message;
+          clearConfirmBtn.textContent = copy.confirmLabel;
+        }
         clearChoiceEl.hidden = false;
         // Focus the SAFE branch, as the resume prompt does. click fires on Enter keydown, so focusing
         // Clear-and-drop-pending-round would put the destructive button under a key that is still held: OS auto-repeat
