@@ -37,14 +37,14 @@ import GameNav from '../../components/GameNav.astro';
 
       <ul id="wheel-names" class="wheel-names"></ul>
 
-      <!-- The path into a game sits right next to the tool, not below the ad — #11 says this is the
+      {/* The path into a game sits right next to the tool, not below the ad — #11 says this is the
            whole reason the tool exists. Names flow forward via the roster (localStorage), not session,
-           so they never clobber a game's stranded checkpoint. -->
+           so they never clobber a game's stranded checkpoint. */}
       <GameNav navClass="wheel-next" />
     </section>
 
-    <!-- The ad always sits below the tool (ADR-0004) · min-height reserves the space up front so content
-         doesn't jump on load, and nothing may be injected above the content. -->
+    {/* The ad always sits below the tool (ADR-0004) · min-height reserves the space up front so content
+         doesn't jump on load, and nothing may be injected above the content. */}
     <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
 
     <section id="how-to-use">

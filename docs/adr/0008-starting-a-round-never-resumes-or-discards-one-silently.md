@@ -145,8 +145,8 @@ rather than merely convenient.
 
 For the start half: if a game ever appears whose rounds are cheap to lose — short enough that a discarded round costs
 nothing — the prompt becomes friction rather than protection, and that game would earn a silent
-selection-wins path. No such game exists today; both shipped games are built around passing one phone
-through a full circle.
+selection-wins path. No such game exists today — the single-shot games are covered by `roundLive`, not
+exempted. Permission that could be granted, never permission already held.
 
 ## Related
 

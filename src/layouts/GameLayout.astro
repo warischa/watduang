@@ -23,8 +23,8 @@ const howToJsonLd = {
   <main>
     <h1>{game.names.th}</h1>
 
-    <!-- gameId lets the panel know whether a stranded checkpoint belongs to this page or another game (#23).
-         Tool pages don't pass this prop, so there's no round to ask about at all. -->
+    {/* gameId lets the panel know whether a stranded checkpoint belongs to this page or another game (#23).
+         Tool pages don't pass this prop, so there's no round to ask about at all. */}
     <PlayerSetup min={game.players[0]} max={game.players[1]} gameId={game.id} />
 
     <div id="stage" data-game-id={game.id}></div>
@@ -41,11 +41,11 @@ const howToJsonLd = {
     </section>
   </main>
 
-  <!-- ponytail: outside <main> as #35 prescribed. Safe only while nothing gives <main> a width or font
+  {/* ponytail: outside <main> as #35 prescribed. Safe only while nothing gives <main> a width or font
        this nav should share — today nothing does (tokens.css is :root-only). Watch <main> itself, not a
        list of stylesheets: Astro bundles <style is:global>, a bare `import './x.css'`, and a <style> block
        here all page-globally, so that set belongs to the bundler, not to this comment. The moment <main>
-       gets a width or font, move this inside it (that is what tool pages already do). -->
+       gets a width or font, move this inside it (that is what tool pages already do). */}
   <GameNav navClass="game-next" excludeId={game.id} />
 
   <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />

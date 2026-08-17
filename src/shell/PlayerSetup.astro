@@ -134,9 +134,10 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     // panel on purpose — with Clear-and-drop-pending-round still armed, and that button clears without asking
     // again. Open it, then start or resume, and one tap kills the round the player just chose to keep.
     // Every shell-level start or resume closes it first. "Play again" is a second door: it calls
-    // mountInto directly (siamsi.ts, timebomb.ts) and never passes here, so an open question can
-    // survive that one — but it stays on screen with its label intact, so that path is labelled
-    // loss, not the silent loss #25 closes.
+    // mountInto directly and never passes here, so an open question can survive that one — but it
+    // stays on screen with its label intact, so that path is labelled loss, not the silent loss #25
+    // closes. Five games have that door today; grep the play-again handlers rather than trusting a
+    // list here, because an enumeration in a comment goes stale the next time a game ships.
     clearChoiceEl.hidden = true;
     const session = loadSession();
     const action = planStart(session.checkpoint, gameId, choice);

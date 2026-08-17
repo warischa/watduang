@@ -35,13 +35,13 @@ import GameNav from '../../components/GameNav.astro';
       <h3>ยังอยู่ในกล่อง</h3>
       <ul id="draw-remaining" class="draw-names"></ul>
 
-      <!-- Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists
-           Names flow through roster (localStorage), not session, so it doesn't overwrite an in-progress game checkpoint -->
+      {/* Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists
+           Names flow through roster (localStorage), not session, so it doesn't overwrite an in-progress game checkpoint */}
       <GameNav navClass="draw-next" />
     </section>
 
-    <!-- Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
-         and nothing may be injected above content -->
+    {/* Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
+         and nothing may be injected above content */}
     <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
 
     <section id="how-to-use">
