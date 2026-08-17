@@ -24,7 +24,7 @@ Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 
 **Game screens** — a game renders no `<a href>` inside `#stage`; a double-tap on a transition lands on it and leaves the round. The crawlable `/games/` link lives in static page chrome above the stage: ADR-0014.
 
-⚠ Before generating an OG image · running a build · verifying anything the way CI does · or putting a choice to the site owner → read `docs/runbook.md` first.
+⚠ Before generating an OG image · running a build · or putting a choice to the site owner → read `docs/runbook.md` first · verifying anything the way CI does, or reading CI's own verdict → `docs/agents/ci-verification.md` (`gh run list` 404s on this repo).
 
 ## Language
 
