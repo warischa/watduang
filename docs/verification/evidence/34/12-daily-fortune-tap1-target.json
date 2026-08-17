@@ -1,0 +1,70 @@
+{
+  "box": "The invariant under test is NOT 'the chip row's getBoundingClientRect().top does not move between tap-0 and tap-1' — src/games/daily-fortune.ts renderResult() (:221-243) calls stage.replaceChildren() on tap-0, so the chip row does not exist after it; a delta against a destroyed node measures absence, not stability, and would read as a pass while proving nothing (coordinator correction, superseding the original brief). The revised invariant: after tap-0, a second tap at the SAME screen coordinate as tap-0's chip cannot land on a different person, and cannot trigger navigation the group did not ask for.",
+  "method": "Two independent evidence legs, per the coordinator's correction. Leg 1 (source-level, 0 browser runs): reveal() at src/games/daily-fortune.ts:245-251 runs synchronously from the chip's click handler (on(chip,'click',()=>reveal(name)) at :214) straight into renderResult()'s stage.replaceChildren() — no setTimeout, no requestAnimationFrame, no await anywhere on that path. Zero async hops means the love-match double-tap failure class (a re-render between tap-0 and tap-1 reflows the row so tap-1 lands on a different target) is structurally impossible here: there is no window in which a second tap could even be registered against the pre-tap DOM, because the DOM the group is looking at has already been replaced by the time the click handler returns. Leg 2 (browser, scripts/driver.mjs, real headless Chrome --headless --disable-gpu --no-sandbox --remote-debugging-port=9222, real build npm run build + npx serve dist/ -l 4321, script /private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/daily-fortune-tap1-target.mjs, not committed -- scratchpad only, reproducible from this method description): navigated to /game/daily-fortune/ FIRST, then session.setWidth(320,900), wiped storage on-origin and reloaded, re-verified innerWidth===320 and localStorage/sessionStorage both empty (browser-verification.md traps 1 and 4). Added two roster names via a real native-setter 'input' event on #roster-add-name + a real .click() on #roster-add-btn, ticked both roster checkboxes, clicked #start-round, waited 600ms for the async mount (src/pages/game/[id].astro awaits a dynamic import before game.mount()). Located the first player's chip button, read its getBoundingClientRect() center (x,y) — tap-0's screen coordinate — and confirmed document.elementFromPoint(x,y) resolves to that exact chip BEFORE tapping (sanity check on the coordinate itself). Then performed a real .click() on that chip with NO artificial wait inserted (deliberately: the path is fully synchronous per leg 1, and inserting a wait would not test the real transition), and immediately read document.elementFromPoint(x,y) again at the SAME coordinate — now on the result screen — reporting its tag, a text snippet, whether it is an <a>, and whether any ancestor up to the stage is an <a> with an href (the only residual risk the coordinator named: an accidental hub-link hit, an annoyance rather than data loss since the fortune is deterministic per day). Screenshots taken before/after in scratchpad (not committed, per house convention). Positive control: kept from the original run against love-match at 05b103a (git worktree, port 4322) — see 'positiveControl' below — but it calibrates the APPARATUS (proves scripts/driver.mjs's evaluate()/getBoundingClientRect() mechanics work end to end against a real pre-fix build) and explicitly does NOT calibrate the daily-fortune claim above: different DOM (a persistent chip row with a header-length mechanism vs. a chip row destroyed on tap-0), different transition (header text swap in place vs. full stage.replaceChildren()). The coordinator independently confirmed on real iOS WebKit that a flex row's own container top is insensitive to chips being removed from inside it (delta stayed 0.00 even with a genuine reflow), which is consistent with this run's own 0px delta on the love-match positive control -- the container-top metric was never a proxy for the double-tap class either; it only ever measured the header-length-push sub-mechanism.",
+  "capturedAtCommit": "3f94ec3",
+  "capturedAtCommitNote": "capturedAtCommit is the real `git rev-parse --short HEAD` read at capture time: 3f94ec3. Re-derived at correction time from a fresh `git status --short` run (not copied forward from an earlier box's note, which goes stale as later boxes add files): ` M docs/agents/browser-verification.md`, ` M src/games/love-match.test.mjs`, ` M src/games/types.ts`, ` M src/shell/roster.ts` (all modified, none touching src/games/daily-fortune.ts -- `grep -rn 'roster\\.remove\\|roster\\.clear' src` returns nothing, and daily-fortune.ts never calls either deleted Roster method), plus untracked `?? docs/agents/ios-webkit-verification.md`, `?? docs/verification/evidence/34/12-daily-fortune-tap1-target.json` (this file), `?? docs/verification/evidence/34/13-pick-loser-no-chip-row.json`, `?? docs/verification/evidence/34/14-ios-webkit-first-real-engine.json`. This note describes the tree at commit time, listing every entry then present -- it is not a partial list scoped to what this box happens to test.",
+  "verdict": "CORRECTED BY ADVERSARIAL RE-RUN BEFORE COMMIT. Original verdict (\"PROVEN ... never on a different person or a navigating element\") was falsified: it was measured with a 2-name roster only. An independent re-run with an 8-name roster, same apparatus (scripts/driver.mjs, real headless Chrome, real dist/, 320px, innerWidth===320 confirmed), found two CONFIRMED counter-examples -- recorded below in `counterExamples`. The tap-1-target claim HOLDS for the 2-name roster measured in leg 2 below (kept, unmodified) and FAILS at larger rosters: the double-tap-lands-elsewhere class IS reachable in daily-fortune, via the post-tap DOM placing interactive and navigating elements at coordinates the pre-tap DOM abandoned. Leg 1's reasoning (replaceChildren() destroys the pre-tap chip row synchronously, with no async hop for a second tap to land on the OLD DOM) still stands as far as it goes -- it was never wrong about the pre-tap DOM being destroyed. What it missed: a second tap can still hit something on the NEW (post-tap) DOM that happens to sit at the same screen coordinate, and at larger rosters that something can be a chip for a different person or the site-hub link.",
+  "verdictFalsifiedByAdversarialReRunBeforeCommit": true,
+  "falsifyingProbe": "scripts/daily-fortune-double-tap-probe.mjs (8-name roster, run via `node scripts/driver.mjs scripts/daily-fortune-double-tap-probe.mjs` against real headless Chrome + real dist/, same house method as leg 2 below)",
+  "counterExamples": [
+    {
+      "description": "Chip 'แพรวพราวสาวน้อย' clicked; elementFromPoint at that same screen coordinate on the post-tap (result) screen resolves to the site hub link -- a double-tap navigates the group off their fortune, away from daily-fortune entirely.",
+      "coord": { "cx": 217.7, "cy": 567.1 },
+      "tap1ElementAtSameCoord": "A",
+      "tap1AnchorHref": "/games/",
+      "isNavigating": true
+    },
+    {
+      "description": "Double-tap on #df-again ('ดูดวงคนต่อไป'): first click advances to the next round's ask screen; second tap at the SAME coordinate lands on chip 'ต้นกล้าแห่งทุ่งนา' -- reveal() would fire for a different person than the group intended to re-tap.",
+      "coord": { "cx": 54.6, "cy": 561.8 },
+      "tap1ElementAtSameCoord": "BUTTON",
+      "tap1ButtonText": "ต้นกล้าแห่งทุ่งนา",
+      "wouldRevealDifferentPerson": true
+    }
+  ],
+  "innerWidthIs320": true,
+  "sourceLevelSynchronousPathConfirmed": true,
+  "tap1ElementAtSameCoordIsNonInteractive": true,
+  "tap1ElementAtSameCoordIsNavigating_2NameRoster": false,
+  "tap1ElementAtSameCoordIsNavigating_8NameRoster": true,
+  "containerTopObservableFailedItsPositiveControl": true,
+  "containerTopObservableFailureNote": "Run against known-buggy commit 05b103a (the parent of the love-match double-tap fix), the container-top delta returned 0px -- a 0 on a known-bad input does not calibrate the apparatus, it disqualifies the container-top observable as a detector for this bug class. This capture's claim does not rest on that observable: leg 2 above used document.elementFromPoint at daily-fortune's abandoned tap-0 coordinate, not chipRowTop. The elementFromPoint detector WAS independently calibrated on a known-bad case, on real iOS WebKit at 320px, where it reported the tracked chip moving y 171.0 -> 118.0 and a different person's chip occupying the original coordinate (recorded in scratchpad/IOS-WEBKIT-PLAYBOOK.md; reusable probe at scratchpad/webkit-probe/{frame,inner}.html). The container-top observable should not be reused for chip-row questions: a flex row's own top is insensitive to chips reflowing inside it.",
+  "calibrationDeltaVarianceNote": "The 'y 171.0 -> 118.0' (delta 53) cited above and docs/verification/evidence/34/14-ios-webkit-first-real-engine.json's q1_positiveControl_frameHtml re-run of the SAME probe ('69.0 -> 12.0', delta 57) do not reconcile numerically -- two committed captures citing conflicting pixel deltas for one probe. Not a constant offset (53 vs 57 differ by 4, not by a fixed frame-origin shift), and this was not re-run to find out why. Do not cite either number as a precise figure. What DID reproduce in both runs, and is what this capture's claims rest on: the tracked chip moved, and a different person's chip ended up occupying the coordinate the tracked chip abandoned -- the qualitative finding, not the exact pixels.",
+  "consoleErrorsEmpty": true,
+  "observation": {
+    "wipeCheck": { "innerWidth": 320, "localStorageLen": 0, "sessionStorageLen": 0 },
+    "innerWidthReadBack": 320,
+    "tap0": {
+      "x": 143.6484375,
+      "y": 311.0625,
+      "chipText": "สมชายใจดีมากพี่น้อง",
+      "elementAtPointBeforeTap": "BUTTON:สมชายใจดีมากพี่น้อง",
+      "isChipItself": true
+    },
+    "tap1": {
+      "tag": "P",
+      "textSnippet": "กดกี่ครั้งวันนี้ก็ได้ดวงเดิม พรุ่งนี้ค่อ",
+      "isAnchor": false,
+      "closestAnchorHref": null,
+      "screenIsResultScreen": true
+    },
+    "positiveControl": {
+      "note": "Same method as docs/verification/evidence/34/09-header-truncation-chip-row-stability.json scenario A, re-run against the PRE-FIX commit 05b103a (parent of the love-match double-tap fix 0189b22) via git worktree, served on port 4322 -- proves scripts/driver.mjs's mechanics work against a real build, does NOT calibrate the daily-fortune tap-1-target claim above (see method).",
+      "capturedAtCommitForThisSubProbe": "05b103a",
+      "innerWidthAtWipe": { "innerWidth": 320, "localStorageLen": 0, "sessionStorageLen": 0 },
+      "innerWidthReadBack": 320,
+      "chipRowTopBefore": 164.875,
+      "chipRowTopAfter": 164.875,
+      "delta": 0,
+      "headerBefore": "แตะเลือกคนแรก",
+      "headerAfter": "เลือกคู่ของ ปู่ย่าตายายพี่น้องน้าอาล",
+      "interpretation": "0px delta even at the pre-fix commit. Consistent with the coordinator's independent real-iOS-WebKit finding that a flex row's own container top is insensitive to chips changing inside it -- this metric was never a valid detector for the double-tap reflow class (which shifts individual chip positions, not the row container's top), only for the separate header-length-push sub-mechanism, and at 24 Thai characters the pre-fix header still fit on one line at 320px so that sub-mechanism did not fire either. Retained here as an honest negative result, not as proof the apparatus can detect a non-zero delta -- see the coordinator's correction for why this run cannot serve that role for the tap-1-target claim above."
+    }
+  },
+  "screenshotsTakenNotCommitted": [
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/df-tap0.png",
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/df-tap1-result.png"
+  ],
+  "note": "Trap avoided per the coordinator's correction: renderAsk(hint) at src/games/daily-fortune.ts:204 inserts a hint <p> before the chip row on an empty submit, which DOES shift the row -- but tap-1 in that path re-hits the #df-go submit button, whose own position is unchanged by the hint appearing after it, so there is no mistap risk. Not the love-match class and not reported as such. This capture answers a narrower, source-honest question than the original brief asked for; the original 'does the chip row's top move' framing does not apply once the row is known to be destroyed on tap-0.",
+  "consoleErrors": []
+}
