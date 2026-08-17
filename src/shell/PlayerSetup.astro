@@ -20,7 +20,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   <div id="setup-roster-grid">
     <p>เลือกชื่อจากกลุ่มเดิม หรือเพิ่มชื่อใหม่ — วงที่เล่นล่าสุดจะถูกติ๊กไว้ให้ ถ้าอยากเล่นแบบไม่ใช้ชื่อ กดปุ่ม "เริ่มแบบ คนที่ 1, 2, 3…" ด้านบนได้เลย กลุ่มเดิมยังอยู่ครบ</p>
     <ul id="roster-list"></ul>
-    <input id="roster-add-name" type="text" placeholder="เพิ่มชื่อใหม่" />
+    <input id="roster-add-name" type="text" maxlength="24" placeholder="เพิ่มชื่อใหม่" />
     <button id="roster-add-btn" type="button">เพิ่ม</button>
   </div>
 
@@ -279,6 +279,13 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     // (#23: it no longer costs a live round either — the checkpoint carries its own roster, so there is
     // no name gate left to fail.)
     // Clearing the group has a button of its own (#clear-group); it need not be a side effect of starting.
+    // Deliberately ungated by clearsSession, unlike the wipe below: a tool page must write the group too
+    // (#15 — spin the wheel, keep going, the roster flows into the game without retyping). saveGroup()
+    // overwrites watduang:group wholesale (roster.ts), so this write is not itself recoverable — but it
+    // only ever replaces the group with what the player just ticked on THIS page, never with an empty or
+    // synthesized set (guarded above by `if (selected.size > 0)`), so there is nothing destructive for the
+    // gate to prevent. Only the wipe below can turn "no group" into the group, which is why it alone needs
+    // the gate.
     if (selected.size > 0) saveGroup([...selected]);
     // The group is stored before the live-round question is asked, on purpose: the player really did tick
     // this group, so next time's prefill should be it — whichever branch they choose (ADR-0004: store the
