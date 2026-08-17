@@ -1,0 +1,96 @@
+{
+  "box": "Site-wide double-tap hazard: every game tap-transitions by calling stage.replaceChildren(), and each game's result screen appended its own <a href=\"/games/\"> INTO #stage, so the new screen could place a navigation target at the coordinate the finger had just used and a double-tap navigated the group off their round mid-game (first confirmed in daily-fortune by docs/verification/evidence/34/12 + scripts/daily-fortune-double-tap-probe.mjs). Chosen mechanism is blast-radius reduction by construction, not a coordinate guard: #stage contains no navigation target at all, and the page's crawlable /games/ link becomes static chrome rendered by the layout. Three claims measured separately, because they fail for different reasons. Claim 0 (the mechanism, a set we own and can make empty): after every tap-driven transition in every game, #stage contains zero a[href]. Claim 1 (the harm): no point of the control the finger just used resolves via document.elementFromPoint to an element with an a[href] ancestor inside #stage. Claim 2 (an assumption the approach fork inferred but never measured): that same point never lands inside nav.game-next.",
+  "method": "scripts/no-nav-in-stage-probe.mjs (committed) driven by scripts/driver.mjs against real headless Chrome 151.0.7922.138 (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222) over a real build served with `npx serve dist/ -l 4321`. Two full runs of the same committed harness: one against the UNFIXED build (calibration) and one against the fixed build, nothing else changed. Per game, in one CDP tab: nav to /game/<id>/ FIRST, then session.setWidth(320,900), then wipe storage on-origin, then seed localStorage 'watduang:roster' with 8 long Thai names (the same roster as the daily-fortune double-tap probe), then reload so PlayerSetup's loadRoster() picks it up (browser-verification.md trap 4). The round is started through the REAL #start-round button after clicking all 8 roster checkboxes -- not by dispatching watduang:start directly, which leaves the setup panel on screen and makes every y coordinate below it a layout no player ever sees (the first attempt at this walk did exactly that and was discarded). Detector calibrated both ways per game before any tap is measured (trap 2): before the start the setup panel is visible AND #stage has 0 children; after it the panel is hidden AND #stage has children; innerWidth is read back as 320 each time. A walk that does not flip both halves, or that produces fewer transitions than its per-game minimum, or that reports a missing control, is scored FAIL as unusable rather than PASS. Each transition samples THREE points of the tapped control -- centre, top edge, bottom edge at centre-x -- because a real finger taps anywhere inside the control and centre-only sampling under-measures the hazard; each point is re-read with document.elementFromPoint on the screen that replaced it. Transitions walked: daily-fortune chip->result and #df-again->ask; siamsi #ss-start + 8x(#ss-draw, #ss-pass) + #ss-again (18); pick-loser #pl-pick->result and #pl-again->idle; short-stick every stick/#ss-pass tap until the short stick ends the round, then #ss-again (14 this run -- the short stick's turn is random, so the count varies); timebomb #tb-start->ticking, then the real timer-driven detonation with the finger's last position on #tb-pass (fuse waited 42401ms pre-fix, 36384ms post-fix -- the boom is not tap-driven, so this is the honest analogue, not a tap), then #tb-again->idle; love-match chip(first) in-place pick, chip(last)->result, #lm-again->pick. Also recorded per transition: the count of a[href] inside #stage, and the vertical gap between the tapped control's bottom and the top of the first in-stage anchor -- a negative gap means the anchor sits inside the box the finger just touched. Raw run JSONs were written to this session's scratchpad and are NOT committed; every number below is copied from them and every one is reproducible by running the committed harness the same way.",
+  "capturedAtCommit": "ba58746",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. `git status --short` at this capture showed: ' M src/games/daily-fortune.ts', ' M src/games/love-match.ts', ' M src/games/pick-loser.ts', ' M src/games/short-stick.ts', ' M src/games/siamsi.ts', ' M src/games/timebomb.ts', ' M src/layouts/GameLayout.astro', '?? scripts/no-nav-in-stage-probe.mjs'. The six game files (in-stage hub anchor removed) and src/layouts/GameLayout.astro (static /games/ link added above #stage) are the exact change under test; the untracked file is the harness that measured it. The pre-fix half of this capture was run before any of those edits existed, at the same HEAD.",
+  "verdict": "Claim 0 PROVEN and independently calibrated (red 6/6 pre-fix, green 6/6 post-fix). Claim 1 as measured by THIS harness's 3-point centre-x sampling was informative pre-fix (red 2/6, real calibration) but is ENTAILED by claim 0 once the fix is applied — #stage holding zero a[href] makes any in-stage-anchor hit structurally impossible, so claim 1's post-fix green is not independent corroboration, it is a restatement of claim 0. REFUTED as a general claim by scripts/gamenav-again-grid-probe.mjs and scripts/gamenav-start-grid-probe.mjs, which grid-scan the full control box instead of 3 centre-x points: post-fix, siamsi's and pick-loser's own GameNav anchors ARE reachable by real tap coordinates outside #stage (see refutingWholeBoxScans below). Claim 2 REFUTED (unchanged from original capture).",
+  "innerWidthIs320": true,
+  "setupPanelCollapsedByRealStartButtonInEveryWalk": true,
+  "calibrationWentRedOnAllSixGamesBeforeTheFix": true,
+  "stageContainsNoAnchorAfterEveryTransitionInAllSixGamesAfterTheFix": true,
+  "noTapCoordinateResolvesToAnyAnchorAnywhereAfterTheFix": false,
+  "noTapCoordinateResolvesToAnyAnchorAnywhereAfterTheFix_scope": "Refuted for GameNav anchors OUTSIDE #stage, reached by grid-scanning the whole control box rather than 3 centre-x points. Still true for anchors INSIDE #stage post-fix (that part is claim 0, proven).",
+  "postTransitionHitNeverLandsInsideGameNextNav": false,
+  "postTransitionHitNeverLandsOnALinkInsideGameNextNav": false,
+  "postTransitionHitNeverLandsOnALinkInsideGameNextNav_scope": "Refuted at wider sampling. The original 3-centre-x-point sampling never hit a link inside nav.game-next (only its <ul>/<h3> chrome), but scripts/gamenav-again-grid-probe.mjs's full-box grid scan shows the '#ss-again'/'#lm-again' button box itself overlaps GameNav <a href> links at roster 7-8 with long names — 25/60 sampled points in siamsi/love-match resolve to /game/pick-loser/, /game/short-stick/, /game/daily-fortune/, or /game/love-match/.",
+  "crawlableGamesLinkInBuiltOutputOfEveryGamePage": true,
+  "observation": {
+    "calibrationPreFix": {
+      "note": "Unfixed build. claim0 FAIL on all six -- every game's result screen carries exactly one in-stage a[href]=/games/. claim1 FAIL on two: the anchor lands INSIDE the tapped control's own box (negative gap). claim2 FAIL on two.",
+      "claim0_stageHasNoAnchor": { "pass": [], "fail": ["daily-fortune", "siamsi", "pick-loser", "short-stick", "timebomb", "love-match"] },
+      "claim1_noNavTargetHitInStage": { "pass": ["siamsi", "pick-loser", "timebomb", "love-match"], "fail": ["daily-fortune", "short-stick"] },
+      "claim2_hitNeverInGameNext": { "pass": ["daily-fortune", "pick-loser", "short-stick", "timebomb"], "fail": ["siamsi", "love-match"] },
+      "perGame": {
+        "daily-fortune": { "transitions": 2, "screensWithStageAnchor": 1, "inStageAnchorHits": 1, "gameNextHits": 0, "anyAnchorHits": 1, "anchorHrefsHit": ["/games/"], "nearestStageAnchorGapPx": { "chip(last) -> result": -26 } },
+        "siamsi": { "transitions": 18, "screensWithStageAnchor": 1, "inStageAnchorHits": 0, "gameNextHits": 1, "anyAnchorHits": 0, "anchorHrefsHit": [], "nearestStageAnchorGapPx": { "#ss-pass -> summary": 339 } },
+        "pick-loser": { "transitions": 2, "screensWithStageAnchor": 1, "inStageAnchorHits": 0, "gameNextHits": 0, "anyAnchorHits": 0, "anchorHrefsHit": [], "nearestStageAnchorGapPx": { "#pl-pick -> result": 61 } },
+        "short-stick": { "transitions": 14, "screensWithStageAnchor": 1, "inStageAnchorHits": 1, "gameNextHits": 0, "anyAnchorHits": 1, "anchorHrefsHit": ["/games/"], "nearestStageAnchorGapPx": { "stick -> result": -4 } },
+        "timebomb": { "transitions": 3, "screensWithStageAnchor": 1, "inStageAnchorHits": 0, "gameNextHits": 0, "anyAnchorHits": 0, "anchorHrefsHit": [], "nearestStageAnchorGapPx": { "detonation -> boom (finger last on #tb-pass)": 28 } },
+        "love-match": { "transitions": 3, "screensWithStageAnchor": 1, "inStageAnchorHits": 0, "gameNextHits": 1, "anyAnchorHits": 0, "anchorHrefsHit": [], "nearestStageAnchorGapPx": { "chip(last) -> result": 208 } }
+      },
+      "measuredHitThatProvesTheHazard": {
+        "game": "daily-fortune",
+        "transition": "chip(last) -> result",
+        "hits": [
+          { "x": 218, "y": 375, "tag": "A", "text": "กลับไปหน้ารวมเกม", "anchorHref": "/games/", "anchorInStage": true, "inGameNext": false },
+          { "x": 218, "y": 365, "tag": "A", "text": "กลับไปหน้ารวมเกม", "anchorHref": "/games/", "anchorInStage": true, "inGameNext": false },
+          { "x": 218, "y": 385, "tag": "MAIN", "text": "วัดดวงวันนี้    จำนวนคนเ", "anchorHref": null, "anchorInStage": false, "inGameNext": false }
+        ]
+      }
+    },
+    "afterFix": {
+      "note": "Same harness, same method, rebuilt dist/. claim0 and claim1 PASS on all six. claim2 unchanged -- the fix does not touch nav.game-next and was never going to move it.",
+      "claim0_stageHasNoAnchor": { "pass": ["daily-fortune", "siamsi", "pick-loser", "short-stick", "timebomb", "love-match"], "fail": [] },
+      "claim1_noNavTargetHitInStage": { "pass": ["daily-fortune", "siamsi", "pick-loser", "short-stick", "timebomb", "love-match"], "fail": [] },
+      "claim2_hitNeverInGameNext": { "pass": ["daily-fortune", "pick-loser", "short-stick", "timebomb"], "fail": ["siamsi", "love-match"] },
+      "perGame": {
+        "daily-fortune": { "transitions": 2, "screensWithStageAnchor": 0, "inStageAnchorHits": 0, "gameNextHits": 0, "anyAnchorHits": 0 },
+        "siamsi": { "transitions": 18, "screensWithStageAnchor": 0, "inStageAnchorHits": 0, "gameNextHits": 1, "anyAnchorHits": 0 },
+        "pick-loser": { "transitions": 2, "screensWithStageAnchor": 0, "inStageAnchorHits": 0, "gameNextHits": 0, "anyAnchorHits": 0 },
+        "short-stick": { "transitions": 14, "screensWithStageAnchor": 0, "inStageAnchorHits": 0, "gameNextHits": 0, "anyAnchorHits": 0 },
+        "timebomb": { "transitions": 3, "screensWithStageAnchor": 0, "inStageAnchorHits": 0, "gameNextHits": 0, "anyAnchorHits": 0 },
+        "love-match": { "transitions": 3, "screensWithStageAnchor": 0, "inStageAnchorHits": 0, "gameNextHits": 1, "anyAnchorHits": 0 }
+      },
+      "claim2Detail": {
+        "note": "Both remaining claim-2 hits land on nav.game-next's own chrome -- its <ul> padding and its <h3> heading -- never on an <a> inside it. anchorHref is null at every sampled point and anyAnchorHits is 0 for all six games, so no double-tap measured here navigates anywhere. The fork's inference was wrong about the BLOCK being out of reach and right about its LINKS, at this roster size and viewport.",
+        "siamsi": { "transition": "#ss-again -> idle", "hits": [{ "x": 45, "y": 695, "tag": "UL", "anchorHref": null, "inGameNext": true }, { "x": 45, "y": 685, "tag": "UL", "anchorHref": null, "inGameNext": true }, { "x": 45, "y": 705, "tag": "UL", "anchorHref": null, "inGameNext": true }] },
+        "love-match": { "transition": "#lm-again -> pick", "hits": [{ "x": 32, "y": 511, "tag": "BODY", "anchorHref": null, "inGameNext": false }, { "x": 32, "y": 501, "tag": "BODY", "anchorHref": null, "inGameNext": false }, { "x": 32, "y": 521, "tag": "H3", "text": "เล่นเกมต่อด้วยวงเดิม", "anchorHref": null, "inGameNext": true }] }
+      }
+    },
+    "staticLinkPreservedNotDeleted": {
+      "beforeFix": "0 of 6 built game pages contained href=\"/games/\" -- the only such link on a game page was created by game JS at runtime, so it was never crawlable. `for f in dist/game/*/index.html; do grep -o 'href=\"/games/\"' $f | wc -l; done` = 0 on all six.",
+      "afterFix": "1 of 1 per page, 6 of 6 pages, in the static HTML: dist/game/{daily-fortune,love-match,pick-loser,short-stick,siamsi,timebomb}/index.html. Rendered by src/layouts/GameLayout.astro directly after <h1>, reusing the existing site pattern and Thai string from src/pages/tools/index.astro verbatim: <p><a href=\"/games/\">ดูเกมทั้งหมด</a></p>. The harness also reads it back in the live page: staticHubLinks (a[href=\"/games/\"] count) = 0 per page before the fix and 1 per page after, on every one of the six.",
+      "gateResults": "npm test 144 pass / 0 fail (144 before the change, 144 after -- no test touched) · npm run build exit 0 · npm run validate exit 0 (6 games OK) · npm run check-citations exit 0 · npm run thai-comments exit 0 (57 files, 0 Thai comment lines)"
+    }
+  },
+  "refutingWholeBoxScans": {
+    "note": "Adversarial review after this capture's original PROVEN verdict ran two grid-scan probes against the same post-fix build, sampling the WHOLE box of the tapped control instead of 3 centre-x points. Both refute a universal this capture originally asserted. All measurements CONFIRMED in real headless Chrome at 320px against the post-fix build.",
+    "harnesses": [
+      "scripts/gamenav-again-grid-probe.mjs",
+      "scripts/gamenav-start-grid-probe.mjs"
+    ],
+    "siamsiAgainButtonRoster7": {
+      "finding": "25 of 60 sampled points inside the #ss-again button box resolve to GameNav a[href] links: /game/pick-loser/ and /game/short-stick/ at roster 7 with 24-char names.",
+      "harness": "scripts/gamenav-again-grid-probe.mjs"
+    },
+    "siamsiAgainButtonRoster8": {
+      "finding": "At roster 8, the same button box resolves to /game/daily-fortune/ and /game/love-match/ instead. A double-tap on 'again' can land the group in a different game.",
+      "harness": "scripts/gamenav-again-grid-probe.mjs"
+    },
+    "pickLoserStartRoundRoster10": {
+      "finding": "The #start-round panel collapse drops <a href=\"/game/timebomb/\"> under the button: 8 of 45 grid points hit it, x 8-66, y 529-553.",
+      "harness": "scripts/gamenav-start-grid-probe.mjs"
+    },
+    "anchorSourceIsADR0013Locked": "Anchor source is GameNav at src/layouts/GameLayout.astro:59, which ADR-0013 locks -- this is an unresolved conflict between the in-stage-anchor fix and the GameNav layout, not an oversight in either."
+  },
+  "whyTheCommittedHarnessMissedIt": {
+    "sparseSampling": "scripts/no-nav-in-stage-probe.mjs samples only 3 points per transition (centre, top edge, bottom edge, all at centre-x -- see its line ~68 and its own line ~23 comment conceding a finger taps anywhere in the control). The siamsi/love-match 'again' button's GameNav anchor collision sits ~7px off that sampled axis (x=52 vs the sampled x=45), so none of the 3 points ever landed on it.",
+    "startRoundUnsampled": "scripts/no-nav-in-stage-probe.mjs clicks #start-round at line ~205 with no hit-sampling at all -- the setup-panel-collapse transition was structurally unmeasured by the committed harness, which is why pick-loser's roster-10 /game/timebomb/ collision was never seen."
+  },
+  "latentDefectNotTriggered": {
+    "label": "latent-not-triggered",
+    "finding": "scripts/no-nav-in-stage-probe.mjs computes inViewport at its line ~69 and records it at ~78, but no read of it feeds walkUsable (~219-230) or the pass/fail scoring (~254-256). A control positioned below ~900px (this harness's fixed viewport height) would make document.elementFromPoint return null at every sampled point, and stageAnchorCount/inStageAnchorHits would read 0 not because the mechanism holds but because nothing was actually hit-tested -- a vacuous PASS. This did NOT fire in any run captured here; it is a defect found by reading the code, not by a measurement going wrong."
+  },
+  "note": "The fix is the reason claim 0 is the primary check and claim 1 is not. Pre-fix, all six games shipped an a[href] inside #stage (claim 0 red six times) but the double-tap only actually LANDED on it in two of them, and the two were decided by pixels: -26px inside the tapped chip in daily-fortune, -4px inside the tapped stick in short-stick, against +28px (timebomb), +61px (pick-loser), +208px (love-match) and +339px (siamsi) of clearance. Those gaps are a function of Thai copy length x roster size x layout engine, and short-stick's -4px is produced by a randomly chosen short-stick turn, so which games are 'safe' changes between runs of the same build. A guard written against the coordinate would therefore have to enumerate a set nobody owns; emptying #stage of navigation targets is a set we own, which is why the post-fix green on claims 0 and 1 holds for reasons that do not depend on any of those numbers. What this capture does NOT cover: one roster size (8 names) and one viewport (320x900); one tap per control per screen (the first stick, the last chip) rather than every control; keyboard/form submit paths (daily-fortune's #df-go); real iOS WebKit hit-testing; and nav.game-next, which is page chrome locked by ADR-0013 and was not touched -- claim 2 is REFUTED and stays open as a separate finding, because the block IS reachable at a post-transition tap coordinate in siamsi and love-match, even though only its non-link chrome was hit here. Re-trigger this walk on any change to the games' render* functions, to #stage's position or styling, to GameLayout.astro's order above #stage, or to GameNav/nav.game-next's placement.",
+  "consoleErrors": []
+}

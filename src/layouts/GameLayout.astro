@@ -23,6 +23,16 @@ const howToJsonLd = {
   <main>
     <h1>{game.names.th}</h1>
 
+    {/* The page's only crawlable link to /games/ — static, and deliberately ABOVE #stage. Every game
+         used to append its own copy INTO #stage on the result screen, where a tap-transition
+         (stage.replaceChildren()) dropped it at the coordinate the finger had just used, so a double-tap
+         navigated the group off their round: measured at 26px INSIDE the tapped chip in daily-fortune
+         and 4px inside the tapped stick in short-stick (docs/verification/evidence/34/15). Above #stage
+         in document order, nothing that changes height at runtime sits above this line, so no re-render
+         can move it under a finger — that is the whole reason it is here and not in the how-to section
+         below the stage, whose y depends on the stage's height. */}
+    <p><a href="/games/">ดูเกมทั้งหมด</a></p>
+
     {/* gameId lets the panel know whether a stranded checkpoint belongs to this page or another game (#23).
          Tool pages don't pass this prop, so there's no round to ask about at all. */}
     <PlayerSetup min={game.players[0]} max={game.players[1]} gameId={game.id} />

@@ -235,11 +235,9 @@ const PAIR_STYLE = 'font-size:1.25rem;font-weight:700;overflow-wrap:anywhere';
 // stay close to what Chrome's default already produced, since the owner approved that exact look.
 const TAKEN_CHIP_STYLE = 'opacity:0.5';
 
-function hubLink(): HTMLAnchorElement {
-  const hub = el('a', 'กลับไปหน้ารวมเกม');
-  hub.href = '/games/';
-  return hub;
-}
+// No hub link is built in this file any more — #stage must hold no navigation target (a tap-transition
+// would drop it under the finger that just tapped). The crawlable /games/ link is static chrome in
+// src/layouts/GameLayout.astro.
 
 // Builds the whole pick screen once per round (initial mount, or after the result screen's "again"
 // button calls this again to start a new pick) — every chip stays for both taps of a pick, per #36.
@@ -257,7 +255,6 @@ function renderPick(): void {
   // The setup panel refuses to start below players[0], so this is a guard, not a normal path.
   if (roster.length < 2) {
     stage.appendChild(el('p', 'เกมนี้ต้องมีอย่างน้อย 2 คน ใส่ชื่อเพิ่มก่อนนะ'));
-    stage.appendChild(hubLink());
     return;
   }
 
@@ -327,8 +324,6 @@ function renderResult(a: string, b: string, now: Date): void {
     renderPick();
   });
   stage.appendChild(again);
-
-  stage.appendChild(hubLink());
 }
 
 function pick(index: number): void {

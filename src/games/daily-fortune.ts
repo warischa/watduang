@@ -236,10 +236,12 @@ function renderResult(name: string, now: Date): void {
   another.type = 'button';
   on(another, 'click', () => renderAsk());
   stage.appendChild(another);
-
-  const hub = el('a', 'กลับไปหน้ารวมเกม');
-  hub.href = '/games/';
-  stage.appendChild(hub);
+  // No link to /games/ here, on purpose: #stage holds no navigation target in any game. Every screen
+  // arrives via stage.replaceChildren() under the finger that triggered it, so an anchor placed here
+  // lands at a coordinate the finger just used and a double-tap leaves the round (measured in this
+  // game: the hub sat 26px INSIDE the tapped chip's box, capture 34/15). The page's crawlable
+  // /games/ link is static chrome in src/layouts/GameLayout.astro, above #stage where no re-render
+  // can move it.
 }
 
 function reveal(raw: string): void {

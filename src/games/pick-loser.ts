@@ -81,10 +81,8 @@ function renderResult(): void {
     if (stageRef && ctxRef) mountInto(stageRef, ctxRef);
   });
   stage.appendChild(again);
-
-  const hub = el('a', 'กลับไปหน้ารวมเกม');
-  hub.href = '/games/';
-  stage.appendChild(hub);
+  // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
+  // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
 }
 
 // ---- Round lifecycle ----
