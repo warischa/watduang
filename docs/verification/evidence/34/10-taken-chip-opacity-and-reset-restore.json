@@ -1,0 +1,73 @@
+{
+  "box": "M-E -- src/games/love-match.ts's TAKEN_CHIP_STYLE ('opacity:0.5') is now an AUTHORED inline style, replacing the prior reliance on Chrome's default `:disabled` UA styling recorded in this same directory's 07-chip-restructure-regression.json. Two sub-checks: (1) is the authored dim really applied (computed opacity, not just inherited) and is the taken chip still non-tappable; (2) the reset path -- the 'เลือกคนแรกใหม่' (lm-reset) handler clears the taken state with `prev.removeAttribute('style')`, which strips the WHOLE inline style attribute, not just the dim -- does a restored chip's full computed style still match a chip that was never tapped in the same round?",
+  "method": "scripts/driver.mjs, real headless Chrome, real build served on :4321. Script: /private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/me-probe.mjs (not committed -- scratchpad only, reproducible from this method description). One CDP tab, 320px viewport, wiped storage on-origin then reloaded (verified innerWidth===320, localStorage empty). Added 3 names (เอ, บี, ซี) via the real UI (#roster-add-name + #roster-add-btn), started the round, waited 500ms for async mount. Captured a full getComputedStyle() snapshot (opacity, backgroundColor, color, border*, padding*, fontSize, cursor) of a pristine chip ('บี') before any tap as a baseline. Tapped 'เอ' (first pick only, left the second tap pending) and captured the SAME 11-property snapshot on the now-taken 'เอ' chip plus its still-untouched sibling 'บี', read chip.disabled directly for the non-tappable check, then attempted a second real .click() on the disabled 'เอ' chip and confirmed the header text did not change (a disabled native button dispatches no click event at all, per spec -- the authoritative browser-level signal, not an inference from pick()'s own same-index guard, which would mask this either way). Sub-check (2) has two parts, both driven for completeness because the brief names removeAttribute('style') as the risk but also names a specific walk to run: (2b) the ACTUAL removeAttribute('style') code path -- clicked #lm-reset ('เลือกคนแรกใหม่') to undo the pending pick on the SAME DOM node, then re-snapshotted 'เอ' and compared it against never-tapped 'บี' in the same round. (2a) the brief's literally-described walk -- completed the pick (เอ then บี), reached the result screen, clicked #lm-again ('ดูคู่อื่น'), which calls renderPick() and rebuilds the whole chip row from scratch; snapshotted the new 'เอ' node (the name that was taken+restored across the round) against the new 'ซี' node (never tapped in either round) -- both are freshly created elements. Every comparison is a full 11-key diff, not a single property.",
+  "capturedAtCommit": "05b103a",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. `git status --short` at this capture showed: ' M src/games/love-match.test.mjs', ' M src/games/love-match.ts', ' M src/shell/PlayerSetup.astro', plus four untracked evidence files already written earlier in this same session: '?? docs/verification/evidence/34/06-name-entry-320px.json', '?? docs/verification/evidence/34/07-chip-restructure-regression.json', '?? docs/verification/evidence/34/08-roster-race-two-tab.json', '?? docs/verification/evidence/34/09-header-truncation-chip-row-stability.json'. src/games/love-match.ts (TAKEN_CHIP_STYLE, the lm-reset handler's removeAttribute('style') call, renderPick()) is the exact file under test in this box.",
+  "verdict": "PROVEN",
+  "takenChipComputedOpacityIs0_5": true,
+  "takenChipComputedOpacityAuthoredNotJustUaDefault": true,
+  "takenChipNonTappable": true,
+  "resetPath_actualRemoveAttributeStyle_restoredChipMatchesNeverTappedChip": true,
+  "resetPath_briefLiteralDuKuuUenWalk_restoredChipMatchesNeverTappedChip": true,
+  "consoleErrorsEmpty": true,
+  "observation": {
+    "baselinePristineChip_beforeAnyPick": {
+      "opacity": "1", "backgroundColor": "rgb(239, 239, 239)", "color": "rgb(0, 0, 0)",
+      "borderWidth": "2px", "borderStyle": "outset", "borderColor": "rgb(0, 0, 0)",
+      "paddingTop": "1px", "paddingRight": "6px", "paddingBottom": "1px", "paddingLeft": "6px",
+      "fontSize": "13.3333px", "cursor": "default", "disabled": false, "styleAttr": null
+    },
+    "takenChipAfterTap1": {
+      "opacity": "0.5", "backgroundColor": "rgba(239, 239, 239, 0.3)", "color": "rgba(16, 16, 16, 0.3)",
+      "borderWidth": "2px", "borderStyle": "outset", "borderColor": "rgba(118, 118, 118, 0.3)",
+      "paddingTop": "1px", "paddingRight": "6px", "paddingBottom": "1px", "paddingLeft": "6px",
+      "fontSize": "13.3333px", "cursor": "default", "disabled": true, "ariaPressed": "true",
+      "styleAttr": "opacity:0.5"
+    },
+    "untouchedSiblingAfterTap1": {
+      "opacity": "1", "backgroundColor": "rgb(239, 239, 239)", "color": "rgb(0, 0, 0)", "disabled": false, "styleAttr": null
+    },
+    "reclickAttemptOnDisabledChip": {
+      "disabledDuringAttempt": true,
+      "headerBefore": "เลือกคู่ของ เอ",
+      "headerAfter": "เลือกคู่ของ เอ",
+      "headerUnchanged": true
+    },
+    "resetPath_2b_actualRemoveAttributeStyle": {
+      "restoredChip": {
+        "opacity": "1", "backgroundColor": "rgb(239, 239, 239)", "color": "rgb(0, 0, 0)",
+        "borderWidth": "2px", "borderStyle": "outset", "borderColor": "rgb(0, 0, 0)",
+        "paddingTop": "1px", "paddingRight": "6px", "paddingBottom": "1px", "paddingLeft": "6px",
+        "fontSize": "13.3333px", "disabled": false, "styleAttr": null
+      },
+      "neverTappedSibling": {
+        "opacity": "1", "backgroundColor": "rgb(239, 239, 239)", "color": "rgb(0, 0, 0)",
+        "borderWidth": "2px", "borderStyle": "outset", "borderColor": "rgb(0, 0, 0)",
+        "paddingTop": "1px", "paddingRight": "6px", "paddingBottom": "1px", "paddingLeft": "6px",
+        "fontSize": "13.3333px", "disabled": false, "styleAttr": null
+      },
+      "diffs": [],
+      "matched": true
+    },
+    "resultReached": { "againPresent": true },
+    "resetPath_2a_briefLiteralDuKuuUenWalk": {
+      "restoredChip": {
+        "opacity": "1", "backgroundColor": "rgb(239, 239, 239)", "color": "rgb(0, 0, 0)",
+        "borderWidth": "2px", "borderStyle": "outset", "borderColor": "rgb(0, 0, 0)",
+        "paddingTop": "1px", "paddingRight": "6px", "paddingBottom": "1px", "paddingLeft": "6px",
+        "fontSize": "13.3333px", "disabled": false, "styleAttr": null
+      },
+      "neverTappedChip": {
+        "opacity": "1", "backgroundColor": "rgb(239, 239, 239)", "color": "rgb(0, 0, 0)",
+        "borderWidth": "2px", "borderStyle": "outset", "borderColor": "rgb(0, 0, 0)",
+        "paddingTop": "1px", "paddingRight": "6px", "paddingBottom": "1px", "paddingLeft": "6px",
+        "fontSize": "13.3333px", "disabled": false, "styleAttr": null
+      },
+      "diffs": [],
+      "matched": true,
+      "note": "renderPick() fully rebuilds the chip row on 'ดูคู่อื่น' -- these are brand-new DOM nodes that never carried an inline style, so this specific walk does not exercise removeAttribute('style') at all. That call only fires from the #lm-reset ('เลือกคนแรกใหม่') handler, exercised separately as resetPath_2b above. Included here anyway because the brief named this exact walk; reported as its own sub-result rather than silently substituted, per docs/agents/browser-verification.md's rule against inferring instead of measuring."
+    }
+  },
+  "note": "M-E(1): the taken chip's computed opacity is genuinely '0.5' (matches TAKEN_CHIP_STYLE verbatim) -- confirmed authored, not inherited, because the pristine baseline chip's own opacity is '1'. The chip is non-tappable via chip.disabled===true, and a second real click() on it fires no click handler (header text unchanged) -- both the disabled UA default (which still separately dims color/background to ~30% alpha underneath, same mechanism 07's evidence recorded) and the authored opacity:0.5 apply simultaneously on this taken chip; they compound rather than replace each other. M-E(2): both reset paths tested -- the actual removeAttribute('style') code path (2b, via lm-reset) and the brief's literally-named ดูคู่อื่น round trip (2a, which turns out to rebuild fresh nodes instead) -- produced ZERO differences across all 11 compared computed-style properties (opacity, backgroundColor, color, 3 border fields, 4 padding fields, fontSize) against a chip never tapped in the same round. No visual regression found in either path. This is a visual/DOM capture with no unit-test equivalent (docs/agents/capture-freshness.md) -- pinned to 05b103a, re-trigger on any change to TAKEN_CHIP_STYLE, the lm-reset handler, or renderPick()/pick().",
+  "consoleErrors": []
+}

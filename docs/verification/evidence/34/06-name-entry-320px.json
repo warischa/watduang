@@ -1,0 +1,49 @@
+{
+  "box": "M-A -- the name-entry path (typing into #roster-add-name + #roster-add-btn, never #start-numbered / #player-count) at a real 320px viewport, driven end to end on /game/love-match/: setup -> pick -> result. SESSION-HANDOFF.md S2026-08-17#1's next-queue item states browser proof previously covered only the numbered-players path (start-numbered) at 320px; this capture is stale-checked against docs/agents/capture-freshness.md too -- PlayerSetup.astro is a named seam and the working tree carries an uncommitted change to it, so even the pre-existing 04-320px.json (which also happened to use named entry, for a different assertion -- the pool's-longest-line box) needed re-proving fresh, not reused.",
+  "method": "scripts/driver.mjs, one CDP tab, real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), against a real build (npm run build + npx serve dist/ -l 4321). Navigated to http://localhost:4321/game/love-match/ FIRST, then session.setWidth(320, 900), then wiped storage on-origin and reloaded, re-asserting innerWidth === 320 after the wipe's reload (browser-verification.md traps 1 and 4). Verified localStorage.length === 0 / sessionStorage.length === 0 immediately after the wipe. Added 3 names (หนึ่ง, สอง, สาม) one at a time via a real 'input' event on #roster-add-name (native-setter dispatch, same technique as the committed 04-320px.json) followed by a real .click() on #roster-add-btn -- never touched #start-numbered or #player-count. Confirmed all 3 auto-checked (checkedCount === totalCount === 3) before clicking #start-round. Waited 500ms after #start-round for the async mount listener in src/pages/game/[id].astro (it awaits a dynamic import before game.mount()), per the timing note in the committed 01-flow.json. Overflow measured per browser-verification.md's calibrated snippet (scrollWidth/clientWidth/overflowingCount), never eyeballed. Both-ways calibration: paired every overflow assertion with a positive assertion that real Thai content renders (header text, the typed name in the DOM, the pair paragraph, the score percent, the 'ดูคูอื่น' button) -- an overflow-clean page that also renders nothing would fail these positive checks.",
+  "capturedAtCommit": "05b103a",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. `git status --short` at this capture showed: ' M src/games/love-match.test.mjs', ' M src/games/love-match.ts', ' M src/shell/PlayerSetup.astro' -- no other evidence files existed yet under docs/verification/evidence/34/ at this point in the session (this is the first new capture written this session). src/games/love-match.ts and src/shell/PlayerSetup.astro are both directly exercised by this walk, so the capture reflects the tree as it stood at run time, not what a later `git log` shows at this path.",
+  "verdict": "PROVEN",
+  "innerWidthIs320": true,
+  "storageActuallyWipedBeforeSeeding": true,
+  "rosterAcceptsAllThreeTypedNames": true,
+  "flowReachesResultScreen": true,
+  "noHorizontalOverflowOnPickScreen": true,
+  "noHorizontalOverflowOnResultScreen": true,
+  "thaiContentActuallyPresentOnPickScreen": true,
+  "thaiContentActuallyPresentOnResultScreen": true,
+  "stageNeverBlank": true,
+  "consoleErrorsEmpty": true,
+  "namesUsed": ["หนึ่ง", "สอง", "สาม"],
+  "observation": {
+    "widthAfterWipeAndReload": { "innerWidth": 320 },
+    "storageCleanAfterWipe": { "localStorageLen": 0, "sessionStorageLen": 0 },
+    "rosterAfterTyping": { "checkedCount": 3, "totalCount": 3 },
+    "pickScreen": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "overflowingCount": 0,
+      "setupPanelHidden": true,
+      "chipCount": 3,
+      "headerTextPresent": "แตะเลือกคนแรก",
+      "firstNamePresentInDom": true
+    },
+    "resultScreen": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "overflowingCount": 0,
+      "pairPresent": true,
+      "scorePercentPresent": true,
+      "againButtonPresent": true,
+      "stageNotBlank": true
+    }
+  },
+  "screenshotsTakenNotCommitted": [
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/ma-pick-320.png",
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/ma-result-320.png"
+  ],
+  "note": "Ran on love-match specifically because that is the game whose 320px evidence already lives in this directory (04-320px.json), and because M-B in this same session re-drives love-match's chip UI anyway. The claim under test (the name-entry path itself, at 320px) is generic to PlayerSetup.astro and not love-match-specific; this capture proves it via one game, not all six.",
+  "consoleErrors": []
+}

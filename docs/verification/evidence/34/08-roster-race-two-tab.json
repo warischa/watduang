@@ -1,0 +1,40 @@
+{
+  "box": "M-C -- the two-tab roster.add() race at src/shell/roster.ts:65-68 (re-read then write, no lock/version/leader). A prior adversarial pass confirmed this STATICALLY and established no refute path exists: the interleaving set is owned by the browser scheduler (two separate renderer processes/threads racing the same localStorage-backed key), and the HTML Storage mutex is unimplemented in every real browser -- so non-reproduction can never be reported as 'refuted', per docs/adr/0009-a-dod-box-whose-proof-set-we-do-not-own-is-mis-scoped.md. This box attempts reproduction across two REAL tabs, bounded at a stated N, driven programmatically (not hand-paced -- the window is roughly one synchronous microtask and a human cannot hit it).",
+  "method": "Standalone two-tab CDP script (not scripts/driver.mjs, which manages only one tab) against the real build served on :4321, one real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222). Opened two independent CDP targets/WebSockets (tabA, tabB), navigated both to /game/love-match/. Each round: cleared localStorage, reloaded BOTH tabs (fresh in-memory `list` closure per tab, matching roster.ts's module-scope `list` captured at loadRoster() time), then drove the REAL UI in both tabs -- a real 'input' event on #roster-add-name followed by a real .click() on #roster-add-btn, the actual bundled roster.ts code path, never a copied-out algorithm. The load-bearing step: `Promise.all([tabA.evaluate(...), tabB.evaluate(...)])` -- neither Runtime.evaluate call is awaited before the other's request goes out over its own WebSocket, so both tabs' add() calls (synchronous within their own renderer process) genuinely race for the shared localStorage backing store rather than being serialized by the driver. After a 150ms settle, read the final roster back from localStorage and checked whether both distinct per-round names (A<i>, B<i>) survived. Bounded at N=30 rounds, breaking on first reproduction. BOTH-WAYS CALIBRATION (mandatory, not optional): a second run (mc-control.mjs) drove the identical two tabs SEQUENTIALLY -- tabA's add fully completes and settles before tabB's starts -- and both names survived, proving the harness itself correctly detects the non-race, both-survive case and the race-round failure is not a bug in the probe.",
+  "capturedAtCommit": "05b103a",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. `git status --short` at this capture showed: ' M src/games/love-match.test.mjs', ' M src/games/love-match.ts', ' M src/shell/PlayerSetup.astro', plus two untracked evidence files already written earlier in this same session: '?? docs/verification/evidence/34/06-name-entry-320px.json', '?? docs/verification/evidence/34/07-chip-restructure-regression.json'. None of the three dirty files (nor the two pending evidence files) touch src/shell/roster.ts -- roster.ts itself is unmodified in this tree, so this capture is against roster.ts as committed at 05b103a.",
+  "verdict": "PROVEN",
+  "N": 30,
+  "reproducedWithinBoundN": true,
+  "reproducedAtAttempt": 1,
+  "harnessCalibratedAgainstNonRaceControl": true,
+  "controlBothNamesSurviveWhenSequential": true,
+  "consoleErrorsObservedDuringRace": null,
+  "observation": {
+    "raceRun": {
+      "N": 30,
+      "attemptedRounds": 1,
+      "round0": {
+        "nameA": "A0",
+        "nameB": "B0",
+        "hasA": true,
+        "hasB": false,
+        "finalRoster": ["A0"],
+        "evalErrors": { "a": null, "b": null }
+      },
+      "interleaving": {
+        "lostName": "B0",
+        "survivingName": "A0",
+        "finalRoster": ["A0"],
+        "explanation": "Tab B added B0; tab A's write clobbered it -- tab B's write(KEY) landed, but tab A had already done its own re-read(KEY) before that write was visible to it, so tab A's later write(list-without-B0) overwrote tab B's addition. Textbook last-write-wins lost update, exactly the failure mode named in roster.ts:51-64's own comment ('a union cannot express a deletion' does not apply here -- this is a straight lost addition, the simpler case the comment already flags as the ceiling)."
+      }
+    },
+    "controlRun": {
+      "finalRoster": ["SeqA", "SeqB"],
+      "bothSurvived": true
+    }
+  },
+  "observationCite": "src/shell/roster.ts:65-68 is the exact re-read-then-write shape this reproduces: `list = [...list, ...read(KEY).filter(...)]` (the re-read + union, line 65) followed three lines later by `write(KEY, list)` (line 68) with no lock, version, or leader election between them.",
+  "note": "Reproduced on the FIRST attempt (round 0 of a bounded N=30) -- the interleaving is not rare or hard to hit once genuinely driven concurrently across two real tabs (as the static analysis already predicted: this is a browser-scheduler-owned interleaving, not a narrow edge case). Not reported as 'refuted' at any point, and would not have been even had all 30 rounds passed -- per ADR-0009, non-reproduction of a scheduler-owned interleaving is evidence of nothing and the verdict in that case would have been UNDECIDED with 'not reproduced in 30 attempts', never a claim that the race cannot happen.",
+  "consoleErrors": []
+}

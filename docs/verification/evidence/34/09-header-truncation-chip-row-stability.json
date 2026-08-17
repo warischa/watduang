@@ -1,0 +1,43 @@
+{
+  "box": "M-D -- HEADER_NAME_MAX=20 / headerNameFor() in src/games/love-match.ts is meant to keep the chip row from ever moving under the header when tap 1's header string ('เลือกคู่ของ <name>') is longer than the initial prompt. HEADER_NAME_MAX itself was picked by inference from a '~18 Thai chars per line' comment, never rendered -- this box measures instead of trusting that inference. The invariant under test is NOT 'the header wraps to at most 2 lines' (the mechanism); it is: the chip row's getBoundingClientRect().top does not move between tap 0 and tap 1, at a genuine 320px viewport.",
+  "method": "scripts/driver.mjs, real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), real build (npm run build + npx serve dist/ -l 4321). Script: /private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/md-probe.mjs (not committed -- scratchpad only, reproducible from this method description). Two scenarios in one CDP tab. Scenario A (worst case the product can actually produce today): navigated to /game/love-match/ FIRST, then session.setWidth(320,900), then wiped storage on-origin and reloaded, re-verified innerWidth===320 and localStorage/sessionStorage both empty (browser-verification.md traps 1 and 4). Typed a 24-Thai-character name (input's real maxlength=24, chosen for stacked tone marks/vowel signs -- wider and taller-rendering than Latin text, per the brief's instruction to use the actual worst case, not a weaker Latin proxy) via a real native-setter 'input' event on #roster-add-name + a real .click() on #roster-add-btn, plus a short second name ('บี'), clicked #start-round, waited 600ms for the async mount (src/pages/game/[id].astro awaits a dynamic import before game.mount()). Measured the chip row's top (first '#stage button's parentElement.getBoundingClientRect().top) BEFORE tapping any chip, then tapped the long-name chip (a real .click(), confirmed by chip text match) and re-measured the SAME row's top AFTER the tap, from the same live DOM (not a re-navigation). Screenshots taken before/after in scratchpad (not committed, per house convention -- see docs/verification/README.md). Scenario B: fresh wipe + reload, then localStorage.setItem('watduang:roster', ...) directly with a 40-Thai-character name (well past the input's maxlength=24 -- this is the case the brief names as what maxlength cannot prevent, e.g. a name that predates the cap) plus a second short name, reloaded so PlayerSetup.astro's loadRoster() picks up the seeded key, ticked both roster checkboxes via real .click() (verified allChecked===true), started the round, and repeated the same before/after chip-row-top measurement around the same tap. Every observed value below is the exact evaluate() return, not summarized.",
+  "capturedAtCommit": "05b103a",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. `git status --short` at this capture showed: ' M src/games/love-match.test.mjs', ' M src/games/love-match.ts', ' M src/shell/PlayerSetup.astro', plus three untracked evidence files already written earlier in this same session: '?? docs/verification/evidence/34/06-name-entry-320px.json', '?? docs/verification/evidence/34/07-chip-restructure-regression.json', '?? docs/verification/evidence/34/08-roster-race-two-tab.json'. src/games/love-match.ts (HEADER_NAME_MAX, headerNameFor(), TAKEN_CHIP_STYLE) is the exact file under test in this box.",
+  "verdict": "PROVEN",
+  "innerWidthIs320": true,
+  "storageActuallyWipedBeforeSeeding": true,
+  "chipRowTopUnchangedAtMaxlength24ThaiName": true,
+  "chipRowTopUnchangedAtLocalStorageInjected40CharThaiName": true,
+  "consoleErrorsEmpty": true,
+  "observation": {
+    "scenarioA_maxlength24": {
+      "nameUsed": "ปู่ย่าตายายพี่น้องน้าอาล",
+      "nameLength": 24,
+      "wipeCheck": { "innerWidth": 320, "localStorageLen": 0, "sessionStorageLen": 0 },
+      "chipRowTopBeforeTap": 167.671875,
+      "chipRowTopAfterTap": 167.671875,
+      "chipRowTopDelta": 0,
+      "headerTextBeforeTap": "แตะเลือกคนแรก",
+      "headerTextAfterTap": "เลือกคู่ของ ปู่ย่าตายายพี่น้องน้…",
+      "headerRectHeightBeforeAndAfter": 44.796875
+    },
+    "scenarioB_localStorageInjected40chars": {
+      "nameUsed": "ปู่ย่าตายายพี่น้องน้าอาลุงป้าใหญ่เล็กจ๊ะ",
+      "nameLength": 40,
+      "seededRosterLength": 2,
+      "tickAllCheckboxes": { "boxCount": 2, "allChecked": true },
+      "chipRowTopBeforeTap": 167.671875,
+      "chipRowTopAfterTap": 167.671875,
+      "chipRowTopDelta": 0,
+      "headerTextAfterTap": "เลือกคู่ของ ปู่ย่าตายายพี่น้องน้…"
+    }
+  },
+  "screenshotsTakenNotCommitted": [
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/md-scenarioA-before-tap.png",
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/md-scenarioA-after-tap.png",
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/md-scenarioB-before-tap.png",
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/md-scenarioB-after-tap.png"
+  ],
+  "note": "Both the 24-char (input maxlength, real UI) and the 40-char (localStorage-injected, bypassing maxlength -- the pre-cap-name case) Thai worst cases produced chipRowTopDelta === 0 pixels: the chip row's getBoundingClientRect().top is bit-for-bit identical before and after the tap that swaps the header string in place, in both scenarios. headerNameFor() truncates both names to the same visible '...…' string in the header (20 visible chars + ellipsis), and HEADER_STYLE's 2.8em min-height reservation holds regardless of the underlying name's real length. No name length at which the row moves was found in either scenario tested -- this is a visual/DOM capture (per docs/agents/capture-freshness.md, no unit-test equivalent exists for a getBoundingClientRect() reflow claim), pinned to 05b103a, re-trigger on any change to HEADER_STYLE, HEADER_NAME_MAX, headerNameFor(), or the header/chip DOM order in renderPick()/pick().",
+  "consoleErrors": []
+}

@@ -1,0 +1,34 @@
+{
+  "box": "M-B -- regression check on the just-made love-match.ts change: renderPick() now builds the chip row once per round; pick() marks the first-picked chip in place via disabled=true + aria-pressed='true' instead of re-rendering (#36). Two sub-claims settled: (1) does the taken chip visibly read as taken at 320px (owner approved 'dimmed and un-tappable'), and (2) does 'ดูคู่อื่น' fully restore the chip row for a second pick.",
+  "method": "scripts/driver.mjs, one CDP tab, real 320px viewport (session.setWidth(320,900)), real build served on :4321. Wiped storage on-origin, added 3 names (เอ, บี, ซี) via #roster-add-name + #roster-add-btn (real UI, not localStorage injection), clicked #start-round, waited 500ms for async mount. Captured getComputedStyle() on a normal (never-tapped) chip BEFORE any pick as the baseline. Tapped 'เอ' (first pick only -- left the second tap pending on purpose to inspect the taken-but-not-yet-committed state), then read getComputedStyle() on the SAME 'เอ' chip (now disabled) and re-read the still-normal 'บี' chip for an in-run comparison, not just the pre-pick baseline. Screenshot taken at this exact moment (mb-taken-chip-320.png) for visual corroboration. Then tapped 'บี' to complete the pick and reach the result screen, clicked #lm-again ('ดูคู่อื่น'), and re-measured the restored pick screen: all 3 original names present, none left disabled, none left aria-pressed, header text back to the initial prompt. Finished by actually completing a SECOND pick (ซี then บี) on the restored row to prove it is not just visually reset but functionally usable.",
+  "capturedAtCommit": "05b103a",
+  "capturedAtCommitNote": "Working tree is dirty at capture time; this walk verifies uncommitted work, not a clean HEAD. `git status --short` at this capture showed: ' M src/games/love-match.test.mjs', ' M src/games/love-match.ts', ' M src/shell/PlayerSetup.astro', plus one untracked evidence file already written earlier in this same session: '?? docs/verification/evidence/34/06-name-entry-320px.json'. src/games/love-match.ts is the exact file under test in this box -- the capture reflects the uncommitted renderPick()/pick() restructure as it stood at run time.",
+  "verdict": "PROVEN",
+  "stalenessAnnotation": {
+    "rule": "docs/agents/capture-freshness.md, 'When a committed capture goes stale -- and when it does not': this is a visual/DOM capture (the taken-chip dimming mechanism) with no unit-test equivalent in this repo, so the general seam-file re-trigger list does not apply to it -- it is pinned to its own capturedAtCommit and read as 'true at that commit, re-run before relying on it now', never superseded or voided in place.",
+    "status": "TRUE AT 05b103a, RE-RUN BEFORE RELYING ON IT NOW -- love-match.ts's TAKEN_CHIP_STYLE has since become an authored inline style ('opacity:0.5'), replacing the UA-:disabled-default mechanism this file's takenChipVisiblyDimmedMechanism field describes. That field is a true statement about the tree as it stood at this capture's commit note above, and is left untouched (verdict, booleans, and observation are unmodified, per instruction) -- it is simply no longer a description of the current src/games/love-match.ts.",
+    "freshCapture": "docs/verification/evidence/34/10-taken-chip-opacity-and-reset-restore.json re-proves the current authored-opacity mechanism and the removeAttribute('style') reset path against the current tree; read that file for the current-state answer to the same 'is the taken chip visibly dimmed' question this file answered for the pre-refactor tree."
+  },
+  "takenChipVisiblyDimmed": true,
+  "takenChipVisiblyDimmedMechanism": "Not via the CSS `opacity` property, which stays \"1\" on both the taken and a normal chip -- Chrome's UA default :disabled styling instead renders text/background at ~30% alpha (color and backgroundColor both go from solid rgb(...) to rgba(...,0.3)), and the screenshot confirms the taken chip reads visibly greyed-out next to the two untouched chips. `disabled` alone was enough to satisfy the owner's 'dimmed and un-tappable' approval in this browser's default UA stylesheet, but this is Chrome's disabled-button default, not a style this codebase authored -- a chip carrying styles that override :disabled's default appearance (none do here) would not get this dimming for free.",
+  "takenChipUnTappable": true,
+  "returnPathFullyRestoresChipRow": true,
+  "returnPathChipRowActuallyUsableForSecondPick": true,
+  "consoleErrorsEmpty": true,
+  "observation": {
+    "normalChipComputedStyleBeforeAnyPick": { "opacity": "1", "color": "rgb(0, 0, 0)", "backgroundColor": "rgb(239, 239, 239)", "disabled": false },
+    "takenChipComputedStyle": { "disabled": true, "ariaPressed": "true", "opacity": "1", "color": "rgba(16, 16, 16, 0.3)", "backgroundColor": "rgba(239, 239, 239, 0.3)", "cursor": "default" },
+    "normalChipComputedStyleAfterPick1": { "disabled": false, "opacity": "1", "color": "rgb(0, 0, 0)", "backgroundColor": "rgb(239, 239, 239)" },
+    "takenChipOpacityDiffersFromNormal": false,
+    "takenChipColorDiffersFromNormal": true,
+    "takenChipBackgroundDiffersFromNormal": true,
+    "resultReached": { "pairPresent": true, "againPresent": true },
+    "pickScreenAfterDuCuuUen": { "chipCount": 3, "allNamesPresent": true, "anyDisabled": false, "anyAriaPressed": false, "headerText": "แตะเลือกคนแรก" },
+    "secondPickAfterReturnWorks": { "pairPresent": true }
+  },
+  "screenshotsTakenNotCommitted": [
+    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/mb-taken-chip-320.png"
+  ],
+  "note": "Plain statement for the return: the taken chip DOES visibly dim -- confirmed by both computed style (color/background alpha drop to 0.3) and a screenshot showing 'เอ' visibly greyed next to solid 'บี'/'ซี'. The CSS `opacity` property itself is unchanged (a probe that checked only `opacity` would have wrongly reported no visible change), so the dimming rides entirely on the browser's default disabled-button rendering, not on anything this component's styles set.",
+  "consoleErrors": []
+}
