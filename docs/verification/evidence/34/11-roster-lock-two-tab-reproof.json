@@ -1,0 +1,46 @@
+{
+  "box": "M-C re-proof -- does the navigator.locks fix at src/shell/roster.ts (dirty working tree, uncommitted) actually stop the two-tab roster.add() race that 08-roster-race-two-tab.json reproduced against the unfixed code at 05b103a/3f25eb9, and is the harness that says so still capable of detecting the loss on the unfixed code today.",
+  "method": "Three arms, one harness (two-tab-race.mjs, not committed to scripts/ -- scratch-only per the brief's file-touch scope), same shape as capture 08: two independent CDP targets/WebSockets (tabA, tabB) against a real headless Chrome (--headless --disable-gpu --no-sandbox --remote-debugging-port=9222), driven at /game/love-match/. Each round: clear localStorage from tabA (shared per-origin storage), reload BOTH tabs (fresh module-scope `list` closure per tab, matching roster.ts's loadRoster()-time read), then a real 'input' event on #roster-add-name followed by a real .click() on #roster-add-btn in each tab. Race mode fires both tabs' Runtime.evaluate over their own WebSocket without awaiting either's response before sending the other (Promise.all over two unawaited sends) -- genuinely concurrent, not driver-serialized. Sequential mode fully settles tabA's add before starting tabB's. After a 500ms settle (raised from capture 08's 150ms because add() now awaits navigator.locks.request()), read the final roster back from localStorage in tabA and checked whether both distinct per-round names (A<i>, B<i>) survived. Arm A ran against the dirty working tree (npm run build; npx serve dist/ -l 4321). Arm B ran against unfixed 3f25eb9, isolated via `git worktree add <scratch>/roster-control 3f25eb9`, built and served on a different port (4322) so the dirty tree was never touched or rebuilt over. Arm 0 checked `typeof navigator.locks?.request === 'function'` and `window.isSecureContext` via scripts/cdp.mjs against the fixed build before running anything else.",
+  "capturedAtCommit": "3f25eb9",
+  "capturedAtCommitNote": "Working tree is dirty at capture time (re-derived by running `git status --short` after the evidence write, not copied from 08's capture note); this walk verifies uncommitted work, not a clean HEAD. `git status --short` showed: ' M src/games/types.ts', ' M src/shell/PlayerSetup.astro', ' M src/shell/roster.test.mjs', ' M src/shell/roster.ts', plus this new evidence file untracked. roster.ts itself IS one of the dirty files this time (unlike capture 08, where roster.ts was unmodified) -- this capture is against roster.ts as it sits uncommitted in the working tree, which is the whole point of arm A. Arm B's positive control ran from a separate git worktree pinned to 3f25eb9 and never touched this working tree.",
+  "verdict": "PROVEN",
+  "webLocksAvailablePrecondition": true,
+  "isSecureContextPrecondition": true,
+  "armA_fixedBuildZeroLosses": true,
+  "armA_lossesOverAttempts": "0/100",
+  "armB_unfixedBuildStillReproducesLoss": true,
+  "armB_lossesOverAttempts": "100/100",
+  "armC_sequentialBothNamesSurviveOnFixedBuild": true,
+  "armC_lossesOverAttempts": "0/10",
+  "consoleErrorsObservedArmA": [],
+  "consoleErrorsObservedArmB": [],
+  "observation": {
+    "arm0": {
+      "url": "http://127.0.0.1:4321/game/love-match/",
+      "hasWebLocks": true,
+      "isSecureContext": true
+    },
+    "armA": {
+      "note": "Fixed working-tree build, port 4321, N=100, race mode, no early break -- ran the full 100 rounds rather than stopping at first success, since the claim under test is 'zero losses', not 'not reproduced yet'.",
+      "N": 100,
+      "losses": 0
+    },
+    "armB": {
+      "note": "Unfixed 3f25eb9 build in an isolated git worktree, port 4322, N=100, identical race harness. Reproduced the loss on effectively every round once genuinely driven concurrently -- far more often than capture 08's 'first of 30' because that capture broke on first reproduction rather than running all 30. Confirms the harness still detects the pre-fix defect today, not just historically.",
+      "N": 100,
+      "losses": 100,
+      "sampleLostRounds": [
+        { "i": 0, "nameA": "A0", "nameB": "B0", "hasA": true, "hasB": false, "finalRoster": ["A0"] },
+        { "i": 68, "nameA": "A68", "nameB": "B68", "hasA": false, "hasB": true, "finalRoster": ["B68"] },
+        { "i": 99, "nameA": "A99", "nameB": "B99", "hasA": true, "hasB": false, "finalRoster": ["A99"] }
+      ]
+    },
+    "armC": {
+      "note": "Fixed working-tree build, port 4321, N=10, sequential mode (tabA add fully settles, then tabB) -- rules out 'zero losses because adds silently store nothing'.",
+      "N": 10,
+      "losses": 0
+    }
+  },
+  "observationCite": "src/shell/roster.ts:78-88 -- add() now wraps the re-read-union-write critical section in `await withLock(() => { ... })`, and PlayerSetup.astro:210-220's click handler is `async () => { ... await roster.add(name); ... }`, so a caller waits for the cross-tab lock before it renders. withLock() (roster.ts:37-45) takes `navigator.locks.request(LOCK, fn)` when available and falls back to running fn() straight through only when navigator.locks is absent or request() itself rejects (opaque origin) -- arm 0 confirms this run took the real lock path, not the fallback.",
+  "note": "Cleanup verified: `git worktree remove <scratch>/roster-control --force` ran after arm B, `git worktree list` shows only the main worktree afterward, port 4322's serve process was killed, and the dirty working tree (`git status --short`) is unchanged from before this walk plus this one new evidence file. The harness itself (two-tab-race.mjs) lives only in the session scratchpad, not in this repo -- nothing under scripts/ or src/ was touched."
+}
