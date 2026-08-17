@@ -25,6 +25,25 @@ function write(key: string, list: string[]): void {
   }
 }
 
+// One name for the whole roster key, so every tab on the origin queues on the same lock.
+const LOCK = 'watduang:roster';
+
+/** Runs `fn` inside the cross-tab critical section, or straight through where there is no lock to take.
+ *  navigator.locks is absent in the Node test runner and in any non-secure context (plain http, Safari
+ *  before 15.4), and request() itself rejects on an opaque origin (sandboxed iframe, file://). All three
+ *  fall back to running unlocked — the old best-effort behaviour, which still loses a concurrent add, but
+ *  never throws and never silently drops the write. Re-running `fn` on the rejection path is safe: add()
+ *  returns early on a name the list already holds. */
+function withLock(fn: () => void): Promise<void> {
+  if (typeof navigator === 'undefined' || typeof navigator.locks?.request !== 'function') {
+    fn();
+    return Promise.resolve();
+  }
+  return navigator.locks.request(LOCK, fn).catch(() => {
+    fn();
+  });
+}
+
 /** The last group that started a round — drops names no longer in the roster, so a removed name
  *  never comes back as a stuck ghost tick. Ordered as saved (= the order the player picked), not roster order. */
 export function loadGroup(): string[] {
@@ -45,28 +64,39 @@ export function loadRoster(): Roster {
     names(): string[] {
       return [...list];
     },
-    add(name: string): void {
+    async add(name: string): Promise<void> {
       const trimmed = name.trim();
-      if (!trimmed) return;
-      // #data-loss: re-read at the write, never at the load. localStorage is shared by every tab on the
-      // domain, so the list captured above can be stale by the time this runs: tab B adds a name, tab A
-      // adds another, and A writing its whole captured array back erases B's. Second hop, and the harm a
-      // player sees: loadGroup() filters the saved group by roster names, so the pre-ticked group shrinks
-      // with it.
-      // Union, not adoption. Storage replacing memory would break the promise write() makes four lines
-      // above: after a swallowed write (quota full, Safari private mode) storage is missing every name
-      // typed since, so adopting it would erase them from the rendered list while their ticks are still
-      // in `selected`. So this tab's names keep their typing order and whatever another tab added comes
-      // after — both survive, and the two only stay apart while writing is broken.
-      // ponytail: last-write-wins over a union is enough for a set of names typed by one person holding
-      // one phone — no lock, no version. Its ceiling: a union cannot express a deletion, so if remove or
-      // clear ever gets a caller (neither has one today) this add would resurrect a name another tab just
-      // deleted. That needs tombstones or a version, not another re-read.
-      list = [...list, ...read(KEY).filter((n) => !list.includes(n))];
-      if (list.includes(trimmed)) return;
-      list = [...list, trimmed];
-      write(KEY, list);
+      if (!trimmed) return; // nothing to store, so nothing worth queueing on the lock for
+      // #data-loss: re-read at the write, never at the load, and the re-read has to sit INSIDE the lock.
+      // localStorage is shared by every tab on the domain, so the list captured above can be stale by the
+      // time this runs: tab B adds a name, tab A adds another, and A writing its whole captured array back
+      // erases B's — reproduced on the first of 30 real two-tab attempts, capture 08-roster-race-two-tab
+      // under docs/verification/evidence/34/. Second hop, and the harm a player sees: loadGroup() filters
+      // the saved group by roster names, so the pre-ticked group shrinks with it.
+      // A lock around the write alone would fix nothing — the read it writes back would still be one taken
+      // outside the critical section. Both statements go in together or neither does.
+      // ponytail: this callback is fully synchronous, and that's load-bearing — the lock is granted
+      // and released within a microtask, so the window for a queued start-button tap to snapshot the
+      // roster before this add resolves is milliseconds wide, far under human tap timing. Holds only
+      // while nothing in here awaits. The moment it does (IndexedDB, network, async storage), disable
+      // add and start for the duration, or have the start handler await any in-flight add.
+      await withLock(() => {
+        // Union, not adoption. Storage replacing memory would break the promise write() makes above: after
+        // a swallowed write (quota full, Safari private mode) storage is missing every name typed since, so
+        // adopting it would erase them from the rendered list while their ticks are still in `selected`. So
+        // this tab's names keep their typing order and whatever another tab added comes after — both
+        // survive, and the two only stay apart while writing is broken.
+        list = [...list, ...read(KEY).filter((n) => !list.includes(n))];
+        if (list.includes(trimmed)) return;
+        list = [...list, trimmed];
+        write(KEY, list);
+      });
     },
+    // ponytail: only add() takes the lock, because only add() has a caller (PlayerSetup.astro). Both of
+    // the following are the same unlocked read-modify-write add() just stopped being — they write back a
+    // `list` captured at load, so a concurrent tab's addition is erased. Locking them is not a one-line
+    // change: under the lock each would have to union memory with storage first and then subtract, or a
+    // degraded tab would delete names it never saw. Do that when either gets its first caller, not before.
     remove(name: string): void {
       list = list.filter((n) => n !== name);
       write(KEY, list);

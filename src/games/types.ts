@@ -4,7 +4,10 @@
 /** Player list that persists across rounds and games — localStorage (must try/catch every access) */
 export interface Roster {
   names(): string[];
-  add(name: string): void;
+  /** Async because the read-modify-write is serialized across tabs by the Web Locks API — await it
+   *  before rendering names(), or the list is drawn without whatever another tab just added.
+   *  remove/clear stay sync: they have no caller, and neither is lock-safe yet (roster.ts). */
+  add(name: string): Promise<void>;
   remove(name: string): void;
   clear(): void;
 }

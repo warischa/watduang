@@ -203,10 +203,14 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   // empty would hide the "Add" button with it, and nobody could ever build the first roster.
   renderRosterList();
 
-  addBtn.addEventListener('click', () => {
+  // async because roster.add() waits on the cross-tab lock. Awaiting it is the fix, not a formality:
+  // firing it and rendering straight away would draw the list before add() had re-read storage, so a name
+  // another tab added would be missing from the panel until the next load. It must not become
+  // fire-and-forget for the sake of a sync handler — that is the race back, wearing a lock.
+  addBtn.addEventListener('click', async () => {
     const name = addNameInput.value.trim();
     if (!name) return;
-    roster.add(name);
+    await roster.add(name);
     selected.add(name);
     addNameInput.value = '';
     overMaxWarned = false;

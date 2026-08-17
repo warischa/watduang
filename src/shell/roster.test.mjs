@@ -17,45 +17,60 @@ globalThis.localStorage = {
   removeItem: (k) => slots.delete(k),
 };
 
+// Mirrors roster.ts's own KEY. Only the two lock tests use it, to plant a write "another tab already
+// finished" without going through a second loadRoster() closure that would queue on the same lock.
+const KEY = 'watduang:roster';
+
+// Node 22 defines a `navigator` global (userAgent, platform…) with NO `locks`, and it is a getter —
+// a plain assignment is a silent no-op here and throws in strict mode, so swap it by defineProperty.
+// Every test that does not call this runs the no-locks fallback path, which is asserted below.
+function setLocks(locks) {
+  Object.defineProperty(globalThis, 'navigator', { value: { locks }, configurable: true, writable: true });
+}
+const realNavigator = globalThis.navigator;
+function restoreNavigator() {
+  Object.defineProperty(globalThis, 'navigator', { value: realNavigator, configurable: true, writable: true });
+}
+
 const { loadRoster, loadGroup, saveGroup } = await import('./roster.ts');
 
 // Lost update across tabs. loadRoster() captured the list at load and add() wrote that whole captured
 // array back, so the later writer erased the earlier one's name. The interleave is the ordinary one:
 // both tabs are open, each loads, then each adds.
-test('#data-loss two tabs adding a name: the interleave read-A, read-B, add-B, add-A keeps both names', () => {
+test('#data-loss two tabs adding a name: the interleave read-A, read-B, add-B, add-A keeps both names', async () => {
   slots.clear();
   saveGroup([]);
   const tabA = loadRoster(); // both tabs load while the roster is empty
   const tabB = loadRoster();
 
-  tabB.add('บี');
-  tabA.add('เอ'); // writes last — must not write its own stale [] back over \u0e1a\u0e35
+  await tabB.add('บี');
+  await tabA.add('เอ'); // writes last — must not write its own stale [] back over \u0e1a\u0e35
 
   assert.deepEqual(loadRoster().names().sort(), ['บี', 'เอ'].sort(), 'both names must survive the interleave');
 });
 
 // Second hop, and the harm a player actually sees: loadGroup() filters the saved group by the roster,
 // so a name dropped from the roster silently un-ticks itself next visit.
-test('#data-loss the pre-ticked group survives the same interleave — loadGroup filters by roster names', () => {
+test('#data-loss the pre-ticked group survives the same interleave — loadGroup filters by roster names', async () => {
   slots.clear();
   const tabA = loadRoster();
   const tabB = loadRoster();
 
-  tabB.add('บี');
+  await tabB.add('บี');
   saveGroup(['บี']); // tab B ticked its new name and started a round
-  tabA.add('เอ');
+  await tabA.add('เอ');
 
   assert.deepEqual(loadGroup(), ['บี'], 'the group must not shrink because another tab wrote later');
 });
 
 // Calibrates the fix both ways: it must not turn a duplicate into a second entry, and the writer must
 // still see whatever the other tab added.
-test('adding a name another tab already added stays a no-op, and the stale closure adopts it', () => {
+test('adding a name another tab already added stays a no-op, and the stale closure adopts it', async () => {
   slots.clear();
   const tabA = loadRoster();
-  loadRoster().add('เอ');
+  await loadRoster().add('เอ');
 
-  tabA.add('เอ');
+  await tabA.add('เอ');
   assert.deepEqual(loadRoster().names(), ['เอ'], 'no duplicate');
   assert.deepEqual(tabA.names(), ['เอ'], 'the stale closure caught up on the name it tried to add');
 });
@@ -64,35 +79,90 @@ test('adding a name another tab already added stays a no-op, and the stale closu
 // re-read at the write must not cash that promise in: storage is still empty after the failure, so a
 // list that simply adopts storage drops every name typed since. The player sees the name vanish from the
 // roster while its tick is still in `selected`, which is the loss this whole file exists to stop.
-test('#data-loss writes failing silently: a later add must not erase the names added before the failure', () => {
+test('#data-loss writes failing silently: a later add must not erase the names added before the failure', async () => {
   slots.clear();
   const roster = loadRoster();
   writesFail = true;
-  roster.add('กบ'); // write fails, silently — \u0e01\u0e1a lives in memory only
-  roster.add('แนน'); // re-reads an EMPTY storage — must union with memory, not replace it
+  await roster.add('กบ'); // write fails, silently — \u0e01\u0e1a lives in memory only
+  await roster.add('แนน'); // re-reads an EMPTY storage — must union with memory, not replace it
   writesFail = false;
   assert.deepEqual(roster.names(), ['กบ', 'แนน'], 'names() is what the panel renders — both must be in it');
 });
 
 // Both directions at once: the degraded page must keep its own names AND still pick up the other tab's.
-test('#data-loss a failed write does not cost the other tab either — memory and storage union, order kept', () => {
+test('#data-loss a failed write does not cost the other tab either — memory and storage union, order kept', async () => {
   slots.clear();
   const roster = loadRoster();
   writesFail = true;
-  roster.add('กบ');
+  await roster.add('กบ');
   writesFail = false;
-  loadRoster().add('บี'); // another tab, writing successfully
-  roster.add('แนน');
+  await loadRoster().add('บี'); // another tab, writing successfully
+  await roster.add('แนน');
   assert.deepEqual(roster.names(), ['กบ', 'บี', 'แนน'], 'this tab first, in typing order, then what it caught up on');
 });
 
 // Negative control: with one tab only, add() behaves exactly as it always did.
-test('negative control: a single tab adding two names in order is unchanged', () => {
+test('negative control: a single tab adding two names in order is unchanged', async () => {
   slots.clear();
   const roster = loadRoster();
-  roster.add('เอ');
-  roster.add('บี');
-  roster.add('  '); // blank is still refused
+  await roster.add('เอ');
+  await roster.add('บี');
+  await roster.add('  '); // blank is still refused
   assert.deepEqual(roster.names(), ['เอ', 'บี']);
   assert.deepEqual(loadRoster().names(), ['เอ', 'บี']);
+});
+
+// ---- Web Locks ----------------------------------------------------------------------------------
+// What these can and cannot show: no unit test can prove the cross-tab fix, because the interleaving
+// belongs to the browser scheduler and two Node closures never run at the same instant (ADR-0009, and
+// docs/verification/evidence/34/08-roster-race-two-tab.json is where the real two-tab drive lives).
+// What they DO pin is everything under this file's control: that the lock is asked for, that the
+// re-read sits inside the critical section rather than before it, and that both no-lock environments
+// still store the name instead of throwing.
+
+// Calibrates every other test in this file: they never call setLocks, so they are all running the
+// fallback branch. If Node ever ships navigator.locks this assertion fires and says so.
+test('the Node runner has no navigator.locks — every test above exercises the fallback path', () => {
+  assert.equal(typeof globalThis.navigator?.locks, 'undefined');
+});
+
+// The load-bearing one. The lock is granted a microtask late, so a write from another tab can land in
+// the gap between add() being called and its critical section running. Whether that name survives is
+// exactly the question "is the re-read inside the lock": inside, it is seen and unioned; outside (a lock
+// wrapped around the write alone, which is the plausible wrong fix) the stale [] is written back over it.
+test('#data-loss the re-read is inside the critical section — a write landing before the grant is not clobbered', async () => {
+  slots.clear();
+  const asked = [];
+  setLocks({
+    request: async (name, fn) => {
+      asked.push(name);
+      await Promise.resolve(); // grant late, the way a lock held by another tab does
+      return fn();
+    },
+  });
+  try {
+    const tabA = loadRoster(); // captures an empty list at load
+    const pending = tabA.add('เอ'); // queued on the lock — its critical section has NOT run yet
+    slots.set(KEY, JSON.stringify(['บี'])); // another tab finished its own add in the meantime
+    await pending;
+
+    assert.deepEqual(asked, ['watduang:roster'], 'add() must take the shared lock, once');
+    assert.deepEqual(loadRoster().names(), ['บี', 'เอ'], 'the name written during the wait must survive');
+  } finally {
+    restoreNavigator();
+  }
+});
+
+// request() rejects on an opaque origin (sandboxed iframe, file://) — a real browser case, not a Node
+// one. The name must still be stored: a rejected lock that swallowed the write would look exactly like
+// a working fix while losing every name, and the await in PlayerSetup would reject on top of it.
+test('a lock request that rejects still stores the name, and add() does not reject', async () => {
+  slots.clear();
+  setLocks({ request: () => Promise.reject(new DOMException('opaque origin', 'SecurityError')) });
+  try {
+    await loadRoster().add('เอ');
+    assert.deepEqual(loadRoster().names(), ['เอ'], 'the fallback runs the write the lock never granted');
+  } finally {
+    restoreNavigator();
+  }
 });
