@@ -1,4 +1,4 @@
-// Pick the loser — one button, randomly picks one person from the circle.
+// Pick the loser — one button, randomly picks one person from the group.
 // The drinking-framing keyword was dropped S2026-08-15#4: ticket 09's §32/1 gate is still open
 // (lawyer review required before launch, or drop the angle). Do not reintroduce it without that.
 // Zero content, no timer, no checkpoint — a single-shot pick has no mid-round state to survive a

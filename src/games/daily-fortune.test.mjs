@@ -41,7 +41,7 @@ test('a new day deals a new fortune to nearly everyone', () => {
   const fraction = changed / NAMES.length;
   assert.ok(fraction >= 0.9, `only ${changed}/${NAMES.length} names changed fortune overnight (${fraction})`);
 
-  // And it is not just one lucky pair of days — every day must move most of the circle.
+  // And it is not just one lucky pair of days — every day must move most of the group.
   for (let i = 1; i < DAYS.length; i++) {
     const moved = NAMES.filter((n) => fortuneFor(n, DAYS[i - 1]) !== fortuneFor(n, DAYS[i])).length;
     assert.ok(moved / NAMES.length >= 0.85, `${DAYS[i - 1]} → ${DAYS[i]}: only ${moved}/${NAMES.length} moved`);

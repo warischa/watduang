@@ -1,4 +1,4 @@
-// Love Match — pick two people out of the circle and read how their fortune sits together today.
+// Love Match — pick two people out of the group and read how their fortune sits together today.
 // The reading is a pure function of (sorted normalized pair, Asia/Bangkok date): tap again and it is
 // the same answer, swap who you tapped first and it is still the same answer, tomorrow it is a new
 // one. Sorting is what makes name-A+name-B and name-B+name-A one pair — without it the game answers differently
@@ -171,7 +171,7 @@ export function lineFor(a: string, b: string, today: string): string {
 let cleanup: Array<() => void> = [];
 let stageEl: HTMLElement | null = null;
 let gameCtx: GameContext | null = null;
-/** Roster index, not a name — two players in one circle may share a name and are still two picks. */
+/** Roster index, not a name — two players in one group may share a name and are still two picks. */
 let firstIndex: number | null = null;
 
 // ponytail: `cleanup` grows across pick↔result cycles instead of being drained per render, so the

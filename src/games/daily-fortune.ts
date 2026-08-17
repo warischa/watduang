@@ -126,7 +126,7 @@ export function hashPick<T>(seed: string, pool: readonly T[]): T {
 
 /** Today's fortune for a typed name. This is the seam the whole game rests on: both halves of the
  *  seed must be in it — drop the date and it stops being "today", drop the name and everyone in the
- *  circle reads the same line. */
+ *  group reads the same line. */
 export function fortuneFor(name: string, today: string): string {
   return hashPick(`${normalizeName(name)}|${today}`, FORTUNES);
 }
@@ -203,7 +203,7 @@ function renderAsk(hint?: string): void {
 
   if (hint) stage.appendChild(el('p', hint));
 
-  // The setup panel already collected the circle — offer those names as one tap instead of retyping.
+  // The setup panel already collected the group — offer those names as one tap instead of retyping.
   const names = [...new Set(gameCtx?.session.players ?? [])];
   if (names.length > 0) {
     stage.appendChild(el('p', 'หรือแตะชื่อในวงได้เลย'));

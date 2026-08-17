@@ -1,4 +1,4 @@
-// Time Bomb — the phone passes around the circle, whoever holds it when it detonates loses.
+// Time Bomb — the phone passes around the group, whoever holds it when it detonates loses.
 // This game's clock is the absolute deadline only — every frame recomputes fresh from
 // Date.now(). Never accumulate from setTimeout/rAF: the browser throttles timers on tab switch,
 // which would drift the clock.
