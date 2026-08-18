@@ -33,7 +33,12 @@ const LOCK = 'watduang:roster';
  *  before 15.4), and request() itself rejects on an opaque origin (sandboxed iframe, file://). All three
  *  fall back to running unlocked — the old best-effort behaviour, which still loses a concurrent add, but
  *  never throws and never silently drops the write. Re-running `fn` on the rejection path is safe: add()
- *  returns early on a name the list already holds. */
+ *  returns early on a name the list already holds.
+ *
+ *  scripts/roster-lock-structure-check.mjs gates the STRUCTURE of this function. The committed unit
+ *  tests all exercise the no-lock fallback branch (roster.test.mjs asserts the Node runner has no
+ *  navigator.locks); the only committed check of the locked path is a mocked one at roster.test.mjs:149.
+ *  Real two-tab behaviour is proven only by the manual scripts/roster-lock-two-tab-race.mjs. */
 function withLock(fn: () => void): Promise<void> {
   if (typeof navigator === 'undefined' || typeof navigator.locks?.request !== 'function') {
     fn();

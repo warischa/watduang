@@ -42,6 +42,9 @@ export function armAfterQuiet(stage: HTMLElement, controls: readonly HTMLButtonE
     timer = setTimeout(arm, ARM_DELAY_MS);
   };
 
+  // scripts/arm-gate-coverage-check.mjs gates COVERAGE (every render function arms its buttons via
+  // armAllButtons). The physical fact this restart leg rests on — a real touch on a `disabled`
+  // button still bubbles pointerdown to #stage — is proven only by the manual scripts/arm-gate-probe.mjs.
   stage.addEventListener('pointerdown', restart);
   restart();
 

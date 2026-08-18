@@ -23,6 +23,7 @@
 // not the centre line — docs/agents/browser-verification.md trap #2 records a prior probe that
 // passed on a 3-point centre-x sample while a real collision sat 7px off axis; this probe exists to
 // not repeat that.
+// STATUS (gh#43): MANUAL, deliberately. The clearance it measures can go negative with ZERO source change — a longer Thai name or a taller ad creative does it — and the slot height is Google-owned. There is no set we own to scan, so no tripwire can stand in. Re-run it by hand when a tool page's controls or the slot geometry change.
 
 const BASE = process.env.PROBE_BASE || 'http://localhost:4321';
 const WIDTHS = [320, 390]; // narrowest supported, and a normal phone width

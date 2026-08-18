@@ -41,7 +41,9 @@ import GameNav from '../../components/GameNav.astro';
     </section>
 
     {/* Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
-         and nothing may be injected above content */}
+         and nothing may be injected above content
+         Clearance vs a controls-driven layout shift here is verified by hand only, not in CI.
+         See scripts/ad-slot-grid-probe.mjs. */}
     <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
 
     <section id="how-to-use">

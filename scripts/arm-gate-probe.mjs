@@ -33,6 +33,7 @@
 // Run:
 //   PROBE_BASE=http://localhost:4322 CDP_PORT=9333 node scripts/driver.mjs scripts/arm-gate-probe.mjs
 // (needs `npx serve dist/ -l 4322` and headless Chrome on --remote-debugging-port=9333)
+// STATUS (gh#43): coverage is now gated statically by scripts/arm-gate-coverage-check.mjs (every render function must call armAllButtons). This probe stays manual — it proves the physical layer that no source scan reaches: a real touch on a disabled button still bubbles pointerdown to #stage.
 
 const ARM_DELAY_MS = 400; // mirrors src/games/_arm-gate.ts
 

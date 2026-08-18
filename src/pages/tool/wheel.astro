@@ -44,7 +44,9 @@ import GameNav from '../../components/GameNav.astro';
     </section>
 
     {/* The ad always sits below the tool (ADR-0004) · min-height reserves the space up front so content
-         doesn't jump on load, and nothing may be injected above the content. */}
+         doesn't jump on load, and nothing may be injected above the content.
+         Clearance vs a controls-driven layout shift here is verified by hand only, not in CI.
+         See scripts/ad-slot-grid-probe.mjs. */}
     <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
 
     <section id="how-to-use">
@@ -145,6 +147,10 @@ import GameNav from '../../components/GameNav.astro';
   const resetBtn = document.getElementById('wheel-reset') as HTMLButtonElement;
   const eliminateBox = document.getElementById('wheel-eliminate') as HTMLInputElement;
 
+  // This constant is the precondition keeping the delayed ad-slot shift (line ~243) outside the
+  // double-tap window. NOT gated in CI — see the rejected-tripwire reasoning in
+  // scripts/adslot-wheel-delay-probe.mjs. A render() that removes rows instead of appending the
+  // finished marker would reintroduce the hazard with SPIN_MS untouched.
   const SPIN_MS = 1200;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 

@@ -12,6 +12,7 @@
 //     --headless --disable-gpu --no-sandbox --remote-debugging-port=9222 \
 //     --user-data-dir=/tmp/adslot-delay-prof &
 //   REPEAT=5 node scripts/driver.mjs scripts/adslot-wheel-delay-probe.mjs
+// STATUS (gh#43): MANUAL, deliberately. A tripwire pinning SPIN_MS (src/pages/tool/wheel.astro:148, currently 1200) was considered and rejected: it would fail only if that constant dropped, while the likelier regression — a render() that removes rows instead of appending the finished marker, pulling the ad up — would keep it green. A gate that passes the change most likely to hurt is worse than none, because green would imply coverage it never earned.
 
 const BASE = process.env.PROBE_BASE || 'http://localhost:4321';
 const WIDTH = Number(process.env.PROBE_WIDTH || 320); // this site's reference viewport

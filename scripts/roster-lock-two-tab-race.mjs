@@ -16,6 +16,7 @@
 // sequential: tabA add fully settles before tabB's starts — the arm-C non-race control.
 // Requires: a built site being served at the given port (npm run build; npx serve dist/ -l <port>)
 // and headless Chrome already running with --remote-debugging-port=9222 (see scripts/cdp.mjs).
+// STATUS (gh#43): lock structure and roster-key ownership are now gated statically by scripts/roster-lock-structure-check.mjs. This harness stays manual because it needs both a fixed and an unfixed build to mean anything (see the note above) and CI has no unfixed arm.
 const [portArg, mode, nArg, urlPath] = process.argv.slice(2);
 const PORT = Number(portArg);
 const N = Number(nArg);

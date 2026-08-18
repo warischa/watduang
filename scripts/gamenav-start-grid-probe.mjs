@@ -9,6 +9,7 @@
 //
 // Grid-scan the #start-round button box across the panel-collapse transition.
 // A real finger taps anywhere inside the button; the committed probe samples nothing here.
+// STATUS (gh#43): CLOSED EVIDENCE, not a regression suite. ADR-0015 decided nothing moves and only the consequence changes, so the collision counts recorded above are the permanent accepted state — this probe is EXPECTED to report collisions and a green run is not the goal. What can regress is the marker set, now gated by scripts/stable-exit-markers-check.mjs.
 const PLAYERS = JSON.parse(process.env.ROSTER_JSON);
 export default async function (session) {
   const base = process.env.PROBE_BASE || 'http://localhost:4321';

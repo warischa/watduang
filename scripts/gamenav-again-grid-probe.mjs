@@ -13,6 +13,7 @@
 //
 // Grid-scan the whole box of the end-of-round "again" button across its tap-transition,
 // walking the real game to reach it (siamsi: draw/pass to summary; love-match: two picks).
+// STATUS (gh#43): CLOSED EVIDENCE, not a regression suite. ADR-0015 decided nothing moves and only the consequence changes, so the collision counts recorded above are the permanent accepted state — this probe is EXPECTED to report collisions and a green run is not the goal. What can regress is the marker set, now gated by scripts/stable-exit-markers-check.mjs.
 const PLAYERS = JSON.parse(process.env.ROSTER_JSON);
 const WALKS = {
   siamsi: `

@@ -32,6 +32,7 @@
 //
 // Run: node scripts/driver.mjs scripts/leave-confirm-probe.mjs
 // (needs `npx serve dist/ -l 4321` and headless Chrome on CDP_PORT — see scripts/driver.mjs's header)
+// STATUS (gh#43): a static tripwire now stands in for this in CI — scripts/leave-confirm-check.mjs. This probe stays manual; run it when the dialog's CSS or the guard changes.
 
 // Same roster the other #39 probes seed: long stacked-tone-mark Thai names are the tallest, widest
 // chip row the product can produce, so every screen below them sits as low as it ever will.

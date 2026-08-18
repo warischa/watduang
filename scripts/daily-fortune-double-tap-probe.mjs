@@ -15,6 +15,7 @@
 // Run: node scripts/driver.mjs scripts/daily-fortune-double-tap-probe.mjs
 // (requires a real headless Chrome on CDP_PORT and dist/ served on :4321 --
 // see scripts/driver.mjs's own header for the two things it needs Chrome for)
+// STATUS (gh#43): SUPERSEDED. Its first finding is ADR-0014 and is already gated by scripts/no-nav-in-stage-check.mjs, which lists daily-fortune.ts. Its second finding is the accepted chipEls exception recorded at src/games/daily-fortune.ts:223-228. No invariant here is left unguarded.
 export default async function (session) {
   const base = 'http://localhost:4321';
   await session.nav(`${base}/game/daily-fortune/`);

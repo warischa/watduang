@@ -54,6 +54,24 @@ jobs:
       - name: No nav target inside stage (static check)
         run: node scripts/no-nav-in-stage-check.mjs --selftest && node scripts/no-nav-in-stage-check.mjs
 
+      # Four more source-text tripwires, same bargain as the one above: each stands in for a browser
+      # probe that backs a shipped invariant but runs nowhere (gh#43) — ADR-0015, ADR-0016/0017, #39,
+      # ADR-0010 in order. None of them replaces its probe; each names in its own ponytail: header
+      # what it provably cannot see. They sit before Build for the same structural reason astro check
+      # does below: a step that runs before dist/ exists cannot invalidate the artifact every gate
+      # after Build reads. --selftest first, same reason as above.
+      - name: Leave-confirm stays inert while closed (static check)
+        run: node scripts/leave-confirm-check.mjs --selftest && node scripts/leave-confirm-check.mjs
+
+      - name: Every render function gates its buttons (static check)
+        run: node scripts/arm-gate-coverage-check.mjs --selftest && node scripts/arm-gate-coverage-check.mjs
+
+      - name: Stable-exit marker set stays closed (static check)
+        run: node scripts/stable-exit-markers-check.mjs --selftest && node scripts/stable-exit-markers-check.mjs
+
+      - name: Roster lock structure and key ownership (static check)
+        run: node scripts/roster-lock-structure-check.mjs --selftest && node scripts/roster-lock-structure-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob
       - name: Unit tests
         run: node --test 'src/**/*.test.mjs'
