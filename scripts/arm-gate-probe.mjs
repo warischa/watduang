@@ -868,8 +868,6 @@ async function runPickLoserScenario(session, base) {
 
 // ---- siamsi ---------------------------------------------------------------------------------------
 
-const SIAMSI_NAMES = ['ทดสอบเอ', 'ทดสอบบี'];
-
 async function readSiamsiState(session) {
   return ev(
     session,
@@ -889,6 +887,12 @@ async function readSiamsiState(session) {
 // shifts #ss-pass's Y position — a rect learned on one round's random deck can miss entirely on the
 // next round's. Patched to a fixed LCG (same technique as timebomb's Date.now patch above) so every
 // fresh round in this probe draws the identical deck, in the identical order, every time.
+// Unlike every other scenario, this one deliberately does NOT call seedRoster(): that helper starts
+// with session.wipe(), which would erase the ADR-0010 checkpoint this scenario exists to exercise.
+// The roster is inherited from the scenario that ran before it, so the hops below assume that round's
+// player count. The dependency on ordering is real but it fails LOUDLY — the selector guards further
+// down throw when a screen never advanced, so a reordered suite goes red rather than green-and-wrong.
+// A dead SIAMSI_NAMES fixture used to sit above this, implying a seed that never happened (gh#38).
 async function freshSiamsiIdle(session, base) {
   await session.nav(`${base}/game/siamsi/`);
   await session.setWidth(320, 900);

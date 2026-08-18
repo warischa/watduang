@@ -48,6 +48,12 @@ jobs:
       - name: Check Thai code comments
         run: node scripts/thai-comments.mjs --selftest && node scripts/thai-comments.mjs
 
+      # Cheap source-text tripwire for ADR-0014 (no navigation target inside #stage) — catches an
+      # anchor literal reintroduced into a game module before the heavier build+serve+Chrome probe
+      # (scripts/no-nav-in-stage-probe.mjs) ever runs. --selftest first, same reason as above.
+      - name: No nav target inside stage (static check)
+        run: node scripts/no-nav-in-stage-check.mjs --selftest && node scripts/no-nav-in-stage-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob
       - name: Unit tests
         run: node --test 'src/**/*.test.mjs'
