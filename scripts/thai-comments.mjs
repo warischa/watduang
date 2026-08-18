@@ -21,10 +21,26 @@ import ts from 'typescript';
 import { parse as parseAstro } from '@astrojs/compiler';
 
 const THAI = /\p{Script=Thai}/u;
+// A double-quoted or backtick span inside a comment is citation, not prose — CLAUDE.md
+// sanctions quoting Thai UI copy verbatim to explain it (e.g. a rejected wording), and this
+// repo's citations use double quotes. Blank those spans before the Thai test so only
+// unquoted comment prose can trip the gate.
+// ponytail: single quotes are deliberately NOT stripped — an apostrophe in English prose
+// ("don't", "stage's") pairs with another apostrophe on the same line and would blank real
+// Thai prose between them. Ceiling: a Thai comment written entirely inside "..." or `...`
+// slips through untouched; narrow further (e.g. require non-quoted prose elsewhere on the
+// line) if that shows up in practice. Widen to single quotes only with a fix for the
+// apostrophe-pairing hole, not by reverting this.
+function stripQuotedSpans(str) {
+  return str.replace(/"[^"\n]*"|`[^`]*`/g, (m) => 'x'.repeat(m.length));
+}
 const EXT = new Set(['.astro', '.ts', '.js', '.mjs', '.css']);
 // Every channel that can carry a Thai comment. Self-test asserts each one still fires, so a
 // silently broken extractor (e.g. .astro <script>) fails loudly instead of shrinking the count.
-const CHANNELS = ['ts', 'mjs', 'css', 'astro:frontmatter', 'astro:html', 'astro:script', 'astro:style'];
+const CHANNELS = ['ts', 'mjs', 'css', 'astro:frontmatter', 'astro:html', 'astro:script', 'astro:style', 'astro:template'];
+// A `{/* ... */}` brace comment is the whole content of its expression node —
+// distinguishes it from `{someExpr}` UI-copy interpolation, which must stay string-side.
+const BRACE_COMMENT_ONLY = /^\s*(?:\/\*[\s\S]*?\*\/\s*)+$/;
 
 // ---------------------------------------------------------------------------
 // Calibration fixtures — inline on purpose: the self-test must never depend on
@@ -62,6 +78,26 @@ const FIXTURES = [
     ],
     comment: [3],
     ambiguous: [1],
+  },
+  {
+    name: 'ts — quoted Thai inside a comment is citation, not prose; unquoted Thai still counts',
+    file: 'q.ts',
+    text: [
+      '// wording "เล่นรอบนี้ต่อ" was rejected', //  1  quoted-only (double quotes), not counted
+      '// ไทย reason, wording "เล่นรอบนี้ต่อ" rejected', // 2  unquoted Thai present, counted
+    ],
+    comment: [2],
+  },
+  {
+    // Regression for the apostrophe-pairing hole a reviewer found: single quotes are NOT
+    // stripped, so two English possessives/contractions on one line must never blank real
+    // Thai prose sitting between them.
+    name: "ts — single quotes are not stripped; don't/stage's apostrophes must not blank Thai between them",
+    file: 'apos.ts',
+    text: [
+      "// don't แตะ stage's children", //          1  comment, must still be counted
+    ],
+    comment: [1],
   },
   {
     name: 'mjs — comments counted; string and template not',
@@ -106,9 +142,12 @@ const FIXTURES = [
       '</script>',
       '<!-- ไทย', //                              16  comment
       '     second line -->',
-      '<p>{label}</p>',
+      '<p>{label}</p>', //                        18  expression, not a comment
+      '<p>{/* ไทย brace comment */}</p>', //      19  comment (brace comment)
+      '<p>{/* wording "เล่นรอบนี้ต่อ" was rejected */}</p>', // 20  quoted-only, not counted
+      '<p>{/* ไทย reason, wording "เล่นรอบนี้ต่อ" rejected */}</p>', // 21  unquoted Thai present, counted
     ],
-    comment: [2, 5, 9, 13, 16],
+    comment: [2, 5, 9, 13, 16, 19, 21],
     ambiguous: [7],
   },
 ];
@@ -125,10 +164,13 @@ const STRING = 2;
 // not by what else the line happens to contain.
 function maskToLines(text, mask) {
   const out = { comment: new Set(), string: new Set() };
+  const stripped = stripQuotedSpans(text);
   let line = 1;
   for (let i = 0; i < text.length; i++) {
     if (text[i] === '\n') { line++; continue; }
-    if (mask[i] && THAI.test(text[i])) (mask[i] === COMMENT ? out.comment : out.string).add(line);
+    if (!mask[i]) continue;
+    const isComment = mask[i] === COMMENT;
+    if (THAI.test(isComment ? stripped[i] : text[i])) (isComment ? out.comment : out.string).add(line);
   }
   return out;
 }
@@ -137,6 +179,12 @@ function thaiLineSet(value) {
   const out = new Set();
   value.split('\n').forEach((l, i) => { if (THAI.test(l)) out.add(i + 1); });
   return out;
+}
+
+// Raw-string comment channels (astro:html, astro:template) route through here so the same
+// quote-stripping applies as maskToLines gives the AST-mask channels.
+function commentThaiLineSet(value) {
+  return thaiLineSet(stripQuotedSpans(value));
 }
 
 const STRINGY = new Set([
@@ -212,7 +260,7 @@ async function analyzeAstro(text) {
       return;
     }
     if (node.type === 'comment' && line) {
-      mergeInto(res, { comment: thaiLineSet(node.value), string: new Set() }, 'astro:html', line);
+      mergeInto(res, { comment: commentThaiLineSet(node.value), string: new Set() }, 'astro:html', line);
       return;
     }
     if (node.type === 'element' && (node.name === 'script' || node.name === 'style')) {
@@ -223,8 +271,22 @@ async function analyzeAstro(text) {
       }
       return;
     }
-    // ponytail: template text, attribute values and {expression} text are all string-side —
-    // they only matter for flagging ambiguity. Comments inside {} expressions are not modelled.
+    // A {/* ... */} brace comment parses as an expression node whose only child is a text
+    // node holding the raw "/* ... */" source — catch that here, before the generic text
+    // branch below sends it down the string channel as if it were UI copy.
+    if (node.type === 'expression') {
+      for (const c of node.children ?? []) {
+        if (c.type !== 'text' || !lineOf(c)) continue;
+        if (BRACE_COMMENT_ONLY.test(c.value)) {
+          mergeInto(res, { comment: commentThaiLineSet(c.value), string: new Set() }, 'astro:template', lineOf(c));
+        } else {
+          mergeInto(res, { comment: new Set(), string: thaiLineSet(c.value) }, null, lineOf(c));
+        }
+      }
+      return;
+    }
+    // ponytail: template text and attribute values are string-side — they only matter for
+    // flagging ambiguity. Non-comment {expression} content is not modelled beyond that check.
     if (node.type === 'text' && line) {
       mergeInto(res, { comment: new Set(), string: thaiLineSet(node.value) }, null, line);
       return;
