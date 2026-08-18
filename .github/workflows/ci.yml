@@ -148,6 +148,16 @@ jobs:
             exit 1
           fi
 
+      # gh#39 — proves GameNav still renders a crawlable /game/*/ link to every OTHER game on every
+      # built game page, and never a self-link. Reads dist/game/*/index.html directly, so it belongs
+      # with the other dist-artifact checks above and doesn't need the smoke test's live server below.
+      # --selftest is deliberately NOT run here. It mutates tracked source and rebuilds dist/ four
+      # times, so the artifact the CSP and sitemap gates above checked would no longer be the one the
+      # Smoke test and Deploy below use. Prove the detector by hand instead:
+      #   node scripts/crawl-check-gamenav.mjs --selftest
+      - name: crawl-check GameNav (dist artifact)
+        run: node scripts/crawl-check-gamenav.mjs
+
       - name: Smoke test (portability — dist/ must serve standalone, no Azure runtime)
         run: |
           npx serve@14 dist/ -l 4321 &

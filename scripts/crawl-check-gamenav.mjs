@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 // gh#39 verify item 3 — proves GameNav still renders a crawlable /game/*/ link to every OTHER game on
-// every built game page (the whole reason #35's exclude-self GameNav exists). Not wired into CI: the
-// owner has not approved a CI change (see .github/workflows/ci.yml — out of scope for #39). Proposed
-// step, for the owner to add by hand if they want this in CI:
-//
-//   - name: crawl-check GameNav
-//     run: node scripts/crawl-check-gamenav.mjs
+// every built game page (the whole reason #35's exclude-self GameNav exists), and never a self-link.
+// Wired into CI: .github/workflows/ci.yml runs the real scan after Build. --selftest is NOT
+// run there — it rebuilds dist/ and would desync the artifact later steps ship. Run it by hand.
 //
 //   node scripts/crawl-check-gamenav.mjs             -> scan dist/, exit non-zero on mismatch
 //   node scripts/crawl-check-gamenav.mjs --selftest  -> calibrates red TWICE, once per property:
