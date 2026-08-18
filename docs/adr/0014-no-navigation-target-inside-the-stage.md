@@ -85,3 +85,15 @@ and the centre-x probe has since had two of its own blind spots closed: an off-v
 to score a vacuous PASS (now INCONCLUSIVE), and the ordering bug that let one unmeasurable tap mask a
 game with real hits (now FAIL first). Neither hole was found by running the probe; both were found by
 reading it. Treat a green from any harness here as a claim about the points it sampled, nothing more.
+
+## Outcome recorded 2026-08-18 (ADR-0016)
+
+The alternatives section above did work it was not written for. Its layout-guard measurement
+(323→683px) pre-emptively killed a geometry fix a later session had already queued for short-stick,
+before a line of it was written.
+
+Its spatial-guard rejection, however, is narrower than it reads. That rejection turns on a guard
+having to *classify* a contact as stale-vs-deliberate using browser-owned signals. A guard that
+classifies nothing — disabling every post-swap control for a fixed window — is not covered by it, and
+[ADR-0016](0016-a-gate-that-classifies-nothing-converges.md) adopts exactly that. This ADR's own
+invariant is unchanged and still stage-scoped to navigation targets.

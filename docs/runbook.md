@@ -99,6 +99,17 @@ know happens) and a negative one (the thing is absent when it should be). Pick t
 the failure — checking `checkpoint` misses a variant that revives the record with `checkpoint: null`;
 raw record presence catches it.
 
+## Two headless probes at once attach to each other's browser
+
+`scripts/driver.mjs` reads `CDP_PORT` and defaults to **9222**. Two probe agents launched in parallel
+both target 9222 and both `npx serve` on the same port, so the second silently drives the first one's
+Chrome against the first one's `dist/`. Nothing errors; both report results, and one set is measuring
+the wrong tree.
+
+Give each concurrent run its own pair — e.g. `CDP_PORT=9333` with `-l 4322` — and launch Chrome with a
+matching `--remote-debugging-port` and its own `--user-data-dir`. A probe that finds itself attached to
+a target it did not launch should stop, not measure.
+
 ## Thai character classes in grep are locale-dependent
 
 Unlocaled `grep '[ก-๛]'` mis-collates and invents matches — 42 false positives on one file, and a
