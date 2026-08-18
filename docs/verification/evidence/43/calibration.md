@@ -44,3 +44,26 @@ That restores from `HEAD`, which already contained the just-committed break, so 
 accumulated: successive commits carried 1, 2, 3 and 4 breaks, and the intended "restore" commit was
 empty. Only the first commit was a valid one-variable diff. Recorded because a cumulative-break
 calibration produces red runs that look exactly like correct ones.
+
+---
+
+# ADR-0010 trigger gate — same method, S2026-08-18
+
+`scripts/checkpoint-writer-check.mjs` fires when a second game under `src/games/` calls
+`saveCheckpoint`, which is ADR-0010's own stated deferral condition. Wired at `ci.yml:79`, before
+Build. Branch `calibrate/gh24-tripwire`, deleted local and remote after use.
+
+| commit | break | run | conclusion |
+|---|---|---|---|
+| `36cc3c7` | `gameCtx?.session.saveCheckpoint(null)` added to `src/games/timebomb.ts` | 32146528209 | **failure (RED)** |
+| `84779c6` | none — tree identical to `main` | 32146530561 | **success (GREEN)** |
+| `b5ae65f` | `main` itself, gate live | 32146524396 | **success (GREEN)** |
+
+One file differs from `main` on the red commit, verified with `git diff --name-only main 36cc3c7`;
+empty for the green baseline. `gh api repos/warischa/watduang/actions/secrets` returned
+`total_count=0` immediately before the pushes, so no commit here had a deploy path.
+
+Measured limits of this gate, also written in its `ponytail:` header: an aliased or destructured call
+(`const { saveCheckpoint } = gameCtx.session`) passes clean — planted and confirmed — and it sees
+nothing outside the flat `src/games/*.ts` glob. It reports that ADR-0010's trigger fired; it does not
+validate the per-game design ADR-0010 specced.
