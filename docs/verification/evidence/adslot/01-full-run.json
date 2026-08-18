@@ -1,0 +1,1741 @@
+{
+  "box": "ad slot (src/pages/tool/*.astro) sits below content that shrinks on tap — does the slot rise into the point the finger just touched, within a human double-tap window?",
+  "method": "Real CDP touch (Input.dispatchTouchEvent) via scripts/driver.mjs against a built dist/ served locally. Per page, per shrink-handler control: grid-scan the control's box, record each tap point, compare the ad slot's bounding rect before the tap and after the DOM settles. Widths 320px and 390px. Detector calibrated red by construction (see 02).",
+  "capturedAtCommit": "dc55dd7",
+  "capturedAtCommitNote": "tree was DIRTY at capture. Uncommitted at the time: .github/workflows/ci.yml, docs/verification/evidence/adslot/, scripts/ad-slot-grid-probe.mjs, scripts/crawl-check-gamenav.mjs, scripts/thai-comments.mjs, src/games/_arm-gate.ts, src/games/short-stick.test.mjs, src/games/short-stick.ts, src/games/timebomb.test.mjs, src/games/timebomb.ts. None of these touch src/pages/tool/*.astro or src/layouts/, which are the files this walk measures.",
+  "verdict": "PROVEN",
+  "noTapPointInsidePostTapAdRect": true,
+  "detectorProvenAbleToGoRed": true,
+  "scopeNotCovered": [
+    "The slot is an empty <div style='min-height:250px'>, not a live AdSense iframe. The result generalises to IN-FLOW manual ad units only: for those, the slot's TOP edge is set by the height of the content above it, not by the ad's own height, so a taller unit extends downward and the measured clearance holds. It does NOT generalise to anchor or vignette formats, which are position:fixed and are not laid out by the content above them at all — those are unmeasured.",
+    "wheel.astro under DEFAULT motion is N/A, not tested: its list shrink fires ~1200ms after the tap, outside any human double-tap window. It was measured under --force-prefers-reduced-motion, where the shrink is synchronous and therefore the worst case.",
+    "draw.astro and wheel.astro needed long synthetic names to produce a non-zero shrink at all; short default names (เอ/บี) flex-wrap several chips per row and shrink by 0px.",
+    "number.astro has no shrink handler to test — verified by reading the file, measured for parity only.",
+    "UNFILED HAZARD, different class: wheel.astro's list shrink fires ~1200ms after the tap under default motion. That is outside any double-tap window, which is why this walk calls it N/A — but a 1200ms-delayed layout shift above a live ad is a CLS misclick risk for a DELIBERATE tap. This walk does not measure that and no issue tracks it."
+  ],
+  "calibration": {
+    "controlId": "calib-btn",
+    "tapPoint": {
+      "x": 160,
+      "y": 1000
+    },
+    "controlRectBeforeTap": {
+      "left": 24,
+      "right": 296,
+      "top": 979.5625,
+      "bottom": 1019.5625
+    },
+    "adRectBefore": {
+      "left": 24,
+      "right": 296,
+      "top": 1019.5625,
+      "bottom": 1269.5625
+    },
+    "adRectAfter": {
+      "left": 24,
+      "right": 296,
+      "top": 959.5625,
+      "bottom": 1209.5625
+    },
+    "adRoseByPx": 60,
+    "gridTotal": 360,
+    "collisions": [
+      {
+        "x": 26,
+        "y": 982
+      },
+      {
+        "x": 26,
+        "y": 987
+      },
+      {
+        "x": 26,
+        "y": 992
+      },
+      {
+        "x": 26,
+        "y": 997
+      },
+      {
+        "x": 26,
+        "y": 1002
+      },
+      {
+        "x": 26,
+        "y": 1007
+      },
+      {
+        "x": 26,
+        "y": 1012
+      },
+      {
+        "x": 26,
+        "y": 1017
+      },
+      {
+        "x": 32,
+        "y": 982
+      },
+      {
+        "x": 32,
+        "y": 987
+      },
+      {
+        "x": 32,
+        "y": 992
+      },
+      {
+        "x": 32,
+        "y": 997
+      },
+      {
+        "x": 32,
+        "y": 1002
+      },
+      {
+        "x": 32,
+        "y": 1007
+      },
+      {
+        "x": 32,
+        "y": 1012
+      },
+      {
+        "x": 32,
+        "y": 1017
+      },
+      {
+        "x": 38,
+        "y": 982
+      },
+      {
+        "x": 38,
+        "y": 987
+      },
+      {
+        "x": 38,
+        "y": 992
+      },
+      {
+        "x": 38,
+        "y": 997
+      },
+      {
+        "x": 38,
+        "y": 1002
+      },
+      {
+        "x": 38,
+        "y": 1007
+      },
+      {
+        "x": 38,
+        "y": 1012
+      },
+      {
+        "x": 38,
+        "y": 1017
+      },
+      {
+        "x": 44,
+        "y": 982
+      },
+      {
+        "x": 44,
+        "y": 987
+      },
+      {
+        "x": 44,
+        "y": 992
+      },
+      {
+        "x": 44,
+        "y": 997
+      },
+      {
+        "x": 44,
+        "y": 1002
+      },
+      {
+        "x": 44,
+        "y": 1007
+      },
+      {
+        "x": 44,
+        "y": 1012
+      },
+      {
+        "x": 44,
+        "y": 1017
+      },
+      {
+        "x": 50,
+        "y": 982
+      },
+      {
+        "x": 50,
+        "y": 987
+      },
+      {
+        "x": 50,
+        "y": 992
+      },
+      {
+        "x": 50,
+        "y": 997
+      },
+      {
+        "x": 50,
+        "y": 1002
+      },
+      {
+        "x": 50,
+        "y": 1007
+      },
+      {
+        "x": 50,
+        "y": 1012
+      },
+      {
+        "x": 50,
+        "y": 1017
+      },
+      {
+        "x": 56,
+        "y": 982
+      },
+      {
+        "x": 56,
+        "y": 987
+      },
+      {
+        "x": 56,
+        "y": 992
+      },
+      {
+        "x": 56,
+        "y": 997
+      },
+      {
+        "x": 56,
+        "y": 1002
+      },
+      {
+        "x": 56,
+        "y": 1007
+      },
+      {
+        "x": 56,
+        "y": 1012
+      },
+      {
+        "x": 56,
+        "y": 1017
+      },
+      {
+        "x": 62,
+        "y": 982
+      },
+      {
+        "x": 62,
+        "y": 987
+      },
+      {
+        "x": 62,
+        "y": 992
+      },
+      {
+        "x": 62,
+        "y": 997
+      },
+      {
+        "x": 62,
+        "y": 1002
+      },
+      {
+        "x": 62,
+        "y": 1007
+      },
+      {
+        "x": 62,
+        "y": 1012
+      },
+      {
+        "x": 62,
+        "y": 1017
+      },
+      {
+        "x": 68,
+        "y": 982
+      },
+      {
+        "x": 68,
+        "y": 987
+      },
+      {
+        "x": 68,
+        "y": 992
+      },
+      {
+        "x": 68,
+        "y": 997
+      },
+      {
+        "x": 68,
+        "y": 1002
+      },
+      {
+        "x": 68,
+        "y": 1007
+      },
+      {
+        "x": 68,
+        "y": 1012
+      },
+      {
+        "x": 68,
+        "y": 1017
+      },
+      {
+        "x": 74,
+        "y": 982
+      },
+      {
+        "x": 74,
+        "y": 987
+      },
+      {
+        "x": 74,
+        "y": 992
+      },
+      {
+        "x": 74,
+        "y": 997
+      },
+      {
+        "x": 74,
+        "y": 1002
+      },
+      {
+        "x": 74,
+        "y": 1007
+      },
+      {
+        "x": 74,
+        "y": 1012
+      },
+      {
+        "x": 74,
+        "y": 1017
+      },
+      {
+        "x": 80,
+        "y": 982
+      },
+      {
+        "x": 80,
+        "y": 987
+      },
+      {
+        "x": 80,
+        "y": 992
+      },
+      {
+        "x": 80,
+        "y": 997
+      },
+      {
+        "x": 80,
+        "y": 1002
+      },
+      {
+        "x": 80,
+        "y": 1007
+      },
+      {
+        "x": 80,
+        "y": 1012
+      },
+      {
+        "x": 80,
+        "y": 1017
+      },
+      {
+        "x": 86,
+        "y": 982
+      },
+      {
+        "x": 86,
+        "y": 987
+      },
+      {
+        "x": 86,
+        "y": 992
+      },
+      {
+        "x": 86,
+        "y": 997
+      },
+      {
+        "x": 86,
+        "y": 1002
+      },
+      {
+        "x": 86,
+        "y": 1007
+      },
+      {
+        "x": 86,
+        "y": 1012
+      },
+      {
+        "x": 86,
+        "y": 1017
+      },
+      {
+        "x": 92,
+        "y": 982
+      },
+      {
+        "x": 92,
+        "y": 987
+      },
+      {
+        "x": 92,
+        "y": 992
+      },
+      {
+        "x": 92,
+        "y": 997
+      },
+      {
+        "x": 92,
+        "y": 1002
+      },
+      {
+        "x": 92,
+        "y": 1007
+      },
+      {
+        "x": 92,
+        "y": 1012
+      },
+      {
+        "x": 92,
+        "y": 1017
+      },
+      {
+        "x": 98,
+        "y": 982
+      },
+      {
+        "x": 98,
+        "y": 987
+      },
+      {
+        "x": 98,
+        "y": 992
+      },
+      {
+        "x": 98,
+        "y": 997
+      },
+      {
+        "x": 98,
+        "y": 1002
+      },
+      {
+        "x": 98,
+        "y": 1007
+      },
+      {
+        "x": 98,
+        "y": 1012
+      },
+      {
+        "x": 98,
+        "y": 1017
+      },
+      {
+        "x": 104,
+        "y": 982
+      },
+      {
+        "x": 104,
+        "y": 987
+      },
+      {
+        "x": 104,
+        "y": 992
+      },
+      {
+        "x": 104,
+        "y": 997
+      },
+      {
+        "x": 104,
+        "y": 1002
+      },
+      {
+        "x": 104,
+        "y": 1007
+      },
+      {
+        "x": 104,
+        "y": 1012
+      },
+      {
+        "x": 104,
+        "y": 1017
+      },
+      {
+        "x": 110,
+        "y": 982
+      },
+      {
+        "x": 110,
+        "y": 987
+      },
+      {
+        "x": 110,
+        "y": 992
+      },
+      {
+        "x": 110,
+        "y": 997
+      },
+      {
+        "x": 110,
+        "y": 1002
+      },
+      {
+        "x": 110,
+        "y": 1007
+      },
+      {
+        "x": 110,
+        "y": 1012
+      },
+      {
+        "x": 110,
+        "y": 1017
+      },
+      {
+        "x": 116,
+        "y": 982
+      },
+      {
+        "x": 116,
+        "y": 987
+      },
+      {
+        "x": 116,
+        "y": 992
+      },
+      {
+        "x": 116,
+        "y": 997
+      },
+      {
+        "x": 116,
+        "y": 1002
+      },
+      {
+        "x": 116,
+        "y": 1007
+      },
+      {
+        "x": 116,
+        "y": 1012
+      },
+      {
+        "x": 116,
+        "y": 1017
+      },
+      {
+        "x": 122,
+        "y": 982
+      },
+      {
+        "x": 122,
+        "y": 987
+      },
+      {
+        "x": 122,
+        "y": 992
+      },
+      {
+        "x": 122,
+        "y": 997
+      },
+      {
+        "x": 122,
+        "y": 1002
+      },
+      {
+        "x": 122,
+        "y": 1007
+      },
+      {
+        "x": 122,
+        "y": 1012
+      },
+      {
+        "x": 122,
+        "y": 1017
+      },
+      {
+        "x": 128,
+        "y": 982
+      },
+      {
+        "x": 128,
+        "y": 987
+      },
+      {
+        "x": 128,
+        "y": 992
+      },
+      {
+        "x": 128,
+        "y": 997
+      },
+      {
+        "x": 128,
+        "y": 1002
+      },
+      {
+        "x": 128,
+        "y": 1007
+      },
+      {
+        "x": 128,
+        "y": 1012
+      },
+      {
+        "x": 128,
+        "y": 1017
+      },
+      {
+        "x": 134,
+        "y": 982
+      },
+      {
+        "x": 134,
+        "y": 987
+      },
+      {
+        "x": 134,
+        "y": 992
+      },
+      {
+        "x": 134,
+        "y": 997
+      },
+      {
+        "x": 134,
+        "y": 1002
+      },
+      {
+        "x": 134,
+        "y": 1007
+      },
+      {
+        "x": 134,
+        "y": 1012
+      },
+      {
+        "x": 134,
+        "y": 1017
+      },
+      {
+        "x": 140,
+        "y": 982
+      },
+      {
+        "x": 140,
+        "y": 987
+      },
+      {
+        "x": 140,
+        "y": 992
+      },
+      {
+        "x": 140,
+        "y": 997
+      },
+      {
+        "x": 140,
+        "y": 1002
+      },
+      {
+        "x": 140,
+        "y": 1007
+      },
+      {
+        "x": 140,
+        "y": 1012
+      },
+      {
+        "x": 140,
+        "y": 1017
+      },
+      {
+        "x": 146,
+        "y": 982
+      },
+      {
+        "x": 146,
+        "y": 987
+      },
+      {
+        "x": 146,
+        "y": 992
+      },
+      {
+        "x": 146,
+        "y": 997
+      },
+      {
+        "x": 146,
+        "y": 1002
+      },
+      {
+        "x": 146,
+        "y": 1007
+      },
+      {
+        "x": 146,
+        "y": 1012
+      },
+      {
+        "x": 146,
+        "y": 1017
+      },
+      {
+        "x": 152,
+        "y": 982
+      },
+      {
+        "x": 152,
+        "y": 987
+      },
+      {
+        "x": 152,
+        "y": 992
+      },
+      {
+        "x": 152,
+        "y": 997
+      },
+      {
+        "x": 152,
+        "y": 1002
+      },
+      {
+        "x": 152,
+        "y": 1007
+      },
+      {
+        "x": 152,
+        "y": 1012
+      },
+      {
+        "x": 152,
+        "y": 1017
+      },
+      {
+        "x": 158,
+        "y": 982
+      },
+      {
+        "x": 158,
+        "y": 987
+      },
+      {
+        "x": 158,
+        "y": 992
+      },
+      {
+        "x": 158,
+        "y": 997
+      },
+      {
+        "x": 158,
+        "y": 1002
+      },
+      {
+        "x": 158,
+        "y": 1007
+      },
+      {
+        "x": 158,
+        "y": 1012
+      },
+      {
+        "x": 158,
+        "y": 1017
+      },
+      {
+        "x": 164,
+        "y": 982
+      },
+      {
+        "x": 164,
+        "y": 987
+      },
+      {
+        "x": 164,
+        "y": 992
+      },
+      {
+        "x": 164,
+        "y": 997
+      },
+      {
+        "x": 164,
+        "y": 1002
+      },
+      {
+        "x": 164,
+        "y": 1007
+      },
+      {
+        "x": 164,
+        "y": 1012
+      },
+      {
+        "x": 164,
+        "y": 1017
+      },
+      {
+        "x": 170,
+        "y": 982
+      },
+      {
+        "x": 170,
+        "y": 987
+      },
+      {
+        "x": 170,
+        "y": 992
+      },
+      {
+        "x": 170,
+        "y": 997
+      },
+      {
+        "x": 170,
+        "y": 1002
+      },
+      {
+        "x": 170,
+        "y": 1007
+      },
+      {
+        "x": 170,
+        "y": 1012
+      },
+      {
+        "x": 170,
+        "y": 1017
+      },
+      {
+        "x": 176,
+        "y": 982
+      },
+      {
+        "x": 176,
+        "y": 987
+      },
+      {
+        "x": 176,
+        "y": 992
+      },
+      {
+        "x": 176,
+        "y": 997
+      },
+      {
+        "x": 176,
+        "y": 1002
+      },
+      {
+        "x": 176,
+        "y": 1007
+      },
+      {
+        "x": 176,
+        "y": 1012
+      },
+      {
+        "x": 176,
+        "y": 1017
+      },
+      {
+        "x": 182,
+        "y": 982
+      },
+      {
+        "x": 182,
+        "y": 987
+      },
+      {
+        "x": 182,
+        "y": 992
+      },
+      {
+        "x": 182,
+        "y": 997
+      },
+      {
+        "x": 182,
+        "y": 1002
+      },
+      {
+        "x": 182,
+        "y": 1007
+      },
+      {
+        "x": 182,
+        "y": 1012
+      },
+      {
+        "x": 182,
+        "y": 1017
+      },
+      {
+        "x": 188,
+        "y": 982
+      },
+      {
+        "x": 188,
+        "y": 987
+      },
+      {
+        "x": 188,
+        "y": 992
+      },
+      {
+        "x": 188,
+        "y": 997
+      },
+      {
+        "x": 188,
+        "y": 1002
+      },
+      {
+        "x": 188,
+        "y": 1007
+      },
+      {
+        "x": 188,
+        "y": 1012
+      },
+      {
+        "x": 188,
+        "y": 1017
+      },
+      {
+        "x": 194,
+        "y": 982
+      },
+      {
+        "x": 194,
+        "y": 987
+      },
+      {
+        "x": 194,
+        "y": 992
+      },
+      {
+        "x": 194,
+        "y": 997
+      },
+      {
+        "x": 194,
+        "y": 1002
+      },
+      {
+        "x": 194,
+        "y": 1007
+      },
+      {
+        "x": 194,
+        "y": 1012
+      },
+      {
+        "x": 194,
+        "y": 1017
+      },
+      {
+        "x": 200,
+        "y": 982
+      },
+      {
+        "x": 200,
+        "y": 987
+      },
+      {
+        "x": 200,
+        "y": 992
+      },
+      {
+        "x": 200,
+        "y": 997
+      },
+      {
+        "x": 200,
+        "y": 1002
+      },
+      {
+        "x": 200,
+        "y": 1007
+      },
+      {
+        "x": 200,
+        "y": 1012
+      },
+      {
+        "x": 200,
+        "y": 1017
+      },
+      {
+        "x": 206,
+        "y": 982
+      },
+      {
+        "x": 206,
+        "y": 987
+      },
+      {
+        "x": 206,
+        "y": 992
+      },
+      {
+        "x": 206,
+        "y": 997
+      },
+      {
+        "x": 206,
+        "y": 1002
+      },
+      {
+        "x": 206,
+        "y": 1007
+      },
+      {
+        "x": 206,
+        "y": 1012
+      },
+      {
+        "x": 206,
+        "y": 1017
+      },
+      {
+        "x": 212,
+        "y": 982
+      },
+      {
+        "x": 212,
+        "y": 987
+      },
+      {
+        "x": 212,
+        "y": 992
+      },
+      {
+        "x": 212,
+        "y": 997
+      },
+      {
+        "x": 212,
+        "y": 1002
+      },
+      {
+        "x": 212,
+        "y": 1007
+      },
+      {
+        "x": 212,
+        "y": 1012
+      },
+      {
+        "x": 212,
+        "y": 1017
+      },
+      {
+        "x": 218,
+        "y": 982
+      },
+      {
+        "x": 218,
+        "y": 987
+      },
+      {
+        "x": 218,
+        "y": 992
+      },
+      {
+        "x": 218,
+        "y": 997
+      },
+      {
+        "x": 218,
+        "y": 1002
+      },
+      {
+        "x": 218,
+        "y": 1007
+      },
+      {
+        "x": 218,
+        "y": 1012
+      },
+      {
+        "x": 218,
+        "y": 1017
+      },
+      {
+        "x": 224,
+        "y": 982
+      },
+      {
+        "x": 224,
+        "y": 987
+      },
+      {
+        "x": 224,
+        "y": 992
+      },
+      {
+        "x": 224,
+        "y": 997
+      },
+      {
+        "x": 224,
+        "y": 1002
+      },
+      {
+        "x": 224,
+        "y": 1007
+      },
+      {
+        "x": 224,
+        "y": 1012
+      },
+      {
+        "x": 224,
+        "y": 1017
+      },
+      {
+        "x": 230,
+        "y": 982
+      },
+      {
+        "x": 230,
+        "y": 987
+      },
+      {
+        "x": 230,
+        "y": 992
+      },
+      {
+        "x": 230,
+        "y": 997
+      },
+      {
+        "x": 230,
+        "y": 1002
+      },
+      {
+        "x": 230,
+        "y": 1007
+      },
+      {
+        "x": 230,
+        "y": 1012
+      },
+      {
+        "x": 230,
+        "y": 1017
+      },
+      {
+        "x": 236,
+        "y": 982
+      },
+      {
+        "x": 236,
+        "y": 987
+      },
+      {
+        "x": 236,
+        "y": 992
+      },
+      {
+        "x": 236,
+        "y": 997
+      },
+      {
+        "x": 236,
+        "y": 1002
+      },
+      {
+        "x": 236,
+        "y": 1007
+      },
+      {
+        "x": 236,
+        "y": 1012
+      },
+      {
+        "x": 236,
+        "y": 1017
+      },
+      {
+        "x": 242,
+        "y": 982
+      },
+      {
+        "x": 242,
+        "y": 987
+      },
+      {
+        "x": 242,
+        "y": 992
+      },
+      {
+        "x": 242,
+        "y": 997
+      },
+      {
+        "x": 242,
+        "y": 1002
+      },
+      {
+        "x": 242,
+        "y": 1007
+      },
+      {
+        "x": 242,
+        "y": 1012
+      },
+      {
+        "x": 242,
+        "y": 1017
+      },
+      {
+        "x": 248,
+        "y": 982
+      },
+      {
+        "x": 248,
+        "y": 987
+      },
+      {
+        "x": 248,
+        "y": 992
+      },
+      {
+        "x": 248,
+        "y": 997
+      },
+      {
+        "x": 248,
+        "y": 1002
+      },
+      {
+        "x": 248,
+        "y": 1007
+      },
+      {
+        "x": 248,
+        "y": 1012
+      },
+      {
+        "x": 248,
+        "y": 1017
+      },
+      {
+        "x": 254,
+        "y": 982
+      },
+      {
+        "x": 254,
+        "y": 987
+      },
+      {
+        "x": 254,
+        "y": 992
+      },
+      {
+        "x": 254,
+        "y": 997
+      },
+      {
+        "x": 254,
+        "y": 1002
+      },
+      {
+        "x": 254,
+        "y": 1007
+      },
+      {
+        "x": 254,
+        "y": 1012
+      },
+      {
+        "x": 254,
+        "y": 1017
+      },
+      {
+        "x": 260,
+        "y": 982
+      },
+      {
+        "x": 260,
+        "y": 987
+      },
+      {
+        "x": 260,
+        "y": 992
+      },
+      {
+        "x": 260,
+        "y": 997
+      },
+      {
+        "x": 260,
+        "y": 1002
+      },
+      {
+        "x": 260,
+        "y": 1007
+      },
+      {
+        "x": 260,
+        "y": 1012
+      },
+      {
+        "x": 260,
+        "y": 1017
+      },
+      {
+        "x": 266,
+        "y": 982
+      },
+      {
+        "x": 266,
+        "y": 987
+      },
+      {
+        "x": 266,
+        "y": 992
+      },
+      {
+        "x": 266,
+        "y": 997
+      },
+      {
+        "x": 266,
+        "y": 1002
+      },
+      {
+        "x": 266,
+        "y": 1007
+      },
+      {
+        "x": 266,
+        "y": 1012
+      },
+      {
+        "x": 266,
+        "y": 1017
+      },
+      {
+        "x": 272,
+        "y": 982
+      },
+      {
+        "x": 272,
+        "y": 987
+      },
+      {
+        "x": 272,
+        "y": 992
+      },
+      {
+        "x": 272,
+        "y": 997
+      },
+      {
+        "x": 272,
+        "y": 1002
+      },
+      {
+        "x": 272,
+        "y": 1007
+      },
+      {
+        "x": 272,
+        "y": 1012
+      },
+      {
+        "x": 272,
+        "y": 1017
+      },
+      {
+        "x": 278,
+        "y": 982
+      },
+      {
+        "x": 278,
+        "y": 987
+      },
+      {
+        "x": 278,
+        "y": 992
+      },
+      {
+        "x": 278,
+        "y": 997
+      },
+      {
+        "x": 278,
+        "y": 1002
+      },
+      {
+        "x": 278,
+        "y": 1007
+      },
+      {
+        "x": 278,
+        "y": 1012
+      },
+      {
+        "x": 278,
+        "y": 1017
+      },
+      {
+        "x": 284,
+        "y": 982
+      },
+      {
+        "x": 284,
+        "y": 987
+      },
+      {
+        "x": 284,
+        "y": 992
+      },
+      {
+        "x": 284,
+        "y": 997
+      },
+      {
+        "x": 284,
+        "y": 1002
+      },
+      {
+        "x": 284,
+        "y": 1007
+      },
+      {
+        "x": 284,
+        "y": 1012
+      },
+      {
+        "x": 284,
+        "y": 1017
+      },
+      {
+        "x": 290,
+        "y": 982
+      },
+      {
+        "x": 290,
+        "y": 987
+      },
+      {
+        "x": 290,
+        "y": 992
+      },
+      {
+        "x": 290,
+        "y": 997
+      },
+      {
+        "x": 290,
+        "y": 1002
+      },
+      {
+        "x": 290,
+        "y": 1007
+      },
+      {
+        "x": 290,
+        "y": 1012
+      },
+      {
+        "x": 290,
+        "y": 1017
+      }
+    ],
+    "overlapPx": 40,
+    "verdict": "FAIL"
+  },
+  "pages": {
+    "320": {
+      "innerWidthReported": 320,
+      "draw": {
+        "controlId": "draw-go",
+        "tapPoint": {
+          "x": 55,
+          "y": 437
+        },
+        "controlRectBeforeTap": {
+          "left": 24,
+          "right": 86.375,
+          "top": 424.6875,
+          "bottom": 448.6875
+        },
+        "adRectBefore": {
+          "left": 24,
+          "right": 296,
+          "top": 859.5625,
+          "bottom": 1109.5625
+        },
+        "adRectAfter": {
+          "left": 24,
+          "right": 296,
+          "top": 851.5625,
+          "bottom": 1101.5625
+        },
+        "adRoseByPx": 8,
+        "gridTotal": 50,
+        "collisions": [],
+        "overlapPx": 0,
+        "verdict": "PASS"
+      },
+      "wheel": {
+        "controlId": "wheel-spin",
+        "tapPoint": {
+          "x": 45,
+          "y": 615
+        },
+        "controlRectBeforeTap": {
+          "left": 24,
+          "right": 65.09375,
+          "top": 602.6875,
+          "bottom": 626.6875
+        },
+        "adRectBefore": {
+          "left": 24,
+          "right": 296,
+          "top": 1028.125,
+          "bottom": 1278.125
+        },
+        "adRectAfter": {
+          "left": 24,
+          "right": 296,
+          "top": 1052.125,
+          "bottom": 1302.125
+        },
+        "adRoseByPx": -24,
+        "gridTotal": 35,
+        "collisions": [],
+        "overlapPx": 0,
+        "verdict": "PASS"
+      },
+      "team": {
+        "controlId": "team-split",
+        "tapPoint": {
+          "x": 52,
+          "y": 385
+        },
+        "controlRectBeforeTap": {
+          "left": 24,
+          "right": 79.59375,
+          "top": 372.6875,
+          "bottom": 396.6875
+        },
+        "adRectBefore": {
+          "left": 24,
+          "right": 296,
+          "top": 1046.125,
+          "bottom": 1296.125
+        },
+        "adRectAfter": {
+          "left": 24,
+          "right": 296,
+          "top": 838.125,
+          "bottom": 1088.125
+        },
+        "adRoseByPx": 208,
+        "gridTotal": 45,
+        "collisions": [],
+        "overlapPx": 0,
+        "verdict": "PASS"
+      },
+      "number": {
+        "controlId": "number-go",
+        "tapPoint": {
+          "x": 40,
+          "y": 491
+        },
+        "controlRectBeforeTap": {
+          "left": 24,
+          "right": 56.375,
+          "top": 478.6875,
+          "bottom": 502.6875
+        },
+        "adRectBefore": {
+          "left": 24,
+          "right": 296,
+          "top": 728.125,
+          "bottom": 978.125
+        },
+        "adRectAfter": {
+          "left": 24,
+          "right": 296,
+          "top": 728.125,
+          "bottom": 978.125
+        },
+        "adRoseByPx": 0,
+        "gridTotal": 25,
+        "collisions": [],
+        "overlapPx": 0,
+        "verdict": "PASS"
+      }
+    },
+    "390": {
+      "innerWidthReported": 390,
+      "draw": {
+        "controlId": "draw-go",
+        "tapPoint": {
+          "x": 55,
+          "y": 413
+        },
+        "controlRectBeforeTap": {
+          "left": 24,
+          "right": 86.375,
+          "top": 400.6875,
+          "bottom": 424.6875
+        },
+        "adRectBefore": {
+          "left": 24,
+          "right": 366,
+          "top": 771.5625,
+          "bottom": 1021.5625
+        },
+        "adRectAfter": {
+          "left": 24,
+          "right": 366,
+          "top": 771.5625,
+          "bottom": 1021.5625
+        },
+        "adRoseByPx": 0,
+        "gridTotal": 50,
+        "collisions": [],
+        "overlapPx": 0,
+        "verdict": "PASS"
+      },
+      "wheel": {
+        "controlId": "wheel-spin",
+        "tapPoint": {
+          "x": 45,
+          "y": 619
+        },
+        "controlRectBeforeTap": {
+          "left": 24,
+          "right": 65.09375,
+          "top": 606.6875,
+          "bottom": 630.6875
+        },
+        "adRectBefore": {
+          "left": 24,
+          "right": 366,
+          "top": 1000.125,
+          "bottom": 1250.125
+        },
+        "adRectAfter": {
+          "left": 24,
+          "right": 366,
+          "top": 1000.125,
+          "bottom": 1250.125
+        },
+        "adRoseByPx": 0,
+        "gridTotal": 35,
+        "collisions": [],
+        "overlapPx": 0,
+        "verdict": "PASS"
+      },
+      "team": {
+        "controlId": "team-split",
+        "tapPoint": {
+          "x": 52,
+          "y": 361
+        },
+        "controlRectBeforeTap": {
+          "left": 24,
+          "right": 79.59375,
+          "top": 348.6875,
+          "bottom": 372.6875
+        },
+        "adRectBefore": {
+          "left": 24,
+          "right": 366,
+          "top": 1022.125,
+          "bottom": 1272.125
+        },
+        "adRectAfter": {
+          "left": 24,
+          "right": 366,
+          "top": 814.125,
+          "bottom": 1064.125
+        },
+        "adRoseByPx": 208,
+        "gridTotal": 45,
+        "collisions": [],
+        "overlapPx": 0,
+        "verdict": "PASS"
+      },
+      "number": {
+        "controlId": "number-go",
+        "tapPoint": {
+          "x": 40,
+          "y": 453
+        },
+        "controlRectBeforeTap": {
+          "left": 24,
+          "right": 56.375,
+          "top": 440.6875,
+          "bottom": 464.6875
+        },
+        "adRectBefore": {
+          "left": 24,
+          "right": 366,
+          "top": 690.125,
+          "bottom": 940.125
+        },
+        "adRectAfter": {
+          "left": 24,
+          "right": 366,
+          "top": 690.125,
+          "bottom": 940.125
+        },
+        "adRoseByPx": 0,
+        "gridTotal": 25,
+        "collisions": [],
+        "overlapPx": 0,
+        "verdict": "PASS"
+      }
+    }
+  },
+  "summary": {
+    "calibrationWentRed": true,
+    "anyRealCollision": false,
+    "anyUnmeasurable": false,
+    "overall": "PASS"
+  }
+}

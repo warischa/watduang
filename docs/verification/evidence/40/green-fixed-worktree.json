@@ -1,0 +1,797 @@
+{
+  "box": "With the arm-delay gate present, a sub-400ms second contact must not advance short-stick's turn nor arm timebomb's fuse, while a >400ms tap still works.",
+  "method": "Real CDP touch (Input.dispatchTouchEvent) via scripts/driver.mjs. Two contacts at 100/350/490ms gaps on the control that triggers the stage swap, at 320px and 390px, roster 8 and name-length extremes. Contact 2's point is found by grid-scanning the post-swap control's real box for the point nearest contact 1 — never assuming contact 2 lands on contact 1's pixel (that assumption produced false 'suppressed' passes for timebomb, whose two controls sit ~54px apart).",
+  "capturedAtCommit": "dc55dd7+uncommitted",
+  "capturedAtCommitNote": "GREEN was captured on the WORKING TREE, not on dc55dd7 — dc55dd7 does not contain the fix, so naming it alone would misdate this walk. Tree state: dc55dd7 plus the uncommitted arm-gate work (src/games/_arm-gate.ts new; short-stick.ts, timebomb.ts and both .test.mjs modified). The RED counterpart WAS captured on clean dc55dd7 in a separate worktree; that absence of _arm-gate.ts is what makes it a valid positive control.",
+  "verdict": "PROVEN",
+  "ghostTapSuppressedUnder400ms": true,
+  "deliberateTapStillWorksAfter400ms": true,
+  "pointerdownFromDisabledControlReachesStage": true,
+  "summary": {
+    "totalGapTests": 10,
+    "failing": [],
+    "scenarioErrors": [],
+    "overall": "PASS"
+  },
+  "pointerdownOnDisabled": {
+    "answer": "YES — a real touch on a disabled control DOES dispatch a pointerdown that bubbles to #stage",
+    "evidence": [
+      {
+        "game": "short-stick",
+        "scenario": "320px roster8 delay-sweep",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2354.5999999996275
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2776.2999999998137
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3703.2999999998137
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 4126.700000000186
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": true,
+            "t": 4229.299999999814
+          }
+        ]
+      },
+      {
+        "game": "short-stick",
+        "scenario": "390px roster8",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2355.399999999441
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2767.399999999441
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3688.2999999998137
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 4100.700000000186
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": true,
+            "t": 4452.0999999996275
+          }
+        ]
+      },
+      {
+        "game": "short-stick",
+        "scenario": "320px name-extremes",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2368.699999999255
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2788.399999999441
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": true,
+            "t": 3140.5999999996275
+          }
+        ]
+      },
+      {
+        "game": "timebomb",
+        "scenario": "320px roster8 delay-sweep",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2724.2000000001863
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3859.5
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": true,
+            "t": 3961.5
+          }
+        ]
+      },
+      {
+        "game": "timebomb",
+        "scenario": "390px roster8",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2587.600000000559
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3729.7999999998137
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": true,
+            "t": 4080.2000000001863
+          }
+        ]
+      },
+      {
+        "game": "timebomb",
+        "scenario": "320px name-extremes",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2591
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3719.600000000559
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": true,
+            "t": 4071.600000000559
+          }
+        ]
+      }
+    ]
+  },
+  "shortStick": [
+    {
+      "label": "320px roster8 delay-sweep",
+      "width": 320,
+      "rosterSize": 8,
+      "gapTests": [
+        {
+          "gapMs": 100,
+          "expectedNext": "ก้องภพสุดหล่อ",
+          "contact1": {
+            "x": 81,
+            "y": 318
+          },
+          "contact2": {
+            "x": 70.21875,
+            "y": 318.875
+          },
+          "after": {
+            "screen": "draw",
+            "player": "ก้องภพสุดหล่อ",
+            "stickCount": 6,
+            "stickButtons": 6,
+            "paragraphs": [
+              "ตาของ ก้องภพสุดหล่อ",
+              "แตะไม้อันไหนก็ได้ 1 อัน — เหลือ 6 อัน"
+            ]
+          },
+          "verdict": "PASS",
+          "note": "ghost tap suppressed — same player, same screen"
+        },
+        {
+          "gapMs": 350,
+          "expectedNext": "น้ำหวานคนสวย",
+          "contact1": {
+            "x": 84,
+            "y": 318
+          },
+          "contact2": {
+            "x": 70.21875,
+            "y": 318.875
+          },
+          "after": {
+            "screen": "draw",
+            "player": "น้ำหวานคนสวย",
+            "stickCount": 5,
+            "stickButtons": 5,
+            "paragraphs": [
+              "ตาของ น้ำหวานคนสวย",
+              "แตะไม้อันไหนก็ได้ 1 อัน — เหลือ 5 อัน"
+            ]
+          },
+          "verdict": "PASS",
+          "note": "ghost tap suppressed — same player, same screen"
+        },
+        {
+          "gapMs": 490,
+          "expectedNext": "บีม",
+          "contact1": {
+            "x": 50,
+            "y": 318
+          },
+          "contact2": {
+            "x": 70.21875,
+            "y": 318.875
+          },
+          "after": {
+            "screen": "passing",
+            "player": "บีม",
+            "next": "เจี๊ยบ",
+            "stickButtons": 1,
+            "paragraphs": [
+              "ไม้ยาว — รอด",
+              "บีม รอดไปได้ ส่งมือถือให้ เจี๊ยบ ต่อเลย"
+            ]
+          },
+          "verdict": "PASS",
+          "note": "deliberate post-window tap registered — exactly one turn advanced"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 71.84375,
+          "y": 318.46875
+        },
+        "contact2": {
+          "x": 70.21875,
+          "y": 318.875
+        },
+        "bundleRect": {
+          "left": 15.21875,
+          "top": 267.875,
+          "right": 304.78125,
+          "bottom": 480.65625
+        },
+        "scan": {
+          "points": 2064,
+          "hits": 930,
+          "samples": [
+            {
+              "x": 16,
+              "y": 279
+            },
+            {
+              "x": 16,
+              "y": 284
+            },
+            {
+              "x": 16,
+              "y": 289
+            }
+          ],
+          "nearest": {
+            "x": 70.21875,
+            "y": 318.875
+          },
+          "nearestDist": 1.6750116604071745
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2354.5999999996275
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2776.2999999998137
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3703.2999999998137
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 4126.700000000186
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": true,
+          "t": 4229.299999999814
+        }
+      ],
+      "scenarioError": null
+    },
+    {
+      "label": "390px roster8",
+      "width": 390,
+      "rosterSize": 8,
+      "gapTests": [
+        {
+          "gapMs": 350,
+          "expectedNext": "ก้องภพสุดหล่อ",
+          "contact1": {
+            "x": 81,
+            "y": 296
+          },
+          "contact2": {
+            "x": 72,
+            "y": 318.875
+          },
+          "after": {
+            "screen": "draw",
+            "player": "ก้องภพสุดหล่อ",
+            "stickCount": 6,
+            "stickButtons": 6,
+            "paragraphs": [
+              "ตาของ ก้องภพสุดหล่อ",
+              "แตะไม้อันไหนก็ได้ 1 อัน — เหลือ 6 อัน"
+            ]
+          },
+          "verdict": "PASS",
+          "note": "ghost tap suppressed — same player, same screen"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 71.84375,
+          "y": 318.46875
+        },
+        "contact2": {
+          "x": 72,
+          "y": 318.875
+        },
+        "bundleRect": {
+          "left": 17,
+          "top": 267.875,
+          "right": 373,
+          "bottom": 379.875
+        },
+        "scan": {
+          "points": 1380,
+          "hits": 1089,
+          "samples": [
+            {
+              "x": 18,
+              "y": 284
+            },
+            {
+              "x": 18,
+              "y": 289
+            },
+            {
+              "x": 18,
+              "y": 294
+            }
+          ],
+          "nearest": {
+            "x": 72,
+            "y": 318.875
+          },
+          "nearestDist": 0.4352621336620037
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2355.399999999441
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2767.399999999441
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3688.2999999998137
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 4100.700000000186
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": true,
+          "t": 4452.0999999996275
+        }
+      ],
+      "scenarioError": null
+    },
+    {
+      "label": "320px name-extremes",
+      "width": 320,
+      "rosterSize": 2,
+      "gapTests": [
+        {
+          "gapMs": 350,
+          "expectedNext": "สมชายใจดีมากพี่น้องสุดที่สุดในโลกทั้งใบนี้เท่านั้นเอง",
+          "contact1": {
+            "x": 160,
+            "y": 327
+          },
+          "contact2": {
+            "x": 158.203125,
+            "y": 334.875
+          },
+          "after": {
+            "screen": "draw",
+            "player": "สมชายใจดีมากพี่น้องสุดที่สุดในโลกทั้งใบนี้เท่านั้นเอง",
+            "stickCount": 1,
+            "stickButtons": 1,
+            "paragraphs": [
+              "ตาของ สมชายใจดีมากพี่น้องสุดที่สุดในโลกทั้งใบนี้เท่านั้นเอง",
+              "แตะไม้อันไหนก็ได้ 1 อัน — เหลือ 1 อัน"
+            ]
+          },
+          "verdict": "PASS",
+          "note": "ghost tap suppressed — same player, same screen"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 160,
+          "y": 327.46875
+        },
+        "contact2": {
+          "x": 158.203125,
+          "y": 334.875
+        },
+        "bundleRect": {
+          "left": 139.203125,
+          "top": 333.875,
+          "right": 180.796875,
+          "bottom": 436.265625
+        },
+        "scan": {
+          "points": 147,
+          "hits": 133,
+          "samples": [
+            {
+              "x": 140,
+              "y": 345
+            },
+            {
+              "x": 140,
+              "y": 350
+            },
+            {
+              "x": 140,
+              "y": 355
+            }
+          ],
+          "nearest": {
+            "x": 158.203125,
+            "y": 334.875
+          },
+          "nearestDist": 7.621108766322981
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2368.699999999255
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2788.399999999441
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": true,
+          "t": 3140.5999999996275
+        }
+      ],
+      "scenarioError": null
+    }
+  ],
+  "timebomb": [
+    {
+      "label": "320px roster8 delay-sweep",
+      "width": 320,
+      "rosterSize": 8,
+      "gapTests": [
+        {
+          "gapMs": 100,
+          "contact1": {
+            "x": 45,
+            "y": 329
+          },
+          "contact2": {
+            "x": 45,
+            "y": 328.875
+          },
+          "after": {
+            "hasStart": true,
+            "hasPulse": false,
+            "hasPass": false,
+            "hasAgain": false
+          },
+          "verdict": "PASS",
+          "note": "ghost tap suppressed — idle screen still up, fuse not armed"
+        },
+        {
+          "gapMs": 350,
+          "contact1": {
+            "x": 45,
+            "y": 329
+          },
+          "contact2": {
+            "x": 45,
+            "y": 328.875
+          },
+          "after": {
+            "hasStart": true,
+            "hasPulse": false,
+            "hasPass": false,
+            "hasAgain": false
+          },
+          "verdict": "PASS",
+          "note": "ghost tap suppressed — idle screen still up, fuse not armed"
+        },
+        {
+          "gapMs": 490,
+          "contact1": {
+            "x": 45,
+            "y": 329
+          },
+          "contact2": {
+            "x": 45,
+            "y": 328.875
+          },
+          "after": {
+            "hasStart": false,
+            "hasPulse": true,
+            "hasPass": true,
+            "hasAgain": false
+          },
+          "verdict": "PASS",
+          "note": "deliberate post-window tap registered — fuse armed"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 45.3515625,
+          "y": 328.875
+        },
+        "contact2": {
+          "x": 45,
+          "y": 328.875
+        },
+        "startRect": {
+          "left": 8,
+          "top": 322.875,
+          "right": 84.25,
+          "bottom": 346.875,
+          "cx": 46.125,
+          "cy": 334.875
+        },
+        "scan": {
+          "points": 65,
+          "hits": 65,
+          "samples": [
+            {
+              "x": 9,
+              "y": 324
+            },
+            {
+              "x": 9,
+              "y": 329
+            },
+            {
+              "x": 9,
+              "y": 334
+            }
+          ],
+          "nearest": {
+            "x": 45,
+            "y": 328.875
+          },
+          "nearestDist": 0.3515625
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2724.2000000001863
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3859.5
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": true,
+          "t": 3961.5
+        }
+      ],
+      "scenarioError": null
+    },
+    {
+      "label": "390px roster8",
+      "width": 390,
+      "rosterSize": 8,
+      "gapTests": [
+        {
+          "gapMs": 350,
+          "contact1": {
+            "x": 45,
+            "y": 307
+          },
+          "contact2": {
+            "x": 45,
+            "y": 306.875
+          },
+          "after": {
+            "hasStart": true,
+            "hasPulse": false,
+            "hasPass": false,
+            "hasAgain": false
+          },
+          "verdict": "PASS",
+          "note": "ghost tap suppressed — idle screen still up, fuse not armed"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 45.3515625,
+          "y": 306.875
+        },
+        "contact2": {
+          "x": 45,
+          "y": 306.875
+        },
+        "startRect": {
+          "left": 8,
+          "top": 300.875,
+          "right": 84.25,
+          "bottom": 324.875,
+          "cx": 46.125,
+          "cy": 312.875
+        },
+        "scan": {
+          "points": 65,
+          "hits": 65,
+          "samples": [
+            {
+              "x": 9,
+              "y": 302
+            },
+            {
+              "x": 9,
+              "y": 307
+            },
+            {
+              "x": 9,
+              "y": 312
+            }
+          ],
+          "nearest": {
+            "x": 45,
+            "y": 306.875
+          },
+          "nearestDist": 0.3515625
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2587.600000000559
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3729.7999999998137
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": true,
+          "t": 4080.2000000001863
+        }
+      ],
+      "scenarioError": null
+    },
+    {
+      "label": "320px name-extremes",
+      "width": 320,
+      "rosterSize": 2,
+      "gapTests": [
+        {
+          "gapMs": 350,
+          "contact1": {
+            "x": 45,
+            "y": 307
+          },
+          "contact2": {
+            "x": 45,
+            "y": 306.875
+          },
+          "after": {
+            "hasStart": true,
+            "hasPulse": false,
+            "hasPass": false,
+            "hasAgain": false
+          },
+          "verdict": "PASS",
+          "note": "ghost tap suppressed — idle screen still up, fuse not armed"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 45.3515625,
+          "y": 306.875
+        },
+        "contact2": {
+          "x": 45,
+          "y": 306.875
+        },
+        "startRect": {
+          "left": 8,
+          "top": 300.875,
+          "right": 84.25,
+          "bottom": 324.875,
+          "cx": 46.125,
+          "cy": 312.875
+        },
+        "scan": {
+          "points": 65,
+          "hits": 65,
+          "samples": [
+            {
+              "x": 9,
+              "y": 302
+            },
+            {
+              "x": 9,
+              "y": 307
+            },
+            {
+              "x": 9,
+              "y": 312
+            }
+          ],
+          "nearest": {
+            "x": 45,
+            "y": 306.875
+          },
+          "nearestDist": 0.3515625
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2591
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3719.600000000559
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": true,
+          "t": 4071.600000000559
+        }
+      ],
+      "scenarioError": null
+    }
+  ],
+  "consoleErrors": []
+}

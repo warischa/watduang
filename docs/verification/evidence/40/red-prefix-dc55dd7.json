@@ -1,0 +1,806 @@
+{
+  "box": "POSITIVE CONTROL — with the gate absent, does a sub-400ms second contact steal a draw / arm a fuse? It must, or the probe measures nothing.",
+  "method": "Real CDP touch (Input.dispatchTouchEvent) via scripts/driver.mjs. Two contacts at 100/350/490ms gaps on the control that triggers the stage swap, at 320px and 390px, roster 8 and name-length extremes. Contact 2's point is found by grid-scanning the post-swap control's real box for the point nearest contact 1 — never assuming contact 2 lands on contact 1's pixel (that assumption produced false 'suppressed' passes for timebomb, whose two controls sit ~54px apart).",
+  "capturedAtCommit": "dc55dd7",
+  "capturedAtCommitNote": "tree was DIRTY at capture. Uncommitted at the time: .github/workflows/ci.yml, docs/verification/evidence/40/, docs/verification/evidence/adslot/, scripts/ad-slot-grid-probe.mjs, scripts/arm-gate-probe.mjs, scripts/crawl-check-gamenav.mjs, scripts/thai-comments.mjs, src/games/_arm-gate.ts, src/games/short-stick.test.mjs, src/games/short-stick.ts, src/games/timebomb.test.mjs, src/games/timebomb.ts. The RED capture was taken in a separate worktree at dc55dd7, which is CLEAN and does not contain src/games/_arm-gate.ts — that absence is what makes it a valid positive control.",
+  "verdict": "FAILED",
+  "ghostTapSuppressedUnder400ms": false,
+  "deliberateTapStillWorksAfter400ms": true,
+  "pointerdownFromDisabledControlReachesStage": true,
+  "summary": {
+    "totalGapTests": 10,
+    "failing": [
+      "short-stick/320px roster8 delay-sweep/100ms",
+      "short-stick/320px roster8 delay-sweep/350ms",
+      "short-stick/390px roster8/350ms",
+      "short-stick/320px name-extremes/350ms",
+      "timebomb/320px roster8 delay-sweep/100ms",
+      "timebomb/320px roster8 delay-sweep/350ms",
+      "timebomb/390px roster8/350ms",
+      "timebomb/320px name-extremes/350ms"
+    ],
+    "scenarioErrors": [],
+    "overall": "FAIL"
+  },
+  "pointerdownOnDisabled": {
+    "answer": "NO — no pointerdown from a disabled-target contact reached #stage in the captured log",
+    "evidence": [
+      {
+        "game": "short-stick",
+        "scenario": "320px roster8 delay-sweep",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2361.399999999441
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2779.0999999996275
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3708.2000000001863
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 4126.0999999996275
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 4228.799999999814
+          }
+        ]
+      },
+      {
+        "game": "short-stick",
+        "scenario": "390px roster8",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2372.5
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2788
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3715.5
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 4129
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 4482.200000000186
+          }
+        ]
+      },
+      {
+        "game": "short-stick",
+        "scenario": "320px name-extremes",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2373.7000000001863
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2803.7000000001863
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3157
+          }
+        ]
+      },
+      {
+        "game": "timebomb",
+        "scenario": "320px roster8 delay-sweep",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2609.0999999996275
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3758.5999999996275
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3861.199999999255
+          }
+        ]
+      },
+      {
+        "game": "timebomb",
+        "scenario": "390px roster8",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2578.5
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3716.4000000003725
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 4068.4000000003725
+          }
+        ]
+      },
+      {
+        "game": "timebomb",
+        "scenario": "320px name-extremes",
+        "log": [
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 2603.600000000559
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 3737.600000000559
+          },
+          {
+            "tag": "BUTTON",
+            "disabled": false,
+            "t": 4088.9000000003725
+          }
+        ]
+      }
+    ]
+  },
+  "shortStick": [
+    {
+      "label": "320px roster8 delay-sweep",
+      "width": 320,
+      "rosterSize": 8,
+      "gapTests": [
+        {
+          "gapMs": 100,
+          "expectedNext": "ก้องภพสุดหล่อ",
+          "contact1": {
+            "x": 81,
+            "y": 318
+          },
+          "contact2": {
+            "x": 70.21875,
+            "y": 318.875
+          },
+          "after": {
+            "screen": "result",
+            "player": "ก้องภพสุดหล่อ",
+            "stickButtons": 1,
+            "paragraphs": [
+              "ไม้สั้น!",
+              "ก้องภพสุดหล่อ โดน",
+              "วงตกลงกันเองว่าคนโดนต้องทำอะไร"
+            ]
+          },
+          "verdict": "FAIL",
+          "note": "ghost tap registered when it should have been suppressed — screen=result player=ก้องภพสุดหล่อ"
+        },
+        {
+          "gapMs": 350,
+          "expectedNext": "ปู่ย่าตายาย",
+          "contact1": {
+            "x": 72,
+            "y": 318
+          },
+          "contact2": {
+            "x": 70.21875,
+            "y": 318.875
+          },
+          "after": {
+            "screen": "passing",
+            "player": "ปู่ย่าตายาย",
+            "next": "ก้องภพสุดหล่อ",
+            "stickButtons": 1,
+            "paragraphs": [
+              "ไม้ยาว — รอด",
+              "ปู่ย่าตายาย รอดไปได้ ส่งมือถือให้ ก้องภพสุดหล่อ ต่อเลย"
+            ]
+          },
+          "verdict": "FAIL",
+          "note": "ghost tap registered when it should have been suppressed — screen=passing player=ปู่ย่าตายาย"
+        },
+        {
+          "gapMs": 490,
+          "expectedNext": "ก้องภพสุดหล่อ",
+          "contact1": {
+            "x": 81,
+            "y": 318
+          },
+          "contact2": {
+            "x": 70.21875,
+            "y": 318.875
+          },
+          "after": {
+            "screen": "passing",
+            "player": "ก้องภพสุดหล่อ",
+            "next": "น้ำหวานคนสวย",
+            "stickButtons": 1,
+            "paragraphs": [
+              "ไม้ยาว — รอด",
+              "ก้องภพสุดหล่อ รอดไปได้ ส่งมือถือให้ น้ำหวานคนสวย ต่อเลย"
+            ]
+          },
+          "verdict": "PASS",
+          "note": "deliberate post-window tap registered — exactly one turn advanced"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 71.84375,
+          "y": 318.46875
+        },
+        "contact2": {
+          "x": 70.21875,
+          "y": 318.875
+        },
+        "bundleRect": {
+          "left": 15.21875,
+          "top": 267.875,
+          "right": 304.78125,
+          "bottom": 480.65625
+        },
+        "scan": {
+          "points": 2064,
+          "hits": 930,
+          "samples": [
+            {
+              "x": 16,
+              "y": 279
+            },
+            {
+              "x": 16,
+              "y": 284
+            },
+            {
+              "x": 16,
+              "y": 289
+            }
+          ],
+          "nearest": {
+            "x": 70.21875,
+            "y": 318.875
+          },
+          "nearestDist": 1.6750116604071745
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2361.399999999441
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2779.0999999996275
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3708.2000000001863
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 4126.0999999996275
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 4228.799999999814
+        }
+      ],
+      "scenarioError": null
+    },
+    {
+      "label": "390px roster8",
+      "width": 390,
+      "rosterSize": 8,
+      "gapTests": [
+        {
+          "gapMs": 350,
+          "expectedNext": "ก้องภพสุดหล่อ",
+          "contact1": {
+            "x": 81,
+            "y": 296
+          },
+          "contact2": {
+            "x": 72,
+            "y": 318.875
+          },
+          "after": {
+            "screen": "passing",
+            "player": "ก้องภพสุดหล่อ",
+            "next": "น้ำหวานคนสวย",
+            "stickButtons": 1,
+            "paragraphs": [
+              "ไม้ยาว — รอด",
+              "ก้องภพสุดหล่อ รอดไปได้ ส่งมือถือให้ น้ำหวานคนสวย ต่อเลย"
+            ]
+          },
+          "verdict": "FAIL",
+          "note": "ghost tap registered when it should have been suppressed — screen=passing player=ก้องภพสุดหล่อ"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 71.84375,
+          "y": 318.46875
+        },
+        "contact2": {
+          "x": 72,
+          "y": 318.875
+        },
+        "bundleRect": {
+          "left": 17,
+          "top": 267.875,
+          "right": 373,
+          "bottom": 379.875
+        },
+        "scan": {
+          "points": 1380,
+          "hits": 1089,
+          "samples": [
+            {
+              "x": 18,
+              "y": 284
+            },
+            {
+              "x": 18,
+              "y": 289
+            },
+            {
+              "x": 18,
+              "y": 294
+            }
+          ],
+          "nearest": {
+            "x": 72,
+            "y": 318.875
+          },
+          "nearestDist": 0.4352621336620037
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2372.5
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2788
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3715.5
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 4129
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 4482.200000000186
+        }
+      ],
+      "scenarioError": null
+    },
+    {
+      "label": "320px name-extremes",
+      "width": 320,
+      "rosterSize": 2,
+      "gapTests": [
+        {
+          "gapMs": 350,
+          "expectedNext": "สมชายใจดีมากพี่น้องสุดที่สุดในโลกทั้งใบนี้เท่านั้นเอง",
+          "contact1": {
+            "x": 160,
+            "y": 327
+          },
+          "contact2": {
+            "x": 158.203125,
+            "y": 334.875
+          },
+          "after": {
+            "screen": "result",
+            "player": "สมชายใจดีมากพี่น้องสุดที่สุดในโลกทั้งใบนี้เท่านั้นเอง",
+            "stickButtons": 1,
+            "paragraphs": [
+              "ไม้สั้น!",
+              "สมชายใจดีมากพี่น้องสุดที่สุดในโลกทั้งใบนี้เท่านั้นเอง โดน",
+              "วงตกลงกันเองว่าคนโดนต้องทำอะไร"
+            ]
+          },
+          "verdict": "FAIL",
+          "note": "ghost tap registered when it should have been suppressed — screen=result player=สมชายใจดีมากพี่น้องสุดที่สุดในโลกทั้งใบนี้เท่านั้นเอง"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 160,
+          "y": 327.46875
+        },
+        "contact2": {
+          "x": 158.203125,
+          "y": 334.875
+        },
+        "bundleRect": {
+          "left": 139.203125,
+          "top": 333.875,
+          "right": 180.796875,
+          "bottom": 436.265625
+        },
+        "scan": {
+          "points": 147,
+          "hits": 133,
+          "samples": [
+            {
+              "x": 140,
+              "y": 345
+            },
+            {
+              "x": 140,
+              "y": 350
+            },
+            {
+              "x": 140,
+              "y": 355
+            }
+          ],
+          "nearest": {
+            "x": 158.203125,
+            "y": 334.875
+          },
+          "nearestDist": 7.621108766322981
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2373.7000000001863
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2803.7000000001863
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3157
+        }
+      ],
+      "scenarioError": null
+    }
+  ],
+  "timebomb": [
+    {
+      "label": "320px roster8 delay-sweep",
+      "width": 320,
+      "rosterSize": 8,
+      "gapTests": [
+        {
+          "gapMs": 100,
+          "contact1": {
+            "x": 45,
+            "y": 329
+          },
+          "contact2": {
+            "x": 45,
+            "y": 283.875
+          },
+          "after": {
+            "hasStart": false,
+            "hasPulse": true,
+            "hasPass": true,
+            "hasAgain": false
+          },
+          "verdict": "FAIL",
+          "note": "ghost tap registered when it should have been suppressed — {\"hasStart\":false,\"hasPulse\":true,\"hasPass\":true,\"hasAgain\":false}"
+        },
+        {
+          "gapMs": 350,
+          "contact1": {
+            "x": 45,
+            "y": 329
+          },
+          "contact2": {
+            "x": 45,
+            "y": 283.875
+          },
+          "after": {
+            "hasStart": false,
+            "hasPulse": true,
+            "hasPass": true,
+            "hasAgain": false
+          },
+          "verdict": "FAIL",
+          "note": "ghost tap registered when it should have been suppressed — {\"hasStart\":false,\"hasPulse\":true,\"hasPass\":true,\"hasAgain\":false}"
+        },
+        {
+          "gapMs": 490,
+          "contact1": {
+            "x": 45,
+            "y": 329
+          },
+          "contact2": {
+            "x": 45,
+            "y": 283.875
+          },
+          "after": {
+            "hasStart": false,
+            "hasPulse": true,
+            "hasPass": true,
+            "hasAgain": false
+          },
+          "verdict": "PASS",
+          "note": "deliberate post-window tap registered — fuse armed"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 45.3515625,
+          "y": 328.875
+        },
+        "contact2": {
+          "x": 45,
+          "y": 283.875
+        },
+        "startRect": {
+          "left": 8,
+          "top": 262.875,
+          "right": 84.25,
+          "bottom": 286.875,
+          "cx": 46.125,
+          "cy": 274.875
+        },
+        "scan": {
+          "points": 65,
+          "hits": 65,
+          "samples": [
+            {
+              "x": 9,
+              "y": 264
+            },
+            {
+              "x": 9,
+              "y": 269
+            },
+            {
+              "x": 9,
+              "y": 274
+            }
+          ],
+          "nearest": {
+            "x": 45,
+            "y": 283.875
+          },
+          "nearestDist": 45.00137327006151
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2609.0999999996275
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3758.5999999996275
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3861.199999999255
+        }
+      ],
+      "scenarioError": null
+    },
+    {
+      "label": "390px roster8",
+      "width": 390,
+      "rosterSize": 8,
+      "gapTests": [
+        {
+          "gapMs": 350,
+          "contact1": {
+            "x": 45,
+            "y": 307
+          },
+          "contact2": {
+            "x": 45,
+            "y": 261.875
+          },
+          "after": {
+            "hasStart": false,
+            "hasPulse": true,
+            "hasPass": true,
+            "hasAgain": false
+          },
+          "verdict": "FAIL",
+          "note": "ghost tap registered when it should have been suppressed — {\"hasStart\":false,\"hasPulse\":true,\"hasPass\":true,\"hasAgain\":false}"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 45.3515625,
+          "y": 306.875
+        },
+        "contact2": {
+          "x": 45,
+          "y": 261.875
+        },
+        "startRect": {
+          "left": 8,
+          "top": 240.875,
+          "right": 84.25,
+          "bottom": 264.875,
+          "cx": 46.125,
+          "cy": 252.875
+        },
+        "scan": {
+          "points": 65,
+          "hits": 65,
+          "samples": [
+            {
+              "x": 9,
+              "y": 242
+            },
+            {
+              "x": 9,
+              "y": 247
+            },
+            {
+              "x": 9,
+              "y": 252
+            }
+          ],
+          "nearest": {
+            "x": 45,
+            "y": 261.875
+          },
+          "nearestDist": 45.00137327006151
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2578.5
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3716.4000000003725
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 4068.4000000003725
+        }
+      ],
+      "scenarioError": null
+    },
+    {
+      "label": "320px name-extremes",
+      "width": 320,
+      "rosterSize": 2,
+      "gapTests": [
+        {
+          "gapMs": 350,
+          "contact1": {
+            "x": 45,
+            "y": 307
+          },
+          "contact2": {
+            "x": 45,
+            "y": 283.875
+          },
+          "after": {
+            "hasStart": false,
+            "hasPulse": true,
+            "hasPass": true,
+            "hasAgain": false
+          },
+          "verdict": "FAIL",
+          "note": "ghost tap registered when it should have been suppressed — {\"hasStart\":false,\"hasPulse\":true,\"hasPass\":true,\"hasAgain\":false}"
+        }
+      ],
+      "collisionEvidence": {
+        "contact1": {
+          "x": 45.3515625,
+          "y": 306.875
+        },
+        "contact2": {
+          "x": 45,
+          "y": 283.875
+        },
+        "startRect": {
+          "left": 8,
+          "top": 262.875,
+          "right": 84.25,
+          "bottom": 286.875,
+          "cx": 46.125,
+          "cy": 274.875
+        },
+        "scan": {
+          "points": 65,
+          "hits": 65,
+          "samples": [
+            {
+              "x": 9,
+              "y": 264
+            },
+            {
+              "x": 9,
+              "y": 269
+            },
+            {
+              "x": 9,
+              "y": 274
+            }
+          ],
+          "nearest": {
+            "x": 45,
+            "y": 283.875
+          },
+          "nearestDist": 23.00268671680346
+        }
+      },
+      "pointerdownOnDisabled": [
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 2603.600000000559
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 3737.600000000559
+        },
+        {
+          "tag": "BUTTON",
+          "disabled": false,
+          "t": 4088.9000000003725
+        }
+      ],
+      "scenarioError": null
+    }
+  ],
+  "consoleErrors": []
+}
