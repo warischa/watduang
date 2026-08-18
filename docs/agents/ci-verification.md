@@ -90,3 +90,27 @@ finished. Check `.statuses | length` before believing `.state`.
 GitHub also returns intermittent `HTTP 503` on `api.github.com/graphql` (which `gh issue close` uses).
 A close can fail with 503 *after* the comment posted — re-read the issue state rather than assuming
 either outcome.
+
+## Calibrating a new gate when per-step verdicts are unreadable
+
+A run-level `conclusion` cannot tell a passing step from a silently no-oping one, and the per-step
+endpoint 404s here too. So a new gate is calibrated at **run level with a one-variable diff**, on a
+throwaway branch:
+
+1. `on: push` in `ci.yml` carries **no branch filter**, so any branch produces a real run. `main` never
+   has to go red.
+2. Push two commits whose trees are byte-identical except the deliberate break. Prove it — `git diff`
+   between the two trees, excluding the break, must be empty. More than one variable and the result
+   isolates nothing.
+3. The break must be **type-only and runtime-inert** (a wrong annotation, never a broken call or import
+   path), so that if the gate turns out to be dead, the green commit deploys something harmless.
+4. Read both conclusions from the workflow-scoped runs endpoint above, then delete the branch local and
+   remote.
+
+Red on the broken head and green on the restored head proves the yaml actually runs and actually blocks
+— which local calibration cannot, because a `|| true`, a bad indent, or a devDependency that never
+reaches CI all pass locally. It does **not** prove which step went red. Record that limit in the
+evidence rather than letting a run-level green imply more than it earned.
+
+Worked example: the `astro check` gate from gh#38, evidence
+`docs/verification/evidence/38/06-box3-calibration.json`.
