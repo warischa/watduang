@@ -51,7 +51,7 @@ In English: on one real phone, play `timebomb` for real — start → pass it ar
 
 **What it unblocks:** `watduang.com` finally points at the deployed site instead of only the `azurestaticapps.net` URL — the domain bought in §1 and the app deployed in §2 are now the same site a visitor reaches, on one canonical hostname.
 
-## 5. AdSense account + publisher ID — [#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)
+## 5. AdSense account + publisher ID — [#29](https://github.com/warischa/watduang/issues/29), closing boxes on [#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)
 
 **Why blocked on you:** an AdSense account is tied to your Google identity, your address, and your payment and tax details. An agent has none of these and must never enter them.
 

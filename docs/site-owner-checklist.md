@@ -105,31 +105,10 @@ in one hop.
 
 ## 5. AdSense account + publisher ID — [#29](https://github.com/warischa/watduang/issues/29)
 
-Full steps and the CSP constraint live in [post-launch-checklist.md](post-launch-checklist.md) §5 —
-this is the summary so the three owner-blocked items are all in one place.
+Full steps live in [post-launch-checklist.md](post-launch-checklist.md) §5 — including the two
+constraints that matter most: Google's inline activation snippet must NOT be pasted into a page
+(ADR-0005; CI fails the build on it), and pages carrying `ads: false` keep it. The heading stays here
+so a heading scan still finds it, and so an existing §5 citation still resolves in one hop.
 
-**Why blocked on you:** an AdSense account is tied to your Google identity, your address, and your
-payment and tax details — an agent has none of these and must never enter them.
-
-**What you need in hand before starting:** §1 and §2 above done, and §4 (connecting the domain,
-in [post-launch-checklist.md](post-launch-checklist.md)) also done — AdSense reviews a live site on
-its real domain, so there is nothing to submit until `watduang.com` loads the deployed site. You
-also need a Google account and your address/payment/tax details ready for AdSense's own sign-up
-form.
-
-**What you do:** go to `adsense.google.com`, sign in, add `watduang.com`, and request review
-(commonly takes days to weeks — no way to shorten it).
-
-**What to hand back:** your **publisher ID** (looks like `ca-pub-0000000000000000`) — it's not a
-secret in the credential sense (it ships in the page), so paste it directly into whichever issue or
-PR is doing the integration, or hand it to an agent explicitly.
-
-**What it unblocks:** the four ad-slot DoD boxes — [#15](https://github.com/warischa/watduang/issues/15),
-[#16](https://github.com/warischa/watduang/issues/16), [#17](https://github.com/warischa/watduang/issues/17),
-[#18](https://github.com/warischa/watduang/issues/18) — each currently has exactly one unchecked box
-(the ad-slot placement item), and this is the last thing blocking it. It does **not** by itself close
-the epic [#14](https://github.com/warischa/watduang/issues/14) — see the warning at the top of this
-doc for why that's a separate, manual step.
-
-**How you know it worked:** the AdSense dashboard shows your site as **Ready**, and you have a
-`ca-pub-` publisher ID in hand.
+Ordering, and what it does *not* close (epic [#14](https://github.com/warischa/watduang/issues/14)),
+are in the warning at the top of this doc.
