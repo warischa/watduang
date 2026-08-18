@@ -7,6 +7,7 @@
 // extensions) — Vite/tsc accept both.
 import type { GameContext, GameModule } from './types.ts';
 import { pickLoser } from './pick-loser.ts';
+import { armAfterQuiet } from './_arm-gate.ts';
 
 // ---- The round: pure and calculable, testable with no DOM (see short-stick.test.mjs) ----
 
@@ -86,14 +87,22 @@ function renderDraw(): void {
   stage.appendChild(el('p', `แตะไม้อันไหนก็ได้ 1 อัน — เหลือ ${r.order.length - turn} อัน`));
 
   const bundle = el('div', undefined, BUNDLE_STYLE);
+  const bundleSticks: HTMLButtonElement[] = [];
   for (let i = 0; i < r.order.length - turn; i++) {
     const stick = el('button', undefined, STICK_STYLE);
     stick.type = 'button';
     stick.setAttribute('aria-label', 'จับไม้');
     on(stick, 'click', drawOne);
+    bundleSticks.push(stick);
     bundle.appendChild(stick);
   }
   stage.appendChild(bundle);
+
+  // Every way into this screen replaces one the finger was already aiming at — the "ส่งต่อ" tap, the
+  // mount out of PlayerSetup, and the "เล่นอีกรอบ" remount. Gating here covers all three at once: the
+  // bundle arms only after the stage goes quiet, so a ghost tap cannot draw for the next player.
+  // There is no checkpoint in this game, so a stolen draw takes the whole round with it.
+  cleanup.push(armAfterQuiet(stage, bundleSticks));
 }
 
 function renderPassing(player: string, next: string): void {
@@ -140,6 +149,12 @@ function renderResult(player: string): void {
   stage.appendChild(again);
   // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
   // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
+
+  // The mirror of the gate in renderDraw, and the reason both exist: the tap that draws the short
+  // stick swaps this screen in under its own finger, so the second contact lands on "เล่นอีกรอบ" and
+  // remounts. That destroys the only copy of the result — nothing here is checkpointed (see the top
+  // of this file), so an erased round is an erased round.
+  cleanup.push(armAfterQuiet(stage, [again]));
 
   animateReveal(line);
 }

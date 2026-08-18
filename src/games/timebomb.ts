@@ -7,6 +7,7 @@
 import type { GameContext, GameModule } from './types.ts';
 import { boom, tick, unlockAudio } from '../shell/audio.ts';
 import { requestWakeLock, type WakeLockHandle } from '../shell/wake-lock.ts';
+import { armAfterQuiet } from './_arm-gate.ts';
 
 // ---- Time: pure and calculable, testable with no DOM (see timebomb.test.mjs) ----
 
@@ -56,6 +57,8 @@ let wakeWarned = false;
 let wasHidden = false;
 let players: string[] = [];
 let holder = 0;
+// Survives teardown/remount on purpose — a ghost tap on "เล่นอีกรอบ" must not erase who just lost.
+let lastLoser: string | null = null;
 
 function on(target: EventTarget, type: string, handler: EventListener): void {
   target.addEventListener(type, handler);
@@ -89,12 +92,20 @@ function renderIdle(): void {
   const names = gameCtx?.session.players ?? [];
   stage.appendChild(el('p', `วง ${names.length || '-'} คน — ส่งมือถือวนไปเรื่อยๆ`));
   stage.appendChild(el('p', 'กดเริ่มแล้วฟิวส์จะเดิน ไม่มีใครรู้ว่าจะระเบิดตอนไหน'));
+  // A ghost tap on "เล่นอีกรอบ" remounts straight into this screen — still say who just lost.
+  if (lastLoser) stage.appendChild(el('p', `รอบที่แล้ว ${lastLoser} แพ้ — ถือมือถืออยู่ตอนระเบิด`));
 
   const startBtn = el('button', 'เริ่มจับเวลา');
   startBtn.id = 'tb-start';
   startBtn.type = 'button';
   on(startBtn, 'click', arm); // must be a real user gesture — iOS only unlocks audio right here
   stage.appendChild(startBtn);
+
+  // renderBoom swaps the stage with no warning and "เล่นอีกรอบ" remounts straight into this screen, so
+  // this button can land under a finger that is still mid-double-tap. arm() accepts any gesture and
+  // a fuse nobody knows about is already running by the time anyone notices — gate it until the
+  // stage goes quiet. Still a real user gesture when it fires, so iOS audio unlock is unaffected.
+  cleanup.push(armAfterQuiet(stage, [startBtn]));
 }
 
 function renderTicking(): void {
@@ -136,8 +147,9 @@ function renderBoom(): void {
   stage.replaceChildren();
   pulseEl = null;
 
+  lastLoser = players[holder];
   stage.appendChild(el('p', 'ตูม!', 'font-size:2rem;font-weight:700'));
-  stage.appendChild(el('p', `${players[holder]} ถือมือถืออยู่ตอนระเบิด — แพ้รอบนี้`));
+  stage.appendChild(el('p', `${lastLoser} ถือมือถืออยู่ตอนระเบิด — แพ้รอบนี้`));
 
   const again = el('button', 'เล่นอีกรอบ');
   again.id = 'tb-again';
