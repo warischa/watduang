@@ -46,9 +46,15 @@ exceptions"; this ADR does not restate them.
   to remember. That is the anti-rot property rule 2 could not have.
 - The cost is a swallowed first tap on controls where nothing was ever at risk — bounded at 400ms,
   failing closed, and the player simply taps again.
-- `short-stick` and `timebomb` still pass hand-picked arrays to `armAfterQuiet`, while these four
-  gate uniformly. `_arm-gate.ts`'s own header says the module is shared "so the two cannot drift
-  apart"; that drift now exists against its stated purpose, and is unresolved.
+- `short-stick` and `timebomb` originally kept hand-picked arrays while these four gated uniformly —
+  a drift against `_arm-gate.ts`'s own header, which says the module is shared "so the two cannot
+  drift apart". Resolved during gh#38's session: all three call sites (`renderDraw`, `renderResult`,
+  `renderIdle`) now call `armAllButtons`. The conversion was shape-only — each render already held
+  exactly the buttons its hand-picked array listed, and the arm call already ran after every append —
+  so it was accepted on the unit harness alone. The real-touch probes were deliberately NOT re-run:
+  they prove a physical-layer fact (a real touch on a `disabled` button still bubbles `pointerdown`)
+  that a set-identical conversion cannot disturb. `renderPassing`, `renderTicking`, and `renderBoom`
+  remain ungated; gating them is a behaviour change and needs ADR-0016's per-path premise judgement.
 - Verified with real touch, never `.click()`: 32/32 green on the fix, 11 calibrated red **per game**
   on a pre-fix worktree. Evidence `docs/verification/evidence/42/`. `#lm-reset` is proven
   structurally rather than by touch collision — it is never visible inside an arm window — and that
@@ -56,7 +62,10 @@ exceptions"; this ADR does not restate them.
 - The unit tests were one-sided as first written: they asserted disabled-at-paint and never advanced
   time, so a gate that never armed would have passed them. Rewritten onto `short-stick.test.mjs`'s
   harness, whose `click()` respects `disabled`, plus `t.mock.timers` for both sides of the window.
-  Proven by substituting a never-arming stub: exactly four failures, one per game.
+  Proven by substituting a never-arming stub: the suite goes red. The count tracks ghost-tap tests,
+  not games — four when this ADR was written and these four games were the only ones gated. Re-derive
+  it with the stub rather than trusting a number written here; retrofitting short-stick and timebomb
+  onto `armAllButtons` took it to nine.
 
 ## The fact that would change this
 

@@ -7,7 +7,7 @@
 import type { GameContext, GameModule } from './types.ts';
 import { boom, tick, unlockAudio } from '../shell/audio.ts';
 import { requestWakeLock, type WakeLockHandle } from '../shell/wake-lock.ts';
-import { armAfterQuiet } from './_arm-gate.ts';
+import { armAllButtons } from './_arm-gate.ts';
 
 // ---- Time: pure and calculable, testable with no DOM (see timebomb.test.mjs) ----
 
@@ -105,7 +105,7 @@ function renderIdle(): void {
   // this button can land under a finger that is still mid-double-tap. arm() accepts any gesture and
   // a fuse nobody knows about is already running by the time anyone notices — gate it until the
   // stage goes quiet. Still a real user gesture when it fires, so iOS audio unlock is unaffected.
-  cleanup.push(armAfterQuiet(stage, [startBtn]));
+  cleanup.push(armAllButtons(stage));
 }
 
 function renderTicking(): void {

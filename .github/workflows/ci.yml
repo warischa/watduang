@@ -52,6 +52,12 @@ jobs:
       - name: Unit tests
         run: node --test 'src/**/*.test.mjs'
 
+      # astro check writes .astro/ type files, never dist/ — running it here, before Build,
+      # makes it structurally impossible for this verification step to invalidate the dist/
+      # artifact that every gate below reads. gh#38.
+      - name: Astro check
+        run: npx astro check
+
       # npm run build, not npx astro build — the prebuild in package.json must actually run,
       # otherwise the gate that blocks games with no OG image only fires when invoked the other way.
       - name: Build

@@ -8,11 +8,11 @@ export interface Roster {
    *  before rendering names(), or the list is drawn without whatever another tab just added. */
   add(name: string): Promise<void>;
   // ponytail: remove/clear deleted as dead code — zero callers, verified by grep over src/** plus a
-  // local `tsc --noEmit` (exit 0). Ceiling, measured not assumed: tsc's program contains 0 .astro
-  // files, so it cannot see PlayerSetup.astro — the roster's actual consumer — and ci.yml runs no
-  // typecheck at all. So nothing standing re-checks this: a future `.ts` caller WOULD be caught by
-  // a `tsc` step if one existed (CI runs none), but a future `.astro` caller escapes tsc entirely
-  // and fails at runtime instead. `astro check` is the upgrade path that covers `.astro`.
+  // local `tsc --noEmit` (exit 0). Ceiling, measured not assumed (gh#38): `npx astro check` is now a
+  // blocking CI step (ci.yml, before Build) and does read .astro files — it catches a type-visible
+  // call to a removed roster method from an .astro file, PlayerSetup.astro included. It does not
+  // catch a dynamic property access (`roster[name]()`), anything reached through `any`, or a call in
+  // a file the toolchain does not type-check — those still fail at runtime instead of in CI.
   // A naive re-add also ships a cross-tab tombstone race: do union-then-subtract *inside* the
   // navigator.locks critical section (see roster.ts's withLock), or a tab whose write was swallowed
   // by quota (Safari private mode, full storage) deletes names it never saw.

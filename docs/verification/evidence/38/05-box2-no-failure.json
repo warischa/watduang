@@ -1,0 +1,11 @@
+{
+  "box": "gh#38 DoD box 2 \u2014 if `astro check` fails, a decision is recorded on whether to fix the pre-existing errors or add the step in a non-blocking mode first.",
+  "method": "Read box 1's captured result directly: 0 errors, 0 warnings, 4 hints, exit 0. The precondition for this box (\"if it fails\") never triggered, so there is no fix-vs-non-blocking decision to record \u2014 recording one anyway would be inventing a decision nothing forced.",
+  "capturedAtCommit": "05447f6",
+  "capturedAtCommitNote": "Working tree DIRTY at capture. Uncommitted files: .github/workflows/ci.yml, docs/adr/0017-two-sets-not-one-the-gate-covers-every-button.md, package-lock.json, package.json, src/games/short-stick.ts, src/games/timebomb.ts, src/games/types.ts (all modified, carried over from earlier this session), and the now-deleted untracked docs/verification/gh38-astro-check-first-run.md (present at capture time, removed by this rework once this directory's JSON files existed). This report's verdict rests on that dirty tree's ci.yml (the `npx astro check` step) and types.ts (the ceiling comment), not on 05447f6 alone.",
+  "verdict": "UNDECIDED",
+  "preconditionTriggered": false,
+  "checkFailedOnFirstRun": false,
+  "decisionRecordedBecauseNoneWasNeeded": true,
+  "note": "UNDECIDED here means \"no local referent to check against, and no owner who could ever supply one\" in the sense that this box's own precondition is false \u2014 not that the underlying question is unresolved. There is nothing to prove FAILED or PROVEN about a branch that was never entered."
+}
