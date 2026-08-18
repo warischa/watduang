@@ -3,14 +3,14 @@
 // The invariant under test is the one the game exists for (#34): the reading is a pure function of
 // (sorted normalized pair, Bangkok date) — tap order cannot change it, the same group on the same day
 // gets the same answer, and the score can never contradict the line printed next to it.
-// The two DOM tests near the bottom (#36) cover a different seam — the pick SCREEN, not the reading —
-// using a hand-rolled fake `document` (no jsdom/happy-dom in this repo) that implements only what
-// love-match.ts's el()/on() actually touch: createElement, textContent, setAttribute/getAttribute,
-// appendChild, addEventListener, and a click() that fires stored listeners without checking attachment.
+// The DOM tests near the bottom (#36, #42) cover a different seam — the pick SCREEN, not the reading —
+// using a hand-rolled fake `document` (no jsdom/happy-dom in this repo), the same pattern
+// short-stick.test.mjs uses (the reference DOM harness in this repo).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import game, { BANDS, HEADER_NAME_MAX, SCORES, bandFor, lineFor, pairSeed, scoreFor } from './love-match.ts';
 import { normalizeName } from './daily-fortune.ts';
+import { ARM_DELAY_MS } from './_arm-gate.ts';
 
 // ---- Minimal fake DOM for the two #36 tests below — see the header comment for why. ----
 class FakeElement {
@@ -35,12 +35,10 @@ class FakeElement {
   removeEventListener(type, fn) {
     this._listeners[type] = (this._listeners[type] || []).filter((f) => f !== fn);
   }
-  // No `disabled`/attachment check on purpose: a real disabled button also stops firing at the
-  // browser level, so this stub only needs to prove love-match.ts's OWN guard (pick()'s
-  // `index === firstIndex` check), not re-prove what the DOM spec already guarantees.
-  click() {
-    (this._listeners.click || []).forEach((fn) => fn());
-  }
+  dispatch(type) { (this._listeners[type] || []).forEach((fn) => fn()); }
+  // A disabled control dispatches no activation — the platform swallows the click before any
+  // listener runs. The fake models that on purpose: without it every gate assertion passes vacuously.
+  click() { if (!this.disabled) this.dispatch('click'); }
 }
 const fakeDocument = { createElement: (tag) => new FakeElement(tag) };
 globalThis.document = fakeDocument;
@@ -289,10 +287,12 @@ test('the pair is ordered by code unit, so no locale can reorder it', () => {
 // ---- #36: the pick SCREEN, not the reading — a rapid double-tap must not announce a pair the group
 // never chose. Both tests below drive the real mount()/pick() path through the fake DOM above. ----
 
-test('#36: a first tap does not reflow or rebuild the chip row', () => {
+test('#36: a first tap does not reflow or rebuild the chip row', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
   const stage = fakeDocument.createElement('div');
   const players = ['เอ', 'บี', 'ซี'];
   game.mount(stage, makeCtx(players));
+  t.mock.timers.tick(ARM_DELAY_MS + 1); // #42 gates the fresh chip row; wait past it, as a real tap would
 
   const chipsBefore = stage.children[1].children.slice();
   const textBefore = chipsBefore.map((c) => c.textContent);
@@ -310,10 +310,12 @@ test('#36: a first tap does not reflow or rebuild the chip row', () => {
   game.dispose();
 });
 
-test('#36: a fast double-tap on one chip cannot pair a person with themselves', () => {
+test('#36: a fast double-tap on one chip cannot pair a person with themselves', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
   const stage = fakeDocument.createElement('div');
   const players = ['เอ', 'บี', 'ซี'];
   game.mount(stage, makeCtx(players));
+  t.mock.timers.tick(ARM_DELAY_MS + 1); // #42 gates the fresh chip row; wait past it, as a real tap would
 
   const tapped = stage.children[1].children[0]; // players[0]'s chip — the exact node under the finger both times
   tapped.click();
@@ -328,6 +330,39 @@ test('#36: a fast double-tap on one chip cannot pair a person with themselves', 
   game.dispose();
 });
 
+test('#42: ghost-tap gate — every button on the pick screen disables at render, including a hidden one', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const players = ['เอ', 'บี', 'ซี'];
+  game.mount(stage, makeCtx(players));
+
+  // The chip row: unlike daily-fortune's roster chips, chip→chip here crosses no #stage swap (the
+  // first tap mutates the row in place, see pick()), so there is no same-finger exception to carve out.
+  const chips = stage.children[1].children;
+  assert.equal(chips.length, players.length, 'setup: one chip per player');
+  for (const chip of chips) {
+    assert.equal(chip.disabled, true, `${chip.textContent} chip must be disabled the instant the row is painted`);
+  }
+
+  // lm-reset ('back') starts hidden but is still a real button in this render — armAllButtons finds
+  // every <button> under the stage, not a hand-picked list, so a control nobody named is gated too.
+  const back = stage.children[2];
+  assert.equal(back.disabled, true, 'lm-reset must be disabled at render even though it starts hidden');
+
+  // before arming: a click on a gated chip must not register a pick
+  chips[0].click();
+  assert.equal(chips[0].getAttribute('aria-pressed'), null,
+    'a ghost tap picked a player before the window elapsed — the disabled chip fired anyway');
+
+  // one window later the same tap really does register the pick
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(chips[0].disabled, false, 'the chip row never armed');
+  chips[0].click();
+  assert.equal(chips[0].getAttribute('aria-pressed'), 'true', 'a real tap after arming did not register the pick');
+
+  game.dispose();
+});
+
 test('a long player name cannot grow the header past its HEADER_NAME_MAX-truncated length', () => {
   const stage = fakeDocument.createElement('div');
   const longName = 'ก'.repeat(50); // far past a maxlength=24 input, and past any old uncapped localStorage name
@@ -335,7 +370,10 @@ test('a long player name cannot grow the header past its HEADER_NAME_MAX-truncat
   game.mount(stage, makeCtx(players));
 
   const header = stage.children[0];
-  stage.children[1].children[0].click(); // tap 1: pick players[0], the long name
+  // dispatch(), not click(): this test's own concern is header truncation, not the #42 gate — going
+  // straight at the listener keeps it decoupled from ARM_DELAY_MS timing, the same way the #36 tests
+  // did before #42 existed.
+  stage.children[1].children[0].dispatch('click'); // tap 1: pick players[0], the long name
 
   // The header string is a fixed prefix plus the (possibly truncated) name plus an ellipsis when cut —
   // so its length must never exceed prefix + HEADER_NAME_MAX + 1 (the ellipsis char), regardless of how

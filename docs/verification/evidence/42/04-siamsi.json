@@ -1,0 +1,49 @@
+{
+  "box": "gh#42 — siamsi: #ss-start, #ss-draw, #ss-pass, and #ss-again are all gated by armAllButtons (no exception on this game). #ss-draw and #ss-pass are each tested at both of their occurrences in a 2-player round (once per player).",
+  "method": "scripts/arm-gate-probe.mjs, extended this session (runSiamsiScenario / siamsiHopSubtest). Real touch only (Input.dispatchTouchEvent). Each of the 6 hops (idle->turn1->drawn1->turn2->drawn2->summary->idle) is tested as an INDEPENDENT trial: a fresh idle screen is reached (full nav + roster tick, every time), a short walk of real deliberate taps reaches the screen holding the hop's own cause control untapped, an untimed dry run learns the effect control's rect, then a real cause tap + a real second contact 100ms/500ms later (un-awaited-dispatch technique) tests suppression/registration. Two corrections were made before this capture: (1) buildDeck() shuffles with Math.random(), and the drawn card's own text length (not just the roster) shifts #ss-pass's Y position, so a rect learned on one round's random deck silently missed the button on the next round's — Math.random() is patched to a fixed LCG (same technique as timebomb's Date.now patch elsewhere in this file), reset before every fresh round, so every round in this probe draws the identical deck. (2) An earlier 'chained' design reused a stale rect as the next hop's cause after that control had already been tapped away, and separately never accounted for siamsi's own checkpoint (ADR-0010, siamsi is the sole checkpoint writer) opening a resume-choice prompt on a subsequent nav instead of the roster panel — both are why every hop now starts from a genuinely fresh idle screen, forcing the 'start fresh' branch of that prompt when it appears.",
+  "capturedAtCommit": "9510d21",
+  "capturedAtCommitNote": "Working tree DIRTY at capture. Uncommitted files: docs/adr/0016-a-gate-that-classifies-nothing-converges.md, docs/verification/evidence/39/{01-love-match-grid,02-double-tap-prefix,03-double-tap-postfix,04-closed-and-dismissed}.json, scripts/arm-gate-probe.mjs, src/games/_arm-gate.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.test.mjs. This report's PROVEN verdict rests on that dirty tree's src/games/siamsi.ts and src/games/_arm-gate.ts (armAllButtons), not on 9510d21 alone.",
+  "verdict": "PROVEN",
+  "calibration": {
+    "method": "Same worktree/port-isolation method as 01-daily-fortune.json (baseline = 9510d21, ports 4322/9333). Only scripts/arm-gate-probe.mjs copied in; src/games/siamsi.ts left pre-fix.",
+    "baselineCommit": "9510d21 (src/games/siamsi.ts pre-fix, no armAllButtons)",
+    "ghostTapDidNotActivateOnBaseline": false,
+    "note": "All 6 hops' 100ms suppression checks FAILED on the baseline (ghost tap registered on every one of #ss-start/#ss-draw (both occurrences)/#ss-pass (both occurrences)/#ss-again) and all 6 500ms checks still PASSED — same calibration signature as every other game in this issue, covering all 4 control ids."
+  },
+  "checks": [
+    { "control": "#ss-draw (turn 1)", "ghostTapDidNotActivate": true, "ghostTapDidNotActivate_gapMs": 100, "normalTapDidActivate": true, "normalTapDidActivate_gapMs": 500, "baselineGhostTapDidNotActivate": false, "note": "Cause = #ss-start (idle screen)." },
+    { "control": "#ss-pass (turn 1)", "ghostTapDidNotActivate": true, "ghostTapDidNotActivate_gapMs": 100, "normalTapDidActivate": true, "normalTapDidActivate_gapMs": 500, "baselineGhostTapDidNotActivate": false, "note": "Cause = #ss-draw, player 1's turn screen." },
+    { "control": "#ss-draw (turn 2)", "ghostTapDidNotActivate": true, "ghostTapDidNotActivate_gapMs": 100, "normalTapDidActivate": true, "normalTapDidActivate_gapMs": 500, "baselineGhostTapDidNotActivate": false, "note": "Cause = #ss-pass, player 1's drawn screen — second occurrence of #ss-draw, distinct rect from turn 1 (different card text above it)." },
+    { "control": "#ss-pass (turn 2)", "ghostTapDidNotActivate": true, "ghostTapDidNotActivate_gapMs": 100, "normalTapDidActivate": true, "normalTapDidActivate_gapMs": 500, "baselineGhostTapDidNotActivate": false, "note": "Cause = #ss-draw, player 2's turn screen — second occurrence of #ss-pass, distinct rect from turn 1 (different card text above it)." },
+    { "control": "#ss-again", "ghostTapDidNotActivate": true, "ghostTapDidNotActivate_gapMs": 100, "normalTapDidActivate": true, "normalTapDidActivate_gapMs": 500, "baselineGhostTapDidNotActivate": false, "note": "Cause = #ss-pass, player 2's drawn screen (round over)." },
+    { "control": "#ss-start", "ghostTapDidNotActivate": true, "ghostTapDidNotActivate_gapMs": 100, "normalTapDidActivate": true, "normalTapDidActivate_gapMs": 500, "baselineGhostTapDidNotActivate": false, "note": "Cause = #ss-again on the summary screen (remounts a fresh idle screen for the next round)." }
+  ],
+  "postFixGapTests": [
+    { "control": "ss-draw (turn 1)", "gapMs": 100, "verdict": "PASS" },
+    { "control": "ss-draw (turn 1)", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-pass (turn 1)", "gapMs": 100, "verdict": "PASS" },
+    { "control": "ss-pass (turn 1)", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-draw (turn 2)", "gapMs": 100, "verdict": "PASS" },
+    { "control": "ss-draw (turn 2)", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-pass (turn 2)", "gapMs": 100, "verdict": "PASS" },
+    { "control": "ss-pass (turn 2)", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-again", "gapMs": 100, "verdict": "PASS" },
+    { "control": "ss-again", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-start", "gapMs": 100, "verdict": "PASS" },
+    { "control": "ss-start", "gapMs": 500, "verdict": "PASS" }
+  ],
+  "baselineGapTests": [
+    { "control": "ss-draw (turn 1)", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "ss-draw (turn 1)", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-pass (turn 1)", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "ss-pass (turn 1)", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-draw (turn 2)", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "ss-draw (turn 2)", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-pass (turn 2)", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "ss-pass (turn 2)", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-again", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "ss-again", "gapMs": 500, "verdict": "PASS" },
+    { "control": "ss-start", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "ss-start", "gapMs": 500, "verdict": "PASS" }
+  ]
+}

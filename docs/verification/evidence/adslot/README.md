@@ -12,10 +12,20 @@ under its number and delete this note.
 `01-full-run.json`'s `scopeNotCovered` before citing this as a general clearance — in particular
 `wheel.astro` under default motion is N/A rather than tested.
 
-## Recorded here because no issue tracks it
+## Measured 2026-08-18 — no collision, and it is a grow, not a shrink
 
-`wheel.astro`'s list shrink fires ~1200ms after the tap under default motion. This walk calls that
-N/A, and that is honest **for the double-tap question** — 1200ms is far outside any ghost-tap window.
-It is not a clean bill of health: a 1200ms-delayed layout shift sitting above a live ad is a CLS
-misclick risk for a *deliberate* tap, which is a different hazard and is unmeasured. Filing it was
-not authorized this session.
+This was carried here as an unmeasured CLS misclick risk: a ~1200ms-delayed layout shift above a
+live ad, outside any ghost-tap window and therefore a hazard to a *deliberate* tap. It has now been
+measured, and the premise was wrong in direction.
+
+- Delay: **1202.8ms** mean (n=5, 320px, default motion), matching `SPIN_MS=1200`. Under
+  `prefers-reduced-motion` it is **~0.8ms** — `reveal()` runs synchronously in the tap handler, so
+  the deferred window does not exist there at all.
+- Shift: **-24px, away from the ad rather than into it.** `render()` never removes a row; it appends
+  "(ออกแล้ว)" to the spun name, which sometimes wraps to a second line and *grows* the list.
+- Collision: **0/10 runs** across both motion conditions, grid-scanned rather than centre-sampled.
+
+No issue filed: measured, and no misclick collision exists for the targets tested. Earlier wording
+in this file called the change a "shrink" — that was wrong in direction, and is corrected here.
+Evidence: `03-wheel-delayed-shrink-default-motion.json`, `04-wheel-delayed-shrink-reduced-motion.json`,
+probe `scripts/adslot-wheel-delay-probe.mjs`.

@@ -1,4 +1,10 @@
 {
+  "box": "gh#39 — post-fix half of the paired real-touch capture on siamsi #ss-again; the leave-confirm now intercepts the second contact that previously reached the link.",
+  "method": "Real touch via CDP Input.dispatchTouchEvent (not .click()); siamsi, roster 7 — identical game and roster to 02-double-tap-prefix.json.",
+  "capturedAtCommit": "1c84799",
+  "capturedAtCommitNote": "Backfilled 2026-08-18 at 9510d21 — these five keys were NOT written by the probe run. The capture base is derived from git, not recorded at run time: a0c360b added this file together with scripts/leave-confirm-probe.mjs and scripts/crawl-check-gamenav.mjs and changed no src/, so the run used uncommitted probe scripts against its parent 1c84799 (the leave-confirm guard itself). Tree was dirty at capture. Git can show only what was committed alongside in a0c360b (docs/verification/evidence/39/*.json and scripts/{crawl-check-gamenav,driver,gamenav-again-grid-probe,leave-confirm-probe,no-nav-in-stage-probe}.mjs); a change made and discarded before that commit would leave no trace, and run-time HEAD is assumed, not proven, to equal a0c360b's parent. The pre-fix half ran against a guard-absent tree (1c84799~1 = 78af47b, or a reverted working tree); the artifacts do not distinguish the two, so no sha is claimed for it.",
+  "verdict": "PROVEN",
+  "pairedWith": "02-double-tap-prefix.json",
   "game": "siamsi",
   "roster": 7,
   "reachedAgain": true,

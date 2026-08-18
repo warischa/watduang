@@ -4,7 +4,55 @@
 // (normalized name, Bangkok date) — same pair same answer, new day new answer, whole pool reachable.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FORTUNES, bangkokDate, fortuneFor, hashPick, normalizeName } from './daily-fortune.ts';
+import game, { FORTUNES, bangkokDate, fortuneFor, hashPick, normalizeName } from './daily-fortune.ts';
+import { ARM_DELAY_MS } from './_arm-gate.ts';
+
+// ---- Minimal fake DOM for the #42 gate test below — lifted from short-stick.test.mjs's harness
+// (the reference DOM harness in this repo, no jsdom/happy-dom dependency) rather than inventing a second one.
+class FakeElement {
+  constructor(tagName) {
+    this.tagName = tagName;
+    this.children = [];
+    this._text = '';
+    this.style = {};
+    this._attrs = {};
+    this._listeners = {};
+    this.disabled = false;
+    this.hidden = false;
+  }
+  set textContent(v) { this._text = v; }
+  get textContent() { return this._text; }
+  setAttribute(k, v) { this._attrs[k] = String(v); }
+  getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null; }
+  removeAttribute(k) { delete this._attrs[k]; }
+  appendChild(child) { this.children.push(child); return child; }
+  replaceChildren() { this.children = []; }
+  addEventListener(type, fn) { (this._listeners[type] ??= []).push(fn); }
+  removeEventListener(type, fn) {
+    this._listeners[type] = (this._listeners[type] || []).filter((f) => f !== fn);
+  }
+  dispatch(type) { (this._listeners[type] || []).forEach((fn) => fn()); }
+  // A disabled control dispatches no activation — the platform swallows the click before any
+  // listener runs. The fake models that on purpose: without it every gate assertion passes vacuously.
+  click() { if (!this.disabled) this.dispatch('click'); }
+}
+const fakeDocument = { createElement: (tag) => new FakeElement(tag) };
+globalThis.document = fakeDocument;
+
+function makeCtx(players) {
+  return {
+    roster: { names: () => [], add() {} },
+    session: {
+      players,
+      setPlayers() {},
+      played: [],
+      markPlayed() {},
+      checkpoint: null,
+      saveCheckpoint() {},
+      clear() {},
+    },
+  };
+}
 
 // A fixed name space — no RNG anywhere in this file, so every result is pass-always or fail-always.
 const FIRST = ['ก้อง', 'ฟ้า', 'ตูน', 'แนน', 'บอส', 'มิ้น', 'เจ', 'ปอ', 'หมิว', 'ต้น', 'ใบเตย', 'ขวัญ',
@@ -120,4 +168,56 @@ test('the date is Bangkok\'s, not the device\'s and not UTC', () => {
 
 test('hashPick refuses an empty pool instead of returning undefined', () => {
   assert.throws(() => hashPick('ก้อง|2026-08-15', []), /empty pool/);
+});
+
+// #42: the ghost-tap gate — a rapid double-tap on a game-page transition must not steal an action.
+test('#42: ghost-tap gate — "another" disables at reveal, roster chips stay live (documented exception)', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const players = ['เอ', 'บี'];
+  game.mount(stage, makeCtx(players));
+
+  // renderAsk: df-go is a real render-function button, so it is gated like everything else here.
+  const form = stage.children[1];
+  const go = form.children[1];
+  assert.equal(go.disabled, true, 'df-go must be disabled at mount — no exception applies to it');
+
+  // renderAsk's roster chips are the documented exception: df-again → chip is the same finger tapping
+  // through the roster, so gating them would break real play. They must stay live from the first render,
+  // before any tick — that is what "exception" means, not "arms sooner than everything else".
+  const chipsRow = stage.children[3];
+  assert.equal(chipsRow.children.length, players.length, 'setup: one chip per roster name');
+  for (const chip of chipsRow.children) {
+    assert.equal(chip.disabled, false, `${chip.textContent} chip must stay live — the documented same-finger exception`);
+  }
+
+  chipsRow.children[0].click(); // reveals players[0]'s fortune, same as a real same-finger chip tap — and
+  // this must actually work at t0, or the "stays live" assertion above proves nothing
+
+  const again = stage.children.find((c) => c.id === 'df-again');
+  assert.ok(again, 'df-again missing after reveal');
+  assert.equal(again.disabled, true,
+    'df-again must be disabled the instant the result screen renders — a ghost tap must not skip past the fortune nobody read yet');
+
+  const nameLine = stage.children.find((c) => c.textContent && c.textContent.startsWith('ดวงวันนี้ของ'));
+  assert.ok(nameLine, 'renderResult did not paint the name line');
+  assert.equal(nameLine.textContent, `ดวงวันนี้ของ ${players[0]}`,
+    'the revealed name must be exactly what was tapped, unaffected by the gate arming');
+
+  // the ghost: a click before the window elapses must not fire — the result screen (fortune nobody
+  // read yet) must still be exactly what the chip tap produced, not what "another" would have shown.
+  again.click();
+  assert.equal(stage.children.find((c) => c.id === 'df-again'), again,
+    'a disabled "another" fired anyway — the result screen was already gone');
+  assert.ok(!stage.children.some((c) => c.children?.some?.((k) => k.id === 'df-name')),
+    'a disabled "another" fired anyway — the ask screen reappeared before the window elapsed');
+
+  // and one window later the same press really does move on to the next player
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(again.disabled, false, '"another" never armed');
+  again.click();
+  assert.ok(stage.children.some((c) => c.children?.some?.((k) => k.id === 'df-name')),
+    '"another" did not return to the ask screen once armed');
+
+  game.dispose();
 });

@@ -36,8 +36,9 @@ covering this one. It does not, and the difference is the whole decision:
   bounds is "how long after a swap can a ghost contact arrive", answered by human double-tap
   physiology, not by the browser.
 - ADR-0014's count-only objection — that it would eat siamsi's every-turn ส่งต่อ→จั่วดวง overlap —
-  has no counterpart in these two games: between any two consequential taps the phone is physically
-  in transit between two people, so no legitimate sub-500ms follow-up tap exists.
+  has no counterpart in these two games: on the paths gated here the phone is physically in transit
+  between two people, so no legitimate sub-500ms follow-up tap exists. That is a claim about
+  particular paths, not a universal — see "Known premise exceptions" below.
 - ADR-0014's invariant is scoped to **navigation targets**. These harms are an in-stage draw and an
   in-stage fuse, not navigations.
 
@@ -46,8 +47,9 @@ marking the provably-safe few. Here the set is made ours by refusing to discrimi
 
 ## What this rests on
 
-Assumption: no legitimate sub-500ms tap on a gated control, because the phone is in transit. That is
-a fact about how these games are played, not about the code, and it is the first thing a future
+Assumption: no legitimate sub-500ms tap on a gated control, because the phone is in transit. It holds
+per path, not everywhere; the paths where it is known to fail are listed under "Known premise
+exceptions". It is a fact about how these games are played, not about the code, and it is the first thing a future
 design breaks — a rapid-fire round or a hold-and-repeat control needs its real inter-tap gap measured
 before reusing this. The assumption is written at `_arm-gate.ts:11`.
 
@@ -66,8 +68,33 @@ would let a ghost through.
   the fixed tree. Evidence `docs/verification/evidence/40/`.
 - Measured rather than assumed: a real touch on a `disabled` button still dispatches a `pointerdown`
   that bubbles to `#stage`, so the restart leg is real and not decorative.
-- Four games still carry the class — gh#42. **siamsi must be judged before it is gated**: ADR-0014:34
-  records the one legitimate rapid overlap on this site, which would falsify the premise there.
+- The remaining four games are gated under gh#42, two controls deliberately excluded. siamsi was
+  judged first and its premise **holds**: ADR-0014:34's ส่งต่อ→จั่วดวง overlap is *spatial*, not
+  temporal — `passToNext` advances the holder, so the post-swap screen names a different player and
+  instructs the handoff, and the phone changes hands between those two taps.
+
+## Known premise exceptions
+
+The premise is per path. These are the paths where it is known **not** to hold, recorded so a later
+reader neither "fixes" the omissions nor widens the gate onto them:
+
+- **`daily-fortune`'s roster chips — not gated.** The again-button to chip hop is the same finger:
+  the chips (built per roster name in the ask screen, each wired to `reveal(name)`) exist so one
+  operator can tap through the roster. Gating them would swallow a deliberate tap in normal play.
+- **`pick-loser`'s `#pl-pick` — not gated.** No handoff exists in the `#pl-again` to `#pl-pick`
+  flow, so one hand taps both. Its harm is real and unrecoverable — `pickLoser` falls back to
+  unseeded `Math.random`, so a redraw names a different person — but gating a control whose premise
+  is false is exactly the trade this ADR refuses. Owner decision, 2026-08-18.
+- **`love-match`'s pick chips — gated anyway, accepted cost.** The again-to-chip hop is one finger
+  with no handoff — the same pattern that exempted `daily-fortune`'s chips above. The two games
+  differ in how much it costs, not in whether the premise holds: a love-match chip tap mutates the
+  row in place instead of swapping the stage, so the window delays only the first tap of a fresh
+  pick, where gating daily-fortune's chips would delay one tap per roster member. The reasoning is
+  recorded at the call site in `love-match.ts`.
+- **First-draw controls — gated anyway, accepted cost.** Whoever taps start may be `players[0]`
+  themselves (`siamsi` sets `holder = 0` when the round begins), so no transit precedes the first
+  draw. `short-stick` already ships this same trade, and says so at its call site. The cost is one
+  swallowed tap on a fails-closed control; the player taps again.
 
 ## The fact that would change this
 

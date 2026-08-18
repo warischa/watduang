@@ -1,0 +1,55 @@
+{
+  "box": "gh#42 — love-match: the pick-screen chips, #lm-reset, and #lm-again are all gated by armAllButtons (no exception on this game — unlike daily-fortune's roster chips).",
+  "method": "scripts/arm-gate-probe.mjs, extended this session (runLoveMatchScenario). Real touch only (Input.dispatchTouchEvent). Chip and #lm-again rects learned via an untimed dry run, then real cause tap + real second contact 100ms/500ms later via the un-awaited-dispatch technique. #lm-reset cannot be reached this way — it is hidden until a first pick, and a first pick can only ever happen after the SAME arm window has already elapsed (armAllButtons gates the whole pick screen in one shot, chips included, and a real first pick necessarily arrives after that window closes) — so there is no real double-tap collision to construct for it. Its gate coverage is proven structurally instead: read .disabled ~150ms after mount, inside the 400ms window on purpose (a naive read after the usual 900ms round-settle would read false, past arm() re-enabling everything — caught and fixed before this capture), plus a functional check that it actually resets the pick once armed.",
+  "capturedAtCommit": "9510d21",
+  "capturedAtCommitNote": "Working tree DIRTY at capture. Uncommitted files: docs/adr/0016-a-gate-that-classifies-nothing-converges.md, docs/verification/evidence/39/{01-love-match-grid,02-double-tap-prefix,03-double-tap-postfix,04-closed-and-dismissed}.json, scripts/arm-gate-probe.mjs, src/games/_arm-gate.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.test.mjs. This report's PROVEN verdict rests on that dirty tree's src/games/love-match.ts and src/games/_arm-gate.ts (armAllButtons), not on 9510d21 alone.",
+  "verdict": "PROVEN",
+  "calibration": {
+    "method": "Same worktree/port-isolation method as 01-daily-fortune.json (baseline = 9510d21, ports 4322/9333). Only scripts/arm-gate-probe.mjs copied in; src/games/love-match.ts left pre-fix.",
+    "baselineCommit": "9510d21 (src/games/love-match.ts pre-fix, no armAllButtons)",
+    "ghostTapDidNotActivateOnBaseline": false,
+    "lmResetDisabledAtMountOnBaseline": false,
+    "note": "Both gated controls' 100ms suppression checks FAILED on the baseline and both 500ms checks still PASSED — same calibration signature as every other game in this issue. lm-reset's structural check also correctly read disabled:false on the baseline (no gate present)."
+  },
+  "checks": [
+    {
+      "control": "pick-screen chips",
+      "ghostTapDidNotActivate": true,
+      "ghostTapDidNotActivate_gapMs": 100,
+      "normalTapDidActivate": true,
+      "normalTapDidActivate_gapMs": 500,
+      "baselineGhostTapDidNotActivate": false,
+      "note": "Contact1 = real tap on #lm-again (creates a fresh pick screen with unpicked chips). Contact2 = second real contact on the nearest chip. Suppression is read from no chip being disabled yet (firstIndex still null)."
+    },
+    {
+      "control": "#lm-again",
+      "ghostTapDidNotActivate": true,
+      "ghostTapDidNotActivate_gapMs": 100,
+      "normalTapDidActivate": true,
+      "normalTapDidActivate_gapMs": 500,
+      "baselineGhostTapDidNotActivate": false,
+      "note": "Contact1 = real tap on the second chip of a pick (completes the pick, reveals the result screen). Contact2 = second real contact on #lm-again. Suppression is read from staying on the result screen."
+    },
+    {
+      "control": "#lm-reset",
+      "structuralCheck": true,
+      "disabledAtMount": true,
+      "disabledAtMount_readAtMs": 150,
+      "baselineDisabledAtMount": false,
+      "functionalAfterArmVerdict": "PASS",
+      "note": "No real-touch collision scenario exists for this control (see method above) — proof is structural (found and disabled by armAllButtons at mount, same as the chips) plus functional (once armed and revealed by a real pick, clicking it actually resets the pick). Reported separately from the gapTests array; not a claim of a suppress/register pair like the other two controls."
+    }
+  ],
+  "postFixGapTests": [
+    { "control": "lm-chip", "gapMs": 100, "verdict": "PASS" },
+    { "control": "lm-again", "gapMs": 100, "verdict": "PASS" },
+    { "control": "lm-chip", "gapMs": 500, "verdict": "PASS" },
+    { "control": "lm-again", "gapMs": 500, "verdict": "PASS" }
+  ],
+  "baselineGapTests": [
+    { "control": "lm-chip", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "lm-again", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "lm-chip", "gapMs": 500, "verdict": "PASS" },
+    { "control": "lm-again", "gapMs": 500, "verdict": "PASS" }
+  ]
+}

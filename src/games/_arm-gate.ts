@@ -9,11 +9,14 @@
 // for a fixed window we own, which is why it converges where those two could not.
 
 /** ponytail: one constant, no per-game tuning, no options bag. 400ms rests on two assumptions —
- *  (1) a human double-tap's second contact lands under ~500ms, and (2) neither game has a legitimate
- *  sub-500ms follow-up tap, because between any two consequential taps the phone is physically in
- *  transit between two people. Assumption (2) is what a future change breaks first: a game where one
- *  player taps twice in a row (rapid-fire rounds, a hold-and-repeat control) needs its real inter-tap
- *  gap measured before reusing this, not this number copied.
+ *  (1) a human double-tap's second contact lands under ~500ms, and (2) the gated control has no
+ *  legitimate sub-500ms follow-up tap, because on the paths gated here the phone is in transit
+ *  between two people. Assumption (2) holds PER CONTROL, not per game — a control one player taps
+ *  twice in a row (rapid-fire rounds, a hold-and-repeat) needs its real inter-tap gap measured
+ *  before it is gated, not this number copied. Two such controls are already known and deliberately
+ *  left ungated: daily-fortune's roster chips and pick-loser's #pl-pick. Read
+ *  `docs/adr/0016-a-gate-that-classifies-nothing-converges.md` § "Known premise exceptions"
+ *  before gating anything new.
  *
  *  Second accepted ceiling: deferral is uncapped. Every pointerdown adds another 400ms, so a finger
  *  resting or fidgeting inside the stage keeps the controls disabled for as long as it stays down.
@@ -46,4 +49,22 @@ export function armAfterQuiet(stage: HTMLElement, controls: readonly HTMLButtonE
     clearTimeout(timer);
     stage.removeEventListener('pointerdown', restart);
   };
+}
+
+/** Same fail-closed gate as armAfterQuiet, but the control list is discovered instead of named: walks
+ *  `stage`'s current children for every rendered <button> and gates all of them except `except`. This
+ *  exists so the gate is self-maintaining — a button a render function adds later is picked up on the
+ *  next call automatically, with no call site to edit, so a new control cannot silently ship ungated
+ *  the way a hand-written `[a, b, c]` list would let it (issue #42). */
+export function armAllButtons(stage: HTMLElement, except: readonly HTMLButtonElement[] = []): () => void {
+  const found: HTMLButtonElement[] = [];
+  const walk = (node: Element): void => {
+    for (let i = 0; i < node.children.length; i++) {
+      const kid = node.children[i];
+      if (kid.tagName.toUpperCase() === 'BUTTON') found.push(kid as HTMLButtonElement);
+      walk(kid);
+    }
+  };
+  walk(stage);
+  return armAfterQuiet(stage, found.filter((btn) => !except.includes(btn)));
 }

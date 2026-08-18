@@ -480,6 +480,515 @@ async function runTimebombScenario(session, base, scenario) {
   return result;
 }
 
+// ---- #42: daily-fortune, love-match, pick-loser, siamsi -----------------------------------------
+// Same real-touch method as short-stick/timebomb above, simplified where the geometry allows it: every
+// control here is a single full-width button (no stick/card bundle to grid-scan), so getRect's own
+// centre point IS the real, current position of the real button — `disabled` blocks a click uniformly
+// across the whole element, so there is no separate collision-geometry question to answer here the way
+// there was for short-stick's stick bundle (#39). A short untimed dry run still learns each control's
+// rect before the timed gap test, exactly as above, because the target does not exist until the prior
+// screen's tap creates it.
+
+const DF_NAMES = ['ทดสอบเอ', 'ทดสอบบี'];
+
+async function rosterTick(session) {
+  await ev(
+    session,
+    `
+    const boxes = [...document.querySelectorAll('#roster-list input[type=checkbox]')];
+    for (const b of boxes) if (!b.checked) b.click();
+    document.getElementById('start-round').click(); return true;`,
+  );
+  await sleep(900);
+}
+
+async function seedRoster(session, base, path, roster, width) {
+  await session.nav(`${base}${path}`);
+  await session.setWidth(width, 900);
+  await session.wipe();
+  await ev(session, `localStorage.setItem('watduang:roster', ${JSON.stringify(JSON.stringify(roster))}); return true;`);
+  await session.nav(`${base}${path}`);
+  await ev(session, INSTALL_PDLOG);
+}
+
+async function chipRect(session, name) {
+  return ev(
+    session,
+    `
+    const btns = [...document.querySelectorAll('#stage div > button')];
+    const b = btns.find((x) => x.textContent === ${JSON.stringify(name)});
+    if (!b) return null;
+    const r = b.getBoundingClientRect();
+    return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, cx: (r.left + r.right) / 2, cy: (r.top + r.bottom) / 2 };
+  `,
+  );
+}
+
+// ---- daily-fortune ------------------------------------------------------------------------------
+
+async function readDFState(session) {
+  return ev(
+    session,
+    `
+    const paras = [...document.querySelectorAll('#stage p')].map((p) => p.textContent.trim());
+    const hasGo = !!document.getElementById('df-go');
+    const hasAgain = !!document.getElementById('df-again');
+    const hasHint = paras.includes('ใส่ชื่อก่อนนะ ถึงจะดูดวงวันนี้ได้');
+    const nameLine = paras.find((p) => p.startsWith('ดวงวันนี้ของ '));
+    return {
+      screen: hasAgain ? 'result' : hasGo ? 'ask' : 'unknown',
+      hasHint,
+      name: nameLine ? nameLine.slice('ดวงวันนี้ของ '.length) : null,
+    };
+  `,
+  );
+}
+
+async function runDailyFortuneScenario(session, base) {
+  const result = { label: 'df-go/df-again gate + chip exception', gapTests: [], chipException: null, scenarioError: null };
+  try {
+    await seedRoster(session, base, '/game/daily-fortune/', DF_NAMES, 320);
+    await rosterTick(session); // -> ask screen (mount)
+
+    const chip0 = await chipRect(session, DF_NAMES[0]);
+    if (!chip0) throw new Error('daily-fortune: roster chip not found on ask screen');
+    await session.tap(chip0.cx, chip0.cy); // dry run: reach result screen for real, learns df-again's rect
+    const againRect = await getRect(session, '#df-again');
+    if (!againRect) throw new Error('daily-fortune: #df-again not found');
+
+    // ---- chip exception: a real second contact 60ms after df-again's own tap (which (re)creates the
+    // ask screen) must still reveal — chips are exempt from the gate. `session.tap()` always sleeps
+    // ~400ms internally before its own promise resolves (driver.mjs), so wrapping Date.now() around an
+    // awaited tap can never read under 400ms regardless of the real behaviour — that measurement would
+    // always report FAIL and prove nothing (browser-verification.md trap #2: calibrate the detector).
+    // This reuses ghostDoubleTap's un-awaited-dispatch trick instead, for a genuine, controlled 60ms
+    // gap between two real touches — contact1 = #df-again (real, causes the ask screen to (re)appear),
+    // contact2 = the roster chip (real, must register despite the short gap). ----
+    await ghostDoubleTap(session, againRect.cx, againRect.cy, chip0.cx, chip0.cy, 60);
+    const exceptionState = await readDFState(session);
+    result.chipException = {
+      gapMs: 60,
+      after: exceptionState,
+      verdict: exceptionState.screen === 'result' && exceptionState.name === DF_NAMES[0] ? 'PASS' : 'FAIL',
+      note: 'roster chip is exempt from the gate — a real touch 60ms after the ask screen is (re)created must still reveal',
+    };
+
+    // ---- df-go's gate (created by tapping df-again) ----
+    // The exception test above may have left the page on either screen depending on its own outcome
+    // (result if the chip correctly registered, ask if it was wrongly suppressed) — normalize to
+    // result before continuing, rather than assuming which branch it took.
+    await sleep(500);
+    const preGoState = await readDFState(session);
+    if (preGoState.screen !== 'result') {
+      const chipB = await chipRect(session, DF_NAMES[0]);
+      if (!chipB) throw new Error('daily-fortune: expected a chip to reach the result screen');
+      await session.tap(chipB.cx, chipB.cy);
+      await sleep(500);
+    }
+    const againRect2 = await getRect(session, '#df-again');
+    if (!againRect2) throw new Error('daily-fortune: #df-again not found before learning df-go\'s rect');
+    await session.tap(againRect2.cx, againRect2.cy); // dry run: reach ask screen for real
+    const goRect = await getRect(session, '#df-go');
+    if (!goRect) throw new Error('daily-fortune: #df-go not found');
+
+    for (const gapMs of [100, 500]) {
+      // df-again: contact1 = chip tap (reveals result screen, arms df-again's gate)
+      await sleep(500);
+      const c1 = await chipRect(session, DF_NAMES[0]);
+      await ghostDoubleTap(session, c1.cx, c1.cy, againRect.cx, againRect.cy, gapMs);
+      const afterAgain = await readDFState(session);
+      const suppressedAgain = afterAgain.screen === 'result' && afterAgain.name === DF_NAMES[0];
+      const registeredAgain = afterAgain.screen === 'ask';
+      const verdictAgain = gapMs < ARM_DELAY_MS ? (suppressedAgain ? 'PASS' : 'FAIL') : registeredAgain ? 'PASS' : 'FAIL';
+      result.gapTests.push({
+        control: 'df-again',
+        gapMs,
+        after: afterAgain,
+        verdict: verdictAgain,
+        note: gapMs < ARM_DELAY_MS ? 'ghost tap on df-again must not fire — same name, same result screen' : 'deliberate post-window tap on df-again must fire — back on ask screen',
+      });
+      if (afterAgain.screen === 'result') await session.tap(againRect.cx, againRect.cy); // normalize to ask before the df-go block
+
+      // df-go: contact1 = df-again tap (reveals ask screen, arms df-go's gate) — so this block must
+      // start from the RESULT screen, not the ask screen the df-again block above just normalized to.
+      // Empty input on the fresh ask screen makes a fired click observable without DOM injection:
+      // reveal('') shows the hint paragraph, a real and unambiguous state change distinct from
+      // "nothing happened".
+      await sleep(500);
+      const chipD = await chipRect(session, DF_NAMES[0]);
+      await session.tap(chipD.cx, chipD.cy); // deliberate, real — reach the result screen
+      await sleep(500);
+      const c1b = await getRect(session, '#df-again');
+      if (!c1b) throw new Error('daily-fortune: expected to be on the result screen before the df-go gap test');
+      await ghostDoubleTap(session, c1b.cx, c1b.cy, goRect.cx, goRect.cy, gapMs);
+      const afterGo = await readDFState(session);
+      const suppressedGo = afterGo.screen === 'ask' && afterGo.hasHint === false;
+      const registeredGo = afterGo.screen === 'ask' && afterGo.hasHint === true;
+      const verdictGo = gapMs < ARM_DELAY_MS ? (suppressedGo ? 'PASS' : 'FAIL') : registeredGo ? 'PASS' : 'FAIL';
+      result.gapTests.push({
+        control: 'df-go',
+        gapMs,
+        after: afterGo,
+        verdict: verdictGo,
+        note: gapMs < ARM_DELAY_MS ? 'ghost tap on df-go must not fire — no hint paragraph appears' : 'deliberate post-window tap on df-go must fire — hint paragraph appears (empty input)',
+      });
+      // afterGo.screen is always 'ask' (reveal('') can never reach 'result') — already positioned for
+      // the next iteration's df-again block, no extra reset tap needed.
+    }
+  } catch (e) {
+    result.scenarioError = String((e && e.stack) || e);
+  }
+  return result;
+}
+
+// ---- love-match -----------------------------------------------------------------------------------
+
+const LM_NAMES = ['ทดสอบเอ', 'ทดสอบบี', 'ทดสอบซี'];
+
+async function readLMState(session) {
+  return ev(
+    session,
+    `
+    const stage = document.getElementById('stage');
+    const hasAgain = !!document.getElementById('lm-again');
+    const header = document.querySelector('#stage p')?.textContent.trim() ?? null;
+    const resetBtn = document.getElementById('lm-reset');
+    const chips = [...stage.querySelectorAll('div > button')];
+    return {
+      screen: hasAgain ? 'result' : 'pick',
+      header,
+      resetDisabled: resetBtn ? resetBtn.disabled : null,
+      resetHidden: resetBtn ? resetBtn.hidden : null,
+      anyChipPicked: chips.some((c) => c.disabled),
+      pairLine: hasAgain ? ([...document.querySelectorAll('#stage p')][1]?.textContent.trim() ?? null) : null,
+    };
+  `,
+  );
+}
+
+async function runLoveMatchScenario(session, base) {
+  const result = { label: 'lm chips/lm-reset/lm-again gate', gapTests: [], lmResetStructural: null, scenarioError: null };
+  try {
+    await seedRoster(session, base, '/game/love-match/', LM_NAMES, 320);
+
+    // ---- lm-reset: structural proof it is part of the same gated set as the chips (it cannot be
+    // tapped while hidden, so there is no real-touch collision scenario to construct for it — see the
+    // brief's calibration note; the invariant that matters is that armAllButtons found and disabled it).
+    // Reads `.disabled` ~150ms after mount — inside the 400ms window on purpose: rosterTick()'s usual
+    // 900ms settle would run past arm() re-enabling everything, and read a false negative here. ----
+    await ev(
+      session,
+      `
+      const boxes = [...document.querySelectorAll('#roster-list input[type=checkbox]')];
+      for (const b of boxes) if (!b.checked) b.click();
+      document.getElementById('start-round').click(); return true;`,
+    );
+    await sleep(150);
+    const resetAtMount = await ev(session, `const b = document.getElementById('lm-reset'); return b ? { disabled: b.disabled, hidden: b.hidden } : null;`);
+    result.lmResetStructural = {
+      atMount: resetAtMount,
+      verdict: resetAtMount && resetAtMount.disabled === true ? 'PASS' : 'FAIL',
+      note: 'lm-reset must be disabled at the same mount that gates the chips, even though it is hidden until a pick',
+    };
+    // Functional half: once armed and revealed, lm-reset must actually work.
+    await sleep(500); // let the round settle fully (mirrors rosterTick()'s usual wait) before continuing
+    const chipFirst = await chipRect(session, LM_NAMES[0]);
+    await session.tap(chipFirst.cx, chipFirst.cy); // real pick, well past the window
+    await ev(session, `document.getElementById('lm-reset').click(); return true;`); // functional check only — not a gate probe
+    const afterReset = await readLMState(session);
+    result.lmResetStructural.functionalAfterArm = afterReset;
+    result.lmResetStructural.functionalVerdict = afterReset.screen === 'pick' && afterReset.anyChipPicked === false ? 'PASS' : 'FAIL';
+
+    // ---- chips' gate: contact1 = lm-again tap (reveals a fresh pick screen), contact2 = ghost tap on
+    // the nearest chip. This is also the real hazard the gate exists for (#42): the swap that creates
+    // the chips is itself a tap. ----
+    // Reach a result screen for real first. A fresh nav lands back on PlayerSetup's roster panel, not
+    // straight into the game — rosterTick() re-ticks and re-taps start-round to mount it again.
+    await session.nav(`${base}/game/love-match/`); // fresh mount, clears any residual pick state
+    await ev(session, INSTALL_PDLOG);
+    await rosterTick(session);
+    const chipA = await chipRect(session, LM_NAMES[0]);
+    await session.tap(chipA.cx, chipA.cy);
+    const chipB = await chipRect(session, LM_NAMES[1]);
+    await session.tap(chipB.cx, chipB.cy); // now on result screen (lm-again gated)
+    const againRect = await getRect(session, '#lm-again');
+    if (!againRect) throw new Error('love-match: #lm-again not found');
+    await session.tap(againRect.cx, againRect.cy); // dry run: reach a fresh pick screen for real
+    const chipRectFresh = await chipRect(session, LM_NAMES[0]);
+    if (!chipRectFresh) throw new Error('love-match: chip not found on fresh pick screen');
+    // Return to a result screen for real — every iteration below starts there, since the chips-gate
+    // block's contact1 is a tap on #lm-again, which only exists on the result screen.
+    await sleep(500);
+    const backA0 = await chipRect(session, LM_NAMES[0]);
+    await session.tap(backA0.cx, backA0.cy);
+    const backB0 = await chipRect(session, LM_NAMES[1]);
+    await session.tap(backB0.cx, backB0.cy); // now on a result screen again
+
+    for (const gapMs of [100, 500]) {
+      // chips gate
+      await sleep(500);
+      const c1 = await getRect(session, '#lm-again');
+      if (!c1) throw new Error('love-match: expected result screen before the chip gap test');
+      await ghostDoubleTap(session, c1.cx, c1.cy, chipRectFresh.cx, chipRectFresh.cy, gapMs);
+      const afterChip = await readLMState(session);
+      const suppressedChip = afterChip.screen === 'pick' && afterChip.anyChipPicked === false;
+      const registeredChip = afterChip.screen === 'pick' && afterChip.anyChipPicked === true;
+      const verdictChip = gapMs < ARM_DELAY_MS ? (suppressedChip ? 'PASS' : 'FAIL') : registeredChip ? 'PASS' : 'FAIL';
+      result.gapTests.push({
+        control: 'lm-chip',
+        gapMs,
+        after: afterChip,
+        verdict: verdictChip,
+        note: gapMs < ARM_DELAY_MS ? 'ghost tap on a chip must not pick — no chip disabled yet' : 'deliberate post-window tap must pick — a chip is disabled',
+      });
+      // Reset to a fresh pick screen (or complete the pick then bounce back) for the next iteration.
+      if (afterChip.anyChipPicked) {
+        const chipNext = await chipRect(session, LM_NAMES[1]);
+        await session.tap(chipNext.cx, chipNext.cy); // completes the pick -> result screen
+        await sleep(500);
+        const ag = await getRect(session, '#lm-again');
+        await session.tap(ag.cx, ag.cy); // back to a fresh pick screen
+      }
+
+      // lm-again gate: contact1 = second chip tap (reveals result screen)
+      await sleep(500);
+      const p1 = await chipRect(session, LM_NAMES[0]);
+      await session.tap(p1.cx, p1.cy); // deliberate first pick, unmeasured
+      const p2 = await chipRect(session, LM_NAMES[1]);
+      await ghostDoubleTap(session, p2.cx, p2.cy, againRect.cx, againRect.cy, gapMs);
+      const afterAgain = await readLMState(session);
+      const suppressedAgain = afterAgain.screen === 'result';
+      const registeredAgain = afterAgain.screen === 'pick' && afterAgain.anyChipPicked === false;
+      const verdictAgain = gapMs < ARM_DELAY_MS ? (suppressedAgain ? 'PASS' : 'FAIL') : registeredAgain ? 'PASS' : 'FAIL';
+      result.gapTests.push({
+        control: 'lm-again',
+        gapMs,
+        after: afterAgain,
+        verdict: verdictAgain,
+        note: gapMs < ARM_DELAY_MS ? 'ghost tap on lm-again must not fire — still on the result screen' : 'deliberate post-window tap on lm-again must fire — fresh pick screen',
+      });
+      // Normalize to a result screen for the next iteration's chips-gate block, which needs #lm-again.
+      if (afterAgain.screen === 'pick') {
+        const backA = await chipRect(session, LM_NAMES[0]);
+        await session.tap(backA.cx, backA.cy);
+        const backB = await chipRect(session, LM_NAMES[1]);
+        await session.tap(backB.cx, backB.cy); // -> result screen
+      }
+    }
+  } catch (e) {
+    result.scenarioError = String((e && e.stack) || e);
+  }
+  return result;
+}
+
+// ---- pick-loser -----------------------------------------------------------------------------------
+
+const PL_NAMES = ['ทดสอบเอ', 'ทดสอบบี'];
+
+async function readPLState(session) {
+  return ev(
+    session,
+    `
+    return { hasPick: !!document.getElementById('pl-pick'), hasAgain: !!document.getElementById('pl-again') };
+  `,
+  );
+}
+
+async function runPickLoserScenario(session, base) {
+  const result = { label: 'pl-again gate + pl-pick exception', gapTests: [], pickException: null, scenarioError: null };
+  try {
+    await seedRoster(session, base, '/game/pick-loser/', PL_NAMES, 320);
+    await rosterTick(session);
+
+    // Dry run: learn pl-again's rect, then return to idle for real so the loop below can start there.
+    const pickRect0 = await getRect(session, '#pl-pick');
+    if (!pickRect0) throw new Error('pick-loser: #pl-pick not found on idle screen');
+    await session.tap(pickRect0.cx, pickRect0.cy);
+    const againRect = await getRect(session, '#pl-again');
+    if (!againRect) throw new Error('pick-loser: #pl-again not found');
+    await session.tap(againRect.cx, againRect.cy); // back to idle, for real
+
+    for (const gapMs of [100, 500]) {
+      await sleep(500);
+      const c1 = await getRect(session, '#pl-pick');
+      if (!c1) throw new Error('pick-loser: expected idle screen before the gap test');
+      await ghostDoubleTap(session, c1.cx, c1.cy, againRect.cx, againRect.cy, gapMs);
+      const after = await readPLState(session);
+      const suppressed = after.hasAgain === true && after.hasPick === false;
+      const registered = after.hasPick === true && after.hasAgain === false;
+      const verdict = gapMs < ARM_DELAY_MS ? (suppressed ? 'PASS' : 'FAIL') : registered ? 'PASS' : 'FAIL';
+      result.gapTests.push({
+        control: 'pl-again',
+        gapMs,
+        after,
+        verdict,
+        note: gapMs < ARM_DELAY_MS ? 'ghost tap on pl-again must not fire — still on the result screen' : 'deliberate post-window tap on pl-again must fire — back on idle with pl-pick',
+      });
+      if (!after.hasPick) {
+        // still on result — reset to idle for the next iteration
+        const ag = await getRect(session, '#pl-again');
+        if (ag) await session.tap(ag.cx, ag.cy);
+      }
+    }
+
+    // ---- pl-pick exception: a real second contact 60ms after pl-again's own tap (the swap that
+    // remounts the idle screen and creates a fresh pl-pick) must still register. `session.tap()`
+    // always sleeps ~400ms internally before its own promise resolves (driver.mjs), so wrapping
+    // Date.now() around an awaited tap can never read under 400ms regardless of the real behaviour —
+    // this reuses ghostDoubleTap's un-awaited-dispatch trick for a genuine, controlled 60ms gap
+    // between two real touches instead (browser-verification.md trap #2: calibrate the detector). ----
+    await sleep(500);
+    let preExceptionState = await readPLState(session);
+    if (!preExceptionState.hasAgain) {
+      // The loop above may have ended on idle (its last iteration registered normally) — reach the
+      // result screen for real before the exception test needs it.
+      const p = await getRect(session, '#pl-pick');
+      if (!p) throw new Error('pick-loser: neither pl-again nor pl-pick found before the exception test');
+      await session.tap(p.cx, p.cy);
+      await sleep(500);
+      preExceptionState = await readPLState(session);
+    }
+    if (!preExceptionState.hasAgain) throw new Error('pick-loser: expected the result screen before the pl-pick exception test');
+    const ag2 = await getRect(session, '#pl-again');
+    if (!ag2) throw new Error('pick-loser: #pl-again not found before the pl-pick exception test');
+    // The idle screen's pl-pick sits at the same place every time (deterministic layout) — reuse pickRect0.
+    await ghostDoubleTap(session, ag2.cx, ag2.cy, pickRect0.cx, pickRect0.cy, 60);
+    const s = await readPLState(session);
+    result.pickException = {
+      gapMs: 60,
+      after: s,
+      verdict: s.hasAgain === true && s.hasPick === false ? 'PASS' : 'FAIL',
+      note: 'pl-pick is exempt from the gate — a real touch 60ms after pl-again must still register a pick, landing on the result screen',
+    };
+  } catch (e) {
+    result.scenarioError = String((e && e.stack) || e);
+  }
+  return result;
+}
+
+// ---- siamsi ---------------------------------------------------------------------------------------
+
+const SIAMSI_NAMES = ['ทดสอบเอ', 'ทดสอบบี'];
+
+async function readSiamsiState(session) {
+  return ev(
+    session,
+    `
+    return {
+      hasStart: !!document.getElementById('ss-start'),
+      hasDraw: !!document.getElementById('ss-draw'),
+      hasPass: !!document.getElementById('ss-pass'),
+      hasAgain: !!document.getElementById('ss-again'),
+    };
+  `,
+  );
+}
+
+// Full reset to a fresh idle screen (#ss-start), every time — nav + roster tick + a deck-seed reset.
+// buildDeck() shuffles with Math.random(), and the drawn card's own text length (not just the roster)
+// shifts #ss-pass's Y position — a rect learned on one round's random deck can miss entirely on the
+// next round's. Patched to a fixed LCG (same technique as timebomb's Date.now patch above) so every
+// fresh round in this probe draws the identical deck, in the identical order, every time.
+async function freshSiamsiIdle(session, base) {
+  await session.nav(`${base}/game/siamsi/`);
+  await session.setWidth(320, 900);
+  await ev(session, INSTALL_PDLOG);
+  await ev(
+    session,
+    `
+    window.__siamsiSeed = 42;
+    if (!window.__origRandom) {
+      window.__origRandom = Math.random;
+      Math.random = () => { window.__siamsiSeed = (window.__siamsiSeed * 1103515245 + 12345) & 0x7fffffff; return (window.__siamsiSeed % 10000) / 10000; };
+    }
+    return true;`,
+  );
+  // rosterTick() alone is not enough here: siamsi is the sole checkpoint writer (ADR-0010), so a
+  // fresh nav right after a previous hop left a mid-round checkpoint makes "Start round" open the
+  // resume-choice prompt instead of mounting — #ss-start never appears. Take the "start fresh" branch
+  // every time so every hop genuinely starts from a clean idle screen, not a resumed one.
+  await rosterTick(session);
+  const resumeOpen = await ev(session, `const el = document.getElementById('resume-choice'); return !!el && !el.hidden;`);
+  if (resumeOpen) {
+    await ev(session, `document.getElementById('fresh-round').click(); return true;`);
+    await sleep(900);
+  }
+}
+
+// One hop = "control `effectSelector`, freshly created by tapping `causeSelector`, must not activate
+// under 400ms and must activate normally at/after it." `walkSteps` are the real, deliberate taps (in
+// order, from a fresh idle screen) needed to reach the screen holding `causeSelector` untapped — each
+// hop starts completely fresh (browser-verification.md trap #3/#4-adjacent: a chained walk that reuses
+// a stale rect from an already-consumed control silently mis-taps once the round has moved on, which
+// is exactly what happened here on the first attempt at this scenario).
+async function siamsiHopSubtest(session, base, walkSteps, causeSelector, effectSelector, effectFlag, label) {
+  const gapTests = [];
+  // Learn effectSelector's rect via one untimed, fully deliberate dry run.
+  await freshSiamsiIdle(session, base);
+  for (const sel of walkSteps) {
+    const r = await getRect(session, sel);
+    if (!r) throw new Error(`siamsi ${label}: ${sel} not found while walking (learn pass)`);
+    await session.tap(r.cx, r.cy);
+  }
+  const causeRectLearn = await getRect(session, causeSelector);
+  if (!causeRectLearn) throw new Error(`siamsi ${label}: ${causeSelector} not found (learn pass)`);
+  await session.tap(causeRectLearn.cx, causeRectLearn.cy);
+  const effectRect = await getRect(session, effectSelector);
+  if (!effectRect) throw new Error(`siamsi ${label}: ${effectSelector} not found (learn pass)`);
+
+  for (const gapMs of [100, 500]) {
+    await freshSiamsiIdle(session, base);
+    for (const sel of walkSteps) {
+      const r = await getRect(session, sel);
+      if (!r) throw new Error(`siamsi ${label}: ${sel} not found while walking (gap=${gapMs})`);
+      await session.tap(r.cx, r.cy);
+    }
+    const causeRect = await getRect(session, causeSelector);
+    if (!causeRect) throw new Error(`siamsi ${label}: ${causeSelector} not found (gap=${gapMs})`);
+    await ghostDoubleTap(session, causeRect.cx, causeRect.cy, effectRect.cx, effectRect.cy, gapMs);
+    const after = await readSiamsiState(session);
+    // Screens are mutually exclusive by construction (exactly one of hasStart/hasDraw/hasPass/hasAgain
+    // is true at a time) — "still on the screen contact1 just created" is exactly effectFlag === true.
+    const stillOnEffectScreen = after[effectFlag] === true;
+    const verdict =
+      gapMs < ARM_DELAY_MS ? (stillOnEffectScreen ? 'PASS' : 'FAIL') : !stillOnEffectScreen ? 'PASS' : 'FAIL';
+    gapTests.push({
+      control: label,
+      gapMs,
+      after,
+      verdict,
+      note:
+        gapMs < ARM_DELAY_MS
+          ? 'ghost tap on the freshly-created control must not fire — still on the same screen'
+          : 'a real touch at/after the window must fire normally — advanced past that screen',
+    });
+  }
+  return gapTests;
+}
+
+async function runSiamsiScenario(session, base) {
+  const result = { label: 'ss-start/ss-draw/ss-pass/ss-again gate — one independent trial per hop', gapTests: [], scenarioError: null };
+  try {
+    // Every hop of one round, in order, each naming the real taps needed to reach it from a fresh idle
+    // screen. ss-draw and ss-pass are each tested at both of their occurrences (once per player).
+    const hops = [
+      { walkSteps: [], cause: '#ss-start', effect: '#ss-draw', effectFlag: 'hasDraw', label: 'ss-draw (turn 1)' },
+      { walkSteps: ['#ss-start'], cause: '#ss-draw', effect: '#ss-pass', effectFlag: 'hasPass', label: 'ss-pass (turn 1)' },
+      { walkSteps: ['#ss-start', '#ss-draw'], cause: '#ss-pass', effect: '#ss-draw', effectFlag: 'hasDraw', label: 'ss-draw (turn 2)' },
+      { walkSteps: ['#ss-start', '#ss-draw', '#ss-pass'], cause: '#ss-draw', effect: '#ss-pass', effectFlag: 'hasPass', label: 'ss-pass (turn 2)' },
+      { walkSteps: ['#ss-start', '#ss-draw', '#ss-pass', '#ss-draw'], cause: '#ss-pass', effect: '#ss-again', effectFlag: 'hasAgain', label: 'ss-again' },
+      { walkSteps: ['#ss-start', '#ss-draw', '#ss-pass', '#ss-draw', '#ss-pass'], cause: '#ss-again', effect: '#ss-start', effectFlag: 'hasStart', label: 'ss-start' },
+    ];
+    for (const hop of hops) {
+      const gapTests = await siamsiHopSubtest(session, base, hop.walkSteps, hop.cause, hop.effect, hop.effectFlag, hop.label);
+      result.gapTests.push(...gapTests);
+    }
+  } catch (e) {
+    result.scenarioError = String((e && e.stack) || e);
+  }
+  return result;
+}
+
 // ---- run --------------------------------------------------------------------------------------
 
 export default async function (session) {
@@ -491,11 +1000,20 @@ export default async function (session) {
   const timebomb = [];
   for (const scenario of TIMEBOMB_SCENARIOS) timebomb.push(await runTimebombScenario(session, base, scenario));
 
+  const dailyFortune = [await runDailyFortuneScenario(session, base)];
+  const loveMatch = [await runLoveMatchScenario(session, base)];
+  const pickLoser = [await runPickLoserScenario(session, base)];
+  const siamsi = [await runSiamsiScenario(session, base)];
+
   const allGapTests = [
     ...shortStick.flatMap((s) => s.gapTests.map((g) => ({ game: 'short-stick', scenario: s.label, ...g }))),
     ...timebomb.flatMap((s) => s.gapTests.map((g) => ({ game: 'timebomb', scenario: s.label, ...g }))),
+    ...dailyFortune.flatMap((s) => s.gapTests.map((g) => ({ game: 'daily-fortune', scenario: s.label, ...g }))),
+    ...loveMatch.flatMap((s) => s.gapTests.map((g) => ({ game: 'love-match', scenario: s.label, ...g }))),
+    ...pickLoser.flatMap((s) => s.gapTests.map((g) => ({ game: 'pick-loser', scenario: s.label, ...g }))),
+    ...siamsi.flatMap((s) => s.gapTests.map((g) => ({ game: 'siamsi', scenario: s.label, ...g }))),
   ];
-  const scenarioErrors = [...shortStick, ...timebomb].filter((s) => s.scenarioError);
+  const scenarioErrors = [...shortStick, ...timebomb, ...dailyFortune, ...loveMatch, ...pickLoser, ...siamsi].filter((s) => s.scenarioError);
   const failing = allGapTests.filter((g) => g.verdict !== 'PASS');
 
   // The open question: does a real touch on a `disabled` control dispatch a pointerdown that bubbles
@@ -526,6 +1044,10 @@ export default async function (session) {
     pointerdownOnDisabled,
     shortStick,
     timebomb,
+    dailyFortune,
+    loveMatch,
+    pickLoser,
+    siamsi,
     consoleErrors: session.consoleErrors,
   };
 }

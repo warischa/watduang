@@ -8,6 +8,7 @@
 // The .ts extension in the import path is required for `node --test` (Node does not guess
 // extensions) — Vite/tsc accept it.
 import type { GameContext, GameModule } from './types.ts';
+import { armAllButtons } from './_arm-gate.ts';
 
 // ---- The draw: pure and calculable, testable with no DOM (see daily-fortune.test.mjs) ----
 
@@ -205,6 +206,7 @@ function renderAsk(hint?: string): void {
 
   // The setup panel already collected the group — offer those names as one tap instead of retyping.
   const names = [...new Set(gameCtx?.session.players ?? [])];
+  const chipEls: HTMLButtonElement[] = [];
   if (names.length > 0) {
     stage.appendChild(el('p', 'หรือแตะชื่อในวงได้เลย'));
     const chips = el('div', undefined, CHIPS_STYLE);
@@ -212,10 +214,18 @@ function renderAsk(hint?: string): void {
       const chip = el('button', name);
       chip.type = 'button';
       on(chip, 'click', () => reveal(name));
+      chipEls.push(chip);
       chips.appendChild(chip);
     }
     stage.appendChild(chips);
   }
+
+  // Exception (owner's call, not a judgement call to re-litigate): the roster chips are exempt from
+  // the gate. renderResult's "another" button remounts straight into this screen under the same
+  // finger that just tapped it — the chips exist precisely so that one operator can tap through the
+  // roster fast, chip after chip. Gating them would break that real play pattern. "go" (df-go) is a
+  // different finger's action (typed a name first) and stays gated like every other control here.
+  cleanup.push(armAllButtons(stage, chipEls));
 }
 
 function renderResult(name: string, now: Date): void {
@@ -236,6 +246,10 @@ function renderResult(name: string, now: Date): void {
   another.type = 'button';
   on(another, 'click', () => renderAsk());
   stage.appendChild(another);
+
+  // The tap that revealed this screen swaps it in under the same finger, so a ghost second contact
+  // would land on "ดูดวงคนต่อไป" and skip straight past the fortune nobody read yet.
+  cleanup.push(armAllButtons(stage));
   // No link to /games/ here, on purpose: #stage holds no navigation target in any game. Every screen
   // arrives via stage.replaceChildren() under the finger that triggered it, so an anchor placed here
   // lands at a coordinate the finger just used and a double-tap leaves the round (measured in this

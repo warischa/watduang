@@ -14,6 +14,7 @@ import type { GameContext, GameModule } from './types.ts';
 // Exactly two functions, no shared util file and no abstraction layer — the same way short-stick.ts
 // imports pickLoser from its sibling. Two call sites do not justify a layer (#34).
 import { hashPick, normalizeName } from './daily-fortune.ts';
+import { armAllButtons } from './_arm-gate.ts';
 
 // ---- The reading: pure and calculable, testable with no DOM (see love-match.test.mjs) ----
 
@@ -290,6 +291,13 @@ function renderPick(): void {
   });
   backBtn = back;
   stage.appendChild(back);
+
+  // Every way into this screen (mount, and renderResult's "again" remount) swaps the stage under the
+  // finger that just tapped, so a ghost second contact could land on a chip or on "back". Unlike
+  // daily-fortune's roster chips, gating these is safe: a chip→chip tap here crosses no #stage swap —
+  // the first tap mutates the row in place (see pick() above) rather than re-rendering — so the
+  // 400ms window only ever delays the FIRST tap of a fresh pick, never a deliberate second one.
+  cleanup.push(armAllButtons(stage));
 }
 
 function renderResult(a: string, b: string, now: Date): void {
@@ -324,6 +332,10 @@ function renderResult(a: string, b: string, now: Date): void {
     renderPick();
   });
   stage.appendChild(again);
+
+  // The second tap of the pair that produced this screen lands here under the same finger — gate it
+  // so a ghost tap cannot skip straight to a new pick before the reading was even read.
+  cleanup.push(armAllButtons(stage));
 }
 
 function pick(index: number): void {

@@ -1,0 +1,52 @@
+{
+  "box": "gh#42 — daily-fortune: #df-go and #df-again are gated by armAllButtons; the roster chips on the ask screen are the deliberate exception and must stay live.",
+  "method": "scripts/arm-gate-probe.mjs, extended this session (runDailyFortuneScenario). Real touch only (Input.dispatchTouchEvent via scripts/driver.mjs's session.tap, never .click()). Each control's rect is learned in an untimed dry run, then a real cause tap + a second real contact gapMs later (100ms and 500ms) are fired via the un-awaited-dispatch trick already proven in this file for short-stick/timebomb (session.tap() dispatches synchronously before its own internal ~400ms settle sleep, so two un-awaited calls plus an explicit setTimeout(gapMs) land genuinely gapMs apart). The chip-exception check reuses the same technique instead of wall-clock Date.now() around an awaited tap, because session.tap()'s own internal settle sleep makes any Date.now()-wrapped measurement read >=400ms regardless of real behaviour (browser-verification.md trap #2 — an early draft of this check used Date.now() and always read false; caught and fixed before this capture).",
+  "capturedAtCommit": "9510d21",
+  "capturedAtCommitNote": "Working tree DIRTY at capture. Uncommitted files: docs/adr/0016-a-gate-that-classifies-nothing-converges.md, docs/verification/evidence/39/{01-love-match-grid,02-double-tap-prefix,03-double-tap-postfix,04-closed-and-dismissed}.json, scripts/arm-gate-probe.mjs, src/games/_arm-gate.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.test.mjs. This report's PROVEN verdict rests on that dirty tree's src/games/daily-fortune.ts and src/games/_arm-gate.ts (armAllButtons), not on 9510d21 alone.",
+  "verdict": "PROVEN",
+  "calibration": {
+    "method": "git worktree add --detach <scratch> HEAD (9510d21) — HEAD already gates short-stick/timebomb but not daily-fortune, so it is the correct pre-fix baseline for this game. Only scripts/arm-gate-probe.mjs was copied into the worktree; src/games/daily-fortune.ts was left at HEAD (no armAllButtons call). Built and served on an isolated port pair (4322/9333) so as never to run two headless probes concurrently against the same port (runbook.md).",
+    "baselineCommit": "9510d21 (src/games/daily-fortune.ts pre-fix, no armAllButtons)",
+    "ghostTapDidNotActivateOnBaseline": false,
+    "note": "Both gated controls' 100ms suppression check FAILED on the baseline (ghost tap registered, as expected with no gate) and both 500ms normal-activation checks still PASSED (behaviour unaffected either way) — the exact calibration signature required: red where the gate should act, green where it shouldn't matter."
+  },
+  "checks": [
+    {
+      "control": "#df-go",
+      "ghostTapDidNotActivate": true,
+      "ghostTapDidNotActivate_gapMs": 100,
+      "normalTapDidActivate": true,
+      "normalTapDidActivate_gapMs": 500,
+      "baselineGhostTapDidNotActivate": false,
+      "note": "Contact1 = real tap on #df-again (creates a fresh ask screen). Contact2 = second real contact at #df-go's own coordinates. Suppression is read from the hint paragraph 'ใส่ชื่อก่อนนะ ถึงจะดูดวงวันนี้ได้' appearing (or not) — reveal('') on empty input is a real, unambiguous state change distinct from 'nothing happened', avoiding any DOM injection."
+    },
+    {
+      "control": "#df-again",
+      "ghostTapDidNotActivate": true,
+      "ghostTapDidNotActivate_gapMs": 100,
+      "normalTapDidActivate": true,
+      "normalTapDidActivate_gapMs": 500,
+      "baselineGhostTapDidNotActivate": false,
+      "note": "Contact1 = real tap on a roster chip (creates the result screen). Contact2 = second real contact at #df-again's own coordinates. Suppression is read from staying on the result screen with the same revealed name."
+    }
+  ],
+  "exception": {
+    "control": "roster chips (ask screen, anonymous <button>s wired to reveal(name))",
+    "gapMs": 60,
+    "exemptControlActivatedImmediately": true,
+    "activatedOnBaselineToo": true,
+    "note": "Contact1 = real tap on #df-again (recreates the ask screen and its chips). Contact2 = a real touch on a roster chip only 60ms later — must still reveal, since chips are the deliberate exception (owner's call, documented in daily-fortune.ts: one operator taps through the roster fast, chip after chip). PASSED post-fix and also passes on the baseline (chips were never gated either way, so this is not a differentiator — it is a live-control proof, not a gate proof)."
+  },
+  "postFixGapTests": [
+    { "control": "df-again", "gapMs": 100, "verdict": "PASS" },
+    { "control": "df-go", "gapMs": 100, "verdict": "PASS" },
+    { "control": "df-again", "gapMs": 500, "verdict": "PASS" },
+    { "control": "df-go", "gapMs": 500, "verdict": "PASS" }
+  ],
+  "baselineGapTests": [
+    { "control": "df-again", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "df-go", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "df-again", "gapMs": 500, "verdict": "PASS" },
+    { "control": "df-go", "gapMs": 500, "verdict": "PASS" }
+  ]
+}

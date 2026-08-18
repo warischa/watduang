@@ -2,7 +2,55 @@
 // checks only the pure helpers exported from siamsi.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDeck, draw, nextTurn, toCheckpoint, resumeFrom, FORTUNES } from './siamsi.ts';
+import game, { buildDeck, draw, nextTurn, toCheckpoint, resumeFrom, FORTUNES } from './siamsi.ts';
+import { ARM_DELAY_MS } from './_arm-gate.ts';
+
+// ---- Minimal fake DOM for the #42 gate test below — lifted from short-stick.test.mjs's harness
+// (the reference DOM harness in this repo, no jsdom/happy-dom dependency) rather than inventing a second one.
+class FakeElement {
+  constructor(tagName) {
+    this.tagName = tagName;
+    this.children = [];
+    this._text = '';
+    this.style = {};
+    this._attrs = {};
+    this._listeners = {};
+    this.disabled = false;
+    this.hidden = false;
+  }
+  set textContent(v) { this._text = v; }
+  get textContent() { return this._text; }
+  setAttribute(k, v) { this._attrs[k] = String(v); }
+  getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null; }
+  removeAttribute(k) { delete this._attrs[k]; }
+  appendChild(child) { this.children.push(child); return child; }
+  replaceChildren() { this.children = []; }
+  addEventListener(type, fn) { (this._listeners[type] ??= []).push(fn); }
+  removeEventListener(type, fn) {
+    this._listeners[type] = (this._listeners[type] || []).filter((f) => f !== fn);
+  }
+  dispatch(type) { (this._listeners[type] || []).forEach((fn) => fn()); }
+  // A disabled control dispatches no activation — the platform swallows the click before any
+  // listener runs. The fake models that on purpose: without it every gate assertion passes vacuously.
+  click() { if (!this.disabled) this.dispatch('click'); }
+}
+const fakeDocument = { createElement: (tag) => new FakeElement(tag) };
+globalThis.document = fakeDocument;
+
+function makeCtx(players) {
+  return {
+    roster: { names: () => [], add() {} },
+    session: {
+      players,
+      setPlayers() {},
+      played: [],
+      markPlayed() {},
+      checkpoint: null,
+      saveCheckpoint() {},
+      clear() {},
+    },
+  };
+}
 
 test('deck has 24 cards, numbers do not repeat', () => {
   assert.equal(FORTUNES.length, 24);
@@ -145,4 +193,82 @@ test('untick then re-tick the same names — order changed, round still resumes'
   const s = midRound();
   const reTicked = [...s.players].reverse(); // Set iteration order after un/re-ticking
   assert.deepEqual(resumeFrom(store(toCheckpoint(s)), reTicked), s);
+});
+
+// #42: the ghost-tap gate — a rapid double-tap on a game-page transition must not steal an action.
+test('#42: ghost-tap gate — start/draw/pass/again all disable at render across a full 2-player round', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const players = ['เอ', 'บี'];
+  game.mount(stage, makeCtx(players));
+
+  const start = stage.children.find((c) => c.id === 'ss-start');
+  assert.ok(start, 'ss-start missing');
+  assert.equal(start.disabled, true, 'ss-start must be disabled at mount');
+
+  // before arming: a ghost tap must not start the round
+  start.click();
+  assert.ok(!stage.children.some((c) => c.id === 'ss-draw'),
+    'a disabled "ss-start" fired anyway — the round started before the window elapsed');
+
+  // one window later the same tap really does start it — every later click in this test also waits
+  // out its own control's window, since a disabled control now dispatches nothing (real gate is live)
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(start.disabled, false, '"ss-start" never armed');
+  start.click(); // startRound()
+
+  const draw1 = stage.children.find((c) => c.id === 'ss-draw');
+  assert.ok(draw1, 'ss-draw missing for turn 1');
+  assert.equal(draw1.disabled, true,
+    'ss-draw must be disabled the instant the turn screen renders — a ghost tap must not draw for the next player before the phone changed hands');
+  const holderLine1 = stage.children[0].textContent;
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(draw1.disabled, false, '"ss-draw" never armed for turn 1');
+  draw1.click(); // drawForHolder() for holder 0
+
+  const pass1 = stage.children.find((c) => c.id === 'ss-pass');
+  assert.ok(pass1, 'ss-pass missing for turn 1');
+  assert.equal(pass1.disabled, true,
+    'ss-pass must be disabled immediately after a draw — a ghost tap must not pass the phone before the card was read');
+  const drawnLine1 = stage.children[1].textContent;
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(pass1.disabled, false, '"ss-pass" never armed for turn 1');
+  pass1.click(); // passToNext() -> holder 1's turn (2 players, round not over yet)
+
+  const draw2 = stage.children.find((c) => c.id === 'ss-draw');
+  assert.ok(draw2, 'ss-draw missing for turn 2');
+  assert.equal(draw2.disabled, true, 'ss-draw must disable again on the next player\'s turn screen too');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(draw2.disabled, false, '"ss-draw" never armed for turn 2');
+  draw2.click();
+
+  const pass2 = stage.children.find((c) => c.id === 'ss-pass');
+  assert.equal(pass2.disabled, true, 'ss-pass must disable again on the second draw too');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(pass2.disabled, false, '"ss-pass" never armed for turn 2');
+  pass2.click(); // roundOver -> renderSummary
+
+  const again = stage.children.find((c) => c.id === 'ss-again');
+  assert.ok(again, 'ss-again missing at summary');
+  assert.equal(again.disabled, true,
+    'ss-again must be disabled at the summary screen — a ghost tap must not restart the round before it was read');
+
+  // before arming: a ghost tap on "ss-again" must not restart the round
+  again.click();
+  assert.ok(!stage.children.some((c) => c.id === 'ss-start'),
+    'a disabled "ss-again" fired anyway — the round restarted before the summary was read');
+
+  // one window later the same press really does restart the round
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(again.disabled, false, '"ss-again" never armed');
+  again.click();
+  assert.ok(stage.children.some((c) => c.id === 'ss-start'), '"ss-again" did not restart the round once armed');
+
+  // Every intermediate click in this test only ever fired once its own control was actually enabled —
+  // the turn/holder line and the drawn card text captured along the way must still be exactly what
+  // those real clicks produced.
+  assert.ok(holderLine1.includes(players[0]), 'turn 1 did not announce the first holder');
+  assert.ok(drawnLine1.length > 0, 'turn 1 drew no card text');
+
+  game.dispose();
 });

@@ -1,4 +1,9 @@
 {
+  "box": "gh#39 follow-up — whether the GameNav double-tap collision found on siamsi #ss-again also reaches love-match #lm-again.",
+  "method": "Grid-scan of #lm-again at 320px across rosters 2-10 with short and long (20-24 char) Thai names, 18 runs. siamsi ran in the same pass as the positive control, so a detector that found nothing anywhere would be visible.",
+  "capturedAtCommit": "1c84799",
+  "capturedAtCommitNote": "Backfilled 2026-08-18 at 9510d21 — these five keys were NOT written by the probe run. The capture base is derived from git, not recorded at run time: a0c360b added this file together with scripts/leave-confirm-probe.mjs and scripts/crawl-check-gamenav.mjs and changed no src/, so the run used uncommitted probe scripts against its parent 1c84799 (the leave-confirm guard itself). Tree was dirty at capture. Git can show only what was committed alongside in a0c360b (docs/verification/evidence/39/*.json and scripts/{crawl-check-gamenav,driver,gamenav-again-grid-probe,leave-confirm-probe,no-nav-in-stage-probe}.mjs); a change made and discarded before that commit would leave no trace, and run-time HEAD is assumed, not proven, to equal a0c360b's parent. This file is a grid-scan follow-up carrying its own siamsi positive control, not one half of a pre/post pair, so no pre-fix baseline commit applies to it.",
+  "verdict": "PROVEN",
   "purpose": "Grid-scan probe of love-match #lm-again across rosters 2-10, short and long (20-24 char) Thai names — settles whether the GameNav double-tap collision found on siamsi #ss-again also hits love-match.",
   "positiveControl": {
     "game": "siamsi",

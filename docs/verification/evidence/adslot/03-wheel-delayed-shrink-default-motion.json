@@ -1,0 +1,320 @@
+{
+  "box": "wheel.astro delayed shrink (SPIN_MS=1200) sits above a live ad slot — is this a deliberate-tap CLS-misclick risk? Unticketed; recorded per docs/verification/evidence/adslot/README.md, not tied to a GitHub issue.",
+  "method": "npm run build; npx serve dist/ -l 4321; headless Chrome via CDP on :9222 with no reduced-motion flag (default motion). node scripts/driver.mjs scripts/adslot-wheel-delay-probe.mjs, REPEAT=5, PROBE_WIDTH=320 (this site's reference viewport). Each run: seeds a roster of 4 long Thai names (forces one name per row at 320px), starts a round on /tool/wheel/, ticks 'เอาคนที่ออกแล้วออกจากวงล้อ', arms a MutationObserver keyed on the FIRST '.is-out' row appearing (the reveal-time render(), not the spin-start render() which also mutates #wheel-names synchronously at tap), records performance.now() at the real touch (Input.dispatchTouchEvent via session.tap — proves the click handler actually fires, not just that the element sits at that point) and at that mutation, samples getBoundingClientRect() for .ad-slot / .wheel-next a / #wheel-reset every animation frame for 2200ms after the tap, then grid-scans (per docs/agents/browser-verification.md trap #2 — never a centre-line sample) each target's PRE-TAP box against every OTHER target's rect across the whole sampled timeline to find any tappable-target collision and how long it would persist. window.matchMedia('(prefers-reduced-motion: reduce)').matches is read from the live page each run, not assumed from the launch flag.",
+  "capturedAtCommit": "9510d21",
+  "capturedAtCommitNote": "Tree is dirty at capture time (unrelated to this measurement — leftover from the ghost-tap-gate session). Modified: docs/adr/0016-a-gate-that-classifies-nothing-converges.md, docs/verification/evidence/39/{01-love-match-grid,02-double-tap-prefix,03-double-tap-postfix,04-closed-and-dismissed}.json, scripts/arm-gate-probe.mjs, src/games/_arm-gate.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.{ts,test.mjs}. Untracked: docs/verification/evidence/42/ (out of scope for this walk, not touched), scripts/adslot-wheel-delay-probe.mjs (the probe this evidence was captured with).",
+  "viewportWidth": 320,
+  "runCount": 5,
+  "delayMsTapToShrinkObserved": {
+    "perRun": [
+      1203,
+      1203,
+      1203,
+      1203,
+      1202
+    ],
+    "min": 1202,
+    "max": 1203,
+    "meanMs": 1202.8
+  },
+  "adSlotShiftPx": {
+    "perRun": [
+      -24,
+      -24,
+      -24,
+      -24,
+      0
+    ],
+    "min": -24,
+    "max": 0,
+    "note": "sign convention: positive = ad slot rose (moved toward top of viewport, the hazard direction); negative = ad slot moved further down the page"
+  },
+  "reducedMotionMatches": false,
+  "runs": [
+    {
+      "reducedMotionMatches": false,
+      "tapPoint": {
+        "cx": 45,
+        "cy": 615
+      },
+      "delayMsTapToShrinkObserved": 1203,
+      "shrinkNeverObserved": false,
+      "adShiftPx": -24,
+      "navLinkShiftPx": -24,
+      "tappableTargetCollision": false,
+      "overlaps": {},
+      "rectsBefore": {
+        "t": 1867.5999999996275,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1028.125,
+          "bottom": 1278.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 868.125,
+          "bottom": 892.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 602.6875,
+          "bottom": 626.6875
+        }
+      },
+      "rectsAfter": {
+        "t": 4069.5,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1052.125,
+          "bottom": 1302.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 892.125,
+          "bottom": 916.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 626.6875,
+          "bottom": 650.6875
+        }
+      }
+    },
+    {
+      "reducedMotionMatches": false,
+      "tapPoint": {
+        "cx": 45,
+        "cy": 615
+      },
+      "delayMsTapToShrinkObserved": 1203,
+      "shrinkNeverObserved": false,
+      "adShiftPx": -24,
+      "navLinkShiftPx": -24,
+      "tappableTargetCollision": false,
+      "overlaps": {},
+      "rectsBefore": {
+        "t": 1867.2999999988824,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1028.125,
+          "bottom": 1278.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 868.125,
+          "bottom": 892.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 602.6875,
+          "bottom": 626.6875
+        }
+      },
+      "rectsAfter": {
+        "t": 4070.699999999255,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1052.125,
+          "bottom": 1302.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 892.125,
+          "bottom": 916.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 626.6875,
+          "bottom": 650.6875
+        }
+      }
+    },
+    {
+      "reducedMotionMatches": false,
+      "tapPoint": {
+        "cx": 45,
+        "cy": 615
+      },
+      "delayMsTapToShrinkObserved": 1203,
+      "shrinkNeverObserved": false,
+      "adShiftPx": -24,
+      "navLinkShiftPx": -24,
+      "tappableTargetCollision": false,
+      "overlaps": {},
+      "rectsBefore": {
+        "t": 1850.5,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1028.125,
+          "bottom": 1278.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 868.125,
+          "bottom": 892.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 602.6875,
+          "bottom": 626.6875
+        }
+      },
+      "rectsAfter": {
+        "t": 4056.9000000003725,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1052.125,
+          "bottom": 1302.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 892.125,
+          "bottom": 916.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 626.6875,
+          "bottom": 650.6875
+        }
+      }
+    },
+    {
+      "reducedMotionMatches": false,
+      "tapPoint": {
+        "cx": 45,
+        "cy": 615
+      },
+      "delayMsTapToShrinkObserved": 1203,
+      "shrinkNeverObserved": false,
+      "adShiftPx": -24,
+      "navLinkShiftPx": -24,
+      "tappableTargetCollision": false,
+      "overlaps": {},
+      "rectsBefore": {
+        "t": 1870.4000000003725,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1028.125,
+          "bottom": 1278.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 868.125,
+          "bottom": 892.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 602.6875,
+          "bottom": 626.6875
+        }
+      },
+      "rectsAfter": {
+        "t": 4074.0999999996275,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1052.125,
+          "bottom": 1302.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 892.125,
+          "bottom": 916.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 626.6875,
+          "bottom": 650.6875
+        }
+      }
+    },
+    {
+      "reducedMotionMatches": false,
+      "tapPoint": {
+        "cx": 45,
+        "cy": 615
+      },
+      "delayMsTapToShrinkObserved": 1202,
+      "shrinkNeverObserved": false,
+      "adShiftPx": 0,
+      "navLinkShiftPx": 0,
+      "tappableTargetCollision": false,
+      "overlaps": {},
+      "rectsBefore": {
+        "t": 1871.4000000003725,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1028.125,
+          "bottom": 1278.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 868.125,
+          "bottom": 892.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 602.6875,
+          "bottom": 626.6875
+        }
+      },
+      "rectsAfter": {
+        "t": 4077.5999999996275,
+        "ad": {
+          "left": 24,
+          "right": 296,
+          "top": 1028.125,
+          "bottom": 1278.125
+        },
+        "navLink": {
+          "left": 64,
+          "right": 129.359375,
+          "top": 868.125,
+          "bottom": 892.125
+        },
+        "resetBtn": {
+          "left": 73.09375,
+          "right": 185.046875,
+          "top": 602.6875,
+          "bottom": 626.6875
+        }
+      }
+    }
+  ],
+  "delayMatchesSpinMs1200WithinTolerance": true,
+  "delayIsNearZeroUnderReducedMotion": null,
+  "reducedMotionMatchesConfirmedLive": true,
+  "adSlotEverMovedTowardViewportTop": false,
+  "adSlotShiftIsReal": true,
+  "tappableTargetCollisionObserved": false,
+  "allRunsFiredRealTouchHandler": true,
+  "verdict": "FAILED",
+  "verdictNote": "FAILED against the hypothesized hazard, not against the measurement. The delay is real (~1202-1203ms, matches SPIN_MS=1200) and the ad slot's position does move on ~4/5 runs (-24px), but the direction is DOWN the page (content grows: 'ออกแล้ว' text wraps a long name onto a second line — wheel.astro's render() never removes a row, it only decorates an existing one with is-out/text, contrary to the 'shrink' framing in the brief and the prior README note). A downward shift moves the ad slot AWAY from the targets tested above it (#wheel-reset, the first GameNav link), not into them, so no tappable-target collision was observed in any of the 5 runs, at 320px, for this control/target pair.",
+  "scopeNotCovered": "Only #wheel-reset and the first GameNav link (.wheel-next a) were tested as candidate 'different tappable target' collision targets, only at 320px, only with a single spin (not a multi-spin sequence), and only with the fixed 4-name LONG_NAMES roster. A different roster length/order or a second/third spin was not walked."
+}

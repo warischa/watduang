@@ -1,0 +1,43 @@
+{
+  "box": "gh#42 — real-touch proof that the #40/#41 ghost-tap gate (src/games/_arm-gate.ts's armAllButtons) actually covers the four newly-gated games: daily-fortune, love-match, pick-loser, siamsi. Index for 01-04 in this directory.",
+  "method": "One driver script, scripts/arm-gate-probe.mjs, extended this session with a section per game (existing short-stick/timebomb sections above are untouched). Never ran two headless probes concurrently, per docs/runbook.md. Full sequence: (1) built and served the working tree on 4321/9222, ran the probe, got 32/32 gapTests PASS + 0 scenarioErrors; (2) git worktree add --detach a scratch dir at HEAD (9510d21), copied ONLY scripts/arm-gate-probe.mjs into it (src/games/*.ts left pre-fix, no armAllButtons calls on these four games), built and served on an isolated port pair (4322/9333), ran the same probe — every gated control's 100ms suppression check FAILED there (11 total) and every 500ms normal-activation check still PASSED, which is the correct calibration signature; (3) removed the worktree (git worktree list now shows only the main tree) and re-ran the probe against the working tree one more time to confirm the final capture: 32/32 PASS again.",
+  "capturedAtCommit": "9510d21",
+  "capturedAtCommitNote": "Working tree DIRTY at capture. Uncommitted files: docs/adr/0016-a-gate-that-classifies-nothing-converges.md, docs/verification/evidence/39/{01-love-match-grid,02-double-tap-prefix,03-double-tap-postfix,04-closed-and-dismissed}.json, scripts/arm-gate-probe.mjs, src/games/_arm-gate.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.test.mjs. Every PROVEN verdict in 01-04 of this directory rests on that dirty tree, not on 9510d21 alone.",
+  "verdict": "PROVEN",
+  "postFixSummary": { "totalGapTests": 32, "failing": [], "scenarioErrors": [], "overall": "PASS" },
+  "baselineSummary": {
+    "totalGapTests": 32,
+    "failingCount": 11,
+    "failing": [
+      "daily-fortune/df-again/100ms", "daily-fortune/df-go/100ms",
+      "love-match/lm-chip/100ms", "love-match/lm-again/100ms",
+      "pick-loser/pl-again/100ms",
+      "siamsi/ss-draw (turn 1)/100ms", "siamsi/ss-pass (turn 1)/100ms",
+      "siamsi/ss-draw (turn 2)/100ms", "siamsi/ss-pass (turn 2)/100ms",
+      "siamsi/ss-again/100ms", "siamsi/ss-start/100ms"
+    ],
+    "scenarioErrors": [],
+    "overall": "FAIL",
+    "note": "Every failure is a 100ms suppression check — every 500ms normal-activation check still PASSED. This is exactly the expected shape: the gate is absent on this baseline, so a ghost tap always registers regardless of timing, and normal activation is unaffected either way."
+  },
+  "worktreeVerified": {
+    "worktreeAddedAt": "9510d21",
+    "onlyProbeScriptModifiedInWorktree": true,
+    "worktreeRemovedAfter": true,
+    "gitWorktreeListAfterRemoval": "only /Users/waris.c/claude/free-game  9510d21 [main]"
+  },
+  "exceptionsProven": [
+    { "game": "daily-fortune", "control": "roster chips (ask screen)", "exemptControlActivatedImmediately": true, "gapMs": 60 },
+    { "game": "pick-loser", "control": "#pl-pick", "exemptControlActivatedImmediately": true, "gapMs": 60 }
+  ],
+  "otherEvidence": {
+    "dailyFortuneTypedInputStaysLive": "src/games/daily-fortune.ts's #df-name <input> is not a <button>, so armAllButtons never touches it — confirmed by reading its source (src/games/_arm-gate.ts:56-67 walks only <button> children) rather than a separate probe assertion; no red was expected or observed against it in any run.",
+    "pointerdownOnDisabledAnswer": "YES — a real touch on a disabled control DOES dispatch a pointerdown that bubbles to #stage (same finding as #40, reconfirmed on this run's short-stick/timebomb sections; not independently re-derived for the four new games in this issue)."
+  },
+  "filesInThisDirectory": [
+    "01-daily-fortune.json",
+    "02-love-match.json",
+    "03-pick-loser.json",
+    "04-siamsi.json"
+  ]
+}

@@ -5,6 +5,7 @@
 // refresh (unlike siamsi's multi-turn round). See ADR-0010: siamsi stays the sole checkpoint writer.
 // The .ts extension in the import path is required for `node --test` (Node does not guess extensions) — Vite/tsc accept both
 import type { GameContext, GameModule } from './types.ts';
+import { armAllButtons } from './_arm-gate.ts';
 
 // ---- Picking: pure and calculable, testable with no DOM (see pick-loser.test.mjs) ----
 
@@ -60,6 +61,9 @@ function renderIdle(): void {
   pickBtn.type = 'button';
   on(pickBtn, 'click', pick);
   stage.appendChild(pickBtn);
+  // Exception (owner's call): pl-pick is deliberately NOT gated. No hand-off exists in the
+  // pl-again → pl-pick flow — the same hand that tapped "เล่นอีกรอบ" taps this button next, so gating
+  // it would delay a real, single-user action rather than block a ghost tap.
 }
 
 function renderResult(): void {
@@ -83,6 +87,10 @@ function renderResult(): void {
   stage.appendChild(again);
   // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
   // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
+
+  // The tap that revealed the pick swaps this screen in under the same finger, so a ghost second
+  // contact would land on "เล่นอีกรอบ" and restart the round before anyone read who was picked.
+  cleanup.push(armAllButtons(stage));
 }
 
 // ---- Round lifecycle ----

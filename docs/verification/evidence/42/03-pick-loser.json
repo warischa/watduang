@@ -1,0 +1,39 @@
+{
+  "box": "gh#42 — pick-loser: #pl-again is gated by armAllButtons; #pl-pick is the deliberate exception (no hand-off exists between #pl-again and it, so one hand taps both) and must stay live.",
+  "method": "scripts/arm-gate-probe.mjs, extended this session (runPickLoserScenario). Real touch only (Input.dispatchTouchEvent). #pl-again's rect learned via an untimed dry run, then real cause tap (#pl-pick) + real second contact 100ms/500ms later via the un-awaited-dispatch technique. The exception check for #pl-pick reuses the same technique (a real, controlled 60ms gap between two real touches) rather than Date.now() wrapped around an awaited session.tap() — an early draft used Date.now() there and always read >=400ms regardless of real behaviour, because session.tap() itself sleeps ~400ms internally before its promise resolves (driver.mjs); caught and fixed before this capture (browser-verification.md trap #2 — calibrate the detector).",
+  "capturedAtCommit": "9510d21",
+  "capturedAtCommitNote": "Working tree DIRTY at capture. Uncommitted files: docs/adr/0016-a-gate-that-classifies-nothing-converges.md, docs/verification/evidence/39/{01-love-match-grid,02-double-tap-prefix,03-double-tap-postfix,04-closed-and-dismissed}.json, scripts/arm-gate-probe.mjs, src/games/_arm-gate.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.ts, src/games/{daily-fortune,love-match,pick-loser,siamsi}.test.mjs. This report's PROVEN verdict rests on that dirty tree's src/games/pick-loser.ts and src/games/_arm-gate.ts (armAllButtons), not on 9510d21 alone.",
+  "verdict": "PROVEN",
+  "calibration": {
+    "method": "Same worktree/port-isolation method as 01-daily-fortune.json (baseline = 9510d21, ports 4322/9333). Only scripts/arm-gate-probe.mjs copied in; src/games/pick-loser.ts left pre-fix.",
+    "baselineCommit": "9510d21 (src/games/pick-loser.ts pre-fix, no armAllButtons)",
+    "ghostTapDidNotActivateOnBaseline": false,
+    "note": "The single gated control's 100ms suppression check FAILED on the baseline and its 500ms check still PASSED — same calibration signature as every other game in this issue."
+  },
+  "checks": [
+    {
+      "control": "#pl-again",
+      "ghostTapDidNotActivate": true,
+      "ghostTapDidNotActivate_gapMs": 100,
+      "normalTapDidActivate": true,
+      "normalTapDidActivate_gapMs": 500,
+      "baselineGhostTapDidNotActivate": false,
+      "note": "Contact1 = real tap on #pl-pick (creates the result screen). Contact2 = second real contact on #pl-again. Suppression is read from staying on the result screen instead of bouncing back to idle."
+    }
+  ],
+  "exception": {
+    "control": "#pl-pick",
+    "gapMs": 60,
+    "exemptControlActivatedImmediately": true,
+    "activatedOnBaselineToo": true,
+    "note": "Contact1 = real tap on #pl-again (remounts the idle screen and creates a fresh #pl-pick). Contact2 = a real touch on #pl-pick only 60ms later — must still pick, landing on the result screen. PASSED post-fix and also passes on the baseline (pl-pick was never gated either way, so this is not a differentiator — it is a live-control proof, not a gate proof)."
+  },
+  "postFixGapTests": [
+    { "control": "pl-again", "gapMs": 100, "verdict": "PASS" },
+    { "control": "pl-again", "gapMs": 500, "verdict": "PASS" }
+  ],
+  "baselineGapTests": [
+    { "control": "pl-again", "gapMs": 100, "verdict": "FAIL" },
+    { "control": "pl-again", "gapMs": 500, "verdict": "PASS" }
+  ]
+}

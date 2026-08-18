@@ -1,6 +1,7 @@
 // Siamsi Party — pass the phone around, each player draws one fortune, see the summary once everyone's drawn
 // The .ts extension on the import path is required for `node --test` (Node does not guess extensions) — Vite/tsc both accept it
 import type { GameContext, GameModule } from './types.ts';
+import { armAllButtons } from './_arm-gate.ts';
 
 // ---- Fortunes + deck: pure and calculable, testable with no DOM (see siamsi.test.mjs) ----
 
@@ -216,6 +217,10 @@ function renderIdle(resumeFailed = false): void {
   startBtn.type = 'button';
   on(startBtn, 'click', startRound);
   stage.appendChild(startBtn);
+
+  // renderSummary's "เล่นอีกรอบ" remounts straight into this screen under the same finger — gate it so
+  // a ghost second contact cannot arm a fresh round nobody chose to start.
+  cleanup.push(armAllButtons(stage));
 }
 
 function renderTurn(): void {
@@ -231,6 +236,11 @@ function renderTurn(): void {
   drawBtn.type = 'button';
   on(drawBtn, 'click', drawForHolder);
   stage.appendChild(drawBtn);
+
+  // Reached from startRound(), passToNext()'s next-turn branch, and a resumed mount — every one of
+  // those swaps the stage under a finger that just tapped something else. Gate it so a ghost tap
+  // cannot draw a card for the next player before the phone has even changed hands.
+  cleanup.push(armAllButtons(stage));
 }
 
 function renderDrawn(): void {
@@ -247,6 +257,10 @@ function renderDrawn(): void {
   passBtn.type = 'button';
   on(passBtn, 'click', passToNext);
   stage.appendChild(passBtn);
+
+  // The draw that revealed this screen swaps it in under the same finger — gate the pass button so a
+  // ghost second contact cannot hand the phone onward before the card was read.
+  cleanup.push(armAllButtons(stage));
 }
 
 function renderSummary(): void {
@@ -271,6 +285,11 @@ function renderSummary(): void {
   stage.appendChild(again);
   // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
   // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
+
+  // passToNext's roundOver branch swaps this screen in under the same finger that just tapped
+  // "ส่งต่อ" — gate "เล่นอีกรอบ" so a ghost second contact cannot restart the round before the summary
+  // was read.
+  cleanup.push(armAllButtons(stage));
 }
 
 // ---- Round lifecycle ----
