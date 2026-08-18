@@ -5,6 +5,42 @@ gated on these two — each says exactly what it's waiting on — and moved to
 [post-launch-checklist.md](post-launch-checklist.md) to stay under the doc budget.
 Rationale for every decision lives in the linked issues; this doc restates only the steps.
 
+## ⚠ Read this before doing any of the three below
+
+**Right now, `gh api repos/warischa/watduang/actions/secrets` returns `total_count: 0` (verified
+2026-08-18) — this repo has no secrets, so every push to `main` today builds and runs CI only, it
+does **not** deploy.** `ci.yml` gates the entire Deploy step on
+`HAS_DEPLOY_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN != '' }}` — the instant that one
+secret exists (the last action in §2 below), **every future push to `main`, by anyone, permanently
+becomes a live production deploy.** There is no separate "go live" switch and no way to arm it
+partially. Any assumption anyone has been working under — "pushing to main is safe, nothing ships"
+— is void from the second that secret is added, and stays void until it's deleted again.
+
+**Do these three in this order — each is a real prerequisite for the next, not just a
+suggestion:**
+
+1. **§2 below — Azure deploy token.** Do this first: it's the only one of the three that unblocks
+   something *by itself* (the real-phone pass, [#13](https://github.com/warischa/watduang/issues/13)
+   DoD item 4 — see [post-launch-checklist.md](post-launch-checklist.md) §3, needs a live deploy on
+   the `azurestaticapps.net` URL, not the custom domain). It is also a hard prerequisite for
+   everything downstream — §4 (connect the domain) and §5 (AdSense) both require a deployed app to
+   exist first.
+2. **§1 below — register `watduang.com`.** Do this second: on its own it only unblocks connecting
+   Google Search Console. Its real weight is as the other prerequisite §4 needs — AdSense (§5)
+   reviews a live site on the real domain, so this has to land before that domain can be connected
+   or reviewed.
+3. **§5, in [post-launch-checklist.md](post-launch-checklist.md) — AdSense publisher ID.** Do this
+   last: it depends on both of the above (through §4, connecting the domain), so nothing is left for
+   it to unblock until §2 and §1 are both done. It's the final domino — landing it lets
+   [#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)
+   each close their one remaining ad-slot checkbox. **What it does *not* do automatically: close the
+   epic [#14](https://github.com/warischa/watduang/issues/14).** Verified against the issues
+   themselves — #14 carries no DoD checkboxes of its own, and GitHub's sub-issue relation on #14
+   only lists #21 and #22 (both already closed, unrelated to ads); #15-#18 name #14 as "Parent" in
+   prose only, not as a tracked sub-issue. So ticking #15-#18's ad-slot boxes does not auto-close
+   #14 — closing it once all four tools are done is a judgment call for whoever's working the
+   tracker, not something that happens on its own.
+
 ## 1. Register `watduang.com` — [#9](https://github.com/warischa/watduang/issues/9)
 
 **Why blocked on you:** buying a domain needs a card and personal details — HITL by definition.
@@ -48,7 +84,12 @@ Rotation: resetting the token (portal **Reset token**, or `az staticwebapp secre
 
 **How you know it worked:** immediately after clicking **Add secret**, this repo's **Settings → Secrets and variables → Actions** page lists `AZURE_STATIC_WEB_APPS_API_TOKEN` (the value itself is never shown again — that's normal). That confirms the secret exists; it does not by itself confirm a deploy. To confirm an actual deploy, you need a push to `main` — but per the warning above, that's not a free test: it's a real production deploy, the same one every future push to `main` will now trigger. When one happens (yours or anyone else's), open the GitHub **Actions** tab → click that run → confirm the "Deploy to Azure Static Web Apps" step is no longer reported as `skipped`. This typically finishes within a few minutes of the push. Checking a pull-request run will always show it `skipped` regardless of the secret — that is not a sign of failure.
 
-**What it unblocks:** a live deploy is **necessary** to prove CSP/AdSense for real — until the site is actually deployed and live, ad rendering under the CSP is unverified. It is **not sufficient on its own**: the four ad-slot boxes ([#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)) also need an AdSense publisher ID, which is §5 in [post-launch-checklist.md](post-launch-checklist.md). Doing §2 alone does not close them.
+**What it unblocks:** immediately, on its own — [#13](https://github.com/warischa/watduang/issues/13)'s
+last open DoD box, the real-phone pass ([post-launch-checklist.md](post-launch-checklist.md) §3). That
+test runs on the app's `azurestaticapps.net` URL, so it needs no domain — §2 alone is enough to close
+#13. A live deploy is also **necessary** to prove CSP/AdSense for real — until the site is actually
+deployed and live, ad rendering under the CSP is unverified. It is **not sufficient on its own** for
+ads: the four ad-slot boxes ([#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)) also need an AdSense publisher ID, which is §5 in [post-launch-checklist.md](post-launch-checklist.md), and §4 (connecting the domain) besides. Doing §2 alone does not close them.
 
 ## 3. Real-phone pass — [#13](https://github.com/warischa/watduang/issues/13) DoD item 4 + [#20](https://github.com/warischa/watduang/issues/20)
 
@@ -62,8 +103,33 @@ Moved to [post-launch-checklist.md](post-launch-checklist.md) to stay under the 
 heading stays here so a heading scan still finds it, and so an existing §4 citation still resolves
 in one hop.
 
-## 5. AdSense account + publisher ID — [#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)
+## 5. AdSense account + publisher ID — [#29](https://github.com/warischa/watduang/issues/29)
 
-Moved to [post-launch-checklist.md](post-launch-checklist.md) to stay under the doc budget. The
-heading stays here so a heading scan still finds it, and so an existing §5 citation still resolves
-in one hop.
+Full steps and the CSP constraint live in [post-launch-checklist.md](post-launch-checklist.md) §5 —
+this is the summary so the three owner-blocked items are all in one place.
+
+**Why blocked on you:** an AdSense account is tied to your Google identity, your address, and your
+payment and tax details — an agent has none of these and must never enter them.
+
+**What you need in hand before starting:** §1 and §2 above done, and §4 (connecting the domain,
+in [post-launch-checklist.md](post-launch-checklist.md)) also done — AdSense reviews a live site on
+its real domain, so there is nothing to submit until `watduang.com` loads the deployed site. You
+also need a Google account and your address/payment/tax details ready for AdSense's own sign-up
+form.
+
+**What you do:** go to `adsense.google.com`, sign in, add `watduang.com`, and request review
+(commonly takes days to weeks — no way to shorten it).
+
+**What to hand back:** your **publisher ID** (looks like `ca-pub-0000000000000000`) — it's not a
+secret in the credential sense (it ships in the page), so paste it directly into whichever issue or
+PR is doing the integration, or hand it to an agent explicitly.
+
+**What it unblocks:** the four ad-slot DoD boxes — [#15](https://github.com/warischa/watduang/issues/15),
+[#16](https://github.com/warischa/watduang/issues/16), [#17](https://github.com/warischa/watduang/issues/17),
+[#18](https://github.com/warischa/watduang/issues/18) — each currently has exactly one unchecked box
+(the ad-slot placement item), and this is the last thing blocking it. It does **not** by itself close
+the epic [#14](https://github.com/warischa/watduang/issues/14) — see the warning at the top of this
+doc for why that's a separate, manual step.
+
+**How you know it worked:** the AdSense dashboard shows your site as **Ready**, and you have a
+`ca-pub-` publisher ID in hand.

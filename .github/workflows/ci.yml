@@ -72,6 +72,12 @@ jobs:
       - name: Roster lock structure and key ownership (static check)
         run: node scripts/roster-lock-structure-check.mjs --selftest && node scripts/roster-lock-structure-check.mjs
 
+      # ADR-0010 keeps ONE site-wide checkpoint slot and defers per-game keying until a second
+      # checkpoint-writing game exists. That deferral was enforced only by prose in _template.ts —
+      # this gate enforces it, and fails with instructions rather than just a violation. gh#24.
+      - name: Only one game writes a checkpoint (ADR-0010 trigger)
+        run: node scripts/checkpoint-writer-check.mjs --selftest && node scripts/checkpoint-writer-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob
       - name: Unit tests
         run: node --test 'src/**/*.test.mjs'

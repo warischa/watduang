@@ -124,6 +124,24 @@ Finding S2026-08-15#2 — a late `setPlayers` could resurrect a discarded record
 
 Finding S2026-08-15#3 — the race was the wrong target; two unguarded orderings exist instead. Full text moved to `docs/verification/adr-0010-findings.md` (byte-identical); see [#27](https://github.com/warischa/watduang/issues/27). **Both orderings CLOSED S2026-08-15#4** by an identity compare-and-swap at `write()` — see § Supersession in that file for what went stale.
 
+**S2026-08-18 — the trigger is now a gate, not a note. Decision unchanged.** This ADR's deferral rests
+entirely on one condition, and until now nothing enforced it: the trigger lived in prose in
+`_template.ts`, to be noticed by whoever adds the next game. `scripts/checkpoint-writer-check.mjs`
+now fails CI the moment a second file under `src/games/` calls `saveCheckpoint`, and fails with
+instructions — it names this ADR, names gh#24, and says to build the per-game design specced in
+§ Decision before shipping that game. Wired before the Build step, so it cannot touch `dist/`.
+
+Re-scored at the same time: siamsi is still the sole checkpoint-writing game, so **the trigger has
+not fired and this ADR's decision stands unchanged**. Per-game keying was deliberately NOT built —
+an agent started to and was stopped, because § Why defer rather than build point 1 is still true:
+whether วัดดวง should ever hold two paused rounds is a product call, and building the mechanism
+answers it by accident. The owner chose the gate over the build.
+
+The gate's own limits are written in its `ponytail:` header and are real: an aliased or destructured
+call (`const { saveCheckpoint } = gameCtx.session`) escapes it — measured, not assumed — and it sees
+nothing outside the flat `src/games/*.ts` glob. It proves the trigger fired; it does not prove the
+per-game design above is correct.
+
 ## Related
 
 - [#24](https://github.com/warischa/watduang/issues/24) — the ticket this answers
