@@ -52,8 +52,19 @@ function stripComments(text) {
   return text
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, '') // Astro/JSX brace comments
     .replace(/\/\*[\s\S]*?\*\//g, '') // generic block comments
-    .replace(/\/\/.*$/gm, ''); // line comments
+    .replace(/^[ \t]*\/\/.*$/gm, ''); // line comments — LINE-START ONLY, see the note below
 }
+
+// ponytail: the line-comment rule is deliberately narrow — `//` counts as a comment only at the
+// start of a line. A mid-line `//` is far more often a URL than a comment: 'https://schema.org'
+// sits in src/layouts/GameLayout.astro, a file this gate scans. Blanking from there to end of line
+// let a stray data-stable-exit hide behind a URL on the same line, and the gate went green — a
+// fail-OPEN, measured, not theorised. Tracking quote state instead was rejected: an unpaired
+// apostrophe in prose ("don't") would open a string that never closes and swallow live markup,
+// trading this hole for a worse one.
+// Ceiling: a trailing `// ...` comment that MENTIONS data-stable-exit now trips the gate. That is
+// a false positive, it fails SAFE (red, a human looks), and no such comment exists today. The
+// upgrade path if this stops holding is the TypeScript parser scripts/thai-comments.mjs uses.
 
 // The attribute name is also a legitimate substring of the guard's own selector literal
 // ([data-stable-exit], inside a[href]:not([data-stable-exit])) — that is a reference to the
@@ -139,12 +150,36 @@ function selftest() {
       "el('button', 'ต่อไป');",
     ].join('\n'));
 
+    // The mid-line `//` case. 'https://schema.org' really sits in GameLayout.astro, and a
+    // blanket line-comment strip blanked from that `//` to end of line — a stray marker sharing
+    // the line went invisible and the gate passed. Measured fail-OPEN, not theorised.
+    write(good, 'src/layouts/Base.astro', [
+      '<script type="application/ld+json">{"@context":"https://schema.org"}</script>',
+      '<p>plain line, no marker</p>',
+    ].join('\n'));
+
     const goodFiles = walkSrcFiles(good);
     assert.deepEqual(findAttributeViolations(goodFiles), [], 'known-good fixture must report zero attribute violations');
     const goodPlayerSetup = goodFiles.find((f) => f.relPath === 'src/shell/PlayerSetup.astro');
     assert.equal(selectorPresent(goodPlayerSetup.text), true, 'known-good fixture must keep the exemption selector');
     const goodLayout = goodFiles.find((f) => f.relPath === 'src/layouts/GameLayout.astro');
     assert.equal(countAttributeUses(goodLayout.text), 1, 'known-good fixture must carry exactly one live attribute use, its own brace comment not counted');
+    // Same shape, now WITH a marker hiding behind the URL on the same line: must be caught.
+    const urlHole = fs.mkdtempSync(path.join(os.tmpdir(), 'stable-exit-urlhole-'));
+    try {
+      write(urlHole, 'src/layouts/GameLayout.astro', '<p><a href="/games/" data-stable-exit>x</a></p>');
+      write(urlHole, 'src/shell/PlayerSetup.astro', "closest?.('a[href]:not([data-stable-exit])')");
+      write(urlHole, 'src/layouts/Base.astro', '<a href="https://ex.com/a" data-stable-exit>hidden</a>');
+      assert.deepEqual(
+        findAttributeViolations(walkSrcFiles(urlHole)),
+        ['src/layouts/Base.astro'],
+        'a marker sharing a line with a // URL must still be seen — mid-line // is not a comment',
+      );
+      console.log('PASS a data-stable-exit hidden behind a mid-line // URL is still caught');
+    } finally {
+      fs.rmSync(urlHole, { recursive: true, force: true });
+    }
+
     console.log('PASS known-good fixture: allowed attribute location + both comment styles ignored + selector present + exactly one live marker');
 
     // Known-bad: a real anchor with the attribute planted in a file that is not the allowed one

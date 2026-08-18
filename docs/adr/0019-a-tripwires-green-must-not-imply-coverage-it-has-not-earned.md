@@ -57,6 +57,17 @@ open unless the guard also asserts its own set is non-empty. An inverted guard m
 - Two probes stay manual by decision, not by neglect, and say so at their invariant's definition site.
 - Each tripwire's exception set stays closed and each entry cites an owner decision. That is unchanged from
   ADR-0016 and is what keeps these from becoming suppression ledgers.
-- The textual comment-stripper is itself a ceiling: it would blank live code if a scanned file ever held a
-  `//` or `/* */` sequence inside a string literal. None does today. That is the point to switch to the
-  TypeScript parser `scripts/thai-comments.mjs` already depends on.
+- The textual comment-stripper is itself a ceiling, and this was written down wrong the first time. The
+  original text claimed no scanned file held a `//` inside a string literal. One does:
+  `'https://schema.org'` in `src/layouts/GameLayout.astro`, a file `stable-exit-markers-check.mjs`
+  scans. A blanket line-comment strip blanked from that `//` to end of line, so a stray
+  `data-stable-exit` sharing the line was invisible and the gate passed — a measured fail-open, found
+  by checking the claim instead of trusting it, after this ADR had already shipped.
+  The rule is now narrow: `//` counts as a comment only at the start of a line. Tracking quote state
+  was considered and rejected — an unpaired apostrophe in prose would open a string that never closes
+  and swallow live markup, which trades this hole for a worse one. The residual is a false positive on
+  a trailing `//` comment that mentions the attribute; it fails safe, and a selftest calibrated both
+  ways now pins the behaviour. The TypeScript parser `scripts/thai-comments.mjs` depends on remains the
+  upgrade path.
+- A closing verdict is not a stopping point. Both of the above were found *after* gh#43 was closed, by
+  running the ADR's own rule against the gates the ADR was written to justify.
