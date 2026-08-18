@@ -51,7 +51,7 @@ const SELECTOR_LITERAL = 'a[href]:not([data-stable-exit])';
 function stripComments(text) {
   return text
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, '') // Astro/JSX brace comments
-    .replace(/\/\*[\s\S]*?\*\//g, '') // generic block comments
+    .replace(/^[ \t]*\/\*[\s\S]*?\*\//gm, '') // generic block comments — LINE-START ONLY, same reason as below
     .replace(/^[ \t]*\/\/.*$/gm, ''); // line comments — LINE-START ONLY, see the note below
 }
 
@@ -62,6 +62,12 @@ function stripComments(text) {
 // fail-OPEN, measured, not theorised. Tracking quote state instead was rejected: an unpaired
 // apostrophe in prose ("don't") would open a string that never closes and swallow live markup,
 // trading this hole for a worse one.
+// The same narrowing applies to bare `/* */`: a mid-line `/*` is a glob or a path far more often
+// than a comment. src/pages/game/[id].astro holds '../../games/*.ts', also in this gate's scan set.
+// It is benign only because that file has no later `*/` to close the phantom block — add one and the
+// span between them blanks, taking any marker with it. Verified across the scanned files: no real
+// comment here uses a mid-line `/* */`; the two mid-line hits are that glob and a `src/*` inside a
+// line comment. `{/* */}` stays allowed anywhere, being an unambiguous Astro construct.
 // Ceiling: a trailing `// ...` comment that MENTIONS data-stable-exit now trips the gate. That is
 // a false positive, it fails SAFE (red, a human looks), and no such comment exists today. The
 // upgrade path if this stops holding is the TypeScript parser scripts/thai-comments.mjs uses.
@@ -176,6 +182,19 @@ function selftest() {
         'a marker sharing a line with a // URL must still be seen — mid-line // is not a comment',
       );
       console.log('PASS a data-stable-exit hidden behind a mid-line // URL is still caught');
+
+      // Same class, block-comment half: a mid-line `/*` (the '../../games/*.ts' glob really in
+      // src/pages/game/[id].astro) plus any later `*/` would blank the span between them.
+      write(urlHole, 'src/pages/game/[id].astro', [
+        "  const mods = import.meta.glob(['../../games/*.ts']);",
+        '  <a href="/y" data-stable-exit>hidden</a>',
+        '  /* an ordinary block comment closing the phantom span */',
+      ].join('\n'));
+      assert.ok(
+        findAttributeViolations(walkSrcFiles(urlHole)).includes('src/pages/game/[id].astro'),
+        'a marker between a mid-line /* glob and a later */ must still be seen',
+      );
+      console.log('PASS a data-stable-exit inside a phantom /* ... */ span is still caught');
     } finally {
       fs.rmSync(urlHole, { recursive: true, force: true });
     }
