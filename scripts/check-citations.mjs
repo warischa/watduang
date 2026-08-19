@@ -18,6 +18,32 @@
 //
 // docs/sessions-archive.md is a verbatim historical record (never edited) and is excluded —
 // it already carries known-dead § citations that are not this checker's job to fix.
+//
+// --- Ceiling: what this checker does NOT check (gh#44, ADR-0019) --------------------
+// A green run here means "the citations this checker owns all resolve" — it does not mean
+// "no dead citation exists in this repo." Three known gaps, disclosed so a green run can't
+// be misread as full coverage:
+//
+//   1. Prose-separated citations are invisible. Both heading regexes require the `.md` path
+//      and the `§` to be separated by whitespace ONLY (`\s*`). A citation with prose between
+//      them — e.g. docs/runbook.md:5, "...pointing here (under § Rules that must not be
+//      broken ...)" — is never matched; rename that heading and this script still prints
+//      "all citations resolve". Widening the regex to close this was tried and rejected: it
+//      produces false positives on this repo's own prose (docs/verification/evidence/44/
+//      prose-separated-scan.md), and the set of ways prose can separate a path from a `§` is
+//      owned by whoever writes the next paragraph, not by this script — it does not converge.
+//   2. Heading match is exact-string, not fuzzy. A citation naming only a heading's leading
+//      words (`§ Supersession`) does not resolve against the real heading
+//      `## Supersession — S2026-08-15#4`, even though a human reads it fine. Referenced line:
+//      docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md:125 — but
+//      that citation is ALSO prose-separated (ceiling 1), so the gate never even attempts the
+//      exact-match step on it in this repo; it is shown here as what the row WOULD be if the
+//      citation were reachable, not a live ceiling-2 bite.
+//   3. This checker cannot describe its own subject matter. Any document that quotes a
+//      citation in the `path § "heading"` form — to explain or document this checker — is
+//      itself scanned, and the quoted example is treated as a live citation. See
+//      docs/verification/evidence/44/prose-separated-scan.md, which has to dodge that form
+//      in its own tables to avoid tripping this script.
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -198,6 +224,63 @@ function selftest() {
     const badDead = scanRoot(root).filter((d) => d.file.startsWith('bad.md'));
     assert.equal(badDead.length, 5, `known-bad citer must report exactly 5 dead citations, got ${badDead.length}`);
     console.log(`PASS known-bad citer flags all 5 planted defects:\n${badDead.map((d) => `     ${d.file} → ${d.target} → ${d.reason}`).join('\n')}`);
+
+    // --- Pin the three disclosed ceilings (gh#44, ADR-0019, header comment above). Each
+    // asserts CURRENT behaviour so a future widening of a regex goes red here first, forcing
+    // the header to be updated rather than silently drifting out of sync with reality.
+
+    // Ceiling 1: a prose-separated citation (non-whitespace between path and §) is invisible,
+    // for BOTH the quoted and unquoted heading forms. Fixture also carries one ORDINARY
+    // whitespace-adjacent dead citation, so the assertion below proves this file was actually
+    // scanned — a bare `deepEqual([], [])` here couldn't tell "scanned and correctly ignored"
+    // apart from "never scanned" (gh#44 REFUTE finding 1).
+    fs.writeFileSync(
+      path.join(root, 'ceiling1-prose-separated.md'),
+      [
+        '`target.md` — pointing here (under § Heading That Does Not Exist) is a genuinely',
+        'dead citation in spirit, but prose separates the path from the § so this checker',
+        'never even recognizes it as a citation to check.',
+        '',
+        '`target.md` — see also (under § "Quoted Heading That Does Not Exist" too) — this',
+        'quoted-form variant is prose-separated exactly the same way, so it must also stay',
+        'invisible to headingQuotedRe.',
+        '',
+        '`target.md` § "Ordinary Dead Heading" — an unrelated, genuinely dead citation',
+        'planted whitespace-adjacent so this file is provably still being scanned.',
+      ].join('\n'),
+    );
+    const ceiling1Dead = scanRoot(root).filter((d) => d.file.startsWith('ceiling1-prose-separated.md'));
+    assert.equal(
+      ceiling1Dead.length,
+      1,
+      'ceiling 1: expected exactly one finding (the planted ordinary dead citation) — the prose-separated one must stay invisible',
+    );
+    assert.equal(
+      ceiling1Dead[0].target,
+      'target.md § "Ordinary Dead Heading"',
+      'ceiling 1: the one finding must be the planted ordinary citation, not something else',
+    );
+    console.log(
+      `PASS ceiling 1 pinned: file was scanned (caught the ordinary dead citation ${ceiling1Dead[0].target}); the prose-separated citation stayed invisible (disclosed gap, not a false green)`,
+    );
+
+    // Ceiling 2: heading match is exact-string — a leading-words-only citation against a
+    // date-suffixed real heading does not resolve, even though a human reads it fine.
+    fs.writeFileSync(path.join(root, 'target2.md'), ['# Title', '', '## Leading — suffix', ''].join('\n'));
+    fs.writeFileSync(
+      path.join(root, 'ceiling2-exact-match.md'),
+      ['`target2.md` § Leading — dead: exact-match ceiling, "Leading" != "Leading — suffix".'].join('\n'),
+    );
+    const ceiling2Dead = scanRoot(root).filter((d) => d.file.startsWith('ceiling2-exact-match.md'));
+    assert.equal(ceiling2Dead.length, 1, 'ceiling 2: a leading-words-only heading citation must be reported dead');
+    console.log(`PASS ceiling 2 pinned: ${ceiling2Dead[0].file} → ${ceiling2Dead[0].target} → ${ceiling2Dead[0].reason}`);
+
+    // Ceiling 3: a quoted citation example embedded in a markdown table row is itself scanned
+    // as a live citation — the checker cannot describe its own subject matter.
+    fs.writeFileSync(path.join(root, 'ceiling3-table-row.md'), ['| `target.md` § Real Heading | example cell |'].join('\n'));
+    const ceiling3Dead = scanRoot(root).filter((d) => d.file.startsWith('ceiling3-table-row.md'));
+    assert.equal(ceiling3Dead.length, 1, 'ceiling 3: a citation example inside a table row must still be scanned as live');
+    console.log(`PASS ceiling 3 pinned: ${ceiling3Dead[0].file} → ${ceiling3Dead[0].target} → ${ceiling3Dead[0].reason}`);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
