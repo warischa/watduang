@@ -16,6 +16,16 @@ interface StoredSession {
   played: string[];
   checkpoint: Checkpoint | null;
   stamp: number;
+  /**
+   * How many times this record has been written. The compare-and-swap token every write checks itself
+   * against — NOT a clock, and `stamp` is not a substitute: gh#49's clobbering write carried the newer
+   * wall clock (1787147041344 over the 1787147038224 it destroyed), so last-write-wins-by-time lets the
+   * loss through. Absent on a legacy record and read as 0 there. Unbounded on purpose — and NOT because
+   * the record is short-lived: `stamp` is refreshed by every write, so an actively played record
+   * outlives MAX_AGE_MS indefinitely. It is safe because it counts taps, and a float's safe integer
+   * range is 2^53 of them.
+   */
+  gen?: number;
 }
 
 let minted = 0;
@@ -44,6 +54,7 @@ function read(): StoredSession {
     played: Array.isArray(parsed.played) ? parsed.played : [],
     checkpoint: parsed.checkpoint ?? null,
     stamp: parsed.stamp,
+    gen: parsed.gen ?? 0,
   };
 }
 
@@ -74,6 +85,28 @@ export function loadSession(): GameSession {
   let myId: string | null = stored.id ?? null;
 
   /**
+   * Which version of that record this closure last saw — the compare-and-swap token, checked and then
+   * bumped on every successful write. Identity answers "whose round is in the slot"; it cannot answer
+   * "is my copy of it current", and gh#49 is entirely the second question: a page frozen in bfcache
+   * keeps a live closure holding the round's own id, so when it is restored mid-round and the player
+   * taps, the identity compare passes and its months-old-in-round-time snapshot overwrites everything
+   * the newer page instance did. Measured loss: holder 2 -> 1, results 2 -> 1, a drawn card back in
+   * the deck, in silence.
+   *
+   * Seeded from the loaded record, ABSENT READS AS 0 — that is what makes one check cover the legacy
+   * door too. The identity compare is skipped whenever the stored id is undefined, so on a
+   * pre-identity record every closure loaded off it could clobber every other, and a guard nested
+   * inside that branch would inherit the same blind spot. This one sits beside the branch, not in it.
+   *
+   * No separate lock is needed on top: write() is already an atomic read-modify-write. One JS realm
+   * runs at a time per tab and a bfcached page is frozen, so nothing interleaves between the readRaw()
+   * below and its setItem — the only missing piece was ever the version token. A second tab is not a
+   * hole either: sessionStorage is scoped per top-level tab, so another tab gets its own store and
+   * cannot reach this key; SharedWorker and service workers have no sessionStorage at all.
+   */
+  let myGen: number = stored.gen ?? 0;
+
+  /**
    * The one chokepoint all three writers route through. `create` = this writer may bring a record into
    * existence; setPlayers is the only one, because starting a round is what brings a session into being
    * (games/_template.ts:29-31 documents that to every future game). Defaults to refusing, so a writer
@@ -89,8 +122,15 @@ export function loadSession(): GameSession {
       } else if (current.id !== undefined && current.id !== myId) {
         // Someone else's round is in the slot. This closure's snapshot predates it — refuse.
         return;
+      } else if ((current.gen ?? 0) !== myGen) {
+        // Right round, wrong version of it: someone has written since this closure loaded, so what it
+        // is about to persist is a snapshot of the round as it used to be. A sibling of the identity
+        // compare and never nested inside it — a legacy record reaches this line, and gh#49 through
+        // the legacy door looks the same as gh#49 through the normal one.
+        return;
       }
       const id = myId ?? mintId();
+      const gen = myGen + 1;
       sessionStorage.setItem(
         KEY,
         JSON.stringify({
@@ -99,12 +139,16 @@ export function loadSession(): GameSession {
           played: session.played,
           checkpoint: session.checkpoint,
           stamp: Date.now(),
+          gen,
         } satisfies StoredSession),
       );
       // Only now: minting before the write would make Safari private mode (setItem throws every time)
       // look like a create that succeeded, and every later write would then refuse against an id that
-      // was never persisted — permanent silent no-ops instead of an in-memory session.
+      // was never persisted — permanent silent no-ops instead of an in-memory session. Same for the
+      // generation: bumping it before a throwing setItem would leave this closure one version ahead of
+      // a record that never moved, and every later write would refuse against its own phantom write.
       myId = id;
+      myGen = gen;
     } catch {
       // Quota full or Safari private mode — keep going in memory for this page, never throw.
     }

@@ -17,6 +17,15 @@
 //     passes clean — verified by planting exactly that. The matcher needs the `.saveCheckpoint(`
 //     property access. This is the likeliest real escape, so if a game ever destructures session
 //     methods, this gate stops meaning anything and the trigger goes back to being prose.
+//   - The indirect persist (gh#48). write() in src/shell/session.ts re-serialises the WHOLE record,
+//     checkpoint field included, so every writer persists the checkpoint: setPlayers
+//     (src/pages/game/[id].astro:51) and markPlayed (all six games) each write session.checkpoint back
+//     to storage. In five of those six files there is no `.saveCheckpoint(` token to match on at all;
+//     siamsi.ts is the exception and is the one file this scan already allows. Left unmatched on
+//     purpose — those calls carry back the checkpoint their own closure loaded, which is the property
+//     the chokepoint enforces, so matching them would turn six games red for a rule they keep
+//     (ADR-0019's unearned-green inversion). What this costs: the gate counts saveCheckpoint call
+//     sites, not games that can move the slot's contents.
 //   - Anything outside the flat `src/games/*.ts` glob. A new checkpoint writer added in the shell
 //     (as src/shell/PlayerSetup.astro already legitimately does) is invisible here by design, but so
 //     would be a game that reaches the slot through a new shell helper.

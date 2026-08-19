@@ -29,3 +29,16 @@ The clobbering write carries a **newer** wall-clock stamp than the value it dest
 ## Recipe note
 
 `ส่งต่อ` renders only in phase `drawn`, so the probe taps draw once on instance #1 before leaving the page. The mechanism under test is unchanged.
+
+## After the fix
+
+The generation-counter guard (gh#49 fix) lands in `src/shell/session.ts`. The same probe, unchanged, now reports `verdict: "REFUTED"` with `positiveControlPassed: true` and `bfcacheRestored: true` — so the page really was restored from bfcache and the write was refused, rather than the probe failing to reach the scenario.
+
+| log | what it is |
+|---|---|
+| `run1.json` | pre-fix, the original CONFIRMED run |
+| `run2.json` | pre-fix, independent replication with different deck values |
+| `run3-postfix.json` | post-fix, REFUTED — run through a `--host-resolver-rules` port workaround, because another project's dev server held `:4321` at the time |
+| `run4-postfix-clean-ports.json` | post-fix, REFUTED — re-run on unmodified default ports, calibrated first that `:4321` was serving วัดดวง |
+
+`lostProgress.strictlyLessProgress` is `false` in both post-fix runs, with `after_holder` and `after_results` equal to the C5 values instead of below them.

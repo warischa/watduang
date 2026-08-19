@@ -7,3 +7,6 @@ dist/
 .DS_Store
 *.log
 .claude/worktrees/
+
+# Probe screenshots regenerate on every evidence run — the JSON logs are the evidence.
+docs/verification/evidence/**/*.png

@@ -92,29 +92,35 @@ test('game B start (setPlayers) preserves game A checkpoint — refutes the ADR-
   assert.equal(loadSession().checkpoint.phase, 'drawn', 'game B start must not clobber game A checkpoint');
 });
 
-// Boundary pin, not a bug report: a closure captured BEFORE another closure's saveCheckpoint holds a
-// stale snapshot (checkpoint: null), and its own later setPlayers writes that stale snapshot straight
-// back — clobbering the checkpoint the other closure saved in between. The identity guard does not
-// catch this and is not meant to: both closures hold the SAME record's id, so this is one round's own
-// writers disagreeing about its contents, not a discarded round coming back. Production never reaches
-// this ordering: every start calls loadSession() and setPlayers() back-to-back inside one handler
-// (game/[id].astro:50-51), so nothing can land between a closure's creation and its own setPlayers.
-// This test exists so that if that adjacency is ever broken, this is the failure that fires.
-test('a checkpoint writer landing between a closure\'s creation and its own setPlayers drops it', () => {
+// Was a boundary pin describing a hole; the gen token closes it (gh#49). A closure captured BEFORE
+// another closure's saveCheckpoint holds a stale snapshot (checkpoint: null), and its own later
+// setPlayers used to write that stale snapshot straight back over the checkpoint saved in between.
+// Identity cannot catch it and is not meant to — both closures hold the SAME record's id, so this is
+// one round's own writers disagreeing about its contents, not a discarded round coming back. That is
+// exactly the second question gen answers, and it is the same defect gh#49 met in a browser: same id,
+// older copy. Production still never reaches this ordering (every start calls loadSession() and
+// setPlayers() back-to-back inside one handler, game/[id].astro:50-51), so this pins the guard for the
+// day that adjacency breaks — it no longer pins a loss.
+test('a checkpoint writer landing between a closure\'s creation and its own setPlayers is refused', () => {
   slots.clear();
   loadSession().setPlayers(['Alice', 'Bob']); // creates the record, same as a start in production
   const gameB = loadSession(); // hostile ordering: snapshot taken BEFORE game A's checkpoint save
 
   const gameA = loadSession();
   gameA.saveCheckpoint(midRound(7));
-  // positive control: the save really landed, so the drop below is a clobber and not "never wrote"
+  // positive control: the save really landed, so the survival below is a refusal and not "never wrote"
   assert.equal(loadSession().checkpoint.phase, 'drawn');
 
-  gameB.setPlayers(['Chai', 'Dao']); // gameB's snapshot predates the save — writes checkpoint: null back
+  gameB.setPlayers(['Chai', 'Dao']); // gameB's snapshot predates the save — would write checkpoint: null back
   assert.equal(
-    loadSession().checkpoint,
-    null,
-    'a closure created before the checkpoint save clobbers it on its own later setPlayers',
+    loadSession().checkpoint.phase,
+    'drawn',
+    'a closure created before the checkpoint save clobbered it on its own later setPlayers',
+  );
+  assert.deepEqual(
+    loadSession().players,
+    ['Alice', 'Bob'],
+    'the whole write must be refused, not just the checkpoint field',
   );
 });
 
@@ -439,4 +445,97 @@ test('an aged record refuses write() and read() reports it empty — MAX_AGE_MS 
     'setPlayers must still be able to start a fresh round over an aged record',
   );
   assert.deepEqual(loadSession().players, ['เอ', 'บี']);
+});
+
+// ---- gh#49: a bfcache-restored page overwrites a newer checkpoint with its own stale one.
+// CONFIRMED in a real browser twice (docs/verification/evidence/49/README.md): both page instances
+// held record id mt0576wa-1, so the identity compare passed and the stale write landed — holder 2->1,
+// results 2->1, deck [23,10]->[1,23,10], a drawn card back in the deck. No confirm, no message, no undo.
+//
+// Two closures over one record id IS the whole mechanism, so it reproduces here with no bfcache: a
+// restored page holds exactly a stale closure. The wall-clock stamp cannot be the token — the
+// clobbering write carried the NEWER stamp (1787147041344 over 1787147038224). `gen` counts writes to
+// the record rather than time, so it orders the two writers instead of the two clocks.
+test('gh#49: a stale closure on the SAME record cannot write over a newer checkpoint', () => {
+  slots.clear();
+  // Instance #1 — the page that will be bfcached. It starts the round, so it owns the identity.
+  const instance1 = loadSession();
+  instance1.setPlayers(['Alice', 'Bob']);
+  instance1.saveCheckpoint(midRound(2));
+
+  // Instance #2 — the same tab navigates back into the game. Same record, same id, fresh closure.
+  const instance2 = loadSession();
+  assert.equal(instance2.checkpoint.drawn, 2, 'positive control: instance #2 loaded the live round');
+  instance2.saveCheckpoint(midRound(10)); // play continues here while #1 sits frozen
+  assert.equal(loadSession().checkpoint.drawn, 10, 'positive control: instance #2 can write at all');
+
+  // history.back() -> bfcache restore -> the player taps on the frozen page. Its snapshot predates
+  // instance #2's move, and its id still matches, so identity alone waves it through.
+  instance1.saveCheckpoint(midRound(19));
+  assert.equal(loadSession().checkpoint.drawn, 10, 'a bfcache-restored page overwrote the newer checkpoint');
+
+  // Anti-over-fix control: refusing the stale write must not cost the LIVE page its own next write.
+  // A guard that advanced the token on a refusal would strand instance #2 here.
+  instance2.saveCheckpoint(midRound(23));
+  assert.equal(loadSession().checkpoint.drawn, 23, 'the live page lost its own write to the refusal');
+});
+
+// gh#49 through the LEGACY_ID door. The identity compare is skipped entirely when the stored record
+// carries no id, so on a pre-identity record every closure loaded off it could clobber every other.
+// `gen` is seeded to 0 when the field is absent, which is why one check covers this path with no
+// legacy branch of its own — and why the check must sit OUTSIDE the identity branch.
+test('gh#49 legacy: a gen-less record writes through its own closure and refuses a stale sibling', () => {
+  slots.clear();
+  slots.set(
+    'watduang:session',
+    JSON.stringify({ players: ['Alice', 'Bob'], played: [], checkpoint: midRound(7), stamp: Date.now() }),
+  );
+
+  const stale = loadSession(); // the page that gets bfcached, loaded off the gen-less record
+  const live = loadSession(); // a second instance off the same gen-less record
+
+  live.saveCheckpoint(midRound(10));
+  assert.equal(loadSession().checkpoint.drawn, 10, 'a closure loaded off a gen-less record must still write');
+
+  stale.saveCheckpoint(midRound(19));
+  assert.equal(loadSession().checkpoint.drawn, 10, 'a stale legacy closure clobbered a newer checkpoint');
+});
+
+// The too-strict direction, at the one site that could have met it. PlayerSetup.astro's
+// discard-then-start calls saveCheckpoint(null) on a closure loadSession() built a few synchronous
+// lines earlier inside the same requestStart() call — fresh by construction, not a page-load closure.
+// If that discard ever failed silently the next start would resume the round the player just threw
+// away, which is an ADR-0008 violation. Pinned here so the guard cannot drift into refusing it.
+test('discard-then-start: a fresh closure still empties the slot even while an older one is alive', () => {
+  slots.clear();
+  const game = loadSession();
+  game.setPlayers(['Alice', 'Bob']);
+  game.saveCheckpoint(midRound(7));
+  assert.equal(loadSession().checkpoint.phase, 'drawn', 'positive control: a round really was in the slot');
+
+  const panel = loadSession(); // requestStart(): loadSession() then saveCheckpoint(null), same tick
+  panel.saveCheckpoint(null);
+  assert.equal(loadSession().checkpoint, null, 'the discard silently failed');
+  assert.equal(
+    planStart(loadSession().checkpoint, 'siamsi'),
+    'start',
+    'the panel offered to resume a round the player discarded — ADR-0008 says a discard is final',
+  );
+});
+
+// Round end, siamsi.ts passToNext(): markPlayed then saveCheckpoint(null) on the SAME closure, in one
+// handler, in one tick. Two writes back to back through one closure is precisely what a wall-clock
+// token cannot order — the second carries a stamp the first has already beaten. The token has to
+// advance with the closure that wrote it, so both land.
+test('round end: markPlayed and saveCheckpoint(null) in the same tick both take effect', () => {
+  slots.clear();
+  const game = loadSession();
+  game.setPlayers(['Alice', 'Bob']);
+  game.saveCheckpoint(midRound(7));
+  assert.equal(loadSession().checkpoint.phase, 'drawn', 'positive control: the round was live before it ended');
+
+  game.markPlayed('siamsi');
+  game.saveCheckpoint(null);
+  assert.deepEqual(loadSession().played, ['siamsi'], 'the finished round never got marked played');
+  assert.equal(loadSession().checkpoint, null, 'a finished round stayed in the slot — a refresh would resume it');
 });
