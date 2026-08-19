@@ -31,7 +31,8 @@ the hazard is on the wrong side of the ceiling, the gate is net-negative: it cos
 green that a future reader will read as coverage. Prefer an honest manual note at the invariant's definition
 site. `scripts/ad-slot-grid-probe.mjs` and `scripts/adslot-wheel-delay-probe.mjs` are recorded that way.
 
-**2. A positive-presence check strips comments first; a negative-presence check must not.** The two
+**2. Both directions strip comments first — a positive-presence check so commented-out text cannot
+satisfy it, a negative-presence check so commented-out text cannot trip it.** The two
 directions are opposites and both must hold at once. "This required thing must appear" has to ignore
 commented-out text, or commenting out the live line satisfies it. "This forbidden pattern must not appear"
 has to keep ignoring comments, or a comment that merely mentions the pattern trips it. Any tripwire making
@@ -71,6 +72,16 @@ open unless the guard also asserts its own set is non-empty. An inverted guard m
   upgrade path.
 - A closing verdict is not a stopping point. Both of the above were found *after* gh#43 was closed, by
   running the ADR's own rule against the gates the ADR was written to justify.
+- Rule 2's heading contradicted its own body and had to be corrected here. The heading read "a
+  negative-presence check must not" strip comments; two sentences below, the body of the same rule says a
+  forbidden-pattern check "has to keep ignoring comments, or a comment that merely mentions the pattern
+  trips it" — and gives the reason. The body governs: both directions strip. gh#47's
+  `scripts/csp-inline-check.mjs` is rule 2's first exercise — three negative-presence classes (`on*=`
+  handler attributes, `javascript:` in `href`/`src`/`formaction`, an outright `srcdoc` ban) matched over
+  blanked HTML comments, with both directions pinned by selftest: a hazard mentioned only inside a comment
+  trips nothing, and a live hazard sharing its line with a comment still fails. This bullet supersedes the
+  **Scored** line at the end of this file on both counts — that line restated the uncorrected heading and
+  recorded rule 2 as never exercised.
 
 ## Outcome — S2026-08-19
 
@@ -103,6 +114,7 @@ it is written, and the edit that invalidates it is the same edit nobody remember
 header for. The three ceilings in `check-citations.mjs` are each pinned by a selftest case for that
 reason: widen the match without updating the header and the pin goes red first.
 
-**Scored:** rule 1 confirmed four times. Rule 2 (strip comments for a positive-presence check, never
+**Scored:** [the rule 2 clause in this paragraph is superseded — see Consequences] rule 1 confirmed
+four times. Rule 2 (strip comments for a positive-presence check, never
 for a negative-presence one) was not exercised — no new comment-sensitive check shipped this session,
 so it remains as stated, untested since ADR-0019 was written.

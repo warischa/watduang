@@ -108,76 +108,27 @@ jobs:
       # AdSense's activation snippet is inline JS; script-src has no 'unsafe-inline' by design
       # (our own bundles are external _astro/*.js under 'self'), so when the ad tag is
       # integrated it must live in an external self-hosted script file, not inline.
+      # The old version of this step was directive-BLIND: it substring-matched the whole header, so
+      # moving *.googlesyndication.com from script-src into img-src kept it green while the AdSense
+      # loader was blocked (gh#47, ADR-0019 rule 1). The script asserts (directive, source) pairs.
+      # --selftest first, same reason as the gates above — and both CSP selftests are hermetic
+      # (temp-dir fixtures and strings only, never dist/), so unlike crawl-check's below they cannot
+      # invalidate the artifact this step and every step after it reads. gh#38.
       - name: CSP allowlist check (dist artifact)
-        run: |
-          node -e "
-            const cfg = JSON.parse(require('fs').readFileSync('dist/staticwebapp.config.json', 'utf8'));
-            const csp = cfg.globalHeaders && cfg.globalHeaders['Content-Security-Policy'];
-            if (!csp) { console.error('No Content-Security-Policy in globalHeaders'); process.exit(1); }
-            const required = [
-              '*.googlesyndication.com',
-              '*.doubleclick.net',
-              '*.google.com',
-              '*.adtrafficquality.google',
-              'style-src',
-            ];
-            const missing = required.filter((src) => !csp.includes(src));
-            if (missing.length) {
-              console.error('CSP missing required Google source expression(s): ' + missing.join(', '));
-              process.exit(1);
-            }
-            console.log('CSP allowlist check ok');
-          "
+        run: node scripts/csp-allowlist-check.mjs --selftest && node scripts/csp-allowlist-check.mjs
 
-      # Astro inlines a page script when it has no imports and is under assetsInlineLimit —
-      # CSP script-src has no 'unsafe-inline', so an inlined script is silently blocked in prod.
-      # Catches every kind of <script> with no src, not just the type="module" spelling: a hand-written
-      # <script is:inline> comes out as a bare <script>, gets blocked by CSP the same way, but a single-spelling
-      # grep misses it.
-      # This is an allowlist of the types CSP governs, not a blocklist of ld+json — a real data block
-      # (ld+json, json) is not blocked by CSP, so it must not be a false positive that gets people to rip the gate out.
-      # ⚠ importmap and speculationrules are **not** a safe data block — script-src-elem governs both
-      # (the spec added the 'inline-speculation-rules' keyword for exactly this reason · Chrome rejects an inline
-      # import map under a strict CSP). Miss this and one day someone adds an import map and every module on
-      # the page stops loading while the gate stays green.
+      # Inline execution in built HTML, two shapes: an inlined <script> element (Astro inlines a page
+      # script with no imports under assetsInlineLimit) and an inline-execution ATTRIBUTE — on*=,
+      # javascript: in href/src/formaction, srcdoc=. The attribute half is new: script-src does not
+      # govern it at all (script-src-attr / 'unsafe-hashes' does), so it is blocked just as hard and
+      # nothing here looked for it (gh#47). Matched as syntactic classes, not member lists.
+      # HTML comments are blanked before matching — ADR-0019 rule 2, negative-presence direction.
+      # --selftest first, and hermetic: temp fixtures only, dist/ is never rebuilt. gh#38.
+      # ⚠ The step NAME is load-bearing: docs/post-launch-checklist.md quotes it verbatim to tell the
+      # site owner which gate rejects AdSense's inline activation snippet. Renaming it kills that
+      # citation silently — check-citations.mjs only resolves .md targets, so no gate would catch it.
       - name: CSP inline-script gate (dist artifact)
-        run: |
-          node - <<'NODE'
-          const { readdirSync, readFileSync } = require('fs');
-          const { join } = require('path');
-          const JS_TYPES = new Set([
-            '', 'module', 'text/javascript', 'application/javascript',
-            'text/ecmascript', 'application/ecmascript', 'text/jscript', 'application/x-javascript',
-            // Old MIME types browsers still run as JS — CSP blocks these the same way
-            'text/x-javascript', 'text/x-ecmascript', 'application/x-ecmascript', 'text/livescript',
-            'text/javascript1.0', 'text/javascript1.1', 'text/javascript1.2',
-            'text/javascript1.3', 'text/javascript1.4', 'text/javascript1.5',
-            // Not JS but script-src-elem governs it — inline gets silently blocked the same way
-            'importmap', 'speculationrules',
-          ]);
-          const files = [];
-          (function walk(dir) {
-            for (const entry of readdirSync(dir, { withFileTypes: true })) {
-              const full = join(dir, entry.name);
-              if (entry.isDirectory()) walk(full);
-              else if (entry.name.endsWith('.html')) files.push(full);
-            }
-          })('dist');
-          let bad = false;
-          for (const file of files) {
-            for (const tag of readFileSync(file, 'utf8').match(/<script\b[^>]*>/gi) || []) {
-              if (/[\s"']src\s*=/i.test(tag)) continue; // word-boundary before src stops data-src from counting as a real src
-              const attr = tag.match(/[\s"']type\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/i);
-              const type = (attr ? attr[2] ?? attr[3] ?? attr[4] : '').trim().toLowerCase();
-              if (!JS_TYPES.has(type)) continue;
-              console.log('::error file=' + file + '::' + file + ' has an inline script with no src: ' + tag +
-                " — CSP script-src 'self' has no 'unsafe-inline', so this script is blocked and the page silently does nothing in production");
-              bad = true;
-            }
-          }
-          if (bad) process.exit(1);
-          console.log('CSP inline-script gate ok — ' + files.length + ' HTML file(s), every <script> has src or is a non-JS data block');
-          NODE
+        run: node scripts/csp-inline-check.mjs --selftest && node scripts/csp-inline-check.mjs
 
       - name: Sitemap covers tool pages
         # Checks all four, not just wheel. The single-page version of this gate stayed green on a
