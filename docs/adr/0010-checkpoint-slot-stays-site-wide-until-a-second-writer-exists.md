@@ -65,10 +65,11 @@ silently no-ops (see ADR-0008 and the `write(create=false)` guard shipped in `65
 
 ## The fact that would change this
 
-A second checkpoint-writing game entering `manifest.ts`. At that moment the collision is reachable,
-`ADR-0008:106-112` fires, and per-game keying should be built as designed above — including
-`planClear`'s condition and the precision of `รอบที่ค้าง` in the clear warning, which may by then mean
-more than one round is at stake.
+A second checkpoint-writing game entering `manifest.ts`. At that moment the collision is reachable
+and `ADR-0008:106-112` fires. **The response is to reopen gh#24 with the owner, not to build**: the
+owner declined per-game keying on 2026-08-19, so the design above records what was rejected, not a
+plan. A reopened question must still settle `planClear`'s condition and the precision of `รอบที่ค้าง`
+in the clear warning, which may by then mean more than one round is at stake.
 
 **Scored S2026-08-15#4 — NOT fired for collision, but the scoring reasoning was incomplete.** Game 3
 (`pick-loser`) entered `manifest.ts`; its only session write is `markPlayed`, which preserves the
@@ -128,7 +129,7 @@ Finding S2026-08-15#3 — the race was the wrong target; two unguarded orderings
 entirely on one condition, and until now nothing enforced it: the trigger lived in prose in
 `_template.ts`, to be noticed by whoever adds the next game. `scripts/checkpoint-writer-check.mjs`
 now fails CI the moment a second file under `src/games/` calls `saveCheckpoint`, and fails with
-instructions — it names this ADR, names gh#24, and says to build the per-game design specced in
+instructions — it names this ADR, names gh#24, and — until 2026-08-19 — said to build the per-game design specced in
 § Decision before shipping that game. Wired before the Build step, so it cannot touch `dist/`.
 
 Re-scored at the same time: siamsi is still the sole checkpoint-writing game, so **the trigger has
@@ -143,12 +144,9 @@ closed gh#24. So the deferral above is no longer provisional — it is the decis
 declined, not postponed, and `scripts/checkpoint-writer-check.mjs` changes character with it: it was a
 tripwire holding a seat for an undecided design, and it is now permanent enforcement of a settled one.
 
-One consequence is not yet fixed and is recorded here rather than left to be discovered. That gate
-fails with instructions telling whoever adds a second checkpoint writer to build the per-game design
-specced in § Decision first. The owner has now declined that design, so the instruction points at
-work that should not happen; a second writer is now a reason to reopen the product question, not to
-start building. Correcting the gate's message is queued as its own change, because a gate whose
-failure text is load-bearing deserves its own calibration rather than a drive-by edit.
+That gate's failure text was corrected in the same move, superseding the S2026-08-18 note above: it
+no longer orders the declined design built. A second writer now reads as a reason to reopen gh#24
+with the owner, and the gate's `--selftest` pins the ABSENCE of the old work-order wording.
 
 The gate's own limits are written in its `ponytail:` header and are real: an aliased or destructured
 call (`const { saveCheckpoint } = gameCtx.session`) escapes it — measured, not assumed — and it sees

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Static tripwire for docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md.
-// ADR-0010 deliberately keeps ONE site-wide checkpoint slot instead of per-game keying, and its own
-// "fact that would change this" names the exact trigger: a second checkpoint-writing game entering
-// the manifest. At that moment the shared slot becomes a silent, unrecoverable data-loss bug — game
-// B's save destroys game A's in-progress round, no undo, no message (gh#24). Today that trigger is
-// enforced only by a prose comment in src/games/_template.ts. This script replaces the prose with a
-// gate: siamsi.ts is the one allowed caller, closed, and growing the set needs an ADR, not a skip-list.
+// ADR-0010 keeps ONE site-wide checkpoint slot, and its own "fact that would change this" names the
+// exact trigger: a second checkpoint-writing game entering the manifest. At that moment the shared
+// slot becomes a silent, unrecoverable data-loss bug — game B's save destroys game A's in-progress
+// round, no undo, no message (gh#24). That trigger was enforced only by a prose comment in
+// src/games/_template.ts; this script is the gate: siamsi.ts is the one allowed caller, closed, and
+// growing the set needs an ADR, not a skip-list. The owner settled gh#24 on 2026-08-19 — one slot
+// site-wide, permanently — so a red run here reopens a product question; it never orders a build.
 //
 //   node scripts/checkpoint-writer-check.mjs             -> scan src/games/*.ts against the real tree
 //   node scripts/checkpoint-writer-check.mjs --selftest  -> both-direction calibration on temp fixtures
@@ -19,8 +20,9 @@
 //   - Anything outside the flat `src/games/*.ts` glob. A new checkpoint writer added in the shell
 //     (as src/shell/PlayerSetup.astro already legitimately does) is invisible here by design, but so
 //     would be a game that reaches the slot through a new shell helper.
-//   - Whether per-game keying is CORRECT. It only reports that ADR-0010's deferral condition fired.
-//     The design it points at is still just a design; nothing here validates it.
+//   - Whether one site-wide slot is still the right call. It only reports that ADR-0010's deferral
+//     condition fired. The answer behind it is a product call (gh#24, 2026-08-19) that belongs to
+//     the owner; nothing here re-derives it, and nothing here should be read as pre-approving a fix.
 // Upgrade path when the first bullet stops being acceptable: the TypeScript AST, the way
 // scripts/thai-comments.mjs resolves the same comment-vs-code question properly.
 
@@ -133,6 +135,56 @@ function selftest() {
     fs.rmSync(good, { recursive: true, force: true });
     fs.rmSync(bad, { recursive: true, force: true });
   }
+
+  // The failure text is calibrated too, because it is the whole payload of a red run. The owner
+  // closed gh#24 on 2026-08-19: one checkpoint slot site-wide is the settled answer, so the design
+  // this gate used to order built is declined, not pending. Asserted as an ABSENCE — the old
+  // wording is a closed, repo-owned set frozen in git history, so negating it converges and fails
+  // safe. No positive assertion on the new wording: a grep for a phrase written in the same change
+  // proves nothing. The one positive below is derived from the ADR_PATH constant, not retyped.
+  const message = failureMessage(['src/games/timebomb.ts']);
+  const DECLINED_ORDER_RE = /per-game keying|Build .*ADR-0010.*Decision|specced/i;
+  // Known-bad leg FIRST. Without it the absence assertion below is one-way: a typo in the pattern
+  // (`keyng`) would match nothing, the absence would hold vacuously, and the selftest would still
+  // print PASS — this repo's "a guard that cannot fail" class. The fixture is the exact wording this
+  // gate shipped with until 2026-08-19, frozen here so the pattern is calibrated against a real
+  // known-bad input rather than against itself.
+  const SHIPPED_UNTIL_2026_08_19 =
+    "Build per-game keying as designed in ADR-0010's Decision section " +
+    '(specced there, ~50 lines across 7 files) before shipping this game.';
+  assert.match(
+    SHIPPED_UNTIL_2026_08_19,
+    DECLINED_ORDER_RE,
+    'the declined-order pattern must still match the wording it was written to catch',
+  );
+  assert.doesNotMatch(
+    message,
+    DECLINED_ORDER_RE,
+    'failure message must not order the per-game design the owner declined (gh#24, 2026-08-19)',
+  );
+  assert.ok(message.includes(ADR_PATH), 'failure message must name the ADR by path so a red run is traceable');
+  console.log('PASS failure message names the ADR and carries none of the declined design order');
+}
+
+// ---------------------------------------------------------------------------
+// Pure: relPath[] -> the exact text the gate prints when it fails. Extracted only so --selftest can
+// calibrate the WORDING as well as the detection — this text is the entire product of a red run.
+// A string getter, nothing else: no argv flag, no exit seam, nothing a caller could use to silence
+// the scan.
+// ---------------------------------------------------------------------------
+function failureMessage(secondWriters) {
+  return [
+    ...secondWriters.map((relPath) => `${relPath}: calls saveCheckpoint — a second game now writes a checkpoint`),
+    '',
+    `${ADR_PATH}'s trigger condition has fired: a second checkpoint-writing game now exists, ` +
+      "and the one shared slot will silently destroy the other game's in-progress round — no undo, " +
+      'no message.',
+    '',
+    'This is not a work order. The site owner answered gh#24 on 2026-08-19: one checkpoint slot for ' +
+      'the whole site is enough, and the alternative design in that ADR was DECLINED, not ' +
+      'postponed — implementing it now would overturn a settled product call. Reopen gh#24 with the ' +
+      'owner and get an answer before this game ships.',
+  ].join('\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -143,17 +195,7 @@ async function main() {
   const secondWriters = findSecondWriters(files);
 
   if (secondWriters.length > 0) {
-    for (const relPath of secondWriters) {
-      console.error(`${relPath}: calls saveCheckpoint — a second game now writes a checkpoint`);
-    }
-    console.error(
-      `\n${ADR_PATH}'s deferral condition has fired: its decision was to keep ONE site-wide ` +
-        'checkpoint slot only until a second checkpoint-writing game existed. That game now exists. ' +
-        "One site-wide slot will silently destroy the other game's in-progress round — no undo, no " +
-        "message (gh#24). Build per-game keying as designed in ADR-0010's " +
-        'Decision section ' +
-        '(specced there, ~50 lines across 7 files) before shipping this game.',
-    );
+    console.error(failureMessage(secondWriters));
     process.exit(1);
   }
   console.log(`checkpoint-writer-check: ${ALLOWED_FILE} is the sole live saveCheckpoint caller in src/games/*.ts`);
