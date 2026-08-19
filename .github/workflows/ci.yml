@@ -78,9 +78,18 @@ jobs:
       - name: Only one game writes a checkpoint (ADR-0010 trigger)
         run: node scripts/checkpoint-writer-check.mjs --selftest && node scripts/checkpoint-writer-check.mjs
 
-      # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob
+      # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob.
+      # A glob that matches NOTHING is not an error: node prints "# tests 0" and exits 0. So a rename
+      # (.test.mjs -> .test.ts) or a move out of src/ would leave this step green with every test
+      # silently not running — measured, gh#45. The pass count is therefore asserted non-zero:
+      # an inverted guard must count, not just exclude (ADR-0019).
+      # PIPESTATUS, not $? — after a pipe, $? is tee's status and is always 0 (agent CI-verification doc).
       - name: Unit tests
-        run: node --test 'src/**/*.test.mjs'
+        run: |
+          node --test 'src/**/*.test.mjs' 2>&1 | tee /tmp/unit-tests.txt
+          [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
+          grep -qE '^# pass [1-9]' /tmp/unit-tests.txt \
+            || { echo 'Unit tests: 0 tests ran — the glob matched nothing (gh#45)'; exit 1; }
 
       # astro check writes .astro/ type files, never dist/ — running it here, before Build,
       # makes it structurally impossible for this verification step to invalidate the dist/
