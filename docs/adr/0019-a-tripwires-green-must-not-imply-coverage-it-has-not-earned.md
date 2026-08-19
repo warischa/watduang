@@ -71,3 +71,38 @@ open unless the guard also asserts its own set is non-empty. An inverted guard m
   upgrade path.
 - A closing verdict is not a stopping point. Both of the above were found *after* gh#43 was closed, by
   running the ADR's own rule against the gates the ADR was written to justify.
+
+## Outcome — S2026-08-19
+
+The rule was pointed at the gates this ADR was *not* written to justify. It kept finding things, which
+is the result worth recording.
+
+- **gh#44** — `check-citations` printed "all citations resolve" while an entire citation form was
+  invisible to it. Rule 1's shape exactly: a green implying coverage it had not earned. Closed by
+  disclosing three ceilings rather than widening the match. Widening was rejected because the set it
+  would enumerate — the ways prose can separate a path from a section sigil — is owned by whoever
+  writes the next paragraph in this repo. That is ADR-0016's convergence test applied to the *decision
+  procedure*, not only to the guard.
+- **gh#45** — the `Unit tests` step exited 0 when its glob matched nothing. "An inverted guard must
+  count, not just exclude" turned out to govern a step nobody had classified as a guard at all. Fixed
+  and proven red at run level.
+- **gh#46** — `no-nav-in-stage-check` and `arm-gate-coverage-check` hardcode a seven-entry
+  `TARGET_FILES` list. A seventh game carrying both violations those gates exist to catch exits 0 on
+  both, confirmed against a positive control.
+- **gh#47** — both CSP gates are blind to the likeliest edit that would break ads.
+
+Two refinements this ADR did not anticipate.
+
+**The rule governs a gate's success message, not only its assertion.** Both gates in gh#46 print
+`TARGET_FILES.length` modules "clean" — the size of their own hardcoded list, not a count of what was
+checked. With a seventh game planted the number happens to read 7, so the line asserts precisely the
+coverage that is missing. A green is a claim; so is the sentence next to it.
+
+**A ceiling disclosure is itself an artifact that goes stale.** Naming a limit dates from the moment
+it is written, and the edit that invalidates it is the same edit nobody remembers to re-read the
+header for. The three ceilings in `check-citations.mjs` are each pinned by a selftest case for that
+reason: widen the match without updating the header and the pin goes red first.
+
+**Scored:** rule 1 confirmed four times. Rule 2 (strip comments for a positive-presence check, never
+for a negative-presence one) was not exercised — no new comment-sensitive check shipped this session,
+so it remains as stated, untested since ADR-0019 was written.
