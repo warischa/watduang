@@ -71,7 +71,7 @@ import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
@@ -359,9 +359,9 @@ function selftest() {
     fs.mkdirSync(clean1, { recursive: true });
     fs.writeFileSync(path.join(clean1, 'index.html'), clean, 'utf8');
     const self = fileURLToPath(import.meta.url);
-    const run = (env) => {
+    const run = (env, args = [self, clean1]) => {
       try {
-        return { status: 0, out: execFileSync(process.execPath, [self, clean1], { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }) };
+        return { status: 0, out: execFileSync(process.execPath, args, { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }) };
       } catch (e) {
         return { status: e.status, out: `${e.stdout || ''}${e.stderr || ''}` };
       }
@@ -374,6 +374,29 @@ function selftest() {
     assert.ok(underCi.out.includes('refusing the positional root'), 'the refusal must say what it refused and why');
     assert.ok(!underCi.out.includes('HTML file(s) scanned'), 'the refusal must happen before any scan, so no green sentence is printed at all');
     console.log('PASS CI refusal calibrated both ways: same argv, CI unset -> exit 0 naming the narrowed root; CI=true -> exit 1, refused before any scan and no green printed');
+
+    // --- Entry-point guard, the other direction: merely IMPORTING this module must not run the gate.
+    // `node -e` leaves process.argv[1] undefined, which is also the branch that would throw if the
+    // guard fed it to pathToFileURL unchecked. The notCi run above is this case's positive control: it
+    // proves the same code DOES print a green when it is the entry point, so a green here cannot be the
+    // silence of a gate that stopped running. ---
+    const asImport = run({ ...process.env, CI: '' }, ['--input-type=module', '-e', `await import(${JSON.stringify(pathToFileURL(self).href)})`]);
+    assert.equal(asImport.status, 0, 'importing this module must not fail');
+    assert.ok(!asImport.out.includes('HTML file(s) scanned'), 'importing this module must NOT run the gate — move `await main()` back to module scope and this goes red');
+    console.log('PASS entry-point guard: importing this module scans nothing and prints no green, while the same file run as argv[1] above does — main() fires only as the entry point');
+
+    // --- SYMLINKED CHECKOUT, the third failure direction of this guard and the only silent one. Node
+    // hands `import.meta.url` back canonicalised while argv[1] arrives as written, so comparing one
+    // canonical path against one cwd-joined path skips main() when the script is reached through a
+    // symlink: exit 0, nothing scanned, a local green that means nothing. This case must prove the gate
+    // DETECTS through the link, not merely that it exits — drop the realpath on either side and it goes
+    // red on exit 0 with empty output. ---
+    const linkDir = path.join(tmpDir, 'linked-scripts');
+    fs.symlinkSync(path.dirname(self), linkDir, 'dir'); // collectHtml skips symlinks (isDirectory() is false), so this cannot recurse into the real scripts/
+    const viaLink = run({ ...process.env, CI: '' }, [path.join(linkDir, path.basename(self)), tmpDir]);
+    assert.equal(viaLink.status, 1, 'through a symlinked path the gate must still RUN and flag the planted handler — exit 0 here means main() was skipped and nothing was scanned at all');
+    assert.match(viaLink.out, /handler-attribute/, 'the symlinked run must produce the real finding, not just a non-zero exit');
+    console.log('PASS symlinked checkout: invoked through a symlinked scripts/ dir the gate still ran and flagged the planted handler — both sides of the entry-point compare are realpath()d');
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true }); // ponytail: hermetic — no selftest path reads, writes or rebuilds dist/
   }
@@ -417,4 +440,23 @@ async function main() {
   console.log(successLine(rel, files.length));
 }
 
-await main();
+// Entry point only. Importing this module (a unit test against findInlineHazards / stripHtmlComments) must not
+// fire a full gate as a side effect. BOTH sides are realpath()d before comparing: Node hands
+// `import.meta.url` back canonicalised while argv[1] arrives exactly as written, so comparing one
+// canonical path against one cwd-joined path skips main() entirely when this file is reached through a
+// symlinked checkout — exit 0, nothing scanned, a green that means nothing.
+// pathToFileURL, not a raw string compare: percent-encoding makes path equality wrong for any path with
+// a space or a `#`.
+// ⚠ Every failure direction here must be "run the gate", never "skip it silently". Only a missing
+// argv[1] (`node -e`, i.e. an import) skips; a realpath that throws on an argv[1] that does exist runs
+// main() anyway. Pinned both ways by the entry-point and symlinked-checkout selftest cases above.
+const isEntryPoint = () => {
+  if (!process.argv[1]) return false;
+  const canonical = (p) => pathToFileURL(fs.realpathSync(p)).href;
+  try {
+    return canonical(process.argv[1]) === canonical(fileURLToPath(import.meta.url));
+  } catch {
+    return true; // ponytail: realpath failed on a path that exists as a string — fail toward running the gate
+  }
+};
+if (isEntryPoint()) await main();

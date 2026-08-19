@@ -18,9 +18,10 @@ Tracked as gh#43.
 Where an invariant has a cheap static shadow, ship the static check as a **regression tripwire**, and
 write its ceiling at the top of the script. The tripwire never claims the probe's verdict.
 
-`scripts/no-nav-in-stage-check.mjs` is the first: a source scan over the six game modules plus
-`_template.ts`, wired into `ci.yml` before Build, static only — it reads files and exits, and touches
-no build artifact.
+`scripts/no-nav-in-stage-check.mjs` is the first: a source scan that derives its target set from
+`src/games/*.ts` (`_template.ts` in scope, the shared non-game files excluded) rather than enumerating
+it, wired into `ci.yml` before Build, static only — it reads files and exits, and touches no build
+artifact.
 
 ## What this rests on
 
