@@ -104,3 +104,5 @@ per-game design above is correct.
 - [#27](https://github.com/warischa/watduang/issues/27) — the two unguarded orderings from S2026-08-15#3: CLOSED S2026-08-15#4 by identity CAS at `write()`. The trip-wire fired the same session it was set: game 3 `pick-loser` was added as a new caller, which is exactly the premise the deferral rested on
 - ADR-0008 — starting a round never resumes or discards one silently
 - ADR-0009 — a DoD box whose proof set we do not own is mis-scoped
+- ADR-0021 — a version token, not a clock: a different question (write freshness, not slot scope)
+  about the same `write()` chokepoint

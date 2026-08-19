@@ -42,3 +42,21 @@ The generation-counter guard (gh#49 fix) lands in `src/shell/session.ts`. The sa
 | `run4-postfix-clean-ports.json` | post-fix, REFUTED — re-run on unmodified default ports, calibrated first that `:4321` was serving วัดดวง |
 
 `lostProgress.strictlyLessProgress` is `false` in both post-fix runs, with `after_holder` and `after_results` equal to the C5 values instead of below them.
+
+## Verified on real WebKit
+
+The Chrome/CDP runs above left one gap, stated when gh#49 was closed: iOS Safari is this product's actual phone, and `src/pages/game/[id].astro` carries a pagehide comment because iOS differs. That gap is now closed.
+
+Run on an iPhone 17 Pro simulator, iOS 26.5, against a real `npm run build`. There is no CDP on the Simulator, so the readout technique from `docs/agents/ios-webkit-verification.md` was used: the page renders its own state into large on-screen text, read back off `simctl io screenshot`.
+
+**Verdict: the guard holds.** Before the clobbering tap: `gen=8 id=mt07w78l-1 phase=turn holder=2 results=2 deck=[6,21]`. After it: identical on every field. The write was refused.
+
+Three controls, all passed:
+
+- **Positive control** — an ordinary `startRound()` write was visible through the same apparatus (`gen=2, phase=turn, holder=0`), so a "nothing changed" reading was capable of being wrong.
+- **Detector calibrated both ways, in Chrome, before any simulator time was spent** — the same harness run against the pre-fix commit `0b34f78~1` reported `strictlyLessProgress=true` (holder 2→1, results 2→1, deck grew back); against the fixed tree it reported unchanged. Same harness, opposite verdicts on the two builds it must distinguish.
+- **The restore was really bfcache** — `pageshow` fired with `persisted=true` twice during the `history.back()` traversal, and with `persisted=false` on the forward navigations in the same run, which is the negative control.
+
+So iOS Safari does restore across this navigation exactly as Chrome does, and the generation token refuses the stale write on both engines.
+
+The harness was a scratch copy of `dist/` with a self-driving script appended; it is not committed, because it is a throwaway built around one build's markup rather than a reusable probe like `probe.mjs`.
