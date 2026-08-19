@@ -10,8 +10,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # A permissions: block is exhaustive — declaring it at all drops everything not listed to none,
+    # so contents: read must be spelled out here or actions/checkout@v5 below gets a token that
+    # cannot read this repo. id-token: write is what lets azure/login@v2 mint the OIDC assertion;
+    # without it that step fails with "Unable to get ACTIONS_ID_TOKEN_REQUEST_URL".
+    # Nothing beyond these two is needed. The deploy action's own action.yml documents repo_token as
+    # "Currently used only for commenting on Pull Requests", and the deploy steps are gated to
+    # push + refs/heads/main, so that path never runs here -- no deployments: write, no
+    # pull-requests: write. Checked against the action contract rather than guessed, because an
+    # exhaustive permissions block that is one entry short would fail on the first ARMED push,
+    # which is the owner's go-live and the worst possible moment to discover it.
+    permissions:
+      contents: read
+      id-token: write
     env:
-      HAS_DEPLOY_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN != '' }}
+      # Armed only when ALL THREE identifiers exist. A partial set must read as NOT armed: two of
+      # three would sail past this gate and die inside azure/login@v2 after every other gate has
+      # gone green, so an unconfigured repo would look like a broken deploy instead of a quiet one.
+      # Stored as repository SECRETS rather than variables deliberately, even though client/tenant/
+      # subscription ids are identifiers and not credentials: several docs here answer "is deploy
+      # armed?" by reading actions/secrets total_count, and splitting the signal across secrets and
+      # variables would let an agent report "not armed" on a repo that is armed.
+      HAS_DEPLOY_IDENTITY: ${{ secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_SUBSCRIPTION_ID != '' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -224,11 +244,50 @@ jobs:
           kill "$SERVER_PID" 2>/dev/null || true
           exit $status
 
+      # Deploy authenticates with Entra ID workload identity federation (OIDC) — this repo stores
+      # no deployment token. The federated credential is pinned to the subject
+      # repo:warischa/watduang:ref:refs/heads/main, so a run on any other ref cannot authenticate
+      # even if the if: below were wrong.
+      - name: Azure login (OIDC)
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DEPLOY_IDENTITY == 'true' }}
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Azure/static-web-apps-deploy@v1 accepts no OIDC input and there is no newer major version
+      # that does (Azure/static-web-apps#1359, still open), so the token still has to be handed to
+      # it the old way. Fetching it here with the OIDC session is a COMMUNITY pattern, not something
+      # Microsoft documents. What it buys: the token is fetched fresh every run and never stored, so
+      # there is nothing to rotate and deleting the federated credential revokes the whole path.
+      # Measured 2026-08-19: Contributor scoped to the SWA resource alone is enough for `secrets
+      # list` to return the key — Microsoft documents no required role, so it was tested directly
+      # with a temporary client secret that was then deleted and verified gone.
+      # App name and resource group are hardcoded in this step on purpose: CLAUDE.md confines
+      # everything Azure-specific to this step and staticwebapp.config.json.
+      - name: Fetch SWA deployment token
+        id: swa_token
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DEPLOY_IDENTITY == 'true' }}
+        run: |
+          tok=$(az staticwebapp secrets list --name watduang --resource-group rg-watduang \
+            --query properties.apiKey -o tsv)
+          # Mask first: ::add-mask:: only redacts output that comes after it.
+          echo "::add-mask::$tok"
+          # az can exit 0 with an empty apiKey (wrong resource, RBAC just revoked). An empty string
+          # does not fail the deploy action loudly — it uploads and dies at the far end with an auth
+          # error that reads like an Azure outage. Fail here, where the cause is still visible.
+          if [ -z "$tok" ]; then
+            echo "::error::az staticwebapp secrets list returned an empty apiKey for watduang/rg-watduang — the deploy identity may have lost Contributor on the resource."
+            exit 1
+          fi
+          echo "token=$tok" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to Azure Static Web Apps
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DEPLOY_TOKEN == 'true' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DEPLOY_IDENTITY == 'true' }}
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          azure_static_web_apps_api_token: ${{ steps.swa_token.outputs.token }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: 'upload'
           app_location: 'dist'

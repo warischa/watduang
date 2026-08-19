@@ -9,17 +9,18 @@ Rationale for every decision lives in the linked issues; this doc restates only 
 
 **Right now, `gh api repos/warischa/watduang/actions/secrets` returns `total_count: 0` (verified
 2026-08-18) — this repo has no secrets, so every push to `main` today builds and runs CI only, it
-does **not** deploy.** `ci.yml` gates the entire Deploy step on
-`HAS_DEPLOY_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN != '' }}` — the instant that one
-secret exists (the last action in §2 below), **every future push to `main`, by anyone, permanently
-becomes a live production deploy.** There is no separate "go live" switch and no way to arm it
-partially. Any assumption anyone has been working under — "pushing to main is safe, nothing ships"
-— is void from the second that secret is added, and stays void until it's deleted again.
+does **not** deploy.** `ci.yml` gates the deploy on `HAS_DEPLOY_IDENTITY`,
+true only when all three of `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID` exist —
+the instant the third one is added (the last action in §2 below), **every future push to `main`, by
+anyone, permanently becomes a live production deploy.** There is no separate "go live" switch; two of
+the three arm nothing. Any assumption anyone has been working under — "pushing to main is safe,
+nothing ships" — is void from the second that third secret is added, and stays void until one of
+them is deleted again.
 
 **Do these three in this order — each is a real prerequisite for the next, not just a
 suggestion:**
 
-1. **§2 below — Azure deploy token.** Do this first: it's the only one of the three that unblocks
+1. **§2 below — arm the Azure deploy identity.** Do this first: it's the only one of the three that unblocks
    something *by itself* (the real-phone pass, [#13](https://github.com/warischa/watduang/issues/13)
    DoD item 4 — see [post-launch-checklist.md](post-launch-checklist.md) §3, needs a live deploy on
    the `azurestaticapps.net` URL, not the custom domain). It is also a hard prerequisite for
@@ -58,31 +59,58 @@ suggestion:**
 
 Note: #19's 6-month organic-clicks gate does not start counting the day you register. Its month 1 begins when the first `/tools/` page **and** the third game are live in production (#19's own wording) — registering the domain only removes the block on connecting Search Console.
 
-## 2. Azure SWA phase 2 — set `AZURE_STATIC_WEB_APPS_API_TOKEN`
+## 2. Azure SWA phase 2 — add the three deploy identity secrets
 
-**Why blocked on you:** the token comes from an Azure resource tied to your subscription; an agent has no Azure credentials.
+**Why blocked on you:** only a repo admin can add repository secrets, and the identity they name lives
+in your Azure tenant — an agent has neither.
 
-**Steps:**
-- [ ] Check whether the resource already exists: go to `portal.azure.com`, sign in, type "Static Web Apps" into the search bar at the top, and click the matching service. If an app for this site is already listed, skip to the next step.
-- [ ] **If no app is listed, create one — this costs money.** Click **+ Create**. Pick your subscription, then create or pick a resource group. Name the app (for example `watduang`). Pick any region close to Thailand (for example "East Asia" or "Southeast Asia"). For **Plan type**, pick **Standard** (this project's stack requires Standard, not Free) — the review screen shows the exact monthly price before you click Create; read it there. For **Deployment details / Source**, you must pick **Other** — **do not pick GitHub**. Picking GitHub lets Azure auto-connect the repo, which causes the exact problem described in the warning below. Click **Create** and wait — the portal shows "Your deployment is complete" when the resource is ready, usually within a couple of minutes.
-- [ ] Get the resource's deployment token: open the Static Web App resource → **Overview** (left menu) → **Manage deployment token** → click the copy icon next to the token value shown.
-- [ ] In GitHub: open this repo in your browser → **Settings** tab → **Secrets and variables** (left sidebar) → **Actions** → **New repository secret**. In the "Name" field type exactly `AZURE_STATIC_WEB_APPS_API_TOKEN`. In the "Secret" field paste the value you copied. Click **Add secret**.
+**Already built in Azure on 2026-08-19 — do not recreate any of it:** the Static Web App **`watduang`**
+(resource group **`rg-watduang`**, Standard, East Asia), created with **Deployment source: Other** so
+Azure never attached a workflow of its own; and an app registration whose federated credential is
+scoped to `repo:warischa/watduang:ref:refs/heads/main`, holding Contributor on that one resource and
+carrying **zero client secrets or certificates**. GitHub signs in with OIDC, so there is no deployment
+token to copy or paste any more.
 
-⚠ **The moment you click Add secret, every future `git push` to `main` — by anyone, not just you — becomes a real production deploy.** `ci.yml` checks whether this secret exists at the job level (`:13-14`); it doesn't check whether you meant to arm it. There is no separate "go live" switch — the secret existing IS the switch. If you're not ready for that yet, don't add the secret. To turn it back off later: delete the secret at the same GitHub Settings screen — the next push after that will skip the deploy step again, same as today.
+**Steps — add three repository secrets:**
+- [ ] Open this repo in your browser → **Settings** tab → **Secrets and variables** (left sidebar) → **Actions** → **New repository secret**.
+- [ ] Name field: exactly `AZURE_CLIENT_ID`. Secret field: `5ba15c58-2635-40b9-9b50-e69594d69430`. Click **Add secret**.
+- [ ] **New repository secret** again — name `AZURE_TENANT_ID`, secret `bbf3b249-d680-458b-9ec7-52dba8859dca`, **Add secret**.
+- [ ] **New repository secret** again — name `AZURE_SUBSCRIPTION_ID`, secret `b337bf17-02fa-4dd0-8526-e71fee2b6f61`, **Add secret**.
 
-⚠ **Add the secret by hand — do not let the Azure portal connect GitHub for you, at the create step above or afterward.** The portal's own
-"deploy from GitHub" flow generates *its own* secret name with a random suffix appended
-(`AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_00AD12A10`) and commits *its own* workflow file to this repo automatically —
-an outward-facing, hard-to-undo change. This repo's
-`ci.yml` already reads the plain, unsuffixed name — gating the job at `HAS_DEPLOY_TOKEN` (`:14`) and consuming
-it in the "Deploy to Azure Static Web Apps" step's `azure_static_web_apps_api_token` input (`:208`) — so a
-portal-generated secret would not be found — and the generated workflow would collide with the hand-written
-one that CI depends on.
+All three are identifiers, not passwords. They go in *secrets* rather than *variables* so the armed
+state lives in one list rather than two — split across both, a check that reads only one would call an
+armed repo unarmed. But be precise about what the count tells you: **`actions/secrets total_count` is a
+conservative hint, not the answer.** One of three, or any unrelated secret, makes it non-zero while
+`ci.yml` is still not armed. The authoritative test is all three of these exact names being present.
+The imprecision runs toward "treat a push as a deploy", which is the safe direction to be wrong in.
 
-Rotation: resetting the token (portal **Reset token**, or `az staticwebapp secrets reset-api-key`) does
-**not** update GitHub. Deploys fail until you paste the new value into the same secret.
+⚠ **The moment the third one is added, every future `git push` to `main` — by anyone, not just you —
+becomes a real production deploy.** `ci.yml` does not check whether you meant to arm it; the three
+secrets existing IS the switch. Two ways to disarm: delete any one of them at the same GitHub screen
+(fast, repo side — the next push skips the deploy again), or delete the federated credential in Entra
+ID (authoritative, Azure side — after that even a fully armed repo cannot sign in).
 
-**How you know it worked:** immediately after clicking **Add secret**, this repo's **Settings → Secrets and variables → Actions** page lists `AZURE_STATIC_WEB_APPS_API_TOKEN` (the value itself is never shown again — that's normal). That confirms the secret exists; it does not by itself confirm a deploy. To confirm an actual deploy, you need a push to `main` — but per the warning above, that's not a free test: it's a real production deploy, the same one every future push to `main` will now trigger. When one happens (yours or anyone else's), open the GitHub **Actions** tab → click that run → confirm the "Deploy to Azure Static Web Apps" step is no longer reported as `skipped`. This typically finishes within a few minutes of the push. Checking a pull-request run will always show it `skipped` regardless of the secret — that is not a sign of failure.
+And once armed, **Re-run all jobs** on an older green `main` push is a real deploy too — the gate is
+re-evaluated against today's secrets, not against whatever was configured when that run first ran. An
+old run is not a free way to test the deploy.
+
+⚠ **Do not let the Azure portal connect GitHub for you — not while creating a resource, not
+afterwards.** This is why the app was created with source "Other", and it still matters if anyone ever
+recreates it. The portal's own "deploy from GitHub" flow generates *its own* secret with a random
+suffix (`AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_00AD12A10`) and commits *its own* workflow file to
+this repo automatically — an outward-facing, hard-to-undo change. That workflow would collide with the
+hand-written `ci.yml` CI depends on, and its secret is not a name this repo reads.
+
+Rotation: nothing to rotate. `ci.yml` fetches the deployment token fresh on every run using the OIDC
+session and never stores it, so **Reset token** in the portal no longer breaks deploys.
+
+**How you know it worked:** this repo's **Settings → Secrets and variables → Actions** page lists all
+three names (the values are never shown again — that's normal). That confirms they exist; it does not
+confirm a deploy. For that you need a push to `main` — not a free test, it is the real production
+deploy every future push will now trigger. When one happens (yours or anyone else's), open the
+**Actions** tab → that run → the "Azure login (OIDC)", "Fetch SWA deployment token" and "Deploy to
+Azure Static Web Apps" steps should all run instead of being reported as `skipped`. A pull-request run
+shows all three `skipped` no matter what the secrets say — that is not a sign of failure.
 
 **What it unblocks:** immediately, on its own — [#13](https://github.com/warischa/watduang/issues/13)'s
 last open DoD box, the real-phone pass ([post-launch-checklist.md](post-launch-checklist.md) §3). That

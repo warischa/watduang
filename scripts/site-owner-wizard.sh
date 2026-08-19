@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Interactive wizard for the site owner — walks the owner-gated steps in
-# docs/site-owner-checklist.md §1 (register domain), §2 (Azure deploy token),
+# docs/site-owner-checklist.md §1 (register domain), §2 (arm the OIDC deploy identity),
 # and §4 (connect domain to Azure). See that doc for full rationale; this
 # script only prompts, explains, waits, and (optionally) runs read-only
 # checks. It never touches Azure, GitHub, or a registrar itself.
@@ -127,37 +127,43 @@ valid. An expired domain after the site ranks is hard to get back."
 maybe_verify "public whois lookup for watduang.com" \
   "if command -v whois >/dev/null 2>&1; then whois watduang.com 2>/dev/null | head -20; else echo 'whois not found on this machine -- check via the web instead, e.g. https://www.whois.com/whois/watduang.com'; fi"
 
-# ── §2: Azure SWA phase 2 — deploy token ───────────────────────────────────
+# ── §2: Azure SWA phase 2 — arm the OIDC deploy identity ───────────────────
 echo
-echo "=== §2. Azure Static Web Apps — set AZURE_STATIC_WEB_APPS_API_TOKEN ==="
-echo "Why this needs you: the token comes from an Azure resource tied to your subscription."
+echo "=== §2. Azure Static Web Apps — add the three deploy identity secrets ==="
+echo "Why this needs you: only a repo admin can add GitHub secrets. The Azure side is already built."
+echo
+echo "Already done for you on 2026-08-19, nothing to click in Azure:"
+echo "  - Static Web App 'watduang' (resource group rg-watduang, Standard, East Asia)"
+echo "    created with Deployment source OTHER, so Azure did not attach its own workflow."
+echo "  - App registration + federated credential, so deploys authenticate by OIDC."
+echo "    There is no deployment token to copy any more, and no password anywhere."
 
-step "Check whether the SWA resource already exists" \
-"portal.azure.com → search \"Static Web Apps\" → open it. If an app for this
-site is already listed, skip to the next step."
+step "Add the three repository secrets" \
+"This repo on github.com -> Settings -> Secrets and variables -> Actions ->
+New repository secret. Add all three, names exactly as written:
 
-step "Create the resource if it's not listed" \
-"COSTS MONEY. + Create → pick subscription + resource group → name it (e.g.
-\"watduang\") → region near Thailand → Plan type: STANDARD (this project
-needs Standard, not Free) → Deployment details / Source: pick OTHER, NOT
-GitHub (picking GitHub makes Azure auto-connect the repo and generate its
-own conflicting secret + workflow file — see the checklist's ⚠ for why).
-Click Create, wait for \"Your deployment is complete\"."
+  AZURE_CLIENT_ID        5ba15c58-2635-40b9-9b50-e69594d69430
+  AZURE_TENANT_ID        bbf3b249-d680-458b-9ec7-52dba8859dca
+  AZURE_SUBSCRIPTION_ID  b337bf17-02fa-4dd0-8526-e71fee2b6f61
 
-step "Copy the deployment token" \
-"Static Web App resource → Overview → \"Manage deployment token\" → copy the
-value shown."
+These are identifiers, not passwords. They go in secrets rather than variables
+so the armed state lives in ONE place -- but note 'this repo has secrets' is
+now only a conservative hint, not the answer: one of three, or any unrelated
+secret, makes the count non-zero while CI is still NOT armed. The real test is
+all three of these names being present. It errs toward 'treat a push as a
+deploy', which is the safe direction to be wrong in.
 
-step "Add the GitHub secret" \
-"This repo on github.com → Settings → Secrets and variables → Actions →
-New repository secret. Name: exactly AZURE_STATIC_WEB_APPS_API_TOKEN.
-Secret: paste the value you copied. Click Add secret.
-Do NOT let the Azure portal's own \"deploy from GitHub\" flow do this for
-you — it creates a differently-named secret and its own workflow file that
-collides with this repo's ci.yml."
+WARNING: the moment all three exist, every push to main by anyone is a real
+production deploy. Two of three is NOT armed, and CI treats it that way.
+To disarm later: delete any one secret here, or delete the federated
+credential on the app registration in Entra ID.
 
-maybe_verify "secret name is present in this repo (value is never shown)" \
-  "if command -v gh >/dev/null 2>&1; then gh secret list --repo warischa/watduang 2>/dev/null | grep AZURE_STATIC_WEB_APPS_API_TOKEN; else echo 'gh (GitHub CLI) not found on this machine -- check the same thing on the web instead: this repo on github.com -> Settings -> Secrets and variables -> Actions, and look for AZURE_STATIC_WEB_APPS_API_TOKEN in the Repository secrets list.'; fi"
+Also: once armed, hitting 'Re-run all jobs' on an OLD green main-push run is
+a real deploy too. The gate is re-evaluated against today's secrets, so an
+old run is not a free test."
+
+maybe_verify "all three secrets present (values are never shown)" \
+  "if command -v gh >/dev/null 2>&1; then found=0; for n in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID; do if gh secret list --repo warischa/watduang 2>/dev/null | awk '{print \$1}' | grep -qx \"\$n\"; then echo \"  present: \$n\"; found=\$((found+1)); else echo \"  MISSING: \$n\"; fi; done; echo \"\$found of 3 present\"; if [ \"\$found\" -eq 3 ]; then echo 'ARMED -- every push to main is now a production deploy'; else echo 'NOT ARMED -- CI will skip the deploy steps'; fi; else echo 'gh (GitHub CLI) not found -- check on the web instead: this repo on github.com -> Settings -> Secrets and variables -> Actions, and confirm ALL THREE AZURE_* names are listed. Any fewer and CI stays unarmed.'; fi"
 
 # ── §4: Connect watduang.com to the Azure Static Web App ───────────────────
 echo

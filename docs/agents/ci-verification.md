@@ -79,8 +79,9 @@ gh api "repos/warischa/watduang/actions/workflows/333456382/runs?per_page=1" \
 Get the id from `gh api repos/warischa/watduang/actions/workflows --jq '.workflows[0].id'` rather than
 trusting the one above — a renamed workflow file changes it. `/actions/runs/<id>/jobs` 404s in the same
 way, so per-step conclusions are not readable; whether the Deploy step fired is inferred from
-`gh secret list` being empty plus `HAS_DEPLOY_TOKEN` in `ci.yml`, not observed directly. Say so when
-reporting it.
+`gh secret list` plus `HAS_DEPLOY_IDENTITY` in `ci.yml`, not observed directly — the deploy path is
+armed only when `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID` are all listed, and
+any subset of them reads as not armed. Say so when reporting it.
 
 **The trap that wastes the most time:** `/commits/<sha>/status` returns `"pending"` with an EMPTY
 `.statuses[]`. That does not mean CI is running — it means no *legacy* commit statuses exist at all,
