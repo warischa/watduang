@@ -35,7 +35,7 @@
 //   2. Heading match is exact-string, not fuzzy. A citation naming only a heading's leading
 //      words (`§ Supersession`) does not resolve against the real heading
 //      `## Supersession — S2026-08-15#4`, even though a human reads it fine. Referenced line:
-//      docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md:125 — but
+//      docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md:80 — but
 //      that citation is ALSO prose-separated (ceiling 1), so the gate never even attempts the
 //      exact-match step on it in this repo; it is shown here as what the row WOULD be if the
 //      citation were reachable, not a live ceiling-2 bite.

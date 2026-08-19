@@ -36,6 +36,16 @@ export type ResumeChoice = 'resume' | 'fresh';
  * ponytail: whether the blob is actually *usable* stays the game's business (siamsi resumeFrom) —
  * the shell must not import a game module to find out. A corrupt same-game blob still prompts, and
  * resuming it lands on the game's own idle screen rather than losing anything.
+ * Ceiling: this "loses nothing" claim rests entirely on every game's mount() recovering from an
+ * unusable blob the way src/games/siamsi.ts:376-378 does (render idle when resumeFrom returns null).
+ * The first game whose mount cannot recover breaks it. That is a BROADER trigger than ADR-0010's
+ * second-checkpoint-writer condition, not a narrower one: a game only has to fail to recover, it
+ * does not have to write checkpoints at all. So checkpoint-writer-check being green does NOT mean
+ * this ceiling is unreached — the two gates cover different sets.
+ * Upgrade path (not decided, just the candidate): a self-describing envelope field — a schema
+ * version on Checkpoint — the shell could validate without importing a game module. The alternative,
+ * an optional `canResume?(cp)` on GameModule, is expensive here because the shell island only gets
+ * gameId; the game module itself is lazy-imported later, in src/pages/game/[id].astro.
  */
 export function planStart(
   checkpoint: Checkpoint | null,

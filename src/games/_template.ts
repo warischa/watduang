@@ -10,7 +10,6 @@ const game: GameModule = {
   category: 'party',
   players: [2, 10],
   keywords: [],
-  needs: [],
   tagline: 'บรรทัดเดียวสั้นๆ ว่าเกมนี้สนุกยังไง — ขึ้นบนการ์ด OG',
   seo: {
     title: '',

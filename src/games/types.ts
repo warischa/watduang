@@ -57,9 +57,6 @@ export interface GameModule {
   category: 'party' | 'fortune';
   players: [min: number, max: number];
   keywords: string[];
-  /** ponytail: nothing reads this yet — Vite already splits a chunk per game file on its own.
-   *  Kept per the #13 spec in case a game genuinely needs to load a large lib */
-  needs: string[];
   /** A short one-line hook for the OG card — seo.title runs too long, seo.description longer still.
    *  Used by scripts/make-og.mjs · without this the card is left with just the game name */
   tagline: string;

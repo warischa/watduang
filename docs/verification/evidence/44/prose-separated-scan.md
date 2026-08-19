@@ -100,7 +100,7 @@ checker cannot describe its own subject matter).
 | citing | cited path | cited heading | target heading exists? |
 |---|---|---|---|
 | `docs/runbook.md:5` | `CLAUDE.md` | Rules that must not be broken | y — `## Rules that must not be broken` (CLAUDE.md:17), exact match |
-| `docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md:125` | `docs/verification/adr-0010-findings.md` | Supersession | n — exact match fails against `## Supersession — S2026-08-15#4` (line 117); see caveat above |
+| `docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md:80` | `docs/verification/adr-0010-findings.md` | Supersession | n — exact match fails against `## Supersession — S2026-08-15#4` (line 169); see caveat above |
 
 Both surfaced by the scan. Positive control PASSES (the scan finds both hits; whether
 the heading resolves is a separate, already-caveated question).
@@ -109,7 +109,7 @@ the heading resolves is a separate, already-caveated question).
 
 | file:line | bucket | path cited | heading cited | target heading found? |
 |---|---|---|---|---|
-| `docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md:125` | D | `docs/verification/adr-0010-findings.md` | Supersession | n — exact match fails against `## Supersession — S2026-08-15#4` (see caveat above) |
+| `docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md:80` | D | `docs/verification/adr-0010-findings.md` | Supersession | n — exact match fails against `## Supersession — S2026-08-15#4` (see caveat above) |
 | `docs/post-launch-checklist.md:3` | F-num | `site-owner-checklist.md` | §1 | — |
 | `docs/post-launch-checklist.md:12` | F-num | `site-owner-checklist.md` | §2 | — |
 | `docs/post-launch-checklist.md:12` | F-num | `site-owner-checklist.md` | §2 | — |

@@ -60,7 +60,6 @@ games.forEach((g, i) => {
   }
 
   if (!isStrArray(g?.keywords)) err('keywords', 'must be an array of strings');
-  if (!isStrArray(g?.needs)) err('needs', 'must be an array of strings');
 
   if (!isStr(g?.seo?.title)) err('seo.title', 'must be a non-empty string');
   if (!isStr(g?.seo?.description)) err('seo.description', 'must be a non-empty string');
