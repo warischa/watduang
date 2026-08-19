@@ -137,6 +137,19 @@ an agent started to and was stopped, because § Why defer rather than build poin
 whether วัดดวง should ever hold two paused rounds is a product call, and building the mechanism
 answers it by accident. The owner chose the gate over the build.
 
+**The product call was answered on 2026-08-19, and the answer is no.** Asked directly whether วัดดวง
+should ever hold two paused rounds at once, the owner said one slot for the whole site is enough and
+closed gh#24. So the deferral above is no longer provisional — it is the decision. Per-game keying is
+declined, not postponed, and `scripts/checkpoint-writer-check.mjs` changes character with it: it was a
+tripwire holding a seat for an undecided design, and it is now permanent enforcement of a settled one.
+
+One consequence is not yet fixed and is recorded here rather than left to be discovered. That gate
+fails with instructions telling whoever adds a second checkpoint writer to build the per-game design
+specced in § Decision first. The owner has now declined that design, so the instruction points at
+work that should not happen; a second writer is now a reason to reopen the product question, not to
+start building. Correcting the gate's message is queued as its own change, because a gate whose
+failure text is load-bearing deserves its own calibration rather than a drive-by edit.
+
 The gate's own limits are written in its `ponytail:` header and are real: an aliased or destructured
 call (`const { saveCheckpoint } = gameCtx.session`) escapes it — measured, not assumed — and it sees
 nothing outside the flat `src/games/*.ts` glob. It proves the trigger fired; it does not prove the
