@@ -55,21 +55,16 @@ suggestion:**
 
 **How you know it worked:** look up `watduang.com` on a public whois tool (for example `lookup.icann.org`) — it should show a registration/expiry date and your registrar's name instead of "available". In the registrar's dashboard, the domain's Privacy and Auto-Renew toggles should both show "On". All of this can be checked immediately after checkout — there is no waiting period.
 
-**What it unblocks:** immediately after the domain exists, connect Google Search Console to it — that's the only next step any issue asks for (#19's checklist item 2). DNS records and the SWA custom domain are §4 in [post-launch-checklist.md](post-launch-checklist.md), and that step also needs §2 (the app deployed) done first — do not attempt it until both §1 and §2 are checked off.
-
-Note: #19's 6-month organic-clicks gate does not start counting the day you register. Its month 1 begins when the first `/tools/` page **and** the third game are live in production (#19's own wording) — registering the domain only removes the block on connecting Search Console.
+What registering the domain unblocks — moved to
+[site-owner-checklist-background.md](site-owner-checklist-background.md) (byte-identical).
 
 ## 2. Azure SWA phase 2 — add the three deploy identity secrets
 
 **Why blocked on you:** only a repo admin can add repository secrets, and the identity they name lives
 in your Azure tenant — an agent has neither.
 
-**Already built in Azure on 2026-08-19 — do not recreate any of it:** the Static Web App **`watduang`**
-(resource group **`rg-watduang`**, Standard, East Asia), created with **Deployment source: Other** so
-Azure never attached a workflow of its own; and an app registration whose federated credential is
-scoped to `repo:warischa/watduang:ref:refs/heads/main`, holding Contributor on that one resource and
-carrying **zero client secrets or certificates**. GitHub signs in with OIDC, so there is no deployment
-token to copy or paste any more.
+Background on what was already built in Azure before these steps — moved to
+[site-owner-checklist-background.md](site-owner-checklist-background.md) (byte-identical).
 
 **Steps — add three repository secrets:**
 - [ ] Open this repo in your browser → **Settings** tab → **Secrets and variables** (left sidebar) → **Actions** → **New repository secret**.
@@ -77,12 +72,8 @@ token to copy or paste any more.
 - [ ] **New repository secret** again — name `AZURE_TENANT_ID`, secret `bbf3b249-d680-458b-9ec7-52dba8859dca`, **Add secret**.
 - [ ] **New repository secret** again — name `AZURE_SUBSCRIPTION_ID`, secret `b337bf17-02fa-4dd0-8526-e71fee2b6f61`, **Add secret**.
 
-All three are identifiers, not passwords. They go in *secrets* rather than *variables* so the armed
-state lives in one list rather than two — split across both, a check that reads only one would call an
-armed repo unarmed. But be precise about what the count tells you: **`actions/secrets total_count` is a
-conservative hint, not the answer.** One of three, or any unrelated secret, makes it non-zero while
-`ci.yml` is still not armed. The authoritative test is all three of these exact names being present.
-The imprecision runs toward "treat a push as a deploy", which is the safe direction to be wrong in.
+Why these are *secrets* not *variables*, and what `total_count` doesn't tell you — moved to
+[site-owner-checklist-background.md](site-owner-checklist-background.md) (byte-identical).
 
 ⚠ **The moment the third one is added, every future `git push` to `main` — by anyone, not just you —
 becomes a real production deploy.** `ci.yml` does not check whether you meant to arm it; the three
@@ -101,8 +92,8 @@ suffix (`AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_WAVE_00AD12A10`) and commits *its
 this repo automatically — an outward-facing, hard-to-undo change. That workflow would collide with the
 hand-written `ci.yml` CI depends on, and its secret is not a name this repo reads.
 
-Rotation: nothing to rotate. `ci.yml` fetches the deployment token fresh on every run using the OIDC
-session and never stores it, so **Reset token** in the portal no longer breaks deploys.
+Rotation background — moved to
+[site-owner-checklist-background.md](site-owner-checklist-background.md) (byte-identical).
 
 **How you know it worked:** this repo's **Settings → Secrets and variables → Actions** page lists all
 three names (the values are never shown again — that's normal). That confirms they exist; it does not
@@ -112,12 +103,8 @@ deploy every future push will now trigger. When one happens (yours or anyone els
 Azure Static Web Apps" steps should all run instead of being reported as `skipped`. A pull-request run
 shows all three `skipped` no matter what the secrets say — that is not a sign of failure.
 
-**What it unblocks:** immediately, on its own — [#13](https://github.com/warischa/watduang/issues/13)'s
-last open DoD box, the real-phone pass ([post-launch-checklist.md](post-launch-checklist.md) §3). That
-test runs on the app's `azurestaticapps.net` URL, so it needs no domain — §2 alone is enough to close
-#13. A live deploy is also **necessary** to prove CSP/AdSense for real — until the site is actually
-deployed and live, ad rendering under the CSP is unverified. It is **not sufficient on its own** for
-ads: the four ad-slot boxes ([#15](https://github.com/warischa/watduang/issues/15)-[#18](https://github.com/warischa/watduang/issues/18)) also need an AdSense publisher ID, which is §5 in [post-launch-checklist.md](post-launch-checklist.md), and §4 (connecting the domain) besides. Doing §2 alone does not close them.
+What arming the deploy identity unblocks — moved to
+[site-owner-checklist-background.md](site-owner-checklist-background.md) (byte-identical).
 
 ## 3. Real-phone pass — [#13](https://github.com/warischa/watduang/issues/13) DoD item 4 + [#20](https://github.com/warischa/watduang/issues/20)
 

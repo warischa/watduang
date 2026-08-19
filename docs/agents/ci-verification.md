@@ -63,13 +63,32 @@ Point of traps 1 and 3: both fail **silently** — the wrong answer looks exactl
 no exit code or error message flagging it. Run every probe with real `bash`, and don't trust "it
 printed something" as proof it printed the right thing.
 
-## Reading CI's verdict on this repo — `gh run list` always 404s
+## Reading CI's verdict on this repo
 
-**Symptom:** `gh run list` fails with `HTTP 404` on `/actions/runs`, and `/commits/<sha>/check-runs`
-404s too, while `gh issue list` and `gh pr list` work fine on the same token. The token is not the
-problem — `gh auth status` shows the `workflow` scope and `/actions/workflows` answers normally.
+**This section used to say `gh run list` always 404s. As of 2026-08-19 that is no longer true, and
+believing it costs every session a workaround it does not need.** Measured that day, all exit 0 and
+return data: `gh run list` (three runs listed), `gh api repos/warischa/watduang/actions/runs`
+(`total_count` 110), `gh api repos/warischa/watduang/commits/<sha>/check-runs` (`total_count` 1), and
+`gh api repos/warischa/watduang/actions/runs/<id>/jobs` (real per-step conclusions).
 
-**Use the workflow-scoped endpoint instead:**
+Why it 404'd before is not established — the 110 runs say the repo was never empty, so the earlier
+reading was about the request or the token state of the day, not about the repo. Do not rebuild a
+theory on it. Just try the direct call first and fall back only if it actually fails.
+
+**Per-step outcomes** — this is the one worth knowing, because it answers "did Deploy run?" directly
+instead of inferring it:
+
+```bash
+gh api "repos/warischa/watduang/actions/runs/<run-id>/jobs" \
+  --jq '.jobs[0].steps[] | "\(.conclusion)  \(.name)"'
+```
+
+Used on 2026-08-19 to confirm the three deploy steps reported `skipped` on run 32269327426, and that
+the OIDC login step reported `success` on run 32273450017. Prefer it over inferring the Deploy step
+from `gh secret list` plus `HAS_DEPLOY_IDENTITY` in `ci.yml`.
+
+**The workflow-scoped endpoint still works and is still the most convenient for "how did the newest
+run end":**
 
 ```bash
 gh api "repos/warischa/watduang/actions/workflows/333456382/runs?per_page=1" \
@@ -77,11 +96,7 @@ gh api "repos/warischa/watduang/actions/workflows/333456382/runs?per_page=1" \
 ```
 
 Get the id from `gh api repos/warischa/watduang/actions/workflows --jq '.workflows[0].id'` rather than
-trusting the one above — a renamed workflow file changes it. `/actions/runs/<id>/jobs` 404s in the same
-way, so per-step conclusions are not readable; whether the Deploy step fired is inferred from
-`gh secret list` plus `HAS_DEPLOY_IDENTITY` in `ci.yml`, not observed directly — the deploy path is
-armed only when `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID` are all listed, and
-any subset of them reads as not armed. Say so when reporting it.
+trusting the one above — a renamed workflow file changes it.
 
 **The trap that wastes the most time:** `/commits/<sha>/status` returns `"pending"` with an EMPTY
 `.statuses[]`. That does not mean CI is running — it means no *legacy* commit statuses exist at all,
@@ -92,11 +107,14 @@ GitHub also returns intermittent `HTTP 503` on `api.github.com/graphql` (which `
 A close can fail with 503 *after* the comment posted — re-read the issue state rather than assuming
 either outcome.
 
-## Calibrating a new gate when per-step verdicts are unreadable
+## Calibrating a new gate at run level
 
-A run-level `conclusion` cannot tell a passing step from a silently no-oping one, and the per-step
-endpoint 404s here too. So a new gate is calibrated at **run level with a one-variable diff**, on a
-throwaway branch:
+A run-level `conclusion` cannot tell a passing step from a silently no-oping one on its own. **This
+section's premise was wrong** — see the correction above; `/actions/runs/<id>/jobs` does not 404, and
+per-step conclusions are readable directly. Prefer reading the specific step's conclusion from the
+jobs endpoint over the run-level trick below when it matters which step went red; the run-level
+one-variable diff still earns its keep for proving the yaml runs and blocks at all, on a throwaway
+branch:
 
 1. `on: push` in `ci.yml` carries **no branch filter**, so any branch produces a real run. `main` never
    has to go red.
@@ -110,8 +128,9 @@ throwaway branch:
 
 Red on the broken head and green on the restored head proves the yaml actually runs and actually blocks
 — which local calibration cannot, because a `|| true`, a bad indent, or a devDependency that never
-reaches CI all pass locally. It does **not** prove which step went red. Record that limit in the
-evidence rather than letting a run-level green imply more than it earned.
+reaches CI all pass locally. The run-level conclusion alone does **not** prove which step went red —
+read the jobs endpoint (correction above) for that. Record which of the two you actually checked in
+the evidence rather than letting a run-level green imply more than it earned.
 
 Worked example: the `astro check` gate from gh#38, evidence
 `docs/verification/evidence/38/06-box3-calibration.json`.
