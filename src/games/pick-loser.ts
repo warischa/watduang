@@ -6,6 +6,7 @@
 // The .ts extension in the import path is required for `node --test` (Node does not guess extensions) — Vite/tsc accept both
 import type { GameContext, GameModule } from './types.ts';
 import { armAllButtons } from './_arm-gate.ts';
+import { el } from './_el.ts';
 
 // ---- Picking: pure and calculable, testable with no DOM (see pick-loser.test.mjs) ----
 
@@ -32,17 +33,6 @@ let loserIdx = 0;
 function on(target: EventTarget, type: string, handler: EventListener): void {
   target.addEventListener(type, handler);
   cleanup.push(() => target.removeEventListener(type, handler));
-}
-
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  text?: string,
-  style?: string,
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = text;
-  if (style) node.setAttribute('style', style);
-  return node;
 }
 
 // ---- Screens ----

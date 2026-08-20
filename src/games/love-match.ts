@@ -11,8 +11,11 @@
 // The .ts extension in the import path is required for `node --test` (Node does not guess
 // extensions) — Vite/tsc accept it.
 import type { GameContext, GameModule } from './types.ts';
-// Exactly two functions, no shared util file and no abstraction layer — the same way short-stick.ts
-// imports pickLoser from its sibling. Two call sites do not justify a layer (#34).
+import { el } from './_el.ts';
+// Exactly two functions, taken straight from the sibling game with no util file and no
+// abstraction layer FOR THEM — the same way short-stick.ts imports pickLoser from its sibling.
+// Two call sites do not justify a layer (#34). (el() is a different case: six byte-identical
+// copies did justify one, and it now lives in _el.ts.)
 import { hashPick, normalizeName } from './daily-fortune.ts';
 import { armAllButtons } from './_arm-gate.ts';
 
@@ -188,17 +191,6 @@ let backBtn: HTMLButtonElement | null = null;
 function on(target: EventTarget, type: string, handler: EventListener): void {
   target.addEventListener(type, handler);
   cleanup.push(() => target.removeEventListener(type, handler));
-}
-
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  text?: string,
-  style?: string,
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = text;
-  if (style) node.setAttribute('style', style);
-  return node;
 }
 
 // ---- Screens ----

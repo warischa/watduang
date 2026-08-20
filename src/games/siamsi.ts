@@ -2,6 +2,7 @@
 // The .ts extension on the import path is required for `node --test` (Node does not guess extensions) — Vite/tsc both accept it
 import type { GameContext, GameModule } from './types.ts';
 import { armAllButtons } from './_arm-gate.ts';
+import { el } from './_el.ts';
 
 // ---- Fortunes + deck: pure and calculable, testable with no DOM (see siamsi.test.mjs) ----
 
@@ -184,17 +185,6 @@ let results: { player: string; fortune: Fortune }[] = [];
 function on(target: EventTarget, type: string, handler: EventListener): void {
   target.addEventListener(type, handler);
   cleanup.push(() => target.removeEventListener(type, handler));
-}
-
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  text?: string,
-  style?: string,
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = text;
-  if (style) node.setAttribute('style', style);
-  return node;
 }
 
 // ---- Screens ----

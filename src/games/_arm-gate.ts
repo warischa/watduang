@@ -29,7 +29,7 @@ export const ARM_DELAY_MS = 400;
  *  until `stage` has been quiet for ARM_DELAY_MS. Any pointerdown inside the stage restarts the
  *  window, so the gate fails closed: a ghost tap costs one deliberate re-tap, never a stolen action.
  *  Returns a canceller the caller pushes onto its own teardown list. */
-export function armAfterQuiet(stage: HTMLElement, controls: readonly HTMLButtonElement[]): () => void {
+function armAfterQuiet(stage: HTMLElement, controls: readonly HTMLButtonElement[]): () => void {
   let timer: ReturnType<typeof setTimeout> | undefined;
   for (const control of controls) control.disabled = true;
 

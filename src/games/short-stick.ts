@@ -8,6 +8,7 @@
 import type { GameContext, GameModule } from './types.ts';
 import { pickLoser } from './pick-loser.ts';
 import { armAllButtons } from './_arm-gate.ts';
+import { el } from './_el.ts';
 
 // ---- The round: pure and calculable, testable with no DOM (see short-stick.test.mjs) ----
 
@@ -48,17 +49,6 @@ let reveal: Animation | null = null;
 function on(target: EventTarget, type: string, handler: EventListener): void {
   target.addEventListener(type, handler);
   cleanup.push(() => target.removeEventListener(type, handler));
-}
-
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  text?: string,
-  style?: string,
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = text;
-  if (style) node.setAttribute('style', style);
-  return node;
 }
 
 /** matchMedia is read here, never at module scope — this file is imported by `node --test`,

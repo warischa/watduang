@@ -204,7 +204,7 @@ import GameNav from '../../components/GameNav.astro';
     if (!range) return;
 
     try {
-      const picked = pickNumber(range.min, range.max, noRepeatBox.checked ? drawn : [], Math.random);
+      const picked = pickNumber(range.min, range.max, noRepeatBox.checked ? drawn : []);
       if (noRepeatBox.checked) drawn.push(picked);
       resultEl.textContent = `ได้: ${picked}`;
     } catch (error) {
