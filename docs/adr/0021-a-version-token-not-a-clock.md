@@ -66,6 +66,21 @@ sign a write was dropped. Adversarial review walked first start, resume, mid-rou
 discard-then-start, clear, leave-confirm, tool pages, and play-again looking specifically for a
 legitimate write the new check would refuse, and did not find one.
 
+> **Annotated 2026-08-20 — that claim is true of what it enumerated, and the enumeration had a hole.**
+> Every flow in the list above is a **fresh-closure** flow. "A page restored from bfcache that then
+> *continues to play*" is not among them, and that is precisely where the strict direction bites: the
+> generation is re-synced only after a successful `setItem`, so a refusal leaves the closure stranded
+> one version behind forever, and `write()` returns `void` so `saveCheckpoint`/`markPlayed` mutate
+> in-memory state and report success. The whole post-restore round is then lost silently on the next
+> reload. Filed as
+> [#50](https://github.com/warischa/watduang/issues/50) with the losing interleaving and three
+> candidate fixes. Nothing is deployed, so severity in practice is zero today — but this must be
+> resolved before the deploy is armed.
+>
+> The lesson worth keeping is not "review missed a case". It is that a claim of the form *"review
+> hunted X and found nothing"* is only as strong as the set it walked, so the set belongs in the
+> record next to the claim — which is why the list above is quoted rather than summarised.
+
 **Verification.** `docs/verification/evidence/49/probe.mjs` reported CONFIRMED before this change and
 REFUTED after, with its positive control and bfcache-restore detection both still true. Four unit tests
 in `src/shell/session.test.mjs` cover what the probe cannot reach at the browser level: the legacy
