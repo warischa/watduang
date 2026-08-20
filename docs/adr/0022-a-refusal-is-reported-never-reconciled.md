@@ -75,6 +75,13 @@ CONFIRMED and the fixed tree reports REFUTED, with `bfcacheRestored: true` in bo
 positive control, a REFUTED and a harness that has quietly stopped working are the same output.
 Evidence: `docs/verification/evidence/50/`.
 
+Since confirmed on real WebKit, which the Chrome-CDP legs above could not close because bfcache
+behaviour is engine-specific: `docs/verification/evidence/50/webkit/` (iPhone 17 Pro, iOS 26.5). The
+notice fires on a diverged closure and stays absent on an innocent restore whose write succeeds. That
+second leg is the one that matters here — it is what distinguishes this decision from a notice that
+renders unconditionally. Both legs assert `pageshow.persisted`, because a page WebKit declines to cache
+produces no notice for a reason that has nothing to do with this guard.
+
 **The fact that would reopen this:** a provably safe automatic merge of the two diverged states —
 append-only, disjoint fields — would make adopt-and-replay viable and could keep the round playable.
 It does not exist today: the checkpoint is a single slot
