@@ -134,3 +134,22 @@ the evidence rather than letting a run-level green imply more than it earned.
 
 Worked example: the `astro check` gate from gh#38, evidence
 `docs/verification/evidence/38/06-box3-calibration.json`.
+
+Second worked example — `validate-games`, 2026-08-20, run `32342190249`. It had been wired into
+`ci.yml` the day before with 21 known-bad fixtures behind `--selftest`, so its step had never been
+observed doing anything but pass. One commit on a throwaway branch disabled the `ads` rule, and the
+jobs endpoint returned exactly what a live gate should: `Validate games` **failure**, every step before
+it success, every step after it skipped by fail-fast — and `Deploy to Azure Static Web Apps` **skipped**,
+which is also the run-level proof that the deploy gate holds on a non-`main` branch. Branch deleted
+unmerged; `main` never contained the break.
+
+Two honest deviations from the recipe above, both worth copying:
+
+- **One commit, not two.** The green leg was already on record — `main` was green at `f18514e` with this
+  step wired — so pushing a restored head would have re-proven a known fact. Read the step conclusion
+  from the jobs endpoint instead, per the correction above.
+- **The break was not type-only.** Point 3 asks for a wrong annotation; this disabled a rule
+  (`if (false && …)`) in a gate script. That is still runtime-inert *for the site*: the script is
+  build-tooling that never reaches `dist/`, and the plain run still exited 0, so the only thing capable
+  of going red was the intended `--selftest`. Confirm both exit codes locally before pushing — plain 0,
+  selftest non-zero — or you have not isolated one variable.
