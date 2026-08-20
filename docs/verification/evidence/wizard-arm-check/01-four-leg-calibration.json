@@ -1,0 +1,22 @@
+{
+  "box": "site-owner-wizard §2 arm-check tells the truth in every reachable state",
+  "method": "Drove the real scripts/site-owner-wizard.sh (not a re-implementation of its logic) once per state, feeding the interactive prompts from stdin. Legs 1/2/4 placed a stub `gh` earlier on PATH and removed it afterwards; leg 3 used the live repository with no stub. No repo secret or variable was created, modified, or deleted.",
+  "capturedAtCommit": "4e9b4df",
+  "capturedAtCommitNote": "Tree was DIRTY at capture. Uncommitted files at the time of the run: docs/verification/evidence/wizard-arm-check/, github/workflows/ci.yml, scripts/site-owner-wizard.sh, scripts/validate-games.mjs, src/games/_arm-gate.ts, src/games/_el.ts, src/games/daily-fortune.ts, src/games/love-match.ts, src/games/pick-loser.ts, src/games/short-stick.ts, src/games/siamsi.ts, src/games/timebomb.ts, src/pages/tool/number.astro, src/shell/PassPhone.astro. The wizard fix this evidence describes is itself among them, so this record predates the commit that carries it.",
+  "verdict": "PROVEN",
+  "reportsWebFallbackWhenGhBinaryAbsent": true,
+  "reportsCannotTellWhenGhCannotAnswer": true,
+  "unknownStateInstructsOwnerToAssumeArmed": true,
+  "reportsNotArmedOnGenuinelyUnarmedRepo": true,
+  "reportsArmedWhenAllThreeNamesPresent": true,
+  "armedVerdictNamesTheStaleReRunHazard": true,
+  "preFixBehaviourReproducedBeforeRepair": true,
+  "notCovered": [
+    "secret VALUES — a typo'd GUID still prints ARMED, then fails loud at azure/login@v2",
+    "OIDC trust validity — the federated credential can be deleted independently; fails loud",
+    "--check mode — maybe_verify returns early when CHECK_MODE=1, so no arm verdict is printed",
+    "a gh that exits 0 with a stale or partial list — that set is owned by the GitHub CLI, so enumerating it would never converge"
+  ],
+  "residualDivergenceFromTheRealGate": "An empty-valued secret would print ARMED while HAS_DEPLOY_IDENTITY stays false. That is the safe direction. warischa is a User account with no org secrets and ci.yml declares no environment:, so `gh secret list` and secrets.* otherwise enumerate the same set.",
+  "harnessNote": "The first calibration attempt returned four EMPTY legs and looked like a total failure. Cause was the harness, not the script: macOS has no `timeout`, so the wrapper failed and the wizard never ran. Recorded because the same mistake inside a grep-for-absence check would have read as a clean pass rather than an obvious blank."
+}
