@@ -66,12 +66,12 @@ was filed and the site owner settled it, 2026-08-14: **the clear button asks too
 progress it raises the same shape of two-button question. Three cases exist — stranded checkpoint, live
 round on this page, both at once — and `clearCopy` in `src/shell/player-select.ts` picks between them.
 The owner-approved strings for all three, and the rule that the copy must name every loss the confirm
-will actually cause, are in `docs/runbook.md` (#25). Owner approved the live-round and both-signals
+will actually cause, are in `docs/agents/src-edit-rules.md` (#25). Owner approved the live-round and both-signals
 pairs on 2026-08-17, accepting that on siamsi's own page the both-case over-names one round; it never
 under-names, which was the requirement.
 
 `ยกเลิก` — nothing happens: not the session, not the group, not even the reload. It also takes focus
-when the question opens, per the same runbook entry.
+when the question opens, per the same `docs/agents/src-edit-rules.md` entry.
 
 Two differences from the start prompt above are load-bearing, and copying the start machinery wholesale
 gets both wrong:
