@@ -166,3 +166,24 @@ test('a lock request that rejects still stores the name, and add() does not reje
     restoreNavigator();
   }
 });
+
+// ---- gh#51 F4, closed as won't-fix, and this test is the record of why. saveGroup() overwrites
+// watduang:group wholesale with no lock, no re-read and no CAS while add() in this same file has both,
+// but the two keys do not carry the same semantics. add() is a read-modify-write over a list every tab
+// appends to, and the name it used to drop was one nobody removed. The group is the set the player
+// ticked on THIS page — PlayerSetup unticks by selected.delete(name) — so unioning it with the stored
+// group would resurrect a name the player had just removed: the ghost tick loadGroup()'s own filter
+// exists to prevent, and a wrong group actually played is a worse loss than a prefill the player
+// re-ticks. A lock alone buys nothing here either: there is no read to protect inside it, and one
+// setItem of the whole value cannot interleave. This test fails if saveGroup ever starts merging.
+test('gh#51 F4: saveGroup replaces the group wholesale — an untick must never come back as a ghost tick', async () => {
+  slots.clear();
+  const roster = loadRoster();
+  await roster.add('เอ');
+  await roster.add('บี');
+  saveGroup(['เอ', 'บี']); // the last round played with both, and both are still in the roster
+  assert.deepEqual(loadGroup(), ['เอ', 'บี'], 'positive control: the stored group really did hold both names');
+
+  saveGroup(['เอ']); // this round: the player unticked the second name on this page
+  assert.deepEqual(loadGroup(), ['เอ'], 'a merge with the stored group resurrected the unticked name');
+});

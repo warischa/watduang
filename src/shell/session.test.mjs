@@ -629,3 +629,94 @@ test('dead storage reports no refusal, but a genuinely displaced round still doe
   c1.saveCheckpoint(midRound(9));
   assert.deepEqual(reported, ['stale-version'], 'the listener never fires, so the check above is vacuous');
 });
+
+// ---- gh#51 F1: MAX_AGE_MS is a loader rule, not an ownership rule. readRaw() reports an aged record
+// as absent and write() read the slot through that same door, so a round started at 20:00 and still
+// being tapped at 02:30 hit `current === null` while holding a non-null myId: every save refused as
+// 'record-gone' — a cause that is false, since nothing was cleared — and setPlayers, the sole creator,
+// was refused on the same branch, so the round could not re-create itself either. The next reload took
+// the whole round with it. A write refreshes `stamp`, so the owner still tapping is exactly what is
+// supposed to keep the record alive.
+//
+// The aged-record test above covers the OTHER closure: one born aged (myId === null), for which the
+// aged record must stay invisible and a fresh start must still be allowed. That control is what pins
+// this fix to ownership rather than to ignoring age inside write(). `stamp` is rewritten in place
+// because nothing in the API can backdate one — the same seeding idiom as the tests above.
+test('gh#51 F1: a round tapped past the 6h window still saves — its own closure is not "record-gone"', () => {
+  slots.clear();
+  const backdate = () => {
+    const record = JSON.parse(slots.get('watduang:session'));
+    record.stamp = Date.now() - 7 * 60 * 60 * 1000; // > MAX_AGE_MS: locked at 20:00, restored at 02:30
+    slots.set('watduang:session', JSON.stringify(record));
+  };
+
+  const reasons = [];
+  const game = loadSession(); // 20:00 — this closure creates the record, so it owns the id
+  game.onWriteRefused = (reason) => reasons.push(reason);
+  game.setPlayers(['Alice', 'Bob']);
+  game.saveCheckpoint(midRound(2));
+
+  backdate();
+  assert.equal(loadSession().checkpoint, null, 'positive control: the record really did age out of every loader');
+
+  game.saveCheckpoint(midRound(19)); // the player keeps tapping on the restored tab
+  assert.equal(
+    JSON.parse(slots.get('watduang:session')).checkpoint.drawn,
+    19,
+    'the closure that owns the record could not save its own round',
+  );
+  assert.deepEqual(reasons, [], "nothing was cleared, so 'record-gone' names a cause that is false");
+  // The harm the player actually met: the save has to refresh `stamp` as well, or the next reload
+  // still loses the round that was just persisted.
+  assert.equal(loadSession().checkpoint.drawn, 19, 'the save persisted but a refresh still lost the round');
+
+  // setPlayers is the sole creator and it was refused on the same branch — siamsi.ts:353 calls it
+  // mid-round on the resume path, so that write died past the window too.
+  backdate();
+  game.setPlayers(['เอ', 'บี']);
+  assert.deepEqual(loadSession().players, ['เอ', 'บี'], 'the sole creator stayed refused past the window');
+  assert.deepEqual(reasons, [], 'and it must not report a refusal either');
+});
+
+// ---- gh#51 F2: clear() was the one write path with no guard at all — no identity check, no generation
+// check, removeItem unconditional. It sits on GameSession, so it is reachable from the long-lived
+// ctx.session closure game/[id].astro builds once per mount and a bfcache restore keeps alive: the
+// first game to ship a quit-round button hands a stale closure the power to delete the round the newer
+// document is playing, which is gh#49's loss with nothing left to overwrite back. It shares write()'s
+// compare-and-swap rather than carrying a copy of it, so the two cannot drift apart.
+//
+// The anti-over-fix control is already pinned twice above ('negative control: a clean discard...' and
+// 'discard-then-start...'), both on a fresh closure — PlayerSetup calls loadSession() inside
+// requestClear(), a few synchronous lines before clear(), which is why a real press cannot be refused.
+test('gh#51 F2: a stale closure cannot clear the round the newer document is playing', () => {
+  slots.clear();
+  const reasons = [];
+  const restored = loadSession(); // the page that gets bfcached mid-round
+  restored.onWriteRefused = (reason) => reasons.push(reason);
+  restored.setPlayers(['Alice', 'Bob']);
+  restored.saveCheckpoint(midRound(2));
+
+  const live = loadSession(); // the tab navigates back in and play continues here
+  live.saveCheckpoint(midRound(10));
+  const stored = slots.get('watduang:session');
+  assert.equal(loadSession().checkpoint.drawn, 10, 'positive control: the newer document owns the live round');
+
+  restored.clear(); // a quit-round tap on the restored page
+  assert.equal(slots.get('watduang:session'), stored, 'a stale closure deleted the round the live page was playing');
+  assert.deepEqual(reasons, ['stale-version'], 'and it deleted it in silence');
+
+  // The other branch of the same shared guard: a different round holds the slot, at the same
+  // generation, so identity is the only thing that can catch it.
+  slots.clear();
+  const mine = loadSession();
+  mine.onWriteRefused = (reason) => reasons.push(reason);
+  mine.setPlayers(['Alice', 'Bob']);
+  loadSession().clear(); // the round ends, a fresh closure empties the slot legitimately
+  const other = loadSession();
+  other.setPlayers(['Cat', 'Dan']); // a new round: new id, gen back to 1
+  const othersRound = slots.get('watduang:session');
+
+  mine.clear();
+  assert.equal(slots.get('watduang:session'), othersRound, "a stale closure cleared someone else's round");
+  assert.equal(reasons.at(-1), 'other-round');
+});

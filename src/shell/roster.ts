@@ -57,7 +57,22 @@ export function loadGroup(): string[] {
 }
 
 /** Stores raw, no clamp — the max ceiling belongs to each page, not to storage.
- *  A page with a smaller max clamps on use, so the old group is never permanently trimmed just because it passed through that page once. */
+ *  A page with a smaller max clamps on use, so the old group is never permanently trimmed just because it passed through that page once.
+ *
+ *  Wholesale overwrite, no lock, no re-read, no CAS — unlike add() above, and deliberately so
+ *  (gh#51 F4, closed won't-fix). Two tabs on this key are last-write-wins: a tab that loaded before
+ *  another added a name writes its own ticked set back and the newer name drops out of the prefill.
+ *  Every fix that changes that is worse. A union with the stored group resurrects a name the player
+ *  unticked on this page (PlayerSetup unticks by `selected.delete`), which is the ghost tick
+ *  loadGroup()'s filter above exists to prevent — a wrong group actually played, in place of a prefill
+ *  the player re-ticks. Refusing on a CAS mismatch stores a group that is not the one being played. A
+ *  lock alone protects nothing: there is no read inside the critical section to protect, and a single
+ *  setItem of the whole value cannot interleave. What this key means is "the group the player last
+ *  ticked" — PlayerSetup.astro:320 stores it BEFORE the live-round question is asked, deliberately, so
+ *  it is NOT "the group that started a round": tick a group, then choose resume, and the stored group
+ *  never started one. Last writer is still the correct writer, because the player really did tick it.
+ *  Pinned by roster.test.mjs's F4 test, which fails if this ever starts merging. Reopen only if the
+ *  group becomes something a tab appends to. */
 export function saveGroup(names: string[]): void {
   write(GROUP_KEY, names);
 }

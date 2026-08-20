@@ -33,13 +33,27 @@ let minted = 0;
 const mintId = (): string => `${Date.now().toString(36)}-${++minted}`;
 
 /** The live record, or null when there is none. Absent, aged out and unparseable all read the same —
- *  aging matters here because the key outlives MAX_AGE_MS, and an aged record must not block a start. */
-function readRaw(): StoredSession | null {
+ *  aging matters here because the key outlives MAX_AGE_MS, and an aged record must not block a start.
+ *
+ *  `mine` is the id the caller already owns, and it is the one exception to that. Age is a LOADER rule
+ *  — nothing may resume a 6h-old round — and it is not an ownership rule, so an expired record is
+ *  still present for the closure that created it. write() reading the slot through the strict door was
+ *  gh#51 F1: a round started at 20:00 and still being tapped at 02:30 met `current === null` while
+ *  holding a non-null myId, so every save was refused as 'record-gone' — false, nothing was cleared —
+ *  and setPlayers, the sole creator, was refused on the same branch, so the round could not re-create
+ *  itself either and the next reload took it. Every write refreshes `stamp`, so the owner still tapping
+ *  is what keeps the record alive; callers that pass nothing keep the strict rule, which is what leaves
+ *  an aged record invisible to a loader and free for a fresh start to overwrite. */
+function readRaw(mine?: string | null): StoredSession | null {
   try {
     const raw = sessionStorage.getItem(KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredSession;
-    return Date.now() - parsed.stamp > MAX_AGE_MS ? null : parsed;
+    if (Date.now() - parsed.stamp <= MAX_AGE_MS) return parsed;
+    // Expired: present for its owner and for nobody else. Normalised through LEGACY_ID so the
+    // pre-identity door behaves like the normal one — a closure loaded off a gen-less record holds
+    // LEGACY_ID while the record itself carries no id at all.
+    return (parsed.id ?? LEGACY_ID) === mine ? parsed : null;
   } catch {
     return null;
   }
@@ -123,6 +137,34 @@ export function loadSession(): ShellSession {
    */
   let myGen: number = stored.gen ?? 0;
 
+  /** Refuse: tell whoever is listening, and hand the reason back to the caller. Never re-syncs myGen
+   *  and never adopts the stored record — ADR-0021 declined reconciliation, and adopting would either
+   *  discard the player's visible state (ADR-0008) or persist the stale snapshot (gh#49 again). */
+  const refuse = (reason: WriteRefusal): WriteRefusal => {
+    session.onWriteRefused?.(reason);
+    return reason;
+  };
+
+  /**
+   * The two compare-and-swap questions, asked of the record actually in the slot: is this the round
+   * this closure knows, and is it the version of that round this closure last saw. Null means this
+   * closure owns what is there and may mutate it.
+   *
+   * Shared by write() AND clear() rather than copied into each. clear() shipped with no guard at all
+   * (gh#51 F2) and a guard copied per caller leaves the next caller unsafe by default — both questions
+   * live here once, so a mutating path added later cannot inherit half of them.
+   */
+  const mismatch = (current: StoredSession): WriteRefusal | null => {
+    // Someone else's round is in the slot. This closure's snapshot predates it — refuse.
+    if (current.id !== undefined && current.id !== myId) return 'other-round';
+    // Right round, wrong version of it: someone has written since this closure loaded, so what it is
+    // about to persist is a snapshot of the round as it used to be. A sibling of the identity compare
+    // and never nested inside it — a legacy record reaches this line, and gh#49 through the legacy
+    // door looks the same as gh#49 through the normal one.
+    if ((current.gen ?? 0) !== myGen) return 'stale-version';
+    return null;
+  };
+
   /**
    * The one chokepoint all three writers route through. `create` = this writer may bring a record into
    * existence; setPlayers is the only one, because starting a round is what brings a session into being
@@ -137,15 +179,8 @@ export function loadSession(): ShellSession {
    * a guard added later cannot forget the signal — the declared return type rejects a bare `return`.
    */
   function write(create = false): WriteRefusal | null {
-    /** Refuse: tell whoever is listening, and hand the reason back to the caller. Never re-syncs myGen
-     *  and never adopts the stored record — ADR-0021 declined reconciliation, and adopting would either
-     *  discard the player's visible state (ADR-0008) or persist the stale snapshot (gh#49 again). */
-    const refuse = (reason: WriteRefusal): WriteRefusal => {
-      session.onWriteRefused?.(reason);
-      return reason;
-    };
     try {
-      const current = readRaw();
+      const current = readRaw(myId);
       if (current === null) {
         // Gone means gone, whoever still holds a handle: a closure that knew a record may not re-create
         // it. Only one that never had an identity may start a round.
@@ -156,15 +191,9 @@ export function loadSession(): ShellSession {
         // cleared — and role="alert" would re-announce on every tap, the exact per-tap alarm the catch
         // below is written to avoid. gh#50 REFUTE F1.
         if (!create || myId !== null) return myId !== null ? refuse('record-gone') : null;
-      } else if (current.id !== undefined && current.id !== myId) {
-        // Someone else's round is in the slot. This closure's snapshot predates it — refuse.
-        return refuse('other-round');
-      } else if ((current.gen ?? 0) !== myGen) {
-        // Right round, wrong version of it: someone has written since this closure loaded, so what it
-        // is about to persist is a snapshot of the round as it used to be. A sibling of the identity
-        // compare and never nested inside it — a legacy record reaches this line, and gh#49 through
-        // the legacy door looks the same as gh#49 through the normal one.
-        return refuse('stale-version');
+      } else {
+        const stale = mismatch(current);
+        if (stale !== null) return refuse(stale);
       }
       const id = myId ?? mintId();
       const gen = myGen + 1;
@@ -214,6 +243,20 @@ export function loadSession(): ShellSession {
       write();
     },
     clear(): void {
+      // The one write path that had no guard at all (gh#51 F2). clear() is on GameSession, so it is
+      // reachable from the long-lived ctx.session closure game/[id].astro builds once per mount and a
+      // bfcache restore keeps alive: the first game to ship a quit-round button would hand a stale
+      // closure the power to delete the round the newer document is playing — gh#49's loss with
+      // nothing left to overwrite back. Same compare-and-swap as write(), reported the same way and
+      // reconciling nothing (ADR-0022): on a refusal this closure's own state stays as it was too,
+      // because a half-cleared closure would show the player an empty round the record still holds.
+      // An absent record needs no refusal — removeItem is already a no-op and nothing is lost.
+      const current = readRaw(myId);
+      const stale = current === null ? null : mismatch(current);
+      if (stale !== null) {
+        refuse(stale);
+        return;
+      }
       session.players = [];
       session.played = [];
       session.checkpoint = null;

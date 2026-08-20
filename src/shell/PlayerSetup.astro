@@ -368,6 +368,13 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
         clearCancelBtn.focus();
         return;
       }
+      // clear() can refuse since gh#51 F2, and this page wires no onWriteRefused — so the refusal
+      // would be silent here, and saveGroup([]) + reload below run regardless. Unreachable today, and
+      // the reason is the ONLY thing keeping it so: loadSession() is called at the top of this same
+      // gate with zero awaits between, so the closure cannot be a generation behind its own record.
+      // Hoist that loadSession() out, or put an await between it and here, and this becomes a silent
+      // discard-that-did-not-happen — the ADR-0008 loss gh#50 closed for write(). Wire the listener
+      // (or check the return) before making either change.
       session.clear();
       saveGroup([]);
     }
