@@ -52,8 +52,12 @@ jobs:
       - name: npm ci
         run: npm ci
 
+      # --selftest first, same reason as the guards below: the live scan over six known-good
+      # manifest entries is green whether or not the rules still fire. The selftest drives 21
+      # known-bad fixtures through the same validateGames() and fails if any rule stops
+      # reporting, so a neutered rule cannot ride a green "6 game(s) OK" into a deploy.
       - name: Validate games
-        run: node scripts/validate-games.mjs
+        run: node scripts/validate-games.mjs --selftest && node scripts/validate-games.mjs
 
       # --selftest first: proves findCitations still matches something before trusting the
       # live scan's "all clear" — a regex regression that matches nothing would otherwise
