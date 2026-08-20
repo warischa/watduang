@@ -10,3 +10,9 @@ dist/
 
 # Probe screenshots regenerate on every evidence run — the JSON logs are the evidence.
 docs/verification/evidence/**/*.png
+
+# Carve-out, and the rule for when it applies: keep the screenshots when there was no inspector to
+# produce a log, so the image IS the only artifact. iOS WebKit has no inspector on this path, so
+# gh#50's fifth box rests on frames a human reads — an ignored .png would make a closed ticket cite
+# files that do not exist. A CDP probe never qualifies: it can always emit JSON.
+!docs/verification/evidence/50/webkit/*.png
