@@ -2,7 +2,7 @@
 // Checks pure logic exported from player-select.ts (no DOM/localStorage needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveStart, numberedPlayers, planStart, planClear, clearCopy } from './player-select.ts';
+import { resolveStart, numberedPlayers, planStart, planClear, clearCopy, refusalCopy } from './player-select.ts';
 
 test('เกิน max: ตัดคนท้ายไปเล่น สั่งเตือนก่อนถ้ายังไม่เคยเตือน', () => {
   const selected = ['เอ', 'บี', 'ซี', 'ดี'];
@@ -165,4 +165,13 @@ test('#data-loss no case is a partial swap — every non-default case sets both 
     const copy = clearCopy(checkpoint, true);
     assert.ok(copy.message.length > 0 && copy.confirmLabel.length > 0);
   }
+});
+
+test('gh#50 refusalCopy: all three reasons map to the owner-approved strings, byte for byte', () => {
+  assert.equal(
+    refusalCopy('stale-version'),
+    'รอบนี้ถูกเล่นต่อจากหน้าอื่นแล้ว ที่กดในหน้านี้หลังจากนั้นไม่ได้บันทึก',
+  );
+  assert.equal(refusalCopy('other-round'), 'มีรอบใหม่เริ่มไปแล้ว ที่กดในหน้านี้ไม่ได้บันทึก');
+  assert.equal(refusalCopy('record-gone'), 'รอบนี้ถูกล้างไปแล้ว ที่กดในหน้านี้ไม่ได้บันทึก');
 });

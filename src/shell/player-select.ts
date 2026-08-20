@@ -1,6 +1,7 @@
 // Pure logic — no DOM/localStorage — called by PlayerSetup.astro when the start button is pressed (#21)
 // Always takes in the full ticked group, never the pool left after clamping (ADR-0004 fixed this)
 import type { Checkpoint } from '../games/types.ts';
+import type { WriteRefusal } from './session';
 
 export interface StartResolution {
   /** Who actually plays on this page — already clamped to max */
@@ -129,6 +130,24 @@ export function clearCopy(
     message: 'เริ่มรอบบนหน้านี้ไปแล้ว ถ้าล้างกลุ่มนี้ รอบนี้จะหายไปทั้งรอบ',
     confirmLabel: 'ล้างและทิ้งรอบนี้',
   };
+}
+
+/**
+ * gh#50 — session.ts's write() refuses instead of clobbering, but the player is still mid-tap on a page
+ * that just silently dropped it. The three reasons are three different losses, so three separate
+ * strings, owner-approved copy from #25's naming rule: the message names EVERY loss it actually causes.
+ * Exhaustive over WriteRefusal by construction (no default case) — a fourth reason is a compile error
+ * here, not a silently blank notice.
+ */
+export function refusalCopy(reason: WriteRefusal): string {
+  switch (reason) {
+    case 'stale-version':
+      return 'รอบนี้ถูกเล่นต่อจากหน้าอื่นแล้ว ที่กดในหน้านี้หลังจากนั้นไม่ได้บันทึก';
+    case 'other-round':
+      return 'มีรอบใหม่เริ่มไปแล้ว ที่กดในหน้านี้ไม่ได้บันทึก';
+    case 'record-gone':
+      return 'รอบนี้ถูกล้างไปแล้ว ที่กดในหน้านี้ไม่ได้บันทึก';
+  }
 }
 
 /** selected is the full group as ticked by the user (or "Player 1..count" when nobody ticked anyone)

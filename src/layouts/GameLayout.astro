@@ -42,6 +42,14 @@ const howToJsonLd = {
 
     <div id="stage" data-game-id={game.id}></div>
 
+    {/* gh#50 — session.ts's write() refuses a stale/superseded write instead of clobbering, and this is
+         the only surface that says so. Text only, no control (ADR-0015, ADR-0020): a button here would be
+         a new tap surface. Outside #stage (ADR-0014) and AFTER it — never before, or a notice appearing
+         mid-round would push #stage's own buttons down under a player's finger (the gh#37/#39/#42 mis-tap
+         family); after the stage it only reflows what is already below. hidden by default; role="alert"
+         announces only once hidden drops, same ordering as PlayerSetup.astro's showError. */}
+    <p id="write-refused" role="alert" hidden></p>
+
     <PassPhone />
 
     <section id="how-to-play">

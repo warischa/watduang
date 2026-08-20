@@ -1,0 +1,45 @@
+{
+  "box": "gh#50 DoD — the gh#49 harness still detects the original bug, and the gh#50 fix does not regress it",
+  "method": "Two legs of docs/verification/evidence/49/probe.mjs driven by scripts/driver.mjs against a real headless Chrome over CDP. Leg A: a git worktree at 40707d1, the true PARENT of 0b34f78 (the gh#49 fix). Leg B: the working tree carrying the gh#50 changes. The harness files are byte-identical at HEAD and at 40707d1 (cmp), so both legs ran the SAME harness and differ only in the code under test. Separate Chrome profiles and CDP ports per leg because probe.mjs hardcodes BASE=http://localhost:4321, so the serve port cannot be isolated and a shared profile would leak leg A's storage into leg B. Full stdout of each leg is committed beside this file.",
+  "capturedAtCommit": "f18514e",
+  "capturedAtCommitNote": "Tree was DIRTY at capture; the gh#50 change under test is itself uncommitted. Uncommitted files: docs/verification/evidence/50/, rc/layouts/GameLayout.astro, src/pages/game/[id].astro, src/shell/player-select.test.mjs, src/shell/player-select.ts, src/shell/session.test.mjs, src/shell/session.ts.",
+  "verdict": "PROVEN",
+  "harnessStillDetectsTheOriginalBugOnPreFixCode": true,
+  "fixPreventsTheClobberOnCurrentCode": true,
+  "bfcacheGenuinelyRestoredInBothLegs": true,
+  "apparatusObservedOrdinaryWritesInBothLegs": true,
+  "progressLostOnlyOnPreFixCode": true,
+  "noConsoleErrorsInEitherLeg": true,
+  "legA": {
+    "tree": "worktree at 40707d1 (pre-fix)",
+    "verdict": "CONFIRMED",
+    "lostProgress": {
+      "c5_holder": 2,
+      "c5_results": 2,
+      "before_holder": 2,
+      "before_results": 2,
+      "after_holder": 1,
+      "after_results": 1,
+      "strictlyLessProgress": true
+    }
+  },
+  "legB": {
+    "tree": "working tree with the gh#50 fix",
+    "verdict": "REFUTED",
+    "lostProgress": {
+      "c5_holder": 2,
+      "c5_results": 2,
+      "before_holder": 2,
+      "before_results": 2,
+      "after_holder": 2,
+      "after_results": 2,
+      "strictlyLessProgress": false
+    }
+  },
+  "whyBothLegsAreRequired": "A REFUTED alone is indistinguishable from a harness that has quietly stopped working. Leg A is the positive control: the same apparatus still reports CONFIRMED against code that provably lacks the generation token (0 gen-token references at 40707d1, 6 in the current tree).",
+  "notCovered": [
+    "Real WebKit — bfcache behaviour is engine-specific and headless Chrome is not Safari; that run is a separate DoD item.",
+    "The player-facing notice CLEARING on a new round: there is no DOM test harness for src/pages/game/[id].astro, so that behaviour is unproven by test.",
+    "Storage that always throws (Safari private mode) still loses everything silently — pre-existing, not introduced here, and deliberately not signalled per gh#50 REFUTE F1."
+  ]
+}

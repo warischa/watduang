@@ -16,6 +16,7 @@ const { game } = Astro.props as { game: GameModule };
   import type { GameContext, GameModule } from '../../games/types';
   import { loadRoster } from '../../shell/roster';
   import { loadSession } from '../../shell/session';
+  import { refusalCopy } from '../../shell/player-select';
 
   // negative-glob lazy loader — must not import manifest.ts/game module here (CONTRACT.md)
   const mods = import.meta.glob<{ default: GameModule }>([
@@ -28,6 +29,7 @@ const { game } = Astro.props as { game: GameModule };
   const stage = document.getElementById('stage') as HTMLElement;
   const id = stage.dataset.gameId!;
   const load = mods[`../../games/${id}.ts`];
+  const writeRefusedEl = document.getElementById('write-refused') as HTMLElement;
 
   let game: GameModule | null = null;
 
@@ -47,7 +49,22 @@ const { game } = Astro.props as { game: GameModule };
     const { players } = (event as CustomEvent<{ players: string[] }>).detail;
 
     const roster = loadRoster();
+    // gh#50 — clear any notice from a previous round. Belt-and-braces, NOT load-bearing today:
+    // watduang:start is dispatched from exactly one place (PlayerSetup.astro), and every game play-again
+    // button ("เล่นอีกรอบ") remounts via mountInto without it (grepped all five, per that file own
+    // instruction not to
+    // trust a comment here), and the panel only re-shows after a reload, which starts with the notice
+    // already hidden. Kept because nothing else ever re-hides it, so if a future start path does fire
+    // this event, a stale notice would otherwise outlive the round it describes.
+    writeRefusedEl.hidden = true;
+    writeRefusedEl.textContent = '';
+
     const session = loadSession();
+    // gh#50 — drop hidden first, then set the text: role="alert" announces only once hidden drops.
+    session.onWriteRefused = (reason) => {
+      writeRefusedEl.hidden = false;
+      writeRefusedEl.textContent = refusalCopy(reason);
+    };
     session.setPlayers(players);
 
     const ctx: GameContext = { roster, session };

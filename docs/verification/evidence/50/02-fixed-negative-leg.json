@@ -1,0 +1,132 @@
+{
+  "steps": [
+    {
+      "label": "wipe verified on-origin",
+      "value": {
+        "ls": null
+      }
+    },
+    {
+      "label": "instance#1: start-numbered clicked",
+      "value": "clicked:#start-numbered"
+    },
+    {
+      "label": "positive control: after setPlayers, before startRound",
+      "value": "{\"id\":\"mt11fpgn-1\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"played\":[],\"checkpoint\":null,\"stamp\":1787201176487,\"gen\":1}"
+    },
+    {
+      "label": "instance#1: ss-start clicked (startRound)",
+      "value": "clicked:#ss-start"
+    },
+    {
+      "label": "positive control: after startRound (should have checkpoint)",
+      "value": "{\"id\":\"mt11fpgn-1\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"played\":[],\"checkpoint\":{\"game\":\"siamsi\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"deck\":[18,22,17,8],\"holder\":0,\"results\":[],\"phase\":\"turn\",\"drawn\":null},\"stamp\":1787201177196,\"gen\":2}"
+    },
+    {
+      "label": "instance#1: ss-draw clicked (draw)",
+      "value": "clicked:#ss-draw"
+    },
+    {
+      "label": "C1 (instance #1, drawn, held in its closure)",
+      "value": "{\"id\":\"mt11fpgn-1\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"played\":[],\"checkpoint\":{\"game\":\"siamsi\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"deck\":[22,17,8],\"holder\":0,\"results\":[{\"player\":\"คนที่ 1\",\"n\":18}],\"phase\":\"drawn\",\"drawn\":18},\"stamp\":1787201177898,\"gen\":3}"
+    },
+    {
+      "label": "instance#1: tap /games/ link (data-stable-exit)",
+      "value": "clicked:a[data-stable-exit]"
+    },
+    {
+      "label": "path after leave-click",
+      "value": "/games/"
+    },
+    {
+      "label": "/games/: tap siamsi link (instance #2)",
+      "value": "clicked:a[href=\"/game/siamsi/\"]"
+    },
+    {
+      "label": "path on instance #2",
+      "value": "/game/siamsi/"
+    },
+    {
+      "label": "instance#2: start-numbered clicked",
+      "value": "clicked:#start-numbered"
+    },
+    {
+      "label": "instance#2: resume-choice shown",
+      "value": true
+    },
+    {
+      "label": "instance#2: resume-round clicked",
+      "value": "clicked:#resume-round"
+    },
+    {
+      "label": "instance#2: checkpoint immediately after resume (should equal C1)",
+      "value": "{\"id\":\"mt11fpgn-1\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"played\":[],\"checkpoint\":{\"game\":\"siamsi\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"deck\":[22,17,8],\"holder\":0,\"results\":[{\"player\":\"คนที่ 1\",\"n\":18}],\"phase\":\"drawn\",\"drawn\":18},\"stamp\":1787201181116,\"gen\":5}"
+    },
+    {
+      "label": "instance#2: resume checkpoint equals C1",
+      "value": true
+    },
+    {
+      "label": "instance#2 turn 0: ss-pass",
+      "value": "clicked:#ss-pass"
+    },
+    {
+      "label": "instance#2 turn 1: ss-draw",
+      "value": "clicked:#ss-draw"
+    },
+    {
+      "label": "instance#2 turn 2: ss-pass",
+      "value": "clicked:#ss-pass"
+    },
+    {
+      "label": "C5 (instance #2, materially more progress)",
+      "value": "{\"id\":\"mt11fpgn-1\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"played\":[],\"checkpoint\":{\"game\":\"siamsi\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"deck\":[17,8],\"holder\":2,\"results\":[{\"player\":\"คนที่ 1\",\"n\":18},{\"player\":\"คนที่ 2\",\"n\":22}],\"phase\":\"turn\",\"drawn\":null},\"stamp\":1787201183223,\"gen\":8}"
+    },
+    {
+      "label": "path after history.back() x2",
+      "value": "/game/siamsi/"
+    },
+    {
+      "label": "pageshow log read back on the (hopefully) restored instance #1",
+      "value": {
+        "hasMarker": true,
+        "log": [
+          {
+            "persisted": true,
+            "t": 1787201185212
+          }
+        ]
+      }
+    },
+    {
+      "label": "checkpoint immediately BEFORE step 7 tap",
+      "value": "{\"id\":\"mt11fpgn-1\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"played\":[],\"checkpoint\":{\"game\":\"siamsi\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"deck\":[17,8],\"holder\":2,\"results\":[{\"player\":\"คนที่ 1\",\"n\":18},{\"player\":\"คนที่ 2\",\"n\":22}],\"phase\":\"turn\",\"drawn\":null},\"stamp\":1787201183223,\"gen\":8}"
+    },
+    {
+      "label": "path right before step 7 tap",
+      "value": "/game/siamsi/"
+    },
+    {
+      "label": "instance#1 (restored): tap ส่งต่อ — the alleged clobber",
+      "value": "clicked:#ss-pass"
+    },
+    {
+      "label": "checkpoint immediately AFTER step 7 tap",
+      "value": "{\"id\":\"mt11fpgn-1\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"played\":[],\"checkpoint\":{\"game\":\"siamsi\",\"players\":[\"คนที่ 1\",\"คนที่ 2\",\"คนที่ 3\",\"คนที่ 4\"],\"deck\":[17,8],\"holder\":2,\"results\":[{\"player\":\"คนที่ 1\",\"n\":18},{\"player\":\"คนที่ 2\",\"n\":22}],\"phase\":\"turn\",\"drawn\":null},\"stamp\":1787201183223,\"gen\":8}"
+    }
+  ],
+  "positiveControlPassed": true,
+  "resumeMatchesC1": true,
+  "bfcacheRestored": true,
+  "lostProgress": {
+    "c5_holder": 2,
+    "c5_results": 2,
+    "before_holder": 2,
+    "before_results": 2,
+    "after_holder": 2,
+    "after_results": 2,
+    "strictlyLessProgress": false
+  },
+  "verdict": "REFUTED",
+  "consoleErrors": []
+}

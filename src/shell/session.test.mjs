@@ -539,3 +539,93 @@ test('round end: markPlayed and saveCheckpoint(null) in the same tick both take 
   assert.deepEqual(loadSession().played, ['siamsi'], 'the finished round never got marked played');
   assert.equal(loadSession().checkpoint, null, 'a finished round stayed in the slot — a refresh would resume it');
 });
+
+// ---- gh#50: the too-strict direction of gh#49's guard. A refusal is CORRECT — the stale snapshot must
+// not land — but `write()` returned void and every guard branch returned in silence, so the refused
+// closure kept its stale `myGen` and dropped every later write too: markPlayed, the next saveCheckpoint,
+// the final saveCheckpoint(null). The whole post-restore round then existed only in memory and the next
+// reload resumed the OLDER record, with nothing ever said. The fix is a signal at the chokepoint, not
+// per-caller checks (1 game = 1 file, and that set grows), so this asserts the listener rather than a
+// return value: the listener is what a caller can actually see.
+//
+// Both halves are pinned here on purpose. Observability alone could be bought by loosening the guard,
+// which is gh#49 all over again, so every refusal below also asserts the stored bytes did not move.
+test('gh#50: a refused write is observable, and still refuses — a muted closure cannot lose a round in silence', () => {
+  slots.clear();
+  const reasons = [];
+  const restored = loadSession(); // the page that gets bfcached mid-round
+  restored.onWriteRefused = (reason) => reasons.push(reason);
+  restored.setPlayers(['Alice', 'Bob']);
+  restored.saveCheckpoint(midRound(7));
+  assert.equal(loadSession().checkpoint.drawn, 7, 'positive control: the round really was live before the interleaving');
+  assert.deepEqual(reasons, [], 'positive control: a current closure writes with no refusal at all');
+
+  const live = loadSession(); // play continues in the restored-into instance while #1 sits frozen
+  live.saveCheckpoint(midRound(8));
+  const stored = slots.get('watduang:session');
+
+  // The tap on the restored page. Refused — that is gh#49's guard doing its job.
+  restored.saveCheckpoint(midRound(9));
+  assert.deepEqual(reasons, ['stale-version'], 'the refused checkpoint write told nobody');
+  assert.equal(slots.get('watduang:session'), stored, 'the refused write must not persist — gh#49 regressed');
+
+  // gh#50 proper: the SAME closure is now muted for every later write, not just the one that raced.
+  restored.markPlayed('siamsi');
+  assert.deepEqual(reasons, ['stale-version', 'stale-version'], 'the muted closure dropped markPlayed in silence');
+  assert.equal(slots.get('watduang:session'), stored, 'markPlayed through a stale closure must not persist');
+  assert.deepEqual(loadSession().played, [], 'control: the loss is real — the record never got the played game');
+
+  // The three reasons name three different losses to a player, so each label is exercised; one shared
+  // label would make the copy unwritable and this assertion is what stops them collapsing.
+  const orphan = loadSession();
+  orphan.onWriteRefused = (reason) => reasons.push(reason);
+  loadSession().clear(); // the record is gone, and a closure that knew one may not re-create it
+  assert.equal(slots.size, 0, 'positive control: the record is actually gone');
+  orphan.saveCheckpoint(midRound(11));
+  assert.deepEqual(reasons.at(-1), 'record-gone');
+  assert.equal(slots.size, 0, 'a closure that knew a record re-created it after a clear');
+
+  const other = loadSession(); // someone else's round takes the slot — a different id, not a version bump
+  other.setPlayers(['Cat', 'Dan']);
+  const othersRound = slots.get('watduang:session');
+  orphan.saveCheckpoint(midRound(12));
+  assert.deepEqual(reasons.at(-1), 'other-round');
+  assert.equal(slots.get('watduang:session'), othersRound, "a stale closure wrote into someone else's round");
+});
+
+// gh#50 REFUTE F1 — storage that always throws is not a displaced round. setPlayers is swallowed by
+// write()'s catch so myId stays null, and every later write then finds no record. Reporting
+// 'record-gone' there would name a false cause (nothing was cleared) and re-fire role="alert" on
+// every single tap for the whole session — which is the very thing that catch is written to avoid.
+test('dead storage reports no refusal, but a genuinely displaced round still does', () => {
+  slots.clear();
+  const seen = [];
+  const realSetItem = globalThis.sessionStorage.setItem;
+  globalThis.sessionStorage.setItem = () => {
+    throw new Error('QuotaExceededError');
+  };
+  try {
+    const dead = loadSession();
+    dead.onWriteRefused = (reason) => seen.push(reason);
+    dead.setPlayers(['Alice', 'Bob']);
+    dead.saveCheckpoint(midRound(7));
+    dead.markPlayed('siamsi');
+    dead.saveCheckpoint(null);
+  } finally {
+    globalThis.sessionStorage.setItem = realSetItem;
+  }
+  assert.deepEqual(seen, [], 'a dead-storage page reported a displaced round it never had');
+
+  // Positive control: with storage working again, a real displacement MUST still be reported —
+  // otherwise the assertion above passes on a listener that never fires at all.
+  slots.clear();
+  const c1 = loadSession();
+  const reported = [];
+  c1.onWriteRefused = (reason) => reported.push(reason);
+  c1.setPlayers(['Alice', 'Bob']);
+  c1.saveCheckpoint(midRound(7));
+  const c2 = loadSession();
+  c2.saveCheckpoint(midRound(8));
+  c1.saveCheckpoint(midRound(9));
+  assert.deepEqual(reported, ['stale-version'], 'the listener never fires, so the check above is vacuous');
+});

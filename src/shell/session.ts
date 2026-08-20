@@ -58,7 +58,24 @@ function read(): StoredSession {
   };
 }
 
-export function loadSession(): GameSession {
+/**
+ * Why a write was refused. Three reasons because they are three different losses to a player, and the
+ * copy that eventually names one has to say which: the round record is gone, someone else's round holds
+ * the slot, or this closure is a version behind the record it is talking about (gh#50).
+ */
+export type WriteRefusal = 'record-gone' | 'other-round' | 'stale-version';
+
+/**
+ * What loadSession() actually hands back: a GameSession plus the refusal signal. Deliberately NOT on
+ * GameSession — a game gets `ctx.session` and must stay out of this. Handling a refusal is the shell's
+ * job once, not an obligation that spreads to every game file as the manifest grows (gh#50).
+ */
+export interface ShellSession extends GameSession {
+  /** Called by write() when a guard refuses. One slot, last setter wins — the shell is the only owner. */
+  onWriteRefused: ((reason: WriteRefusal) => void) | null;
+}
+
+export function loadSession(): ShellSession {
   const stored = read();
 
   /**
@@ -111,23 +128,43 @@ export function loadSession(): GameSession {
    * existence; setPlayers is the only one, because starting a round is what brings a session into being
    * (games/_template.ts:29-31 documents that to every future game). Defaults to refusing, so a writer
    * added later inherits the safe side.
+   *
+   * Returns the guard's verdict — null when nothing refused. gh#50: a refusal is correct, but it left
+   * the closure stranded one version behind forever (myGen is re-synced only after a successful
+   * setItem, by design — see below), so every later write from the same closure was dropped too, and a
+   * void return meant markPlayed/saveCheckpoint had already mutated in-memory state and reported
+   * success. Signalling here rather than at the three callers is the point: this is the chokepoint, and
+   * a guard added later cannot forget the signal — the declared return type rejects a bare `return`.
    */
-  function write(create = false): void {
+  function write(create = false): WriteRefusal | null {
+    /** Refuse: tell whoever is listening, and hand the reason back to the caller. Never re-syncs myGen
+     *  and never adopts the stored record — ADR-0021 declined reconciliation, and adopting would either
+     *  discard the player's visible state (ADR-0008) or persist the stale snapshot (gh#49 again). */
+    const refuse = (reason: WriteRefusal): WriteRefusal => {
+      session.onWriteRefused?.(reason);
+      return reason;
+    };
     try {
       const current = readRaw();
       if (current === null) {
         // Gone means gone, whoever still holds a handle: a closure that knew a record may not re-create
         // it. Only one that never had an identity may start a round.
-        if (!create || myId !== null) return;
+        // Refuse either way, but only REPORT when this closure actually knew a record. When myId is
+        // null the closure never established one, which is what a dead-storage page looks like:
+        // Safari private mode or a full quota makes setPlayers throw, the catch below swallows it, and
+        // myId stays null. Reporting 'record-gone' there names a cause that is false — nothing was
+        // cleared — and role="alert" would re-announce on every tap, the exact per-tap alarm the catch
+        // below is written to avoid. gh#50 REFUTE F1.
+        if (!create || myId !== null) return myId !== null ? refuse('record-gone') : null;
       } else if (current.id !== undefined && current.id !== myId) {
         // Someone else's round is in the slot. This closure's snapshot predates it — refuse.
-        return;
+        return refuse('other-round');
       } else if ((current.gen ?? 0) !== myGen) {
         // Right round, wrong version of it: someone has written since this closure loaded, so what it
         // is about to persist is a snapshot of the round as it used to be. A sibling of the identity
         // compare and never nested inside it — a legacy record reaches this line, and gh#49 through
         // the legacy door looks the same as gh#49 through the normal one.
-        return;
+        return refuse('stale-version');
       }
       const id = myId ?? mintId();
       const gen = myGen + 1;
@@ -150,11 +187,15 @@ export function loadSession(): GameSession {
       myId = id;
       myGen = gen;
     } catch {
-      // Quota full or Safari private mode — keep going in memory for this page, never throw.
+      // Quota full or Safari private mode — keep going in memory for this page, never throw. NOT a
+      // refusal: no guard rejected this write, storage is simply unavailable, and in private mode every
+      // single write throws — signalling here would fire on every tap for the whole session.
     }
+    return null;
   }
 
-  const session: GameSession = {
+  const session: ShellSession = {
+    onWriteRefused: null,
     players: stored.players,
     played: stored.played,
     checkpoint: stored.checkpoint,
