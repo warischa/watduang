@@ -2,6 +2,10 @@
 // Static regression tripwire for ADR-0015 (docs/adr/0015-a-leave-confirm-guards-the-links-we-cannot-move.md):
 // the closed #leave-confirm dialog must stay inert, its clearance budget must stay within the half of
 // the viewport the finger is not in, and pendingHref must clear on every dismissal path, not per-button.
+// Since gh#55 it also covers ADR-0024 (docs/adr/0024-the-reflow-is-the-hazard-not-the-clearance.md):
+// #clear-choice is the file's second <dialog>, and (e) pins the two properties that make it one — it
+// stays out of flow (a <div> here is the reflow hazard itself), and it fails SAFE, the opposite of
+// #leave-confirm's deliberate fail-OPEN, because the question it asks guards a destructive clear.
 // This is a cheap source-text check, NOT the proof — scripts/leave-confirm-probe.mjs (build + serve +
 // headless Chrome, reads real client rects, elementFromPoint, and actual taps) is what proves the
 // invariant, and per ADR-0018 it never runs in CI. This script only catches the same four shipped
@@ -46,8 +50,15 @@ function parseCssRules(text) {
   return rules;
 }
 
-const targetsLeaveConfirmOrDialog = (sel) =>
-  /#leave-confirm\b/.test(sel) || /(^|[^\w-])dialog(?![\w-])/.test(sel);
+// #clear-choice joined this set in gh#55 (ADR-0024): it is a second <dialog> in the same file, and a
+// display: rule that escapes its [open] gate paints it in flow on all 9 pages with a destructive
+// confirm button live — the identical defect (a) was written for, one id over.
+// Single source of truth for how many dialogs (a) actually polices — main()'s success line counts THIS
+// array's length rather than printing a literal, so a dialog silently dropping out of it shows up in
+// the printed number instead of the line lying about coverage it no longer has (adversarial review, Hole 2).
+const GUARD_DIALOG_IDS = ['#leave-confirm', '#clear-choice'];
+const targetsGuardDialog = (sel) =>
+  GUARD_DIALOG_IDS.some((id) => new RegExp(`${id}\\b`).test(sel)) || /(^|[^\w-])dialog(?![\w-])/.test(sel);
 
 // Astro/JSX brace comments first, then block, then line — same order (and same reason) as
 // scripts/stable-exit-markers-check.mjs's: nothing left inside a multi-line form may be re-read as a
@@ -67,20 +78,25 @@ function stripComments(text) {
 const gatedOnOpen = (sel) => /\[open\]/.test(sel.replace(/:not\([^)]*\)/g, ' '));
 
 // (a) + (b): src/styles/tokens.css
-function checkTokensCss(text) {
+// `checked`, when passed, is an out-param main() uses to size the success line — pushed to only as each
+// condition actually runs, never a hardcoded count (adversarial review, Hole 2). selftest never passes
+// it, so every existing assertion on the return value (violations only) is untouched.
+function checkTokensCss(text, checked) {
   const violations = [];
   const rules = parseCssRules(text);
 
   // (a) a rule targeting #leave-confirm (or a bare `dialog`) that sets display: must be gated on
   // [open], or it beats the UA's `dialog:not([open]) { display: none }` and the closed dialog paints.
+  checked?.push('a');
   for (const { selector, body } of rules) {
-    if (targetsLeaveConfirmOrDialog(selector) && /\bdisplay\s*:/.test(body) && !gatedOnOpen(selector)) {
+    if (targetsGuardDialog(selector) && /\bdisplay\s*:/.test(body) && !gatedOnOpen(selector)) {
       violations.push(`(a) selector "${selector}" sets display: without [open] gating — closed <dialog> becomes hit-testable`);
     }
   }
 
   // (b) the open-gated block's max-block-size is the clearance budget: 0.45H + 16 < 0.5H only holds
   // at <= 45dvh. Missing entirely is as broken as too large — the invariant would be unenforced.
+  checked?.push('b');
   const base = rules.find((r) => r.selector === '#leave-confirm[open]');
   if (!base) {
     violations.push('(b) no #leave-confirm[open] rule found to check max-block-size against');
@@ -96,8 +112,9 @@ function checkTokensCss(text) {
   return violations;
 }
 
-// (c) + (d): src/shell/PlayerSetup.astro
-function checkPlayerSetupAstro(rawText) {
+// (c) + (d) + (e): src/shell/PlayerSetup.astro. `checked` is the same optional out-param as
+// checkTokensCss's — see its comment.
+function checkPlayerSetupAstro(rawText, checked) {
   const violations = [];
   // (c) and (d) all assert something MUST be present, so they must never see a comment: this file
   // documents its own guards in prose right above them, and an old line left commented out while the
@@ -107,7 +124,16 @@ function checkPlayerSetupAstro(rawText) {
   // (c) pendingHref must clear on the dialog's own `close` event (fires for every dismissal path),
   // not per-button — clearing per-button was the shipped defect: a later #leave-go press could still
   // navigate on a pendingHref left over from an answer already given the other way.
-  const closeMatch = text.match(/addEventListener\(\s*(['"])close\1\s*,\s*\(\)\s*=>\s*\{([^}]*)\}\s*\)/);
+  // Bound to leaveDlg by name since gh#55: the file now holds a SECOND <dialog> with its own `close`
+  // listener. The old pattern matched on the event name alone, so it graded whichever `close` listener
+  // came FIRST in source, whatever element it belonged to — measured: against today's order it reads
+  // clearChoiceEl's body, finds no pendingHref, and reports leave-confirm's guard broken while the
+  // guard is right there and correct. Flip the source order and the same regex grades leave-confirm by
+  // clear-choice's listener instead, which checks nothing. Either way the verdict tracks line order
+  // rather than the element under test. Narrowing to the element is the converging fix (ADR-0020 rule 3);
+  // the known-good fixture below is what pins it, and it fails against the un-narrowed pattern.
+  checked?.push('c');
+  const closeMatch = text.match(/leaveDlg\.addEventListener\(\s*(['"])close\1\s*,\s*\(\)\s*=>\s*\{([^}]*)\}\s*\)/);
   if (!closeMatch) {
     violations.push("(c) no dialog 'close' event listener found — pendingHref must be cleared there, not per-button");
   } else if (!/pendingHref\s*=\s*null/.test(closeMatch[2])) {
@@ -116,6 +142,7 @@ function checkPlayerSetupAstro(rawText) {
 
   // (d) a modified or non-primary click is the round-PRESERVING gesture (opens a sibling game in a new
   // tab) and must pass through untouched, or the guard turns the safe action into the destructive one.
+  checked?.push('d');
   if (!/e\.metaKey\s*\|\|\s*e\.ctrlKey\s*\|\|\s*e\.shiftKey\s*\|\|\s*e\.altKey\s*\|\|\s*e\.button\s*!==\s*0/.test(text)) {
     violations.push('(d) modified/non-primary click passthrough (metaKey/ctrlKey/shiftKey/altKey/button check) is missing');
   }
@@ -123,6 +150,57 @@ function checkPlayerSetupAstro(rawText) {
   // never moves and does not need asking about.
   if (!text.includes("a[href]:not([data-stable-exit])")) {
     violations.push("(d) the a[href]:not([data-stable-exit]) selector is missing — the stable exit link must stay excluded");
+  }
+
+  // (e) gh#55 / ADR-0024: #clear-choice is the same <dialog> shape as #leave-confirm with the OPPOSITE
+  // fallback, and both halves are load-bearing.
+  checked?.push('e');
+  //   the element type is the fix — as a <div> in flow, [hidden]{display:none} on dismissal reflowed
+  //   every control below it upward, which is how a stage control arrives under a descending finger;
+  //   the fallback fails SAFE — the question drops `hidden` unconditionally and only the RAISING is
+  //   capability-gated, because a browser with no showModal must still be asked before a destructive
+  //   clear. leave-confirm's fail-OPEN early return (line ~419) copied here is a silent data-loss path.
+  if (!/<dialog id="clear-choice"/.test(text)) {
+    violations.push('(e) #clear-choice is not a <dialog> — in normal flow, dismissing it reflows the stage under the finger (ADR-0024)');
+  }
+  const askShown = text.indexOf('clearChoiceEl.hidden = false');
+  // Hole 1 (adversarial review, S2026-08-21): a bare `indexOf('clearChoiceEl.showModal')` is satisfied
+  // by the CAPABILITY TEST alone (`typeof clearChoiceEl.showModal === 'function'`) even if the real
+  // showModal() call is deleted or swapped for setAttribute('open', '') — the exact reflow hazard
+  // ADR-0024 exists to catch, and all five conditions would stay green while it shipped. Require the
+  // actual invocation, parens and all, not a mention of the identifier.
+  const showModalCall = text.match(/clearChoiceEl\.showModal\s*\(\s*\)/);
+  const askRaised = showModalCall ? showModalCall.index : -1;
+  if (askShown < 0) {
+    violations.push('(e) the clear question no longer drops hidden unconditionally — a browser without showModal could not be asked at all');
+  }
+  if (askRaised < 0) {
+    violations.push('(e) #clear-choice is never raised with a real showModal() call — a bare mention of showModal (e.g. inside the capability test) is not enough');
+  } else if (askShown >= 0 && askRaised < askShown) {
+    violations.push('(e) showModal runs before hidden drops — showModal on a display:none box raises nothing');
+  }
+  // Fail-OPEN detector: covers three shapes — `typeof X !== 'function') return`, its Yoda-order twin
+  // (`'function' !== typeof X) return`), and the bare falsy check `!clearChoiceEl.showModal) return`.
+  // It provably does NOT catch the capability hoisted into an intermediate variable first
+  // (`const ok = typeof clearChoiceEl.showModal === 'function'; if (!ok) return;`), a comparison against
+  // `'undefined'` / `== null`, or a `return` several lines below the condition rather than on the same
+  // `if (...)`. Only scripts/leave-confirm-probe.mjs proves the rendered behavior; this stays a
+  // source-text tripwire, not the proof.
+  const failOpenPatterns = [
+    /clearChoiceEl\.showModal\s*!==\s*(['"])function\1\s*\)\s*\{?\s*return/,
+    /(['"])function\1\s*!==\s*typeof\s*clearChoiceEl\.showModal\s*\)\s*\{?\s*return/,
+    /!\s*clearChoiceEl\.showModal\s*\)\s*\{?\s*return/,
+  ];
+  if (failOpenPatterns.some((re) => re.test(text))) {
+    violations.push('(e) #clear-choice must never fail OPEN on a showModal capability test — that path clears the group and discards the rounds without asking');
+  }
+  // (e) dropping `hidden` is NOT enough on its own, and this one was measured, not reasoned: a UA that
+  // styles <dialog> at all ships `dialog:not([open]) { display: none }`, which survives showModal being
+  // missing. With showModal deleted the question read hidden=false with ZERO client rects and focus on
+  // <body> — Clear group became a control that visibly did nothing. Only setting [open] by hand renders
+  // it, so that line is the fallback, not a nicety.
+  if (!/clearChoiceEl\.setAttribute\(\s*(['"])open\1/.test(text)) {
+    violations.push("(e) the no-showModal branch never sets [open] — dialog:not([open]){display:none} keeps the question at zero client rects, so the player is never asked");
   }
 
   return violations;
@@ -242,12 +320,22 @@ function selftest() {
   });
   console.log('PASS (b) known-bad fixture (max-block-size: 60dvh) is flagged');
 
-  // -- (c)/(d): PlayerSetup.astro -------------------------------------------
+  // -- (c)/(d)/(e): PlayerSetup.astro ---------------------------------------
+  // (e)'s satisfied lines, shared by every fixture that must read clean: the four checks are
+  // independent, so a fixture written for (c) or (d) would otherwise fail on (e) for unrelated reasons.
+  const clearChoiceGood = [
+    '<dialog id="clear-choice" hidden>',
+    "  clearChoiceEl.hidden = false;",
+    "  if (typeof clearChoiceEl.showModal === 'function') clearChoiceEl.showModal();",
+    "  else clearChoiceEl.setAttribute('open', '');",
+  ].join('\n');
   const astroGood = [
     "  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;",
     "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
+    "  clearChoiceEl.addEventListener('close', () => { clearChoiceEl.hidden = true; });",
     "  leaveDlg.addEventListener('close', () => { pendingHref = null; });",
     "  leaveStayBtn.addEventListener('click', () => leaveDlg.close());",
+    clearChoiceGood,
   ].join('\n');
   withTempFixture('PlayerSetup.astro', astroGood, (text) => {
     assert.deepEqual(checkPlayerSetupAstro(text), [], 'clean PlayerSetup.astro fixture must report zero violations');
@@ -316,11 +404,169 @@ function selftest() {
     "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
     "  /* pendingHref = null must live on close, not per-button. */",
     "  leaveDlg.addEventListener('close', () => { pendingHref = null; });",
+    clearChoiceGood,
   ].join('\n');
   withTempFixture('PlayerSetup.astro', astroGoodWithComments, (text) => {
     assert.deepEqual(checkPlayerSetupAstro(text), [], 'live guards next to prose comments must still report zero violations');
   });
   console.log('PASS comment bypass, calibration: live guards documented by comments above them still report clean');
+
+  // -- (c) new surface, gh#55: a SECOND dialog's close listener must not stand in for leaveDlg's -----
+  // Narrowing (c) to leaveDlg could have introduced a blind spot — a file with no leaveDlg close
+  // listener at all, only another dialog's. It does not: the miss is still caught. The other half of
+  // this pair is astroGood above, which carries both listeners in the real file's order (clear-choice
+  // first) and reads clean only because of the narrowing — it fails against the un-narrowed pattern.
+  const astroBadOtherDialogsClose = [
+    "  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;",
+    "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
+    "  clearChoiceEl.addEventListener('close', () => { clearChoiceEl.hidden = true; });",
+    "  leaveStayBtn.addEventListener('click', () => { pendingHref = null; leaveDlg.close(); });",
+    clearChoiceGood,
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', astroBadOtherDialogsClose, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(c)')), "(c) another dialog's close listener must not satisfy leave-confirm's");
+  });
+  console.log("PASS (c) known-bad fixture (a second dialog's close listener standing in for leaveDlg's) is flagged");
+
+  // -- (e): #clear-choice is a non-reflowing dialog that fails SAFE (gh#55, ADR-0024) ----------------
+  // (e) known-bad: reverted to a <div>. In flow, dismissing it reflows every control below it upward —
+  // the whole hazard ADR-0024 removed, back verbatim.
+  const astroBadClearChoiceDiv = [
+    astroGood.replace('<dialog id="clear-choice" hidden>', '<div id="clear-choice" hidden>'),
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceDiv, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('not a <dialog>')), '(e) must flag #clear-choice reverted to a div');
+  });
+  console.log('PASS (e) known-bad fixture (#clear-choice back to a <div>) is flagged');
+
+  // (e) known-bad: leave-confirm's fail-OPEN early return copied onto the clear path. leave-confirm may
+  // do this — eating a navigation click it cannot ask about is worse than letting it through. Here the
+  // same line skips the only question in front of a destructive clear.
+  const astroBadClearChoiceFailsOpen = [
+    astroGood,
+    "  if (typeof clearChoiceEl.showModal !== 'function') return;",
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceFailsOpen, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('fail OPEN')), '(e) must flag a fail-OPEN early return on the clear path');
+  });
+  console.log('PASS (e) known-bad fixture (fail-OPEN early return on #clear-choice) is flagged');
+
+  // (e) known-bad: the braced form of the same early return, since `) return;` is not the only spelling.
+  const astroBadClearChoiceFailsOpenBraced = [
+    astroGood,
+    "  if (typeof clearChoiceEl.showModal !== 'function') { return; }",
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceFailsOpenBraced, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('fail OPEN')), '(e) must flag the braced fail-OPEN early return too');
+  });
+  console.log('PASS (e) known-bad fixture (braced fail-OPEN early return) is flagged');
+
+  // (e) known-bad, Hole 1 widening: Yoda-order comparison — `'function' !== typeof X`. Named in the
+  // adversarial review as one of the two spellings the old single regex let slip past.
+  const astroBadClearChoiceFailsOpenYoda = [
+    astroGood,
+    "  if ('function' !== typeof clearChoiceEl.showModal) return;",
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceFailsOpenYoda, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('fail OPEN')), '(e) must flag the Yoda-order fail-OPEN comparison');
+  });
+  console.log('PASS (e) known-bad fixture (Yoda-order fail-OPEN comparison) is flagged');
+
+  // (e) known-bad, Hole 1 widening: bare falsy check — `!clearChoiceEl.showModal`. The second spelling
+  // named in the review.
+  const astroBadClearChoiceFailsOpenBang = [
+    astroGood,
+    "  if (!clearChoiceEl.showModal) return;",
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceFailsOpenBang, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('fail OPEN')), '(e) must flag the bare `!clearChoiceEl.showModal` fail-OPEN check');
+  });
+  console.log('PASS (e) known-bad fixture (bare `!clearChoiceEl.showModal` fail-OPEN check) is flagged');
+
+  // (e) known-bad, Hole 1: the real showModal() call gutted and replaced with setAttribute('open', ''),
+  // while the capability test survives untouched. Before the fix, `indexOf('clearChoiceEl.showModal')`
+  // still found the identifier inside the surviving `typeof ... === 'function'` test, so this fixture
+  // read clean with all five conditions green while the reflow hazard shipped (adversarial review).
+  const clearChoiceCallGutted = clearChoiceGood.replace(
+    "clearChoiceEl.showModal();",
+    "clearChoiceEl.setAttribute('open', '');"
+  );
+  const astroBadClearChoiceCallGutted = astroGood.replace(clearChoiceGood, clearChoiceCallGutted);
+  assert.notEqual(astroBadClearChoiceCallGutted, astroGood, 'fixture setup: the replace must actually apply');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceCallGutted, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('never raised')), '(e) must flag showModal() gutted while the capability test survives');
+  });
+  console.log('PASS (e) known-bad fixture (showModal() call gutted, capability test intact) is flagged — Hole 1');
+
+  // (e) known-bad: the unconditional `hidden` drop gone, so the fallback browser is never asked — the
+  // question would exist and stay display:none, and the clear would run on a press nobody answered.
+  const astroBadClearChoiceNoFallback = astroGood.replace('  clearChoiceEl.hidden = false;\n', '');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceNoFallback, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('unconditionally')), '(e) must flag the missing no-showModal fallback');
+  });
+  console.log('PASS (e) known-bad fixture (no unconditional hidden drop — fallback cannot ask) is flagged');
+
+  // (e) known-bad: raised before it is rendered. showModal() on a display:none box raises nothing, so
+  // the modern browser shows no question at all while every other check here still reads green.
+  const astroBadClearChoiceOrder = [
+    '<dialog id="clear-choice" hidden>',
+    "  if (typeof clearChoiceEl.showModal === 'function') clearChoiceEl.showModal();",
+    "  clearChoiceEl.hidden = false;",
+    "  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;",
+    "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
+    "  leaveDlg.addEventListener('close', () => { pendingHref = null; });",
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceOrder, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('before hidden drops')), '(e) must flag showModal running before hidden drops');
+  });
+  console.log('PASS (e) known-bad fixture (showModal before the hidden drop) is flagged');
+
+  // (e) known-bad: showModal capability-gated correctly, but with no else branch — the shape this
+  // shipped as until the fail-safe path was actually driven with showModal deleted. Every other check
+  // here reads green on it, and the player is never asked.
+  const astroBadClearChoiceNoOpenFallback = astroGood.replace("  else clearChoiceEl.setAttribute('open', '');\n", '')
+    .replace("\n  else clearChoiceEl.setAttribute('open', '');", '');
+  withTempFixture('PlayerSetup.astro', astroBadClearChoiceNoOpenFallback, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.startsWith('(e)') && x.includes('never sets [open]')), '(e) must flag a no-showModal branch that only drops hidden');
+  });
+  console.log('PASS (e) known-bad fixture (fallback drops hidden but never sets [open]) is flagged');
+
+  // (e) negative direction: the same lines inside comments satisfy nothing — a <dialog> quoted in prose
+  // above a live <div> is exactly how this file documents its own guards.
+  const astroClearChoiceCommentedOut = [
+    "  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;",
+    "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
+    "  leaveDlg.addEventListener('close', () => { pendingHref = null; });",
+    '  {/* was: <dialog id="clear-choice" hidden> — reverted, it broke the layout */}',
+    '  <div id="clear-choice" hidden>',
+    "  // clearChoiceEl.hidden = false;",
+    "  /* if (typeof clearChoiceEl.showModal === 'function') clearChoiceEl.showModal(); */",
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', astroClearChoiceCommentedOut, (text) => {
+    const v = checkPlayerSetupAstro(text);
+    assert.ok(v.some((x) => x.includes('not a <dialog>')), '(e) a commented-out <dialog> must not satisfy the element-type check');
+    assert.ok(v.some((x) => x.includes('unconditionally')), '(e) a commented-out hidden drop must not satisfy the fallback check');
+    assert.ok(v.some((x) => x.includes('never raised')), '(e) a commented-out showModal must not satisfy the raise check');
+  });
+  console.log('PASS (e) negative direction: commented-out <dialog> / hidden drop / showModal satisfy nothing');
+
+  // -- (a): the new dialog joins the display-gating set ---------------------------------------------
+  const cssBadClearChoice = ['#clear-choice {', '  display: flex;', '}', '#leave-confirm[open] {', '  max-block-size: 45dvh;', '}'].join('\n');
+  withTempFixture('tokens.css', cssBadClearChoice, (text) => {
+    const v = checkTokensCss(text);
+    assert.ok(v.some((x) => x.startsWith('(a)')), '(a) must flag an ungated display: rule on #clear-choice too');
+  });
+  console.log('PASS (a) known-bad fixture (display on bare #clear-choice) is flagged');
 }
 
 // ---------------------------------------------------------------------------
@@ -328,14 +574,19 @@ async function main() {
   if (process.argv.includes('--selftest')) return selftest();
 
   let anyFail = false;
+  // Hole 2 (adversarial review, S2026-08-21): the success line below used to print literal "2 dialogs"
+  // / "5 conditions" — constants, not a measurement. `checked` is filled only as each condition below
+  // actually runs, so a dialog or condition silently dropping out of the checked set shows up as a
+  // smaller printed number instead of a line that keeps claiming full coverage.
+  const checked = [];
 
-  const cssViolations = checkTokensCss(fs.readFileSync(CSS_FILE, 'utf8'));
+  const cssViolations = checkTokensCss(fs.readFileSync(CSS_FILE, 'utf8'), checked);
   for (const v of cssViolations) {
     console.error(`src/styles/tokens.css · ${v}`);
     anyFail = true;
   }
 
-  const astroViolations = checkPlayerSetupAstro(fs.readFileSync(ASTRO_FILE, 'utf8'));
+  const astroViolations = checkPlayerSetupAstro(fs.readFileSync(ASTRO_FILE, 'utf8'), checked);
   for (const v of astroViolations) {
     console.error(`src/shell/PlayerSetup.astro · ${v}`);
     anyFail = true;
@@ -343,9 +594,12 @@ async function main() {
 
   if (anyFail) {
     console.error('\nADR-0015: the leave-confirm dialog must stay inert while closed and clear pendingHref on every dismissal (docs/adr/0015-a-leave-confirm-guards-the-links-we-cannot-move.md).');
+    console.error('ADR-0024: #clear-choice must stay a non-reflowing <dialog> and must still ask when showModal is unavailable (docs/adr/0024-the-reflow-is-the-hazard-not-the-clearance.md).');
     process.exit(1);
   }
-  console.log('leave-confirm-check: tokens.css + PlayerSetup.astro clean');
+  console.log(
+    `leave-confirm-check: tokens.css + PlayerSetup.astro clean — ${GUARD_DIALOG_IDS.length} dialogs (${GUARD_DIALOG_IDS.join(', ')}), ${checked.length} conditions (${checked.join(', ')})`
+  );
 }
 
 await main();

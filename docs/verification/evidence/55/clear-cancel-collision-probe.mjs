@@ -4,20 +4,28 @@
 //
 // Run: node scripts/driver.mjs <this file>
 // (needs `npx serve dist/ -l 4321` and headless Chrome on CDP_PORT — see scripts/driver.mjs's header)
-const PLAYERS = JSON.stringify(JSON.stringify(['เอ', 'บี', 'ซี']));
+//
+// gh#55 fork (S2026-08-21): PROBE_GAME / PROBE_ROSTER_SIZE let this same scan run against other
+// configs. SECOND_START_ID is the per-game button that enters the phase with a live #stage control
+// (mirrors PlayerSetup.astro's shared start-round, which every game reuses identically).
+const SECOND_START_ID = { siamsi: 'ss-start', timebomb: 'tb-start' };
+const NAME_POOL = ['เอ', 'บี', 'ซี', 'ดี', 'อี', 'เอฟ', 'จี', 'เอช', 'ไอ', 'เจ'];
+const GAME = process.env.PROBE_GAME || 'siamsi';
+const ROSTER_SIZE = Number(process.env.PROBE_ROSTER_SIZE || 3);
+const PLAYERS = JSON.stringify(JSON.stringify(NAME_POOL.slice(0, ROSTER_SIZE)));
 
 export default async function (session) {
   const base = process.env.PROBE_BASE || 'http://localhost:4321';
   const shotDir = process.env.SHOT_DIR;
 
-  await session.nav(`${base}/game/siamsi/`);
+  await session.nav(`${base}/game/${GAME}/`);
   const width = await session.setWidth(320, 568);
   const widthCheck = await session.evaluate('return { innerWidth, outerWidth: window.outerWidth };');
 
   // wipe ON the origin (not about:blank), then reload to a clean, seeded roster.
   await session.wipe();
   await session.evaluate(`localStorage.setItem('watduang:roster', ${PLAYERS}); return true;`);
-  await session.nav(`${base}/game/siamsi/`);
+  await session.nav(`${base}/game/${GAME}/`);
 
   const rosterCheck = await session.evaluate(`return localStorage.getItem('watduang:roster');`);
 
@@ -29,14 +37,15 @@ export default async function (session) {
     return true;`);
   await new Promise((r) => setTimeout(r, 900));
 
+  const secondStartId = SECOND_START_ID[GAME];
   const mounted = await session.evaluate(`
     return { rootHidden: document.getElementById('player-setup').hidden,
-             ssStart: !!document.getElementById('ss-start') };`);
+             ssStart: !!document.getElementById('${secondStartId}') };`);
 
-  // enter phase 'turn' so #stage carries a live control (#ss-draw)
+  // enter the phase that carries #stage's own live control (#ss-draw for siamsi, #tb-pass for timebomb)
   const turnEntered = await session.evaluate(`
-    const btn = document.getElementById('ss-start');
-    if (!btn) return { error: 'no #ss-start' };
+    const btn = document.getElementById('${secondStartId}');
+    if (!btn) return { error: 'no #${secondStartId}' };
     btn.click();
     return true;`);
   await new Promise((r) => setTimeout(r, 900)); // clear ARM_DELAY_MS (400ms) + settle
@@ -102,9 +111,16 @@ export default async function (session) {
                rect: { left: r.left, right: r.right, top: r.top, bottom: r.bottom } };
     });`);
 
-  // grid-scan the WHOLE pre-collapse #clear-cancel box, every 4px both axes
-  const scan = await session.evaluate(`
-    const rect = ${JSON.stringify(rect)};
+  // PROBE_POSITIVE_CONTROL: aim the SAME grid-scan algorithm at the live #stage control's own
+  // post-collapse rect instead of #clear-cancel's box — must report a collision, or the scan itself
+  // is broken and every "0" elsewhere is worthless. Does not touch the tap (still real: cancel the
+  // real #clear-choice), only which box feeds the grid below.
+  const scanRect = process.env.PROBE_POSITIVE_CONTROL ? stageAfter.value?.[0]?.rect : rect;
+
+  // grid-scan the WHOLE target box, every 4px both axes (pre-collapse #clear-cancel, or in positive-
+  // control mode the live #stage control's own rect)
+  const scan = scanRect ? await session.evaluate(`
+    const rect = ${JSON.stringify(scanRect)};
     const pts = [];
     for (let x = rect.left; x <= rect.right; x += 4)
       for (let y = rect.top; y <= rect.bottom; y += 4) pts.push([x, y]);
@@ -123,20 +139,35 @@ export default async function (session) {
       };
     });
     return { total: pts.length, hits };
-  `);
+  `) : { value: { total: 0, hits: [] }, error: 'no target rect for scan (positive-control stage control missing)' };
 
   const hits = scan.value?.hits ?? [];
   const collisions = hits.filter((h) => h.stageInteractiveId || h.stageInteractiveTag);
+  const positiveControl = !!process.env.PROBE_POSITIVE_CONTROL;
+
+  // positive-control mode is a THREE-way outcome, never sharing a verdict string with a real
+  // refutation: no target rect (apparatus never got to scan) is a different failure than "scanned
+  // and found nothing" — collapsing them would make an apparatus failure wear the all-clear shape.
+  let verdict;
+  if (positiveControl) {
+    verdict = !scanRect ? 'CONTROL_INCONCLUSIVE'
+      : collisions.length > 0 ? 'CONTROL_PASSED' : 'CONTROL_FAILED';
+  } else {
+    verdict = collisions.length > 0 ? 'CONFIRMED' : 'REFUTED';
+  }
 
   return {
-    verdict: collisions.length > 0 ? 'CONFIRMED' : 'REFUTED',
-    game: 'siamsi',
+    verdict,
+    game: GAME,
+    rosterSize: ROSTER_SIZE,
+    positiveControl,
     widthCheck: widthCheck.value,
     rosterCheck: rosterCheck.value,
     mounted: mounted.value,
     turnEntered: turnEntered.value ?? turnEntered.error,
     stageBefore: stageBefore.value,
     preCollapseClearCancelRect: rect,
+    scanRect,
     postState: postState.value,
     stageAfter: stageAfter.value,
     scanTotalPoints: scan.value?.total ?? null,

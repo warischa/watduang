@@ -1,0 +1,111 @@
+{
+  "verdict": "REFUTED",
+  "game": "timebomb",
+  "rosterSize": 5,
+  "positiveControl": false,
+  "widthCheck": {
+    "innerWidth": 320,
+    "outerWidth": 320
+  },
+  "rosterCheck": "[\"เอ\",\"บี\",\"ซี\",\"ดี\",\"อี\"]",
+  "mounted": {
+    "rootHidden": true,
+    "ssStart": true
+  },
+  "turnEntered": true,
+  "stageBefore": [
+    {
+      "id": "tb-pass",
+      "tag": "BUTTON",
+      "text": "ส่งต่อ",
+      "rect": {
+        "left": 8,
+        "right": 54.40625,
+        "top": 267.875,
+        "bottom": 291.875
+      }
+    }
+  ],
+  "preCollapseClearCancelRect": {
+    "left": 115.96875,
+    "right": 168.09375,
+    "top": 224.875,
+    "bottom": 248.875,
+    "width": 52.125,
+    "height": 24
+  },
+  "scanRect": {
+    "left": 115.96875,
+    "right": 168.09375,
+    "top": 224.875,
+    "bottom": 248.875,
+    "width": 52.125,
+    "height": 24
+  },
+  "postState": {
+    "clearChoiceHidden": true
+  },
+  "stageAfter": [
+    {
+      "id": "tb-pass",
+      "tag": "BUTTON",
+      "text": "ส่งต่อ",
+      "rect": {
+        "left": 8,
+        "right": 54.40625,
+        "top": 267.875,
+        "bottom": 291.875
+      }
+    }
+  ],
+  "scanTotalPoints": 98,
+  "collisionCount": 0,
+  "collisions": [],
+  "nonCollisionSample": [
+    {
+      "x": 116,
+      "y": 225,
+      "atId": "stage",
+      "atTag": "DIV",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 116,
+      "y": 229,
+      "atId": "stage",
+      "atTag": "DIV",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 116,
+      "y": 233,
+      "atId": "tb-holder",
+      "atTag": "P",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 116,
+      "y": 237,
+      "atId": "tb-holder",
+      "atTag": "P",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 116,
+      "y": 241,
+      "atId": "tb-holder",
+      "atTag": "P",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    }
+  ]
+}

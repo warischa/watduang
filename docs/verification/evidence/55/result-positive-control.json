@@ -1,0 +1,290 @@
+{
+  "verdict": "CONTROL_PASSED",
+  "game": "siamsi",
+  "rosterSize": 3,
+  "positiveControl": true,
+  "widthCheck": {
+    "innerWidth": 320,
+    "outerWidth": 320
+  },
+  "rosterCheck": "[\"เอ\",\"บี\",\"ซี\"]",
+  "mounted": {
+    "rootHidden": true,
+    "ssStart": true
+  },
+  "turnEntered": true,
+  "stageBefore": [
+    {
+      "id": "ss-draw",
+      "tag": "BUTTON",
+      "text": "จั่วดวง",
+      "rect": {
+        "left": 8,
+        "right": 59.4375,
+        "top": 267.875,
+        "bottom": 291.875
+      }
+    }
+  ],
+  "preCollapseClearCancelRect": {
+    "left": 124.125,
+    "right": 176.25,
+    "top": 246.875,
+    "bottom": 270.875,
+    "width": 52.125,
+    "height": 24
+  },
+  "scanRect": {
+    "left": 8,
+    "right": 59.4375,
+    "top": 267.875,
+    "bottom": 291.875
+  },
+  "postState": {
+    "clearChoiceHidden": true
+  },
+  "stageAfter": [
+    {
+      "id": "ss-draw",
+      "tag": "BUTTON",
+      "text": "จั่วดวง",
+      "rect": {
+        "left": 8,
+        "right": 59.4375,
+        "top": 267.875,
+        "bottom": 291.875
+      }
+    }
+  ],
+  "scanTotalPoints": 91,
+  "collisionCount": 78,
+  "collisions": [
+    {
+      "x": 8,
+      "y": 268,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 8,
+      "y": 272,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 8,
+      "y": 276,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 8,
+      "y": 280,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 8,
+      "y": 284,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 8,
+      "y": 288,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 12,
+      "y": 268,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 12,
+      "y": 272,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 12,
+      "y": 276,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 12,
+      "y": 280,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 12,
+      "y": 284,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 12,
+      "y": 288,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 16,
+      "y": 268,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 16,
+      "y": 272,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 16,
+      "y": 276,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 16,
+      "y": 280,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 16,
+      "y": 284,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 16,
+      "y": 288,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 20,
+      "y": 268,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    },
+    {
+      "x": 20,
+      "y": 272,
+      "atId": "ss-draw",
+      "atTag": "BUTTON",
+      "inStage": true,
+      "stageInteractiveId": "ss-draw",
+      "stageInteractiveTag": "BUTTON"
+    }
+  ],
+  "nonCollisionSample": [
+    {
+      "x": 8,
+      "y": 292,
+      "atId": null,
+      "atTag": "MAIN",
+      "inStage": false,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 12,
+      "y": 292,
+      "atId": null,
+      "atTag": "MAIN",
+      "inStage": false,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 16,
+      "y": 292,
+      "atId": null,
+      "atTag": "MAIN",
+      "inStage": false,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 20,
+      "y": 292,
+      "atId": null,
+      "atTag": "MAIN",
+      "inStage": false,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 24,
+      "y": 292,
+      "atId": null,
+      "atTag": "MAIN",
+      "inStage": false,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    }
+  ]
+}
