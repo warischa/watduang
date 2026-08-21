@@ -53,9 +53,33 @@ the tag-push and force-push signal. A push touching only excluded records says n
 scanned. Conflating the two would print "proved nothing" on every session-save commit and train readers
 to skim past the one marker the force-push case depends on.
 
+The set of causes is open. Closing #59 added one the original two had been covering for: a push that
+only REMOVES lines adds no citation to police, yet was printing the force-push marker on every routine
+deletion — the same dilution by a different route. The review round after it added another: a push
+carrying only binary or mode changes never reaches a hunk at all, and this repo commits OG images
+routinely. Each distinct cause earns its own sentence, and a new one gets a new sentence rather than
+being folded into the nearest existing one. No running total is stated here on purpose — a count in the
+ADR and a count in the script drift apart, which is how this gate's prose has failed before.
+
 **Full history is required at checkout, not incidental.** A shallow clone has neither base revision, so
 the gate would fail closed on every run.
 
-Two known holes are tracked in [#59](https://github.com/warischa/watduang/issues/59) and were left
-unfixed deliberately: that artifact's adversarial review budget was spent at two rounds, and the
-exemption logic is exactly the part both rounds found bugs in.
+**Rename detection is off — and the reason for it changed under review.** `scan` passes `--no-renames`.
+It was added because a `git mv` out of the sessions archive laundered a citation and printed green. The
+round that followed then replaced the diff parser with a state machine tracking the `---` and `+++`
+paths separately, and that alone closed the cross-funding: a rename hunk is headed `--- a/<old>` /
+`+++ b/<new>`, so removals file under the old path, where they belong. The flag stays for two narrower
+reasons — it makes a cross-file move re-present its citations for review, which is what the header's
+ceiling promises, and it suppresses copy detection when a user's git config turns that on. The first
+version of this paragraph asserted the original mechanism after the parser had already superseded it.
+That is recorded rather than quietly corrected, because it is the same drift the closing paragraph
+names, committed by the reviewer who wrote that paragraph.
+
+Both holes tracked in [#59](https://github.com/warischa/watduang/issues/59) are now closed — the owner
+authorized reopening the artifact after its review budget had been spent at two rounds. Reopening cost a
+third round, which confirmed four defects, and **three of them were a comment asserting something the
+code did not do**: the ceiling claiming a cross-file move trips, `POLICE_INFLIGHT`'s "flip this line,
+nothing else" (flipping it red the selftest CI runs first), and `filesInDiff`'s claim to hold every file
+the range touched. That is this artifact's repeat failure mode across all three rounds. No gate in this
+repo compares prose to behaviour, so the only defence is that every claim near this script is treated as
+a finding until re-read against the code it describes.

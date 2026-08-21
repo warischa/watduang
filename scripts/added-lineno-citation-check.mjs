@@ -52,20 +52,30 @@
 //     by whoever writes the next sentence and does not converge (ADR-0019).
 //  3. It only sees the diff range. Anything committed outside it is out of scope BY DESIGN, per
 //     the section above: a green run means "this push added none", never "the repo has none".
-//  4. A moved line is exempt only when the identical token still exists in the SAME file's
-//     pre-image. A citation moved to a DIFFERENT file reads as new and trips. Stated rather than
+//  4. A moved line is exempt only as many times as the SAME file's own removed lines gave the
+//     identical token back. A COPY is therefore not a move: leave the original in place and the file
+//     ends up with more of that token than it started with, so the surplus trips (gh#59, hole 1 —
+//     set membership used to launder it and miscount it as moved). A citation moved to a DIFFERENT
+//     file also reads as new and trips, `git mv` included: the diff is taken with --no-renames, so a
+//     rename is a delete plus an add and the new path's lines are all new there. Stated rather than
 //     surprising — the fail direction is the conservative one.
-//  5. Unified-diff path parsing assumes plain ASCII paths (no git-quoted paths). True of this repo.
+//  5. Unified-diff path parsing assumes plain ASCII paths: no git-quoted ones, and none containing
+//     the literal ` b/`, which defeats the `diff --git a/<p> b/<p>` split. Such a file is not
+//     harvested into filesInDiff, so a push carrying only that file could still read as empty. True
+//     of this repo — and the diff itself is taken with the prefixes pinned, so the assumption the
+//     strip makes about `a/` and `b/` is one this script sets rather than one it inherits.
 //  6. Two near-miss spellings bypass the pattern, deliberately not covered: a GitHub permalink
 //     anchor (a path followed by #L245) and the colon-space form (a path, a colon, a space, then a
 //     number). Both rot exactly like the banned form. Widening for them starts matching ordinary
 //     prose — "session.ts: 245 of them" is a sentence, not a citation — and a noisy gate gets
 //     switched off, after which it protects nothing. Narrow and trusted beats broad and noisy.
 //     Revisit only on a measurement showing either form actually being used here.
-//  7. Excluded paths are unpoliced by construction: docs/verification/evidence/ (verbatim tool
-//     output, where the banned shape is the evidence), SESSION-HANDOFF.md and
-//     docs/sessions-archive.md (verbatim records). See the exclusion comments below for why each is
-//     a record rather than a pointer.
+//  7. Exemption is per LINE, not per file. Unpoliced wholesale: docs/verification/evidence/
+//     (verbatim tool output, where the banned shape IS the evidence) and docs/sessions-archive.md (a
+//     verbatim record). SESSION-HANDOFF.md is SPLIT (gh#59, hole 2): `done:`/`dec:` are that same
+//     record pre-roll and stay exempt, `next:` and its checklist items are live pointers an agent
+//     acts on next session and are policed, `inflight:` follows the POLICE_INFLIGHT constant. Any
+//     label the vocabulary does not know falls through to policed. See the exclusion comments below.
 //  8. The merge-base fallback can equal HEAD — on a tag push, and on a force-push to main, where
 //     origin/main is re-fetched at the new tip. The range is then empty and the run scans nothing.
 //     That is correct for a tag push (those commits were gated when they were pushed) and a real
@@ -86,16 +96,34 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
-// Both excluded files are the same kind of thing: a verbatim record of what was true at a moment.
-// docs/sessions-archive.md is never edited or converted by policy (CLAUDE.md, "Write English. Ship
-// Thai.") and holds 69 of the pre-existing citations; SESSION-HANDOFF.md is that same content
-// pre-roll — entries are written there and later roll into the archive, and a handoff entry's whole
-// job is to cite the exact lines a finding rests on. Re-anchoring either to today's symbols would
-// make the record describe today's code instead of the moment it documents, which falsifies it
-// rather than fixing a pointer — the identical reason the frozen Supersession paragraph in
-// docs/verification/adr-0010-findings.md cannot be converted. This is not laziness: a record and a
-// pointer are different artifacts, and only the pointer is supposed to track the code.
-const EXCLUDE_FILES = new Set(['docs/sessions-archive.md', 'SESSION-HANDOFF.md']);
+// docs/sessions-archive.md is a verbatim record of what was true at a moment. It is never edited or
+// converted by policy (CLAUDE.md, "Write English. Ship Thai.") and holds 69 of the pre-existing
+// citations. Re-anchoring it to today's symbols would make the record describe today's code instead
+// of the moment it documents, which falsifies it rather than fixing a pointer — the identical reason
+// the frozen Supersession paragraph in docs/verification/adr-0010-findings.md cannot be converted. A
+// record and a pointer are different artifacts, and only the pointer is supposed to track the code.
+const EXCLUDE_FILES = new Set(['docs/sessions-archive.md']);
+
+// SESSION-HANDOFF.md was in that set too, on the ground that it is the archive's pre-roll. Half
+// true, and gh#59 is the half that is not: `done:` and `dec:` really are record — they roll into
+// docs/sessions-archive.md verbatim at the next save — but `next:` and `inflight:` are LIVE
+// POINTERS an agent reads and acts on next session. A rotted line number there is unpoliced rot in
+// the one file most likely to be read as current, so the exclusion is per LINE, by the label that
+// opens it. Format contract (one label per line, `done: …` / `next:` + `- [ ] …`) is owned by
+// .claude/commands/save-session.md; a label this file does not recognise falls through to POLICED,
+// which is the safe direction and keeps the vocabulary's owner able to grow it without a code change.
+// ponytail: a `done:` entry wrapped onto a second physical line would have its continuation policed.
+// The format says one line per label; if that ever changes, carry the label forward instead.
+const HANDOFF_FILE = 'SESSION-HANDOFF.md';
+const HANDOFF_RECORD_LABELS = new Set(['done', 'dec']);
+// Owner's call, deliberately one constant rather than a hard-coded branch. FALSE (exempt) because
+// `inflight:` is where a REFUTE finding lands quoted verbatim before anyone fixes it, and a checker
+// cannot tell use from mention — policing it reds the first honest save after any review round,
+// which is the "gate fires on lines nobody can fix, so it gets switched off" failure ADR-0025 exists
+// to avoid. TRUE buys coverage of a genuinely live pointer at that cost. Flip this line, nothing
+// else: --selftest derives its expected counts from this constant and passes at either setting, so
+// the flip cannot red the `--selftest &&` that ci.yml runs before the gate itself.
+const POLICE_INFLIGHT = false;
 // docs/verification/evidence/ holds captured TOOL OUTPUT quoted verbatim — tsc diagnostics (a path,
 // a line, a column, then the message), `grep -n` pastes, stack traces. Those are the banned shape by pure
 // coincidence of format, and they are the evidence itself: an agent cannot re-anchor them without
@@ -104,6 +132,21 @@ const EXCLUDE_FILES = new Set(['docs/sessions-archive.md', 'SESSION-HANDOFF.md']
 // which it protects nothing. dist/, node_modules/ and .astro/ are build output and vendor code, not
 // authored here, so nothing in them is a citation this repo owns.
 const EXCLUDE_DIR_PREFIXES = ['docs/verification/evidence/', 'node_modules/', 'dist/', '.astro/'];
+
+// Exemption is decided per LINE, never per file. That granularity is load-bearing for ADR-0025's
+// null-labelling: `filesInDiff` is built before this runs, so a push that touches only `done:`/`dec:`
+// still puts SESSION-HANDOFF.md in the diff while scanning zero policed lines — which is what lets
+// "nothing policed was scanned" stay distinct from "this range touched no lines at all". A
+// file-level Set cannot express that, and collapsing the two would print "proved nothing" on every
+// session save. emptyNote() carries the full list of zeros and the fact that decides each one.
+function isExemptLine(file, text, policeInflight = POLICE_INFLIGHT) {
+  if (EXCLUDE_DIR_PREFIXES.some((p) => file.startsWith(p))) return true;
+  if (EXCLUDE_FILES.has(file)) return true;
+  if (file !== HANDOFF_FILE) return false;
+  const label = text.match(/^([a-z]+):/)?.[1];
+  if (label === 'inflight') return !policeInflight;
+  return HANDOFF_RECORD_LABELS.has(label); // no label, or one not in the vocabulary -> policed
+}
 
 // ---------------------------------------------------------------------------
 // Pure: text -> hazards. No IO, so the selftest can feed it strings directly.
@@ -138,39 +181,89 @@ function findHazards(text, citingIsMd) {
   return out;
 }
 
-// Parses `git diff --unified=0` output into the lines the range ADDS. A line that is only moved
-// still appears here as an addition — the pre-image check in scan() is what exempts it, not this.
-function addedLines(diffText) {
-  const out = [];
-  let file = null;
+// Parses `git diff --unified=0` output into the lines the range ADDS, the lines it REMOVES, and the
+// set of paths it opened a file block for AT ALL. That third one is not derivable from the other
+// two: a file can be in the diff with no line on either side (see the `diff --git ` branch). A
+// line that is only moved appears in both — the occurrence counting in scan() is what exempts it.
+// Removed lines carry no line number on purpose: only how many times a token disappeared matters.
+// They are attributed to the `--- ` path, added lines to the `+++ ` one. Those two paths differ only
+// for a new file (`--- /dev/null`, and there is nothing removed to attribute), a deletion
+// (`+++ /dev/null`, whose removed lines would otherwise be dropped along with the null path, so a
+// `git rm` would read as a range that touched nothing at all) and a rename, which --no-renames means
+// this parser never sees.
+//
+// Header vs body is tracked as STATE, not guessed from the previous line. In git's output `--- ` and
+// `+++ ` are headers only inside the block that opens with `diff --git ` and closes at that file's
+// first `@@`; after that every line is hunk content until the next `diff --git `. A lookbehind
+// instead of state is not a near-miss, it is exploitable: a removed line whose content starts `-- `
+// renders as `--- `, so the added line after it starting `++ ` renders as `+++ ` and was read as a
+// header — its citation never scanned, and every line after it, plus its moved-budget, filed under a
+// path spelled by that line's own text. Body lines cannot fake the state machine: added and removed
+// content is always prefixed, so a body line can never start with `diff --git `.
+function parseDiff(diffText) {
+  const added = [];
+  const removed = [];
+  const files = new Set();
+  // `a/` and `b/` are the prefixes scan() PINS with --src-prefix/--dst-prefix rather than inheriting
+  // — diff.mnemonicPrefix, diff.noprefix and diff.srcPrefix all change them, and a config that did
+  // would leave the strip below intact but wrong. One leading segment is stripped, so a repo path
+  // that really begins with `a/` or `b/` survives. Ceiling 5: plain ASCII paths, never git-quoted.
+  const headerPath = (raw) => {
+    const p = raw.slice(4).trim();
+    return p === '/dev/null' ? null : p.replace(/^[ab]\//, '');
+  };
+  let fromFile = null;
+  let toFile = null;
+  let inHeader = false;
   let nextLine = 0;
-  let sawMinusHeader = false;
   for (const raw of diffText.split('\n')) {
-    if (raw.startsWith('--- ')) {
-      sawMinusHeader = true;
+    if (raw.startsWith('diff --git ')) {
+      inHeader = true;
+      fromFile = null;
+      toFile = null;
+      // The file set is harvested HERE, from the one line every file block has. It cannot be taken
+      // from `--- `/`+++ ` alone: measured, a binary block is `diff --git `, `new file mode`,
+      // `index`, then `Binary files … differ` and carries NO `--- `/`+++ ` pair, while a mode-only
+      // block is `diff --git ` plus `old mode`/`new mode` and an empty new file stops at `index`.
+      // All three are files the range touched with no line to show for it.
+      // The backreference is what makes the split unambiguous: --no-renames guarantees the two
+      // paths are identical, so `a/<p> b/<p>` has exactly one reading. Ceiling 5 covers the rest —
+      // a git-quoted path, or one containing the literal ` b/`, does not match and is not harvested.
+      // Turning rename detection back on would break only this line, not the set: a rename hunk has
+      // a `--- `/`+++ ` pair, and both of those add to it below.
+      const both = raw.slice('diff --git '.length).match(/^a\/(.+) b\/\1$/);
+      if (both) files.add(both[1]);
       continue;
     }
-    // Only a `+++ ` that FOLLOWS a `--- ` is a header. Added content of the form `++ text` also
-    // renders as `+++ text` in a diff body, and treating it as a header would silently re-attribute
-    // every following line to a file that does not exist.
-    if (sawMinusHeader && raw.startsWith('+++ ')) {
-      sawMinusHeader = false;
-      const p = raw.slice(4).trim();
-      file = p === '/dev/null' ? null : p.replace(/^b\//, '');
-      continue;
+    if (inHeader) {
+      if (raw.startsWith('--- ')) {
+        fromFile = headerPath(raw);
+        if (fromFile) files.add(fromFile);
+        continue;
+      }
+      if (raw.startsWith('+++ ')) {
+        toFile = headerPath(raw);
+        if (toFile) files.add(toFile);
+        continue;
+      }
+      // index / mode / binary-files lines: still header, and a binary or mode-only change simply
+      // never reaches a `@@` at all — which is why the path was already taken above.
+      if (!raw.startsWith('@@')) continue;
+      inHeader = false;
     }
-    sawMinusHeader = false;
     if (raw.startsWith('@@')) {
       const m = raw.match(/^@@ -\d+(?:,\d+)? \+(\d+)/);
       nextLine = m ? Number(m[1]) : 0;
       continue;
     }
-    if (raw.startsWith('+') && file) {
-      out.push({ file, line: nextLine, text: raw.slice(1) });
+    if (raw.startsWith('+') && toFile) {
+      added.push({ file: toFile, line: nextLine, text: raw.slice(1) });
       nextLine++;
+      continue;
     }
+    if (raw.startsWith('-') && fromFile) removed.push({ file: fromFile, text: raw.slice(1) });
   }
-  return out;
+  return { added, removed, files };
 }
 
 // ---------------------------------------------------------------------------
@@ -238,28 +331,26 @@ function resolveRange(argv, env, cwd) {
 }
 
 // ---------------------------------------------------------------------------
-function preImageText(base, file, cwd) {
-  try {
-    // stderr ignored: "path X exists on disk, but not in <rev>" is the expected, normal answer for
-    // a file this range creates, and letting git print it would put fatal: noise above a green run.
-    return execFileSync('git', ['show', `${base}:${file}`], {
-      cwd,
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
-  } catch {
-    return null; // file did not exist at base — everything in it is genuinely new
-  }
-}
-
-function scan({ range, base }, cwd) {
-  const diff = execFileSync('git', ['diff', '--unified=0', '--no-color', range, '--'], {
+function scan({ range }, cwd) {
+  // --no-renames is not cosmetic, but its stated reason did not survive review (ADR-0025). It was
+  // added to stop a rename's removals being read under the NEW path and funding a budget there;
+  // parseDiff's state machine now tracks the `--- ` and `+++ ` paths separately, so removals file
+  // under the old path on their own and the flag is no longer what closes that. What it still does,
+  // measured on real output: with detection ON the move is a single rename hunk carrying only the
+  // lines actually reworded, so every citation that crossed unchanged is never re-emitted and never
+  // re-examined. Decomposed into a delete plus an add, every line arrives NEW at the new path —
+  // which is exactly what ceiling 4 promises a cross-file move does. It also suppresses copy
+  // detection, which a user's `diff.renames=copies` would otherwise turn on.
+  // --no-ext-diff and the pinned prefixes are the same kind of hazard from local config: an
+  // external diff driver replaces this output wholesale, and diff.mnemonicPrefix / diff.noprefix /
+  // diff.srcPrefix change the `a/`/`b/` that headerPath strips. CI's config is clean; a developer's
+  // need not be, and every one of those failures parses to a green.
+  const diff = execFileSync('git', ['diff', '--unified=0', '--no-color', '--no-ext-diff', '--no-renames', '--src-prefix=a/', '--dst-prefix=b/', range, '--'], {
     cwd,
     encoding: 'utf8',
     maxBuffer: 256 * 1024 * 1024,
   });
-  const all = addedLines(diff);
+  const { added: all, removed, files } = parseDiff(diff);
 
   // A file git does not track yet is invisible to `git diff`, so `node scripts/... ` run before
   // `git add` would miss a brand-new file entirely — the one moment a human most wants this answer.
@@ -277,6 +368,11 @@ function scan({ range, base }, cwd) {
         continue;
       }
       if (buf.includes(0)) continue; // binary
+      // A 0-byte file adds no line, and `''.split('\n')` is `['']` rather than `[]` — folding that
+      // in counts one added line of empty text. It can never BE a finding, but addedLinesTotal is
+      // what tells "added only exempt lines" from "added nothing", so one stray empty file made a
+      // worktree run that scanned nothing report itself as a real scan.
+      if (buf.length === 0) continue;
       // replace(/\n$/, '') first: splitting a newline-terminated file yields a phantom trailing
       // empty element, which would inflate the added-line count this script reports as measured.
       buf
@@ -287,37 +383,93 @@ function scan({ range, base }, cwd) {
     }
   }
 
-  const filesInDiff = new Set(all.map((a) => a.file));
-  const added = all.filter(
-    (a) => !EXCLUDE_FILES.has(a.file) && !EXCLUDE_DIR_PREFIXES.some((p) => a.file.startsWith(p)),
-  );
+  // filesInDiff is every file the range touched, BEFORE any exemption — and "touched" means git
+  // opened a block for it, not "it has a changed line". Three sources, and each is load-bearing:
+  // every path parseDiff harvested from a `diff --git ` line (the only one a binary, mode-only or
+  // empty new file ever produces), plus the paths of added and removed lines (which covers the
+  // untracked files folded in above, since those are in no diff at all). ADR-0025's null-labelling
+  // reads this Set's SIZE to tell "this range touched nothing at all" from every other zero. Built
+  // from added lines only a `git rm` landed in that bucket, and built from hunk lines only a
+  // committed PNG did — each printing the force-push marker on a routine push, which is precisely
+  // the dilution that makes the marker skimmable.
+  const filesInDiff = new Set([...files, ...[...all, ...removed].map((x) => x.file)]);
+  const added = all.filter((a) => !isExemptLine(a.file, a.text));
 
-  // Exact-token membership, never substring. A plain `before.includes(token)` launders a genuinely
-  // new citation whenever an existing one has it as a PREFIX: a new citation of roster.ts at line 24
-  // rides in under an existing one at line 245, and a bare-filename citation of session.ts rides in
-  // under a full-path citation of the same file and line. Worst exactly in citation-dense files, and
-  // it corrupted the moved count too, so the success line reported a brand-new citation as a move.
-  // Tokenising the pre-image with the same detector makes the comparison symmetric and decidable.
+  // Occurrence COUNTS, not set membership (gh#59, hole 1). Membership asked "did this token exist
+  // before?", which a duplicate answers yes to while the original is still sitting there: copy a
+  // citation into a new paragraph of the same file and the copy was exempted AND miscounted as a
+  // move. The question that actually decides it is "did this file end up with MORE of this token
+  // than it started with?" — and for a unified diff that is exactly (times it appears on + lines)
+  // minus (times it appears on - lines), because post minus pre is added minus removed by
+  // construction. So no pre-image read at all, and the arithmetic is exact rather than heuristic.
+  //
+  // The budget is keyed by (file, token) and filled ONLY from that file's own non-exempt removed
+  // lines. Both halves are load-bearing: cross-file would exempt a citation lifted out of the frozen
+  // archive into a live doc, and counting exempt removals would let a `done:` line pay for a `next:`
+  // line inside SESSION-HANDOFF.md — trading the old hole for a new one either way.
   // (Spelled out in prose rather than shown: this file must never contain the shape it bans.)
-  const preImageTokens = new Map();
+  // Nested Map rather than a joined "file<sep>token" string key: every separator character is legal
+  // in a path, and a path containing the separator would merge two files' budgets into one.
+  const movedBudget = new Map(); // file -> Map(token -> how many times a removed line gave it back)
+  for (const rm of removed) {
+    if (isExemptLine(rm.file, rm.text)) continue;
+    for (const h of findHazards(rm.text, isMd(rm.file))) {
+      if (!movedBudget.has(rm.file)) movedBudget.set(rm.file, new Map());
+      const perFile = movedBudget.get(rm.file);
+      perFile.set(h.token, (perFile.get(h.token) ?? 0) + 1);
+    }
+  }
+
   const violations = [];
   let moved = 0;
   for (const a of added) {
-    const citingIsMd = isMd(a.file);
-    for (const h of findHazards(a.text, citingIsMd)) {
-      if (!preImageTokens.has(a.file)) {
-        const before = preImageText(base, a.file, cwd);
-        preImageTokens.set(a.file, before === null ? null : new Set(findHazards(before, citingIsMd).map((x) => x.token)));
-      }
-      const tokens = preImageTokens.get(a.file);
-      if (tokens && tokens.has(h.token)) {
+    const perFile = movedBudget.get(a.file);
+    for (const h of findHazards(a.text, isMd(a.file))) {
+      const budget = perFile?.get(h.token) ?? 0;
+      if (budget > 0) {
+        perFile.set(h.token, budget - 1);
         moved++;
         continue;
       }
       violations.push({ ...a, ...h });
     }
   }
-  return { filesInDiff, filesScanned: new Set(added.map((a) => a.file)).size, addedLinesScanned: added.length, violations, moved };
+  return {
+    filesInDiff,
+    filesScanned: new Set(added.map((a) => a.file)).size,
+    addedLinesTotal: all.length, // before exemption: what separates "added nothing" from "added only exempt lines"
+    removedLinesTotal: removed.length, // and this separates "added nothing" from "no line exists on either side"
+    addedLinesScanned: added.length,
+    violations,
+    moved,
+  };
+}
+
+// ADR-0025: "an empty scan is never a bare zero." Each cause gets its OWN sentence, and a newly
+// found cause gets a new sentence rather than being folded into the nearest existing one. No running
+// total is stated here, and none is stated in the ADR either — the set of causes is open, and a count
+// kept in two files drifts apart, which is how this gate's prose has already failed once. What each
+// branch says, and the fact that decides it:
+//   * no NOTE at all — policed lines were actually scanned. The only genuine pass.
+//   * "touched no lines at all, so the run proved nothing" — filesInDiff is EMPTY: not one file
+//     block, not one untracked file. The tag-push and force-push case in ceiling 8.
+//   * "only binary or mode changes" — files were touched, but no hunk exists anywhere in the range,
+//     so no line could be added. Routine here: scripts/make-og.mjs commits OG images.
+//   * "only removed lines" — lines existed and every one of them was a removal, so nothing could be
+//     cited. Fully gated. Keyed on the line counts, so a push mixing a deletion with a PNG lands here.
+//   * "nothing policed was scanned" — lines WERE added and every one of them was exempt: the routine
+//     session-save commit.
+// Collapsing any of the others into the force-push sentence trains readers to skim past the one
+// marker ceiling 8 depends on; collapsing them into each other states something the run did not
+// check. Compare filesInDiff.size, not the Set itself, which is never equal to a number.
+function emptyNote({ addedLinesScanned, addedLinesTotal, removedLinesTotal, filesInDiff }) {
+  if (addedLinesScanned !== 0) return '';
+  if (filesInDiff.size === 0) return ' — NOTE: this range touched no lines at all, so the run proved nothing';
+  if (addedLinesTotal === 0 && removedLinesTotal === 0) {
+    return ' — NOTE: this range carries only binary or mode changes, which reach no hunk, so it added no citation to police';
+  }
+  if (addedLinesTotal === 0) return ' — NOTE: this range only removed lines, so it added no citation to police';
+  return ' — NOTE: every added line sat in an excluded path or section, so nothing policed was scanned';
 }
 
 // ---------------------------------------------------------------------------
@@ -357,6 +509,43 @@ function selftest() {
   assert.equal(fromSrc(`see ${'src/shell/session.ts'}: 245 for the reset`).length, 0, 'ceiling 6: the colon-space form is deliberately not matched');
   console.log('PASS detector calibrated both ways: flags the line-number form (single, range, bracketed route), and the SAME .md citation is skipped from a .md file but caught from a source file; clean on durable symbols, host:port, URL:port; ceiling-6 near-misses pinned as unmatched');
 
+  // --- the line classifier, at BOTH settings of POLICE_INFLIGHT (gh#59, hole 2) -----------------
+  // Tested directly and at both settings, so flipping the constant can never ship an untested
+  // branch — the commit fixture below can only ever exercise whichever value is compiled in.
+  const cited = `finding rests on ${at('src/shell/roster.ts', 38)}`;
+  for (const police of [false, true]) {
+    const exempt = (text) => isExemptLine(HANDOFF_FILE, text, police);
+    assert.equal(exempt(`done: ${cited}`), true, 'done: is record, pre-roll for docs/sessions-archive.md — exempt at either setting');
+    assert.equal(exempt(`dec: ${cited}`), true, 'dec: is record — exempt at either setting');
+    assert.equal(exempt(`next: ${cited}`), false, 'next: is a live pointer an agent acts on — always policed');
+    assert.equal(exempt(`- [ ] gh#59 — ${cited}`), false, 'a next: checklist item carries no label of its own and must fall through to policed');
+    assert.equal(exempt(`inflight: ${cited}`), !police, `inflight: must follow POLICE_INFLIGHT (${police})`);
+    assert.equal(exempt(`spent: queue 5→6 · ${cited}`), false, 'spent: is not in the record vocabulary — unrecognised labels default to policed');
+    assert.equal(exempt(`### S2026-08-21#3 ${cited}`), false, 'a heading has no label at all — default policed, the safe direction');
+  }
+  // The split is scoped to that one file: every other path keeps whole-file semantics.
+  assert.equal(isExemptLine('docs/sessions-archive.md', `next: ${cited}`), true, 'the archive is excluded wholesale — a next:-shaped line in it is still record');
+  assert.equal(isExemptLine('docs/verification/evidence/99/capture.md', `done: ${cited}`), true, 'the evidence tree is excluded wholesale');
+  assert.equal(isExemptLine('docs/runbook.md', `done: ${cited}`), false, 'the label vocabulary means nothing outside SESSION-HANDOFF.md');
+  console.log(`PASS handoff line classifier calibrated at BOTH settings: done:/dec: exempt, next: + its checklist items + unrecognised labels + headings policed, inflight: follows POLICE_INFLIGHT (shipping ${POLICE_INFLIGHT})`);
+
+  // --- the null-labelling, ADR-0025 (pure, so every cause is provable without a real push) ------
+  // Every field is passed at every call: a case that leans on an absent addedLinesTotal or
+  // removedLinesTotal would be testing `undefined === 0`, not the zero it names.
+  assert.equal(emptyNote({ addedLinesScanned: 3, addedLinesTotal: 3, removedLinesTotal: 0, filesInDiff: new Set(['a.ts']) }), '', 'a scan that policed real lines gets no NOTE');
+  const nothingTouched = emptyNote({ addedLinesScanned: 0, addedLinesTotal: 0, removedLinesTotal: 0, filesInDiff: new Set() });
+  const hunkless = emptyNote({ addedLinesScanned: 0, addedLinesTotal: 0, removedLinesTotal: 0, filesInDiff: new Set(['public/og.png']) });
+  const onlyRemoved = emptyNote({ addedLinesScanned: 0, addedLinesTotal: 0, removedLinesTotal: 4, filesInDiff: new Set(['gone.ts']) });
+  const nothingPoliced = emptyNote({ addedLinesScanned: 0, addedLinesTotal: 2, removedLinesTotal: 0, filesInDiff: new Set([HANDOFF_FILE]) });
+  assert.match(nothingTouched, /proved nothing/, 'a range that touched nothing must say the run proved nothing (the tag-push and force-push signal)');
+  assert.match(hunkless, /binary or mode/, 'a push whose files carry no hunk at all must name binary/mode, not borrow another sentence');
+  assert.match(onlyRemoved, /only removed lines/, 'a removal-only push must name itself — it added nothing, so it is gated, not unproven');
+  assert.match(nothingPoliced, /nothing policed was scanned/, 'an all-exempt push must say nothing policed was scanned');
+  // The only difference between hunkless and onlyRemoved is removedLinesTotal, so this pair also
+  // proves that field is READ rather than merely accepted.
+  assert.equal(new Set([nothingTouched, hunkless, onlyRemoved, nothingPoliced]).size, 4, 'each of the four zeros built above must keep its own sentence');
+  console.log('PASS the empty-scan messages stay distinct: nothing touched -> "proved nothing"; no hunk anywhere -> "binary or mode"; removal-only -> "only removed lines"; all-exempt push -> "nothing policed was scanned"');
+
   const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'added-lineno-cite-'));
   try {
     git(root, 'init', '--quiet', '--initial-branch=main');
@@ -375,8 +564,16 @@ function selftest() {
     // dense.ts carries a LONGER pre-existing token, so the second commit's genuinely new, shorter
     // one is a strict PREFIX of it — the exact input the old substring exemption laundered.
     w('dense.ts', [`// pre-existing, cited before this gate: ${at('roster.ts', 245)}`, 'export const m = 1;']);
-    w('docs/sessions-archive.md', ['# archive', 'untouched line']);
-    w('SESSION-HANDOFF.md', ['# handoff', '## inflight', '(nothing yet)']);
+    // dupe.md's citation is COPIED verbatim into a second paragraph by the next commit while the
+    // original stays exactly where it is. Pre-image set membership called that a move; only an
+    // occurrence COUNT can tell a copy from a relocation (gh#59, hole 1).
+    w('dupe.md', ['# notes', `Original paragraph — the guard is at ${at('src/shell/roster.ts', 77)}.`]);
+    // chained.md's bullet starts with `-- `, so REMOVING it renders as `--- an old bullet…` in the
+    // diff body. The next commit replaces it with a line starting `++ `, which renders as `+++ …`.
+    // A parser that decides headers by looking one line back reads that pair as a file header.
+    w('chained.md', ['# notes', '-- an old bullet, and no citation in it']);
+    w('docs/sessions-archive.md', ['# archive', `untouched line — S2025-12-01#2 noted ${at('session.ts', 12)} at the time`]);
+    w('SESSION-HANDOFF.md', ['# handoff', '## Current state', '### S2026-08-20#1', 'done: an earlier entry, already rolled', 'next:', '- [ ] nothing yet']);
     w('docs/verification/evidence/99/capture.md', ['# capture', 'baseline output follows']);
     git(root, 'add', '-A');
     git(root, 'commit', '--quiet', '-m', 'base');
@@ -410,26 +607,59 @@ function selftest() {
     // elsewhere.md: the IDENTICAL tsc line outside docs/verification/evidence/. It must go red, or
     // the exclusion above would be indistinguishable from the detector simply not matching it.
     w('elsewhere.md', ['# notes', `${at('src/shell/session.ts', 245)}:3 - error ts(2339): Property 'x' does not exist.`]);
-    // SESSION-HANDOFF.md: a handoff entry citing exact lines as evidence — the same verbatim-record
-    // content as docs/sessions-archive.md, pre-roll. Excluded for the same stated reason.
-    w('SESSION-HANDOFF.md', ['# handoff', '## inflight', `S2026-08-21#3 — finding rests on ${at('src/shell/roster.ts', 38)} and ${at('scripts/leave-confirm-check.mjs', '100-102')}`]);
+    // dupe.md: the original citation is untouched and a byte-identical copy is added below it. The
+    // token IS in the pre-image, so set membership exempted it and inflated the moved count; the
+    // count says one occurrence became two, so one of them is new (gh#59, hole 1).
+    w('dupe.md', ['# notes', `Original paragraph — the guard is at ${at('src/shell/roster.ts', 77)}.`, '', `Second paragraph — the guard is at ${at('src/shell/roster.ts', 77)}.`]);
+    // chained.md: the `-- ` line is replaced by a `++ ` one, so the diff body reads `--- …` then
+    // `+++ …` back to back. Both added lines must be attributed to chained.md and scanned: the `++ `
+    // line's own citation is the one a lookbehind parser eats, and the line after it is the one that
+    // gets re-attributed to the phantom path the eaten line spelled.
+    w('chained.md', ['# notes', `++ see ${at('src/shell/session.ts', 99)} for the guard`, `and the roster note at ${at('src/shell/roster.ts', 51)}`]);
+    // SESSION-HANDOFF.md: both halves of the split in one commit. `done:`/`dec:` are the record
+    // rolling into docs/sessions-archive.md and stay exempt; the `next:` item and `inflight:` are
+    // live pointers an agent acts on next session and must be policed (gh#59, hole 2).
+    w('SESSION-HANDOFF.md', [
+      '# handoff',
+      '## Current state',
+      '### S2026-08-21#3',
+      `done: the finding rests on ${at('src/shell/roster.ts', 38)} — record of a past moment, exempt`,
+      `dec: calibration cited ${at('scripts/leave-confirm-check.mjs', '100-102')} — record, exempt`,
+      'next:',
+      `- [ ] gh#59 — the clearance budget lives at ${at('src/styles/tokens.css', 12)}`,
+      `inflight: REFUTE finding quoted verbatim — ${at('scripts/arm-gate-probe.mjs', 41)}`,
+    ]);
+    // archive-copy.md: the token below is pre-existing IN docs/sessions-archive.md, which is
+    // excluded wholesale. Lifting it out of the frozen record into a live doc makes it a live
+    // pointer, and it must go RED — an exemption keyed to anything but THIS file's own removed
+    // lines would launder it (gh#59, hole 1, second direction).
+    w('archive-copy.md', ['# live notes', `Lifted out of the archive: ${at('session.ts', 12)} — a live pointer now.`]);
     // sessions-archive.md: excluded by policy. Its added line carries a hazardous citation, and the
     // assertion below proves the line really reached the diff — otherwise "excluded" and "never
     // scanned" would be indistinguishable (the vacuity trap check-citations documents).
-    w('docs/sessions-archive.md', ['# archive', 'untouched line', `S2026-01-01#1 — noted ${at('session.ts', 12)} at the time`]);
+    w('docs/sessions-archive.md', ['# archive', `untouched line — S2025-12-01#2 noted ${at('session.ts', 12)} at the time`, `S2026-01-01#1 — noted ${at('session.ts', 12)} at the time`]);
     git(root, 'add', '-A');
     git(root, 'commit', '--quiet', '-m', 'second');
 
-    const r = scan({ range: `${base}..HEAD`, base }, root);
+    const r = scan({ range: `${base}..HEAD` }, root);
 
     const badFiles = r.violations.map((v) => `${v.file} -> ${v.token}`).sort();
-    assert.equal(r.violations.length, 6, `known-bad commit must report exactly 6 new citations, got ${r.violations.length}: ${badFiles.join(', ')}`);
+    // Two hand-counted literals, one per setting of the knob — NOT `plantedFiles.length`, which
+    // would silently accept two findings in one file and none in another (array length is not
+    // coverage — chained.md deliberately carries two of them). The knob's comment promises "flip
+    // this line, nothing else", and ci.yml runs --selftest before the gate, so a count hard-coded to
+    // one setting would red every CI push the moment anyone took that promise up. Only the inflight:
+    // line moves between the two: the FILE list is identical, because SESSION-HANDOFF.md is already
+    // red on its next: item at either setting.
+    const expectedViolations = POLICE_INFLIGHT ? 12 : 11;
+    const plantedFiles = ['SESSION-HANDOFF.md', 'archive-copy.md', 'bad.md', 'bad.mjs', 'bad.ts', 'chained.md', 'dense.ts', 'dupe.md', 'elsewhere.md', 'md-from-src.ts'];
+    assert.equal(r.violations.length, expectedViolations, `known-bad commit must report exactly ${expectedViolations} new citations at POLICE_INFLIGHT=${POLICE_INFLIGHT}, got ${r.violations.length}: ${badFiles.join(', ')}`);
     assert.deepEqual(
       [...new Set(r.violations.map((v) => v.file))].sort(),
-      ['bad.md', 'bad.mjs', 'bad.ts', 'dense.ts', 'elsewhere.md', 'md-from-src.ts'],
+      plantedFiles,
       'the findings must be the planted files, not something incidental',
     );
-    console.log(`PASS known-bad commit flags all 6 planted citations:\n${r.violations.map((v) => `     ${v.file}:${v.line} → ${v.token}`).join('\n')}`);
+    console.log(`PASS known-bad commit flags all ${r.violations.length} planted citations:\n${r.violations.map((v) => `     ${v.file}:${v.line} → ${v.token}`).join('\n')}`);
 
     // FINDING 1: prefix laundering. The new token must be reported, and — just as important — it
     // must NOT have been silently absorbed into the moved count.
@@ -438,33 +668,87 @@ function selftest() {
     assert.equal(dense[0].token, at('roster.ts', 24), `the reported token must be the NEW one, got ${dense[0].token}`);
     console.log(`PASS prefix laundering closed: new ${dense[0].token} caught under pre-existing ${at('roster.ts', 245)}, and not counted as a move`);
 
+    // A `--- ` then `+++ ` pair in the HUNK BODY is content, not a header. Both halves are asserted:
+    // the `++ ` line's citation must be reported (a lookbehind parser consumes that line as a header
+    // and never scans it), and the line after it must belong to chained.md rather than to the path
+    // the eaten line happened to spell. The second half is the dangerous one — a phantom file also
+    // keys its own moved-budget, so the corruption spreads past the one line it started on.
+    assert.deepEqual(
+      r.violations.filter((v) => v.file === 'chained.md').map((v) => v.token),
+      [at('src/shell/session.ts', 99), at('src/shell/roster.ts', 51)],
+      'a diff-body line starting `++ ` is added CONTENT: its citation must be scanned, and the line below it must stay attributed to chained.md',
+    );
+    console.log(`PASS a body-line pair "-- …" / "++ …" is content, not a header: ${at('src/shell/session.ts', 99)} is scanned and ${at('src/shell/roster.ts', 51)} stays attributed to chained.md`);
+
     // FINDING 3: the same .md target, red from a source file and green from a .md file.
     assert.equal(r.violations.filter((v) => v.file === 'md-from-src.ts').length, 1, 'a .md target cited from a source file is unowned and must be caught');
     assert.ok(r.filesInDiff.has('good.md'), 'good.md must reach the diff — otherwise the assertion below is vacuous');
     assert.equal(r.violations.filter((v) => v.file === 'good.md').length, 0, 'a .md target cited from a .md file belongs to check-citations.mjs and must stay green');
     console.log(`PASS ${at('docs/runbook.md', 12)} is RED from md-from-src.ts and GREEN from good.md — the skip now depends on the citing file, not a false premise about check-citations coverage`);
 
+    // gh#59 HOLE 1: duplicate-token laundering. The original is UNTOUCHED and a byte-identical copy
+    // is added below it, so the token is in the pre-image and set membership exempted it. Both
+    // halves matter: the copy must be reported, AND it must not have inflated the moved count.
+    const dupe = r.violations.filter((v) => v.file === 'dupe.md');
+    assert.equal(dupe.length, 1, 'a citation COPIED while the original stays put is new, not moved — set membership laundered it');
+    assert.equal(dupe[0].token, at('src/shell/roster.ts', 77), `the reported token must be the copied one, got ${dupe[0].token}`);
+    // Second direction: the same token lifted OUT of an excluded record into a live doc. The
+    // exemption must be keyed to the citing file's OWN removed lines, never to any wider pre-image.
+    const lifted = r.violations.filter((v) => v.file === 'archive-copy.md');
+    assert.equal(lifted.length, 1, 'a citation copied out of docs/sessions-archive.md into a live doc is a live pointer and must go RED');
+    assert.equal(lifted[0].token, at('session.ts', 12), `the lifted token must be the archive's, got ${lifted[0].token}`);
+    assert.equal(r.violations.filter((v) => v.file === 'docs/sessions-archive.md').length, 0, 'the archive itself keeps that same token GREEN — otherwise the pair above proves nothing');
+    console.log(`PASS hole 1 closed both directions: ${dupe[0].token} copied within dupe.md is RED (not a move), and ${lifted[0].token} is GREEN in the archive but RED once lifted into archive-copy.md`);
+
     // FINDING 2 + ADDITION A: the excluded records. Each pairs a "was in the diff" assertion with
     // its exemption, and the evidence case pairs with an identical line elsewhere going red — so
     // "excluded" can never be confused with "the detector never matched it".
-    for (const [file, why] of [['docs/verification/evidence/99/capture.md', 'verbatim tool output'], ['SESSION-HANDOFF.md', 'verbatim record, pre-roll']]) {
+    for (const [file, why] of [['docs/verification/evidence/99/capture.md', 'verbatim tool output']]) {
       assert.ok(r.filesInDiff.has(file), `${file} must reach the diff — otherwise its exclusion assertion is vacuous`);
       assert.equal(r.violations.filter((v) => v.file === file).length, 0, `${file} is excluded (${why}) and must never be flagged`);
     }
     const control = r.violations.filter((v) => v.file === 'elsewhere.md');
     assert.equal(control.length, 1, 'the identical tsc-style line OUTSIDE the evidence tree must go red — otherwise the exclusion proves nothing');
-    console.log(`PASS exclusions non-vacuous: the tsc line "${control[0].token}" is GREEN under docs/verification/evidence/ and RED in elsewhere.md; SESSION-HANDOFF.md entry with 2 tokens GREEN`);
+    console.log(`PASS exclusions non-vacuous: the tsc line "${control[0].token}" is GREEN under docs/verification/evidence/ and RED in elsewhere.md`);
+
+    // gh#59 HOLE 2: SESSION-HANDOFF.md is a MIXTURE, not a record. One commit carries all four
+    // section kinds, so the split is proved per line inside a single file rather than per file.
+    const handoff = r.violations.filter((v) => v.file === 'SESSION-HANDOFF.md');
+    assert.ok(r.filesInDiff.has('SESSION-HANDOFF.md'), 'SESSION-HANDOFF.md must reach the diff — otherwise every assertion below is vacuous');
+    // Derived from the knob for the same reason as expectedViolations above: at POLICE_INFLIGHT=true
+    // the inflight: line is a live pointer too, and a list pinned to one setting makes the documented
+    // flip red CI. Written out per setting rather than filtered, so the expectation stays a
+    // hand-checked statement of which sections are policed, not a restatement of the code.
+    const expectedHandoffTokens = POLICE_INFLIGHT
+      ? [at('scripts/arm-gate-probe.mjs', 41), at('src/styles/tokens.css', 12)]
+      : [at('src/styles/tokens.css', 12)];
+    assert.deepEqual(
+      handoff.map((v) => v.token).sort(),
+      expectedHandoffTokens,
+      `the policed handoff sections are exactly the live pointers; got ${handoff.map((v) => v.token).join(', ') || 'nothing'}`,
+    );
+    for (const token of [at('src/shell/roster.ts', 38), at('scripts/leave-confirm-check.mjs', '100-102')]) {
+      assert.equal(handoff.filter((v) => v.token === token).length, 0, `a done:/dec: citation is record pre-roll for docs/sessions-archive.md and must stay exempt: ${token}`);
+    }
+    assert.equal(
+      handoff.filter((v) => v.token === at('scripts/arm-gate-probe.mjs', 41)).length,
+      POLICE_INFLIGHT ? 1 : 0,
+      `the inflight: citation must follow POLICE_INFLIGHT (${POLICE_INFLIGHT})`,
+    );
+    console.log(`PASS hole 2 split, per line inside one file: next: item RED, done:/dec: GREEN, inflight: ${POLICE_INFLIGHT ? 'RED' : 'GREEN'} (POLICE_INFLIGHT=${POLICE_INFLIGHT})`);
 
     assert.equal(r.moved, 1, `the relocated pre-existing citation must be exempted exactly once, got ${r.moved}`);
     assert.equal(r.violations.filter((v) => v.file === 'live.ts').length, 0, 'a citation that only MOVED must not trip the gate');
     assert.ok(r.filesInDiff.has('shifted.ts'), 'shifted.ts must reach the diff — otherwise the assertion below is vacuous');
     assert.equal(r.violations.filter((v) => v.file === 'shifted.ts').length, 0, 'a citation merely SHIFTED by an insertion above must not trip the gate');
     assert.equal(
-      addedLines(git(root, 'diff', '--unified=0', '--no-color', `${base}..HEAD`, '--', 'shifted.ts')).filter((a) => findHazards(a.text, false).length).length,
+      // Same config-proofing flags scan() passes: a fixture repo still reads the developer's global
+      // gitconfig, and an external diff driver here would yield zero added lines and pass vacuously.
+      parseDiff(git(root, 'diff', '--unified=0', '--no-color', '--no-ext-diff', '--src-prefix=a/', '--dst-prefix=b/', `${base}..HEAD`, '--', 'shifted.ts')).added.filter((a) => findHazards(a.text, false).length).length,
       0,
       'a shifted citation must never even reach the detector — git does not re-emit the unchanged line',
     );
-    console.log(`PASS relocated citation in live.ts exempted via exact-token pre-image match and counted as ${r.moved} move; shifted citation in shifted.ts never reached the detector at all; good.ts clean on the durable-symbol form`);
+    console.log(`PASS relocated citation in live.ts exempted because its removed line gave the token back, counted as ${r.moved} move; shifted citation in shifted.ts never reached the detector at all; good.ts clean on the durable-symbol form`);
 
     assert.ok(r.filesInDiff.has('docs/sessions-archive.md'), 'sessions-archive.md must actually reach the diff — otherwise this exclusion assertion is vacuous');
     assert.equal(r.violations.filter((v) => v.file === 'docs/sessions-archive.md').length, 0, 'sessions-archive.md is excluded by policy and must never be flagged');
@@ -476,7 +760,7 @@ function selftest() {
     w('bad2.ts', [`// and one more at ${at('siamsi.ts', 376)}`, 'export const e = 5;']);
     git(root, 'add', '-A');
     git(root, 'commit', '--quiet', '-m', 'third');
-    const wider = scan({ range: `${base}..HEAD`, base }, root);
+    const wider = scan({ range: `${base}..HEAD` }, root);
     assert.ok(wider.filesScanned > r.filesScanned, 'files scanned must rise when the range covers another file');
     assert.ok(wider.addedLinesScanned > r.addedLinesScanned, 'added lines scanned must rise when the range covers more added lines');
     assert.ok(wider.violations.length > r.violations.length, 'findings must rise when the range covers another hazardous citation');
@@ -488,19 +772,156 @@ function selftest() {
 
     // --- an UNTRACKED new file must still be scanned when the range ends at the working tree ---
     w('untracked-bad.ts', [`// brand new, never git-added: ${at('wake-lock.ts', 34)}`]);
-    const worktree = scan({ range: 'HEAD', base: 'HEAD' }, root);
+    const worktree = scan({ range: 'HEAD' }, root);
     assert.equal(
       worktree.violations.filter((v) => v.file === 'untracked-bad.ts').length,
       1,
       'an untracked file is invisible to git diff — it must be folded in when the range ends at the working tree',
     );
     assert.equal(
-      scan({ range: `${base}..HEAD`, base }, root).violations.filter((v) => v.file === 'untracked-bad.ts').length,
+      scan({ range: `${base}..HEAD` }, root).violations.filter((v) => v.file === 'untracked-bad.ts').length,
       0,
       'a commit-to-commit range must NOT pick up untracked content',
     );
     fs.rmSync(path.join(root, 'untracked-bad.ts'));
     console.log('PASS untracked new file scanned when the range ends at the working tree, and ignored for a commit-to-commit range');
+
+    // --- a 0-BYTE untracked file adds no line ---------------------------------------------------
+    // `''.split('\n')` is `['']`, not `[]`, so a 0-byte file used to fold in as one added line of
+    // empty text. Nothing matches the detector in it, so it never showed up as a finding — it
+    // inflated addedLinesTotal instead, which is exactly the field that decides whether an empty
+    // scan gets labelled. One stray empty file and a worktree run that policed nothing reported
+    // itself as a real scan. Only local runs reach this: an A..B range folds in no untracked file.
+    fs.writeFileSync(path.join(root, 'empty-untracked.ts'), '');
+    const withEmptyFile = scan({ range: 'HEAD' }, root);
+    assert.equal(withEmptyFile.addedLinesTotal, 0, 'a 0-byte untracked file must contribute NO added line — the phantom from splitting an empty string');
+    assert.match(emptyNote(withEmptyFile), /proved nothing/, 'a worktree holding only a 0-byte untracked file scanned nothing, and must say so instead of reading as a real scan');
+    fs.rmSync(path.join(root, 'empty-untracked.ts'));
+    console.log('PASS a 0-byte untracked file folds in as zero lines, so it cannot suppress an empty-scan marker');
+
+    // --- a SESSION-HANDOFF.md-ONLY push must still pick the right one of the two zeros -----------
+    // The hazard the per-line split creates: once part of the handoff is policed, an all-record push
+    // could either lose its "nothing policed" marker or borrow the "proved nothing" one. Both
+    // branches are driven through a REAL scan here, because the distinction lives in whether
+    // filesInDiff is built before or after exemption — a pure-function test cannot see that.
+    const thirdSha = git(root, 'rev-parse', 'HEAD').trim();
+    w('SESSION-HANDOFF.md', [
+      '# handoff',
+      '## Current state',
+      '### S2026-08-21#3',
+      `done: the finding rests on ${at('src/shell/roster.ts', 38)} — record of a past moment, exempt`,
+      `dec: calibration cited ${at('scripts/leave-confirm-check.mjs', '100-102')} — record, exempt`,
+      `dec: and one more, ADR-0025 vs ${at('scripts/check-citations.mjs', 3)} — still record`,
+      'next:',
+      `- [ ] gh#59 — the clearance budget lives at ${at('src/styles/tokens.css', 12)}`,
+      `inflight: REFUTE finding quoted verbatim — ${at('scripts/arm-gate-probe.mjs', 41)}`,
+    ]);
+    git(root, 'add', '-A');
+    git(root, 'commit', '--quiet', '-m', 'record-only save');
+    const recordOnly = scan({ range: `${thirdSha}..HEAD` }, root);
+    assert.equal(recordOnly.addedLinesScanned, 0, 'a push adding only done:/dec: lines must scan zero policed lines');
+    assert.ok(recordOnly.filesInDiff.has(HANDOFF_FILE), 'the handoff must still be IN the diff — filesInDiff is built BEFORE exemption, and the marker below depends on it');
+    assert.match(emptyNote(recordOnly), /nothing policed was scanned/, 'a record-only handoff push must NOT claim the run proved nothing');
+    const trulyEmpty = scan({ range: 'HEAD..HEAD' }, root);
+    assert.equal(trulyEmpty.filesInDiff.size, 0, 'an empty range touches no files at all');
+    assert.match(emptyNote(trulyEmpty), /proved nothing/, 'an empty range is the tag-push and force-push signal and must say so');
+    // And the third zero: a handoff push that DOES touch next: is a real scan with no marker at all.
+    assert.equal(emptyNote(r), '', 'a push that policed real lines gets no NOTE — otherwise the marker means nothing');
+    console.log(`PASS handoff-only pushes pick the right zero: record-only -> "${emptyNote(recordOnly).trim()}"; empty range -> "${emptyNote(trulyEmpty).trim()}"; a next:-touching push -> no marker`);
+
+    // --- a RENAME re-presents every citation it carries into the new path -----------------------
+    // Ceiling 4's promise, made falsifiable: `git mv` out of an excluded record into a live doc must
+    // land every citation RED at the new path. This is NOT proving that removals would otherwise be
+    // misfiled — parseDiff files them under the `--- ` path by itself. What --no-renames buys is
+    // measured on real output: with detection ON the whole move is ONE hunk headed
+    // `--- a/<old path>` / `+++ b/<new path>` whose only `+` line is the reworded one, so the two
+    // untouched citations are never re-emitted and this deepEqual drops to a single finding.
+    // Decomposed into a delete plus an add, all of them arrive new. The padding below is
+    // load-bearing for exactly that: git needs most of the file unchanged to call it a rename at
+    // all, and without it the fixture degrades into the delete-plus-add case it exists to
+    // distinguish from, after which dropping the flag would change nothing here.
+    const archiveLines = [
+      '# archive',
+      `untouched line — S2025-12-01#2 noted ${at('session.ts', 12)} at the time`,
+      `S2026-01-01#1 — noted ${at('session.ts', 12)} at the time`,
+      'padding, so that rewording one line below still reads as a rename to git and not as a delete',
+      'more padding, same reason: similarity is exactly what arms the hazard this fixture proves',
+      'and a third line of it, because the majority of the file has to survive the edit unchanged',
+    ];
+    w('docs/sessions-archive.md', archiveLines);
+    git(root, 'add', '-A');
+    git(root, 'commit', '--quiet', '-m', 'grow the archive');
+    const beforeRename = git(root, 'rev-parse', 'HEAD').trim();
+    git(root, 'mv', 'docs/sessions-archive.md', 'docs/live-notes.md');
+    w('docs/live-notes.md', [
+      archiveLines[0],
+      `lifted into a LIVE doc — S2025-12-01#2 noted ${at('session.ts', 12)}, and an agent acts on it now`,
+      ...archiveLines.slice(2),
+    ]);
+    git(root, 'add', '-A');
+    git(root, 'commit', '--quiet', '-m', 'rename the frozen archive into a live doc');
+    const renamed = scan({ range: `${beforeRename}..HEAD` }, root);
+    assert.equal(renamed.moved, 0, `a rename out of an excluded path must exempt nothing — the old path's removals are not the new path's budget, got ${renamed.moved}`);
+    assert.deepEqual(
+      renamed.violations.map((v) => `${v.file} -> ${v.token}`),
+      [`docs/live-notes.md -> ${at('session.ts', 12)}`, `docs/live-notes.md -> ${at('session.ts', 12)}`],
+      'a rename is a delete plus an add: every citation the new path receives is new there',
+    );
+    console.log(`PASS git mv out of docs/sessions-archive.md does not launder its citations: both ${at('session.ts', 12)} lines land RED in docs/live-notes.md, ${renamed.moved} moved`);
+
+    // --- a push with no HUNK at all: binary and mode-only -------------------------------------
+    // Measured, not assumed: a binary block is `diff --git `, `new file mode`, `index`, then
+    // `Binary files … differ` — it has no `--- `/`+++ ` pair and never reaches a `@@`. A mode-only
+    // block is `diff --git ` plus `old mode`/`new mode`, and an empty new file stops after `index`.
+    // Harvesting paths from hunk lines left filesInDiff EMPTY for all three, so a commit adding an
+    // OG image (scripts/make-og.mjs ships those routinely) printed the force-push marker and claimed
+    // the run proved nothing. Same dilution as the removal-only case below, by a different route.
+    const beforeBinary = git(root, 'rev-parse', 'HEAD').trim();
+    fs.mkdirSync(path.join(root, 'public'), { recursive: true });
+    // A real PNG signature plus the head of its IHDR chunk: the NUL bytes are what make git call it
+    // binary, so this is a genuine binary blob and not a text file asserted to be one.
+    fs.writeFileSync(path.join(root, 'public/og.png'), Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex'));
+    git(root, 'add', '-A');
+    git(root, 'commit', '--quiet', '-m', 'add an OG image');
+    const binaryOnly = scan({ range: `${beforeBinary}..HEAD` }, root);
+    assert.equal(binaryOnly.addedLinesTotal, 0, 'a binary blob contributes no diff line in either direction');
+    assert.ok(binaryOnly.filesInDiff.has('public/og.png'), 'a binary file block reaches no @@ — its path must still be harvested, or the range reads as having touched nothing at all');
+    assert.doesNotMatch(emptyNote(binaryOnly), /proved nothing/, 'a binary-only push is fully gated (no line, so no citation) and must not borrow the force-push marker');
+    assert.match(emptyNote(binaryOnly), /binary or mode/, 'a binary-only push must name its own cause');
+
+    // Mode-only, driven through the INDEX rather than chmod: core.fileMode is false on some
+    // filesystems, where a chmod fixture would quietly produce an empty diff and assert nothing.
+    const beforeMode = git(root, 'rev-parse', 'HEAD').trim();
+    git(root, 'update-index', '--chmod=+x', 'good.md');
+    git(root, 'commit', '--quiet', '-m', 'make a file executable, change no line');
+    const modeOnly = scan({ range: `${beforeMode}..HEAD` }, root);
+    assert.equal(modeOnly.addedLinesTotal, 0, 'a mode change contributes no diff line either');
+    assert.ok(modeOnly.filesInDiff.has('good.md'), 'a mode-only block reaches no @@ either — same harvest, same requirement');
+    assert.match(emptyNote(modeOnly), /binary or mode/, 'binary and mode-only are one cause with two routes: no hunk exists, so no line could be added');
+    console.log(`PASS a hunkless push still counts as touching files: public/og.png and good.md reach filesInDiff and the run says "${emptyNote(binaryOnly).trim()}"`);
+
+    // --- a removal-only push has its own zero, and must not borrow the force-push marker ---------
+    // `git rm` plus a commit adds nothing, so addedLinesScanned is 0 — but the range is not empty
+    // and the push IS fully gated, because a push that adds no line cannot add a citation. Printing
+    // "the run proved nothing" on a routine deletion is exactly the dilution ADR-0025's Consequences
+    // forbid: that sentence is the only signal the force-push hole in ceiling 8 has left.
+    const beforeRemoval = git(root, 'rev-parse', 'HEAD').trim();
+    git(root, 'rm', '--quiet', 'good.ts');
+    git(root, 'commit', '--quiet', '-m', 'delete a file and add nothing');
+    const removalOnly = scan({ range: `${beforeRemoval}..HEAD` }, root);
+    assert.equal(removalOnly.addedLinesScanned, 0, 'a removal-only push adds no line to police');
+    assert.ok(removalOnly.filesInDiff.has('good.ts'), 'a deleted file is a file the range touched — filesInDiff is added AND removed lines, before any exemption');
+    assert.doesNotMatch(emptyNote(removalOnly), /proved nothing/, 'a deletion is fully gated and must not read as the tag-push/force-push case');
+    assert.match(emptyNote(removalOnly), /only removed lines/, 'a removal-only push must say so in its own words');
+    assert.equal(
+      new Set([emptyNote(r), emptyNote(recordOnly), emptyNote(trulyEmpty), emptyNote(removalOnly), emptyNote(binaryOnly)]).size,
+      5,
+      'a real scan, an all-exempt push, an empty range, a removal-only push and a hunkless one must each get their own sentence',
+    );
+    // Driven through REAL scans, unlike the pure cases above: whether a cause is distinguishable at
+    // all depends on fields scan() has to compute correctly, not just on emptyNote's branches.
+    assert.equal(emptyNote(modeOnly), emptyNote(binaryOnly), 'binary and mode-only are one cause by two routes and deliberately share a sentence');
+    console.log(`PASS a removal-only push keeps its own sentence: "${emptyNote(removalOnly).trim()}" — distinct from the empty-range marker and from the all-exempt one`);
 
     // --- range resolution -------------------------------------------------------------------
     // Its own repo, on a branch that is NOT main and with no remote, so the merge-base fallback is
@@ -570,7 +991,7 @@ async function main() {
     process.exit(1);
   }
 
-  const { filesInDiff, filesScanned, addedLinesScanned, violations, moved } = scan(r, repoRoot);
+  const { filesInDiff, filesScanned, addedLinesTotal, removedLinesTotal, addedLinesScanned, violations, moved } = scan(r, repoRoot);
   if (violations.length) {
     for (const v of violations) {
       console.error(`${v.file}:${v.line} · new line-number citation "${v.token}" · cite the durable symbol instead, e.g. "clear() in session.ts"`);
@@ -581,22 +1002,10 @@ async function main() {
     );
     process.exit(1);
   }
-  // A zero here can mean three different things and they must not share a sentence. "Clean" is a real
-  // pass. "The range added nothing" is the tag-push and force-push case in ceiling 8, where the run
-  // proved nothing. "Everything added sat in an excluded path" is the routine session-save commit,
-  // which touches only the handoff — saying it proved nothing there is false, and printing that on
-  // the most common commit in this repo would train readers to skim past the marker, which is the
-  // one signal ceiling 8 depends on. filesInDiff is a Set of the files in the diff BEFORE exclusion,
-  // so its size separates them — compare .size, not the Set itself, which is never equal to a number.
-  const empty =
-    addedLinesScanned !== 0
-      ? ''
-      : filesInDiff.size === 0
-        ? ' — NOTE: this range added no lines, so the run proved nothing'
-        : ' — NOTE: every added line sat in an excluded path, so nothing policed was scanned';
   console.log(
     `added-lineno-citation-check: ${filesScanned} file(s), ${addedLinesScanned} added line(s) scanned over ${r.range} (${r.source}); ` +
-      `${violations.length} new line-number citation(s), ${moved} pre-existing citation(s) moved and allowed${empty}`,
+      `${violations.length} new line-number citation(s), ${moved} pre-existing citation(s) moved and allowed` +
+      emptyNote({ addedLinesScanned, addedLinesTotal, removedLinesTotal, filesInDiff }),
   );
 }
 
