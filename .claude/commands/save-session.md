@@ -32,6 +32,13 @@ isn't injected removes the guardrail.
   **this is not format drift**, it's the declared format — fall back to a manual sed move, then confirm 3 asserts
   (block landed in the archive verbatim · source has 0 copies left · archive has 1 copy)
 - roll is `SESSION-HANDOFF.md` → `docs/sessions-archive.md`, newest-first append-only · resume never reads the archive
+- **the `done:` · `dec:` · `next:` · `inflight:` labels are load-bearing outside this doc.**
+  `scripts/added-lineno-citation-check.mjs` exempts `done:`/`dec:` as verbatim record and POLICES
+  `next:`, which agents read and act on. It decides **per line**, matching the label at the start of a
+  physical line, and anything it does not recognise is policed — that direction fails safe. So: a
+  `done:`/`dec:` entry that WRAPS onto a second physical line has its continuation policed, and
+  renaming or adding a label silently changes what the gate checks. Change the vocabulary and change
+  that script in the same commit. `inflight:` is exempt today behind a named constant there.
 
 ## Budgets
 
