@@ -10,6 +10,8 @@ const src = readFileSync(new URL('./PlayerSetup.astro', import.meta.url), 'utf8'
 const scriptAt = src.indexOf('<script>');
 const template = src.slice(0, scriptAt);
 const script = src.slice(scriptAt);
+// read once: gh#54 pins a PAIR — the hide lives in the island above, the way back lives on the game page
+const gamePage = readFileSync(new URL('../pages/game/[id].astro', import.meta.url), 'utf8');
 
 const queried = [...script.matchAll(/getElementById\('([^']+)'\)/g)].map((m) => m[1]);
 
@@ -279,7 +281,6 @@ test('#25 the clear confirmation sits outside #player-setup, next to the button 
 // back with 1 client rect and answered elementFromPoint, against 0 rects on the same build with the
 // catch body removed. What this pins is that the pair does not silently come apart at the next edit.
 test('gh#54 the panel is hidden on start in this file and put back by the game page when the mount fails', () => {
-  const gamePage = readFileSync(new URL('../pages/game/[id].astro', import.meta.url), 'utf8');
   // calibration: the hide is real and unconditional, so a missing un-hide is a genuine dead end
   assert.match(script, /root\.hidden = true/, 'requestStart no longer hides the panel — this pair moved');
   assert.ok(!/root\.hidden = false/.test(script), 'the panel now un-hides itself; this test is watching the wrong file');
@@ -290,5 +291,114 @@ test('gh#54 the panel is hidden on start in this file and put back by the game p
     handler,
     /getElementById\('player-setup'\)[\s\S]{0,200}?hidden = false/,
     'the failed-mount path no longer puts the setup panel back',
+  );
+});
+
+// --- gh#54's last box: a failed mount now says so, in the site owner's words ---------------------
+//
+// The game page owns the mount, the panel owns showError, and showError is module-scoped inside the
+// island — so the notice has to cross the island boundary. The only channel that exists between them
+// is a CustomEvent on document, which the panel already dispatches outbound to begin a round; this is
+// that same channel run the other way. The string below is the site owner's, chosen under gh#25, and
+// is pinned byte for byte on purpose: an agent must not write or edit player-facing copy, and a
+// paraphrase here would be doing exactly that.
+const MOUNT_FAILED_EVENT = 'watduang:mount-failed';
+const MOUNT_FAILED_COPY =
+  'รอบนี้ยังไม่ได้เริ่ม — เปิดเกมไม่สำเร็จ ชื่อที่เลือกไว้ยังอยู่ครบ กดเริ่มรอบอีกครั้งได้เลย';
+
+test('gh#54 a failed mount is told to the player in #setup-error, through the panel own showError', () => {
+  const listener = listenerBody('document', MOUNT_FAILED_EVENT);
+  const call = listener.match(/showError\('([^']*)'\)/);
+  assert.ok(call, 'the notice must go through showError — the one function that owns the notice node');
+  assert.equal(call[1], MOUNT_FAILED_COPY, 'the owner-chosen string, verbatim — not a paraphrase');
+  // The slot is #setup-error, the owner's choice, and showError is what binds the two: a showError that
+  // wrote some other node would satisfy the assertion above while painting nothing where it was asked.
+  assert.match(
+    script,
+    /const errorEl = document\.getElementById\('setup-error'\)/,
+    'showError writes errorEl, and errorEl must still be #setup-error',
+  );
+  assert.match(fnBody('showError'), /errorEl\.textContent = text/, 'positive control: showError paints errorEl');
+});
+
+// Both unwind paths land in the same catch, at different times, and only one of them has already had
+// requestStart's own root.hidden = true applied by the time it does. First load: `await load()`
+// suspends, so the catch resumes in a microtask long after requestStart returned. Second start of the
+// same page: the module is cached, nothing in the try awaits, and the throw is caught SYNCHRONOUSLY
+// inside dispatchEvent — the stack is still inside requestStart, which hides the panel again on the
+// way out. So the notice has to be deferred with the un-hide, in the same microtask and after it.
+// Dispatched any earlier on that second path it drops the alert node's hidden attribute while the
+// panel around it is about to be swallowed, and role="alert" announces into a screen nobody can see —
+// gh#54's own state, one retry deep. One dispatch site, inside that callback, is what makes the two
+// paths identical; a second site anywhere in this file is the sync-paint bug wearing a deferral.
+test('gh#54 the notice is dispatched inside the microtask that puts the panel back, after the un-hide', () => {
+  const handler = gamePage.slice(gamePage.indexOf("'watduang:start'"));
+  const catchAt = handler.indexOf('catch {');
+  assert.ok(catchAt > 0, 'positive control: the mount path still has a catch');
+  const catchOpen = handler.indexOf('{', catchAt);
+  const catchBody = handler.slice(catchOpen + 1, matchBraceEnd(handler, catchOpen));
+
+  const mtAt = catchBody.indexOf('queueMicrotask(');
+  assert.ok(mtAt >= 0, 'the restore is no longer deferred — the synchronous catch re-hides the panel over it');
+  const mtOpen = catchBody.indexOf('{', mtAt);
+  const mtBody = catchBody.slice(mtOpen + 1, matchBraceEnd(catchBody, mtOpen));
+
+  const unhide = mtBody.indexOf('panel.hidden = false');
+  const notify = mtBody.indexOf(MOUNT_FAILED_EVENT);
+  assert.ok(unhide >= 0, 'positive control: this is the callback that puts the panel back');
+  assert.ok(notify >= 0, 'the notice must be dispatched from inside that same callback, not from the catch body');
+  assert.ok(
+    unhide < notify,
+    'the panel comes back first, then the notice — showError drops hidden to announce, and a hidden panel ' +
+      'announces nothing',
+  );
+  assert.equal(
+    gamePage.split(MOUNT_FAILED_EVENT).length - 1,
+    1,
+    'exactly one dispatch site in this file — a second one outside the microtask is the race back',
+  );
+});
+
+// A mount that works must leave the panel silent, so the notice has to be unreachable from the success
+// path: dispatched from inside the catch and nowhere else, and said by the panel in one place only.
+test('gh#54 a successful mount says nothing — the dispatch sits inside the catch, and the panel says it once', () => {
+  const catchOpen = gamePage.indexOf('{', gamePage.indexOf('catch {'));
+  const catchClose = matchBraceEnd(gamePage, catchOpen);
+  assert.ok(catchClose > catchOpen, 'positive control: the catch block parses');
+  const notify = gamePage.indexOf(MOUNT_FAILED_EVENT);
+  assert.ok(notify > 0, 'positive control: the page does notify the panel');
+  assert.ok(
+    notify > catchOpen && notify < catchClose,
+    'the dispatch must sit inside the catch — anywhere else and a round that started fine reports a failure',
+  );
+  assert.equal(
+    script.split(MOUNT_FAILED_COPY).length - 1,
+    1,
+    'the panel says the failure string in exactly one place',
+  );
+  assert.ok(
+    listenerBody('document', MOUNT_FAILED_EVENT).includes(MOUNT_FAILED_COPY),
+    'and that one place is the listener for the failure event',
+  );
+});
+
+// Found in pre-merge review of gh#54: the clear sat BELOW the 'ask' early return, so the one route that
+// opens a question could not reach it. Mount fails → the notice paints → the player presses "Player N"
+// (startNumberedBtn clears nothing of its own) → planStart says 'ask' → #resume-choice opens underneath a
+// notice that is still on screen. The over-max warning reaches it by the same route and predates gh#54.
+// showError covers the mirror case itself (a warning it paints closes an open question, #23); this is the
+// direction it cannot cover, because requestStart is what opens the question.
+test('#23 requestStart clears the notice BEFORE the resume question opens — the two never share the screen', () => {
+  const body = fnBody('requestStart');
+  const clear = body.indexOf("showError('')");
+  const ask = body.indexOf('resumeChoiceEl.hidden = false');
+  assert.ok(clear >= 0, 'requestStart no longer clears the notice — a stale warning now outlives every start');
+  assert.ok(ask > 0, 'positive control: this is the branch that puts the question on screen');
+  // calibration: the branch really does return past everything below it, which is what makes order matter
+  assert.ok(body.indexOf('return;', ask) > ask, 'positive control: the ask branch returns');
+  assert.ok(
+    clear < ask,
+    'the clear sits below the ask branch, so a failed mount or an over-max warning is still on screen ' +
+      'when #resume-choice opens under it',
   );
 });

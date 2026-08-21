@@ -850,3 +850,143 @@ test('gh#53: a start over another game\'s stranded checkpoint is a new round, no
     'a replaced round was reported as a continued one — the copy names the opposite event',
   );
 });
+
+// ---- gh#56: the RESUME door into the same wrong-loss class. gh#53 closed the start that REPLACES a
+// round; this is the start that RESUMES a blob the round in the slot never wrote. Every write
+// re-serialises session.checkpoint, so an abandoned siamsi blob rides along under whatever round
+// starts next — the carry-through the stranded-checkpoint test above already pins. Going back and
+// resuming that blob is 'same-round' and the panel is right about it, the player really is carrying a
+// round on; but the round they are carrying on is the ABANDONED one, not the one whose id happens to
+// hold the slot. Inheriting that id left a stale closure on the replaced round passing the identity
+// compare and meeting the version check instead, so it was told its round had been played on from
+// another page when its round no longer exists at all.
+//
+// Reproduced on this stub before the fix, and it is message-level only: players, played and the blob
+// all survive, which is why the refusal reason is the whole observable.
+test("gh#56: a resumed checkpoint no longer wears the id another game's round minted", () => {
+  slots.clear();
+  const reasons = [];
+  // A siamsi round abandoned mid-play: nobody discarded it, so its blob is stranded in the site-wide
+  // slot for the rest of the 6h window.
+  const siamsi = loadSession();
+  siamsi.setPlayers(['Alice', 'Bob'], 'new-round');
+  siamsi.saveCheckpoint(midRound(7));
+
+  // The player opens timebomb and starts. The blob belongs to another game, so planStart takes the
+  // plain 'start' branch — nothing is asked, nothing is discarded, and the blob stays put.
+  assert.equal(
+    planStart(loadSession().checkpoint, 'timebomb'),
+    'start',
+    'positive control: nothing asks and nothing discards, so the siamsi blob stays stranded',
+  );
+  const timebomb = loadSession();
+  timebomb.onWriteRefused = (reason) => reasons.push(reason);
+  timebomb.setPlayers(['Cat', 'Dan'], 'new-round');
+  assert.equal(
+    loadSession().checkpoint.game,
+    'siamsi',
+    "positive control: timebomb's own write carried the stranded blob through, under timebomb's id",
+  );
+  const strandedId = JSON.parse(slots.get('watduang:session')).id; // timebomb's — and the blob is not its
+
+  // The player leaves timebomb mid-round — bfcache keeps that closure alive and armed — goes back to
+  // siamsi, and the panel offers the stranded round. They resume, so the panel sends 'same-round'.
+  assert.equal(
+    planStart(loadSession().checkpoint, 'siamsi'),
+    'ask',
+    'positive control: the panel really does offer the stranded round back',
+  );
+  const resumed = loadSession();
+  resumed.setPlayers(['Alice', 'Bob'], 'same-round'); // the panel's ticked group
+
+  // Read straight out of the stub, and read HERE: the hand-over has to be on the record, not merely in
+  // the closure that minted. The roster write-back on the next line re-serialises the whole record from
+  // that closure, so it repairs a hand-over the mint failed to persist — and every assertion further
+  // down is downstream of that repair, which is why they all stayed green with the persisted half of
+  // the fix deleted. A mount that throws makes the gap real: the write-back never runs, the record goes
+  // on naming the abandoned round, and every retry mints again.
+  const afterResume = JSON.parse(slots.get('watduang:session'));
+  assert.notEqual(afterResume.id, strandedId, 'positive control: the resume really did mint over the stranded blob');
+  assert.equal(
+    afterResume.cpOwner,
+    afterResume.id,
+    'the record still names the abandoned round as the blob owner, so the id churns on every later resume',
+  );
+
+  resumed.setPlayers(['Alice', 'Bob']); // mountInto()'s resume branch writing the blob's own roster back
+  // One start, one mint. This is the SAME closure both times — game/[id].astro loads one session, starts
+  // the round on it and hands it to the game as ctx.session — so the closure has to have taken the
+  // hand-over too, not just written it. Left carrying the abandoned round's owner, it reads its own fresh
+  // id as another round's and mints a second time here, displacing the round it is in the middle of
+  // resuming: the write-back's own comment above says minting here is the thing that must not happen.
+  assert.equal(
+    JSON.parse(slots.get('watduang:session')).id,
+    afterResume.id,
+    'the roster write-back minted again — one start took two identities, and the second one lands on a ' +
+      'round already being resumed',
+  );
+  assert.equal(loadSession().checkpoint.drawn, 7, 'ADR-0008: the resumed round must still be there to resume');
+  assert.deepEqual(loadSession().players, ['Alice', 'Bob'], 'positive control: the resumed round holds the slot');
+
+  // The blob changes hands on that mint, so this settles instead of churning: reload, resume again,
+  // and the round keeps the id it just took. Without the hand-over the record would go on naming the
+  // abandoned round, every later resume would mint, and an ordinary reload-and-resume OF THE RESUMED
+  // ROUND would report 'other-round' — the control below, one scenario deeper.
+  const resumedId = JSON.parse(slots.get('watduang:session')).id;
+  loadSession().setPlayers(['Alice', 'Bob'], 'same-round');
+  assert.equal(
+    JSON.parse(slots.get('watduang:session')).id,
+    resumedId,
+    'the resumed round minted again on the next reload — the fix churns ids instead of settling on one',
+  );
+  const storedResumed = slots.get('watduang:session');
+
+  // The tap on the restored timebomb page. Its round did not move on — it was replaced by the round
+  // the player went back to, and 'stale-version' names the opposite event (refusalCopy's two arms in
+  // player-select.ts).
+  timebomb.markPlayed('timebomb');
+  assert.equal(slots.get('watduang:session'), storedResumed, 'the replaced round wrote back over the resumed one');
+  assert.deepEqual(
+    reasons,
+    ['other-round'],
+    'the resumed round inherited the id timebomb minted, so a replaced round was told it was merely behind',
+  );
+});
+
+// The control, and it is the answer no fix here may change: an ORDINARY reload-and-resume — a round
+// resuming the blob it wrote itself — is a continuation, and a stale closure on it must still be told
+// 'stale-version'. Option B (the panel calling every resume 'new-round') was rejected on exactly this:
+// it buys the test above by inverting this one. The id assertion is the sharp end — a fix that mints
+// on every 'same-round' start fails there first, before the refusal reason ever flips.
+test('gh#56 control: an ordinary reload-and-resume keeps its id, and is still a newer version', () => {
+  slots.clear();
+  const reasons = [];
+  const restored = loadSession(); // the page that gets bfcached mid-round
+  restored.onWriteRefused = (reason) => reasons.push(reason);
+  restored.setPlayers(['Alice', 'Bob'], 'new-round');
+  restored.saveCheckpoint(midRound(7)); // this round's OWN blob — the one difference from the test above
+  const ownId = JSON.parse(slots.get('watduang:session')).id;
+
+  // Reload, and the panel offers back the round this page was playing. The player resumes it.
+  assert.equal(
+    planStart(loadSession().checkpoint, 'siamsi'),
+    'ask',
+    'positive control: the panel offers the page its own round back',
+  );
+  const resumed = loadSession();
+  resumed.setPlayers(['Alice', 'Bob'], 'same-round'); // the panel's ticked group
+  resumed.setPlayers(['Alice', 'Bob']); // mountInto()'s resume branch
+  assert.equal(
+    JSON.parse(slots.get('watduang:session')).id,
+    ownId,
+    'a genuine continuation minted a new id — the round no longer names itself, and every cross-page write on it now reports the wrong loss',
+  );
+  resumed.saveCheckpoint(midRound(10));
+
+  restored.saveCheckpoint(midRound(19));
+  assert.deepEqual(
+    reasons,
+    ['stale-version'],
+    'a continued round was reported as a replaced one — the fix flipped an ordinary resume',
+  );
+});

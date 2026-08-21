@@ -185,6 +185,20 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     clearChoiceEl.hidden = true;
     if (typeof clearChoiceEl.close === 'function' && clearChoiceEl.open) clearChoiceEl.close();
     else clearChoiceEl.removeAttribute('open');
+    // gh#54 — clear any failure notice from the previous attempt before this one gets its chance to fail
+    // too. role="alert" announces when the hidden attribute DROPS, so a notice still on screen from the
+    // last try would be repainted with identical text and announced not at all. #start-round clears it on
+    // its own path before it reaches here; no other caller of this function does — so clear it here, where
+    // every start route already converges, rather than at each button.
+    //
+    // ABOVE the 'ask' branch below, never after it (pre-merge review). showError enforces one half of the
+    // rule already — a warning it paints closes an open question (#23) — and this is the half it cannot
+    // enforce, because the question is opened from here. Placed below the early return, this line is
+    // unreachable on the one route that opens a question: #resume-choice would slide out under a notice
+    // still naming the last attempt's failed mount, or under an over-max warning left by a #start-round
+    // press that returned before it ever reached this function. A warning and a question must never share
+    // the screen, whichever of the two arrives second.
+    showError('');
     const session = loadSession();
     const action = planStart(session.checkpoint, gameId, choice);
     if (action === 'ask') {
@@ -220,6 +234,23 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     // Ways back: "Play again" lives in the game screen · "Clear group" is outside this panel and stays pressable.
     root.hidden = true;
   }
+
+  // gh#54 — the way back in. The game page owns the mount, so it is the only place that ever learns the
+  // mount failed, and showError is module-scoped in here: this is the mirror of the "watduang:start" this
+  // panel dispatches on its way out, same channel, opposite direction. A CustomEvent on document, and
+  // nothing exported across the island boundary.
+  //
+  // The page defers this dispatch into the same microtask that puts the panel back, and that ordering is
+  // load-bearing rather than tidy: on a second start of the same page the game module is already cached,
+  // nothing in the page's try block awaits, and its throw is caught synchronously inside dispatchEvent —
+  // with the stack still inside requestStart above, which has its own root.hidden = true left to run on
+  // the way out. Painted before that, showError would drop the alert node's hidden attribute while the
+  // panel around it is about to be swallowed, so the notice would be announced to nobody and the round
+  // would look exactly like gh#54 one retry deep. The copy is the site owner's (gh#25) and is quoted
+  // verbatim; player-setup.test.mjs pins it byte for byte, along with the microtask ordering on the page.
+  document.addEventListener('watduang:mount-failed', () => {
+    showError('รอบนี้ยังไม่ได้เริ่ม — เปิดเกมไม่สำเร็จ ชื่อที่เลือกไว้ยังอยู่ครบ กดเริ่มรอบอีกครั้งได้เลย');
+  });
 
   // Editing the count after the question appeared = the group changed; close it, same as ticking a name.
   // Without this line: press "Player N" at 4 → question opens → change to 6 → "Start new round" silently starts 4.

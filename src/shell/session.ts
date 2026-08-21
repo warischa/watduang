@@ -26,6 +26,26 @@ interface StoredSession {
    * range is 2^53 of them.
    */
   gen?: number;
+  /**
+   * Which id owned `checkpoint` when it was written — the round the BLOB belongs to, which is not
+   * always the round holding the slot. write() re-serialises the whole record, checkpoint field
+   * included, so a blob abandoned by an earlier game rides along under whatever round starts next, and
+   * gh#56 is entirely that gap: resuming the stranded blob inherited an id minted for another game's
+   * round, and the closure still live on THAT round then passed the identity compare and met the
+   * version check — told its round had been played on from another page when its round was gone.
+   *
+   * Absent on every record written before this field existed, and absent is read as UNKNOWN rather
+   * than as a mismatch: only a known, different owner mints. That is the pre-field behaviour, and it
+   * is the side that cannot flip an ordinary reload-and-resume into 'other-round'.
+   *
+   * Two writers move it, for two different reasons. saveCheckpoint moves it with the blob — a blob that
+   * enters or leaves the record takes its owner with it. write() re-stamps it on the one start that mints
+   * over
+   * a stranded blob, and there the blob does not move at all: the round UNDER it does, and the round
+   * that just minted is the one now playing that blob. Every other write carries the field through
+   * untouched, exactly as it carries the blob.
+   */
+  cpOwner?: string;
 }
 
 let minted = 0;
@@ -69,6 +89,10 @@ function read(): StoredSession {
     checkpoint: parsed.checkpoint ?? null,
     stamp: parsed.stamp,
     gen: parsed.gen ?? 0,
+    // Not normalised to the record's id the way an absent `id` is normalised to LEGACY_ID: undefined
+    // has to stay undefined here, because "unknown owner" is what makes a pre-field record behave as
+    // it did before the field existed.
+    cpOwner: parsed.cpOwner,
   };
 }
 
@@ -164,6 +188,18 @@ export function loadSession(): ShellSession {
    */
   let myGen: number = stored.gen ?? 0;
 
+  /**
+   * Whose round wrote the checkpoint this closure is carrying — seeded from the record, and null when
+   * the blob's owner is unknown (a pre-field record) or when there is no blob at all.
+   *
+   * The same two writers that move the field on the record move this. saveCheckpoint sets it beside
+   * `session.checkpoint`: same setter, same moment, refused or not, so that path cannot leave the two
+   * describing different rounds. write() moves it on the start that mints over a stranded blob — the blob
+   * stays, the round under it changes — and only after setItem returned, beside myId and myGen: a
+   * hand-over that threw is a hand-over that did not happen.
+   */
+  let myCpOwner: string | null = stored.cpOwner ?? null;
+
   /** Refuse: tell whoever is listening, and hand the reason back to the caller. Never re-syncs myGen
    *  and never adopts the stored record — ADR-0021 declined reconciliation, and adopting would either
    *  discard the player's visible state (ADR-0008) or persist the stale snapshot (gh#49 again). */
@@ -252,7 +288,27 @@ export function loadSession(): ShellSession {
       // The other side of the same line: mountInto()'s resume branch in siamsi.ts writes the resumed
       // round's own roster back through a second setPlayers, and it passes no kind — that is the same
       // round updating itself (#20), and minting there would displace the round it is resuming.
-      const id = start === 'new-round' ? mintId() : (myId ?? mintId());
+      //
+      // gh#56 — and the other half of the same sentence: 'same-round' means "carry on the round in the
+      // slot", but the CHECKPOINT in the slot is not necessarily that round's. The blob rides through
+      // every write (this function re-serialises the whole record), so an abandoned round's blob sits
+      // under whatever id started next; a start that resumes THAT blob is beginning the abandoned round
+      // again, not continuing the one whose id is there, and it takes an identity of its own too.
+      //
+      // This is NOT the inference the review rejected above. That one read a PANEL-owned branch off a
+      // slot proxy — "no checkpoint" standing in for "the player pressed discard" — and was wrong
+      // wherever the panel reached a start without going through a labelled branch. This compares two
+      // fields the RECORD owns, both written by this file and by nothing else: `id` from mintId(),
+      // `cpOwner` from saveCheckpoint and from the hand-over below. It asks "does the blob in this
+      // record belong to this record's round", which is a fact about the record, not a guess about which
+      // button was pressed — the kind is still the panel's word, and it is still what selects the branch.
+      //
+      // Only an explicit 'same-round' start qualifies. A non-start writer passes null and must never
+      // mint: it is updating the record it just matched against, and minting there would displace the
+      // round it is in the middle of saving — mountInto()'s roster write-back on resume is exactly that
+      // call. An unknown owner never mints either, so a pre-field record keeps today's behaviour.
+      const resumingAnotherRound = start === 'same-round' && myCpOwner !== null && myCpOwner !== myId;
+      const id = start === 'new-round' || resumingAnotherRound ? mintId() : (myId ?? mintId());
       // Not reset to 1 alongside the new id: the token orders writes to the SLOT, and a monotonic one
       // cannot coincidentally match a stale closure's. Identity refuses that closure first either way.
       const gen = myGen + 1;
@@ -265,6 +321,14 @@ export function loadSession(): ShellSession {
           checkpoint: session.checkpoint,
           stamp: Date.now(),
           gen,
+          // The stranded blob changes hands on this write. It does not move — the round under it does,
+          // and the round that just minted is the one now playing it, so it owns the blob from here on.
+          // This is the one re-stamp outside saveCheckpoint, and it covers the case saveCheckpoint
+          // cannot see: no checkpoint is being written at all. Without it the record would keep naming
+          // the abandoned round, every later 'same-round' start would mint again, and an ordinary resume
+          // of the resumed round would then report 'other-round' — the control this fix exists to keep.
+          // Every other write carries the owner through untouched, exactly as it carries the blob.
+          cpOwner: resumingAnotherRound ? id : (myCpOwner ?? undefined),
         } satisfies StoredSession),
       );
       // Only now: minting before the write would make Safari private mode (setItem throws every time)
@@ -274,6 +338,7 @@ export function loadSession(): ShellSession {
       // a record that never moved, and every later write would refuse against its own phantom write.
       myId = id;
       myGen = gen;
+      if (resumingAnotherRound) myCpOwner = id;
     } catch {
       // Quota full or Safari private mode — keep going in memory for this page, never throw. NOT a
       // refusal: no guard rejected this write, storage is simply unavailable, and in private mode every
@@ -303,6 +368,17 @@ export function loadSession(): ShellSession {
     },
     saveCheckpoint(cp: Checkpoint | null): void {
       session.checkpoint = cp;
+      // gh#56 — stamped beside the blob it describes, by the method that puts one there. `myId` is the id
+      // this write lands under: `start` is null here, so write() takes the `myId ?? mintId()` arm — and on
+      // a non-start write that arm is only ever reached holding a non-null myId. A closure that has not
+      // created yet stamps the blob unowned rather than guessing an owner, and unowned never mints; its
+      // write reaches the slot on neither branch, and only one of the two says a word. Nothing in the
+      // slot: a non-start write returns SILENTLY and refuses nothing — deliberate, gh#50 finding 1, since
+      // naming a cause that is false would re-announce on every tap. A record another closure created
+      // since: the identity compare refuses it as 'other-round'. Deliberately not moved into write(): a
+      // refused write leaves session.checkpoint mutated in memory (gh#50), and the owner has to be wrong
+      // in exactly the same way at exactly the same moment, or the pair drifts.
+      myCpOwner = cp === null ? null : myId;
       write();
     },
     clear(): void {

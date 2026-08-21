@@ -89,14 +89,15 @@ const { game } = Astro.props as { game: GameModule };
       // ticked names are still on screen, Start round is pressable again, and Clear group means what its
       // label says.
       //
-      // ponytail: silent, and that is the one box gh#54 still leaves open. The player is told nothing,
-      // because the Thai copy for this case does not exist yet and is the site owner's to write (gh#25 —
-      // an agent must not ship invented player-facing copy). When it lands it goes into #write-refused,
-      // the notice node this handler already clears and fills above; none of refusalCopy's three strings
-      // may stand in for it, because all three name a REFUSED WRITE and this is a mount that never ran —
-      // naming the wrong loss is the defect gh#53 exists to close. Nothing is logged either: this repo
-      // has no console calls in src/, so the failure is visible as "the panel came back" and no more.
-      // Until the string exists: silent and recoverable beats silent and destructive.
+      // gh#25 — no longer silent. The site owner has written the copy for this case and chosen where it
+      // goes: #setup-error, the panel's own pre-start notice node, reached through the panel's showError.
+      // NOT #write-refused — that is the node this handler clears and fills above, and it belongs to a
+      // refused WRITE. None of refusalCopy's three strings may stand in for it either, and for the same
+      // reason: all three name a refused write and this is a mount that never ran, and naming the wrong
+      // loss is the defect gh#53 exists to close. showError is module-scoped inside the setup island, so
+      // the notice goes back the way the start came — a CustomEvent on document, the mirror of
+      // "watduang:start" (PlayerSetup.astro owns the listener and the string). Nothing is logged: this
+      // repo has no console calls in src/, so the failure is the panel coming back with that line on it.
       //
       // Deferred to a microtask because the two failure paths unwind at different times, and only one
       // of them has already had root.hidden = true applied by the time this runs. First load: `await
@@ -110,8 +111,15 @@ const { game } = Astro.props as { game: GameModule };
       // restore outlive the dispatcher in BOTH paths — microtasks run after the stack unwinds, so it
       // always lands after requestStart has finished hiding. Do not "normalise" this by awaiting
       // before dispose()/mount() instead: that pair must stay sync back-to-back (see above).
+      // The notice rides that same microtask, and lands after the un-hide: showError announces by
+      // dropping the alert node's hidden attribute, and a panel still hidden at that instant — or one
+      // requestStart is about to re-hide on the synchronous path above — announces to nobody. One
+      // dispatch site, inside this callback, is what makes both unwind paths behave identically.
       const panel = document.getElementById('player-setup');
-      if (panel) queueMicrotask(() => { panel.hidden = false; });
+      if (panel) queueMicrotask(() => {
+        panel.hidden = false;
+        document.dispatchEvent(new CustomEvent('watduang:mount-failed', { bubbles: true }));
+      });
     }
   });
 </script>
