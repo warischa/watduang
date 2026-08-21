@@ -73,7 +73,7 @@ One exception, with a condition attached: **narrative** prose — in a body or i
 
 Rotted body on a live ticket: re-word the criterion to a symbol, and mark the narrative historical with the commit it was written against. Do not re-anchor the description of a bug that is already fixed.
 
-Live instances when this rule landed: #53, #29.
+Live instances when this rule landed: #53, #29. Decision and the declined alternative: ADR-0026.
 
 This rule states the shape rather than showing an example on purpose: `added-lineno-citation-check.mjs` cannot tell use from mention, so a literal example here fails the build.
 
