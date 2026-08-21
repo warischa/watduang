@@ -1,0 +1,101 @@
+{
+  "verdict": "REFUTED",
+  "game": "siamsi",
+  "widthCheck": {
+    "innerWidth": 320,
+    "outerWidth": 320
+  },
+  "rosterCheck": "[\"เอ\",\"บี\",\"ซี\"]",
+  "mounted": {
+    "rootHidden": true,
+    "ssStart": true
+  },
+  "turnEntered": true,
+  "stageBefore": [
+    {
+      "id": "ss-draw",
+      "tag": "BUTTON",
+      "text": "จั่วดวง",
+      "rect": {
+        "left": 8,
+        "right": 59.4375,
+        "top": 267.875,
+        "bottom": 291.875
+      }
+    }
+  ],
+  "preCollapseClearCancelRect": {
+    "left": 124.125,
+    "right": 176.25,
+    "top": 246.875,
+    "bottom": 270.875,
+    "width": 52.125,
+    "height": 24
+  },
+  "postState": {
+    "clearChoiceHidden": true
+  },
+  "stageAfter": [
+    {
+      "id": "ss-draw",
+      "tag": "BUTTON",
+      "text": "จั่วดวง",
+      "rect": {
+        "left": 8,
+        "right": 59.4375,
+        "top": 267.875,
+        "bottom": 291.875
+      }
+    }
+  ],
+  "scanTotalPoints": 98,
+  "collisionCount": 0,
+  "collisions": [],
+  "nonCollisionSample": [
+    {
+      "x": 124,
+      "y": 247,
+      "atId": null,
+      "atTag": "P",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 124,
+      "y": 251,
+      "atId": null,
+      "atTag": "P",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 124,
+      "y": 255,
+      "atId": "stage",
+      "atTag": "DIV",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 124,
+      "y": 259,
+      "atId": "stage",
+      "atTag": "DIV",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    },
+    {
+      "x": 124,
+      "y": 263,
+      "atId": "stage",
+      "atTag": "DIV",
+      "inStage": true,
+      "stageInteractiveId": null,
+      "stageInteractiveTag": null
+    }
+  ]
+}
