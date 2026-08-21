@@ -43,21 +43,39 @@ The pre-migration markdown originals under `.scratch/free-game/` were deleted 20
 
 Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
-### เลขใบ vs เลข issue
+### เลขใบ vs issue number
 
-หัวข้อของ issue ขึ้นต้นด้วย **เลขใบ** ซึ่งไม่ใช่เลข issue — **เลขใบ + 1 = เลข issue**
-(ใบ 12 = issue #13) ตอนสร้างใบใหม่ต้องคำนวณจากเลข issue ถัดไป ไม่ใช่นับจากใบล่าสุด
+A ticket title starts with **เลขใบ**, which is not the issue number — **เลขใบ + 1 = issue number**
+(เลขใบ 12 = issue #13). Computing a new เลขใบ must derive from the next issue number, never
+from the last เลขใบ seen.
 
-อย่าจดจำนวน issue หรือจำนวน sub-issue ไว้ในเอกสารใดๆ — นับจาก `gh` เอาตอนที่ต้องใช้
-ตัวเลขที่จดไว้จะเน่าเงียบและไม่มีใครกลับไปแก้
+Never record issue counts or sub-issue counts in any doc — count them from `gh` at the moment
+you need them. A recorded count rots silently and no one goes back to fix it.
 
-### `.scratch/` — อย่า gitignore ทั้งโฟลเดอร์
+### `.scratch/` — never gitignore the whole folder
 
-สำเนา issue และ map ใน `.scratch/` ถูกลบไปแล้วตอนย้ายมา GitHub แต่
-`.scratch/free-game/{research,prototypes}/` **ยังมีไฟล์ที่ track อยู่** — งานวิจัย demand,
-นโยบายโฆษณา, กฎหมาย, และ prototype ของ player shell
+The issue and map copies under `.scratch/` were deleted once the migration to GitHub landed, but
+`.scratch/free-game/{research,prototypes}/` **still hold tracked files** — demand research,
+ad-policy notes, legal notes, and the player-shell prototype.
 
-ถ้า gitignore ทั้ง `.scratch/` ของพวกนี้จะหลุดออกจาก repo เงียบๆ โดยไม่มีอะไรแตกให้เห็น
+Gitignoring all of `.scratch/` would drop those files out of the repo silently, with nothing
+visibly breaking.
+
+## Citations in issue bodies: symbols, never `path:line`
+
+`scripts/added-lineno-citation-check.mjs` polices `path:line` citations a push **adds to tracked files**. It is diff-scoped per ADR-0025, and it converges, because the set it enumerates is this repo's own.
+
+GitHub issue bodies are not in that set. `gh issue edit` fires no CI, so nothing scans them — and no scanner ever would converge, because GitHub owns that set and mutates it off-push. The one bounded set we own here is **authorship**, and this file is the chokepoint every agent routes through. So this is a ban, not advice:
+
+**Never pin a citation to a line number** — no source path carrying a trailing colon and a line, in an issue body, an issue comment, or an acceptance criterion. Anchor to a durable symbol instead — a constant, an exported function or type, an ADR id, or a rule named in words (`LEGACY_ID`, `refusalCopy()`, ADR-0021, the absent-`gen`-reads-as-0 rule).
+
+One exception, with a condition attached: **narrative** prose — in a body or in a comment — may cite lines if it states the commit they were pinned to (`re-verified against the tree at 29765a2`). That covers the description of a bug, and it covers a comment reporting rot, which cannot be written without quoting the rotted citation. Either way they are a record of where something was, not a pointer into the current tree. An **acceptance criterion** gets no such exception — a criterion has to stay evaluable after the tree moves, and a criterion nobody can evaluate quietly becomes a criterion nobody ticks.
+
+Rotted body on a live ticket: re-word the criterion to a symbol, and mark the narrative historical with the commit it was written against. Do not re-anchor the description of a bug that is already fixed.
+
+Live instances when this rule landed: #53, #29.
+
+This rule states the shape rather than showing an example on purpose: `added-lineno-citation-check.mjs` cannot tell use from mention, so a literal example here fails the build.
 
 ## Pull requests as a triage surface
 
