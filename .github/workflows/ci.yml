@@ -33,7 +33,13 @@ jobs:
       # variables would let an agent report "not armed" on a repo that is armed.
       HAS_DEPLOY_IDENTITY: ${{ secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_SUBSCRIPTION_ID != '' }}
     steps:
+      # fetch-depth: 0, not the default shallow clone. The "No new line-number citations" gate below
+      # diffs this push against its own base (github.event.before, or the PR base sha), and neither
+      # rev exists in a depth-1 checkout — the gate would fail closed on every run. Nothing else here
+      # needs history; this repo is small enough that a full clone costs seconds.
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v5
         with:
@@ -64,6 +70,26 @@ jobs:
       # leave this guard permanently green.
       - name: Check doc citations
         run: node scripts/check-citations.mjs --selftest && node scripts/check-citations.mjs
+
+      # The other half of the citation problem: check-citations.mjs above resolves .md targets only
+      # (its lineNoRe requires a .md extension), so a citation naming a SOURCE line by number has
+      # never been checked by anything — S2026-08-21 left an ADR and a unit test pointing at the
+      # wrong code that way. This gate bans the form on lines a push ADDS. Diff-scoped on purpose:
+      # 182 such citations already exist, two of them frozen records that cannot be re-anchored
+      # without falsifying what they record, so a tree-wide ban would need a grandfather list that
+      # decays into noise. The script's header carries the measurement and the reasoning.
+      # Base rev order: PR base sha > github.event.before > merge-base with origin/main. That last
+      # fallback exists because `on: push` is unfiltered and before-SHA is all-zeros on a branch's
+      # first push and on any tag push — this repo calibrates CI on throwaway branches deliberately,
+      # so those must not red. When none of the three resolves it FAILS CLOSED rather than diffing an
+      # empty range and printing a green zero, and an empty range is labelled as proving nothing
+      # instead of reading as a pass. See the fetch-depth: 0 note on checkout above.
+      # --selftest first, same reason as the gates around it.
+      - name: No new line-number citations into source (added lines only)
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/added-lineno-citation-check.mjs --selftest && node scripts/added-lineno-citation-check.mjs
 
       # --selftest first, same reason as above: proves the comment/string split still works before
       # trusting a 0 count. "Write English. Ship Thai." (#36) — a Thai comment line, or a line where
