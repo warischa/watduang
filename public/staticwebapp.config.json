@@ -1,7 +1,8 @@
 {
-  "navigationFallback": {
-    "rewrite": "/404.html",
-    "exclude": ["/_astro/*", "/*.{png,jpg,jpeg,gif,svg,ico,webp,css,js,json,webmanifest,txt,xml}"]
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html"
+    }
   },
   "mimeTypes": {
     ".json": "application/json",
