@@ -78,6 +78,51 @@ test('#25 the clear path decides through planClear, with no game matching inline
   assert.ok(guard < wipe, 'the guard must come before the wipe');
 });
 
+// #51 F2 — clear() can refuse (a stale write) but this page wires no onWriteRefused, so the refusal is
+// silent: session.clear() below is unreachable today only because requestClear binds its own
+// `const session = loadSession()`, with no await/.then(/yield before the wipe. This test pins two of the
+// three breaks: (1) that exact binding staying inside requestClear — a module-scope hoist fails this even
+// if some OTHER loadSession() call is left in the body (e.g. inlined into planClear's argument, with
+// session.clear() below resolving to an outer binding instead), and (2) no async escape (await, .then(,
+// yield) between that binding and session.clear(). It does NOT cover, and cannot: a synchronous
+// re-entrant writer running between the binding and the wipe (an event dispatch that itself calls
+// session.write() before session.clear() runs) — that is a set this repo does not own, so no source-text
+// assertion converges on it. fnBody() already scopes this search to requestClear alone, so the OTHER
+// loadSession() call (line ~169, requestStart's) can never be mistaken for this one — it isn't in this
+// body at all.
+test(
+  "#51 requestClear's `const session = loadSession()` binding stays inside this function, with no " +
+    'await/.then(/yield before the wipe (a synchronous re-entrant writer in that span is not covered)',
+  () => {
+    const body = fnBody('requestClear');
+    const bindingRe = /const\s+session\s*=\s*loadSession\(\)/;
+    assert.match(
+      body,
+      bindingRe,
+      'requestClear must bind its own `const session = loadSession()` — if this binding moves above/outside ' +
+        'requestClear (e.g. a shared module-scope session read once for several handlers), or some OTHER ' +
+        'loadSession() call is left in its place while session.clear() below resolves to that outer binding, ' +
+        "the session read here goes stale and session.clear()'s refusal (gh#51 F2) becomes a silent no-op " +
+        'nobody notices',
+    );
+    const bindAt = body.match(bindingRe).index;
+    const clearAt = body.indexOf('session.clear()');
+    assert.ok(clearAt > 0, 'positive control: this is the function that wipes the session');
+    assert.ok(
+      bindAt < clearAt,
+      'the `const session = loadSession()` binding must sit before session.clear() in this function — a ' +
+        'binding declared after the wipe cannot be the session that fed it',
+    );
+    assert.doesNotMatch(
+      body.slice(bindAt, clearAt),
+      /\bawait\b|\.then\(|\byield\b/,
+      'no await, .then(, or yield may sit between the session binding and session.clear() — any of the ' +
+        'three yields control, so by the time clear() runs the session may already be stale, turning its ' +
+        'refusal into the same silent discard',
+    );
+  },
+);
+
 // #data-loss — planClear can only judge with what it is handed. The island SETS root.hidden itself when
 // a round starts and then never read it back here, so with the checkpoint slot empty (five of six games
 // never write one, and siamsi empties it at round end) one tap on \u0e25\u0e49\u0e32\u0e07\u0e01\u0e25\u0e38\u0e48\u0e21\u0e19\u0e35\u0e49 reloaded the page and took

@@ -370,11 +370,17 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
       }
       // clear() can refuse since gh#51 F2, and this page wires no onWriteRefused — so the refusal
       // would be silent here, and saveGroup([]) + reload below run regardless. Unreachable today, and
-      // the reason is the ONLY thing keeping it so: loadSession() is called at the top of this same
-      // gate with zero awaits between, so the closure cannot be a generation behind its own record.
-      // Hoist that loadSession() out, or put an await between it and here, and this becomes a silent
-      // discard-that-did-not-happen — the ADR-0008 loss gh#50 closed for write(). Wire the listener
-      // (or check the return) before making either change.
+      // the reason is the ONLY thing keeping it so: `const session = loadSession()` above binds fresh
+      // inside this same gate, with zero awaits/then/yield before the wipe, so the closure cannot be a
+      // generation behind its own record. Hoist that binding out, leave an async escape before the
+      // wipe, or make session.clear() run in a synchronous re-entrant writer's wake, and this becomes a
+      // silent discard-that-did-not-happen — the ADR-0008 loss gh#50 closed for write(). Wire the
+      // listener (clear() would first need write()'s WriteRefusal | null return, session.ts:181 —
+      // clear() is declared void, session.ts:245, so there is no return to check yet) before making any
+      // of those changes. player-setup.test.mjs's "#51 requestClear's `const session = loadSession()`
+      // binding stays inside this function" pins the first two of those three breaks by source text;
+      // the third (a synchronous re-entrant writer in that span) is named there as not covered, not
+      // enumerated — that set has no owner a source-text check converges on.
       session.clear();
       saveGroup([]);
     }
