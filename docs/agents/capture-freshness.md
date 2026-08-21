@@ -33,11 +33,13 @@ illustrative, not exhaustive:**
 
 **The general test, which outranks the list: any change to a file the capture's unit twin cites by
 line number re-triggers the capture.** The suite here leans on `.astro` line ordering it cannot run —
-`session.test.mjs:80, 101, 135, 278` cite `game/[id].astro:50-51` ("back-to-back with nothing in
-between"), and `:124, 340` cite `PlayerSetup.astro:304/:310/:141` — while `npm test` is
-`node --test 'src/**/*.test.mjs'` and executes no `.astro` at all. Insert one `await` between
-`[id].astro:50` and `:51` and browser resume breaks with all 96 tests still green. A premise the tests
-only *assert in a comment* is browser-owned, whatever file it lives in.
+`session.test.mjs` cites `game/[id].astro:50-51` ("back-to-back with nothing in between") in several
+comments (the ADR-0010 clobber-claim test, the writer-lands-between-closures test, F1's late-setPlayers
+test, and the FIRST-setPlayers-after-discard test), and cites `PlayerSetup.astro:141` once (the
+only-setPlayers-creates test) — while `npm test` is `node --test 'src/**/*.test.mjs'` and executes no
+`.astro` at all. Insert one `await` between `[id].astro`'s `loadSession()` and `setPlayers()` calls and
+browser resume breaks with all 96 tests still green. A premise the tests only *assert in a comment* is
+browser-owned, whatever file it lives in.
 
 Internal refactors genuinely *behind* the seam do not invalidate a capture. Worked example: `9c9a080`
 rewrote `session.ts`'s `write()` into an identity CAS and did not invalidate #20's capture — it left

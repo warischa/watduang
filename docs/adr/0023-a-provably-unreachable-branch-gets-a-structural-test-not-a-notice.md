@@ -1,8 +1,8 @@
 # A provably unreachable branch gets a structural test, not a notice
 
 [ADR-0022](0022-a-refusal-is-reported-never-reconciled.md) decided that a refused write is reported at
-`write()`'s chokepoint. Reading `requestClear` (`src/shell/PlayerSetup.astro:336`) against that decision
-looked like a gap: `clear()` (`src/shell/session.ts:245`) can refuse a stale write the same way `write()`
+`write()`'s chokepoint. Reading `requestClear` (in `src/shell/PlayerSetup.astro`) against that decision
+looked like a gap: `clear()` (in `src/shell/session.ts`) can refuse a stale write the same way `write()`
 can, but `requestClear` wires no `onWriteRefused` listener, and `saveGroup([])` plus `location.reload()`
 run regardless of the outcome. That reads exactly like the gh#50 defect ADR-0022 closed.
 
@@ -11,9 +11,9 @@ structure that makes it so.
 
 ## Why it is unreachable
 
-`requestClear` binds `const session = loadSession()` inside its own body (line 345), with zero `await`,
-`.then(`, or `yield` before `session.clear()` (line 384). No re-entrant tap widens the gap either:
-`clearConfirmBtn`'s click handler calls `requestClear(true)` again (line 393), so `loadSession()` runs
+`requestClear` binds `const session = loadSession()` inside its own body, with zero `await`,
+`.then(`, or `yield` before `session.clear()`. No re-entrant tap widens the gap either:
+`clearConfirmBtn`'s click handler calls `requestClear(true)` again, so `loadSession()` runs
 fresh on the confirm tap too. A closure that reads its own record synchronously and writes it
 synchronously, in the same turn, cannot have gone stale in between.
 

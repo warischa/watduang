@@ -20,47 +20,53 @@ check in `planClear` (`src/shell/player-select.ts`), fed from the panel's own hi
 (`src/shell/PlayerSetup.astro`) — not by anything site-wide-vs-per-game keying could have prevented.
 
 Also open, found by the same design pass and **not** fixed: game B's start still clobbers shared
-`session.players` via `[id].astro:51`. **Scored S2026-08-15#2 — REFUTED at this scope only.** The
-ADR's decision above (keep one site-wide checkpoint slot; defer per-game keying) stands; only this
-closing clobber claim is wrong.
+`session.players` via the `setPlayers` call in `src/pages/game/[id].astro`'s `watduang:start` handler.
+**Scored S2026-08-15#2 — REFUTED at this scope only.** The ADR's decision above (keep one site-wide
+checkpoint slot; defer per-game keying) stands; only this closing clobber claim is wrong.
 
 Every reader of `session.players` runs *after* its own page's `setPlayers`. The start handler sets
-players before it mounts (`src/pages/game/[id].astro:51,62`), and the เล่นอีกรอบ path re-mounts via
-`mountInto` on the closure start already populated (`src/games/siamsi.ts:269`,
-`src/games/timebomb.ts:147`) — so `src/games/siamsi.ts:210,290`, `src/games/timebomb.ts:87,187` and
-`src/games/_template.ts:33` always see the panel's fresh selection, never a stale one from a
-previous game. The only cross-page reader is resume, and `resumeFrom` deliberately ignores
-`current` — the checkpoint owns its roster (`src/games/siamsi.ts:122-123`) and restores
-`session.players` from the blob (`src/games/siamsi.ts:344`); the design comment at
-`src/games/siamsi.ts:338-343` names this transience as intended.
+players before it mounts (`session.setPlayers(...)` then `game.mount(...)`, both in
+`src/pages/game/[id].astro`'s `watduang:start` handler), and the เล่นอีกรอบ path re-mounts via
+`mountInto` on the closure start already populated (the `เล่นอีกรอบ` click handler in `src/games/siamsi.ts`
+and in `src/games/timebomb.ts`) — so the `session.players` reads in `siamsi.ts`'s `renderIdle` and
+`startRound`, in `timebomb.ts`'s `renderIdle` and `arm`, and in `_template.ts`'s `mount()` always see
+the panel's fresh selection, never a stale one from a previous game. The only cross-page reader is
+resume, and `resumeFrom` deliberately ignores `current` — the checkpoint owns its roster
+(`resumeFrom`'s docblock in `src/games/siamsi.ts`, "The checkpoint owns its roster (#23)") and restores
+`session.players` from the blob (`ctx.session.setPlayers(resumed.players)` in `mountInto`'s resume
+branch, `src/games/siamsi.ts`); the design comment inside that same branch names this transience as
+intended.
 
 Game B's start also preserves game A's checkpoint on the ordering the start handler uses:
-`loadSession()` and `setPlayers()` sit back-to-back (`src/pages/game/[id].astro:50-51`), and
-`setPlayers` writes back the same snapshot `session.checkpoint` it loaded
-(`src/shell/session.ts:119,100`), never a fresh read. Break that adjacency and the checkpoint does
-clobber, pinned both ways by `src/shell/session.test.mjs`: the safe ordering in "game B start
-(setPlayers) preserves game A checkpoint" and the hostile ordering in the boundary-pin test that
-follows it. **That adjacency is local to the start handler's own pair — it is not a property of the
-codebase.** See the finding below — open when written, closed S2026-08-15#4.
+`loadSession()` and `setPlayers()` sit back-to-back (both calls in `src/pages/game/[id].astro`'s
+`watduang:start` handler), and `setPlayers` writes back the same snapshot `session.checkpoint` it
+loaded (the `checkpoint: session.checkpoint` line in `write()`'s `JSON.stringify` call, and the
+`checkpoint: stored.checkpoint` initializer in the `session` object literal, both in `session.ts`),
+never a fresh read. Break that adjacency and the checkpoint does clobber, pinned both ways by
+`src/shell/session.test.mjs`: the safe ordering in "game B start (setPlayers) preserves game A
+checkpoint" and the hostile ordering in the boundary-pin test that follows it. **That adjacency is
+local to the start handler's own pair — it is not a property of the codebase.** See the finding
+below — open when written, closed S2026-08-15#4.
 
-Two sub-claims were already covered by committed calibrated checks:
-`src/games/siamsi.test.mjs:129-141` (resume with diverging/empty roster) and
-`src/shell/session.test.mjs:36-41` (players/checkpoint persistence). The one sub-claim that rested
-only on reading `session.ts:70` now has its own test.
+Two sub-claims were already covered by committed calibrated checks: the resume tests in
+`src/games/siamsi.test.mjs` (resume with diverging/empty roster) and the players/checkpoint
+persistence tests in `src/shell/session.test.mjs`. The one sub-claim that rested only on reading the
+`checkpoint` field in `read()` in `session.ts` now has its own test.
 
 The fact that would change this: any reader of `session.players` running *before* the current
 page's own start, or any checkpoint writer landing between a closure's creation and that closure's
 own `setPlayers` call. The first does not exist today — the only cross-page reader is resume
-(covered above), and `src/shell/PlayerSetup.astro:131,296` read only the checkpoint. **The second
-did exist** — recorded and fixed below.
+(covered above), and the two `session.checkpoint` reads in `PlayerSetup.astro`'s `requestStart` and
+`requestClear` read only the checkpoint. **The second did exist** — recorded and fixed below.
 
 ## Finding S2026-08-15#2 — a late `setPlayers` could resurrect a discarded record · FIXED
 
-Found while scoring the claim above, and fixed in the same session. `src/games/siamsi.ts:344` is a *second*
-`setPlayers` on the closure the start handler created, and on first mount `await load()`
-(`src/pages/game/[id].astro:56`) separates it from that closure's creation. The panel stays live in
-that gap: ล้างกลุ่มนี้ → `session.clear()` (`src/shell/PlayerSetup.astro:304`) empties the record,
-and `location.reload()` (`:310`) is a macrotask away. If the module resolves first, `:344` runs with
+Found while scoring the claim above, and fixed in the same session. `ctx.session.setPlayers(resumed.players)`
+in `mountInto`'s resume branch (`src/games/siamsi.ts`) is a *second* `setPlayers` on the closure the
+start handler created, and on first mount `await load()` (`src/pages/game/[id].astro`) separates it
+from that closure's creation. The panel stays live in that gap: ล้างกลุ่มนี้ → `session.clear()`
+(in `requestClear`, `src/shell/PlayerSetup.astro`) empties the record, and `location.reload()` (same
+function) is a macrotask away. If the module resolves first, that resume `setPlayers` runs with
 `create = true` and rebuilds the record *with its checkpoint* — the discarded round un-discards.
 
 This is the failure `65d3d3c` closed for the `#ss-draw` / `#ss-pass` writers. The resume path is a
@@ -68,7 +74,7 @@ sibling caller that fix did not cover, which is why "`setPlayers` is the sole cr
 first" held as written and still left this open — it runs first, and then again later.
 
 Confirmed: the storage semantics, by probe against the real `src/shell/session.ts` (after `clear()`,
-a `:344`-shaped `setPlayers` leaves a record carrying a `siamsi` checkpoint). Not measured: the
+a resume-shaped `setPlayers` leaves a record carrying a `siamsi` checkpoint). Not measured: the
 browser-side race window, argued from `65d3d3c`'s own reproduction rather than observed. The fact
 that would kill this finding: proof the pending module continuation can never run between
 `session.clear()` and the reload committing.
@@ -80,8 +86,8 @@ at the chokepoint every caller routes through, not on siamsi's resume path.
 
 Be precise about what that guard does: it keys on **call ordinality within one closure**. The flag
 refuses nothing itself, does not track whether this closure created the record, and does not detect
-the `clear()`. Its safety rests on `src/pages/game/[id].astro:50-51` being the *first* `setPlayers`
-on every closure a game module receives.
+the `clear()`. Its safety rests on the `session.setPlayers(...)` call in `src/pages/game/[id].astro`'s
+`watduang:start` handler being the *first* `setPlayers` on every closure a game module receives.
 
 The fact that would change this: a page that hands a game a session closure whose first `setPlayers`
 happens inside the game. That page silently loses the protection — the same locality this ADR scores
@@ -109,7 +115,8 @@ navigation task queue, not by us. A negative reading on one Chrome build converg
 never terminates.
 
 **The race is spec-permitted, not unreachable.** `location.reload()` queues a navigation and
-script keeps running — `src/shell/session.ts:41` already recorded this ("a macrotask away").
+script keeps running — the `loadSession()` doc comment in `src/shell/session.ts` already recorded
+this ("a macrotask away").
 Any attempt to prove the interleaving impossible would have been proving a false statement. Do not
 record "the race cannot happen"; record that it is permitted and **bounded at the seam**.
 
@@ -129,26 +136,28 @@ violation; closing either hole flips its own pin red by design.
 
 **Both holes are unreachable in production today** — by call-site accident, not by construction:
 
-- `src/pages/game/[id].astro:50-51` are adjacent statements with no suspend between them, so a
-  closure's first `setPlayers` is synchronous with its own creation. The only `await` (`load()`,
-  `:56`) comes after. No closure can be stale-with-unspent-first-call.
-- `clear()` (`src/shell/PlayerSetup.astro:304`) is always chained to `location.reload()` (`:310`)
-  in the same handler; a same-document new round requires a second `watduang:start`, which builds a
-  fresh closure.
-- `gameCtx` is module-level, overwritten on every `mountInto` (`src/games/siamsi.ts:331`,
-  `src/games/timebomb.ts:260`) and nulled by `teardown()` (`siamsi.ts:372`). The replay button
-  reads it **at click time** (`siamsi.ts:266-267`), not render time, so `siamsi.ts:344` always
-  fires on the current mount's closure. No holder of a stale closure with a reachable write path
-  exists.
+- `loadSession()` and `setPlayers()` in `src/pages/game/[id].astro`'s `watduang:start` handler are
+  adjacent statements with no suspend between them, so a closure's first `setPlayers` is synchronous
+  with its own creation. The only `await` (`load()`, same handler) comes after. No closure can be
+  stale-with-unspent-first-call.
+- `clear()` (in `requestClear`, `src/shell/PlayerSetup.astro`) is always chained to `location.reload()`
+  (same function) in the same handler; a same-document new round requires a second `watduang:start`,
+  which builds a fresh closure.
+- `gameCtx` is module-level, overwritten on every `mountInto` (in `src/games/siamsi.ts` and in
+  `src/games/timebomb.ts`) and nulled by `teardown()` (`siamsi.ts`). The replay button reads it
+  **at click time** (the `เล่นอีกรอบ` click handler in `siamsi.ts`), not render time, so the resume
+  `setPlayers` in `mountInto` always fires on the current mount's closure. No holder of a stale
+  closure with a reachable write path exists.
 
-The second hole's class also covers `markPlayed` and `saveCheckpoint` (`timebomb.ts:230`,
-`siamsi.ts:283`) — both write the full stale snapshot under the same existence-only check. Same
-unreachability argument; named here so a future writer inherits the warning.
+The second hole's class also covers `markPlayed` and `saveCheckpoint` (`detonate()` in `timebomb.ts`,
+`save()` in `siamsi.ts`) — both write the full stale snapshot under the same existence-only check.
+Same unreachability argument; named here so a future writer inherits the warning.
 
 **The facts that would invert this** (both pinned in the test comments): any `setPlayers` caller
-other than `[id].astro:51` and `siamsi.ts:344` that has a suspend between its `loadSession()` and
-its *first* `setPlayers`; or any record creation that does not require a fresh user gesture — a
-client router or an auto-start. Either turns a boundary pin into a live ADR-0008 violation.
+other than the one in `[id].astro`'s `watduang:start` handler and the resume `setPlayers` in
+`siamsi.ts`'s `mountInto` that has a suspend between its `loadSession()` and its *first*
+`setPlayers`; or any record creation that does not require a fresh user gesture — a client router
+or an auto-start. Either turns a boundary pin into a live ADR-0008 violation.
 
 **Calibration.** Positive control: deleting only `mayCreate = false;` (leaving `65d3d3c`'s
 write-level existence check intact) goes red 9/2, caught by the assertion at
@@ -183,8 +192,9 @@ named. Decision taken by the site owner with that trade-off stated.
   mechanism) → pass 11 / fail 4 of 15, `src/shell/session.test.mjs` (tests 10, 11, 14, 15 — the old
   `mayCreate` was spent unconditionally, so the post-quota-retry test fails too, and the F2 aging test
   added after this paragraph fails against it the same way, since both landed in the same rewrite).
-- lines 110-112 ("`MAX_AGE_MS` aging is expressible at this seam but is a different invariant — the
-  key survives aging, so `write()`'s existence check passes while `read()` reports empty") — superseded
+- the "What this does not cover" paragraph above ("`MAX_AGE_MS` aging is expressible at this seam but
+  is a different invariant — the key survives aging, so `write()`'s existence check passes while
+  `read()` reports empty") — superseded
   by the same CAS rewrite: `write()` now re-reads via `readRaw()`, which ages the record, so an aged
   record refuses a non-creating write and agrees with `read()`. Pinned by the aged-record test added
   to `src/shell/session.test.mjs` in this fix pass.

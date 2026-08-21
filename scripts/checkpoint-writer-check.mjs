@@ -19,8 +19,9 @@
 //     methods, this gate stops meaning anything and the trigger goes back to being prose.
 //   - The indirect persist (gh#48). write() in src/shell/session.ts re-serialises the WHOLE record,
 //     checkpoint field included, so every writer persists the checkpoint: setPlayers
-//     (src/pages/game/[id].astro:51) and markPlayed (all six games) each write session.checkpoint back
-//     to storage. In five of those six files there is no `.saveCheckpoint(` token to match on at all;
+//     (in src/pages/game/[id].astro's watduang:start handler) and markPlayed (all six games) each
+//     write session.checkpoint back to storage. In five of those six files there is no
+//     `.saveCheckpoint(` token to match on at all;
 //     siamsi.ts is the exception and is the one file this scan already allows. Left unmatched on
 //     purpose — those calls carry back the checkpoint their own closure loaded, which is the property
 //     the chokepoint enforces, so matching them would turn six games red for a rule they keep

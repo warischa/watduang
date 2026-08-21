@@ -5,15 +5,17 @@ Date: 2026-08-15 · Status: accepted · Issue: [#24](https://github.com/warischa
 ## Context
 
 The shell keeps one checkpoint slot for the whole site. A white-box audit this session traced every
-read and every write of it: 4 writes (`siamsi.ts:281` `save()`, `siamsi.ts:320` clear-on-round-over,
-`PlayerSetup.astro:141` discard-then-start, `session.ts:131` `clear()`), 2 preserving rewrites
-(`session.ts:117` `setPlayers`, `:121` `markPlayed`), and 3 reads (`siamsi.ts:335`,
-`PlayerSetup.astro:131`, `:296`). Line references re-verified against the tree at S2026-08-15#2 —
-the originals were written before `65d3d3c` reshaped `siamsi.ts` and had drifted.
+read and every write of it: 4 writes (`save()` in `siamsi.ts`, the round-over `saveCheckpoint(null)`
+in `siamsi.ts`'s `passToNext`, the discard-then-start `saveCheckpoint(null)` in `PlayerSetup.astro`'s
+`requestStart`, `clear()` in `session.ts`), 2 preserving rewrites (`setPlayers` and `markPlayed` in
+`session.ts`), and 3 reads (the checkpoint read in `siamsi.ts`'s `mountInto`, and the two
+`session.checkpoint` reads in `PlayerSetup.astro`'s `requestStart` and `requestClear`). Line references
+re-verified against the tree at S2026-08-15#2 — the originals were written before `65d3d3c` reshaped
+`siamsi.ts` and had drifted.
 
-Result: **every guard is read-side.** `resumeFrom` checks the game label (`siamsi.ts:125`) and
-`planStart` checks `checkpoint?.game === gameId` (`player-select.ts:47`). The write side has none —
-`saveCheckpoint` (`session.ts:127-129`) never compares `cp.game` to what is already in the slot.
+Result: **every guard is read-side.** `resumeFrom` checks the game label in `siamsi.ts` and
+`planStart` checks `checkpoint?.game === gameId` in `player-select.ts`. The write side has none —
+`saveCheckpoint` in `session.ts` never compares `cp.game` to what is already in the slot.
 
 Unreachable today: siamsi is the sole `saveCheckpoint` caller — grep the callers, do not count the
 manifest (six games ship now; the four added since only call `markPlayed`, which preserves the
@@ -30,7 +32,7 @@ A write-side guard cannot work. All four semantics fail:
 | Semantic | Why it fails |
 |---|---|
 | refuse silently | breaks game B's own refresh-resume — the feature [#20](https://github.com/warischa/watduang/issues/20) ships |
-| throw | crashes B mid-round; contradicts `session.ts:108-110`, which deliberately swallows storage failures |
+| throw | crashes B mid-round; contradicts the catch block in `write()` in `session.ts`, which deliberately swallows storage failures |
 | overwrite + warn | warns nobody, still destroys A |
 | explicit ownership | the only defensible shared-slot option, but needs a new prompt and new approved Thai copy |
 
