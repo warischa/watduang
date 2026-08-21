@@ -49,6 +49,20 @@ npx tsc --noEmit     # run separately, build doesn't do this
 CI calls `npm run build` in `.github/workflows/ci.yml` for the same reason — if someone ever reverts
 that to `npx astro build`, the gate goes silent instantly.
 
+## `tsc --noEmit` does not typecheck `.astro`
+
+**Symptom:** `npx tsc --noEmit` exits 0 and you conclude the types are clean. They may not be.
+
+Verified 2026-08-21 by planting a real type error inside a `.astro` script block: `tsc` still exited 0
+and reported zero errors. It only sees the plain `.ts` files. Every `.astro` component — which is where
+this project's shell logic lives — is invisible to it.
+
+**The real gate is `npx astro check`**, which is what CI runs. Calibrated the same day: 0 errors on a
+clean tree, exit 1 with the planted error present.
+
+Do not accept "tsc 0" as evidence that a change to a `.astro` file typechecks, and do not write it into
+a definition of done — name `astro check` instead.
+
 ## Verify work the way CI does
 
 Moved to `docs/agents/ci-verification.md` (ADR-0012 task seam). Read it before reproducing any CI
