@@ -1,0 +1,124 @@
+{
+  "label": "prefix-positive-control",
+  "base": "http://localhost:4323",
+  "when": "2026-08-21T05:03:22.921Z",
+  "scenarios": {
+    "love-match-retry": {
+      "chunk": "default.mount() throws",
+      "setup": {
+        "rosterCheck": "[\"สมชาย\",\"ปูเป้\",\"ก้อง\"]",
+        "ticked": {
+          "found": 3,
+          "checked": 2
+        }
+      },
+      "first": {
+        "timing": {
+          "pressed": true,
+          "hiddenAtClickReturn": true,
+          "hiddenAfterMicrotasks": true
+        },
+        "state": {
+          "rootHidden": false,
+          "roundLive": false,
+          "startRects": 1,
+          "elementFromPoint": "start-round",
+          "startDisabled": false,
+          "stillTicked": 2,
+          "group": "[\"สมชาย\",\"ปูเป้\"]",
+          "stageKids": 0
+        }
+      },
+      "second": {
+        "timing": {
+          "pressed": true,
+          "hiddenAtClickReturn": true,
+          "hiddenAfterMicrotasks": true
+        },
+        "state": {
+          "rootHidden": true,
+          "roundLive": true,
+          "startRects": 0,
+          "elementFromPoint": null,
+          "startDisabled": false,
+          "stillTicked": 2,
+          "group": "[\"สมชาย\",\"ปูเป้\"]",
+          "stageKids": 0
+        }
+      }
+    },
+    "short-stick-load-throws": {
+      "chunk": "throws on evaluation",
+      "setup": {
+        "rosterCheck": "[\"สมชาย\",\"ปูเป้\",\"ก้อง\"]",
+        "ticked": {
+          "found": 3,
+          "checked": 2
+        }
+      },
+      "first": {
+        "timing": {
+          "pressed": true,
+          "hiddenAtClickReturn": true,
+          "hiddenAfterMicrotasks": true
+        },
+        "state": {
+          "rootHidden": false,
+          "roundLive": false,
+          "startRects": 1,
+          "elementFromPoint": "start-round",
+          "startDisabled": false,
+          "stillTicked": 2,
+          "group": "[\"สมชาย\",\"ปูเป้\"]",
+          "stageKids": 0
+        }
+      },
+      "second": {
+        "timing": {
+          "pressed": true,
+          "hiddenAtClickReturn": true,
+          "hiddenAfterMicrotasks": true
+        },
+        "state": {
+          "rootHidden": false,
+          "roundLive": false,
+          "startRects": 1,
+          "elementFromPoint": "start-round",
+          "startDisabled": false,
+          "stillTicked": 2,
+          "group": "[\"สมชาย\",\"ปูเป้\"]",
+          "stageKids": 0
+        }
+      }
+    },
+    "pick-loser-control": {
+      "chunk": "untouched",
+      "setup": {
+        "rosterCheck": "[\"สมชาย\",\"ปูเป้\",\"ก้อง\"]",
+        "ticked": {
+          "found": 3,
+          "checked": 2
+        }
+      },
+      "first": {
+        "timing": {
+          "pressed": true,
+          "hiddenAtClickReturn": true,
+          "hiddenAfterMicrotasks": true
+        },
+        "state": {
+          "rootHidden": true,
+          "roundLive": true,
+          "startRects": 0,
+          "elementFromPoint": null,
+          "startDisabled": false,
+          "stillTicked": 2,
+          "group": "[\"สมชาย\",\"ปูเป้\"]",
+          "stageKids": 3
+        }
+      }
+    }
+  },
+  "verdict": "RETRY_PANEL_LOST",
+  "consoleErrors": []
+}

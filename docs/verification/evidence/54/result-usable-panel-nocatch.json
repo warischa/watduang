@@ -1,0 +1,16 @@
+{
+  "short-stick": {
+    "startRects": 0,
+    "startHitByAPoint": "",
+    "stillTicked": 2,
+    "group": "[\"สมชาย\",\"ปูเป้\"]",
+    "onlyControlIsClearGroup": true
+  },
+  "love-match": {
+    "startRects": 0,
+    "startHitByAPoint": "",
+    "stillTicked": 2,
+    "group": "[\"สมชาย\",\"ปูเป้\"]",
+    "onlyControlIsClearGroup": true
+  }
+}

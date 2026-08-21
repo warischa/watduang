@@ -15,7 +15,7 @@ const { game } = Astro.props as { game: GameModule };
 <script>
   import type { GameContext, GameModule } from '../../games/types';
   import { loadRoster } from '../../shell/roster';
-  import { loadSession } from '../../shell/session';
+  import { loadSession, type StartKind } from '../../shell/session';
   import { refusalCopy } from '../../shell/player-select';
 
   // negative-glob lazy loader — must not import manifest.ts/game module here (CONTRACT.md)
@@ -46,7 +46,7 @@ const { game } = Astro.props as { game: GameModule };
   });
 
   document.addEventListener('watduang:start', async (event) => {
-    const { players } = (event as CustomEvent<{ players: string[] }>).detail;
+    const { players, start } = (event as CustomEvent<{ players: string[]; start: StartKind }>).detail;
 
     const roster = loadRoster();
     // gh#50 — clear any notice from a previous round. Belt-and-braces, NOT load-bearing today:
@@ -65,18 +65,53 @@ const { game } = Astro.props as { game: GameModule };
       writeRefusedEl.hidden = false;
       writeRefusedEl.textContent = refusalCopy(reason);
     };
-    session.setPlayers(players);
+    session.setPlayers(players, start); // gh#53 — the panel's own answer, never inferred from the slot
 
     const ctx: GameContext = { roster, session };
 
-    if (!game) {
-      game = (await load()).default;
+    try {
+      if (!game) {
+        game = (await load()).default;
+      }
+      // Always close the previous round cleanly before mount — mounting again without disposing leaks an
+      // AudioContext (iOS caps how many exist), leaks the wake lock, and stacks visibilitychange listeners;
+      // no matter how many times this event fires, only one round survives, because the dispose+mount pair
+      // runs sync back-to-back (no await between them) and dispose before any mount is a no-op.
+      game.dispose();
+      game.mount(stage, ctx);
+    } catch {
+      // gh#54 — neither the import nor the mount had any handling, and requestStart sets root.hidden =
+      // true the moment it dispatches. root.hidden IS the liveness bit the panel reads later (it is what
+      // planClear is handed as roundLive), so a failed mount left the panel believing a round was
+      // running while the stage stayed empty. The player's only remaining control was Clear group, which
+      // then asked about a round that did not exist and, on confirm, ran saveGroup([]) — wiping the group
+      // they had just ticked. Putting the panel back is what makes the failure non-destructive: the
+      // ticked names are still on screen, Start round is pressable again, and Clear group means what its
+      // label says.
+      //
+      // ponytail: silent, and that is the one box gh#54 still leaves open. The player is told nothing,
+      // because the Thai copy for this case does not exist yet and is the site owner's to write (gh#25 —
+      // an agent must not ship invented player-facing copy). When it lands it goes into #write-refused,
+      // the notice node this handler already clears and fills above; none of refusalCopy's three strings
+      // may stand in for it, because all three name a REFUSED WRITE and this is a mount that never ran —
+      // naming the wrong loss is the defect gh#53 exists to close. Nothing is logged either: this repo
+      // has no console calls in src/, so the failure is visible as "the panel came back" and no more.
+      // Until the string exists: silent and recoverable beats silent and destructive.
+      //
+      // Deferred to a microtask because the two failure paths unwind at different times, and only one
+      // of them has already had root.hidden = true applied by the time this runs. First load: `await
+      // load()` suspends, so the catch resumes in a microtask long after requestStart returned — the
+      // panel restores over a hidden root and stays up. Second start of the same page: `game` is
+      // cached, nothing in the try block awaits, so the throw is caught SYNCHRONOUSLY inside
+      // dispatchEvent — the stack is still inside requestStart, which then runs its own
+      // `root.hidden = true` (PlayerSetup.astro) on the way out and re-hides the panel this line just
+      // restored. That leaves gh#54's exact state one retry deep: no round, panel gone, root.hidden
+      // true, so planClear reads roundLive and Clear group wipes the group. queueMicrotask makes the
+      // restore outlive the dispatcher in BOTH paths — microtasks run after the stack unwinds, so it
+      // always lands after requestStart has finished hiding. Do not "normalise" this by awaiting
+      // before dispose()/mount() instead: that pair must stay sync back-to-back (see above).
+      const panel = document.getElementById('player-setup');
+      if (panel) queueMicrotask(() => { panel.hidden = false; });
     }
-    // Always close the previous round cleanly before mount — mounting again without disposing leaks an
-    // AudioContext (iOS caps how many exist), leaks the wake lock, and stacks visibilitychange listeners;
-    // no matter how many times this event fires, only one round survives, because the dispose+mount pair
-    // runs sync back-to-back (no await between them) and dispose before any mount is a no-op.
-    game.dispose();
-    game.mount(stage, ctx);
   });
 </script>

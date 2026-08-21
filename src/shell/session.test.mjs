@@ -124,16 +124,16 @@ test('a checkpoint writer landing between a closure\'s creation and its own setP
   );
 });
 
-// F1 (ADR-0010, open finding S2026-08-15#2) — the sibling caller 65d3d3c did not cover. siamsi.ts:344
+// F1 (ADR-0010, open finding S2026-08-15#2) — the sibling caller 65d3d3c did not cover. siamsi.ts mountInto()
 // is a SECOND setPlayers on the closure the start handler built, and on first mount `await load()`
 // (game/[id].astro:56) separates it from that closure's creation. The panel is live in that gap:
-// Clear group → clear() (PlayerSetup.astro:304) empties the record and location.reload() (:310) is a
-// macrotask away, so the module's continuation can land first. Same detector as the test above —
+// Clear group → requestClear() in PlayerSetup.astro empties the record through clear() and its
+// location.reload() is a macrotask away, so the module's continuation can land first. Same detector as the test above —
 // slots.size is raw record presence — plus planStart as the symptom the player actually meets.
 test('F1: the resume path\'s late setPlayers must not rebuild a record that was discarded meanwhile', () => {
   slots.clear();
   // A live round is already in the slot — this is the refresh-resume entry (#20), the only path that
-  // reaches siamsi.ts:344 at all.
+  // reaches siamsi.ts mountInto() at all.
   const shell = loadSession();
   shell.setPlayers(['Alice', 'Bob']);
   shell.saveCheckpoint(midRound(7));
@@ -152,7 +152,7 @@ test('F1: the resume path\'s late setPlayers must not rebuild a record that was 
   assert.equal(slots.size, 0);
 
   // The module resolves before the reload commits: mountInto resumes off the stale snapshot and writes
-  // the checkpoint's roster back (siamsi.ts:344) — a second setPlayers on a closure created long before.
+  // the checkpoint's roster back (siamsi.ts mountInto()) — a second setPlayers on a closure created long before.
   game.setPlayers(['Alice', 'Bob']);
   assert.equal(slots.size, 0, 'a late resume-path setPlayers re-created the record the player discarded');
   assert.equal(
@@ -163,7 +163,7 @@ test('F1: the resume path\'s late setPlayers must not rebuild a record that was 
 });
 
 // Anti-over-fix control for the guard above, and the reason it cannot simply refuse every later
-// setPlayers: while the record is still there, siamsi.ts:344 writing the checkpoint's roster back is
+// setPlayers: while the record is still there, siamsi.ts mountInto() writing the checkpoint's roster back is
 // the whole of refresh-resume (#20) keeping session.players and the round in agreement. Must hold both
 // before and after the F1 fix.
 test('a later setPlayers still updates a record that is still there — refresh-resume keeps working', () => {
@@ -172,7 +172,7 @@ test('a later setPlayers still updates a record that is still there — refresh-
   game.setPlayers(['Alice', 'Bob']); // start handler's own call
   game.saveCheckpoint(midRound(7));
 
-  game.setPlayers(['เอ', 'บี']); // siamsi.ts:344 — the checkpoint's roster, written back on resume
+  game.setPlayers(['เอ', 'บี']); // siamsi.ts mountInto() — the checkpoint's roster, written back on resume
   assert.deepEqual(loadSession().players, ['เอ', 'บี'], 'resume must still be able to write its roster');
   assert.equal(loadSession().checkpoint.phase, 'drawn', 'and must not drop the round it just resumed');
 });
@@ -266,7 +266,7 @@ test('a closure that legitimately created after one discard is stale after the n
   loadSession().clear(); // Clear-and-drop-pending-round again — now round2's closure is the stale one
   assert.equal(slots.size, 0);
 
-  round2.setPlayers(['เอ', 'บี']); // siamsi.ts:344 writing the roster back, one discard too late
+  round2.setPlayers(['เอ', 'บี']); // siamsi.ts mountInto() writing the roster back, one discard too late
   assert.equal(slots.size, 0, 'a stale closure re-created the round the player discarded');
   round2.setPlayers(['เอ', 'บี']); // the refusal is not one-shot either
   assert.equal(slots.size, 0, 'the second late setPlayers got past a refusal the first one earned');
@@ -281,7 +281,7 @@ test('a closure that legitimately created after one discard is stale after the n
 // The closure loaded the record, so it captured that record's id — spending its first setPlayers is
 // irrelevant now, what it holds is an id for a record that no longer exists, and captured-id vs absent
 // is a refusal. Still unreachable in production (src has exactly two setPlayers callers:
-// game/[id].astro:51, sync on the line after its own loadSession() at :50, and siamsi.ts:344, always a
+// game/[id].astro:51, sync on the line after its own loadSession() at :50, and siamsi.ts mountInto(), always a
 // SECOND call on that same closure), so this pins the guard for the day a caller lets an await sit
 // between loadSession() and its FIRST setPlayers — the ordering that used to resurrect the round.
 test('a closure whose FIRST setPlayers lands after the discard is refused — its record is gone', () => {
@@ -343,8 +343,9 @@ test('once a new record exists, a stale closure cannot write its discarded snaps
 // Preserved behaviour, now pinned: identity decides WHICH record a closure may write, and setPlayers
 // is still the only writer allowed to bring one into being. games/_template.ts:29-31 documents that
 // contract to every future game ("a checkpoint saved before setPlayers silently does nothing"), and
-// PlayerSetup.astro:141 leans on it — discard-then-start calls saveCheckpoint(null) on a panel closure
-// before any round exists, and that must not leave an empty record behind.
+// requestStart()'s discard-then-start branch in PlayerSetup.astro leans on it — it calls
+// saveCheckpoint(null) on a panel closure before any round exists, and that must not leave
+// an empty record behind.
 test('only setPlayers creates: a checkpoint or markPlayed before any start writes nothing', () => {
   slots.clear();
   const session = loadSession();
@@ -375,7 +376,7 @@ test('legacy record with no identity: a closure loaded off it still writes, and 
 
   const game = loadSession();
   assert.equal(game.checkpoint.phase, 'drawn', 'a legacy record must still load');
-  game.setPlayers(['เอ', 'บี']); // siamsi.ts:344 on resume, mid-window
+  game.setPlayers(['เอ', 'บี']); // siamsi.ts mountInto() on resume, mid-window
   assert.deepEqual(loadSession().players, ['เอ', 'บี'], 'refresh-resume broke for sessions that predate the field');
   assert.equal(loadSession().checkpoint.phase, 'drawn', 'and it dropped the round it just resumed');
 
@@ -670,7 +671,7 @@ test('gh#51 F1: a round tapped past the 6h window still saves — its own closur
   // still loses the round that was just persisted.
   assert.equal(loadSession().checkpoint.drawn, 19, 'the save persisted but a refresh still lost the round');
 
-  // setPlayers is the sole creator and it was refused on the same branch — siamsi.ts:353 calls it
+  // setPlayers is the sole creator and it was refused on the same branch — siamsi.ts mountInto() calls it
   // mid-round on the resume path, so that write died past the window too.
   backdate();
   game.setPlayers(['เอ', 'บี']);
@@ -719,4 +720,133 @@ test('gh#51 F2: a stale closure cannot clear the round the newer document is pla
   mine.clear();
   assert.equal(slots.get('watduang:session'), othersRound, "a stale closure cleared someone else's round");
   assert.equal(reasons.at(-1), 'other-round');
+});
+
+// ---- gh#53: a REPLACED round was reported to the player as a CONTINUED one. Both refusals are
+// correct as refusals — what was wrong is which of the two fired, and they carry opposite copy
+// (player-select.ts:145 says the round was played on from another page, :147 says a new round took
+// over). The pair below is the whole fix: the same stale tap, one discarded round and one carried-on
+// round, and the reason has to differ. Testing only the first would move the bug rather than close it.
+//
+// The discriminator is the start kind the panel sends: requestStart() in PlayerSetup.astro knows which
+// branch the player took — it calls saveCheckpoint(null) on the discard branch — and puts the answer on
+// the watduang:start event, which game/[id].astro hands to setPlayers. Cited by function name, not by
+// line: the line the first fix quoted here had already moved by the time it was written.
+test('gh#53: a round replaced over the slot is reported as another round, not a newer version', () => {
+  slots.clear();
+  const reasons = [];
+  const round1 = loadSession(); // the game page's closure — it starts round 1 and owns its identity
+  round1.onWriteRefused = (reason) => reasons.push(reason);
+  round1.setPlayers(['Alice', 'Bob']);
+  round1.saveCheckpoint(midRound(7));
+
+  // Start-new-round: the panel discards the live round through its own fresh closure, then dispatches
+  // watduang:start, and game/[id].astro's watduang:start handler builds another fresh closure that
+  // starts a DIFFERENT round over the same slot. Round 1 is gone — nobody can resume it any more.
+  const panel = loadSession();
+  panel.saveCheckpoint(null);
+  const round2 = loadSession();
+  round2.setPlayers(['Cat', 'Dan'], 'new-round'); // the kind the panel's discard branch sends
+  assert.deepEqual(loadSession().players, ['Cat', 'Dan'], 'positive control: round 2 really took the slot');
+  assert.equal(loadSession().checkpoint, null, 'positive control: round 1 really was discarded');
+  const storedRound2 = slots.get('watduang:session');
+
+  // The tap that lands on the page round 1 was being played on — a back-navigation or a bfcache
+  // restore keeps that closure alive and armed.
+  round1.saveCheckpoint(midRound(19));
+  assert.equal(slots.get('watduang:session'), storedRound2, 'the discarded round wrote back over round 2');
+  assert.deepEqual(
+    reasons,
+    ['other-round'],
+    'a replaced round was reported as a continued one — the copy names the opposite event',
+  );
+});
+
+// The other half, and the reason the fix cannot simply mint on every start: refresh-resume (#20) is a
+// genuine continuation. The player takes the resume branch, so the checkpoint is never cleared;
+// game/[id].astro's closure starts holding the live round and siamsi.ts mountInto() writes that round's own
+// roster back. Same round, carried on from another page — which is exactly what 'stale-version' says.
+// Green before the gh#53 change and green after: it is the guard against flipping every cross-page
+// write to 'other-round'.
+test('gh#53 control: a round continued from another page is still reported as a newer version', () => {
+  slots.clear();
+  const reasons = [];
+  const restored = loadSession(); // the page that gets bfcached mid-round
+  restored.onWriteRefused = (reason) => reasons.push(reason);
+  restored.setPlayers(['Alice', 'Bob']);
+  restored.saveCheckpoint(midRound(7));
+
+  // The tab comes back to the game page and the player resumes: no discard, so the round in the slot
+  // is the same one, and both setPlayers calls of that path land on it.
+  const resumed = loadSession();
+  // The two setPlayers calls of the resume path, in production order and with production's kinds: the
+  // watduang:start handler in game/[id].astro passes the panel's answer, and mountInto()'s resume branch
+  // in siamsi.ts passes nothing at all — a game holds a GameSession, which declares one parameter.
+  resumed.setPlayers(['Alice', 'Bob'], 'same-round'); // the panel's ticked group
+  resumed.setPlayers(['Alice', 'Bob']); // the checkpoint's own roster, written back on resume
+  resumed.saveCheckpoint(midRound(10));
+  assert.equal(loadSession().checkpoint.drawn, 10, 'positive control: the same round really did move on');
+  const storedLive = slots.get('watduang:session');
+
+  restored.saveCheckpoint(midRound(19));
+  assert.equal(slots.get('watduang:session'), storedLive, 'the stale write landed — gh#49 regressed');
+  assert.deepEqual(
+    reasons,
+    ['stale-version'],
+    'a continued round was reported as a replaced one — the fix flipped every cross-page write',
+  );
+});
+
+// gh#53 REFUTE — the first fix inferred the branch from the slot ("no checkpoint" = the discard ran),
+// and that proxy is owned by the PANEL, not by session.ts. A start placed over a checkpoint belonging
+// to ANOTHER game takes planStart's plain 'start' branch: nothing is asked, nothing is discarded, the
+// blob stays in the slot, and the proxy therefore says "continuation" about a round that is brand new.
+// Only siamsi writes checkpoints (ADR-0010), so the other five games are the whole of this case.
+//
+// Two starts, because the blob outlives both: every write carries session.checkpoint back, so the
+// second start read exactly what the first one did and inherited the same id again. The observable is
+// the refusal a stale tap earns on the FIRST round's closure — 'stale-version' says the round was
+// played on from another page, and this round no longer exists at all.
+test('gh#53: a start over another game\'s stranded checkpoint is a new round, not a continuation', () => {
+  slots.clear();
+  const reasons = [];
+  // A siamsi round abandoned mid-play: nobody discarded it, so its blob is stranded in the site-wide
+  // slot for the rest of the 6h window.
+  const siamsi = loadSession();
+  siamsi.setPlayers(['Alice', 'Bob'], 'new-round');
+  siamsi.saveCheckpoint(midRound(7));
+
+  // The player opens timebomb and starts. planStart takes the plain 'start' branch — the checkpoint is
+  // another game's, so the panel neither asks nor discards. This is the ordering the proxy misreads.
+  assert.equal(
+    planStart(loadSession().checkpoint, 'timebomb'),
+    'start',
+    'positive control: the panel neither asks nor discards, so no discard clears the slot',
+  );
+  const round1 = loadSession();
+  round1.onWriteRefused = (reason) => reasons.push(reason);
+  round1.setPlayers(['Cat', 'Dan'], 'new-round');
+
+  // The player leaves the page mid-round; bfcache keeps round1's closure alive and armed. Back on
+  // timebomb, they start again — and the siamsi blob is STILL there, because round1's own write
+  // carried it through.
+  assert.equal(
+    loadSession().checkpoint.game,
+    'siamsi',
+    'positive control: the stranded blob survives every write, so the proxy reads the same both times',
+  );
+  const round2 = loadSession();
+  round2.setPlayers(['Eve', 'Fay'], 'new-round');
+  assert.deepEqual(loadSession().players, ['Eve', 'Fay'], 'positive control: round 2 really took the slot');
+  const storedRound2 = slots.get('watduang:session');
+
+  // The tap that lands on the restored page. timebomb writes through markPlayed, not saveCheckpoint
+  // (ADR-0010), which is the same chokepoint.
+  round1.markPlayed('timebomb');
+  assert.equal(slots.get('watduang:session'), storedRound2, 'the replaced round wrote back over round 2');
+  assert.deepEqual(
+    reasons,
+    ['other-round'],
+    'a replaced round was reported as a continued one — the copy names the opposite event',
+  );
 });

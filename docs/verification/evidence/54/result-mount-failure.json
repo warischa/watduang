@@ -1,0 +1,60 @@
+{
+  "pick-loser": {
+    "expect": "mounts",
+    "ticked": {
+      "found": 3,
+      "checked": 2
+    },
+    "before": {
+      "panelHidden": false,
+      "stageKids": 0,
+      "group": null,
+      "session": null
+    },
+    "after": {
+      "panelHidden": true,
+      "stageKids": 3,
+      "group": "[\"สมชาย\",\"ปูเป้\"]",
+      "session": "{\"id\":\"mt2hio3o-1\",\"players\":[\"สมชาย\",\"ปูเป้\"],\"played\":[],\"checkpoint\":null,\"stamp\":1787288654724,\"gen\":1}"
+    }
+  },
+  "short-stick": {
+    "expect": "load throws",
+    "ticked": {
+      "found": 3,
+      "checked": 2
+    },
+    "before": {
+      "panelHidden": false,
+      "stageKids": 0,
+      "group": null,
+      "session": null
+    },
+    "after": {
+      "panelHidden": false,
+      "stageKids": 0,
+      "group": "[\"สมชาย\",\"ปูเป้\"]",
+      "session": "{\"id\":\"mt2hiqzi-1\",\"players\":[\"สมชาย\",\"ปูเป้\"],\"played\":[],\"checkpoint\":null,\"stamp\":1787288658462,\"gen\":1}"
+    }
+  },
+  "love-match": {
+    "expect": "mount throws",
+    "ticked": {
+      "found": 3,
+      "checked": 2
+    },
+    "before": {
+      "panelHidden": false,
+      "stageKids": 0,
+      "group": null,
+      "session": null
+    },
+    "after": {
+      "panelHidden": false,
+      "stageKids": 0,
+      "group": "[\"สมชาย\",\"ปูเป้\"]",
+      "session": "{\"id\":\"mt2hituc-1\",\"players\":[\"สมชาย\",\"ปูเป้\"],\"played\":[],\"checkpoint\":null,\"stamp\":1787288662164,\"gen\":1}"
+    }
+  },
+  "consoleErrors": []
+}

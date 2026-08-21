@@ -80,6 +80,23 @@ function read(): StoredSession {
 export type WriteRefusal = 'record-gone' | 'other-round' | 'stale-version';
 
 /**
+ * What a start MEANS for the round in the slot, and therefore whether it takes an identity of its own:
+ * 'new-round' begins a round, 'same-round' carries on the one already there. Named rather than boolean
+ * because both call sites read as a sentence — `setPlayers(names, 'new-round')` cannot be mistaken for
+ * a flag whose polarity you have to go and look up.
+ *
+ * The panel is the only place that knows which of the two happened: requestStart() in PlayerSetup.astro
+ * put the question to the player (#resume-choice) or established there was nothing to ask about. It is
+ * threaded here from there, through the watduang:start event — session.ts must NOT infer it. See the
+ * comment on the id line in write() for the inference that was tried and what it got wrong.
+ *
+ * 'same-round' is the default because the safe side is not minting: a writer that omits it can only
+ * update a record it already matched against, never displace one. The one caller that relies on the
+ * default is siamsi.ts's resume path, a SECOND setPlayers on a closure that already owns its round.
+ */
+export type StartKind = 'new-round' | 'same-round';
+
+/**
  * What loadSession() actually hands back: a GameSession plus the refusal signal. Deliberately NOT on
  * GameSession — a game gets `ctx.session` and must stay out of this. Handling a refusal is the shell's
  * job once, not an obligation that spreads to every game file as the manifest grows (gh#50).
@@ -87,6 +104,16 @@ export type WriteRefusal = 'record-gone' | 'other-round' | 'stale-version';
 export interface ShellSession extends GameSession {
   /** Called by write() when a guard refuses. One slot, last setter wins — the shell is the only owner. */
   onWriteRefused: ((reason: WriteRefusal) => void) | null;
+  /**
+   * The same setPlayers, widened by one optional parameter — and the widening is the boundary. Only a
+   * holder of a ShellSession (the shell: game/[id].astro's watduang:start handler) can say 'new-round'
+   * and mint a fresh identity over the slot. A game holds ctx.session, typed GameSession, whose
+   * declaration in games/types.ts has one parameter, so `Expected 1 arguments, but got 2` is what a
+   * game gets for trying — the resume path in siamsi.ts cannot displace the round it is resuming even
+   * by accident. Declared here rather than in types.ts on purpose: the capability is not part of the
+   * contract a game is handed.
+   */
+  setPlayers(names: string[], start?: StartKind): void;
 }
 
 export function loadSession(): ShellSession {
@@ -111,7 +138,7 @@ export function loadSession(): ShellSession {
    * absent record, and once any new round existed a stale closure wrote its pre-discard snapshot over it.
    * Identity answers both with one question, so both mechanisms are gone. It stays compatible with issue
    * #20's refresh-resume by construction: a closure updating the record it is actually talking about —
-   * siamsi.ts:344 writing the checkpoint's roster back — still matches.
+   * mountInto()'s resume branch in siamsi.ts writing the checkpoint's roster back — still matches.
    */
   let myId: string | null = stored.id ?? null;
 
@@ -166,10 +193,10 @@ export function loadSession(): ShellSession {
   };
 
   /**
-   * The one chokepoint all three writers route through. `create` = this writer may bring a record into
-   * existence; setPlayers is the only one, because starting a round is what brings a session into being
-   * (games/_template.ts:29-31 documents that to every future game). Defaults to refusing, so a writer
-   * added later inherits the safe side.
+   * The one chokepoint all three writers route through. A non-null `start` means "this call is a start",
+   * which is what may bring a record into existence; setPlayers is the only writer that passes one,
+   * because starting a round is what brings a session into being (games/_template.ts:29-31 documents
+   * that to every future game). Defaults to null, so a writer added later inherits the safe side.
    *
    * Returns the guard's verdict — null when nothing refused. gh#50: a refusal is correct, but it left
    * the closure stranded one version behind forever (myGen is re-synced only after a successful
@@ -178,7 +205,11 @@ export function loadSession(): ShellSession {
    * success. Signalling here rather than at the three callers is the point: this is the chokepoint, and
    * a guard added later cannot forget the signal — the declared return type rejects a bare `return`.
    */
-  function write(create = false): WriteRefusal | null {
+  function write(start: StartKind | null = null): WriteRefusal | null {
+    // Only a start may create, and only a start may mint — the two questions the rest of this function
+    // asks of `start`. Held as a local so the guard below reads exactly as it did before the kind
+    // arrived: what changed is where the answer comes from, not which writers are allowed to create.
+    const create = start !== null;
     try {
       const current = readRaw(myId);
       if (current === null) {
@@ -195,7 +226,35 @@ export function loadSession(): ShellSession {
         const stale = mismatch(current);
         if (stale !== null) return refuse(stale);
       }
-      const id = myId ?? mintId();
+      // gh#53 — a start that REPLACES the round in the slot takes an identity of its own instead of
+      // inheriting the one already there; a start that carries that same round on keeps it, and so does
+      // every non-start writer (they pass no kind, so they are 'same-round' by construction and are by
+      // definition updating the record they just matched against).
+      //
+      // Threaded in, never inferred. The first fix inferred it from the slot — "the slot holds no
+      // checkpoint" was read as "the player took the discard branch", because ADR-0008 makes that branch
+      // clear the round before it starts (requestStart() in PlayerSetup.astro calls saveCheckpoint(null)
+      // before dispatching watduang:start). That proxy is owned by the PANEL, not by this file, and it
+      // is wrong wherever the panel reaches a start without going through either labelled branch: a
+      // start placed over a checkpoint belonging to ANOTHER game takes planStart's plain 'start' path,
+      // so nothing asks and nothing discards, and the proxy calls a brand-new round a continuation. The
+      // stranded blob then outlives every write (each one carries session.checkpoint back), so every
+      // later start on that page inherited the same id too. Only the panel knows which branch ran, so
+      // the panel is what says so.
+      //
+      // Inheriting it was the whole of gh#53: the replacing round wore the replaced round's id, so a
+      // closure still live on the replaced round passed the identity compare and met the VERSION check
+      // instead. It was told its round had been played on from another page when its round no longer
+      // existed at all — opposite events, and refusalCopy names them as opposites (its 'stale-version'
+      // and 'other-round' arms, player-select.ts). Nothing about the refusal itself changes here; only
+      // which of the two questions catches it, and therefore which loss the player is told about.
+      //
+      // The other side of the same line: mountInto()'s resume branch in siamsi.ts writes the resumed
+      // round's own roster back through a second setPlayers, and it passes no kind — that is the same
+      // round updating itself (#20), and minting there would displace the round it is resuming.
+      const id = start === 'new-round' ? mintId() : (myId ?? mintId());
+      // Not reset to 1 alongside the new id: the token orders writes to the SLOT, and a monotonic one
+      // cannot coincidentally match a stale closure's. Identity refuses that closure first either way.
       const gen = myGen + 1;
       sessionStorage.setItem(
         KEY,
@@ -228,9 +287,13 @@ export function loadSession(): ShellSession {
     players: stored.players,
     played: stored.played,
     checkpoint: stored.checkpoint,
-    setPlayers(names: string[]): void {
+    /** `start` is deliberately optional and defaults to the non-minting side: GameSession declares this
+     *  method with one parameter (games/types.ts), so a game holding ctx.session can only ever call it
+     *  the one-argument way — and that call must never displace the round it is updating. The shell
+     *  holds a ShellSession and is the only caller that can say 'new-round'. */
+    setPlayers(names: string[], start: StartKind = 'same-round'): void {
       session.players = names;
-      write(true);
+      write(start);
     },
     markPlayed(id: string): void {
       if (!session.played.includes(id)) {

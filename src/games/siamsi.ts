@@ -349,7 +349,15 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
     // checkpoint for this game, PlayerSetup asks first (#resume-choice) and only #resume-round
     // reaches this branch. #fresh-round clears the slot there, so mounting finds nothing to resume.
     // Cited by element id, not by button label: the labels are Thai UI copy and cannot appear in a
-    // comment under #36, so the ids are the only greppable anchor left (PlayerSetup.astro:32-33).
+    // comment under #36, so the ids are the only greppable anchor left (#resume-choice's two buttons
+    // in PlayerSetup.astro).
+    //
+    // gh#53 — this is a CONTINUATION, and the one argument is what says so. It is the second setPlayers
+    // on the closure the shell built for this round, updating the record it already owns; a start kind
+    // of 'new-round' here would mint a fresh identity over the very round being resumed and strand the
+    // shell's own closure on the old one. It cannot be passed by accident either: ctx.session is a
+    // GameSession, which declares setPlayers with one parameter (games/types.ts), so no game can reach
+    // the minting side of it — that is the shell's alone (session.ts, StartKind).
     ctx.session.setPlayers(resumed.players);
     players = resumed.players;
     deck = resumed.deck;

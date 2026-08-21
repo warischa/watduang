@@ -24,21 +24,45 @@ test('#23 every id the island script queries exists in the template — a missin
   }
 });
 
+/** index of the `}` that closes the `{` at `open`, depth-counted from `open` — shared by fnBody and
+ *  listenerBody below, and unit-tested directly against synthetic input further down this file.
+ *  ponytail: handles /* *\/ and // comments and '  "  ` string literals with \ escapes; does not
+ *  handle regex literals or template-literal ${} nesting — this is a test helper, not a JS parser. */
+function matchBraceEnd(text, open) {
+  let depth = 0;
+  let inLineComment = false;
+  let inBlockComment = false;
+  let inString = null;
+  for (let i = open; i < text.length; i += 1) {
+    const c = text[i];
+    if (inLineComment) { if (c === '\n') inLineComment = false; continue; }
+    if (inBlockComment) { if (c === '*' && text[i + 1] === '/') { inBlockComment = false; i += 1; } continue; }
+    if (inString) {
+      if (c === '\\') { i += 1; continue; }
+      if (c === inString) inString = null;
+      continue;
+    }
+    if (c === '/' && text[i + 1] === '/') { inLineComment = true; i += 1; continue; }
+    if (c === '/' && text[i + 1] === '*') { inBlockComment = true; i += 1; continue; }
+    if (c === '"' || c === "'" || c === '`') { inString = c; continue; }
+    if (c === '{') depth += 1;
+    else if (c === '}') {
+      depth -= 1;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
 /** the body of a top-level `function name(...) {...}` in the island script, comments stripped —
  *  these assertions are about what the code does, and this file's comments quote the code they explain */
 function fnBody(name) {
   const start = script.indexOf(`function ${name}(`);
   assert.ok(start >= 0, `function ${name} not found in the island script`);
   const open = script.indexOf('{', start);
-  let depth = 0;
-  for (let i = open; i < script.length; i += 1) {
-    if (script[i] === '{') depth += 1;
-    else if (script[i] === '}') {
-      depth -= 1;
-      if (depth === 0) return script.slice(open + 1, i).replace(/\/\/.*$/gm, '');
-    }
-  }
-  return assert.fail(`unbalanced braces after ${name}`);
+  const close = matchBraceEnd(script, open);
+  assert.ok(close >= 0, `unbalanced braces after ${name}`);
+  return script.slice(open + 1, close).replace(/\/\/.*$/gm, '');
 }
 
 // The island lives inside .astro and cannot be imported, so the tests below read it. Each one names a
@@ -172,16 +196,23 @@ function listenerBody(elementVar, event) {
   const start = script.indexOf(needle);
   assert.ok(start >= 0, `${needle} not found in the island script`);
   const open = script.indexOf('{', start);
-  let depth = 0;
-  for (let i = open; i < script.length; i += 1) {
-    if (script[i] === '{') depth += 1;
-    else if (script[i] === '}') {
-      depth -= 1;
-      if (depth === 0) return script.slice(open + 1, i).replace(/\/\/.*$/gm, '');
-    }
-  }
-  return assert.fail(`unbalanced braces after ${needle}`);
+  const close = matchBraceEnd(script, open);
+  assert.ok(close >= 0, `unbalanced braces after ${needle}`);
+  return script.slice(open + 1, close).replace(/\/\/.*$/gm, '');
 }
+
+// matchBraceEnd is exercised on the real island script above, but neither known-broken case (a `}`
+// inside a /* */ comment, a stray brace inside a string literal) exists in that source today — so this
+// pins the algorithm directly against synthetic input where both are present.
+test('matchBraceEnd ignores braces inside /* */ comments and string literals', () => {
+  const withComment = "function f() {\n  /* a } inside a comment */\n  return 1;\n}";
+  const withString = "function g() {\n  const s = '}';\n  return 2;\n}";
+  for (const text of [withComment, withString]) {
+    const open = text.indexOf('{');
+    const close = matchBraceEnd(text, open);
+    assert.equal(close, text.lastIndexOf('}'), `must land on the real closing brace, not a stray one: ${text}`);
+  }
+});
 
 // 0 players ticked: startBtn substitutes a synthesized "Player 1..N" set for the empty selection BEFORE
 // resolveStart runs (see the long comment on this branch in PlayerSetup.astro). numberedPlayers always
@@ -233,4 +264,31 @@ test('#25 the clear confirmation sits outside #player-setup, next to the button 
   // #39 — root.hidden = true swallows the panel the moment a round starts, which is exactly when a
   // link click needs to be interceptable; inside the panel this dialog would be unreachable mid-round.
   assert.equal(insidePanel('leave-confirm'), false, 'the leave-confirm dialog must stay reachable mid-round');
+});
+
+// gh#54 — requestStart hides the panel unconditionally, and nothing in THIS file ever puts it back:
+// root.hidden = true is written once, root.hidden = false never. That is fine while the round mounts
+// and a dead end when it does not, because root.hidden is also the liveness bit planClear is handed
+// (the test above this one). A failed mount then left an empty stage, no panel, and Clear group as the
+// only control on screen — the one whose confirm runs saveGroup([]) and takes the group with it.
+// The way back lives in the other file, so this pins the pair: the hide here, the un-hide there.
+//
+// Structural, and it is worth saying what that does and does not buy. It cannot prove the catch
+// actually fires — that was measured in a browser against a real build, with the game chunk replaced
+// so that `await load()` rejected on one page and `game.mount()` threw on another: #start-round came
+// back with 1 client rect and answered elementFromPoint, against 0 rects on the same build with the
+// catch body removed. What this pins is that the pair does not silently come apart at the next edit.
+test('gh#54 the panel is hidden on start in this file and put back by the game page when the mount fails', () => {
+  const gamePage = readFileSync(new URL('../pages/game/[id].astro', import.meta.url), 'utf8');
+  // calibration: the hide is real and unconditional, so a missing un-hide is a genuine dead end
+  assert.match(script, /root\.hidden = true/, 'requestStart no longer hides the panel — this pair moved');
+  assert.ok(!/root\.hidden = false/.test(script), 'the panel now un-hides itself; this test is watching the wrong file');
+
+  const handler = gamePage.slice(gamePage.indexOf("'watduang:start'"));
+  assert.ok(handler.includes('catch'), 'the mount path has no catch — a failed mount strands the panel again');
+  assert.match(
+    handler,
+    /getElementById\('player-setup'\)[\s\S]{0,200}?hidden = false/,
+    'the failed-mount path no longer puts the setup panel back',
+  );
 });
