@@ -14,6 +14,11 @@
 //                                     actually fire, not just that an element sits at that point (#39)
 //   session.screenshot(path)
 //   session.consoleErrors         -> array, appended live from Runtime.exceptionThrown + console.error
+//   session.failRequests(urlPattern, { reason }) -> Fetch.enable scoped to urlPattern (CDP glob syntax,
+//                                     e.g. '*_astro/timebomb.*.js'); every matching request from then on
+//                                     is aborted with `reason` (default 'Failed') instead of reaching the
+//                                     network — for driving a REAL rejected dynamic import(), not a fake one
+//   session.failedRequests        -> array, appended live with every paused-then-failed request's url
 //   session.close()
 const [scriptPath] = process.argv.slice(2);
 const { pathToFileURL } = await import('node:url');
@@ -29,6 +34,8 @@ const ws = new WebSocket(target.webSocketDebuggerUrl);
 let id = 0;
 const pending = new Map();
 const consoleErrors = [];
+const failedRequests = [];
+let failReason = 'Failed';
 
 const send = (method, params = {}) =>
   new Promise((res) => { pending.set(++id, res); ws.send(JSON.stringify({ id, method, params })); });
@@ -44,6 +51,13 @@ ws.addEventListener('message', (e) => {
   if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error') {
     consoleErrors.push({ kind: 'console.error', text: m.params.args?.map((a) => a.value ?? a.description).join(' ') });
   }
+  // Fetch.enable was scoped to a urlPattern (session.failRequests), so every pause here is already a
+  // match — abort it instead of letting the request through, and record it so a probe can tell whether
+  // a retry re-hit the network or the browser served a cached rejection without pausing again at all.
+  if (m.method === 'Fetch.requestPaused') {
+    failedRequests.push({ url: m.params.request.url, at: Date.now() });
+    send('Fetch.failRequest', { requestId: m.params.requestId, errorReason: failReason });
+  }
 });
 await new Promise((r) => ws.addEventListener('open', r));
 
@@ -54,6 +68,11 @@ const settle = (ms = 900) => new Promise((r) => setTimeout(r, ms));
 
 const session = {
   consoleErrors,
+  failedRequests,
+  async failRequests(urlPattern, { reason = 'Failed' } = {}) {
+    failReason = reason;
+    await send('Fetch.enable', { patterns: [{ urlPattern }] });
+  },
   async nav(url) {
     const p = new Promise((r) => { loadResolve = r; });
     await send('Page.navigate', { url });

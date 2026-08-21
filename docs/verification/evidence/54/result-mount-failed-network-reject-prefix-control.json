@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "gameId": "timebomb",
+    "players": [
+      "สมชาย",
+      "ปูเป้",
+      "บีม",
+      "เจี๊ยบ"
+    ],
+    "notice": "รอบนี้ยังไม่ได้เริ่ม — เปิดเกมไม่สำเร็จ ชื่อที่เลือกไว้ยังอยู่ครบ กดเริ่มรอบอีกครั้งได้เลย",
+    "mechanism": "CDP Fetch domain (session.failRequests) aborts every request for the game chunk — a real network-level rejection of the dynamic import, not a swapped-in throwing module"
+  },
+  "preconditions": {
+    "before": {
+      "panelHidden": false,
+      "panelVisible": true,
+      "noticeHidden": true,
+      "noticeText": "",
+      "rosterNames": [
+        "สมชาย",
+        "ปูเป้",
+        "บีม",
+        "เจี๊ยบ"
+      ],
+      "rosterChecked": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "stageKids": 0,
+      "group": null
+    },
+    "rosterSeededCorrectly": true,
+    "panelVisibleBeforeStart": true,
+    "noticeHiddenBeforeStart": true
+  },
+  "firstLoad": {
+    "after": {
+      "panelHidden": false,
+      "panelVisible": true,
+      "noticeHidden": true,
+      "noticeText": "",
+      "rosterNames": [
+        "สมชาย",
+        "ปูเป้",
+        "บีม",
+        "เจี๊ยบ"
+      ],
+      "rosterChecked": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "stageKids": 0,
+      "group": "[\"สมชาย\",\"ปูเป้\",\"บีม\",\"เจี๊ยบ\"]"
+    },
+    "leaveGuard": {
+      "guardIntercepted": false,
+      "dialogOpen": false,
+      "pathname": "/game/timebomb/"
+    },
+    "verdict": {
+      "noticeShown": false,
+      "panelVisibleAgain": true,
+      "rosterIntact": true,
+      "leaveConfirmNotArmed": true,
+      "stageEmpty": true
+    },
+    "requestsPausedSoFar": 1
+  },
+  "secondStartSamePage": {
+    "after": {
+      "panelHidden": false,
+      "panelVisible": true,
+      "noticeHidden": true,
+      "noticeText": "",
+      "rosterNames": [
+        "สมชาย",
+        "ปูเป้",
+        "บีม",
+        "เจี๊ยบ"
+      ],
+      "rosterChecked": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "stageKids": 0,
+      "group": "[\"สมชาย\",\"ปูเป้\",\"บีม\",\"เจี๊ยบ\"]"
+    },
+    "leaveGuard": {
+      "guardIntercepted": false,
+      "dialogOpen": false,
+      "pathname": "/game/timebomb/"
+    },
+    "verdict": {
+      "noticeShown": false,
+      "panelVisibleAgain": true,
+      "rosterIntact": true,
+      "leaveConfirmNotArmed": true,
+      "stageEmpty": true
+    },
+    "requestsPausedSoFar": 1
+  },
+  "failedRequestsLog": [
+    {
+      "url": "http://localhost:4325/_astro/timebomb.CZtg3jtz.js",
+      "at": 1787321968647
+    }
+  ],
+  "consoleErrors": [],
+  "summary": {
+    "rosterSeededCorrectly": true,
+    "firstLoad": "FAIL",
+    "secondStartSamePage": "FAIL",
+    "overall": "FAIL"
+  },
+  "scopeNotCovered": [
+    "Only one game (timebomb) is driven — the catch/showError/leave-confirm wiring is shared by all six game pages through PlayerSetup.astro and [id].astro, but only one was walked here.",
+    "Only one retry deep — a third or fourth failed start on the same page is not driven.",
+    "The exact microtask-vs-synchronous branch [id].astro's own comment describes (\"second start, module cached, thrown synchronously inside dispatchEvent\") is NOT reproduced here: that branch requires `game` to already hold a successfully loaded module, and a network-level Fetch abort can never produce that — `await load()` always yields at least one microtask regardless of how fast the rejection resolves, by JS language guarantee, so a probe built only on failing the fetch cannot force the synchronous-throw branch. \"Second start on the same page\" here means a same-page retry against a module load that keeps failing, which is the real, observable end-state this DoD box cares about (does the panel/roster/guard stay correct on retry) — not a reproduction of that specific code-comment branch. docs/verification/evidence/54/ covers the synchronous branch instead, by swapping in a throwing mount().",
+    "saveGroup([]) / pressing Clear group itself is never pressed here — same gap docs/verification/evidence/54/README.md already names.",
+    "Desktop-width CDP only (320x900 emulated viewport, not real iOS WebKit)."
+  ]
+}
