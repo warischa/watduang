@@ -174,8 +174,16 @@ recording a non-existent animation as a passing accessibility check is a lie in 
 Moved to [capture-freshness.md](./capture-freshness.md) to stay under the doc budget. The heading stays
 here so a heading scan still finds it, and so ADR-0009's reference resolves in one hop.
 
-<!-- ponytail: under 1KB of headroom left against check-budgets.sh's 12288B — run the script, never
-trust a number written here. The next trap must fit inside it, or this split needs revisiting. -->
+<!-- ponytail: headroom against check-budgets.sh is now spent — the 2026-08-22 trigger-seeding entry
+took most of what was left. Run the script, never trust a number written here. The NEXT addition does
+not fit: split a section out first (capture-freshness.md is the precedent), don't squeeze prose. -->
+
+## Seed through the trigger, never past it
+
+Dispatching the app's own start event to reach mid-round state skips what that trigger does on the
+way — a panel collapsing, a reflow under a descending finger — so the probe measures a state no tap
+ever produces. Reproduced 2026-08-22: a draw-page probe seeded that way reported the page clean and
+missed a 6/9 tap collision on a sibling tool page (#61). Drive the control a player touches.
 
 ## Rule
 

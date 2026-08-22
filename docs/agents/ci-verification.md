@@ -59,7 +59,15 @@ ones you didn't and why.
    shell — not the outer one — expands `$?` when the delimiter is unquoted. This is why the `EXIT=$?`
    idiom above is written single-quoted.
 
-Point of traps 1 and 3: both fail **silently** — the wrong answer looks exactly like a pass, with
+4. **`cd` persists across chained commands, so a later step can silently run in the wrong tree.**
+   Reproduced 2026-08-22 while calibrating a control: `cd "$WT" && node --test …` (the pre-fix
+   worktree) was followed by a bare `node --test …` meant for the fixed tree. The second run
+   inherited the first's cwd, re-ran the pre-fix tree, and reported `0 pass / 4 fail` — a *correct*
+   result for the tree it actually measured, and indistinguishable from the fix being broken. Nothing
+   errored. Use an absolute `cd` in every step that matters, and echo both the cwd and a one-line
+   fingerprint of the tree under test (`grep -c '<the new symbol>' <file>`) beside the result.
+
+Point of traps 1, 3 and 4: all fail **silently** — the wrong answer looks exactly like a pass, with
 no exit code or error message flagging it. Run every probe with real `bash`, and don't trust "it
 printed something" as proof it printed the right thing.
 
