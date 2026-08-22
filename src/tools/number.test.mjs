@@ -2,7 +2,9 @@
 // Covers the pure random-number logic exported from number.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pickNumber } from './number.ts';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { pickNumber, rangeError } from './number.ts';
 
 test('pickNumber คืนเลขที่อยู่ในช่วงเสมอ', () => {
   for (const r of [0, 0.1, 0.3, 0.5, 0.7, 0.999999]) {
@@ -57,4 +59,49 @@ test('ช่วงกว้างเกินเพดาน ถูกปฏิ�
 
 test('ช่วงกว้างพอดีเพดาน (10000 ค่า) ยังสุ่มได้ปกติ', () => {
   assert.equal(pickNumber(1, 10000, [], () => 0), 1);
+});
+
+// gh#60: the page island must gate its roll button off this exact validator, not a hand-maintained
+// mirror. This is the caller-facing half of the same checks pickNumber throws on above.
+test('rangeError คืนข้อความเพดานเมื่อช่วงกว้างเกิน MAX_RANGE_SIZE', () => {
+  assert.match(rangeError(1, 100000) ?? '', /ไม่เกิน/);
+});
+
+test('rangeError คืนข้อความต่ำสุดมากกว่าสูงสุด', () => {
+  assert.match(rangeError(10, 1) ?? '', /ต่ำสุด/);
+});
+
+test('rangeError คืนข้อความช่วงต่ำกว่าพื้น (min === max)', () => {
+  assert.match(rangeError(5, 5) ?? '', /อย่างน้อย/);
+});
+
+test('rangeError คืน null เมื่อช่วงถูกต้อง', () => {
+  assert.equal(rangeError(1, 10), null);
+});
+
+// Structural tripwire (ADR-0018/ADR-0023 pattern): node --test cannot import an .astro file's inline
+// <script>, so this can't call render() directly. It scans the source text instead and asserts
+// render() holds no independent range-validity logic — only a call into the shared validator.
+// Ceiling, stated plainly so nobody cites this test's green as behavioural proof: a source-text scan
+// pins the spellings listed below and nothing else. A paraphrased mirror — `const cap = 1e4; if (span
+// > cap)` — passes every assertion here while reintroducing the bug, and so does keeping the call but
+// ignoring its result. The set of paraphrases has no owner, so this check cannot converge on it; the
+// behavioural evidence is the real-browser probe in docs/verification/evidence/60/, not this test.
+test('number.astro render() ไม่มี logic ตรวจช่วงตัวเลขของตัวเอง มีแต่เรียก rangeError', () => {
+  const astroPath = fileURLToPath(new URL('../pages/tool/number.astro', import.meta.url));
+  const source = readFileSync(astroPath, 'utf8');
+
+  assert.match(source, /rangeError\(min, max\)/, 'render() must call the shared validator');
+
+  // These are the exact comparisons/literals the old hand-maintained mirror used. Their absence is
+  // what proves the mirror was deleted rather than left alongside the new call.
+  assert.doesNotMatch(source, /min\s*>\s*max/, 'a hand-written min>max check must not remain');
+  assert.doesNotMatch(source, /rangeSize\s*<\s*\d/, 'a hand-written floor check must not remain');
+  assert.doesNotMatch(source, /rangeSize\s*>\s*\d/, 'a hand-written cap check must not remain');
+  assert.ok(!source.includes('10000'), 'MAX_RANGE_SIZE must not be typed as a literal in the page');
+  // Found by the pre-merge review, not by the original brief: the two input listeners held the SAME
+  // conditions in a different spelling and omitted the cap, so an over-cap range was still persisted
+  // to localStorage and a reload landed the player on a disabled button. Both now call rangeError.
+  assert.doesNotMatch(source, /range\.min\s*<=\s*range\.max/, 'a hand-written min<=max check must not remain');
+  assert.doesNotMatch(source, /range\.max\s*-\s*range\.min/, 'a hand-written range-size calculation must not remain');
 });

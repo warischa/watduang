@@ -1,0 +1,28 @@
+{
+  "box": "gh#60 DoD box 4 — a test covers the wide-range case and fails if `render()` stops mirroring the cap",
+  "method": "Two-way calibration across two trees, one variable. `box4-control.test.mjs` (this directory) was written once and copied byte-identical (md5 52ed015e2ef323c73476ca4c601cd4ec) into (a) a detached worktree at the pre-fix commit 4b63f92 and (b) the fixed working tree, then run with `node --test` in each. The control uses a DYNAMIC import of number.ts on purpose: a static import of a not-yet-existing export dies at ESM link time, which takes the whole file down and reports a missing export as though every test failed — indistinguishable from a broken mirror. Dynamic import turns the same absence into a value, so the failure lands on the assertion.",
+  "capturedAtCommit": "4b63f92",
+  "capturedAtCommitNote": "Tree was DIRTY at capture. Uncommitted at the time of the run: src/tools/number.ts (modified), src/pages/tool/number.astro (modified), src/tools/number.test.mjs (modified), and this untracked docs/verification/evidence/60/ directory. The pre-fix side of the calibration is the clean commit 4b63f92 itself, checked out in a separate worktree; the post-fix side is that dirty tree. dist/ was rebuilt during the same session by the box-1 probe, so it reflects the fixed source, not 4b63f92.",
+  "verdict": "UNDECIDED",
+  "mechanismChangedFromBoxWording": "The box says 'mirroring'. The accepted fix removes mirroring entirely: `render()` now delegates to the core's exported `rangeError` and holds no range-validity logic of its own. The shipped tripwire in src/tools/number.test.mjs therefore fails if the island stops DELEGATING or re-grows its own comparisons — which covers the box's intent by a different and stronger mechanism than its wording describes. Recorded here rather than silently claimed.",
+  "harnessAliveOnPreFixTree": true,
+  "controlFailsOnPreFixTree": true,
+  "controlFailsOnAssertionNotOnModuleResolution": true,
+  "controlPassesOnFixedTree": true,
+  "islandRoutesRangeValidityThroughCore": true,
+  "eachThaiMessageWrittenExactlyOnceInRepo": true,
+  "renderedButtonStateProvenByThisControl": false,
+  "renderedButtonStateProvenElsewhere": "box1-rendered-button-state.json — this control is source- and core-level only; it does not observe the rendered button.",
+  "runs": {
+    "preFixTree_preExistingTests": "10 pass / 0 fail, exit 0 — positive control: the harness is alive on that tree, so a red below means something",
+    "preFixTree_controlFile": "0 pass / 4 fail, exit 1 — every failure code ERR_ASSERTION, expected 'function' actual 'undefined'; zero ERR_MODULE_NOT_FOUND / 'does not provide an export' / SyntaxError hits",
+    "fixedTree_controlFile": "4 pass / 0 fail, exit 0",
+    "fixedTree_fullSuite": "188 tests / 188 pass / 0 fail, exit 0"
+  },
+  "probeDefectFoundAndCorrected": "The first attempt at the fixed-tree run inherited the worktree cwd from the preceding command and silently re-ran the PRE-FIX tree, reporting 0 pass / 4 fail. That is a broken probe presenting as a real failure. Re-run with an explicit absolute cd and an echoed cwd + `grep -c 'export function rangeError'` guard on the tree under test.",
+  "verdictNote": "Downgraded from PROVEN by the pre-merge review, before commit. The box asks for a test that fails if render() stops MIRRORING the cap; the shipped fix removes mirroring entirely, so the referent the box names no longer exists in the code. Two escape routes keep this short of PROVEN: (1) render() could keep calling rangeError and ignore its result, and (2) a paraphrased mirror (`const cap = 1e4; if (span > cap)`) passes every source-text assertion. Both were reproduced, not reasoned about. The owner reworders the box or accepts the stronger mechanism - see mechanismChangedFromBoxWording.",
+  "ownerDecisionRequired": true,
+  "eachThaiMessageWrittenExactlyOnceInRepoMethod": "Measured after the review flagged it as asserted-but-unmeasured: grep -rl for each of the three templates across src/ returns exactly one file, src/tools/number.ts, for all three.",
+  "controlFileIsPathDependent": "box4-control.test.mjs resolves ./number.ts and ../pages/tool/number.astro RELATIVE TO ITS OWN LOCATION. At its committed path under docs/verification/evidence/60/ it throws ERR_MODULE_NOT_FOUND before any test runs - verified by running it there. To re-run it, copy it into src/tools/ first. A future in-place run would otherwise read as a dead harness rather than a misplaced file.",
+  "postReviewScopeAddition": "The review also found the same duplicated conditions live in number.astro two input listeners, spelled differently and omitting the cap, so an over-cap range was persisted to localStorage and a reload landed the player on a disabled button. Both now call rangeError. The tripwire was extended to pin that spelling and mutation-tested: planting the old line back produces exactly one failure on the named assertion, and restoring returns 184/184 with the file byte-identical."
+}

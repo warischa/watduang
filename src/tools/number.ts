@@ -5,6 +5,23 @@ const MIN_RANGE_SIZE = 2;
 // wider range, and without this a range like 1-999999999 allocates ~1e9 entries and hangs the phone.
 const MAX_RANGE_SIZE = 10000;
 
+/** Validate a range without picking. Returns the exact Thai error pickNumber would throw for this
+ *  min/max, or null if the range is valid. The page island calls this to gate the roll button —
+ *  moved here (not copied) so there is exactly one place each of these three messages is written. */
+export function rangeError(min: number, max: number): string | null {
+  if (min > max) {
+    return `ช่วงตัวเลขผิด: ต่ำสุด (${min}) ต้องไม่มากกว่าสูงสุด (${max})`;
+  }
+  const rangeSize = max - min + 1;
+  if (rangeSize < MIN_RANGE_SIZE) {
+    return `ช่วงตัวเลขต้องมีอย่างน้อย ${MIN_RANGE_SIZE} ค่า (ตอนนี้มี ${rangeSize} ค่า)`;
+  }
+  if (rangeSize > MAX_RANGE_SIZE) {
+    return `ช่วงตัวเลขกว้างได้ไม่เกิน ${MAX_RANGE_SIZE} ค่า (ตอนนี้กว้าง ${rangeSize} ค่า)`;
+  }
+  return null;
+}
+
 /** Pick one number in [min, max], both ends inclusive.
  *  Pass `drawn` to stop previously drawn numbers coming out again (no-repeat mode) — leave it empty for repeats.
  *  `random` must return a value in [0, 1), same contract as Math.random. */
@@ -14,16 +31,8 @@ export function pickNumber(
   drawn: number[] = [],
   random: () => number = Math.random,
 ): number {
-  if (min > max) {
-    throw new Error(`ช่วงตัวเลขผิด: ต่ำสุด (${min}) ต้องไม่มากกว่าสูงสุด (${max})`);
-  }
-  const rangeSize = max - min + 1;
-  if (rangeSize < MIN_RANGE_SIZE) {
-    throw new Error(`ช่วงตัวเลขต้องมีอย่างน้อย ${MIN_RANGE_SIZE} ค่า (ตอนนี้มี ${rangeSize} ค่า)`);
-  }
-  if (rangeSize > MAX_RANGE_SIZE) {
-    throw new Error(`ช่วงตัวเลขกว้างได้ไม่เกิน ${MAX_RANGE_SIZE} ค่า (ตอนนี้กว้าง ${rangeSize} ค่า)`);
-  }
+  const error = rangeError(min, max);
+  if (error) throw new Error(error);
 
   const drawnSet = new Set(drawn);
   const candidates: number[] = [];

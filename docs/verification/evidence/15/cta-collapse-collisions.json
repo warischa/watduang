@@ -1,0 +1,417 @@
+{
+  "box": "docs/adr/0015-a-leave-confirm-guards-the-links-we-cannot-move.md#Consequences: whether a tool CTA collapse drops a wheel-next link under the finger is unmeasured",
+  "method": "node scripts/driver.mjs against a locally built dist/ served on :4321 and headless Chrome on CDP :9222. Per tool page: real #start-round CTA (PlayerSetup) collapse (root.hidden=true, synchronous in the click handler) driven with real Input.dispatchTouchEvent touches (session.tap — touchstart+touchend, NOT .click()) at a 3x3 grid over the CTA button box (both x and y vary, not a centre-line), at a real 320px CSS viewport confirmed to have genuinely reflowed. Each grid point is an independent fresh page load (nav -> setWidth(320,900) -> wipe -> seed watduang:roster -> reload -> tick all roster checkboxes -> real tap at that exact point -> document.elementFromPoint at that same point read immediately after). /tool/number/ has no PlayerSetup / #start-round at all, so the mechanism has no trigger there and is reported absent, not measured-safe. Positive control: a synthetic <a> sized and positioned to exactly cover a real CTA rect, injected into a real nav.wheel-next element, scanned with the identical grid+elementFromPoint+closest(nav.X) detector.",
+  "capturedAtCommit": "4b63f92",
+  "capturedAtCommitNote": "tree dirty at capture time: src/pages/tool/number.astro (modified), src/tools/number.test.mjs (modified), src/tools/number.ts (modified) — all gh#60 range-validator refactor, untouched by and unrelated to PlayerSetup.astro/GameNav.astro which this measurement exercises; docs/verification/evidence/60/ untracked and not touched by this walk.",
+  "verdict": "FAILED",
+  "verdictNote": "The unmeasured gap itself is now closed (measurement performed, apparatus calibrated both ways). The underlying invariant FAILS on /tool/team/: 6 of 9 grid points land on a real team-next <a href> after a real touch collapses the panel. /tool/wheel/ and /tool/draw/ PASS (0/9). /tool/number/ has no CTA to collapse and is reported separately, not folded into a false zero.",
+  "positiveControlHitCount": 9,
+  "positiveControlTotalPoints": 9,
+  "reflowVerified320px": {
+    "wheel": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "hasCta": true
+    },
+    "draw": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "hasCta": true
+    },
+    "team": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "hasCta": true
+    },
+    "number": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "hasCta": false
+    }
+  },
+  "realTouchEventsUsed": true,
+  "perPage": {
+    "wheel": {
+      "mechanismPresent": true,
+      "walkUsable": true,
+      "collapseFiredEveryTrial": true,
+      "gridPointsTotal": 9,
+      "linkNeverUnderFingerAfterCollapse": true,
+      "collisionCount": 0,
+      "anyAnchorHitCount": 0,
+      "ctaRect": {
+        "left": 24,
+        "top": 514.875,
+        "right": 113.640625,
+        "bottom": 538.875,
+        "width": 89.640625,
+        "height": 24
+      },
+      "trials": [
+        {
+          "x": 28,
+          "y": 519,
+          "afterTag": "P",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 69,
+          "y": 519,
+          "afterTag": "P",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 110,
+          "y": 519,
+          "afterTag": "P",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 28,
+          "y": 527,
+          "afterTag": "P",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 69,
+          "y": 527,
+          "afterTag": "P",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 110,
+          "y": 527,
+          "afterTag": "P",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 28,
+          "y": 535,
+          "afterTag": "SECTION",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 69,
+          "y": 535,
+          "afterTag": "SECTION",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 110,
+          "y": 535,
+          "afterTag": "SECTION",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        }
+      ]
+    },
+    "draw": {
+      "mechanismPresent": true,
+      "walkUsable": true,
+      "collapseFiredEveryTrial": true,
+      "gridPointsTotal": 9,
+      "linkNeverUnderFingerAfterCollapse": true,
+      "collisionCount": 0,
+      "anyAnchorHitCount": 0,
+      "ctaRect": {
+        "left": 24,
+        "top": 514.875,
+        "right": 114.828125,
+        "bottom": 538.875,
+        "width": 90.828125,
+        "height": 24
+      },
+      "trials": [
+        {
+          "x": 28,
+          "y": 519,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 69,
+          "y": 519,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 111,
+          "y": 519,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 28,
+          "y": 527,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 69,
+          "y": 527,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 111,
+          "y": 527,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 28,
+          "y": 535,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 69,
+          "y": 535,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 111,
+          "y": 535,
+          "afterTag": "LI",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        }
+      ]
+    },
+    "team": {
+      "mechanismPresent": true,
+      "walkUsable": true,
+      "collapseFiredEveryTrial": true,
+      "gridPointsTotal": 9,
+      "linkNeverUnderFingerAfterCollapse": false,
+      "collisionCount": 6,
+      "anyAnchorHitCount": 6,
+      "ctaRect": {
+        "left": 24,
+        "top": 514.875,
+        "right": 116.34375,
+        "bottom": 538.875,
+        "width": 92.34375,
+        "height": 24
+      },
+      "trials": [
+        {
+          "x": 28,
+          "y": 519,
+          "afterTag": "UL",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 70,
+          "y": 519,
+          "afterTag": "A",
+          "afterAnchorHref": "/game/timebomb/",
+          "inTargetNav": true,
+          "panelCollapsed": true
+        },
+        {
+          "x": 112,
+          "y": 519,
+          "afterTag": "A",
+          "afterAnchorHref": "/game/timebomb/",
+          "inTargetNav": true,
+          "panelCollapsed": true
+        },
+        {
+          "x": 28,
+          "y": 527,
+          "afterTag": "UL",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 70,
+          "y": 527,
+          "afterTag": "A",
+          "afterAnchorHref": "/game/timebomb/",
+          "inTargetNav": true,
+          "panelCollapsed": true
+        },
+        {
+          "x": 112,
+          "y": 527,
+          "afterTag": "A",
+          "afterAnchorHref": "/game/timebomb/",
+          "inTargetNav": true,
+          "panelCollapsed": true
+        },
+        {
+          "x": 28,
+          "y": 535,
+          "afterTag": "UL",
+          "afterAnchorHref": null,
+          "inTargetNav": false,
+          "panelCollapsed": true
+        },
+        {
+          "x": 70,
+          "y": 535,
+          "afterTag": "A",
+          "afterAnchorHref": "/game/siamsi/",
+          "inTargetNav": true,
+          "panelCollapsed": true
+        },
+        {
+          "x": 112,
+          "y": 535,
+          "afterTag": "A",
+          "afterAnchorHref": "/game/siamsi/",
+          "inTargetNav": true,
+          "panelCollapsed": true
+        }
+      ]
+    },
+    "number": {
+      "mechanismPresent": false,
+      "linkNeverUnderFingerAfterCollapse": null,
+      "note": "no #start-round CTA on this page — PlayerSetup is not mounted here, so this hazard has no trigger to measure",
+      "reflow": {
+        "innerWidth": 320,
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "hasCta": false
+      }
+    }
+  },
+  "positiveControl": {
+    "rect": {
+      "left": 24,
+      "top": 514.875,
+      "right": 113.640625,
+      "bottom": 538.875,
+      "width": 89.640625,
+      "height": 24
+    },
+    "hits": [
+      {
+        "x": 28,
+        "y": 519,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      },
+      {
+        "x": 69,
+        "y": 519,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      },
+      {
+        "x": 110,
+        "y": 519,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      },
+      {
+        "x": 28,
+        "y": 527,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      },
+      {
+        "x": 69,
+        "y": 527,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      },
+      {
+        "x": 110,
+        "y": 527,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      },
+      {
+        "x": 28,
+        "y": 535,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      },
+      {
+        "x": 69,
+        "y": 535,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      },
+      {
+        "x": 110,
+        "y": 535,
+        "tag": "A",
+        "anchorHref": "/synthetic-positive-control/",
+        "inTargetNav": true,
+        "setupPanelVisible": true,
+        "stageHasChildren": false
+      }
+    ],
+    "positiveControlHitCount": 9
+  }
+}

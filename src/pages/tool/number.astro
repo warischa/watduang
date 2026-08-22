@@ -110,7 +110,7 @@ import GameNav from '../../components/GameNav.astro';
 </style>
 
 <script>
-  import { pickNumber } from '../../tools/number';
+  import { pickNumber, rangeError } from '../../tools/number';
 
   const minInput = document.getElementById('number-min') as HTMLInputElement;
   const maxInput = document.getElementById('number-max') as HTMLInputElement;
@@ -170,18 +170,14 @@ import GameNav from '../../components/GameNav.astro';
 
     const { min, max } = range;
 
-    if (min > max) {
+    const error = rangeError(min, max);
+    if (error) {
       goBtn.disabled = true;
-      noteEl.textContent = `ช่วงตัวเลขผิด: ต่ำสุด (${min}) ต้องไม่มากกว่าสูงสุด (${max})`;
+      noteEl.textContent = error;
       return;
     }
 
     const rangeSize = max - min + 1;
-    if (rangeSize < 2) {
-      goBtn.disabled = true;
-      noteEl.textContent = `ช่วงตัวเลขต้องมีอย่างน้อย 2 ค่า (ตอนนี้มี ${rangeSize} ค่า)`;
-      return;
-    }
 
     if (noRepeatBox.checked) {
       const left = rangeSize - drawn.length;
@@ -217,14 +213,14 @@ import GameNav from '../../components/GameNav.astro';
 
   minInput.addEventListener('input', () => {
     const range = currentRange();
-    if (range && range.min <= range.max && range.max - range.min + 1 >= 2) saveRange(range.min, range.max);
+    if (range && !rangeError(range.min, range.max)) saveRange(range.min, range.max);
     drawn = []; // Range changed — numbers drawn in the old range can't decide the new one
     render();
   });
 
   maxInput.addEventListener('input', () => {
     const range = currentRange();
-    if (range && range.min <= range.max && range.max - range.min + 1 >= 2) saveRange(range.min, range.max);
+    if (range && !rangeError(range.min, range.max)) saveRange(range.min, range.max);
     drawn = [];
     render();
   });

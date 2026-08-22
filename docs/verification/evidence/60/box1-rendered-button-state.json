@@ -1,0 +1,48 @@
+{
+  "box": "gh#60 DoD box 1 — the roll button is DISABLED before any tap when the range is wider than the cap (10000), and stays ENABLED for a valid range",
+  "method": "Real build served with `npx serve dist/ -l 4321`, driven with real headless Chrome (`--headless --disable-gpu --no-sandbox --remote-debugging-port=9222`) via `node scripts/driver.mjs` against a one-off probe script (not committed — throwaway, per the brief's 'only file you may create' constraint). Probe navigates to /tool/number/, wipes localStorage on-origin, reloads, then for each case sets #number-min and #number-max via .value + a real dispatched 'input' Event (not setting .value alone, which does not fire the island's render()), and reads #number-go.disabled and #number-note.textContent BEFORE any tap. For the wide-range case, also computes the button's real screen coordinates and drives session.tap(x, y) — a real touchstart+touchend through Input.dispatchTouchEvent, not elementFromPoint+.click() — then re-reads disabled state, note text, and result text, and checks session.consoleErrors for any exception.",
+  "capturedAtCommit": "4b63f92",
+  "capturedAtCommitNote": "Tree was DIRTY at capture. Uncommitted at the time of the run: src/pages/tool/number.astro (modified), src/tools/number.test.mjs (modified), src/tools/number.ts (modified), and src/tools/gh60-control.test.mjs (untracked). PROVENANCE CORRECTION, same session: that control file was moved to docs/verification/evidence/60/box4-control.test.mjs while this probe was running, so the path named above no longer resolves. It was accurate at capture; it is recorded rather than rewritten, because the tree this probe actually ran against is the one described here. The control file is unrelated to the rendered-page behaviour measured in this box either way — it never shipped in dist/. dist/ was built from this dirty tree, so the running page reflects the fix under test, not clean HEAD 4b63f92.",
+  "verdict": "PROVEN",
+  "wideRangeButtonDisabledBeforeTap": true,
+  "wideRangeNoteContainsCapMessage": true,
+  "atCapButtonEnabled": true,
+  "smallValidRangeButtonEnabled": true,
+  "minGtMaxButtonDisabled": true,
+  "tapOnDisabledWideRangeButtonThrowsNothing": true,
+  "runs": {
+    "min=1,max=100000": {
+      "disabled": true,
+      "note": "ช่วงตัวเลขกว้างได้ไม่เกิน 10000 ค่า (ตอนนี้กว้าง 100000 ค่า)"
+    },
+    "min=1,max=10000": {
+      "disabled": false,
+      "note": ""
+    },
+    "min=1,max=10": {
+      "disabled": false,
+      "note": ""
+    },
+    "min=10,max=1": {
+      "disabled": true,
+      "note": "ช่วงตัวเลขผิด: ต่ำสุด (10) ต้องไม่มากกว่าสูงสุด (1)"
+    },
+    "tapOnWideRangeButton": {
+      "buttonDisabledAtTapTime": true,
+      "consoleErrorsAfterTap": [],
+      "disabledAfterTap": true,
+      "noteAfterTap": "ช่วงตัวเลขกว้างได้ไม่เกิน 10000 ค่า (ตอนนี้กว้าง 100000 ค่า)",
+      "resultAfterTap": ""
+    },
+    "min=5,max=5": {
+      "disabled": true,
+      "note": "ช่วงตัวเลขต้องมีอย่างน้อย 2 ค่า (ตอนนี้มี 1 ค่า)"
+    },
+    "min=5,max=6": {
+      "disabled": false,
+      "note": ""
+    }
+  },
+  "belowFloorButtonDisabled": true,
+  "atFloorButtonEnabled": true
+}
