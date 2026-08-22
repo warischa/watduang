@@ -1,6 +1,7 @@
 # Src-edit rules
 
-Moved out of `docs/runbook.md` at the seam `CLAUDE.md:55` already names (ADR-0012). The runbook keeps
+Moved out of `docs/runbook.md` at the seam `CLAUDE.md`'s "Agent skills" section already names
+(ADR-0012). The runbook keeps
 build/probe payload; this file keeps the two rules a `src/**` edit must obey — the clear-round confirm
 copy and the `thai-comments` quoting rule.
 
