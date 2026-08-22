@@ -43,15 +43,25 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
 
 {/* Deliberately outside #player-setup: the panel hides itself once a round starts, and this button has
     to stay pressable — otherwise the group cannot be changed at all short of a manual reload.
-    data-clears-session is emitted only when the button is switched off (clearsSession false), so a
-    game page's HTML is byte-for-byte what it always was.
+    A game page passes no clearsSession, takes the `= true` default, and its HTML is byte-for-byte what
+    it always was.
 
-    hidden on tool pages (#23): with clearsSession false the click handler is a deliberate no-op
-    (ADR-0004 — a tool must not touch the session or the checkpoint a game is mid-round on), and a
-    button that does nothing is its own defect. Hidden in the template, not removed: the script
-    below reads #clear-group for both the handler and the data flag, and a null there would throw
-    and kill the whole island — taking the setup panel with it. */}
-<button id="clear-group" type="button" data-clears-session={clearsSession ? undefined : 'no'} hidden={!clearsSession}>ล้างกลุ่มนี้</button>
+    gh#62: a page that does not clear the session emits nothing here. It used to ship the button on
+    every page behind two gates — `hidden` in this tag, and a data-clears-session flag the click
+    handler read before doing anything destructive — and both were gating a class that can simply not
+    exist. A tool must not touch the session, the group, or the checkpoint a game is mid-round on
+    (ADR-0004), and an absent element cannot be un-hidden by an author `display` rule outranking the
+    UA's [hidden] (measured on #leave-confirm, and the reason it carries the treatment it does). The
+    dataset flag went with it rather than staying as decoration: once the button cannot exist on a
+    non-clearing page, its else branch can never be taken, and a branch that cannot fail reads like
+    protection while providing none.
+
+    The island guards on this element EXISTING, never on a flag read off it — with the button absent
+    `clearBtn?.dataset.…!== 'no'` is TRUE, so that shape would fail OPEN on exactly the pages it was
+    meant to protect. See the `if (clearBtn)` block in the script. Nothing else in the template is
+    conditional: an id the script queries unconditionally still may not be removed, for the reason
+    #23 gave — a null throws on the first addEventListener and kills the whole island. */}
+{clearsSession && <button id="clear-group" type="button">ล้างกลุ่มนี้</button>}
 
 {/* #25: this button empties the site-wide session slot, so mid-round it destroys the round while its
     label only mentions the group. It asks first, with two labelled buttons (ADR-0008's shape).
@@ -112,6 +122,10 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   import { loadRoster, loadGroup, saveGroup } from './roster';
   import { loadSession, type StartKind } from './session';
   import { resolveStart, numberedPlayers, planStart, planClear, clearCopy, type ResumeChoice } from './player-select';
+  // gh#61 — the window a tool page arms on collapse is the games' window, imported rather than copied:
+  // ADR-0016 owns the number and the premise under it, and _arm-gate is already imported across this
+  // seam in the other direction (timebomb imports this folder's audio and wake-lock modules).
+  import { ARM_DELAY_MS } from '../games/_arm-gate';
 
   const root = document.getElementById('player-setup') as HTMLElement;
   const min = Number(root.dataset.min);
@@ -128,7 +142,10 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   const startBtn = document.getElementById('start-round') as HTMLButtonElement;
   const startNumberedBtn = document.getElementById('start-numbered') as HTMLButtonElement;
   const errorEl = document.getElementById('setup-error') as HTMLElement;
-  const clearBtn = document.getElementById('clear-group') as HTMLButtonElement;
+  // gh#62 — null on a page that does not clear the session: the template emits this button only when
+  // clearsSession is true. Typed `| null` on purpose, so astro check refuses any use of it that is not
+  // inside the existence check below — the compiler, not a comment, is what keeps that set closed.
+  const clearBtn = document.getElementById('clear-group') as HTMLButtonElement | null;
   const resumeChoiceEl = document.getElementById('resume-choice') as HTMLElement;
   const resumeBtn = document.getElementById('resume-round') as HTMLButtonElement;
   const freshBtn = document.getElementById('fresh-round') as HTMLButtonElement;
@@ -232,7 +249,59 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     // The start button sits above the game stage — pressing it mid-round would tear the round down, so
     // the whole panel hides once a round is running.
     // Ways back: "Play again" lives in the game screen · "Clear group" is outside this panel and stays pressable.
+    //
     root.hidden = true;
+    // gh#61 — [hidden] is display:none, so the line above takes the whole panel out of the flow on the
+    // same tap that started the round, and everything below rises by the panel's own height while the
+    // finger is still coming down. Measured on /tool/team/ at a real 320px viewport with a roster of 4:
+    // the sibling-game nav rose 352px and the CTA's own box answered elementFromPoint with a live
+    // <a href="/game/timebomb/"> or "/game/siamsi/" after a real touch.
+    //
+    // The first fix removed the movement instead (ADR-0024's rule): it held the panel's box and hid
+    // only its content. That worked — 40 of 75 colliding grid points went to 0 — and it left a
+    // permanent panel-sized gap between the tool and its own result at 320px, which the site owner
+    // refused. So the panel collapses as it always did, and the movement is accepted rather than
+    // removed; what is guarded is the WINDOW in which that movement can be exploited.
+    //
+    // ADR-0016's shape, already shipped in _arm-gate for the same class of harm on the game stages:
+    // classify nothing, refuse everything for a fixed window we own. It converges where a spatial or
+    // layout guard cannot, because the set it bounds — how long after a collapse a ghost contact can
+    // arrive — is answered by human double-tap physiology, not by the browser and not by the unowned
+    // set of links that could end up under the finger (the enumeration ADR-0014 already refused).
+    //
+    // The surface differs from the games' gate and the reason is the hazard: an anchor in page chrome
+    // cannot be `disabled` the way a stage button can, so the activation is swallowed here instead —
+    // capture phase, on document, which is the only place that sees a tap on chrome this island does
+    // not own. preventDefault stops the navigation; stopPropagation stops the tool's own controls
+    // firing under the same ghost. Every contact restarts the window, so it fails CLOSED: the worst
+    // case is one too-fast tap doing nothing and the player tapping again, never a stolen navigation
+    // out of the round. ARM_DELAY_MS is imported, not retyped — ADR-0016 owns that number and the
+    // premise under it, and a second literal here would drift from the one the games gate on.
+    //
+    // The gate is `gameId === undefined`, the same bit the leave-confirm listener at the foot of this
+    // file reads to decide it has nothing to guard, and reusing it is what makes the two exhaustive
+    // instead of merely adjacent: a page WITH a game has that dialog in front of every link for as
+    // long as root.hidden is true; a page without one can never reach the dialog and gets this window
+    // instead. No page is in neither set, and none in both. Do NOT re-key this on clearsSession: that
+    // prop is about the session slot, and a tool page that reached this branch through it would be
+    // relying on two independent props agreeing.
+    if (gameId === undefined) {
+      let timer: ReturnType<typeof setTimeout>;
+      const release = (): void => {
+        clearTimeout(timer);
+        document.removeEventListener('click', swallow, true);
+        document.removeEventListener('pointerdown', swallow, true);
+      };
+      const swallow = (e: Event): void => {
+        e.preventDefault();
+        e.stopPropagation();
+        clearTimeout(timer);
+        timer = setTimeout(release, ARM_DELAY_MS);
+      };
+      document.addEventListener('click', swallow, true);
+      document.addEventListener('pointerdown', swallow, true);
+      timer = setTimeout(release, ARM_DELAY_MS);
+    }
   }
 
   // gh#54 — the way back in. The game page owns the mount, so it is the only place that ever learns the
@@ -394,110 +463,120 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   // begins or resumes. Left open across that transition it sits armed beside a live round (found in
   // pre-merge review, and it is the same one-tap loss this ticket exists to close).
   function requestClear(confirmed: boolean): void {
-    // Tool pages pass clearsSession={false} (ADR-0004: a tool must not touch the session).
     // The button's meaning is unchanged: it clears "this round", not the roster (the roster lives in
     // localStorage and survives either way).
-    // #data-loss: saveGroup([]) must sit behind the same gate as session.clear(). It used to sit outside
-    // the if, so a tool page could wipe the group (the prefill) even while the session went untouched,
-    // and the player walking back into a game had to tick the whole group again (#15). The round itself
-    // has been safe since #23, but this gate stays: a tool must not touch the group either.
-    if (clearBtn.dataset.clearsSession !== 'no') {
-      const session = loadSession();
+    // gh#62 — this function no longer gates on anything. It used to open with a check on the button's
+    // dataset flag, and a page that does not clear the session (ADR-0004: a tool must not touch the
+    // session, and #data-loss: not the group either — wiping the prefill meant ticking the whole group
+    // again on the next game, #15) fell through it to the reload at the foot, which sat OUTSIDE the
+    // gate and was the one effect such a page could ever have had. Both callers are now wired only
+    // when the clear button exists, and it exists only where clearsSession is true, so the whole
+    // function is unreachable there instead of gated. Do not re-add a flag check as defence in depth:
+    // read off a missing button it evaluates to true and fails OPEN, which is worse than none.
+    const session = loadSession();
       // #data-loss: the checkpoint was never the liveness test. Only siamsi writes one — 1 of 6 games —
       // and it empties the slot at round end, so an empty slot covered a live short-stick or timebomb
       // round and every fresh session, and the tap below reloaded the page and took the round with it.
       // The bit was here all along: requestStart sets root.hidden when a round begins. Read inside this
       // gate, never above it — a tool page hides its own round too and must stay a no-op (ADR-0004).
-      const roundLive = root.hidden;
-      if (planClear(session.checkpoint, confirmed, roundLive) === 'ask') {
-        // The template's copy says \u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48\u0e04\u0e49\u0e32\u0e07 — the round left hanging — which is true of a stranded
-        // checkpoint and false of the round on screen: mid short-stick with a stale siamsi blob in the
-        // slot it names the abandoned siamsi round while the button under it kills the live one, and both
-        // of them die in that press. clearCopy owns which of the three cases this is and the strings that
-        // name it; null means the template's default already says the true thing. Assigned as a pair and
-        // before the question is shown — role="alert" announces the text that is there when hidden drops.
-        const copy = clearCopy(session.checkpoint, roundLive);
-        if (copy) {
-          clearChoiceMsg.textContent = copy.message;
-          clearConfirmBtn.textContent = copy.confirmLabel;
-        }
-        clearChoiceEl.hidden = false;
-        // gh#55: raise it out of flow, so answering it moves nothing (ADR-0024). Fail SAFE, the exact
-        // opposite of #leave-confirm's fail-OPEN early return below: this question is the only thing
-        // standing in front of a destructive action, so a browser with no showModal must still be asked.
-        // An early return on this capability test would clear the group and discard the rounds without
-        // asking: data loss, not a degraded guard.
-        // hidden drops FIRST, one line up: showModal() on a display:none box would raise nothing.
-        //
-        // The else branch is NOT belt and braces — dropping hidden alone is not enough, measured. A UA
-        // that styles <dialog> at all also ships `dialog:not([open]) { display: none }`, and that rule
-        // outlives any missing method: with showModal deleted the question read hidden=false and ZERO
-        // client rects, focus fell to <body>, and Clear group became a control that visibly did nothing.
-        // Setting [open] by hand is what renders it in both populations — as an out-of-flow absolutely
-        // positioned box where the UA knows <dialog>, and as the plain in-flow block this shipped as
-        // before gh#55 where it does not. Reflowing is an acceptable fallback; unanswerable is not.
-        if (!clearChoiceEl.open) {
-          if (typeof clearChoiceEl.showModal === 'function') clearChoiceEl.showModal();
-          else clearChoiceEl.setAttribute('open', '');
-        }
-        // Focus the SAFE branch, as the resume prompt does. click fires on Enter keydown, so focusing
-        // Clear-and-drop-pending-round would put the destructive button under a key that is still held: OS auto-repeat
-        // or a habitual second Enter would confirm a question the player never got to read.
-        // Load-bearing under <dialog> too, and more so: showModal() autofocuses the first focusable
-        // descendant, which in DOM order is the destructive button. This line runs in the same
-        // synchronous task and takes focus back, so no frame ever paints with it focused.
-        clearCancelBtn.focus();
-        return;
+    const roundLive = root.hidden;
+    if (planClear(session.checkpoint, confirmed, roundLive) === 'ask') {
+      // The template's copy says \u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48\u0e04\u0e49\u0e32\u0e07 — the round left hanging — which is true of a stranded
+      // checkpoint and false of the round on screen: mid short-stick with a stale siamsi blob in the
+      // slot it names the abandoned siamsi round while the button under it kills the live one, and both
+      // of them die in that press. clearCopy owns which of the three cases this is and the strings that
+      // name it; null means the template's default already says the true thing. Assigned as a pair and
+      // before the question is shown — role="alert" announces the text that is there when hidden drops.
+      const copy = clearCopy(session.checkpoint, roundLive);
+      if (copy) {
+        clearChoiceMsg.textContent = copy.message;
+        clearConfirmBtn.textContent = copy.confirmLabel;
       }
-      // clear() can refuse since gh#51 F2, and this page wires no onWriteRefused — so the refusal
-      // would be silent here, and saveGroup([]) + reload below run regardless. Unreachable today, and
-      // the reason is the ONLY thing keeping it so: `const session = loadSession()` above binds fresh
-      // inside this same gate, with zero awaits/then/yield before the wipe, so the closure cannot be a
-      // generation behind its own record. Hoist that binding out, leave an async escape before the
-      // wipe, or make session.clear() run in a synchronous re-entrant writer's wake, and this becomes a
-      // silent discard-that-did-not-happen — the ADR-0008 loss gh#50 closed for write(). Wire the
-      // listener (clear() would first need write()'s WriteRefusal | null return — write() in session.ts
-      // is declared to return one and clear() is declared void, so there is no return to check yet)
-      // before making any of those changes. player-setup.test.mjs's "#51 requestClear's `const session = loadSession()`
-      // binding stays inside this function" pins the first two of those three breaks by source text;
-      // the third (a synchronous re-entrant writer in that span) is named there as not covered, not
-      // enumerated — that set has no owner a source-text check converges on.
-      session.clear();
-      saveGroup([]);
+      clearChoiceEl.hidden = false;
+      // gh#55: raise it out of flow, so answering it moves nothing (ADR-0024). Fail SAFE, the exact
+      // opposite of #leave-confirm's fail-OPEN early return below: this question is the only thing
+      // standing in front of a destructive action, so a browser with no showModal must still be asked.
+      // An early return on this capability test would clear the group and discard the rounds without
+      // asking: data loss, not a degraded guard.
+      // hidden drops FIRST, one line up: showModal() on a display:none box would raise nothing.
+      //
+      // The else branch is NOT belt and braces — dropping hidden alone is not enough, measured. A UA
+      // that styles <dialog> at all also ships `dialog:not([open]) { display: none }`, and that rule
+      // outlives any missing method: with showModal deleted the question read hidden=false and ZERO
+      // client rects, focus fell to <body>, and Clear group became a control that visibly did nothing.
+      // Setting [open] by hand is what renders it in both populations — as an out-of-flow absolutely
+      // positioned box where the UA knows <dialog>, and as the plain in-flow block this shipped as
+      // before gh#55 where it does not. Reflowing is an acceptable fallback; unanswerable is not.
+      if (!clearChoiceEl.open) {
+        if (typeof clearChoiceEl.showModal === 'function') clearChoiceEl.showModal();
+        else clearChoiceEl.setAttribute('open', '');
+      }
+      // Focus the SAFE branch, as the resume prompt does. click fires on Enter keydown, so focusing
+      // Clear-and-drop-pending-round would put the destructive button under a key that is still held: OS auto-repeat
+      // or a habitual second Enter would confirm a question the player never got to read.
+      // Load-bearing under <dialog> too, and more so: showModal() autofocuses the first focusable
+      // descendant, which in DOM order is the destructive button. This line runs in the same
+      // synchronous task and takes focus back, so no frame ever paints with it focused.
+      clearCancelBtn.focus();
+      return;
     }
+    // clear() can refuse since gh#51 F2, and this page wires no onWriteRefused — so the refusal
+    // would be silent here, and saveGroup([]) + reload below run regardless. Unreachable today, and
+    // the reason is the ONLY thing keeping it so: `const session = loadSession()` above binds fresh
+    // inside this same gate, with zero awaits/then/yield before the wipe, so the closure cannot be a
+    // generation behind its own record. Hoist that binding out, leave an async escape before the
+    // wipe, or make session.clear() run in a synchronous re-entrant writer's wake, and this becomes a
+    // silent discard-that-did-not-happen — the ADR-0008 loss gh#50 closed for write(). Wire the
+    // listener (clear() would first need write()'s WriteRefusal | null return — write() in session.ts
+    // is declared to return one and clear() is declared void, so there is no return to check yet)
+    // before making any of those changes. player-setup.test.mjs's "#51 requestClear's `const session = loadSession()`
+    // binding stays inside this function" pins the first two of those three breaks by source text;
+    // the third (a synchronous re-entrant writer in that span) is named there as not covered, not
+    // enumerated — that set has no owner a source-text check converges on.
+    session.clear();
+    saveGroup([]);
     // ponytail: reload rather than tearing the UI down by hand — teardown at every layer comes free
     // (pagehide → game.dispose(), the setup panel returns, the selection is cleared). If a client router
     // ever lands, turn this into an in-place reset.
     location.reload();
   }
 
-  clearBtn.addEventListener('click', () => requestClear(false));
-  clearConfirmBtn.addEventListener('click', () => requestClear(true));
-  // ESC on an open modal is a dismissal the browser performs for us, and it must land on exactly what
-  // "ยกเลิก" does — that is the whole reason both side effects live here rather than in the button's
-  // handler (ADR-0015's rule (c) shape: one clearing point per dismissal, not per button). Nothing is
-  // ever cleared until #clear-confirm is pressed, so the two were already equal on the destructive
-  // axis; they were NOT equal on the other two, and both gaps were measured, not assumed:
-  //   hidden — ESC drops [open] and leaves the attribute behind, so the element's two closed states
-  //     (the one the no-showModal fallback needs, the one the UA sheet reads) drift apart.
-  //   focus — the UA restores focus to whatever was focused when showModal ran. A tap does not focus
-  //     the button it hits on iOS, so that is <body>: measured activeElement BODY after a real Escape,
-  //     against clear-group after the button. Same dismissal, keyboard place lost on one of them.
-  clearChoiceEl.addEventListener('close', () => {
-    clearChoiceEl.hidden = true;
-    clearBtn.focus(); // hiding the focused button would drop focus to <body> and lose the keyboard's place
-  });
-  clearCancelBtn.addEventListener('click', () => {
-    clearChoiceEl.hidden = true;
-    // close() re-enters the listener above, which owns the rest. A browser with no dialog methods fires
-    // no close event ever, so that branch finishes the job itself: the [open] this question set by hand
-    // has to come off by hand too, or the fallback shuts once and never reopens.
-    if (typeof clearChoiceEl.close === 'function' && clearChoiceEl.open) clearChoiceEl.close();
-    else {
-      clearChoiceEl.removeAttribute('open');
-      clearBtn.focus();
-    }
-  });
+  // gh#62 — the clear path's whole reachability is this check. requestClear has exactly two callers and
+  // both are wired here: the button itself, and the confirm inside the question that only the button can
+  // open. On a page that does not clear the session the element is never emitted, nothing below runs,
+  // and #clear-choice can neither be opened nor answered — so the reload at the foot of requestClear is
+  // unreachable there rather than gated, and there is no flag left that a missing element could make
+  // read the safe way round. Guard on the element, never on `clearBtn?.<something>`: through a null that
+  // reads true and clears the group on the one page that must never lose it.
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => requestClear(false));
+    clearConfirmBtn.addEventListener('click', () => requestClear(true));
+    // ESC on an open modal is a dismissal the browser performs for us, and it must land on exactly what
+    // "ยกเลิก" does — that is the whole reason both side effects live here rather than in the button's
+    // handler (ADR-0015's rule (c) shape: one clearing point per dismissal, not per button). Nothing is
+    // ever cleared until #clear-confirm is pressed, so the two were already equal on the destructive
+    // axis; they were NOT equal on the other two, and both gaps were measured, not assumed:
+    //   hidden — ESC drops [open] and leaves the attribute behind, so the element's two closed states
+    //     (the one the no-showModal fallback needs, the one the UA sheet reads) drift apart.
+    //   focus — the UA restores focus to whatever was focused when showModal ran. A tap does not focus
+    //     the button it hits on iOS, so that is <body>: measured activeElement BODY after a real Escape,
+    //     against clear-group after the button. Same dismissal, keyboard place lost on one of them.
+    clearChoiceEl.addEventListener('close', () => {
+      clearChoiceEl.hidden = true;
+      clearBtn.focus(); // hiding the focused button would drop focus to <body> and lose the keyboard's place
+    });
+    clearCancelBtn.addEventListener('click', () => {
+      clearChoiceEl.hidden = true;
+      // close() re-enters the listener above, which owns the rest. A browser with no dialog methods fires
+      // no close event ever, so that branch finishes the job itself: the [open] this question set by hand
+      // has to come off by hand too, or the fallback shuts once and never reopens.
+      if (typeof clearChoiceEl.close === 'function' && clearChoiceEl.open) clearChoiceEl.close();
+      else {
+        clearChoiceEl.removeAttribute('open');
+        clearBtn.focus();
+      }
+    });
+  }
 
   // #39 — a link click during a live round on this page asks first. Capture phase so this runs before
   // the link's own navigation, and it is deliberately global (document, not #stage or GameNav): the

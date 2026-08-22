@@ -1,0 +1,41 @@
+{
+  "base": "http://localhost:4321",
+  "gamePath": "/game/timebomb/",
+  "at": "2026-08-22T06:32:41.033Z",
+  "start": {
+    "panelHidden": true,
+    "panelDisplay": "none",
+    "panelVisibility": "visible",
+    "panelOffsetParentNull": true,
+    "roundStartedDetector": true,
+    "stageChildren": 3,
+    "stageVisible": true,
+    "firstControl": {
+      "at": 11.199999999254942,
+      "disabled": true
+    },
+    "armedAtMs": 416.6000000014901,
+    "navLink": {
+      "href": "/game/siamsi/",
+      "x": 88.0390625,
+      "y": 610.125
+    }
+  },
+  "linkTap": {
+    "mountedAt": 8.600000001490116,
+    "href": "/game/siamsi/",
+    "x": 88.0390625,
+    "y": 390.125
+  },
+  "linkTapResult": {
+    "dialogOpen": true,
+    "clickGapsMs": [
+      0.19999999925494194,
+      21.300000000745058
+    ],
+    "href": "/game/timebomb/",
+    "activeElement": "leave-stay"
+  },
+  "verdict": "GAME_PAGE_UNAFFECTED",
+  "consoleErrors": []
+}

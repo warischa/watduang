@@ -1,0 +1,44 @@
+{
+  "base": "http://localhost:4322",
+  "toolPath": "/tool/team/",
+  "gapMs": 120,
+  "armDelayMs": 400,
+  "at": "2026-08-22T06:31:23.109Z",
+  "seed": {
+    "innerWidth": 320,
+    "roster": 4,
+    "ticked": 4,
+    "roundStartedDetector": false,
+    "cta": {
+      "left": 24,
+      "top": 514.875,
+      "right": 116.34375,
+      "bottom": 538.875,
+      "cx": 70.171875,
+      "cy": 526.875
+    }
+  },
+  "afterContact1": {
+    "panelHidden": true,
+    "display": "none",
+    "visibility": "visible",
+    "offsetParentNull": true,
+    "panelRectHeight": 0,
+    "roundStartedDetector": true,
+    "href": "/tool/team/"
+  },
+  "contact2": {
+    "x": 70,
+    "y": 527,
+    "d": 0.045166015625,
+    "href": "/game/timebomb/",
+    "text": "ระเบิดเวลา"
+  },
+  "afterContact2": {
+    "href": "/game/timebomb/",
+    "title": "ระเบิดเวลา — เกมส่งมือถือวนกัน เล่นฟรีบนเครื่องเดียว"
+  },
+  "navigated": true,
+  "verdict": "NAVIGATED (ghost tap stole the round)",
+  "consoleErrors": []
+}

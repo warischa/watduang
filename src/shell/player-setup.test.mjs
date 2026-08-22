@@ -5,6 +5,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolveStart, numberedPlayers } from './player-select.ts';
+// gh#61 — the window this panel arms on a tool page is the games' window, imported rather than retyped:
+// ADR-0016 owns the number and the premise under it.
+import { ARM_DELAY_MS } from '../games/_arm-gate.ts';
 
 const src = readFileSync(new URL('./PlayerSetup.astro', import.meta.url), 'utf8');
 const scriptAt = src.indexOf('<script>');
@@ -12,12 +15,22 @@ const template = src.slice(0, scriptAt);
 const script = src.slice(scriptAt);
 // read once: gh#54 pins a PAIR — the hide lives in the island above, the way back lives on the game page
 const gamePage = readFileSync(new URL('../pages/game/[id].astro', import.meta.url), 'utf8');
+// gh#62 pins a pair too: the render guard lives in the template above, the clearing mount that has to
+// keep taking its true branch lives in the layout every game page renders through
+const gameLayout = readFileSync(new URL('../layouts/GameLayout.astro', import.meta.url), 'utf8');
 
 const queried = [...script.matchAll(/getElementById\('([^']+)'\)/g)].map((m) => m[1]);
 
 // #23 — every element the handlers reach for must stay in the DOM. hidden is fine, removal is not:
 // a null from getElementById throws on the first .addEventListener and kills the whole island script,
 // taking the setup panel down with it on every page that renders this component.
+//
+// Ceiling, and gh#62 is what opened it: #clear-group is now emitted only when clearsSession is true,
+// so on a tool page that one id really is null at runtime. Its null is handled — clearBtn is typed
+// nullable and every use sits inside `if (clearBtn)`, pinned by the gh#62 tests below. This test reads
+// the template TEXT, so a conditionally rendered id passes it either way: it cannot tell a second
+// conditional element apart from an unconditional one, and the next id rendered behind a prop gets no
+// warning from here. That set is owned by whoever edits the template next, not by this file.
 test('#23 every id the island script queries exists in the template — a missing one kills the whole island', () => {
   // positive control: a regex that matched nothing would make the loop below vacuously green
   assert.ok(queried.length >= 10, `expected the script to query many ids, found ${queried.length}`);
@@ -268,6 +281,82 @@ test('#25 the clear confirmation sits outside #player-setup, next to the button 
   assert.equal(insidePanel('leave-confirm'), false, 'the leave-confirm dialog must stay reachable mid-round');
 });
 
+// gh#62 — the clear button used to render on every page behind two gates: `hidden` when the page does
+// not clear the session, and a data-clears-session flag the click handler read before doing anything
+// destructive. Both are gone, because both were gating a class that can simply not exist. The button is
+// not emitted at all on a non-clearing mount: nothing left to un-hide (an author `display` rule cannot
+// outrank a UA [hidden] rule that has no element to apply to — the failure this repo already measured
+// on #leave-confirm), and no else branch that can never be taken sitting in the handler looking like
+// protection.
+//
+// CEILING (ADR-0019): this is a source-text scan of the template, not a render — it pins the shape that
+// makes the button unrenderable on a non-clearing mount, it does not execute Astro. The rendered proof
+// is grepping dist/ for the button on the three tool pages, against a game page as the control.
+// Comments are stripped first and the negative assertions depend on it: the block above the button
+// names both removed gates, so unstripped prose would trip exactly the checks that say they are gone.
+test('gh#62 the clear button is not rendered at all when the page does not clear the session', () => {
+  const tpl = template.replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+  // positive control: the needle is live and the button does still exist somewhere in this template —
+  // a typo here would make every absence asserted below vacuously green
+  const btnAt = tpl.indexOf('id="clear-group"');
+  assert.ok(btnAt > 0, 'positive control: the template still carries the clear button');
+  const guardAt = tpl.indexOf('{clearsSession &&');
+  assert.ok(guardAt > 0, 'the clear button is emitted unconditionally again — every mount ships it');
+  assert.ok(
+    btnAt > guardAt && btnAt < matchBraceEnd(tpl, guardAt),
+    'the clear button must sit inside the {clearsSession && …} guard, so a non-clearing mount emits no #clear-group at all',
+  );
+  assert.equal(
+    tpl.includes('data-clears-session'),
+    false,
+    'the dataset gate is dead once the button cannot exist on a non-clearing page — removed, not left as decoration',
+  );
+  assert.doesNotMatch(
+    tpl,
+    /hidden=\{!clearsSession\}/,
+    'hidden is not the gate any more — a rendered-but-hidden button is one author CSS rule from being pressable',
+  );
+  // the clearing mount, read from the real caller rather than assumed: a game page mounts this
+  // component with no clearsSession at all, so it takes the `= true` default and keeps the button and
+  // the whole clear-and-reload path exactly as they were.
+  const mount = gameLayout.match(/<PlayerSetup\b[^>]*\/>/);
+  assert.ok(mount, 'positive control: the game layout still mounts this component');
+  assert.doesNotMatch(mount[0], /clearsSession/, 'a game page must keep taking the default, not pass a value');
+  assert.match(src, /clearsSession = true/, 'and that default is what leaves the game path unchanged');
+});
+
+// gh#62 — with the button unrendered, every read of it is a null, and the shape of the guard decides
+// which way that null falls. `clearBtn?.dataset.clearsSession !== 'no'` evaluates to TRUE through a
+// missing button, so keeping the old gate as "defence in depth" would fail OPEN and run the destructive
+// path on exactly the pages it was written to protect. The guard is the element itself. requestClear has
+// two callers and both are wired inside that check, so an unemitted button makes the whole path
+// unreachable — including location.reload(), which sat past the old gate and is the one effect a tool
+// page could ever have had (it discards the wheel's eliminated players, the draw pool, a team split).
+test('gh#62 the clear path is reachability-guarded on the button existing, never on a flag read off it', () => {
+  const code = script.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  assert.match(
+    code,
+    /const clearBtn = document\.getElementById\('clear-group'\)/,
+    'positive control: the island still queries the clear button',
+  );
+  assert.match(code, /as HTMLButtonElement \| null/, 'clearBtn is typed nullable, so astro check refuses any unguarded use');
+  assert.match(code, /if \(clearBtn\) \{/, 'the clear wiring sits behind an existence check');
+  assert.doesNotMatch(code, /clearBtn\?\./, 'optional chaining reads true through a missing button — the fail-OPEN trap');
+  assert.doesNotMatch(code, /dataset\.clearsSession/, 'a branch whose else can never be taken is not protection');
+  const guardOpen = code.indexOf('if (clearBtn) {');
+  const guardEnd = matchBraceEnd(code, code.indexOf('{', guardOpen));
+  assert.ok(guardEnd > guardOpen, 'positive control: the existence check parses');
+  const calls = [...code.matchAll(/requestClear\((?:true|false)\)/g)].map((m) => m.index);
+  assert.equal(calls.length, 2, 'positive control: both callers of requestClear are still here (the button, and the confirm)');
+  for (const at of calls) {
+    assert.ok(
+      at > guardOpen && at < guardEnd,
+      'every requestClear caller must sit inside the existence check — one left outside keeps the destructive path ' +
+        'reachable on a page that never rendered the button that opens it',
+    );
+  }
+});
+
 // gh#54 — requestStart hides the panel unconditionally, and nothing in THIS file ever puts it back:
 // root.hidden = true is written once, root.hidden = false never. That is fine while the round mounts
 // and a dead end when it does not, because root.hidden is also the liveness bit planClear is handed
@@ -291,6 +380,113 @@ test('gh#54 the panel is hidden on start in this file and put back by the game p
     handler,
     /getElementById\('player-setup'\)[\s\S]{0,200}?hidden = false/,
     'the failed-mount path no longer puts the setup panel back',
+  );
+});
+
+// gh#61 — the same hide, measured from below. [hidden] is display:none, so the panel leaves the flow on
+// the tap that starts the round and everything under it rises by the panel's own height while the
+// finger is still coming down. On /tool/team/ at a real 320px viewport, roster of 4: the CTA's own box
+// answered elementFromPoint with a real <a href="/game/timebomb/"> after a real touch, and the nav rose
+// 352px.
+//
+// The first fix held the panel's BOX — visibility:hidden over a display value read back off the element
+// — and it did remove the movement: 40 of 75 colliding grid points went to 0. It also left the tool's
+// own result under a permanent empty panel-sized gap at 320px, and the site owner ruled that
+// unacceptable. So the panel collapses again, and neither half of that hold may come back; this test
+// names both halves rather than only the branch, because either one alone would restore the gap.
+//
+// What replaces it is ADR-0016's window — the shape this repo already ships in src/games/_arm-gate.ts
+// for the same class of harm: classify nothing, disable everything for a fixed window we own. Only the
+// surface differs, and it differs because the hazard does: an <a href> in page chrome cannot be
+// `disabled` the way a stage button can, so the activation is swallowed document-wide in the capture
+// phase instead. Shared with the games: the constant, and the restart-on-contact leg that makes the
+// window fail closed. Worst case is one swallowed tap and the player taps again; the box-holding fix
+// cost every player a screenful of blank space, and the unguarded collapse costs the whole round.
+//
+// The gate stays `gameId === undefined` — the same bit the leave-confirm listener reads to decide it
+// has nothing to guard. That is what makes the two exhaustive rather than merely adjacent: a page WITH
+// a game has that dialog in front of every link while root.hidden; a page without one can never reach
+// the dialog and gets the window instead. No page falls in neither set.
+//
+// The polarity is what this test is really for. Inverted, every game page would swallow its own
+// post-start taps while the tool pages went back to handing out a free navigation — and gh#61's
+// acceptance scan only re-reads the tool pages, so nothing in that ticket would have noticed.
+test('gh#61 a page with no game swallows activations for one shared window after it collapses', () => {
+  const body = fnBody('requestStart');
+  assert.match(body, /root\.hidden = true/, 'positive control: this is still the path that hides the panel');
+
+  const at = body.indexOf('if (gameId === undefined)');
+  assert.ok(at >= 0, 'the swallow branch is gone, or is no longer gated on this page having no game');
+  const open = body.indexOf('{', at);
+  const branch = body.slice(open + 1, matchBraceEnd(body, open));
+
+  // The reverted fix, refused by name in the whole island rather than in this branch: moving those two
+  // lines anywhere else in the file would reintroduce the same blank gap and still pass a branch-scoped
+  // check. The panel must collapse, so nothing may hold its box.
+  assert.doesNotMatch(script, /style\.visibility/, 'the panel must collapse — holding its box left a permanent gap above the tool result');
+  assert.doesNotMatch(script, /getComputedStyle\(root\)/, 'reading the display back is half of the box-holding fix; it has no other caller');
+
+  // Both activation events, both in the capture phase, both on document. click is what an anchor
+  // navigates on; pointerdown is what restarts the window, and capture on document is the only place
+  // that sees a tap on chrome this island does not own (the same reason the leave-confirm listener
+  // below is global rather than scoped to a stage).
+  for (const type of ['click', 'pointerdown']) {
+    assert.match(
+      branch,
+      new RegExp(`document\\.addEventListener\\('${type}', \\w+, true\\)`),
+      `the window must swallow ${type} document-wide in the capture phase`,
+    );
+    assert.match(
+      branch,
+      new RegExp(`document\\.removeEventListener\\('${type}', \\w+, true\\)`),
+      `the window must release ${type} again — a swallow with no release is a page that never accepts a tap`,
+    );
+  }
+
+  // The swallow itself: stop the navigation, and stop it reaching anything else. preventDefault alone
+  // leaves the tool's own controls firing under the ghost; stopPropagation alone leaves the anchor.
+  assert.match(branch, /preventDefault\(\)/, 'the swallowed activation must not perform its default action');
+  assert.match(branch, /stopPropagation\(\)/, 'the swallowed activation must not reach a listener either');
+
+  // Restart-on-contact, the leg that makes it fail closed: contact inside the window pushes the release
+  // out rather than being counted. Two setTimeout calls — one arms the window, one is inside the
+  // handler.
+  assert.ok(
+    [...branch.matchAll(/setTimeout\(/g)].length >= 2,
+    'contact during the window must restart it, not be swallowed while the original release runs on',
+  );
+  assert.match(branch, /clearTimeout\(/, 'a restart that does not clear the pending release closes the window early');
+
+  // One constant, shared with the games, never a second literal that can drift from it.
+  assert.ok(ARM_DELAY_MS > 0, 'positive control: the shared window is a real duration');
+  assert.match(script, /import \{ ARM_DELAY_MS \} from '\.\.\/games\/_arm-gate'/, 'the window length comes from the shared module');
+  assert.match(branch, /ARM_DELAY_MS/, 'the branch must use the shared constant');
+  assert.ok(
+    !/setTimeout\([^,]+,\s*\d/.test(branch),
+    'a numeric window here would drift from the one the games gate on, and ADR-0016 owns that number',
+  );
+
+  // Exactly two document click listeners in the whole island — #39's leave-confirm, and this window —
+  // and the second of them is inside this branch. A third, or one of these two outside the branch, is a
+  // game page swallowing its own post-start taps.
+  assert.equal(
+    [...script.matchAll(/document\.addEventListener\('click'/g)].length,
+    2,
+    'positive control: the island installs two document click listeners — the leave-confirm, and this window',
+  );
+  assert.equal(
+    [...branch.matchAll(/document\.addEventListener\('click'/g)].length,
+    1,
+    'the window must be installed inside the no-game branch, nowhere else',
+  );
+
+  assert.ok(
+    !branch.includes('root.hidden = true'),
+    'root.hidden = true moved inside the no-game branch — a game page would stop collapsing at all',
+  );
+  assert.ok(
+    at > body.indexOf('root.hidden = true'),
+    'the window must be armed after the collapse — armed before it, the collapse itself has not happened yet',
   );
 });
 

@@ -41,3 +41,9 @@ between them — a gate that quietly stopped measuring. Do not "fix" that by add
 
 **Don't** assume a doc is exempt because docs may contain Thai — a checker cannot tell use from
 mention, and writing about this gate is how you create an instance of it.
+
+## An absent element guards reachability, never an optional-chained comparison
+
+When an element may not be rendered at all, write `if (el) { ... }`, not `el?.dataset.foo !== 'no'` —
+optional chaining resolves to `undefined`, and `undefined !== 'no'` is `true`, so a guard written that
+way fails OPEN exactly when the element is missing.
