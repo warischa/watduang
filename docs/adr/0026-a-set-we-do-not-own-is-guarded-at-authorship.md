@@ -44,3 +44,30 @@ number is involved, so pattern-matching cannot catch it. Anchor a criterion to a
 non-binding and the set unowned after all, and the question reopens.
 
 Declined this session, owner's call: extending `added-lineno-citation-check.mjs` to scan issue bodies.
+
+## Outcome — 2026-08-22: the reopening fact is CONFIRMED
+
+Probed rather than recalled. The ban lives under this heading in `docs/agents/issue-tracker.md`:
+"Citations in issue bodies: symbols, never path:line". Its imperative names **no addressee** — it binds
+whoever reads the file, not agents specifically.
+
+**Nothing enforces it on issue bodies.** The only workflow triggers on `push` and `pull_request`; there
+are no non-sample git hooks; no scheduled job reads the tracker; and `added-lineno-citation-check.mjs`
+draws its entire input from `git diff` and `git ls-files`, so an issue body is structurally unreachable
+to it.
+
+Two corrections to how this ADR was being cited:
+
+1. The binding is conditional on **reading**, not on being an agent. An agent that never opens the
+   tracker doc is exactly as unbound as the owner typing an issue by hand. The prediction above was
+   right about the mechanism but understated the set.
+2. It does not converge. Rule-text patches converge over readers; readership is unowned and growing.
+   That is the same non-convergence ADR-0016 refuses and ADR-0025 sidesteps by scoping to a diff we own.
+
+The same session produced independent evidence that the underlying rot is real rather than theoretical:
+a pre-existing citation in `docs/agents/capture-freshness.md` was found already pointing at the wrong
+lines, because gh#50 inserted an assignment that pushed the described calls down. The prose still read
+as correct. The diff-scoped gate could never have caught it, because the line was never an added line.
+
+**Still open, and now an owner decision rather than a prediction:** whether to build an enforcement path
+or accept the ban as a convention with its coverage stated honestly. Carried in `SESSION-HANDOFF.md`.
