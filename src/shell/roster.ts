@@ -68,9 +68,10 @@ export function loadGroup(): string[] {
  *  the player re-ticks. Refusing on a CAS mismatch stores a group that is not the one being played. A
  *  lock alone protects nothing: there is no read inside the critical section to protect, and a single
  *  setItem of the whole value cannot interleave. What this key means is "the group the player last
- *  ticked" — PlayerSetup.astro:320 stores it BEFORE the live-round question is asked, deliberately, so
- *  it is NOT "the group that started a round": tick a group, then choose resume, and the stored group
- *  never started one. Last writer is still the correct writer, because the player really did tick it.
+ *  ticked" — PlayerSetup.astro's `saveGroup([...selected])` stores it BEFORE the live-round question
+ *  is asked, deliberately, so it is NOT "the group that started a round": tick a group, then choose
+ *  resume, and the stored group never started one. Last writer is still the correct writer, because
+ *  the player really did tick it.
  *  Pinned by roster.test.mjs's F4 test, which fails if this ever starts merging. Reopen only if the
  *  group becomes something a tab appends to. */
 export function saveGroup(names: string[]): void {

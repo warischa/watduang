@@ -1,6 +1,6 @@
 ---
-interface Props { min: number; max: number; ctaLabel?: string; clearsSession?: boolean; gameId?: string }
-const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, gameId } = Astro.props as Props;
+interface Props { min: number; max: number; ctaLabel?: string; gameId?: string }
+const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props as Props;
 ---
 {/* Every comment in this template is a JS-style brace comment, never an HTML one: Astro renders an HTML
     comment straight into the built page, so a note like this one would ship English engineering prose to
@@ -43,8 +43,14 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
 
 {/* Deliberately outside #player-setup: the panel hides itself once a round starts, and this button has
     to stay pressable — otherwise the group cannot be changed at all short of a manual reload.
-    A game page passes no clearsSession, takes the `= true` default, and its HTML is byte-for-byte what
-    it always was.
+    gh#65: the condition is the game id itself, not a prop of its own. A game page passes gameId, so it
+    keeps this button and its HTML is byte-for-byte what it always was; a page with no game cannot reach
+    the button at all, because it has no game id to pass. What this replaced was a `clearsSession` prop
+    defaulting to TRUE — a tool page was protected only for as long as its author remembered to pass
+    false, so a new page copied from team.astro without it shipped a fully armed session wipe, silently.
+    `!== undefined`, never truthiness: an empty-string game id has to land on the same side here as it
+    does in the island's `gameId === undefined` gates below, and truthiness would split the two apart —
+    the template would withhold the button while every other guard still read the page as a game page.
 
     gh#62: a page that does not clear the session emits nothing here. It used to ship the button on
     every page behind two gates — `hidden` in this tag, and a data-clears-session flag the click
@@ -61,7 +67,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     meant to protect. See the `if (clearBtn)` block in the script. Nothing else in the template is
     conditional: an id the script queries unconditionally still may not be removed, for the reason
     #23 gave — a null throws on the first addEventListener and kills the whole island. */}
-{clearsSession && <button id="clear-group" type="button">ล้างกลุ่มนี้</button>}
+{gameId !== undefined && <button id="clear-group" type="button">ล้างกลุ่มนี้</button>}
 
 {/* #25: this button empties the site-wide session slot, so mid-round it destroys the round while its
     label only mentions the group. It asks first, with two labelled buttons (ADR-0008's shape).
@@ -142,8 +148,8 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
   const startBtn = document.getElementById('start-round') as HTMLButtonElement;
   const startNumberedBtn = document.getElementById('start-numbered') as HTMLButtonElement;
   const errorEl = document.getElementById('setup-error') as HTMLElement;
-  // gh#62 — null on a page that does not clear the session: the template emits this button only when
-  // clearsSession is true. Typed `| null` on purpose, so astro check refuses any use of it that is not
+  // gh#62 — null on a page with no game: the template emits this button only where gameId is defined
+  // (gh#65). Typed `| null` on purpose, so astro check refuses any use of it that is not
   // inside the existence check below — the compiler, not a comment, is what keeps that set closed.
   const clearBtn = document.getElementById('clear-group') as HTMLButtonElement | null;
   const resumeChoiceEl = document.getElementById('resume-choice') as HTMLElement;
@@ -282,9 +288,11 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     // file reads to decide it has nothing to guard, and reusing it is what makes the two exhaustive
     // instead of merely adjacent: a page WITH a game has that dialog in front of every link for as
     // long as root.hidden is true; a page without one can never reach the dialog and gets this window
-    // instead. No page is in neither set, and none in both. Do NOT re-key this on clearsSession: that
-    // prop is about the session slot, and a tool page that reached this branch through it would be
-    // relying on two independent props agreeing.
+    // instead. No page is in neither set, and none in both. That used to need saying, because the clear
+    // button keyed on a second, independent prop (clearsSession) that a mount could pass inconsistently
+    // with this one — ADR-0027 refused to re-key this branch on it for that reason. gh#65 deleted the
+    // prop and derived the button from this same gameId, so there is no second bit left to disagree:
+    // every guard in this file now reads one bit, and the way to keep it that way is not to add another.
     if (gameId === undefined) {
       let timer: ReturnType<typeof setTimeout>;
       const release = (): void => {
@@ -439,7 +447,8 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     // (#23: it no longer costs a live round either — the checkpoint carries its own roster, so there is
     // no name gate left to fail.)
     // Clearing the group has a button of its own (#clear-group); it need not be a side effect of starting.
-    // Deliberately ungated by clearsSession, unlike the wipe below: a tool page must write the group too
+    // Deliberately reachable on every mount, unlike the wipe below — that one exists only where gameId
+    // does (gh#65): a tool page must write the group too
     // (#15 — spin the wheel, keep going, the roster flows into the game without retyping). saveGroup()
     // overwrites watduang:group wholesale (roster.ts), so this write is not itself recoverable — but it
     // only ever replaces the group with what the player just ticked on THIS page, never with an empty or
@@ -470,7 +479,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', clearsSession = true, g
     // session, and #data-loss: not the group either — wiping the prefill meant ticking the whole group
     // again on the next game, #15) fell through it to the reload at the foot, which sat OUTSIDE the
     // gate and was the one effect such a page could ever have had. Both callers are now wired only
-    // when the clear button exists, and it exists only where clearsSession is true, so the whole
+    // when the clear button exists, and it exists only where gameId is defined (gh#65), so the whole
     // function is unreachable there instead of gated. Do not re-add a flag check as defence in depth:
     // read off a missing button it evaluates to true and fails OPEN, which is worse than none.
     const session = loadSession();

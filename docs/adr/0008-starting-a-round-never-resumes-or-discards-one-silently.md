@@ -152,3 +152,20 @@ exempted. Permission that could be granted, never permission already held.
 - [#7](https://github.com/warischa/watduang/issues/7) — the roster-state panel design this defers to.
 - `docs/runbook.md` § "Read closed issues before opening a new question" — why #7 was read before the
   owner was asked, rather than after.
+
+## Outcome — 2026-08-23: the tool-page paragraph above is now historical
+
+The paragraph beginning "Tool pages are untouched" described the mechanism as it stood when this
+decision was made. Two of its claims are no longer true of the present tree:
+
+- `clearsSession={false}` no longer exists. [#65](https://github.com/warischa/watduang/issues/65)
+  deleted the prop; a tool page now renders no clear button at all, because it passes no `gameId`.
+  The press cannot be a no-op, because there is nothing to press.
+- "Both the button and the question stay in the DOM on every page" stopped being true earlier, at
+  [#62](https://github.com/warischa/watduang/issues/62), which stopped rendering the button on pages
+  that do not clear the session.
+
+The decision this ADR records is unaffected: starting a round still never resumes or discards one
+silently, and a tool page still cannot see or clear a game's round (ADR-0004). Only the mechanism
+sentence is historical. See ADR-0027's own 2026-08-23 outcome note for the same supersession from
+the other side.

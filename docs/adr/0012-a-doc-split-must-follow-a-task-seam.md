@@ -25,8 +25,9 @@ bytes-per-route only coincide when a file serves one task.
 
 `browser-verification.md` served two:
 
-- The **seven traps** are the run-time payload. `CLAUDE.md` routes any browser-proving work here
-  first, and the traps are what that agent must have in hand while driving. Moving them would mean
+- The **seven traps** are the run-time payload (as of this decision — see the 2026-08-23 amendment
+  below for how the payload was later split further). `CLAUDE.md` routes any browser-proving work
+  here first, and the traps are what that agent must have in hand while driving. Moving them would mean
   every such reader follows a pointer and opens the second file too — total ingest *rises*, while
   `check-budgets.sh` reports green. The gate passes and the cost it proxies gets worse.
 - The **capture-freshness rules** are consulted at a different moment, by a different question:
@@ -54,8 +55,10 @@ task seam bounds it. Ask what set the number enumerates before optimising the nu
   sat over budget through several sweeps, and why two other docs were found failing the same day
   (`docs/site-owner-checklist.md`, `docs/adr/0004-*.md`). The absence of a sweep is the reason, not
   anyone's oversight.
-- `browser-verification.md` now has under 1KB of headroom. The next trap recorded there either fits
-  or forces this decision again — noted inline in the file where it will actually be seen.
+- `browser-verification.md`'s headroom at the time of this decision was tight enough that the next
+  trap recorded there would likely force this decision again — which it did (see the 2026-08-23
+  amendment below). Current headroom is whatever `~/.claude/scripts/check-budgets.sh
+  docs/agents/browser-verification.md` reports now, not a number fixed in this ADR.
 
 ## The fact that would change this
 
@@ -63,3 +66,18 @@ If a browser-driving agent does in practice consult freshness rules mid-walk —
 workflow ever opens by checking whether an existing capture already covers the box — then the seam
 is false, both files become always-read, and the honest answer becomes declaring a budget for this
 file rather than splitting it at all.
+
+## Amendment — 2026-08-23
+
+`browser-verification.md` hit its ceiling again and was split a second time (commit `59c792b`),
+along the same task-seam rule this ADR states, not by section size — the commit message names it
+directly: "the traps split by task moment, keeping their original numbers so inbound citations still
+resolve." The seven traps this ADR describes as one run-time payload are now two: traps that fire
+while **driving** a probe stayed in `browser-verification.md`; traps that fire while **judging** a
+capture moved to `docs/agents/interpreting-browser-captures.md`. The reduced-motion verification task
+moved to its own file, `docs/agents/reduced-motion-verification.md`. Trap numbers were kept stable
+across the split so existing citations into them still resolve.
+
+The general form still holds — this second cut follows a task moment (drive vs judge), not a byte
+count. Any byte or headroom figure recorded above should be read as a snapshot at the time of the
+original decision, not a claim about the present tree.

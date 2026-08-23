@@ -71,6 +71,27 @@ Record that this was asked and answered, so it is not re-litigated.
 - Evidence: `docs/verification/evidence/61/`, calibrated three ways — the pre-fix build navigates, the
   fixed build does not, and a tap after the window closes still acts normally.
 
+## Outcome — 2026-08-23: the `clearsSession` carve-out above is now historical
+
+The paragraph beginning "This does **not** extend to `clearsSession`" described a live hazard when this
+ADR was written. It no longer does. gh#65 deleted the prop and derived the clear button from
+`gameId !== undefined` — the same bit this ADR's window and the leave-confirm already read.
+
+The carve-out's own reasoning is what closed it. It was written because the two guards keyed on two
+independent props, so a mount could pass them inconsistently; with one bit there is nothing left to
+disagree. The "Why" section's ownership argument now covers the clear button as well, on the same
+sentence: no page is in neither set, and none in both. **The decision above is unchanged** — the window,
+its gate, and ADR-0015's carve-out all still stand exactly as recorded.
+
+The comment in `requestStart` that told the next reader not to re-key the collapse gate on
+`clearsSession` was rewritten in the same change: the objection was about two props having to agree, and
+there is only one prop now.
+
+The cost is coupling, recorded here rather than discovered later: one bit now gates two mechanisms. A
+page that ever needed the collapse window WITHOUT the clear button, or the reverse, would have to
+reintroduce a second prop and the disagreement risk this note just closed. All four current mounts were
+checked and none needs that cross combination — that is the fact that would reopen this.
+
 ## The fact that would change this
 
 Any legitimate sub-400ms tap on a tool page's own controls, arriving immediately after the collapse.

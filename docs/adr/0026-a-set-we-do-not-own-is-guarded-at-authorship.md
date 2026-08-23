@@ -71,3 +71,16 @@ as correct. The diff-scoped gate could never have caught it, because the line wa
 
 **Still open, and now an owner decision rather than a prediction:** whether to build an enforcement path
 or accept the ban as a convention with its coverage stated honestly. Carried in `SESSION-HANDOFF.md`.
+
+## Outcome — 2026-08-23: the owner ruled, and the question is no longer open
+
+The paragraph above marked the convention-vs-enforcement choice as still open and reserved for the site
+owner. The owner ruled on 2026-08-23: **accept the ban as a convention, with its coverage stated
+honestly.** No enforcement path will be built for issue bodies.
+
+The reason survives the ruling and is the one this ADR already gives: the guarded set is "whoever writes
+an issue body", which this repo does not own. `added-lineno-citation-check.mjs` takes its whole input
+from a `git diff`, and an issue body is never in one — so no gate reachable from this repo could see the
+rule broken even if one were written.
+
+Recorded in `docs/agents/issue-tracker.md`, where an author will actually meet it.

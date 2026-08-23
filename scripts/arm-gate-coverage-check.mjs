@@ -437,6 +437,26 @@ function selftest() {
   } finally {
     fs.rmSync(scanTmpDir, { recursive: true, force: true });
   }
+
+  // --- gh#66: a narrowed GAMES_DIR_OVERRIDE run must be distinguishable from a full run by
+  // reading the success line alone. Spawns the real script (no --selftest) with the override set
+  // to a fixture dir holding exactly 1 clean game, CI unset, and asserts the printed line names
+  // both the resolved fixture directory and the true count (1) — never src/games/ or the real
+  // repo's game count. Calibrated: reverting the success line back to the hardcoded 'src/games/'
+  // literal (this script's pre-fix shape) makes the directory assertion below fail. ---
+  const overrideNoteTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arm-gate-override-note-'));
+  try {
+    fs.writeFileSync(path.join(overrideNoteTmpDir, 'one-clean-game.ts'), '');
+    const overrideRun = spawnSync(process.execPath, [scriptPath], {
+      env: { ...process.env, CI: '', GAMES_DIR_OVERRIDE: overrideNoteTmpDir },
+      encoding: 'utf8',
+    });
+    assert.equal(overrideRun.status, 0, 'a clean fixture under the override must still pass');
+    assert.match(overrideRun.stdout, new RegExp(`1 module\\(s\\) in ${overrideNoteTmpDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} clean \\(GAMES_DIR_OVERRIDE active\\)`), 'the success line must name the resolved fixture directory and the real scanned count, not src/games/');
+    console.log(`PASS override note: narrowed run's success line names the resolved fixture directory (${overrideNoteTmpDir}) and count (1), distinguishable from a full src/games/ run`);
+  } finally {
+    fs.rmSync(overrideNoteTmpDir, { recursive: true, force: true });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -477,12 +497,16 @@ async function main() {
     );
     process.exit(1);
   }
-  const overrideNote = process.env.GAMES_DIR_OVERRIDE ? ` (scanned ${gamesDir}, GAMES_DIR_OVERRIDE active)` : '';
+  const overrideNote = process.env.GAMES_DIR_OVERRIDE ? ' (GAMES_DIR_OVERRIDE active)' : '';
   // "game module(s)" overstated this: scannedCount covers every .ts in src/games/ minus
   // EXCLUDED_FILES, which today means the 6 games PLUS _template.ts and _el.ts. Saying
   // "game" implied coverage of 8 games when 6 exist (ADR-0019). The count is real; the noun
   // was not. Excluding the two helpers instead would have traded a label for lost coverage.
-  console.log(`arm-gate-coverage-check: ${scannedCount} module(s) in src/games/ clean${overrideNote}`);
+  //
+  // gh#66: gamesDir is always printed (not only when the override is set), so a narrowed run is
+  // readable from the resolved directory alone — a fixture path visibly differs from src/games/,
+  // rather than a reader having to infer narrowing from the absence of a failure.
+  console.log(`arm-gate-coverage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}`);
 }
 
 await main();

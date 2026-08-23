@@ -77,6 +77,8 @@ Live instances when this rule landed: #53, #29. Decision and the declined altern
 
 This rule states the shape rather than showing an example on purpose: `added-lineno-citation-check.mjs` cannot tell use from mention, so a literal example here fails the build.
 
+**This is a convention binding whoever writes an issue body, not a gate.** `added-lineno-citation-check.mjs` takes its whole input from a `git diff`, and an issue body is never in one — so no automated check reachable from this repo can ever see this rule broken. Decision and why enforcement was declined: ADR-0026.
+
 ## Pull requests as a triage surface
 
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_

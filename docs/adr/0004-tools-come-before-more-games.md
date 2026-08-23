@@ -44,6 +44,15 @@ This rule can be broken without touching code at all: `PlayerSetup` deliberately
 
 Fixed with a `clearsSession` prop (default `true`, so existing games don't change). Tool pages pass `false`.
 
+> **Outcome — 2026-08-23:** that prop is gone, superseded by gh#65. The rule above stands; only its
+> mechanism changed. The prop defaulted to `true`, so a tool page was protected only for as long as its
+> author remembered to pass `false` — a new page copied from `team.astro` without it shipped a fully
+> armed `session.clear()` onto a page this ADR forbids to touch the session, with nothing failing or
+> warning. The button is now derived from `gameId !== undefined` inside `PlayerSetup`, so a page with no
+> game cannot obtain it by omission, and a mount still passing the old prop fails `astro check` rather
+> than being ignored. Sole guarded set is "every page under `src/pages/tool/`", and the test that pins it
+> reads that directory rather than a list of three (ADR-0027 records the same one-bit partition).
+
 **Broader lesson: a rule written as "don't import X" isn't enough — check what a shared component drags in with it.**
 
 ### Remembered group — clamp on use, not on store

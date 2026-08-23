@@ -36,6 +36,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -48,6 +49,23 @@ const isCi = (env = process.env) => !!env.CI && env.CI !== '0' && env.CI !== 'fa
 // Derived from public/staticwebapp.config.json by reading the file, not by retyping it. Every
 // (directive, source) pair the repo shipped on this date; a removal or a move goes red.
 const PAIRS_AS_OF = '2026-08-19';
+
+// gh#66: sha256 of the exact Content-Security-Policy string in public/staticwebapp.config.json as of
+// PAIRS_AS_OF (the source the REQUIRED_PAIRS snapshot above was derived from — dist/'s copy is a
+// build output of it, not a second source). main() re-hashes the live file and compares; a mismatch
+// means the CSP changed since PAIRS_AS_OF without REQUIRED_PAIRS/PAIRS_AS_OF/PAIRS_HASH being bumped
+// alongside it, which is exactly the drift ADR-0019/gh#66 asks to make visible.
+//
+// Content hash, not mtime: CI runs actions/checkout, which stamps every file with checkout time, so
+// an mtime-vs-PAIRS_AS_OF compare would read "newer" on every single run and fire unconditionally —
+// a gate that always fires is as useless as one that never does.
+const PAIRS_HASH = 'ccfa695ccf2c8fc72f9f2cff0fd786ec828c3eba1e8a9138008f8ba7b5bdc920';
+// ponytail: PAIRS_HASH reads public/ only, so a dist/-only CSP widening — a stale or hand-edited build
+// artifact — clears both this hash and ceiling 2's addition-blindness. Named rather than closed: dist/ is
+// a build output, and hashing it here would pin the gate to whatever the last build produced instead of
+// to the source of truth. Upgrade path if it ever matters: verify dist/ is a clean build of public/ in CI
+// before this gate runs, rather than widening what this gate reads.
+const hashCsp = (csp) => crypto.createHash('sha256').update(csp, 'utf8').digest('hex');
 const REQUIRED_PAIRS = new Map([
   ['default-src', ["'self'"]],
   ['script-src', ["'self'", '*.googlesyndication.com', '*.doubleclick.net', '*.google.com', '*.adtrafficquality.google', '*.googleadservices.com']],
@@ -128,6 +146,20 @@ function selftest() {
   assert.deepEqual(findMisplacedPairs(shipped), [], 'the shipped CSP header must report zero misplaced pairs');
   const pairCount = [...REQUIRED_PAIRS.values()].reduce((n, s) => n + s.length, 0);
   console.log(`PASS known-good: the shipped header satisfies all ${pairCount} recorded (directive, source) pairs`);
+
+  // --- gh#66: PAIRS_HASH freshness, calibrated both ways on the pure hash function. known-good: the
+  // exact string public/staticwebapp.config.json ships today hashes to the committed PAIRS_HASH —
+  // this fixture is that string verbatim (see the file header comment above `shipped`), so if this
+  // assertion ever goes red it means either the real CSP changed without PAIRS_HASH being bumped, or
+  // this fixture drifted from it; either way it is the intended signal, not selftest flake. ---
+  assert.equal(hashCsp(shipped), PAIRS_HASH, 'PAIRS_HASH must match the sha256 of the shipped CSP string — bump PAIRS_HASH (and PAIRS_AS_OF) in the same commit as any CSP change');
+  console.log(`PASS PAIRS_HASH known-good: hashCsp(shipped) matches the committed PAIRS_HASH (${PAIRS_HASH.slice(0, 12)}…)`);
+  // known-bad: a single added byte (a widened script-src, ceiling 2's own case — never flagged by
+  // findMisplacedPairs) must still change the hash and therefore trip staleness.
+  const hashDrifted = shipped.replace("script-src 'self'", "script-src 'self' *.some-new-google-thing.com");
+  assert.deepEqual(findMisplacedPairs(hashDrifted), [], 'calibration precondition: an addition-only CSP change must still pass the pairs check (ceiling 2)');
+  assert.notEqual(hashCsp(hashDrifted), PAIRS_HASH, 'a CSP change invisible to findMisplacedPairs (ceiling 2) must still change the hash, so staleness is caught where the pairs check cannot see it');
+  console.log('PASS PAIRS_HASH known-bad: an addition-only CSP edit that findMisplacedPairs cannot see (ceiling 2) still changes the hash, so staleness is caught');
 
   // --- known-bad: THE gh#47 edit. *.googlesyndication.com moved script-src -> img-src. The string is
   // still in the header, so the old `csp.includes(src)` check passed; this one must not. ---
@@ -268,6 +300,28 @@ async function main() {
     report(violations, rel);
     process.exit(1);
   }
+
+  // gh#66: PAIRS_HASH freshness. Always reads public/staticwebapp.config.json — the source
+  // REQUIRED_PAIRS was derived from — regardless of which file `rel` checked above, so a CSP edit
+  // is caught even on a run against dist/ that never touches public/ otherwise. A mismatch means
+  // ceiling 2 (additions never fail the pairs check above) may have let a real CSP change through
+  // unnoticed; it fails loud rather than warns, because a silent snapshot is the exact failure mode
+  // this gate exists to close (ADR-0019, gh#66).
+  const sourceRel = 'public/staticwebapp.config.json';
+  const sourceFile = path.join(repoRoot, sourceRel);
+  if (fs.existsSync(sourceFile)) {
+    const sourceCsp = readCsp(sourceFile);
+    if (sourceCsp && hashCsp(sourceCsp) !== PAIRS_HASH) {
+      console.error(
+        `::error::csp-allowlist-check: ${sourceRel}'s Content-Security-Policy no longer matches PAIRS_HASH — ` +
+        `the REQUIRED_PAIRS snapshot (stamped PAIRS_AS_OF = '${PAIRS_AS_OF}') is stale. Re-derive ` +
+        'REQUIRED_PAIRS from the live header and bump PAIRS_AS_OF and PAIRS_HASH in this script, in the same ' +
+        'commit as the CSP change — CLAUDE.md: the CSP must let AdSense through or ads silently fail to render.',
+      );
+      process.exit(1);
+    }
+  }
+
   // The number is the size of the checked set and says so — it is not a claim that the CSP is
   // complete for AdSense (ADR-0019: a green is a claim, and so is the sentence next to it).
   const pairCount = [...REQUIRED_PAIRS.values()].reduce((n, s) => n + s.length, 0);

@@ -3,7 +3,7 @@
 // invariants it depends on are both visible in the source.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolveStart, numberedPlayers } from './player-select.ts';
 // gh#61 — the window this panel arms on a tool page is the games' window, imported rather than retyped:
 // ADR-0016 owns the number and the premise under it.
@@ -18,6 +18,15 @@ const gamePage = readFileSync(new URL('../pages/game/[id].astro', import.meta.ur
 // gh#62 pins a pair too: the render guard lives in the template above, the clearing mount that has to
 // keep taking its true branch lives in the layout every game page renders through
 const gameLayout = readFileSync(new URL('../layouts/GameLayout.astro', import.meta.url), 'utf8');
+// gh#65 — the clear button is derived from gameId now, so the mounts that must NOT get it are the ones
+// that pass no gameId. Read the directory rather than a list of three: the guarded set is "every tool
+// page", and it grows. A hardcoded list would stop covering it the moment a fourth page lands, which is
+// the exact failure gh#65 was opened on. recursive: true (Node 20.1+) so a page under a subdirectory of
+// src/pages/tool/ is read too — a non-recursive listing would silently skip it.
+const toolDir = new URL('../pages/tool/', import.meta.url);
+const toolPages = readdirSync(toolDir, { recursive: true })
+  .filter((f) => f.endsWith('.astro'))
+  .map((f) => [f, readFileSync(new URL(f, toolDir), 'utf8')]);
 
 const queried = [...script.matchAll(/getElementById\('([^']+)'\)/g)].map((m) => m[1]);
 
@@ -25,8 +34,8 @@ const queried = [...script.matchAll(/getElementById\('([^']+)'\)/g)].map((m) => 
 // a null from getElementById throws on the first .addEventListener and kills the whole island script,
 // taking the setup panel down with it on every page that renders this component.
 //
-// Ceiling, and gh#62 is what opened it: #clear-group is now emitted only when clearsSession is true,
-// so on a tool page that one id really is null at runtime. Its null is handled — clearBtn is typed
+// Ceiling, and gh#62 is what opened it: #clear-group is now emitted only where there is a game id
+// (gh#65), so on a tool page that one id really is null at runtime. Its null is handled — clearBtn is typed
 // nullable and every use sits inside `if (clearBtn)`, pinned by the gh#62 tests below. This test reads
 // the template TEXT, so a conditionally rendered id passes it either way: it cannot tell a second
 // conditional element apart from an unconditional one, and the next id rendered behind a prop gets no
@@ -300,29 +309,90 @@ test('gh#62 the clear button is not rendered at all when the page does not clear
   // a typo here would make every absence asserted below vacuously green
   const btnAt = tpl.indexOf('id="clear-group"');
   assert.ok(btnAt > 0, 'positive control: the template still carries the clear button');
-  const guardAt = tpl.indexOf('{clearsSession &&');
+  const guardAt = tpl.indexOf('{gameId !== undefined &&');
   assert.ok(guardAt > 0, 'the clear button is emitted unconditionally again — every mount ships it');
   assert.ok(
     btnAt > guardAt && btnAt < matchBraceEnd(tpl, guardAt),
-    'the clear button must sit inside the {clearsSession && …} guard, so a non-clearing mount emits no #clear-group at all',
+    'the clear button must sit inside the {gameId !== undefined && …} guard, so a mount with no game emits no #clear-group at all',
+  );
+  // gh#65 — the comparison is the assertion, not decoration. `{gameId && …}` would drop the button on an
+  // empty-string game id: the template would withhold it while every island gate (`gameId === undefined`)
+  // still read that page as a game page, and the two halves of the partition would disagree in silence.
+  assert.doesNotMatch(
+    tpl,
+    /\{gameId &&/,
+    'truthiness splits the empty-string game id away from the island gates that read the same bit — the comparison must stay explicit',
   );
   assert.equal(
     tpl.includes('data-clears-session'),
     false,
     'the dataset gate is dead once the button cannot exist on a non-clearing page — removed, not left as decoration',
   );
+  // attribute-order independent: extract the clear-group tag itself (from its opening `<` to its own
+  // closing `>`) and search inside that slice, rather than anchoring a regex on id="clear-group" coming
+  // BEFORE hidden — `<button hidden id="clear-group">` means exactly the same thing as
+  // `<button id="clear-group" hidden>` and must not pass this needle just because hidden moved first.
+  const clearTagStart = tpl.lastIndexOf('<', btnAt);
+  const clearTagEnd = tpl.indexOf('>', btnAt);
+  assert.ok(clearTagStart >= 0 && clearTagEnd > clearTagStart, 'positive control: the clear-group tag parses');
   assert.doesNotMatch(
-    tpl,
-    /hidden=\{!clearsSession\}/,
-    'hidden is not the gate any more — a rendered-but-hidden button is one author CSS rule from being pressable',
+    tpl.slice(clearTagStart, clearTagEnd + 1),
+    /\bhidden\b/,
+    'hidden is not the gate any more — a rendered-but-hidden button is one author CSS rule from being ' +
+      'pressable, in any attribute order',
   );
-  // the clearing mount, read from the real caller rather than assumed: a game page mounts this
-  // component with no clearsSession at all, so it takes the `= true` default and keeps the button and
-  // the whole clear-and-reload path exactly as they were.
+  // the clearing mount, read from the real caller rather than assumed: a game page mounts this component
+  // WITH a game id, and under gh#65 that is the whole of what keeps the button and the clear-and-reload
+  // path behind it. (VOID-BY-FIX, ADR-0023: the two assertions here used to pin the opposite mechanism —
+  // that this mount passes no clearsSession and takes the `= true` default. gh#65 deleted that prop, so
+  // both were pinning a shape that no longer exists.)
   const mount = gameLayout.match(/<PlayerSetup\b[^>]*\/>/);
   assert.ok(mount, 'positive control: the game layout still mounts this component');
-  assert.doesNotMatch(mount[0], /clearsSession/, 'a game page must keep taking the default, not pass a value');
-  assert.match(src, /clearsSession = true/, 'and that default is what leaves the game path unchanged');
+  assert.match(mount[0], /gameId=/, 'a game page must pass gameId — that is now the only thing that keeps its clear button');
+  assert.doesNotMatch(
+    tpl,
+    /clearsSession/,
+    'the prop is gone entirely (gh#65), interface and destructuring included — a mount still passing it must fail astro check loudly, not be ignored in silence',
+  );
+});
+
+// gh#65 — clearsSession is gone. It defaulted to `true`, so a tool page was protected only for as long
+// as its author remembered to pass `false`: a new page copied from team.astro without it shipped a fully
+// armed session wipe onto a page ADR-0004 forbids to touch the session, and nothing failed or warned.
+// The button is derived from `gameId !== undefined` now — the same bit ADR-0027's collapse window and
+// the leave-confirm already key on, and the bit a tool page cannot supply, because it has no game to
+// name. Protection by omission instead of protection by remembering.
+//
+// So THIS is the load-bearing assertion of that shape, and it reads every .astro under src/pages/tool/
+// rather than the three that exist today. Calibrated by mutation: a gameId added to draw.astro reds it
+// by name, and so does one added under a subdirectory, or split across lines.
+//
+// The mount regex has to catch four shapes, not one: self-closing (`<PlayerSetup .../>`), paired
+// (`<PlayerSetup ...></PlayerSetup>`), and either of those split across multiple lines. `[\s\S]*?>`
+// (non-greedy, dot-matches-newline) stops at the FIRST `>` after the tag opens — which is the closing
+// `/>` on a self-closing mount and the end of the opening tag on a paired one, on one line or several.
+// It cannot tell those two shapes apart, and does not need to: gameId lives in the opening tag either way.
+//
+// The positive-control floor is not a fixed number: a fixed `mounts >= 3` proved the loop wasn't
+// vacuous today, but stops proving anything the day a tool page legitimately mounts nothing (number.astro
+// already does) or a fifth page lands. `>= 1` still kills a regex that stops matching entirely; the
+// per-file readable check below does the same for a directory read that returns nothing.
+test('gh#65 no mount under src/pages/tool/ passes a gameId — that absence is what withholds the clear button', () => {
+  assert.ok(toolPages.length >= 1, `positive control: the tool pages are readable, found ${toolPages.length}`);
+  let mounts = 0;
+  for (const [name, source] of toolPages) {
+    for (const m of source.matchAll(/<PlayerSetup\b[\s\S]*?>/g)) {
+      mounts += 1;
+      assert.doesNotMatch(
+        m[0],
+        /gameId/,
+        `${name} mounts PlayerSetup with a gameId — that mount now renders a fully armed clear button ` +
+          '(session.clear, saveGroup([]), reload) on a page ADR-0004 forbids to touch the session',
+      );
+    }
+  }
+  // positive control: the loop above is vacuously green if the mount regex ever stops matching
+  assert.ok(mounts >= 1, `positive control: tool pages really do mount this component, found ${mounts}`);
 });
 
 // gh#62 — with the button unrendered, every read of it is a null, and the shape of the guard decides
