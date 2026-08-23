@@ -155,17 +155,10 @@ exempted. Permission that could be granted, never permission already held.
 
 ## Outcome — 2026-08-23: the tool-page paragraph above is now historical
 
-The paragraph beginning "Tool pages are untouched" described the mechanism as it stood when this
-decision was made. Two of its claims are no longer true of the present tree:
+The paragraph beginning "Tool pages are untouched" describes a mechanism that no longer exists. Both of
+its claims were superseded — the `clearsSession` prop by [#65](https://github.com/warischa/watduang/issues/65),
+and "both the button and the question stay in the DOM on every page" earlier, by
+[#62](https://github.com/warischa/watduang/issues/62). Why, in those issues and in ADR-0027's own
+2026-08-23 outcome note; not restated here.
 
-- `clearsSession={false}` no longer exists. [#65](https://github.com/warischa/watduang/issues/65)
-  deleted the prop; a tool page now renders no clear button at all, because it passes no `gameId`.
-  The press cannot be a no-op, because there is nothing to press.
-- "Both the button and the question stay in the DOM on every page" stopped being true earlier, at
-  [#62](https://github.com/warischa/watduang/issues/62), which stopped rendering the button on pages
-  that do not clear the session.
-
-The decision this ADR records is unaffected: starting a round still never resumes or discards one
-silently, and a tool page still cannot see or clear a game's round (ADR-0004). Only the mechanism
-sentence is historical. See ADR-0027's own 2026-08-23 outcome note for the same supersession from
-the other side.
+The decision this ADR records is unaffected. Only the mechanism sentence is historical.
