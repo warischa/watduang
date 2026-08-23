@@ -98,9 +98,11 @@ const UNGATED_EXCEPTIONS = new Set([
   'short-stick.ts::renderPassing',
   'timebomb.ts::renderTicking',
   'timebomb.ts::renderBoom',
-  // src/games/pick-loser.ts:64-68 — "Exception (owner's call): pl-pick is deliberately NOT gated.
-  // No hand-off exists in the pl-again -> pl-pick flow — the same hand that tapped the again
-  // button taps this button next, so gating it would delay a real, single-user action."
+  // src/games/pick-loser.ts, the "Exception (owner's call)" comment closing renderIdle — "pl-pick is
+  // deliberately NOT gated. No hand-off exists in the pl-again -> pl-pick flow — the same hand that
+  // tapped the again button taps this button next, so gating it would delay a real, single-user
+  // action." Anchored to the symbol, not a line range: the range this used to carry had already
+  // rotted past the comment it names, and renumbering it would only rot again.
   'pick-loser.ts::renderIdle',
 ]);
 
@@ -109,18 +111,41 @@ const UNGATED_EXCEPTIONS = new Set([
 // argument". The decision exempts a named set; widening the argument is a new decision, so any other
 // argument in the same function fails the gate.
 const EXCEPT_ARG_EXCEPTIONS = new Map([
-  // src/games/daily-fortune.ts:223-228 — "Exception (owner's call, not a judgement call to
-  // re-litigate): the roster chips are exempt from the gate ... 'go' (df-go) is a different
-  // finger's action ... and stays gated like every other control here." Call site is
-  // daily-fortune.ts:228, armAllButtons(stage, chipEls). The decision pins chipEls and gates df-go,
-  // so `[...chipEls, goBtn]` is NOT covered by it.
+  // src/games/daily-fortune.ts, the "Exception (owner's call, not a judgement call to re-litigate)"
+  // comment inside renderAsk — "the roster chips are exempt from the gate ... 'go' (df-go) is a
+  // different finger's action ... and stays gated like every other control here." The call it sits
+  // above is armAllButtons(stage, chipEls). The decision pins chipEls and gates df-go, so
+  // `[...chipEls, goBtn]` is NOT covered by it. Anchored to the symbols, not a line range: the range
+  // and call site this used to carry had both already rotted past the code they name.
   ['daily-fortune.ts::renderAsk', 'chipEls'],
 ]);
 
 // ---------------------------------------------------------------------------
 // Pure: text -> render-function bodies. No file IO here, so the selftest can feed it strings.
 // ---------------------------------------------------------------------------
-const RENDER_HEADER_RE = /^function (render\w*)\([^)]*\)[^{]*\{/gm;
+// Two spellings of "a render function is defined here", both anchored at column 0 (this codebase
+// defines every render*() at module top level). The bare `^function render…(` this started as was a
+// single-spelling needle: `export function renderGhost()` and `const renderGhost = (): void => {`
+// both parsed as NOT-a-render-function, so their bodies were never extracted and conditions 1 and 2
+// never ran on them at all. Planted verbatim in src/games/pick-loser.ts — an exported render function
+// that calls stage.replaceChildren(), builds el('button', …) and never arms it — and the gate printed
+// "8 module(s) … clean". A missing header is the worst failure shape this file has: it is not a missed
+// pattern inside a checked function, it is a whole function that was never checked.
+// `export` / `export default` / `async` are the modifiers TypeScript allows in front of a declaration;
+// the assignment arm covers `const|let|var` bound to an arrow or a function expression.
+const RENDER_HEADER_RE = new RegExp(
+  [
+    // declaration: [export [default]] [async] function renderX(...) ... {
+    '^(?:export\\s+(?:default\\s+)?)?(?:async\\s+)?function\\s+(render\\w*)\\s*\\([^)]*\\)[^{]*\\{',
+    // assignment: [export] const|let|var renderX[: T] = [async] [function] (...) [: T] [=>] {
+    //             ...or the parenthesis-free arrow `= [async] param => {`, which TypeScript allows
+    //             whenever the parameter carries no type annotation. Typed params force the parens,
+    //             which is why this codebase has none today — but "none today" is not a guard, and a
+    //             header spelling this needle misses is a whole function no condition ever runs on.
+    '^(?:export\\s+)?(?:const|let|var)\\s+(render\\w*)\\s*(?::[^=\\n]+)?=\\s*(?:async\\s+)?(?:(?:function\\s*)?\\([^)]*\\)\\s*(?::[^={\\n]+)?(?:=>\\s*)?|\\w+\\s*=>\\s*)\\{',
+  ].join('|'),
+  'gm',
+);
 const REPLACE_RE = /stage\.replaceChildren\(\)/;
 const BUTTON_RE = /\bel\(\s*(['"])button\1|createElement\(\s*(['"])button\2\s*\)/;
 const ARM_CALL_RE = /armAllButtons\(\s*stage\b/;
@@ -143,7 +168,7 @@ function extractRenderFunctions(rawText) {
   RENDER_HEADER_RE.lastIndex = 0;
   let m;
   while ((m = RENDER_HEADER_RE.exec(text))) {
-    const name = m[1];
+    const name = m[1] ?? m[2]; // group 1 = declaration arm, group 2 = assignment arm
     const bodyStart = m.index + m[0].length;
     let depth = 1;
     let i = bodyStart;
@@ -253,6 +278,54 @@ function selftest() {
     assert.equal(badGatingViolations[0].name, 'renderFoo');
     assert.equal(badGatingViolations[0].kind, 'ungated render function');
     console.log(`PASS condition 1, known-bad: ${badGatingViolations[0].file}::${badGatingViolations[0].name} flagged as "${badGatingViolations[0].kind}"`);
+
+    // --- Condition 1, DEFINITION SPELLINGS: the header needle decides which functions get checked at
+    // all, so a spelling it does not know is not a missed pattern — it is a function no condition ever
+    // runs on. Each of these is the badGating body verbatim with only its first line changed, and each
+    // reported ZERO violations before the header was widened (measured by planting the exported one in
+    // src/games/pick-loser.ts: "8 module(s) ... clean"). Narrow RENDER_HEADER_RE back to
+    // /^function (render\w*)\(/ and every case here goes green. ---
+    const ungatedBody = [
+      "  const stage = stageEl;",
+      "  if (!stage) return;",
+      "  stage.replaceChildren();",
+      "  const btn = el('button', 'ไป');",
+      "  stage.appendChild(btn);",
+      "}",
+    ];
+    for (const [label, header, closer] of [
+      ['export function', 'export function renderFoo(): void {', '}'],
+      ['export default function', 'export default function renderFoo(): void {', '}'],
+      ['async function', 'async function renderFoo(): Promise<void> {', '}'],
+      ['export async function', 'export async function renderFoo(): Promise<void> {', '}'],
+      ['const arrow', 'const renderFoo = (): void => {', '};'],
+      ['export const arrow', 'export const renderFoo = (): void => {', '};'],
+      ['const async arrow', 'const renderFoo = async (): Promise<void> => {', '};'],
+      ['const function expression', 'const renderFoo = function (): void {', '};'],
+      ['let arrow', 'let renderFoo = (): void => {', '};'],
+      ['bare-param arrow (no parens)', 'const renderFoo = ctx => {', '};'],
+      ['bare-param async arrow (no parens)', 'const renderFoo = async ctx => {', '};'],
+    ]) {
+      const text = [header, ...ungatedBody.slice(0, -1), closer].join('\n');
+      const fns = extractRenderFunctions(text).map((f) => f.name);
+      assert.deepEqual(fns, ['renderFoo'], `${label}: the render function must be extracted at all, or no condition ever runs on it`);
+      const v = findViolations(text, 'spelling.ts');
+      assert.equal(v.length, 1, `${label}: an ungated render function must be flagged exactly once`);
+      assert.equal(v[0].kind, 'ungated render function');
+    }
+    console.log('PASS condition 1, definition spellings: export / export default / async / const+let arrow / function-expression / parenthesis-free arrow render definitions are all extracted and flagged when ungated — a header spelling the needle misses is a function no condition runs on');
+
+    // Other direction: the widening must not start extracting things that are not render functions,
+    // or every non-render helper in these files would be graded against a rule it never had.
+    const notRenderFns = [
+      "function mount(): void { stage.replaceChildren(); }",
+      "const renderer = { go() { return 1; } };", // `renderer` is not render\\w* bound to a function
+      "export const RENDER_LIMIT = 3;",
+      "const rendered = true;",
+      "cleanup.push(armAllButtons(stage));",
+    ].join('\n');
+    assert.deepEqual(extractRenderFunctions(notRenderFns), [], 'the widened header must not extract non-render declarations');
+    console.log('PASS condition 1, definition spellings other direction: mount(), a `renderer` object literal, RENDER_LIMIT and `rendered` are not extracted as render functions');
 
     // --- Condition 1: the exception carve-out suppresses only the named (file, fn) pair, and only
     // when it is passed in — proves the mechanism, not just that a hardcoded list exists. ---

@@ -28,6 +28,18 @@ const isFn = (v) => typeof v === 'function';
 // ---------------------------------------------------------------------------
 function validateGames(games, checkRoot) {
   const errors = [];
+  // ADR-0019: a gate's green must not imply coverage it has not earned. Every rule below is
+  // per-game, so an empty array satisfies all of them vacuously and main() prints
+  // "validate-games: 0 game(s) OK" — measured by emptying the manifest array: exit 0, and the
+  // prebuild that runs this on every build waves a gameless site through. Zero games is not a
+  // clean manifest, it is nothing having been validated.
+  if (!Array.isArray(games) || games.length === 0) {
+    return [
+      `src/games/manifest.ts: \`games\` is ${Array.isArray(games) ? 'an empty array' : JSON.stringify(games)} — ` +
+        'the validated set must never be empty (docs/adr/0019), or every per-game rule below passes ' +
+        'vacuously and this gate reports OK having checked nothing.',
+    ];
+  }
   const seenIds = new Set();
 
   games.forEach((g, i) => {
@@ -152,6 +164,15 @@ function selftest() {
       assert.ok(errors.some((e) => expect.test(e)), `${field}: expected a violation matching ${expect}, got: ${JSON.stringify(errors)}`);
     }
     console.log(`PASS known-bad: ${cases.length} case(s), one per rule (${cases.map((c) => c.field).join(', ')})`);
+
+    // --- known-bad, EMPTY SET: every rule above is per-game, so an empty array passed all of them
+    // and main() printed "0 game(s) OK". Delete the guard and this case goes green. ---
+    for (const [label, value] of [['empty array', []], ['undefined export', undefined], ['not an array', {}]]) {
+      const errs = validateGames(value, tmpDir);
+      assert.equal(errs.length, 1, `${label}: an unusable games export must produce exactly one violation`);
+      assert.match(errs[0], /must never be empty/, `${label}: the violation must say the validated set was empty`);
+    }
+    console.log('PASS known-bad empty set: [], undefined and a non-array games export each fail — a per-game rule set is satisfied vacuously by zero games, and "0 game(s) OK" is a green nothing earned');
 
     // --- known-bad, duplicate id: only the SECOND occurrence is flagged. ---
     const dupErrors = validateGames([goodGame(), goodGame()], tmpDir);

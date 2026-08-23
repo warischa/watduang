@@ -6,12 +6,32 @@
 // mistake being reintroduced into source before that heavier probe ever runs.
 //
 // ponytail: this is a raw source-text scan, not an AST walk — it covers the literal forms this
-// codebase's own idiom actually produces: an <a> tag or href= typed directly, document.createElement('a'),
-// the local el('a', ...) helper call, and setAttribute('href', ...). It cannot see a tag name or
+// codebase's own idiom actually produces: an <a> tag or href=/href: typed directly,
+// document.createElement('a'), the local el('a', ...) helper call, and setAttribute('href', ...).
+// It cannot see a tag name or
 // attribute key assembled from a variable (el(tag) with tag built at runtime, node.setAttribute(key, ...)),
 // or `el.innerHTML = someVariable` assembled from a variable — those escape it completely. Treat a
 // green run here as "no obvious anchor literal in this codebase's idiom", never as "no navigation
 // target reaches the DOM".
+//
+// Matching is WHOLE-TEXT, not line-by-line. Per-line matching quietly made every pattern single-line:
+// a wrapped `document.createElement(\n  'a',\n)` plus its wrapped `setAttribute(\n  'href',\n  …)`
+// scanned clean while the anchor was real — that is just what a formatter does to a long call, not an
+// exotic spelling. Line numbers are derived from the match offset, so output is unchanged.
+//
+// It runs on CODE ONLY: comments and TypeScript type space are blanked first (stripComments,
+// stripTypeSpace). Whole-text matching without that made prose and types into violations — a comment
+// citing ADR-0014 was a violation of ADR-0014, and `interface LinkCfg { href: string }` was one too.
+// Neither strip can hide a live hazard sharing the line; each function says why, and both directions
+// are pinned by selftest.
+//
+// ponytail: SCOPE CEILING — the scanned set is src/games/*.ts, i.e. the game modules. #stage is also
+// reachable from src/pages/game/[id].astro, which holds the element and hands it to mount(); today it
+// only READS stage.dataset.gameId (measured: zero `href`, zero `<a`, no write into #stage), so nothing
+// hides there now. It is deliberately not scanned: it is a page file whose CHROME is required by
+// ADR-0014 to carry an `<a href="/games/">`, so a whole-file scan would ban the very link the ADR
+// mandates. Upgrade path if a stage-writing branch ever lands there: scan only that file's
+// <script> block, not its markup.
 //
 // --- Ceiling: target-set derivation (gh#46, ADR-0019) ----------------------------------
 // The target set is a flat `fs.readdirSync(src/games/)` filtered to `*.ts`, so a newly added game
@@ -68,22 +88,128 @@ function listTargetFiles(dir) {
 // ---------------------------------------------------------------------------
 // Pure: text -> violations. No file IO here, so the selftest can feed it strings directly.
 // ---------------------------------------------------------------------------
+// Matched against the WHOLE file, not line by line, and every pattern is global. A per-line scan made
+// each pattern silently single-line: `document.createElement(\n  'a',\n)` and the `setAttribute(\n
+// 'href',\n …)` that arms it both went green while the anchor was real — the formatter's own output for
+// a wrapped call is enough to defeat it. Line numbers come from the match offset, so reporting is
+// unchanged. An `<a` wrapped onto the next line is caught by its `href` (see the anchor pattern's
+// trailing class below for why the newline is deliberately NOT in it).
+//
+// `href` is matched before `=` OR `:` — the property-literal form `Object.assign(link, { href: url })`
+// builds exactly the same navigation target and carried no `=` at all. `href:` appears nowhere in the
+// scanned set today (measured: src/games/*.ts has zero `href` tokens), so this costs no false positive.
+//
+// The anchor pattern's trailing class is ` \t>` and deliberately NOT `\s`: with whole-text matching a
+// `\s` there spans the newline, so any line ENDING in `<a` — a comparison a formatter wrapped after
+// the operator — became an anchor tag. Nothing is lost by excluding the newline: an `<a>` broken
+// across lines still carries its `href` on one of them, and an `<a>` with no href is not a navigation
+// target at all, which is the only thing ADR-0014 bans. Pinned both ways below.
 const PATTERNS = [
-  { name: 'anchor tag literal (<a )', re: /<a[\s>]/i },
-  { name: 'href attribute literal (href=)', re: /\bhref\s*=/i },
-  { name: "createElement('a') / createElement(\"a\")", re: /createElement\(\s*(['"])a\1\s*\)/ },
-  { name: "el('a', ...) / el(\"a\", ...) — local helper with an anchor tag", re: /\bel\(\s*(['"])a\1/ },
-  { name: "setAttribute('href', ...) / setAttribute(\"href\", ...)", re: /setAttribute\(\s*(['"])href\1/i },
+  { name: 'anchor tag literal (<a )', re: /<a[ \t>]/gi },
+  { name: 'href attribute or property literal (href= / href:)', re: /\bhref\s*[:=]/gi },
+  { name: "createElement('a') / createElement(\"a\")", re: /createElement\(\s*(['"])a\1\s*,?\s*\)/g },
+  { name: "el('a', ...) / el(\"a\", ...) — local helper with an anchor tag", re: /\bel\(\s*(['"])a\1/g },
+  { name: "setAttribute('href', ...) / setAttribute(\"href\", ...)", re: /setAttribute\(\s*(['"])href\1/gi },
 ];
 
-function findViolations(text) {
-  const violations = [];
-  text.split('\n').forEach((line, i) => {
-    for (const p of PATTERNS) {
-      if (p.re.test(line)) violations.push({ line: i + 1, pattern: p.name, snippet: line.trim() });
+// Comments and TypeScript type space are blanked (to spaces, never deleted, so every offset and line
+// number is unchanged) before any pattern runs — the one choke point findViolations reads through.
+// Without it, whole-text matching turned prose and types into ADR-0014 violations: `// no href: or <a
+// in this module`, a comment that CITES the ADR, was a violation of it, and `interface LinkCfg { href:
+// string }` was one too (five of the seven scanned modules already declare an interface or a type
+// alias, so that shape is live in this tree today, not hypothetical).
+const blank = (m) => m.replace(/[^\n]/g, ' ');
+
+/** Blanks `//` and `/* *\/` comments, walking the text with STRING STATE rather than replacing on a
+ *  bare /\/\/[^\n]* \/ regex.
+ *
+ *  Why the walk, and why blanking here cannot hide a hazard on the same line: the naive regex reads
+ *  the `//` inside `'https://games/'` as a comment opener and blanks the REST OF THAT LINE with it —
+ *  so `const u = 'https://games/'; link.setAttribute('href', u);` would scan clean while building a
+ *  real anchor. That is ADR-0019's recorded hole class (the `'https://schema.org'` one). Skipping
+ *  string literals means a comment opener is only ever recognised where the JS parser would recognise
+ *  one, so the blanked span is exactly a comment and everything else on the line still scans. Strings
+ *  themselves are never blanked — an `<a href>` lives in a template literal, which is precisely where
+ *  this gate must keep looking.
+ *
+ *  ponytail: a regex literal containing an unbalanced quote (`/['"]/`) would desync the string state.
+ *  Measured: the four regex literals in src/games/*.ts today contain no quote character. Upgrade path
+ *  if one ever lands: skip regex literals too, which needs the previous significant token to tell a
+ *  literal from division. */
+function stripComments(text) {
+  const out = [...text];
+  let i = 0;
+  const blankTo = (end) => { for (let k = i; k < end; k++) if (out[k] !== '\n') out[k] = ' '; };
+  while (i < text.length) {
+    const c = text[i];
+    const two = text.slice(i, i + 2);
+    if (two === '//') {
+      const nl = text.indexOf('\n', i);
+      const end = nl === -1 ? text.length : nl;
+      blankTo(end);
+      i = end;
+    } else if (two === '/*') {
+      const close = text.indexOf('*/', i + 2);
+      const end = close === -1 ? text.length : close + 2;
+      blankTo(end);
+      i = end;
+    } else if (c === '"' || c === "'" || c === '`') {
+      i++;
+      while (i < text.length && text[i] !== c) i += text[i] === '\\' ? 2 : 1;
+      i++;
+    } else {
+      i++;
     }
-  });
-  return violations;
+  }
+  return out.join('');
+}
+
+const TYPE_DECL_RE = /^(?:export\s+)?(?:declare\s+)?(?:interface\s+\w+|type\s+\w+[^\n=]*=)[^{;\n]*\{/gm;
+
+/** Blanks the BODY of an `interface X { … }` / `type X = { … }` declaration, brace-matched from its
+ *  opening `{` — the same brace-counting idiom extractRenderFunctions() uses in
+ *  scripts/arm-gate-coverage-check.mjs.
+ *
+ *  Why this cannot hide a hazard: TypeScript type space is erased at compile time, so nothing inside
+ *  a type body can ever construct a DOM node — there is no navigation target in there to hide. And
+ *  the blanked span ends at the MATCHING brace, not at end of line, so a statement sharing the line
+ *  (`interface X { href: string } const link = el('a');`) is still scanned. Pinned both ways below.
+ *  A `}` inside a string literal type ends the match early, which blanks LESS and scans more —
+ *  the fail-safe direction. The one fail-OPEN residue is an unclosed brace, which blanks to end of
+ *  file; that file does not compile, and `npx astro check` runs ahead of this gate in CI. */
+function stripTypeSpace(text) {
+  let out = text;
+  TYPE_DECL_RE.lastIndex = 0;
+  let m;
+  while ((m = TYPE_DECL_RE.exec(text))) {
+    const bodyStart = m.index + m[0].length;
+    let depth = 1;
+    let i = bodyStart;
+    while (i < text.length && depth > 0) {
+      if (text[i] === '{') depth++;
+      else if (text[i] === '}') depth--;
+      i++;
+    }
+    const end = depth === 0 ? i - 1 : text.length;
+    out = out.slice(0, bodyStart) + blank(out.slice(bodyStart, end)) + out.slice(end);
+    TYPE_DECL_RE.lastIndex = end;
+  }
+  return out;
+}
+
+function findViolations(rawText) {
+  const text = stripTypeSpace(stripComments(rawText));
+  const violations = [];
+  const lines = rawText.split('\n'); // snippets quote REAL source, which is what blanking (not deleting) buys
+  const lineOf = (index) => text.slice(0, index).split('\n').length;
+  for (const p of PATTERNS) {
+    p.re.lastIndex = 0;
+    for (const m of text.matchAll(p.re)) {
+      const line = lineOf(m.index);
+      violations.push({ line, pattern: p.name, snippet: lines[line - 1].trim() });
+    }
+  }
+  return violations.sort((a, b) => a.line - b.line || a.pattern.localeCompare(b.pattern));
 }
 
 // ---------------------------------------------------------------------------
@@ -120,6 +246,83 @@ function selftest() {
   assert.equal(byLine(4).length, 1, "line 4 must flag el('a', ...)");
   assert.equal(byLine(5).length, 1, "line 5 must flag setAttribute('href', ...)");
   console.log(`PASS known-bad fixture flags all 5 patterns (6 hits across 5 lines, line 1 double-flags):\n${dirty.map((v) => `     line ${v.line} · ${v.pattern} · ${v.snippet}`).join('\n')}`);
+
+  // Known-bad, MULTI-LINE: the same two constructs a formatter wraps when the call gets long. Under
+  // the old per-line scan both of these reported ZERO — planted verbatim into a real game module and
+  // measured, not reasoned. Revert findViolations to text.split('\n') and this case goes green.
+  const wrappedText = [
+    "  const link = document.createElement(", //  1
+    "    'a',", //                                2  createElement('a') closes here
+    "  );", //                                    3
+    "  link.setAttribute(", //                    4
+    "    'href',", //                             5  setAttribute('href' closes here
+    "    '/games/',", //                          6
+    "  );", //                                    7
+    "  const wrapped = el(", //                   8
+    "    'a',", //                                9  el('a' closes here
+    "  );", //                                   10
+  ].join('\n');
+  const wrapped = findViolations(wrappedText);
+  const wrappedPatterns = new Set(wrapped.map((v) => v.pattern));
+  assert.ok(wrappedPatterns.has(PATTERNS[2].name), "a createElement( ... 'a' ... ) wrapped across lines must be flagged");
+  assert.ok(wrappedPatterns.has(PATTERNS[4].name), "a setAttribute( ... 'href' ... ) wrapped across lines must be flagged");
+  assert.ok(wrappedPatterns.has(PATTERNS[3].name), "an el( ... 'a' ... ) wrapped across lines must be flagged");
+  console.log(`PASS known-bad multi-line: wrapped createElement/setAttribute/el calls flagged (${wrapped.length} hit(s)) — a per-line scan reported zero on all three`);
+
+  // Known-bad, PROPERTY form: the same navigation target built without a single `=`. Also measured
+  // green against the old pattern set.
+  const propForm = "Object.assign(link, { href: '/games/' });";
+  const prop = findViolations(propForm);
+  assert.equal(prop.length, 1, 'an href: property literal must be flagged exactly once');
+  assert.equal(prop[0].pattern, PATTERNS[1].name);
+  console.log(`PASS known-bad property form: ${prop[0].snippet} flagged as ${prop[0].pattern}`);
+
+  // Other direction for both widenings: the codebase's real non-anchor idiom must stay clean, and a
+  // wrapped call that builds a BUTTON must not be dragged in by the whole-text match.
+  const wrappedClean = [
+    "  const btn = el(",
+    "    'button',",
+    "    'เล่นอีกรอบ',",
+    "  );",
+    "  const node = document.createElement(",
+    "    tag,",
+    "  );",
+  ].join('\n');
+  assert.deepEqual(findViolations(wrappedClean), [], 'wrapped el(\'button\')/createElement(tag) calls must stay clean under whole-text matching');
+  console.log("PASS whole-text matching, other direction: wrapped el('button', …) and createElement(tag) report zero violations");
+
+  // --- NOT CODE: prose and TypeScript type space. Every case here was measured RED against the
+  // pre-strip whole-text scan — including a comment that CITES ADR-0014 being a violation of it, and
+  // an `interface { href: string }`, a shape five of the seven scanned modules already carry. Delete
+  // the stripComments()/stripTypeSpace() calls out of findViolations and every case goes red. ---
+  for (const [label, text] of [
+    ['line comment citing the ADR', '// this module renders no href: and no <a into #stage (ADR-0014)'],
+    ['block comment', '/* renders no <a href="/games/"> inside the stage */'],
+    ['JSDoc block comment', '/**\n * Builds the panel. Never an <a href>.\n */\nconst x = 1;'],
+    ['interface declaration', 'interface LinkCfg { href: string }'],
+    ['exported interface, wrapped', 'export interface LinkCfg {\n  href: string;\n  label: string;\n}'],
+    ['type alias object', 'type LinkCfg = {\n  href: string;\n};'],
+    ['comparison wrapped after the operator', 'const ok = counts[i] <a\n  .length;'],
+  ]) {
+    assert.deepEqual(findViolations(text), [], `${label}: not code that can build a navigation target — must not be a violation`);
+  }
+  console.log('PASS not-code, other direction: a line comment citing ADR-0014, a block comment, a JSDoc block, `interface LinkCfg { href: string }`, a wrapped interface, a `type X = { href }` alias and a comparison wrapped after `<` are all clean');
+
+  // --- and neither strip may become a bypass. These are the two ways blanking could hide a real
+  // hazard on the SAME LINE, and both must still be flagged:
+  //   1. the `//` inside 'https://games/' is not a comment opener (ADR-0019's recorded hole class) —
+  //      a naive /\/\/[^\n]*\/ replace blanks the rest of that line and the anchor with it;
+  //   2. a type body is blanked only to its MATCHING brace, never to end of line. ---
+  for (const [label, text, expectPattern] of [
+    ['url containing // then a real setAttribute', "const u = 'https://games/'; link.setAttribute('href', u);", PATTERNS[4].name],
+    ['type declaration then a real el(\'a\') on one line', "interface LinkCfg { href: string } const link = el('a');", PATTERNS[3].name],
+    ['trailing comment after a real anchor', "const link = el('a', 'ดูเกมอื่น'); // back to the game list", PATTERNS[3].name],
+    ['anchor literal wrapped across lines', "const html = `<a\n  href=\"/games/\">กลับ</a>`;", PATTERNS[1].name],
+  ]) {
+    const v = findViolations(text);
+    assert.ok(v.some((x) => x.pattern === expectPattern), `${label}: the live hazard on this line must still be flagged (${expectPattern})`);
+  }
+  console.log("PASS no bypass: 'https://games/' does not blank its own line, a type body is blanked only to its matching brace, a trailing comment does not blank the anchor before it, and an `<a` wrapped onto the next line is still caught by its href");
 
   // --- Target-set derivation (gh#46): glob src/games/*.ts, minus known non-game files, plus the
   // non-recursive ceiling that shape carries. Calibrated: reverting listTargetFiles to a hardcoded

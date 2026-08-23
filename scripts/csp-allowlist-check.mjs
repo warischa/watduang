@@ -305,20 +305,27 @@ async function main() {
   // REQUIRED_PAIRS was derived from — regardless of which file `rel` checked above, so a CSP edit
   // is caught even on a run against dist/ that never touches public/ otherwise. A mismatch means
   // ceiling 2 (additions never fail the pairs check above) may have let a real CSP change through
-  // unnoticed; it fails loud rather than warns, because a silent snapshot is the exact failure mode
-  // this gate exists to close (ADR-0019, gh#66).
+  // unnoticed.
+  //
+  // ponytail: WARNS, it does not fail. The site owner chose warn over fail on 2026-08-23 so that a
+  // CSP edit is not blocked on bumping three constants in the same commit (gh#66). The known cost is
+  // that a warning can be scrolled past, which is a quieter version of the fail-green shape gh#66
+  // closed — so it is emitted as a `::warning::` workflow annotation, which GitHub surfaces on the
+  // run summary and on the changed line rather than only in the log body. Upgrade path if one is
+  // ever missed in practice: flip this back to `::error::` + exit 1, or gate the failure to pushes
+  // that actually touch the CSP source.
   const sourceRel = 'public/staticwebapp.config.json';
   const sourceFile = path.join(repoRoot, sourceRel);
   if (fs.existsSync(sourceFile)) {
     const sourceCsp = readCsp(sourceFile);
     if (sourceCsp && hashCsp(sourceCsp) !== PAIRS_HASH) {
       console.error(
-        `::error::csp-allowlist-check: ${sourceRel}'s Content-Security-Policy no longer matches PAIRS_HASH — ` +
-        `the REQUIRED_PAIRS snapshot (stamped PAIRS_AS_OF = '${PAIRS_AS_OF}') is stale. Re-derive ` +
-        'REQUIRED_PAIRS from the live header and bump PAIRS_AS_OF and PAIRS_HASH in this script, in the same ' +
-        'commit as the CSP change — CLAUDE.md: the CSP must let AdSense through or ads silently fail to render.',
+        `::warning file=${sourceRel}::csp-allowlist-check: ${sourceRel}'s Content-Security-Policy no longer ` +
+        `matches PAIRS_HASH — the REQUIRED_PAIRS snapshot (stamped PAIRS_AS_OF = '${PAIRS_AS_OF}') is stale. ` +
+        'Re-derive REQUIRED_PAIRS from the live header and bump PAIRS_AS_OF and PAIRS_HASH in this script, in ' +
+        'the same commit as the CSP change — CLAUDE.md: the CSP must let AdSense through or ads silently fail ' +
+        'to render. This is a warning, not a failure: the build continues and the stale snapshot ships.',
       );
-      process.exit(1);
     }
   }
 

@@ -78,6 +78,16 @@ function findSecondWriters(files) {
   return hits;
 }
 
+// Pure: {relPath}[] -> the reasons this scanned set cannot support the success sentence. Extracted
+// so --selftest can calibrate the guard itself, not a re-implementation of it. No argv or env seam:
+// nothing a caller could use to narrow or silence the scan.
+function coverageGap(files) {
+  const gaps = [];
+  if (files.length === 0) gaps.push('src/games/*.ts matched zero files');
+  if (!files.some((f) => f.relPath === ALLOWED_FILE)) gaps.push(`${ALLOWED_FILE} was not in the scanned set`);
+  return gaps;
+}
+
 // ---------------------------------------------------------------------------
 // IO: list src/games/*.ts (flat, non-recursive — that is the whole glob this gate is briefed
 // against), relative to an arbitrary root so selftest can point this at a temp fixture tree.
@@ -141,6 +151,19 @@ function selftest() {
     const secondWriters = findSecondWriters(badFiles);
     assert.deepEqual(secondWriters, ['src/games/timebomb.ts'], 'known-bad fixture must flag exactly the planted second writer');
     console.log(`PASS known-bad fixture flags the planted second writer (${secondWriters[0]})`);
+
+    // The one rule here is an ABSENCE, so an empty scanned set satisfies it for free. Measured, not
+    // reasoned: moving src/games/ aside made the real script exit 0 while printing "siamsi.ts is the
+    // sole live saveCheckpoint caller" — a claim about a file it had not read. Calibrated both ways,
+    // and the known-good leg uses the same walk main() uses, so a guard that always fires fails here.
+    assert.deepEqual(coverageGap(walkGamesFiles(good)), [], 'a real scanned set containing siamsi.ts must report no coverage gap');
+    assert.deepEqual(coverageGap([]), ['src/games/*.ts matched zero files', `${ALLOWED_FILE} was not in the scanned set`], 'an empty scanned set must report both gaps');
+    assert.deepEqual(
+      coverageGap([{ relPath: 'src/games/timebomb.ts', text: '' }]),
+      [`${ALLOWED_FILE} was not in the scanned set`],
+      'a non-empty set that never read siamsi.ts must still report the gap the success sentence rests on',
+    );
+    console.log('PASS coverage guard calibrated both ways: a real set is clean; an empty set and a set missing siamsi.ts each report the gap that would otherwise print as a green');
   } finally {
     fs.rmSync(good, { recursive: true, force: true });
     fs.rmSync(bad, { recursive: true, force: true });
@@ -202,13 +225,26 @@ async function main() {
   if (process.argv.includes('--selftest')) return selftest();
 
   const files = walkGamesFiles(repoRoot);
+  // ADR-0019: the only rule here is an ABSENCE ("no second writer"), which an empty scanned set
+  // satisfies for free. Measured by moving src/games/ aside: exit 0, printing "siamsi.ts is the sole
+  // live saveCheckpoint caller" over a set that contained no siamsi.ts and no files at all. The green
+  // names siamsi.ts, so siamsi.ts has to have been read for it to be a claim rather than a sentence.
+  const missing = coverageGap(files);
+  if (missing.length) {
+    console.error(
+      `checkpoint-writer-check: ${missing.join(' and ')} — this gate's only rule is an absence, and an ` +
+        'empty or incomplete set satisfies it vacuously (docs/adr/0019). Nothing was checked.',
+    );
+    process.exit(1);
+  }
+
   const secondWriters = findSecondWriters(files);
 
   if (secondWriters.length > 0) {
     console.error(failureMessage(secondWriters));
     process.exit(1);
   }
-  console.log(`checkpoint-writer-check: ${ALLOWED_FILE} is the sole live saveCheckpoint caller in src/games/*.ts`);
+  console.log(`checkpoint-writer-check: ${ALLOWED_FILE} is the sole live saveCheckpoint caller across ${files.length} file(s) in src/games/*.ts`);
 }
 
 await main();

@@ -9,7 +9,16 @@
 // A. INLINE <script> ELEMENTS. Astro inlines a page script when it has no imports and is under
 //    assetsInlineLimit. Catches every kind of <script> with no src, not just the type="module"
 //    spelling: a hand-written <script is:inline> comes out as a bare <script>, blocked the same way,
-//    but a single-spelling grep misses it. JS_TYPES is an allowlist of the types CSP governs, not a
+//    but a single-spelling grep misses it. The type attribute is matched WHOLE, after trimming and
+//    lowercasing — parameters are NOT cut. A type carrying a parameter
+//    (`type="text/javascript;charset=utf-8"`, `type="module;x=1"`) is not an essence match for any
+//    JavaScript MIME type, so the HTML spec's prepare-the-script-element steps return early and the
+//    element is an inert data block. Measured, not reasoned: driven in real headless Chrome 151, none
+//    of `text/javascript;charset=utf-8`, `text/javascript; charset=UTF-8`,
+//    `application/javascript;charset=utf-8` or `module;x=1` executed, while bare, `text/javascript`
+//    and `module` controls on the same page all did. Cutting the parameter before the lookup would
+//    make this gate red the build on markup that runs nothing. Pinned by selftest.
+//    JS_TYPES is an allowlist of the types CSP governs, not a
 //    blocklist of ld+json — a real data block (ld+json, json) is not blocked by CSP, so it must not
 //    be a false positive that gets people to rip the gate out.
 //    ⚠ importmap and speculationrules are **not** a safe data block — script-src-elem governs both
@@ -21,21 +30,31 @@
 //
 // B. INLINE EXECUTION IN ATTRIBUTES (new, gh#47). script-src does not govern these at all —
 //    script-src-attr / 'unsafe-hashes' does — so they are blocked under this CSP just as hard, and
-//    nothing in CI looked for them. Matched as three syntactic CLASSES, never as a list of members:
-//      1. HANDLER_ATTR_RE — /\son\w+\s*=/ , the whole on*= attribute family via its stable
+//    nothing in CI looked for them. Matched as three syntactic CLASSES, never as a list of members,
+//    and each class is a predicate on one attribute PARSED OUT by tagAttributes() — never a needle
+//    run across the document text. Position is the whole point: `onclick=` is a hazard where the HTML
+//    parser would start an attribute name and is inert everywhere else, and only a tokenizer can tell
+//    those apart. See tagAttributes() for the two directions that pins.
+//      1. handler-attribute — /^on\w+$/ on the attribute NAME: the whole on*= family via its stable
 //         syntactic prefix. onclick, onpointerdown, onanimationend, and every handler the HTML spec
 //         adds next are covered without editing this file. A member list would have to be guessed;
 //         the prefix is fixed by the spec.
-//      2. JS_URL_RE — javascript: appearing in href, src or formaction (xlink:href included: the
-//         \b sits before `href`, and `:` is a non-word char).
-//      3. SRCDOC_RE — an outright ban on srcdoc=. This site has zero legitimate uses, so the
-//         hazardous set does not need enumerating: the safe set is empty and the guard converges.
+//         ⚠ `<button type="button"onclick="pwn()">` is a parse error the HTML tokenizer recovers from
+//         by starting a NEW attribute (after-attribute-value-quoted reconsumes in
+//         before-attribute-name), so the handler is LIVE in every browser. Whatever replaces this
+//         check must still see it — a `/\s/`-prefixed needle did not.
+//      2. javascript-url — a value starting `javascript:` under the name href, src, formaction or
+//         action (xlink:href included: the namespace prefix is cut before the lookup). `action` is
+//         not a fourth guess at a member list: <form action="javascript:…"> submits into the same
+//         inline-execution context formaction does, and script-src blocks it identically.
+//      3. srcdoc — an outright ban on the srcdoc= attribute. This site has zero legitimate uses, so
+//         the hazardous set does not need enumerating: the safe set is empty and the guard converges.
 //
 // HTML comments are blanked (not deleted, so line numbers survive) before ANY matching. All checks
 // here are negative-presence ("this forbidden pattern must not appear"), and ADR-0019 rule 2's body
 // governs: a negative-presence check has to keep ignoring comments, or a comment that merely
-// mentions onclick trips the build. Same choke-point pattern as
-// scripts/arm-gate-coverage-check.mjs:100-102, which is calibrated both ways. gh#47 is rule 2's
+// mentions onclick trips the build. Same choke-point pattern as stripComments() in
+// scripts/arm-gate-coverage-check.mjs, which is calibrated both ways. gh#47 is rule 2's
 // first exercise, so both directions are pinned by selftest cases below.
 //
 // ponytail: this is a text scan of built HTML. Its green means "no inline-executing script element
@@ -46,7 +65,10 @@
 //      gate reads. Not a false green about CSP, though: a handler attached from an external
 //      'self' script is not CSP-blocked, so the *ad* failure mode this gate exists for cannot hide
 //      there. What can hide is an innerHTML assignment injecting an onclick at runtime.
-//      Pinned by selftest "ceiling 1".
+//      Pinned by selftest "ceiling 1". Markup that exists only as TEXT — inside a quoted attribute
+//      value, a text node, or a JSON-LD string — is the same case and is deliberately NOT flagged:
+//      it executes nothing until something injects it, and flagging it reds the build on correct
+//      pages (that is exactly what the pre-tokenizer needle did).
 //   2. EXOTIC EMBEDS are out of scope. <object data=…>, <embed>, <iframe src="data:…">, <base href>
 //      and MathML/SVG event attributes that do not start with `on` are not matched. The set of ways
 //      markup can start an execution context is spec-owned and does not converge, so this gate
@@ -93,23 +115,33 @@ const SCRIPT_TAG_RE = /<script\b[^>]*>/gi;
 const SCRIPT_SRC_RE = /[\s"']src\s*=/i; // word-boundary before src stops data-src from counting as a real src
 const SCRIPT_TYPE_RE = /[\s"']type\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/i;
 
-// The three attribute classes. Whole-document match on blanked text, deliberately not restricted to
-// inside <tag ...> — a `>` inside an attribute value truncates any tag-extraction regex, and a guard
-// that misses is worse than one that false-positives. Measured against real dist/: zero hits.
+// The three attribute classes, each a predicate on ONE PARSED ATTRIBUTE — a (name, value) pair the
+// tokenizer below hands over — never a needle run across the whole document.
+//
+// A whole-document needle cannot tell a name from a value, and the values this site legitimately
+// ships trip it. Measured against the pre-fix `/[\s"'\/]on\w+\s*=/`: `<a href="/tools/once=1">` was
+// flagged (`/once=`), `<img src="/img/online=2.png">` and the same URL in a `srcset` were flagged
+// (`/online=`), and the literal text `onclick=` inside a quoted attribute value, inside Thai prose in
+// a text node, and inside a JSON-LD string value were all flagged. Every one of those reds the build
+// on markup that executes nothing — and a gate that fires on correct pages gets ripped out.
 const ATTR_CLASSES = [
   {
     id: 'handler-attribute',
-    re: /\son\w+\s*=/gi,
+    hit: (name) => /^on\w+$/i.test(name),
     why: "an on*= handler attribute needs script-src-attr / 'unsafe-hashes', which this CSP does not grant — the handler never runs and the control silently does nothing (ADR-0005)",
   },
   {
     id: 'javascript-url',
-    re: /\b(?:href|src|formaction)\s*=\s*["']?\s*javascript:/gi,
+    // The namespace prefix is cut before the lookup, so `xlink:href` is judged as `href` — same
+    // coverage the old `\b` before `href` bought, now stated rather than incidental. Leading
+    // whitespace is stripped by the URL parser before the scheme is read, so it is stripped here too.
+    hit: (name, value) =>
+      /^(?:href|src|formaction|action)$/i.test(name.replace(/^[^:]*:/, '')) && /^\s*javascript:/i.test(value),
     why: "a javascript: URL is inline execution and is blocked by script-src 'self' — the link or submit silently does nothing",
   },
   {
     id: 'srcdoc',
-    re: /\ssrcdoc\s*=/gi,
+    hit: (name) => /^srcdoc$/i.test(name),
     why: 'srcdoc= creates a nested browsing context with its own inline markup; this site has zero legitimate uses, so it is banned outright rather than analysed',
   },
 ];
@@ -135,6 +167,64 @@ export const stripHtmlComments = (html) => html.replace(/<!--(?:>|->|[\s\S]*?(?:
 
 const lineOf = (text, index) => text.slice(0, index).split('\n').length;
 
+const NAME_END = /[\s/>=]/;
+const TAG_OPEN_RE = /<[a-zA-Z][^\s/>]*/g;
+
+/** Yields every attribute in ATTRIBUTE-NAME POSITION as `{ name, value, index, hasValue }`.
+ *
+ *  This is the HTML tokenizer's attribute loop and nothing more, which is exactly what the three
+ *  classes above need: a name is a name only where the parser would start one.
+ *    · `type="button"onclick="pwn()"` — after-attribute-value-quoted reconsumes in
+ *      before-attribute-name, so `onclick` IS a live attribute here and is yielded. That parse error
+ *      is the real hole this gate exists to see, and no `/\s/`-prefixed needle can see it.
+ *    · `href="/tools/once=1"` — `once=` is inside a quoted VALUE, never in name position, so it is
+ *      not yielded at all. Same for `onclick=` sitting in a text node: text is not scanned, because
+ *      nothing in a text node is an attribute.
+ *  Quote state is tracked, so this is NOT the tag-extraction regex the old comment here rightly
+ *  rejected: a `>` inside a quoted value (`<div title="a > b" onclick=…>`) does not end the tag, and
+ *  the scan resumes after the value rather than in the middle of it. Pinned both ways by selftest.
+ *
+ *  ponytail: one fail-open residue, and it is the browser's own behaviour — an unclosed quote
+ *  swallows the rest of the document as one attribute value, so nothing after it is scanned. A real
+ *  parser would report the same EOF-in-tag; dist/ is generated markup, so it cannot happen from
+ *  hand-editing. Upgrade path if it ever does: bound the value scan at the next `<`. */
+export function* tagAttributes(html) {
+  TAG_OPEN_RE.lastIndex = 0;
+  let m;
+  while ((m = TAG_OPEN_RE.exec(html))) {
+    let i = m.index + m[0].length;
+    while (i < html.length) {
+      while (i < html.length && (/\s/.test(html[i]) || html[i] === '/')) i++; // before-attribute-name
+      if (i >= html.length || html[i] === '>') break;
+      const index = i;
+      while (i < html.length && !NAME_END.test(html[i])) i++;
+      const name = html.slice(index, i);
+      while (i < html.length && /\s/.test(html[i])) i++; // after-attribute-name: `onclick = "x()"`
+      if (html[i] !== '=') {
+        yield { name, value: '', index, hasValue: false };
+        continue; // i always advanced above (a bare `=` is consumed below), so this cannot spin
+      }
+      i++;
+      while (i < html.length && /\s/.test(html[i])) i++; // before-attribute-value
+      const quote = html[i];
+      let value;
+      if (quote === '"' || quote === "'") {
+        const end = html.indexOf(quote, i + 1);
+        value = html.slice(i + 1, end === -1 ? html.length : end);
+        i = end === -1 ? html.length : end + 1;
+      } else {
+        const valueStart = i;
+        while (i < html.length && !/[\s>]/.test(html[i])) i++;
+        value = html.slice(valueStart, i);
+      }
+      yield { name, value, index, hasValue: true };
+    }
+    TAG_OPEN_RE.lastIndex = i;
+  }
+}
+
+const shownAttr = (name, value) => `${name}="${value.length > 40 ? `${value.slice(0, 40)}…` : value}"`;
+
 export function findInlineHazards(rawHtml) {
   const html = stripHtmlComments(rawHtml);
   const findings = [];
@@ -155,10 +245,12 @@ export function findInlineHazards(rawHtml) {
     });
   }
 
-  for (const { id, re, why } of ATTR_CLASSES) {
-    re.lastIndex = 0;
-    for (const hit of html.matchAll(re)) {
-      findings.push({ id, line: lineOf(html, hit.index), match: hit[0].trim(), why });
+  for (const { name, value, index, hasValue } of tagAttributes(html)) {
+    // A valueless `<button onclick>` / `<iframe srcdoc>` executes nothing and navigates nowhere —
+    // same `=`-required shape the three needles this replaced always had.
+    if (!hasValue) continue;
+    for (const { id, hit, why } of ATTR_CLASSES) {
+      if (hit(name, value)) findings.push({ id, line: lineOf(html, index), match: shownAttr(name, value), why });
     }
   }
 
@@ -223,8 +315,59 @@ function selftest() {
   }
   console.log('PASS class 1 is a class: onpointerdown, ONANIMATIONEND, `onbeforetoggle = `, and an invented future handler are all caught by the on*= prefix with no member list');
 
-  // --- known-bad, class 2: javascript: URLs in each governed attribute, including xlink:href. ---
-  for (const bad of ['href="javascript:x()"', "href='javascript:x()'", 'formaction="javascript:x()"', 'src="javascript:x()"', 'xlink:href="javascript:x()"']) {
+  // --- class 1's leading char is an ATTRIBUTE BOUNDARY, not whitespace. `<button type="button"onclick=
+  // "x()">` is a tokenizer parse error the HTML spec recovers from by starting a NEW attribute, so the
+  // handler is live in Chrome/Safari/Firefox — and a /\s/ prefix walked straight past it. Same for the
+  // `/` boundary after a quoted value. Revert the class to /\s/ and every case here goes green. ---
+  for (const [label, spelling] of [
+    ['quote-adjacent', '"button"onclick="x()"'],
+    ['quote-adjacent, uppercase', '"button"ONCLICK="x()"'],
+    ['slash-adjacent', '"button"/onpointerdown="x()"'],
+  ]) {
+    const f = findInlineHazards(clean.replace('<button type="button"', `<button type=${spelling}`));
+    assert.equal(f.length, 1, `${label}: a handler attribute with no whitespace before it is live in the browser and must be flagged`);
+    assert.equal(f[0].id, 'handler-attribute');
+  }
+  const srcdocAdjacent = findInlineHazards(clean.replace('<div id="stage"></div>', '<iframe title="x"srcdoc="<b>hi</b>"></iframe>'));
+  assert.equal(srcdocAdjacent.length, 1, 'a quote-adjacent srcdoc= must be flagged too — same boundary class');
+  assert.equal(srcdocAdjacent[0].id, 'srcdoc');
+  console.log('PASS attribute boundary: `type="button"onclick=`, its uppercase twin, `"button"/onpointerdown=` and `title="x"srcdoc=` are all flagged — the HTML tokenizer starts a new attribute there, so /\\s/ alone scanned past a LIVE handler');
+
+  // --- and the parse must not start flagging ordinary markup. Every case here was measured RED
+  // against the whole-document needle this replaced (`/[\s"'\/]on\w+\s*=/`): a URL containing `/on…=`
+  // and the literal text `onclick=` in a value, a text node or a JSON-LD string all matched it, so any
+  // future page whose copy or URL contains one would have redded the build while executing nothing.
+  // Restore that needle and every case here goes red. ---
+  for (const [label, html] of [
+    ['url path segment', '<html><body><a href="/tools/once=1">x</a></body></html>'],
+    ['url in src', '<html><body><img src="/img/online=2.png"></body></html>'],
+    ['url in srcset', '<html><body><img srcset="/img/online=2.png 1x, /img/online=4.png 2x"></body></html>'],
+    ['quoted attribute value', '<html><body><div data-note="เขียน onclick= ไม่ได้">x</div></body></html>'],
+    ['text node', '<html><body><p>ห้ามใส่ onclick= ในหน้า</p></body></html>'],
+    ['json-ld string value', '<html><body><script type="application/ld+json">{"note":"onclick="}</script></body></html>'],
+    ['value starting with on…', '<html><body><a href="/games/" data-note="one two" title="only">x</a></body></html>'],
+  ]) {
+    assert.deepEqual(findInlineHazards(html), [], `${label}: text that is not in attribute-name position executes nothing and must not be flagged`);
+  }
+  console.log('PASS attribute-name position, other direction: /tools/once=1, /img/online=2.png (src and srcset), `onclick=` inside a quoted value / a Thai text node / a JSON-LD string, and data-note="one two" are all clean — none of them is an attribute name');
+
+  // --- the tokenizer must not become a tag-extraction REGEX, which is what the pre-fix comment here
+  // rightly refused: a `>` inside a quoted value does not end a tag, and an unquoted value ends at
+  // whitespace. Both shapes still carry a live handler and must still be flagged. ---
+  for (const [label, html] of [
+    ['`>` inside a quoted value', '<html><body><div title="a > b" onclick="pwn()">x</div></body></html>'],
+    ['unquoted preceding value', '<html><body><div class=box onclick="pwn()">x</div></body></html>'],
+    ['unquoted handler value', '<html><body><div class="box" onclick=pwn()>x</div></body></html>'],
+  ]) {
+    const f = findInlineHazards(html);
+    assert.equal(f.length, 1, `${label}: the handler is live in the browser and must be flagged`);
+    assert.equal(f[0].id, 'handler-attribute');
+  }
+  console.log('PASS tokenizer, not a tag regex: a handler after a quoted value containing `>`, after an unquoted value, and with an unquoted value of its own are all still flagged');
+
+  // --- known-bad, class 2: javascript: URLs in each governed attribute, including xlink:href, plus
+  // <form action=…>, which submits into the same inline-execution context formaction does. ---
+  for (const bad of ['href="javascript:x()"', "href='javascript:x()'", 'formaction="javascript:x()"', 'action="javascript:x()"', 'src="javascript:x()"', 'xlink:href="javascript:x()"']) {
     const f = findInlineHazards(clean.replace('<a href="/games/">', `<a ${bad}>`));
     assert.equal(f.length, 1, `${bad} must be flagged`);
     assert.equal(f[0].id, 'javascript-url');
@@ -252,6 +395,24 @@ function selftest() {
     assert.equal(f[0].id, 'inline-script', `${label} must be flagged as inline-script`);
   }
   console.log('PASS known-bad class A: bare, is:inline, importmap, speculationrules and an SVG-nested <script> all flagged by the one element-context-blind regex — no second regex needed for SVG');
+
+  // --- class A matches the type attribute WHOLE. A parameter disqualifies it: the spec's lookup is an
+  // essence MATCH against the type string, and a string carrying `;charset=…` matches no JavaScript
+  // MIME type essence, so the element never executes. MEASURED in real headless Chrome 151 (see
+  // docs/agents/browser-verification.md for the driver): none of the four below ran, while bare,
+  // text/javascript and module controls on the same page all did. Add a parameter-cutting essence()
+  // helper and every case here goes red — which is what it should do, because the gate would then be
+  // redding the build on inert data blocks. This direction is only meaningful next to the class A
+  // must-flag block above: that block is its positive control, so a gate that flagged nothing could
+  // not pass both. ---
+  for (const type of ['text/javascript;charset=utf-8', 'text/javascript; charset=UTF-8', 'application/javascript;charset=utf-8', 'module;x=1', 'application/ld+json;charset=utf-8', 'application/json']) {
+    assert.deepEqual(
+      findInlineHazards(clean.replace('<div id="stage"></div>', `<script type="${type}">alert(1)</script>`)),
+      [],
+      `an inline script typed "${type}" does not execute (a parameter is not an essence match) and must NOT be flagged`,
+    );
+  }
+  console.log('PASS type is matched whole: text/javascript;charset=utf-8, its siblings and module;x=1 stay clean — measured inert in Chrome 151 — and so do ld+json;charset=utf-8 and application/json');
 
   // --- ADR-0019 rule 2, the other direction: a hazard that exists ONLY inside an HTML comment must
   // trip nothing. This is what the comment strip buys, and it is the direction that fails open into
@@ -298,9 +459,13 @@ function selftest() {
   // --- ceiling 3 pinned: the comment blanker is textual. A `-->` inside an attribute value ends the
   // comment early, so what follows is scanned as live markup. Fail-safe direction, pinned so a
   // future real parser has to update the header. ---
-  const earlyClose = '<html><body><!-- a comment with an arrow --> onclick="x()" --></body></html>';
+  // The hazard after the early close is real MARKUP, not loose text: a bare `onclick="x()"` in a text
+  // node was never live in any browser, so asserting it flags would pin a false positive rather than
+  // this ceiling. What the ceiling actually claims is that everything after an early --> is scanned as
+  // live markup, and a live <button> is what proves it.
+  const earlyClose = '<html><body><!-- a comment with an arrow --> <button onclick="x()">go</button> --></body></html>';
   const earlyFindings = findInlineHazards(earlyClose);
-  assert.equal(earlyFindings.length, 1, 'ceiling 3: text after an early --> is scanned as live markup (fail-safe)');
+  assert.equal(earlyFindings.length, 1, 'ceiling 3: markup after an early --> is scanned as live markup (fail-safe)');
   const unterminated = '<html><body><!-- never closed, onclick="x()" is blanked to EOF';
   assert.deepEqual(findInlineHazards(unterminated), [], 'ceiling 3: an unterminated <!-- blanks to end of file (fail-open, disclosed)');
   console.log('PASS ceiling 3 pinned: an early --> leaves the rest live (fail-safe); an unterminated <!-- blanks to EOF (fail-open, disclosed)');

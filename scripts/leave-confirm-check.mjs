@@ -22,7 +22,9 @@
 // (none in either file today) would be read as a comment. The [open] gate flattens `:not(...)` before
 // looking for `[open]`, so `#leave-confirm:not([open]) { display: block }` — which targets precisely
 // the CLOSED dialog — now fails; that flattening is one non-nesting `[^)]*` pass, so a nested form
-// like `:not(:is([open]))` is past what it can read.
+// like `:not(:is([open]))` is past what it can read. (a) grades each compound of a selector LIST
+// separately (splitSelectorList below): reading the list as one string let one compound's `[open]`
+// vouch for an ungated neighbour across the comma.
 //
 //   node scripts/leave-confirm-check.mjs             -> scan the two files, exit non-zero if any hit
 //   node scripts/leave-confirm-check.mjs --selftest  -> both-direction calibration on temp fixtures
@@ -60,6 +62,34 @@ const GUARD_DIALOG_IDS = ['#leave-confirm', '#clear-choice'];
 const targetsGuardDialog = (sel) =>
   GUARD_DIALOG_IDS.some((id) => new RegExp(`${id}\\b`).test(sel)) || /(^|[^\w-])dialog(?![\w-])/.test(sel);
 
+// A selector LIST is N independent selectors sharing one body, and CSS applies the body to each of
+// them separately — so (a) has to grade each one separately too. Reading the whole list as one string
+// let `#leave-confirm[open], #clear-choice { display: flex }` pass: the `[open]` from the FIRST
+// compound satisfied the gate for the SECOND, which is ungated and paints the closed dialog. That is
+// the exact ADR-0015 defect, laundered through a comma. tokens.css already ships a real list
+// (`#leave-confirm[open].at-bottom, #leave-confirm[open].at-top`), so splitting is the shape the file
+// actually uses, not a hypothetical.
+// Depth-aware: a comma inside :is(...) / :not(...) / :where(...) is an argument separator, not a list
+// separator, and splitting there would invent compounds that do not exist.
+// ponytail: paren depth only. A comma inside an attribute-value string (`[data-x=","]`) would still
+// split — no such selector exists here, and the fail direction is an extra ungated-looking compound,
+// i.e. red, i.e. a human looks. Upgrade path is a real selector parser, not a wider regex.
+function splitSelectorList(sel) {
+  const out = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < sel.length; i++) {
+    if (sel[i] === '(') depth++;
+    else if (sel[i] === ')') depth--;
+    else if (sel[i] === ',' && depth === 0) {
+      out.push(sel.slice(start, i));
+      start = i + 1;
+    }
+  }
+  out.push(sel.slice(start));
+  return out.map((s) => s.trim()).filter(Boolean);
+}
+
 // Astro/JSX brace comments first, then block, then line — same order (and same reason) as
 // scripts/stable-exit-markers-check.mjs's: nothing left inside a multi-line form may be re-read as a
 // line comment. Each comment is replaced by spaces rather than deleted, so offsets and line numbers
@@ -89,8 +119,11 @@ function checkTokensCss(text, checked) {
   // [open], or it beats the UA's `dialog:not([open]) { display: none }` and the closed dialog paints.
   checked?.push('a');
   for (const { selector, body } of rules) {
-    if (targetsGuardDialog(selector) && /\bdisplay\s*:/.test(body) && !gatedOnOpen(selector)) {
-      violations.push(`(a) selector "${selector}" sets display: without [open] gating — closed <dialog> becomes hit-testable`);
+    if (!/\bdisplay\s*:/.test(body)) continue;
+    for (const one of splitSelectorList(selector)) {
+      if (targetsGuardDialog(one) && !gatedOnOpen(one)) {
+        violations.push(`(a) selector "${one}" sets display: without [open] gating — closed <dialog> becomes hit-testable`);
+      }
     }
   }
 
@@ -257,6 +290,50 @@ function selftest() {
     assert.ok(v.some((x) => x.startsWith('(a)')), '(a) must flag display: outside an [open]-gated selector');
   });
   console.log('PASS (a) known-bad fixture (display on bare #leave-confirm) is flagged');
+
+  // (a) known-bad: a SELECTOR LIST where one compound is gated and the other is not. Reading the list
+  // as one string let the first compound's `[open]` vouch for the second — the ADR-0015 defect
+  // laundered through a comma, green on every condition. Both orders, so the fix cannot be "grade the
+  // last one"; and the ungated compound must be the one NAMED in the message, not the whole list.
+  for (const [label, sel, culprit] of [
+    ['gated first', '#leave-confirm[open], #clear-choice', '#clear-choice'],
+    ['gated last', '#clear-choice, #leave-confirm[open]', '#clear-choice'],
+    ['bare dialog smuggled in', '#leave-confirm[open], dialog', 'dialog'],
+    ['newline-separated list, the shape tokens.css ships', '#leave-confirm[open].at-bottom,\n#leave-confirm:not([open])', '#leave-confirm:not([open])'],
+  ]) {
+    const cssBadList = [`${sel} {`, '  display: flex;', '}', '#leave-confirm[open] {', '  max-block-size: 45dvh;', '}'].join('\n');
+    withTempFixture('tokens.css', cssBadList, (text) => {
+      const v = checkTokensCss(text);
+      const hit = v.find((x) => x.startsWith('(a)'));
+      assert.ok(hit, `(a) must flag the ungated compound in "${sel}" (${label})`);
+      assert.ok(hit.includes(`"${culprit}"`), `(a) must name the ungated compound ${culprit}, not the whole list — got: ${hit}`);
+    });
+    console.log(`PASS (a) known-bad fixture (selector list, ${label}): the ungated compound ${culprit} is flagged, not vouched for by its neighbour`);
+  }
+
+  // (a) calibration the other way: tokens.css's REAL list — every compound genuinely [open]-gated —
+  // must stay clean, or the split traded a fail-open for a fail-closed on the shipped file.
+  const cssGoodList = [
+    '#leave-confirm[open].at-bottom,',
+    '#leave-confirm[open].at-top {',
+    '  display: flex;',
+    '}',
+    '#leave-confirm[open] {',
+    '  max-block-size: 45dvh;',
+    '}',
+  ].join('\n');
+  withTempFixture('tokens.css', cssGoodList, (text) => {
+    assert.deepEqual(checkTokensCss(text), [], '(a) a list whose every compound is [open]-gated must stay clean');
+  });
+  console.log('PASS (a) known-good fixture (the real #leave-confirm[open].at-bottom, .at-top list) still passes after the split');
+
+  // (a) and a comma INSIDE :is()/:not() is an argument separator, not a list separator — splitting
+  // there would invent a compound like `.at-top` that no rule targets.
+  const cssGoodNotList = ['#leave-confirm[open]:not(.at-top, .at-bottom) {', '  display: flex;', '}', '#leave-confirm[open] {', '  max-block-size: 45dvh;', '}'].join('\n');
+  withTempFixture('tokens.css', cssGoodNotList, (text) => {
+    assert.deepEqual(checkTokensCss(text), [], '(a) a comma inside :not(...) must not be read as a selector-list separator');
+  });
+  console.log('PASS (a) known-good fixture (#leave-confirm[open]:not(.at-top, .at-bottom)): a comma inside :not() is an argument separator, not a list split');
 
   // (a) known-bad: a bare `dialog` element selector with display:, same hazard for any future <dialog>.
   const cssBadBareDialog = ['dialog {', '  display: flex;', '}'].join('\n');

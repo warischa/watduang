@@ -12,6 +12,7 @@
 //                                                        Rebuilds and restores after each.
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -38,12 +39,26 @@ function manifestGameCount() {
 // legitimately allowed to name itself somewhere else in its own chrome.
 const NAV_BLOCK = /<nav class="game-next"[\s\S]*?<\/nav>/;
 
-function scan() {
-  const want = manifestGameCount() - 1; // GameNav excludes the current page's own game
-  const dirs = fs.readdirSync(distDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+// `root` is a parameter only so the page-count calibration below can point it at an empty temp dir
+// without rebuilding dist/. Every real caller uses the default.
+function scan(root = distDir) {
+  const games = manifestGameCount();
+  const want = games - 1; // GameNav excludes the current page's own game
+  const dirs = fs.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory());
   const problems = [];
+  // ADR-0019: every problem below is per-page, so an EMPTY dist/game/ satisfies all of them
+  // vacuously — measured by moving the six page dirs aside: exit 0, printing "every dist/game/*/
+  // GameNav links every sibling game and never itself" over zero pages. The set is not a guess:
+  // CLAUDE.md pins 1 game = 1 static URL, so the manifest's own length is what dist/game/ must hold.
+  if (dirs.length !== games) {
+    problems.push({
+      page: '(all)',
+      kind: 'page-count',
+      text: `dist/game/: ${dirs.length} game page(s) built, manifest declares ${games} — the scanned set must match the manifest (1 game = 1 static URL), or a per-page scan reports clean over pages that were never built`,
+    });
+  }
   for (const d of dirs) {
-    const html = fs.readFileSync(path.join(distDir, d.name, 'index.html'), 'utf8');
+    const html = fs.readFileSync(path.join(root, d.name, 'index.html'), 'utf8');
     const nav = html.match(NAV_BLOCK);
     if (!nav) {
       problems.push({ page: d.name, kind: 'missing-nav', text: `dist/game/${d.name}/: no <nav class="game-next"> block` });
@@ -59,7 +74,9 @@ function scan() {
       problems.push({ page: d.name, kind: 'count', text: `dist/game/${d.name}/: found ${hrefs.size} sibling /game/*/ links in GameNav, expected ${want}` });
     }
   }
-  return problems;
+  // pageCount is what was actually read, not the manifest length — the success line quotes it, so a
+  // narrowed run is visible in the log rather than inferred from the absence of a failure.
+  return { problems, pageCount: dirs.length };
 }
 
 // The needle both calibrations splice against. A raw string-splice removing the <li>...</li> markup
@@ -94,8 +111,24 @@ function selftest() {
   // baseline: current tree must be green before we can trust a red result from breaking it
   execFileSync('npm', ['run', 'build'], { cwd: repoRoot, stdio: 'inherit' });
   const baseline = scan();
-  if (baseline.length > 0) throw new Error(`selftest needs a green baseline first:\n${render(baseline)}`);
-  console.log('PASS baseline is green');
+  if (baseline.problems.length > 0) throw new Error(`selftest needs a green baseline first:\n${render(baseline.problems)}`);
+  console.log(`PASS baseline is green over ${baseline.pageCount} page(s)`);
+
+  // page-count calibration, no rebuild: an empty dist/game/ used to satisfy every per-page rule
+  // vacuously and print the full-coverage green — measured by moving the six page dirs aside, exit 0.
+  // Proven here against an empty temp dir, so dist/ is never touched by this case.
+  const emptyTmp = fs.mkdtempSync(path.join(os.tmpdir(), 'crawl-check-empty-'));
+  try {
+    const emptied = scan(emptyTmp);
+    if (emptied.pageCount !== 0) throw new Error('page-count calibration setup failed: the re-pointed scan still saw pages');
+    const fired = emptied.problems.filter((p) => p.kind === 'page-count');
+    if (fired.length !== 1) {
+      throw new Error(`calibration FAILED (zero pages built): expected a \`page-count\` problem, got:\n${render(emptied.problems)}`);
+    }
+    console.log(`PASS calibrated red — zero pages built: ${fired[0].text}`);
+  } finally {
+    fs.rmSync(emptyTmp, { recursive: true, force: true });
+  }
 
   try {
     for (const c of CALIBRATIONS) {
@@ -103,7 +136,7 @@ function selftest() {
       if (broken === before) throw new Error(`could not splice the \`shown\` assignment for: ${c.name}`);
       fs.writeFileSync(navPath, broken);
       execFileSync('npm', ['run', 'build'], { cwd: repoRoot, stdio: 'inherit' });
-      const problems = scan();
+      const { problems } = scan();
       const fired = problems.filter((p) => p.kind === c.mustFire);
       if (fired.length === 0) {
         throw new Error(`calibration FAILED (${c.name}): no \`${c.mustFire}\` problem was reported.\n${render(problems)}`);
@@ -118,7 +151,7 @@ function selftest() {
     fs.writeFileSync(navPath, before);
     execFileSync('npm', ['run', 'build'], { cwd: repoRoot, stdio: 'inherit' });
     const restored = scan();
-    if (restored.length > 0) throw new Error(`restore FAILED:\n${render(restored)}`);
+    if (restored.problems.length > 0) throw new Error(`restore FAILED:\n${render(restored.problems)}`);
     console.log('PASS restored to green');
   }
 }
@@ -126,11 +159,13 @@ function selftest() {
 if (process.argv.includes('--selftest')) {
   selftest();
 } else {
-  const problems = scan();
+  const { problems, pageCount } = scan();
   if (problems.length > 0) {
     console.error(problems.map((p) => p.text).join('\n'));
     console.error(`\n${problems.length} GameNav problem(s) across dist/game/*/.`);
     process.exit(1);
   }
-  console.log('OK — every dist/game/*/ GameNav links every sibling game and never itself.');
+  // The count is what was read, not what the manifest claims (ADR-0019: the sentence next to a green
+  // is a claim too). Zero pages can no longer reach this line — page-count fires above.
+  console.log(`OK — all ${pageCount} dist/game/*/ page(s): GameNav links every sibling game and never itself.`);
 }
