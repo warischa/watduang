@@ -8,9 +8,10 @@
 // of the roster key.
 //
 // ponytail: this is a raw source-text scan (brace/regex matching), not a real parser. It cannot
-// distinguish a locked run from the no-lock fallback branch (src/shell/roster.ts:38), which still
-// loses a concurrent add on plain http, on Safari < 15.4, or on an opaque origin (sandboxed
-// iframe, file://) — those all fall through to running `fn()` unlocked. The committed unit tests
+// distinguish a locked run from the no-lock fallback branch (the early-return guard inside
+// src/shell/roster.ts's withLock()), which still loses a concurrent add on plain http, on
+// Safari < 15.4, or on an opaque origin (sandboxed iframe, file://) — those all fall through
+// to running `fn()` unlocked. The committed unit tests
 // all exercise that fallback branch (src/shell/roster.test.mjs asserts the Node runner has no
 // navigator.locks); the only committed coverage of the LOCKED path is a mocked navigator.locks at
 // roster.test.mjs:149. Real two-tab behaviour remains proven only by the manual harness

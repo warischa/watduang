@@ -14,10 +14,10 @@
 // intercept the one stable exit ADR-0015 deliberately exempted — so it fails the same as two.
 //
 // ponytail: this is a raw source scan. It cannot see that a marked link's tap is actually
-// intercepted at runtime — a button calling location.href, or the fail-open `showModal` branch
-// at PlayerSetup.astro:407, passes clean either way. It also cannot prove that "the panel is
+// intercepted at runtime — a button calling location.href, or requestClear's fail-open `showModal`
+// branch, passes clean either way. It also cannot prove that "the panel is
 // collapsed" and "the guard should arm" stay the same statement: both currently read
-// `root.hidden` (set at PlayerSetup.astro:192, read at :400), but if that bit is ever replaced
+// `root.hidden` (set by requestStart, read by requestClear), but if that bit is ever replaced
 // as the live-round flag, this scan has no way to notice the two statements diverged.
 //
 // Both the presence count and the guard-selector check run on comment-stripped text, the same text

@@ -25,13 +25,20 @@
 // Neither strip can hide a live hazard sharing the line; each function says why, and both directions
 // are pinned by selftest.
 //
-// ponytail: SCOPE CEILING — the scanned set is src/games/*.ts, i.e. the game modules. #stage is also
-// reachable from src/pages/game/[id].astro, which holds the element and hands it to mount(); today it
-// only READS stage.dataset.gameId (measured: zero `href`, zero `<a`, no write into #stage), so nothing
-// hides there now. It is deliberately not scanned: it is a page file whose CHROME is required by
-// ADR-0014 to carry an `<a href="/games/">`, so a whole-file scan would ban the very link the ADR
-// mandates. Upgrade path if a stage-writing branch ever lands there: scan only that file's
-// <script> block, not its markup.
+// ponytail: SCOPE CEILING — the globbed set is src/games/*.ts, i.e. the game modules. The element
+// itself is DECLARED IN NEITHER OF THEM: `<div id="stage" data-game-id={game.id}>` is markup in
+// src/layouts/GameLayout.astro, so until gh#68 an `<a href>` typed straight between those tags broke
+// ADR-0014 with every gate green. That file is now checked too, but ONLY between the stage's own open
+// and close tags (STAGE_FILE below) — a whole-file scan is still refused, because GameLayout.astro's
+// CHROME is required by ADR-0014 to carry the crawlable `<a href="/games/">`, so scanning it whole
+// would ban the very link the ADR mandates.
+//   (This ceiling used to name src/pages/game/[id].astro as the file holding the element and carrying
+//   that mandated link. Both halves were false: it declares no #stage and has never had an `href` at
+//   all — measured with git log -S. gh#68.)
+// src/pages/game/[id].astro is deliberately still unscanned: it only RECEIVES the element, reading
+// stage.dataset.gameId and handing it to mount() (measured: zero `href`, zero `<a`, no write into
+// #stage), so nothing hides there now. Upgrade path if a stage-writing branch ever lands there: scan
+// only that file's <script> block, not its markup.
 //
 // --- Ceiling: target-set derivation (gh#46, ADR-0019) ----------------------------------
 // The target set is a flat `fs.readdirSync(src/games/)` filtered to `*.ts`, so a newly added game
@@ -213,6 +220,60 @@ function findViolations(rawText) {
 }
 
 // ---------------------------------------------------------------------------
+// gh#68: the OTHER surface — the #stage element's own declaration, pinned to EMPTY.
+// ---------------------------------------------------------------------------
+// The hazard set here is "static children of #stage in the layout source". It is small, it is ours,
+// and it is currently the empty set — so the assertion is not "no anchors in there", it is "nothing
+// in there at all". The runtime set (what a game appends at mount) is already double-covered: the
+// glob scan above reads every game module, and scripts/no-nav-in-stage-probe.mjs queries
+// stage.querySelectorAll('a[href]') mid-round against the rendered DOM. dist/ is a pure function of
+// this same source line, so a built-HTML check would add a build dependency and guard nothing extra.
+//
+// ponytail: pin-to-EMPTY costs one known false positive — INNOCENT REFORMATTING GOES RED. Splitting
+// `<div id="stage" …></div>` across two lines, or leaving a newline or a comment between the tags,
+// fails this gate without changing a single thing the browser renders. That is one line in one file
+// and the failure message quotes exactly what it found, so the fix is "put the tags back together";
+// accepted deliberately, because the alternative (tolerate whitespace, ban only anchors) reopens the
+// unbounded set — every other way to reach /games/ from inside the stage. Second known edge, same
+// fail-SAFE direction: the open tag is matched on the literal `id="stage"`, so a single-quoted or
+// computed id reads as ZERO stage divs and the gate goes red rather than silently scanning nothing.
+const STAGE_FILE = 'src/layouts/GameLayout.astro';
+const STAGE_OPEN_RE = /<div\b[^>]*\bid="stage"[^>]*>/g;
+
+// Pure: raw layout text -> violation messages. Comments are blanked first (stripComments, the same
+// choke point findViolations reads through) so a `{/* <div id="stage">…*/}` example left behind in
+// prose can neither be counted as a second stage nor stand in for the real one — exactly the
+// commented-out-selector hole scripts/stable-exit-markers-check.mjs pins for its own marker.
+// Blanking preserves length, so offsets taken from the blanked text index the RAW text, and the
+// snippet in the message quotes real source. That also means the emptiness verdict is identical
+// whichever text it slices (all-spaces is not '' either); raw is used only so the message is legible.
+function findStageViolations(rawText) {
+  const text = stripComments(rawText);
+  const opens = text.match(STAGE_OPEN_RE) || [];
+  if (opens.length !== 1) {
+    return [
+      `${STAGE_FILE}: expected exactly one <div id="stage" …>, found ${opens.length}` +
+        (opens.length === 0
+          ? ' — the element this gate reads is gone, renamed, or no longer spelled id="stage", so it would scan nothing (docs/adr/0019)'
+          : ' — a second stage declaration is a second unchecked surface, not a formatting change'),
+    ];
+  }
+  STAGE_OPEN_RE.lastIndex = 0;
+  const open = STAGE_OPEN_RE.exec(text);
+  const innerStart = open.index + open[0].length;
+  const close = text.indexOf('</div>', innerStart);
+  const inner = rawText.slice(innerStart, close === -1 ? rawText.length : close);
+  if (inner !== '') {
+    return [
+      `${STAGE_FILE}: #stage must ship EMPTY — the game module fills it at runtime, and anything ` +
+        `static in there is a tap target a transition can drop under a finger (ADR-0014). Found ` +
+        `between its tags: ${JSON.stringify(inner.length > 160 ? `${inner.slice(0, 160)}…` : inner)}`,
+    ];
+  }
+  return [];
+}
+
+// ---------------------------------------------------------------------------
 // Self-test: a temp fixture, never repo content, so fixing a game can't retune the check.
 // Calibrated both ways — a clean fixture must pass, and each planted pattern must be flagged.
 // ---------------------------------------------------------------------------
@@ -344,6 +405,54 @@ function selftest() {
     fs.rmSync(globTmpDir, { recursive: true, force: true });
   }
 
+  // --- gh#68: #stage's own declaration, pinned to EMPTY. Fixture text, never the real file, so
+  // fixing GameLayout.astro can never retune this. The chrome here is the real thing the layout
+  // ships above the stage — the ADR-0014-MANDATED `<a href="/games/">`, its brace comment (with an
+  // apostrophe in the prose), and the schema.org URL from the frontmatter — because the leg that
+  // matters most is that none of them is a violation. Calibrated both ways below. ---
+  const stageChrome = [
+    "const howToJsonLd = { '@context': 'https://schema.org' };",
+    "{/* The page's only crawlable link to /games/ — ADR-0014 requires it ABOVE the stage. */}",
+    '<p><a href="/games/" data-stable-exit>ดูเกมทั้งหมด</a></p>',
+    '<PlayerSetup min={2} max={10} gameId={game.id} />',
+  ].join('\n');
+  const stageDiv = (inner) => `<div id="stage" data-game-id={game.id}>${inner}</div>`;
+  const stageGood = `${stageChrome}\n${stageDiv('')}\n<p id="write-refused" role="alert" hidden></p>`;
+
+  for (const [label, text] of [
+    ['the real shape: mandated /games/ link in the chrome, empty stage below it', stageGood],
+    // Delete stripComments out of findStageViolations and this one goes red at "found 2".
+    ['a commented-out stage example above the live one', `{/* was: ${stageDiv('<a href="/games/">กลับ</a>')} */}\n${stageGood}`],
+    // Residue of the string-state walk: an unpaired apostrophe stops comment RECOGNITION from
+    // there on, but strings are never blanked, so the live tags stay visible and this stays green.
+    ['an unpaired apostrophe in markup above the stage', `<p>don't</p>\n${stageGood}`],
+  ]) {
+    assert.deepEqual(findStageViolations(text), [], `${label}: must not be a violation`);
+  }
+  console.log('PASS #stage empty-pin, other direction: the ADR-0014-mandated <a href="/games/"> in the chrome, a commented-out stage example and an unpaired apostrophe are all clean');
+
+  // Known-bad: ANY static child, not just a navigation target. The anchor is the ADR-0014 hazard;
+  // the span proves the pin is "empty", not "no anchors"; whitespace proves reformatting is red too.
+  for (const [label, inner] of [
+    ['an anchor', '<a href="/games/">กลับ</a>'],
+    ['a non-anchor element', '<span>x</span>'],
+    ['a comment', '{/* placeholder */}'],
+    ['a newline and indentation only', '\n      '],
+  ]) {
+    const v = findStageViolations(`${stageChrome}\n${stageDiv(inner)}`);
+    assert.equal(v.length, 1, `${label} between the #stage tags must be exactly one violation`);
+    assert.match(v[0], /must ship EMPTY/, `${label}: the message must say the element is pinned to empty`);
+    assert.ok(v[0].includes(JSON.stringify(inner)), `${label}: the message must quote what it found, not just say something is there`);
+  }
+  console.log('PASS #stage empty-pin, known-bad: an anchor, a <span>, a comment and bare whitespace between the tags are each flagged and quoted');
+
+  // Count-exactly-one, both bounds. Zero means the gate would read nothing at all (docs/adr/0019);
+  // two means a second stage surface landed without a decision.
+  assert.match(findStageViolations(stageChrome)[0], /found 0\b/, 'a layout with no #stage at all must fail, not pass by scanning nothing');
+  assert.match(findStageViolations(`${stageGood}\n${stageDiv('')}`)[0], /found 2\b/, 'a second #stage declaration must fail the exactly-one rule');
+  assert.match(findStageViolations(stageGood.replace('id="stage"', "id='stage'"))[0], /found 0\b/, 'a stage the open-tag pattern cannot see must read as zero and go red, never as clean');
+  console.log('PASS #stage empty-pin, exactly-one: zero, two, and a single-quoted id all fail rather than silently scanning nothing');
+
   // --- Guard exit path: main() must actually exit non-zero when the derived set is empty, not
   // just that listTargetFiles() returns [] (the case above only pins the derivation). Spawns the
   // real script as a child process against a directory with zero matching files, so deleting the
@@ -439,9 +548,21 @@ async function main() {
     process.exit(1);
   }
 
-  const { scannedCount, anyFail } = scanTargetFiles(gamesDir, TARGET_FILES);
+  const { scannedCount, anyFail: gamesFail } = scanTargetFiles(gamesDir, TARGET_FILES);
+
+  // gh#68: the layout that DECLARES #stage. Not affected by GAMES_DIR_OVERRIDE — that flag narrows
+  // the game glob, and this surface is a fixed single file, so it is checked on every run.
+  const stageAbs = path.join(repoRoot, STAGE_FILE);
+  if (!fs.existsSync(stageAbs)) {
+    console.error(`no-nav-in-stage-check: ${STAGE_FILE} not found — the file declaring #stage must exist for this gate to check it, and a missing file must not read as clean (docs/adr/0019).`);
+    process.exit(1);
+  }
+  const stageViolations = findStageViolations(fs.readFileSync(stageAbs, 'utf8'));
+  for (const v of stageViolations) console.error(v);
+
+  const anyFail = gamesFail || stageViolations.length > 0;
   if (anyFail) {
-    console.error('\nADR-0014: a game must render no navigation target inside #stage (docs/adr/0014-no-navigation-target-inside-the-stage.md).');
+    console.error('\nADR-0014: no navigation target inside #stage — not appended by a game module at runtime, and not typed into the layout that declares it (docs/adr/0014-no-navigation-target-inside-the-stage.md).');
     process.exit(1);
   }
   const overrideNote = process.env.GAMES_DIR_OVERRIDE ? ' (GAMES_DIR_OVERRIDE active)' : '';
@@ -453,7 +574,9 @@ async function main() {
   // gh#66: gamesDir is always printed (not only when the override is set), so a narrowed run is
   // readable from the resolved directory alone — a fixture path visibly differs from src/games/,
   // rather than a reader having to infer narrowing from the absence of a failure.
-  console.log(`no-nav-in-stage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}`);
+  // gh#68: the stage file is named in the success line too — the two surfaces are checked, so a
+  // green must say both, not just the count of modules (docs/adr/0019).
+  console.log(`no-nav-in-stage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}; ${STAGE_FILE} declares exactly one #stage and it ships empty`);
 }
 
 await main();

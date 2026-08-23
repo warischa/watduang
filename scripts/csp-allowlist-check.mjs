@@ -11,18 +11,21 @@
 // likeliest edit that breaks ads, which is exactly the tripwire ADR-0019 rule 1 rejects. It is gone.
 //
 // This gate parses the header into directives and asserts each recorded (directive, source) pair sits
-// in the directive that GOVERNS it. Ownership: the set of domains AdSense requires is Google-owned
-// and does not converge by prediction, so this bounds the repo-owned thing instead — the pairs that
-// are actually in public/staticwebapp.config.json today.
+// in the directive that GOVERNS it, and separately (gh#67) rejects any directive NAME the pair list
+// does not know about. Ownership: the set of domains AdSense requires is Google-owned and does not
+// converge by prediction, so this bounds the repo-owned things instead — the pairs, and the directive
+// names, that are actually in public/staticwebapp.config.json today.
 //
 // ponytail: the pair list below is a dated snapshot (see PAIRS_AS_OF), not a prediction. Its green
 // means "every source expression this repo shipped on that date is still in its own directive" — it
 // can never mean "the CSP is sufficient for AdSense". Three things it provably does not cover:
 //   1. A domain Google starts requiring after PAIRS_AS_OF is invisible. Ads break, gate stays green.
-//   2. ADDITIONS never go red, by design — a new Google domain, or a new directive, is a superset
-//      check and passes. That also means adding 'unsafe-inline' to script-src passes here (the
-//      inline gate's premise, not this one's, and no ad breaks from it).
-//      Pinned by selftest "ceiling 2".
+//   2. SOURCE additions never go red, by design — a new Google domain added to a directive that
+//      already exists is a superset check and passes. That also means adding 'unsafe-inline' to
+//      script-src passes here (the inline gate's premise, not this one's, and no ad breaks from it).
+//      DIRECTIVE additions left this ceiling on 2026-08-23: main() now rejects any directive name
+//      REQUIRED_PAIRS does not know about, exit 1 (gh#67). Pinned by selftest "ceiling 2" for the
+//      source class that is still invisible, and by "gh#67 known-bad" for the name class that is not.
 //   3. default-src fallback is NOT honoured: a source consolidated into default-src and removed from
 //      script-src reads as red even though browsers would fall back and ads would work. Fail-safe
 //      direction, deliberate — the alternative fails open on the gh#47 edit. Pinned by "ceiling 3".
@@ -61,7 +64,8 @@ const PAIRS_AS_OF = '2026-08-19';
 // a gate that always fires is as useless as one that never does.
 const PAIRS_HASH = 'ccfa695ccf2c8fc72f9f2cff0fd786ec828c3eba1e8a9138008f8ba7b5bdc920';
 // ponytail: PAIRS_HASH reads public/ only, so a dist/-only CSP widening — a stale or hand-edited build
-// artifact — clears both this hash and ceiling 2's addition-blindness. Named rather than closed: dist/ is
+// artifact — clears both this hash and ceiling 2's source-addition blindness (a directive ADDED only in
+// dist/ is caught by the gh#67 name check in main(), which reads the file under test). Named rather than closed: dist/ is
 // a build output, and hashing it here would pin the gate to whatever the last build produced instead of
 // to the source of truth. Upgrade path if it ever matters: verify dist/ is a clean build of public/ in CI
 // before this gate runs, rather than widening what this gate reads.
@@ -183,14 +187,19 @@ function selftest() {
   assert.equal(findMisplacedPairs(noScriptSrc).length, 6, 'dropping script-src entirely must flag all six of its recorded sources');
   console.log('PASS known-bad: a deleted source is flagged with foundIn=[], and dropping script-src flags all 6 of its pairs');
 
-  // --- ceiling 2 pinned: additions never go red. A new Google domain, a new directive, and
-  // 'unsafe-inline' added to script-src all pass. Widen this gate into an exact-set check and this
-  // case fails first, forcing the header ceiling to be rewritten instead of silently drifting. ---
-  const widened = shipped
-    .replace("script-src 'self'", "script-src 'self' 'unsafe-inline' *.some-new-google-thing.com")
-    .concat("; worker-src 'self'");
-  assert.deepEqual(findMisplacedPairs(widened), [], "ceiling 2: additions (a new domain, a new directive, even 'unsafe-inline' on script-src) must stay green — this gate is a subset check, not an exact-set check");
-  console.log("PASS ceiling 2 pinned: a new domain, a new directive and 'unsafe-inline' on script-src all stay green — this gate cannot see what Google adds next");
+  // --- ceiling 2 pinned, re-scoped by gh#67: SOURCE additions never go red. A new Google domain and
+  // 'unsafe-inline', added to a directive that ALREADY EXISTS, both stay green — the pair check is a
+  // subset check per directive, not an exact-set check, so it still cannot see what Google adds next.
+  // The two edit classes this ceiling used to hold together have split: adding a new DIRECTIVE NAME is
+  // now a hard failure in main() (calibrated at run level below), adding a source to an existing
+  // directive is not and is what this case pins. The second assert proves this fixture is in the class
+  // that is still invisible — without it, a green here could be the gh#67 check silently doing the
+  // work. Widen the pair check into an exact-set check and this case fails first, forcing the header
+  // ceiling to be rewritten instead of silently drifting. ---
+  const widened = shipped.replace("script-src 'self'", "script-src 'self' 'unsafe-inline' *.some-new-google-thing.com");
+  assert.deepEqual(findMisplacedPairs(widened), [], "ceiling 2: source additions (a new domain, even 'unsafe-inline' on script-src) must stay green — this gate is a subset check per directive, not an exact-set check");
+  assert.deepEqual([...parseCsp(widened).keys()].filter((d) => !REQUIRED_PAIRS.has(d)), [], 'ceiling 2 scope: this fixture adds no directive NAME, so it is the class gh#67 leaves invisible, not the one gh#67 rejects');
+  console.log("PASS ceiling 2 pinned (re-scoped, gh#67): a new domain and 'unsafe-inline' added to an EXISTING directive stay green and add no directive name — the class this gate still cannot see; adding a new directive name is now red, pinned separately");
 
   // --- ceiling 3 pinned: default-src fallback is not honoured. ---
   // Remove from script-src FIRST, then add to default-src — the other order makes the removal's
@@ -235,6 +244,21 @@ function selftest() {
     assert.ok(underCi.out.includes('refusing the positional config'), 'the refusal must say what it refused and why');
     assert.ok(!underCi.out.includes('pairs recorded as of'), 'the refusal must happen before any read, so no green sentence is printed at all');
     console.log('PASS CI refusal calibrated both ways: same argv, CI unset -> exit 0 naming the narrowed config; CI=true -> exit 1, refused before any read and no green printed');
+
+    // --- gh#67 known-bad, at run level because the check lives in main(): a directive REQUIRED_PAIRS
+    // does not know about is a HARD failure. The `notCi` run above is this case's positive control —
+    // same harness, same argv shape, CI unset, exit 0 on the shipped header — so a red here is the new
+    // check firing, not the fixture or the subprocess. worker-src is gh#67's own example: the pairs
+    // check is asserted blind to it first, so the exit 1 can come from nothing else. ---
+    const unknownCsp = `${shipped}; worker-src 'self'`;
+    assert.deepEqual(findMisplacedPairs(unknownCsp), [], 'gh#67 calibration precondition: every recorded pair still passes with worker-src appended, so the exit 1 below is attributable to the directive-name check alone');
+    const unknownCfg = path.join(tmpDir, 'unknown-directive.json');
+    fs.writeFileSync(unknownCfg, JSON.stringify({ globalHeaders: { 'Content-Security-Policy': unknownCsp } }), 'utf8');
+    const withUnknown = run({ ...process.env, CI: '' }, [self, unknownCfg]);
+    assert.equal(withUnknown.status, 1, 'gh#67: an unknown directive must BLOCK (exit 1), not warn — a warning can be scrolled past and this edit class is the one that kills AdSense silently');
+    assert.match(withUnknown.out, /directive 'worker-src' is not in REQUIRED_PAIRS/, 'the failure must name the unknown directive, not just exit non-zero');
+    assert.ok(!withUnknown.out.includes('pairs recorded as of'), 'the unknown-directive failure must print no green sentence alongside it');
+    console.log("PASS gh#67 known-bad: a config every recorded pair still satisfies, plus `; worker-src 'self'`, exits 1 naming worker-src — pairs check asserted blind, so the block came from the directive-name check");
 
     // --- Entry-point guard, the other direction: merely IMPORTING this module must not run the gate.
     // `node -e` leaves process.argv[1] undefined, which is also the branch that would throw if the
@@ -301,11 +325,57 @@ async function main() {
     process.exit(1);
   }
 
+  // gh#67: reject any directive NAME REQUIRED_PAIRS does not know about. Deliberately here and not
+  // inside findMisplacedPairs: that function iterates REQUIRED_PAIRS and answers "are the pairs I know
+  // about still in their governing directive". This answers the other question — "does the header
+  // contain something I do not know about at all" — which no iteration over REQUIRED_PAIRS can reach.
+  //
+  // Why this BLOCKS while the staleness check below only warns. Three separate rulings, all still in
+  // force; do not collapse them into one another:
+  //   · a misplaced or missing (directive, source) pair -> exit 1, and always has (gh#47).
+  //   · snapshot staleness, i.e. PAIRS_HASH mismatch    -> ::warning:: only. The site owner chose warn
+  //     over fail for that on 2026-08-23 (gh#66); unchanged here.
+  //   · an unknown directive                            -> exit 1. A separate ruling by the same owner
+  //     on the same day (gh#67). This is a NEW decision about a different edit class, not a reversal
+  //     of the warn choice above — staleness stays a warning.
+  //
+  // Why an unknown directive is worth blocking on: adding a directive can only narrow. Whatever it
+  // names is governed by it alone from then on, instead of by the broader rule — or by no rule — that
+  // applied before, so an appended `worker-src 'self'` or `base-uri 'self'` can block AdSense
+  // subresources while every recorded pair still passes and this gate prints its usual green.
+  // Narrowly, on the mechanism: absent, worker-src and child-src fall back (worker-src via child-src
+  // to script-src, child-src to default-src); base-uri has NO default-src fallback at all and its
+  // absence simply means unrestricted. Different routes, same outcome — writing the directive removes
+  // whatever AdSense was getting from the broader rule.
+  //
+  // ponytail: this guards directive NAMES in our own config — a small set we own and can enumerate,
+  // which is why it converges. It deliberately does not validate SOURCES: which domains Google
+  // requires is vendor-owned and unbounded, and stays ceilinged as ceiling 1 in the header comment.
+  // Upgrade path if a legitimate new directive ever lands: add it to REQUIRED_PAIRS with the sources
+  // AdSense needs under it — that is the same commit that must bump PAIRS_AS_OF and PAIRS_HASH.
+  const unknown = [...parseCsp(csp).keys()].filter((name) => !REQUIRED_PAIRS.has(name));
+  if (unknown.length) {
+    for (const name of unknown) {
+      console.error(
+        `::error::${rel}: CSP directive '${name}' is not in REQUIRED_PAIRS — a directive this gate does not know ` +
+        'about narrows what governs its own resource type, so it can block an AdSense subresource while every ' +
+        'recorded (directive, source) pair still passes and this gate stays green',
+      );
+    }
+    console.error(
+      `\n${unknown.length} unknown CSP directive(s) against the ${PAIRS_AS_OF} snapshot: ${unknown.join(', ')}. ` +
+      'CLAUDE.md: the CSP must let AdSense through or ads silently fail to render — a blocked subresource shows an ' +
+      'empty slot, not an error. If the directive is deliberate, add it to REQUIRED_PAIRS with the sources AdSense ' +
+      'needs under it and bump PAIRS_AS_OF and PAIRS_HASH in this script, in the same commit as the config change.',
+    );
+    process.exit(1);
+  }
+
   // gh#66: PAIRS_HASH freshness. Always reads public/staticwebapp.config.json — the source
   // REQUIRED_PAIRS was derived from — regardless of which file `rel` checked above, so a CSP edit
   // is caught even on a run against dist/ that never touches public/ otherwise. A mismatch means
-  // ceiling 2 (additions never fail the pairs check above) may have let a real CSP change through
-  // unnoticed.
+  // ceiling 2 (source additions never fail the pairs check above; directive-name additions now fail
+  // the gh#67 check) may have let a real CSP change through unnoticed.
   //
   // ponytail: WARNS, it does not fail. The site owner chose warn over fail on 2026-08-23 so that a
   // CSP edit is not blocked on bumping three constants in the same commit (gh#66). The known cost is
@@ -334,7 +404,8 @@ async function main() {
   const pairCount = [...REQUIRED_PAIRS.values()].reduce((n, s) => n + s.length, 0);
   console.log(
     `csp-allowlist-check: ${rel} — all ${pairCount} (directive, source) pairs recorded as of ${PAIRS_AS_OF} are present ` +
-    'in their governing directive. Does NOT check that the allowlist is sufficient for AdSense (see ponytail header).',
+    `in their governing directive, and the header carries no directive outside those ${REQUIRED_PAIRS.size} names (gh#67). ` +
+    'Does NOT check that the allowlist is sufficient for AdSense (see ponytail header).',
   );
 }
 

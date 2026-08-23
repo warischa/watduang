@@ -17,8 +17,10 @@
 // occupies the first contact's coordinate. A green run here means "every render*() that builds a
 // button also calls armAllButtons(stage" — never "a ghost tap is actually suppressed".
 //
-// Secondary ceiling: function bodies are extracted by counting braces from `function render*(...) {`
-// to its matching `}` — a raw-text scan like no-nav-in-stage-check.mjs's, not an AST walk. It is
+// Secondary ceiling: function bodies are extracted by counting braces from each RENDER_HEADER_RE
+// match (the declaration form `[export [default]] [async] function renderX(...) {`, or the
+// assignment form `[export] const|let|var renderX = [async] (...) =>|function(...) {`) to its
+// matching `}` — a raw-text scan like no-nav-in-stage-check.mjs's, not an AST walk. It is
 // fooled by an unbalanced `{` or `}` inside a string/template literal (none exist in these files
 // today) and it only recognises this codebase's own idiom for a button: `el('button', ...)` /
 // `el("button", ...)` or `createElement('button')`. A button built from a variable tag name escapes
