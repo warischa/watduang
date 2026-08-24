@@ -129,15 +129,31 @@ function stripComments(text) {
  *  would stay true; re-derive it with a per-file backtick-depth walk over this gate's scan set (a
  *  grep cannot see it). Trigger to widen: the first hit. Same advice — that is a real state walk.
  *
- *  ponytail: KNOWN FALSE-REDS — this reds on three harmless shapes, none present in the scan set
- *  today: a quote-character constant (`const q = '"';`) and an escaped quote (`"3\" x"`) both flip
- *  the parity count, and an HTML comment holding a URL (`<!-- see https://x -->`) is stripped by
- *  neither stripComments() nor this detector while a `:` precedes the `//`. Cost of each is one
- *  annoyed commit: the failure message names the file, the line and the fix. Accepted deliberately —
- *  a pin that fails closed on an unowned set is the ADR-0019 doctrine, and the alternative is a
- *  detector that fails open on the hazard it was built for. Trigger to revisit: any of the three
- *  shapes landing in this gate's scan set. Upgrade path is the same real string-state walk named
- *  above — do NOT add a per-shape exemption, that grows the heuristic in the fail-open direction. */
+ *  ponytail: KNOWN FALSE-REDS — TWO shapes, neither in the scan set today: a quote-character
+ *  constant (`const q = '"';`) and an escaped quote (`"3\" x"`) both flip the parity count.
+ *
+ *  A `//` inside an HTML comment is NOT on this list, though it looks like it belongs. Measured:
+ *  `<!-- ref: https://x --> <a data-stable-exit href="/games/">` strips to `<!-- ref: https:` —
+ *  stripComments() blanks to end of line from inside the HTML comment and eats the real attribute
+ *  sharing that line. The red is correct. Whether it is a hazard depends on what follows on the
+ *  line, which the detector cannot know, so it flags the opener.
+ *
+ *  Cost of a false red is NOT just one annoyed commit. CI runs `--selftest && <the real scan>`, so
+ *  a red here also short-circuits the scan — the gate does not merely complain, it does not run.
+ *  That is the same `&&` trap ADR-0030 records, and it is why this stays a pin over a set that is
+ *  measured rather than an assertion that could red on ordinary content.
+ *
+ *  A third red comes from a different mechanism, not from parity: the zero-openers control. If this
+ *  gate's scan set ever legitimately carries no `//` at all — every comment converted to block form —
+ *  the control fires, because a detector returning nothing and a genuinely clean set are the same
+ *  output. That is the control working as designed, and it is why it is not softened.
+ *
+ *  Accepted deliberately: a pin that fails closed on an unowned set is the ADR-0019 doctrine, and
+ *  the alternative is a detector that fails open on the hazard it was built for. Trigger to revisit:
+ *  either shape landing in this gate's scan set, OR an owner ruling that a precondition violation
+ *  should warn rather than fail — that second one moves the pin out from behind the `&&` and is a
+ *  different change from widening the detector. Upgrade path is the real string-state walk named
+ *  above; do NOT add a per-shape exemption, which grows the heuristic in the fail-open direction. */
 function findLineCommentOpeners(text) {
   const src = text.replace(/\{\/\*[\s\S]*?\*\/\}/g, blank).replace(/\/\*[\s\S]*?\*\//g, blank);
   const found = [];
