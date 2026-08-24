@@ -133,6 +133,17 @@ branch:
    path), so that if the gate turns out to be dead, the green commit deploys something harmless.
 4. Read both conclusions from the workflow-scoped runs endpoint above, then delete the branch local and
    remote.
+5. **Build the second leg by editing the file back, never by `git revert` into `git commit --amend`.**
+   A revert that produces no commit leaves `--amend` pointing at the FIRST leg, which it then rewrites
+   in place: the result is a commit whose message says one thing and whose tree is the other leg,
+   parented at the branch point. On 2026-08-24 only the non-fast-forward push rejection caught this,
+   and `--force` would have destroyed the first leg's run. Before pushing leg two, assert the shape:
+   `git log --oneline -2` shows leg two parented on leg one, and the file carrying the variable diffs
+   against the base as the label claims — empty for a restore leg, non-empty for a break leg.
+6. **When both legs exit 0 by design, the conclusion is not the measurement.** A calibration whose
+   signal is an annotation rather than a status has no red to look at, so a mislabelled leg reads as a
+   confirmation. Read annotations from the check-runs annotations endpoint, not the run summary, and
+   name in the evidence which leg each run proved.
 
 Red on the broken head and green on the restored head proves the yaml actually runs and actually blocks
 — which local calibration cannot, because a `|| true`, a bad indent, or a devDependency that never
