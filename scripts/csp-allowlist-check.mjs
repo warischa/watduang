@@ -41,7 +41,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -138,6 +138,15 @@ function report(violations, label) {
 // gate's verdict in the same run (gh#38).
 // ---------------------------------------------------------------------------
 function selftest() {
+  // `shipped` is a hand-typed fixture ON PURPOSE, and pointing it at the live
+  // public/staticwebapp.config.json is a change that has already been tried and reverted (gh#72).
+  // Two things break. (1) The assert below becomes a hard failure on any real CSP edit, reversing
+  // the 2026-08-23 ruling that a stale PAIRS_HASH warns rather than fails — and since CI runs
+  // `--selftest && <the real scan>`, the && also short-circuits the scan that was supposed to warn.
+  // (2) Every fixture below is built by .replace() on this string, so a live read makes each anchor
+  // a moving target: the replace silently no-ops and the fixture stops testing what its name says.
+  // A fixture's job is to be a stable known input, not to mirror production. The live-vs-snapshot
+  // comparison belongs to main()'s warn block, which gh#71's spawned cases calibrate end to end.
   const shipped =
     "default-src 'self'; script-src 'self' *.googlesyndication.com *.doubleclick.net *.google.com " +
     "*.adtrafficquality.google *.googleadservices.com; style-src 'self' 'unsafe-inline'; frame-src 'self' " +
@@ -229,12 +238,13 @@ function selftest() {
     // touch dist/ (the CI run exits before any read, the non-CI run checks the fixture). Same rule and
     // same message shape as scripts/csp-inline-check.mjs — one dialect across both CSP gates. ---
     const self = fileURLToPath(import.meta.url);
+    // spawnSync, not execFileSync: execFileSync's return value on a non-throwing (exit 0) run is
+    // stdout ONLY — stderr is piped but silently discarded, proven by probe. Every existing case below
+    // happens to assert on stdout (console.log), so that gap was invisible until the PAIRS_HASH warn
+    // case, which asserts a ::warning:: that main() writes with console.error (stderr) on an exit-0 run.
     const run = (env, args) => {
-      try {
-        return { status: 0, out: execFileSync(process.execPath, args, { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }) };
-      } catch (e) {
-        return { status: e.status, out: `${e.stdout || ''}${e.stderr || ''}` };
-      }
+      const r = spawnSync(process.execPath, args, { env, encoding: 'utf8' });
+      return { status: r.status, out: `${r.stdout || ''}${r.stderr || ''}` };
     };
     const notCi = run({ ...process.env, CI: '' }, [self, withHeader]);
     assert.equal(notCi.status, 0, 'known-good: a positional config path is allowed when CI is unset');
@@ -284,6 +294,51 @@ function selftest() {
     assert.equal(viaLink.status, 1, 'through a symlinked path the gate must still RUN and flag the misplaced pair — exit 0 here means main() was skipped and nothing was checked at all');
     assert.match(viaLink.out, /script-src is missing \*\.googlesyndication\.com/, 'the symlinked run must produce the real violation, not just a non-zero exit');
     console.log('PASS symlinked checkout: invoked through a symlinked scripts/ dir the gate still ran and flagged the gh#47 misplaced pair — both sides of the entry-point compare are realpath()d');
+
+    // --- gh#71: the PAIRS_HASH warn block (main(), lines ~387-400) driven end to end as a real child
+    // process. Every assertion above this point stops at the pure hashCsp() helper — the wiring
+    // existsSync -> readCsp -> ::warning:: annotation was never actually run. repoRoot is derived from
+    // import.meta.url (can't be redirected with cwd) and the script realpath-guards symlinks, so the
+    // only honest fixture is the script's own bytes in their own tree: copy scripts/csp-allowlist-check.mjs
+    // next to a temp public/staticwebapp.config.json and spawn the copy. Bytes copied at runtime cannot
+    // desync from the shipped file.
+    const hashTreeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'csp-allowlist-check-hash-'));
+    try {
+      const hashScriptsDir = path.join(hashTreeDir, 'scripts');
+      const hashPublicDir = path.join(hashTreeDir, 'public');
+      fs.mkdirSync(hashScriptsDir);
+      fs.mkdirSync(hashPublicDir);
+      const hashScript = path.join(hashScriptsDir, path.basename(self));
+      fs.copyFileSync(self, hashScript);
+      const hashConfig = path.join(hashPublicDir, 'staticwebapp.config.json');
+
+      // --- STALE first (this is the FRESH leg's positive control, not a case on its own): the temp
+      // config's CSP is `hashDrifted` — the same addition-only fixture proven above (ceiling 2, and the
+      // PAIRS_HASH known-bad case) to pass findMisplacedPairs while changing the hash, so this run
+      // reaches the warn block rather than exiting earlier for an unrelated reason. Passed positionally
+      // (CI unset, the established local-convenience path) AND at the exact repoRoot-relative spot the
+      // warn block re-reads independently — one fixture drives both reads, so they cannot desync. ---
+      fs.writeFileSync(hashConfig, JSON.stringify({ globalHeaders: { 'Content-Security-Policy': hashDrifted } }), 'utf8');
+      const staleRun = run({ ...process.env, CI: '' }, [hashScript, hashConfig]);
+      assert.equal(staleRun.status, 0, 'a stale PAIRS_HASH snapshot warns, it does not fail the build (gh#66)');
+      assert.match(
+        staleRun.out,
+        /::warning file=public\/staticwebapp\.config\.json::csp-allowlist-check: public\/staticwebapp\.config\.json's Content-Security-Policy no longer matches PAIRS_HASH/,
+        'a stale snapshot must emit the real ::warning file= annotation string on stderr — an exit-code-only check cannot tell warn-fired from warn-never-ran (gh#71)',
+      );
+      console.log('PASS PAIRS_HASH warn block, stale (end to end, spawned): a temp public/staticwebapp.config.json hashing differently from PAIRS_HASH gets the real ::warning file= annotation');
+
+      // --- FRESH second: the temp config hashes to PAIRS_HASH (it IS `shipped`, already asserted equal
+      // to PAIRS_HASH above). The stale run above is this leg's positive control — without it, "no
+      // warning" here would pass identically whether the wiring fires or is dead. ---
+      fs.writeFileSync(hashConfig, JSON.stringify({ globalHeaders: { 'Content-Security-Policy': shipped } }), 'utf8');
+      const freshRun = run({ ...process.env, CI: '' }, [hashScript, hashConfig]);
+      assert.equal(freshRun.status, 0, 'a fresh PAIRS_HASH snapshot must not fail the build');
+      assert.ok(!freshRun.out.includes('::warning file='), 'a fresh snapshot must emit no ::warning:: annotation at all');
+      console.log('PASS PAIRS_HASH warn block, fresh (end to end, spawned): a temp config hashing to the committed PAIRS_HASH gets no ::warning:: annotation, calibrated against the stale run above');
+    } finally {
+      fs.rmSync(hashTreeDir, { recursive: true, force: true });
+    }
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true }); // ponytail: hermetic — no selftest path touches dist/ or the working tree
   }
