@@ -148,10 +148,15 @@ const blank = (m) => m.replace(/[^\n]/g, ' ');
  *  A quote-bearing literal landing there reds CI, and whoever it stops reads this paragraph. That pin
  *  deliberately EXCLUDES STAGE_FILE, which this walk is also fed: markup reads as a regex literal to
  *  that detector, so pinning the layout would red CI on valid HTML. The layout is covered instead by
- *  the exactly-one #stage count, which fails on a walk that loses the div rather than passing quietly.
+ *  the exactly-one #stage count. findStageViolations() also slices `inner` out of rawText, not out of
+ *  the stripped text, so the empty-pin's CONTENT check cannot be fooled by a desync at all — only the
+ *  tag offsets come from stripped text, and a desync that moves them reads as `found 0` and fails.
  *  The literal COUNT is deliberately not written down here — the selftest prints it, so it cannot
- *  rot. Upgrade path when that day comes: skip regex literals in this walk too, reusing the
- *  previous-significant-token test findRegexLiterals() already carries. */
+ *  rot. Upgrade path when that day comes: skip regex literals in this walk too — but NOT by wiring
+ *  findRegexLiterals() in as it stands. Measured, not assumed: that detector reads the `</a></p>` of
+ *  GameLayout.astro's ADR-0014 chrome link as a regex literal, so reusing it here would make this walk
+ *  skip live markup in the one file gh#68 widened this gate to reach — converging would open the hole
+ *  it was meant to close. Teach the detector to stop at markup FIRST, then reuse it here. */
 function stripComments(text) {
   const out = [...text];
   let i = 0;
@@ -197,7 +202,10 @@ const EXPR_KEYWORD_RE = /\b(?:return|typeof|instanceof|in|of|new|delete|void|thr
  *  after `)` or `]` (`if (x) /re/.test(y)`) reads as division and is MISSED, and so is one spanning a
  *  newline. Neither shape exists in the pinned set today and neither is an idiom this codebase writes;
  *  a miss costs the pin, not the gate itself. Over-approximating is the deliberate direction — a false
- *  hit reds CI and gets read by a human, a miss is silent. Both directions are pinned by selftest. */
+ *  hit reds CI and gets read by a human, a miss is silent. Both directions are pinned by selftest.
+ *  Trigger to widen: either shape landing in a scanned module. Widening means giving the token test a
+ *  statement-vs-expression distinction — the same work the stripComments() upgrade path needs, so do
+ *  both in one go rather than growing this heuristic on its own. */
 function findRegexLiterals(text) {
   const found = [];
   let sig = ''; // significant text so far: comments dropped, each string collapsed to one word char

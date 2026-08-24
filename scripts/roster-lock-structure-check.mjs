@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Static regression tripwire standing in for scripts/roster-lock-two-tab-race.mjs (backs the
 // roster/checkpoint work and ADR-0010, docs/adr/0018-...) — see that harness's own header
-// (:8-12): it needs BOTH a fixed and an unfixed build to prove anything, and CI has no
+// (its "Needs BOTH a fixed and an unfixed build" paragraph): it needs BOTH a fixed and an unfixed
+// build to prove anything, and CI has no
 // unfixed-build arm, so wiring it into CI would produce a number that means nothing. This script
 // checks the structural property the fix rests on instead: the re-read sits INSIDE the lock's
 // critical section, the critical section stays synchronous, and roster.ts stays the sole writer
@@ -14,7 +15,8 @@
 // to running `fn()` unlocked. The committed unit tests
 // all exercise that fallback branch (src/shell/roster.test.mjs asserts the Node runner has no
 // navigator.locks); the only committed coverage of the LOCKED path is a mocked navigator.locks at
-// roster.test.mjs:149. Real two-tab behaviour remains proven only by the manual harness
+// the test named "#data-loss the re-read is inside the critical section — a write landing before the
+// grant is not clobbered". Real two-tab behaviour remains proven only by the manual harness
 // (scripts/roster-lock-two-tab-race.mjs), run by hand against a real build.
 //
 // The sole-writer scan reads the key as a literal in any of the three JS quote characters, backticks
