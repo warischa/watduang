@@ -140,9 +140,18 @@ const blank = (m) => m.replace(/[^\n]/g, ' ');
  *  this gate must keep looking.
  *
  *  ponytail: a regex literal containing an unbalanced quote (`/['"]/`) would desync the string state.
- *  Measured: the four regex literals in src/games/*.ts today contain no quote character. Upgrade path
- *  if one ever lands: skip regex literals too, which needs the previous significant token to tell a
- *  literal from division. */
+ *  The walk enters string mode at that quote and resumes MID-STRING, where a `/*` sitting inside a
+ *  string literal opens a false block comment and blanks live code up to the next `*\/`. That is
+ *  fail-OPEN: a real anchor can be blanked out of the scan. Not fixed here, because telling a literal
+ *  from division needs the previous significant token. The precondition is PINNED instead —
+ *  findRegexLiterals() below, plus the selftest case that runs it over the scanned game modules.
+ *  A quote-bearing literal landing there reds CI, and whoever it stops reads this paragraph. That pin
+ *  deliberately EXCLUDES STAGE_FILE, which this walk is also fed: markup reads as a regex literal to
+ *  that detector, so pinning the layout would red CI on valid HTML. The layout is covered instead by
+ *  the exactly-one #stage count, which fails on a walk that loses the div rather than passing quietly.
+ *  The literal COUNT is deliberately not written down here — the selftest prints it, so it cannot
+ *  rot. Upgrade path when that day comes: skip regex literals in this walk too, reusing the
+ *  previous-significant-token test findRegexLiterals() already carries. */
 function stripComments(text) {
   const out = [...text];
   let i = 0;
@@ -170,6 +179,78 @@ function stripComments(text) {
   }
   return out.join('');
 }
+
+// Expression-position keywords: they read as word characters, so the "ends an expression" test in
+// findRegexLiterals() would call `return /re/` a division without them.
+const EXPR_KEYWORD_RE = /\b(?:return|typeof|instanceof|in|of|new|delete|void|throw|do|else|case|yield|await)$/;
+
+/** Every regex literal in `text`, by the classic previous-significant-token heuristic: a `/` opens a
+ *  literal unless the token before it can END an expression (a word char, `)`, `]`, or a string —
+ *  with the keyword exceptions above, which read as word chars but are expression position).
+ *  Exists only to pin stripComments()'s precondition; see that function's header for the hazard.
+ *
+ *  Why sharing the same comment/string walk is not circular: ONLY a quote-bearing regex literal can
+ *  desync that walk, so the walk is still in sync when it reaches the FIRST one. Finding that first
+ *  one is all the pin needs — whatever the walk reports after it is already the failure being pinned.
+ *
+ *  ponytail: DISCLOSED CEILING — what this does NOT cover, stated so a green is not over-read: a literal in statement position
+ *  after `)` or `]` (`if (x) /re/.test(y)`) reads as division and is MISSED, and so is one spanning a
+ *  newline. Neither shape exists in the pinned set today and neither is an idiom this codebase writes;
+ *  a miss costs the pin, not the gate itself. Over-approximating is the deliberate direction — a false
+ *  hit reds CI and gets read by a human, a miss is silent. Both directions are pinned by selftest. */
+function findRegexLiterals(text) {
+  const found = [];
+  let sig = ''; // significant text so far: comments dropped, each string collapsed to one word char
+  let i = 0;
+  while (i < text.length) {
+    const two = text.slice(i, i + 2);
+    if (two === '//') {
+      const nl = text.indexOf('\n', i);
+      i = nl === -1 ? text.length : nl;
+      continue;
+    }
+    if (two === '/*') {
+      const close = text.indexOf('*/', i + 2);
+      i = close === -1 ? text.length : close + 2;
+      continue;
+    }
+    const c = text[i];
+    if (c === '"' || c === "'" || c === '`') {
+      i++;
+      while (i < text.length && text[i] !== c) i += text[i] === '\\' ? 2 : 1;
+      i++;
+      sig += 'x'; // a string is a VALUE: the next `/` after it is division, never a literal
+      continue;
+    }
+    if (c === '/') {
+      const tail = sig.replace(/\s+$/, '');
+      const endsExpression = /[\w$)\]]$/.test(tail) && !EXPR_KEYWORD_RE.test(tail);
+      if (!endsExpression) {
+        let j = i + 1;
+        let inClass = false;
+        while (j < text.length && text[j] !== '\n') {
+          const d = text[j];
+          if (d === '\\') { j += 2; continue; }
+          if (d === '[') inClass = true;
+          else if (d === ']') inClass = false;
+          else if (d === '/' && !inClass) break;
+          j++;
+        }
+        if (text[j] === '/') {
+          found.push(text.slice(i, j + 1));
+          i = j + 1;
+          sig += 'x';
+          continue;
+        }
+      }
+    }
+    sig += c;
+    i++;
+  }
+  return found;
+}
+
+const carriesQuote = (literal) => /['"`]/.test(literal);
 
 const TYPE_DECL_RE = /^(?:export\s+)?(?:declare\s+)?(?:interface\s+\w+|type\s+\w+[^\n=]*=)[^{;\n]*\{/gm;
 
@@ -518,6 +599,79 @@ function selftest() {
   } finally {
     fs.rmSync(overrideNoteTmpDir, { recursive: true, force: true });
   }
+
+  // --- stripComments() precondition (see that function's header): NO regex literal in ANY file this
+  // script feeds that walk may carry a quote. A quote-bearing literal desyncs the string state, and
+  // the desync can blank live code out of the scan — fail-OPEN, the class ADR-0019 exists for. The
+  // pinned set is the set main() actually reads: the scanned game modules PLUS STAGE_FILE, because
+  // findStageViolations() calls stripComments() too — the hazard belongs to the walk, not to one of
+  // its callers. src/games is resolved from repoRoot, NOT from gamesDir, so GAMES_DIR_OVERRIDE
+  // cannot narrow what this pin covers. ---
+
+  // Calibration, FIRING direction: the detector must actually find a quote-bearing literal in each
+  // position this codebase could write one. Without this the pin below is a guard that cannot fail.
+  for (const [label, fixture] of [
+    ['character class', "const RE = /['\"]/;"],
+    ['plain literal', "const RE = /it's/;"],
+    ['after an arrow', "const f = (s) => /\"/.test(s);"],
+    ['after return', "function f() { return /'/; }"],
+  ]) {
+    const hits = findRegexLiterals(fixture).filter(carriesQuote);
+    assert.equal(hits.length, 1, `${label}: a quote-bearing regex literal must be found, else the pin below cannot fail`);
+  }
+  console.log('PASS regex-literal detector, firing direction: a quote-bearing literal is found in a character class, a plain literal, after `=>` and after `return`');
+
+  // Calibration, OTHER direction: the shapes that look like a quote-bearing literal but are not.
+  // Any of these red here would make the pin a false alarm on a tree that is fine.
+  for (const [label, fixture] of [
+    ['division by an identifier', 'const half = total / count;'],
+    ['division after a call', 'const r = size() / 2;'],
+    ['a URL inside a string', "const u = 'https://watduang.com/games/';"],
+    ['a line comment holding slashes and quotes', "// see `!../../games/_*.ts` — the game's own glob"],
+    ['a block comment holding slashes and quotes', "/* a path /x/y/ and an apostrophe don't */"],
+    ['a quote-free literal', "const t = raw.replace(/\\s+/g, ' ');"],
+  ]) {
+    assert.deepEqual(findRegexLiterals(fixture).filter(carriesQuote), [], `${label}: must not read as a quote-bearing regex literal`);
+  }
+  console.log('PASS regex-literal detector, other direction: division, a URL in a string, slashes and apostrophes inside comments, and a quote-free literal are all clean');
+
+  // The pin itself, over the REAL tree. Scope is the .ts game modules ONLY — NOT STAGE_FILE, even
+  // though findStageViolations() feeds that file to the same walk. Measured, not assumed: this
+  // detector reads the `</a></p>` in markup as a regex literal (asserted just below), and across the
+  // 14 .astro files in src/ that shape produced 9 pseudo-literals. All 9 are quote-free today by
+  // luck, not by design: any `class="x"` landing between two `</` sequences makes one quote-bearing
+  // and reds CI on valid HTML. The layout's own desync path is guarded instead by the exactly-one
+  // #stage count above — a walk that loses the stage div reads `found 0` and fails, it does not pass
+  // quietly. Add STAGE_FILE back here only after teaching this detector to skip markup.
+  assert.ok(
+    findRegexLiterals('<p>ping</a></p>').length > 0,
+    'markup must still read as a pseudo-literal here — if it stops, re-examine whether STAGE_FILE belongs back in the pinned set',
+  );
+
+  // Two things must hold, and the second is the positive control: a detector returning nothing looks
+  // exactly like a clean tree (docs/adr/0019).
+  const pinnedGames = listTargetFiles(path.join(repoRoot, 'src/games'));
+  assert.ok(pinnedGames.length > 0, 'the pin must resolve the real src/games/ modules, never an empty directory');
+  let literalCount = 0;
+  for (const name of pinnedGames) {
+    for (const literal of findRegexLiterals(fs.readFileSync(path.join(repoRoot, 'src/games', name), 'utf8'))) {
+      literalCount++;
+      assert.ok(
+        !carriesQuote(literal),
+        `src/games/${name}: the regex literal ${literal} carries a quote character. It desyncs the ` +
+          'string walk in stripComments(), and that desync can blank live code out of this scan, so a ' +
+          'hazard would go unreported. Either rewrite the quote as an escape (\\x27 / \\x22), or take ' +
+          'the upgrade path in the stripComments() header and teach that walk to skip regex literals.',
+      );
+    }
+  }
+  assert.ok(
+    literalCount > 0,
+    'found zero regex literals across the pinned modules — the detector reported nothing, which is not ' +
+      'the same as no quote-bearing literal existing (docs/adr/0019). Check findRegexLiterals() before ' +
+      'trusting this pin.',
+  );
+  console.log(`PASS stripComments precondition: ${literalCount} regex literal(s) across ${pinnedGames.length} pinned module(s) in src/games/, none carrying a quote (STAGE_FILE excluded — markup reads as a literal here)`);
 }
 
 // ---------------------------------------------------------------------------
