@@ -65,10 +65,13 @@
 //      gate reads. Not a false green about CSP, though: a handler attached from an external
 //      'self' script is not CSP-blocked, so the *ad* failure mode this gate exists for cannot hide
 //      there. What can hide is an innerHTML assignment injecting an onclick at runtime.
-//      Pinned by selftest "ceiling 1". Markup that exists only as TEXT — inside a quoted attribute
-//      value, a text node, or a JSON-LD string — is the same case and is deliberately NOT flagged:
-//      it executes nothing until something injects it, and flagging it reds the build on correct
-//      pages (that is exactly what the pre-tokenizer needle did).
+//      Pinned by selftest "ceiling 1". Markup that exists only as TEXT is the same case and is
+//      deliberately NOT flagged: inside a quoted attribute value, inside an ENTITY-ESCAPED text node
+//      (`&lt;button onclick=…`), and inside a raw-text element body such as a JSON-LD block, which
+//      stripRawTextBodies() blanks for exactly this reason. It executes nothing until something
+//      injects it, and flagging it reds the build on correct pages (that is what the pre-tokenizer
+//      needle did). RAW markup in flow content is NOT this case and IS flagged: `<p>x <button
+//      onclick="y()">` is a real element with a live handler. Both legs measured, both pinned.
 //   2. EXOTIC EMBEDS are out of scope. <object data=…>, <embed>, <iframe src="data:…">, <base href>
 //      and MathML/SVG event attributes that do not start with `on` are not matched. The set of ways
 //      markup can start an execution context is spec-owned and does not converge, so this gate
@@ -165,6 +168,31 @@ const blank = (m) => m.replace(/[^\n]/g, ' ');
  *  positive. No quote-state tracking: ADR-0019 records that as rejected, and it is not needed here. */
 export const stripHtmlComments = (html) => html.replace(/<!--(?:>|->|[\s\S]*?(?:--!?>|$))/g, blank);
 
+/** Blanks the BODY of raw-text and escapable-raw-text elements, preserving every offset and line
+ *  number. Inside <script>, <style>, <textarea> and <title> a `<` does NOT open a tag — the HTML
+ *  tokenizer switches to a raw-text state and only `</tagname` gets it back out. tagAttributes()
+ *  below is that tokenizer's attribute loop and nothing more, so without this it reads
+ *  `{"n":"<button onclick=…"}` inside a JSON-LD block as a live handler attribute. Measured against
+ *  the pre-fix build: that returned a handler-attribute finding and would red a page that executes
+ *  nothing — which is exactly what the ponytail header at the top of this file already claimed was
+ *  NOT flagged. The header was wrong; this makes it true.
+ *
+ *  It cannot blind the inline-script check: that check reads the OPEN TAG only (SCRIPT_TAG_RE plus
+ *  src/type) and never the body. Attributes on the raw-text element's own tag survive too, because
+ *  only the body is blanked — `<script type="application/ld+json" onload="x()">` still flags onload.
+ *  An element with no closing tag does not match at all, so its body stays SCANNED rather than
+ *  blanked: the fail-safe direction. All four legs pinned by selftest.
+ *
+ *  ponytail: the open tag is bounded by `[^>]*>`, so a `>` inside one of ITS OWN quoted attribute
+ *  values would end the tag early and blank a few characters more than it should. Same residue class
+ *  the tagAttributes() header already discloses for an unclosed quote, and dist/ is generated markup.
+ *  Trigger to fix: a raw-text tag ever carrying a `>` inside an attribute value — then bound the open
+ *  tag with the quote-aware scan tagAttributes() already implements rather than with `[^>]*`. */
+const RAW_TEXT_BODY_RE = /(<(script|style|textarea|title)\b[^>]*>)([\s\S]*?)(<\/\2)/gi;
+const stripRawTextBodies = (html) =>
+  html.replace(RAW_TEXT_BODY_RE, (_m, open, _tag, body, close) => open + blank(body) + close);
+
+
 const lineOf = (text, index) => text.slice(0, index).split('\n').length;
 
 const NAME_END = /[\s/>=]/;
@@ -245,7 +273,9 @@ export function findInlineHazards(rawHtml) {
     });
   }
 
-  for (const { name, value, index, hasValue } of tagAttributes(html)) {
+  // Raw-text bodies blanked for the ATTRIBUTE leg only — the inline-script leg above reads the
+  // un-blanked text, and offsets are preserved, so lineOf(html, index) still resolves correctly.
+  for (const { name, value, index, hasValue } of tagAttributes(stripRawTextBodies(html))) {
     // A valueless `<button onclick>` / `<iframe srcdoc>` executes nothing and navigates nowhere —
     // same `=`-required shape the three needles this replaced always had.
     if (!hasValue) continue;
@@ -345,11 +375,41 @@ function selftest() {
     ['quoted attribute value', '<html><body><div data-note="เขียน onclick= ไม่ได้">x</div></body></html>'],
     ['text node', '<html><body><p>ห้ามใส่ onclick= ในหน้า</p></body></html>'],
     ['json-ld string value', '<html><body><script type="application/ld+json">{"note":"onclick="}</script></body></html>'],
+    ['json-ld string holding real markup', '<html><body><script type="application/ld+json">{"n":"<button onclick=\\"x()\\">go</button>"}</script></body></html>'],
     ['value starting with on…', '<html><body><a href="/games/" data-note="one two" title="only">x</a></body></html>'],
   ]) {
     assert.deepEqual(findInlineHazards(html), [], `${label}: text that is not in attribute-name position executes nothing and must not be flagged`);
   }
   console.log('PASS attribute-name position, other direction: /tools/once=1, /img/online=2.png (src and srcset), `onclick=` inside a quoted value / a Thai text node / a JSON-LD string, and data-note="one two" are all clean — none of them is an attribute name');
+
+  // --- raw-text bodies. <script>, <style>, <textarea> and <title> are raw text to the HTML
+  // tokenizer, so a `<` inside them opens nothing. Before stripRawTextBodies() the JSON-LD case
+  // below returned a handler-attribute finding while the ponytail header at the top of this file
+  // claimed it did not — and the fixture that was meant to cover that class carried no `<` at all,
+  // so it passed for the wrong reason. Delete the stripRawTextBodies() call out of
+  // findInlineHazards() and every case here goes red. ---
+  for (const [label, html] of [
+    ['markup inside a JSON-LD block', '<html><body><script type="application/ld+json">{"n":"<button onclick=\\"x()\\">go</button>"}</script></body></html>'],
+    ['markup inside a <style> body', '<html><body><style>/* <button onclick="x()"> */</style></body></html>'],
+    ['markup inside a <textarea>', '<html><body><textarea><button onclick="x()"></textarea></body></html>'],
+    ['markup inside a <title>', '<html><head><title><button onclick="x()"></title></head></html>'],
+  ]) {
+    assert.deepEqual(findInlineHazards(html), [], `${label}: a raw-text body opens no tag, so nothing inside it is an attribute`);
+  }
+  console.log('PASS raw-text bodies: markup inside a JSON-LD block, a <style> body, a <textarea> and a <title> opens no tag and reports zero findings');
+
+  // Other direction, three ways this could have blanked too much: the element's OWN attributes must
+  // survive, the inline-script check must stay blind to none of it, and an element that never closes
+  // must leave the rest of the document SCANNED rather than swallowed.
+  for (const [label, html, want] of [
+    ['a handler on the raw-text element itself', '<html><body><script type="application/ld+json" onload="x()">{}</script></body></html>', 'handler-attribute'],
+    ['an inline script', '<html><body><script>alert(1)</script></body></html>', 'inline-script'],
+    ['an UNCLOSED raw-text element', '<html><body><script type="application/ld+json">{}<button onclick="x()">go</button></body></html>', 'handler-attribute'],
+  ]) {
+    const ids = findInlineHazards(html).map((v) => v.id);
+    assert.ok(ids.includes(want), `${label}: must still report ${want}, got ${JSON.stringify(ids)}`);
+  }
+  console.log('PASS raw-text bodies, other direction: a handler on the <script> tag itself, an inline script, and an unclosed raw-text element are all still flagged');
 
   // --- the tokenizer must not become a tag-extraction REGEX, which is what the pre-fix comment here
   // rightly refused: a `>` inside a quoted value does not end a tag, and an unquoted value ends at
