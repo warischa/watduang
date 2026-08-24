@@ -52,7 +52,9 @@ been a `ponytail:` header line — a symlinked checkout is not the likely regres
 would have permitted it. It was fixed instead, because realpathing both sides is one line and closes the
 set completely, whereas the ceiling would have been the sixth disclosure in a chain that was already
 too long. When a fix converges and costs about as much as the paragraph explaining why it wasn't made,
-fix it.
+fix it. **Refined by ADR-0029:** this holds where the path converged onto is TOTAL
+(realpath). Where it is itself a heuristic carrying its own ceiling, converging can import a new
+fail-open — check the ceiling against the guarded set first.
 
 ## What this rests on
 
