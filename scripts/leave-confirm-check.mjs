@@ -102,6 +102,59 @@ function stripComments(text) {
     .replace(/\/\/[^\n]*/g, blank);
 }
 
+/** Every `//` that stripComments() above would treat as a line-comment opener — one per line, the
+ *  first one, because that regex blanks from it to EOL and nothing after it is ever re-read.
+ *  `inString` marks the ones that are NOT comment openers at all: the stripper is textual, so a `//`
+ *  inside a quoted value (`href="https://schema.org/X"`, `'//cdn/x.js'`) blanks the REST OF THAT LINE
+ *  with it, and any live code after it becomes invisible to (c)/(d)/(e) — fail-OPEN, ADR-0019's hole
+ *  class. Exists only to pin that precondition; the selftest below runs it over the real scanned file.
+ *  Block comments are blanked first, in stripComments()'s own order, so a `//` inside one (already
+ *  handled, harmless) is not reported.
+ *
+ *  In-string test, deliberately state-free: the char immediately before, plus an odd count of `"` or
+ *  backtick earlier on the line. Apostrophes are NEVER counted — they pair across ordinary prose
+ *  (`don't` … `stage's`), and counting them would red on a comment that is perfectly fine.
+ *
+ *  ponytail: DISCLOSED CEILING — a `//` deep inside a SINGLE-quoted string with neither a quote nor a
+ *  `:` right before it (`'a//b'`) reads as a comment opener and is MISSED. Both shapes this repo can
+ *  actually write — a URL (`://`) and a protocol-relative path (`"//`) — are caught, and both
+ *  directions are calibrated by fixtures below. Trigger to widen: a single-quoted `//` landing in the
+ *  scanned file. Widening means a real string-state walk, which is the same work as fixing the
+ *  stripper — do that instead of growing this heuristic.
+ *
+ *  ponytail: SECOND MISSED CLASS — backtick parity is counted PER LINE, so an interior line of a
+ *  multi-line template literal starts with the parity reset. A `//` on such a line with no `:` or
+ *  quote before it reads as outside a string and is MISSED, while stripComments() still blanks to
+ *  end of line — the fail-open this pin exists to catch. This class is NOT pinned, so no count here
+ *  would stay true; re-derive it with a per-file backtick-depth walk over this gate's scan set (a
+ *  grep cannot see it). Trigger to widen: the first hit. Same advice — that is a real state walk.
+ *
+ *  ponytail: KNOWN FALSE-REDS — this reds on three harmless shapes, none present in the scan set
+ *  today: a quote-character constant (`const q = '"';`) and an escaped quote (`"3\" x"`) both flip
+ *  the parity count, and an HTML comment holding a URL (`<!-- see https://x -->`) is stripped by
+ *  neither stripComments() nor this detector while a `:` precedes the `//`. Cost of each is one
+ *  annoyed commit: the failure message names the file, the line and the fix. Accepted deliberately —
+ *  a pin that fails closed on an unowned set is the ADR-0019 doctrine, and the alternative is a
+ *  detector that fails open on the hazard it was built for. Trigger to revisit: any of the three
+ *  shapes landing in this gate's scan set. Upgrade path is the same real string-state walk named
+ *  above — do NOT add a per-shape exemption, that grows the heuristic in the fail-open direction. */
+function findLineCommentOpeners(text) {
+  const src = text.replace(/\{\/\*[\s\S]*?\*\/\}/g, blank).replace(/\/\*[\s\S]*?\*\//g, blank);
+  const found = [];
+  src.split('\n').forEach((line, i) => {
+    const col = line.indexOf('//');
+    if (col < 0) return;
+    const before = line.slice(0, col);
+    const prev = before.at(-1);
+    const inString =
+      (prev !== undefined && ':\'"`'.includes(prev)) ||
+      (before.split('"').length - 1) % 2 === 1 ||
+      (before.split('`').length - 1) % 2 === 1;
+    found.push({ line: i + 1, inString, text: line.trim() });
+  });
+  return found;
+}
+
 // A selector is gated on [open] only if `[open]` survives flattening every `:not(...)` group away.
 // `#leave-confirm:not([open])` contains the string `[open]` while targeting the exact opposite set —
 // the closed dialog, which is the bug ADR-0015 exists to prevent.
@@ -644,6 +697,56 @@ function selftest() {
     assert.ok(v.some((x) => x.startsWith('(a)')), '(a) must flag an ungated display: rule on #clear-choice too');
   });
   console.log('PASS (a) known-bad fixture (display on bare #clear-choice) is flagged');
+
+  // --- stripComments() precondition (see findLineCommentOpeners' header): no `//` inside a quoted
+  // value in the file this script feeds that stripper. The pinned set is ASTRO_FILE alone — the set
+  // stripComments() is actually called on. CSS_FILE is deliberately EXCLUDED: checkTokensCss() runs
+  // its own block-comment-only strip and never sees this one, so a `url(https://…)` landing in
+  // tokens.css would red CI over a stripper that never touches it. ---
+
+  // Calibration, FIRING direction: without this the pin below is a guard that cannot fail.
+  for (const [label, fixture] of [
+    ['a URL in a markup attribute', '<a itemtype="https://schema.org/X" data-stable-exit href="/games/">'],
+    ['a protocol-relative path in a single-quoted string', "const s = '//cdn.example.com/x.js';"],
+    ['a double slash inside a double-quoted string', 'const p = "a//b"; const q = 1;'],
+  ]) {
+    const hits = findLineCommentOpeners(fixture).filter((o) => o.inString);
+    assert.equal(hits.length, 1, `${label}: must read as a `+'`//`'+` inside a string, else the pin below cannot fail`);
+  }
+  console.log('PASS line-comment-opener detector, firing direction: a URL in an attribute, a protocol-relative path, and a double slash inside a string all read as in-string');
+
+  // Calibration, OTHER direction: the ordinary comment shapes this file writes constantly. Any of
+  // these reading as in-string would make the pin a false alarm on a tree that is fine.
+  for (const [label, fixture] of [
+    ['a line-start comment', '  // pendingHref must clear on close, not per-button'],
+    ['a line-start comment that quotes a URL', '  // see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog'],
+    ['a trailing comment after code — the shape PlayerSetup.astro really ships', '  resumeBtn.focus(); // take eyes and screen readers to the panel foot'],
+    ['a trailing comment after a string holding an apostrophe', 'const t = "don\'t stop"; // apostrophes must never be counted as quotes'],
+    ['a comment after a block comment on the same line', '/* was: showModal() */ // now capability-gated'],
+  ]) {
+    assert.deepEqual(findLineCommentOpeners(fixture).filter((o) => o.inString), [], `${label}: must NOT read as a \`//\` inside a string`);
+  }
+  console.log('PASS line-comment-opener detector, other direction: line-start comments, a URL quoted inside a comment, trailing comments, and an apostrophe in prose are all clean');
+
+  // The pin itself, over the REAL file. Two things must hold, and the second is the positive
+  // control: a detector returning nothing looks exactly like a clean file (docs/adr/0019).
+  const openers = findLineCommentOpeners(fs.readFileSync(ASTRO_FILE, 'utf8'));
+  for (const o of openers) {
+    assert.ok(
+      !o.inString,
+      `src/shell/PlayerSetup.astro:${o.line}: this \`//\` sits inside a quoted value, not in a comment. ` +
+        'stripComments() blanks from it to END OF LINE, so every live character after it on that line ' +
+        'is invisible to conditions (c)/(d)/(e) — this gate may now be going green on code it never ' +
+        `read. Move the value onto its own line away from the guards, or take the upgrade path in ` +
+        `findLineCommentOpeners' header and give stripComments() a real string-state walk. Line: ${o.text}`,
+    );
+  }
+  assert.ok(
+    openers.length > 0,
+    'found zero `//` openers in PlayerSetup.astro — the detector reported nothing, which is not the ' +
+      'same as none existing (docs/adr/0019). Check findLineCommentOpeners() before trusting this pin.',
+  );
+  console.log(`PASS stripComments precondition: ${openers.length} \`//\` opener(s) in src/shell/PlayerSetup.astro, none inside a quoted value (tokens.css excluded — stripComments() is never run on it)`);
 }
 
 // ---------------------------------------------------------------------------

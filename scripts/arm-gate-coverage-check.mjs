@@ -161,6 +161,59 @@ const blank = (m) => m.replace(/[^\n]/g, ' ');
 const stripComments = (text) =>
   text.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\/\/[^\n]*/g, blank);
 
+/** Every `//` that stripComments() above would treat as a line-comment opener — one per line, the
+ *  first one, because that regex blanks from it to EOL and nothing after it is ever re-read.
+ *  `inString` marks the ones that are NOT comment openers at all: the strip is textual, so a `//`
+ *  inside a quoted value (`'https://watduang.com/x'`, `"//cdn/x.js"`) blanks the REST OF THAT LINE
+ *  with it — an `el('button')` or an `armAllButtons(stage` after it stops existing for all four
+ *  conditions, and this gate goes green on code it never read. Fail-OPEN, ADR-0019's hole class.
+ *  Exists only to pin that precondition; the selftest below runs it over the real scanned modules.
+ *  Block comments are blanked first, in stripComments()'s own order, so a `//` inside one (already
+ *  handled, harmless) is not reported.
+ *
+ *  In-string test, deliberately state-free: the char immediately before, plus an odd count of `"` or
+ *  backtick earlier on the line. Apostrophes are NEVER counted — they pair across ordinary prose
+ *  (`don't` … `draw()'s`), and counting them would red on a comment that is perfectly fine.
+ *
+ *  ponytail: DISCLOSED CEILING — a `//` deep inside a SINGLE-quoted string with neither a quote nor a
+ *  `:` right before it (`'a//b'`) reads as a comment opener and is MISSED. Both shapes a game module
+ *  can actually write — a URL (`://`) and a protocol-relative path (`"//`) — are caught, and both
+ *  directions are calibrated by fixtures below. Trigger to widen: a single-quoted `//` landing in a
+ *  scanned module. Widening means a real string-state walk, which is the same work as fixing the
+ *  strip itself — do that instead of growing this heuristic.
+ *
+ *  ponytail: SECOND MISSED CLASS — backtick parity is counted PER LINE, so an interior line of a
+ *  multi-line template literal starts with the parity reset. A `//` on such a line with no `:` or
+ *  quote before it reads as outside a string and is MISSED, while stripComments() still blanks to
+ *  end of line — the fail-open this pin exists to catch. This class is NOT pinned, so no count here
+ *  would stay true; re-derive it with a per-file backtick-depth walk over this gate's scan set (a
+ *  grep cannot see it). Trigger to widen: the first hit. Same advice — that is a real state walk.
+ *
+ *  ponytail: KNOWN FALSE-REDS — this reds on three harmless shapes, none present in the scan set
+ *  today: a quote-character constant (`const q = '"';`) and an escaped quote (`"3\" x"`) both flip
+ *  the parity count, and an HTML comment holding a URL (`<!-- see https://x -->`) is stripped by
+ *  neither stripComments() nor this detector while a `:` precedes the `//`. Cost of each is one
+ *  annoyed commit: the failure message names the file, the line and the fix. Accepted deliberately —
+ *  a pin that fails closed on an unowned set is the ADR-0019 doctrine, and the alternative is a
+ *  detector that fails open on the hazard it was built for. Trigger to revisit: any of the three
+ *  shapes landing in this gate's scan set. Upgrade path is the same real string-state walk named
+ *  above — do NOT add a per-shape exemption, that grows the heuristic in the fail-open direction. */
+function findLineCommentOpeners(text) {
+  const found = [];
+  text.replace(/\/\*[\s\S]*?\*\//g, blank).split('\n').forEach((line, i) => {
+    const col = line.indexOf('//');
+    if (col < 0) return;
+    const before = line.slice(0, col);
+    const prev = before.at(-1);
+    const inString =
+      (prev !== undefined && ':\'"`'.includes(prev)) ||
+      (before.split('"').length - 1) % 2 === 1 ||
+      (before.split('`').length - 1) % 2 === 1;
+    found.push({ line: i + 1, inString, text: line.trim() });
+  });
+  return found;
+}
+
 /** Splits `text` into its top-level `function render*() { ... }` bodies by counting braces from
  *  each header's opening `{` to its matching `}`. See the secondary ponytail note at the top of
  *  this file for what that misses. */
@@ -532,6 +585,64 @@ function selftest() {
   } finally {
     fs.rmSync(overrideNoteTmpDir, { recursive: true, force: true });
   }
+
+  // --- stripComments() precondition (see findLineCommentOpeners' header): no `//` inside a quoted
+  // value in any module this script feeds that strip. The pinned set is derived by the same
+  // listTargetFiles() + EXCLUDED_FILES the gate scans with, so it follows the scan set automatically;
+  // it resolves src/games from repoRoot, NOT from gamesDir, so GAMES_DIR_OVERRIDE cannot narrow the
+  // pin the way it narrows a run. ---
+
+  // Calibration, FIRING direction: without this the pin below is a guard that cannot fail.
+  for (const [label, fixture] of [
+    ['a URL in a single-quoted string', "const src = 'https://watduang.com/games/';"],
+    ['a protocol-relative path in a double-quoted string', 'const s = "//cdn.example.com/x.js";'],
+    ['a double slash inside a double-quoted string', 'const p = "a//b"; el(\'button\');'],
+  ]) {
+    const hits = findLineCommentOpeners(fixture).filter((o) => o.inString);
+    assert.equal(hits.length, 1, `${label}: must read as a \`//\` inside a string, else the pin below cannot fail`);
+  }
+  console.log('PASS line-comment-opener detector, firing direction: a URL, a protocol-relative path, and a double slash inside a string all read as in-string');
+
+  // Calibration, OTHER direction: the ordinary comment shapes these modules write constantly —
+  // `ads: false, // play screen = never an ad slot` is in every game file. Any of these reading as
+  // in-string would make the pin a false alarm on a tree that is fine.
+  for (const [label, fixture] of [
+    ['a line-start comment', '  // armAllButtons must be called with the live stage'],
+    ['a line-start comment that quotes a URL', '  // see https://developer.mozilla.org/en-US/docs/Web/API/Element'],
+    ['a trailing comment after code — the shape every game module really ships', '  ads: false, // play screen = never an ad slot'],
+    ['a trailing comment after a string holding an apostrophe', "  const t = \"don't stop\"; // apostrophes must never be counted as quotes"],
+    ['a comment after a block comment on the same line', '/* was: armAllButtons(stage) */ // now armed by the caller'],
+  ]) {
+    assert.deepEqual(findLineCommentOpeners(fixture).filter((o) => o.inString), [], `${label}: must NOT read as a \`//\` inside a string`);
+  }
+  console.log('PASS line-comment-opener detector, other direction: line-start comments, a URL quoted inside a comment, trailing comments, and an apostrophe in prose are all clean');
+
+  // The pin itself, over the REAL modules. Two things must hold, and the second is the positive
+  // control: a detector returning nothing looks exactly like a clean tree (docs/adr/0019).
+  const pinnedDir = path.join(repoRoot, 'src/games');
+  const pinnedModules = listTargetFiles(pinnedDir);
+  assert.ok(pinnedModules.length > 0, 'the pin must resolve the real src/games/ modules, never an empty directory');
+  let openerCount = 0;
+  for (const name of pinnedModules) {
+    for (const o of findLineCommentOpeners(fs.readFileSync(path.join(pinnedDir, name), 'utf8'))) {
+      openerCount++;
+      assert.ok(
+        !o.inString,
+        `src/games/${name}:${o.line}: this \`//\` sits inside a quoted value, not in a comment. ` +
+          'stripComments() blanks from it to END OF LINE, so every live character after it on that ' +
+          'line is invisible to all four conditions — an ungated button or a missing armAllButtons ' +
+          'call after it would not be seen, and this gate may now be going green on code it never ' +
+          `read. Move the value onto its own line, or take the upgrade path in ` +
+          `findLineCommentOpeners' header and give stripComments() a real string-state walk. Line: ${o.text}`,
+      );
+    }
+  }
+  assert.ok(
+    openerCount > 0,
+    'found zero `//` openers across the pinned modules — the detector reported nothing, which is not ' +
+      'the same as none existing (docs/adr/0019). Check findLineCommentOpeners() before trusting this pin.',
+  );
+  console.log(`PASS stripComments precondition: ${openerCount} \`//\` opener(s) across ${pinnedModules.length} pinned module(s) in src/games/, none inside a quoted value`);
 }
 
 // ---------------------------------------------------------------------------
