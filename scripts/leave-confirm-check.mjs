@@ -102,37 +102,82 @@ function stripComments(text) {
     .replace(/\/\/[^\n]*/g, blank);
 }
 
-/** Every `//` that stripComments() above would treat as a line-comment opener — one per line, the
- *  first one, because that regex blanks from it to EOL and nothing after it is ever re-read.
- *  `inString` marks the ones that are NOT comment openers at all: the stripper is textual, so a `//`
- *  inside a quoted value (`href="https://schema.org/X"`, `'//cdn/x.js'`) blanks the REST OF THAT LINE
- *  with it, and any live code after it becomes invisible to (c)/(d)/(e) — fail-OPEN, ADR-0019's hole
- *  class. Exists only to pin that precondition; the selftest below runs it over the real scanned file.
- *  Block comments are blanked first, in stripComments()'s own order, so a `//` inside one (already
- *  handled, harmless) is not reported.
+/** Every comment opener that stripComments() above would act on textually — one per line, the first
+ *  one, because that regex blanks from it and nothing after it is ever re-read. Two kinds:
+ *  `kind: '//'` blanks to END OF LINE; `kind: '/*'` blanks to the next textual block-comment terminator, which may be
+ *  MANY LINES DOWN. `inString` marks the openers that are not comment openers at all: the stripper is
+ *  textual, so a `//` inside a quoted value (`href="https://schema.org/X"`, `'//cdn/x.js'`), inside a
+ *  template literal, or inside an `<!-- -->` comment takes the rest of that line with it, and a `/*`
+ *  inside any of those takes every live line down to the next block-comment terminator — in both cases the live code is
+ *  invisible to (c)/(d)/(e), fail-OPEN, ADR-0019's hole class. Exists only to pin that precondition;
+ *  the selftest below runs it over the real scanned file. A genuine block comment is walked as state,
+ *  not reported: `kind: '/*'` is only ever emitted from a string or an HTML comment, so it is always
+ *  the hazard shape.
  *
- *  In-string test, deliberately state-free: the char immediately before, plus an odd count of `"` or
- *  backtick earlier on the line. Apostrophes are NEVER counted — they pair across ordinary prose
- *  (`don't` … `stage's`), and counting them would red on a comment that is perfectly fine.
+ *  In-string test: a per-FILE character walk, not a per-line count. Template-literal depth (with `\``,
+ *  and `${ }` holes where a nested template raises the depth again), `<!-- -->` comments, and block
+ *  comments are all carried across newlines. `'` and `"` are the exception: they RESET at every line
+ *  start. That reset is a deliberate fail-OPEN trade, NOT a language guarantee — ASTRO_FILE is HTML as
+ *  well as JS, and HTML permits a multi-line attribute value, so the reset is what leaves that rung
+ *  open (see the ceiling below). It buys the far commoner case: an unpaired apostrophe in markup or
+ *  comment prose would otherwise poison every following line of the file. A real comment opener ends
+ *  the walk for its own line — quotes and backticks inside comment prose are not code and must not
+ *  move the state, which is also why `don't` … `stage's` in a comment cannot red.
  *
- *  ponytail: DISCLOSED CEILING — a `//` deep inside a SINGLE-quoted string with neither a quote nor a
- *  `:` right before it (`'a//b'`) reads as a comment opener and is MISSED. Both shapes this repo can
- *  actually write — a URL (`://`) and a protocol-relative path (`"//`) — are caught, and both
- *  directions are calibrated by fixtures below. Trigger to widen: a single-quoted `//` landing in the
- *  scanned file. Widening means a real string-state walk, which is the same work as fixing the
- *  stripper — do that instead of growing this heuristic.
+ *  ponytail: DISCLOSED CEILING — this walk enumerates a LANGUAGE-OWNED set, so it does NOT converge:
+ *  every further way JS, HTML, or the Astro grammar can carry a quote character is another rung, and
+ *  no number of arms closes a set someone else owns. Two rungs are open today, both MEASURED in the
+ *  selftest's ceiling block below rather than reasoned about:
  *
- *  ponytail: SECOND MISSED CLASS — backtick parity is counted PER LINE, so an interior line of a
- *  multi-line template literal starts with the parity reset. A `//` on such a line with no `:` or
- *  quote before it reads as outside a string and is MISSED, while stripComments() still blanks to
- *  end of line — the fail-open this pin exists to catch. This class is NOT pinned, so no count here
- *  would stay true; re-derive it with a per-file backtick-depth walk over this gate's scan set (a
- *  grep cannot see it). Trigger to widen: the first hit. Same advice — that is a real state walk.
+ *  RUNG 1 — a lone backtick that is not a template delimiter: inside a regex literal (the walk has no
+ *  regex-vs-division state) or in HTML text / an attribute value the Astro grammar permits. It flips
+ *  template parity, and the effect is LOUD **OR** SILENT depending on what follows, never reliably
+ *  loud. Loud: a `//` appearing while the spurious template is open reads inString, the pin reds and
+ *  (see the `&&` note below) stops the gate. Silent, and this is the one that matters: the NEXT real
+ *  template's opening backtick now CLOSES the spurious one instead of opening its own, so that
+ *  template's interior is walked as CODE. Measured — `const re = /` + backtick + `/;` then a
+ *  multi-line template whose interior line reads `ratio //3 <a data-stable-exit href="/games/">` —
+ *  the walk reports that line inString:FALSE, the pin stays GREEN, and stripComments() blanks the
+ *  live `data-stable-exit href` behind it. A parity flip has no fail direction of its own; it inverts
+ *  whatever the file does next.
  *
- *  ponytail: KNOWN FALSE-REDS — TWO shapes, neither in the scan set today: a quote-character
- *  constant (`const q = '"';`) and an escaped quote (`"3\" x"`) both flip the parity count.
+ *  RUNG 2 — a multi-line HTML attribute value, which ASTRO_FILE's grammar permits and which the `'`/`"`
+ *  per-line reset therefore cannot follow: `<a title="see` on one line, `//games ..." data-stable-exit
+ *  href="/games/">` on the next. Measured: the continuation line reads inString:FALSE (the walk
+ *  started that line in code context), the pin stays GREEN, and stripComments() blanks the whole live
+ *  line from the `//` onward, `href` included. Silent, not loud.
  *
- *  A `//` inside an HTML comment is NOT on this list, though it looks like it belongs. Measured:
+ *  Both rungs stay OPEN BY DESIGN. Closing rung 1 needs regex-vs-division state, closing rung 2 needs
+ *  HTML tag-context state to know which quote is an attribute value and which is prose — each is a new
+ *  grammar this gate would have to own, and rung 2's cheap version (carry `'`/`"` across newlines
+ *  unconditionally) trades a rare silent miss for a common false red on every prose apostrophe, i.e.
+ *  a dead gate. The residual is bounded, and that is the whole argument for a walk over a parser here:
+ *  stripComments() is fed exactly ONE authored file (ASTRO_FILE), a file no contributor flow adds to,
+ *  so the uncovered rungs are guarded at authorship per ADR-0026. That is a bound, NOT convergence —
+ *  the set is still language-owned and still growing. Do NOT reach for the sibling gate's route —
+ *  scripts/arm-gate-coverage-check.mjs is moving to a real parser because its input set is
+ *  contributor-authored and growing; sharing a stripper across the two was refused on ownership
+ *  grounds (gh#72, ADR-0030).
+ *
+ *  CLOSED, was a third rung: a `/*` inside a quoted value. stripComments() blanks block comments
+ *  textually too, so an in-string `/*` blanks every live line down to the next textual terminator —
+ *  the same hazard as `//`, with a longer blast radius. The walk used to pre-blank block comments with
+ *  that same textual regex, so it could not see this at all AND walked corrupted text afterwards.
+ *  Block-comment state is now walked (`block` below) and an in-string `/*` is reported as
+ *  `kind: '/*'`. Measured both ways in the selftest; the real file's opener count is unchanged by it.
+ *
+ *  ponytail: KNOWN FALSE-REDS — re-derived against the walk. TWO shapes, neither in the scan set
+ *  today. (i) an unpaired `'` in markup prose earlier on the same line as a `//`
+ *  (`<p>don't stop</p> // note`) opens a string that stays open to end of line. Bounded to that
+ *  single line by the newline reset. (ii) rung 1 above, on its LOUD branch only — a lone backtick
+ *  followed by a `//` before any real template opens. Its other branch is a silent miss, not a red,
+ *  which is why rung 1 is disclosed as loud-OR-silent and not listed as a false red alone.
+ *  The two shapes listed here before the walk — a quote-character constant (`const q = '"';`) and an
+ *  escaped quote (`"3\" x"`) — are NO LONGER false reds: the walk reads both correctly (measured
+ *  against the new mechanism, not assumed).
+ *
+ *  A `//` inside an HTML comment is NOT on that list, though it looks like it belongs — the walk
+ *  tracks `<!-- -->` on purpose so it stays a red rather than becoming one by accident. Measured:
  *  `<!-- ref: https://x --> <a data-stable-exit href="/games/">` strips to `<!-- ref: https:` —
  *  stripComments() blanks to end of line from inside the HTML comment and eats the real attribute
  *  sharing that line. The red is correct. Whether it is a hazard depends on what follows on the
@@ -149,25 +194,77 @@ function stripComments(text) {
  *  output. That is the control working as designed, and it is why it is not softened.
  *
  *  Accepted deliberately: a pin that fails closed on an unowned set is the ADR-0019 doctrine, and
- *  the alternative is a detector that fails open on the hazard it was built for. Trigger to revisit:
- *  either shape landing in this gate's scan set, OR an owner ruling that a precondition violation
+ *  the alternative is a detector that fails open on the hazard it was built for. Note what that does
+ *  NOT cover: rung 1 and rung 2 fail OPEN, silently, and no doctrine makes them safe — only the
+ *  one-authored-file bound does. Trigger to revisit: either open rung, or either false-red shape,
+ *  landing in this gate's scan set, OR an owner ruling that a precondition violation
  *  should warn rather than fail — that second one moves the pin out from behind the `&&` and is a
- *  different change from widening the detector. Upgrade path is the real string-state walk named
- *  above; do NOT add a per-shape exemption, which grows the heuristic in the fail-open direction. */
+ *  different change from widening the detector. The state walk WAS the upgrade path and it is built;
+ *  the next rung is another state arm (regex literals) in this same walk, never a per-shape
+ *  exemption, which grows the detector in the fail-open direction. */
 function findLineCommentOpeners(text) {
-  const src = text.replace(/\{\/\*[\s\S]*?\*\/\}/g, blank).replace(/\/\*[\s\S]*?\*\//g, blank);
+  const src = text;
   const found = [];
-  src.split('\n').forEach((line, i) => {
-    const col = line.indexOf('//');
-    if (col < 0) return;
-    const before = line.slice(0, col);
-    const prev = before.at(-1);
-    const inString =
-      (prev !== undefined && ':\'"`'.includes(prev)) ||
-      (before.split('"').length - 1) % 2 === 1 ||
-      (before.split('`').length - 1) % 2 === 1;
-    found.push({ line: i + 1, inString, text: line.trim() });
-  });
+  // Template-literal state, and ONLY that, survives a newline among the STRING forms. `'` and `"` are
+  // reset at every line start — see the header: that is a deliberate fail-OPEN trade against prose
+  // apostrophes, not a language guarantee, and it is what leaves the multi-line HTML attribute rung open.
+  const stack = []; // 'tpl' = inside a template literal · a number = brace depth inside a ${ } hole
+  let html = false; // inside an <!-- --> comment, which also spans lines and which stripComments() does NOT blank
+  // Block-comment state is walked here rather than pre-blanked textually. A textual pre-pass could not
+  // tell `/*` in code from `/*` inside a quoted value, so it blanked from an in-string `/*` to the next
+  // real `*/` — silently, across lines, exactly like stripComments() does — and the walk then read
+  // already-corrupted text. Walking it means an in-string `/*` is REPORTED (kind '/*') instead.
+  let block = false;
+  for (const [i, line] of src.split('\n').entries()) {
+    let quote = null;
+    let kind = null;
+    let c = 0;
+    for (; c < line.length; c++) {
+      const ch = line[c];
+      if (block) {
+        if (ch === '*' && line[c + 1] === '/') { block = false; c++; }
+        continue;
+      }
+      if (html) {
+        // No escapes in HTML, and no strings: nothing in here may move the template stack. A `//` in
+        // here is still a hazard — stripComments() blanks from it past the `-->` and eats live markup
+        // that shares the line — so it is reported the same way an in-string one is.
+        if (ch === '-' && line.startsWith('-->', c)) { html = false; c += 2; }
+        else if (ch === '/' && line[c + 1] === '/') { kind = '//'; break; }
+        else if (ch === '/' && line[c + 1] === '*') { kind = '/*'; break; }
+        continue;
+      }
+      if (ch === '\\') { c++; continue; } // one escape, one skip — this is what keeps \` from closing a template
+      const top = stack.at(-1);
+      if (quote) {
+        if (ch === quote) quote = null;
+        else if (ch === '/' && line[c + 1] === '/') { kind = '//'; break; }
+        else if (ch === '/' && line[c + 1] === '*') { kind = '/*'; break; }
+        continue;
+      }
+      if (top === 'tpl') {
+        if (ch === '`') stack.pop();
+        else if (ch === '$' && line[c + 1] === '{') { stack.push(0); c++; }
+        else if (ch === '/' && line[c + 1] === '/') { kind = '//'; break; }
+        else if (ch === '/' && line[c + 1] === '*') { kind = '/*'; break; }
+        continue;
+      }
+      // Code context: file top level, or inside a ${ } hole (where a nested template raises depth again).
+      if (ch === '<' && line.startsWith('<!--', c)) { html = true; c += 3; }
+      else if (ch === '"' || ch === "'") quote = ch;
+      else if (ch === '`') stack.push('tpl');
+      else if (ch === '{' && typeof top === 'number') stack[stack.length - 1] = top + 1;
+      else if (ch === '}' && typeof top === 'number') { if (top === 0) stack.pop(); else stack[stack.length - 1] = top - 1; }
+      else if (ch === '/' && line[c + 1] === '*') { block = true; c++; } // a REAL block comment: skip it, do not report
+      else if (ch === '/' && line[c + 1] === '/') { kind = '//'; break; }
+    }
+    // Reported at most once per line, at the first opener, because stripComments() blanks from a `//`
+    // to EOL (and from an in-string `/*` to the next textual `*/`, past the newline) and nothing after
+    // it is ever re-read. A real comment opener also ends the walk for this line: quotes and backticks
+    // inside comment prose are not code and must not move the state. `kind === '/*'` is only ever set
+    // in a string/HTML-comment context, so it is always a hazard, never an ordinary block comment.
+    if (kind) found.push({ line: i + 1, kind, inString: kind === '/*' || html || quote !== null || stack.at(-1) === 'tpl', text: line.trim() });
+  }
   return found;
 }
 
@@ -725,11 +822,52 @@ function selftest() {
     ['a URL in a markup attribute', '<a itemtype="https://schema.org/X" data-stable-exit href="/games/">'],
     ['a protocol-relative path in a single-quoted string', "const s = '//cdn.example.com/x.js';"],
     ['a double slash inside a double-quoted string', 'const p = "a//b"; const q = 1;'],
+    ['a URL inside an HTML comment sharing a line with live markup', '<!-- ref: https://x --> <a data-stable-exit href="/games/">'],
   ]) {
     const hits = findLineCommentOpeners(fixture).filter((o) => o.inString);
     assert.equal(hits.length, 1, `${label}: must read as a `+'`//`'+` inside a string, else the pin below cannot fail`);
   }
-  console.log('PASS line-comment-opener detector, firing direction: a URL in an attribute, a protocol-relative path, and a double slash inside a string all read as in-string');
+  console.log('PASS line-comment-opener detector, firing direction: a URL in an attribute, a protocol-relative path, a double slash inside a string, and a URL inside an HTML comment all read as in-string');
+
+  // Calibration, ACROSS LINES: the three shapes a per-line parity count cannot see, each routed
+  // through the same temp-file read main() uses. Every one of these has a `//` on a line whose own
+  // backtick count is ZERO or misleading, so the line in isolation says "code" while the file says
+  // "inside a template literal". The `zero backticks on the hit line` assertion is what proves the
+  // fixture actually reaches the cross-line branch rather than passing for some other reason
+  // (docs/adr/0030 — a fixture that never reaches the branch it is cited to pin).
+  for (const [label, lines, hitLine, alsoClean] of [
+    [
+      'a `//` on an interior line of a multi-line template literal',
+      ['const html = `', '  <a href="/games/">x</a>', '  //cdn.example.com/x.js', '`;'],
+      3,
+      null,
+    ],
+    [
+      'an escaped backtick must not close the template',
+      ['const t = `tick \\` still open', '  //still inside the template', '`;'],
+      2,
+      null,
+    ],
+    [
+      'a template nested inside a ${} interpolation',
+      ['const a = `outer ${ wrap(`nested', '  //deep inside the nested template', '`) } tail`;', '// an ordinary comment, every template closed'],
+      2,
+      4,
+    ],
+  ]) {
+    withTempFixture('PlayerSetup.astro', lines.join('\n'), (text) => {
+      const openers = findLineCommentOpeners(text);
+      const hit = openers.find((o) => o.line === hitLine);
+      assert.ok(hit, `${label}: no \`//\` opener reported on line ${hitLine} at all`);
+      assert.equal((lines[hitLine - 1].match(/`/g) || []).length, 0, `${label}: the hit line must carry zero backticks of its own, or it does not exercise the cross-line walk`);
+      assert.equal(hit.inString, true, `${label}: line ${hitLine} must read as inside a template literal`);
+      if (alsoClean !== null) {
+        const clean = openers.find((o) => o.line === alsoClean);
+        assert.ok(clean && clean.inString === false, `${label}: line ${alsoClean} must read as an ordinary comment — template depth has to unwind`);
+      }
+    });
+  }
+  console.log('PASS line-comment-opener detector, across lines: an interior template line, an escaped backtick, and a ${}-nested template all carry template state past the newline');
 
   // Calibration, OTHER direction: the ordinary comment shapes this file writes constantly. Any of
   // these reading as in-string would make the pin a false alarm on a tree that is fine.
@@ -744,14 +882,85 @@ function selftest() {
   }
   console.log('PASS line-comment-opener detector, other direction: line-start comments, a URL quoted inside a comment, trailing comments, and an apostrophe in prose are all clean');
 
+  // Calibration, BLOCK-COMMENT direction (the rung closed this round): stripComments() blanks
+  // `/*` ... terminator textually, so a `/*` inside a quoted value eats every live line down to the
+  // next terminator anywhere in the file. Firing direction first — the fixture's middle line is the
+  // live (d) selector, and it must be provably blanked, or this fixture pins nothing (ADR-0030).
+  const blockInString = [
+    'const tip = "ratio /* 2";',
+    "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])');",
+    '/* an ordinary block comment */',
+  ].join('\n');
+  withTempFixture('PlayerSetup.astro', blockInString, (text) => {
+    const hits = findLineCommentOpeners(text).filter((o) => o.inString);
+    assert.equal(hits.length, 1, 'a `/*` inside a quoted value must be reported as an in-string opener');
+    assert.equal(hits[0].kind, '/*', 'the reported opener must be the block-comment kind');
+    assert.equal(hits[0].line, 1, 'the report must point at the line carrying the in-string `/*`');
+    assert.ok(
+      !stripComments(text).includes('data-stable-exit'),
+      'fixture must actually reach the hazard: stripComments() has to blank the live (d) selector on line 2',
+    );
+  });
+  console.log('PASS block-comment opener, firing direction: a `/*` inside a quoted value is reported (kind /*), and stripComments() is measured blanking the live line below it');
+
+  // Calibration, OTHER direction: the block-comment forms this file and PlayerSetup.astro really
+  // write must stay silent, or walking block state instead of pre-blanking traded a fail-open for a
+  // gate that cannot run. A `//` INSIDE a real block comment is the one that used to be pre-blanked.
+  for (const [label, fixture] of [
+    ['a single-line block comment', '/* pendingHref clears on close */'],
+    ['a `//` inside a real block comment', '/* see https://example.com/x */ const q = 1;'],
+    ['a multi-line block comment carrying a `//`', '/* was:\n   //cdn.example.com/x.js\n */\nconst q = 1;'],
+    ['an Astro brace comment', "  {/* was: closest?.('a[href]:not([data-stable-exit])') */}"],
+    ['a block comment then a line comment on one line', '/* was: showModal() */ // now capability-gated'],
+  ]) {
+    assert.deepEqual(findLineCommentOpeners(fixture).filter((o) => o.inString), [], `${label}: must NOT be reported as an in-string opener`);
+  }
+  console.log('PASS block-comment opener, other direction: single-line, multi-line, Astro-brace and mixed block comments all stay clean');
+
+  // -- DISCLOSED CEILING, measured. These two rungs are OPEN BY DESIGN (see findLineCommentOpeners'
+  // header). The assertions pin the WRONG-BUT-KNOWN behaviour on purpose: if a later change closes
+  // either rung, these fail and the header's disclosure has to be rewritten in the same commit
+  // rather than quietly becoming false — which is exactly how the previous "loud, not silent"
+  // sentence survived being measurably wrong.
+  for (const [label, lines, hitLine] of [
+    [
+      'rung 1: a lone backtick in a regex literal flips template parity, so the NEXT real template reads as CODE',
+      ['const re = /`/;', 'const html = `', '  ratio //3 <a data-stable-exit href="/games/">x</a>', '`;'],
+      3,
+    ],
+    [
+      'rung 1: same flip from a lone backtick in HTML text',
+      ['<p>press ` then go</p>', 'const html = `', '  ratio //3 <a data-stable-exit href="/games/">x</a>', '`;'],
+      3,
+    ],
+    [
+      'rung 2: a multi-line HTML attribute value — the `\'`/`"` per-line reset cannot follow it',
+      ['<a title="see', '//games ..." data-stable-exit href="/games/">x</a>'],
+      2,
+    ],
+  ]) {
+    withTempFixture('PlayerSetup.astro', lines.join('\n'), (text) => {
+      const hit = findLineCommentOpeners(text).find((o) => o.line === hitLine);
+      assert.ok(hit, `${label}: no opener reported on line ${hitLine} at all`);
+      assert.equal(hit.inString, false, `${label}: DISCLOSED — the pin reads this line as ordinary code and stays GREEN`);
+      assert.ok(
+        !stripComments(text).split('\n')[hitLine - 1].includes('data-stable-exit'),
+        `${label}: DISCLOSED — stripComments() blanks the live data-stable-exit href behind that green`,
+      );
+    });
+  }
+  console.log('PASS disclosed ceiling, measured: rung 1 (parity flip, both backtick sources) and rung 2 (multi-line HTML attribute) each read inString:false while stripComments() blanks live code — silent, not loud');
+
   // The pin itself, over the REAL file. Two things must hold, and the second is the positive
   // control: a detector returning nothing looks exactly like a clean file (docs/adr/0019).
   const openers = findLineCommentOpeners(fs.readFileSync(ASTRO_FILE, 'utf8'));
   for (const o of openers) {
     assert.ok(
       !o.inString,
-      `src/shell/PlayerSetup.astro:${o.line}: this \`//\` sits inside a quoted value, not in a comment. ` +
-        'stripComments() blanks from it to END OF LINE, so every live character after it on that line ' +
+      `src/shell/PlayerSetup.astro:${o.line}: this \`${o.kind}\` sits inside a quoted value, not in a comment. ` +
+        (o.kind === '/*'
+          ? 'stripComments() blanks from it to the next textual block-comment terminator, which may be many lines down, so every live line in between '
+          : 'stripComments() blanks from it to END OF LINE, so every live character after it on that line ') +
         'is invisible to conditions (c)/(d)/(e) — this gate may now be going green on code it never ' +
         `read. Move the value onto its own line away from the guards, or take the upgrade path in ` +
         `findLineCommentOpeners' header and give stripComments() a real string-state walk. Line: ${o.text}`,

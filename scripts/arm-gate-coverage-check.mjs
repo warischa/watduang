@@ -30,8 +30,12 @@
 // in a comment can no longer satisfy the "is this render function gated" test (commenting the live
 // call out used to leave this script green and every button in that function ungated), and a
 // commented-out `el('button'` / `armAllButtons(stage, [...])` can no longer trip either condition.
-// The stripper is textual: a `//` inside a string literal (none in these seven files today) would be
-// read as a comment. Blanking preserves offsets, so reported line numbers still point at real source.
+// The stripper is textual: a `//`, `/*` or `*/` inside a string literal is read as comment syntax.
+// pinStripPrecondition() below pins exactly those two constructs -- a `//` opener inside a quoted
+// value, and a `/*` or `*/` inside a quoted value -- and reds if any pinned module contains either,
+// per run rather than against a file count that goes stale. Those two are the whole pinned set: the
+// strip is textual everywhere else too, and nothing here makes it safe against any other construct.
+// Blanking preserves offsets, so reported line numbers still point at real source.
 //
 // --- Ceiling: target-set derivation (gh#46, ADR-0019) ----------------------------------
 // The target set is a flat `fs.readdirSync(src/games/)` filtered to `*.ts`, so a newly added game
@@ -49,6 +53,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import ts from 'typescript'; // devDependency (package.json), build-time only — nothing here ships in dist/
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const scriptPath = fileURLToPath(import.meta.url);
@@ -161,73 +166,184 @@ const blank = (m) => m.replace(/[^\n]/g, ' ');
 const stripComments = (text) =>
   text.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\/\/[^\n]*/g, blank);
 
+// Every token kind whose TEXT is a quoted value rather than code: a `//` landing inside one of
+// these is not a comment opener, however it looks. The template chunks (head/middle/tail and the
+// no-substitution form) are what make an interior line of a multi-line template literal correct
+// without enumerating anything per line; the `${...}` expressions between them are NOT in this set,
+// because a `//` there really is a comment.
+const QUOTED_VALUE_KINDS = new Set([
+  ts.SyntaxKind.StringLiteral,
+  ts.SyntaxKind.NoSubstitutionTemplateLiteral,
+  ts.SyntaxKind.TemplateHead,
+  ts.SyntaxKind.TemplateMiddle,
+  ts.SyntaxKind.TemplateTail,
+  ts.SyntaxKind.RegularExpressionLiteral,
+]);
+
+const parseTs = (text) => ts.createSourceFile('scan.ts', text, ts.ScriptTarget.Latest, false, ts.ScriptKind.TS);
+
+/** Character spans of every quoted value in `text`, from the TypeScript parser's own tree. The
+ *  parser is what decides template-chunk and regex-literal boundaries, so escaped delimiters,
+ *  `${}` nesting and a `//` inside a regex are classified by the owner of that grammar, not
+ *  re-derived here. */
+function quotedValueSpans(text) {
+  const spans = [];
+  (function walk(node) {
+    if (QUOTED_VALUE_KINDS.has(node.kind)) spans.push([ts.skipTrivia(text, node.pos), node.end]);
+    ts.forEachChild(node, walk);
+  })(parseTs(text));
+  return spans;
+}
+
+/** Fails CLOSED (throws) if `text` is not valid TypeScript. Classification above is deliberately
+ *  error-tolerant — the selftest feeds it bare fragments (`ads: false, // x`) that are not valid
+ *  programs — so the "did this file parse" question is asked once per REAL scanned module instead,
+ *  where a tree built from a broken parse would silently classify too few spans. ADR-0019: a gate
+ *  must never go green over a file it could not read. */
+function assertParses(text, label) {
+  const diagnostics = parseTs(text).parseDiagnostics;
+  assert.ok(
+    Array.isArray(diagnostics),
+    `${label}: this TypeScript build no longer exposes sourceFile.parseDiagnostics, so a broken parse ` +
+      'would classify silently. Failing closed rather than trusting the span walk (docs/adr/0019).',
+  );
+  assert.equal(
+    diagnostics.length, 0,
+    `${label}: does not parse as TypeScript (${diagnostics.map((d) => ts.flattenDiagnosticMessageText(d.messageText, ' ')).join('; ')}). ` +
+      'A file the parser cannot read yields too few quoted-value spans, which fails OPEN — the pin ' +
+      'refuses to grade it rather than call it clean.',
+  );
+}
+
 /** Every `//` that stripComments() above would treat as a line-comment opener — one per line, the
  *  first one, because that regex blanks from it to EOL and nothing after it is ever re-read.
  *  `inString` marks the ones that are NOT comment openers at all: the strip is textual, so a `//`
- *  inside a quoted value (`'https://watduang.com/x'`, `"//cdn/x.js"`) blanks the REST OF THAT LINE
- *  with it — an `el('button')` or an `armAllButtons(stage` after it stops existing for all four
- *  conditions, and this gate goes green on code it never read. Fail-OPEN, ADR-0019's hole class.
- *  Exists only to pin that precondition; the selftest below runs it over the real scanned modules.
- *  Block comments are blanked first, in stripComments()'s own order, so a `//` inside one (already
- *  handled, harmless) is not reported.
+ *  inside a quoted value (`'https://watduang.com/x'`, `"//cdn/x.js"`, an interior line of a template
+ *  literal) blanks the REST OF THAT LINE with it — an `el('button')` or an `armAllButtons(stage`
+ *  after it stops existing for all four conditions, and this gate goes green on code it never read.
+ *  Fail-OPEN, ADR-0019's hole class. Exists only to pin that precondition; the selftest below runs it
+ *  over the real scanned modules.
  *
- *  In-string test, deliberately state-free: the char immediately before, plus an odd count of `"` or
- *  backtick earlier on the line. Apostrophes are NEVER counted — they pair across ordinary prose
- *  (`don't` … `draw()'s`), and counting them would red on a comment that is perfectly fine.
+ *  In-string test: exact, not heuristic. The offset is looked up against quotedValueSpans() above —
+ *  the TypeScript parser's own literal boundaries. JS lexical grammar is language-owned, so the
+ *  per-line quote/backtick parity this replaced could only ever chase it one rung at a time (it
+ *  missed: interior lines of multi-line templates, escaped backticks, `${}` tails, `//` inside a
+ *  regex literal — all four are planted fixtures in the selftest below now, and all four were green
+ *  under parity). It also had two false-RED shapes (`const q = '"';`, `"3\" x"`) that the parser
+ *  simply reads correctly. Nothing about apostrophes, `:` or counting survives.
  *
- *  ponytail: DISCLOSED CEILING — a `//` deep inside a SINGLE-quoted string with neither a quote nor a
- *  `:` right before it (`'a//b'`) reads as a comment opener and is MISSED. Both shapes a game module
- *  can actually write — a URL (`://`) and a protocol-relative path (`"//`) — are caught, and both
- *  directions are calibrated by fixtures below. Trigger to widen: a single-quoted `//` landing in a
- *  scanned module. Widening means a real string-state walk, which is the same work as fixing the
- *  strip itself — do that instead of growing this heuristic.
+ *  Block comments are still blanked textually first, in stripComments()'s own order — that is not a
+ *  grammar approximation, it is a mirror of the artifact under test: this pin's whole question is
+ *  "what would stripComments() blank", and stripComments() is textual by design.
  *
- *  ponytail: SECOND MISSED CLASS — backtick parity is counted PER LINE, so an interior line of a
- *  multi-line template literal starts with the parity reset. A `//` on such a line with no `:` or
- *  quote before it reads as outside a string and is MISSED, while stripComments() still blanks to
- *  end of line — the fail-open this pin exists to catch. This class is NOT pinned, so no count here
- *  would stay true; re-derive it with a per-file backtick-depth walk over this gate's scan set (a
- *  grep cannot see it). Trigger to widen: the first hit. Same advice — that is a real state walk.
+ *  ponytail: WHAT THE PARSER ROUTE DOES NOT COVER —
+ *  1. A module that does not parse. The tree is then built from a broken parse and classifies too
+ *     few spans, i.e. fails open. assertParses() above turns that into a red before any span is
+ *     trusted; there is no third answer, and no skip.
+ *  2. The `&&` in CI (`--selftest && <the real scan>`, .github/workflows/ci.yml). A red HERE means
+ *     the scan never runs at all — the gate does not complain, it is absent. That is the trap
+ *     ADR-0030 records, and it is why a red is worded as "fix the module or fix the classifier",
+ *     never as something to wait out.
+ *  3. The zero-openers control: a scan set that legitimately carries no `//` (every comment in block
+ *     form) reds, because a detector returning nothing and a genuinely clean set are the same output
+ *     (ADR-0019). Unchanged by this rewrite, and deliberately not softened.
+ *  4. Scope. This function classifies `//` openers only; the block-comment delimiters that were the
+ *     other half of the same hazard are pinned by findQuotedBlockDelimiters() below, which the pin
+ *     calls alongside it. Together they cover in-string `//`, `/*` and its closer, and NOTHING else:
+ *     they still say nothing about whether stripComments()'s regexes are right on code that is not
+ *     inside a quoted value, nor about the brace-counting body extractor above — those keep their
+ *     own ceilings, disclosed at the top of this file.
+ *  5. A `//` inside an HTML comment inside a template literal now reads as in-string (it is), where
+ *     the old note reasoned about it as a comment-shaped red. The verdict is unchanged in effect:
+ *     stripComments() would still blank to end of line and eat a real attribute sharing it.
  *
- *  ponytail: KNOWN FALSE-REDS — TWO shapes, neither in the scan set today: a quote-character
- *  constant (`const q = '"';`) and an escaped quote (`"3\" x"`) both flip the parity count.
- *
- *  A `//` inside an HTML comment is NOT on this list, though it looks like it belongs. Measured:
- *  `<!-- ref: https://x --> <a data-stable-exit href="/games/">` strips to `<!-- ref: https:` —
- *  stripComments() blanks to end of line from inside the HTML comment and eats the real attribute
- *  sharing that line. The red is correct. Whether it is a hazard depends on what follows on the
- *  line, which the detector cannot know, so it flags the opener.
- *
- *  Cost of a false red is NOT just one annoyed commit. CI runs `--selftest && <the real scan>`, so
- *  a red here also short-circuits the scan — the gate does not merely complain, it does not run.
- *  That is the same `&&` trap ADR-0030 records, and it is why this stays a pin over a set that is
- *  measured rather than an assertion that could red on ordinary content.
- *
- *  A third red comes from a different mechanism, not from parity: the zero-openers control. If this
- *  gate's scan set ever legitimately carries no `//` at all — every comment converted to block form —
- *  the control fires, because a detector returning nothing and a genuinely clean set are the same
- *  output. That is the control working as designed, and it is why it is not softened.
- *
- *  Accepted deliberately: a pin that fails closed on an unowned set is the ADR-0019 doctrine, and
- *  the alternative is a detector that fails open on the hazard it was built for. Trigger to revisit:
- *  either shape landing in this gate's scan set, OR an owner ruling that a precondition violation
- *  should warn rather than fail — that second one moves the pin out from behind the `&&` and is a
- *  different change from widening the detector. Upgrade path is the real string-state walk named
- *  above; do NOT add a per-shape exemption, which grows the heuristic in the fail-open direction. */
+ *  Deliberately NOT shared with the other gates' strippers: gh#72 / ADR-0030 refused a shared
+ *  stripper on ownership grounds, and leave-confirm-check.mjs keeps its own different mechanism on
+ *  purpose. This classifier stays local to this file. */
 function findLineCommentOpeners(text) {
+  const spans = quotedValueSpans(text);
   const found = [];
+  let lineStart = 0;
   text.replace(/\/\*[\s\S]*?\*\//g, blank).split('\n').forEach((line, i) => {
     const col = line.indexOf('//');
-    if (col < 0) return;
-    const before = line.slice(0, col);
-    const prev = before.at(-1);
-    const inString =
-      (prev !== undefined && ':\'"`'.includes(prev)) ||
-      (before.split('"').length - 1) % 2 === 1 ||
-      (before.split('`').length - 1) % 2 === 1;
-    found.push({ line: i + 1, inString, text: line.trim() });
+    if (col >= 0) {
+      const offset = lineStart + col;
+      found.push({
+        line: i + 1,
+        inString: spans.some(([start, end]) => offset >= start && offset < end),
+        text: line.trim(),
+      });
+    }
+    lineStart += line.length + 1; // +1 for the '\n' the split consumed; blanking preserves offsets
   });
   return found;
+}
+
+// Every block-comment delimiter sitting inside a quoted value — the same fail-OPEN hazard class
+// findLineCommentOpeners() pins for `//`, in the other comment form and strictly worse. A `/*`
+// inside a string pairs with the NEXT real closer anywhere later in the FILE, not just later on
+// the line, so stripComments() blanks every line between them: an el('button') in a render
+// function inside that span stops existing for all four conditions. Reproduced end to end —
+// a module opening with `const note = 'see /* spec';` and closing with a real block comment,
+// wrapping an ungated render function, printed "2 module(s) ... clean" and exited 0.
+// A stray closer is flagged too: it ends a block comment opened earlier, moving the blanked span.
+// Kept out of findLineCommentOpeners(): that contract is "one `//` per line, the first one", which
+// is line-shaped and consumed as such by the pin; block delimiters are offset-shaped.
+function findQuotedBlockDelimiters(text) {
+  const spans = quotedValueSpans(text);
+  const found = [];
+  for (const m of text.matchAll(/\/\*|\*\//g)) {
+    if (!spans.some(([start, end]) => m.index >= start && m.index < end)) continue;
+    found.push({
+      line: text.slice(0, m.index).split('\n').length,
+      delim: m[0],
+      text: text.slice(text.lastIndexOf('\n', m.index) + 1).split('\n')[0].trim(),
+    });
+  }
+  return found;
+}
+
+/** The pin itself, over whatever scan set `dir` resolves to — the SAME listTargetFiles() +
+ *  EXCLUDED_FILES resolution main() scans with, so a fixture case and the real run exercise one
+ *  code path, not two copies (docs/adr/0030: a fixture that never reaches the branch it is cited
+ *  to pin proves nothing). Throws an AssertionError on the first violation; returns the counts so
+ *  the caller can print what it actually covered. */
+function pinStripPrecondition(dir) {
+  const modules = listTargetFiles(dir);
+  assert.ok(modules.length > 0, `the pin must resolve real modules under ${dir}, never an empty directory`);
+  let openerCount = 0;
+  for (const name of modules) {
+    const text = fs.readFileSync(path.join(dir, name), 'utf8');
+    assertParses(text, name); // fail closed: an unparseable module classifies too few spans (fails open)
+    for (const o of findLineCommentOpeners(text)) {
+      openerCount++;
+      assert.ok(
+        !o.inString,
+        `${name}:${o.line}: this \`//\` sits inside a quoted value, not in a comment. ` +
+          'stripComments() blanks from it to END OF LINE, so every live character after it on that ' +
+          'line is invisible to all four conditions — an ungated button or a missing armAllButtons ' +
+          'call after it would not be seen, and this gate may now be going green on code it never ' +
+          `read. Move the value onto its own line, or give stripComments() the same parser-backed ` +
+          `classification findLineCommentOpeners() uses. Line: ${o.text}`,
+      );
+    }
+    for (const d of findQuotedBlockDelimiters(text)) {
+      assert.fail(
+        `${name}:${d.line}: this \`${d.delim}\` sits inside a quoted value, not in a comment. ` +
+          "stripComments() blanks block comments textually, so this delimiter pairs with the next " +
+          'real one ANYWHERE LATER IN THE FILE and every line between them becomes invisible to all ' +
+          'four conditions — an ungated button in that span would not be seen, and this gate may now ' +
+          'be going green on code it never read. Move the value onto its own line, or give ' +
+          `stripComments() the same parser-backed classification this pin uses. Line: ${d.text}`,
+      );
+    }
+  }
+  assert.ok(
+    openerCount > 0,
+    `found zero \`//\` openers across the modules under ${dir} — the detector reported nothing, which is not ` +
+      'the same as none existing (docs/adr/0019). Check findLineCommentOpeners() before trusting this pin.',
+  );
+  return { modules, openerCount };
 }
 
 /** Splits `text` into its top-level `function render*() { ... }` bodies by counting braces from
@@ -633,31 +749,134 @@ function selftest() {
   }
   console.log('PASS line-comment-opener detector, other direction: line-start comments, a URL quoted inside a comment, trailing comments, and an apostrophe in prose are all clean');
 
+  // Planted hazard, routed through the REAL scan-set resolution (listTargetFiles + EXCLUDED_FILES,
+  // the same seam GAMES_DIR_OVERRIDE points main() at) rather than through a hand-fed string: the
+  // pin function under test here is the identical one the real src/games/ pin below calls. Each
+  // hazard is a shape the per-line backtick-parity heuristic MISSED — every case in this loop was
+  // green (no throw) before findLineCommentOpeners() was routed through the TypeScript parser.
+  for (const [label, hazardLine, hazardFixture] of [
+    [
+      'a `//` on an interior line of a multi-line template literal — zero backticks on the line',
+      3,
+      ['const tpl = `', '  <p>x</p>', '  // el("button") after this is blanked to EOL', '`;'].join('\n'),
+    ],
+    [
+      'a `//` after an escaped backtick inside a template literal',
+      1,
+      'const s = `a \\` b // c`; const btn = el(\'button\', \'x\');',
+    ],
+    [
+      'a `//` on the tail line of a multi-line ${} interpolation',
+      3,
+      ['const s = `a ${', '  x', '} b // c`; const btn = el(\'button\', \'x\');'].join('\n'),
+    ],
+    [
+      'a `//` inside a regular expression literal',
+      1,
+      "const r = /[//]/; const btn = el('button', 'x');",
+    ],
+  ]) {
+    const hazardDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arm-gate-strip-precondition-'));
+    try {
+      fs.writeFileSync(path.join(hazardDir, 'hazard-game.ts'), hazardFixture);
+      // The fixture must reach the in-string branch at the line claimed, or it pins nothing.
+      const hits = findLineCommentOpeners(hazardFixture).filter((o) => o.inString);
+      assert.deepEqual(hits.map((o) => o.line), [hazardLine], `${label}: must classify as in-string at line ${hazardLine}`);
+      assert.throws(
+        () => pinStripPrecondition(hazardDir),
+        new RegExp(`hazard-game\\.ts:${hazardLine}: this \`//\` sits inside a quoted value`),
+        `${label}: the pin must red on this file, through the real listTargetFiles() scan set`,
+      );
+      // Control: the same directory with the hazard removed must NOT red — and must still find an
+      // opener, so this is a real green and not the zero-openers case.
+      fs.writeFileSync(path.join(hazardDir, 'hazard-game.ts'), 'const btn = el(\'button\', \'x\'); // ordinary trailing comment\n');
+      assert.deepEqual(pinStripPrecondition(hazardDir), { modules: ['hazard-game.ts'], openerCount: 1 }, `${label}: control — the same scan set without the hazard must stay green`);
+    } finally {
+      fs.rmSync(hazardDir, { recursive: true, force: true });
+    }
+    console.log(`PASS stripComments precondition, planted hazard: ${label} — pin reds at hazard-game.ts:${hazardLine}, and goes green once removed`);
+  }
+
+  // Planted hazard, block-comment form, through the same real scan-set resolution. This is the
+  // reviewer's exact mutant: BEFORE findQuotedBlockDelimiters() existed, this fixture scanned green
+  // — `arm-gate-coverage-check: 1 module(s) ... clean`, exit 0 — while renderFoo builds an
+  // el('button') and never arms it, because the `/*` in the string paired with the closer below and
+  // blanked the whole function. The gating violation is proven real by the control at the end.
+  const blockHazard = [
+    "const note = 'see /* spec';",
+    "function renderFoo(): void {",
+    "  stage.replaceChildren();",
+    "  const btn = el('button', 'ไป');",
+    "  stage.appendChild(btn);",
+    "}",
+    "/* end */",
+  ].join('\n');
+  const blockHazardDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arm-gate-block-precondition-'));
+  try {
+    fs.writeFileSync(path.join(blockHazardDir, 'hazard-game.ts'), blockHazard);
+    // The fixture must reach the in-string branch at the line claimed, or it pins nothing (ADR-0030).
+    assert.deepEqual(
+      findQuotedBlockDelimiters(blockHazard).map((d) => [d.line, d.delim]), [[1, '/*']],
+      'the fixture must classify the `/*` inside the string literal at line 1, and nothing else',
+    );
+    assert.throws(
+      () => pinStripPrecondition(blockHazardDir),
+      /hazard-game\.ts:1: this `\/\*` sits inside a quoted value/,
+      'the pin must red on an in-string block-comment opener, through the real listTargetFiles() scan set',
+    );
+    // The blanking really does hide a genuine violation: strip the pin away and the scan calls it clean.
+    assert.deepEqual(findViolations(blockHazard, 'hazard-game.ts'), [], 'documents the fail-open the pin now covers: the scan itself still sees nothing here');
+    // Control: same shape, no `/*` in the quoted value -> green, and still finds a real opener, so
+    // this is not the vacuous zero-openers case.
+    fs.writeFileSync(
+      path.join(blockHazardDir, 'hazard-game.ts'),
+      blockHazard.replace("'see /* spec'", "'see the spec'") + ' // ordinary trailing comment\n',
+    );
+    assert.deepEqual(
+      pinStripPrecondition(blockHazardDir), { modules: ['hazard-game.ts'], openerCount: 1 },
+      'control — the same scan set without the in-string `/*` must stay green and still find one opener',
+    );
+    // ...and with the blanking gone, the ungated button it was hiding is flagged.
+    const unhidden = findViolations(fs.readFileSync(path.join(blockHazardDir, 'hazard-game.ts'), 'utf8'), 'hazard-game.ts');
+    assert.equal(unhidden.length, 1, 'the control fixture must expose the ungated render function the hazard hid');
+    assert.equal(unhidden[0].kind, 'ungated render function');
+  } finally {
+    fs.rmSync(blockHazardDir, { recursive: true, force: true });
+  }
+  console.log('PASS stripComments precondition, planted hazard: a `/*` inside a quoted value pairing with a later real closer — pin reds on the opening line of the fixture module, and the same file without it goes green while the ungated button it hid becomes visible');
+
+  // Other direction for the block-delimiter detector: the block comments these modules really write
+  // must not read as in-string, or the pin is a false alarm on a tree that is fine.
+  for (const [label, fixture] of [
+    ['an ordinary block comment', '/* was: armAllButtons(stage) */\nconst btn = 1;'],
+    ['a block comment holding a quote', "/* the 'except' arg */\nconst btn = 1;"],
+    ['a JSDoc block above code', '/** does a thing */\nfunction renderFoo() {}'],
+    ['a string with no comment syntax', "const s = 'https://watduang.com/x';"],
+    ['a divide followed by a star in code', 'const r = a / b * c;'],
+  ]) {
+    assert.deepEqual(findQuotedBlockDelimiters(fixture), [], `${label}: must NOT read as a block delimiter inside a quoted value`);
+  }
+  console.log('PASS block-delimiter detector, other direction: ordinary block comments, JSDoc, a quoted URL and `a / b * c` are all clean');
+
+  // Fail-closed calibration: a module the parser cannot read must RED, never be skipped or called
+  // clean. A broken parse yields too few quoted-value spans, so tolerating it is fail-open — the
+  // exact hole class ADR-0019 forbids.
+  const unparsableDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arm-gate-unparsable-'));
+  try {
+    fs.writeFileSync(path.join(unparsableDir, 'broken-game.ts'), 'function renderFoo( {\n  const s = "// x";\n');
+    assert.throws(
+      () => pinStripPrecondition(unparsableDir),
+      /broken-game\.ts: does not parse as TypeScript/,
+      'an unparseable module must fail the pin closed, not be classified on a broken tree',
+    );
+    console.log('PASS stripComments precondition, fail-closed: a module that does not parse reds the pin instead of being classified on a broken tree');
+  } finally {
+    fs.rmSync(unparsableDir, { recursive: true, force: true });
+  }
+
   // The pin itself, over the REAL modules. Two things must hold, and the second is the positive
   // control: a detector returning nothing looks exactly like a clean tree (docs/adr/0019).
-  const pinnedDir = path.join(repoRoot, 'src/games');
-  const pinnedModules = listTargetFiles(pinnedDir);
-  assert.ok(pinnedModules.length > 0, 'the pin must resolve the real src/games/ modules, never an empty directory');
-  let openerCount = 0;
-  for (const name of pinnedModules) {
-    for (const o of findLineCommentOpeners(fs.readFileSync(path.join(pinnedDir, name), 'utf8'))) {
-      openerCount++;
-      assert.ok(
-        !o.inString,
-        `src/games/${name}:${o.line}: this \`//\` sits inside a quoted value, not in a comment. ` +
-          'stripComments() blanks from it to END OF LINE, so every live character after it on that ' +
-          'line is invisible to all four conditions — an ungated button or a missing armAllButtons ' +
-          'call after it would not be seen, and this gate may now be going green on code it never ' +
-          `read. Move the value onto its own line, or take the upgrade path in ` +
-          `findLineCommentOpeners' header and give stripComments() a real string-state walk. Line: ${o.text}`,
-      );
-    }
-  }
-  assert.ok(
-    openerCount > 0,
-    'found zero `//` openers across the pinned modules — the detector reported nothing, which is not ' +
-      'the same as none existing (docs/adr/0019). Check findLineCommentOpeners() before trusting this pin.',
-  );
+  const { modules: pinnedModules, openerCount } = pinStripPrecondition(path.join(repoRoot, 'src/games'));
   console.log(`PASS stripComments precondition: ${openerCount} \`//\` opener(s) across ${pinnedModules.length} pinned module(s) in src/games/, none inside a quoted value`);
 }
 
