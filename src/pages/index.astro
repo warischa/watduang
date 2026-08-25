@@ -1,40 +1,265 @@
 ---
+// gh#75: the home page is a neutral hub over three groups — the two game categories plus the tools
+// group — not a games list. The site only enters the H1/lead; nothing here names "games" as the whole site.
 import Base from '../layouts/Base.astro';
-import { games } from '../games/manifest';
 import { categories } from '../games/categories';
-import { tools } from '../tools/manifest';
+import { games as allGames } from '../games/manifest';
+import { tools, toolsGroup } from '../tools/manifest';
+
+// The two game groups render from the category manifest, one card per key (never one card per game,
+// and never written out one by one) — record order IS page order, so fortune presents first,
+// and a fourth category key would render a fourth card here with no edit to this file (AC 8 requires
+// the same of the H1 and lead, which name no content type). Group copy is hubHeading/hubBody, NOT the
+// category page's label/whenToUse: one manifest, two consumers. Member lists are the members' own
+// names and tool names, joined — read from the manifests, never retyped.
+const gameGroups = Object.entries(categories).map(([key, meta]) => ({
+  key,
+  href: `/c/${key}/`,
+  meta,
+  members: allGames.filter((game) => game.category === key).map((game) => game.names.th).join(' · '),
+}));
+const toolNames = tools.map((tool) => tool.name).join(' · ');
 ---
 
 <Base
-  title="วัดดวง — เกมปาร์ตี้เล่นฟรี บนมือถือเครื่องเดียว"
-  description="เว็บรวมเกมกลุ่มเล่นฟรี 2-10 คน ส่งมือถือวนกัน เล่นได้ทันทีไม่ต้องโหลดแอป"
+  title="วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว"
+  description="ดูดวง สุ่มคนโดน วงล้อสุ่ม จับฉลาก แบ่งทีม ใช้ฟรีบนมือถือเครื่องเดียว 2-10 คน ส่งเครื่องวนกันในวง ไม่ต้องโหลดแอป ไม่ต้องสมัคร"
 >
   <main>
-    <h1>วัดดวง</h1>
-    <p>เว็บรวมเกมกลุ่มเล่นฟรี 2-10 คน บนเครื่องเดียว ส่งมือถือวนกัน ไม่ต้องโหลดแอป</p>
-    <p>
-      {games.map((game) => (
-        <>
-          <a href={`/game/${game.id}/`}>{game.names.th}</a>{' '}
-        </>
+    <header class="hero">
+      <p class="brand">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="9"></circle
+          ><path d="M12 7v5l3 2"></path>
+        </svg>
+        วัดดวง
+      </p>
+      <h1>วงเดียว เครื่องเดียว<br />ตัดสินได้ทุกเรื่อง</h1>
+      <p class="lead">ฟรีทั้งหมด 2–10 คน ส่งมือถือวนกัน ไม่ต้องโหลดแอป</p>
+      <ul class="pills">
+        <li>ไม่ต้องโหลดแอป</li>
+        <li>ไม่ต้องสมัคร</li>
+        <li>2–10 คน</li>
+      </ul>
+    </header>
+
+    <section class="groups">
+      <h2 class="groups-title">เลือกสิ่งที่วงกำลังต้องการ</h2>
+
+      {gameGroups.map(({ meta, href, members }) => (
+        <a class="group-card" href={href} style={`--page-accent: var(--accent-${meta.accent});`}>
+          <div class="card-head">
+            <h3 class="card-title">{meta.hubHeading}</h3>
+          </div>
+          <p class="card-body">{meta.hubBody}</p>
+          <span class="card-foot">
+            {members}
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h13"></path
+              ><path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </span>
+        </a>
       ))}
-    </p>
-    <p><a href="/games/">ดูเกมทั้งหมด</a></p>
-    <p>
-      {Object.entries(categories).map(([key, meta]) => (
-        <>
-          <a href={`/c/${key}/`}>{meta.label}</a>{' '}
-        </>
-      ))}
-    </p>
-    <p>
-      <a href="/tools/">เครื่องมือสุ่ม</a> —{' '}
-      {tools.map((tool) => (
-        <>
-          <a href={tool.href}>{tool.name}</a>{' '}
-        </>
-      ))}
-      ใช้รายชื่อร่วมกับเกมได้
-    </p>
+
+      {/* The tools group is NOT a category, so it has no manifest accent name: toolsGroup.accentVar
+          is a raw token name ('--accent-sky'), not a CategoryMeta accent, because --accent-sky has no
+          entry in categories.ts (ADR-0032: a tools key there would widen every game's category check to
+          a value no game can hold). Read from the manifest rather than written as a page literal, and
+          rendered into the SAME --page-accent property the category cards use, so all three consumers
+          carry the one mapping — a new category still needs no page edit. */}
+      <a class="group-card" href={toolsGroup.href} style={`--page-accent: var(${toolsGroup.accentVar});`}>
+        <div class="card-head">
+          <h3 class="card-title">{toolsGroup.heading}</h3>
+        </div>
+        <p class="card-body">{toolsGroup.body}</p>
+        <span class="card-foot">
+          {toolNames}
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h13"></path
+            ><path d="M12 5l7 7-7 7"></path>
+          </svg>
+        </span>
+      </a>
+    </section>
+
+    <p class="list-link"><a href="/games/">ดูทุกอย่างเรียงเป็นรายการ</a></p>
   </main>
 </Base>
+
+<style>
+  /* Scoped (Astro stamps data-astro-cid), so nothing here can bleed onto another page. Tokens come
+     from tokens.css via Base; --page-accent is set per group card by the inline custom property above
+     — resolve the accent NAME (meta.accent / toolsGroup.accentVar) through the token, never a hex. */
+  main {
+    max-width: 36rem;
+    margin-inline: auto;
+    padding-block-end: var(--space-xl);
+    background: var(--color-ground-warm);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 28px 20px 26px 20px;
+    background: var(--color-accent);
+    border-block-end: 2.5px solid var(--color-line-strong);
+  }
+
+  .brand {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 30px;
+    letter-spacing: -0.5px;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 33px;
+    line-height: 1.28;
+    text-wrap: pretty;
+  }
+
+  .lead {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.65;
+    max-width: 33ch;
+  }
+
+  .pills {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pills li {
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--color-ground-warm);
+    border: 2px solid var(--color-line-strong);
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+
+  .groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: var(--space-lg) var(--space-md) 0;
+  }
+
+  .groups-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 1px;
+    color: var(--color-muted);
+  }
+
+  .group-card {
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background: var(--page-accent);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .card-head {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+  }
+
+  .card-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 21px;
+    line-height: 1.3;
+  }
+
+  .card-body {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-block-start: 2px solid color-mix(in srgb, var(--color-line-strong) 20%, transparent);
+    padding-block-start: 12px;
+    font-size: 14px;
+  }
+
+  .list-link {
+    margin: 0;
+    padding: var(--space-lg) var(--space-md) 0;
+  }
+
+  .list-link a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    border: 2.5px dashed var(--color-line-strong);
+    border-radius: 14px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+</style>
