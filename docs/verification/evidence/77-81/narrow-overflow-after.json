@@ -32,7 +32,7 @@
       "id": "short-stick",
       "innerWidth": 320,
       "scrollX": 0,
-      "stageChildren": 4,
+      "stageChildren": 3,
       "overflowing": []
     },
     {
@@ -80,7 +80,7 @@
       "id": "short-stick",
       "innerWidth": 320,
       "scrollX": 0,
-      "stageChildren": 3,
+      "stageChildren": 4,
       "overflowing": []
     },
     {

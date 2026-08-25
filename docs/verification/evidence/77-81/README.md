@@ -14,7 +14,7 @@ two to ten players, so the probe sweeps every roster size the game accepts at bo
 | file | build | result |
 |---|---|---|
 | `stick-tap-target-control-prefix.json` | before the wrap fix | **11 of 18 fail**, smallest edge 14.2px; even 6 sticks at 390px measured 42px |
-| `stick-tap-target-fixed.json` | after the wrap fix | **0 of 18 fail**, smallest edge 50.5px |
+| `stick-tap-target-fixed.json` | after the wrap fix and the body reset | **0 of 18 fail**, smallest edge 44.7px |
 
 The control run is the calibration: the probe reds on the unfixed build and greens on the fixed one,
 so a pass means the geometry changed rather than the probe being blind.
@@ -50,8 +50,14 @@ node scripts/driver.mjs scripts/narrow-overflow-probe.mjs
 Both poll for the stage to fill before measuring. The game module is lazy-imported, so measuring
 straight after the start button reports zero sticks — which looks exactly like a broken screen.
 
-## Still open
+## The body reset
 
-This site has no `body { margin: 0 }`, in `src/` or in the built CSS. Every page therefore carries the
-UA's 8px gutter on each side. That is a site-wide layout question, not a gh#77-gh#81 one, and changing
-it would move every screen — including the two the owner has yet to review. Left alone deliberately.
+This site had no `body { margin: 0 }` anywhere, so every page carried the UA's 8px gutter on each side.
+That gutter is the width the original 44px arithmetic missed. The owner asked for it fixed in the same
+session, so `src/layouts/Base.astro` — the layout that declares `<body>` — now carries the one global
+reset on the site, and both probe runs above were re-measured against it.
+
+Removing the gutter narrows the smallest stick from 50.5px to 44.7px rather than widening it: the
+extra 16px lets one more stick fit per row, so each one's share of the row is smaller. It stays above
+44px because `min-width: 44px` is a hard floor — the row wraps instead of squeezing — and the overflow
+probe confirms no page scrolls sideways at 320px.

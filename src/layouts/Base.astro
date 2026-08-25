@@ -54,6 +54,19 @@ const ogImageURL = new URL(ogImage, Astro.site);
   </body>
 </html>
 
+<style is:global>
+  /* The one global reset on the site, and it lives here because this layout is where <body> is
+     declared — every page renders through it. Until now nothing zeroed the UA's default body margin,
+     so every screen carried an 8px gutter on each side that no design source asks for: the artboards
+     under design/ are full-bleed 390px, and the shell paints its accent to the edge. The gutter was
+     also load-bearing in the wrong direction — it is the width the 44px tap-target arithmetic for
+     gh#79 missed, because reading the CSS finds no body rule at all and it is easy to conclude there
+     is no margin rather than that the UA supplies one. */
+  body {
+    margin: 0;
+  }
+</style>
+
 <style>
   footer {
     padding: var(--space-md);
