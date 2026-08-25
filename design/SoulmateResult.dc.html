@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 1180px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
+    <a href="/c/fortune/" style="display: flex; align-items: center; gap: 6px; font-size: 14px; text-decoration: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+      ดูดวงทั้งหมด
+    </a>
+    <span style="font-size: 13px; font-weight: 500; border: 2px solid #1a1a1a; border-radius: 999px; padding: 3px 10px;">80%</span>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 22px 20px 28px 20px; background: {{accent}};">
+
+    <!-- The portrait. THE IMAGE BOX IS 240x240 CSS px, rendered from a 1024x1024 source downscaled to
+         ~480px so it stays sharp at 2x. The PNG is a transparent cutout — the accent ground shows
+         through it, which is why assets.md forbids a baked-in background. One image loads per result,
+         never the set. The dashed frame here is the placeholder, not a border the build should keep. -->
+    <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 268px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; overflow: hidden;">
+      <div style="width: 240px; height: 240px; border: 2.5px dashed #1a1a1a; border-radius: 16px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; color: #6b7280; line-height: 1.6;">รูปเนื้อคู่ 240×240<br>PNG พื้นหลังโปร่ง</div>
+    </div>
+
+    <!-- The headline is the shareable line. The meeting age is drawn per result, never stored on the
+         card, and is always above the top of the age band the reader picked. -->
+    <div style="text-align: center;">
+      <span style="font-size: 14px;">ดวงบอกว่า</span>
+      <p style="margin: 4px 0 0 0; font-family: Mitr, sans-serif; font-weight: 500; font-size: 26px; line-height: 1.35;">คุณจะเจอเขา<br>ตอนอายุ 31</p>
+    </div>
+
+    <!-- Short facts in two columns, prose facts full width below. Everything in this panel comes from
+         ONE card in the index — the same card the portrait belongs to, so the picture can never
+         disagree with the words. น้ำหนัก is deliberately absent (owner's call, 2026-08-25). -->
+    <div style="width: 100%; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; box-sizing: border-box; padding: 16px 18px;">
+
+      <div style="display: flex; flex-wrap: wrap; gap: 12px 0;">
+        <div style="width: 50%;">
+          <span style="font-size: 12px; color: #6b7280;">อายุ</span>
+          <p style="margin: 1px 0 0 0; font-size: 15px; font-weight: 500;">33 ปี</p>
+        </div>
+        <div style="width: 50%;">
+          <span style="font-size: 12px; color: #6b7280;">ส่วนสูง</span>
+          <p style="margin: 1px 0 0 0; font-size: 15px; font-weight: 500;">176 ซม.</p>
+        </div>
+        <div style="width: 50%;">
+          <span style="font-size: 12px; color: #6b7280;">รูปร่าง</span>
+          <p style="margin: 1px 0 0 0; font-size: 15px; font-weight: 500;">สมส่วน</p>
+        </div>
+        <div style="width: 50%;">
+          <span style="font-size: 12px; color: #6b7280;">สัญชาติ</span>
+          <p style="margin: 1px 0 0 0; font-size: 15px; font-weight: 500;">ไทย</p>
+        </div>
+      </div>
+
+      <div style="border-top: 2.5px dashed #1a1a1a; margin-top: 14px; padding-top: 14px; display: flex; flex-direction: column; gap: 11px;">
+        <div>
+          <span style="font-size: 12px; color: #6b7280;">อาชีพ · ฐานะ</span>
+          <p style="margin: 1px 0 0 0; font-size: 15px; line-height: 1.6;">สถาปนิกที่เปิดออฟฟิศเล็กๆ ของตัวเอง ฐานะพอมีพอใช้ ไม่ถึงกับสบาย</p>
+        </div>
+        <div>
+          <span style="font-size: 12px; color: #6b7280;">บุคลิก</span>
+          <p style="margin: 1px 0 0 0; font-size: 15px; line-height: 1.6;">เงียบตอนแรก พอสนิทแล้วพูดไม่หยุด</p>
+        </div>
+        <div>
+          <span style="font-size: 12px; color: #6b7280;">นิสัย</span>
+          <p style="margin: 1px 0 0 0; font-size: 15px; line-height: 1.6;">เครียดทีไรก็ทำความสะอาดบ้านทุกที</p>
+        </div>
+        <div>
+          <span style="font-size: 12px; color: #6b7280;">จุดสังเกต</span>
+          <p style="margin: 1px 0 0 0; font-size: 15px; line-height: 1.6;">มีไฝเล็กๆ ใต้ตาข้างซ้าย</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Drawn per result, not stored on the card — so the same face can be met in sixteen different
+         places and the page does not feel like a deck of forty. -->
+    <div style="width: 100%; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 #1a1a1a; box-sizing: border-box; padding: 14px 16px;">
+      <span style="font-size: 12px; color: #6b7280;">ที่เจอกัน</span>
+      <p style="margin: 1px 0 0 0; font-size: 15px; line-height: 1.6;">ในร้านที่ทั้งคู่ไปประจำ แต่ไม่เคยทักกันสักครั้ง</p>
+    </div>
+
+    <button style="width: 100%; min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: Mitr, sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">ดูใหม่อีกครั้ง</button>
+
+    <p style="margin: 0; font-size: 13px; line-height: 1.6; text-align: center; max-width: 30ch;">ดวงเล่นๆ อ่านสนุก อย่าเอาไปตัดสินใครจริงจัง</p>
+
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; border-top: 2.5px solid #1a1a1a; background: #f3efe4; font-size: 12px; color: #6b7280;">ช่องโฆษณา — นอกพื้นที่ดูดวง</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#ffd27f","options":["#ffd27f","#f89880","#7fd8e8","#c9a7f0"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#ffd27f' };
+  }
+}
+</script>
+</body>
+</html>

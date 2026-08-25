@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 1060px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
+    <a href="/c/fortune/" style="display: flex; align-items: center; gap: 6px; font-size: 14px; text-decoration: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+      ดูดวงทั้งหมด
+    </a>
+    <span style="font-size: 13px; font-weight: 500; border: 2px solid #1a1a1a; border-radius: 999px; padding: 3px 10px;">การงาน</span>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 22px 20px 28px 20px; background: {{accent}};">
+
+    <!-- the slip itself: one paper panel holding everything, so a screenshot of it is the whole
+         fortune. Nothing outside this panel is part of the คำทำนาย. -->
+    <div style="width: 100%; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; box-sizing: border-box; padding: 20px 18px;">
+
+      <div style="display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2.5px dashed #1a1a1a; padding-bottom: 12px;">
+        <span style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 34px; line-height: 1;">๑๔</span>
+        <!-- grade. Four values only: ดีมาก · ดี · พอใช้ · ระวัง. "ระวัง" is deliberately not "ไม่ดี" —
+             the register has to stay a warning, never a verdict about someone's life. -->
+        <span style="font-size: 14px; font-weight: 700; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 14px; background: {{accent}};">ดี</span>
+      </div>
+
+      <!-- the กลอน: the part that makes this เซียมซี and not a horoscope line. Four lines, imagery
+           the reader interprets against their own question. Mitr, centred, generous leading. -->
+      <p style="margin: 16px 0 0 0; font-family: Mitr, sans-serif; font-weight: 400; font-size: 16px; line-height: 2; text-align: center;">
+        ต้นไม้เพิ่งผลิใบ ยังไม่ถึงคราวออกผล<br>
+        รากหยั่งลึกลงล้น ลมแรงมาก็ไม่หวั่น<br>
+        รอฟ้าเปิดทางไว้ อย่าเร่งร้อนก่อนถึงวัน<br>
+        ถึงคราวจะได้กัน สิ่งที่หมายมั่นเอาไว้
+      </p>
+
+      <div style="border-top: 2.5px dashed #1a1a1a; margin-top: 18px; padding-top: 14px; display: flex; flex-direction: column; gap: 12px;">
+
+        <!-- the asked-about row comes first and carries the accent bar. The other three keep their
+             fixed order below it, so the slip reads the same way every time. -->
+        <div style="display: flex; gap: 10px;">
+          <span style="width: 5px; border-radius: 999px; background: #d6336c; flex-shrink: 0;"></span>
+          <div>
+            <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 14px;">การงาน</span>
+            <p style="margin: 2px 0 0 0; font-size: 14px; line-height: 1.7;">งานที่ทำอยู่กำลังตั้งราก อีกไม่นานจะเห็นผล อย่าเปลี่ยนใจกลางทาง</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <span style="width: 5px; border-radius: 999px; background: #1a1a1a; opacity: 0.15; flex-shrink: 0;"></span>
+          <div>
+            <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 14px;">การเงิน</span>
+            <p style="margin: 2px 0 0 0; font-size: 14px; line-height: 1.7;">มีเข้ามาแต่ไม่มาก เก็บไว้ก่อนดีกว่ารีบใช้</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <span style="width: 5px; border-radius: 999px; background: #1a1a1a; opacity: 0.15; flex-shrink: 0;"></span>
+          <div>
+            <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 14px;">ความรัก</span>
+            <p style="margin: 2px 0 0 0; font-size: 14px; line-height: 1.7;">อย่าเร่งรัด ดูใจกันนานๆ แล้วจะชัดขึ้นเอง</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <span style="width: 5px; border-radius: 999px; background: #1a1a1a; opacity: 0.15; flex-shrink: 0;"></span>
+          <div>
+            <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 14px;">สุขภาพ</span>
+            <p style="margin: 2px 0 0 0; font-size: 14px; line-height: 1.7;">ร่างกายยังดี แต่พักผ่อนน้อยไป นอนให้พอกว่านี้</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- closing thought. Every slip carries one, including the ระวัง ones — it is what keeps a bad
+           draw constructive instead of frightening. -->
+      <p style="margin: 16px 0 0 0; padding-top: 14px; border-top: 2.5px dashed #1a1a1a; font-size: 13px; line-height: 1.7; color: #6b7280;">คำทำนายที่ดีคือกำลังใจ ไม่ใช่คำรับประกัน ทำดีต่อไปแล้วอย่าประมาท</p>
+
+    </div>
+
+    <!-- the real custom, as the two closing actions: keep a good slip, tie away a bad one. Whichever
+         is tapped, the panel is replaced by one line of copy plus "เสี่ยงใหม่" — no third screen. -->
+    <button style="width: 100%; min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: Mitr, sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">เก็บใบนี้ไว้</button>
+
+    <button style="width: 100%; min-height: 56px; background: #fffdf7; color: #1a1a1a; font-family: Mitr, sans-serif; font-weight: 500; font-size: 18px; border: 2.5px solid #1a1a1a; border-radius: 16px; cursor: pointer;">ผูกทิ้งไว้ที่นี่</button>
+
+    <p style="margin: 0; font-size: 13px; line-height: 1.6; text-align: center; max-width: 30ch;">ใบดีเก็บไว้เป็นกำลังใจ ใบที่ไม่ถูกใจฝากทิ้งไว้ที่นี่ ไม่ต้องเอากลับบ้าน</p>
+
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; border-top: 2.5px solid #1a1a1a; background: #f3efe4; font-size: 12px; color: #6b7280;">ช่องโฆษณา — นอกพื้นที่เสี่ยง</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#ffd27f","options":["#ffd27f","#f89880","#7fd8e8","#c9a7f0"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#ffd27f' };
+  }
+}
+</script>
+</body>
+</html>

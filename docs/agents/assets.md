@@ -51,6 +51,16 @@ If a render comes back opaque twice, fall back to chroma-key: ask for a flat pur
 `magick in.png -fuzz 8% -transparent '#00FF00' out.png`, and check the edges over a dark ground for a
 green halo.
 
+**The model decides whether alpha is possible at all, and the default is the wrong one.** Measured
+2026-08-25 on the token-plan host with the prompt, size and seed held identical and only the model
+changed: `qwen-image-3.0-pro` returned `srgb`, three channels, alpha mean exactly 1 — no transparency,
+and no prompt wording moved it. `wan2.7-image-pro` returned `srgba` with a real cutout. The
+`qwen-image` skill makes qwen its primary and wan its fallback, which is backwards for anything that
+has to sit on a coloured ground: **pass `--model wan2.7-image-pro` explicitly.** Two more things that
+run came back with — the CLI path (`bl image generate`) defaults `--watermark` to *true*, and a render
+can carry a 1–5% alpha haze that the mean test above passes; `-channel A -threshold 10% +channel`
+clears it.
+
 **3. Content rules apply to every asset, generated or drawn.** No bottles, no cans, no branded
 glassware, anywhere — share cards and thumbnails included. That is the Thai Alcohol Act line from
 `CLAUDE.md`, and an image model will happily produce all three from a prompt about a party. Put the
@@ -70,7 +80,8 @@ designated. Match the hash the run reports.
 **6. Every published binary needs a referrer.** Before committing a file under `public/`, something in
 `src/` or a manifest must point at it. `scripts/validate-games.mjs` already fails the build when a game's
 declared share card is missing — the opposite direction, a file that ships with nothing pointing at it,
-is currently unguarded. Until a gate exists, this is a rule an author keeps, not one CI keeps.
+is currently unguarded. `scripts/public-orphan-check.mjs` is that gate now — CI refuses any `public/` file nothing in `src/` points
+at (by basename token, or via the gate's named allowlist), and any raster over the size-ceiling line below.
 
 ## Size ceilings
 

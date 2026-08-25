@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 900px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
+    <a href="/c/fortune/" style="display: flex; align-items: center; gap: 6px; font-size: 14px; text-decoration: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+      ดูดวงทั้งหมด
+    </a>
+    <span style="font-size: 13px; font-weight: 500; border: 2px solid #1a1a1a; border-radius: 999px; padding: 3px 10px;">20%</span>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 26px 20px; background: {{accent}};">
+
+    <!-- This branch uses NO generated portrait — drawn in SVG, like everything else on the site. One
+         figure standing whole, not half of a pair, and not a broken heart: the drawing has to carry
+         the same reading as the words or the words are not believed. -->
+    <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 240px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a;">
+      <svg width="170" height="180" viewBox="0 0 170 180" fill="none" aria-hidden="true">
+        <circle cx="85" cy="52" r="30" fill="{{accent}}" stroke="#1a1a1a" stroke-width="3"></circle>
+        <path d="M72 48 h8 M90 48 h8" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"></path>
+        <path d="M74 62 q11 9 22 0" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"></path>
+        <path d="M52 158 q0 -46 33 -46 q33 0 33 46 z" fill="#fffdf7" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path>
+        <path d="M85 112 c-9 -11 -25 -8 -25 5 c0 11 15 19 25 27 c10 -8 25 -16 25 -27 c0 -13 -16 -16 -25 -5 z" fill="#d6336c" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+
+    <!-- The 20% branch keeps its odds and loses its sting. Never a verdict about the reader's life:
+         the fortune is about them being enough, and the closing line hands the choice back. -->
+    <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 26px; line-height: 1.35; text-align: center;">ชาตินี้ดวงให้คุณ<br>เป็นของตัวเอง</span>
+
+    <p style="margin: 0; font-size: 15px; line-height: 1.8; text-align: center; max-width: 26ch;">ดวงไม่ได้บอกว่าคุณจะเหงา บอกว่าคุณไม่ต้องรอใครมาทำให้ครบ คนแบบนี้มีไม่เยอะ ในร้อยคนมีอยู่ยี่สิบ</p>
+
+    <button style="width: 100%; min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: Mitr, sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">ดูใหม่อีกครั้ง</button>
+
+    <p style="margin: 0; font-size: 13px; line-height: 1.6; text-align: center; max-width: 30ch;">ดวงเล่นๆ อ่านสนุก กดใหม่ได้เรื่อยๆ</p>
+
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; border-top: 2.5px solid #1a1a1a; background: #f3efe4; font-size: 12px; color: #6b7280;">ช่องโฆษณา — นอกพื้นที่ดูดวง</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#ffd27f","options":["#ffd27f","#f89880","#7fd8e8","#c9a7f0"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#ffd27f' };
+  }
+}
+</script>
+</body>
+</html>
