@@ -187,12 +187,32 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
   cleanup.push(() => target.removeEventListener(type, handler));
 }
 
+// The barrel is vector art only — inline SVG, no raster asset (gh#78). The accent-coloured body path
+// fills var(--page-accent), a presentation attribute referencing a custom property; it resolves
+// because the shell defines --page-accent on <main> above the stage (GameLayout.astro). The stick
+// wood #f7e6c4 and the marked tip #d6336c are literals with no token, as the brief allows. The
+// ellipse uses the warm ground token and every outline uses the strong line token, exactly as
+// pick-loser's burst does (gh#76). The 3D shake barrel is gh#83's problem — not built here.
+const BARREL_SVG =
+  '<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true">' +
+  '<rect x="66" y="18" width="9" height="120" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  '<rect x="84" y="4" width="9" height="134" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  '<rect x="102" y="24" width="9" height="114" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  '<rect x="120" y="12" width="9" height="126" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  '<rect x="88" y="0" width="9" height="18" rx="4.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  '<path d="M56 110 h84 l-9 128 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path>' +
+  '<ellipse cx="98" cy="110" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse>' +
+  '<path d="M70 150 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
+  '<path d="M72 172 h52" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
+  '</svg>';
+
 // ---- Screens ----
 
 function renderIdle(resumeFailed = false): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  stage.className = 'stage-screen';
 
   if (resumeFailed) {
     stage.appendChild(el('p', 'กู้รอบที่ค้างไม่ได้ — ข้อมูลรอบเดิมเสียหาย เริ่มรอบใหม่ได้เลย'));
@@ -205,6 +225,7 @@ function renderIdle(resumeFailed = false): void {
   const startBtn = el('button', 'เริ่มจั่วดวง');
   startBtn.id = 'ss-start';
   startBtn.type = 'button';
+  startBtn.className = 'game-btn game-btn-primary';
   on(startBtn, 'click', startRound);
   stage.appendChild(startBtn);
 
@@ -217,15 +238,47 @@ function renderTurn(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  stage.className = 'stage-screen';
 
-  stage.appendChild(el('p', `ตาของ ${players[holder]}`, 'font-size:1.5rem;font-weight:700'));
-  stage.appendChild(el('p', 'ส่งมือถือให้คนนี้ แล้วกดจั่วดวง'));
+  // Two-line holder block — kicker above the current holder's name (design/GameSiamsi.dc.html).
+  const holderBlock = document.createElement('div');
+  holderBlock.className = 'sm-holder';
+  const kicker = el('span', 'คนที่ถือมือถือ');
+  kicker.className = 'sm-holder-kicker';
+  const holderName = el('span', `ตาของ ${players[holder]}`);
+  holderName.className = 'sm-holder-name';
+  holderBlock.appendChild(kicker);
+  holderBlock.appendChild(holderName);
+  stage.appendChild(holderBlock);
+
+  // Hero motif: the barrel. Inline SVG (BARREL_SVG), vector only — no raster asset (gh#78). The 3D
+  // shake barrel is gh#83's problem and is not built here.
+  const barrel = document.createElement('div');
+  barrel.className = 'sm-barrel';
+  barrel.innerHTML = BARREL_SVG;
+  stage.appendChild(barrel);
+
+  const hint = el('span', 'เขย่าเครื่อง หรือกดปุ่มด้านล่างก็ได้');
+  hint.className = 'sm-hint';
+  stage.appendChild(hint);
 
   const drawBtn = el('button', 'จั่วดวง');
   drawBtn.id = 'ss-draw';
   drawBtn.type = 'button';
+  drawBtn.className = 'game-btn game-btn-primary';
   on(drawBtn, 'click', drawForHolder);
   stage.appendChild(drawBtn);
+
+  // Progress dots — one per player, filled for each who has drawn. Derived from the live roster and
+  // draw count (results.length), never a hardcoded six (gh#78 acceptance).
+  const dots = document.createElement('div');
+  dots.className = 'sm-dots';
+  for (let i = 0; i < players.length; i++) {
+    const dot = document.createElement('span');
+    dot.className = i < results.length ? 'sm-dot sm-dot--drawn' : 'sm-dot';
+    dots.appendChild(dot);
+  }
+  stage.appendChild(dots);
 
   // Reached from startRound(), passToNext()'s next-turn branch, and a resumed mount — every one of
   // those swaps the stage under a finger that just tapped something else. Gate it so a ghost tap
@@ -237,6 +290,7 @@ function renderDrawn(): void {
   const stage = stageEl;
   if (!stage || !drawnThisTurn) return;
   stage.replaceChildren();
+  stage.className = 'stage-screen';
 
   stage.appendChild(el('p', `ดวงที่ ${drawnThisTurn.number}`, 'font-weight:700'));
   stage.appendChild(el('p', drawnThisTurn.text, 'font-size:1.3rem;font-weight:700'));
@@ -245,6 +299,7 @@ function renderDrawn(): void {
   const passBtn = el('button', 'ส่งต่อ');
   passBtn.id = 'ss-pass';
   passBtn.type = 'button';
+  passBtn.className = 'game-btn game-btn-primary';
   on(passBtn, 'click', passToNext);
   stage.appendChild(passBtn);
 
@@ -257,6 +312,7 @@ function renderSummary(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  stage.className = 'stage-screen';
 
   stage.appendChild(el('p', 'ครบทุกคนแล้ว — สรุปดวงวันนี้', 'font-weight:700'));
   for (const r of results) {
@@ -266,6 +322,7 @@ function renderSummary(): void {
   const again = el('button', 'เล่นอีกรอบ');
   again.id = 'ss-again';
   again.type = 'button';
+  again.className = 'game-btn game-btn-primary';
   on(again, 'click', () => {
     const stageRef = stageEl;
     const ctxRef = gameCtx;

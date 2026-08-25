@@ -23,6 +23,12 @@ class FakeElement {
   setAttribute(k, v) { this._attrs[k] = String(v); }
   getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null; }
   removeAttribute(k) { delete this._attrs[k]; }
+  // gh#78 — the turn screen sets className on wrappers/dots and renders the barrel via innerHTML.
+  // className uses the same attr store as setAttribute; innerHTML is kept as a string (the barrel
+  // markup needs no child nodes for the assertions below).
+  get className() { return this._attrs['class'] ?? ''; }
+  set className(v) { this._attrs['class'] = String(v); }
+  set innerHTML(v) { this._innerHTML = v; }
   appendChild(child) { this.children.push(child); return child; }
   replaceChildren() { this.children = []; }
   addEventListener(type, fn) { (this._listeners[type] ??= []).push(fn); }
@@ -50,6 +56,29 @@ function makeCtx(players) {
       clear() {},
     },
   };
+}
+
+/** Recursive first match by a single class token over the fake DOM — gh#78's turn screen nests the
+    holder name and dot row inside wrapper divs, so the gate test can no longer read stage.children[0]. */
+function q(node, cls) {
+  if ((node.className || '').split(/\s+/).includes(cls)) return node;
+  for (const c of node.children || []) {
+    const hit = q(c, cls);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+/** ADR-0014 — no navigation target may render inside #stage. Walk the whole stage tree and fail on any
+    anchor, whatever screen produced it. */
+function assertNoAnchors(node) {
+  assert.notEqual(String(node.tagName).toLowerCase(), 'a', 'an <a> rendered inside #stage');
+  for (const c of node.children || []) assertNoAnchors(c);
+}
+
+/** Filled-dot count: a dot carries `sm-dot--drawn` once its player has drawn, `sm-dot` alone before. */
+function countDrawn(dots) {
+  return dots.children.filter((c) => (c.className || '').split(/\s+/).includes('sm-dot--drawn')).length;
 }
 
 test('deck has 24 cards, numbers do not repeat', () => {
@@ -221,7 +250,7 @@ test('#42: ghost-tap gate — start/draw/pass/again all disable at render across
   assert.ok(draw1, 'ss-draw missing for turn 1');
   assert.equal(draw1.disabled, true,
     'ss-draw must be disabled the instant the turn screen renders — a ghost tap must not draw for the next player before the phone changed hands');
-  const holderLine1 = stage.children[0].textContent;
+  const holderLine1 = q(stage, 'sm-holder-name').textContent;
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   assert.equal(draw1.disabled, false, '"ss-draw" never armed for turn 1');
   draw1.click(); // drawForHolder() for holder 0
@@ -269,6 +298,82 @@ test('#42: ghost-tap gate — start/draw/pass/again all disable at render across
   // those real clicks produced.
   assert.ok(holderLine1.includes(players[0]), 'turn 1 did not announce the first holder');
   assert.ok(drawnLine1.length > 0, 'turn 1 drew no card text');
+
+  game.dispose();
+});
+
+// gh#78 — the progress dots derive from the live roster and the draw count, never a hardcoded six.
+test('gh#78: dot row = one dot per player, filled per person who has drawn (roster of 4, not 6)', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const players = ['เอ', 'บี', 'ซี', 'ดี'];
+  game.mount(stage, makeCtx(players));
+
+  const start = stage.children.find((c) => c.id === 'ss-start');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  start.click(); // renderTurn for holder 0 — nobody has drawn yet
+
+  let dots = q(stage, 'sm-dots');
+  assert.ok(dots, 'the turn screen rendered no dot row');
+  assert.equal(dots.children.length, 4, 'one dot per player — not a hardcoded 6');
+  assert.equal(countDrawn(dots), 0, 'no dots filled before the first draw');
+
+  const draw = stage.children.find((c) => c.id === 'ss-draw');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  draw.click(); // holder 0 draws
+  const pass = stage.children.find((c) => c.id === 'ss-pass');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  pass.click(); // renderTurn for holder 1
+
+  dots = q(stage, 'sm-dots');
+  assert.equal(dots.children.length, 4);
+  assert.equal(countDrawn(dots), 1, 'one dot filled after one person has drawn');
+
+  game.dispose();
+});
+
+// gh#78 — tapping the control alone advances the round; no gesture path is exercised on the way there.
+test('gh#78: the draw control alone advances the round — no shake/gesture required', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx(['เอ', 'บี']));
+
+  const start = stage.children.find((c) => c.id === 'ss-start');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  start.click();
+
+  const draw = stage.children.find((c) => c.id === 'ss-draw');
+  assert.ok(draw, 'no draw control rendered on the turn screen');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  draw.click(); // a tap alone — no devicemotion/shake anywhere on this path
+
+  assert.ok(stage.children.some((c) => c.id === 'ss-pass'),
+    'tapping ss-draw did not advance the round to the drawn screen');
+
+  game.dispose();
+});
+
+// gh#78 / ADR-0014 — no navigation target anywhere inside #stage, on any screen the game renders.
+test('gh#78: no <a> element renders inside #stage on any screen', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx(['เอ', 'บี', 'ซี']));
+  assertNoAnchors(stage); // idle
+
+  const start = stage.children.find((c) => c.id === 'ss-start');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  start.click();
+  assertNoAnchors(stage); // turn
+
+  const draw = stage.children.find((c) => c.id === 'ss-draw');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  draw.click();
+  assertNoAnchors(stage); // drawn
+
+  const pass = stage.children.find((c) => c.id === 'ss-pass');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  pass.click();
+  assertNoAnchors(stage); // next turn
 
   game.dispose();
 });
