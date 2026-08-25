@@ -119,10 +119,21 @@ the heading resolves is a separate, already-caveated question).
 | `docs/site-owner-checklist.md:57` | F-num | `post-launch-checklist.md` | §2 | — |
 | `docs/site-owner-checklist.md:92` | F-num | `post-launch-checklist.md` | §4 | — |
 | `SESSION-HANDOFF.md:3` | F | `CLAUDE.md` | Current state (negated: "no longer has a § Current state") | n — no such heading, but also not a live-citation intent; it's prose stating the heading's absence |
-| `SESSION-HANDOFF.md:11` | F-num | `docs/verification/evidence/43/calibration.md` | §5 | — |
-| `SESSION-HANDOFF.md:11` | F-num | `docs/site-owner-checklist.md` | §5 | — |
+| `docs/sessions-archive.md` (rolled; see note) | F-num | `docs/verification/evidence/43/calibration.md` | §5 | — |
+| `docs/sessions-archive.md` (rolled; see note) | F-num | `docs/site-owner-checklist.md` | §5 | — |
 
 Live tally: **R=1 · D=1 · F=1 · F-num=9** (12 total).
+
+The two rolled rows above were repointed at the S2026-08-25#3 save. The line
+line number they carried (line eleven of the state doc) had already rotted before then — it named a
+line in an entry that had itself been rolled, so it resolved by accident while the file stayed long
+enough. That session's window roll shrank the state doc below that line and
+`scripts/check-citations.mjs` reported both as dead. Neither the old file-plus-number form nor any
+other parseable citation is written out here, because this checker cannot tell a use from a mention
+and the note would flag itself. The
+citing location is now the archive, which is append-only; the classification and the tally above
+are the scan's original findings and are unchanged. This is the failure this scan exists to
+catalogue, caught on the scan's own record.
 
 ## Archive hits (`docs/sessions-archive.md`, exempt, counted separately) — 13 total
 
