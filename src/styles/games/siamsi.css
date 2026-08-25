@@ -1,0 +1,82 @@
+/* gh#77-gh#81 — siamsi's own screen CSS. One stylesheet per game so five visual tickets never write
+   to the same file. Astro bundles a bare CSS import page-globally, so EVERY game page loads every one
+   of these: each selector here MUST carry the `sm-` prefix, or it will restyle a sibling game.
+
+   The shared game-screen classes (.stage-screen, .game-btn, .game-btn-primary, .game-btn-secondary)
+   are shell vocabulary, declared once in src/pages/game/[id].astro. Never redeclare or override them
+   here — six games depend on them.
+
+   Every value in this file comes from design/GameSiamsi.dc.html verbatim (ADR-0033). The stage ground is
+   var(--page-accent), which the shell resolves from the category manifest; the canvas's own per-game
+   accent hex is not a colour this site defines. */
+
+/* gh#78 — the siamsi turn screen. Only the declared levers differ from the shell: the hero motif (the
+   barrel panel), the display type step (the 30px holder name), and the dot row (the card-density
+   equivalent). Colours are shell tokens; the two stick colours with no token (#f7e6c4 wood, #d6336c
+   marked tip) live inside the SVG in siamsi.ts, not here. No animation — the canvas has none, which is
+   the whole prefers-reduced-motion story. */
+
+/* Two-line holder block: kicker above the current holder's name. */
+.sm-holder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sm-holder-kicker {
+  font-size: 13px;
+}
+
+.sm-holder-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;  /* A player-typed name can be 24 characters with no space in it (the roster's maxlength), and
+     Latin has no dictionary break to fall back on. Without this the name overruns the stage and
+     the whole page scrolls sideways — measured at 320px, not inferred. */
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* Hero motif: the barrel panel. Full width, fixed 260px, warm ground, hard offset shadow. The 200x240
+   SVG sits bottom-aligned via the flex container; overflow clips the sticks at the panel lip. */
+.sm-barrel {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 260px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  overflow: hidden;
+}
+
+/* Draw hint below the barrel. */
+.sm-hint {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 15px;
+  text-align: center;
+}
+
+/* Progress: one dot per player, filled for each who has drawn. The --drawn modifier flips the warm
+   ground to the strong line colour. */
+.sm-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.sm-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 50%;
+  background: var(--color-ground-warm);
+}
+
+.sm-dot--drawn {
+  background: var(--color-line-strong);
+}

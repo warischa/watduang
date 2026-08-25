@@ -1,0 +1,96 @@
+/* gh#77-gh#81 — timebomb's own screen CSS. One stylesheet per game so five visual tickets never write
+   to the same file. Astro bundles a bare CSS import page-globally, so EVERY game page loads every one
+   of these: each selector here MUST carry the `tb-` prefix, or it will restyle a sibling game.
+
+   The shared game-screen classes (.stage-screen, .game-btn, .game-btn-primary, .game-btn-secondary)
+   are shell vocabulary, declared once in src/pages/game/[id].astro. Never redeclare or override them
+   here — six games depend on them.
+
+   Every value in this file comes from design/GameTimebomb.dc.html verbatim (ADR-0033). The stage ground is
+   var(--page-accent), which the shell resolves from the category manifest; the canvas's own per-game
+   accent hex is not a colour this site defines. */
+
+/* ---- holder block: label above the holder's name ---- */
+.tb-holder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tb-holder-label {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.tb-holder-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;
+  text-align: center;  /* A player-typed name can be 24 characters with no space in it (the roster's maxlength), and
+     Latin has no dictionary break to fall back on. Without this the name overruns the stage and
+     the whole page scrolls sideways — measured at 320px, not inferred. */
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* ---- the bomb: 210px ground circle + the inline vector ---- */
+.tb-bomb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 210px;
+  height: 210px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 50%;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+}
+
+/* ---- fuse block: caption, the live bar, hint ---- */
+.tb-fuse {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.tb-fuse-caption {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+}
+
+.tb-fuse-track {
+  width: 100%;
+  height: 16px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.tb-fuse-fill {
+  height: 100%;
+  width: 100%; /* frame() overwrites this inline each rAF — the remaining fuse, shrinking to 0 */
+  background: var(--color-line-strong);
+}
+
+.tb-fuse-hint {
+  font-size: 12px;
+  color: #4a4a4a; /* the canvas's grey for the hint — no token exists for this */
+}
+
+/* ---- wake-lock warning (functional, not on the canvas) ---- */
+.tb-warn {
+  font-weight: 600;
+}
+
+/* ---- closing instruction; .stage-screen p already zeroes its margin and centres it ---- */
+.tb-foot {
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 30ch;
+}

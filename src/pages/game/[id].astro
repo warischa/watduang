@@ -3,6 +3,16 @@ import GameLayout from '../../layouts/GameLayout.astro';
 import { games } from '../../games/manifest';
 import type { GameModule } from '../../games/types';
 
+// gh#77-gh#81 — one stylesheet per game, so a per-game visual is a file nobody else writes to. This
+// page component renders every game URL, and Astro bundles a bare CSS import page-globally, so all of
+// these load on all of them: every selector inside is prefixed per game. Shared game-screen
+// vocabulary stays in the is:global block at the bottom of this file and is never overridden there.
+import '../../styles/games/timebomb.css';
+import '../../styles/games/siamsi.css';
+import '../../styles/games/short-stick.css';
+import '../../styles/games/daily-fortune.css';
+import '../../styles/games/love-match.css';
+
 export function getStaticPaths() {
   return games.map((game) => ({ params: { id: game.id }, props: { game } }));
 }

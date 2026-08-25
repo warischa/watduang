@@ -1,0 +1,106 @@
+/* gh#77-gh#81 — love-match's own screen CSS. One stylesheet per game so five visual tickets never write
+   to the same file. Astro bundles a bare CSS import page-globally, so EVERY game page loads every one
+   of these: each selector here MUST carry the `lm-` prefix, or it will restyle a sibling game.
+
+   The shared game-screen classes (.stage-screen, .game-btn, .game-btn-primary, .game-btn-secondary)
+   are shell vocabulary, declared once in src/pages/game/[id].astro. Never redeclare or override them
+   here — six games depend on them.
+
+   Every value in this file comes from design/GameLoveMatch.dc.html verbatim (ADR-0033). The stage ground is
+   var(--page-accent), which the shell resolves from the category manifest; the canvas's own per-game
+   accent hex is not a colour this site defines. */
+
+/* ---- the pair: two equal-weight name tiles around a filled heart ----
+   The reading is about the PAIR, never a verdict on one person, so the two tiles share one class and
+   one rule — that symmetry is the first acceptance criterion. */
+.lm-pair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.lm-name {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 20px;
+  /* functional guard, not a canvas value: a very long name wraps inside its tile instead of
+     overflowing the outline (the same overflow-wrap the pre-#81 pair text carried) */
+  overflow-wrap: anywhere;
+}
+
+.lm-heart {
+  flex-shrink: 0;
+  display: flex;
+}
+
+/* ---- the meter: a drawn arc, not an image; the number is the one big thing on screen ---- */
+.lm-meter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  height: 250px;
+}
+
+.lm-meter svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.lm-meter-label {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 62px — the largest type step on the screen, on purpose: the percentage dominates. */
+.lm-score {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 62px;
+  line-height: 1;
+}
+
+.lm-unit {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+}
+
+/* ---- the reading card: owns its height — no fixed height, no overflow, so the longest line grows it ---- */
+.lm-reading {
+  width: 100%;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.lm-reading p {
+  font-size: 18px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+/* ---- the note under the primary control ---- */
+.lm-note {
+  font-size: 12px;
+  text-align: center;
+  color: rgba(26, 26, 26, 0.6);
+}

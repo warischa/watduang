@@ -1,0 +1,110 @@
+/* gh#77-gh#81 — daily-fortune's own screen CSS. One stylesheet per game so five visual tickets never write
+   to the same file. Astro bundles a bare CSS import page-globally, so EVERY game page loads every one
+   of these: each selector here MUST carry the `df-` prefix, or it will restyle a sibling game.
+
+   The shared game-screen classes (.stage-screen, .game-btn, .game-btn-primary, .game-btn-secondary)
+   are shell vocabulary, declared once in src/pages/game/[id].astro. Never redeclare or override them
+   here — six games depend on them.
+
+   Every value in this file comes from design/GameDailyFortune.dc.html verbatim (ADR-0033). The stage ground is
+   var(--page-accent), which the shell resolves from the category manifest; the canvas's own per-game
+   accent hex is not a colour this site defines. */
+
+/* hero motif — the fortune card. It owns its height on purpose: no fixed height, no overflow, so the
+   longest line in the pool (a 19px / 1.75 line of Thai) renders in full instead of clipping or scrolling. */
+.df-heading {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 26px;
+}
+
+.df-fortune-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  padding: 24px 20px;
+  box-sizing: border-box;
+}
+
+.df-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.df-card-sun {
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* overflow-wrap restored deliberately: the inline NAME_STYLE this class replaced carried it, and the
+   roster lets a player type 24 characters with no space in them. Without it a long Latin name overruns
+   the card at 320px — Thai wraps on dictionary breaks, Latin does not. */
+.df-card-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.df-card-rule {
+  height: 2.5px;
+  background: var(--color-line-strong);
+  opacity: 0.15;
+}
+
+.df-fortune-text {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+/* the shell's .stage-screen p centres every paragraph; the fortune is a paragraph the canvas sets
+   flush-left, so this descendant selector outranks it (0,2,0 vs 0,1,1) and matches the artboard. */
+.df-fortune-card .df-fortune-text {
+  text-align: start;
+}
+
+.df-foot {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 30ch;
+}
+
+/* the primary control + hint chip sit together at the canvas's 10px gap, not the shell's 22px */
+.df-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.df-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.df-hint-clock {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.df-hint-text {
+  font-size: 13px;
+  line-height: 1.5;
+}
