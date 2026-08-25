@@ -34,6 +34,18 @@ const { game } = Astro.props as { game: GameModule };
 
   let game: GameModule | null = null;
 
+  // gh#76 — the topbar roster pill. The count is the group's own: updated from the panel's answer on
+  // every start, and seeded from the persisted session on load so a reload keeps it. Hidden while no
+  // group exists yet; the pill's fixed padding keeps its height constant, so filling it never moves
+  // the topbar (the property the stable-exit link above the stage relies on).
+  function showRosterCount(n: number): void {
+    const pill = document.getElementById('roster-count');
+    if (!pill) return;
+    pill.hidden = n < 1;
+    pill.textContent = `วง ${n} คน`;
+  }
+  showRosterCount(loadSession().players.length);
+
   function dispose(): void {
     game?.dispose();
   }
@@ -59,6 +71,7 @@ const { game } = Astro.props as { game: GameModule };
     // this event, a stale notice would otherwise outlive the round it describes.
     writeRefusedEl.hidden = true;
     writeRefusedEl.textContent = '';
+    showRosterCount(players.length);
 
     const session = loadSession();
     // gh#50 — drop hidden first, then set the text: role="alert" announces only once hidden drops.
@@ -123,4 +136,129 @@ const { game } = Astro.props as { game: GameModule };
       });
     }
   });
+
+  // gh#76 — "เปลี่ยนคนเล่น" (pick-loser's secondary control) asks the page to put the setup panel back
+  // so the group can re-tick. The game tears itself down and then dispatches this on document; the page
+  // owns the panel restore, the same split gh#54's failed-mount path uses. Showing the panel is what
+  // drops the live-round bit (root.hidden), which is correct here: pick-loser keeps no checkpoint, so
+  // by the time this control is pressable the round already has nothing left to lose. The stale
+  // write-refused notice is cleared too, on the same reasoning as the start path above.
+  document.addEventListener('watduang:change-players', () => {
+    const panel = document.getElementById('player-setup');
+    if (panel) {
+      panel.hidden = false;
+      writeRefusedEl.hidden = true;
+      writeRefusedEl.textContent = '';
+    }
+  });
 </script>
+
+<style is:global>
+  /* gh#76 — game-screen classes, styled from design/GamePickLoser.dc.html and shared by every game
+     that adopts the pattern. is:global because game modules create this DOM at runtime and Astro
+     scoping would never reach it. Colours reference tokens defined in src/styles/tokens.css
+     (--color-line-strong #1a1a1a, --color-ground-warm #fffdf7, --color-text, --font-display);
+     sizes are the design's own literals. The canvas carries no animation, so none is added here —
+     that is the whole reduced-motion story. rgba() pairs are the canvas's literal values. */
+  .stage-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    width: 100%;
+  }
+
+  .stage-screen p {
+    margin: 0;
+    text-align: center;
+  }
+
+  .game-btn {
+    width: 100%;
+    border-radius: 16px;
+    border: 2.5px solid var(--color-line-strong);
+    font-family: var(--font-display);
+    cursor: pointer;
+  }
+
+  .game-btn:disabled {
+    cursor: default;
+  }
+
+  .game-btn-primary {
+    min-height: 64px;
+    background: var(--color-line-strong);
+    color: var(--color-ground-warm);
+    font-weight: 500;
+    font-size: 22px;
+    box-shadow: 5px 5px 0 rgba(26, 26, 26, 0.3);
+  }
+
+  .game-btn-secondary {
+    min-height: 56px;
+    background: transparent;
+    font-weight: 400;
+    font-size: 17px;
+    color: var(--color-text);
+    /* -12px collapses the screen's 22px gap to the design's 10px control-group gap (22 - 10) */
+    margin-block-start: -12px;
+  }
+
+  /* the brief's verbatim inert look — the arm gate renders the control disabled for its 400ms window */
+  .game-btn-secondary:disabled {
+    color: rgba(26, 26, 26, 0.45);
+    border: 2.5px dashed rgba(26, 26, 26, 0.35);
+  }
+
+  .pl-label {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 20px;
+  }
+
+  .pl-burst {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 290px;
+    height: 290px;
+    /* the canvas measures 290px inside a 390px frame; at 320px the box shrinks and the svg follows */
+    max-width: 100%;
+  }
+
+  .pl-burst svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pl-name {
+    position: relative;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 44px;
+    line-height: 1.1;
+    text-align: center;
+    max-width: 6ch;
+    word-break: break-word;
+  }
+
+  .pl-foot {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: center;
+    max-width: 28ch;
+  }
+
+  .pl-hint {
+    font-size: 11px;
+    text-align: center;
+    color: rgba(26, 26, 26, 0.55);
+    /* same 22 -> 10 collapse as the secondary control above */
+    margin-block-start: -12px;
+  }
+</style>

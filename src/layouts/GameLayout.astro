@@ -3,6 +3,7 @@ import Base from './Base.astro';
 import PlayerSetup from '../shell/PlayerSetup.astro';
 import PassPhone from '../shell/PassPhone.astro';
 import GameNav from '../components/GameNav.astro';
+import { categories } from '../games/categories';
 import type { GameModule } from '../games/types';
 
 interface Props {
@@ -10,6 +11,14 @@ interface Props {
 }
 
 const { game } = Astro.props as Props;
+
+// gh#76 — the shell resolves the game's accent NAME through the category manifest, in exactly the
+// form the <main> element in src/pages/c/[category].astro ships (same property name, same
+// interpolation): the same three occurrences must read identically. game.category is the manifest's slug; categories[].accent is
+// 'gold' | 'punch', both defined in src/styles/tokens.css. Interpolating the SLUG instead (the gh#74
+// defect) yields --accent-party, which nothing defines, and the play area silently falls back to
+// currentColor.
+const accentName = categories[game.category].accent;
 
 const howToJsonLd = {
   '@context': 'https://schema.org',
@@ -20,37 +29,45 @@ const howToJsonLd = {
 ---
 
 <Base title={game.seo.title} description={game.seo.description} ogImage={`/og/${game.og}`}>
-  <main>
-    <h1>{game.names.th}</h1>
-
-    {/* The page's only crawlable link to /games/ — static, and deliberately ABOVE #stage. Every game
-         used to append its own copy INTO #stage on the result screen, where a tap-transition
-         (stage.replaceChildren()) dropped it at the coordinate the finger had just used, so a double-tap
-         navigated the group off their round: measured at 26px INSIDE the tapped chip in daily-fortune
-         and 4px inside the tapped stick in short-stick (docs/verification/evidence/34/15). Above #stage
-         in document order, nothing that changes height at runtime sits above this line, so no re-render
-         can move it under a finger — that is the whole reason it is here and not in the how-to section
-         below the stage, whose y depends on the stage's height. */}
+  <main style={`--page-accent: var(--accent-${accentName});`}>
+    {/* gh#76 — the themed chrome, from design/GamePickLoser.dc.html: topbar (the page's only crawlable
+         link to /games/, static, deliberately the first thing in <main> — nothing that changes height at
+         runtime sits above it, so no re-render can move it under a finger; that is the whole reason it
+         is here and not in the how-to section below the stage, whose y depends on the stage's height)
+         then the accent play area, then the how-to on the page ground. */}
     {/* data-stable-exit (#39): this link never moves under a tap-transition (see the comment above),
          so it is the one link exempted from the leave-confirm guard in PlayerSetup.astro — every other
          link below #stage (GameNav's siblings, the footer's) still asks first mid-round. */}
-    <p><a href="/games/" data-stable-exit>ดูเกมทั้งหมด</a></p>
+    <header class="game-topbar">
+      <a href="/games/" data-stable-exit>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+        ดูเกมทั้งหมด
+      </a>
+      {/* roster pill: the count is the live player count. Filled by src/pages/game/[id].astro from the
+           panel's answer on every start, and from the persisted session on load; hidden while no group
+           exists yet. Text changes never change its height (fixed padding), so the topbar stays put. */}
+      <span id="roster-count" class="game-topbar-pill" hidden>วง 6 คน</span>
+    </header>
 
-    {/* gameId lets the panel know whether a stranded checkpoint belongs to this page or another game (#23).
-         Tool pages don't pass this prop, so there's no round to ask about at all. */}
-    <PlayerSetup min={game.players[0]} max={game.players[1]} gameId={game.id} />
+    <div class="play-area">
+      <h1 class="game-title">{game.names.th}</h1>
 
-    <div id="stage" data-game-id={game.id}></div>
+      {/* gameId lets the panel know whether a stranded checkpoint belongs to this page or another game (#23).
+           Tool pages don't pass this prop, so there's no round to ask about at all. */}
+      <PlayerSetup min={game.players[0]} max={game.players[1]} gameId={game.id} />
 
-    {/* gh#50 — session.ts's write() refuses a stale/superseded write instead of clobbering, and this is
-         the only surface that says so. Text only, no control (ADR-0015, ADR-0020): a button here would be
-         a new tap surface. Outside #stage (ADR-0014) and AFTER it — never before, or a notice appearing
-         mid-round would push #stage's own buttons down under a player's finger (the gh#37/#39/#42 mis-tap
-         family); after the stage it only reflows what is already below. hidden by default; role="alert"
-         announces only once hidden drops, same ordering as PlayerSetup.astro's showError. */}
-    <p id="write-refused" role="alert" hidden></p>
+      <div id="stage" data-game-id={game.id}></div>
 
-    <PassPhone />
+      {/* gh#50 — session.ts's write() refuses a stale/superseded write instead of clobbering, and this is
+           the only surface that says so. Text only, no control (ADR-0015, ADR-0020): a button here would be
+           a new tap surface. Outside #stage (ADR-0014) and AFTER it — never before, or a notice appearing
+           mid-round would push #stage's own buttons down under a player's finger (the gh#37/#39/#42 mis-tap
+           family); after the stage it only reflows what is already below. hidden by default; role="alert"
+           announces only once hidden drops, same ordering as PlayerSetup.astro's showError. */}
+      <p id="write-refused" role="alert" hidden></p>
+
+      <PassPhone />
+    </div>
 
     <section id="how-to-play">
       <h2>วิธีเล่น</h2>
@@ -58,7 +75,10 @@ const howToJsonLd = {
         {game.seo.steps.map((step) => <li>{step}</li>)}
       </ol>
 
-      {game.ads && <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>}
+      {/* gh#76 — the design's ad strip: ground #f3efe4 (a literal with a comment — no token exists and
+           the brief forbids adding one), min-height 60px, strong top rule. Stays unrendered while every
+           game ships ads: false (validate-games.mjs), which is also why it carries no placeholder copy. */}
+      {game.ads && <div class="ad-slot" aria-hidden="true"></div>}
     </section>
   </main>
 
@@ -72,3 +92,92 @@ const howToJsonLd = {
 
   <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
 </Base>
+
+<style>
+  /* gh#76 — the themed game chrome, every value lifted verbatim from design/GamePickLoser.dc.html.
+     Colours reference tokens from src/styles/tokens.css (never the literal, except where the brief
+     says no token exists); sizes are the brief's literals, byte for byte. No animation anywhere on
+     purpose — the canvas has none, which is how prefers-reduced-motion holds. Scoped: every selector
+     here matches only GameLayout's own static markup; the runtime DOM game modules build is styled by
+     src/pages/game/[id].astro's is:global sheet instead. */
+  /* The shell's page ground — the design renders #fffdf7, which is exactly --color-ground-warm.
+     --color-bg stays #ffffff on purpose; the game shell does not own that token. */
+  main {
+    background: var(--color-ground-warm);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+  }
+
+  .game-title {
+    margin: 0;
+    font-family: var(--font-display);
+    /* same heading scale the category pages ship, so the three surfaces read as one system */
+    font-size: clamp(2rem, 9vw, 2.75rem);
+    line-height: 1.2;
+  }
+
+  .game-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    min-height: 60px;
+    border-bottom: 2.5px solid var(--color-line-strong);
+  }
+
+  .game-topbar a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .game-topbar a:hover {
+    color: var(--color-primary);
+  }
+
+  /* the span is a flex item here, so it is blockified without a display rule — the UA [hidden] rule
+     keeps it display:none when the group is gone, with no author display rule to beat it (the exact
+     failure #39 measured on #leave-confirm) */
+  .game-topbar-pill {
+    font-size: 13px;
+    font-weight: 500;
+    border: 2px solid var(--color-line-strong);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  /* the accent play region — the whole area between topbar and how-to carries the category accent */
+  .play-area {
+    background: var(--page-accent);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  #how-to-play {
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+    border-block-start: 2.5px solid var(--color-line-strong);
+  }
+
+  #how-to-play h2 {
+    margin-block: 0 var(--space-md);
+    font-family: var(--font-display);
+  }
+
+  #how-to-play ol {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* the design's ad strip — the ground is a literal because no token exists for #f3efe4 and the
+     brief says to use the literal with a comment rather than add a token here */
+  .ad-slot {
+    background: #f3efe4;
+    min-height: 60px;
+    border-block-start: 2.5px solid var(--color-line-strong);
+  }
+</style>

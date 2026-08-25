@@ -36,11 +36,25 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
 }
 
 // ---- Screens ----
+// gh#76 — the result screen is the approved design (design/GamePickLoser.dc.html) and the pattern the
+// five other games will follow. The class names (.stage-screen, .game-btn, .pl-*) are styled from
+// src/pages/game/[id].astro's global stylesheet — game modules create their DOM at runtime, so Astro
+// scoping never reaches it, which is why that sheet is is:global. Every colour there is a token from
+// src/styles/tokens.css; every size is verbatim from the canvas. If a copy string here disagrees with
+// the design, the repo's shipped string wins (see GameLayout.astro).
+
+// The burst star, byte-exact from the canvas (12-point starburst, viewBox 200). Drawn, never an image.
+// fill/stroke reference tokens by name — presentation attributes can resolve var().
+const BURST_SVG =
+  '<svg width="290" height="290" viewBox="0 0 200 200" fill="none" aria-hidden="true">' +
+  '<path d="M100 6 l10 22 22-12 -3 25 25 3 -14 21 21 14 -23 10 12 22 -25-3 -3 25 -21-14 -14 21 -10-23 -22 12 3-25 -25-3 14-21 -21-14 23-10 -12-22 25 3 3-25 21 14z" ' +
+  'fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path></svg>';
 
 function renderIdle(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  stage.className = 'stage-screen';
 
   const names = gameCtx?.session.players ?? [];
   stage.appendChild(el('p', `วง ${names.length || '-'} คน`));
@@ -49,6 +63,7 @@ function renderIdle(): void {
   const pickBtn = el('button', 'สุ่มคนโดน');
   pickBtn.id = 'pl-pick';
   pickBtn.type = 'button';
+  pickBtn.className = 'game-btn game-btn-primary';
   on(pickBtn, 'click', pick);
   stage.appendChild(pickBtn);
   // Exception (owner's call): pl-pick is deliberately NOT gated. No hand-off exists in the
@@ -60,14 +75,29 @@ function renderResult(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  stage.className = 'stage-screen';
 
-  stage.appendChild(el('p', 'คนโดนคือ', 'font-weight:700'));
-  stage.appendChild(el('p', players[loserIdx], 'font-size:1.8rem;font-weight:700'));
-  stage.appendChild(el('p', 'วงตกลงกันเองว่าคนโดนต้องทำอะไร'));
+  // Direct children in canvas order — the #42 gate test reads stage.children[1] as the picked name.
+  const label = el('span', 'คนโดนคือ');
+  label.className = 'pl-label';
+  stage.appendChild(label);
+
+  const burst = document.createElement('div');
+  burst.className = 'pl-burst';
+  burst.innerHTML = BURST_SVG;
+  const name = el('span', players[loserIdx]);
+  name.className = 'pl-name';
+  burst.appendChild(name);
+  stage.appendChild(burst);
+
+  const foot = el('p', 'วงตกลงกันเองว่าคนโดนต้องทำอะไร');
+  foot.className = 'pl-foot';
+  stage.appendChild(foot);
 
   const again = el('button', 'เล่นอีกรอบ');
   again.id = 'pl-again';
   again.type = 'button';
+  again.className = 'game-btn game-btn-primary';
   on(again, 'click', () => {
     const stageRef = stageEl;
     const ctxRef = gameCtx;
@@ -75,11 +105,31 @@ function renderResult(): void {
     if (stageRef && ctxRef) mountInto(stageRef, ctxRef);
   });
   stage.appendChild(again);
+
+  // The secondary control (gh#76): back to the setup panel so the group can re-tick. It is NOT wired
+  // to the panel DOM directly — the game tears itself down and dispatches watduang:change-players on
+  // document, and src/pages/game/[id].astro is the one place that owns putting the panel back (the
+  // same split gh#54's failed-mount path uses). No checkpoint exists to strand.
+  const change = el('button', 'เปลี่ยนคนเล่น');
+  change.id = 'pl-change';
+  change.type = 'button';
+  change.className = 'game-btn game-btn-secondary';
+  on(change, 'click', () => {
+    teardown();
+    document.dispatchEvent(new CustomEvent('watduang:change-players', { bubbles: true }));
+  });
+  stage.appendChild(change);
+
+  const hint = el('span', 'ปุ่มรองจะกดได้หลังผลออก 0.4 วินาที กันนิ้วลั่น');
+  hint.className = 'pl-hint';
+  stage.appendChild(hint);
   // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
   // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
 
   // The tap that revealed the pick swaps this screen in under the same finger, so a ghost second
   // contact would land on "เล่นอีกรอบ" and restart the round before anyone read who was picked.
+  // armAllButtons walks the stage, so the new pl-change is gated by this same call with no list to
+  // remember (ADR-0017) and no second timer.
   cleanup.push(armAllButtons(stage));
 }
 
