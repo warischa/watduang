@@ -4,6 +4,7 @@
 // (normalized name, Bangkok date) — same pair same answer, new day new answer, whole pool reachable.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import game, { FORTUNES, bangkokDate, fortuneFor, hashPick, normalizeName } from './daily-fortune.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
 
@@ -52,6 +53,33 @@ function makeCtx(players) {
       clear() {},
     },
   };
+}
+
+// The reveal path builds nested cards, so the shallow stage.children lookups that served the ask
+// screen no longer reach the button or the name — walk recursively instead.
+function findByClass(node, cls) {
+  if (node.className === cls) return node;
+  for (const c of node.children || []) {
+    const hit = findByClass(c, cls);
+    if (hit) return hit;
+  }
+  return null;
+}
+function findById(node, id) {
+  if (node.id === id) return node;
+  for (const c of node.children || []) {
+    const hit = findById(c, id);
+    if (hit) return hit;
+  }
+  return null;
+}
+function findByTag(node, tag) {
+  if (node.tagName && node.tagName.toUpperCase() === tag) return node;
+  for (const c of node.children || []) {
+    const hit = findByTag(c, tag);
+    if (hit) return hit;
+  }
+  return null;
 }
 
 // A fixed name space — no RNG anywhere in this file, so every result is pass-always or fail-always.
@@ -194,30 +222,90 @@ test('#42: ghost-tap gate — "another" disables at reveal, roster chips stay li
   chipsRow.children[0].click(); // reveals players[0]'s fortune, same as a real same-finger chip tap — and
   // this must actually work at t0, or the "stays live" assertion above proves nothing
 
-  const again = stage.children.find((c) => c.id === 'df-again');
+  const again = findById(stage, 'df-again');
   assert.ok(again, 'df-again missing after reveal');
   assert.equal(again.disabled, true,
     'df-again must be disabled the instant the result screen renders — a ghost tap must not skip past the fortune nobody read yet');
 
-  const nameLine = stage.children.find((c) => c.textContent && c.textContent.startsWith('ดวงวันนี้ของ'));
-  assert.ok(nameLine, 'renderResult did not paint the name line');
-  assert.equal(nameLine.textContent, `ดวงวันนี้ของ ${players[0]}`,
+  // The revealed name now paints inside the fortune card's name row (design/GameDailyFortune.dc.html).
+  const nameEl = findByClass(stage, 'df-card-name');
+  assert.ok(nameEl, 'renderResult did not paint the card name row');
+  assert.equal(nameEl.textContent, players[0],
     'the revealed name must be exactly what was tapped, unaffected by the gate arming');
 
   // the ghost: a click before the window elapses must not fire — the result screen (fortune nobody
   // read yet) must still be exactly what the chip tap produced, not what "another" would have shown.
   again.click();
-  assert.equal(stage.children.find((c) => c.id === 'df-again'), again,
+  assert.equal(findById(stage, 'df-again'), again,
     'a disabled "another" fired anyway — the result screen was already gone');
-  assert.ok(!stage.children.some((c) => c.children?.some?.((k) => k.id === 'df-name')),
+  assert.ok(!findById(stage, 'df-name'),
     'a disabled "another" fired anyway — the ask screen reappeared before the window elapsed');
 
   // and one window later the same press really does move on to the next player
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   assert.equal(again.disabled, false, '"another" never armed');
   again.click();
-  assert.ok(stage.children.some((c) => c.children?.some?.((k) => k.id === 'df-name')),
+  assert.ok(findById(stage, 'df-name'),
     '"another" did not return to the ask screen once armed');
 
   game.dispose();
+});
+
+// gh#80 — the approved result screen (design/GameDailyFortune.dc.html). The card is the hero motif:
+// its type is set large (19px / 1.75) and it owns its height, so the longest line in the pool must
+// render in full — never clipped, never scrolled. No anchor may enter #stage on any screen.
+test('the revealed fortune paints as the card text, whole and with no navigation target', () => {
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx(['ก้อง']));
+
+  stage.children[3].children[0].click(); // roster chip reveals players[0]'s fortune (ungated by design)
+
+  const fortuneEl = findByClass(stage, 'df-fortune-text');
+  assert.ok(fortuneEl, 'no .df-fortune-text element painted after reveal');
+
+  // A truncation produces a substring that is no longer a member of the pool — the cheap
+  // "rendered in full" check that never depends on which line was drawn.
+  assert.ok(FORTUNES.includes(fortuneEl.textContent),
+    `rendered fortune "${fortuneEl.textContent}" is not a whole pool line — truncated or invented`);
+
+  assert.ok(!findByTag(stage, 'A'), 'an <a> renders inside #stage — ADR-0014');
+
+  game.dispose();
+});
+
+test('the longest fortune in the pool renders in full — the card grows, nothing clips', () => {
+  const longest = FORTUNES.reduce((a, b) => (b.length > a.length ? b : a), '');
+  const today = bangkokDate(new Date());
+  // Find a name that draws the longest line today — 5000 candidates cover a ~53-line pool many times
+  // over, so the search always lands (loud if it somehow does not).
+  let name = null;
+  for (let i = 0; i < 5000 && !name; i += 1) {
+    const candidate = `คนที่ ${i}`;
+    if (fortuneFor(candidate, today) === longest) name = candidate;
+  }
+  assert.ok(name, 'no candidate draws the longest fortune today — widen the search');
+
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx([name]));
+  stage.children[3].children[0].click(); // reveal
+
+  const fortuneEl = findByClass(stage, 'df-fortune-text');
+  assert.ok(fortuneEl, 'no .df-fortune-text element painted after reveal');
+  assert.equal(fortuneEl.textContent, longest,
+    `the longest fortune (${longest.length} chars) was truncated to ${fortuneEl.textContent.length}`);
+
+  game.dispose();
+});
+
+test('the card pins no fixed height and no scroll/clip overflow', () => {
+  const css = readFileSync(new URL('./../styles/games/daily-fortune.css', import.meta.url), 'utf8');
+  const card = /\.df-fortune-card\s*\{([^}]*)\}/.exec(css);
+  assert.ok(card, '.df-fortune-card rule missing from daily-fortune.css');
+  assert.ok(!/(?<![\w-])height\s*:/.test(card[1]), '.df-fortune-card declares a fixed height');
+  assert.ok(!/(?<![\w-])overflow\s*:/.test(card[1]), '.df-fortune-card declares overflow (scroll/clip)');
+
+  const text = /\.df-fortune-text\s*\{([^}]*)\}/.exec(css);
+  assert.ok(text, '.df-fortune-text rule missing from daily-fortune.css');
+  assert.ok(!/(?<![\w-])height\s*:/.test(text[1]), '.df-fortune-text declares a fixed height');
+  assert.ok(!/(?<![\w-])overflow\s*:/.test(text[1]), '.df-fortune-text declares overflow (scroll/clip)');
 });

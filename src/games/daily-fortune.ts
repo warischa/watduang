@@ -149,13 +149,25 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
 }
 
 // ---- Screens ----
-// 320px: every size comes off the viewport, never a constant, and the fortune line wraps instead of
-// pushing the stage sideways.
+// The result screen below is the approved design (design/GameDailyFortune.dc.html); its styles live in
+// src/styles/games/daily-fortune.css under the `df-` prefix. The card owns its height — no fixed height,
+// no overflow — so the longest fortune in the pool renders in full instead of clipping or scrolling.
 const INPUT_STYLE = 'width:min(100%,20rem);font-size:1.1rem;padding:0.6rem;box-sizing:border-box';
 const CHIPS_STYLE = 'display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin:0.75rem 0';
-const FORTUNE_STYLE =
-  'font-size:clamp(1.15rem,5.5vw,1.6rem);font-weight:700;line-height:1.7;overflow-wrap:anywhere';
-const NAME_STYLE = 'font-size:1.25rem;font-weight:700;overflow-wrap:anywhere';
+
+// Inline art, byte-exact from the canvas — drawn, never an image. `stroke` references the token the way
+// pick-loser's burst does: presentation attributes resolve var() (here --color-line-strong, the canvas's #1a1a1a).
+const SUN_SVG =
+  '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<circle cx="12" cy="12" r="4.5"></circle>' +
+  '<path d="M12 2v2.5"></path><path d="M12 19.5V22"></path>' +
+  '<path d="M4.2 4.2l1.8 1.8"></path><path d="M18 18l1.8 1.8"></path>' +
+  '<path d="M2 12h2.5"></path><path d="M19.5 12H22"></path>' +
+  '<path d="M4.2 19.8L6 18"></path><path d="M18 6l1.8-1.8"></path></svg>';
+
+const CLOCK_SVG =
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>';
 
 /** The typed name as it should be shown back — same whitespace cleanup as the seed, but the
  *  player's own capitalisation is theirs to keep. */
@@ -167,6 +179,9 @@ function renderAsk(hint?: string): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  // The ask screen keeps the stage in block flow (its input width is min(100%, 20rem), which only
+  // behaves in block flow) — the result screen is the one that opts into .stage-screen.
+  stage.className = '';
 
   stage.appendChild(el('p', 'ส่งมือถือให้เจ้าตัวพิมพ์ชื่อเอง แล้วกดดูดวงวันนี้'));
 
@@ -222,30 +237,77 @@ function renderResult(name: string, now: Date): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  // The result screen opts into the shared shell layout (.stage-screen) so the card spans full width
+  // on the accent ground the play-area already paints. `now` is the single instant the hash uses, so
+  // rendering must not call new Date() again — a Bangkok-midnight straddle would then hash a day the
+  // reveal did not seal.
+  stage.className = 'stage-screen';
 
-  // Same `now` that seeded the fortune — two `new Date()` calls could straddle Bangkok midnight and
-  // print a date that contradicts the line below it.
-  const shown = new Intl.DateTimeFormat('th-TH', { timeZone: 'Asia/Bangkok', dateStyle: 'long' }).format(now);
-  stage.appendChild(el('p', `ดวงประจำวันที่ ${shown}`));
-  stage.appendChild(el('p', `ดวงวันนี้ของ ${displayName(name)}`, NAME_STYLE));
-  stage.appendChild(el('p', fortuneFor(name, bangkokDate(now)), FORTUNE_STYLE));
-  stage.appendChild(el('p', 'กดกี่ครั้งวันนี้ก็ได้ดวงเดิม พรุ่งนี้ค่อยมาดูใหม่ เดี๋ยวดวงเปลี่ยน'));
+  const heading = el('span', 'คำทำนายวันนี้');
+  heading.className = 'df-heading';
+  stage.appendChild(heading);
+
+  // The hero motif: the fortune card. It owns its height — no fixed height, no overflow — so the
+  // longest line in the pool fits without clipping or scrolling. Direct children in canvas order.
+  const card = document.createElement('div');
+  card.className = 'df-fortune-card';
+
+  const nameRow = document.createElement('div');
+  nameRow.className = 'df-card-name-row';
+  const sun = document.createElement('span');
+  sun.className = 'df-card-sun';
+  sun.innerHTML = SUN_SVG;
+  const cardName = el('span', displayName(name));
+  cardName.className = 'df-card-name';
+  nameRow.appendChild(sun);
+  nameRow.appendChild(cardName);
+  card.appendChild(nameRow);
+
+  const rule = document.createElement('div');
+  rule.className = 'df-card-rule';
+  card.appendChild(rule);
+
+  const fortune = el('p', fortuneFor(name, bangkokDate(now)));
+  fortune.className = 'df-fortune-text';
+  card.appendChild(fortune);
+
+  stage.appendChild(card);
+
+  const foot = el('p', 'อ่านคำทำนายของตัวเองให้วงฟัง');
+  foot.className = 'df-foot';
+  stage.appendChild(foot);
+
+  // Primary control + hint chip, grouped at the canvas's 10px gap (the shell's 22px gap is not a
+  // declared lever, so the group is its own flex column). No anchor enters #stage on this screen any
+  // more than on any other (ADR-0014).
+  const actions = document.createElement('div');
+  actions.className = 'df-actions';
 
   const another = el('button', 'ดูดวงคนต่อไป');
   another.id = 'df-again';
   another.type = 'button';
+  another.className = 'game-btn game-btn-primary';
   on(another, 'click', () => renderAsk());
-  stage.appendChild(another);
+  actions.appendChild(another);
+
+  const hint = document.createElement('div');
+  hint.className = 'df-hint';
+  const clock = document.createElement('span');
+  clock.className = 'df-hint-clock';
+  clock.innerHTML = CLOCK_SVG;
+  const hintText = el('span', 'กดกี่ครั้งวันนี้ก็ได้ดวงเดิม พรุ่งนี้ค่อยมาดูใหม่');
+  hintText.className = 'df-hint-text';
+  hint.appendChild(clock);
+  hint.appendChild(hintText);
+  actions.appendChild(hint);
+
+  stage.appendChild(actions);
 
   // The tap that revealed this screen swaps it in under the same finger, so a ghost second contact
-  // would land on "ดูดวงคนต่อไป" and skip straight past the fortune nobody read yet.
+  // would land on "ดูดวงคนต่อไป" and skip straight past the fortune nobody read yet. No link to
+  // /games/ here — #stage holds no navigation target in any game (ADR-0014); the page's crawlable
+  // link is static chrome in src/layouts/GameLayout.astro, above #stage where no re-render can move it.
   cleanup.push(armAllButtons(stage));
-  // No link to /games/ here, on purpose: #stage holds no navigation target in any game. Every screen
-  // arrives via stage.replaceChildren() under the finger that triggered it, so an anchor placed here
-  // lands at a coordinate the finger just used and a double-tap leaves the round (measured in this
-  // game: the hub sat 26px INSIDE the tapped chip's box, capture 34/15). The page's crawlable
-  // /games/ link is static chrome in src/layouts/GameLayout.astro, above #stage where no re-render
-  // can move it.
 }
 
 function reveal(raw: string): void {
