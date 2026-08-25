@@ -41,7 +41,12 @@ _Avoid_: treating an empty tick-set as an error state — it is the count-only p
 
 **เกม**:
 What a วง plays together: has rounds, has turn order, ends in an outcome shared by the วง. One เกม is one file and one URL.
+Since ADR-0040, เกม exist in the ปาร์ตี้ หมวด alone — a page in วัดดวง is a การดูดวง, not a เกม.
 _Avoid_: มินิเกม, โหมด (a โหมด is something that lives inside a เกม)
+
+**การดูดวง**:
+What one person does alone on their own phone: sets their intent, gets one คำทำนาย, reads it themselves. No วง, no turn order, no shared outcome — the whole page serves one reader. Every page in the วัดดวง หมวด is one of these. Naming still open: the owner may rename this term, but it may never be เกม (ADR-0040).
+_Avoid_: เกมดูดวง, เสี่ยงโชค (reads as gambling — the AdSense risk), and never call it a เครื่องมือ (a เครื่องมือ decides something for a วง; this answers a question about one person)
 
 **เครื่องมือ**:
 Gives an answer at once, with no rounds and no turn order — such as วงล้อสุ่ม, สุ่มเลข, สุ่มชื่อ. One person alone can use it, at any time, with no วง.
@@ -60,8 +65,8 @@ _Avoid_: การ์ด (a การ์ด is the shape that displays it, not t
 หมวด on this site are split by **searcher intent**, not by เกม mechanics. Rationale: [ADR-0001](docs/adr/0001-category-means-search-intent.md)
 
 **วัดดวง (`fortune`)**:
-A เกม whose result is a คำทำนาย carrying meaning to interpret. People who come to this หมวด type "ดูดวง" or "เซียมซี" — they came for an answer about themselves.
-_Avoid_: random, ดวงชะตา
+A การดูดวง whose result is a คำทำนาย carrying meaning to interpret. People who come to this หมวด type "ดูดวง" or "เซียมซี" — they came for an answer about themselves, one person on one phone. No เกม lives here (ADR-0040); ดวงวันนี้ and ดวงความรัก are still built as เกม until their own tickets convert them, and that is a known gap, not the rule.
+_Avoid_: random, ดวงชะตา, and calling anything in this หมวด a เกม
 
 **ปาร์ตี้ (`party`)**:
 A เกม whose result is "ใครโดน". People who come to this หมวด are searching for a เครื่องมือ that decides for their วง, even though the mechanism inside is the same drawing of chance as the วัดดวง หมวด.

@@ -1,6 +1,9 @@
 # วัดดวง · watduang.com
 
-Free party games for groups of 2–10 on a single phone passed around. Thai-first. Revenue from Google AdSense.
+Free Thai-first entertainment on one phone. Revenue from Google AdSense.
+**เกม live in the สุ่มคนโดน หมวด only** — rounds, turn order, a shared roster, 2–10 players, phone passed around.
+The ดูดวง หมวด and the randomizer เครื่องมือ are **not เกม**: one person, one answer, no roster. Confirmed: ADR-0040.
+Never state 2–10 players or phone-passing as a fact about the whole site — it is true of one หมวด, and only where that หมวด is the subject.
 English brand: **PartyPick** — lives at `/en/`, no second domain. Confirmed: ADR-0006.
 
 **Live state, next queue, and inflight live in `SESSION-HANDOFF.md` at the root — that file is their home, not a supplement.**
