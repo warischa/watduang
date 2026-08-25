@@ -152,6 +152,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Dangling CSS custom-property gate, gh#85: every built page must reference only custom
+      # properties something on THAT SAME page defines. Per-page, not a dist/-wide union — CSS is
+      # inlined into each HTML (dist/_astro/ ships only .js), so a page referencing a property only
+      # another page defines must go red, not pass. Runs after Build because it reads the built
+      # artifact; --selftest is hermetic (temp-dir fixtures only, never dist/) so it — like the CSP
+      # gates below — never regenerates the artifact this step and every later step reads. gh#38.
+      - name: Dangling CSS variable check (dist artifact)
+        run: node scripts/dangling-css-var-check.mjs --selftest && node scripts/dangling-css-var-check.mjs
+
       # CSP checked against dist/staticwebapp.config.json (the deployed artifact), not the
       # repo-root source — Azure SWA only reads config from inside app_location. This also
       # guards the defect where the file silently fails to ship.
