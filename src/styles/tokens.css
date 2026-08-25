@@ -5,12 +5,18 @@
   --color-text: #1a1a1a;
   --color-primary: #d6336c;
   --color-accent: #ffb703;
-  --accent-gold: #e8b317;
-  --accent-punch: #ff5349;
+  /* Accent values are lifted verbatim from the design canvas, which is their source of truth:
+     gold from design/CatFortune.dc.html, punch from design/CatParty.dc.html, sky from the third
+     group in design/HubNeutral.dc.html. gold/punch are the two names src/games/categories.ts
+     declares; sky has no manifest entry because the tools group is not a category. A value here
+     that is not in the canvas is drift, not a choice — the previous pair was invented from prose. */
+  --accent-gold: #ffd27f;
+  --accent-punch: #f89880;
+  --accent-sky: #7fd8e8;
   --color-muted: #6b7280;
   --color-border: #e5e7eb;
-  --color-ground-warm: #fff4dc;
-  --color-line-strong: #111111;
+  --color-ground-warm: #fffdf7;
+  --color-line-strong: #1a1a1a;
 
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
