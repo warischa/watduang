@@ -1,0 +1,174 @@
+{
+  "checked": 12,
+  "bad": 3,
+  "badRows": [
+    {
+      "roster": "long-latin",
+      "id": "timebomb",
+      "innerWidth": 348,
+      "scrollX": 28,
+      "stageChildren": 6,
+      "overflowing": [
+        {
+          "cls": "tb-holder",
+          "right": 347.53125
+        },
+        {
+          "cls": "tb-holder-name",
+          "right": 347.53125
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "siamsi",
+      "innerWidth": 348,
+      "scrollX": 28,
+      "stageChildren": 5,
+      "overflowing": [
+        {
+          "cls": "sm-holder",
+          "right": 347.515625
+        },
+        {
+          "cls": "sm-holder-name",
+          "right": 347.515625
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "short-stick",
+      "innerWidth": 348,
+      "scrollX": 28,
+      "stageChildren": 4,
+      "overflowing": [
+        {
+          "cls": "st-shout",
+          "right": 347.53125
+        }
+      ]
+    }
+  ],
+  "all": [
+    {
+      "roster": "normal",
+      "id": "pick-loser",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 3,
+      "overflowing": []
+    },
+    {
+      "roster": "normal",
+      "id": "timebomb",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 6,
+      "overflowing": []
+    },
+    {
+      "roster": "normal",
+      "id": "siamsi",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 5,
+      "overflowing": []
+    },
+    {
+      "roster": "normal",
+      "id": "short-stick",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 4,
+      "overflowing": []
+    },
+    {
+      "roster": "normal",
+      "id": "daily-fortune",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 4,
+      "overflowing": []
+    },
+    {
+      "roster": "normal",
+      "id": "love-match",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 3,
+      "overflowing": []
+    },
+    {
+      "roster": "long-latin",
+      "id": "pick-loser",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 3,
+      "overflowing": []
+    },
+    {
+      "roster": "long-latin",
+      "id": "timebomb",
+      "innerWidth": 348,
+      "scrollX": 28,
+      "stageChildren": 6,
+      "overflowing": [
+        {
+          "cls": "tb-holder",
+          "right": 347.53125
+        },
+        {
+          "cls": "tb-holder-name",
+          "right": 347.53125
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "siamsi",
+      "innerWidth": 348,
+      "scrollX": 28,
+      "stageChildren": 5,
+      "overflowing": [
+        {
+          "cls": "sm-holder",
+          "right": 347.515625
+        },
+        {
+          "cls": "sm-holder-name",
+          "right": 347.515625
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "short-stick",
+      "innerWidth": 348,
+      "scrollX": 28,
+      "stageChildren": 4,
+      "overflowing": [
+        {
+          "cls": "st-shout",
+          "right": 347.53125
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "daily-fortune",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 4,
+      "overflowing": []
+    },
+    {
+      "roster": "long-latin",
+      "id": "love-match",
+      "innerWidth": 320,
+      "scrollX": 0,
+      "stageChildren": 3,
+      "overflowing": []
+    }
+  ]
+}
