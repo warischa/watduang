@@ -1,0 +1,139 @@
+---
+// One static page per category (gh#74) — routes derived from the keys of src/games/categories.ts,
+// never hardcoded. Every Thai string on this page comes from the category manifest or a game's own
+// names.th / tagline: nothing here is handwritten copy. No script on purpose — ADR-0005 prefers none.
+import Base from '../../layouts/Base.astro';
+import { categories } from '../../games/categories';
+import type { CategoryMeta } from '../../games/categories';
+import type { Category, GameModule } from '../../games/types';
+import { games as allGames } from '../../games/manifest';
+
+export function getStaticPaths() {
+  const keys = Object.keys(categories) as Category[];
+  return keys.map((category) => ({
+    params: { category },
+    props: {
+      category,
+      meta: categories[category],
+      // Links out to every OTHER category page (two today, derived — never a hardcoded list).
+      otherLinks: keys
+        .filter((key) => key !== category)
+        .map((key) => ({ slug: key, label: categories[key].label })),
+      // Exactly this category's games — the listing must not leak the other category's games.
+      games: allGames.filter((game) => game.category === category),
+    },
+  }));
+}
+
+type Props = {
+  category: Category;
+  meta: CategoryMeta;
+  otherLinks: { slug: Category; label: string }[];
+  games: GameModule[];
+};
+
+const { category, meta, otherLinks, games } = Astro.props as Props;
+---
+
+<Base title={meta.seo.title} description={meta.seo.description}>
+  <main style={`--page-accent: var(--accent-${meta.accent});`}>
+    <h1>{meta.label}</h1>
+    <p class="when">{meta.whenToUse}</p>
+    <p class="intro">{meta.intro}</p>
+
+    <ul class="game-list">
+      {games.map((game) => (
+        <li class="game-card">
+          <a href={`/game/${game.id}/`}>{game.names.th}</a>
+          <p>{game.tagline}</p>
+        </li>
+      ))}
+    </ul>
+
+    <p class="hubs">
+      {otherLinks.map((link) => (
+        <>
+          <a href={`/c/${link.slug}/`}>{link.label}</a>{' '}
+        </>
+      ))}
+      <a href="/tools/">เครื่องมือสุ่ม</a>
+    </p>
+  </main>
+</Base>
+
+<style>
+  /* Astro scopes this whole block (data-astro-cid on every element rendered above), so none of
+     these selectors can match markup on any other page. Tokens come from tokens.css; --page-accent
+     is set by the inline custom property above from the manifest's accent NAME — meta.accent, NOT the
+     category slug: the slug is `fortune`/`party` and no --accent-fortune token exists, so
+     interpolating it yields an invalid custom property that silently falls back to currentColor.
+     Only meta.accent resolves to a real --accent-gold / --accent-punch. */
+  main {
+    max-width: 36rem;
+    margin-inline: auto;
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+    background: var(--color-ground-warm);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+  }
+
+  h1 {
+    margin-block: 0 var(--space-md);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 9vw, 2.75rem);
+    line-height: 1.2;
+    padding-block-end: var(--space-sm);
+    border-block-end: 0.375rem solid var(--page-accent);
+  }
+
+  .when {
+    margin-block: 0 var(--space-md);
+    font-weight: 600;
+  }
+
+  .intro {
+    margin-block: 0 var(--space-lg);
+    line-height: 1.6;
+  }
+
+  .game-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .game-card {
+    background: var(--color-bg);
+    border: 2px solid var(--color-line-strong);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-pop);
+    padding: var(--space-md);
+  }
+
+  .game-card a {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--color-text);
+    text-decoration: none;
+    border-block-end: 3px solid var(--page-accent);
+  }
+
+  .game-card p {
+    margin-block: var(--space-xs) 0;
+    color: var(--color-muted);
+  }
+
+  .hubs {
+    margin-block: var(--space-lg) 0;
+  }
+
+  .hubs a {
+    color: var(--color-text);
+    font-weight: 600;
+    text-decoration-color: var(--page-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+</style>

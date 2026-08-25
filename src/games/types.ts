@@ -50,11 +50,16 @@ export interface GameContext {
   session: GameSession;
 }
 
+/** Category slug — the key of the categories record in categories.ts (and, from gh#74, the /c/<slug>/)
+ *  listing pages). Hand-written on purpose: the record is typed `Record<Category, CategoryMeta>`, so a
+ *  category present in only one of the two fails `tsc`, not just scripts/validate-games.mjs. */
+export type Category = 'party' | 'fortune';
+
 export interface GameModule {
   /** slug -> /game/<id>/ — must match the filename */
   id: string;
   names: { th: string; en: string };
-  category: 'party' | 'fortune';
+  category: Category;
   players: [min: number, max: number];
   keywords: string[];
   /** A short one-line hook for the OG card — seo.title runs too long, seo.description longer still.

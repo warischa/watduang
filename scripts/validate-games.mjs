@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Build-time gate: reads the real manifest and fails naming FILE + FIELD for any
-// GameModule that violates the contract in src/games/types.ts. See issue #13.
+// Build-time gate: reads the real games manifest and the category manifest and fails naming
+// FILE + FIELD for any GameModule that violates the contract in src/games/types.ts, any game whose
+// category has no manifest entry, and any manifest entry no game claims (gh#74). See issue #13.
 //
 //   node scripts/validate-games.mjs             -> import src/games/manifest.ts, validate every GameModule
 //   node scripts/validate-games.mjs --selftest  -> both-direction calibration on in-memory + temp-dir fixtures
@@ -15,18 +16,20 @@ import { fileURLToPath } from 'node:url';
 // so node finds the file directly (Vite/Astro already accept the full extension too)
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = path.join(root, 'src/games/manifest.ts');
+const categoriesPath = path.join(root, 'src/games/categories.ts');
 
 const isStr = (v) => typeof v === 'string' && v.length > 0;
 const isStrArray = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string');
 const isFn = (v) => typeof v === 'function';
 
 // ---------------------------------------------------------------------------
-// Pure(ish): games array -> violation strings. The only IO is existsSync, and it resolves against
-// `checkRoot` rather than a hardcoded path, so the selftest can point both existence checks (id ->
-// src/games/<id>.ts, og -> public/og/<og>) at a temp fixture tree instead of the real repo. Normal
-// invocation below always passes the real `root`, so behaviour there is unchanged.
+// Pure(ish): games array + categories record -> violation strings. The only IO is existsSync, and it
+// resolves against `checkRoot` rather than a hardcoded path, so the selftest can point both existence
+// checks (id -> src/games/<id>.ts, og -> public/og/<og>) at a temp fixture tree instead of the real
+// repo. Normal invocation below passes the real `root` and the real categories record; the selftest
+// passes fixture records, so behaviour there is unchanged.
 // ---------------------------------------------------------------------------
-function validateGames(games, checkRoot) {
+function validateGames(games, checkRoot, categories) {
   const errors = [];
   // ADR-0019: a gate's green must not imply coverage it has not earned. Every rule below is
   // per-game, so an empty array satisfies all of them vacuously and main() prints
@@ -40,6 +43,21 @@ function validateGames(games, checkRoot) {
         'vacuously and this gate reports OK having checked nothing.',
     ];
   }
+  // gh#74 + ADR-0019: the category manifest must itself be non-empty, or both category gates below
+  // pass vacuously — the membership check knows no category and the unclaimed-key gate verifies no
+  // keys — and the site would build zero /c/ listing pages while this gate reports OK.
+  const isCategoryRecord =
+    typeof categories === 'object' && categories !== null && !Array.isArray(categories);
+  if (!isCategoryRecord || Object.keys(categories).length === 0) {
+    return [
+      `src/games/categories.ts: \`categories\` is ${isCategoryRecord ? 'an empty record' : JSON.stringify(categories)} — ` +
+        'the category manifest must never be empty (docs/adr/0019): with zero keys the membership ' +
+        'check below knows no category and the unclaimed-key gate below verifies no keys, so both ' +
+        'pass vacuously and the site would build zero /c/ category pages while this gate reports OK.',
+    ];
+  }
+  const categoryKeys = Object.keys(categories);
+
   const seenIds = new Set();
 
   games.forEach((g, i) => {
@@ -64,8 +82,10 @@ function validateGames(games, checkRoot) {
     // The OG card uses this field as its hook line — if it's empty, scripts/make-og.mjs stops immediately
     if (!isStr(g?.tagline) || g.tagline.trim() === '') err('tagline', 'must be a non-empty string');
 
-    if (g?.category !== 'party' && g?.category !== 'fortune') {
-      err('category', `is ${JSON.stringify(g?.category)}, must be "party" or "fortune"`);
+    // gh#74: `categories` is the single runtime source of truth for which categories exist — the
+    // /c/<slug>/ pages render from the same keys, so a category outside the record has no listing.
+    if (!Object.prototype.hasOwnProperty.call(categories, g?.category)) {
+      err('category', `is ${JSON.stringify(g?.category)}, must be one of: ${categoryKeys.join(', ')}`);
     }
 
     if (!Array.isArray(g?.players) || g.players.length !== 2 || g.players.some((n) => typeof n !== 'number')) {
@@ -99,6 +119,19 @@ function validateGames(games, checkRoot) {
     }
   });
 
+  // gh#74 inverse direction: every key of the category manifest must be claimed by at least one game,
+  // or its /c/<slug>/ listing would build with zero games while this gate still reports OK.
+  const claimed = new Set(games.map((g) => g?.category));
+  for (const key of categoryKeys) {
+    if (!claimed.has(key)) {
+      errors.push(
+        `src/games/categories.ts: category "${key}" is not claimed by any game in the manifest — ` +
+          'every key of the categories record must be claimed by at least one game (docs/adr/0019), ' +
+          'or its /c/ listing would build with zero games while this gate reports OK.',
+      );
+    }
+  }
+
   return errors;
 }
 
@@ -129,8 +162,21 @@ function selftest() {
       dispose: () => {},
     });
 
+    // Category-manifest fixtures for the gh#74 gates (the validator only reads Object.keys, so the
+    // values are placeholders): partyOnly leaves every key claimed by goodGame, partyAndFortune
+    // leaves 'fortune' unclaimed.
+    const categoryMeta = (key) => ({
+      label: `label ${key}`,
+      whenToUse: 'when To Use',
+      intro: 'intro',
+      accent: 'accent',
+      seo: { title: 'title', description: 'description' },
+    });
+    const partyOnly = { party: categoryMeta('party') };
+    const partyAndFortune = { party: categoryMeta('party'), fortune: categoryMeta('fortune') };
+
     // --- known-good: guards against a selftest that always fails. ---
-    assert.deepEqual(validateGames([goodGame()], tmpDir), [], 'a fully-valid GameModule must report zero violations');
+    assert.deepEqual(validateGames([goodGame()], tmpDir, partyOnly), [], 'a fully-valid GameModule must report zero violations');
     console.log('PASS known-good: a fully-valid GameModule reports zero violations');
 
     // --- known-bad, one case per rule. Each mutates exactly one field off the good fixture so the
@@ -142,7 +188,7 @@ function selftest() {
       { field: 'names.th', mutate: (g) => ({ ...g, names: { ...g.names, th: '' } }), expect: /names\.th must be a non-empty string/ },
       { field: 'names.en', mutate: (g) => ({ ...g, names: { ...g.names, en: '' } }), expect: /names\.en must be a non-empty string/ },
       { field: 'tagline', mutate: (g) => ({ ...g, tagline: '   ' }), expect: /tagline must be a non-empty string/ },
-      { field: 'category', mutate: (g) => ({ ...g, category: 'quiz' }), expect: /category is "quiz", must be "party" or "fortune"/ },
+      { field: 'category', mutate: (g) => ({ ...g, category: 'quiz' }), expect: /category is "quiz", must be one of: party/ },
       { field: 'players (shape)', mutate: (g) => ({ ...g, players: [2] }), expect: /players must be a 2-element number array/ },
       { field: 'players[0] (min < 2)', mutate: (g) => ({ ...g, players: [1, 10] }), expect: /players\[0\] is 1, must be >= 2/ },
       { field: 'players[1] (max < min)', mutate: (g) => ({ ...g, players: [5, 2] }), expect: /players\[1\] is 2, must be >= players\[0\] \(5\)/ },
@@ -159,23 +205,48 @@ function selftest() {
     ];
 
     for (const { field, mutate, expect } of cases) {
-      const errors = validateGames([mutate(goodGame())], tmpDir);
+      const errors = validateGames([mutate(goodGame())], tmpDir, partyOnly);
       assert.ok(errors.length > 0, `${field}: known-bad fixture must report at least one violation`);
       assert.ok(errors.some((e) => expect.test(e)), `${field}: expected a violation matching ${expect}, got: ${JSON.stringify(errors)}`);
     }
     console.log(`PASS known-bad: ${cases.length} case(s), one per rule (${cases.map((c) => c.field).join(', ')})`);
 
+    // --- known-bad for the category manifest gates (gh#74): both directions. ---
+    // A game whose category has no manifest entry must fail naming the category (the old category
+    // left unclaimed is a second, equally-correct violation — assert only on the gate's own message).
+    const noEntryErrors = validateGames([{ ...goodGame(), category: 'nonexistent' }], tmpDir, partyOnly);
+    assert.ok(
+      noEntryErrors.some((e) => /category is "nonexistent", must be one of: party/.test(e)),
+      `gh#74 no-entry: expected a violation naming the unknown category, got: ${JSON.stringify(noEntryErrors)}`,
+    );
+    // A manifest entry claimed by no game must fail naming the key — goodGame is 'party', so with
+    // partyAndFortune the 'fortune' key has no claimant.
+    const unclaimedErrors = validateGames([goodGame()], tmpDir, partyAndFortune);
+    assert.equal(unclaimedErrors.length, 1, `gh#74 unclaimed: expected exactly one violation, got: ${JSON.stringify(unclaimedErrors)}`);
+    assert.match(unclaimedErrors[0], /category "fortune" is not claimed by any game/);
+    console.log('PASS known-bad category gates: a game whose category has no manifest entry and a manifest entry no game claims each fail, naming category and key');
+
+    // --- known-bad, EMPTY CATEGORY MANIFEST (ADR-0019): with zero keys the membership check knows no
+    // category and the unclaimed-key gate verifies no keys — both pass vacuously and the site would
+    // build zero /c/ pages green. Delete the guard and these cases go green. ---
+    for (const [label, value] of [['empty record', {}], ['undefined', undefined], ['not a record', 42]]) {
+      const catErrs = validateGames([goodGame()], tmpDir, value);
+      assert.equal(catErrs.length, 1, `gh#74 categories ${label}: an unusable categories export must produce exactly one violation`);
+      assert.match(catErrs[0], /category manifest must never be empty/, `gh#74 categories ${label}: the violation must say the category manifest was empty`);
+    }
+    console.log('PASS known-bad empty categories: {}, undefined and a non-record each fail — zero keys would make both category gates vacuous');
+
     // --- known-bad, EMPTY SET: every rule above is per-game, so an empty array passed all of them
     // and main() printed "0 game(s) OK". Delete the guard and this case goes green. ---
     for (const [label, value] of [['empty array', []], ['undefined export', undefined], ['not an array', {}]]) {
-      const errs = validateGames(value, tmpDir);
+      const errs = validateGames(value, tmpDir, partyOnly);
       assert.equal(errs.length, 1, `${label}: an unusable games export must produce exactly one violation`);
       assert.match(errs[0], /must never be empty/, `${label}: the violation must say the validated set was empty`);
     }
     console.log('PASS known-bad empty set: [], undefined and a non-array games export each fail — a per-game rule set is satisfied vacuously by zero games, and "0 game(s) OK" is a green nothing earned');
 
     // --- known-bad, duplicate id: only the SECOND occurrence is flagged. ---
-    const dupErrors = validateGames([goodGame(), goodGame()], tmpDir);
+    const dupErrors = validateGames([goodGame(), goodGame()], tmpDir, partyOnly);
     assert.equal(dupErrors.length, 1, 'a duplicated id must be flagged exactly once');
     assert.match(dupErrors[0], /id "happy-game" is duplicated in the manifest/);
     console.log('PASS known-bad: a repeated id is flagged as duplicated exactly once (first occurrence stays clean)');
@@ -195,7 +266,19 @@ async function main() {
     process.exit(1);
   }
 
-  const errors = validateGames(games, root);
+  // gh#74: the category manifest is the second runtime source of truth — both category gates check
+  // Object.keys(categories), so it must be the same record the /c/ pages render from. Loaded like the
+  // games manifest: categories.ts's only relative import is `import type`, which node erases, so
+  // plain node never has to resolve a specifier inside it.
+  let categories;
+  try {
+    ({ categories } = await import(categoriesPath));
+  } catch (err) {
+    console.error(`validate-games: failed to import src/games/categories.ts — ${err.message}`);
+    process.exit(1);
+  }
+
+  const errors = validateGames(games, root, categories);
 
   if (errors.length > 0) {
     console.error(`validate-games: ${errors.length} violation(s):`);

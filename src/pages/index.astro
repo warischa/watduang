@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { games } from '../games/manifest';
+import { categories } from '../games/categories';
 import { tools } from '../tools/manifest';
 ---
 
@@ -19,6 +20,13 @@ import { tools } from '../tools/manifest';
       ))}
     </p>
     <p><a href="/games/">ดูเกมทั้งหมด</a></p>
+    <p>
+      {Object.entries(categories).map(([key, meta]) => (
+        <>
+          <a href={`/c/${key}/`}>{meta.label}</a>{' '}
+        </>
+      ))}
+    </p>
     <p>
       <a href="/tools/">เครื่องมือสุ่ม</a> —{' '}
       {tools.map((tool) => (

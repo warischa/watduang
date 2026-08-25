@@ -5,8 +5,12 @@
   --color-text: #1a1a1a;
   --color-primary: #d6336c;
   --color-accent: #ffb703;
+  --accent-gold: #e8b317;
+  --accent-punch: #ff5349;
   --color-muted: #6b7280;
   --color-border: #e5e7eb;
+  --color-ground-warm: #fff4dc;
+  --color-line-strong: #111111;
 
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -15,10 +19,13 @@
   --space-xl: 2.5rem;
 
   --font-sans: 'Noto Sans Thai', 'Sarabun', system-ui, -apple-system, sans-serif;
+  --font-display: 'Mitr', 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
 
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 16px;
+
+  --shadow-pop: 0.25rem 0.25rem 0 0 var(--color-line-strong);
 }
 
 /* #39 — leave-confirm's dialog. Not scoped in PlayerSetup.astro on purpose: a scoped <style> block

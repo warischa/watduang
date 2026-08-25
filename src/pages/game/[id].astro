@@ -22,6 +22,7 @@ const { game } = Astro.props as { game: GameModule };
   const mods = import.meta.glob<{ default: GameModule }>([
     '../../games/*.ts',
     '!../../games/_*.ts',
+    '!../../games/categories.ts',
     '!../../games/manifest.ts',
     '!../../games/types.ts',
   ]);
