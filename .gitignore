@@ -19,4 +19,7 @@ docs/verification/evidence/**/*.png
 
 # Design canvas build output — a ~2MB seeded bundle whose minified editor code
 # trips added-lineno-citation-check. The .dc.html sources + canvas.json beside it are the real artifact.
-design/watduang-homepage-directions.html
+# Matched by pattern, not by name: this entry named one filename until 2026-08-25, and renaming the
+# bundle silently un-ignored 2.2MB with nothing complaining.
+design/*.html
+!design/*.dc.html

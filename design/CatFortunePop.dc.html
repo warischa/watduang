@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #1a1a1a; text-decoration: none; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<!-- /c/fortune/ - the home page pop-card UI, moved over to become the category page design.
+     Colours are lifted from tokens.css: ground #fffdf7, line #1a1a1a 2.5px, hard shadow
+     4px 4px 0, radius 16px. The header paints --accent-gold #ffd27f, this category own accent.
+
+     Copy provenance, exactly. FROM THE MANIFEST, byte-exact: the H1 is categories.ts label,
+     the lead line is whenToUse, the intro card is intro, and every card body is that game own
+     tagline. NEW COPY, no manifest field behind it: the three pills, the section labels, the
+     card call to action, and the breadcrumb. Do not try to render those from a manifest. -->
+<div style="width: 1440px; background: #fffdf7; color: #1a1a1a;">
+
+  <!-- Top bar -->
+  <div style="border-block-end: 2.5px solid #1a1a1a;">
+    <div style="width: 1280px; margin-inline: auto; height: 78px; display: flex; align-items: center; justify-content: space-between;">
+      <a href="/" style="display: flex; align-items: center; gap: 10px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 27px; letter-spacing: -0.5px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+        </svg>
+        วัดดวง
+      </a>
+      <div style="display: flex; align-items: center; gap: 26px; font-size: 15px;">
+        <a href="/c/fortune/" style="font-weight: 500; border-block-end: 2.5px solid {{accent}}; padding-block-end: 2px;">ดูดวง</a>
+        <a href="/c/party/">สุ่มคนโดน</a>
+        <a href="/tools/">เครื่องมือสุ่ม</a>
+        <a href="/games/">เกมทั้งหมด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category header - full-bleed block painted in this category own accent -->
+  <div style="background: {{accent}}; border-block-end: 2.5px solid #1a1a1a;">
+    <div style="width: 1280px; margin-inline: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px; align-items: center; padding-block: 52px;">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <p style="margin: 0; font-size: 14px;"><a href="/">หน้าแรก</a> · ดูดวง</p>
+        <h1 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 58px; line-height: 1.2; letter-spacing: -1px;">ดูดวง</h1>
+        <p style="margin: 0; font-size: 19px; line-height: 1.6;">อยากรู้ว่าวันนี้ดวงเป็นยังไง หรือคู่ไหนเข้ากัน</p>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding-block-start: 6px;">
+          <li style="font-size: 13px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 5px 12px;">ไม่ต้องโหลดแอป</li>
+          <li style="font-size: 13px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 5px 12px;">ไม่ต้องสมัคร</li>
+          <li style="font-size: 13px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 5px 12px;">มือถือเครื่องเดียว</li>
+        </ul>
+      </div>
+      <p style="margin: 0; font-size: 17px; line-height: 1.8; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 0 #1a1a1a; padding: 24px 26px;">
+        รวมเกมดูดวงเล่นฟรีบนมือถือเครื่องเดียว เสี่ยงเซียมซี เปิดดวงประจำวัน หรือวัดว่าคู่ไหนเข้ากัน ส่งเครื่องวนกันในวง ไม่ต้องโหลดแอป ไม่ต้องสมัคร
+      </p>
+    </div>
+  </div>
+
+  <!-- Ad slot 1 - billboard -->
+  <sc-if value="{{showAds}}" hint-placeholder-val="{{ true }}">
+    <div style="width: 1280px; margin-inline: auto; padding-block: 40px; display: flex; justify-content: center;">
+      <div style="width: 970px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 2.5px dashed rgba(26,26,26,0.35); border-radius: 14px; color: #6b7280; font-size: 13px;">
+        <span style="font-family: 'Mitr', sans-serif; font-weight: 500;">ช่องโฆษณา</span>
+        <span style="font-size: 12px;">970 × 250 · ใต้หัวหน้าหมวด</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Main column + ad rail -->
+  <div style="width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px 300px; gap: 40px; align-items: start; padding-block-end: 48px;">
+
+    <div style="display: flex; flex-direction: column; gap: 40px;">
+
+      <div>
+        <h2 style="margin: 0 0 20px 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 1px; color: #6b7280;">เกมในหมวดนี้</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;">
+
+          <a href="/game/siamsi/" style="display: flex; flex-direction: column; gap: 12px; padding: 22px; background: {{accent}}; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 0 #1a1a1a; min-height: 200px;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 22px; line-height: 1.3;">เซียมซีปาร์ตี้</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.65;">ส่งมือถือวนรอบวง คนละใบ ใครได้ดวงอะไรบ้าง</p>
+            <span style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-block-start: auto; border-block-start: 2px solid rgba(26,26,26,0.2); padding-block-start: 12px; font-size: 14px;">
+              เล่นเลย
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path>
+              </svg>
+            </span>
+          </a>
+
+          <a href="/game/daily-fortune/" style="display: flex; flex-direction: column; gap: 12px; padding: 22px; background: {{accent}}; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 0 #1a1a1a; min-height: 200px;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 22px; line-height: 1.3;">ดวงวันนี้</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.65;">ใส่ชื่อแล้วรู้ดวงวันนี้ทันที วันนี้กดกี่ครั้งก็ดวงเดิม</p>
+            <span style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-block-start: auto; border-block-start: 2px solid rgba(26,26,26,0.2); padding-block-start: 12px; font-size: 14px;">
+              เล่นเลย
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path>
+              </svg>
+            </span>
+          </a>
+
+          <a href="/game/love-match/" style="display: flex; flex-direction: column; gap: 12px; padding: 22px; background: {{accent}}; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 0 #1a1a1a; min-height: 200px;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 22px; line-height: 1.3;">ดวงความรัก</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.65;">เลือกสองคนในวง แล้วดูว่าวันนี้ดวงเข้ากันกี่เปอร์เซ็นต์</p>
+            <span style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-block-start: auto; border-block-start: 2px solid rgba(26,26,26,0.2); padding-block-start: 12px; font-size: 14px;">
+              เล่นเลย
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path>
+              </svg>
+            </span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Cross-links to the other two groups -->
+      <div>
+        <h2 style="margin: 0 0 16px 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 1px; color: #6b7280;">ไปที่อื่นต่อ</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;">
+          <a href="/c/party/" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 72px; padding: 0 24px; background: #f89880; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 0 #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 19px;">
+            สุ่มคนโดน
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+          <a href="/tools/" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 72px; padding: 0 24px; background: #7fd8e8; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 0 #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 19px;">
+            เครื่องมือสุ่ม
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Ad rail - 300x250, not 600: this page carries less content than the home page,
+         and a rail taller than its sibling column would hang past the section -->
+    <sc-if value="{{showAds}}" hint-placeholder-val="{{ true }}">
+      <div style="position: sticky; top: 24px;">
+        <div style="width: 300px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 2.5px dashed rgba(26,26,26,0.35); border-radius: 14px; color: #6b7280; font-size: 13px;">
+          <span style="font-family: 'Mitr', sans-serif; font-weight: 500;">ช่องโฆษณา</span>
+          <span style="font-size: 12px;">300 × 250 · rail</span>
+          <span style="font-size: 12px;">จอแคบกว่า 1100px ให้ซ่อนช่องนี้</span>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- Footer -->
+  <div style="border-block-start: 2.5px solid #1a1a1a;">
+    <div style="width: 1280px; margin-inline: auto; height: 110px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: #6b7280;">
+      <a href="/" style="font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 20px; color: #1a1a1a;">วัดดวง</a>
+      <div style="display: flex; gap: 26px;">
+        <a href="/c/fortune/">ดูดวง</a>
+        <a href="/c/party/">สุ่มคนโดน</a>
+        <a href="/tools/">เครื่องมือสุ่ม</a>
+        <a href="/games/">เกมทั้งหมด</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#ffd27f","options":["#ffd27f","#f89880","#7fd8e8","#ffb703"]},"showAds":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":1560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      // fortune --accent-gold, per tokens.css
+      accent: this.props.accent ?? '#ffd27f',
+      showAds: this.props.showAds !== false,
+    };
+  }
+}
+</script>
+</body>
+</html>

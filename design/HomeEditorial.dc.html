@@ -1,0 +1,318 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Noto+Sans+Thai:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #c8452f; text-decoration: none; }
+    a:hover { color: #96311f; }
+
+    /* Decoration only. A still frame loses nothing, so reduced-motion turns it all off. */
+    @keyframes ed-rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes ed-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-16px) rotate(4deg); } }
+    @keyframes ed-spin { to { transform: rotate(360deg); } }
+    @keyframes ed-track { 0%, 100% { letter-spacing: 5px; } 50% { letter-spacing: 9px; } }
+
+    .rule { transform-origin: left center; animation: ed-rule 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .float-a { animation: ed-float 11s ease-in-out infinite; }
+    .spin { transform-origin: center; animation: ed-spin 60s linear infinite; }
+    .track { animation: ed-track 7s ease-in-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rule { animation: none; transform: scaleX(1); }
+      .float-a, .spin, .track { animation: none; }
+    }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #f7f2e8; color: #1a1713;">
+
+  <!-- Top bar -->
+  <div style="border-block-end: 1px solid #1a1713;">
+    <div style="width: 1280px; margin-inline: auto; height: 78px; display: flex; align-items: center; justify-content: space-between;">
+      <a href="/" style="display: flex; align-items: center; gap: 10px; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 27px; letter-spacing: -0.5px; color: #1a1713;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+        </svg>
+        วัดดวง
+      </a>
+      <div style="display: flex; align-items: center; gap: 32px; font-size: 15px;">
+        <a href="/c/fortune/" style="color: #1a1713;">ดูดวง</a>
+        <a href="/c/party/" style="color: #1a1713;">สุ่มคนโดน</a>
+        <a href="/tools/" style="color: #1a1713;">เครื่องมือสุ่ม</a>
+        <a href="/games/" style="color: {{accent}};">เกมทั้งหมด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO - magazine grid, display type overlapping geometry -->
+  <div style="width: 1280px; margin-inline: auto; padding-block: 72px 60px;">
+    <p class="track" style="margin: 0 0 26px 0; font-size: 12px; letter-spacing: 5px; color: {{accent}};">ฉบับประจำวง · เปิดเว็บเล่นได้เลย</p>
+
+    <div style="position: relative;">
+      <svg class="float-a" width="330" height="330" viewBox="0 0 330 330" style="position: absolute; top: -34px; right: 12px;" aria-hidden="true">
+        <circle class="spin" cx="165" cy="165" r="158" fill="none" stroke="#1a1713" stroke-width="1" stroke-dasharray="3 9"></circle>
+        <circle cx="165" cy="165" r="112" fill="{{accent}}" opacity="0.14"></circle>
+        <path d="M165 53 L277 165 L165 277 L53 165 Z" fill="none" stroke="#1a1713" stroke-width="1.2"></path>
+      </svg>
+
+      <h1 style="position: relative; margin: 0; font-family: 'Mitr', sans-serif; font-weight: 300; font-size: 108px; line-height: 1.04; letter-spacing: -3px; max-width: 15ch;">
+        ให้<span style="font-weight: 600;">ดวง</span><br>เป็นคน<span style="font-weight: 600; color: {{accent}};">ตัดสิน</span>
+      </h1>
+      <div class="rule" style="height: 1px; background: #1a1713; margin-block: 34px 30px;"></div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; max-width: 900px;">
+        <p style="margin: 0; font-size: 18px; line-height: 1.85;">
+          <span style="float: left; font-family: 'Mitr', sans-serif; font-size: 56px; line-height: 0.9; padding-inline-end: 12px; color: {{accent}};">ด</span>ูดวงกับวงเพื่อนก่อน แล้วค่อยสุ่มว่าใครจ่าย ใครเริ่ม ใครโดน ทั้งหมดอยู่บนมือถือเครื่องเดียว ส่งวนกันไปรอบวง
+        </p>
+        <p style="margin: 0; font-size: 18px; line-height: 1.85; color: #4a443c;">
+          ไม่ต้องโหลดแอป ไม่ต้องสมัคร ไม่ต้องเปิดพร้อมกันหลายเครื่อง แค่คนหนึ่งเปิดหน้านี้ ที่เหลือรอรับเครื่องต่อ
+        </p>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 30px; padding-block-start: 40px;">
+        <a href="/games/" style="display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 0 36px; background: #1a1713; color: #f7f2e8; font-family: 'Mitr', sans-serif; font-weight: 400; font-size: 20px;">
+          เลือกเกมเลย
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path>
+          </svg>
+        </a>
+        <a href="/tools/" style="font-size: 16px; border-block-end: 1px solid {{accent}}; padding-block-end: 3px;">หรือใช้เครื่องมือสุ่มแบบเร็ว ๆ</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ad slot 1 - billboard -->
+  <sc-if value="{{showAds}}" hint-placeholder-val="{{ true }}">
+    <div style="width: 1280px; margin-inline: auto; padding-block: 26px 52px; display: flex; justify-content: center;">
+      <div style="width: 970px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px dashed #b3a893; color: #8a8071; font-size: 13px;">
+        <span style="letter-spacing: 4px;">ช่องโฆษณา</span>
+        <span style="font-size: 12px;">970 × 250 · billboard · ใต้ hero</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Main column + ad rail -->
+  <div style="width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px 300px; gap: 40px; align-items: start; padding-block-end: 40px;">
+
+    <div style="display: flex; flex-direction: column; gap: 64px;">
+
+      <!-- Featured game -->
+      <div>
+        <p style="margin: 0 0 18px 0; font-size: 12px; letter-spacing: 4px; color: #8a8071;">เล่นครั้งแรก เริ่มที่เกมนี้</p>
+        <a href="/game/siamsi/" style="display: grid; grid-template-columns: 240px 1fr; gap: 36px; align-items: center; padding-block: 30px; border-block: 1px solid #1a1713; color: #1a1713;">
+          <svg width="240" height="180" viewBox="0 0 240 180" aria-hidden="true">
+            <rect x="0" y="0" width="240" height="180" fill="{{accent}}" opacity="0.12"></rect>
+            <circle class="spin" cx="120" cy="90" r="66" fill="none" stroke="#1a1713" stroke-width="1" stroke-dasharray="2 7"></circle>
+            <g stroke="#1a1713" stroke-width="4" stroke-linecap="round">
+              <line x1="104" y1="98" x2="96" y2="52"></line>
+              <line x1="120" y1="94" x2="121" y2="44"></line>
+              <line x1="136" y1="98" x2="146" y2="54"></line>
+            </g>
+            <path d="M98 100 h44 l-6 42 a17 17 0 0 1 -32 0 z" fill="{{accent}}"></path>
+          </svg>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 400; font-size: 40px; letter-spacing: -1px;">เซียมซีปาร์ตี้</h2>
+            <p style="margin: 0; font-size: 17px; line-height: 1.8; color: #4a443c;">ส่งมือถือวนรอบวง คนละใบ ใครได้ดวงอะไรบ้าง</p>
+            <span style="font-size: 15px; color: {{accent}};">เริ่มเสี่ยงเซียมซี →</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- All six games -->
+      <div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; border-block-end: 1px solid #1a1713; padding-block-end: 14px; margin-block-end: 26px;">
+          <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 400; font-size: 34px; letter-spacing: -1px;">เกมทั้งหมด</h2>
+          <a href="/games/" style="font-size: 15px;">ดูเรียงเป็นรายการ →</a>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px;">
+
+          <a href="/game/siamsi/" style="display: flex; flex-direction: column; gap: 12px; color: #1a1713;">
+            <div style="height: 6px; background: #f2c66b;"></div>
+            <span style="font-size: 11px; letter-spacing: 3px; color: #8a8071;">ดูดวง</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 24px;">เซียมซีปาร์ตี้</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.75; color: #4a443c;">ส่งมือถือวนรอบวง คนละใบ ใครได้ดวงอะไรบ้าง</p>
+          </a>
+
+          <a href="/game/daily-fortune/" style="display: flex; flex-direction: column; gap: 12px; color: #1a1713;">
+            <div style="height: 6px; background: #f2c66b;"></div>
+            <span style="font-size: 11px; letter-spacing: 3px; color: #8a8071;">ดูดวง</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 24px;">ดวงวันนี้</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.75; color: #4a443c;">ใส่ชื่อแล้วรู้ดวงวันนี้ทันที วันนี้กดกี่ครั้งก็ดวงเดิม</p>
+          </a>
+
+          <a href="/game/love-match/" style="display: flex; flex-direction: column; gap: 12px; color: #1a1713;">
+            <div style="height: 6px; background: #f2c66b;"></div>
+            <span style="font-size: 11px; letter-spacing: 3px; color: #8a8071;">ดูดวง</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 24px;">ดวงความรัก</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.75; color: #4a443c;">เลือกสองคนในวง แล้วดูว่าวันนี้ดวงเข้ากันกี่เปอร์เซ็นต์</p>
+          </a>
+
+          <a href="/game/timebomb/" style="display: flex; flex-direction: column; gap: 12px; color: #1a1713;">
+            <div style="height: 6px; background: {{accent}};"></div>
+            <span style="font-size: 11px; letter-spacing: 3px; color: #8a8071;">สุ่มคนโดน</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 24px;">ระเบิดเวลา</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.75; color: #4a443c;">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
+          </a>
+
+          <a href="/game/pick-loser/" style="display: flex; flex-direction: column; gap: 12px; color: #1a1713;">
+            <div style="height: 6px; background: {{accent}};"></div>
+            <span style="font-size: 11px; letter-spacing: 3px; color: #8a8071;">สุ่มคนโดน</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 24px;">สุ่มคนโดน</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.75; color: #4a443c;">กดปุ่มเดียว สุ่มคนโดนในวงทันที</p>
+          </a>
+
+          <a href="/game/short-stick/" style="display: flex; flex-direction: column; gap: 12px; color: #1a1713;">
+            <div style="height: 6px; background: {{accent}};"></div>
+            <span style="font-size: 11px; letter-spacing: 3px; color: #8a8071;">สุ่มคนโดน</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 24px;">จับไม้สั้น</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.75; color: #4a443c;">ส่งมือถือวนจับไม้ทีละคน ใครได้ไม้สั้นคนนั้นโดน</p>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Ad slot 2 - in-content -->
+      <sc-if value="{{showAds}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; justify-content: center;">
+          <div style="width: 728px; height: 90px; display: flex; align-items: center; justify-content: center; gap: 12px; border: 1px dashed #b3a893; color: #8a8071; font-size: 12px;">
+            <span style="letter-spacing: 4px;">ช่องโฆษณา</span>
+            <span>728 × 90 · คั่นระหว่างเกมกับเครื่องมือ</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Tools -->
+      <div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; border-block-end: 1px solid #1a1713; padding-block-end: 14px; margin-block-end: 26px;">
+          <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 400; font-size: 34px; letter-spacing: -1px;">เครื่องมือสุ่ม กดทีเดียวจบ</h2>
+          <a href="/tools/" style="font-size: 15px;">ดูทั้งหมด →</a>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 48px;">
+          <a href="/tool/wheel/" style="display: flex; flex-direction: column; gap: 7px; padding-block: 22px; border-block-end: 1px solid #d8cfbd; color: #1a1713;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 21px;">วงล้อสุ่มชื่อ</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #4a443c;">ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน หมุนเสร็จต่อเข้าเกมได้เลย</p>
+          </a>
+          <a href="/tool/draw/" style="display: flex; flex-direction: column; gap: 7px; padding-block: 22px; border-block-end: 1px solid #d8cfbd; color: #1a1713;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 21px;">จับฉลาก</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #4a443c;">เลือกว่าจะจั่วกี่คน กดทีเดียวรู้ผล คนที่ออกแล้วไม่ออกซ้ำในรอบเดิม</p>
+          </a>
+          <a href="/tool/team/" style="display: flex; flex-direction: column; gap: 7px; padding-block: 22px; border-block-end: 1px solid #d8cfbd; color: #1a1713;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 21px;">แบ่งทีม</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #4a443c;">บอกว่าอยากได้กี่ทีม แบ่งให้ทันที จำนวนคนต่างกันไม่เกินหนึ่งคน</p>
+          </a>
+          <a href="/tool/number/" style="display: flex; flex-direction: column; gap: 7px; padding-block: 22px; border-block-end: 1px solid #d8cfbd; color: #1a1713;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 21px;">สุ่มเลข</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #4a443c;">ตั้งเลขต่ำสุดกับสูงสุดแล้วกดสุ่ม เลือกได้ว่าจะให้เลขซ้ำได้หรือไม่</p>
+          </a>
+        </div>
+      </div>
+
+      <!-- How to play -->
+      <div>
+        <h2 style="margin: 0 0 26px 0; font-family: 'Mitr', sans-serif; font-weight: 400; font-size: 34px; letter-spacing: -1px; border-block-end: 1px solid #1a1713; padding-block-end: 14px;">เล่นยังไง</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px;">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <span style="font-family: 'Mitr', sans-serif; font-weight: 300; font-size: 64px; line-height: 1; color: {{accent}};">01</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px;">เลือกเกม</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #4a443c;">เปิดจากหน้านี้ได้เลย ไม่ต้องโหลดอะไรก่อน</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <span style="font-family: 'Mitr', sans-serif; font-weight: 300; font-size: 64px; line-height: 1; color: {{accent}};">02</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px;">ใส่ชื่อคนในวง</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #4a443c;">พิมพ์ครั้งเดียว เกมอื่นจำชื่อวงเดิมให้</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <span style="font-family: 'Mitr', sans-serif; font-weight: 300; font-size: 64px; line-height: 1; color: {{accent}};">03</span>
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px;">ส่งมือถือวนกัน</h3>
+            <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #4a443c;">จอบอกเองว่าถึงตาใคร และต้องทำอะไรต่อ</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div>
+        <h2 style="margin: 0 0 8px 0; font-family: 'Mitr', sans-serif; font-weight: 400; font-size: 34px; letter-spacing: -1px; border-block-end: 1px solid #1a1713; padding-block-end: 14px;">คำถามที่เจอบ่อย</h2>
+        <div style="display: flex; flex-direction: column;">
+          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 32px; padding-block: 24px; border-block-end: 1px solid #d8cfbd;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 19px;">ต้องโหลดแอปไหม</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.85; color: #4a443c;">ไม่ต้อง ทุกเกมทำงานในเบราว์เซอร์ เปิดลิงก์แล้วกดเล่นได้เลย</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 32px; padding-block: 24px; border-block-end: 1px solid #d8cfbd;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 19px;">ต้องสมัครสมาชิกไหม</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.85; color: #4a443c;">ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 32px; padding-block: 24px; border-block-end: 1px solid #d8cfbd;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 19px;">เล่นได้กี่คน</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.85; color: #4a443c;">ตั้งแต่ 2 ถึง 10 คน ใช้มือถือเครื่องเดียวส่งวนกันในวง</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 32px; padding-block: 24px; border-block-end: 1px solid #d8cfbd;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 19px;">เสียเงินไหม</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.85; color: #4a443c;">ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 32px; padding-block: 24px; border-block-end: 1px solid #d8cfbd;">
+            <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 19px;">เปิดบนคอมได้ไหม</h3>
+            <p style="margin: 0; font-size: 15px; line-height: 1.85; color: #4a443c;">เปิดดูได้ แต่ตัวเกมออกแบบมาให้ส่งมือถือวนกัน เล่นบนมือถือจะเข้าทางที่สุด</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sticky ad rail -->
+    <sc-if value="{{showAds}}" hint-placeholder-val="{{ true }}">
+      <div style="position: sticky; top: 24px;">
+        <div style="width: 300px; height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px dashed #b3a893; color: #8a8071; font-size: 13px;">
+          <span style="letter-spacing: 4px;">ช่องโฆษณา</span>
+          <span style="font-size: 12px;">300 × 600 · sticky rail</span>
+          <span style="font-size: 12px;">จอแคบกว่า 1100px ให้ซ่อนช่องนี้</span>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- Ad slot 4 - above the footer -->
+  <sc-if value="{{showAds}}" hint-placeholder-val="{{ true }}">
+    <div style="width: 1280px; margin-inline: auto; padding-block: 20px 56px; display: flex; justify-content: center;">
+      <div style="width: 970px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px dashed #b3a893; color: #8a8071; font-size: 13px;">
+        <span style="letter-spacing: 4px;">ช่องโฆษณา</span>
+        <span style="font-size: 12px;">970 × 250 · ก่อนฟุตเตอร์</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Footer -->
+  <div style="background: #1a1713; color: #f7f2e8;">
+    <div style="width: 1280px; margin-inline: auto; height: 124px; display: flex; align-items: center; justify-content: space-between; font-size: 14px;">
+      <span style="font-family: 'Mitr', sans-serif; font-weight: 400; font-size: 22px;">วัดดวง</span>
+      <div style="display: flex; gap: 30px;">
+        <a href="/c/fortune/" style="color: rgba(247,242,232,0.78);">ดูดวง</a>
+        <a href="/c/party/" style="color: rgba(247,242,232,0.78);">สุ่มคนโดน</a>
+        <a href="/tools/" style="color: rgba(247,242,232,0.78);">เครื่องมือสุ่ม</a>
+        <a href="/games/" style="color: rgba(247,242,232,0.78);">เกมทั้งหมด</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#c8452f","options":["#c8452f","#a8352b","#d4573b","#7d2b3a"]},"showAds":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":3900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      accent: this.props.accent ?? '#c8452f',
+      showAds: this.props.showAds !== false,
+    };
+  }
+}
+</script>
+</body>
+</html>
