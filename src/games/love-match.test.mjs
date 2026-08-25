@@ -8,9 +8,10 @@
 // short-stick.test.mjs uses (the reference DOM harness in this repo).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import game, { BANDS, HEADER_NAME_MAX, SCORES, bandFor, lineFor, pairSeed, scoreFor } from './love-match.ts';
+import game, { BANDS, HEADER_NAME_MAX, SCORES, arcDashOffset, bandFor, lineFor, pairSeed, scoreFor } from './love-match.ts';
 import { normalizeName } from './daily-fortune.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
+import { readFileSync } from 'node:fs';
 
 // ---- Minimal fake DOM for the two #36 tests below — see the header comment for why. ----
 class FakeElement {
@@ -310,6 +311,16 @@ test('#36: a first tap does not reflow or rebuild the chip row', (t) => {
   game.dispose();
 });
 
+/** First descendant carrying `cls`, or null. The fake DOM has no querySelector. */
+function findByClass(node, cls) {
+  for (const child of node.children) {
+    if (child.className === cls) return child;
+    const hit = findByClass(child, cls);
+    if (hit) return hit;
+  }
+  return null;
+}
+
 test('#36: a fast double-tap on one chip cannot pair a person with themselves', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const stage = fakeDocument.createElement('div');
@@ -319,13 +330,21 @@ test('#36: a fast double-tap on one chip cannot pair a person with themselves', 
 
   const tapped = stage.children[1].children[0]; // players[0]'s chip — the exact node under the finger both times
   tapped.click();
-  tapped.click();
+  assert.equal(tapped.disabled, true, 'tap 1 must disable the chip it took — the first line of defence');
 
-  // renderResult's pair paragraph is the only one styled with PAIR_STYLE (identified by its unique
-  // '1.25rem' substring, same discriminator used in docs/verification/evidence/34's browser capture).
-  const pairPara = stage.children.find((c) => (c.getAttribute('style') || '').includes('1.25rem'));
-  assert.equal(pairPara, undefined,
-    `a double-tap on one chip alone must not complete a pair at all, let alone a self-pair — got: ${pairPara && pairPara.textContent}`);
+  // Second tap via dispatch(), NOT click(), and that difference is the whole point. click() honours
+  // `disabled` exactly as the platform does, so it swallows the second tap and pick() is never
+  // re-entered — which is why this test passed for both a present and an absent guard. A real fast
+  // double-tap is the case where the second activation was already in flight when the disable landed,
+  // and dispatch() is that event arriving anyway. This is what reaches the guard.
+  tapped.dispatch('click');
+
+  // The result screen is identified by the percentage element, which only renderResult creates. It
+  // used to be identified by PAIR_STYLE's unique '1.25rem' substring; gh#81 deleted that constant, so
+  // the old lookup could not have matched anything either way.
+  const scoreEl = findByClass(stage, 'lm-score');
+  assert.equal(scoreEl, null,
+    `a double-tap on one chip alone must not complete a pair at all, let alone a self-pair — got: ${scoreEl && scoreEl.textContent}`);
 
   game.dispose();
 });
@@ -385,5 +404,123 @@ test('a long player name cannot grow the header past its HEADER_NAME_MAX-truncat
   );
   assert.ok(header.textContent.includes('…'), 'a name past HEADER_NAME_MAX should be shown truncated with an ellipsis');
 
+  game.dispose();
+});
+
+// ---- gh#81: the result screen — the pair is symmetric, the percentage dominates, the reading card
+// owns its height, and no <a> ever enters the stage. The fake DOM above cannot measure a computed
+// font-size, so type-step assertions read love-match.css directly (via node:fs) instead of pretending
+// layout was computed. ----
+
+const loveMatchCss = readFileSync(new URL('../styles/games/love-match.css', import.meta.url), 'utf8');
+
+/** Mount into a fresh stage and drive two distinct, armed taps to the result screen. */
+function driveToResult(t, players) {
+  const stage = fakeDocument.createElement('div');
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  game.mount(stage, makeCtx(players));
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  const chips = stage.children[1].children; // mount draws the pick screen first
+  chips[0].click();
+  chips[1].click();
+  return stage;
+}
+
+test('the pair is two structurally identical tiles — equal weight, both names shown', (t) => {
+  const stage = driveToResult(t, ['เอ', 'บี']);
+  const pair = stage.children[0];
+  assert.equal(pair.children.length, 3, 'the pair row must be tile + heart + tile');
+  const [tileA, heart, tileB] = pair.children;
+  assert.equal(tileA.tagName, tileB.tagName, 'the two tiles must be the same element shape');
+  assert.equal(tileA.className, tileB.className, 'the two tiles must carry the identical class list — no first/second styling');
+  assert.equal(tileA.className, 'lm-name', 'a name tile lost the shared lm-name class');
+  assert.equal(tileB.className, 'lm-name', 'a name tile lost the shared lm-name class');
+  assert.equal(tileA.textContent, 'เอ', 'the first name did not render');
+  assert.equal(tileB.textContent, 'บี', 'the second name did not render');
+  assert.equal(heart.className, 'lm-heart', 'the heart is its own element between the two tiles');
+  game.dispose();
+});
+
+test('the percentage uses the dedicated 62px step and the arc offset derives from it', (t) => {
+  const stage = driveToResult(t, ['เอ', 'บี']);
+  const meter = stage.children[1];
+  const label = meter.children[0];
+  const scoreEl = label.children[0];
+  assert.equal(scoreEl.className, 'lm-score', 'the percentage must use the dedicated dominant-type-step class');
+  // The type steps live in the CSS the fake DOM cannot measure: 62px must be the largest font-size in
+  // love-match.css — the percentage is the one big thing on screen.
+  const sizes = [...loveMatchCss.matchAll(/font-size:\s*(\d+)px/g)].map((m) => Number(m[1]));
+  assert.ok(sizes.length > 0, 'love-match.css declares no font-size step');
+  assert.equal(Math.max(...sizes), 62, '62px is not the largest type step on the screen');
+  // The arc's dashoffset is derived from the percentage, never hardcoded:
+  const score = Number(scoreEl.textContent);
+  assert.equal(arcDashOffset(score), Math.round(264 * (1 - score / 100)), 'the offset did not derive from the score');
+  assert.equal(arcDashOffset(75), 66, 'the 264 dasharray / formula drifted from the canvas (75% → 66)');
+  assert.ok(meter.innerHTML.includes(`stroke-dashoffset="${arcDashOffset(score)}"`), 'the rendered meter does not carry the computed dashoffset');
+  game.dispose();
+});
+
+test('the longest reading in the library renders in full — no truncation, no height clamp', (t) => {
+  const all = BANDS.flatMap((b) => b.lines);
+  const longest = all.reduce((m, l) => (l.length > m.length ? l : m));
+  assert.ok(longest.length > 0, 'the library has no longest line to test');
+
+  const stage = driveToResult(t, ['เอ', 'บี']);
+  const reading = stage.children[2];
+  const para = reading.children[0];
+  // renderResult must have written a full library line verbatim — any slice or ellipsis would leave a
+  // string that is not a line in the pool.
+  assert.ok(all.includes(para.textContent), 'the reading paragraph is not a full line from the library');
+
+  // Pool membership alone would still pass a truncation that only bites lines longer than the one this
+  // pair happens to draw today, and which line that is depends on the date. Pin the rendered text to
+  // the module's own answer for this pair and day, so ANY slice is caught whatever the draw was.
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+  assert.equal(para.textContent, lineFor('เอ', 'บี', today),
+    'the rendered reading is not verbatim what lineFor returned for this pair and day');
+
+  // And the longest line in the library is reachable and survives the same path — driven through the
+  // pure function over the fixed name space, so this holds on every date rather than only the one a
+  // test run happens to land on.
+  const drawsLongest = PAIRS.some(([a, b]) => DAYS.some((d) => lineFor(a, b, d) === longest));
+  assert.ok(drawsLongest, 'the longest line in the library is never drawn by any pair on any day');
+  for (const [a, b] of PAIRS) {
+    for (const d of DAYS) {
+      assert.ok(all.includes(lineFor(a, b, d)), `lineFor returned a string that is not a library line: ${a}+${b} on ${d}`);
+    }
+  }
+
+  // The card owns its height: love-match.css pins no height, max-height, or overflow-clip on it, so the
+  // longest line grows the card rather than clipping or scrolling.
+  const readingRule = loveMatchCss.match(/\.lm-reading\s*\{[^}]*\}/)?.[0] ?? '';
+  assert.ok(readingRule.length > 0, '.lm-reading has no rule to inspect in love-match.css');
+  assert.ok(!/(?<![\w-])height\s*:/.test(readingRule), '.lm-reading pins a fixed height');
+  assert.ok(!/max-height/.test(readingRule), '.lm-reading pins a max-height');
+  assert.ok(!/overflow\s*:\s*hidden/.test(readingRule), '.lm-reading clips its overflow');
+  assert.ok(!/-webkit-line-clamp|line-clamp/.test(loveMatchCss), 'love-match.css line-clamps some text');
+  game.dispose();
+});
+
+function assertNoAnchor(stage) {
+  const walk = (node) => {
+    for (const child of node.children) {
+      assert.notEqual(child.tagName.toUpperCase(), 'A', 'an <a> rendered inside #stage');
+      walk(child);
+    }
+  };
+  walk(stage);
+}
+
+test('#81: no <a> renders inside the stage on either screen', (t) => {
+  const stage = fakeDocument.createElement('div');
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  game.mount(stage, makeCtx(['เอ', 'บี']));
+  assertNoAnchor(stage); // the pick screen
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  stage.children[1].children[0].click();
+  stage.children[1].children[1].click();
+  assertNoAnchor(stage); // the result screen
   game.dispose();
 });

@@ -170,6 +170,13 @@ export function lineFor(a: string, b: string, today: string): string {
   return hashPick(`${seed}|line`, bandFor(hashPick(seed, SCORES)).lines);
 }
 
+/** The meter arc's stroke-dashoffset for a score — the SVG's fixed 264 dasharray (2π·42, the canvas's
+ *  r=42 ring) minus the fraction the score fills. Derived from the percentage, never hardcoded, so the
+ *  arc a player reads is always the number the meter prints; 75% → 66, the canvas's own example. */
+export function arcDashOffset(percent: number): number {
+  return Math.round(264 * (1 - percent / 100));
+}
+
 // ---- Current screen state (one game per page) ----
 
 let cleanup: Array<() => void> = [];
@@ -218,10 +225,6 @@ export const HEADER_NAME_MAX = 20;
 function headerNameFor(name: string): string {
   return name.length > HEADER_NAME_MAX ? `${name.slice(0, HEADER_NAME_MAX)}…` : name;
 }
-const SCORE_STYLE = 'font-size:clamp(2.6rem,16vw,4rem);font-weight:700;line-height:1.1;margin:0.5rem 0';
-const LINE_STYLE =
-  'font-size:clamp(1.15rem,5.5vw,1.6rem);font-weight:700;line-height:1.7;overflow-wrap:anywhere';
-const PAIR_STYLE = 'font-size:1.25rem;font-weight:700;overflow-wrap:anywhere';
 // The "taken" look for the first-picked chip. Previously unauthored — the dimming rode entirely on the
 // browser's default `:disabled` UA styling, and a real device (iOS Safari, not the headless Chrome that
 // captured docs/verification/evidence) is not guaranteed to render that the same way. Values chosen to
@@ -240,6 +243,10 @@ function renderPick(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  // The pick screen sits in block flow (its chips and header are inline-styled); the result screen is
+  // the one that opts into .stage-screen. Explicit on every render so a round that came back from the
+  // result screen ("ดูคู่อื่น") lands in block flow instead of inheriting the class it left behind.
+  stage.className = '';
   chipEls = [];
   headerEl = null;
   backBtn = null;
@@ -292,41 +299,103 @@ function renderPick(): void {
   cleanup.push(armAllButtons(stage));
 }
 
+// ---- The result screen's inline art, drawn, never an image. Presentation attributes resolve var(),
+// exactly as pick-loser's burst does: #1a1a1a is var(--color-line-strong), #fffdf7 is
+// var(--color-ground-warm). #d6336c is the meter arc's own colour, NOT the accent, and stays a literal
+// (the brief: only the accent may not be one). The arc offset is computed, never hardcoded.
+const HEART_SVG =
+  '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="2" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M12 20s-7-4.5-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5c0 5-7 9.5-7 9.5z"></path></svg>';
+
+/** The 250×250 meter SVG on the canvas's 0..100 viewBox: a warm ring outlined strong, plus the
+ *  #d6336c progress arc whose stroke-dashoffset is arcDashOffset(score). The -90deg rotation is CSS
+ *  (.lm-meter svg), not inline. */
+function meterSvg(offset: number): string {
+  return (
+    '<svg width="250" height="250" viewBox="0 0 100 100" aria-hidden="true">' +
+    '<circle cx="50" cy="50" r="42" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="5"></circle>' +
+    `<circle cx="50" cy="50" r="42" fill="none" stroke="#d6336c" stroke-width="5" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="${offset}"></circle>` +
+    '</svg>'
+  );
+}
+
 function renderResult(a: string, b: string, now: Date): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  // The result screen opts into the shared shell layout (.stage-screen) so it spans the full width on
+  // the accent ground the play-area already paints — the same opt-in pick-loser and daily-fortune make.
+  stage.className = 'stage-screen';
 
-  // One `now` for the whole screen — two `new Date()` calls could straddle Bangkok midnight and
-  // print a date that contradicts the reading below it. The Bangkok day, never the device's: two
-  // phones in different timezones must agree on the same pair near midnight (Thailand is UTC+7, no
-  // DST). Known and accepted, as in #33: at Bangkok midnight the reading flips mid-read, because
-  // nothing is stored to pin it — that is what "today" promises.
+  // One `now` for the whole screen — two `new Date()` calls could straddle Bangkok midnight and hash a
+  // day the reveal did not seal. The Bangkok day, never the device's (Thailand is UTC+7, no DST): two
+  // phones in different timezones must agree on the same pair near midnight. The screen no longer prints
+  // a date line (the canvas has none); the note under the button carries the "today" promise.
   const today = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Bangkok',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
   }).format(now);
-  const shown = new Intl.DateTimeFormat('th-TH', { timeZone: 'Asia/Bangkok', dateStyle: 'long' }).format(now);
+  const score = scoreFor(a, b, today);
+  const line = lineFor(a, b, today);
 
-  stage.appendChild(el('p', `ดวงคู่ประจำวันที่ ${shown}`));
-  stage.appendChild(el('p', `${a} กับ ${b}`, PAIR_STYLE));
-  stage.appendChild(el('p', `${scoreFor(a, b, today)}%`, SCORE_STYLE));
-  stage.appendChild(el('p', lineFor(a, b, today), LINE_STYLE));
-  stage.appendChild(el('p', 'สลับลำดับชื่อก็ได้ผลเท่าเดิม วันนี้กดกี่ครั้งก็เท่าเดิม พรุ่งนี้ค่อยมาดูใหม่'));
+  // The pair row: two structurally identical name tiles around a filled heart. The reading is about the
+  // PAIR, never a verdict on one person, so the two tiles are the same element with the same class — no
+  // first-name/second-name styling of any kind (the first AC). Direct children in canvas order.
+  const pair = document.createElement('div');
+  pair.className = 'lm-pair';
+  const tileA = el('div', a);
+  tileA.className = 'lm-name';
+  const tileB = el('div', b);
+  tileB.className = 'lm-name';
+  const heart = document.createElement('span');
+  heart.className = 'lm-heart';
+  heart.innerHTML = HEART_SVG;
+  pair.appendChild(tileA);
+  pair.appendChild(heart);
+  pair.appendChild(tileB);
+  stage.appendChild(pair);
+
+  // The meter: a drawn arc, not an image; the number is the one big thing on screen (62px).
+  const meter = document.createElement('div');
+  meter.className = 'lm-meter';
+  meter.innerHTML = meterSvg(arcDashOffset(score));
+  const meterLabel = document.createElement('div');
+  meterLabel.className = 'lm-meter-label';
+  const scoreEl = el('span', String(score));
+  scoreEl.className = 'lm-score';
+  const unitEl = el('span', 'เปอร์เซ็นต์');
+  unitEl.className = 'lm-unit';
+  meterLabel.appendChild(scoreEl);
+  meterLabel.appendChild(unitEl);
+  meter.appendChild(meterLabel);
+  stage.appendChild(meter);
+
+  // The reading card owns its height — no fixed height, no overflow — so the longest line in the pool
+  // renders in full instead of clipping or scrolling (the third AC).
+  const reading = document.createElement('div');
+  reading.className = 'lm-reading';
+  reading.appendChild(el('p', line));
+  stage.appendChild(reading);
 
   const again = el('button', 'ดูคู่อื่น');
   again.id = 'lm-again';
   again.type = 'button';
+  again.className = 'game-btn game-btn-primary';
   on(again, 'click', () => {
     firstIndex = null;
     renderPick();
   });
   stage.appendChild(again);
 
-  // The second tap of the pair that produced this screen lands here under the same finger — gate it
-  // so a ghost tap cannot skip straight to a new pick before the reading was even read.
+  const note = el('span', 'วันนี้คู่เดิมได้ผลเดิม');
+  note.className = 'lm-note';
+  stage.appendChild(note);
+
+  // No /games/ link here — #stage holds no navigation target in any game (ADR-0014); the crawlable
+  // link is static chrome above the stage. The second tap of the pair that produced this screen lands
+  // here under the same finger, so gate it like every render.
   cleanup.push(armAllButtons(stage));
 }
 
