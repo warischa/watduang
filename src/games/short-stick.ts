@@ -44,28 +44,29 @@ let stageEl: HTMLElement | null = null;
 let gameCtx: GameContext | null = null;
 let round: Round | null = null;
 let turn = 0;
-let reveal: Animation | null = null;
+// taken[i] = the stick at panel index i has been drawn — so it keeps its slot, spent, and the row
+// never reflows mid-round (gh#79's headline criterion).
+let taken: boolean[] = [];
 
 function on(target: EventTarget, type: string, handler: EventListener): void {
   target.addEventListener(type, handler);
   cleanup.push(() => target.removeEventListener(type, handler));
 }
 
-/** matchMedia is read here, never at module scope — this file is imported by `node --test`,
- *  where `window` does not exist. Motion is decoration only: the result is already on screen. */
-function animateReveal(node: HTMLElement): void {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  reveal = node.animate(
-    [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }],
-    160,
-  );
-}
+// The hint chip's info icon, byte-exact from design/GameShortStick.dc.html (circle + stem + dot).
+// stroke resolves a token by name, the same way pick-loser's burst star does.
+const INFO_SVG =
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" ' +
+  'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<circle cx="12" cy="12" r="9"></circle><path d="M12 8v5"></path><path d="M12 16h.01"></path></svg>';
 
 // ---- Screens ----
-
-/** 320px: sticks size off viewport width, never constants, and wrap instead of overflowing sideways. */
-const BUNDLE_STYLE = 'display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin:1rem 0';
-const STICK_STYLE = 'width:min(44px,13vw);height:min(112px,32vw);border-radius:999px;padding:0';
+// gh#79 — the draw screen is the approved design (design/GameShortStick.dc.html). Class names are
+// styled from src/styles/games/short-stick.css (the `st-` prefix); shared controls reuse the
+// .stage-screen / .game-btn / .game-btn-primary shell vocabulary from src/pages/game/[id].astro's
+// is:global sheet. The stage ground is var(--page-accent), resolved by the shell's .play-area — the
+// canvas's own per-game accent hex is a colour the site does not define. No animation on purpose:
+// the canvas has none, which is the whole prefers-reduced-motion story.
 
 function renderDraw(): void {
   const stage = stageEl;
@@ -73,18 +74,56 @@ function renderDraw(): void {
   if (!stage || !r) return;
   stage.replaceChildren();
 
-  stage.appendChild(el('p', `ตาของ ${r.order[turn]}`, 'font-size:1.5rem;font-weight:700'));
-  stage.appendChild(el('p', `แตะไม้อันไหนก็ได้ 1 อัน — เหลือ ${r.order.length - turn} อัน`));
+  const holder = el('div');
+  holder.className = 'st-holder';
+  const kicker = el('span', 'คนที่ถือมือถือ');
+  kicker.className = 'st-holder-kicker';
+  const name = el('span', `ตาของ ${r.order[turn]}`);
+  name.className = 'st-holder-name';
+  holder.appendChild(kicker);
+  holder.appendChild(name);
+  stage.appendChild(holder);
 
-  const bundle = el('div', undefined, BUNDLE_STYLE);
-  for (let i = 0; i < r.order.length - turn; i++) {
-    const stick = el('button', undefined, STICK_STYLE);
-    stick.type = 'button';
-    stick.setAttribute('aria-label', 'จับไม้');
-    on(stick, 'click', drawOne);
-    bundle.appendChild(stick);
+  const instruction = el('span', 'แตะจับไม้ 1 อัน');
+  instruction.className = 'st-instruction';
+  stage.appendChild(instruction);
+
+  // The stick box: every stick is rendered every turn. A taken one is a spent <div> in the same
+  // slot, never removed — that is what keeps the row from reflowing.
+  const panel = el('div');
+  panel.className = 'st-stick-panel';
+  for (let i = 0; i < r.order.length; i++) {
+    if (taken[i]) {
+      const spent = el('div');
+      spent.className = 'st-stick st-stick--spent';
+      panel.appendChild(spent);
+    } else {
+      const stick = el('button');
+      stick.type = 'button';
+      stick.className = 'st-stick';
+      stick.setAttribute('aria-label', 'จับไม้');
+      on(stick, 'click', () => drawOne(i));
+      panel.appendChild(stick);
+    }
   }
-  stage.appendChild(bundle);
+  stage.appendChild(panel);
+
+  const closing = el('p', 'จับปุ๊บรู้ปั๊บ — ใครได้ไม้สั้น คนนั้นโดน จบรอบทันที');
+  closing.className = 'st-closing';
+  stage.appendChild(closing);
+
+  const hint = el('div');
+  hint.className = 'st-hint';
+  const icon = el('span');
+  icon.className = 'st-hint-icon';
+  icon.innerHTML = INFO_SVG;
+  const hintText = el('span', 'ไม้ที่จับไปแล้วจะจางลง แต่ไม่หายไป แถวจะได้ไม่ขยับ');
+  hintText.className = 'st-hint-text';
+  hint.appendChild(icon);
+  hint.appendChild(hintText);
+  stage.appendChild(hint);
+  // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
+  // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
 
   // Every way into this screen replaces one the finger was already aiming at — the "ส่งต่อ" tap, the
   // mount out of PlayerSetup, and the "เล่นอีกรอบ" remount. Gating here covers all three at once: the
@@ -98,21 +137,24 @@ function renderPassing(player: string, next: string): void {
   if (!stage) return;
   stage.replaceChildren();
 
-  const line = el('p', 'ไม้ยาว — รอด', 'font-size:1.8rem;font-weight:700');
+  const line = el('span', 'ไม้ยาว — รอด');
+  line.className = 'st-shout';
   stage.appendChild(line);
-  stage.appendChild(el('p', `${player} รอดไปได้ ส่งมือถือให้ ${next} ต่อเลย`));
+
+  const remark = el('p', `${player} รอดไปได้ ส่งมือถือให้ ${next} ต่อเลย`);
+  remark.className = 'st-remark';
+  stage.appendChild(remark);
 
   const pass = el('button', `ส่งต่อให้ ${next}`);
   pass.id = 'ss-pass';
   pass.type = 'button';
+  pass.className = 'game-btn game-btn-primary';
   on(pass, 'click', () => {
     if (phase !== 'passing') return;
     phase = 'draw';
     renderDraw();
   });
   stage.appendChild(pass);
-
-  animateReveal(line);
 }
 
 function renderResult(player: string): void {
@@ -120,14 +162,22 @@ function renderResult(player: string): void {
   if (!stage) return;
   stage.replaceChildren();
 
-  const line = el('p', 'ไม้สั้น!', 'font-size:2rem;font-weight:700');
+  const line = el('span', 'ไม้สั้น!');
+  line.className = 'st-shout';
   stage.appendChild(line);
-  stage.appendChild(el('p', `${player} โดน`, 'font-size:1.8rem;font-weight:700'));
-  stage.appendChild(el('p', 'วงตกลงกันเองว่าคนโดนต้องทำอะไร'));
+
+  const loser = el('span', `${player} โดน`);
+  loser.className = 'st-shout';
+  stage.appendChild(loser);
+
+  const foot = el('p', 'วงตกลงกันเองว่าคนโดนต้องทำอะไร');
+  foot.className = 'st-remark';
+  stage.appendChild(foot);
 
   const again = el('button', 'เล่นอีกรอบ');
   again.id = 'ss-again';
   again.type = 'button';
+  again.className = 'game-btn game-btn-primary';
   on(again, 'click', () => {
     const stageRef = stageEl;
     const ctxRef = gameCtx;
@@ -135,23 +185,20 @@ function renderResult(player: string): void {
     if (stageRef && ctxRef) mountInto(stageRef, ctxRef);
   });
   stage.appendChild(again);
-  // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
-  // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
 
   // The mirror of the gate in renderDraw, and the reason both exist: the tap that draws the short
   // stick swaps this screen in under its own finger, so the second contact lands on "เล่นอีกรอบ" and
   // remounts. That destroys the only copy of the result — nothing here is checkpointed (see the top
   // of this file), so an erased round is an erased round.
   cleanup.push(armAllButtons(stage));
-
-  animateReveal(line);
 }
 
 // ---- Round lifecycle ----
 
-function drawOne(): void {
-  if (phase !== 'draw' || !round) return; // guards draw()'s throw out of reach of a stray tap
+function drawOne(index: number): void {
+  if (phase !== 'draw' || !round || taken[index]) return; // guards draw()'s throw out of reach of a stray tap
   const { player, isShort } = draw(round, turn);
+  taken[index] = true;
 
   if (isShort) {
     phase = 'done';
@@ -169,11 +216,13 @@ function drawOne(): void {
 function mountInto(stage: HTMLElement, ctx: GameContext): void {
   stageEl = stage;
   gameCtx = ctx;
+  stage.className = 'stage-screen';
   turn = 0;
   phase = 'draw';
 
   const roster = ctx.session.players ?? [];
   round = startRound(roster.length > 0 ? roster : ['คนที่ถือมือถือ']);
+  taken = new Array(round.order.length).fill(false);
 
   renderDraw();
 }
@@ -182,9 +231,8 @@ function teardown(): void {
   phase = 'draw';
   cleanup.forEach((fn) => fn());
   cleanup = [];
-  reveal?.cancel();
-  reveal = null;
   round = null;
+  taken = [];
   turn = 0;
   stageEl?.replaceChildren();
   stageEl = null;

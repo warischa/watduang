@@ -143,7 +143,9 @@ class FakeElement {
 
 const fakeDocument = { createElement: (tag) => new FakeElement(tag) };
 globalThis.document = fakeDocument;
-// reduced-motion = true → animateReveal() returns before touching node.animate(), which the fake has no need to model
+// gh#79 removed animateReveal, so nothing in this module reads matchMedia today. The stub stays because
+// the shell may consult it during mount and the fake DOM models no media query; reduced-motion = true is
+// the safe answer either way.
 globalThis.window = { matchMedia: () => ({ matches: true }) };
 
 function makeCtx(players) {
@@ -161,8 +163,18 @@ function makeCtx(players) {
   };
 }
 
-/** All text currently in the stage — enough to assert whose turn it is without caring about structure. */
-const stageText = (stage) => stage.children.map((c) => c.textContent).join(' ');
+/** All text currently in the stage — enough to assert whose turn it is without caring about structure.
+ *  gh#79 nests the holder name inside the holder block, so this walks every descendant's own text
+ *  instead of only the direct children (a wrapper carries no text, so nothing is double-counted). */
+const stageText = (stage) => {
+  const words = [];
+  const walk = (node) => {
+    if (node.textContent) words.push(node.textContent);
+    (node.children || []).forEach(walk);
+  };
+  walk(stage);
+  return words.join(' ');
+};
 /** The bundle's sticks, found the way a player finds them: by their label. Count = sticks left = turns left. */
 const sticks = (stage) =>
   stage.children.flatMap((c) => c.children).filter((c) => c.getAttribute('aria-label') === 'จับไม้');
@@ -257,6 +269,73 @@ test('a contact during the window restarts it — the gate fails closed, it neve
     t.mock.timers.tick(2); // the restarted window closes here, and only here
     sticks(stage)[0].click();
     assert.ok(stageText(stage).includes('ไม้ยาว'), `the bundle never armed after the restarted window: ${stageText(stage)}`);
+
+    game.dispose();
+  } finally {
+    Math.random = realRandom;
+  }
+});
+
+// ---- gh#79 — the row never reflows: a taken stick keeps its slot, spent, at its original index ----
+
+/** The stick panel, then its children in DOM order — every stick, taken or not (spent sticks are
+ *  <div>s, un-taken are <button>s, both carry the .st-stick class). */
+const stickPanel = (stage) =>
+  stage.children.find((c) => typeof c.className === 'string' && c.className.includes('st-stick-panel'));
+const allSticks = (stage) => (stickPanel(stage) ? stickPanel(stage).children : []);
+const isSpent = (stick) => typeof stick.className === 'string' && stick.className.includes('st-stick--spent');
+
+test('a taken stick keeps its slot — the row never reflows mid-round', (t) => {
+  const realRandom = Math.random;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+
+  try {
+    Math.random = () => 1 - Number.EPSILON; // short lands on the last turn → turns 0, 1 are both long
+    game.mount(stage, makeCtx(['เอ', 'บี', 'ซี']));
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+
+    assert.equal(allSticks(stage).length, 3, 'setup: one stick per player');
+    assert.ok(allSticks(stage).every((s) => !isSpent(s)), 'setup: no stick is spent before anyone draws');
+
+    allSticks(stage)[1].click(); // deliberately take the MIDDLE stick, not the first
+    byId(stage, 'ss-pass').click(); // hand off → the draw screen re-renders the same row
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+
+    assert.equal(allSticks(stage).length, 3, 'a taken stick must not shrink the row');
+    assert.ok(isSpent(allSticks(stage)[1]), 'the taken stick stays at its original index, now spent');
+    assert.ok(!isSpent(allSticks(stage)[0]), 'an un-taken stick must not carry the spent class');
+    assert.ok(!isSpent(allSticks(stage)[2]), 'an un-taken stick must not carry the spent class');
+
+    game.dispose();
+  } finally {
+    Math.random = realRandom;
+  }
+});
+
+test('no <a> element renders anywhere inside the stage, on any screen', (t) => {
+  const realRandom = Math.random;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const descendants = (node) => [node, ...(node.children || []).flatMap((c) => descendants(c))];
+  const hasLink = (node) => descendants(node).some((el) => el.tagName === 'a');
+
+  try {
+    Math.random = () => 1 - Number.EPSILON; // short on the last turn → two long draws first
+    game.mount(stage, makeCtx(['เอ', 'บี', 'ซี']));
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    assert.equal(hasLink(stage), false, 'the draw screen must hold no navigation target');
+
+    allSticks(stage)[0].click(); // long → the pass screen
+    assert.equal(hasLink(stage), false, 'the pass screen must hold no navigation target');
+
+    byId(stage, 'ss-pass').click();
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    allSticks(stage)[1].click(); // long → the pass screen again
+    byId(stage, 'ss-pass').click();
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    allSticks(stage)[2].click(); // short → the result screen
+    assert.equal(hasLink(stage), false, 'the result screen must hold no navigation target');
 
     game.dispose();
   } finally {
