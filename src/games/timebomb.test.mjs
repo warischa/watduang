@@ -119,6 +119,20 @@ function stageText(stage) {
 const byId = (stage, id) => stage.children.find((c) => c.id === id);
 const ARM_WINDOW_MS = 400; // the contracted quiet window — see _arm-gate.ts
 
+// The ticking screen nests its blocks (holder, fuse) in wrapper divs the shallow stageText/querySelector
+// above miss. These reach into the fake tree: deepText for "no seconds readout anywhere", findByIdDeep
+// for the nested fuse fill, hasAnchor for ADR-0014 (no <a> on any screen).
+const deepText = (node) => [node._text ?? '', ...(node.children ?? []).map(deepText)].join(' ').trim();
+const findByIdDeep = (node, id) => {
+  if (node.id === id) return node;
+  for (const child of node.children ?? []) {
+    const hit = findByIdDeep(child, id);
+    if (hit) return hit;
+  }
+  return null;
+};
+const hasAnchor = (node) => node.tagName === 'a' || (node.children ?? []).some(hasAnchor);
+
 test('ghost tap on "เล่นอีกรอบ": the idle screen it lands on still names last round\'s loser', (t) => {
   const realDateNow = Date.now;
   t.mock.timers.enable({ apis: ['setTimeout'] });
@@ -191,6 +205,93 @@ test('a ghost tap on "เริ่มจับเวลา" right after the remo
     byId(stage, 'tb-start').click();
     assert.ok(byId(stage, 'tb-pass'), `"เริ่มจับเวลา" never armed — the game cannot be started: ${stageText(stage)}`);
     assert.ok(pendingFrame, 'the fuse is not running after a deliberate start');
+
+    game.dispose();
+  } finally {
+    Date.now = realDateNow;
+  }
+});
+
+// ---- gh#77 acceptance criteria, pinned before the screen was rebuilt (fail today) ----
+
+test('the fuse bar is the whole urgency signal: its width changes as the round runs, never a seconds readout', (t) => {
+  const realDateNow = Date.now;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const ctx = makeCtx(['เอ', 'บี', 'ซี']);
+  try {
+    let fakeNow = 1_700_000_000_000;
+    Date.now = () => fakeNow;
+
+    game.mount(stage, ctx);
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    byId(stage, 'tb-start').click();
+
+    const fuse = findByIdDeep(stage, 'tb-fuse');
+    assert.ok(fuse, 'the ticking screen carries no fuse-bar fill');
+    const before = fuse.style.width;
+    assert.ok(before, 'the fuse fill carries no width before the round ticks');
+
+    fakeNow += 100; // 100ms into the fuse — nowhere near detonating
+    assert.ok(pendingFrame, 'setup: arm() did not schedule a frame');
+    pendingFrame();
+    const after = fuse.style.width;
+    assert.notEqual(after, before, `the fuse width did not change as the round ran: ${before} -> ${after}`);
+
+    assert.ok(!/\d+\s*วินาที/.test(deepText(stage)), `the stage leaks a remaining-seconds readout: ${deepText(stage)}`);
+
+    game.dispose();
+  } finally {
+    Date.now = realDateNow;
+  }
+});
+
+test('the pass-on control is the primary control and carries game-btn-primary', (t) => {
+  const realDateNow = Date.now;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const ctx = makeCtx(['เอ', 'บี', 'ซี']);
+  try {
+    let fakeNow = 1_700_000_000_000;
+    Date.now = () => fakeNow;
+
+    game.mount(stage, ctx);
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    byId(stage, 'tb-start').click();
+
+    const pass = byId(stage, 'tb-pass');
+    assert.ok(pass, 'the ticking screen carries no pass-on control');
+    const classes = (pass.className ?? '').split(/\s+/);
+    assert.ok(classes.includes('game-btn'), `tb-pass is not a shared game-btn: ${pass.className}`);
+    assert.ok(classes.includes('game-btn-primary'), `tb-pass is not the primary control: ${pass.className}`);
+    assert.equal(pass.textContent, 'ส่งต่อ');
+
+    game.dispose();
+  } finally {
+    Date.now = realDateNow;
+  }
+});
+
+test('no navigation target (no <a>) renders inside #stage on any screen', (t) => {
+  const realDateNow = Date.now;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const ctx = makeCtx(['เอ', 'บี', 'ซี']);
+  try {
+    let fakeNow = 1_700_000_000_000;
+    Date.now = () => fakeNow;
+
+    game.mount(stage, ctx);
+    assert.ok(!hasAnchor(stage), 'the idle screen renders an anchor inside #stage');
+
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    byId(stage, 'tb-start').click();
+    assert.ok(!hasAnchor(stage), 'the ticking screen renders an anchor inside #stage');
+
+    fakeNow += FUSE_MAX_MS + 1;
+    assert.ok(pendingFrame, 'setup: arm() did not schedule a frame');
+    pendingFrame(); // one frame past the deadline → detonate() → renderBoom()
+    assert.ok(!hasAnchor(stage), 'the boom screen renders an anchor inside #stage');
 
     game.dispose();
   } finally {

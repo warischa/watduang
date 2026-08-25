@@ -52,8 +52,9 @@ let rafId = 0;
 let startedAt = 0;
 let deadline = 0;
 let nextTickAt = 0;
-let pulseLevel = 1;
-let pulseEl: HTMLElement | null = null;
+// The ticking screen's fuse-bar fill — the one live node frame() mutates. Held so frame() never
+// re-queries; cleared on teardown and on the boom screen swap (the fill dies with the ticking screen).
+let fuseFillEl: HTMLElement | null = null;
 let wakeWarned = false;
 let wasHidden = false;
 let players: string[] = [];
@@ -65,6 +66,20 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
   target.addEventListener(type, handler);
   cleanup.push(() => target.removeEventListener(type, handler));
 }
+
+// The bomb — byte-exact from design/GameTimebomb.dc.html (ADR-0033). Drawn, never an image (vector
+// art only). fill/stroke reference tokens by name — SVG presentation attributes resolve var(). The
+// spark's fill is var(--page-accent): the canvas's {{accent}} prop, which this site resolves through
+// the category manifest; the canvas's own per-game accent hex is not a colour this site defines.
+const BOMB_SVG =
+  '<svg width="150" height="150" viewBox="0 0 120 120" fill="none" aria-hidden="true">' +
+  '<circle cx="54" cy="72" r="34" fill="var(--color-line-strong)"></circle>' +
+  '<rect x="62" y="30" width="12" height="12" rx="2" fill="var(--color-line-strong)" transform="rotate(20 68 36)"></rect>' +
+  '<path d="M72 32 C 84 20, 92 26, 96 16" stroke="var(--color-line-strong)" stroke-width="5" stroke-linecap="round" stroke-dasharray="46" stroke-dashoffset="17"></path>' +
+  '<circle cx="97" cy="15" r="8" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="2.5"></circle>' +
+  '<circle cx="97" cy="15" r="3.5" fill="var(--color-line-strong)"></circle>' +
+  '<ellipse cx="43" cy="60" rx="8" ry="5" fill="var(--color-ground-warm)" opacity="0.5" transform="rotate(-25 43 60)"></ellipse>' +
+  '</svg>';
 
 // ---- Screens ----
 
@@ -78,6 +93,7 @@ function renderIdle(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  stage.className = 'stage-screen';
 
   const names = gameCtx?.session.players ?? [];
   stage.appendChild(el('p', `วง ${names.length || '-'} คน — ส่งมือถือวนไปเรื่อยๆ`));
@@ -88,6 +104,7 @@ function renderIdle(): void {
   const startBtn = el('button', 'เริ่มจับเวลา');
   startBtn.id = 'tb-start';
   startBtn.type = 'button';
+  startBtn.className = 'game-btn game-btn-primary';
   on(startBtn, 'click', arm); // must be a real user gesture — iOS only unlocks audio right here
   stage.appendChild(startBtn);
 
@@ -102,24 +119,57 @@ function renderTicking(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
+  stage.className = 'stage-screen';
 
-  const pulse = el('p', 'ฟิวส์กำลังเดิน', 'font-size:1.5rem;font-weight:700');
-  pulse.id = 'tb-pulse';
-  pulseEl = pulse;
-  stage.appendChild(pulse);
+  // Holder block — the static label above the holder's name, both byte-exact from the canvas.
+  const holderBlock = document.createElement('div');
+  holderBlock.className = 'tb-holder';
+  const label = el('span', 'คนที่ถือมือถือ');
+  label.className = 'tb-holder-label';
+  holderBlock.appendChild(label);
+  const who = document.createElement('span');
+  who.className = 'tb-holder-name';
+  who.textContent = `ตอนนี้อยู่ที่ ${players[holder]}`;
+  holderBlock.appendChild(who);
+  stage.appendChild(holderBlock);
 
-  const warn = el('p', 'อย่าปล่อยให้จอดับ', 'font-weight:600');
+  // The bomb — the drawn 210px ground circle, filled with the inline vector. No raster asset.
+  const bomb = document.createElement('div');
+  bomb.className = 'tb-bomb';
+  bomb.innerHTML = BOMB_SVG;
+  stage.appendChild(bomb);
+
+  // Fuse block — caption, the live bar (the only urgency signal: its width is the remaining fuse,
+  // never a countdown number), hint.
+  const fuseBlock = document.createElement('div');
+  fuseBlock.className = 'tb-fuse';
+  const caption = el('span', 'ฟิวส์กำลังเดิน');
+  caption.className = 'tb-fuse-caption';
+  fuseBlock.appendChild(caption);
+  const track = document.createElement('div');
+  track.className = 'tb-fuse-track';
+  const fill = document.createElement('div');
+  fill.className = 'tb-fuse-fill';
+  fill.id = 'tb-fuse';
+  fill.style.width = '100%';
+  track.appendChild(fill);
+  fuseBlock.appendChild(track);
+  const hint = el('span', 'เสียงติ๊กจะถี่ขึ้นเรื่อยๆ เมื่อใกล้ระเบิด');
+  hint.className = 'tb-fuse-hint';
+  fuseBlock.appendChild(hint);
+  stage.appendChild(fuseBlock);
+  fuseFillEl = fill;
+
+  const warn = el('p', 'อย่าปล่อยให้จอดับ');
   warn.id = 'tb-warn';
+  warn.className = 'tb-warn';
   warn.hidden = true;
   stage.appendChild(warn);
-
-  const who = el('p', '');
-  who.id = 'tb-holder';
-  stage.appendChild(who);
 
   const passBtn = el('button', 'ส่งต่อ');
   passBtn.id = 'tb-pass';
   passBtn.type = 'button';
+  passBtn.className = 'game-btn game-btn-primary';
   on(passBtn, 'click', () => {
     if (phase !== 'ticking') return;
     holder = (holder + 1) % players.length;
@@ -127,7 +177,10 @@ function renderTicking(): void {
   });
   stage.appendChild(passBtn);
 
-  who.textContent = `ตอนนี้อยู่ที่ ${players[holder]}`;
+  const foot = el('p', 'กดปุ่ม "ส่งต่อ" แล้วส่งมือถือให้คนถัดไปทันที ห้ามถือค้างไว้');
+  foot.className = 'tb-foot';
+  stage.appendChild(foot);
+
   paintWakeWarning();
 }
 
@@ -135,7 +188,8 @@ function renderBoom(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
-  pulseEl = null;
+  stage.className = 'stage-screen';
+  fuseFillEl = null;
 
   lastLoser = players[holder];
   stage.appendChild(el('p', 'ตูม!', 'font-size:2rem;font-weight:700'));
@@ -144,6 +198,7 @@ function renderBoom(): void {
   const again = el('button', 'เล่นอีกรอบ');
   again.id = 'tb-again';
   again.type = 'button';
+  again.className = 'game-btn game-btn-primary';
   on(again, 'click', () => {
     const stageRef = stageEl;
     const ctxRef = gameCtx;
@@ -182,7 +237,6 @@ function arm(): void {
   startedAt = now;
   deadline = pickDeadline(now);
   nextTickAt = now;
-  pulseLevel = 1;
   wakeWarned = false;
   wasHidden = document.hidden;
 
@@ -211,16 +265,12 @@ function frame(): void {
     if (now >= nextTickAt) {
       nextTickAt = now + tickIntervalMs(urgency); // set from the current time, never accumulated
       if (audioCtx) tick(audioCtx, urgency);
-      pulseLevel = 1;
     }
-    // matchMedia read here, not module scope — node --test imports this file, no `window` there.
-    // ponytail: per-frame on purpose — it honours an OS toggle flipped mid-round, and detonation
-    // timing measured within 21ms of the unguarded path. Cache it only if a frame budget says to.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      if (pulseEl) pulseEl.style.opacity = '1';
-    } else {
-      pulseLevel = Math.max(0.3, pulseLevel - 0.04);
-      if (pulseEl) pulseEl.style.opacity = pulseLevel.toFixed(2);
+    // The fuse bar is the whole urgency signal. Its width is the remaining fuse, shrinking toward 0
+    // as the deadline nears, and no countdown number appears anywhere. No animation is added on
+    // purpose — the canvas has none, so prefers-reduced-motion holds trivially (exactly as gh#76).
+    if (fuseFillEl) {
+      fuseFillEl.style.width = `${((1 - urgency) * 100).toFixed(1)}%`;
     }
   }
 
@@ -283,7 +333,7 @@ function teardown(): void {
   releaseWake();
   audioCtx?.close().catch(() => {}); // closing the context closes every oscillator/gain audio.ts made
   audioCtx = null;
-  pulseEl = null;
+  fuseFillEl = null;
   wakeWarned = false;
   wasHidden = false;
   stageEl?.replaceChildren();
