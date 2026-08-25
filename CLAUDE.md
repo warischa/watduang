@@ -54,6 +54,8 @@ record no longer what was written.
 
 Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md` · src-edit rules: `docs/agents/src-edit-rules.md`
 
+⚠ Before adding ANY binary — image, font, 3D model — read `docs/agents/assets.md` first: `public/` ships verbatim to the live site, so a file dropped there goes public with nothing referencing it.
+
 ⚠ Proving anything in a browser (320px · reduced-motion · refresh-and-resume) → `docs/agents/browser-verification.md` first — `--window-size` does not reflow the layout, and a screenshot of it will lie to you
 
 Session saving (window · where each fact lives · what must never sit in this file): `.claude/commands/save-session.md`
