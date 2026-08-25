@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; text-decoration: none; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 1180px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; padding: 0 0 40px 0; box-sizing: border-box;">
+
+  <!-- hero — describes the SITE, never "a games site" -->
+  <div style="display: flex; flex-direction: column; gap: 14px; padding: 28px 20px 26px 20px; background: {{accent}}; border-bottom: 3px solid #1a1a1a;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M12 7v5l3 2"></path>
+      </svg>
+      <span style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 30px; letter-spacing: -0.5px;">วัดดวง</span>
+    </div>
+    <h1 style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 33px; line-height: 1.28; margin: 0; text-wrap: pretty;">วงเดียว เครื่องเดียว<br>ตัดสินได้ทุกเรื่อง</h1>
+    <p style="margin: 0; font-size: 16px; line-height: 1.65; max-width: 33ch;">ดูดวง สุ่มคนโดน แบ่งทีม จับฉลาก — ฟรีทั้งหมด 2–10 คน ส่งมือถือวนกัน ไม่ต้องโหลดแอป</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span style="font-size: 13px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 5px 12px;">ไม่ต้องโหลดแอป</span>
+      <span style="font-size: 13px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 5px 12px;">ไม่ต้องสมัคร</span>
+      <span style="font-size: 13px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 5px 12px;">2–10 คน</span>
+    </div>
+  </div>
+
+  <!-- three GROUPS, equal weight — the whole point of the neutral hub -->
+  <div style="display: flex; flex-direction: column; gap: 16px; padding: 26px 20px 0 20px;">
+    <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 1px; color: #6b7280;">เลือกสิ่งที่วงกำลังต้องการ</span>
+
+    <a href="/c/fortune/" style="display: flex; flex-direction: column; gap: 12px; background: #ffd27f; border: 2.5px solid #1a1a1a; border-radius: 20px; padding: 20px; box-shadow: 5px 5px 0 #1a1a1a;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true"><path d="M6 21h12l-1.5-9h-9z"></path><path d="M9 12V5"></path><path d="M12 12V3"></path><path d="M15 12V6"></path></svg>
+        <span style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 21px; line-height: 1.3;">ดูดวง ทำนายโชคชะตา</span>
+      </div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.65;">ไม่มีใครแพ้ ไม่มีใครโดน จั่วได้แล้วอ่านให้วงฟัง เหมาะกับวงที่เพิ่งเจอกัน</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 2.5px solid rgba(26,26,26,0.2); padding-top: 12px;">
+        <span style="font-size: 14px;">เซียมซีปาร์ตี้ · ดวงวันนี้ · ดวงความรัก</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+      </div>
+    </a>
+
+    <a href="/c/party/" style="display: flex; flex-direction: column; gap: 12px; background: #f89880; border: 2.5px solid #1a1a1a; border-radius: 20px; padding: 20px; box-shadow: 5px 5px 0 #1a1a1a;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3"></path><path d="M12 19v3"></path><path d="M2 12h3"></path><path d="M19 12h3"></path></svg>
+        <span style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 21px; line-height: 1.3;">เกมวัดดวง สุ่มคนโดน</span>
+      </div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.65;">จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลงกันเองว่าคนโดนต้องทำอะไร</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 2.5px solid rgba(26,26,26,0.2); padding-top: 12px;">
+        <span style="font-size: 14px;">ระเบิดเวลา · สุ่มคนโดน · จับไม้สั้น</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+      </div>
+    </a>
+
+    <!-- tools: equal visual weight, but points at the EXISTING hub, not a /c/ URL (ADR-0004) -->
+    <a href="/tools/" style="display: flex; flex-direction: column; gap: 12px; background: #7fd8e8; border: 2.5px solid #1a1a1a; border-radius: 20px; padding: 20px; box-shadow: 5px 5px 0 #1a1a1a;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v9l6 3"></path></svg>
+        <span style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 21px; line-height: 1.3;">เครื่องมือกิจกรรมสันทนาการ</span>
+      </div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.65;">ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 2.5px solid rgba(26,26,26,0.2); padding-top: 12px;">
+        <span style="font-size: 14px;">วงล้อ · จับฉลาก · แบ่งทีม · สุ่มเลข</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+      </div>
+    </a>
+  </div>
+
+  <!-- the grouped view must never hide content -->
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 26px 20px 0 20px;">
+    <a href="/games/" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; border: 2.5px dashed #1a1a1a; border-radius: 14px; font-family: Mitr, sans-serif; font-weight: 400; font-size: 16px;">ดูทุกอย่างเรียงเป็นรายการ</a>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 90px; margin: 26px 20px 0 20px; border: 2.5px dashed rgba(26,26,26,0.35); border-radius: 14px; font-size: 12px; color: #6b7280;">ช่องโฆษณา</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#ffb703","options":["#ffb703","#ffd27f","#f89880","#7fd8e8"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#ffb703' };
+  }
+}
+</script>
+</body>
+</html>

@@ -16,3 +16,7 @@ docs/verification/evidence/**/*.png
 # gh#50's fifth box rests on frames a human reads — an ignored .png would make a closed ticket cite
 # files that do not exist. A CDP probe never qualifies: it can always emit JSON.
 !docs/verification/evidence/50/webkit/*.png
+
+# Design canvas build output — a ~2MB seeded bundle whose minified editor code
+# trips added-lineno-citation-check. The .dc.html sources + canvas.json beside it are the real artifact.
+design/watduang-homepage-directions.html

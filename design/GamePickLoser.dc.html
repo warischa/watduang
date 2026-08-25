@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 840px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
+    <a href="/games/" style="display: flex; align-items: center; gap: 6px; font-size: 14px; text-decoration: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+      ดูเกมทั้งหมด
+    </a>
+    <span style="font-size: 13px; font-weight: 500; border: 2px solid #1a1a1a; border-radius: 999px; padding: 3px 10px;">วง 6 คน</span>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 28px 20px; background: {{accent}};">
+
+    <span style="font-family: Mitr, sans-serif; font-weight: 400; font-size: 20px;">คนโดนคือ</span>
+
+    <!-- the reveal: name is the whole screen, burst is drawn, not an image -->
+    <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 290px; height: 290px;">
+      <svg width="290" height="290" viewBox="0 0 200 200" fill="none" style="position: absolute; inset: 0;" aria-hidden="true">
+        <path d="M100 6 l10 22 22-12 -3 25 25 3 -14 21 21 14 -23 10 12 22 -25-3 -3 25 -21-14 -14 21 -10-23 -22 12 3-25 -25-3 14-21 -21-14 23-10 -12-22 25 3 3-25 21 14z" fill="#fffdf7" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path>
+      </svg>
+      <span style="position: relative; font-family: Mitr, sans-serif; font-weight: 600; font-size: 44px; line-height: 1.1; text-align: center; max-width: 6ch; word-break: break-word;">ปอนด์</span>
+    </div>
+
+    <p style="margin: 0; font-family: Mitr, sans-serif; font-weight: 400; font-size: 16px; line-height: 1.6; text-align: center; max-width: 28ch;">วงตกลงกันเองว่าคนโดนต้องทำอะไร</p>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+      <button style="width: 100%; min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: Mitr, sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">เล่นอีกรอบ</button>
+      <!-- arm gate: secondary action stays visibly inert for the first 400ms after the reveal -->
+      <button style="width: 100%; min-height: 56px; background: transparent; color: rgba(26,26,26,0.45); font-family: Mitr, sans-serif; font-weight: 400; font-size: 17px; border: 2.5px dashed rgba(26,26,26,0.35); border-radius: 16px; cursor: default;">เปลี่ยนคนเล่น</button>
+      <span style="font-size: 11px; text-align: center; color: rgba(26,26,26,0.55);">ปุ่มรองจะกดได้หลังผลออก 0.4 วินาที กันนิ้วลั่น</span>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; border-top: 2.5px solid #1a1a1a; background: #f3efe4; font-size: 12px; color: #6b7280;">ช่องโฆษณา — นอกพื้นที่เล่น</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#7fd8e8","options":["#7fd8e8","#8ce99a","#ffd27f","#f89880"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#7fd8e8' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 840px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
+    <a href="/games/" style="display: flex; align-items: center; gap: 6px; font-size: 14px; text-decoration: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+      ดูเกมทั้งหมด
+    </a>
+    <span style="font-size: 13px; font-weight: 500; border: 2px solid #1a1a1a; border-radius: 999px; padding: 3px 10px;">3 / 6 คน</span>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px 20px 28px 20px; background: {{accent}};">
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <span style="font-size: 13px;">คนที่ถือมือถือ</span>
+      <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 30px; line-height: 1.2;">ตาของ มายด์</span>
+    </div>
+
+    <!-- the shake barrel: 3D is worth it here — this is the one gesture people already know -->
+    <div style="display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 260px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; overflow: hidden; padding-bottom: 0;">
+      <svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true">
+        <rect x="66" y="18" width="9" height="120" rx="4.5" fill="#f7e6c4" stroke="#1a1a1a" stroke-width="2.5"></rect>
+        <rect x="84" y="4" width="9" height="134" rx="4.5" fill="#f7e6c4" stroke="#1a1a1a" stroke-width="2.5"></rect>
+        <rect x="102" y="24" width="9" height="114" rx="4.5" fill="#f7e6c4" stroke="#1a1a1a" stroke-width="2.5"></rect>
+        <rect x="120" y="12" width="9" height="126" rx="4.5" fill="#f7e6c4" stroke="#1a1a1a" stroke-width="2.5"></rect>
+        <rect x="88" y="0" width="9" height="18" rx="4.5" fill="#d6336c" stroke="#1a1a1a" stroke-width="2.5"></rect>
+        <path d="M56 110 h84 l-9 128 h-66 z" fill="{{accent}}" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path>
+        <ellipse cx="98" cy="110" rx="42" ry="13" fill="#fffdf7" stroke="#1a1a1a" stroke-width="3"></ellipse>
+        <path d="M70 150 h56" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>
+        <path d="M72 172 h52" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>
+      </svg>
+    </div>
+
+    <span style="font-family: Mitr, sans-serif; font-weight: 400; font-size: 15px; text-align: center;">เขย่าเครื่อง หรือกดปุ่มด้านล่างก็ได้</span>
+
+    <button style="width: 100%; min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: Mitr, sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">จั่วดวง</button>
+
+    <div style="display: flex; gap: 6px;">
+      <span style="width: 12px; height: 12px; border: 2px solid #1a1a1a; border-radius: 50%; background: #1a1a1a;"></span>
+      <span style="width: 12px; height: 12px; border: 2px solid #1a1a1a; border-radius: 50%; background: #1a1a1a;"></span>
+      <span style="width: 12px; height: 12px; border: 2px solid #1a1a1a; border-radius: 50%; background: #1a1a1a;"></span>
+      <span style="width: 12px; height: 12px; border: 2px solid #1a1a1a; border-radius: 50%; background: #fffdf7;"></span>
+      <span style="width: 12px; height: 12px; border: 2px solid #1a1a1a; border-radius: 50%; background: #fffdf7;"></span>
+      <span style="width: 12px; height: 12px; border: 2px solid #1a1a1a; border-radius: 50%; background: #fffdf7;"></span>
+    </div>
+
+    <p style="margin: 0; font-size: 13px; line-height: 1.6; text-align: center; max-width: 30ch;">จั่วแล้วอ่านให้วงฟัง แล้วส่งมือถือให้คนถัดไป</p>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; border-top: 2.5px solid #1a1a1a; background: #f3efe4; font-size: 12px; color: #6b7280;">ช่องโฆษณา — นอกพื้นที่เล่น</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#ffd27f","options":["#ffd27f","#f89880","#7fd8e8","#c9a7f0"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#ffd27f' };
+  }
+}
+</script>
+</body>
+</html>

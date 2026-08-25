@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; text-decoration: none; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 1180px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; padding: 0 0 40px 0; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
+    <a href="/" style="display: flex; align-items: center; gap: 6px; font-size: 14px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+      วัดดวง
+    </a>
+  </div>
+
+  <!-- SAME structure as the fortune page. Only accent, motif and copy differ — that is the lever set. -->
+  <div style="display: flex; flex-direction: column; gap: 14px; padding: 26px 20px 24px 20px; background: {{accent}}; border-bottom: 3px solid #1a1a1a; position: relative; overflow: hidden;">
+    <svg width="150" height="150" viewBox="0 0 100 100" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round" style="position: absolute; right: -22px; top: -10px; opacity: 0.18;" aria-hidden="true">
+      <circle cx="46" cy="60" r="30"></circle>
+      <path d="M68 36l9-9"></path>
+      <path d="M78 26c6-6 12-4 14 2"></path>
+    </svg>
+    <h1 style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 30px; line-height: 1.3; margin: 0; position: relative; text-wrap: pretty;">เกมวัดดวง สุ่มคนโดน</h1>
+    <p style="margin: 0; font-size: 16px; line-height: 1.7; position: relative; max-width: 33ch;">ให้ดวงเลือกว่าใครโดน จบรอบรู้ผลทันที วงตกลงกันเองว่าคนโดนต้องทำอะไร เล่นฟรี 2–10 คน บนมือถือเครื่องเดียว</p>
+    <span style="font-size: 13px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 5px 12px; align-self: flex-start; position: relative;">3 เกม</span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px; padding: 24px 20px 0 20px;">
+    <a href="/game/timebomb/" style="display: flex; gap: 14px; align-items: flex-start; background: #f89880; border: 2.5px solid #1a1a1a; border-radius: 18px; padding: 18px; box-shadow: 4px 4px 0 #1a1a1a;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;" aria-hidden="true"><circle cx="10.5" cy="14.5" r="6.5"></circle><path d="M15.5 9.5l2-2"></path><path d="M18 7c1.5-1.5 3-1 3.5 0.5"></path></svg>
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 19px;">ระเบิดเวลา</span>
+        <span style="font-size: 14px; line-height: 1.6;">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</span>
+      </div>
+    </a>
+
+    <a href="/game/pick-loser/" style="display: flex; gap: 14px; align-items: flex-start; background: #7fd8e8; border: 2.5px solid #1a1a1a; border-radius: 18px; padding: 18px; box-shadow: 4px 4px 0 #1a1a1a;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3"></path><path d="M12 19v3"></path><path d="M2 12h3"></path><path d="M19 12h3"></path></svg>
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 19px;">สุ่มคนโดน</span>
+        <span style="font-size: 14px; line-height: 1.6;">กดปุ่มเดียว สุ่มคนโดนในวงทันที</span>
+      </div>
+    </a>
+
+    <a href="/game/short-stick/" style="display: flex; gap: 14px; align-items: flex-start; background: #8ce99a; border: 2.5px solid #1a1a1a; border-radius: 18px; padding: 18px; box-shadow: 4px 4px 0 #1a1a1a;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;" aria-hidden="true"><path d="M7 20V6"></path><path d="M12 20V4"></path><path d="M17 20v-9"></path></svg>
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <span style="font-family: Mitr, sans-serif; font-weight: 500; font-size: 19px;">จับไม้สั้น</span>
+        <span style="font-size: 14px; line-height: 1.6;">ส่งมือถือวนจับไม้ทีละคน ใครได้ไม้สั้นคนนั้นโดน</span>
+      </div>
+    </a>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 90px; margin: 26px 20px 0 20px; border: 2.5px dashed rgba(26,26,26,0.35); border-radius: 14px; font-size: 12px; color: #6b7280;">ช่องโฆษณา</div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 26px 20px 0 20px;">
+    <span style="font-size: 14px; color: #6b7280;">อยากได้แบบไม่มีใครโดนแทน?</span>
+    <a href="/c/fortune/" style="display: flex; align-items: center; justify-content: space-between; min-height: 60px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px; padding: 0 18px; font-family: Mitr, sans-serif; font-weight: 500; font-size: 17px;">
+      ดูดวง ทำนายโชคชะตา
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+    </a>
+    <a href="/tools/" style="display: flex; align-items: center; justify-content: space-between; min-height: 60px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px; padding: 0 18px; font-family: Mitr, sans-serif; font-weight: 500; font-size: 17px;">
+      เครื่องมือกิจกรรมสันทนาการ
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+    </a>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#f89880","options":["#f89880","#ffd27f","#7fd8e8","#8ce99a"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#f89880' };
+  }
+}
+</script>
+</body>
+</html>

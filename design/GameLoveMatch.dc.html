@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 840px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
+    <a href="/games/" style="display: flex; align-items: center; gap: 6px; font-size: 14px; text-decoration: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+      ดูเกมทั้งหมด
+    </a>
+    <span style="font-size: 13px; font-weight: 500; border: 2px solid #1a1a1a; border-radius: 999px; padding: 3px 10px;">วง 6 คน</span>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px 20px 28px 20px; background: {{accent}};">
+
+    <!-- the pair: two names, equal weight — the reading is about the PAIR, never a verdict on one person -->
+    <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+      <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; min-height: 60px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px; font-family: Mitr, sans-serif; font-weight: 500; font-size: 20px;">มายด์</div>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true"><path d="M12 20s-7-4.5-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5c0 5-7 9.5-7 9.5z"></path></svg>
+      <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; min-height: 60px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px; font-family: Mitr, sans-serif; font-weight: 500; font-size: 20px;">ปอนด์</div>
+    </div>
+
+    <!-- the meter: a drawn arc, not an image; the number is the one big thing on screen -->
+    <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 250px; height: 250px;">
+      <svg width="250" height="250" viewBox="0 0 100 100" style="position: absolute; inset: 0; transform: rotate(-90deg);" aria-hidden="true">
+        <circle cx="50" cy="50" r="42" fill="#fffdf7" stroke="#1a1a1a" stroke-width="5"></circle>
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#d6336c" stroke-width="5" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="66"></circle>
+      </svg>
+      <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 0;">
+        <span style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 62px; line-height: 1;">75</span>
+        <span style="font-family: Mitr, sans-serif; font-weight: 400; font-size: 20px;">เปอร์เซ็นต์</span>
+      </div>
+    </div>
+
+    <div style="width: 100%; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 20px; box-sizing: border-box;">
+      <p style="margin: 0; font-size: 18px; line-height: 1.75; text-align: center; text-wrap: pretty;">คู่นี้เจอกันทีไรบรรยากาศดีขึ้นทุกที คนรอบข้างก็พลอยสบายใจไปด้วย</p>
+    </div>
+
+    <button style="width: 100%; min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: Mitr, sans-serif; font-weight: 500; font-size: 21px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer; margin-top: auto;">ดูคู่อื่น</button>
+
+    <span style="font-size: 12px; text-align: center; color: rgba(26,26,26,0.6);">วันนี้คู่เดิมได้ผลเดิม</span>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; border-top: 2.5px solid #1a1a1a; background: #f3efe4; font-size: 12px; color: #6b7280;">ช่องโฆษณา — นอกพื้นที่เล่น</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#f6a5c0","options":["#f6a5c0","#c9a7f0","#ffd27f","#7fd8e8"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#f6a5c0' };
+  }
+}
+</script>
+</body>
+</html>
