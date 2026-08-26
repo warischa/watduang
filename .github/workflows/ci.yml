@@ -310,10 +310,17 @@ jobs:
       # Deploy authenticates with Entra ID workload identity federation (OIDC) — this repo stores
       # no deployment token. The federated credential is pinned to the subject
       # repo:warischa/watduang:ref:refs/heads/main, so a run on any other ref cannot authenticate
-      # even if the if: below were wrong.
+      # even if the if: below were wrong. Measured 2026-08-26 on throwaway branch wt/ci-108, which
+      # relaxed that if: on purpose: runs 32944472000 (v2) and 32944613282 (v3) both failed with
+      # AADSTS700213, naming the branch ref as the presented subject. The pin holds.
+      #
+      # v2 -> v3 is a Node 20 -> 24 runtime bump; GitHub removes Node 20 from runners 2026-09-23.
+      # Proved on those same two runs, one variable apart: the failure signature is identical, so the
+      # action still loads and mints its OIDC assertion, and the Node 20 deprecation warning present
+      # on the v2 run is absent on the v3 one.
       - name: Azure login (OIDC)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DEPLOY_IDENTITY == 'true' }}
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
