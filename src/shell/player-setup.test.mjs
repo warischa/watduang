@@ -373,11 +373,13 @@ test('gh#62 the clear button is not rendered at all when the page does not clear
 // `/>` on a self-closing mount and the end of the opening tag on a paired one, on one line or several.
 // It cannot tell those two shapes apart, and does not need to: gameId lives in the opening tag either way.
 //
-// The positive-control floor is not a fixed number: a fixed `mounts >= 3` proved the loop wasn't
-// vacuous today, but stops proving anything the day a tool page legitimately mounts nothing (number.astro
-// already does) or a fifth page lands. `>= 1` still kills a regex that stops matching entirely; the
-// per-file readable check below does the same for a directory read that returns nothing.
-test('gh#65 no mount under src/pages/tool/ passes a gameId — that absence is what withholds the clear button', () => {
+// gh#91 flipped the positive control from "some tool page mounts" to "none does": the three name tools
+// took their own panel (ToolNameEntry) and left the shared roster (ADR-0039), so an absent mount is the
+// truth now, and a training-wheels mount copied back onto a tool page is the regression — the shell
+// panel writes the group store on start, which is exactly what the tools must never do again. The
+// proof the needle still works moves to the game layout, which mounts the component for real: the zero
+// counted below is a zero the same regex measured, not one it stopped seeing.
+test('gh#65 no mount under src/pages/tool/ passes a gameId — and no tool page mounts the shell panel at all', () => {
   assert.ok(toolPages.length >= 1, `positive control: the tool pages are readable, found ${toolPages.length}`);
   let mounts = 0;
   for (const [name, source] of toolPages) {
@@ -391,8 +393,17 @@ test('gh#65 no mount under src/pages/tool/ passes a gameId — that absence is w
       );
     }
   }
-  // positive control: the loop above is vacuously green if the mount regex ever stops matching
-  assert.ok(mounts >= 1, `positive control: tool pages really do mount this component, found ${mounts}`);
+  assert.equal(
+    mounts,
+    0,
+    'gh#91: every name tool mounts its own panel — a PlayerSetup mount on a tool page writes the shared ' +
+      'group store again (ADR-0039)',
+  );
+  const layoutMounts = gameLayout.match(/<PlayerSetup\b[\s\S]*?>/g);
+  assert.ok(
+    layoutMounts && layoutMounts.length >= 1,
+    'positive control: the mount needle still matches the game layout, so the zero above is measured, not vacuous',
+  );
 });
 
 // gh#96 / ADR-0040 — a page declaring [1, 1] has no "วง", so the whole setup panel is skipped for it.

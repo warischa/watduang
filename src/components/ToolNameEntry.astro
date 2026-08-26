@@ -1,0 +1,207 @@
+---
+interface Props {
+  /** Panel heading — "ชื่อในวง" | "ชื่อในกล่อง" | "ชื่อในสนาม", byte-exact from the per-tool artboards under design/. */
+  heading: string;
+  /** localStorage key this panel's list lives under — one key per tool, never the shared stores (ADR-0039). */
+  storageKey: string;
+  /** The CTA label — "ใส่ชื่อลงวงล้อ" | "ใส่ชื่อลงกล่อง" | "ใส่ชื่อลงสนาม". */
+  ctaLabel: string;
+}
+const { heading, storageKey, ctaLabel } = Astro.props as Props;
+---
+
+{/* Every comment in this file is a JS-style brace comment, never an HTML one: an HTML comment renders
+    straight into the built page (the same hazard PlayerSetup documents), and this panel ships Thai copy
+    to players.
+
+    gh#91 — the one shared name-entry panel the three tools adopt. It replaces the game shell's setup
+    panel on the tool pages, so the tools stop living on the shared roster (ADR-0039). No checkbox grid,
+    no count input, no numbered mode, no clear-group — and no ceiling on the list. Every colour, radius
+    and type size is copied from design/ToolNameEntry.dc.html and its per-tool 390px artboards.
+
+    The CTA dispatches the same document event the shell panel dispatched, carrying the names, so each
+    tool page keeps its listener and its behaviour exactly as it is — only where the names come from
+    changes (the ticket's own boundary). The frontmatter args are strings on purpose, not objects: the
+    ticket's names-in path must stay readable at one mount call per page. */}
+<div id="tool-name-entry" data-storage-key={storageKey}>
+  <div class="name-head">
+    <h2>{heading}</h2>
+    <span class="name-hint">ใส่ได้กี่คนก็ได้</span>
+  </div>
+  <div class="name-add">
+    <input id="name-input" type="text" placeholder="พิมพ์ชื่อแล้วกดเพิ่ม" />
+    <button id="name-add-btn" type="button">เพิ่มชื่อ</button>
+  </div>
+  <div id="name-chips" class="name-chips"></div>
+  <p id="name-empty" hidden>ยังไม่มีชื่อในแผง — พิมพ์แล้วกดเพิ่มได้เรื่อยๆ ไม่มีเพดาน</p>
+  <button id="name-start" type="button">{ctaLabel}</button>
+</div>
+
+<style>
+  /* Values byte-exact from the canvas (ADR-0033): container, input row, chips, CTA — see
+     design/ToolNameEntry.dc.html and the Tool*390.dc.html artboards. #fff8e8 has no token, so it
+     stays a literal; the rest of the palette matches tokens.css by construction, tokens are used
+     where one exists. */
+  #tool-name-entry {
+    background: #fffdf7;
+    border: 2.5px solid #1a1a1a;
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 #1a1a1a;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .name-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .name-head h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .name-hint {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .name-add {
+    display: flex;
+    gap: 8px;
+  }
+
+  .name-add input {
+    flex: 1;
+    min-height: 52px;
+    box-sizing: border-box;
+    padding: 0 14px;
+    font-size: 15px;
+    background: #fffdf7;
+    border: 2.5px solid #1a1a1a;
+    border-radius: 14px;
+  }
+
+  .name-add button {
+    min-height: 52px;
+    padding: 0 18px;
+    background: #7fd8e8;
+    color: #1a1a1a;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 16px;
+    border: 2.5px solid #1a1a1a;
+    border-radius: 14px;
+    cursor: pointer;
+  }
+
+  /* Chips wrap instead of overflowing sideways — the row carries an unbounded list on a 320px screen. */
+  .name-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .name-chip {
+    font-size: 13px;
+    font-weight: 500;
+    background: #fff8e8;
+    border: 2px solid #1a1a1a;
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
+
+  .name-remove {
+    color: #6b7280;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .name-empty {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #6b7280;
+  }
+
+  #name-start {
+    min-height: 60px;
+    background: #1a1a1a;
+    color: #fffdf7;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 20px;
+    border: 2.5px solid #1a1a1a;
+    border-radius: 16px;
+    box-shadow: 5px 5px 0 rgba(26, 26, 26, 0.3);
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  import { loadToolNames, saveToolNames, removeToolName } from '../tools/name-list';
+
+  const root = document.getElementById('tool-name-entry') as HTMLDivElement;
+  const storageKey = root.dataset.storageKey!;
+  // Astro's scoped styles key on the data-astro-cid attribute it stamps on template elements only.
+  // Chips are created at runtime, so each one gets the attribute copied off the root — without it the
+  // scoped .name-chip / .name-remove rules never match and the chips render as bare text.
+  const scopeAttr = Array.from(root.attributes).find((a) => a.name.startsWith('data-astro-cid'));
+  const input = document.getElementById('name-input') as HTMLInputElement;
+  const addBtn = document.getElementById('name-add-btn') as HTMLButtonElement;
+  const chipsEl = document.getElementById('name-chips') as HTMLDivElement;
+  const emptyEl = document.getElementById('name-empty') as HTMLParagraphElement;
+  const startBtn = document.getElementById('name-start') as HTMLButtonElement;
+
+  // Loaded once from this tool's own key — a refresh brings the chips back (the acceptance box). The
+  // key itself arrives as a prop, so this file carries no storage literal at all and can never write a
+  // store the games share (ADR-0039 closes that door by construction, not by a check).
+  let names = loadToolNames(storageKey);
+
+  function render(): void {
+    chipsEl.innerHTML = '';
+    for (const name of names) {
+      const chip = document.createElement('span');
+      chip.className = 'name-chip';
+      if (scopeAttr) chip.setAttribute(scopeAttr.name, scopeAttr.value);
+      chip.append(`${name} `);
+      const remove = document.createElement('span');
+      remove.className = 'name-remove';
+      if (scopeAttr) remove.setAttribute(scopeAttr.name, scopeAttr.value);
+      remove.textContent = '✕';
+      remove.addEventListener('click', () => {
+        names = removeToolName(names, name);
+        saveToolNames(storageKey, names);
+        render();
+      });
+      chip.appendChild(remove);
+      chipsEl.appendChild(chip);
+    }
+    // The empty hint shows only while there is nothing to show; a filled panel carries no footnote.
+    emptyEl.hidden = names.length > 0;
+  }
+
+  addBtn.addEventListener('click', () => {
+    const trimmed = input.value.trim();
+    input.value = '';
+    // Blank and duplicate both clear the field without adding — the input empties after every press,
+    // same habit as the shell's add field. The list itself stays unbounded; that is the point of the panel.
+    if (!trimmed || names.includes(trimmed)) return;
+    names = [...names, trimmed];
+    saveToolNames(storageKey, names);
+    render();
+  });
+
+  startBtn.addEventListener('click', () => {
+    // The same event the shell panel dispatched, same channel — each tool page keeps its own listener
+    // untouched. No `start` field: that word describes a game round, and tools have none (ADR-0040).
+    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players: [...names] }, bubbles: true }));
+  });
+
+  render();
+</script>

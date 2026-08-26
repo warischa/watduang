@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PlayerSetup from '../../shell/PlayerSetup.astro';
+import ToolNameEntry from '../../components/ToolNameEntry.astro';
 import GameNav from '../../components/GameNav.astro';
 ---
 
@@ -12,7 +12,7 @@ import GameNav from '../../components/GameNav.astro';
     <h1>วงล้อสุ่มชื่อ</h1>
     <p>ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน — หมุนเสร็จกดต่อเข้าเกมได้เลย รายชื่อไหลต่อไปเอง</p>
 
-    <PlayerSetup min={2} max={10} ctaLabel="ใส่ชื่อลงวงล้อ" />
+    <ToolNameEntry heading="ชื่อในวง" storageKey="watduang:tool:wheel-names" ctaLabel="ใส่ชื่อลงวงล้อ" />
 
     <section id="wheel" aria-labelledby="wheel-heading">
       <h2 id="wheel-heading">วงล้อ</h2>
@@ -156,7 +156,7 @@ import GameNav from '../../components/GameNav.astro';
 
   let players: string[] = [];
   // Who's already out — deliberately memory-only, a refresh starts a fresh round
-  // (names survive because the roster is localStorage) · must never persist to shell/session.ts, because
+  // (names survive because the tool's own list is localStorage) · must never persist to shell/session.ts, because
   // checkpoint is one slot shared site-wide — the moment a tool touches it, any game stranded mid-round is gone.
   const spun = new Set<string>();
   let spinning = false;
@@ -186,8 +186,8 @@ import GameNav from '../../components/GameNav.astro';
     } else if (players.length === 0) {
       noteEl.textContent = 'ยังหมุนไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงวงล้อ"';
     } else if (players.length < 2) {
-      // Unreachable already — PlayerSetup rejects starting below min, this just guards against the
-      // button dying silently if that path is somehow reached (roster is localStorage so nothing is lost; refresh is the correct way back).
+      // A CTA press with one name reaches this note legitimately — the panel refuses nothing, so this
+      // guards the button dying silently (the list is localStorage, so nothing is lost in here).
       noteEl.textContent = `วงล้อมีชื่อเดียว (${players[0]}) ต้องมีอย่างน้อย 2 ชื่อถึงจะหมุนได้ — รีเฟรชหน้านี้แล้วเลือกชื่อใหม่`;
     } else if (left.length === 0) {
       // Round over: announce once that everyone's out · #wheel-result still holds the last name as "the result", not a separate answer.
@@ -249,7 +249,8 @@ import GameNav from '../../components/GameNav.astro';
     spinTimer = window.setTimeout(reveal, SPIN_MS);
   }
 
-  // Same name-entry panel the games use — the tool is only a listener, it doesn't change its behavior.
+  // gh#91 — names arrive from the tool's own name panel (ToolNameEntry) on this event, the same
+  // channel the shell panel used. The tool stays a listener; its behaviour is untouched.
   document.addEventListener('watduang:start', (event) => {
     players = (event as CustomEvent<{ players: string[] }>).detail.players;
     spun.clear();

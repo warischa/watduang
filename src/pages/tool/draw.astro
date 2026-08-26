@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PlayerSetup from '../../shell/PlayerSetup.astro';
+import ToolNameEntry from '../../components/ToolNameEntry.astro';
 import GameNav from '../../components/GameNav.astro';
 ---
 
@@ -12,7 +12,7 @@ import GameNav from '../../components/GameNav.astro';
     <h1>จับฉลาก</h1>
     <p>ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p>
 
-    <PlayerSetup min={2} max={10} ctaLabel="ใส่ชื่อลงกล่อง" />
+    <ToolNameEntry heading="ชื่อในกล่อง" storageKey="watduang:tool:draw-names" ctaLabel="ใส่ชื่อลงกล่อง" />
 
     <section id="draw" aria-labelledby="draw-heading">
       <h2 id="draw-heading">กล่องฉลาก</h2>
@@ -127,9 +127,9 @@ import GameNav from '../../components/GameNav.astro';
 
   let players: string[] = [];
   // Who's already been drawn — deliberately memory-only, refresh starts a new round
-  // (names persist because roster is localStorage) · must not go into shell/session.ts because checkpoint
-  // is one slot shared across the whole site — the tool touching it would wipe an in-progress game instantly
-  // Never saveGroup() with the remaining list — roster is shared by every tool/game; trimming here and saving = other people's names vanish site-wide
+  // (names persist because the tool's own list is localStorage) · must not go into shell/session.ts because checkpoint
+  // is one slot shared across the whole site — the tool touching it would wipe an in-progress game instantly.
+  // Same for the group store: the tools left the shared roster (ADR-0039), so this page writes nothing shared at all.
   const drawn = new Set<string>();
 
   function remaining(): string[] {
@@ -186,7 +186,8 @@ import GameNav from '../../components/GameNav.astro';
     render();
   }
 
-  // Same name-entry panel the games use — the tool is just a listener, it doesn't change its behavior
+  // gh#91 — names arrive from the tool's own name panel (ToolNameEntry) on this event, the same
+  // channel the shell panel used. The tool stays a listener; its behaviour is untouched.
   document.addEventListener('watduang:start', (event) => {
     players = (event as CustomEvent<{ players: string[] }>).detail.players;
     drawn.clear();
