@@ -451,7 +451,10 @@ const game: GameModule = {
   id: 'love-match',
   names: { th: 'ดวงความรัก', en: 'Love Match' },
   category: 'fortune',
-  players: [2, 10],
+  // gh#96 / ADR-0040 — the cross-binding makes [1, 1] the only shape a fortune page may declare, so
+  // this module carries it while its content is still the party-shaped pair score. The solo mount
+  // hands it an empty group; content redesign is the "เนื้อคู่" ticket, which this ticket unblocks.
+  players: [1, 1],
   keywords: ['ดวงความรัก', 'ดูดวงคู่', 'ดวงคู่วันนี้', 'ทดสอบความเข้ากัน', 'เกมส่งมือถือ', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'เลือกสองคนในวง แล้วดูว่าวันนี้ดวงเข้ากันกี่เปอร์เซ็นต์',
   seo: {

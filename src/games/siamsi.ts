@@ -699,7 +699,10 @@ const game: GameModule = {
   id: 'siamsi',
   names: { th: 'เซียมซีปาร์ตี้', en: 'Fortune Draw Party' },
   category: 'fortune',
-  players: [2, 10],
+  // gh#96 / ADR-0040 — the cross-binding makes [1, 1] the only shape a fortune page may declare, so
+  // this module carries it while its content is still the party round. The solo mount hands it a
+  // session with no checkpoint, so it sits on the idle screen; the "เสี่ยงเซียมซี" redesign ticket.
+  players: [1, 1],
   keywords: ['เซียมซี', 'ดูดวง', 'เกมส่งมือถือ', 'เกมปาร์ตี้', 'เกมกลุ่มเล่นฟรี', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'ส่งมือถือวนรอบวง คนละใบ ใครได้ดวงอะไรบ้าง',
   seo: {

@@ -23,7 +23,7 @@ const { game } = Astro.props as { game: GameModule };
 <GameLayout game={game} />
 
 <script>
-  import type { GameContext, GameModule } from '../../games/types';
+  import type { GameContext, GameModule, GameSession } from '../../games/types';
   import { loadRoster } from '../../shell/roster';
   import { loadSession, type StartKind } from '../../shell/session';
   import { refusalCopy } from '../../shell/player-select';
@@ -44,6 +44,30 @@ const { game } = Astro.props as { game: GameModule };
 
   let game: GameModule | null = null;
 
+  // gh#96 / ADR-0040 — a page declaring [1, 1] renders no setup panel (GameLayout guards the mount),
+  // so the one dispatcher of "watduang:start" — requestStart in PlayerSetup — does not exist and this
+  // page would never mount. The solo branch at the foot of this script mounts the module itself,
+  // straight into the stage, and never through a synthesize start event: a fake one-person roster
+  // would push a non-"เกม" through the round machinery (setPlayers, planStart, the roster pill) that
+  // ADR-0040 just removed "ดูดวง" from. The written shape is the same dataset channel data-game-id uses,
+  // and the validator guarantees the only value that is neither "1,1" nor a party range never builds.
+  const isSolo = stage.dataset.players === '1,1';
+
+  // A solo page has no "วง" to remember and no round to write. The module still receives a full
+  // GameContext, but its session persists nothing and reports no group: the site-wide slot (a live
+  // party round's checkpoint) must not leak onto a page that has no resume to offer, and an empty
+  // group keeps any "วง" surface — roster chips, pair picks — from drawing party names on a
+  // one-person page.
+  const soloSession: GameSession = {
+    players: [],
+    setPlayers(): void {},
+    played: [],
+    markPlayed(): void {},
+    checkpoint: null,
+    saveCheckpoint(): void {},
+    clear(): void {},
+  };
+
   // gh#76 — the topbar roster pill. The count is the group's own: updated from the panel's answer on
   // every start, and seeded from the persisted session on load so a reload keeps it. Hidden while no
   // group exists yet; the pill's fixed padding keeps its height constant, so filling it never moves
@@ -54,7 +78,9 @@ const { game } = Astro.props as { game: GameModule };
     pill.hidden = n < 1;
     pill.textContent = `วง ${n} คน`;
   }
-  showRosterCount(loadSession().players.length);
+  // A solo page starts no round, so no "วง" exists to count — the pill must not seed from the
+  // site-wide party session (a persisted party group is not this page's "วง").
+  if (!isSolo) showRosterCount(loadSession().players.length);
 
   function dispose(): void {
     game?.dispose();
@@ -161,6 +187,22 @@ const { game } = Astro.props as { game: GameModule };
       writeRefusedEl.textContent = '';
     }
   });
+
+  // The solo counterpart of the start listener above: no event, no round write, the module mounts
+  // directly into the stage. A failed mount has no panel to restore and no round to lose — there is
+  // nothing to say and nothing to save, so the only recovery is the reload any crashed page leaves
+  // the player. The bfcache pagehide pair above disposes this mount like any other.
+  if (isSolo) {
+    (async () => {
+      try {
+        if (!game) game = (await load()).default;
+        game.dispose(); // no-op before the first mount, as on the party path
+        game.mount(stage, { roster: loadRoster(), session: soloSession });
+      } catch {
+        // nothing to restore, nothing lost — see the comment on the branch above
+      }
+    })();
+  }
 </script>
 
 <style is:global>

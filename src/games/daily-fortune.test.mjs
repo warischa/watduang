@@ -251,6 +251,25 @@ test('#42: ghost-tap gate — "another" disables at reveal, roster chips stay li
   game.dispose();
 });
 
+// gh#96 / ADR-0040 — the proving page for the solo class. Mounted through the solo path the module
+// receives an empty group, and the ask screen must render alone: a solo page has no "วง" to chip.
+test('gh#96 solo mount: an empty group renders the ask screen alone, with no roster chips', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx([]));
+
+  assert.ok(findById(stage, 'df-name'), 'a solo mount renders no name input');
+  const buttons = [];
+  (function walk(node) {
+    if (node.tagName === 'button') buttons.push(node);
+    (node.children || []).forEach(walk);
+  })(stage);
+  assert.equal(buttons.length, 1, 'an empty group must render no roster chips — the only button is the draw control');
+  assert.equal(buttons[0].id, 'df-go', 'the surviving button must be the draw control, not a leftover chip');
+
+  game.dispose();
+});
+
 // gh#80 — the approved result screen (design/GameDailyFortune.dc.html). The card is the hero motif:
 // its type is set large (19px / 1.75) and it owns its height, so the longest line in the pool must
 // render in full — never clipped, never scrolled. No anchor may enter #stage on any screen.

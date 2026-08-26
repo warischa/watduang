@@ -395,6 +395,71 @@ test('gh#65 no mount under src/pages/tool/ passes a gameId — that absence is w
   assert.ok(mounts >= 1, `positive control: tool pages really do mount this component, found ${mounts}`);
 });
 
+// gh#96 / ADR-0040 — a page declaring [1, 1] has no "วง", so the whole setup panel is skipped for it.
+// The guard must key on the module's own declared range (the validator already closes the shape to
+// [1, 1] or a party range), never on a page-id list: an id list grows with every new solo page and
+// never converges, which is the failure the ticket rules out by name.
+test('gh#96 the setup panel is not rendered for a page declaring a party of one', () => {
+  const layout = gameLayout.replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+  assert.ok(layout.includes('game.players[0]'), 'positive control: the layout still reads the declared range');
+  const guardAt = layout.indexOf('{(game.players[0] !== 1 || game.players[1] !== 1)');
+  assert.ok(guardAt >= 0, 'the panel mount is rendered unconditionally — a [1, 1] page still gets a setup panel');
+  const open = layout.indexOf('{', guardAt);
+  const close = matchBraceEnd(layout, open);
+  assert.ok(close > open, 'positive control: the guard expression parses');
+  const mountAt = layout.indexOf('<PlayerSetup', guardAt);
+  assert.ok(
+    mountAt > open && mountAt < close,
+    'the PlayerSetup mount must sit inside the declared-range guard — a mount left outside it (or a guard keyed on an id list) renders the panel on a solo page',
+  );
+});
+
+// gh#96 / ADR-0040 — with the panel gone, the one dispatcher of "watduang:start" (requestStart) is
+// gone too, so a page declaring [1, 1] never mounts unless it mounts its module itself. That mount
+// must be direct: a fake start event carries a fake one-person roster, which routes a non-"เกม" through
+// the round machinery (setPlayers, planStart, the roster pill) ADR-0040 just removed it from.
+test('gh#96 a solo page mounts its module directly — never through the start event or a round write', () => {
+  // No whole-file comment strip here: the import-meta glob strings in this file contain "/*", which a
+  // textual block-comment stripper pairs with the CSS block's real "*/" far below and blanks half the
+  // script. matchBraceEnd is comment-aware, so the branch extraction below needs no stripper at all,
+  // and the branch's own comments carry none of the tokens the negative assertions hunt for.
+  const code = gamePage;
+  assert.match(
+    code,
+    /const isSolo = stage\.dataset\.players === '1,1'/,
+    'no branch reads the declared range off the stage — every page would mount, or none would',
+  );
+  const soloAt = code.indexOf('if (isSolo)');
+  assert.ok(soloAt >= 0, 'the solo mount branch is gone — the page has no path that does not wait for the panel');
+  const open = code.indexOf('{', soloAt);
+  const close = matchBraceEnd(code, open);
+  assert.ok(close > open, 'positive control: the solo branch parses');
+  const branch = code.slice(open + 1, close);
+  assert.match(branch, /game\.mount\(stage,/, 'the solo branch must call the module mount itself');
+  assert.doesNotMatch(branch, /watduang:start/, 'the solo path must not dispatch the start event — that is the panel\'s exit, and the panel does not exist here');
+  assert.doesNotMatch(branch, /setPlayers/, 'the solo path must not write a round roster — ADR-0040 took the round machinery off the ดูดวง หมวด');
+  // This page never dispatches "watduang:start" itself — the panel owns the dispatch, and with the
+  // panel absent on a solo page there is nothing left to dispatch it. So exactly zero dispatch sites
+  // may exist here (the solo branch must not add one), while the party path's listener stays.
+  assert.equal(
+    code.split("dispatchEvent(new CustomEvent('watduang:start'").length - 1,
+    0,
+    'this page dispatches the start event — the dispatch belongs to the panel alone, and a dispatch here would synthesize starts the panel never produced',
+  );
+  assert.match(
+    code,
+    /document\.addEventListener\('watduang:start'/,
+    'positive control: the party-path start listener is gone — สุ่มคนโดน pages still mount through it',
+  );
+  // The topbar pill counts the "วง" a start event produced; a solo page starts nothing, so it must not
+  // seed from the site-wide party session (a persisted party group is not this page's "วง").
+  assert.match(
+    code,
+    /if \(!isSolo\) showRosterCount\(/,
+    'the roster pill seed is not gated on the solo bit — a solo page would advertise a party group',
+  );
+});
+
 // gh#62 — with the button unrendered, every read of it is a null, and the shape of the guard decides
 // which way that null falls. `clearBtn?.dataset.clearsSession !== 'no'` evaluates to TRUE through a
 // missing button, so keeping the old gate as "defence in depth" would fail OPEN and run the destructive

@@ -337,7 +337,10 @@ const game: GameModule = {
   id: 'daily-fortune',
   names: { th: 'ดวงวันนี้', en: 'Daily Fortune' },
   category: 'fortune',
-  players: [2, 10],
+  // gh#96 / ADR-0040 — the proving page of the solo class: one person, one answer, no panel. The
+  // party-facing screens this module still renders are the gap ADR-0040 names until the redesign
+  // ticket replaces its content; the shape is legal and mounts without a start event today.
+  players: [1, 1],
   keywords: ['ดวงวันนี้', 'วัดดวงวันนี้', 'ดูดวงรายวัน', 'คำทำนายวันนี้', 'เกมส่งมือถือ', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'ใส่ชื่อแล้วรู้ดวงวันนี้ทันที วันนี้กดกี่ครั้งก็ดวงเดิม',
   seo: {

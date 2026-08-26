@@ -118,8 +118,24 @@ function validateGames(games, checkRoot, categories) {
       err('players', 'must be a 2-element number array');
     } else {
       const [min, max] = g.players;
-      if (min < 2) err('players[0]', `is ${min}, must be >= 2`);
+      const isSolo = min === 1 && max === 1;
+      // gh#96 / ADR-0040 rule 1: a min of 1 is legal only as [1, 1]. A [1, N>1] hybrid passes the
+      // reopened min gate while skipping the panel, and ADR-0007's full-party enumeration then has no
+      // party to enumerate. The field named is players[1] — it is the N that is not 1.
+      if (min === 1 && !isSolo) {
+        err('players[1]', `is ${max}, a page with min 1 must declare [1, 1] (docs/adr/0040)`);
+      }
+      if (min < 2 && min !== 1) err('players[0]', `is ${min}, must be >= 2`);
       if (max < min) err('players[1]', `is ${max}, must be >= players[0] (${min})`);
+      // gh#96 / ADR-0040 rule 2: the "ดูดวง" (fortune) category and [1, 1] bind to each other. A party
+      // range on a fortune page is a "เกม"-shape the category no longer contains; [1, 1] anywhere else
+      // is a party-of-one page in a "หมวด" whose pages the panel still serves. Total over what the
+      // module declares — no page-id list, for the same reason NO_AD_REQUEST must not be the model.
+      if (g?.category === 'fortune' && !isSolo) {
+        err('players', `is [${min}, ${max}], a fortune page must declare [1, 1] (docs/adr/0040)`);
+      } else if (isSolo && g?.category !== 'fortune') {
+        err('players', 'is [1, 1], only a fortune page may declare a party of one (docs/adr/0040)');
+      }
     }
 
     if (!isStrArray(g?.keywords)) err('keywords', 'must be an array of strings');
@@ -196,6 +212,12 @@ function selftest() {
       dispose: () => {},
     });
 
+    // Known-good for the ADR-0040 binds: a fortune page declaring [1, 1] is the new legal shape. It
+    // claims 'fortune' (so partyAndFortune's keys are all claimed) and needs its own id file on disk,
+    // exactly like the pick-loser fixture above.
+    fs.writeFileSync(path.join(tmpDir, 'src/games/solo-game.ts'), '');
+    const soloGame = () => ({ ...goodGame(), id: 'solo-game', category: 'fortune', players: [1, 1] });
+
     // Category-manifest fixtures for the gh#74 gates (the validator only reads Object.keys, so the
     // values are placeholders): partyOnly leaves every key claimed by goodGame, partyAndFortune
     // leaves 'fortune' unclaimed.
@@ -222,6 +244,15 @@ function selftest() {
     );
     console.log('PASS known-good: ads: true on an ordinary game reports zero violations');
 
+    // --- known-good: gh#96 / ADR-0040 — [1, 1] on a fortune page is the legal solo shape. Guards
+    // against the min >= 2 rule being reopened without the new shape becoming reachable. ---
+    assert.deepEqual(
+      validateGames([soloGame(), goodGame()], tmpDir, partyAndFortune),
+      [],
+      'a fortune page declaring [1, 1] must report zero violations, alongside a party page that still claims \'party\'',
+    );
+    console.log('PASS known-good: a fortune page declaring [1, 1] reports zero violations');
+
     // --- known-bad, one case per rule. Each mutates exactly one field off the good fixture so the
     // resulting violation is attributable to that rule, not a side effect of another one. ---
     const cases = [
@@ -233,7 +264,10 @@ function selftest() {
       { field: 'tagline', mutate: (g) => ({ ...g, tagline: '   ' }), expect: /tagline must be a non-empty string/ },
       { field: 'category', mutate: (g) => ({ ...g, category: 'quiz' }), expect: /category is "quiz", must be one of: party/ },
       { field: 'players (shape)', mutate: (g) => ({ ...g, players: [2] }), expect: /players must be a 2-element number array/ },
-      { field: 'players[0] (min < 2)', mutate: (g) => ({ ...g, players: [1, 10] }), expect: /players\[0\] is 1, must be >= 2/ },
+      { field: 'players[0] (min < 2, not 1)', mutate: (g) => ({ ...g, players: [0, 10] }), expect: /players\[0\] is 0, must be >= 2/ },
+      // gh#96 / ADR-0040 rule 1: a min of 1 is legal only as [1, 1] — a [1, N>1] hybrid passes the
+      // reopened min gate while ADR-0007's full-party enumeration has no party to enumerate.
+      { field: 'players[1] (min is 1, max is not 1)', mutate: (g) => ({ ...g, players: [1, 3] }), expect: /players\[1\] is 3, a page with min 1 must declare \[1, 1\] \(docs\/adr\/0040\)/ },
       { field: 'players[1] (max < min)', mutate: (g) => ({ ...g, players: [5, 2] }), expect: /players\[1\] is 2, must be >= players\[0\] \(5\)/ },
       { field: 'keywords', mutate: (g) => ({ ...g, keywords: ['party', 1] }), expect: /keywords must be an array of strings/ },
       { field: 'seo.title', mutate: (g) => ({ ...g, seo: { ...g.seo, title: '' } }), expect: /seo\.title must be a non-empty string/ },
@@ -269,6 +303,29 @@ function selftest() {
     assert.equal(unclaimedErrors.length, 1, `gh#74 unclaimed: expected exactly one violation, got: ${JSON.stringify(unclaimedErrors)}`);
     assert.match(unclaimedErrors[0], /category "fortune" is not claimed by any game/);
     console.log('PASS known-bad category gates: a game whose category has no manifest entry and a manifest entry no game claims each fail, naming category and key');
+
+    // --- known-bad, gh#96 / ADR-0040 rule 2: the "ดูดวง" (fortune) category and [1, 1] bind to each
+    // other. Each direction mutates exactly one field off the good fixture, and each runs against a
+    // category record where its shape is otherwise a valid member, so the single violation it
+    // produces is attributable to the cross-rule and to nothing else. ---
+    const fortuneOnly = { fortune: categoryMeta('fortune') };
+    const soloRange = validateGames([{ ...goodGame(), category: 'fortune' }], tmpDir, fortuneOnly);
+    assert.equal(soloRange.length, 1, 'rule 2, fortune direction: a fortune page with a party range must produce exactly one violation');
+    assert.match(
+      soloRange[0],
+      /players is \[2, 10\], a fortune page must declare \[1, 1\] \(docs\/adr\/0040\)/,
+      `rule 2, fortune direction: expected the violation to name the players field, got: ${JSON.stringify(soloRange)}`,
+    );
+    assert.match(soloRange[0], /^src\/games\/happy-game\.ts: /, 'rule 2, fortune direction: the violation must name the file');
+    const partySolo = validateGames([{ ...goodGame(), players: [1, 1] }], tmpDir, partyOnly);
+    assert.equal(partySolo.length, 1, 'rule 2, party direction: a party page declaring [1, 1] must produce exactly one violation');
+    assert.match(
+      partySolo[0],
+      /players is \[1, 1\], only a fortune page may declare a party of one \(docs\/adr\/0040\)/,
+      `rule 2, party direction: expected the violation to name the players field, got: ${JSON.stringify(partySolo)}`,
+    );
+    assert.match(partySolo[0], /^src\/games\/happy-game\.ts: /, 'rule 2, party direction: the violation must name the file');
+    console.log('PASS known-bad ADR-0040 binds: fortune + party range and party + [1, 1] each fail, naming file and field');
 
     // --- known-bad, EMPTY CATEGORY MANIFEST (ADR-0019): with zero keys the membership check knows no
     // category and the unclaimed-key gate verifies no keys — both pass vacuously and the site would
