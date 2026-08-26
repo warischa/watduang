@@ -304,8 +304,8 @@ function renderResult(name: string, now: Date): void {
   stage.appendChild(actions);
 
   // The tap that revealed this screen swaps it in under the same finger, so a ghost second contact
-  // would land on "ดูดวงคนต่อไป" and skip straight past the fortune nobody read yet. No link to
-  // /games/ here — #stage holds no navigation target in any game (ADR-0014); the page's crawlable
+  // would land on "ดูดวงคนต่อไป" and skip straight past the fortune nobody read yet. No outbound
+  // link here — #stage holds no navigation target in any game (ADR-0014); the page's crawlable
   // link is static chrome in src/layouts/GameLayout.astro, above #stage where no re-render can move it.
   cleanup.push(armAllButtons(stage));
 }

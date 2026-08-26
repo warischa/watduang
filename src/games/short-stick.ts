@@ -122,7 +122,7 @@ function renderDraw(): void {
   hint.appendChild(icon);
   hint.appendChild(hintText);
   stage.appendChild(hint);
-  // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
+  // No outbound link here — #stage must hold no navigation target (a tap-transition would drop it under
   // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
 
   // Every way into this screen replaces one the finger was already aiming at — the "ส่งต่อ" tap, the

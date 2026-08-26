@@ -232,7 +232,7 @@ function headerNameFor(name: string): string {
 const TAKEN_CHIP_STYLE = 'opacity:0.5';
 
 // No hub link is built in this file any more — #stage must hold no navigation target (a tap-transition
-// would drop it under the finger that just tapped). The crawlable /games/ link is static chrome in
+// would drop it under the finger that just tapped). The crawlable outbound link is static chrome in
 // src/layouts/GameLayout.astro.
 
 // Builds the whole pick screen once per round (initial mount, or after the result screen's "again"
@@ -393,7 +393,7 @@ function renderResult(a: string, b: string, now: Date): void {
   note.className = 'lm-note';
   stage.appendChild(note);
 
-  // No /games/ link here — #stage holds no navigation target in any game (ADR-0014); the crawlable
+  // No outbound link here — #stage holds no navigation target in any game (ADR-0014); the crawlable
   // link is static chrome above the stage. The second tap of the pair that produced this screen lands
   // here under the same finger, so gate it like every render.
   cleanup.push(armAllButtons(stage));

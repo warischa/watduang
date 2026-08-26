@@ -123,7 +123,7 @@ function renderResult(): void {
   const hint = el('span', 'ปุ่มรองจะกดได้หลังผลออก 0.4 วินาที กันนิ้วลั่น');
   hint.className = 'pl-hint';
   stage.appendChild(hint);
-  // No /games/ link here — #stage must hold no navigation target (a tap-transition would drop it under
+  // No outbound link here — #stage must hold no navigation target (a tap-transition would drop it under
   // the finger that just tapped). The crawlable one is static chrome in src/layouts/GameLayout.astro.
 
   // The tap that revealed the pick swaps this screen in under the same finger, so a ghost second
