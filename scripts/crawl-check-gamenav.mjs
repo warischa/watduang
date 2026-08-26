@@ -1,7 +1,10 @@
 #!/usr/bin/env node
-// gh#39 verify item 3, narrowed by gh#94 — proves GameNav still renders a crawlable /game/*/ link to
-// every game the page's own category should offer (the whole reason #35's exclude-self GameNav exists),
-// and never a self-link.
+// gh#39 verify item 3, narrowed by gh#94, widened by gh#115 — proves GameNav still renders a crawlable
+// /game/*/ link to every game the page's own category should offer (the whole reason #35's exclude-self
+// GameNav exists), and never a self-link. gh#115: the same GameNav component also renders on the four
+// /tool/*/ pages under a per-page navClass (wheel-next, draw-next, team-next, number-next), which this
+// script never read before — scanned below too, enumerated from src/tools/manifest.ts so a fifth tool
+// cannot silently fall out of coverage.
 // Wired into CI: .github/workflows/ci.yml runs the real scan after Build. --selftest is NOT
 // run there — it rebuilds dist/ and would desync the artifact later steps ship. Run it by hand.
 //
@@ -28,6 +31,25 @@ const distDir = path.join(repoRoot, 'dist', 'game');
 // no loader hook. This is what keeps a fourth category from needing an edit in this script.
 const { games } = await import(path.join(repoRoot, 'src/games/manifest.ts'));
 const { categories } = await import(path.join(repoRoot, 'src/games/categories.ts'));
+const { tools } = await import(path.join(repoRoot, 'src/tools/manifest.ts'));
+
+// gh#115: tool pages have no category/carriesGroup entry of their own (ADR-0032 — tools are not a
+// category), so the expectation can't be read off a manifest the way expectedSiblings() reads it for
+// games. It's read off the same place GameNav itself reads it: the literal navClass/category props each
+// /tool/*/ page passes to <GameNav ... />. No category literal or count is written here — both fall out
+// of the page's own source plus the games manifest, same as the game-page path above.
+const toolPages = tools.map((t) => {
+  const slug = t.href.match(/^\/tool\/([^/]+)\/$/)[1];
+  const srcFile = path.join(repoRoot, 'src/pages/tool', `${slug}.astro`);
+  const source = fs.readFileSync(srcFile, 'utf8');
+  const tag = source.match(/<GameNav\b[\s\S]*?\/>/);
+  if (!tag) throw new Error(`scripts/crawl-check-gamenav.mjs: ${srcFile} has no <GameNav ... /> call to read expectations from`);
+  const navClass = tag[0].match(/navClass="([^"]+)"/)?.[1];
+  const category = tag[0].match(/category="([^"]+)"/)?.[1];
+  if (!navClass) throw new Error(`scripts/crawl-check-gamenav.mjs: ${srcFile}'s <GameNav> has no literal navClass="..." to scope the nav block to`);
+  const expected = games.filter((g) => !category || g.category === category).length;
+  return { slug, navClass, category, expected };
+});
 
 // The page's own rule, restated over the same two manifests GameLayout and GameNav read: a game in a
 // category that carries the group onward lists only that category; one in a category that does
@@ -95,6 +117,57 @@ function scan(root = distDir) {
   return { problems, pageCount: dirs.length };
 }
 
+// gh#115 — same shape as scan() above (page-count guard, then per-page nav-block + sibling-count
+// checks), applied to the four /tool/*/ pages instead of the six /game/*/ ones. `toolRoot` is a
+// parameter for the same reason `root` is on scan(): so a calibration can point it at an empty dir.
+function scanTools(toolRoot = path.join(repoRoot, 'dist', 'tool')) {
+  const dirCount = fs.existsSync(toolRoot)
+    ? fs.readdirSync(toolRoot, { withFileTypes: true }).filter((d) => d.isDirectory()).length
+    : 0;
+  const problems = [];
+  if (dirCount !== toolPages.length) {
+    problems.push({
+      page: '(all tools)',
+      kind: 'tool-page-count',
+      text: `dist/tool/: ${dirCount} tool page(s) built, manifest declares ${toolPages.length} (src/tools/manifest.ts) — the scanned set must match the manifest, or a per-page scan reports clean over pages that were never built`,
+    });
+  }
+  let scanned = 0;
+  for (const t of toolPages) {
+    const htmlPath = path.join(toolRoot, t.slug, 'index.html');
+    if (!fs.existsSync(htmlPath)) {
+      problems.push({ page: `tool/${t.slug}`, kind: 'missing-page', text: `dist/tool/${t.slug}/: no index.html built` });
+      continue;
+    }
+    scanned += 1;
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const navBlock = new RegExp(`<nav class="${t.navClass}"[\\s\\S]*?</nav>`);
+    const nav = html.match(navBlock);
+    if (!nav) {
+      problems.push({ page: `tool/${t.slug}`, kind: 'missing-nav', text: `dist/tool/${t.slug}/: no <nav class="${t.navClass}"> block` });
+      continue;
+    }
+    const hrefs = new Set([...nav[0].matchAll(/href="(\/game\/[^"/]+\/)"/g)].map((m) => m[1]));
+    if (hrefs.size !== t.expected) {
+      problems.push({
+        page: `tool/${t.slug}`,
+        kind: 'count',
+        text: `dist/tool/${t.slug}/: found ${hrefs.size} sibling /game/*/ links in GameNav, expected ${t.expected} (category=${t.category})`,
+      });
+    }
+  }
+  // scanned, not toolPages.length: the same ADR-0019 rule scan()'s pageCount follows above.
+  return { problems, pageCount: scanned };
+}
+
+// Merges the two scans everywhere both need to run together. `toolRoot` stays default outside the
+// selftest's own empty-dir calibration, which only ever re-points the game half.
+function scanAll(root = distDir, toolRoot = path.join(repoRoot, 'dist', 'tool')) {
+  const g = scan(root);
+  const t = scanTools(toolRoot);
+  return { problems: [...g.problems, ...t.problems], gamePageCount: g.pageCount, toolPageCount: t.pageCount };
+}
+
 // The needle both calibrations splice against. A raw string-splice removing the <li>...</li> markup
 // breaks the surrounding {shown.map(...)} JS expression (a build syntax error, not "one fewer link" —
 // tried, esbuild rejected it), so both calibrations edit `shown` after it is built instead.
@@ -137,17 +210,17 @@ function selftest() {
   const render = (problems) => problems.map((p) => p.text).join('\n');
   // baseline: current tree must be green before we can trust a red result from breaking it
   execFileSync('npm', ['run', 'build'], { cwd: repoRoot, stdio: 'inherit' });
-  const baseline = scan();
+  const baseline = scanAll();
   if (baseline.problems.length > 0) throw new Error(`selftest needs a green baseline first:\n${render(baseline.problems)}`);
-  console.log(`PASS baseline is green over ${baseline.pageCount} page(s)`);
+  console.log(`PASS baseline is green over ${baseline.gamePageCount} game page(s) and ${baseline.toolPageCount} tool page(s)`);
 
   // page-count calibration, no rebuild: an empty dist/game/ used to satisfy every per-page rule
   // vacuously and print the full-coverage green — measured by moving the six page dirs aside, exit 0.
   // Proven here against an empty temp dir, so dist/ is never touched by this case.
   const emptyTmp = fs.mkdtempSync(path.join(os.tmpdir(), 'crawl-check-empty-'));
   try {
-    const emptied = scan(emptyTmp);
-    if (emptied.pageCount !== 0) throw new Error('page-count calibration setup failed: the re-pointed scan still saw pages');
+    const emptied = scanAll(emptyTmp);
+    if (emptied.gamePageCount !== 0) throw new Error('page-count calibration setup failed: the re-pointed scan still saw pages');
     const fired = emptied.problems.filter((p) => p.kind === 'page-count');
     if (fired.length !== 1) {
       throw new Error(`calibration FAILED (zero pages built): expected a \`page-count\` problem, got:\n${render(emptied.problems)}`);
@@ -169,7 +242,7 @@ function selftest() {
       planted += 1;
       fs.writeFileSync(navPath, broken);
       execFileSync('npm', ['run', 'build'], { cwd: repoRoot, stdio: 'inherit' });
-      const { problems } = scan();
+      const { problems } = scanAll();
       const fired = problems.filter((p) => p.kind === c.mustFire);
       if (fired.length === 0) {
         throw new Error(`calibration FAILED (${c.name}): no \`${c.mustFire}\` problem was reported.\n${render(problems)}`);
@@ -184,7 +257,7 @@ function selftest() {
   } finally {
     fs.writeFileSync(navPath, before);
     execFileSync('npm', ['run', 'build'], { cwd: repoRoot, stdio: 'inherit' });
-    const restored = scan();
+    const restored = scanAll();
     console.log(`MUTANTS planted ${planted}/${CALIBRATIONS.length}, caught ${caught}/${planted}`);
     if (restored.problems.length > 0) throw new Error(`restore FAILED:\n${render(restored.problems)}`);
     console.log('PASS restored to green');
@@ -194,16 +267,20 @@ function selftest() {
 if (process.argv.includes('--selftest')) {
   selftest();
 } else {
-  const { problems, pageCount } = scan();
+  const { problems, gamePageCount, toolPageCount } = scanAll();
   if (problems.length > 0) {
     console.error(problems.map((p) => p.text).join('\n'));
-    console.error(`\n${problems.length} GameNav problem(s) across dist/game/*/.`);
+    console.error(`\n${problems.length} GameNav problem(s) across dist/game/*/ and dist/tool/*/.`);
     process.exit(1);
   }
-  // The count is what was read, not what the manifest claims (ADR-0019: the sentence next to a green
-  // is a claim too). Zero pages can no longer reach this line — page-count fires above.
+  // Both counts are what was read, not what the manifests claim (ADR-0019: the sentence next to a
+  // green is a claim too). Zero pages of either kind can no longer reach this line — the page-count
+  // guards in scan()/scanTools() fire above.
   // ponytail: scores the LINKS only, not the nav's Thai heading — the link set already discriminates
   // both gh#94 regressions (narrowed when the category does not carry the group, and not narrowed when it
   // does). If the heading claim ever needs pinning, that is a third property here, not a wider count.
-  console.log(`OK — all ${pageCount} dist/game/*/ page(s): GameNav links every game its own category should offer, and never itself.`);
+  console.log(
+    `OK — all ${gamePageCount} dist/game/*/ page(s) and ${toolPageCount} dist/tool/*/ page(s): ` +
+      'GameNav links every game its own category should offer, and never itself.',
+  );
 }
