@@ -293,16 +293,17 @@ test('draw: one press of N takes N distinct slots out, duplicates included', () 
   assert.equal(presses, 2, 'two presses of two');
 });
 
-// Both pages are page scripts — plain node cannot import them, so the positional-elimination
-// invariant is pinned at source-text level for the wiring itself (same bargain as the reveal() test
-// above). Restoring either name-keyed Set turns this red.
-test('wheel.astro and draw.astro eliminate by roster position, never by name string', () => {
-  for (const [page, setName] of [['wheel.astro', 'spun'], ['draw.astro', 'drawn']]) {
-    const src = readFileSync(join(here, '..', 'pages', 'tool', page), 'utf8');
-    assert.match(src, new RegExp(`const ${setName} = new Set<number>\\(\\)`), `${page}: elimination set must hold positions`);
-    assert.ok(!/players\.filter\(\(name\)/.test(src), `${page}: no name-keyed filter may survive`);
-    assert.ok(!new RegExp(`${setName}\\.has\\(name`).test(src), `${page}: nothing may be excluded by name`);
-  }
+// wheel.astro is a page script — plain node cannot import it, so its positional-elimination wiring
+// is pinned at source-text level (same bargain as the reveal() test above). Restoring the name-keyed
+// Set turns this red. draw.astro no longer needs a source-text pin: its round lives in DrawRound,
+// and draw.test.mjs drives that module directly — a source pin kept alongside a real test would only
+// re-create the false confidence the review found in it (a source pin cannot tell slot.index from
+// players.indexOf(slot.name)).
+test('wheel.astro eliminates by roster position, never by name string', () => {
+  const src = readFileSync(join(here, '..', 'pages', 'tool', 'wheel.astro'), 'utf8');
+  assert.match(src, /const spun = new Set<number>\(\)/, 'the elimination set must hold positions');
+  assert.ok(!/players\.filter\(\(name\)/.test(src), 'no name-keyed filter may survive');
+  assert.ok(!/spun\.has\(name/.test(src), 'nothing may be excluded by name');
 });
 
 // Defect 2: at rest AFTER a reveal the disc is frozen on the geometry `rotation` encodes, so the
