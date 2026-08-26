@@ -1,25 +1,38 @@
 ---
-// gh#75: the home page is a neutral hub over three groups — the two game categories plus the tools
-// group — not a games list. The site only enters the H1/lead; nothing here names "games" as the whole site.
+// gh#87 — the home page becomes direction C "สนามวัดดวง", design/HomeArcade.dc.html (owner's
+// choice of 2026-08-25). Every value below — colour, size, radius, border, shadow, copy — is the
+// artboard's own (ADR-0033); the only reflows are the ones the ticket's criteria own: a single
+// column at phone widths, no sideways scroll at 320/390, and the rail hidden below the 1100px the
+// artboard names. Manifest-held copy (game names, taglines, tool names and descriptions, category
+// labels) is read at build time, never retyped; the hero, section headings, how-to and FAQ are the
+// canvas's own new copy (design/canvas.json "new-copy-page4"), typed here once and never rewritten.
+// All motion is CSS only (ADR-0005: no inline page script) and stops under prefers-reduced-motion.
 import Base from '../layouts/Base.astro';
 import PageChrome from '../components/PageChrome.astro';
 import { categories } from '../games/categories';
-import { games as allGames } from '../games/manifest';
+import { games as allGames, byId } from '../games/manifest';
 import { tools, toolsGroup } from '../tools/manifest';
+import type { Category } from '../games/types';
 
-// The two game groups render from the category manifest, one card per key (never one card per game,
-// and never written out one by one) — record order IS page order, so fortune presents first,
-// and a fourth category key would render a fourth card here with no edit to this file (AC 8 requires
-// the same of the H1 and lead, which name no content type). Group copy is hubHeading/hubBody, NOT the
-// category page's label/whenToUse: one manifest, two consumers. Member lists are the members' own
-// names and tool names, joined — read from the manifests, never retyped.
-const gameGroups = Object.entries(categories).map(([key, meta]) => ({
-  key,
-  href: `/c/${key}/`,
-  meta,
-  members: allGames.filter((game) => game.category === key).map((game) => game.names.th).join(' · '),
-}));
-const toolNames = tools.map((tool) => tool.name).join(' · ');
+// The canvas features "เซียมซีปาร์ตี้" as the first-round game; it is read by id from the games
+// manifest, and its card accent resolves through its own category's accent name — no name, no
+// colour and no tagline is hardcoded here.
+const featured = byId('siamsi')!;
+
+// Grid order is the canvas's own: the fortune games first (its record key already leads, so
+// `categories` key order is page order), then the party games. A new game renders a new card with
+// no edit to this file; a new category key would too, once the canvas's per-card bob phase below
+// stops being a fixed six-position list.
+const gameCards = (Object.keys(categories) as Category[])
+  .flatMap((cat) => allGames.filter((game) => game.category === cat))
+  .map((game) => ({
+    game,
+    label: categories[game.category].label,
+    accent: categories[game.category].accent,
+  }));
+
+// The canvas's per-card bob phase, in canvas order — the stagger is a design value, not i % 3.
+const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
 ---
 
 <Base
@@ -27,185 +40,441 @@ const toolNames = tools.map((tool) => tool.name).join(' · ');
   description="ดูดวง สุ่มคนโดน วงล้อสุ่ม จับฉลาก แบ่งทีม ใช้ฟรีบนมือถือเครื่องเดียว 2-10 คน ส่งเครื่องวนกันในวง ไม่ต้องโหลดแอป ไม่ต้องสมัคร"
   chrome
 >
-  {/* gh#86 — the shared page chrome (top bar + footer nav) wraps the page; the chrome prop tells
-      Base to step its own plain footer aside. Everything inside stays exactly as it was. */}
   <PageChrome>
   <main>
     <header class="hero">
-      <p class="brand">
-        <svg
-          width="30"
-          height="30"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="9"></circle
-          ><path d="M12 7v5l3 2"></path>
-        </svg>
-        วัดดวง
-      </p>
-      <h1>วงเดียว เครื่องเดียว<br />ตัดสินได้ทุกเรื่อง</h1>
-      <p class="lead">ฟรีทั้งหมด 2–10 คน ส่งมือถือวนกัน ไม่ต้องโหลดแอป</p>
-      <ul class="pills">
-        <li>ไม่ต้องโหลดแอป</li>
-        <li>ไม่ต้องสมัคร</li>
-        <li>2–10 คน</li>
-      </ul>
+      <div class="hero-stripes" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="hero-badge">เปิดเว็บแล้วกดเล่นได้เลย</span>
+          <h1>กดทีเดียว<br />รู้เลยว่า<span class="hero-mark">ใครโดน</span></h1>
+          <p class="hero-lead">เกมสุ่มคนโดนกับเกมดูดวงสำหรับวงเพื่อน ใช้มือถือเครื่องเดียวส่งวนกันในวง ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p>
+          <div class="hero-cta">
+            <a class="cta-primary" href="/games/">
+              เลือกเกมเลย
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h13"></path
+                ><path d="M12 5l7 7-7 7"></path>
+              </svg>
+            </a>
+            <a class="cta-secondary" href="/tools/">หรือใช้เครื่องมือสุ่มแบบเร็ว ๆ</a>
+          </div>
+        </div>
+        <div class="hero-art">
+          <svg width="400" height="400" viewBox="0 0 400 400" aria-hidden="true">
+            <circle cx="200" cy="200" r="176" fill="#1a1a1a"></circle>
+            <g class="hero-wheel">
+              <path d="M200 200 L200 36 A164 164 0 0 1 316 84 Z" fill="#ffd27f"></path>
+              <path d="M200 200 L316 84 A164 164 0 0 1 364 200 Z" fill="#f89880"></path>
+              <path d="M200 200 L364 200 A164 164 0 0 1 316 316 Z" fill="#7fd8e8"></path>
+              <path d="M200 200 L316 316 A164 164 0 0 1 200 364 Z" fill="#ffd27f"></path>
+              <path d="M200 200 L200 364 A164 164 0 0 1 84 316 Z" fill="#f89880"></path>
+              <path d="M200 200 L84 316 A164 164 0 0 1 36 200 Z" fill="#7fd8e8"></path>
+              <path d="M200 200 L36 200 A164 164 0 0 1 84 84 Z" fill="#ffd27f"></path>
+              <path d="M200 200 L84 84 A164 164 0 0 1 200 36 Z" fill="#f89880"></path>
+              <circle cx="200" cy="200" r="164" fill="none" stroke="#1a1a1a" stroke-width="7"></circle>
+            </g>
+            <circle cx="200" cy="200" r="46" fill="#fffdf7" stroke="#1a1a1a" stroke-width="7"></circle>
+            <text
+              x="200"
+              y="212"
+              text-anchor="middle"
+              font-family="Mitr, sans-serif"
+              font-weight="600"
+              font-size="26"
+              fill="#1a1a1a">สุ่ม</text>
+            <path d="M200 8 l22 40 h-44 z" fill="#fffdf7" stroke="#1a1a1a" stroke-width="6" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+      </div>
     </header>
 
-    <section class="groups">
-      <h2 class="groups-title">เลือกสิ่งที่วงกำลังต้องการ</h2>
+    {/* Ad slot 1 of 4 — the billboard the canvas marks below the hero. The 250px height is
+        reserved (ADR-0024: the reflow is the hazard), so a real unit replacing this shifts
+        nothing above it. */}
+    <div class="ad-band ad-band-billboard">
+      <div class="ad-slot ad-billboard" aria-hidden="true">ช่องโฆษณา</div>
+    </div>
 
-      {gameGroups.map(({ meta, href, members }) => (
-        <a class="group-card" href={href} style={`--page-accent: var(--accent-${meta.accent});`}>
-          <div class="card-head">
-            <h3 class="card-title">{meta.hubHeading}</h3>
-          </div>
-          <p class="card-body">{meta.hubBody}</p>
-          <span class="card-foot">
-            {members}
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M5 12h13"></path
-              ><path d="M12 5l7 7-7 7"></path>
-            </svg>
-          </span>
-        </a>
-      ))}
-
-      {/* The tools group is NOT a category, so it has no manifest accent name: toolsGroup.accentVar
-          is a raw token name ('--accent-sky'), not a CategoryMeta accent, because --accent-sky has no
-          entry in categories.ts (ADR-0032: a tools key there would widen every game's category check to
-          a value no game can hold). Read from the manifest rather than written as a page literal, and
-          rendered into the SAME --page-accent property the category cards use, so all three consumers
-          carry the one mapping — a new category still needs no page edit. */}
-      <a class="group-card" href={toolsGroup.href} style={`--page-accent: var(${toolsGroup.accentVar});`}>
-        <div class="card-head">
-          <h3 class="card-title">{toolsGroup.heading}</h3>
-        </div>
-        <p class="card-body">{toolsGroup.body}</p>
-        <span class="card-foot">
-          {toolNames}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
+    <div class="body-grid">
+      <div class="col">
+        <section class="featured">
+          <p class="kicker">เล่นครั้งแรก เริ่มที่เกมนี้</p>
+          <a
+            class="featured-card bob-1"
+            href={`/game/${featured.id}/`}
+            style={`--card-accent: var(--accent-${categories[featured.category].accent});`}
           >
-            <path d="M5 12h13"></path
-            ><path d="M12 5l7 7-7 7"></path>
-          </svg>
-        </span>
-      </a>
-    </section>
+            <div class="featured-copy">
+              <h2>{featured.names.th}</h2>
+              <p>{featured.tagline}</p>
+              <span class="featured-cta">เขย่าเลย →</span>
+            </div>
+            <svg width="230" height="160" viewBox="0 0 230 160" aria-hidden="true">
+              <rect x="4" y="4" width="222" height="152" rx="14" fill="#fffdf7" stroke="#1a1a1a" stroke-width="4"></rect>
+              <g stroke="#1a1a1a" stroke-width="7" stroke-linecap="round">
+                <line x1="94" y1="72" x2="84" y2="34"></line>
+                <line x1="115" y1="68" x2="116" y2="26"></line>
+                <line x1="136" y1="72" x2="147" y2="36"></line>
+              </g>
+              <path
+                d="M88 74 h54 l-7 46 a20 20 0 0 1 -40 0 z"
+                fill="#f89880"
+                stroke="#1a1a1a"
+                stroke-width="4"></path>
+            </svg>
+          </a>
+        </section>
 
-    {/* gh#86 — /games/ lists games only (the tools have their own route), so it is labelled
-        "เกมทั้งหมด" here the same as the chrome's own link; the old "ดูทุกอย่าง…" wording called
-        the list everything and went with this ticket. */}
-    <p class="list-link"><a href="/games/">เกมทั้งหมด</a></p>
-    {/* gh#82 — the ad slot design/HubNeutral.dc.html and both category artboards mark, at the
-         position they mark it: last inside <main>, below the content. Every value below is the
-         canvas's own. A placeholder only — no ad network code ships in this ticket. */}
-    <div class="ad-slot" aria-hidden="true">ช่องโฆษณา</div>
+        <section class="games">
+          <div class="section-head">
+            <h2>เกมทั้งหมด</h2>
+            <a class="section-link" href="/games/">ดูเรียงเป็นรายการ →</a>
+          </div>
+          <div class="games-grid">
+            {gameCards.map(({ game, label, accent }, index) => (
+              <a
+                class={`game-card ${BOB_PHASES[index] ?? ''}`}
+                href={`/game/${game.id}/`}
+                style={`--card-accent: var(--accent-${accent});`}
+              >
+                <span class="game-pill">{label}</span>
+                <h3>{game.names.th}</h3>
+                <p>{game.tagline}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        {/* Ad slot 2 of 4 — the in-content unit the canvas marks between the games and the tools.
+            90px reserved. */}
+        <div class="ad-slot ad-inline" aria-hidden="true">ช่องโฆษณา</div>
+
+        <section class="tools">
+          <div class="section-head">
+            <h2>เครื่องมือสุ่ม กดทีเดียวจบ</h2>
+            <a class="section-link" href={toolsGroup.href}>ดูทั้งหมด →</a>
+          </div>
+          <div class="tools-grid">
+            {tools.map((tool) => (
+              <a class="tool-card" href={tool.href} style={`--card-accent: var(${toolsGroup.accentVar});`}>
+                <h3>{tool.name}</h3>
+                <p>{tool.desc}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section class="howto">
+          <h2>เล่นยังไง</h2>
+          <div class="howto-grid">
+            <div class="step">
+              <span class="step-num">1</span>
+              <h3>เลือกเกม</h3>
+              <p>เปิดจากหน้านี้ได้เลย ไม่ต้องโหลดอะไรก่อน</p>
+            </div>
+            <div class="step">
+              <span class="step-num">2</span>
+              <h3>ใส่ชื่อคนในวง</h3>
+              <p>พิมพ์ครั้งเดียว เกมอื่นจำชื่อวงเดิมให้</p>
+            </div>
+            <div class="step">
+              <span class="step-num">3</span>
+              <h3>ส่งมือถือวนกัน</h3>
+              <p>จอบอกเองว่าถึงตาใคร และต้องทำอะไรต่อ</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="faq">
+          <h2>คำถามที่เจอบ่อย</h2>
+          <div class="faq-list">
+            <div class="faq-item">
+              <h3>ต้องโหลดแอปไหม</h3>
+              <p>ไม่ต้อง ทุกเกมทำงานในเบราว์เซอร์ เปิดลิงก์แล้วกดเล่นได้เลย</p>
+            </div>
+            <div class="faq-item">
+              <h3>ต้องสมัครสมาชิกไหม</h3>
+              <p>ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง</p>
+            </div>
+            <div class="faq-item">
+              <h3>เล่นได้กี่คน</h3>
+              <p>ตั้งแต่ 2 ถึง 10 คน ใช้มือถือเครื่องเดียวส่งวนกันในวง</p>
+            </div>
+            <div class="faq-item">
+              <h3>เสียเงินไหม</h3>
+              <p>ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p>
+            </div>
+            <div class="faq-item">
+              <h3>เปิดบนคอมได้ไหม</h3>
+              <p>เปิดดูได้ แต่ตัวเกมออกแบบมาให้ส่งมือถือวนกัน เล่นบนมือถือจะเข้าทางที่สุด</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* Ad slot 3 of 4 — the sticky right rail the canvas marks, 300×600 reserved. Below the
+          1100px the canvas names the rail is not rendered at all (AC: absent, not just unstuck). */}
+      <aside class="ad-rail">
+        <div class="ad-slot ad-rail-slot" aria-hidden="true">ช่องโฆษณา</div>
+      </aside>
+    </div>
+
+    {/* Ad slot 4 of 4 — the billboard the canvas marks above the footer. 250px reserved. */}
+    <div class="ad-band ad-band-prefooter">
+      <div class="ad-slot ad-billboard" aria-hidden="true">ช่องโฆษณา</div>
+    </div>
   </main>
   </PageChrome>
 </Base>
 
 <style>
-  /* Scoped (Astro stamps data-astro-cid), so nothing here can bleed onto another page. Tokens come
-     from tokens.css via Base; --page-accent is set per group card by the inline custom property above
-     — resolve the accent NAME (meta.accent / toolsGroup.accentVar) through the token, never a hex. */
+  /* gh#87 — every value below is design/HomeArcade.dc.html's own (ADR-0033). Colours go through
+     tokens where the canvas value IS a token (--color-primary #d6336c is the canvas accent
+     default, --color-line-strong #1a1a1a, --color-ground-warm #fffdf7, the three accent tokens);
+     the rgba() fills and #fff8e8 are canvas literals, no token exists for them. --card-accent is
+     defined per card by the inline custom property above, resolved from the manifest accent NAME
+     (category accent / toolsGroup.accentVar), never a hex. The `main a:hover` colour is the
+     canvas's own global a:hover rule. */
   main {
-    max-width: 36rem;
-    margin-inline: auto;
-    padding-block-end: var(--space-xl);
     background: var(--color-ground-warm);
-    font-family: var(--font-sans);
     color: var(--color-text);
+    font-family: var(--font-sans);
   }
+
+  main a {
+    text-decoration: none;
+  }
+
+  main a:hover {
+    color: var(--color-primary);
+  }
+
+  /* ------------------------------ hero ---------------------------------- */
 
   .hero {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 28px 20px 26px 20px;
-    background: var(--color-accent);
-    border-block-end: 2.5px solid var(--color-line-strong);
+    position: relative;
+    overflow: hidden;
+    background: var(--color-primary);
+    color: var(--color-ground-warm);
+    border-block-end: 5px solid var(--color-line-strong);
   }
 
-  .brand {
-    margin: 0;
-    display: flex;
+  .hero-stripes {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(135deg, rgba(255, 253, 247, 0.09) 0 26px, transparent 26px 80px);
+    background-size: 160px 100%;
+    animation: arc-stripes 9s linear infinite;
+  }
+
+  .hero-inner {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 48px;
     align-items: center;
-    gap: 10px;
+    padding-block: 76px;
+    box-sizing: border-box;
+  }
+
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .hero-badge {
+    align-self: flex-start;
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 30px;
-    letter-spacing: -0.5px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--color-line-strong);
+    background: var(--accent-gold);
+    border: 3px solid var(--color-line-strong);
+    border-radius: 999px;
+    padding: 7px 18px;
+    animation: arc-pop 3.4s ease-in-out infinite;
   }
 
   h1 {
     margin: 0;
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 33px;
-    line-height: 1.28;
+    font-weight: 700;
+    font-size: 76px;
+    line-height: 1.1;
+    letter-spacing: -2px;
     text-wrap: pretty;
   }
 
-  .lead {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.65;
-    max-width: 33ch;
+  .hero-mark {
+    display: inline-block;
+    background: var(--accent-gold);
+    color: var(--color-line-strong);
+    padding: 0 12px;
+    border: 4px solid var(--color-line-strong);
+    transform: rotate(-2deg);
   }
 
-  .pills {
+  .hero-lead {
     margin: 0;
-    padding: 0;
-    list-style: none;
+    font-size: 19px;
+    line-height: 1.75;
+    color: rgba(255, 253, 247, 0.92);
+    max-width: 44ch;
+  }
+
+  .hero-cta {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    align-items: center;
+    gap: 24px;
+    padding-block-start: 10px;
+    flex-wrap: wrap; /* structural: the canvas pair is one row; a phone column is what the ticket's
+                        no-sideways-scroll criteria require — no new value introduced */
   }
 
-  .pills li {
-    font-size: 13px;
-    font-weight: 500;
+  .cta-primary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 66px;
+    padding: 0 34px;
     background: var(--color-ground-warm);
-    border: 2px solid var(--color-line-strong);
-    border-radius: 999px;
-    padding: 5px 12px;
+    color: var(--color-line-strong);
+    border: 4px solid var(--color-line-strong);
+    border-radius: 16px;
+    box-shadow: 6px 6px 0 0 var(--color-line-strong);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    box-sizing: border-box;
   }
 
-  .groups {
+  .cta-secondary {
+    font-size: 16px;
+    color: var(--color-ground-warm);
+    border-block-end: 2px solid rgba(255, 253, 247, 0.6);
+    padding-block-end: 3px;
+  }
+
+  .hero-art {
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero-art svg {
+    max-width: 100%;
+    height: auto; /* structural: the 400px canvas wheel must fit a phone column, size unchanged */
+  }
+
+  .hero-wheel {
+    transform-origin: 200px 200px;
+    animation: arc-wheel 22s linear infinite;
+  }
+
+  /* ------------------------------ ads ----------------------------------- */
+
+  /* gh#87 — reserved heights are the canvas's own slot sizes, fixed (`height`, not `min-height`)
+     so a real unit replacing a placeholder shifts nothing above it (ADR-0024). The dashed border
+     and the "ช่องโฆษณา" label are the canvas's own way of marking a placeholder; the existing
+     slots on the category pages render the same label (gh#82). */
+  .ad-band {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .ad-band-billboard {
+    padding-block: 44px;
+  }
+
+  .ad-band-prefooter {
+    padding-block: 20px 52px;
+  }
+
+  .ad-slot {
     display: flex;
     flex-direction: column;
-    gap: var(--space-md);
-    padding: var(--space-lg) var(--space-md) 0;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 3px dashed rgba(26, 26, 26, 0.35);
+    color: var(--color-muted);
+    font-size: 13px;
   }
 
-  .groups-title {
-    margin: 0;
+  .ad-billboard {
+    width: 100%;
+    max-width: 970px;
+    height: 250px;
+    border-radius: 16px;
+  }
+
+  .ad-inline {
+    width: 100%;
+    max-width: 728px;
+    height: 90px;
+    margin-inline: auto;
+    border-radius: 14px;
+    font-size: 12px;
+    gap: 10px;
+  }
+
+  .ad-rail {
+    position: sticky;
+    top: 24px;
+  }
+
+  .ad-rail-slot {
+    width: 100%;
+    max-width: 300px;
+    height: 600px;
+    border-radius: 16px;
+  }
+
+  /* ------------------------------ body grid ---------------------------- */
+
+  .body-grid {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 40px;
+    align-items: start;
+    padding-block-end: 44px;
+    box-sizing: border-box;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  /* ------------------------------ featured ----------------------------- */
+
+  .kicker {
+    margin: 0 0 16px 0;
     font-family: var(--font-display);
     font-weight: 500;
     font-size: 15px;
@@ -213,81 +482,334 @@ const toolNames = tools.map((tool) => tool.name).join(' · ');
     color: var(--color-muted);
   }
 
-  .group-card {
-    min-height: 60px;
+  .featured-card {
+    display: grid;
+    grid-template-columns: 1fr 230px;
+    gap: 30px;
+    align-items: center;
+    padding: 32px 34px;
+    background: var(--card-accent);
+    border: 4px solid var(--color-line-strong);
+    border-radius: 20px;
+    box-shadow: 8px 8px 0 0 var(--color-line-strong);
+    color: var(--color-line-strong);
+    /* structural: the canvas art is 230px wide inside a 34px padding — a grid track whose min is
+       that (230 + 68 + 8 = 306px) would blow a 320px phone column to 306 and expand the mobile
+       viewport sideways. min-width 0 lets the track take its 1fr share instead. */
+    min-width: 0;
+  }
+
+  .featured-card svg {
+    max-width: 100%;
+    height: auto; /* structural: the 230px canvas art shrinks inside a narrower phone column */
+  }
+
+  .featured-card:hover {
+    color: var(--color-line-strong); /* the card keeps its ink; the canvas hover is for its text links */
+  }
+
+  .featured-copy {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 20px;
-    background: var(--page-accent);
-    border: 2.5px solid var(--color-line-strong);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-pop);
-    color: var(--color-text);
-    text-decoration: none;
   }
 
-  .card-head {
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-  }
-
-  .card-title {
+  .featured-copy h2 {
     margin: 0;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 21px;
-    line-height: 1.3;
+    font-size: 38px;
+    line-height: 1.2;
   }
 
-  .card-body {
+  .featured-copy p {
     margin: 0;
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  .featured-cta {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 16px;
+  }
+
+  /* ------------------------------ games grid --------------------------- */
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 22px;
+    flex-wrap: wrap; /* structural: the long tools heading must not collide with its link on a phone */
+    margin-block-end: 22px;
+  }
+
+  .section-head h2,
+  .howto h2,
+  .faq h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 32px;
+  }
+
+  .section-link {
     font-size: 15px;
+    color: var(--color-primary);
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .game-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px;
+    background: var(--card-accent);
+    border: 3.5px solid var(--color-line-strong);
+    border-radius: 18px;
+    box-shadow: 5px 5px 0 0 var(--color-line-strong);
+    color: var(--color-line-strong);
+    min-height: 176px;
+    box-sizing: border-box;
+  }
+
+  .game-card:hover {
+    color: var(--color-line-strong);
+  }
+
+  .game-pill {
+    align-self: flex-start;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--color-ground-warm);
+    border: 2px solid var(--color-line-strong);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  .game-card h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 23px;
+  }
+
+  .game-card p {
+    margin: 0;
+    font-size: 14px;
     line-height: 1.65;
   }
 
-  .card-foot {
+  /* ------------------------------ tools grid --------------------------- */
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .tool-card {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
     gap: 8px;
-    border-block-start: 2px solid color-mix(in srgb, var(--color-line-strong) 20%, transparent);
-    padding-block-start: 12px;
-    font-size: 14px;
+    padding: 20px;
+    background: var(--card-accent);
+    border: 3.5px solid var(--color-line-strong);
+    border-radius: 18px;
+    box-shadow: 5px 5px 0 0 var(--color-line-strong);
+    color: var(--color-line-strong);
+    min-height: 190px;
+    box-sizing: border-box;
   }
 
-  .list-link {
+  .tool-card:hover {
+    color: var(--color-line-strong);
+  }
+
+  .tool-card h3 {
     margin: 0;
-    padding: var(--space-lg) var(--space-md) 0;
-  }
-
-  .list-link a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 56px;
-    border: 2.5px dashed var(--color-line-strong);
-    border-radius: 14px;
     font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 16px;
-    color: var(--color-text);
-    text-decoration: none;
+    font-weight: 600;
+    font-size: 20px;
   }
 
-  /* gh#82 — verbatim from the design canvas. The dashed border and the visible copy are the
-     canvas's own way of marking a placeholder; the game page's strip looks different on purpose.
-     min-height reserves the space so a real unit replacing this cannot shift what sits above it. */
-  .ad-slot {
+  .tool-card p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ------------------------------ how-to ------------------------------- */
+
+  .howto h2,
+  .faq h2 {
+    margin-block-end: 22px;
+  }
+
+  .howto-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px;
+    border: 3.5px solid var(--color-line-strong);
+    border-radius: 18px;
+  }
+
+  .step-num {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 90px;
-    margin: 26px 20px 0 20px;
-    border: 2.5px dashed rgba(26, 26, 26, 0.35);
-    border-radius: 14px;
-    font-size: 12px;
-    color: #6b7280;
+    width: 52px;
+    height: 52px;
+    background: var(--color-primary);
+    color: var(--color-ground-warm);
+    border: 3px solid var(--color-line-strong);
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 24px;
+  }
+
+  .step h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 20px;
+  }
+
+  .step p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ------------------------------ faq ---------------------------------- */
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .faq-item {
+    padding: 22px 24px;
+    background: #fff8e8; /* canvas literal — no token exists for the faq paper */
+    border: 3px solid var(--color-line-strong);
+    border-radius: 16px;
+  }
+
+  .faq-item h3 {
+    margin: 0 0 8px 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+  }
+
+  .faq-item p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* ------------------------------ motion & reflow ---------------------- */
+
+  /* Canvas keyframes, verbatim — decoration only, nothing is lost under reduced motion. */
+  @keyframes arc-stripes {
+    to {
+      background-position: 160px 0;
+    }
+  }
+
+  @keyframes arc-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-9px);
+    }
+  }
+
+  @keyframes arc-wheel {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes arc-pop {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.07);
+    }
+  }
+
+  .bob-1 {
+    animation: arc-bob 6s ease-in-out infinite;
+  }
+
+  .bob-2 {
+    animation: arc-bob 6s ease-in-out infinite 0.8s;
+  }
+
+  .bob-3 {
+    animation: arc-bob 6s ease-in-out infinite 1.6s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-stripes,
+    .hero-badge,
+    .hero-wheel,
+    .bob-1,
+    .bob-2,
+    .bob-3 {
+      animation: none;
+    }
+  }
+
+  /* Below the 1100px the artboard names the rail, the page is a single column — the ticket's own
+     criteria own this reflow (the canvas has no phone artboard yet; its 390 pair is a later ticket
+     per the home-brief note). 30px below is the page-title size of design/SiamsiIntent.dc.html, a
+     390px artboard — not an invented value. */
+  @media (max-width: 1099px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+    }
+
+    h1 {
+      font-size: 30px;
+    }
+
+    .body-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ad-rail {
+      display: none;
+    }
+
+    .featured-card {
+      grid-template-columns: 1fr;
+    }
+
+    .games-grid,
+    .tools-grid,
+    .howto-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

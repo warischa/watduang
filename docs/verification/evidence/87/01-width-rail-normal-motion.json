@@ -1,0 +1,83 @@
+{
+  "box": "gh#87 home direction C — 320/390 no sideways scroll, rail hidden below 1100 and rendered at 1440, reserved slot heights, and motion ACTUALLY running in the normal-motion launch (the positive control; Chrome on 9222).",
+  "capture": "real committed probe run (scripts/home-direction-c-probe.mjs) against npm run build served by npx serve dist/ -l 4321",
+  "capturedAtCommit": "6a9a956a3333f6c12353c280a2febf4327c8f19d",
+  "capturedAtBranch": "wt/87",
+  "workingTreeNote": "M docs/adr/0034-hub-copy-lives-in-the-manifest-not-the-page.md\n M src/games/categories.ts\n M src/pages/index.astro\n M src/tools/manifest.ts\n?? docs/verification/evidence/87/\n?? node_modules\n?? scripts/home-direction-c-probe.mjs\n?? src/pages/index.test.mjs",
+  "verdict": {
+    "noSidewaysScroll320": true,
+    "noSidewaysScroll390": true,
+    "railAbsentAt1024": true,
+    "noSidewaysScroll1024": true,
+    "railRenderedAt1440": true,
+    "noSidewaysScroll1440": true,
+    "overflowDetectorCalibration": "red-then-clean on all four widths",
+    "motion": {
+      "state": "normal",
+      "motionActuallyPresent": true
+    },
+    "reservedSlotHeights": {
+      "at390": [
+        256,
+        96,
+        0,
+        256
+      ],
+      "at1440": [
+        256,
+        96,
+        606,
+        256
+      ]
+    }
+  },
+  "widthVerdicts": [
+    {
+      "width": 320,
+      "innerWidthReported": 320,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "railAbsentBelow1100": true
+    },
+    {
+      "width": 390,
+      "innerWidthReported": 390,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "railAbsentBelow1100": true
+    },
+    {
+      "width": 1024,
+      "innerWidthReported": 1024,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "railAbsentBelow1100": true
+    },
+    {
+      "width": 1440,
+      "innerWidthReported": 1440,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "railAbsentBelow1100": null
+    }
+  ],
+  "calibration": [
+    {
+      "width": 320,
+      "sawInjectedOverflow": true
+    },
+    {
+      "width": 390,
+      "sawInjectedOverflow": true
+    },
+    {
+      "width": 1024,
+      "sawInjectedOverflow": true
+    },
+    {
+      "width": 1440,
+      "sawInjectedOverflow": true
+    }
+  ],
+  "consoleErrors": []
+}
