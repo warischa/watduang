@@ -10,6 +10,10 @@ import { readFileSync } from 'node:fs';
 
 const read = (file) => readFileSync(new URL(file, import.meta.url), 'utf8');
 
+// Node 22 strips types on import, so the pure list helpers are exercised directly (same trick as
+// src/tools/name-list.test.mjs) instead of being re-implemented in the test.
+const nameList = await import('../../tools/name-list.ts');
+
 // Byte-exact flavour strings — the panel heading and CTA label from design/ToolNameEntry.dc.html's
 // per-tool artboards, the storage keys after number.astro's "watduang:tool:<tool>-<suffix>" habit.
 const flavours = {
@@ -47,14 +51,63 @@ test('positive control: the non-name tool mounts neither panel — the set under
   assert.doesNotMatch(numberPage, /ToolNameEntry/, 'number.astro has no names and must stay panel-less');
 });
 
-// Astro scopes component styles with a data-astro-cid attribute stamped on TEMPLATE elements only.
-// The chips are created at runtime, so the island must copy the attribute onto each one — without it
-// the scoped .name-chip rules never match and chips render as bare text (measured on the built page:
-// computed background transparent, no border). The build alone cannot catch it: the CSS ships either
-// way and tsc/build/tests all stay green on a panel whose chips are invisible.
-test('gh#91 the island stamps the scope attribute onto runtime-created chips and their remove marks', () => {
-  const component = readFileSync(new URL('../../components/ToolNameEntry.astro', import.meta.url), 'utf8');
-  assert.match(component, /scopeAttr = Array\.from\(root\.attributes\)/, 'the island no longer reads the scope attribute off the root');
-  assert.match(component, /chip\.setAttribute\(scopeAttr\.name, scopeAttr\.value\)/, 'chips are created without the scope attribute — the scoped chip styles never match');
-  assert.match(component, /remove\.setAttribute\(scopeAttr\.name, scopeAttr\.value\)/, 'the remove mark loses its scoped styling');
+// The panel is one textarea, one name per line (owner-decided, replacing the add-field + chip row).
+// The chip-scope-attribute pins that used to live here are gone with the chips they described; what
+// replaces them is the contract the three tool pages actually depend on, read off the source because
+// the island lives inside .astro and cannot be imported.
+test('gh#91 the panel is a multi-line name box: one textarea, 20 visible rows, no add button, no chips', () => {
+  const component = read('../../components/ToolNameEntry.astro');
+  assert.match(component, /<textarea id="name-input"[^>]*\brows="20"/, 'the name box is no longer a 20-row textarea — 20 rows is what makes it scroll natively at the 21st name');
+  assert.doesNotMatch(component, /name-add-btn|name-chips|name-chip\b/, 'chip/add-button machinery is back — the reader now edits the list in place');
+});
+
+// rows= bounds what is VISIBLE, never what fits (ADR-0039: tools carry no ceiling). A slice, a
+// length check or a cap constant in the panel would be the regression, and none of them is a type
+// error or a build break, so this is the only thing that would see it.
+test('gh#91 the name count stays unbounded — the panel never caps, slices or counts the list', () => {
+  const component = read('../../components/ToolNameEntry.astro');
+  assert.doesNotMatch(component, /\.slice\(|MAX_|length\s*[<>]=?\s*\d/, 'the panel gained a ceiling');
+  const { parseNameLines } = nameList;
+  const many = Array.from({ length: 250 }, (_, i) => `ผู้เล่น${i}`);
+  assert.equal(parseNameLines(many.join('\n')).length, 250, '250 lines must all survive parsing');
+});
+
+// wheel.astro, draw.astro and team.astro each listen for this one event and read detail.players.
+// Changing the panel's input surface must not change the payload — three pages break silently if it does.
+test('gh#91 the CTA still dispatches watduang:start carrying detail.players, and no other shape', () => {
+  const component = read('../../components/ToolNameEntry.astro');
+  assert.match(
+    component,
+    /new CustomEvent\('watduang:start',\s*\{\s*detail:\s*\{\s*players\s*\}/,
+    'the start payload is no longer { detail: { players } } — every tool page reads detail.players',
+  );
+  assert.match(component, /parseNameLines\(input\.value\)/, 'the payload no longer comes from the textarea lines');
+});
+
+// ADR-0039: a tool writes its own key and nothing near the stores the games share. The panel takes
+// the key as a prop and holds no storage literal, which is what makes that true by construction.
+test('gh#91 storage stays per-tool: the panel holds no storage key literal and reads the prop', () => {
+  const component = read('../../components/ToolNameEntry.astro');
+  // 'watduang:start' is the event channel, not a store, so the ban is on the tool key namespace and
+  // on touching localStorage at all — every storage write goes through name-list.ts with the prop key.
+  assert.doesNotMatch(component, /'watduang:tool:/, 'the panel now hard-codes a storage key — the per-tool guarantee stops being structural');
+  assert.doesNotMatch(component, /localStorage\s*[.[]/, 'the panel reaches storage directly instead of through the key it was handed');
+  assert.match(component, /root\.dataset\.storageKey/, 'the panel no longer reads the key handed to it by the page');
+  assert.match(component, /saveToolNames\(storageKey,/, 'the panel writes somewhere other than the key it was handed');
+});
+
+// The line splitting is the one piece of real logic the multi-line panel added, and it is pure.
+test('gh#91 parseNameLines: names are the non-empty trimmed lines, duplicates kept, no cap', () => {
+  const { parseNameLines } = nameList;
+  assert.deepEqual(parseNameLines(''), [], 'empty text is an empty list');
+  assert.deepEqual(parseNameLines('\n\n   \n\t\n'), [], 'blank and whitespace-only lines are not names');
+  assert.deepEqual(parseNameLines('บีม'), ['บีม'], 'a single name with no newline');
+  assert.deepEqual(parseNameLines('  บีม  \n\tมายด์\n'), ['บีม', 'มายด์'], 'leading/trailing whitespace is trimmed, trailing newline drops');
+  assert.deepEqual(parseNameLines('บีม\n\nมายด์\n   \nปอนด์'), ['บีม', 'มายด์', 'ปอนด์'], 'blank lines between names are dropped, order kept');
+  assert.deepEqual(parseNameLines('บีม\r\nมายด์'), ['บีม', 'มายด์'], 'a CRLF paste leaves no stray carriage return');
+  // Duplicates are KEPT: the textarea is what the reader sees, two people in a group really can both
+  // be "แนน", and the uniqueness rule only ever existed so a chip could be removed by value.
+  assert.deepEqual(parseNameLines('แนน\nแนน\nโอ๊ต'), ['แนน', 'แนน', 'โอ๊ต'], 'a repeated name is two players, not one');
+  const names = Array.from({ length: 25 }, (_, i) => `ชื่อ${i + 1}`);
+  assert.deepEqual(parseNameLines(names.join('\n')), names, '25 names round-trip in order');
 });

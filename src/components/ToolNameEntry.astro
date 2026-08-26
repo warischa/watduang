@@ -19,6 +19,10 @@ const { heading, storageKey, ctaLabel } = Astro.props as Props;
     no count input, no numbered mode, no clear-group — and no ceiling on the list. Every colour, radius
     and type size is copied from design/ToolNameEntry.dc.html and its per-tool 390px artboards.
 
+    The list is one textarea, one name per line — owner-decided, replacing the type-and-add field plus
+    the removable chip row. The reader edits the whole list in place, so there is nothing to add, nothing
+    to remove and no empty-state footnote: an empty box is its own empty state.
+
     The CTA dispatches the same document event the shell panel dispatched, carrying the names, so each
     tool page keeps its listener and its behaviour exactly as it is — only where the names come from
     changes (the ticket's own boundary). The frontmatter args are strings on purpose, not objects: the
@@ -28,20 +32,27 @@ const { heading, storageKey, ctaLabel } = Astro.props as Props;
     <h2>{heading}</h2>
     <span class="name-hint">ใส่ได้กี่คนก็ได้</span>
   </div>
-  <div class="name-add">
-    <input id="name-input" type="text" placeholder="พิมพ์ชื่อแล้วกดเพิ่ม" />
-    <button id="name-add-btn" type="button">เพิ่มชื่อ</button>
-  </div>
-  <div id="name-chips" class="name-chips"></div>
-  <p id="name-empty" hidden>ยังไม่มีชื่อในแผง — พิมพ์แล้วกดเพิ่มได้เรื่อยๆ ไม่มีเพดาน</p>
+  {/* One name per line. rows="20" is the whole scroller: a textarea taller than its rows scrolls
+      natively, so 20 lines are visible and the 21st does not need a max-height hack or any JS. rows
+      bounds what is VISIBLE and never what fits — the list stays unbounded (ADR-0039).
+
+      Measured in a real browser at 320x568 and 390x568: 20 rows renders clientHeight 500px, 88% of
+      a 568px-tall viewport — the CTA button gets pushed off screen on a small phone. The media query
+      below (owner-decided: 9 rows on short viewports) overrides this with an explicit CSS `height`,
+      which wins over the `rows` attribute because `rows` only feeds the UA stylesheet's own sizing
+      rule, and an author rule always outranks the UA default in the cascade — proved in a real
+      browser, not assumed (see the session's measurement table). `overflow-y: auto` (inherited from
+      the textarea default) still applies, so line 10 scrolls instead of growing the box. */}
+  <textarea id="name-input" rows="20" placeholder="พิมพ์ชื่อ บรรทัดละ 1 ชื่อ"></textarea>
   <button id="name-start" type="button">{ctaLabel}</button>
 </div>
 
 <style>
-  /* Values byte-exact from the canvas (ADR-0033): container, input row, chips, CTA — see
-     design/ToolNameEntry.dc.html and the Tool*390.dc.html artboards. #fff8e8 has no token, so it
-     stays a literal; the rest of the palette matches tokens.css by construction, tokens are used
-     where one exists. */
+  /* Values byte-exact from the canvas (ADR-0033): container, name box, CTA — see
+     design/ToolNameEntry.dc.html and the Tool*390.dc.html artboards. The one-line input became a
+     20-row textarea (owner-decided deviation, the canvas still draws chips), and it reuses that
+     input's own canvas values rather than inventing new ones. The short-viewport 9-row override
+     below is also owner-decided and is now recorded in the canvas, per ADR-0033. */
   #tool-name-entry {
     background: #fffdf7;
     border: 2.5px solid #1a1a1a;
@@ -71,62 +82,45 @@ const { heading, storageKey, ctaLabel } = Astro.props as Props;
     color: #6b7280;
   }
 
-  .name-add {
-    display: flex;
-    gap: 8px;
-  }
-
-  .name-add input {
-    flex: 1;
-    min-height: 52px;
+  /* Same border, radius, padding and type size the single-line input carried, so no new design
+     value enters the file (ADR-0033) — only the box grew. resize keeps the reader's control over
+     height without letting a drag break the panel's own width. */
+  #name-input {
     box-sizing: border-box;
-    padding: 0 14px;
+    padding: 10px 14px;
+    font: inherit;
     font-size: 15px;
+    line-height: 1.6;
     background: #fffdf7;
     border: 2.5px solid #1a1a1a;
     border-radius: 14px;
+    resize: vertical;
   }
 
-  .name-add button {
-    min-height: 52px;
-    padding: 0 18px;
-    background: #7fd8e8;
-    color: #1a1a1a;
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 16px;
-    border: 2.5px solid #1a1a1a;
-    border-radius: 14px;
-    cursor: pointer;
-  }
+  /* Owner-decided deviation, this session: 20 rows is 88% of a small phone's viewport height
+     (measured 500px clientHeight at 320x568 and 390x568 — see the session's measurement table).
+     9 rows keeps a few more names visible than the 8-row floor while dropping well under half the
+     viewport (241px border-box height / 568px ~ 42%). 700px is a plain height breakpoint: every
+     measured phone height (568px) is under it, the measured desktop/tablet case (900px) is over it.
 
-  /* Chips wrap instead of overflowing sideways — the row carries an unbounded list on a 320px screen. */
-  .name-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .name-chip {
-    font-size: 13px;
-    font-weight: 500;
-    background: #fff8e8;
-    border: 2px solid #1a1a1a;
-    border-radius: 999px;
-    padding: 4px 12px;
-  }
-
-  .name-remove {
-    color: #6b7280;
-    font-size: 12px;
-    cursor: pointer;
-  }
-
-  .name-empty {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #6b7280;
+     Pre-merge review, a11y fix: this was a bare `height: 241px`, which pins the box while the line
+     box it holds can still grow. `em` resolves against this element's own COMPUTED font-size, so
+     the height tracks the line box instead of fighting it.
+     Be precise about WHICH setting this helps, because the obvious reading is wrong: the font-size
+     below is an explicit 15px, and a browser's DEFAULT-font-size preference does not touch an
+     explicit px value, so that case never resized the text here in the first place. Full page zoom
+     scales px and em alike, so it was never the problem either. The case this fixes is a browser's
+     MINIMUM font size, which does force an explicit 15px upward — there the old fixed 241px showed
+     roughly 4.5 rows instead of 9, worst for exactly the readers who set it. Same for any later
+     change that makes this font-size relative.
+     Exact box-sizing: border-box arithmetic, not an approximation: 9 lines * line-height 1.6 =
+     14.4em of content, plus the padding (10px + 10px) and border (2.5px + 2.5px) this rule does not
+     touch = 25px. At the 15px base, calc(14.4em + 25px) = 14.4*15 + 25 = 241px — byte-identical to
+     the value it replaces, so nothing moves at the default setting. */
+  @media (max-height: 700px) {
+    #name-input {
+      height: calc(14.4em + 25px);
+    }
   }
 
   #name-start {
@@ -144,64 +138,31 @@ const { heading, storageKey, ctaLabel } = Astro.props as Props;
 </style>
 
 <script>
-  import { loadToolNames, saveToolNames, removeToolName } from '../tools/name-list';
+  import { loadToolNames, saveToolNames, parseNameLines } from '../tools/name-list';
 
   const root = document.getElementById('tool-name-entry') as HTMLDivElement;
   const storageKey = root.dataset.storageKey!;
-  // Astro's scoped styles key on the data-astro-cid attribute it stamps on template elements only.
-  // Chips are created at runtime, so each one gets the attribute copied off the root — without it the
-  // scoped .name-chip / .name-remove rules never match and the chips render as bare text.
-  const scopeAttr = Array.from(root.attributes).find((a) => a.name.startsWith('data-astro-cid'));
-  const input = document.getElementById('name-input') as HTMLInputElement;
-  const addBtn = document.getElementById('name-add-btn') as HTMLButtonElement;
-  const chipsEl = document.getElementById('name-chips') as HTMLDivElement;
-  const emptyEl = document.getElementById('name-empty') as HTMLParagraphElement;
+  const input = document.getElementById('name-input') as HTMLTextAreaElement;
   const startBtn = document.getElementById('name-start') as HTMLButtonElement;
 
-  // Loaded once from this tool's own key — a refresh brings the chips back (the acceptance box). The
-  // key itself arrives as a prop, so this file carries no storage literal at all and can never write a
-  // store the games share (ADR-0039 closes that door by construction, not by a check).
-  let names = loadToolNames(storageKey);
+  // Loaded once from this tool's own key — a refresh brings the typed lines back (the acceptance
+  // box). The key itself arrives as a prop, so this file carries no storage literal at all and can
+  // never write a store the games share (ADR-0039 closes that door by construction, not by a check).
+  input.value = loadToolNames(storageKey).join('\n');
 
-  function render(): void {
-    chipsEl.innerHTML = '';
-    for (const name of names) {
-      const chip = document.createElement('span');
-      chip.className = 'name-chip';
-      if (scopeAttr) chip.setAttribute(scopeAttr.name, scopeAttr.value);
-      chip.append(`${name} `);
-      const remove = document.createElement('span');
-      remove.className = 'name-remove';
-      if (scopeAttr) remove.setAttribute(scopeAttr.name, scopeAttr.value);
-      remove.textContent = '✕';
-      remove.addEventListener('click', () => {
-        names = removeToolName(names, name);
-        saveToolNames(storageKey, names);
-        render();
-      });
-      chip.appendChild(remove);
-      chipsEl.appendChild(chip);
-    }
-    // The empty hint shows only while there is nothing to show; a filled panel carries no footnote.
-    emptyEl.hidden = names.length > 0;
-  }
-
-  addBtn.addEventListener('click', () => {
-    const trimmed = input.value.trim();
-    input.value = '';
-    // Blank and duplicate both clear the field without adding — the input empties after every press,
-    // same habit as the shell's add field. The list itself stays unbounded; that is the point of the panel.
-    if (!trimmed || names.includes(trimmed)) return;
-    names = [...names, trimmed];
-    saveToolNames(storageKey, names);
-    render();
+  // ponytail: saves the parsed lines on every keystroke, no debounce — the payload is a handful of
+  // short strings and localStorage is synchronous but cheap at this size. Debounce it if a profile
+  // ever says otherwise. Blank lines the reader left mid-list are not preserved; the names are.
+  input.addEventListener('input', () => {
+    saveToolNames(storageKey, parseNameLines(input.value));
   });
 
   startBtn.addEventListener('click', () => {
-    // The same event the shell panel dispatched, same channel — each tool page keeps its own listener
-    // untouched. No `start` field: that word describes a game round, and tools have none (ADR-0040).
-    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players: [...names] }, bubbles: true }));
+    // The same event the shell panel dispatched, same channel, same payload shape — each tool page
+    // keeps its own listener untouched. No `start` field: that word describes a game round, and
+    // tools have none (ADR-0040).
+    const players = parseNameLines(input.value);
+    saveToolNames(storageKey, players);
+    document.dispatchEvent(new CustomEvent('watduang:start', { detail: { players }, bubbles: true }));
   });
-
-  render();
 </script>

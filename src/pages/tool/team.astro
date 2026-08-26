@@ -65,7 +65,7 @@ import GameNav from '../../components/GameNav.astro';
         </div>
 
         <p id="team-note" class="team-note" role="status" aria-live="polite">
-          ยังแบ่งไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงสนาม"
+          ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงสนาม"
         </p>
 
         <div id="team-result" class="team-cards" role="status" aria-live="polite"></div>
@@ -493,7 +493,7 @@ import GameNav from '../../components/GameNav.astro';
   // Reason splitting isn't possible right now (shown to the user), or null if ready to split
   function blockedReason(): string | null {
     if (players.length < 2) {
-      return 'ยังแบ่งไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงสนาม"';
+      return 'ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงสนาม"';
     }
     const count = currentCount();
     if (!Number.isInteger(count) || count < 1) {

@@ -72,7 +72,7 @@ import GameNav from '../../components/GameNav.astro';
           </div>
 
           <p id="draw-note" class="draw-note" role="status" aria-live="polite">
-            ยังจับไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงกล่อง"
+            ยังจับไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงกล่อง"
           </p>
         </div>
       </section>
@@ -545,6 +545,7 @@ import GameNav from '../../components/GameNav.astro';
 
 <script>
   import { drawNames } from '../../tools/draw';
+  import { remainingSlots, slotTokens, type NameSlot } from '../../tools/name-list';
 
   const countInput = document.getElementById('draw-count') as HTMLInputElement;
   const resultEl = document.getElementById('draw-result') as HTMLElement;
@@ -561,29 +562,43 @@ import GameNav from '../../components/GameNav.astro';
   const scopeAttr = Array.from(boxEl.attributes).find((a) => a.name.startsWith('data-astro-cid'));
 
   let players: string[] = [];
-  // Who's already been drawn — deliberately memory-only, refresh starts a new round (names persist
-  // because the tool's own list is localStorage) · must not go into shell/session.ts, whose one
-  // checkpoint slot is shared site-wide — the tool touching it would wipe an in-progress game.
-  const drawn = new Set<string>();
+  // Who's already been drawn, as ROSTER POSITIONS — never names. Duplicates are allowed in the list
+  // on purpose, so two players who both typed the same name are two slots and each has to be drawn;
+  // keying this on the name string took them both out of the box on one press. Deliberately
+  // memory-only, refresh starts a new round (names persist because the tool's own list is
+  // localStorage) · must not go into shell/session.ts, whose one checkpoint slot is shared
+  // site-wide — the tool touching it would wipe an in-progress game.
+  const drawn = new Set<number>();
 
   // The next reveal, drawn ahead of the press so its exact line-box can be measured before it lands
   // (ADR-0024: the reveal fills reserved space, it does not create it). The player cannot tell the
   // first draw was picked a moment early — what was never displayed has no history. Later draws stay
   // pick-at-press.
-  let pendingPick: string[] | null = null;
+  let pendingPick: NameSlot[] | null = null;
 
-  function remaining(): string[] {
-    return players.filter((name) => !drawn.has(name));
+  function remaining(): NameSlot[] {
+    return remainingSlots(players, drawn);
+  }
+
+  // One reveal line for every count — a single-slot join is that slot's own name.
+  function resultText(slots: NameSlot[]): string {
+    return `จับได้: ${slots.map((slot) => slot.name).join(', ')}`;
+  }
+
+  /** The slots one press hands out: the pickers take a string[] and hand members back, and distinct
+   *  tokens are what make that pick invertible when two slots carry the same name. */
+  function pickSlots(left: NameSlot[], count: number): NameSlot[] {
+    return drawNames(slotTokens(left), count).map((token) => left[Number(token)]!);
   }
 
   function render(): void {
     const left = remaining();
 
     remainingEl.innerHTML = '';
-    for (const name of left) {
+    for (const slot of left) {
       const li = document.createElement('li');
       if (scopeAttr) li.setAttribute(scopeAttr.name, scopeAttr.value);
-      li.textContent = name;
+      li.textContent = slot.name;
       remainingEl.appendChild(li);
     }
 
@@ -592,7 +607,7 @@ import GameNav from '../../components/GameNav.astro';
 
     if (players.length < 2) {
       drawBtn.disabled = true;
-      noteEl.textContent = 'ยังจับไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงกล่อง"';
+      noteEl.textContent = 'ยังจับไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงกล่อง"';
     } else if (left.length === 0) {
       drawBtn.disabled = true;
       noteEl.textContent = `จับครบทั้ง ${players.length} คนแล้ว — กด "เริ่มรอบใหม่" เพื่อคืนทุกชื่อเข้ากล่อง`;
@@ -620,11 +635,7 @@ import GameNav from '../../components/GameNav.astro';
   // box already occupies. The fill/measure/restore runs in one synchronous task — never painted.
   function reserveResultBox(): void {
     const saved = resultEl.textContent;
-    resultEl.textContent = pendingPick
-      ? pendingPick.length === 1
-        ? `จับได้: ${pendingPick[0]}`
-        : `จับได้: ${pendingPick.join(', ')}`
-      : 'จับได้: ';
+    resultEl.textContent = resultText(pendingPick ?? []);
     resultBoxEl.style.minHeight = `${resultBoxEl.offsetHeight}px`;
     resultEl.textContent = saved;
   }
@@ -643,10 +654,11 @@ import GameNav from '../../components/GameNav.astro';
   function refreshPending(): void {
     pendingPick = null;
     if (players.length < 2) return;
+    const left = remaining();
     const count = Math.floor(Number(countInput.value));
-    if (!(Number.isFinite(count) && count >= 1 && count <= remaining().length)) return;
+    if (!(Number.isFinite(count) && count >= 1 && count <= left.length)) return;
     try {
-      pendingPick = drawNames(remaining(), count);
+      pendingPick = pickSlots(left, count);
     } catch {
       pendingPick = null;
       return;
@@ -675,13 +687,13 @@ import GameNav from '../../components/GameNav.astro';
     const left = remaining();
     const count = Math.floor(Number(countInput.value));
 
-    let picked: string[];
+    let picked: NameSlot[];
     if (pendingPick) {
       picked = pendingPick;
       pendingPick = null;
     } else {
       try {
-        picked = drawNames(left, count);
+        picked = pickSlots(left, count);
       } catch (error) {
         // Last resort — the button is normally disabled first, but if this is reached the user must
         // see the reason as text
@@ -691,8 +703,8 @@ import GameNav from '../../components/GameNav.astro';
       }
     }
 
-    for (const name of picked) drawn.add(name);
-    resultEl.textContent = picked.length === 1 ? `จับได้: ${picked[0]}` : `จับได้: ${picked.join(', ')}`;
+    for (const slot of picked) drawn.add(slot.index);
+    resultEl.textContent = resultText(picked);
     pinResultBoxGrowOnly();
     render();
   }

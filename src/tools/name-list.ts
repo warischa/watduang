@@ -23,16 +23,36 @@ export function saveToolNames(key: string, names: string[]): void {
   }
 }
 
-/** Pure list handling, extracted so the seams are unit-tested without a DOM. Returns the new list and
- *  whether it actually grew, so the panel can keep its input fish-bowl behaviour (blank and duplicate
- *  both clear the field without adding). Trimming only; the unbounded list is the whole point (gh#91). */
-export function addToolName(names: string[], raw: string): { names: string[]; added: boolean } {
-  const trimmed = raw.trim();
-  if (!trimmed || names.includes(trimmed)) return { names, added: false };
-  return { names: [...names, trimmed], added: true };
+/** The panel is one textarea, one name per line, so the names ARE the non-empty trimmed lines.
+ *  Duplicates are KEPT on purpose: the box is what the reader sees, two people in one group really
+ *  can both be "แนน", and swallowing the second line would make the panel disagree with its own
+ *  contents. Uniqueness only ever existed to let a chip be removed by value, and the chips are gone.
+ *  Still no ceiling — no slice, no cap (gh#91). */
+export function parseNameLines(text: string): string[] {
+  return text.split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
 }
 
-/** Removes every occurrence — the list is expected to hold no duplicates, so one filter pass is honest. */
-export function removeToolName(names: string[], name: string): string[] {
-  return names.filter((n) => n !== name);
+/** One player's place in the list. `index` is the position in the roster the panel handed over, and
+ *  it is the ONLY identity a round may eliminate by: parseNameLines keeps duplicates on purpose, so
+ *  two players who both typed "แนน" are two slots that each own a turn. Keying elimination on the
+ *  name string took them both out on one pick. */
+export interface NameSlot {
+  index: number;
+  name: string;
+}
+
+/** The slots a round still has left. `eliminated` holds ROSTER POSITIONS, never names. */
+export function remainingSlots(names: string[], eliminated: Set<number>): NameSlot[] {
+  return names
+    .map((name, index) => ({ index, name }))
+    .filter((slot) => !eliminated.has(slot.index));
+}
+
+/** Pick tokens for one round. The pure pickers (wheel.ts pickName, draw.ts drawNames) take a
+ *  string[] and hand a member back, so a caller can only invert the pick when every entry is
+ *  distinct — names are not. A token is the OFFSET into `slots`, so `slots[Number(token)]` inverts
+ *  it, and that same offset is what the wheel's landing angle is computed from: the answer is still
+ *  picked first and the geometry derived from it, never read back off the wheel. */
+export function slotTokens(slots: NameSlot[]): string[] {
+  return slots.map((_, offset) => String(offset));
 }

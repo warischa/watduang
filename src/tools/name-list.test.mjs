@@ -22,7 +22,7 @@ const KEY = 'watduang:tool:wheel-names';
 // polices it): a canary standing in for every store a tool must not touch.
 const SHARED_CANARY = 'watduang:group';
 
-const { loadToolNames, saveToolNames, addToolName, removeToolName } = await import('./name-list.ts');
+const { loadToolNames, saveToolNames } = await import('./name-list.ts');
 
 test('empty, missing and unreadable storage all load as an empty list', () => {
   slots.clear();
@@ -49,25 +49,6 @@ test('a failing write never throws and never touches storage', () => {
   assert.equal(slots.has(KEY), false, 'nothing was written');
 });
 
-test('add trims, refuses blanks and duplicates, and has no ceiling — twenty past ten all stay', () => {
-  let list = [];
-  for (let i = 1; i <= 30; i += 1) {
-    const before = list.length;
-    ({ names: list } = addToolName(list, `คนที่ ${i}`));
-    assert.equal(list.length, before + 1, 'every unique name is accepted, at any count');
-  }
-  assert.equal(list.length, 30, 'no ten-name ceiling survives anywhere in the path');
-
-  const dup = addToolName(list, '  คนที่ 30  ');
-  assert.equal(dup.added, false, 'a duplicate is refused, not re-added');
-  assert.equal(dup.names.length, 30);
-
-  const blank = addToolName(list, '   ');
-  assert.equal(blank.added, false, 'whitespace-only input is refused');
-
-  assert.deepEqual(addToolName(list, 'แก้ม').names.at(-1), 'แก้ม', 'a trimmed new name appends last');
-});
-
 test('#91 key isolation — saving one tool list leaves every other stored key byte-for-byte alone', () => {
   slots.clear();
   const canaryValue = JSON.stringify(['บีม', 'มายด์']);
@@ -75,14 +56,9 @@ test('#91 key isolation — saving one tool list leaves every other stored key b
   slots.set('watduang:tool:draw-names', JSON.stringify(['ฟ้า']));
 
   saveToolNames(KEY, ['ปอนด์', 'แทน']);
-  addToolName(loadToolNames(KEY), 'แก้ม');
+  saveToolNames(KEY, loadToolNames(KEY));
 
   assert.equal(slots.get(SHARED_CANARY), canaryValue, 'the shared store is untouched by a tool write');
   assert.equal(slots.get('watduang:tool:draw-names'), JSON.stringify(['ฟ้า']), 'another tool\'s list is untouched');
   assert.deepEqual(JSON.parse(slots.get(KEY)), ['ปอนด์', 'แทน'], 'only the handed key moved');
-});
-
-test('remove drops every occurrence and keeps the rest in order', () => {
-  assert.deepEqual(removeToolName(['บีม', 'มายด์', 'บีม', 'ปอนด์'], 'บีม'), ['มายด์', 'ปอนด์']);
-  assert.deepEqual(removeToolName(['บีม', 'มายด์'], 'ไม่มี'), ['บีม', 'มายด์'], 'absent name is a no-op');
 });
