@@ -9,10 +9,16 @@ elsewhere in the repo would eventually fail that budget gate inside its own comm
 page — this file is now the index plus everything genuinely shared across all 4 (or 3 of 4) pages;
 per-tool rows moved out:
 
-- [`tool-copy-provenance/wheel.md`](tool-copy-provenance/wheel.md) — `src/pages/tool/wheel.astro`
-- [`tool-copy-provenance/draw.md`](tool-copy-provenance/draw.md) — `src/pages/tool/draw.astro`
-- [`tool-copy-provenance/team.md`](tool-copy-provenance/team.md) — `src/pages/tool/team.astro`
-- [`tool-copy-provenance/number.md`](tool-copy-provenance/number.md) — `src/pages/tool/number.astro`
+- [`tool-copy-provenance/wheel.md`](tool-copy-provenance/wheel.md) — `src/pages/tool/wheel.astro` + `src/tools/wheel.ts`
+- [`tool-copy-provenance/draw.md`](tool-copy-provenance/draw.md) — `src/pages/tool/draw.astro` + `src/tools/draw.ts`
+- [`tool-copy-provenance/team.md`](tool-copy-provenance/team.md) — `src/pages/tool/team.astro` + `src/tools/team.ts`
+- [`tool-copy-provenance/number.md`](tool-copy-provenance/number.md) — `src/pages/tool/number.astro` + `src/tools/number.ts`
+
+**gh#112, 2026-08-26:** scope widened to also cover user-facing Thai string literals (thrown
+`Error` messages surfaced to the player) in the four `src/tools/*.ts` logic modules — those had
+no artboard and no manifest field, so they were agent-authored Thai sitting outside every
+disclosure list. Comments in `src/tools/name-list.ts` and `src/tools/draw-round.ts` are Thai but
+not user-facing copy, so those two files stay out of scope.
 
 No existing file in `docs/agents/` split into a directory before this; this layout (flat index +
 same-named subdirectory) is the new convention for the next doc that outgrows its own budget.
@@ -36,8 +42,9 @@ Applies to every table in this file and in `tool-copy-provenance/*.md`.
 - **manifest** — the string is a field in `src/tools/manifest.ts` (`tools[].name`, `.desc`, or
   `toolsGroup`).
 - **agent-authored** — no artboard and no manifest field carries this string; an agent typed it
-  directly into `src/pages/tool/*.astro` or `src/components/ToolNameEntry.astro`. Legitimate until
-  overruled — flagged so the owner can overrule it.
+  directly into `src/pages/tool/*.astro`, `src/components/ToolNameEntry.astro`, or one of the
+  `src/tools/*.ts` logic modules (thrown `Error` messages the page surfaces to the player).
+  Legitimate until overruled — flagged so the owner can overrule it.
 
 ## Shared name-entry panel (`src/components/ToolNameEntry.astro`)
 
@@ -100,3 +107,16 @@ pattern, unchanged. Per-category coverage is complete against the current tree; 
 tell you who typed a string first beyond what a row already records. Same pre-merge review's
 second finding (this file's own byte budget) is why this file is now an index — see the split
 note at the top.
+
+## gh#112 follow-up, 2026-08-26 — the completeness claim above was false
+
+"Per-category coverage is complete against the current tree" was checked only against
+`src/pages/tool/*.astro` and `src/components/ToolNameEntry.astro`; this file's own title
+("every Thai string, and who put it there") makes no such carve-out, and 8 undisclosed
+agent-authored Thai error strings were sitting in `src/tools/wheel.ts`, `draw.ts`, `team.ts`, and
+`number.ts` the whole time — a real gap against ADR-0026's rule, not just an incomplete list.
+Fixed: scope widened above, and a "Logic module" table added to each of `wheel.md`, `draw.md`,
+`team.md`, `number.md` covering every thrown-`Error` Thai string in the matching `src/tools/*.ts`
+file. Coverage is now complete against `src/pages/tool/*.astro` + `src/components/ToolNameEntry.astro`
++ `src/tools/*.ts` string literals; Thai inside code *comments* (`name-list.ts`, `draw-round.ts`)
+is out of scope by definition — comments are not player-facing copy.

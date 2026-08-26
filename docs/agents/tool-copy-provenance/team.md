@@ -30,3 +30,13 @@ link, "วิธีใช้", GameNav heading).
 | Button "แบ่งทีม" | artboard (`ToolTeamDesktop.dc.html`) |
 | 'ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงสนาม"' (×2: `team.astro`) | **agent-authored** — brief-named, flagged for owner override |
 | Result templates "ทีม N — M คน (ได้คนเกิน)", "พร้อมแบ่ง N คน เป็น M ทีม", invalid-count, error fallback | **agent-authored** — no canvas source, though the "ทีม N — M คน" shape is documented (not authored) in `design/canvas.json`'s `copy-tools` note as a byte-exact module string |
+
+## Logic module (`src/tools/team.ts`)
+
+gh#112: thrown `Error` messages surfaced to the player when the roster or team count is invalid.
+
+| String | Source |
+|---|---|
+| `` `แบ่งทีมต้องมีชื่ออย่างน้อย ${MIN_NAMES} คน (ตอนนี้มี ${names.length} คน)` `` (`splitTeams()` in `team.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |
+| `'จำนวนทีมต้องมีอย่างน้อย 1 ทีม'` (`splitTeams()` in `team.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |
+| `` `ขอ ${teamCount} ทีมไม่ได้ เพราะมีคนแค่ ${names.length} คน (ทีมนึงต้องมีอย่างน้อย 1 คน)` `` (`splitTeams()` in `team.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |

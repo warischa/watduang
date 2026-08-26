@@ -26,3 +26,11 @@ link, "วิธีใช้", GameNav heading).
 | Checkbox label "เอาคนที่ออกแล้วออกจากวงล้อ" | artboard (both wheel artboards) |
 | 'ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงวงล้อ"' (×2: `wheel.astro`) | **agent-authored** — brief-named, flagged for owner override |
 | All other `noteEl`/`resultEl` runtime templates (spinning, single-name guard, all-eliminated, last-one, error fallback) | **agent-authored** — no canvas source |
+
+## Logic module (`src/tools/wheel.ts`)
+
+gh#112: thrown `Error` message surfaced to the player when the roster is too small to spin.
+
+| String | Source |
+|---|---|
+| `` `วงล้อสุ่มต้องมีชื่ออย่างน้อย ${MIN_NAMES} คน (ตอนนี้มี ${names.length} คน)` `` (`pickName()` in `wheel.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |

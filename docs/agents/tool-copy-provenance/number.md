@@ -22,3 +22,15 @@ name-entry panel (it takes a min/max range, not a roster), and it carries none o
 | H1 "สุ่มเลข", intro line, module heading "ช่วงตัวเลข" (`number.astro`), "ต่ำสุด" / "สูงสุด" labels, no-repeat checkbox label | **agent-authored** — no artboard exists to draw from |
 | Button "สุ่ม" / "เริ่มรอบใหม่" | **agent-authored** |
 | Runtime templates ("ได้: X", range-exhausted, remaining-count, error fallback) | **agent-authored** |
+
+## Logic module (`src/tools/number.ts`)
+
+gh#112: thrown/returned `Error` messages surfaced to the player when the min/max range is invalid
+or exhausted.
+
+| String | Source |
+|---|---|
+| `` `ช่วงตัวเลขผิด: ต่ำสุด (${min}) ต้องไม่มากกว่าสูงสุด (${max})` `` (`rangeError()` in `number.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |
+| `` `ช่วงตัวเลขต้องมีอย่างน้อย ${MIN_RANGE_SIZE} ค่า (ตอนนี้มี ${rangeSize} ค่า)` `` (`rangeError()` in `number.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |
+| `` `ช่วงตัวเลขกว้างได้ไม่เกิน ${MAX_RANGE_SIZE} ค่า (ตอนนี้กว้าง ${rangeSize} ค่า)` `` (`rangeError()` in `number.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |
+| `` `สุ่มครบทุกเลขในช่วง ${min}-${max} แล้ว — เริ่มรอบใหม่เพื่อสุ่มต่อ` `` (`pickNumber()` in `number.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |

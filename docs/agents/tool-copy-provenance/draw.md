@@ -31,3 +31,12 @@ link, "วิธีใช้", GameNav heading).
 | Buttons "จับฉลาก" / "เริ่มรอบใหม่" | artboard (`ToolDrawDesktop.dc.html`) |
 | 'ยังจับไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงกล่อง"' (×2: `draw.astro`) | **agent-authored** — brief-named, flagged for owner override |
 | All other runtime templates ("จับได้: X", box-count, invalid-count, error fallback) | **agent-authored** — no canvas source |
+
+## Logic module (`src/tools/draw.ts`)
+
+gh#112: thrown `Error` messages surfaced to the player when the draw count is invalid.
+
+| String | Source |
+|---|---|
+| `'ต้องจับฉลากอย่างน้อย 1 คน'` (`drawNames()` in `draw.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |
+| `` `เหลือชื่อในกล่องแค่ ${pool.length} คน จับ ${count} คนไม่ได้` `` (`drawNames()` in `draw.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |
