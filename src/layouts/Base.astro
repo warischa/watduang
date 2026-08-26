@@ -6,13 +6,17 @@ interface Props {
   description: string;
   ogImage?: string;
   noindex?: boolean;
+  // gh#86 — when a page renders the shared PageChrome component, the chrome supplies the site
+  // footer and this layout's plain one steps aside. DEFAULT FALSE: every page that does not opt
+  // in keeps the footer it has always had, which is what keeps the six game pages unchanged.
+  chrome?: boolean;
 }
 
 // The share card must always exist — twitter:card below hardcodes summary_large_image, so a page
 // that didn't pass ogImage used to declare a big card with no image, sharing to LINE/FB with a blank link.
 // The default lives here in exactly one place, so every new page gets a free card without remembering
 // to set one (generate with `node scripts/make-og.mjs site`).
-const { title, description, ogImage = '/og/site.png', noindex = false } = Astro.props as Props;
+const { title, description, ogImage = '/og/site.png', noindex = false, chrome = false } = Astro.props as Props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(ogImage, Astro.site);
@@ -42,15 +46,18 @@ const ogImageURL = new URL(ogImage, Astro.site);
   <body>
     <slot />
 
-    <footer>
-      {
-        Astro.url.pathname === '/' ? (
-          <span>วัดดวง</span>
-        ) : (
-          <a href="/">วัดดวง</a>
-        )
-      }
-    </footer>
+    {/* gh#86 — skipped on pages whose chrome (PageChrome) brings its own footer nav. */}
+    {!chrome && (
+      <footer>
+        {
+          Astro.url.pathname === '/' ? (
+            <span>วัดดวง</span>
+          ) : (
+            <a href="/">วัดดวง</a>
+          )
+        }
+      </footer>
+    )}
   </body>
 </html>
 

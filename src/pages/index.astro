@@ -2,6 +2,7 @@
 // gh#75: the home page is a neutral hub over three groups — the two game categories plus the tools
 // group — not a games list. The site only enters the H1/lead; nothing here names "games" as the whole site.
 import Base from '../layouts/Base.astro';
+import PageChrome from '../components/PageChrome.astro';
 import { categories } from '../games/categories';
 import { games as allGames } from '../games/manifest';
 import { tools, toolsGroup } from '../tools/manifest';
@@ -24,7 +25,11 @@ const toolNames = tools.map((tool) => tool.name).join(' · ');
 <Base
   title="วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว"
   description="ดูดวง สุ่มคนโดน วงล้อสุ่ม จับฉลาก แบ่งทีม ใช้ฟรีบนมือถือเครื่องเดียว 2-10 คน ส่งเครื่องวนกันในวง ไม่ต้องโหลดแอป ไม่ต้องสมัคร"
+  chrome
 >
+  {/* gh#86 — the shared page chrome (top bar + footer nav) wraps the page; the chrome prop tells
+      Base to step its own plain footer aside. Everything inside stays exactly as it was. */}
+  <PageChrome>
   <main>
     <header class="hero">
       <p class="brand">
@@ -113,12 +118,16 @@ const toolNames = tools.map((tool) => tool.name).join(' · ');
       </a>
     </section>
 
-    <p class="list-link"><a href="/games/">ดูทุกอย่างเรียงเป็นรายการ</a></p>
+    {/* gh#86 — /games/ lists games only (the tools have their own route), so it is labelled
+        "เกมทั้งหมด" here the same as the chrome's own link; the old "ดูทุกอย่าง…" wording called
+        the list everything and went with this ticket. */}
+    <p class="list-link"><a href="/games/">เกมทั้งหมด</a></p>
     {/* gh#82 — the ad slot design/HubNeutral.dc.html and both category artboards mark, at the
          position they mark it: last inside <main>, below the content. Every value below is the
          canvas's own. A placeholder only — no ad network code ships in this ticket. */}
     <div class="ad-slot" aria-hidden="true">ช่องโฆษณา</div>
   </main>
+  </PageChrome>
 </Base>
 
 <style>

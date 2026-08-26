@@ -1,0 +1,170 @@
+---
+interface SiteLink {
+  label: string;
+  href: string;
+  /** Token value for the top-bar pill background; absent on the one outlined pill. */
+  accent?: string;
+}
+
+// The four site links, declared exactly once — the top bar and the footer nav both map over this
+// array, so a label or href can never drift between the two consumers (gh#86 acceptance).
+// Labels are byte-for-byte the design canvas's own copy (design/HomeArcade.dc.html).
+const SITE_LINKS: SiteLink[] = [
+  { label: 'ดูดวง', href: '/c/fortune/', accent: 'var(--accent-gold)' },
+  { label: 'สุ่มคนโดน', href: '/c/party/', accent: 'var(--accent-punch)' },
+  { label: 'เครื่องมือสุ่ม', href: '/tools/', accent: 'var(--accent-sky)' },
+  { label: 'เกมทั้งหมด', href: '/games/' },
+];
+---
+
+<header class="chrome-bar chrome-topbar" data-page-chrome>
+  <div class="chrome-inner chrome-topbar-inner">
+    <a class="chrome-brand" href="/">
+      <svg
+        width="27"
+        height="27"
+        viewBox="0 0 24 24"
+        fill="none"
+        style="stroke: var(--color-primary)"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+      </svg>
+      วัดดวง
+    </a>
+    <nav class="chrome-pills">
+      {SITE_LINKS.map((link) => (
+        <a
+          href={link.href}
+          class:list={{ 'chrome-pill': true, 'chrome-pill-outline': !link.accent }}
+          style={link.accent ? `background: ${link.accent}` : undefined}
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<slot />
+
+<footer class="chrome-bar chrome-footer" data-page-chrome>
+  <div class="chrome-inner chrome-footer-inner">
+    <span class="chrome-footer-brand">วัดดวง</span>
+    <nav class="chrome-footer-links">
+      {SITE_LINKS.map((link) => (
+        <a href={link.href}>{link.label}</a>
+      ))}
+    </nav>
+  </div>
+</footer>
+
+<style>
+  /* gh#86 — the top bar and footer of design/HomeArcade.dc.html (direction C, the owner's choice
+     of 2026-08-25), values byte for byte. Colours go through tokens where the canvas value IS a
+     token (--color-line-strong #1a1a1a, --color-ground-warm #fffdf7, the three accent tokens,
+     --color-primary #d6336c which is the canvas accent default); the two rgba() fills are canvas
+     literals, no token exists for either alpha pair. The canvas page is desktop-only at a fixed
+     1440px — no mobile artboard exists for this chrome — so nothing here is invented: the inner
+     row is the canvas's 1280px box capped by max-width, min-height stands in for the canvas's
+     fixed heights so wrapped pills can grow the bar, the wrap gaps reuse the canvas's own 10px and
+     28px gaps, and the padding is the canvas's own pill padding pair 9px × 18px. data-page-chrome
+     on both landmark elements is the marker scripts/page-chrome-check.mjs reads; it is never
+     presentation. */
+  .chrome-bar {
+    background: var(--color-line-strong);
+    color: var(--color-ground-warm);
+    font-family: var(--font-sans);
+    /* the inline half of the canvas's 9px × 18px pill padding pair, on the full-bleed bar: with
+       UA content-box sizing, inline padding on the 100%-wide inner box overflows it past the
+       viewport (measured +36px at 390px) */
+    padding-inline: 18px;
+  }
+
+  .chrome-bar a {
+    text-decoration: none;
+  }
+
+  /* the canvas's own global a:hover colour */
+  .chrome-bar a:hover {
+    color: var(--color-primary);
+  }
+
+  .chrome-inner {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    /* the block half of the same pair — vertical breathing so wrapped pill rows never crowd the
+       bar edges; the canvas's fixed 80px/124px heights stay the min-height floors below */
+    padding-block: 9px;
+  }
+
+  .chrome-topbar-inner {
+    min-height: 80px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .chrome-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--color-ground-warm);
+  }
+
+  .chrome-pills {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .chrome-pill {
+    border-radius: 999px;
+    padding: 9px 18px;
+    color: var(--color-line-strong);
+  }
+
+  /* the games pill: canvas border and its 7px padding, which with the 2px border keeps the pill
+     box the same size as its 9px-padded siblings */
+  .chrome-pill-outline {
+    color: var(--color-ground-warm);
+    border: 2px solid rgba(255, 253, 247, 0.4);
+    padding: 7px 18px;
+    background: none;
+  }
+
+  .chrome-footer-inner {
+    min-height: 124px;
+    font-size: 14px;
+    gap: 28px;
+  }
+
+  .chrome-footer-brand {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--color-ground-warm);
+  }
+
+  .chrome-footer-links {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .chrome-footer-links a {
+    color: rgba(255, 253, 247, 0.8);
+  }
+</style>

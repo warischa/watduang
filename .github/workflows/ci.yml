@@ -159,6 +159,13 @@ jobs:
       - name: Build
         run: npm run build
 
+      # gh#86 — the shared page chrome (top bar + footer nav) renders on the home page ONLY; a
+      # game page carrying it would put tap targets above #stage (ADR-0014, ADR-0015). Reads the
+      # built artifact, so it sits after Build; --selftest is hermetic (temp fixtures only, never
+      # dist/) so it can never regenerate the artifact every step below reads.
+      - name: Page chrome renders on home only (dist artifact)
+        run: node scripts/page-chrome-check.mjs --selftest && node scripts/page-chrome-check.mjs
+
       # Dangling CSS custom-property gate, gh#85: every built page must reference only custom
       # properties something on THAT SAME page defines. Per-page, not a dist/-wide union — CSS is
       # inlined into each HTML (dist/_astro/ ships only .js), so a page referencing a property only
