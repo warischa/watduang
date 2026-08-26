@@ -159,11 +159,15 @@ jobs:
       - name: Build
         run: npm run build
 
-      # gh#86 — the shared page chrome (top bar + footer nav) renders on the home page ONLY; a
-      # game page carrying it would put tap targets above #stage (ADR-0014, ADR-0015). Reads the
-      # built artifact, so it sits after Build; --selftest is hermetic (temp fixtures only, never
-      # dist/) so it can never regenerate the artifact every step below reads.
-      - name: Page chrome renders on home only (dist artifact)
+      # gh#86 — the shared page chrome (top bar + footer nav) is opt-in; a game page carrying it
+      # would put tap targets above #stage (ADR-0014, ADR-0015). gh#105: the scan once read
+      # dist/game/* one level deep and its step name claimed more than the scan (ADR-0019) — it now
+      # walks EVERY built .html page, recursively: game pages must never carry the marker, every
+      # other page must not unless it is in the check's opt-in set (today: the home page, the #86
+      # owner decision), and each opt-in page must keep rendering it. Reads the built artifact, so
+      # it sits after Build; --selftest is hermetic (temp fixtures only, never dist/) so it can
+      # never regenerate the artifact every step below reads.
+      - name: Page chrome confined to the opt-in set (dist artifact)
         run: node scripts/page-chrome-check.mjs --selftest && node scripts/page-chrome-check.mjs
 
       # Dangling CSS custom-property gate, gh#85: every built page must reference only custom
