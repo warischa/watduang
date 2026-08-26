@@ -1,6 +1,6 @@
 # ADR-0034 — copy a second surface needs lives in the manifest, not in the page
 
-Date: 2026-08-25 · Status: accepted · Relates: ADR-0032, ADR-0033, gh#74, gh#75
+Date: 2026-08-25 · Status: accepted · reversed in part by gh#87 (2026-08-26) · Relates: ADR-0032, ADR-0033, gh#74, gh#75, gh#87
 
 ## Context
 
@@ -41,6 +41,27 @@ Two boundaries this decision draws:
 The precedent is already in the repo, in `src/tools/manifest.ts`'s own header: it exists because
 "the home page became a second consumer; two copies of the same pairs drifting apart is the bug this
 removes."
+
+## Reversed by gh#87 — the second surface is gone, and the fields went with it
+
+On 2026-08-26 the owner chose design direction C (สนามวัดดวง, `design/HomeArcade.dc.html`) for the
+home page, and gh#87 replaced the three-group hub with it in one change. That deliberately reverses
+the schema half of this ADR, and it is recorded here rather than left for a reader to rediscover:
+
+- **The four fields were removed in the same commit as the cards that read them** — `hubHeading`
+  and `hubBody` left `CategoryMeta`, and `toolsGroup.heading` / `toolsGroup.body` left the tools
+  manifest. The removal is not staged because a manifest field with zero readers is exactly the
+  dead schema this ADR existed to prevent in the other direction.
+- **`toolsGroup` remains**, now holding `href` and `accentVar` only. The direction C page's tools
+  section reads both — the link to `/tools/` and the card accent — so the object is not dead either.
+- **What survives of this ADR is its premise, not its fields.** The direction C page still reads
+  every manifest-held string at build time — game `names.th` and `tagline`, tool `name` and `desc`,
+  category `label` and `accent` — and pins the read with a source-text test. The category page's
+  `label` / `whenToUse` fields were not touched; they belong to the surface that still exists.
+
+The position is unchanged for any future second surface: if a surface needs copy the first surface
+does not render, the answer is still a new manifest field, not page-local copy that can drift —
+gh#87 removed fields whose *consumer* had been deleted, not the rule about second surfaces.
 
 ## Alternatives rejected
 
