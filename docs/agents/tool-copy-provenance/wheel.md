@@ -12,17 +12,17 @@ link, "วิธีใช้", GameNav heading).
 
 | String | Source |
 |---|---|
-| `title`: "วงล้อสุ่มชื่อ — วัดดวง" (`wheel.astro:8`) | **agent-authored** — no artboard carries a `<title>`; `{manifest name} — วัดดวง`, not a byte-copy of the manifest `name` field |
-| `description`: one sentence (`wheel.astro:9`) | **agent-authored** — reads similarly to the page's own tagline/intro but is a separately typed string, not byte-identical to `manifest.ts`'s `desc` field |
+| `title`: "วงล้อสุ่มชื่อ — วัดดวง" (`wheel.astro`) | **agent-authored** — no artboard carries a `<title>`; `{manifest name} — วัดดวง`, not a byte-copy of the manifest `name` field |
+| `description`: one sentence (`wheel.astro`) | **agent-authored** — reads similarly to the page's own tagline/intro but is a separately typed string, not byte-identical to `manifest.ts`'s `desc` field |
 
 ## Page copy
 
 | String | Source |
 |---|---|
 | H1 "วงล้อสุ่มชื่อ", intro "ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน" | artboard (`ToolWheelDesktop.dc.html`) — **note:** that artboard still carries the older, longer wording with the clause gh#94 deleted from the manifest desc ("หมุนเสร็จกดต่อเข้าเกมได้เลย รายชื่อไหลต่อไปเอง"); the page dropped the clause, the artboard did not — pre-existing drift, out of this session's scope to fix |
-| Module heading "วงล้อ" (`wheel.astro:19`, distinct from the H1 above) | artboard (`ToolWheelDesktop.dc.html`, `ToolWheel390.dc.html`) — missed by the prior pass of this table |
+| Module heading "วงล้อ" (`wheel.astro`, distinct from the H1 above) | artboard (`ToolWheelDesktop.dc.html`, `ToolWheel390.dc.html`) — missed by the prior pass of this table |
 | Mode labels "A · หมุนแล้วช้าลงจนหยุดเอง" / 'B · หมุนค้างไว้ จนกว่าจะกด "หยุด"' | artboard (`ToolWheelDesktop.dc.html`, `ToolWheel390.dc.html`) |
 | Buttons "หมุน" / "หยุด" / "คืนทุกชื่อเข้าวงล้อ" | artboard (both wheel artboards) |
 | Checkbox label "เอาคนที่ออกแล้วออกจากวงล้อ" | artboard (both wheel artboards) |
-| 'ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงวงล้อ"' (×2: `wheel.astro:52`, `:449`) | **agent-authored** — brief-named, flagged for owner override |
+| 'ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงวงล้อ"' (×2: `wheel.astro`) | **agent-authored** — brief-named, flagged for owner override |
 | All other `noteEl`/`resultEl` runtime templates (spinning, single-name guard, all-eliminated, last-one, error fallback) | **agent-authored** — no canvas source |

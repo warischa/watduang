@@ -19,15 +19,15 @@ link, "วิธีใช้", GameNav heading).
 
 | String | Source |
 |---|---|
-| `title`: "จับฉลาก — วัดดวง" (`draw.astro:8`) | **agent-authored** — no artboard carries a `<title>`; `{manifest name} — วัดดวง`, not a byte-copy of the manifest `name` field |
-| `description`: one sentence (`draw.astro:9`) | **agent-authored** — reads similarly to the page's own tagline/intro but is a separately typed string, not byte-identical to `manifest.ts`'s `desc` field |
+| `title`: "จับฉลาก — วัดดวง" (`draw.astro`) | **agent-authored** — no artboard carries a `<title>`; `{manifest name} — วัดดวง`, not a byte-copy of the manifest `name` field |
+| `description`: one sentence (`draw.astro`) | **agent-authored** — reads similarly to the page's own tagline/intro but is a separately typed string, not byte-identical to `manifest.ts`'s `desc` field |
 
 ## Page copy
 
 | String | Source |
 |---|---|
 | H1 "จับฉลาก", tagline, "จับกี่คน" label, "ยังอยู่ในกล่อง" heading | artboard (`ToolDrawDesktop.dc.html`) |
-| Module heading "กล่องฉลาก" (`draw.astro:52`, distinct from the H1 above) | artboard (`ToolDrawDesktop.dc.html`, `ToolDraw390.dc.html`) — missed by the prior pass of this table |
+| Module heading "กล่องฉลาก" (`draw.astro`, distinct from the H1 above) | artboard (`ToolDrawDesktop.dc.html`, `ToolDraw390.dc.html`) — missed by the prior pass of this table |
 | Buttons "จับฉลาก" / "เริ่มรอบใหม่" | artboard (`ToolDrawDesktop.dc.html`) |
-| 'ยังจับไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงกล่อง"' (×2: `draw.astro:75`, `:595`) | **agent-authored** — brief-named, flagged for owner override |
+| 'ยังจับไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงกล่อง"' (×2: `draw.astro`) | **agent-authored** — brief-named, flagged for owner override |
 | All other runtime templates ("จับได้: X", box-count, invalid-count, error fallback) | **agent-authored** — no canvas source |

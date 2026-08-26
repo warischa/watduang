@@ -19,8 +19,8 @@ link, "วิธีใช้", GameNav heading).
 
 | String | Source |
 |---|---|
-| `title`: "แบ่งทีม — วัดดวง" (`team.astro:13`) | **agent-authored** — no artboard carries a `<title>`; `{manifest name} — วัดดวง`, not a byte-copy of the manifest `name` field |
-| `description`: one sentence (`team.astro:14`) | **agent-authored** — reads similarly to the page's own tagline/intro but is a separately typed string, not byte-identical to `manifest.ts`'s `desc` field |
+| `title`: "แบ่งทีม — วัดดวง" (`team.astro`) | **agent-authored** — no artboard carries a `<title>`; `{manifest name} — วัดดวง`, not a byte-copy of the manifest `name` field |
+| `description`: one sentence (`team.astro`) | **agent-authored** — reads similarly to the page's own tagline/intro but is a separately typed string, not byte-identical to `manifest.ts`'s `desc` field |
 
 ## Page copy
 
@@ -28,5 +28,5 @@ link, "วิธีใช้", GameNav heading).
 |---|---|
 | H1 "แบ่งทีม", tagline, "จำนวนทีม" label | artboard (`ToolTeamDesktop.dc.html`, `ToolTeam390.dc.html`) |
 | Button "แบ่งทีม" | artboard (`ToolTeamDesktop.dc.html`) |
-| 'ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงสนาม"' (×2: `team.astro:68`, `:496`) | **agent-authored** — brief-named, flagged for owner override |
+| 'ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงสนาม"' (×2: `team.astro`) | **agent-authored** — brief-named, flagged for owner override |
 | Result templates "ทีม N — M คน (ได้คนเกิน)", "พร้อมแบ่ง N คน เป็น M ทีม", invalid-count, error fallback | **agent-authored** — no canvas source, though the "ทีม N — M คน" shape is documented (not authored) in `design/canvas.json`'s `copy-tools` note as a byte-exact module string |

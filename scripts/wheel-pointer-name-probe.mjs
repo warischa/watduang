@@ -119,7 +119,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     process.exit(1);
   }
 
-  // Shape guard: driver.mjs:96 wraps the evaluate body as `(async () => { ${body} })()`, so a body
+  // Shape guard: `session.evaluate` in scripts/driver.mjs wraps the evaluate body as `(async () => { ${body} })()`, so a body
   // that never hits `return` (e.g. a page missing the wheel, or someone deleting the trailing
   // `return` line) resolves to `{value: undefined}` — parsed.runs is then undefined, `|| []` swallows
   // it silently, and the loops below execute zero times and print only the header, exiting 0. Assert

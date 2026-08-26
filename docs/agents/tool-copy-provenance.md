@@ -73,7 +73,7 @@ in this shared table.
 |---|---|
 | Back link / footer link "เครื่องมือสุ่มทั้งหมด" (genuinely all 4 pages) | artboard (`ToolWheelDesktop.dc.html`, `ToolWheel390.dc.html`, `ToolDrawDesktop.dc.html`, `ToolTeamDesktop.dc.html`, `ToolDraw390.dc.html`, `ToolTeam390.dc.html`) |
 | "วิธีใช้" heading + its 2–3 how-to `<li>` lines per page (genuinely all 4 pages) | **agent-authored** — no `.dc.html`/`canvas.json` note draws a "วิธีใช้" block; written straight into each `*.astro` page |
-| GameNav heading "เล่นเกมต่อ" — identical literal on all 4 tool pages (`wheel.astro:82`, `draw.astro:83`, `team.astro:77`, `number.astro:41`) | **agent-authored** — `GameNav.astro`'s `heading` prop is required, no default, by design (gh#111): a default would be silently inherited and false wherever a caller's group does not carry on; no artboard/manifest field carries it |
+| GameNav heading "เล่นเกมต่อ" — identical literal on all 4 tool pages (`wheel.astro`, `draw.astro`, `team.astro`, `number.astro`) | **agent-authored** — `GameNav.astro`'s `heading` prop is required, no default, by design (gh#111): a default would be silently inherited and false wherever a caller's group does not carry on; no artboard/manifest field carries it |
 
 ## SEO metadata (`<Base title=… description=…>`, one pair per tool page)
 
