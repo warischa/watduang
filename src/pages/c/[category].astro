@@ -1,12 +1,30 @@
 ---
-// One static page per category (gh#74) — routes derived from the keys of src/games/categories.ts,
-// never hardcoded. Every Thai string on this page comes from the category manifest or a game's own
-// names.th / tagline: nothing here is handwritten copy. No script on purpose — ADR-0005 prefers none.
+// gh#88 — the category pages take the pop-card design of design/CatFortunePop.dc.html and its twin
+// design/CatPartyPop.dc.html (same structure throughout, only the copy and the category colour
+// differ). Every value below — colour, size, radius, border weight, shadow, copy — is an artboard's
+// own (ADR-0033); the only reflows are the ticket's criteria: one column below the 1100px the
+// artboard names, and no sideways scroll at 320/390.
+//
+// Copy provenance, exactly as the artboard headers state it. FROM THE MANIFEST, byte-exact: the H1
+// is categories label, the lead line is whenToUse, the intro card is intro, every card body is that
+// game's own tagline, and the Base metadata is the category seo. PAGE COPY, with no manifest field
+// behind it: the three pills, the two section labels, the card call to action, and the breadcrumb.
+//
+// The accent paints without a per-page colour value anywhere: meta.accent holds the NAME ('gold' /
+// 'punch'), and --page-accent resolves it through var(--accent-<name>) — never the slug (which
+// would emit --accent-fortune, a property defined nowhere), never a hex. The header and the game
+// cards paint --page-accent. Each cross-link card paints its OWN target's accent the same way: the
+// sibling category's manifest entry for every non-tools card, and toolsGroup.accentVar for the
+// tools card — the two cross-card colours on either page are therefore read off the sibling
+// manifests plus the tools group, so a new or recoloured category needs no edit to this file. One
+// page file serves every category through getStaticPaths over the manifest keys (gh#74 / ADR-0032).
+// No script of any kind (ADR-0005).
 import Base from '../../layouts/Base.astro';
 import { categories } from '../../games/categories';
 import type { CategoryMeta } from '../../games/categories';
 import type { Category, GameModule } from '../../games/types';
 import { games as allGames } from '../../games/manifest';
+import { toolsGroup } from '../../tools/manifest';
 
 export function getStaticPaths() {
   const keys = Object.keys(categories) as Category[];
@@ -15,10 +33,11 @@ export function getStaticPaths() {
     props: {
       category,
       meta: categories[category],
-      // Links out to every OTHER category page (two today, derived — never a hardcoded list).
-      otherLinks: keys
+      // One cross-link card per OTHER category, each carrying its own manifest accent NAME so the
+      // card's paint comes from the target category's manifest, never from this page.
+      otherCategories: keys
         .filter((key) => key !== category)
-        .map((key) => ({ slug: key, label: categories[key].label })),
+        .map((key) => ({ slug: key, label: categories[key].label, accent: categories[key].accent })),
       // Exactly this category's games — the listing must not leak the other category's games.
       games: allGames.filter((game) => game.category === category),
     },
@@ -28,131 +47,425 @@ export function getStaticPaths() {
 type Props = {
   category: Category;
   meta: CategoryMeta;
-  otherLinks: { slug: Category; label: string }[];
+  otherCategories: { slug: Category; label: string; accent: string }[];
   games: GameModule[];
 };
 
-const { category, meta, otherLinks, games } = Astro.props as Props;
+const { category, meta, otherCategories, games } = Astro.props as Props;
 ---
 
 <Base title={meta.seo.title} description={meta.seo.description}>
   <main style={`--page-accent: var(--accent-${meta.accent});`}>
-    <h1>{meta.label}</h1>
-    <p class="when">{meta.whenToUse}</p>
-    <p class="intro">{meta.intro}</p>
+    <header class="cat-head">
+      <div class="cat-head-inner">
+        <div class="cat-head-copy">
+          <p class="breadcrumb"><a href="/">หน้าแรก</a> · {meta.label}</p>
+          <h1>{meta.label}</h1>
+          <p class="lead">{meta.whenToUse}</p>
+          <ul class="pills">
+            <li>ไม่ต้องโหลดแอป</li>
+            <li>ไม่ต้องสมัคร</li>
+            <li>มือถือเครื่องเดียว</li>
+          </ul>
+        </div>
+        <p class="intro-card">{meta.intro}</p>
+      </div>
+    </header>
 
-    <ul class="game-list">
-      {games.map((game) => (
-        <li class="game-card">
-          <a href={`/game/${game.id}/`}>{game.names.th}</a>
-          <p>{game.tagline}</p>
-        </li>
-      ))}
-    </ul>
+    <div class="ad-band">
+      <div class="ad-slot ad-billboard" aria-hidden="true">
+        <span class="ad-label">ช่องโฆษณา</span>
+        <span class="ad-sub">970 × 250 · ใต้หัวหน้าหมวด</span>
+      </div>
+    </div>
 
-    <p class="hubs">
-      {otherLinks.map((link) => (
-        <>
-          <a href={`/c/${link.slug}/`}>{link.label}</a>{' '}
-        </>
-      ))}
-      <a href="/tools/">เครื่องมือสุ่ม</a>
-    </p>
-    {/* gh#82 — the ad slot design/HubNeutral.dc.html and both category artboards mark, at the
-         position they mark it: last inside <main>, below the content. Every value below is the
-         canvas's own. A placeholder only — no ad network code ships in this ticket. */}
-    <div class="ad-slot" aria-hidden="true">ช่องโฆษณา</div>
+    <div class="body-grid">
+      <div class="col">
+        <section>
+          <h2 class="kicker">เกมในหมวดนี้</h2>
+          <div class="cards-grid">
+            {games.map((game) => (
+              <a class="game-card" href={`/game/${game.id}/`}>
+                <h3>{game.names.th}</h3>
+                <p>{game.tagline}</p>
+                <span class="card-cta">
+                  เล่นเลย
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h13"></path
+                    ><path d="M12 5l7 7-7 7"></path>
+                  </svg>
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <h2 class="kicker kicker-cross">ไปที่อื่นต่อ</h2>
+          <div class="cross-grid">
+            {otherCategories.map((link) => (
+              <a
+                class="cross-card"
+                href={`/c/${link.slug}/`}
+                style={`--cross-accent: var(--accent-${link.accent});`}
+              >
+                {link.label}
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h13"></path
+                  ><path d="M12 5l7 7-7 7"></path>
+                </svg>
+              </a>
+            ))}
+            <a class="cross-card" href={toolsGroup.href} style={`--cross-accent: var(${toolsGroup.accentVar});`}>
+              เครื่องมือสุ่ม
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h13"></path
+                ><path d="M12 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="ad-rail">
+        <div class="ad-slot ad-rail-slot" aria-hidden="true">
+          <span class="ad-label">ช่องโฆษณา</span>
+          <span class="ad-sub">300 × 250 · rail</span>
+          <span class="ad-sub">จอแคบกว่า 1100px ให้ซ่อนช่องนี้</span>
+        </div>
+      </aside>
+    </div>
   </main>
 </Base>
 
 <style>
-  /* Astro scopes this whole block (data-astro-cid on every element rendered above), so none of
-     these selectors can match markup on any other page. Tokens come from tokens.css; --page-accent
-     is set by the inline custom property above from the manifest's accent NAME — meta.accent, NOT the
-     category slug: the slug is `fortune`/`party` and no --accent-fortune token exists, so
-     interpolating it yields an invalid custom property that silently falls back to currentColor.
-     Only meta.accent resolves to a real --accent-gold / --accent-punch. */
+  /* gh#88 — every value below is design/CatFortunePop.dc.html / design/CatPartyPop.dc.html's own
+     (ADR-0033). Colours go through tokens where the canvas value IS a token (--color-ground-warm
+     #fffdf7, --color-line-strong #1a1a1a, --color-muted #6b7280, --color-primary #d6336c is the
+     canvas's own global a:hover, --accent-gold/--accent-punch/--accent-sky, --radius-lg 16px,
+     --shadow-pop 4px 4px 0); the rgba() fills are canvas literals, no token exists for either
+     alpha pair. --page-accent and --cross-accent are defined by the inline custom properties above
+     from manifest accent NAMES, never hex values: no colour is written in this page file. The
+     canvas pages are desktop-only at a fixed 1440px — no phone artboard exists for them — so the
+     inner rows are the canvas's 1280px boxes capped by max-width, and the 18px inline padding is
+     the same structural value the home page took from the shared chrome's pill padding. */
   main {
-    max-width: 36rem;
-    margin-inline: auto;
-    padding: var(--space-lg) var(--space-md) var(--space-xl);
     background: var(--color-ground-warm);
-    font-family: var(--font-sans);
     color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+
+  main a {
+    text-decoration: none;
+  }
+
+  main a:hover {
+    color: var(--color-primary);
+  }
+
+  /* ------------------------------ header -------------------------------- */
+
+  .cat-head {
+    background: var(--page-accent);
+    color: var(--color-line-strong);
+    border-block-end: 2.5px solid var(--color-line-strong);
+  }
+
+  .cat-head-inner {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 56px;
+    align-items: center;
+    padding-block: 52px;
+    box-sizing: border-box;
+  }
+
+  .cat-head-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .breadcrumb {
+    margin: 0;
+    font-size: 14px;
   }
 
   h1 {
-    margin-block: 0 var(--space-md);
+    margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(2rem, 9vw, 2.75rem);
-    line-height: 1.2;
-    padding-block-end: var(--space-sm);
-    border-block-end: 0.375rem solid var(--page-accent);
-  }
-
-  .when {
-    margin-block: 0 var(--space-md);
     font-weight: 600;
+    font-size: 58px;
+    line-height: 1.2;
+    letter-spacing: -1px;
   }
 
-  .intro {
-    margin-block: 0 var(--space-lg);
+  .lead {
+    margin: 0;
+    font-size: 19px;
     line-height: 1.6;
   }
 
-  .game-list {
-    list-style: none;
+  .pills {
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: var(--space-md);
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-block-start: 6px;
   }
 
-  .game-card {
-    background: var(--color-bg);
+  .pills li {
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--color-ground-warm);
     border: 2px solid var(--color-line-strong);
-    border-radius: var(--radius-md);
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+
+  .intro-card {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.8;
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-pop);
-    padding: var(--space-md);
+    padding: 24px 26px;
   }
 
-  .game-card a {
+  /* ------------------------------ ads ----------------------------------- */
+
+  /* The artboard's two slots, at the artboard's positions: the billboard below the header, the
+     rail beside the content column. Reserved heights are the canvas's own slot sizes, fixed
+     (`height`, not `min-height`) so a real unit replacing a placeholder shifts nothing above it
+     (ADR-0024). The dashed border and the visible copy are the canvas's own way of marking a
+     placeholder. The rail uses the artboard's smaller 300x250 unit — this column carries less
+     content than the home page's, and the taller rail there would hang past it. */
+  .ad-band {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    padding-block: 40px;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .ad-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 2.5px dashed rgba(26, 26, 26, 0.35);
+    border-radius: 14px;
+    color: var(--color-muted);
+    font-size: 13px;
+  }
+
+  .ad-label {
     font-family: var(--font-display);
-    font-size: 1.25rem;
-    color: var(--color-text);
-    text-decoration: none;
-    border-block-end: 3px solid var(--page-accent);
+    font-weight: 500;
   }
 
-  .game-card p {
-    margin-block: var(--space-xs) 0;
+  .ad-sub {
+    font-size: 12px;
+  }
+
+  .ad-billboard {
+    width: 100%;
+    max-width: 970px;
+    height: 250px;
+  }
+
+  .ad-rail {
+    position: sticky;
+    top: 24px;
+  }
+
+  .ad-rail-slot {
+    width: 100%;
+    max-width: 300px;
+    height: 250px;
+  }
+
+  /* ------------------------------ body ---------------------------------- */
+
+  .body-grid {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    display: grid;
+    grid-template-columns: 940px 300px;
+    gap: 40px;
+    align-items: start;
+    padding-block-end: 48px;
+    box-sizing: border-box;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .kicker {
+    margin: 0 0 20px 0;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 1px;
     color: var(--color-muted);
   }
 
-  .hubs {
-    margin-block: var(--space-lg) 0;
+  .kicker-cross {
+    margin-block-end: 16px;
   }
 
-  .hubs a {
-    color: var(--color-text);
+  /* ------------------------------ cards --------------------------------- */
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .game-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 22px;
+    background: var(--page-accent);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    min-height: 200px;
+    color: var(--color-line-strong);
+    box-sizing: border-box;
+  }
+
+  .game-card:hover,
+  .cross-card:hover {
+    color: var(--color-line-strong); /* the card keeps its ink; the canvas hover is for its text links */
+  }
+
+  .game-card h3 {
+    margin: 0;
+    font-family: var(--font-display);
     font-weight: 600;
-    text-decoration-color: var(--page-accent);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
+    font-size: 22px;
+    line-height: 1.3;
   }
 
-  /* gh#82 — verbatim from the design canvas. The dashed border and the visible copy are the
-     canvas's own way of marking a placeholder; the game page's strip looks different on purpose.
-     min-height reserves the space so a real unit replacing this cannot shift what sits above it. */
-  .ad-slot {
+  .game-card p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .card-cta {
     display: flex;
     align-items: center;
-    justify-content: center;
-    min-height: 90px;
-    margin: 26px 20px 0 20px;
-    border: 2.5px dashed rgba(26, 26, 26, 0.35);
-    border-radius: 14px;
-    font-size: 12px;
-    color: #6b7280;
+    justify-content: space-between;
+    gap: 8px;
+    margin-block-start: auto;
+    border-block-start: 2px solid rgba(26, 26, 26, 0.2);
+    padding-block-start: 12px;
+    font-size: 14px;
+  }
+
+  /* ------------------------------ cross-links --------------------------- */
+
+  .cross-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .cross-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 72px;
+    padding: 0 24px;
+    background: var(--cross-accent);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 19px;
+    color: var(--color-line-strong);
+    box-sizing: border-box;
+  }
+
+  /* ------------------------------ reflow -------------------------------- */
+
+  /* Below the 1100px the artboard names the rail, the page is a single column — the ticket's own
+     criteria own this reflow (the canvas has no phone artboard). The rail is hidden, not merely
+     unstuck, the boxed 940px track relaxes to one column, and every card grid collapses to one
+     column. 30px below is the page-title size of design/SiamsiIntent.dc.html, a 390px artboard —
+     not an invented value. */
+  @media (max-width: 1099px) {
+    .cat-head-inner {
+      grid-template-columns: 1fr;
+    }
+
+    h1 {
+      font-size: 30px;
+    }
+
+    .body-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ad-rail {
+      display: none;
+    }
+
+    .cards-grid,
+    .cross-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
