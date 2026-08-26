@@ -10,10 +10,15 @@ interface Props {
    *  fourth category needs no edit in this file. */
   category?: Category;
   excludeId?: string;
-  heading?: string;
+  /** Required on purpose, with no default. The heading is a CLAIM about what happens next, and the
+   *  claim differs per caller: a category that carries the group onward promises the same group
+   *  continues, and one that does not must not. A default would be silently inherited by the next
+   *  caller and would be false wherever the group does not carry on, which is the trap gh#111 names.
+   *  Making it required means tsc, not a comment, is what stops that. */
+  heading: string;
 }
 
-const { navClass, category, excludeId, heading = 'เล่นเกมต่อด้วยวงเดิม' } = Astro.props as Props;
+const { navClass, category, excludeId, heading } = Astro.props as Props;
 
 const shown = games.filter((g) => (!category || g.category === category) && g.id !== excludeId);
 ---

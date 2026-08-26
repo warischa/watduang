@@ -109,7 +109,7 @@ const howToJsonLd = {
     navClass="game-next"
     excludeId={game.id}
     category={carriesGroup ? game.category : undefined}
-    heading={carriesGroup ? undefined : 'เล่นเกมต่อ'}
+    heading={carriesGroup ? 'เล่นเกมต่อด้วยวงเดิม' : 'เล่นเกมต่อ'}
   />
 
   <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
