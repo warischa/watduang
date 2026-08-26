@@ -1,0 +1,213 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #1a1a1a; text-decoration: none; }
+    a:hover { color: #d6336c; }
+
+    /* Decoration only — behaviour B keeps the wheel spinning until the player presses the stop control.
+       Reduced-motion turns it off, like every decorative motion on this canvas. */
+    @keyframes tool-spin { to { transform: rotate(360deg); } }
+    .tool-spin { transform-origin: 200px 200px; animation: tool-spin 8s linear infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tool-spin { animation: none; }
+    }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #fffdf7; color: #1a1a1a;">
+
+  <!-- Top bar — same chrome every tool page carries, byte-exact with the direction-C home -->
+  <div style="background: #1a1a1a; color: #fffdf7;">
+    <div style="width: 1280px; margin-inline: auto; height: 80px; display: flex; align-items: center; justify-content: space-between;">
+      <a href="/" style="display: flex; align-items: center; gap: 10px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 28px; color: #fffdf7;">
+        <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="{accent}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+        </svg>
+        วัดดวง
+      </a>
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500;">
+        <a href="/c/fortune/" style="color: #1a1a1a; background: #ffd27f; border-radius: 999px; padding: 9px 18px;">ดูดวง</a>
+        <a href="/c/party/" style="color: #1a1a1a; background: #f89880; border-radius: 999px; padding: 9px 18px;">สุ่มคนโดน</a>
+        <a href="/tools/" style="color: #1a1a1a; background: #7fd8e8; border-radius: 999px; padding: 9px 18px;">เครื่องมือสุ่ม</a>
+        <a href="/games/" style="color: #fffdf7; border: 2px solid rgba(255,253,247,0.4); border-radius: 999px; padding: 7px 18px;">เกมทั้งหมด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Title band — the tool's own accent, built from the same tokens as the home hero -->
+  <div style="background: {{accent}}; border-block-end: 5px solid #1a1a1a;">
+    <div style="width: 1280px; margin-inline: auto; padding-block: 40px 36px;">
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 500; color: #6b7280;"><a href="/tools/" style="color: #1a1a1a; border-bottom: 2px solid rgba(26,26,26,0.35); padding-bottom: 2px;">เครื่องมือสุ่มทั้งหมด</a></p>
+      <h1 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 38px; line-height: 1.2;">วงล้อสุ่มชื่อ</h1>
+      <p style="margin: 10px 0 0 0; font-size: 17px; line-height: 1.7; max-width: 56ch;">ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน — หมุนเสร็จกดต่อเข้าเกมได้เลย รายชื่อไหลต่อไปเอง</p>
+    </div>
+  </div>
+
+  <!-- Content column + ad rail. The rail is a PROPOSED AMENDMENT to ADR-0004, said here and in the
+       sticky note, never drawn silently: ADR-0004 places the ad below the tool only. -->
+  <div style="width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px 300px; gap: 40px; align-items: start; padding-block: 44px 20px;">
+
+    <div style="display: flex; flex-direction: column; gap: 36px;">
+
+      <!-- Shared name-entry panel — same component on all three tools, replaces the game shell's
+           setup panel (gh#91: tools leave the shared roster). Unbounded: no count input, no max. -->
+      <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 24px 26px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between;">
+          <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 21px;">ชื่อในวง</h2>
+          <span style="font-size: 13px; color: #6b7280;">ใส่ได้กี่คนก็ได้ ไม่จำกัด</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" placeholder="พิมพ์ชื่อแล้วกดเพิ่ม" style="flex: 1; min-height: 56px; box-sizing: border-box; padding: 0 16px; font-size: 16px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px;">
+          <button style="min-height: 56px; padding: 0 22px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 17px; border: 2.5px solid #1a1a1a; border-radius: 14px; cursor: pointer;">เพิ่มชื่อ</button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">บีม <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">มายด์ <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">ปอนด์ <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">เจได <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">ฟ้า <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">แทน <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">แก้ม <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">ปาล์ม <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+        </div>
+        <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6b7280;">ชื่ออยู่ที่เครื่องนี้ชั่วคราว ใช้ได้แค่หน้านี้ รีเฟรชแล้วหาย</p>
+        <button style="width: 100%; min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">ใส่ชื่อลงวงล้อ</button>
+      </div>
+
+      <!-- WHEEL — behaviour A, the hero: pressed it, it slows to a stop by itself, the pointer
+           names the result. The disc carries one real segment per name with the name on it. -->
+      <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 26px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;">
+          <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 26px;">วงล้อ</h2>
+          <span style="font-size: 13px; color: #6b7280;">A · หมุนแล้วช้าลงจนหยุดเอง</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 460px 1fr; gap: 30px; align-items: center;">
+          <div style="display: flex; justify-content: center;">
+            <!-- 8 names → 8 real segments; the wheel has stopped with แก้ม under the fixed pointer. -->
+            <svg width="400" height="400" viewBox="0 0 400 400" aria-hidden="true">
+              <g transform="rotate(135 200 200)">
+                <path d="M200 200 L137.2 48.5 A164 164 0 0 1 262.8 48.5 Z" fill="#ffd27f"></path>
+                <path d="M200 200 L262.8 48.5 A164 164 0 0 1 351.5 137.2 Z" fill="#f89880"></path>
+                <path d="M200 200 L351.5 137.2 A164 164 0 0 1 351.5 262.8 Z" fill="#7fd8e8"></path>
+                <path d="M200 200 L351.5 262.8 A164 164 0 0 1 262.8 351.5 Z" fill="#ffd27f"></path>
+                <path d="M200 200 L262.8 351.5 A164 164 0 0 1 137.2 351.5 Z" fill="#f89880"></path>
+                <path d="M200 200 L137.2 351.5 A164 164 0 0 1 48.5 262.8 Z" fill="#7fd8e8"></path>
+                <path d="M200 200 L48.5 262.8 A164 164 0 0 1 48.5 137.2 Z" fill="#ffd27f"></path>
+                <path d="M200 200 L48.5 137.2 A164 164 0 0 1 137.2 48.5 Z" fill="#f89880"></path>
+                <circle cx="200" cy="200" r="164" fill="none" stroke="#1a1a1a" stroke-width="7"></circle>
+                <text x="200" y="94" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(0 200 94)">บีม</text>
+                <text x="277.8" y="126.2" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(45 277.8 126.2)">มายด์</text>
+                <text x="310" y="204" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(90 310 204)">ปอนด์</text>
+                <text x="277.8" y="281.8" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(135 277.8 281.8)">เจได</text>
+                <text x="200" y="314" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(180 200 314)">ฟ้า</text>
+                <text x="122.2" y="281.8" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(225 122.2 281.8)">แทน</text>
+                <text x="90" y="204" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(270 90 204)">แก้ม</text>
+                <text x="122.2" y="126.2" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(315 122.2 126.2)">ปาล์ม</text>
+              </g>
+              <circle cx="200" cy="200" r="46" fill="#fffdf7" stroke="#1a1a1a" stroke-width="7"></circle>
+              <text x="200" y="212" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="26" fill="#1a1a1a">หมุน</text>
+              <!-- the fixed pointer: the wheel moves, this never does -->
+              <path d="M200 8 l22 40 h-44 z" fill="#fffdf7" stroke="#1a1a1a" stroke-width="6" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="background: #1a1a1a; color: #fffdf7; border-radius: 16px; padding: 18px 22px; text-align: center;">
+              <p style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 30px;">โดน: แก้ม</p>
+              <p style="margin: 4px 0 0 0; font-size: 13px; color: rgba(255,253,247,0.8);">หมุนช้าลงเรื่อยๆ แล้วหยุดตรงที่เข็มชี้</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button style="min-height: 64px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 #1a1a1a; cursor: pointer;">หมุน</button>
+              <button style="min-height: 56px; background: #fffdf7; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 18px; border: 2.5px solid #1a1a1a; border-radius: 16px; cursor: pointer;">คืนทุกชื่อเข้าวงล้อ</button>
+            </div>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 15px;">
+              <input type="checkbox" style="width: 18px; height: 18px;"> เอาคนที่ออกแล้วออกจากวงล้อ
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHEEL — behaviour B, the owner's second stop mode: it runs until a stop control is pressed. -->
+      <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 26px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;">
+          <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 21px;">โหมดกดหยุดเอง</h2>
+          <span style="font-size: 13px; color: #6b7280;">B · หมุนค้างไว้ จนกว่าจะกด "หยุด"</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 300px 1fr; gap: 30px; align-items: center;">
+          <div style="display: flex; justify-content: center;">
+            <svg width="300" height="300" viewBox="0 0 400 400" aria-hidden="true">
+              <g class="tool-spin">
+                <path d="M200 200 L137.2 48.5 A164 164 0 0 1 262.8 48.5 Z" fill="#ffd27f"></path>
+                <path d="M200 200 L262.8 48.5 A164 164 0 0 1 351.5 137.2 Z" fill="#f89880"></path>
+                <path d="M200 200 L351.5 137.2 A164 164 0 0 1 351.5 262.8 Z" fill="#7fd8e8"></path>
+                <path d="M200 200 L351.5 262.8 A164 164 0 0 1 262.8 351.5 Z" fill="#ffd27f"></path>
+                <path d="M200 200 L262.8 351.5 A164 164 0 0 1 137.2 351.5 Z" fill="#f89880"></path>
+                <path d="M200 200 L137.2 351.5 A164 164 0 0 1 48.5 262.8 Z" fill="#7fd8e8"></path>
+                <path d="M200 200 L48.5 262.8 A164 164 0 0 1 48.5 137.2 Z" fill="#ffd27f"></path>
+                <path d="M200 200 L48.5 137.2 A164 164 0 0 1 137.2 48.5 Z" fill="#f89880"></path>
+                <circle cx="200" cy="200" r="164" fill="none" stroke="#1a1a1a" stroke-width="7"></circle>
+                <text x="200" y="94" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a">บีม</text>
+                <text x="277.8" y="126.2" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(45 277.8 126.2)">มายด์</text>
+                <text x="310" y="204" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(90 310 204)">ปอนด์</text>
+                <text x="277.8" y="281.8" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(135 277.8 281.8)">เจได</text>
+                <text x="200" y="314" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(180 200 314)">ฟ้า</text>
+                <text x="122.2" y="281.8" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(225 122.2 281.8)">แทน</text>
+                <text x="90" y="204" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(270 90 204)">แก้ม</text>
+                <text x="122.2" y="126.2" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="21" fill="#1a1a1a" transform="rotate(315 122.2 126.2)">ปาล์ม</text>
+              </g>
+              <circle cx="200" cy="200" r="46" fill="#fffdf7" stroke="#1a1a1a" stroke-width="7"></circle>
+              <text x="200" y="212" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="26" fill="#1a1a1a">หมุน</text>
+              <path d="M200 8 l22 40 h-44 z" fill="#fffdf7" stroke="#1a1a1a" stroke-width="6" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <p style="margin: 0; font-size: 15px; line-height: 1.7;">กดหมุนแล้ววงล้อจะหมุนค้างไว้ไม่หยุด จนกว่ากดปุ่มหยุด — เหมาะกับช่วยลุ้นก่อนร้านปิด</p>
+            <button style="min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">หยุด</button>
+            <div style="border: 2.5px dashed rgba(26,26,26,0.35); border-radius: 16px; padding: 14px 18px; font-size: 14px; color: #6b7280;">ผลยังไม่ออก — กด "หยุด" แล้วค่อยเฉลยว่าใครโดน</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ad below the tool — the ADR-0004 placement, reserved height and all. -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 90px; border: 3px dashed rgba(26,26,26,0.35); border-radius: 16px; color: #6b7280; font-size: 13px;">
+        <span style="font-family: 'Mitr', sans-serif; font-weight: 500;">ช่องโฆษณา</span>
+        <span style="font-size: 12px;">728 × 90 · ใต้เครื่องมือ · ตาม ADR-0004</span>
+      </div>
+
+    </div>
+
+    <!-- Sticky ad rail — proposed, not in ADR-0004 today. The note on the artboard itself is the
+         amendment statement the ticket requires: "the artboard states it plainly, naming the ADR." -->
+    <div style="position: sticky; top: 24px; display: flex; flex-direction: column; gap: 6px;">
+      <div style="width: 300px; height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 3px dashed rgba(26,26,26,0.35); border-radius: 16px; color: #6b7280; font-size: 13px; text-align: center;">
+        <span style="font-family: 'Mitr', sans-serif; font-weight: 500;">ช่องโฆษณา</span>
+        <span style="font-size: 12px;">300 × 600 · sticky rail</span>
+        <span style="font-size: 12px;">จอแคบกว่า 1100px ให้ซ่อนช่องนี้</span>
+      </div>
+      <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #6b7280;">rail ขวานี้ = เสนอแก้ไข ADR-0004 (เดิม: โฆษณาอยู่ใต้เครื่องมืออย่างเดียว) ต้องเจ้าของเว็บอนุมัติก่อนถึงจะลงโค้ด</p>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#7fd8e8","options":["#7fd8e8","#ffd27f","#f89880"]},"$preview":{"width":1440,"height":2180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#7fd8e8' };
+  }
+}
+</script>
+</body>
+</html>

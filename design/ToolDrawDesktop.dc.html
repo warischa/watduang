@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #1a1a1a; text-decoration: none; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #fffdf7; color: #1a1a1a;">
+
+  <!-- Top bar — identical chrome on every tool page -->
+  <div style="background: #1a1a1a; color: #fffdf7;">
+    <div style="width: 1280px; margin-inline: auto; height: 80px; display: flex; align-items: center; justify-content: space-between;">
+      <a href="/" style="display: flex; align-items: center; gap: 10px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 28px; color: #fffdf7;">
+        <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+        </svg>
+        วัดดวง
+      </a>
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500;">
+        <a href="/c/fortune/" style="color: #1a1a1a; background: #ffd27f; border-radius: 999px; padding: 9px 18px;">ดูดวง</a>
+        <a href="/c/party/" style="color: #1a1a1a; background: #f89880; border-radius: 999px; padding: 9px 18px;">สุ่มคนโดน</a>
+        <a href="/tools/" style="color: #1a1a1a; background: #7fd8e8; border-radius: 999px; padding: 9px 18px;">เครื่องมือสุ่ม</a>
+        <a href="/games/" style="color: #fffdf7; border: 2px solid rgba(255,253,247,0.4); border-radius: 999px; padding: 7px 18px;">เกมทั้งหมด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Title band -->
+  <div style="background: {{accent}}; border-block-end: 5px solid #1a1a1a;">
+    <div style="width: 1280px; margin-inline: auto; padding-block: 40px 36px;">
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 500;"><a href="/tools/" style="color: #1a1a1a; border-bottom: 2px solid rgba(26,26,26,0.35); padding-bottom: 2px;">เครื่องมือสุ่มทั้งหมด</a></p>
+      <h1 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 38px; line-height: 1.2;">จับฉลาก</h1>
+      <p style="margin: 10px 0 0 0; font-size: 17px; line-height: 1.7; max-width: 56ch;">ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p>
+    </div>
+  </div>
+
+  <!-- Content column + ad rail (rail = proposed ADR-0004 amendment, stated plainly on the artboard) -->
+  <div style="width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px 300px; gap: 40px; align-items: start; padding-block: 44px 20px;">
+
+    <div style="display: flex; flex-direction: column; gap: 36px;">
+
+      <!-- Shared name-entry panel, draw flavour: the per-tool CTA label is the only difference -->
+      <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 24px 26px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between;">
+          <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 21px;">ชื่อในกล่อง</h2>
+          <span style="font-size: 13px; color: #6b7280;">ใส่ได้กี่คนก็ได้ ไม่จำกัด</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" placeholder="พิมพ์ชื่อแล้วกดเพิ่ม" style="flex: 1; min-height: 56px; box-sizing: border-box; padding: 0 16px; font-size: 16px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px;">
+          <button style="min-height: 56px; padding: 0 22px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 17px; border: 2.5px solid #1a1a1a; border-radius: 14px; cursor: pointer;">เพิ่มชื่อ</button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">บีม <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">มายด์ <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">ปอนด์ <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">เจได <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">ฟ้า <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">แทน <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">แก้ม <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+          <span style="font-size: 14px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">ปาล์ม <span style="color: #6b7280; font-size: 13px;">✕</span></span>
+        </div>
+        <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6b7280;">ชื่ออยู่ที่เครื่องนี้ชั่วคราว ใช้ได้แค่หน้านี้ รีเฟรชแล้วหาย</p>
+        <button style="width: 100%; min-height: 64px; background: #1a1a1a; color: #fffdf7; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">ใส่ชื่อลงกล่อง</button>
+      </div>
+
+      <!-- the box itself: the tool draws slips out of a real container. Everything inside stays a
+           byte-exact module string — heading, field label, button, result format, status line. -->
+      <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 26px;">
+        <h2 style="margin: 0 0 16px 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 26px;">กล่องฉลาก</h2>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <label style="display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 500;">
+              จับกี่คน
+              <input type="number" min="1" value="2" style="width: 4rem; min-height: 52px; box-sizing: border-box; padding: 0 10px; font-size: 20px; text-align: center; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px;">
+            </label>
+
+            <div style="background: #1a1a1a; color: #fffdf7; border-radius: 16px; padding: 18px 22px; text-align: center;">
+              <p style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 30px;">จับได้: มายด์, ฟ้า</p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button style="min-height: 64px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 #1a1a1a; cursor: pointer;">จับฉลาก</button>
+              <button style="min-height: 56px; background: #fffdf7; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 18px; border: 2.5px solid #1a1a1a; border-radius: 16px; cursor: pointer;">เริ่มรอบใหม่</button>
+            </div>
+
+            <p style="margin: 0; font-size: 14px; color: #6b7280;">เหลือในกล่อง 6 คน</p>
+          </div>
+
+          <div style="border: 2.5px dashed #1a1a1a; border-radius: 20px; padding: 18px; background: #f3efe4;">
+            <h3 style="margin: 0 0 12px 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 16px;">ยังอยู่ในกล่อง</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 14px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">บีม</span>
+              <span style="font-size: 14px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">ปอนด์</span>
+              <span style="font-size: 14px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">เจได</span>
+              <span style="font-size: 14px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">แทน</span>
+              <span style="font-size: 14px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">แก้ม</span>
+              <span style="font-size: 14px; font-weight: 500; background: #fffdf7; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px;">ปาล์ม</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Ad below the tool — the ADR-0004 placement -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 90px; border: 3px dashed rgba(26,26,26,0.35); border-radius: 16px; color: #6b7280; font-size: 13px;">
+        <span style="font-family: 'Mitr', sans-serif; font-weight: 500;">ช่องโฆษณา</span>
+        <span style="font-size: 12px;">728 × 90 · ใต้เครื่องมือ · ตาม ADR-0004</span>
+      </div>
+
+    </div>
+
+    <!-- Sticky ad rail — proposed, not in ADR-0004 today -->
+    <div style="position: sticky; top: 24px; display: flex; flex-direction: column; gap: 6px;">
+      <div style="width: 300px; height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 3px dashed rgba(26,26,26,0.35); border-radius: 16px; color: #6b7280; font-size: 13px; text-align: center;">
+        <span style="font-family: 'Mitr', sans-serif; font-weight: 500;">ช่องโฆษณา</span>
+        <span style="font-size: 12px;">300 × 600 · sticky rail</span>
+        <span style="font-size: 12px;">จอแคบกว่า 1100px ให้ซ่อนช่องนี้</span>
+      </div>
+      <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #6b7280;">rail ขวานี้ = เสนอแก้ไข ADR-0004 (เดิม: โฆษณาอยู่ใต้เครื่องมืออย่างเดียว) ต้องเจ้าของเว็บอนุมัติก่อนถึงจะลงโค้ด</p>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#7fd8e8","options":["#7fd8e8","#ffd27f","#f89880"]},"$preview":{"width":1440,"height":1720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#7fd8e8' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; text-decoration: none; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 940px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box; padding: 20px; gap: 20px;">
+
+  <!-- This artboard is the ONE shared name-entry panel the three tools adopt.
+       Deliberately NOT the game shell's setup panel (no checkbox grid, no count input, no numbered
+       mode, no clear-group): gh#91 takes the tools off the shared roster, so the panel carries
+       names for THIS page only and accepts an unbounded list. -->
+
+  <div style="background: {{accent}}; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 14px 16px;">
+    <h1 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 22px;">แผงใส่ชื่อ — ใช้ร่วมกันทั้ง 3 เครื่องมือ</h1>
+    <p style="margin: 6px 0 0 0; font-size: 14px; line-height: 1.65;">รับชื่อได้ไม่จำกัดจำนวน ไม่มีช่องคนเล่น ไม่มีโหมด "คนที่ 1, 2, 3" ไม่ใช่แผงตั้งค่าของเกม (gh#91: เครื่องมือออกจาก roster ร่วม)</p>
+  </div>
+
+  <div style="border: 2.5px dashed rgba(26,26,26,0.35); border-radius: 16px; padding: 8px 14px; font-size: 12px; color: #6b7280; line-height: 1.6;">ต่างกันแค่ปุ่มล่างสุด ตามเครื่องมือที่เปิดอยู่:<br>"ใส่ชื่อลงวงล้อ" · "ใส่ชื่อลงกล่อง" · "ใส่ชื่อลงสนาม" — สามสตริงนี้ตรงกับ src/pages/tool/*.astro แบบไบต์ต่อไบต์</div>
+
+  <!-- state 1 — empty: typing a name, nothing added yet -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 1px; color: #6b7280;">ก่อนใส่ชื่อ</span>
+    <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+        <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px;">ชื่อในวง</h2>
+        <span style="font-size: 12px; color: #6b7280;">ใส่ได้กี่คนก็ได้</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" placeholder="พิมพ์ชื่อแล้วกดเพิ่ม" value="ปาล์ม" style="flex: 1; min-height: 52px; box-sizing: border-box; padding: 0 14px; font-size: 15px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px;">
+        <button style="min-height: 52px; padding: 0 18px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 16px; border: 2.5px solid #1a1a1a; border-radius: 14px; cursor: pointer;">เพิ่มชื่อ</button>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6b7280;">ยังไม่มีชื่อในแผง — พิมพ์แล้วกดเพิ่มได้เรื่อยๆ ไม่มีเพดาน</p>
+      <button style="min-height: 60px; background: #1a1a1a; color: #fffdf7; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">ใส่ชื่อลงวงล้อ</button>
+    </div>
+  </div>
+
+  <!-- state 2 — filled: chips with remove marks, panel still accepts more names -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 1px; color: #6b7280;">ใส่ไปแล้ว — ยังเพิ่มต่อได้</span>
+    <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+        <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px;">ชื่อในวง</h2>
+        <span style="font-size: 12px; color: #6b7280;">12 ชื่อแล้ว กดเพิ่มได้อีก</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">บีม <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">มายด์ <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">ปอนด์ <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">เจได <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">ฟ้า <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">แทน <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">แก้ม <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">ปาล์ม <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">ขวัญ <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">เหนือ <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">ไอซ์ <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">อั้ม <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;"><span style="color: #6b7280;">+</span> เพิ่มได้อีก</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" placeholder="พิมพ์ชื่อแล้วกดเพิ่ม" style="flex: 1; min-height: 52px; box-sizing: border-box; padding: 0 14px; font-size: 15px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px;">
+        <button style="min-height: 52px; padding: 0 18px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 16px; border: 2.5px solid #1a1a1a; border-radius: 14px; cursor: pointer;">เพิ่มชื่อ</button>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6b7280;">กด ✕ เอาชื่อออกได้ทีละชื่อ · ชื่ออยู่ที่เครื่องนี้ชั่วคราว รีเฟรชแล้วหาย</p>
+      <button style="min-height: 60px; background: #1a1a1a; color: #fffdf7; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">ใส่ชื่อลงวงล้อ</button>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#7fd8e8","options":["#7fd8e8","#ffd27f","#f89880"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#7fd8e8' };
+  }
+}
+</script>
+</body>
+</html>

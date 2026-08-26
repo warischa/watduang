@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #1a1a1a; text-decoration: none; }
+    a:hover { color: #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 1180px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
+
+  <!-- tool chrome -->
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
+    <a href="/tools/" style="display: flex; align-items: center; gap: 6px; font-size: 14px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+      เครื่องมือสุ่มทั้งหมด
+    </a>
+    <span style="font-size: 13px; font-weight: 500; border: 2px solid #1a1a1a; border-radius: 999px; padding: 3px 10px;">เครื่องมือ</span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px; padding: 24px 20px 22px 20px; background: {{accent}}; border-bottom: 3px solid #1a1a1a;">
+    <span style="font-size: 13px; letter-spacing: 1px; color: #6b7280;">ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง</span>
+    <h1 style="font-family: Mitr, sans-serif; font-weight: 600; font-size: 26px; line-height: 1.3; margin: 0;">แบ่งทีม</h1>
+    <p style="margin: 0; font-size: 14.5px; line-height: 1.65;">ใส่ชื่อลงสนาม เลือกจำนวนทีม แล้วสุ่มแบ่งให้ทันที — คนเกินกระจายให้เห็นชัดว่าทีมไหนได้เพิ่ม</p>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 20px; padding: 20px;">
+
+    <!-- shared name-entry panel, filled -->
+    <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+        <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px;">ชื่อในสนาม</h2>
+        <span style="font-size: 12px; color: #6b7280;">ใส่ได้กี่คนก็ได้</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" placeholder="พิมพ์ชื่อแล้วกดเพิ่ม" style="flex: 1; min-height: 52px; box-sizing: border-box; padding: 0 14px; font-size: 15px; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px;">
+        <button style="min-height: 52px; padding: 0 18px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 16px; border: 2.5px solid #1a1a1a; border-radius: 14px; cursor: pointer;">เพิ่มชื่อ</button>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">บีม <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">มายด์ <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">ปอนด์ <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">เจได <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">ฟ้า <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">แทน <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+        <span style="font-size: 13px; font-weight: 500; background: #fff8e8; border: 2px solid #1a1a1a; border-radius: 999px; padding: 4px 12px;">แก้ม <span style="color: #6b7280; font-size: 12px;">✕</span></span>
+      </div>
+      <button style="min-height: 60px; background: #1a1a1a; color: #fffdf7; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">ใส่ชื่อลงสนาม</button>
+    </div>
+
+    <!-- the split: 7 names into 2 teams, sizes 4 and 3, earliest team says (ได้คนเกิน) -->
+    <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 18px 16px;">
+      <h2 style="margin: 0 0 12px 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 19px;">แบ่งทีม</h2>
+
+      <label style="display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500;">
+        จำนวนทีม
+        <input type="number" min="1" value="2" style="width: 4rem; min-height: 48px; box-sizing: border-box; padding: 0 10px; font-size: 18px; text-align: center; background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 14px;">
+      </label>
+
+      <button style="width: 100%; min-height: 60px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 #1a1a1a; cursor: pointer; margin-top: 12px;">แบ่งทีม</button>
+
+      <p style="margin: 10px 0 0 0; font-size: 13px; color: #6b7280;">พร้อมแบ่ง 7 คน เป็น 2 ทีม</p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+        <div style="background: #f3efe4; border: 2.5px solid #1a1a1a; border-radius: 16px; padding: 14px 16px;">
+          <p style="margin: 0 0 6px 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 17px;">ทีม 1 — 4 คน (ได้คนเกิน)</p>
+          <p style="margin: 0; font-size: 14px; line-height: 1.6;">บีม, ปอนด์, ฟ้า, แก้ม</p>
+        </div>
+        <div style="background: #f3efe4; border: 2.5px solid #1a1a1a; border-radius: 16px; padding: 14px 16px;">
+          <p style="margin: 0 0 6px 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 17px;">ทีม 2 — 3 คน</p>
+          <p style="margin: 0; font-size: 14px; line-height: 1.6;">มายด์, เจได, แทน</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ad below the tool — the ADR-0004 placement -->
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; border-top: 2.5px solid #1a1a1a; background: #f3efe4; font-size: 12px; color: #6b7280;">ช่องโฆษณา — ใต้เครื่องมือ (ADR-0004)</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#7fd8e8","options":["#7fd8e8","#ffd27f","#f89880"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#7fd8e8' };
+  }
+}
+</script>
+</body>
+</html>
