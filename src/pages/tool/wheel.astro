@@ -10,25 +10,57 @@ import GameNav from '../../components/GameNav.astro';
 >
   <main>
     <h1>วงล้อสุ่มชื่อ</h1>
-    <!-- gh#91 removed the tool-to-game name handoff: this tool now keeps its own list and never
-         writes the shared roster. The clause promising names flow onward was deleted, not reworded. -->
+    {/* gh#91 removed the tool-to-game name handoff: this tool now keeps its own list and never
+        writes the shared roster. The clause promising names flow onward was deleted, not reworded. */}
     <p>ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน</p>
 
     <ToolNameEntry heading="ชื่อในวง" storageKey="watduang:tool:wheel-names" ctaLabel="ใส่ชื่อลงวงล้อ" />
 
     <section id="wheel" aria-labelledby="wheel-heading">
-      <h2 id="wheel-heading">วงล้อ</h2>
+      <div class="wheel-head">
+        <h2 id="wheel-heading">วงล้อ</h2>
+      </div>
 
-      <div id="wheel-disc" class="wheel-disc" aria-hidden="true"></div>
+      {/* The stop-mode choice is the reader's: two labelled radios, copy byte-exact from the
+          artboard's A/B captions. Checked pill takes the tool accent. */}
+      <div class="wheel-mode">
+        <label class="wheel-mode-option">
+          <input type="radio" name="wheel-mode" value="auto" checked />
+          A · หมุนแล้วช้าลงจนหยุดเอง
+        </label>
+        <label class="wheel-mode-option">
+          <input type="radio" name="wheel-mode" value="press" />
+          B · หมุนค้างไว้ จนกว่าจะกด "หยุด"
+        </label>
+      </div>
 
-      <p id="wheel-result" class="wheel-result" role="status" aria-live="polite"></p>
+      {/* One svg 400x400 disc (the artboard's viewBox) inside a button: the whole disc is the spin
+          control, labelled "หมุน" like the canvas hub text. Segments, rim and labels are drawn by
+          the script into #wheel-group — the hub circle, hub label and fixed pointer below are the
+          artboard's own static chrome, byte-exact. */}
+      <div class="wheel-stage">
+        <button type="button" id="wheel-disc" class="wheel-disc" aria-label="หมุน" aria-describedby="wheel-note">
+          <svg viewBox="0 0 400 400" aria-hidden="true">
+            <g id="wheel-group"></g>
+            <circle cx="200" cy="200" r="46" fill="#fffdf7" stroke="#1a1a1a" stroke-width="7"></circle>
+            <text x="200" y="212" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="26" fill="#1a1a1a">หมุน</text>
+            <path d="M200 8 l22 40 h-44 z" fill="#fffdf7" stroke="#1a1a1a" stroke-width="6" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div id="wheel-result" class="wheel-result" role="status" aria-live="polite"></div>
       <p id="wheel-note" class="wheel-note" role="status" aria-live="polite">
         ยังหมุนไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงวงล้อ"
       </p>
 
       <div class="wheel-actions">
-        <button id="wheel-spin" type="button" disabled aria-describedby="wheel-note">หมุน</button>
-        <button id="wheel-reset" type="button">คืนทุกชื่อเข้าวงล้อ</button>
+        <button id="wheel-spin" class="wheel-spin" type="button" disabled aria-describedby="wheel-note">หมุน</button>
+        {/* The stop control of behaviour B. It renders (disabled, nothing running) whenever B is
+            selected, so it never appears mid-spin and never moves the ad below — under
+            prefers-reduced-motion B collapses into A and this control stays inert forever. */}
+        <button id="wheel-stop" class="wheel-stop" type="button" hidden disabled>หยุด</button>
+        <button id="wheel-reset" class="wheel-reset" type="button">คืนทุกชื่อเข้าวงล้อ</button>
       </div>
 
       <p class="wheel-toggle">
@@ -40,15 +72,14 @@ import GameNav from '../../components/GameNav.astro';
       <ul id="wheel-names" class="wheel-names"></ul>
 
       {/* The path into a game sits right next to the tool, not below the ad — #11 says this is the
-           whole reason the tool exists. Names flow forward via the roster (localStorage), not session,
-           so they never clobber a game's stranded checkpoint. */}
+           whole reason the tool exists. Tools keep no roster of their own by design (ADR-0039). */}
       <GameNav navClass="wheel-next" />
     </section>
 
     {/* The ad always sits below the tool (ADR-0004) · min-height reserves the space up front so content
-         doesn't jump on load, and nothing may be injected above the content.
-         Clearance vs a controls-driven layout shift here is verified by hand only, not in CI.
-         See scripts/ad-slot-grid-probe.mjs. */}
+        doesn't jump on load, and nothing may be injected above the content.
+        Clearance vs a controls-driven layout shift here is verified by hand only, not in CI.
+        See scripts/ad-slot-grid-probe.mjs. */}
     <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
 
     <section id="how-to-use">
@@ -72,22 +103,98 @@ import GameNav from '../../components/GameNav.astro';
     color: var(--color-text);
   }
 
-  /* 320px screen: the wheel's size tracks viewport width, not a fixed value, so it can't overflow sideways. */
-  .wheel-disc {
-    width: min(220px, 60vw);
-    aspect-ratio: 1;
-    margin: var(--space-md) auto;
-    border: 8px solid var(--color-border);
-    border-top-color: var(--color-primary);
-    border-radius: 50%;
+  /* 320px screen: the disc is fluid below 400px (the desktop artboard's disc size), so it can
+     never overflow sideways; aspect-ratio keeps it square whatever the width. */
+  .wheel-stage {
+    display: flex;
+    justify-content: center;
+    margin: var(--space-md) 0;
   }
 
-  /* Reserves space for the result up front so content below doesn't shift when a name appears · a long name wraps instead of pushing the layout. */
-  .wheel-result {
-    min-height: 2em;
+  .wheel-disc {
+    display: block;
+    width: min(100%, 400px);
+    aspect-ratio: 1;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  .wheel-disc:disabled {
+    cursor: default;
+  }
+
+  .wheel-disc svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .wheel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .wheel-head h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+  }
+
+  .wheel-mode {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: var(--space-sm) 0 var(--space-md);
+  }
+
+  .wheel-mode-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--color-text);
+    border: 2px solid var(--color-line-strong);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+
+  .wheel-mode-option:has(input:checked) {
+    background: var(--accent-sky);
+  }
+
+  .wheel-mode-option input {
+    margin: 0;
+    accent-color: var(--color-line-strong);
+  }
+
+  /* The result bar reserves its full height up front (canvas result card on the 390 artboard:
+     14px 16px padding, radius 16 — 60px is the artboard's own button min-height, reused here so
+     the reserved box matches the canvas proportions), and the script keeps long names on one line
+     by shrinking the type, so the ad below never moves when a name appears. The 1.2 line-height is
+     the canvas's own title value — without it a 26px result line pushes the bar (and the ad below)
+     down by ~8px the moment a name appears, measured live. */
+  .wheel-result {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 60px;
+    margin: 0;
+    padding: 14px 16px;
+    background: var(--color-line-strong);
+    color: var(--color-ground-warm);
+    border-radius: 16px;
+    text-align: center;
+    font-family: var(--font-display);
     font-weight: 700;
+    font-size: 26px;
+    line-height: 1.2;
     overflow-wrap: anywhere;
   }
 
@@ -97,18 +204,60 @@ import GameNav from '../../components/GameNav.astro';
     color: var(--color-muted);
   }
 
-  /* Buttons wrap onto a new line instead of overflowing sideways when the screen is narrower than both buttons combined. */
-  .wheel-actions,
-  .wheel-names {
+  /* Buttons wrap onto a new line instead of overflowing sideways when the screen is narrower than
+     both buttons combined. Colours/heights/radii byte-exact from the 390 artboard's wheel card. */
+  .wheel-actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-sm);
   }
 
+  .wheel-spin,
+  .wheel-stop,
+  .wheel-reset {
+    border: 2.5px solid var(--color-line-strong);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+
+  .wheel-spin {
+    flex: 1 1 auto;
+    min-height: 60px;
+    padding: 0 18px;
+    background: var(--accent-sky);
+    color: var(--color-text);
+    font-size: 20px;
+    border-radius: 16px;
+    box-shadow: 4px 4px 0 var(--color-line-strong);
+  }
+
+  .wheel-stop {
+    min-height: 56px;
+    padding: 0 18px;
+    background: var(--color-line-strong);
+    color: var(--color-ground-warm);
+    font-size: 18px;
+    border-radius: 16px;
+    box-shadow: 4px 4px 0 rgba(26, 26, 26, 0.3);
+  }
+
+  .wheel-reset {
+    min-height: 52px;
+    padding: 0 18px;
+    background: var(--color-ground-warm);
+    color: var(--color-text);
+    font-size: 16px;
+    border-radius: 14px;
+  }
+
   .wheel-names {
+    display: flex;
+    flex-wrap: wrap;
     list-style: none;
     padding: 0;
     margin: var(--space-md) 0;
+    gap: var(--space-sm);
   }
 
   .wheel-names li {
@@ -120,52 +269,143 @@ import GameNav from '../../components/GameNav.astro';
     text-decoration: line-through;
   }
 
-  @keyframes wheel-spin {
+  /* Behaviour B keeps the wheel turning until the stop control is pressed — the 8s linear cycle is
+     the canvas's own tool-spin keyframes. Reduced-motion turns it off, like every decorative
+     motion on the canvas; the script never even adds the class under that preference. */
+  @keyframes wheel-press {
     to {
-      transform: rotate(1440deg);
+      transform: rotate(360deg);
     }
   }
 
-  .wheel-disc.is-spinning {
-    animation: wheel-spin 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  #wheel-group.is-pressing {
+    animation: wheel-press 8s linear infinite;
   }
 
-  /* Animation off — the result still shows as text in #wheel-result as before (the script reveals it immediately, no wait). */
   @media (prefers-reduced-motion: reduce) {
-    .wheel-disc.is-spinning {
+    #wheel-group.is-pressing {
       animation: none;
     }
   }
 </style>
 
 <script>
-  import { pickName } from '../../tools/wheel';
+  import {
+    pickName,
+    landingRotation,
+    segmentPath,
+    labelGeometry,
+    labelFontSize,
+    labelText,
+    WHEEL_PALETTE,
+  } from '../../tools/wheel';
 
-  const disc = document.getElementById('wheel-disc') as HTMLElement;
+  const disc = document.getElementById('wheel-disc') as HTMLButtonElement;
+  const group = document.querySelector<SVGGElement>('#wheel-group')!;
   const resultEl = document.getElementById('wheel-result') as HTMLElement;
   const noteEl = document.getElementById('wheel-note') as HTMLElement;
   const namesEl = document.getElementById('wheel-names') as HTMLUListElement;
   const spinBtn = document.getElementById('wheel-spin') as HTMLButtonElement;
+  const stopBtn = document.getElementById('wheel-stop') as HTMLButtonElement;
   const resetBtn = document.getElementById('wheel-reset') as HTMLButtonElement;
   const eliminateBox = document.getElementById('wheel-eliminate') as HTMLInputElement;
+  const modeEls = Array.from(document.querySelectorAll<HTMLInputElement>('input[name="wheel-mode"]'));
 
-  // This constant is the precondition keeping the delayed ad-slot shift (line ~243) outside the
-  // double-tap window. NOT gated in CI — see the rejected-tripwire reasoning in
-  // scripts/adslot-wheel-delay-probe.mjs. A render() that removes rows instead of appending the
-  // finished marker would reintroduce the hazard with SPIN_MS untouched.
-  const SPIN_MS = 1200;
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  // Choreography: the canvas gives the mode-B hold (8s linear) but no landing timing, so these
+  // three are page constants — mode A: 4 full turns then the landing; mode B: one last arc after
+  // the stop press. Flagged in the ticket return, not canvas-sourced.
+  const TURNS = 4;
+  const SPIN_MS = 2000;
+  const STOP_MS = 900;
+
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let players: string[] = [];
   // Who's already out — deliberately memory-only, a refresh starts a fresh round
-  // (names survive because the tool's own list is localStorage) · must never persist to shell/session.ts, because
-  // checkpoint is one slot shared site-wide — the moment a tool touches it, any game stranded mid-round is gone.
+  // (names survive because the tool's own list is localStorage) — tools never touch shell/session.ts.
   const spun = new Set<string>();
   let spinning = false;
+  let pressMode = false;
+  // Cumulative wheel rotation in degrees, owned by the landing math alone. The final angle is
+  // computed FROM the picked name, never read back off the wheel to decide the answer.
+  let rotation = 0;
   let spinTimer = 0;
 
   function remaining(): string[] {
     return eliminateBox.checked ? players.filter((name) => !spun.has(name)) : players;
+  }
+
+  function mode(): 'auto' | 'press' {
+    const checked = modeEls.find((el) => el.checked);
+    return checked?.value === 'press' ? 'press' : 'auto';
+  }
+
+  function setRotation(deg: number, transitionFx: string | null): void {
+    rotation = deg;
+    group.style.transition = transitionFx === null ? 'none' : transitionFx;
+    group.style.transform = `rotate(${deg}deg)`;
+  }
+
+  // Rebuilds one segment per name — the list that feeds the wheel is `remaining()`, so the disc
+  // re-draws when names arrive, when the eliminate box flips, and after every reveal removes one.
+  function drawWheel(names: string[]): void {
+    while (group.firstChild) group.removeChild(group.firstChild);
+    if (names.length === 0) return; // hub, hub label and pointer are static svg chrome
+
+    if (names.length === 1) {
+      // one segment IS the whole disc — a filled circle stands in for the degenerate wedge
+      const discEl = document.createElementNS(SVG_NS, 'circle');
+      discEl.setAttribute('cx', '200');
+      discEl.setAttribute('cy', '200');
+      discEl.setAttribute('r', '164');
+      discEl.setAttribute('fill', WHEEL_PALETTE[0]);
+      group.appendChild(discEl);
+    } else {
+      for (let i = 0; i < names.length; i++) {
+        const seg = document.createElementNS(SVG_NS, 'path');
+        seg.setAttribute('d', segmentPath(i, names.length));
+        seg.setAttribute('fill', WHEEL_PALETTE[i % WHEEL_PALETTE.length]);
+        group.appendChild(seg);
+      }
+    }
+
+    // rim rides inside the rotating group, as on the artboard
+    const rim = document.createElementNS(SVG_NS, 'circle');
+    rim.setAttribute('cx', '200');
+    rim.setAttribute('cy', '200');
+    rim.setAttribute('r', '164');
+    rim.setAttribute('fill', 'none');
+    rim.setAttribute('stroke', '#1a1a1a');
+    rim.setAttribute('stroke-width', '7');
+    group.appendChild(rim);
+
+    for (let i = 0; i < names.length; i++) {
+      const label = labelGeometry(i, names.length);
+      const text = document.createElementNS(SVG_NS, 'text');
+      text.setAttribute('x', String(label.x));
+      text.setAttribute('y', String(label.y));
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('font-family', 'Mitr, sans-serif');
+      text.setAttribute('font-weight', '600');
+      text.setAttribute('font-size', String(labelFontSize(names.length)));
+      text.setAttribute('fill', '#1a1a1a');
+      text.setAttribute('transform', `rotate(${label.angle} ${label.x} ${label.y})`);
+      text.textContent = labelText(names[i]!, names.length);
+      group.appendChild(text);
+    }
+  }
+
+  // Long names still fit the reserved one-line result bar: shrink the type below the canvas 26px
+  // (0.62em glyph-advance estimate, same heuristic as labelText — judged on the rendered page).
+  function fitResultFont(): void {
+    resultEl.style.fontSize = '';
+    const text = resultEl.textContent;
+    if (!text) return;
+    const inner = resultEl.clientWidth - 32; // the artboard's 16px side padding
+    const size = Math.min(26, Math.max(12, Math.floor(inner / (text.length * 0.62))));
+    if (size < 26) resultEl.style.fontSize = `${size}px`;
   }
 
   function render(): void {
@@ -181,9 +421,15 @@ import GameNav from '../../components/GameNav.astro';
 
     const left = remaining();
     // Spin still works with one person left — the last person deserves their own result like everyone else, not an unannounced leftover.
-    spinBtn.disabled = spinning || players.length < 2 || left.length === 0;
+    const canSpin = players.length >= 2 && left.length > 0;
+    spinBtn.disabled = spinning || !canSpin;
+    disc.disabled = spinBtn.disabled;
+    stopBtn.hidden = mode() !== 'press';
+    stopBtn.disabled = !pressMode;
+    for (const el of modeEls) el.disabled = spinning;
 
     if (spinning) {
+      // behaviour B paints its own canvas copy over this, in spin()
       noteEl.textContent = 'กำลังหมุน…';
     } else if (players.length === 0) {
       noteEl.textContent = 'ยังหมุนไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงวงล้อ"';
@@ -202,54 +448,109 @@ import GameNav from '../../components/GameNav.astro';
     }
   }
 
-  function spin(): void {
-    const left = remaining();
-    let picked: string;
+  function reveal(picked: string): void {
+    spinning = false;
+    pressMode = false;
+    clearTimeout(spinTimer);
+    group.classList.remove('is-pressing');
+    spun.add(picked);
+    // Reads state at reveal time, not at spin start — the checkbox can be toggled mid-spin.
+    // This can only ever say "who got picked", a past fact that never changes · round state (done yet,
+    // who's left) belongs to the note, owned solely by render() — otherwise unchecking after a round
+    // ends would leave the result stuck announcing "everyone's out" while the wheel is full again.
+    const done = eliminateBox.checked && remaining().length === 0;
+    resultEl.textContent = done ? `โดน: ${picked} (คนสุดท้าย)` : `โดน: ${picked}`;
+    fitResultFont();
+    drawWheel(remaining());
+    render();
+  }
+
+  function pickFrom(left: string[]): string | null {
     if (left.length === 1) {
       // One person left = nothing to randomize, but it still has to be revealed as a result.
       // (pickName deliberately throws below 2 names — a non-random pick doesn't belong forced into that.)
-      picked = left[0]!;
-    } else {
-      try {
-        picked = pickName(left);
-      } catch (error) {
-        // Last line of defense — the button is normally disabled before this, but if this is somehow
-        // reached, the user must see the reason as text with a way out, not a silently dead button or
-        // an error stuck only in the console.
-        const reason = error instanceof Error ? error.message : 'หมุนไม่ได้';
-        noteEl.textContent = `${reason} — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
-        spinBtn.disabled = true;
-        return;
-      }
+      return left[0]!;
     }
+    try {
+      return pickName(left);
+    } catch (error) {
+      // Last line of defense — the button is normally disabled before this, but if this is somehow
+      // reached, the user must see the reason as text with a way out, not a silently dead button or
+      // an error stuck only in the console.
+      const reason = error instanceof Error ? error.message : 'หมุนไม่ได้';
+      noteEl.textContent = `${reason} — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
+      spinBtn.disabled = true;
+      disc.disabled = true;
+      return null;
+    }
+  }
+
+  function spin(): void {
+    const left = remaining();
+    const picked = pickFrom(left);
+    if (picked === null) return;
+    // Names are unique by construction (the panel refuses duplicates), so indexOf is honest.
+    const index = left.indexOf(picked);
 
     spinning = true;
+    pressMode = false;
     resultEl.textContent = '';
     render();
 
-    const reveal = (): void => {
-      spinning = false;
-      disc.classList.remove('is-spinning');
-      spun.add(picked);
-      // Reads state at reveal time, not at spin start — the checkbox can be toggled mid-spin.
-      // This can only ever say "who got picked", a past fact that never changes · round state (done yet,
-      // who's left) belongs to the note, owned solely by render() — otherwise unchecking after a round
-      // ends would leave the result stuck announcing "everyone's out" while the wheel is full again.
-      const done = eliminateBox.checked && remaining().length === 0;
-      resultEl.textContent = done ? `โดน: ${picked} (คนสุดท้าย)` : `โดน: ${picked}`;
-      render();
-    };
-
     if (reduceMotion.matches) {
-      reveal();
+      // Behaviour B collapses into A, and A skips its motion entirely — the wheel still settles
+      // onto the answer's landing angle, just without animating there. The stop control never
+      // renders live, so there is never a stop with nothing running behind it.
+      setRotation(landingRotation(rotation, index, left.length, TURNS), null);
+      reveal(picked);
       return;
     }
 
-    disc.classList.remove('is-spinning');
-    void disc.offsetWidth; // reflow — otherwise spinning again right away won't restart the animation
-    disc.classList.add('is-spinning');
-    spinTimer = window.setTimeout(reveal, SPIN_MS);
+    if (mode() === 'press') {
+      pressMode = true;
+      // behaviour B: hold the wheel until the stop control — the canvas's 8s linear cycle.
+      group.style.transition = 'none';
+      group.style.transform = '';
+      group.classList.add('is-pressing');
+      // canvas B caption, byte-exact from the desktop artboard
+      noteEl.textContent = 'ผลยังไม่ออก — กด "หยุด" แล้วค่อยเฉลยว่าใครโดน';
+      stopBtn.hidden = false;
+      stopBtn.disabled = false;
+      return;
+    }
+
+    // behaviour A: the answer is already decided — the wheel animates towards its landing angle.
+    setRotation(landingRotation(rotation, index, left.length, TURNS), `transform ${SPIN_MS}ms cubic-bezier(0.2, 0.7, 0.2, 1)`);
+    spinTimer = window.setTimeout(() => reveal(picked), SPIN_MS + 60);
   }
+
+  stopBtn.addEventListener('click', () => {
+    if (!pressMode) return;
+    clearTimeout(spinTimer);
+    group.classList.remove('is-pressing');
+    pressMode = false;
+
+    // Freeze the decorative hold exactly where it is; then the landing delta runs from that angle.
+    // The angle only feeds how much FURTHER to turn — the answer this arc lands on comes from the
+    // picker below, never from this reading.
+    const m = new DOMMatrix(getComputedStyle(group).transform);
+    const holdAngle = (Math.atan2(m.b, m.a) * 180) / Math.PI || 0;
+    group.style.transition = 'none';
+    group.style.transform = `rotate(${holdAngle}deg)`;
+    void group.getBoundingClientRect(); // commit the freeze before starting the landing transition
+
+    const left = remaining();
+    const picked = pickFrom(left);
+    if (picked === null) {
+      spinning = false;
+      render();
+      return;
+    }
+    const index = left.indexOf(picked);
+
+    setRotation(landingRotation(holdAngle, index, left.length, TURNS), `transform ${STOP_MS}ms cubic-bezier(0.2, 0.7, 0.2, 1)`);
+    spinTimer = window.setTimeout(() => reveal(picked), STOP_MS + 60);
+  });
 
   // gh#91 — names arrive from the tool's own name panel (ToolNameEntry) on this event, the same
   // channel the shell panel used. The tool stays a listener; its behaviour is untouched.
@@ -257,22 +558,46 @@ import GameNav from '../../components/GameNav.astro';
     players = (event as CustomEvent<{ players: string[] }>).detail.players;
     spun.clear();
     resultEl.textContent = '';
+    rotation = 0;
+    group.style.transition = 'none';
+    group.style.transform = '';
+    drawWheel(remaining());
     render();
   });
 
+  disc.addEventListener('click', spin);
   spinBtn.addEventListener('click', spin);
 
   resetBtn.addEventListener('click', () => {
-    // Pressed mid-spin: the pending reveal must be cancelled, otherwise in 1.2s it fills back in the result that was just cleared.
-    window.clearTimeout(spinTimer);
+    // Pressed mid-spin: the pending reveal must be cancelled, otherwise it fills back in the result that was just cleared.
+    clearTimeout(spinTimer);
     spinning = false;
-    disc.classList.remove('is-spinning');
+    pressMode = false;
+    group.classList.remove('is-pressing');
+    group.style.transition = 'none';
+    group.style.transform = '';
+    rotation = 0;
     spun.clear();
     resultEl.textContent = '';
+    drawWheel(remaining());
     render();
   });
 
-  eliminateBox.addEventListener('change', render);
+  eliminateBox.addEventListener('change', () => {
+    drawWheel(remaining());
+    render();
+  });
+
+  for (const el of modeEls) {
+    el.addEventListener('change', () => {
+      // Switching mode mid-spin cancels that spin — no mode takes over under a running wheel.
+      clearTimeout(spinTimer);
+      spinning = false;
+      pressMode = false;
+      group.classList.remove('is-pressing');
+      render();
+    });
+  }
 
   render();
 </script>
