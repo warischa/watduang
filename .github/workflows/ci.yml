@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     # A permissions: block is exhaustive — declaring it at all drops everything not listed to none,
     # so contents: read must be spelled out here or actions/checkout@v5 below gets a token that
-    # cannot read this repo. id-token: write is what lets azure/login@v2 mint the OIDC assertion;
+    # cannot read this repo. id-token: write is what lets azure/login mint the OIDC assertion;
     # without it that step fails with "Unable to get ACTIONS_ID_TOKEN_REQUEST_URL".
     # Nothing beyond these two is needed. The deploy action's own action.yml documents repo_token as
     # "Currently used only for commenting on Pull Requests", and the deploy steps are gated to
@@ -25,7 +25,7 @@ jobs:
       id-token: write
     env:
       # Armed only when ALL THREE identifiers exist. A partial set must read as NOT armed: two of
-      # three would sail past this gate and die inside azure/login@v2 after every other gate has
+      # three would sail past this gate and die inside azure/login after every other gate has
       # gone green, so an unconfigured repo would look like a broken deploy instead of a quiet one.
       # Stored as repository SECRETS rather than variables deliberately, even though client/tenant/
       # subscription ids are identifiers and not credentials: several docs here answer "is deploy
