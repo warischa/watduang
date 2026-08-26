@@ -2,7 +2,19 @@
 // Covers the pure wheel logic exported from wheel.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pickName } from './wheel.ts';
+import {
+  pickName,
+  segmentPath,
+  segmentEndpoints,
+  labelGeometry,
+  labelFontSize,
+  labelText,
+  landingRotation,
+  WHEEL_RIM_R,
+  WHEEL_CX,
+  WHEEL_CY,
+  WHEEL_PALETTE,
+} from './wheel.ts';
 
 test('pickName คืนชื่อที่อยู่ในลิสต์เสมอ', () => {
   const names = ['เอ', 'บี', 'ซี'];
@@ -46,4 +58,112 @@ test('ลิสต์ว่างพัง ด้วยเหตุผลภา�
 
 test('ลิสต์มีชื่อเดียวพัง ด้วยเหตุผลภาษาไทยที่อ่านได้ ไม่ใช่คืนค่าว่างเงียบๆ', () => {
   assert.throws(() => pickName(['เอ'], () => 0), /คน/);
+});
+
+// ---- Wheel geometry (gh#92) -----------------------------------------------------
+
+// The eight paths the artboard draws, in artboard order — segmentPath must reproduce them
+// byte-exact for count 8, or the built wheel drifts from the canvas (ADR-0033).
+const ARTBOARD_PATHS_8 = [
+  'M200 200 L137.2 48.5 A164 164 0 0 1 262.8 48.5 Z',
+  'M200 200 L262.8 48.5 A164 164 0 0 1 351.5 137.2 Z',
+  'M200 200 L351.5 137.2 A164 164 0 0 1 351.5 262.8 Z',
+  'M200 200 L351.5 262.8 A164 164 0 0 1 262.8 351.5 Z',
+  'M200 200 L262.8 351.5 A164 164 0 0 1 137.2 351.5 Z',
+  'M200 200 L137.2 351.5 A164 164 0 0 1 48.5 262.8 Z',
+  'M200 200 L48.5 262.8 A164 164 0 0 1 48.5 137.2 Z',
+  'M200 200 L48.5 137.2 A164 164 0 0 1 137.2 48.5 Z',
+];
+
+test('segmentPath คืนร่าง 8 ช่องได้ตรงกับ artboard ทีละไบต์', () => {
+  for (let i = 0; i < 8; i++) {
+    assert.equal(segmentPath(i, 8), ARTBOARD_PATHS_8[i], `ช่องที่ ${i}`);
+  }
+});
+
+test('จุดปลายของทุกช่องอยู่บนเส้นขอบรัศมี 164 และกินมุม 360/count', () => {
+  for (const count of [2, 3, 5, 8, 12, 40]) {
+    for (let i = 0; i < count; i++) {
+      const { from, to } = segmentEndpoints(i, count);
+      for (const p of [from, to]) {
+        const dist = Math.hypot(p.x - WHEEL_CX, p.y - WHEEL_CY);
+        assert.ok(Math.abs(dist - WHEEL_RIM_R) < 1e-6, `count=${count} ช่อง ${i}: รัศมี ${dist}`);
+      }
+      // angle of each endpoint (clockwise from 12) must land exactly on the segment bounds
+      const ang = (p) => (Math.atan2(p.x - WHEEL_CX, WHEEL_CY - p.y) * 180) / Math.PI;
+      const seg = 360 / count;
+      const fromA = (ang(from) + 360) % 360;
+      const toA = (ang(to) + 360) % 360;
+      assert.ok(Math.abs(fromA - ((i * seg - seg / 2) + 360) % 360) < 1e-6, `from ${count}/${i}`);
+      assert.ok(Math.abs(toA - ((i * seg + seg / 2) + 360) % 360) < 1e-6, `to ${count}/${i}`);
+    }
+  }
+});
+
+test('labelGeometry วางป้ายที่มุม i*360/count ระหว่าง hub กับ rim', () => {
+  for (const count of [2, 4, 8, 16]) {
+    for (let i = 0; i < count; i++) {
+      const l = labelGeometry(i, count);
+      assert.equal(((l.angle % 360) + 360) % 360, ((i * 360) / count) % 360);
+      const dist = Math.hypot(l.x - WHEEL_CX, l.y - WHEEL_CY);
+      assert.ok(dist > 46 && dist < 164, `count ${count}/${i}: ป้ายออกนอกวง ${dist}`);
+    }
+  }
+});
+
+test('landingRotation วางช่องที่เลือกไว้ตรงเข็มชี้ 12 นาฬิกาเสมอ', () => {
+  for (const count of [2, 3, 8, 17, 40]) {
+    for (const index of [0, 1, count - 1]) {
+      for (const current of [0, 37, 359, 720 + 41]) {
+        const final = landingRotation(current, index, count, 3);
+        const seg = 360 / count;
+        // pointer sits at 0; the picked segment centre must be at 0 after the rotation
+        const centre = (((index * seg + final) % 360) + 360) % 360;
+        assert.ok(Math.abs(centre) < 1e-9 || Math.abs(centre - 360) < 1e-9, `count ${count}/${index} from ${current}: centre ${centre}`);
+        assert.ok(final - current >= 3 * 360 - 1e-9, 'ต้องหมุนอย่างน้อยครบรอบที่ขอ');
+      }
+    }
+  }
+});
+
+test('landingRotation ไม่ติดลบ และหมุนเต็มรอบเมื่อช่องเป้าเป็นช่องเดิมเสมอ', () => {
+  // current already lands segment 0 under the pointer with count 4 (its centre sits at 0);
+  // asking for segment 0 again must add exactly `turns` full turns, no half-turn jitter
+  const final = landingRotation(0, 0, 4, 5);
+  assert.equal(final, 5 * 360);
+  const finalNeg = landingRotation(-90, 1, 4, 2);
+  assert.ok(finalNeg >= 2 * 360 - 90);
+});
+
+test('labelFontSize อยู่ที่ 21 สำหรับ 8 ช่อง แล้วค่อยๆเล็กลง ไม่ต่ำกว่า 13', () => {
+  assert.equal(labelFontSize(2), 21);
+  assert.equal(labelFontSize(8), 21);
+  const mid = labelFontSize(10);
+  assert.ok(mid < 21 && mid >= 13);
+  assert.ok(labelFontSize(40) >= 13);
+  // monotonic non-increasing
+  let prev = 21;
+  for (let n = 2; n <= 60; n++) {
+    const f = labelFontSize(n);
+    assert.ok(f <= prev, `n=${n}: ${f} > ${prev}`);
+    prev = f;
+  }
+});
+
+test('labelText ตัดชื่อยาวที่เกินช่องและลงท้ายด้วย ellipsis ชื่อสั้นไม่แตะ', () => {
+  // canonical 8-name disc: artboard names (all <= 5 chars) must print whole
+  for (const name of ['บีม', 'มายด์', 'ปอนด์', 'เจได', 'ฟ้า', 'แทน', 'แก้ม', 'ปาล์ม']) {
+    assert.equal(labelText(name, 8), name);
+  }
+  const long = 'ชื่อนี้ยาวเกินช่องไปมากจริงๆ';
+  const cut = labelText(long, 8);
+  assert.ok(cut.endsWith('…'));
+  assert.ok(cut.length <= 6);
+  assert.ok(long.startsWith(cut.slice(0, -1)));
+  // thin segments cut harder than wide ones
+  assert.ok(labelText(long, 20).length <= labelText(long, 8).length);
+});
+
+test('WHEEL_PALETTE ตามลำดับสีของ artboard', () => {
+  assert.deepEqual([...WHEEL_PALETTE], ['#ffd27f', '#f89880', '#7fd8e8']);
 });
