@@ -1,7 +1,7 @@
 // Siamsi Party — pass the phone around, each player draws one fortune, see the summary once everyone's drawn
 // The .ts extension on the import path is required for `node --test` (Node does not guess extensions) — Vite/tsc both accept it
 import type { GameContext, GameModule } from './types.ts';
-import { armAllButtons } from './_arm-gate.ts';
+import { armAllButtons, ARM_DELAY_MS } from './_arm-gate.ts';
 import { el } from './_el.ts';
 
 // ---- Fortunes + deck: pure and calculable, testable with no DOM (see siamsi.test.mjs) ----
@@ -192,7 +192,8 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
 // because the shell defines --page-accent on <main> above the stage (GameLayout.astro). The stick
 // wood #f7e6c4 and the marked tip #d6336c are literals with no token, as the brief allows. The
 // ellipse uses the warm ground token and every outline uses the strong line token, exactly as
-// pick-loser's burst does (gh#76). The 3D shake barrel is gh#83's problem — not built here.
+// pick-loser's burst does (gh#76). The 3D wobble that moves this drawing is the sensor path
+// further down (gh#83) — this string only draws it.
 const BARREL_SVG =
   '<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true">' +
   '<rect x="66" y="18" width="9" height="120" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
@@ -205,6 +206,248 @@ const BARREL_SVG =
   '<path d="M70 150 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
   '<path d="M72 172 h52" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
   '</svg>';
+
+// ---- gh#83: shake-to-draw (device-motion sensor path) ----
+// The shake is a second activation path for the draw control, never a requirement — the tap-only
+// round stays pinned by the gh#78 tests. It drives 3D CSS transforms on the inline SVG above: no
+// 3D library and no model file (owner's ruling — the barrel is a 200x240 drawing, a mesh would be
+// cost without surface). Everything here lives inside this module, which the game page
+// lazy-imports, so none of it reaches the shared bundle or any other page.
+//
+// The hazard: armAllButtons gates taps only, and a shake walks straight past it (the mis-tap
+// family of gh#37/gh#39/gh#42 arriving through a channel the gate does not watch). The sensor
+// path therefore arms itself on the same ARM_DELAY_MS, and a kick while disarmed re-defers that
+// arming — jostle during the phone hand-off keeps the path closed, matching the tap gate's
+// fail-closed premise in docs/adr/0016. drawForHolder is the only effect an armed shake can have;
+// the phase and presence guards swallow everything else.
+
+/** Rider copy per device. HINT_SHAKE is the shipped canvas line, byte-identical; HINT_TAP_ONLY
+ *  replaces it wherever no motion sensor exists or the iOS opt-in was refused; HINT_ENABLE_SHAKE
+ *  is the iOS pre-permission opt-in itself. */
+export const HINT_SHAKE = 'เขย่าเครื่อง หรือกดปุ่มด้านล่างก็ได้';
+export const HINT_TAP_ONLY = 'กดปุ่มด้านล่างเพื่อจั่วดวง';
+export const HINT_ENABLE_SHAKE = 'แตะตรงนี้เพื่อเปิดการเขย่าเครื่อง';
+
+/** Minimum kick to count as a shake: the magnitude of change between two consecutive motion
+ *  samples, in m/s^2. Resting drift stays a fraction of one; a deliberate shake spikes well past it. */
+export const SHAKE_KICK = 12;
+
+export interface MotionSample {
+  x: number;
+  y: number;
+  z: number;
+}
+
+/** Size of the kick between two consecutive motion samples (pure — testable with no DOM). */
+export function shakeKick(prev: MotionSample, next: MotionSample): number {
+  return Math.hypot(next.x - prev.x, next.y - prev.y, next.z - prev.z);
+}
+
+/** A kick at or past SHAKE_KICK reads as a shake. */
+export function isShake(prev: MotionSample, next: MotionSample): boolean {
+  return shakeKick(prev, next) >= SHAKE_KICK;
+}
+
+type SensorStatus = 'none' | 'needs-permission' | 'ready';
+
+// Feature detection, never user-agent sniffing. Both checks live inside functions so a non-browser
+// test process (no window at all) takes the 'none' path untouched.
+function detectSensor(): SensorStatus {
+  if (typeof window === 'undefined') return 'none';
+  if (!('DeviceMotionEvent' in window)) return 'none';
+  const DME = window.DeviceMotionEvent as unknown as { requestPermission?: unknown };
+  if (typeof DME.requestPermission === 'function') return 'needs-permission';
+  return 'ready';
+}
+
+type MotionPermissionState = 'granted' | 'denied';
+
+/** The iOS requestPermission static, capability-guarded. Returns null unless the exact check the
+ *  ticket names passes — an optional-chain guard on a missing container would read as permitted. */
+function motionPermissionRequest(): (() => Promise<MotionPermissionState>) | null {
+  if (typeof window === 'undefined') return null;
+  if (!('DeviceMotionEvent' in window)) return null;
+  const DME = window.DeviceMotionEvent as unknown as {
+    requestPermission?: () => Promise<string>;
+  };
+  const request = DME.requestPermission;
+  if (typeof request !== 'function') return null;
+  return () =>
+    Promise.resolve(request.call(DME)).then((state) => (state === 'granted' ? 'granted' : 'denied'));
+}
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (typeof window.matchMedia !== 'function') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// ---- sensor-path round state (one game per page) ----
+
+interface ShakeTurnState {
+  armed: boolean;
+  last: MotionSample | null;
+  sway: { x: number; y: number };
+  svg: SVGElement | null;
+  reduced: boolean;
+}
+
+let shake: ShakeTurnState | null = null;
+let armTimer: ReturnType<typeof setTimeout> | undefined;
+let motionListening = false;
+// The iOS answers are page-lifetime, not round-lifetime: a "เล่นอีกรอบ" (teardown + mount) must not
+// re-ask. A reload resets the module, which is correct — iOS requires a per-page-load re-ask.
+let motionGranted = false;
+let motionDeclined = false;
+
+// wobble tuning: how far the barrel may lean (degrees) and how much of the distance to that lean
+// each event covers — the lerp is what turns raw accelerometer noise into a sway
+const LEAN_MAX_DEG = 14;
+const WOBBLE_SMOOTH = 0.18;
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, v));
+}
+
+/** Attaches the single per-round devicemotion listener through on(), so dispose() removes it via
+ *  the module's existing cleanup list — never an ad-hoc removeEventListener, because a leaked
+ *  listener would survive the round and fire for whatever game mounts next. */
+function attachMotionListener(): void {
+  if (motionListening) return;
+  motionListening = true;
+  on(window, 'devicemotion', handleMotion);
+}
+
+/** Arms the shake path after ARM_DELAY_MS of quiet. Every kick while disarmed calls this again, so
+ *  the window is exactly what the tap gate gives its buttons, and the identity check keeps a stale
+ *  timer from arming a later turn's state. */
+function startArmDelay(): void {
+  if (armTimer !== undefined) clearTimeout(armTimer);
+  const turn = shake;
+  armTimer = setTimeout(() => {
+    armTimer = undefined;
+    if (phase === 'turn' && shake !== null && shake === turn) shake.armed = true;
+  }, ARM_DELAY_MS);
+}
+
+function handleMotion(event: Event): void {
+  const turn = shake;
+  if (!turn) return;
+  if (phase !== 'turn') return;
+  const e = event as DeviceMotionEvent;
+
+  // the tilt source drives the wobble only when motion is acceptable and the svg exists
+  const g = e.accelerationIncludingGravity;
+  if (!turn.reduced && turn.svg && g && g.x !== null && g.y !== null && g.z !== null) {
+    wobble(turn, { x: g.x, y: g.y, z: g.z });
+  }
+
+  // the kick source: raw acceleration excludes gravity on every platform that offers it, so a
+  // resting hand reads ~zero and a shake spikes; the fallback keeps devices that omit it working
+  const kickSrc = e.acceleration ?? e.accelerationIncludingGravity;
+  if (!kickSrc || kickSrc.x === null || kickSrc.y === null || kickSrc.z === null) return;
+  const sample: MotionSample = { x: kickSrc.x, y: kickSrc.y, z: kickSrc.z };
+  const prev = turn.last;
+  turn.last = sample;
+  if (!prev) return; // the first sample only seeds the delta — a fresh turn never kicks on arrival
+
+  if (!isShake(prev, sample)) return;
+  // fail closed, like the tap gate: while disarmed a kick re-defers arming instead of drawing
+  if (!turn.armed) {
+    startArmDelay();
+    return;
+  }
+  drawForHolder();
+}
+
+/** Tilts the barrel svg with the phone: gravity scaled and clamped into degrees, then lerped per
+ *  event, written as the inline rotate3d the preserve-3d stylesheet rule gives depth to. */
+function wobble(turn: ShakeTurnState, g: MotionSample): void {
+  const el = turn.svg;
+  if (!el) return;
+  turn.sway.x += (clamp((g.x / 9.81) * LEAN_MAX_DEG, -LEAN_MAX_DEG, LEAN_MAX_DEG) - turn.sway.x) * WOBBLE_SMOOTH;
+  turn.sway.y += (clamp((g.y / 9.81) * LEAN_MAX_DEG, -LEAN_MAX_DEG, LEAN_MAX_DEG) - turn.sway.y) * WOBBLE_SMOOTH;
+  el.style.transform =
+    `rotate3d(1, 0, 0, ${turn.sway.y.toFixed(1)}deg) rotate3d(0, 1, 0, ${turn.sway.x.toFixed(1)}deg)`;
+}
+
+/** The hint line under the barrel, shaped per device: span + HINT_SHAKE where a sensor is live,
+ *  button + HINT_ENABLE_SHAKE where iOS still needs the opt-in, span + HINT_TAP_ONLY everywhere
+ *  else. Every transition is silent — this feature carries no error copy at all. The opt-in is a
+ *  real button because buttons are the only clickable idiom these games use, and renderTurn's
+ *  armAllButtons then gates it like every other button. */
+function shakeHint(barrel: HTMLElement): HTMLElement {
+  const sensor = detectSensor();
+  if (sensor === 'none' || (sensor === 'needs-permission' && motionDeclined)) {
+    shake = null;
+    const hint = el('span', HINT_TAP_ONLY);
+    hint.className = 'sm-hint';
+    return hint;
+  }
+  if (sensor === 'needs-permission' && !motionGranted) {
+    shake = null;
+    const hint = el('button', HINT_ENABLE_SHAKE);
+    hint.type = 'button';
+    hint.className = 'sm-hint sm-hint--tap';
+    wireOptIn(hint);
+    return hint;
+  }
+  const hint = el('span', HINT_SHAKE);
+  hint.className = 'sm-hint';
+  activateShake(barrel, hint);
+  return hint;
+}
+
+function activateShake(barrel: HTMLElement, hint: HTMLElement): void {
+  const svg = barrel.querySelector('svg') as SVGElement | null;
+  shake = { armed: false, last: null, sway: { x: 0, y: 0 }, svg, reduced: prefersReducedMotion() };
+  hint.textContent = HINT_SHAKE;
+  hint.className = 'sm-hint';
+  attachMotionListener();
+  startArmDelay();
+}
+
+/** The iOS opt-in. requestPermission must run synchronously inside the user gesture (a click), so
+ *  the settle-and-re-render below happens on a later microtask; settled flips first so a rapid
+ *  second tap cannot double-ask. Either answer silently re-renders the turn: granted swaps the
+ *  opt-in line for the live shake path, any other outcome swaps in the tap-only line and never
+ *  asks again for the rest of the page load. */
+function wireOptIn(hint: HTMLButtonElement): void {
+  let settled = false;
+  const click = (): void => {
+    if (settled) return;
+    const request = motionPermissionRequest();
+    if (!request) {
+      // capability gone between the feature-detect and the tap — take the silent tap-only path
+      settled = true;
+      motionDeclined = true;
+      if (phase === 'turn') renderTurn();
+      return;
+    }
+    let answer: Promise<MotionPermissionState>;
+    try {
+      answer = request();
+    } catch {
+      settled = true;
+      motionDeclined = true;
+      if (phase === 'turn') renderTurn();
+      return;
+    }
+    settled = true; // marked before the answer lands so a second tap cannot double-ask
+    void answer.then(
+      (state) => {
+        if (state === 'granted') motionGranted = true;
+        else motionDeclined = true;
+        if (phase === 'turn') renderTurn();
+      },
+      () => {
+        motionDeclined = true;
+        if (phase === 'turn') renderTurn();
+      },
+    );
+  };
+  on(hint, 'click', click);
+}
 
 // ---- Screens ----
 
@@ -251,16 +494,17 @@ function renderTurn(): void {
   holderBlock.appendChild(holderName);
   stage.appendChild(holderBlock);
 
-  // Hero motif: the barrel. Inline SVG (BARREL_SVG), vector only — no raster asset (gh#78). The 3D
-  // shake barrel is gh#83's problem and is not built here.
+  // Hero motif: the barrel. Inline SVG (BARREL_SVG), vector only — no raster asset (gh#78). gh#83
+  // tilts the drawing via 3D transforms fed by the motion sensor — shakeHint owns that path below.
   const barrel = document.createElement('div');
   barrel.className = 'sm-barrel';
   barrel.innerHTML = BARREL_SVG;
   stage.appendChild(barrel);
 
-  const hint = el('span', 'เขย่าเครื่อง หรือกดปุ่มด้านล่างก็ได้');
-  hint.className = 'sm-hint';
-  stage.appendChild(hint);
+  // gh#83 — the hint line doubles as the shake affordance: a live sensor keeps HINT_SHAKE, the iOS
+  // pre-permission opt-in renders HINT_ENABLE_SHAKE as a real control, and no sensor (or a refusal)
+  // renders HINT_TAP_ONLY. All three are silent — no error copy exists in this feature.
+  stage.appendChild(shakeHint(barrel));
 
   const drawBtn = el('button', 'จั่วดวง');
   drawBtn.id = 'ss-draw';
@@ -435,6 +679,11 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
 
 function teardown(): void {
   phase = 'idle';
+  // sensor path: cancel the pending arm timer and reset its per-round state. The iOS answers stay.
+  if (armTimer !== undefined) clearTimeout(armTimer);
+  armTimer = undefined;
+  shake = null;
+  motionListening = false;
   cleanup.forEach((fn) => fn());
   cleanup = [];
   deck = [];
@@ -465,7 +714,9 @@ const game: GameModule = {
     ],
   },
   og: 'siamsi.png',
-  ads: false, // the play screen must never have an ad slot
+  // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:
+  // the decision was no slot on the PLAY SCREEN, never no slot on the page.
+  ads: true,
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

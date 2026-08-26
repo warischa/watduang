@@ -257,7 +257,9 @@ const game: GameModule = {
     ],
   },
   og: 'short-stick.png',
-  ads: false, // play screen = never an ad slot
+  // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:
+  // the decision was no slot on the PLAY SCREEN, never no slot on the page.
+  ads: true,
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

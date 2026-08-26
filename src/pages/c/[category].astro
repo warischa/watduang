@@ -58,6 +58,10 @@ const { category, meta, otherLinks, games } = Astro.props as Props;
       ))}
       <a href="/tools/">เครื่องมือสุ่ม</a>
     </p>
+    {/* gh#82 — the ad slot design/HubNeutral.dc.html and both category artboards mark, at the
+         position they mark it: last inside <main>, below the content. Every value below is the
+         canvas's own. A placeholder only — no ad network code ships in this ticket. */}
+    <div class="ad-slot" aria-hidden="true">ช่องโฆษณา</div>
   </main>
 </Base>
 
@@ -135,5 +139,20 @@ const { category, meta, otherLinks, games } = Astro.props as Props;
     text-decoration-color: var(--page-accent);
     text-decoration-thickness: 2px;
     text-underline-offset: 3px;
+  }
+
+  /* gh#82 — verbatim from the design canvas. The dashed border and the visible copy are the
+     canvas's own way of marking a placeholder; the game page's strip looks different on purpose.
+     min-height reserves the space so a real unit replacing this cannot shift what sits above it. */
+  .ad-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 90px;
+    margin: 26px 20px 0 20px;
+    border: 2.5px dashed rgba(26, 26, 26, 0.35);
+    border-radius: 14px;
+    font-size: 12px;
+    color: #6b7280;
   }
 </style>

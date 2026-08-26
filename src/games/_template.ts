@@ -17,7 +17,10 @@ const game: GameModule = {
     steps: ['ขั้นที่ 1', 'ขั้นที่ 2', 'ขั้นที่ 3'],
   },
   og: 'template.png',
-  ads: false, // play screen = never an ad slot
+  // A new game is usually true: the slot renders in the how-to-play prose below the stage, never on
+  // the play screen (issue #13, amendment 8). Leave it false only if the page must generate no ad
+  // request at all, and add it to the denylist in scripts/validate-games.mjs with the reason.
+  ads: true,
 
   // ctx.session.checkpoint is ONE site-wide slot, shared by every game — not yours alone.
   // saveCheckpoint() does not check ownership: calling it overwrites whatever another

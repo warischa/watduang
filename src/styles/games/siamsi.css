@@ -13,8 +13,10 @@
 /* gh#78 — the siamsi turn screen. Only the declared levers differ from the shell: the hero motif (the
    barrel panel), the display type step (the 30px holder name), and the dot row (the card-density
    equivalent). Colours are shell tokens; the two stick colours with no token (#f7e6c4 wood, #d6336c
-   marked tip) live inside the SVG in siamsi.ts, not here. No animation — the canvas has none, which is
-   the whole prefers-reduced-motion story. */
+   marked tip) live inside the SVG in siamsi.ts, not here. No animation — the canvas has none. gh#83
+   adds the one motion this site has, the sensor-driven barrel wobble, and the reduced-motion stop
+   for it lives where the transform is written (siamsi.ts), not in a media query here: an inline
+   style beats a stylesheet rule, so anything this file declared would be empty comfort. */
 
 /* Two-line holder block: kicker above the current holder's name. */
 .sm-holder {
@@ -40,7 +42,9 @@
 }
 
 /* Hero motif: the barrel panel. Full width, fixed 260px, warm ground, hard offset shadow. The 200x240
-   SVG sits bottom-aligned via the flex container; overflow clips the sticks at the panel lip. */
+   SVG sits bottom-aligned via the flex container; overflow clips the sticks at the panel lip.
+   gh#83 adds the perspective so the svg's sensor-driven rotate3d has depth to tilt in — motion
+   plumbing, not a canvas value (the canvas carries no motion spec). */
 .sm-barrel {
   display: flex;
   align-items: flex-end;
@@ -52,6 +56,25 @@
   border-radius: 20px;
   box-shadow: 5px 5px 0 var(--color-line-strong);
   overflow: hidden;
+  perspective: 600px;
+}
+
+/* gh#83 — the shake wobble, on the inline SVG only: preserve-3d lets the rotate3d the sensor path
+   writes inline tilt with depth. No transition here — the per-event lerp smoothing lives in the
+   sensor path, so an event storm and a calm hand read the same. */
+.sm-barrel svg {
+  transform-style: preserve-3d;
+}
+
+/* gh#83 — the iOS pre-permission state of the hint: the line itself is the control that asks for
+   motion permission. A real button because buttons are this repo's only clickable idiom (so the
+   arm gate covers it like every other button); the reset keeps it reading as a hint line. */
+.sm-hint--tap {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 /* Draw hint below the barrel. */

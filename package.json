@@ -14,7 +14,8 @@
     "validate": "node scripts/validate-games.mjs",
     "check-citations": "node scripts/check-citations.mjs",
     "thai-comments": "node scripts/thai-comments.mjs",
-    "dangling-css-var-check": "node scripts/dangling-css-var-check.mjs"
+    "dangling-css-var-check": "node scripts/dangling-css-var-check.mjs",
+    "public-orphan-check": "node scripts/public-orphan-check.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.0.0",

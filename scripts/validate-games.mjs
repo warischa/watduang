@@ -18,6 +18,32 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = path.join(root, 'src/games/manifest.ts');
 const categoriesPath = path.join(root, 'src/games/categories.ts');
 
+// Games that must never generate an ad request at all, keyed by id, valued by the reason. A game NOT
+// in here may set ads either way — that is a revenue choice and no gate's business.
+//
+// The direction is deliberate, and it is a denylist rather than an allowlist because the two errors
+// are not equally costly. A wrong `ads: true` on a page in this map is an account-termination-class
+// risk; a wrong `ads: false` anywhere else only loses revenue. A denylist fails toward the first and
+// tolerates the second, and it enumerates "pages this project decided must never request an ad" — a
+// set this repo's own decision record owns, which grows only by an owner ruling. An allowlist would
+// instead enumerate "pages allowed to earn", blocking the build on a revenue choice and needing an
+// edit for every new game.
+//
+// What this does NOT do: it does not enumerate what Google classifies as restricted content. That set
+// belongs to Google's policy engine, changes without notice, and never converges by patching. This map
+// records decisions already taken about specific pages, nothing more.
+//
+// It replaced a blanket "ads must be false" rule that the scaffold introduced. Issue #13's amendment 8
+// states the actual decision as no ad slot on the PLAY SCREEN, naming the how-to-play prose below the
+// game and the hub as inventory — which is where GameLayout renders the slot. The scaffold flattened
+// "never on the play screen" into "never on the page", and that flattened rule then kept every game
+// page slot-free. Issue #5's game table carries the per-game values.
+const NO_AD_REQUEST = {
+  'pick-loser':
+    'the "ใครแพ้หมดแก้ว" page is AdSense restricted content (issue #10): it carries an Auto ads page ' +
+    'exclusion and must place no manual slot, so it generates no ad request at all',
+};
+
 const isStr = (v) => typeof v === 'string' && v.length > 0;
 const isStrArray = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string');
 const isFn = (v) => typeof v === 'function';
@@ -110,7 +136,11 @@ function validateGames(games, checkRoot, categories) {
       err('og', `"${g.og}" — public/og/${g.og} does not exist`);
     }
 
-    if (g?.ads !== false) err('ads', 'must be false — no ad slots on play screens');
+    if (typeof g?.ads !== 'boolean') {
+      err('ads', 'must be a boolean');
+    } else if (g.ads === true && NO_AD_REQUEST[g.id]) {
+      err('ads', `must be false for "${g.id}" — ${NO_AD_REQUEST[g.id]}`);
+    }
 
     if (!isFn(g?.mount)) err('mount', 'must be a function');
     if (!isFn(g?.dispose)) err('dispose', 'must be a function');
@@ -147,6 +177,10 @@ function selftest() {
     fs.mkdirSync(path.join(tmpDir, 'public/og'), { recursive: true });
     fs.writeFileSync(path.join(tmpDir, 'src/games/happy-game.ts'), '');
     fs.writeFileSync(path.join(tmpDir, 'public/og/happy-game.png'), '');
+    // the ads denylist case below mutates the fixture's id, so it needs its own two files on disk —
+    // otherwise it would trip the id and og existence rules and pass for the wrong reason
+    fs.writeFileSync(path.join(tmpDir, 'src/games/pick-loser.ts'), '');
+    fs.writeFileSync(path.join(tmpDir, 'public/og/pick-loser.png'), '');
 
     const goodGame = () => ({
       id: 'happy-game',
@@ -179,6 +213,15 @@ function selftest() {
     assert.deepEqual(validateGames([goodGame()], tmpDir, partyOnly), [], 'a fully-valid GameModule must report zero violations');
     console.log('PASS known-good: a fully-valid GameModule reports zero violations');
 
+    // The ads rule has to be calibrated in BOTH directions. The blanket rule this replaced made every
+    // ads: true a violation, so a selftest that only proves the failing direction would have passed
+    // against the wrong gate too. This is the case that would have caught it.
+    assert.deepEqual(
+      validateGames([{ ...goodGame(), ads: true }], tmpDir, partyOnly), [],
+      'ads: true on a game that is not on the no-ad-request denylist must report zero violations',
+    );
+    console.log('PASS known-good: ads: true on an ordinary game reports zero violations');
+
     // --- known-bad, one case per rule. Each mutates exactly one field off the good fixture so the
     // resulting violation is attributable to that rule, not a side effect of another one. ---
     const cases = [
@@ -198,7 +241,8 @@ function selftest() {
       { field: 'seo.steps (too few)', mutate: (g) => ({ ...g, seo: { ...g.seo, steps: ['หนึ่ง', 'สอง'] } }), expect: /seo\.steps must be an array of at least 3 non-empty strings/ },
       { field: 'og (not a string)', mutate: (g) => ({ ...g, og: '' }), expect: /og must be a non-empty string/ },
       { field: 'og (file missing)', mutate: (g) => ({ ...g, og: 'ghost.png' }), expect: /og "ghost\.png" — public\/og\/ghost\.png does not exist/ },
-      { field: 'ads', mutate: (g) => ({ ...g, ads: true }), expect: /ads must be false — no ad slots on play screens/ },
+      { field: 'ads (not a boolean)', mutate: (g) => ({ ...g, ads: 'yes' }), expect: /ads must be a boolean/ },
+      { field: 'ads (true on a no-ad-request id)', mutate: (g) => ({ ...g, id: 'pick-loser', og: 'pick-loser.png', ads: true }), expect: /ads must be false for "pick-loser" — the "\u0e43\u0e04\u0e23\u0e41\u0e1e\u0e49\u0e2b\u0e21\u0e14\u0e41\u0e01\u0e49\u0e27" page is AdSense restricted content/ },
       { field: 'mount', mutate: (g) => ({ ...g, mount: undefined }), expect: /mount must be a function/ },
       { field: 'dispose', mutate: (g) => ({ ...g, dispose: undefined }), expect: /dispose must be a function/ },
       { field: 'onVisibility (present, not a function)', mutate: (g) => ({ ...g, onVisibility: 'nope' }), expect: /onVisibility must be a function when present/ },

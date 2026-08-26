@@ -183,7 +183,11 @@ const game: GameModule = {
     ],
   },
   og: 'pick-loser.png',
-  ads: false, // play screen = never an ad slot
+  // gh#82 — false here is NOT the layout rule the other games follow; it is a content decision.
+  // This page is AdSense restricted content per issue #10, so it carries an
+  // Auto ads page exclusion and must place no manual slot: the page generates no ad request at all.
+  // scripts/validate-games.mjs hard-fails a true here. Changing it is an owner decision, not a tidy-up.
+  ads: false,
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

@@ -177,7 +177,11 @@ const howToJsonLd = {
      brief says to use the literal with a comment rather than add a token here */
   .ad-slot {
     background: #f3efe4;
-    min-height: 60px;
+    /* 250px, not the canvas's 60px. gh#82 requires the placeholder never to shift the layout when a
+       real unit replaces it, and the four tool pages already reserve 250px for exactly that reason
+       (ADR-0004). ADR-0015 records that an ad iframe resizes on Google's schedule, not ours, so the
+       reserved height is the only part of this we own. Owner decision, 2026-08-25. */
+    min-height: 250px;
     border-block-start: 2.5px solid var(--color-line-strong);
   }
 </style>

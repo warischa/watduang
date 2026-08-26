@@ -98,6 +98,13 @@ jobs:
       - name: Check Thai code comments
         run: node scripts/thai-comments.mjs --selftest && node scripts/thai-comments.mjs
 
+      # gh#84 — public/ is copied verbatim into dist/, so a file left there ships to the live site
+      # whether or not anything points at it. This gate refuses an unreferenced binary and a raster
+      # over its declared ceiling. It reads public/ and src/, never dist/, so it runs here with the
+      # other source-text gates rather than after the build. --selftest first, same reason as above.
+      - name: No orphan or oversized binary under public/
+        run: node scripts/public-orphan-check.mjs --selftest && node scripts/public-orphan-check.mjs
+
       # Cheap source-text tripwire for ADR-0014 (no navigation target inside #stage) — catches an
       # anchor literal reintroduced into a game module before the heavier build+serve+Chrome probe
       # (scripts/no-nav-in-stage-probe.mjs) ever runs. --selftest first, same reason as above.

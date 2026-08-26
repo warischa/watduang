@@ -69,7 +69,10 @@ export interface GameModule {
   seo: { title: string; description: string; steps: string[] };
   /** Filename in public/og/, e.g. "timebomb.png" — must never show a bottle, can, or logo'd glass */
   og: string;
-  /** false = the whole page has no ad slot — every gameplay screen must be false */
+  /** Whether this game's page carries an ad slot, in the how-to-play prose below the stage — never on
+   *  the play screen itself (issue #13, amendment 8). Most games are true; false means this page
+   *  must generate no ad request at all, which is a content decision rather than a layout one.
+   *  scripts/validate-games.mjs holds the list of pages where false is mandatory and why. */
   ads: boolean;
   mount(stage: HTMLElement, ctx: GameContext): void;
   /** Clear timers / listeners / audio on every exit path — required */
