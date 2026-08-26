@@ -243,11 +243,16 @@ import GameNav from '../../components/GameNav.astro';
     padding: 14px 16px;
     text-align: center;
     margin-top: 12px;
-    /* Fixed height, own scroll: the reveal can be one line or five (a five-name draw measures 180px of
-       text at 320px), and a growing box would push the ad slot down. 250px is the same reserve the
-       .ad-slot below already carries, reused rather than invented (ADR-0033); border-box keeps the pad
-       inside it. A longer reveal scrolls in place instead of moving the page. */
-    height: 250px;
+    /* Fixed height, own scroll: the reveal can be one line or five, and a growing box would push the
+       ad slot down. border-box keeps the pad inside it; a longer reveal scrolls in place instead of
+       moving the page. A NEW design value, not the .ad-slot reserve this box used to borrow — a
+       deliberate ADR-0033 departure (gh#120: the borrowed 250px met a first-time visitor as an empty
+       box). 136px = 28px vertical padding + three lines of the 24px display font, measured at 320px
+       in a real browser: a five-name realistic reveal needs 108px of text (136 total) and a
+       two-name long-name reveal needs the same, so both land inside it exactly. Longer reveals
+       scroll, which is what this box's own scrollbar is for. max-height is FORECLOSED here: an empty
+       box would collapse to ~0 and grow on the first reveal, which is the gh#114 mechanism. */
+    height: 136px;
     overflow-y: auto;
     box-sizing: border-box;
   }
@@ -312,20 +317,24 @@ import GameNav from '../../components/GameNav.astro';
 
   /* The chip list is the region a loaded name list grows. Fixed height with its own scroll, so any
      number of names of any length leaves the box — and therefore the ad slot below — where it is.
-     250px is the .ad-slot reserve reused, not a new design value (ADR-0033). */
+     150px is a NEW design value, a deliberate ADR-0033 departure (gh#120), no longer the .ad-slot
+     reserve borrowed: measured at 320px, a full ten-name realistic roster wraps to 4 rows of a 32px
+     chip with 6px gaps = 146px, so 150px shows the whole roster without a scrollbar. Long names
+     wrap to 10 rows (374px) and scroll, as before. max-height is FORECLOSED: an empty list would
+     collapse and grow on the first render — the gh#114 mechanism. */
   .draw-names {
     display: flex;
     flex-wrap: wrap;
     /* align-content is load-bearing, not cosmetic: a wrapping flex container defaults to
        align-content: stretch, so the moment this list got a fixed height every chip grew to fill
-       all 250px. Two names rendered as two full-height pills. Caught by a pre-merge review that
+       the whole region. Two names rendered as two full-height pills. Caught by a pre-merge review that
        reproduced it in a browser — the ad-reflow probe reads the slot's y only and is blind to it. */
     align-content: flex-start;
     gap: 6px;
     list-style: none;
     margin: 0;
     padding: 0;
-    height: 250px;
+    height: 150px;
     overflow-y: auto;
   }
 

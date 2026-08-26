@@ -260,14 +260,17 @@ import GameNav from '../../components/GameNav.astro';
 
   /* The result region: fixed height with its own scroll. The card stack it can render is unbounded
      (any number of names of any length), so bounding the box is the only thing that keeps the ad slot
-     below from moving — 250px is the .ad-slot reserve reused rather than a new design value
-     (ADR-0033), and a taller stack scrolls in place. */
+     below from moving, and a taller stack scrolls in place. 185px is a NEW design value, a deliberate
+     ADR-0033 departure (gh#120) rather than the .ad-slot reserve borrowed: measured at 320px, the
+     default two-team split of a ten-name realistic roster renders two 86.39px cards + the 10px gap
+     = 182.78px, so the default reveal fits whole. Three or more teams scroll, as before. max-height
+     is FORECLOSED — an empty region would collapse and grow on the first split (gh#114). */
   .team-cards {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-top: 12px;
-    height: 250px;
+    height: 185px;
     overflow-y: auto;
     box-sizing: border-box;
   }
