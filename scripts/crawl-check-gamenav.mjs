@@ -35,9 +35,18 @@ const { tools } = await import(path.join(repoRoot, 'src/tools/manifest.ts'));
 
 // gh#115: tool pages have no category/carriesGroup entry of their own (ADR-0032 — tools are not a
 // category), so the expectation can't be read off a manifest the way expectedSiblings() reads it for
-// games. It's read off the same place GameNav itself reads it: the literal navClass/category props each
-// /tool/*/ page passes to <GameNav ... />. No category literal or count is written here — both fall out
-// of the page's own source plus the games manifest, same as the game-page path above.
+// games. It's read off the literal navClass/category props each /tool/*/ page passes to
+// <GameNav ... /> instead — which means `category` comes from the exact page whose rendered output
+// this script goes on to check, not from a source independent of it. ADR-0030 (a fixture must not be
+// sourced from the artifact it tests) names exactly this shape, and there is no independent source to
+// switch to here: ADR-0032 deliberately keeps tools out of the category manifest, so inventing a
+// tools-category manifest just to satisfy this gate would fight that decision. Recorded, not closed: a
+// tool page with a WRONG-but-self-consistent category (say, copy-pasted from the wrong sibling)
+// renders from that value and is expected from the same value, so the two agree and this gate goes
+// green over an editorially wrong category. What this gate DOES still prove: whatever category a page
+// declares, the rendered sibling COUNT and nav-block scoping match what that declared category implies
+// against the (independent) games manifest below — the same cross-check expectedSiblings() relies on
+// for games. It does NOT prove the declared category is the right one.
 const toolPages = tools.map((t) => {
   const slug = t.href.match(/^\/tool\/([^/]+)\/$/)[1];
   const srcFile = path.join(repoRoot, 'src/pages/tool', `${slug}.astro`);
@@ -47,7 +56,14 @@ const toolPages = tools.map((t) => {
   const navClass = tag[0].match(/navClass="([^"]+)"/)?.[1];
   const category = tag[0].match(/category="([^"]+)"/)?.[1];
   if (!navClass) throw new Error(`scripts/crawl-check-gamenav.mjs: ${srcFile}'s <GameNav> has no literal navClass="..." to scope the nav block to`);
-  const expected = games.filter((g) => !category || g.category === category).length;
+  // Same asymmetry gh#115 leaves in navClass's sibling: GameNav's own `category` prop is optional (omit
+  // it to list every game), but this script cannot tell that deliberate choice apart from a typo'd
+  // attribute name or a dynamic {expr} its regex failed to capture — both read as "no match" from
+  // source text alone. Falling through to "expect every game" on either would make the weaker guard
+  // fail open exactly like navClass's absence used to. Fails loud instead; the day a tool page
+  // legitimately needs to omit category, this line is what needs an explicit opt-in, not a silent pass.
+  if (!category) throw new Error(`scripts/crawl-check-gamenav.mjs: ${srcFile}'s <GameNav> has no literal category="..." — this script cannot tell an intentionally omitted category from a typo, so it fails loud instead of silently expecting every game`);
+  const expected = games.filter((g) => g.category === category).length;
   return { slug, navClass, category, expected };
 });
 

@@ -305,22 +305,29 @@ function resolveRange(argv, env, cwd) {
     return { range: explicit, base, source: 'explicit range' };
   }
 
-  if (env.GITHUB_ACTIONS) {
-    // pull_request carries no github.event.before; its base is the PR's base sha. This workflow is
-    // direct-to-main today, but ci.yml still triggers `on: pull_request`, so handle both.
-    const prBase = env.GITHUB_PR_BASE_SHA ?? '';
+  // pull_request carries no github.event.before; its base is the PR's base sha. This workflow is
+  // direct-to-main today, but ci.yml still triggers `on: pull_request`, so handle both.
+  const prBase = env.GITHUB_PR_BASE_SHA ?? '';
+  const before = env.GITHUB_EVENT_BEFORE ?? '';
+  const inActions = Boolean(env.GITHUB_ACTIONS);
+  // These two honour their env var whenever it is SET, not only inside a real Actions run.
+  // Gating them behind GITHUB_ACTIONS meant exporting GITHUB_EVENT_BEFORE to reproduce a CI failure
+  // locally was silently ignored and the script fell back to the local HEAD~1 default instead — two
+  // different chosen bases produced byte-identical output, measured, with nothing printed to say the
+  // variable was never read.
+  if (inActions || prBase || before) {
     if (prBase && revExists(prBase, cwd)) return { range: `${prBase}..HEAD`, base: prBase, source: 'github.event.pull_request.base.sha' };
-    const before = env.GITHUB_EVENT_BEFORE ?? '';
     if (before && !/^0+$/.test(before) && revExists(before, cwd)) {
       return { range: `${before}..HEAD`, base: before, source: 'github.event.before' };
     }
-    // before is empty, all-zeros (a branch's first push, or a tag push) or missing from the clone
-    // (force-push). Those are routine here — this repo calibrates CI on throwaway branches on
-    // purpose — so fall back to the fork point from the default branch before failing closed.
+    // before is empty, all-zeros (a branch's first push, or a tag push), missing from the clone
+    // (force-push), or prBase was set but unusable. Those are routine here — this repo calibrates
+    // CI on throwaway branches on purpose — so fall back to the fork point from the default branch
+    // before failing closed.
     const mb = mergeBaseWithDefault(cwd);
     if (mb) return { range: `${mb.sha}..HEAD`, base: mb.sha, source: `merge-base with ${mb.ref} (github.event.before was ${before || 'empty'})` };
     return {
-      error: `under GitHub Actions with no usable base: github.event.before is ${before || 'empty'}, no PR base sha was given, and neither origin/main nor main resolves for a merge-base fallback`,
+      error: `no usable base: GITHUB_PR_BASE_SHA is ${prBase || 'unset'}, GITHUB_EVENT_BEFORE is ${before || 'unset'}, and neither origin/main nor main resolves for a merge-base fallback`,
     };
   }
 
