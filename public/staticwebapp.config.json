@@ -1,11 +1,6 @@
 {
   "routes": [
     {
-      "route": "/games/",
-      "redirect": "/",
-      "statusCode": 301
-    },
-    {
       "route": "/games",
       "redirect": "/",
       "statusCode": 301
