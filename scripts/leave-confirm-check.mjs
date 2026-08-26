@@ -37,7 +37,26 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const CSS_FILE = path.join(repoRoot, 'src/styles/tokens.css');
-const ASTRO_FILE = path.join(repoRoot, 'src/shell/PlayerSetup.astro');
+// gh#106 — two islands since the leave-confirm moved out of PlayerSetup.astro into its own component:
+// (c)/(d) live in LeaveConfirm.astro, (e)'s #clear-choice stays with the panel it answers for. Both are
+// read on every run and presence is graded over the union — see checkPlayerSetupAstro's header.
+const ASTRO_FILES = ['src/shell/LeaveConfirm.astro', 'src/shell/PlayerSetup.astro'];
+// The one file stripComments()' precondition pin below walks: it is the file that carries the guard
+// conditions (c)/(d) grade, so a `//` inside a quoted value there is what could blank live code.
+const ASTRO_FILE = path.join(repoRoot, 'src/shell/LeaveConfirm.astro');
+
+// Every .astro file under src/, relPath -> text. (f) discovers the dialog's owner by reading the tree
+// rather than being told which file it is: a list would go stale the moment the island moves again,
+// and "found in two files" is itself a finding.
+function listAstroFiles(root = path.join(repoRoot, 'src')) {
+  const out = new Map();
+  for (const entry of fs.readdirSync(root, { recursive: true, withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.astro')) continue;
+    const abs = path.join(entry.parentPath ?? entry.path, entry.name);
+    out.set(path.relative(repoRoot, abs).split(path.sep).join('/'), fs.readFileSync(abs, 'utf8'));
+  }
+  return out;
+}
 
 // ---------------------------------------------------------------------------
 // Pure: text -> violations. No file IO here, so the selftest can feed it strings read back from a
@@ -313,12 +332,30 @@ function checkTokensCss(text, checked) {
 
 // (c) + (d) + (e): src/shell/PlayerSetup.astro. `checked` is the same optional out-param as
 // checkTokensCss's — see its comment.
+// `rawText` may be ONE file's text (every selftest fixture below) or an ARRAY of them (main() passes
+// two since gh#106 split the leave-confirm out of PlayerSetup.astro into its own island: the two
+// dialogs now live in two files, and (c)/(d) grade one of them while (e) grades the other). Presence
+// is graded over the UNION, so a single-text call behaves exactly as before. The looseness that buys
+// is real and bounded: (c)'s close listener could be satisfied from either file rather than from the
+// file that declares #leave-confirm. It is accepted because the alternative — one required file per
+// condition — would need every fixture below rewritten, and because the file that OWNS each dialog is
+// what condition (f) resolves and pins by render path, which is the stronger statement.
 function checkPlayerSetupAstro(rawText, checked) {
   const violations = [];
-  // (c) and (d) all assert something MUST be present, so they must never see a comment: this file
-  // documents its own guards in prose right above them, and an old line left commented out while the
-  // live one is weakened is exactly the bypass this strip closes.
-  const text = stripComments(rawText);
+  // (c) and (d) all assert something MUST be present, so they must never see a comment: these files
+  // document their own guards in prose right above them, and an old line left commented out while the
+  // live one is weakened is exactly the bypass this strip closes. Stripped per file, never on a
+  // concatenation: stripComments() carries block-comment state across newlines, so joining first would
+  // let one file's unterminated `/*` blank the next file's live code.
+  const texts = (Array.isArray(rawText) ? rawText : [rawText]).map(stripComments);
+  const text = texts.join('\n');
+  const firstMatch = (re) => {
+    for (const t of texts) {
+      const m = t.match(re);
+      if (m) return m;
+    }
+    return null;
+  };
 
   // (c) pendingHref must clear on the dialog's own `close` event (fires for every dismissal path),
   // not per-button — clearing per-button was the shipped defect: a later #leave-go press could still
@@ -332,7 +369,9 @@ function checkPlayerSetupAstro(rawText, checked) {
   // rather than the element under test. Narrowing to the element is the converging fix (ADR-0020 rule 3);
   // the known-good fixture below is what pins it, and it fails against the un-narrowed pattern.
   checked?.push('c');
-  const closeMatch = text.match(/leaveDlg\.addEventListener\(\s*(['"])close\1\s*,\s*\(\)\s*=>\s*\{([^}]*)\}\s*\)/);
+  // firstMatch, not a match against the joined text: `[^}]*` matches newlines, so a listener opened in
+  // one file could otherwise be closed by a brace in the next one.
+  const closeMatch = firstMatch(/leaveDlg\.addEventListener\(\s*(['"])close\1\s*,\s*\(\)\s*=>\s*\{([^}]*)\}\s*\)/);
   if (!closeMatch) {
     violations.push("(c) no dialog 'close' event listener found — pendingHref must be cleared there, not per-button");
   } else if (!/pendingHref\s*=\s*null/.test(closeMatch[2])) {
@@ -402,6 +441,179 @@ function checkPlayerSetupAstro(rawText, checked) {
     violations.push("(e) the no-showModal branch never sets [open] — dialog:not([open]){display:none} keeps the question at zero client rects, so the player is never asked");
   }
 
+  return violations;
+}
+
+// ---------------------------------------------------------------------------
+// (f) gh#106 — PER-PAGE presence. (a)-(e) grade the MECHANISM; not one of them asks whether any given
+// page mounts it. That is how three pages shipped with no leave-confirm at all while this gate stayed
+// green: GameLayout rendered the dialog's owner component behind
+// `game.players[0] !== 1 || game.players[1] !== 1`, false for every [1, 1] page, so siamsi,
+// daily-fortune and love-match carried the guard on no page while every condition above passed.
+// ADR-0040 says the opposite in as many words: "a page declaring [1, 1] skips the setup panel. Nothing
+// else about the shell's start contract moves — ... and so do ADR-0014 and ADR-0015."
+//
+// The guarded set is the games MANIFEST, never a list of page names: every /game/<id>/ URL is
+// generated by getStaticPaths() over `games` in the one dynamic route, so a game added tomorrow joins
+// the guarded set by existing. The exempt set is INVERTED, the same shape ADR-0015 gives the guard
+// itself — enumerate the pages proven to have no round to lose and negate the rest. Per ADR-0015 that
+// set is the tool pages ("Tool pages are unguarded, gated on the absence of gameId. The reason is that
+// there is no round to lose there"), and no tool page appears in this manifest, so the list below is
+// empty. Empty is not vacuous: growth lands on the guarded side, which is the whole point of the
+// inversion, and a name left here after its game is gone is reported rather than ignored.
+//
+// ponytail: this reads the render path from source, so it proves "the mount is reached", not "the
+// dialog painted" — scripts/leave-confirm-probe.mjs is still the only thing that reads a real DOM
+// (ADR-0018). The path itself is the two hardcoded links below rather than a general Astro resolver,
+// because those two files ARE the whole path from a game URL to the dialog and a resolver would be a
+// second grammar this gate has to own. Upgrade path if a third layer ever appears: read the chain from
+// the imports instead of listing it.
+const GAME_PAGE = 'src/pages/game/[id].astro';
+const GAME_LAYOUT = 'src/layouts/GameLayout.astro';
+const EXEMPT_GAME_IDS = [];
+
+// Astro frontmatter is JS, not template — its braces are not JSX expression openers, and reading them
+// as guards would invent conditions no element sits inside.
+function templateOf(text) {
+  const m = text.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
+  return m ? text.slice(m[0].length) : text;
+}
+
+// Which local name does `fileRel` import `targetRel` as? Astro renders the LOCAL name, so that is how
+// the mount site is spelled — reading it from the import means a rename cannot make this check blind.
+function importedAs(text, fileRel, targetRel) {
+  for (const m of text.matchAll(/import\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g)) {
+    const resolved = path.posix.normalize(path.posix.join(path.posix.dirname(fileRel), m[2]));
+    if (resolved === targetRel) return m[1];
+  }
+  return null;
+}
+
+// Every JSX expression still OPEN at `tagIndex` — i.e. every condition the element at that index is
+// rendered behind. `{cond && <Tag/>}` and `{cond && (\n <Tag/>\n)}` are the two shapes this repo
+// writes; anything else is returned with `cond: null` and reported rather than assumed satisfied
+// (docs/adr/0019 — a guard this gate cannot read is not a guard it may wave through).
+// ponytail: brace counting over comment-stripped template text. A `{` inside a quoted attribute value
+// or a text node would be read as an expression opener; the fail direction is an unreadable guard,
+// i.e. red, i.e. a human looks. Upgrade path is a real JSX parser, not a wider regex.
+function mountGuards(template, tagIndex) {
+  const before = template.slice(0, tagIndex);
+  const open = [];
+  for (let i = 0; i < before.length; i++) {
+    if (before[i] === '{') open.push(i);
+    else if (before[i] === '}') open.pop();
+  }
+  return open.map((i) => {
+    const inner = before.slice(i + 1);
+    const m = inner.match(/^([\s\S]*?)&&\s*\(?\s*$/);
+    return m ? { cond: m[1].trim(), raw: inner.trim() } : { cond: null, raw: inner.trim().slice(0, 80) };
+  });
+}
+
+// A guard is evaluated against the real manifest entry, which is what makes the verdict PER PAGE: an
+// unconditional mount holds for every game, and `game.players[0] !== 1 || …` names exactly the [1, 1]
+// pages it excludes. A throw (the guard reads a frontmatter local this gate cannot see) returns null
+// and is reported — never read as satisfied.
+function guardHolds(cond, game) {
+  try {
+    return Boolean(new Function('game', `"use strict"; return (${cond});`)(game));
+  } catch {
+    return null;
+  }
+}
+
+function checkPerPageMount(games, astroFiles, checked, exempt = EXEMPT_GAME_IDS) {
+  checked?.push('f');
+  const violations = [];
+  // docs/adr/0019: every rule below is per-game, so an empty manifest satisfies all of them vacuously
+  // and this condition would report OK having checked no page at all.
+  if (!Array.isArray(games) || games.length === 0) {
+    return [
+      `(f) the games manifest is ${Array.isArray(games) ? 'an empty array' : JSON.stringify(games)} — ` +
+        'the per-page rule is per-game, so an empty set passes it vacuously (docs/adr/0019)',
+    ];
+  }
+  for (const id of exempt) {
+    if (!games.some((g) => g.id === id)) {
+      violations.push(`(f) the exempt list names "${id}", which is not in the manifest — a stale exemption is a page-shaped hole nothing checks`);
+    }
+  }
+
+  const owners = [...astroFiles].filter(([, t]) => /<dialog\s+id="leave-confirm"/.test(stripComments(t))).map(([rel]) => rel);
+  if (owners.length !== 1) {
+    violations.push(
+      `(f) expected exactly one .astro file to declare <dialog id="leave-confirm">, found ${owners.length}` +
+        (owners.length ? ` (${owners.join(', ')})` : '') +
+        ' — with none there is no guard on any page, and with two the ids collide and showModal() raises whichever the parser kept'
+    );
+    return violations;
+  }
+  const owner = owners[0];
+
+  // The render path: game URL -> the one dynamic route -> the layout -> the file declaring the dialog.
+  // The last step is the dialog's own position inside its owner, so wrapping the markup in a
+  // conditional is caught by the same evaluation as wrapping the component.
+  const steps = [];
+  for (const [file, target] of [[GAME_PAGE, GAME_LAYOUT], [GAME_LAYOUT, owner]]) {
+    if (file === target) continue; // the dialog inlined into the layout: that link is trivially walked
+    const raw = astroFiles.get(file);
+    if (raw === undefined) {
+      violations.push(`(f) ${file} does not exist — the render path from a game URL to #leave-confirm cannot be resolved`);
+      return violations;
+    }
+    const stripped = stripComments(raw);
+    const template = templateOf(stripped);
+    const local = importedAs(stripped, file, target);
+    if (!local) {
+      violations.push(`(f) ${file} does not import ${target} — the render path to #leave-confirm is broken`);
+      return violations;
+    }
+    // Component-name BOUNDARY, not a prefix: `template.indexOf('<' + local)` matched `<LeaveConfirmX`
+    // too, so a differently-named component mounted ABOVE the real one decided this step's verdict —
+    // its (possibly unguarded) position passed while the real, guarded mount below was never read
+    // (adversarial review, gh#106). Astro spells a mount `<Name>`, `<Name />` or `<Name attr…>`, so
+    // the character after the name is always whitespace, `/` or `>`.
+    const at = template.search(new RegExp(`<${local}(?=[\\s/>])`));
+    if (at < 0) {
+      violations.push(`(f) ${file} imports ${local} (${target}) but never renders <${local}> — no page can reach #leave-confirm`);
+      return violations;
+    }
+    steps.push({ file, local, guards: mountGuards(template, at) });
+  }
+  const ownerTemplate = templateOf(stripComments(astroFiles.get(owner)));
+  steps.push({
+    file: owner,
+    local: 'dialog id="leave-confirm"',
+    guards: mountGuards(ownerTemplate, ownerTemplate.search(/<dialog\s+id="leave-confirm"/)),
+  });
+
+  for (const game of games) {
+    if (exempt.includes(game.id)) continue;
+    for (const { file, local, guards } of steps) {
+      for (const g of guards) {
+        if (g.cond === null) {
+          violations.push(
+            `(f) /game/${game.id}/: <${local}> in ${file} sits inside an expression this gate cannot read ` +
+              `("${g.raw}") — an unreadable guard is reported, never assumed satisfied (docs/adr/0019)`
+          );
+          continue;
+        }
+        const holds = guardHolds(g.cond, game);
+        if (holds === null) {
+          violations.push(
+            `(f) /game/${game.id}/: the guard \`${g.cond}\` on <${local}> in ${file} could not be evaluated ` +
+              'against this manifest entry, so the mount cannot be proven'
+          );
+        } else if (!holds) {
+          violations.push(
+            `(f) /game/${game.id}/ never mounts #leave-confirm: <${local}> in ${file} renders only when ` +
+              `\`${g.cond}\`, which is false for this game (players [${game.players}]). ADR-0015 guards every page ` +
+              'that starts a round, and ADR-0040 leaves it in place for a [1, 1] page'
+          );
+        }
+      }
+    }
+  }
   return violations;
 }
 
@@ -951,27 +1163,154 @@ function selftest() {
   }
   console.log('PASS disclosed ceiling, measured: rung 1 (parity flip, both backtick sources) and rung 2 (multi-line HTML attribute) each read inString:false while stripComments() blanks live code — silent, not loud');
 
-  // The pin itself, over the REAL file. Two things must hold, and the second is the positive
-  // control: a detector returning nothing looks exactly like a clean file (docs/adr/0019).
-  const openers = findLineCommentOpeners(fs.readFileSync(ASTRO_FILE, 'utf8'));
-  for (const o of openers) {
+  // The pin itself, over the REAL files. Every file (c)/(d)/(e) read is walked, not just one: since
+  // gh#106 the stripper is fed TWO authored islands, and pinning only one of them would leave the
+  // other's quoted values able to blank live code behind a green. Two things must hold per file, and
+  // the second is the positive control: a detector returning nothing looks exactly like a clean file
+  // (docs/adr/0019).
+  for (const rel of ASTRO_FILES) {
+    const openers = findLineCommentOpeners(fs.readFileSync(path.join(repoRoot, rel), 'utf8'));
+    for (const o of openers) {
+      assert.ok(
+        !o.inString,
+        `${rel}:${o.line}: this \`${o.kind}\` sits inside a quoted value, not in a comment. ` +
+          (o.kind === '/*'
+            ? 'stripComments() blanks from it to the next textual block-comment terminator, which may be many lines down, so every live line in between '
+            : 'stripComments() blanks from it to END OF LINE, so every live character after it on that line ') +
+          'is invisible to conditions (c)/(d)/(e) — this gate may now be going green on code it never ' +
+          `read. Move the value onto its own line away from the guards, or take the upgrade path in ` +
+          `findLineCommentOpeners' header and give stripComments() a real string-state walk. Line: ${o.text}`,
+      );
+    }
     assert.ok(
-      !o.inString,
-      `src/shell/PlayerSetup.astro:${o.line}: this \`${o.kind}\` sits inside a quoted value, not in a comment. ` +
-        (o.kind === '/*'
-          ? 'stripComments() blanks from it to the next textual block-comment terminator, which may be many lines down, so every live line in between '
-          : 'stripComments() blanks from it to END OF LINE, so every live character after it on that line ') +
-        'is invisible to conditions (c)/(d)/(e) — this gate may now be going green on code it never ' +
-        `read. Move the value onto its own line away from the guards, or take the upgrade path in ` +
-        `findLineCommentOpeners' header and give stripComments() a real string-state walk. Line: ${o.text}`,
+      openers.length > 0,
+      `found zero \`//\` openers in ${rel} — the detector reported nothing, which is not the ` +
+        'same as none existing (docs/adr/0019). Check findLineCommentOpeners() before trusting this pin.',
+    );
+    console.log(`PASS stripComments precondition: ${openers.length} \`//\` opener(s) in ${rel}, none inside a quoted value (tokens.css excluded — stripComments() is never run on it)`);
+  }
+
+  selftestPerPageMount();
+}
+
+// ---------------------------------------------------------------------------
+// (f) calibration. Fixtures are in-memory file maps in the same shape listAstroFiles() returns, so the
+// pure function is exercised exactly as main() exercises it. Both directions per shape, and the
+// known-bad legs assert WHICH pages are named: a gate that reds on all-or-nothing but cannot say
+// "these three" is still blind to the failure gh#106 was opened on — the mount excluded a SUBSET.
+// ---------------------------------------------------------------------------
+const FIXTURE_GAMES = [
+  { id: 'timebomb', players: [2, 10] },
+  { id: 'siamsi', players: [1, 1] },
+  { id: 'love-match', players: [1, 1] },
+];
+const fixtureTree = (layoutMount, ownerBody = '<dialog id="leave-confirm"></dialog>') =>
+  new Map([
+    [GAME_PAGE, "---\nimport GameLayout from '../../layouts/GameLayout.astro';\n---\n<GameLayout game={game} />"],
+    [GAME_LAYOUT, `---\nimport LeaveConfirm from '../shell/LeaveConfirm.astro';\n---\n${layoutMount}`],
+    ['src/shell/LeaveConfirm.astro', ownerBody],
+  ]);
+const namedPages = (violations) =>
+  [...new Set(violations.flatMap((v) => [...v.matchAll(/\/game\/([\w-]+)\//g)].map((m) => m[1])))].sort();
+
+function selftestPerPageMount() {
+  // known-good: unconditional mount, in both spellings the repo writes.
+  for (const mount of ['<LeaveConfirm gameId={game.id} />', '<div>{game.ads && <span/>}</div>\n<LeaveConfirm gameId={game.id} />']) {
+    assert.deepEqual(
+      checkPerPageMount(FIXTURE_GAMES, fixtureTree(mount)),
+      [],
+      '(f) an unconditional mount must report zero violations, and a sibling expression must not be read as its guard',
     );
   }
-  assert.ok(
-    openers.length > 0,
-    'found zero `//` openers in PlayerSetup.astro — the detector reported nothing, which is not the ' +
-      'same as none existing (docs/adr/0019). Check findLineCommentOpeners() before trusting this pin.',
+  console.log('PASS (f) known-good fixture: an unconditional <LeaveConfirm> mount covers every manifest page');
+
+  // known-bad, the SHIPPED defect verbatim: the guard that renders the setup panel, inherited by the
+  // dialog that used to live inside it. Only the [1, 1] pages must be named.
+  const shipped = checkPerPageMount(
+    FIXTURE_GAMES,
+    fixtureTree('{(game.players[0] !== 1 || game.players[1] !== 1) && (\n  <LeaveConfirm gameId={game.id} />\n)}'),
   );
-  console.log(`PASS stripComments precondition: ${openers.length} \`//\` opener(s) in src/shell/PlayerSetup.astro, none inside a quoted value (tokens.css excluded — stripComments() is never run on it)`);
+  assert.deepEqual(namedPages(shipped), ['love-match', 'siamsi'], '(f) must name exactly the [1, 1] pages the panel guard excludes');
+  assert.ok(shipped.every((v) => v.startsWith('(f)')), '(f) the shipped-defect fixture must only produce (f) violations');
+  console.log('PASS (f) known-bad fixture (the shipped panel guard on the mount): names exactly the [1, 1] pages, not the party page');
+
+  // known-bad, ONE page: the failure a gate that only reds all-or-nothing cannot see.
+  const onePage = checkPerPageMount(FIXTURE_GAMES, fixtureTree("{game.id !== 'siamsi' && <LeaveConfirm gameId={game.id} />}"));
+  assert.deepEqual(namedPages(onePage), ['siamsi'], '(f) must name the single excluded page and no other');
+  console.log('PASS (f) known-bad fixture (one page excluded by id): names siamsi alone');
+
+  // known-bad: a component whose name merely STARTS with the real one, mounted unguarded ABOVE the
+  // real mount. `indexOf('<' + local)` stopped at `<LeaveConfirmX`, read its (empty) guard list and
+  // reported every page covered, while the real mount below it excluded the [1, 1] pages — the exact
+  // false pass gh#106 exists to make impossible. The boundary match must grade the real mount.
+  const prefix = checkPerPageMount(
+    FIXTURE_GAMES,
+    fixtureTree('<LeaveConfirmX />\n{(game.players[0] !== 1 || game.players[1] !== 1) && <LeaveConfirm gameId={game.id} />}'),
+  );
+  assert.deepEqual(
+    namedPages(prefix),
+    ['love-match', 'siamsi'],
+    '(f) a prefix-named component must not stand in for the real mount — the guarded mount below it is what decides the verdict',
+  );
+  console.log('PASS (f) known-bad fixture (<LeaveConfirmX> above a guarded <LeaveConfirm>): the prefix mount is not read as the real one');
+
+  // known-bad: the guard moved onto the DIALOG itself rather than the component — same hole, one layer in.
+  const ownerGuarded = checkPerPageMount(
+    FIXTURE_GAMES,
+    fixtureTree('<LeaveConfirm gameId={game.id} />', '{game.players[0] !== 1 && (<dialog id="leave-confirm"></dialog>)}'),
+  );
+  assert.deepEqual(namedPages(ownerGuarded), ['love-match', 'siamsi'], '(f) a guard on the dialog markup must be graded like a guard on the component');
+  console.log('PASS (f) known-bad fixture (guard moved onto the <dialog> inside its own file) is flagged per page');
+
+  // known-bad: a shape this gate cannot read must be REPORTED, never assumed satisfied (docs/adr/0019).
+  const ternary = checkPerPageMount(FIXTURE_GAMES, fixtureTree('{game.ads ? <LeaveConfirm gameId={game.id} /> : null}'));
+  assert.deepEqual(namedPages(ternary), ['love-match', 'siamsi', 'timebomb'], '(f) an unreadable guard must be reported for every page');
+  assert.ok(ternary.every((v) => v.includes('cannot read')), '(f) the unreadable-guard message must say so');
+  console.log('PASS (f) known-bad fixture (ternary mount): an unreadable guard fails CLOSED for every page');
+
+  // known-bad: a guard that reads a frontmatter local this gate cannot see — evaluation throws, and a
+  // throw must not read as satisfied either.
+  const opaque = checkPerPageMount(FIXTURE_GAMES, fixtureTree('{carriesGroup && <LeaveConfirm gameId={game.id} />}'));
+  assert.deepEqual(namedPages(opaque), ['love-match', 'siamsi', 'timebomb'], '(f) a guard that cannot be evaluated must be reported for every page');
+  assert.ok(opaque.every((v) => v.includes('could not be evaluated')), '(f) an unevaluable guard must say so');
+  console.log('PASS (f) known-bad fixture (guard on an invisible frontmatter local): an unevaluable guard fails CLOSED');
+
+  // known-bad: nobody declares the dialog · two files declare it · the layout imports but never renders it.
+  const noOwner = new Map([...fixtureTree('<LeaveConfirm gameId={game.id} />')].filter(([rel]) => rel !== 'src/shell/LeaveConfirm.astro'));
+  assert.ok(
+    checkPerPageMount(FIXTURE_GAMES, noOwner).some((v) => v.includes('found 0')),
+    '(f) zero declarations of the dialog must be flagged',
+  );
+  const twoOwners = fixtureTree('<LeaveConfirm gameId={game.id} />');
+  twoOwners.set('src/shell/PlayerSetup.astro', '<dialog id="leave-confirm"></dialog>');
+  assert.ok(
+    checkPerPageMount(FIXTURE_GAMES, twoOwners).some((v) => v.includes('found 2')),
+    '(f) two files declaring the dialog must be flagged — duplicate ids collide',
+  );
+  assert.ok(
+    checkPerPageMount(FIXTURE_GAMES, fixtureTree('<p>no mount here</p>')).some((v) => v.includes('never renders')),
+    '(f) an import with no mount must be flagged',
+  );
+  console.log('PASS (f) known-bad fixtures (no owner · two owners · imported but never rendered) are each flagged');
+
+  // ADR-0019: the rule is per-game, so an empty manifest would satisfy it vacuously.
+  assert.ok(
+    checkPerPageMount([], fixtureTree('<LeaveConfirm gameId={game.id} />')).some((v) => v.includes('vacuously')),
+    '(f) an empty manifest must fail, not pass by having nothing to check',
+  );
+  console.log('PASS (f) empty-manifest control: zero games fails instead of passing vacuously');
+
+  // The exempt list, both directions: it must actually exempt, and a name that no longer matches a
+  // manifest entry must be reported rather than silently covering nothing.
+  const broken = fixtureTree("{game.id !== 'siamsi' && <LeaveConfirm gameId={game.id} />}");
+  assert.deepEqual(checkPerPageMount(FIXTURE_GAMES, broken, undefined, ['siamsi']), [], '(f) an exempt page must be skipped');
+  assert.ok(
+    checkPerPageMount(FIXTURE_GAMES, fixtureTree('<LeaveConfirm gameId={game.id} />'), undefined, ['gone-game'])
+      .some((v) => v.includes('stale exemption')),
+    '(f) an exempt id that is not in the manifest must be reported',
+  );
+  assert.deepEqual(EXEMPT_GAME_IDS, [], '(f) the real exempt list is empty by design — ADR-0015 exempts tool pages, which are not in this manifest');
+  console.log('PASS (f) exempt list, both directions: it exempts what it names, and a stale name is reported');
 }
 
 // ---------------------------------------------------------------------------
@@ -991,19 +1330,37 @@ async function main() {
     anyFail = true;
   }
 
-  const astroViolations = checkPlayerSetupAstro(fs.readFileSync(ASTRO_FILE, 'utf8'), checked);
+  // Both files are read unconditionally: an "only if it exists" read would let deleting the island
+  // satisfy (c)/(d) from the other file's text instead of failing loudly.
+  const astroTexts = ASTRO_FILES.map((rel) => fs.readFileSync(path.join(repoRoot, rel), 'utf8'));
+  const astroViolations = checkPlayerSetupAstro(astroTexts, checked);
   for (const v of astroViolations) {
-    console.error(`src/shell/PlayerSetup.astro · ${v}`);
+    console.error(`${ASTRO_FILES.join(' + ')} · ${v}`);
+    anyFail = true;
+  }
+
+  // (f) needs the manifest itself, not a page list — see its header. manifest.ts writes the full .ts
+  // extension on every game import, so node resolves it with no loader hook (same as validate-games.mjs).
+  const { games } = await import(path.join(repoRoot, 'src/games/manifest.ts'));
+  const perPageViolations = checkPerPageMount(games, listAstroFiles(), checked);
+  for (const v of perPageViolations) {
+    console.error(`${GAME_LAYOUT} · ${v}`);
     anyFail = true;
   }
 
   if (anyFail) {
     console.error('\nADR-0015: the leave-confirm dialog must stay inert while closed and clear pendingHref on every dismissal (docs/adr/0015-a-leave-confirm-guards-the-links-we-cannot-move.md).');
+    console.error('ADR-0015 + ADR-0040 (gh#106): every page that starts a round must MOUNT it — "a page declaring [1, 1] skips the setup panel. Nothing else about the shell\'s start contract moves ... and so do ADR-0014 and ADR-0015" (docs/adr/0040-games-exist-in-one-category-only.md).');
     console.error('ADR-0024: #clear-choice must stay a non-reflowing <dialog> and must still ask when showModal is unavailable (docs/adr/0024-the-reflow-is-the-hazard-not-the-clearance.md).');
     process.exit(1);
   }
   console.log(
-    `leave-confirm-check: tokens.css + PlayerSetup.astro clean — ${GUARD_DIALOG_IDS.length} dialogs (${GUARD_DIALOG_IDS.join(', ')}), ${checked.length} conditions (${checked.join(', ')})`
+    // Every number here is measured, never a literal (Hole 2): the game count comes from the manifest
+    // array (f) actually walked, so a manifest that stopped being read prints 0 instead of a line
+    // claiming per-page coverage it no longer has.
+    `leave-confirm-check: tokens.css + ${ASTRO_FILES.join(' + ')} clean — ${GUARD_DIALOG_IDS.length} dialogs ` +
+      `(${GUARD_DIALOG_IDS.join(', ')}), ${checked.length} conditions (${checked.join(', ')}), ` +
+      `${games.length - EXEMPT_GAME_IDS.length} of ${games.length} manifest game page(s) proven to mount #leave-confirm`
   );
 }
 

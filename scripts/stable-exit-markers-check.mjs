@@ -7,7 +7,7 @@
 // that set is owned by Thai text length, roster size and the layout engine, so scanning for
 // it would never converge (docs/adr/0016). What CAN regress is the codebase-owned marker set
 // invented in #39: `data-stable-exit` is meant to sit on exactly one link
-// (src/layouts/GameLayout.astro's back-to-home link), and PlayerSetup.astro's leave-confirm guard
+// (src/layouts/GameLayout.astro's back-to-home link), and LeaveConfirm.astro's leave-confirm guard
 // is meant to exempt exactly that marker via the selector `a[href]:not([data-stable-exit])`.
 // "Exactly one" is enforced as exactly one: the attribute must be ABSENT from every other file AND
 // PRESENT once in GameLayout.astro. Zero markers is a real regression — the leave-confirm would then
@@ -38,7 +38,11 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
 const ATTR = 'data-stable-exit';
 const ALLOWED_ATTR_FILE = 'src/layouts/GameLayout.astro'; // the only file the attribute may appear in outside a comment
-const SELECTOR_FILE = 'src/shell/PlayerSetup.astro';
+// gh#106 — the guard moved out of PlayerSetup.astro into its own island: ADR-0015's confirm rode on
+// the setup panel's render condition, so every ADR-0040 [1, 1] page shipped with no guard at all. The
+// selector is pinned to the file that OWNS the guard, so this constant follows the mechanism rather
+// than naming a file the mechanism has left.
+const SELECTOR_FILE = 'src/shell/LeaveConfirm.astro';
 const SELECTOR_LITERAL = 'a[href]:not([data-stable-exit])';
 
 // ---------------------------------------------------------------------------
@@ -138,8 +142,8 @@ function selftest() {
   try {
     // Known-good: the real allowed shape. GameLayout.astro carries the one real attribute use
     // plus its own explanatory brace comment mentioning the attribute (the GameLayout.astro:34
-    // case). PlayerSetup.astro carries the real selector, plus a line comment mentioning the
-    // attribute (the PlayerSetup.astro:390 case) that must NOT be read as a real attribute use.
+    // case). SELECTOR_FILE carries the real selector, plus a line comment mentioning the
+    // attribute (the case the guard file's own prose creates) that must NOT be read as a real use.
     // A third file has a brace-comment mention too, proving the exclusion isn't special-cased
     // to GameLayout.astro's own comment style.
     write(good, 'src/layouts/GameLayout.astro', [
@@ -147,7 +151,7 @@ function selftest() {
       '     so it is exempted from the leave-confirm guard. */}',
       '<p><a href="/" data-stable-exit>กลับหน้าแรก</a></p>',
     ].join('\n'));
-    write(good, 'src/shell/PlayerSetup.astro', [
+    write(good, SELECTOR_FILE, [
       '  // Only data-stable-exit (GameLayout\'s back-to-home link) opts out.',
       "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
     ].join('\n'));
@@ -166,7 +170,7 @@ function selftest() {
 
     const goodFiles = walkSrcFiles(good);
     assert.deepEqual(findAttributeViolations(goodFiles), [], 'known-good fixture must report zero attribute violations');
-    const goodPlayerSetup = goodFiles.find((f) => f.relPath === 'src/shell/PlayerSetup.astro');
+    const goodPlayerSetup = goodFiles.find((f) => f.relPath === SELECTOR_FILE);
     assert.equal(selectorPresent(goodPlayerSetup.text), true, 'known-good fixture must keep the exemption selector');
     const goodLayout = goodFiles.find((f) => f.relPath === 'src/layouts/GameLayout.astro');
     assert.equal(countAttributeUses(goodLayout.text), 1, 'known-good fixture must carry exactly one live attribute use, its own brace comment not counted');
@@ -174,7 +178,7 @@ function selftest() {
     const urlHole = fs.mkdtempSync(path.join(os.tmpdir(), 'stable-exit-urlhole-'));
     try {
       write(urlHole, 'src/layouts/GameLayout.astro', '<p><a href="/" data-stable-exit>x</a></p>');
-      write(urlHole, 'src/shell/PlayerSetup.astro', "closest?.('a[href]:not([data-stable-exit])')");
+      write(urlHole, SELECTOR_FILE, "closest?.('a[href]:not([data-stable-exit])')");
       write(urlHole, 'src/layouts/Base.astro', '<a href="https://ex.com/a" data-stable-exit>hidden</a>');
       assert.deepEqual(
         findAttributeViolations(walkSrcFiles(urlHole)),
@@ -215,7 +219,7 @@ function selftest() {
     ].join('\n'));
     // The old selector survives as a comment while the live one is weakened — before comments were
     // stripped, that alone kept selectorPresent() true and the gate green.
-    write(bad, 'src/shell/PlayerSetup.astro', [
+    write(bad, SELECTOR_FILE, [
       "  // was: closest?.('a[href]:not([data-stable-exit])')",
       "  const link = (e.target as Element).closest?.('a[href]') as HTMLAnchorElement | null;",
     ].join('\n'));
@@ -223,7 +227,7 @@ function selftest() {
     const badFiles = walkSrcFiles(bad);
     const attrViolations = findAttributeViolations(badFiles);
     assert.deepEqual(attrViolations, ['src/layouts/BaseLayout.astro'], 'known-bad fixture must flag exactly the planted file');
-    const badPlayerSetup = badFiles.find((f) => f.relPath === 'src/shell/PlayerSetup.astro');
+    const badPlayerSetup = badFiles.find((f) => f.relPath === SELECTOR_FILE);
     assert.equal(selectorPresent(badPlayerSetup.text), false, 'a commented-out selector must not satisfy the presence check while the live one is weakened');
     const badLayout = badFiles.find((f) => f.relPath === 'src/layouts/GameLayout.astro');
     assert.equal(countAttributeUses(badLayout.text), 0, 'a commented-out marker must not satisfy the presence check — zero live markers must be visible as zero');

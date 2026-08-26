@@ -1,6 +1,7 @@
 ---
 import Base from './Base.astro';
 import PlayerSetup from '../shell/PlayerSetup.astro';
+import LeaveConfirm from '../shell/LeaveConfirm.astro';
 import PassPhone from '../shell/PassPhone.astro';
 import GameNav from '../components/GameNav.astro';
 import { categories } from '../games/categories';
@@ -42,8 +43,12 @@ const howToJsonLd = {
          is here and not in the how-to section below the stage, whose y depends on the stage's height)
          then the accent play area, then the how-to on the page ground. */}
     {/* data-stable-exit (#39): this link never moves under a tap-transition (see the comment above),
-         so it is the one link exempted from the leave-confirm guard in PlayerSetup.astro — every other
-         link below #stage (GameNav's siblings, the footer's) still asks first mid-round. */}
+         so it is the one link exempted from the leave-confirm guard in LeaveConfirm.astro (it lived in
+         PlayerSetup.astro until gh#106) — every other link below #stage (GameNav's siblings, the
+         footer's) still asks first mid-round. The exemption is one ADR-0015 grants by name: "It marks
+         the links that provably cannot move: data-stable-exit, carried today by exactly one element."
+         What is load-bearing is that this link is static and sits above the stage, not where it points
+         (ADR-0014, retargeted to / by ADR-0041). */}
     <header class="game-topbar">
       <a href="/" data-stable-exit>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
@@ -70,6 +75,20 @@ const howToJsonLd = {
       {(game.players[0] !== 1 || game.players[1] !== 1) && (
         <PlayerSetup min={game.players[0]} max={game.players[1]} gameId={game.id} />
       )}
+
+      {/* gh#106 — UNCONDITIONAL, and the absence of a condition here is the fix. ADR-0015's guard used
+           to ride on PlayerSetup, so the guard inherited the panel's render condition above and every
+           [1, 1] page shipped with no leave-confirm at all — while ADR-0040, the ADR that made [1, 1]
+           legal, says in the same breath: "a page declaring [1, 1] skips the setup panel. Nothing else
+           about the shell's start contract moves — ... and so do ADR-0014 and ADR-0015."
+           Never put a condition on this line. The set of pages that start a round grows with the
+           manifest and is not enumerable here; what IS ours is the two links below the stage this
+           layout declares (GameNav's siblings, the footer's) plus the topbar's data-stable-exit
+           exemption above — so the guard belongs to this layer, unconditionally, and the exempt set is
+           marked rather than the guarded one (ADR-0015's inversion, ADR-0028's layer rule).
+           scripts/leave-confirm-check.mjs condition (f) evaluates any guard added here against every
+           manifest entry and names the pages it would exclude. */}
+      <LeaveConfirm gameId={game.id} />
 
       {/* data-players carries the page's declared range to the game page island, which reads it to
            decide whether this page is the solo class — the same dataset channel data-game-id uses. */}

@@ -593,6 +593,17 @@ function save(): void {
   );
 }
 
+/** gh#106 — the shell's leave-confirm (src/shell/LeaveConfirm.astro) arms on "a round was STARTED on
+ *  this page". On a party page the setup panel's `hidden` carries that bit; ADR-0040's [1, 1] pages
+ *  render no panel, so this page is the only thing that knows, and this event is how it says so. Any
+ *  game whose solo page starts a round dispatches it — that is what keeps the guard off a page like
+ *  daily-fortune, which starts none, without the shell holding a list of game ids. Fired at every
+ *  entry into a live round (a fresh start, and a resumed one); the listener latches, so repeats are
+ *  free and nothing here has to clear it — the confirm must still ask on the summary screen. */
+function announceRoundStarted(): void {
+  document.dispatchEvent(new CustomEvent('watduang:round-started'));
+}
+
 function startRound(): void {
   if (phase !== 'idle') return;
   const roster = gameCtx?.session.players ?? [];
@@ -601,6 +612,7 @@ function startRound(): void {
   holder = 0;
   results = [];
   phase = 'turn';
+  announceRoundStarted();
   save();
   renderTurn();
 }
@@ -666,6 +678,7 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
     results = resumed.results;
     drawnThisTurn = resumed.drawn;
     phase = resumed.phase;
+    announceRoundStarted(); // a resumed round is a started one — the guard must arm without a second tap
     if (phase === 'drawn') renderDrawn();
     else renderTurn();
     return;

@@ -1,0 +1,123 @@
+---
+interface Props { gameId?: string }
+const { gameId } = Astro.props as Props;
+---
+{/* gh#106 — ADR-0015's guard, in its own island. It lived in PlayerSetup.astro until three pages proved
+    that coupling WAS the bug: ADR-0040 made `players: [1, 1]` legal and a page declaring it "skips the
+    setup panel", so siamsi, daily-fortune and love-match rendered no PlayerSetup and, with it, no
+    leave-confirm at all — while that same ADR-0040 sentence continues "Nothing else about the shell's
+    start contract moves ... and so do ADR-0014 and ADR-0015". The guard now mounts from GameLayout,
+    unconditionally: that is the layer which DECLARES the links it protects (the topbar's stable exit,
+    GameNav's siblings, the footer's link home), which is ADR-0028's rule. Tool pages stay unguarded by
+    not rendering this component at all — ADR-0015's own reason, "there is no round to lose there".
+
+    data-game-id is the predicate's first half, read off this element rather than routed through a
+    second channel: it is what makes "this page carries a game" checkable from the island, the same way
+    #player-setup's copy of it does for the panel (#23).
+
+    Every comment here is a JS-style brace comment, never an HTML one: Astro renders an HTML comment
+    straight into the built page, which would ship English engineering prose to a Thai-first player.
+
+    #39: a tap-transition (stage shrinks, page chrome slides up) can put a GameNav link exactly where a
+    double-tap's second tap lands — the group leaves the round with no warning. This asks first, but only
+    while a round is live on THIS page, so a reader who has not started anything yet navigates freely.
+    #leave-go is a <button>, not an <a> — an anchor here would recreate the exact hazard this dialog
+    exists to remove (a second target waiting under the same finger).
+
+    Thai copy below is FINAL, owner-ruled #39: this dialog can only ask whether to leave, and that
+    ceiling is accepted as permanent rather than worked around. It is bounded by what the predicate
+    carries — "a round was STARTED on this page", not "a round is running right now", so a
+    finished-round summary still reaches this dialog. An earlier wording ended by asserting that this
+    round would END, which on that screen is simply false — the round already had. Both buttons are
+    bounded the same way: an earlier "เล่นรอบนี้ต่อ" promised to resume a round that may already be
+    over, so the stay button names the page, not the round. Same discipline as clearCopy in
+    player-select.ts, which is worded to claim only its own bit. Do not restore any claim about a round
+    ending or resuming unless the predicate is narrowed to match — and narrowing it means building round
+    state this site does not have (ADR-0015). */}
+<dialog id="leave-confirm" data-game-id={gameId}>
+  <p id="leave-confirm-msg" role="alert">ไปเกมอื่นตอนนี้ไหม</p>
+  <button id="leave-stay" type="button">อยู่หน้านี้ต่อ</button>
+  <button id="leave-go" type="button">ไปเกมอื่น</button>
+</dialog>
+
+<script>
+  // #39 — a link click during a live round on this page asks first. Capture phase so this runs before
+  // the link's own navigation, and it is deliberately global (document, not #stage or GameNav): the
+  // hazard is page chrome sliding under a tap-transition, and enumerating every link that could end up
+  // there is exactly the maintenance burden ADR-0014 already rejected once. Only data-stable-exit
+  // (GameLayout's back-to-home link, which never moves) opts out.
+  const leaveDlg = document.getElementById('leave-confirm') as HTMLDialogElement;
+  const leaveStayBtn = document.getElementById('leave-stay') as HTMLButtonElement;
+  const leaveGoBtn = document.getElementById('leave-go') as HTMLButtonElement;
+  // undefined on a mount with no game — there is no round to ask about there (#23, ADR-0015)
+  const gameId = leaveDlg.dataset.gameId;
+
+  // "A round was started on this page", in the two shapes a game page comes in:
+  //   party page — #player-setup exists and requestStart sets its `hidden` the moment a round begins,
+  //     so hidden IS the bit (unchanged from #39; the panel is never un-hidden again). ADR-0015 names
+  //     it: "'A round is live' is root.hidden on #player-setup ... That bit means 'this page started a
+  //     round', not 'a round is running now.'"
+  //   solo page — ADR-0040: no panel is rendered at all, so there is no bit to read here. The game
+  //     module is the only thing that knows, and it says so once, with watduang:round-started.
+  // The absence of a panel is NOT the signal, and that was gh#106's defect: `panel === null ||
+  // panel.hidden` armed the guard from first paint on all three [1, 1] pages, and gh#106 states why
+  // that is wrong — "daily-fortune and the current love-match never start one", while siamsi "does
+  // start rounds — startRound runs", with its one-holder fallback name. A fresh reader who touched
+  // nothing was asked about a round that did not exist.
+  // Keyed on the SIGNAL, never on a list of game ids: a list goes stale the moment a game gains or
+  // loses a round (#97 rewrites siamsi), and a future solo game that starts a round is guarded by
+  // dispatching this event and nothing else. The panel test is an explicit null test, NOT
+  // `panel?.hidden`, which reads undefined on a solo page and would arm every one of them again.
+  // LATCHED, not sampled: the predicate is "started", so a finished-round summary must still ask —
+  // nothing clears this flag for the life of the page (ADR-0015's accepted ceiling, owner-ruled #39).
+  let roundStarted = false;
+  document.addEventListener('watduang:round-started', () => { roundStarted = true; });
+
+  function roundLive(): boolean {
+    if (roundStarted) return true;
+    const panel = document.getElementById('player-setup');
+    return panel !== null && panel.hidden;
+  }
+
+  let pendingHref: string | null = null;
+
+  document.addEventListener('click', (e) => {
+    // No game on this page, or no round started on it yet, and there is nothing at risk: let every
+    // link behave normally.
+    if (gameId === undefined || !roundLive()) return;
+    // A modified or non-primary click is the round-PRESERVING action — cmd/ctrl/middle opens the
+    // sibling game in a new tab and leaves this round exactly where it is. Intercepting it and then
+    // honouring the answer with location.href turns the safe action into the destructive one: the
+    // player asked for a second tab and the current tab navigates instead. Let the browser have it.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    // Fail OPEN: a browser with no <dialog>.showModal cannot ask, and eating the click with no way to
+    // ask would strand the player worse than the double-tap this guard exists to stop.
+    if (typeof leaveDlg.showModal !== 'function') return;
+    const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;
+    if (!link) return;
+    e.preventDefault();
+    pendingHref = link.href;
+    // Anchors to the viewport half the finger is NOT in, and (via tokens.css) flips which end of the
+    // dialog #leave-go sits at, so the destructive button lands furthest from where the tap already is.
+    const tapY = e.clientY;
+    leaveDlg.classList.toggle('at-bottom', tapY < window.innerHeight / 2);
+    leaveDlg.classList.toggle('at-top', tapY >= window.innerHeight / 2);
+    leaveDlg.showModal();
+    leaveStayBtn.focus(); // focus the safe branch, which geometry cannot cover (ADR-0015 layer 3)
+  }, true);
+
+  // One clearing point for every way this dialog can shut — the stay button, Escape, and the close()
+  // the go branch issues below all end here. Clearing it per-button was the shipped defect: after a
+  // dismissal pendingHref still held the link, so any later press of #leave-go navigated on an answer
+  // the player had already given the other way. `close` is the event <dialog> fires for all of them,
+  // so a close path added later cannot forget to clear it.
+  leaveDlg.addEventListener('close', () => { pendingHref = null; });
+  leaveStayBtn.addEventListener('click', () => leaveDlg.close());
+  leaveGoBtn.addEventListener('click', () => {
+    // Read it out before close() fires the listener above and nulls it. No pendingHref = this press
+    // came from somewhere other than an intercepted link click, and there is nowhere to go.
+    const href = pendingHref;
+    leaveDlg.close();
+    if (href) location.href = href;
+  });
+</script>

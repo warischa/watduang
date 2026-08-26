@@ -18,6 +18,9 @@ const gamePage = readFileSync(new URL('../pages/game/[id].astro', import.meta.ur
 // gh#62 pins a pair too: the render guard lives in the template above, the clearing mount that has to
 // keep taking its true branch lives in the layout every game page renders through
 const gameLayout = readFileSync(new URL('../layouts/GameLayout.astro', import.meta.url), 'utf8');
+// gh#106 pins a pair too: this component must NOT declare the leave-confirm any more, and the island
+// that now owns it must carry the same guard the two assertions below used to find here.
+const leaveConfirm = readFileSync(new URL('./LeaveConfirm.astro', import.meta.url), 'utf8');
 // gh#65 — the clear button is derived from gameId now, so the mounts that must NOT get it are the ones
 // that pass no gameId. Read the directory rather than a list of three: the guarded set is "every tool
 // page", and it grows. A hardcoded list would stop covering it the moment a fourth page lands, which is
@@ -287,7 +290,17 @@ test('#25 the clear confirmation sits outside #player-setup, next to the button 
   assert.equal(insidePanel('clear-choice'), false, 'the clear question must stay visible mid-round');
   // #39 — root.hidden = true swallows the panel the moment a round starts, which is exactly when a
   // link click needs to be interceptable; inside the panel this dialog would be unreachable mid-round.
-  assert.equal(insidePanel('leave-confirm'), false, 'the leave-confirm dialog must stay reachable mid-round');
+  // gh#106 moved it one layer further out for a second reason: riding on this component at all meant
+  // inheriting its render condition, and ADR-0040's [1, 1] pages render no panel, so siamsi,
+  // daily-fortune and love-match shipped with no leave-confirm anywhere. It is now its own island,
+  // mounted by GameLayout unconditionally — outside the panel by construction, on every game page.
+  // The invariant is unchanged; only the file that has to satisfy it moved.
+  // Not `insidePanel('leave-confirm')` any more: that helper answers "inside or outside the panel" for
+  // an element THIS template declares, and the honest answer now is that it declares none — so the
+  // three assertions below pin where it went instead of asking a question with no subject here.
+  assert.ok(!template.includes('id="leave-confirm"'), 'this component must not declare the dialog any more — a second declaration collides on the id');
+  assert.match(leaveConfirm, /<dialog id="leave-confirm" data-game-id=\{gameId\}>/, 'LeaveConfirm.astro owns the dialog and reads its own gameId');
+  assert.match(gameLayout, /^\s*<LeaveConfirm gameId=\{game\.id\} \/>\s*$/m, 'GameLayout must mount it with no render condition — a condition is what excluded the [1, 1] pages');
 });
 
 // gh#62 — the clear button used to render on every page behind two gates: `hidden` when the page does
@@ -612,13 +625,19 @@ test('gh#61 a page with no game swallows activations for one shared window after
     'a numeric window here would drift from the one the games gate on, and ADR-0016 owns that number',
   );
 
-  // Exactly two document click listeners in the whole island — #39's leave-confirm, and this window —
-  // and the second of them is inside this branch. A third, or one of these two outside the branch, is a
-  // game page swallowing its own post-start taps.
+  // Exactly ONE document click listener in this island — this window — and it is inside this branch.
+  // It was two until gh#106 moved #39's leave-confirm into LeaveConfirm.astro; the pair is still
+  // counted, one per island, because the hazard is unchanged: a second listener here, or this one
+  // outside the branch, is a game page swallowing its own post-start taps.
   assert.equal(
     [...script.matchAll(/document\.addEventListener\('click'/g)].length,
-    2,
-    'positive control: the island installs two document click listeners — the leave-confirm, and this window',
+    1,
+    'positive control: this island installs exactly one document click listener — the no-game window',
+  );
+  assert.equal(
+    [...leaveConfirm.matchAll(/document\.addEventListener\('click'/g)].length,
+    1,
+    'positive control: the leave-confirm island installs exactly one document click listener of its own',
   );
   assert.equal(
     [...branch.matchAll(/document\.addEventListener\('click'/g)].length,

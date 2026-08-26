@@ -51,7 +51,15 @@ class FakeElement {
   // listener runs. The fake models that on purpose: without it every gate assertion passes vacuously.
   click() { if (!this.disabled) this.dispatch('click'); }
 }
-const fakeDocument = { createElement: (tag) => new FakeElement(tag) };
+// gh#106 — the leave-confirm's arming signal is a document event (watduang:round-started), so the fake
+// document has to be able to carry one: with no dispatchEvent here the announcement throws and every
+// screen test below fails on the harness instead of on the code. `dispatchedTypes` is what the
+// round-started test reads; reset it per test, it is shared with every mount in this file.
+const dispatchedTypes = [];
+const fakeDocument = {
+  createElement: (tag) => new FakeElement(tag),
+  dispatchEvent: (event) => { dispatchedTypes.push(event.type); return true; },
+};
 globalThis.document = fakeDocument;
 
 function makeCtx(players) {
@@ -233,6 +241,43 @@ test('untick then re-tick the same names — order changed, round still resumes'
   const s = midRound();
   const reTicked = [...s.players].reverse(); // Set iteration order after un/re-ticking
   assert.deepEqual(resumeFrom(store(toCheckpoint(s)), reTicked), s);
+});
+
+// gh#106 — this game's page declares [1, 1] (ADR-0040), so it renders no #player-setup and the shell
+// has no `hidden` bit to read. ADR-0015's predicate is that the guard arms "when the page has started
+// a round", and on a solo page this module is the only thing that knows — the announcement below is
+// what arms the leave-confirm. Both directions in one test, because the shipped defect was the arming
+// half: the idle screen must announce NOTHING (a reader who has touched nothing navigates freely,
+// which is what daily-fortune and love-match rely on by never announcing at all), and a started round
+// must announce exactly once.
+test('gh#106: startRound announces watduang:round-started — and the idle screen announces nothing', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  dispatchedTypes.length = 0;
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx(['เอ', 'บี']));
+  assert.deepEqual(dispatchedTypes, [], 'the idle screen must announce no round — nothing has started yet');
+
+  const start = stage.children.find((c) => c.id === 'ss-start');
+  assert.ok(start, 'ss-start missing — the idle half of this test would pass vacuously');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  start.click();
+  assert.ok(stage.children.some((c) => c.id === 'ss-draw'), 'positive control: the click really did start the round');
+  assert.deepEqual(dispatchedTypes, ['watduang:round-started'], 'a started round must announce exactly once');
+  game.dispose();
+});
+
+// The resume path never runs startRound, and a resumed round is still a started one — the guard must
+// arm on it without waiting for a tap that will never come.
+test('gh#106: a resumed round announces watduang:round-started too', () => {
+  dispatchedTypes.length = 0;
+  const players = ['คนที่ 1', 'คนที่ 2', 'คนที่ 3'];
+  const stage = fakeDocument.createElement('div');
+  const ctx = makeCtx(players);
+  ctx.session.checkpoint = store(toCheckpoint(midRound(players)));
+  game.mount(stage, ctx);
+  assert.ok(stage.children.some((c) => c.id === 'ss-pass'), 'positive control: the checkpoint really did resume (mid-draw screen)');
+  assert.deepEqual(dispatchedTypes, ['watduang:round-started'], 'a resumed round must announce once');
+  game.dispose();
 });
 
 // #42: the ghost-tap gate — a rapid double-tap on a game-page transition must not steal an action.
