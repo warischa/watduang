@@ -1,29 +1,216 @@
 ---
+// The tools hub gets the pop-card design the category pages already ship
+// (src/pages/c/[category].astro, from design/CatFortunePop.dc.html / CatPartyPop.dc.html).
+// design/HubNeutral.dc.html is NOT this page's canvas: canvas.json titles it "หน้าแรก (กลางๆ)",
+// page-3 — a HOME direction, superseded for the home page by direction C (design/HomeArcade.dc.html,
+// gh#87, ADR-0034's recorded reversal). So the values below are the category page's, which are an
+// artboard's own (ADR-0033); no colour, radius, size or shadow is invented here.
+// Every Thai string is read from src/tools/manifest.ts or already lived on this page — none is new.
+// The accent is toolsGroup.accentVar resolved through --page-accent, never a hex.
+// No script of any kind (ADR-0005) — this page needs none.
 import Base from '../../layouts/Base.astro';
-import { tools } from '../../tools/manifest';
+import { tools, toolsGroup } from '../../tools/manifest';
 ---
 
 <Base
   title="เครื่องมือสุ่มทั้งหมด — วัดดวง"
   description="รวมเครื่องมือสุ่มเล่นฟรี วงล้อสุ่มชื่อ จับฉลาก แบ่งทีม สุ่มเลข ใช้ได้ทันทีบนมือถือ ไม่ต้องโหลดแอป"
 >
-  <main>
-    <h1>เครื่องมือสุ่ม</h1>
-    <!-- gh#91: the tools left the shared roster (ADR-0039), so the clause promising the list is
-         shared with the games was deleted rather than reworded. -->
-    <p>เครื่องมือให้คำตอบทันที ไม่มีรอบ ไม่มีลำดับตา คนเดียวก็ใช้ได้</p>
+  <main style={`--page-accent: var(${toolsGroup.accentVar});`}>
+    <header class="hub-head">
+      <div class="hub-head-inner">
+        <h1>เครื่องมือสุ่ม</h1>
+        {/* gh#91: the tools left the shared roster (ADR-0039), so the clause promising the list is
+            shared with the games was deleted rather than reworded. */}
+        <p class="lead">เครื่องมือให้คำตอบทันที ไม่มีรอบ ไม่มีลำดับตา คนเดียวก็ใช้ได้</p>
+      </div>
+    </header>
 
-    <ul>
-      {
-        tools.map((tool) => (
-          <li>
-            <a href={tool.href}>{tool.name}</a>
-            <p>{tool.desc}</p>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="hub-body">
+      {/* The whole card IS the anchor — the title and the description sit inside it, so there is no
+          point in the card that routes anywhere else. No JS, no stretched-link pseudo-element. */}
+      <ul class="tools-grid">
+        {
+          tools.map((tool) => (
+            <li>
+              <a class="tool-card" href={tool.href}>
+                <h2>{tool.name}</h2>
+                <p>{tool.desc}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
 
-    <p><a href="/">กลับหน้าแรก</a></p>
+      <p class="back"><a class="back-link" href="/">กลับหน้าแรก</a></p>
+    </div>
   </main>
 </Base>
+
+<style>
+  /* Values are the shipped category page's, which are design/CatFortunePop.dc.html's own (ADR-0033):
+     2.5px rules, --radius-lg, --shadow-pop, 22px card padding, 22px/15px card type, 58px/30px H1,
+     19px lead, the 1280px inner track with 18px inline padding, and the same 1099px single-column
+     reflow. Colours are tokens only; --page-accent comes from toolsGroup.accentVar above. The back
+     link reuses the category page's .cross-card box (min-height 72px, 0 24px padding), which is the
+     same role — a link off this page — and clears 44x44 by construction. */
+  main {
+    background: var(--color-ground-warm);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+
+  main a {
+    text-decoration: none;
+  }
+
+  main a:hover {
+    color: var(--color-primary);
+  }
+
+  /* ------------------------------ header -------------------------------- */
+
+  .hub-head {
+    background: var(--page-accent);
+    color: var(--color-line-strong);
+    border-block-end: 2.5px solid var(--color-line-strong);
+  }
+
+  .hub-head-inner {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    padding-block: 52px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 58px;
+    line-height: 1.2;
+    letter-spacing: -1px;
+  }
+
+  .lead {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.6;
+  }
+
+  /* ------------------------------ body ---------------------------------- */
+
+  .hub-body {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    padding-block: 40px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    align-items: flex-start;
+    box-sizing: border-box;
+  }
+
+  /* align-items: start is what lets each card hug its own text: a grid row stretches its items by
+     default, so all four would take the tallest one's height. The min-height: 200px on the canvas's
+     game-card link (design/CatFortunePop.dc.html) is deliberately NOT carried over — it pads a 3-card row of
+     one accent, and here it left four cards two-thirds empty. ADR-0033: the canvas owns values,
+     the ticket owns structure. */
+  .tools-grid {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    gap: 20px;
+  }
+
+  /* The card is the ground colour with the rule and the drop shadow carrying it — the canvas's own
+     intro-card treatment (design/CatFortunePop.dc.html, its intro paragraph — same 2.5px rule,
+     16px radius, 4px shadow, on the same #fffdf7 the page is painted). The category page floods its cards with the
+     accent (the same canvas's game-card link, shipped as the .game-card rule in
+     src/pages/c/[category].astro) because
+     it shows ONE accent among ground-coloured chrome; four identical accent blocks under an accent
+     band read as one slab, so the accent stays on the head band only. */
+  .tool-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 22px;
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    color: var(--color-line-strong);
+    box-sizing: border-box;
+  }
+
+  .tool-card:hover {
+    color: var(--color-line-strong); /* the card keeps its ink; the canvas hover is for text links */
+  }
+
+  .tool-card h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.3;
+  }
+
+  .tool-card p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* ------------------------------ back link ----------------------------- */
+
+  .back {
+    margin: 0;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 72px;
+    padding: 0 24px;
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 19px;
+    color: var(--color-line-strong);
+    box-sizing: border-box;
+  }
+
+  .back-link:hover {
+    color: var(--color-line-strong);
+  }
+
+  /* ------------------------------ reflow -------------------------------- */
+
+  /* Same 1099px single-column reflow the category page uses, and the same 30px narrow H1 (the
+     390px artboard design/SiamsiIntent.dc.html's page-title size). No phone artboard exists for
+     the pop-card pages. */
+  @media (max-width: 1099px) {
+    h1 {
+      font-size: 30px;
+    }
+
+    .tools-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

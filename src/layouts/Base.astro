@@ -81,4 +81,16 @@ const ogImageURL = new URL(ogImage, Astro.site);
     color: var(--color-muted);
     font-family: var(--font-sans);
   }
+
+  /* The one link this footer renders was 44x24 on every page that uses it — the width was at the
+     44px tap minimum and the height was never near it. Sized here, not from a page's own sheet,
+     because this layout is what emits the anchor (ADR-0036). inline-flex keeps text-align: center
+     above doing the centring, so nothing else in the footer moves. */
+  footer a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
 </style>
