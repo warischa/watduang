@@ -198,3 +198,30 @@ this org — recreate the credential from a failing run's log instead, every tim
 
 Moved to `docs/agents/page-deletion.md` (ADR-0012 task seam). Read it before deleting or renaming any
 page — it covers the hardcoded smoke-step path list and the Azure trailing-slash route collision.
+
+## An open agent worktree makes repo tooling grade a second copy of the repo
+
+**Symptom:** gates and sweeps fail on files you never touched, naming paths under
+`.claude/worktrees/agent-<id>/`. Confirmed twice: the save-session budget sweep reported nine FAILs for
+docs its own table exempts, and `check-citations` went red, taking `npm run ci` with it.
+
+**Cause:** a worktree is a second checkout inside the repo. Exclusions written as `./`-anchored find
+paths, or as an exact relative path inside a script, do not match the copy — so the copy gets graded.
+
+**Fix:** exclude the relative path `.claude/worktrees`. Never exclude `.claude` itself; the command docs
+under it carry live references that must stay checked.
+
+**Unmeasured:** twelve other gates under `scripts/` walk the filesystem and none excludes worktrees.
+Red-vs-silently-double-counting is not established. So run the full suite with **no worktree present**
+before trusting a green, and read any red naming a `.claude/worktrees/` path as an artifact.
+
+**A worktree is branched from where the session STARTED, not from HEAD.** An agent dispatched after
+several commits still gets the older tree, so it verifies code you already replaced. Seen: a worktree
+sat at the session's first commit while HEAD was six ahead. Name the commit you expect in the brief and
+make the agent report what it actually found.
+
+**Exit-code trap:** the sweep's raw pipeline exits 1 when every doc is healthy and 0 when one is over
+budget. The leading `!` in the documented command flips it; read the status without the `!` and the
+verdict inverts.
+
+Full probe triage and the per-gate detail: `docs/verification/probe-triage-2026-08-26.md`.

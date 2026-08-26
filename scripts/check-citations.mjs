@@ -53,6 +53,12 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const EXCLUDE_DIRS = new Set(['node_modules', '.scratch', '.git', 'dist']);
+// A git worktree is a SECOND CHECKOUT of this repo living at .claude/worktrees/<agent>/.
+// Walking into it scans a duplicate tree, and EXCLUDE_FILES is keyed on the exact relative
+// path 'docs/sessions-archive.md' -- which the copy does not match, so the archive's
+// deliberately-frozen dead citations get policed there and red the gate. Excluded by RELATIVE
+// PATH, not by directory name: .claude/commands/*.md carry real citations and must stay scanned.
+const EXCLUDE_REL_DIRS = new Set(['.claude/worktrees']);
 const EXCLUDE_FILES = new Set(['docs/sessions-archive.md']);
 
 // ---------------------------------------------------------------------------
@@ -162,7 +168,8 @@ function scanRoot(root) {
   const walk = (dir) => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
       if (e.isDirectory()) {
-        if (!EXCLUDE_DIRS.has(e.name)) walk(path.join(dir, e.name));
+        const relDir = path.relative(root, path.join(dir, e.name)).split(path.sep).join('/');
+        if (!EXCLUDE_DIRS.has(e.name) && !EXCLUDE_REL_DIRS.has(relDir)) walk(path.join(dir, e.name));
         continue;
       }
       if (!e.name.endsWith('.md')) continue;
