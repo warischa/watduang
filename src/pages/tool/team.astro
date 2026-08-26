@@ -2,11 +2,16 @@
 import Base from '../../layouts/Base.astro';
 import ToolNameEntry from '../../components/ToolNameEntry.astro';
 import GameNav from '../../components/GameNav.astro';
+// gh#94, owner ruling 2026-08-26: the trailing continue-into-a-game clause was DELETED from
+// the SEO description above rather than reworded, the same call made on the wheel's desc in
+// src/tools/manifest.ts (which quotes the removed clause for the record). Tools keep no
+// roster (ADR-0039) and the continue path now reaches one category, so the promise was no
+// longer true. Nothing replaces it; a new clause would be invented Thai.
 ---
 
 <Base
   title="แบ่งทีม — วัดดวง"
-  description="แบ่งทีมออนไลน์ ใส่ชื่อแล้วเลือกจำนวนทีม สุ่มแบ่งให้ทันทีแบบยุติธรรม เปลี่ยนจำนวนทีมแล้วแบ่งใหม่ได้เรื่อยๆ กดต่อเข้าเกมได้เลย"
+  description="แบ่งทีมออนไลน์ ใส่ชื่อแล้วเลือกจำนวนทีม สุ่มแบ่งให้ทันทีแบบยุติธรรม เปลี่ยนจำนวนทีมแล้วแบ่งใหม่ได้เรื่อยๆ"
 >
   <main class="tool-page">
     <header class="tool-head">
@@ -69,7 +74,7 @@ import GameNav from '../../components/GameNav.astro';
       {/* Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists.
            Names no longer flow through the roster (ADR-0039), so the heading drops the "ด้วยวงเดิม" claim
            the games still get from the GameNav default. */}
-      <GameNav navClass="team-next" heading="เล่นเกมต่อ" />
+      <GameNav navClass="team-next" category="party" heading="เล่นเกมต่อ" />
 
       {/* Ad always sits below the tool (ADR-0004) · the inline min-height reserves space so content does
            not jump on load. The placeholder copy and split labels are byte-exact from the two team

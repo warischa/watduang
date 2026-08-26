@@ -46,6 +46,20 @@ test('regression #21: resolveStart ไม่แก้ไข array ที่ร�
   assert.deepEqual(selected, before);
 });
 
+// gh#94: the tools hand a group of any size onward, so the long-list case is pinned at its real
+// magnitude, not just at 4-into-3. resolveStart is two size-independent slices (player-select.ts),
+// which the assertions above already pin for shape (nothing dropped, input not mutated); this one
+// pins the number the ticket names — 30 names into a 10-max game (ADR-0007).
+test('gh#94: 30 names into a 10-max game -> 10 play, 20 sit out, none dropped', () => {
+  const selected = Array.from({ length: 30 }, (_, i) => `คนที่ ${i + 1}`);
+  const r = resolveStart(selected, 2, 10, false);
+  assert.equal(r.playing.length, 10);
+  assert.equal(r.sittingOut.length, 20);
+  assert.deepEqual([...r.playing, ...r.sittingOut], selected);
+  assert.equal(r.needsOverMaxWarning, true);
+  assert.equal(r.belowMin, false);
+});
+
 test('#22 numberedPlayers: สร้าง "คนที่ 1..N" ตามจำนวนที่กรอก', () => {
   assert.deepEqual(numberedPlayers(3, 1, 10), ['คนที่ 1', 'คนที่ 2', 'คนที่ 3']);
 });

@@ -16,6 +16,13 @@ export interface CategoryMeta {
   intro: string;
   /** Accent NAME, not a colour value — the page/token layer resolves it to real colours */
   accent: string;
+  /** Does a group of players carry on from one game in this category into the next? gh#94: only
+   *  the party category does — its games share a roster and a turn order (ADR-0040). The fortune
+   *  category's games are one person, one answer, so their nav neither filters to the category nor
+   *  claims the group carries on.
+   *  A flag and not a branch on the slug: Record<Category, CategoryMeta> makes a fourth category that
+   *  forgets to answer this a tsc error, so no nav or layout edit is needed to add one. */
+  carriesGroup: boolean;
   seo: { title: string; description: string };
 }
 
@@ -28,6 +35,7 @@ export const categories: Record<Category, CategoryMeta> = {
     whenToUse: 'อยากรู้ว่าวันนี้ดวงเป็นยังไง หรือคู่ไหนเข้ากัน',
     intro: 'รวมเกมดูดวงเล่นฟรีบนมือถือเครื่องเดียว เสี่ยงเซียมซี เปิดดวงประจำวัน หรือวัดว่าคู่ไหนเข้ากัน ส่งเครื่องวนกันในวง ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
     accent: 'gold',
+    carriesGroup: false,
     seo: {
       title: 'ดูดวงออนไลน์ฟรี — เซียมซี ดวงวันนี้ ดวงความรัก | วัดดวง',
       description: 'รวมเกมดูดวงเล่นฟรีบนมือถือ เสี่ยงเซียมซี เปิดดวงวันนี้ วัดดวงความรัก เล่นได้ทันทีไม่ต้องโหลดแอป',
@@ -38,6 +46,7 @@ export const categories: Record<Category, CategoryMeta> = {
     whenToUse: 'ต้องหาคนโดน คนจ่าย หรือคนเริ่มก่อน',
     intro: 'รวมเกมสุ่มคนโดนสำหรับวงเพื่อน จับไม้สั้น ระเบิดเวลา หรือสุ่มคนโดนแบบตรง ๆ ตัดสินว่าใครจ่าย ใครเริ่ม ใครโดน ด้วยมือถือเครื่องเดียว',
     accent: 'punch',
+    carriesGroup: true,
     seo: {
       title: 'เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง',
       description: 'รวมเกมสุ่มคนโดนเล่นฟรี จับไม้สั้น ระเบิดเวลา สุ่มคนโดน ตัดสินว่าใครจ่ายใครเริ่ม บนมือถือเครื่องเดียว',

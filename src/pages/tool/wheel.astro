@@ -72,8 +72,11 @@ import GameNav from '../../components/GameNav.astro';
       <ul id="wheel-names" class="wheel-names"></ul>
 
       {/* The path into a game sits right next to the tool, not below the ad — #11 says this is the
-           whole reason the tool exists. Tools keep no roster of their own by design (ADR-0039). */}
-      <GameNav navClass="wheel-next" />
+           whole reason the tool exists. Tools keep no roster of their own by design (ADR-0039), so
+           the heading drops the "ด้วยวงเดิม" claim, matching draw/team/number. gh#94: the shared group
+           lives in exactly one category, so the list narrows to it — the slug is the ONE thing a tool
+           page states, because nothing on this page declares a category for the nav to read. */}
+      <GameNav navClass="wheel-next" category="party" heading="เล่นเกมต่อ" />
     </section>
 
     {/* The ad always sits below the tool (ADR-0004) · min-height reserves the space up front so content

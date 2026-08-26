@@ -1,15 +1,21 @@
 ---
 import { games } from '../games/manifest';
+import type { Category } from '../games/types';
 
 interface Props {
   navClass: string;
+  /** Omit to list every game (a category whose group does not carry on keeps all its links —
+   *  ADR-0014 wants the crawlable chrome link). Pass one to narrow the list to that category.
+   *  The slug is never written here: callers read it off the game or the caller's own category, so a
+   *  fourth category needs no edit in this file. */
+  category?: Category;
   excludeId?: string;
   heading?: string;
 }
 
-const { navClass, excludeId, heading = 'เล่นเกมต่อด้วยวงเดิม' } = Astro.props as Props;
+const { navClass, category, excludeId, heading = 'เล่นเกมต่อด้วยวงเดิม' } = Astro.props as Props;
 
-const shown = excludeId ? games.filter((g) => g.id !== excludeId) : games;
+const shown = games.filter((g) => (!category || g.category === category) && g.id !== excludeId);
 ---
 
 <nav class={navClass} aria-label={heading}>

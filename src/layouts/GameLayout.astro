@@ -20,6 +20,12 @@ const { game } = Astro.props as Props;
 // currentColor.
 const accentName = categories[game.category].accent;
 
+// gh#94 — the continue-into-a-game path only promises the same group where the category says it carries
+// (ADR-0040). Where it does, the nav narrows to that category and keeps the default heading; where it
+// does not, the nav keeps EVERY link (ADR-0014's crawlable chrome link is one of them) and only the
+// claim is dropped. Read from the flag, never from the slug — see categories.ts.
+const carriesGroup = categories[game.category].carriesGroup;
+
 const howToJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
@@ -99,7 +105,12 @@ const howToJsonLd = {
        list of stylesheets: Astro bundles <style is:global>, a bare `import './x.css'`, and a <style> block
        here all page-globally, so that set belongs to the bundler, not to this comment. The moment <main>
        gets a width or font, move this inside it (that is what tool pages already do). */}
-  <GameNav navClass="game-next" excludeId={game.id} />
+  <GameNav
+    navClass="game-next"
+    excludeId={game.id}
+    category={carriesGroup ? game.category : undefined}
+    heading={carriesGroup ? undefined : 'เล่นเกมต่อ'}
+  />
 
   <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
 </Base>
