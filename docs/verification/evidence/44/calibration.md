@@ -5,8 +5,9 @@ the selftest cases pinning `check-citations.mjs`'s three disclosed ceilings actu
 actually block**, which local runs cannot prove — a `|| true`, a bad indent, or a devDependency that
 never reaches CI all pass locally.
 
-Protocol: `docs/agents/ci-verification.md`, section on calibrating a gate when per-step verdicts are
-unreadable. Branch `calibrate/gh44-ceiling-pins`, deleted local and remote after the readings.
+Protocol: `docs/agents/ci-gate-calibration.md` § "Calibrating a new gate at run level" (moved out of
+`docs/agents/ci-verification.md` after this evidence was written; title quoted here was already stale
+before that move). Branch `calibrate/gh44-ceiling-pins`, deleted local and remote after the readings.
 
 ## The pair — one variable
 

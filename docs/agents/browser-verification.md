@@ -124,6 +124,20 @@ day the verdict rests on — a determinism verdict that does not name its day ca
 later. Generalises: when a page's output is a function of a clock, a run is only valid inside one
 tick of that clock.
 
+
+**6. A sample taken ON a box edge lands where nothing is painted.** `elementFromPoint(x, rect.bottom)`
+and `elementFromPoint(rect.right, y)` sit on a fractional sub-pixel boundary Chrome's paint does not
+cover, so the call returns the **parent** — an entire last row and last column read as "not tappable".
+A `/tools/` card grid scan on 2026-08-26 reported **196 misses where the true number was about 19**: a
+plausible-looking figure, off by an order of magnitude, in the direction that makes a real improvement
+look bigger than it was. Inset every sample by at least 1px (`rect.left + 1` … `rect.right - 1`); the
+committed probes already do this — `arm-gate-probe.mjs`, `leave-confirm-probe.mjs`, and both
+`gamenav-*-grid-probe.mjs` inset their grid loops (grep `left + ` to find them; line numbers in prose
+rot, and two cited here were already wrong once). The scan that produced 196 was
+ad hoc and never committed, which is exactly why no gate caught it and why classifying the committed
+set comes back clean. Corollary: sampling only along the centre line is the same bug rotated — a fixed
+centre-x with varying y cannot see an off-axis collision at all. A tap-area or clearance percentage is
+trustworthy only if the evidence records which coordinates were sampled.
 ## Reduced motion
 
 Moved to [reduced-motion-verification.md](./reduced-motion-verification.md) to stay under the doc budget. The

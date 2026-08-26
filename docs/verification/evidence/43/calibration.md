@@ -1,7 +1,8 @@
 # gh#43 — run-level calibration of the four new tripwires
 
-Method: `docs/agents/ci-verification.md`, "Calibrating a new gate when per-step verdicts are
-unreadable". `on: push` in `ci.yml` carries no branch filter, so a throwaway branch produces real
+Method: `docs/agents/ci-gate-calibration.md` § "Calibrating a new gate at run level" (moved out of
+`docs/agents/ci-verification.md` after this evidence was written; title quoted here was already stale
+before that move). `on: push` in `ci.yml` carries no branch filter, so a throwaway branch produces real
 runs and `main` never goes red. Branch `calibrate/gh43-gates`, deleted local and remote after use.
 
 Each commit's **tree** equals `main`'s tree plus exactly one break — verified with
@@ -30,7 +31,7 @@ from two measured facts, not a direct observation.
 
 ## Deviation from the recorded procedure, stated rather than hidden
 
-`ci-verification.md` requires the deliberate break be type-only and runtime-inert, so that a green
+`docs/agents/ci-gate-calibration.md` requires the deliberate break be type-only and runtime-inert, so that a green
 commit would deploy something harmless. Three of these four breaks are real behaviour changes. The
 rule's purpose is satisfied by other means here: the branch was never merged, and
 `gh api repos/warischa/watduang/actions/secrets` returned `total_count=0` immediately before the
