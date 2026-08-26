@@ -276,7 +276,13 @@ jobs:
             fi
           done
           echo "smoke: $BUILT game page(s) (matches manifest) + tool page(s) ($EXPECTED_TOOL_SLUGS) + core pages"
-          for path in "/" "/games/" "/tools/" $GAME_PATHS $TOOL_PATHS; do
+          # /games/ was in this list until ADR-0041 deleted that page. Its 301 lives in
+          # staticwebapp.config.json, which `npx serve` does not read — this step exists precisely to
+          # prove dist/ stands up with no Azure runtime, so a path that only resolves through Azure
+          # routing can never belong here. The two category pages that took over its job are listed
+          # instead: they were not smoke-tested before, which is why deleting one page could break
+          # this step at all.
+          for path in "/" "/c/fortune/" "/c/party/" "/tools/" $GAME_PATHS $TOOL_PATHS; do
             body=$(curl -sf "http://localhost:4321${path}") || { echo "::error::curl failed for ${path}"; status=1; continue; }
             if ! echo "$body" | grep -qi '<title>'; then
               echo "::error::No <title> tag found for ${path}"
