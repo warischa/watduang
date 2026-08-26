@@ -6,11 +6,13 @@ import GameNav from '../../components/GameNav.astro';
 
 <Base
   title="วงล้อสุ่มชื่อ — วัดดวง"
-  description="วงล้อสุ่มชื่อออนไลน์ ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน หมุนเสร็จกดต่อเข้าเกมได้เลยโดยไม่ต้องพิมพ์ชื่อใหม่"
+  description="วงล้อสุ่มชื่อออนไลน์ ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน"
 >
   <main>
     <h1>วงล้อสุ่มชื่อ</h1>
-    <p>ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน — หมุนเสร็จกดต่อเข้าเกมได้เลย รายชื่อไหลต่อไปเอง</p>
+    <!-- gh#91 removed the tool-to-game name handoff: this tool now keeps its own list and never
+         writes the shared roster. The clause promising names flow onward was deleted, not reworded. -->
+    <p>ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน</p>
 
     <ToolNameEntry heading="ชื่อในวง" storageKey="watduang:tool:wheel-names" ctaLabel="ใส่ชื่อลงวงล้อ" />
 
