@@ -51,8 +51,9 @@ import GameNav from '../../components/GameNav.astro';
 
       {/* The split: heading, field label, button and the "พร้อมแบ่ง N คน เป็น N ทีม" status are
           byte-exact module strings; team cards read "ทีม N — M คน (ได้คนเกิน)" so the extra member
-          is announced in words (ADR-0024 is the reflow doctrine — the result region is reserved
-          before the first split, the reveal fills space that already exists). */}
+          is announced in words. ADR-0024 is the reflow doctrine: the card region and the status note
+          both carry a FIXED height in the stylesheet below, so neither a loaded name list nor a split
+          can move the ad slot. */}
       <section id="team" class="tool-module" aria-labelledby="team-heading">
         <h2 id="team-heading" class="module-title">แบ่งทีม</h2>
 
@@ -242,20 +243,33 @@ import GameNav from '../../components/GameNav.astro';
     cursor: pointer;
   }
 
+  /* Every legal status line — including the empty one after a split — measures at most two line
+     boxes at 320px and 390px (all of them measured in a real browser). An explicit line-height makes
+     the existing one-line 1.5em reserve exact, so a two-line floor of 3em is the height EVERY state
+     renders at: the note cannot change height when a list loads, and no script has to pin it. */
   .team-note {
     margin: 10px 0 0 0;
-    min-height: 1.5em;
+    line-height: 1.5;
+    /* A BOUND, not a floor — same reason as draw's note: the text interpolates a user-supplied
+       team count, so the reachable string set is unbounded and a third line would move the ad. */
+    height: 3em;
+    overflow-y: auto;
     font-size: 13px;
     color: var(--color-muted);
   }
 
-  /* the result region — its min-height is reserved (from script) before the first split so the
-     cards render into space that already exists and the ad below never moves */
+  /* The result region: fixed height with its own scroll. The card stack it can render is unbounded
+     (any number of names of any length), so bounding the box is the only thing that keeps the ad slot
+     below from moving — 250px is the .ad-slot reserve reused rather than a new design value
+     (ADR-0033), and a taller stack scrolls in place. */
   .team-cards {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-top: 12px;
+    height: 250px;
+    overflow-y: auto;
+    box-sizing: border-box;
   }
 
   .team-card {
@@ -480,12 +494,6 @@ import GameNav from '../../components/GameNav.astro';
   // Whether a split already exists — controls whether changing the team count should re-split
   // immediately or just update the status text
   let hasResult = false;
-  // The next reveal, split ahead of the press so its exact height can be measured before it lands
-  // (ADR-0024: the reveal fills reserved space, it does not create it). What was never displayed has
-  // no history — the player cannot tell the first split was drawn a moment early. Later splits stay
-  // fresh-random per press.
-  let pendingSplit: string[][] | null = null;
-
   function currentCount(): number {
     return Math.floor(Number(countInput.value));
   }
@@ -541,48 +549,9 @@ import GameNav from '../../components/GameNav.astro';
     });
   }
 
-  // ADR-0024: the first split must not move the ad below. refreshReserve() draws the pending split
-  // early, measures the card stack it produces, clears it (same synchronous task — the fill is
-  // never painted), and pins the region's min-height to that measurement. Because the reveal IS
-  // that measured split, the reveal renders into space of exactly its own height. Fresh measurement
-  // per count change: the region is empty when this runs, so clearing the pin first never moves a
-  // rendered result.
-  function refreshReserve(): void {
-    if (hasResult || players.length === 0) return;
-    resultEl.style.minHeight = '';
-    pendingSplit = null;
-    let teams: string[][];
-    try {
-      teams = splitTeams(players, currentCount());
-    } catch {
-      return;
-    }
-    pendingSplit = teams;
-    renderTeamsInto(resultEl, teams);
-    const measured = resultEl.offsetHeight;
-    resultEl.innerHTML = '';
-    resultEl.style.minHeight = `${measured}px`;
-  }
-
-  // After a real split the pin only ever grows (a taller render than the reserve keeps its height,
-  // so the next split cannot shrink the page either).
-  function pinReserve(): void {
-    const current = parseFloat(resultEl.style.minHeight) || 0;
-    const now = resultEl.offsetHeight;
-    if (now > current) resultEl.style.minHeight = `${now}px`;
-  }
-
-  // The ready line is the note's text around the reveal; the empty note after the reveal must keep
-  // exactly its height, so the pin is measured with the real line inside it (one synchronous
-  // fill/measure/restore, never painted).
-  function pinNoteHeight(): void {
-    const saved = noteEl.textContent;
-    noteEl.style.minHeight = '';
-    noteEl.textContent = `พร้อมแบ่ง ${players.length} คน เป็น ${currentCount()} ทีม`;
-    noteEl.style.minHeight = `${noteEl.offsetHeight}px`;
-    noteEl.textContent = saved;
-  }
-
+  // Nothing here measures or reserves a height: the card region and the note both carry fixed
+  // heights in this page's stylesheet (ADR-0024 — the reflow is the hazard). A script writing
+  // min-height would beat those fixed heights and bring the reflow straight back.
   function split(): void {
     const reason = blockedReason();
     if (reason) {
@@ -590,24 +559,18 @@ import GameNav from '../../components/GameNav.astro';
       return;
     }
     let teams: string[][];
-    if (pendingSplit) {
-      teams = pendingSplit;
-      pendingSplit = null;
-    } else {
-      try {
-        // Not passing random = uses splitTeams' own Math.random — re-randomizes every call, no memoization
-        teams = splitTeams(players, currentCount());
-      } catch (error) {
-        // Last resort — the button is normally disabled first, but if this is reached the user must
-        // see the reason as text
-        const reasonText = error instanceof Error ? error.message : 'แบ่งทีมไม่ได้';
-        noteEl.textContent = reasonText;
-        return;
-      }
+    try {
+      // Not passing random = uses splitTeams' own Math.random — re-randomizes every call, no memoization
+      teams = splitTeams(players, currentCount());
+    } catch (error) {
+      // Last resort — the button is normally disabled first, but if this is reached the user must
+      // see the reason as text
+      const reasonText = error instanceof Error ? error.message : 'แบ่งทีมไม่ได้';
+      noteEl.textContent = reasonText;
+      return;
     }
     hasResult = true;
     renderTeamsInto(resultEl, teams);
-    pinReserve();
     render();
   }
 
@@ -618,18 +581,14 @@ import GameNav from '../../components/GameNav.astro';
     hasResult = false;
     resultEl.innerHTML = '';
     render();
-    pinNoteHeight();
-    refreshReserve();
   });
 
   splitBtn.addEventListener('click', split);
 
   // Team count changed: update the live status text on every keystroke, but only re-split once the
   // value is committed (blur/Enter/spinner) — re-splitting mid-type would flash a wrong-count result.
-  // The pre-split reserve tracks the typed count too, so the first split at the new count is stable.
   countInput.addEventListener('input', () => {
     render();
-    if (!hasResult) refreshReserve();
   });
   countInput.addEventListener('change', () => {
     if (hasResult) split();

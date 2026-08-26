@@ -45,9 +45,10 @@ import GameNav from '../../components/GameNav.astro';
       <ToolNameEntry heading="ชื่อในกล่อง" storageKey="watduang:tool:draw-names" ctaLabel="ใส่ชื่อลงกล่อง" />
 
       {/* The draw itself: heading, field label, button labels, result format and the "เหลือในกล่อง N คน"
-          status live in draw.ts/the module strings, all byte-exact from the artboards. The dark result
-          box renders BEFORE the first draw — the reveal fills reserved space instead of reflowing the
-          page (ADR-0024, the reflow is the hazard), and the note below is reserved the same way. */}
+          status live in draw.ts/the module strings, all byte-exact from the artboards. Every region that
+          a name list or a reveal can grow — the dark result box, the remaining-names list and the status
+          note — carries a FIXED height in the stylesheet below, so nothing this page renders at runtime
+          can move the ad slot (ADR-0024, the reflow is the hazard). */}
       <section id="draw" class="tool-module" aria-labelledby="draw-heading">
         <h2 id="draw-heading" class="module-title">กล่องฉลาก</h2>
 
@@ -242,8 +243,12 @@ import GameNav from '../../components/GameNav.astro';
     padding: 14px 16px;
     text-align: center;
     margin-top: 12px;
-    /* The reveal pins border-box heights into min-height (reserveResultBox); without border-box the
-       pad inflates the box by its own padding on every pin and the ad below walks down one line per draw */
+    /* Fixed height, own scroll: the reveal can be one line or five (a five-name draw measures 180px of
+       text at 320px), and a growing box would push the ad slot down. 250px is the same reserve the
+       .ad-slot below already carries, reused rather than invented (ADR-0033); border-box keeps the pad
+       inside it. A longer reveal scrolls in place instead of moving the page. */
+    height: 250px;
+    overflow-y: auto;
     box-sizing: border-box;
   }
 
@@ -295,9 +300,6 @@ import GameNav from '../../components/GameNav.astro';
     padding: 12px 14px;
     background: #f3efe4;
     margin-top: 14px;
-    /* freezeBoxAtRoundStart pins offsetHeight (a border-box height) into min-height; without
-       border-box the pad and dashed border inflate the box by their own size on every pin and the
-       ad below walks down when a list loads */
     box-sizing: border-box;
   }
 
@@ -308,13 +310,23 @@ import GameNav from '../../components/GameNav.astro';
     font-size: 15px;
   }
 
+  /* The chip list is the region a loaded name list grows. Fixed height with its own scroll, so any
+     number of names of any length leaves the box — and therefore the ad slot below — where it is.
+     250px is the .ad-slot reserve reused, not a new design value (ADR-0033). */
   .draw-names {
     display: flex;
     flex-wrap: wrap;
+    /* align-content is load-bearing, not cosmetic: a wrapping flex container defaults to
+       align-content: stretch, so the moment this list got a fixed height every chip grew to fill
+       all 250px. Two names rendered as two full-height pills. Caught by a pre-merge review that
+       reproduced it in a browser — the ad-reflow probe reads the slot's y only and is blind to it. */
+    align-content: flex-start;
     gap: 6px;
     list-style: none;
     margin: 0;
     padding: 0;
+    height: 250px;
+    overflow-y: auto;
   }
 
   .draw-names li {
@@ -328,9 +340,19 @@ import GameNav from '../../components/GameNav.astro';
     overflow-wrap: anywhere;
   }
 
+  /* Every legal status line measures one or two line boxes at 320px and 390px (all five texts
+     measured in a real browser). An explicit line-height makes the existing one-line 1.5em reserve
+     exact, so a two-line floor of 3em is the height EVERY one of them renders at — the note cannot
+     change height when a list loads, and no script has to pin it. */
   .draw-note {
     margin: 10px 0 0 0;
-    min-height: 1.5em;
+    line-height: 1.5;
+    /* A BOUND, not a floor. min-height here left the note free to grow, and these strings
+       interpolate a user-supplied count that can run to ~21 digits — so the reachable set of note
+       texts is not the handful anyone measured, and a third line would move the ad again. Bounding
+       the box we own converges; enumerating the strings the user can produce does not. */
+    height: 3em;
+    overflow-y: auto;
     font-size: 13px;
     color: var(--color-muted);
   }
@@ -544,15 +566,14 @@ import GameNav from '../../components/GameNav.astro';
 </style>
 
 <script>
-  import { drawNames } from '../../tools/draw';
-  import { remainingSlots, slotTokens, type NameSlot } from '../../tools/name-list';
+  import { DrawRound } from '../../tools/draw-round';
+  import { type NameSlot } from '../../tools/name-list';
 
   const countInput = document.getElementById('draw-count') as HTMLInputElement;
   const resultEl = document.getElementById('draw-result') as HTMLElement;
   const noteEl = document.getElementById('draw-note') as HTMLElement;
   const remainingEl = document.getElementById('draw-remaining') as HTMLUListElement;
   const boxEl = document.getElementById('draw-box') as HTMLElement;
-  const resultBoxEl = document.getElementById('draw-result-box') as HTMLElement;
   const drawBtn = document.getElementById('draw-go') as HTMLButtonElement;
   const resetBtn = document.getElementById('draw-reset') as HTMLButtonElement;
 
@@ -561,38 +582,18 @@ import GameNav from '../../components/GameNav.astro';
   // ancestor — the same trap ToolNameEntry documents for its own runtime chips.
   const scopeAttr = Array.from(boxEl.attributes).find((a) => a.name.startsWith('data-astro-cid'));
 
-  let players: string[] = [];
-  // Who's already been drawn, as ROSTER POSITIONS — never names. Duplicates are allowed in the list
-  // on purpose, so two players who both typed the same name are two slots and each has to be drawn;
-  // keying this on the name string took them both out of the box on one press. Deliberately
-  // memory-only, refresh starts a new round (names persist because the tool's own list is
-  // localStorage) · must not go into shell/session.ts, whose one checkpoint slot is shared
-  // site-wide — the tool touching it would wipe an in-progress game.
-  const drawn = new Set<number>();
-
-  // The next reveal, drawn ahead of the press so its exact line-box can be measured before it lands
-  // (ADR-0024: the reveal fills reserved space, it does not create it). The player cannot tell the
-  // first draw was picked a moment early — what was never displayed has no history. Later draws stay
-  // pick-at-press.
-  let pendingPick: NameSlot[] | null = null;
-
-  function remaining(): NameSlot[] {
-    return remainingSlots(players, drawn);
-  }
+  // The round itself lives in draw-round.ts: which slots are left, which a press hands out, and who
+  // leaves — all keyed on roster position, never on the name string, and unit-tested there because
+  // this file is a page script no test can import.
+  const round = new DrawRound();
 
   // One reveal line for every count — a single-slot join is that slot's own name.
   function resultText(slots: NameSlot[]): string {
     return `จับได้: ${slots.map((slot) => slot.name).join(', ')}`;
   }
 
-  /** The slots one press hands out: the pickers take a string[] and hand members back, and distinct
-   *  tokens are what make that pick invertible when two slots carry the same name. */
-  function pickSlots(left: NameSlot[], count: number): NameSlot[] {
-    return drawNames(slotTokens(left), count).map((token) => left[Number(token)]!);
-  }
-
   function render(): void {
-    const left = remaining();
+    const left = round.remaining();
 
     remainingEl.innerHTML = '';
     for (const slot of left) {
@@ -605,12 +606,12 @@ import GameNav from '../../components/GameNav.astro';
     const count = Math.floor(Number(countInput.value));
     const validCount = Number.isFinite(count) && count >= 1;
 
-    if (players.length < 2) {
+    if (round.size < 2) {
       drawBtn.disabled = true;
       noteEl.textContent = 'ยังจับไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงกล่อง"';
     } else if (left.length === 0) {
       drawBtn.disabled = true;
-      noteEl.textContent = `จับครบทั้ง ${players.length} คนแล้ว — กด "เริ่มรอบใหม่" เพื่อคืนทุกชื่อเข้ากล่อง`;
+      noteEl.textContent = `จับครบทั้ง ${round.size} คนแล้ว — กด "เริ่มรอบใหม่" เพื่อคืนทุกชื่อเข้ากล่อง`;
     } else if (!validCount) {
       drawBtn.disabled = true;
       noteEl.textContent = 'จำนวนที่จะจับต้องเป็นเลขจำนวนเต็มตั้งแต่ 1 ขึ้นไป';
@@ -623,116 +624,46 @@ import GameNav from '../../components/GameNav.astro';
     }
   }
 
-  // The reflow rule (ADR-0024): names leaving the box on a draw must not move anything below the box.
-  // Freezing the box's height at round start keeps every draw inside the space the round began with —
-  // chips leave, the box keeps its size, and the ad slot below never rises mid-round.
-  function freezeBoxAtRoundStart(): void {
-    boxEl.style.minHeight = '';
-    boxEl.style.minHeight = `${boxEl.offsetHeight}px`;
-  }
-
-  // Pins the dark result box to the height of the pending reveal, so the result text fills space the
-  // box already occupies. The fill/measure/restore runs in one synchronous task — never painted.
-  function reserveResultBox(): void {
-    const saved = resultEl.textContent;
-    resultEl.textContent = resultText(pendingPick ?? []);
-    resultBoxEl.style.minHeight = `${resultBoxEl.offsetHeight}px`;
-    resultEl.textContent = saved;
-  }
-
-  // Later reveals can only grow the pin — a shorter later result leaves the box at the pinned size
-  // (blank space inside a dark box, invisible by construction) instead of moving the page.
-  function pinResultBoxGrowOnly(): void {
-    const current = parseFloat(resultBoxEl.style.minHeight) || 0;
-    if (resultBoxEl.offsetHeight > current) {
-      resultBoxEl.style.minHeight = `${resultBoxEl.offsetHeight}px`;
-    }
-  }
-
-  // Draws the next reveal early and reserves its exact size — same mechanism for the count-change
-  // mid-round: whatever the press will show has already been measured.
-  function refreshPending(): void {
-    pendingPick = null;
-    if (players.length < 2) return;
-    const left = remaining();
-    const count = Math.floor(Number(countInput.value));
-    if (!(Number.isFinite(count) && count >= 1 && count <= left.length)) return;
-    try {
-      pendingPick = pickSlots(left, count);
-    } catch {
-      pendingPick = null;
-      return;
-    }
-    reserveResultBox();
-  }
-
-  // The status line's longest legal texts are round-over and the shortfall refusal — pinned to the
-  // taller of the two, so the note never outgrows its reserved slot, mid-round or at round end.
-  function pinNoteHeight(): void {
-    const saved = noteEl.textContent;
-    const candidates = [
-      `จับครบทั้ง ${players.length} คนแล้ว — กด "เริ่มรอบใหม่" เพื่อคืนทุกชื่อเข้ากล่อง`,
-      `เหลือในกล่องแค่ 1 คน จับ ${players.length} คนไม่ได้ — ลดจำนวน หรือกด "เริ่มรอบใหม่"`,
-    ];
-    let height = 0;
-    for (const text of candidates) {
-      noteEl.textContent = text;
-      height = Math.max(height, noteEl.offsetHeight);
-    }
-    noteEl.style.minHeight = `${height}px`;
-    noteEl.textContent = saved;
-  }
-
+  // Nothing here measures or reserves any height: the result box, the chip list and the note all
+  // carry fixed heights in this page's stylesheet (ADR-0024 — the reflow is the hazard). A script
+  // that wrote min-height would beat those fixed heights and bring the reflow straight back.
   function draw(): void {
-    const left = remaining();
     const count = Math.floor(Number(countInput.value));
 
     let picked: NameSlot[];
-    if (pendingPick) {
-      picked = pendingPick;
-      pendingPick = null;
-    } else {
-      try {
-        picked = pickSlots(left, count);
-      } catch (error) {
-        // Last resort — the button is normally disabled first, but if this is reached the user must
-        // see the reason as text
-        const reason = error instanceof Error ? error.message : 'จับฉลากไม่ได้';
-        noteEl.textContent = reason;
-        return;
-      }
+    try {
+      picked = round.pick(count);
+    } catch (error) {
+      // Last resort — the button is normally disabled first, but if this is reached the user must
+      // see the reason as text
+      const reason = error instanceof Error ? error.message : 'จับฉลากไม่ได้';
+      noteEl.textContent = reason;
+      return;
     }
 
-    for (const slot of picked) drawn.add(slot.index);
+    round.take(picked);
     resultEl.textContent = resultText(picked);
-    pinResultBoxGrowOnly();
     render();
   }
 
   // gh#91 — names arrive from the tool's own name panel (ToolNameEntry) on this event, the same
   // channel the shell panel used. The tool stays a listener; its behaviour is untouched.
   document.addEventListener('watduang:start', (event) => {
-    players = (event as CustomEvent<{ players: string[] }>).detail.players;
-    drawn.clear();
+    round.start((event as CustomEvent<{ players: string[] }>).detail.players);
     resultEl.textContent = '';
     render();
-    freezeBoxAtRoundStart();
-    pinNoteHeight();
-    refreshPending();
   });
 
   drawBtn.addEventListener('click', draw);
 
   resetBtn.addEventListener('click', () => {
-    drawn.clear();
+    round.reset();
     resultEl.textContent = '';
     render();
-    refreshPending();
   });
 
   countInput.addEventListener('input', () => {
     render();
-    refreshPending();
   });
 
   render();

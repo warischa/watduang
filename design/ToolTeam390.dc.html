@@ -56,6 +56,10 @@
       <button style="min-height: 60px; background: #1a1a1a; color: #fffdf7; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 5px 5px 0 rgba(26,26,26,0.3); cursor: pointer;">ใส่ชื่อลงสนาม</button>
     </div>
 
+    <!-- Reflow rule, owner decision 2026-08-26 (ADR-0024, gh#114): every region a name list or a
+       reveal can grow carries a FIXED 250px height with its own scroll, and the status line a
+       two-line floor (3em with line-height 1.5, the height every legal line renders at). 250px is
+       the same reserve the ad slot below already carries — no new design value (ADR-0033). -->
     <!-- the split: 7 names into 2 teams, sizes 4 and 3, earliest team says (ได้คนเกิน) -->
     <div style="background: #fffdf7; border: 2.5px solid #1a1a1a; border-radius: 20px; box-shadow: 5px 5px 0 #1a1a1a; padding: 18px 16px;">
       <h2 style="margin: 0 0 12px 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 19px;">แบ่งทีม</h2>
@@ -67,9 +71,9 @@
 
       <button style="width: 100%; min-height: 60px; background: #7fd8e8; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 #1a1a1a; cursor: pointer; margin-top: 12px;">แบ่งทีม</button>
 
-      <p style="margin: 10px 0 0 0; font-size: 13px; color: #6b7280;">พร้อมแบ่ง 7 คน เป็น 2 ทีม</p>
+      <p style="line-height: 1.5; min-height: 3em; margin: 10px 0 0 0; font-size: 13px; color: #6b7280;">พร้อมแบ่ง 7 คน เป็น 2 ทีม</p>
 
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+      <div style="height: 250px; overflow-y: auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
         <div style="background: #f3efe4; border: 2.5px solid #1a1a1a; border-radius: 16px; padding: 14px 16px;">
           <p style="margin: 0 0 6px 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 17px;">ทีม 1 — 4 คน (ได้คนเกิน)</p>
           <p style="margin: 0; font-size: 14px; line-height: 1.6;">บีม, ปอนด์, ฟ้า, แก้ม</p>

@@ -257,13 +257,24 @@ import GameNav from '../../components/GameNav.astro';
     border-radius: 14px;
   }
 
+  /* The entered-names list is the one region on this page a loaded name list grows, and it sits
+     BELOW the disc and the result readout, so bounding it hides neither. Fixed height with its own
+     scroll: any number of names of any length now leaves the ad slot below where it is (ADR-0024 —
+     the reflow is the hazard). 250px is the .ad-slot reserve reused, not a new design value
+     (ADR-0033). */
   .wheel-names {
     display: flex;
     flex-wrap: wrap;
+    /* See the same rule on draw: a wrapping flex line defaults to align-content: stretch, so a
+       fixed height stretches every chip to the full 250px. */
+    align-content: flex-start;
     list-style: none;
     padding: 0;
     margin: var(--space-md) 0;
     gap: var(--space-sm);
+    height: 250px;
+    overflow-y: auto;
+    box-sizing: border-box;
   }
 
   .wheel-names li {
