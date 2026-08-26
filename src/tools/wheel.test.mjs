@@ -2,6 +2,9 @@
 // Covers the pure wheel logic exported from wheel.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   pickName,
   segmentPath,
@@ -10,11 +13,17 @@ import {
   labelFontSize,
   labelText,
   landingRotation,
+  segmentAtPointer,
+  nameAtPointer,
   WHEEL_RIM_R,
   WHEEL_CX,
   WHEEL_CY,
   WHEEL_PALETTE,
 } from './wheel.ts';
+import { remainingSlots, slotTokens } from './name-list.ts';
+import { drawNames } from './draw.ts';
+
+const here = dirname(fileURLToPath(import.meta.url));
 
 test('pickName คืนชื่อที่อยู่ในลิสต์เสมอ', () => {
   const names = ['เอ', 'บี', 'ซี'];
@@ -166,4 +175,149 @@ test('labelText ตัดชื่อยาวที่เกินช่อง�
 
 test('WHEEL_PALETTE ตามลำดับสีของ artboard', () => {
   assert.deepEqual([...WHEEL_PALETTE], ['#ffd27f', '#f89880', '#7fd8e8']);
+});
+
+// ---- Pointer/announcement invariant (confirmed defect: reveal() re-sliced the disc while
+// `rotation` still encoded an index into the OLD list) ------------------------------------------
+
+test('segmentAtPointer วิ่งย้อนกลับ landingRotation ได้ทุกกรณี — segment ที่หมุนไปตรงเข็มคือ index เดิมเสมอ', () => {
+  for (const count of [2, 3, 8, 17, 40]) {
+    for (const index of [0, 1, count - 1]) {
+      for (const current of [0, 37, 359, 720 + 41]) {
+        const final = landingRotation(current, index, count, 3);
+        assert.equal(segmentAtPointer(final, count), index, `count ${count}/${index} from ${current}`);
+      }
+    }
+  }
+});
+
+test('gh#confirmed-defect: ชื่อใต้เข็มต้องมาจาก array เดียวกับที่ indexOf ใช้คำนวณ ไม่ใช่ array ที่ตัดชื่อออกแล้ว', () => {
+  const namesIndexed = ['เอ', 'บี', 'ซี'];
+  const index = 1; // the picked name is namesIndexed[1]
+  const rotation = landingRotation(0, index, namesIndexed.length, 4);
+  assert.equal(rotation, 1680); // pins the exact arithmetic from the confirmed defect report
+
+  // Correct: draw the disc from the SAME list `index` was taken from.
+  assert.equal(nameAtPointer(namesIndexed, rotation), namesIndexed[index]);
+
+  // The confirmed defect, reproduced: re-slicing to the post-elimination list (one name removed)
+  // before the reveal changes what the wheel shows, even though the announced name doesn't.
+  const namesAfterElimination = namesIndexed.filter((n) => n !== namesIndexed[index]); // the two survivors, in order
+  assert.notEqual(nameAtPointer(namesAfterElimination, rotation), namesIndexed[index]);
+});
+
+// wheel.astro is a page script — plain node cannot import it, so the invariant is pinned at the
+// source-text level (same bargain as GameNav.test.mjs / index.test.mjs). This is the one check
+// that actually depends on wheel.astro's own source: restoring the old `drawWheel(remaining())`
+// call inside reveal() must turn this test red, since that call is exactly the confirmed defect —
+// the disc gets re-sliced while `rotation` still points at an index into the OLD list.
+test('gh#confirmed-defect: reveal() ต้องไม่วาดวงล้อใหม่ก่อนรอบถัดไป — ไม่งั้นเข็มชี้จะไม่ตรงกับชื่อที่ประกาศ', () => {
+  const src = readFileSync(join(here, '..', 'pages', 'tool', 'wheel.astro'), 'utf8');
+  const revealStart = src.indexOf('function reveal(');
+  const nextFnStart = src.indexOf('function pickFrom(');
+  assert.ok(revealStart > -1 && nextFnStart > revealStart, 'reveal() หรือ pickFrom() หาไม่เจอ — โครงสร้างไฟล์เปลี่ยน');
+  const revealBody = src.slice(revealStart, nextFnStart);
+  assert.ok(
+    !/drawWheel\(/.test(revealBody),
+    'reveal() ต้องไม่เรียก drawWheel() — การวาดวงล้อใหม่ต้องรอจนกว่ารอบถัดไปจะเริ่ม',
+  );
+});
+
+// ---- Duplicate names each own a turn (owner-decided: parseNameLines keeps duplicates) ----------
+// Elimination used to be keyed on the name string, so two players who both typed "แนน" went out on
+// one pick. Rounds are keyed on ROSTER POSITION now. This driver is the wheel page's round loop with
+// the DOM taken out: same helpers, same pickers, same order of operations as spin() + reveal().
+function runWheelRound(players, random) {
+  const spun = new Set();
+  const reveals = [];
+  let rotation = 0;
+  while (true) {
+    const left = remainingSlots(players, spun);
+    if (left.length === 0) break;
+    assert.ok(reveals.length <= players.length, 'the round must terminate within one reveal per player');
+    // The answer is picked FIRST; the landing angle is derived from its offset (never read back).
+    const offset = left.length === 1 ? 0 : Number(pickName(slotTokens(left), random));
+    const slot = left[offset];
+    rotation = landingRotation(rotation, offset, left.length, 4);
+    // The disc is drawn from this same `left`, so the pointer must sit on the announced slot.
+    assert.equal(nameAtPointer(left.map((s) => s.name), rotation), slot.name, 'pointer/announcement mismatch');
+    spun.add(slot.index);
+    reveals.push({ name: slot.name, isLast: remainingSlots(players, spun).length === 0 });
+  }
+  return reveals;
+}
+
+// A fixed cycle of random values — every offset in a 3-, 2- and 1-slot pool is reachable from it.
+function cycledRandom(values) {
+  let i = 0;
+  return () => values[i++ % values.length];
+}
+
+test('two players typing the same name each get their own spin (three names, one goes out per spin)', () => {
+  for (const values of [[0], [0.9], [0.5, 0, 0.999999], [0.34, 0.67, 0.12]]) {
+    const reveals = runWheelRound(['แนน', 'แนน', 'บี'], cycledRandom(values));
+    assert.equal(reveals.length, 3, `exactly one player leaves per spin (random cycle ${values})`);
+    assert.deepEqual(
+      reveals.map((r) => r.name).sort(),
+      ['บี', 'แนน', 'แนน'].sort(),
+      'every slot is announced exactly once — the duplicate is announced twice, not once',
+    );
+    assert.deepEqual(reveals.map((r) => r.isLast), [false, false, true], 'only the third reveal is the last one');
+  }
+});
+
+test('a two-person wheel of one repeated name takes TWO spins, and the first reveal is not the last', () => {
+  const reveals = runWheelRound(['แนน', 'แนน'], cycledRandom([0.75]));
+  assert.equal(reveals.length, 2, 'both slots spin, even though the names are identical');
+  assert.equal(reveals[0].isLast, false, 'the first reveal must not be announced as คนสุดท้าย');
+  assert.equal(reveals[1].isLast, true);
+  assert.deepEqual(reveals.map((r) => r.name), ['แนน', 'แนน']);
+});
+
+test('draw: one press of N takes N distinct slots out, duplicates included', () => {
+  const players = ['แนน', 'แนน', 'บี', 'แนน'];
+  const drawnPositions = new Set();
+  let presses = 0;
+  const random = cycledRandom([0.5, 0, 0.9]);
+  while (true) {
+    const left = remainingSlots(players, drawnPositions);
+    if (left.length === 0) break;
+    const count = Math.min(2, left.length);
+    const picked = drawNames(slotTokens(left), count, random).map((token) => left[Number(token)]);
+    assert.equal(new Set(picked.map((s) => s.index)).size, count, 'one press never hands out one slot twice');
+    for (const slot of picked) drawnPositions.add(slot.index);
+    presses += 1;
+    assert.ok(presses <= players.length, 'the box must empty');
+  }
+  assert.equal(drawnPositions.size, 4, 'all four slots left the box, not just the two distinct names');
+  assert.equal(presses, 2, 'two presses of two');
+});
+
+// Both pages are page scripts — plain node cannot import them, so the positional-elimination
+// invariant is pinned at source-text level for the wiring itself (same bargain as the reveal() test
+// above). Restoring either name-keyed Set turns this red.
+test('wheel.astro and draw.astro eliminate by roster position, never by name string', () => {
+  for (const [page, setName] of [['wheel.astro', 'spun'], ['draw.astro', 'drawn']]) {
+    const src = readFileSync(join(here, '..', 'pages', 'tool', page), 'utf8');
+    assert.match(src, new RegExp(`const ${setName} = new Set<number>\\(\\)`), `${page}: elimination set must hold positions`);
+    assert.ok(!/players\.filter\(\(name\)/.test(src), `${page}: no name-keyed filter may survive`);
+    assert.ok(!new RegExp(`${setName}\\.has\\(name`).test(src), `${page}: nothing may be excluded by name`);
+  }
+});
+
+// Defect 2: at rest AFTER a reveal the disc is frozen on the geometry `rotation` encodes, so the
+// eliminate checkbox must not redraw it — and must not cancel the pending reveal either.
+test('the eliminate checkbox never redraws a disc that is holding a reveal, and never cancels a spin', () => {
+  const src = readFileSync(join(here, '..', 'pages', 'tool', 'wheel.astro'), 'utf8');
+  const start = src.indexOf("eliminateBox.addEventListener('change'");
+  assert.ok(start > -1, 'the eliminate change handler moved');
+  // Comment lines dropped first: this handler's comment NAMES the call it must not make, and a
+  // plain text search cannot tell a mention from a use.
+  const body = src
+    .slice(start, src.indexOf('for (const el of modeEls)', start))
+    .split('\n')
+    .filter((line) => !line.trim().startsWith('//'))
+    .join('\n');
+  assert.match(body, /if \(!spinning && !discHoldsReveal\) drawWheel\(/, 'the redraw must be guarded on both');
+  assert.ok(!/cancelPendingSpin\(/.test(body), 'cancelPendingSpin() here would swallow the pending reveal');
 });

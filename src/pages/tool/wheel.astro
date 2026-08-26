@@ -14,8 +14,6 @@ import GameNav from '../../components/GameNav.astro';
         writes the shared roster. The clause promising names flow onward was deleted, not reworded. */}
     <p>ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน</p>
 
-    <ToolNameEntry heading="ชื่อในวง" storageKey="watduang:tool:wheel-names" ctaLabel="ใส่ชื่อลงวงล้อ" />
-
     <section id="wheel" aria-labelledby="wheel-heading">
       <div class="wheel-head">
         <h2 id="wheel-heading">วงล้อ</h2>
@@ -51,7 +49,7 @@ import GameNav from '../../components/GameNav.astro';
 
       <div id="wheel-result" class="wheel-result" role="status" aria-live="polite"></div>
       <p id="wheel-note" class="wheel-note" role="status" aria-live="polite">
-        ยังหมุนไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงวงล้อ"
+        ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงวงล้อ"
       </p>
 
       <div class="wheel-actions">
@@ -70,6 +68,11 @@ import GameNav from '../../components/GameNav.astro';
       </p>
 
       <ul id="wheel-names" class="wheel-names"></ul>
+
+      {/* The panel sits BELOW the wheel on this page only: the disc is what the reader came
+          for, and it must be the first thing on screen. draw and team keep the panel above. This is a
+          deliberate deviation from both wheel artboards under design/, owner-decided (ADR-0033). */}
+      <ToolNameEntry heading="ชื่อในวง" storageKey="watduang:tool:wheel-names" ctaLabel="ใส่ชื่อลงวงล้อ" />
 
       {/* The path into a game sits right next to the tool, not below the ad — #11 says this is the
            whole reason the tool exists. Tools keep no roster of their own by design (ADR-0039), so
@@ -281,6 +284,14 @@ import GameNav from '../../components/GameNav.astro';
     }
   }
 
+  /* SVG elements take transform-origin `0 0`, not the 50% 50% an HTML box gets, so without this
+     every rotation pivots on the svg's top-left corner and swings the disc off its own hub. The
+     value is the artboard's own centre — the same viewBox 400x400 the hub circle at cx/cy 200 sits
+     in, and the same origin index.astro sets on the hero wheel. */
+  #wheel-group {
+    transform-origin: 200px 200px;
+  }
+
   #wheel-group.is-pressing {
     animation: wheel-press 8s linear infinite;
   }
@@ -302,6 +313,7 @@ import GameNav from '../../components/GameNav.astro';
     labelText,
     WHEEL_PALETTE,
   } from '../../tools/wheel';
+  import { remainingSlots, slotTokens, type NameSlot } from '../../tools/name-list';
 
   const disc = document.getElementById('wheel-disc') as HTMLButtonElement;
   const group = document.querySelector<SVGGElement>('#wheel-group')!;
@@ -326,18 +338,25 @@ import GameNav from '../../components/GameNav.astro';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let players: string[] = [];
-  // Who's already out — deliberately memory-only, a refresh starts a fresh round
-  // (names survive because the tool's own list is localStorage) — tools never touch shell/session.ts.
-  const spun = new Set<string>();
+  // Who's already out, as ROSTER POSITIONS — never names. Duplicates are allowed in the list on
+  // purpose, so two players who both typed the same name are two slots and each owes a spin; keying
+  // this on the name string took them both out on one pick. Deliberately memory-only, a refresh
+  // starts a fresh round (names survive because the tool's own list is localStorage) — tools never
+  // touch shell/session.ts.
+  const spun = new Set<number>();
   let spinning = false;
   let pressMode = false;
   // Cumulative wheel rotation in degrees, owned by the landing math alone. The final angle is
   // computed FROM the picked name, never read back off the wheel to decide the answer.
   let rotation = 0;
   let spinTimer = 0;
+  // True while the disc is frozen on the geometry `rotation` encodes for a reveal that already
+  // happened. Redrawing it then would move a different name under the pointer than #wheel-result
+  // announces — the very defect this page's landing math exists to avoid.
+  let discHoldsReveal = false;
 
-  function remaining(): string[] {
-    return eliminateBox.checked ? players.filter((name) => !spun.has(name)) : players;
+  function remaining(): NameSlot[] {
+    return remainingSlots(players, eliminateBox.checked ? spun : new Set<number>());
   }
 
   function mode(): 'auto' | 'press' {
@@ -353,7 +372,8 @@ import GameNav from '../../components/GameNav.astro';
 
   // Rebuilds one segment per name — the list that feeds the wheel is `remaining()`, so the disc
   // re-draws when names arrive, when the eliminate box flips, and after every reveal removes one.
-  function drawWheel(names: string[]): void {
+  function drawWheel(slots: NameSlot[]): void {
+    const names = slots.map((slot) => slot.name);
     while (group.firstChild) group.removeChild(group.firstChild);
     if (names.length === 0) return; // hub, hub label and pointer are static svg chrome
 
@@ -413,8 +433,9 @@ import GameNav from '../../components/GameNav.astro';
 
   function render(): void {
     namesEl.innerHTML = '';
-    for (const name of players) {
-      const isOut = eliminateBox.checked && spun.has(name);
+    for (let i = 0; i < players.length; i++) {
+      const name = players[i]!;
+      const isOut = eliminateBox.checked && spun.has(i);
       const li = document.createElement('li');
       // State is announced as text, not just color or strikethrough.
       li.textContent = isOut ? `${name} (ออกแล้ว)` : name;
@@ -435,7 +456,7 @@ import GameNav from '../../components/GameNav.astro';
       // behaviour B paints its own canvas copy over this, in spin()
       noteEl.textContent = 'กำลังหมุน…';
     } else if (players.length === 0) {
-      noteEl.textContent = 'ยังหมุนไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงวงล้อ"';
+      noteEl.textContent = 'ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงวงล้อ"';
     } else if (players.length < 2) {
       // A CTA press with one name reaches this note legitimately — the panel refuses nothing, so this
       // guards the button dying silently (the list is localStorage, so nothing is lost in here).
@@ -445,37 +466,43 @@ import GameNav from '../../components/GameNav.astro';
       noteEl.textContent = `ออกครบทั้ง ${players.length} คนแล้ว — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
     } else if (left.length === 1) {
       // States who's left, doesn't decide for the wheel — the word announcing "it's you" is only ever emitted by #wheel-result.
-      noteEl.textContent = `เหลือ ${left[0]} คนเดียวในวงล้อ — กด "หมุน" อีกครั้งเพื่อเฉลยคนสุดท้าย`;
+      noteEl.textContent = `เหลือ ${left[0]!.name} คนเดียวในวงล้อ — กด "หมุน" อีกครั้งเพื่อเฉลยคนสุดท้าย`;
     } else {
       noteEl.textContent = '';
     }
   }
 
-  function reveal(picked: string): void {
+  function reveal(picked: NameSlot): void {
     spinning = false;
     pressMode = false;
     clearTimeout(spinTimer);
     group.classList.remove('is-pressing');
-    spun.add(picked);
+    spun.add(picked.index);
+    discHoldsReveal = true;
     // Reads state at reveal time, not at spin start — the checkbox can be toggled mid-spin.
     // This can only ever say "who got picked", a past fact that never changes · round state (done yet,
     // who's left) belongs to the note, owned solely by render() — otherwise unchecking after a round
     // ends would leave the result stuck announcing "everyone's out" while the wheel is full again.
     const done = eliminateBox.checked && remaining().length === 0;
-    resultEl.textContent = done ? `โดน: ${picked} (คนสุดท้าย)` : `โดน: ${picked}`;
+    resultEl.textContent = done ? `${picked.name} (คนสุดท้าย)` : picked.name;
     fitResultFont();
-    drawWheel(remaining());
+    // The disc stays as drawn — re-slicing here would leave `rotation` pointing at an offset into
+    // a list that no longer matches what's on screen. The next drawWheel happens at the next
+    // spin's entry point (spin() / the stop handler), from the same `left` array the offset indexes.
     render();
   }
 
-  function pickFrom(left: string[]): string | null {
+  /** The OFFSET into `left` that this spin lands on, or null if nothing can be picked. An offset,
+   *  not a name: two slots can carry the same name, so a name cannot say which one was picked. */
+  function pickFrom(left: NameSlot[]): number | null {
     if (left.length === 1) {
       // One person left = nothing to randomize, but it still has to be revealed as a result.
       // (pickName deliberately throws below 2 names — a non-random pick doesn't belong forced into that.)
-      return left[0]!;
+      return 0;
     }
     try {
-      return pickName(left);
+      // slotTokens are distinct even when the names collide, so the pick inverts back to one slot.
+      return Number(pickName(slotTokens(left)));
     } catch (error) {
       // Last line of defense — the button is normally disabled before this, but if this is somehow
       // reached, the user must see the reason as text with a way out, not a silently dead button or
@@ -490,10 +517,13 @@ import GameNav from '../../components/GameNav.astro';
 
   function spin(): void {
     const left = remaining();
-    const picked = pickFrom(left);
-    if (picked === null) return;
-    // Names are unique by construction (the panel refuses duplicates), so indexOf is honest.
-    const index = left.indexOf(picked);
+    const index = pickFrom(left);
+    if (index === null) return;
+    const picked = left[index]!;
+    // Draw from the SAME array the offset indexes into — the confirmed defect was re-slicing the
+    // disc to a shorter list AFTER the rotation had already been computed for this one.
+    drawWheel(left);
+    discHoldsReveal = false;
 
     spinning = true;
     pressMode = false;
@@ -530,26 +560,35 @@ import GameNav from '../../components/GameNav.astro';
   stopBtn.addEventListener('click', () => {
     if (!pressMode) return;
     clearTimeout(spinTimer);
+
+    // Read the live computed transform BEFORE removing .is-pressing — the class removal blanks
+    // the animation, and the inline transform was already cleared at spin-entry (:515-516), so
+    // reading after would see `none` and snap the wheel back to 0.
+    const computedTransform = getComputedStyle(group).transform;
     group.classList.remove('is-pressing');
     pressMode = false;
 
     // Freeze the decorative hold exactly where it is; then the landing delta runs from that angle.
     // The angle only feeds how much FURTHER to turn — the answer this arc lands on comes from the
     // picker below, never from this reading.
-    const m = new DOMMatrix(getComputedStyle(group).transform);
-    const holdAngle = (Math.atan2(m.b, m.a) * 180) / Math.PI || 0;
+    const m = computedTransform === 'none' ? null : new DOMMatrix(computedTransform);
+    const holdAngle = m ? (Math.atan2(m.b, m.a) * 180) / Math.PI || 0 : 0;
     group.style.transition = 'none';
     group.style.transform = `rotate(${holdAngle}deg)`;
     void group.getBoundingClientRect(); // commit the freeze before starting the landing transition
 
     const left = remaining();
-    const picked = pickFrom(left);
-    if (picked === null) {
+    const index = pickFrom(left);
+    if (index === null) {
       spinning = false;
       render();
       return;
     }
-    const index = left.indexOf(picked);
+    const picked = left[index]!;
+    // Same array the offset indexes into — eliminateBox can be toggled mid-hold (it's not disabled
+    // while spinning), so the disc must be redrawn from `left` here too, not just at spin() entry.
+    drawWheel(left);
+    discHoldsReveal = false;
 
     setRotation(landingRotation(holdAngle, index, left.length, TURNS), `transform ${STOP_MS}ms cubic-bezier(0.2, 0.7, 0.2, 1)`);
     spinTimer = window.setTimeout(() => reveal(picked), STOP_MS + 60);
@@ -574,6 +613,7 @@ import GameNav from '../../components/GameNav.astro';
     cancelPendingSpin();
     players = (event as CustomEvent<{ players: string[] }>).detail.players;
     spun.clear();
+    discHoldsReveal = false;
     resultEl.textContent = '';
     rotation = 0;
     group.style.transition = 'none';
@@ -592,13 +632,20 @@ import GameNav from '../../components/GameNav.astro';
     group.style.transform = '';
     rotation = 0;
     spun.clear();
+    discHoldsReveal = false;
     resultEl.textContent = '';
     drawWheel(remaining());
     render();
   });
 
   eliminateBox.addEventListener('change', () => {
-    drawWheel(remaining());
+    // Mid-spin, drawing here would desync the disc from the `left` array the pending reveal
+    // already committed to. At rest AFTER a reveal, the disc is held on that reveal's geometry for
+    // the same reason — remaining() is a name short by then, so a redraw would put a different name
+    // under the pointer than #wheel-result announces. Either way the next spin redraws from its own
+    // `left`. Never cancelPendingSpin() here — that would swallow the reveal this checkbox is
+    // deliberately read again at (see the comment on reveal() above).
+    if (!spinning && !discHoldsReveal) drawWheel(remaining());
     render();
   });
 

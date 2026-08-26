@@ -104,3 +104,20 @@ export function landingRotation(current: number, index: number, count: number, t
   const delta = (targetMod - currentMod + 360) % 360;
   return current + turns * 360 + delta;
 }
+
+/** Which segment index (of `count` segments, evenly spaced) currently sits under the fixed pointer
+ *  at 12 o'clock, given the group's `rotation`. An independent read of landingRotation's own
+ *  promise — used to pin that the wheel's caller must draw the SAME array it indexed into,
+ *  never a re-sliced one (gh#confirmed-defect: rotation encodes an index into the OLD list). */
+export function segmentAtPointer(rotation: number, count: number): number {
+  const seg = 360 / count;
+  const local = (((-rotation) % 360) + 360) % 360;
+  return Math.round(local / seg) % count;
+}
+
+/** The name actually under the pointer once `namesDrawn` is what's on the disc. Callers must pass
+ *  the SAME array they used for `indexOf`/`landingRotation` — passing a re-sliced list (one name
+ *  removed) after the rotation was computed for the old list is exactly the confirmed defect. */
+export function nameAtPointer(namesDrawn: string[], rotation: number): string {
+  return namesDrawn[segmentAtPointer(rotation, namesDrawn.length)]!;
+}
