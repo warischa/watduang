@@ -322,3 +322,80 @@ test('the eliminate checkbox never redraws a disc that is holding a reveal, and 
   assert.match(body, /if \(!spinning && !discHoldsReveal\) drawWheel\(/, 'the redraw must be guarded on both');
   assert.ok(!/cancelPendingSpin\(/.test(body), 'cancelPendingSpin() here would swallow the pending reveal');
 });
+
+// ---- gh#119: recording is conditional, so it matches the conditional filter -------------------
+// Decision: record only while the eliminate box is checked. Ticking applies FORWARD only — a player
+// who left the box unchecked must never uncover retroactive eliminations by tapping it.
+// The gate is READ OUT OF wheel.astro rather than restated here, so reverting the one-line fix in
+// reveal() turns the four behaviour legs below red too — a driver that hard-coded the gate would
+// stay green against the unfixed page and pin nothing.
+function revealGatesRecording() {
+  const src = readFileSync(join(here, '..', 'pages', 'tool', 'wheel.astro'), 'utf8');
+  const start = src.indexOf('function reveal(');
+  const end = src.indexOf('function pickFrom(');
+  assert.ok(start > -1 && end > start, 'reveal() หรือ pickFrom() หาไม่เจอ — โครงสร้างไฟล์เปลี่ยน');
+  const body = src
+    .slice(start, end)
+    .split('\n')
+    .filter((line) => !line.trim().startsWith('//')) // the comment names the call — a text search cannot tell mention from use
+    .join('\n');
+  assert.match(body, /spun\.add\(picked\.index\)/, 'reveal() must still be the one place a pick is recorded');
+  return /if \(eliminateBox\.checked\) spun\.add\(picked\.index\)/.test(body);
+}
+
+// wheel.astro's round with the DOM taken out: same two halves, the recording gate taken from source.
+function makeRound(players, { gated }) {
+  const spun = new Set();
+  let checked = false;
+  const remaining = () => remainingSlots(players, checked ? spun : new Set());
+  return {
+    tick: () => { checked = true; },
+    onDisc: () => remaining().map((slot) => slot.name),
+    spin(offset) { // offset into the CURRENT disc, exactly what pickFrom() hands reveal()
+      const picked = remaining()[offset];
+      if (!gated || checked) spun.add(picked.index); // reveal(): `if (eliminateBox.checked) spun.add(...)`
+      return picked;
+    },
+  };
+}
+
+test('gh#119: three spins with the box unchecked, then ticking it, leaves every name on the disc', () => {
+  const gated = revealGatesRecording();
+  assert.ok(gated, 'reveal() must gate spun.add on eliminateBox.checked — an unchecked box records nothing');
+  const round = makeRound(['เอ', 'บี', 'ซี', 'ดี'], { gated });
+  round.spin(0);
+  round.spin(1);
+  round.spin(1);
+  assert.deepEqual(round.onDisc(), ['เอ', 'บี', 'ซี', 'ดี'], 'unchecked: nothing may leave the disc');
+  round.tick();
+  assert.deepEqual(
+    round.onDisc(),
+    ['เอ', 'บี', 'ซี', 'ดี'],
+    'ticking the box must not retroactively eliminate the three picks made while it was unchecked',
+  );
+});
+
+test('gh#119: with the box checked throughout, a pick is still eliminated', () => {
+  const round = makeRound(['เอ', 'บี', 'ซี'], { gated: revealGatesRecording() });
+  round.tick();
+  round.spin(0);
+  assert.deepEqual(round.onDisc(), ['บี', 'ซี'], 'the checked box must still take the pick out');
+});
+
+test('gh#119: ticking mid-round eliminates only the picks made after the tick', () => {
+  const round = makeRound(['เอ', 'บี', 'ซี'], { gated: revealGatesRecording() });
+  const before = round.spin(0); // picked while unchecked — stays
+  round.tick();
+  const after = round.spin(1); // picked while checked — goes
+  assert.equal(before.name, 'เอ');
+  assert.equal(after.name, 'บี');
+  assert.deepEqual(round.onDisc(), ['เอ', 'ซี'], 'only the post-tick pick leaves');
+});
+
+test('gh#119: gating the record keeps position-keying — one of two identical names goes, not both', () => {
+  const round = makeRound(['แนน', 'แนน', 'บี'], { gated: revealGatesRecording() });
+  round.tick();
+  const picked = round.spin(0);
+  assert.equal(picked.index, 0, 'the first slot was the pick');
+  assert.deepEqual(round.onDisc(), ['แนน', 'บี'], 'the other แนน is a different slot and must survive');
+});

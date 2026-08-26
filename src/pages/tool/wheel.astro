@@ -491,7 +491,13 @@ import GameNav from '../../components/GameNav.astro';
     pressMode = false;
     clearTimeout(spinTimer);
     group.classList.remove('is-pressing');
-    spun.add(picked.index);
+    // Recording is gated on the same reveal-time read the filter below uses, so the two halves
+    // agree (gh#119). Behaviour chosen: record only while the box is checked — ticking applies
+    // FORWARD only, never retroactively. An unchecked box promises "picks are not being
+    // eliminated", and a player who never asked to eliminate must not be able to uncover three
+    // retroactive eliminations by tapping a checkbox. Ticking mid-round still works: spins after
+    // the tick are eliminated, spins before it stay on the disc.
+    if (eliminateBox.checked) spun.add(picked.index);
     discHoldsReveal = true;
     // Reads state at reveal time, not at spin start — the checkbox can be toggled mid-spin.
     // This can only ever say "who got picked", a past fact that never changes · round state (done yet,
