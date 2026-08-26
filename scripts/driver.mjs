@@ -113,7 +113,23 @@ const session = {
   },
 };
 
-const out = await mod.default(session);
+let out;
+try {
+  out = await mod.default(session);
+} catch (err) {
+  await session.close().catch(() => {});
+  console.error(`driver: probe threw: ${err?.stack ?? err}`);
+  process.exit(1);
+}
 await session.close();
+
+// A probe that forgets to `return` (or returns nothing on purpose) used to fall through to
+// `console.log(JSON.stringify(undefined))`, which prints the literal string "undefined" and still
+// exits 0 -- a probe with no findings read as a pass. Treat "no output" as a failure instead.
+if (out === undefined || out === null) {
+  console.error('driver: probe produced no output (default export returned undefined/null) -- treating as failure');
+  process.exit(1);
+}
+
 console.log(JSON.stringify(out, null, 2));
 process.exit(0);
