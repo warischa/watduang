@@ -60,6 +60,9 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+// Reused, not re-implemented: csp-inline-check.mjs owns the calibrated HTML comment blanker and
+// guards its own entry point, so importing it never runs that gate. See markerHits below.
+import { stripHtmlComments } from './csp-inline-check.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const scriptPath = fileURLToPath(import.meta.url);
@@ -100,8 +103,21 @@ if (process.env.PAGE_CHROME_DIST_OVERRIDE && process.env.CI) {
 // Built HTML is minified, so hits report the (usually single) line number plus a capped snippet.
 // ---------------------------------------------------------------------------
 function markerHits(text) {
+  // gh#105 follow-up: comments are blanked before ANY matching, through the one choke point every
+  // leg reads. This gate is unusual in needing it for BOTH directions. The negative legs are the
+  // familiar ADR-0019 rule 2 case — a comment that merely mentions the marker must not red the
+  // build. The render leg is the dangerous one and is positive-presence: without blanking, an
+  // allowlisted page whose only surviving marker sat in a comment reported "renders it (1 hit(s))"
+  // and exited 0 while carrying no chrome at all, so the leg that exists to catch a dropped top bar
+  // could not catch it. Reproduced against the built home page before this fix.
+  //
+  // stripHtmlComments is imported rather than re-implemented: it is the calibrated one, and it
+  // already handles the three abrupt-close forms a naive lazy match gets wrong (`<!-->`, `<!--->`,
+  // `--!>`), each of which would otherwise blank LIVE markup. Blanking preserves offsets, so the
+  // line numbers reported below stay true.
+  const scanned = stripHtmlComments(text);
   const hits = [];
-  text.split('\n').forEach((line, i) => {
+  scanned.split('\n').forEach((line, i) => {
     if (line.includes(MARKER)) {
       hits.push({ line: i + 1, snippet: line.trim().slice(0, 160) });
     }
@@ -195,6 +211,39 @@ function selftest() {
   ].join('\n');
   assert.deepEqual(markerHits(cleanLines), [], 'fixtures without the exact marker must report zero hits');
   console.log('PASS marker detector, other direction: unrelated attributes and prose stay clean');
+
+  // gh#105 follow-up, the false green a REFUTE pass demonstrated against the real built home page:
+  // a commented-out marker counted as a hit, so the render leg reported "renders it (1 hit(s))" and
+  // exited 0 on a page carrying no chrome at all. Both directions are pinned here because this gate
+  // reads markerHits for negative AND positive legs, and only the positive one fails OPEN.
+  const commentedOnly = [
+    '<!doctype html>',
+    '<body><!-- data-page-chrome --></body>',
+  ].join('\n');
+  assert.deepEqual(
+    markerHits(commentedOnly),
+    [],
+    'a marker that survives only inside an HTML comment must NOT count as rendered chrome',
+  );
+  const commentedPlusReal = [
+    '<!doctype html>',
+    '<body><!-- data-page-chrome -->',
+    '<header data-page-chrome>real</header></body>',
+  ].join('\n');
+  assert.deepEqual(
+    markerHits(commentedPlusReal).map((h) => h.line),
+    [3],
+    'the real marker must still be found, at its true line number, with the commented one ignored',
+  );
+  // The abrupt-close forms are the ones a naive lazy match gets wrong, and getting them wrong blanks
+  // LIVE markup — the direction that hides a hazard. `<!-->` is a COMPLETE empty comment, so the
+  // marker after it is live and must be found.
+  assert.deepEqual(
+    markerHits('<body><!--><header data-page-chrome>live</header></body>').map((h) => h.line),
+    [1],
+    'a marker after an abrupt-close empty comment is LIVE markup and must still be found',
+  );
+  console.log('PASS marker detector, comment blanking: commented markers ignored, live markers after abrupt closes still found');
 
   // Allowlist pin: the opt-in set is exactly what the owner has decided through gh#105. An entry
   // appears without its decision cited (or a decision lands without the entry) and this selftest
