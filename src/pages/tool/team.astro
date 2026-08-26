@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PlayerSetup from '../../shell/PlayerSetup.astro';
+import ToolNameEntry from '../../components/ToolNameEntry.astro';
 import GameNav from '../../components/GameNav.astro';
 ---
 
@@ -12,7 +12,7 @@ import GameNav from '../../components/GameNav.astro';
     <h1>แบ่งทีม</h1>
     <p>ใส่ชื่อลงสนาม เลือกจำนวนทีม แล้วสุ่มแบ่งให้ทันที — คนเกินกระจายให้เห็นชัดว่าทีมไหนได้เพิ่ม</p>
 
-    <PlayerSetup min={2} max={10} ctaLabel="ใส่ชื่อลงสนาม" />
+    <ToolNameEntry heading="ชื่อในสนาม" storageKey="watduang:tool:team-names" ctaLabel="ใส่ชื่อลงสนาม" />
 
     <section id="team" aria-labelledby="team-heading">
       <h2 id="team-heading">แบ่งทีม</h2>
@@ -202,7 +202,8 @@ import GameNav from '../../components/GameNav.astro';
     render();
   }
 
-  // Same name-entry panel the games use — the tool is just a listener, it doesn't change its behavior
+  // gh#91 — names arrive from the tool's own name panel (ToolNameEntry) on this event, the same
+  // channel the shell panel used. The tool stays a listener; its behaviour is untouched.
   document.addEventListener('watduang:start', (event) => {
     players = (event as CustomEvent<{ players: string[] }>).detail.players;
     hasResult = false;
