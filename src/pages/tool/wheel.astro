@@ -552,9 +552,23 @@ import GameNav from '../../components/GameNav.astro';
     spinTimer = window.setTimeout(() => reveal(picked), STOP_MS + 60);
   });
 
+  // Every path that mutates the round mid-spin has to cancel the pending reveal, or the old
+  // round's timer fires into the new round and announces the previous pick as this pick — and
+  // marks that name spun, so it drops out of a round it never lost. Three callers reach this:
+  // the reset button, a mode switch, and a fresh list arriving from the name panel. It lives in
+  // one function because the third caller was written without the guard the first two carry, and
+  // a fourth path added later would miss it the same way.
+  function cancelPendingSpin(): void {
+    clearTimeout(spinTimer);
+    spinning = false;
+    pressMode = false;
+    group.classList.remove('is-pressing');
+  }
+
   // gh#91 — names arrive from the tool's own name panel (ToolNameEntry) on this event, the same
   // channel the shell panel used. The tool stays a listener; its behaviour is untouched.
   document.addEventListener('watduang:start', (event) => {
+    cancelPendingSpin();
     players = (event as CustomEvent<{ players: string[] }>).detail.players;
     spun.clear();
     resultEl.textContent = '';
@@ -570,10 +584,7 @@ import GameNav from '../../components/GameNav.astro';
 
   resetBtn.addEventListener('click', () => {
     // Pressed mid-spin: the pending reveal must be cancelled, otherwise it fills back in the result that was just cleared.
-    clearTimeout(spinTimer);
-    spinning = false;
-    pressMode = false;
-    group.classList.remove('is-pressing');
+    cancelPendingSpin();
     group.style.transition = 'none';
     group.style.transform = '';
     rotation = 0;
@@ -591,10 +602,7 @@ import GameNav from '../../components/GameNav.astro';
   for (const el of modeEls) {
     el.addEventListener('change', () => {
       // Switching mode mid-spin cancels that spin — no mode takes over under a running wheel.
-      clearTimeout(spinTimer);
-      spinning = false;
-      pressMode = false;
-      group.classList.remove('is-pressing');
+      cancelPendingSpin();
       render();
     });
   }
