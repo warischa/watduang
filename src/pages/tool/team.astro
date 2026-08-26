@@ -8,113 +8,453 @@ import GameNav from '../../components/GameNav.astro';
   title="แบ่งทีม — วัดดวง"
   description="แบ่งทีมออนไลน์ ใส่ชื่อแล้วเลือกจำนวนทีม สุ่มแบ่งให้ทันทีแบบยุติธรรม เปลี่ยนจำนวนทีมแล้วแบ่งใหม่ได้เรื่อยๆ กดต่อเข้าเกมได้เลย"
 >
-  <main>
-    <h1>แบ่งทีม</h1>
-    <p>ใส่ชื่อลงสนาม เลือกจำนวนทีม แล้วสุ่มแบ่งให้ทันที — คนเกินกระจายให้เห็นชัดว่าทีมไหนได้เพิ่ม</p>
-
-    <ToolNameEntry heading="ชื่อในสนาม" storageKey="watduang:tool:team-names" ctaLabel="ใส่ชื่อลงสนาม" />
-
-    <section id="team" aria-labelledby="team-heading">
-      <h2 id="team-heading">แบ่งทีม</h2>
-
-      <p class="team-field">
-        <label for="team-count">จำนวนทีม</label>
-        <input id="team-count" type="number" min="1" value="2" inputmode="numeric" />
-      </p>
-
-      <p id="team-note" class="team-note" role="status" aria-live="polite">
-        ยังแบ่งไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงสนาม"
-      </p>
-
-      <div class="team-actions">
-        <button id="team-split" type="button" disabled aria-describedby="team-note">แบ่งทีม</button>
+  <main class="tool-page">
+    <header class="tool-head">
+      {/* tool chrome (390 artboard) — the back row plus the accent title band; desktop artboards add
+          the site-wide top bar above this, which stays home-only per the page-chrome opt-in, so the
+          tool chrome renders at every width */}
+      <div class="tool-chrome">
+        <a href="/tools/" class="tool-back">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#1a1a1a"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          ><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+          เครื่องมือสุ่มทั้งหมด
+        </a>
+        <span class="tool-badge">เครื่องมือ</span>
       </div>
 
-      <ul id="team-result" class="team-list" role="status" aria-live="polite"></ul>
+      <div class="tool-band">
+        <div class="tool-band-inner">
+          <p class="tool-breadcrumb"><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
+          <p class="tool-eyebrow">ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง</p>
+          <h1>แบ่งทีม</h1>
+          <p class="tool-tagline">ใส่ชื่อลงสนาม เลือกจำนวนทีม แล้วสุ่มแบ่งให้ทันที — คนเกินกระจายให้เห็นชัดว่าทีมไหนได้เพิ่ม</p>
+        </div>
+      </div>
+    </header>
 
-      {/* Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists
-           Names flow through roster (localStorage), not session, so it doesn't overwrite an in-progress game checkpoint */}
-      <GameNav navClass="team-next" />
-    </section>
+    <div class="tool-column">
+      <ToolNameEntry heading="ชื่อในสนาม" storageKey="watduang:tool:team-names" ctaLabel="ใส่ชื่อลงสนาม" />
 
-    {/* Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
-         and nothing may be injected above content
-         Clearance vs a controls-driven layout shift here is verified by hand only, not in CI — this
-         page is the worst measured case (208px shrink). See scripts/ad-slot-grid-probe.mjs. */}
-    <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
+      {/* The split: heading, field label, button and the "พร้อมแบ่ง N คน เป็น N ทีม" status are
+          byte-exact module strings; team cards read "ทีม N — M คน (ได้คนเกิน)" so the extra member
+          is announced in words (ADR-0024 is the reflow doctrine — the result region is reserved
+          before the first split, the reveal fills space that already exists). */}
+      <section id="team" class="tool-module" aria-labelledby="team-heading">
+        <h2 id="team-heading" class="module-title">แบ่งทีม</h2>
 
-    <section id="how-to-use">
-      <h2>วิธีใช้</h2>
-      <ol>
-        <li>เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด "ใส่ชื่อลงสนาม"</li>
-        <li>ใส่จำนวนทีมที่ต้องการ แล้วกด "แบ่งทีม" ผลขึ้นเป็นรายชื่อแยกทีมทันที</li>
-        <li>เปลี่ยนจำนวนทีมเมื่อไหร่ก็แบ่งใหม่ให้ทันทีโดยไม่ต้องพิมพ์ชื่อซ้ำ กด "แบ่งทีม" ซ้ำเพื่อสุ่มใหม่ด้วยจำนวนทีมเดิม</li>
-      </ol>
-      <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
-    </section>
+        <div class="team-row">
+          <label class="team-count">
+            จำนวนทีม
+            <input id="team-count" type="number" min="1" value="2" inputmode="numeric" />
+          </label>
+          <button id="team-split" type="button" disabled aria-describedby="team-note">แบ่งทีม</button>
+        </div>
+
+        <p id="team-note" class="team-note" role="status" aria-live="polite">
+          ยังแบ่งไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงสนาม"
+        </p>
+
+        <div id="team-result" class="team-cards" role="status" aria-live="polite"></div>
+      </section>
+
+      {/* Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists.
+           Names no longer flow through the roster (ADR-0039), so the heading drops the "ด้วยวงเดิม" claim
+           the games still get from the GameNav default. */}
+      <GameNav navClass="team-next" heading="เล่นเกมต่อ" />
+
+      {/* Ad always sits below the tool (ADR-0004) · the inline min-height reserves space so content does
+           not jump on load. The placeholder copy and split labels are byte-exact from the two team
+           artboards; the 250px reserve stays the runtime floor the artboards do not own. */}
+      <div class="ad-slot" aria-hidden="true" style="min-height: 250px;">
+        <span class="ad-slot-title">ช่องโฆษณา</span>
+        <span class="ad-slot-meta">728 × 90 · ใต้เครื่องมือ · ตาม ADR-0004</span>
+        <span class="ad-slot-mobile">ช่องโฆษณา — ใต้เครื่องมือ (ADR-0004)</span>
+      </div>
+
+      <section id="how-to-use">
+        <h2>วิธีใช้</h2>
+        <ol>
+          <li>เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด "ใส่ชื่อลงสนาม"</li>
+          <li>ใส่จำนวนทีมที่ต้องการ แล้วกด "แบ่งทีม" ผลขึ้นเป็นรายชื่อแยกทีมทันที</li>
+          <li>เปลี่ยนจำนวนทีมเมื่อไหร่ก็แบ่งใหม่ให้ทันทีโดยไม่ต้องพิมพ์ชื่อซ้ำ กด "แบ่งทีม" ซ้ำเพื่อสุ่มใหม่ด้วยจำนวนทีมเดิม</li>
+        </ol>
+        <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
+      </section>
+    </div>
   </main>
 </Base>
 
 <style>
-  main {
-    max-width: 34rem;
-    margin: 0 auto;
-    padding: var(--space-md);
+  /* Values byte-exact from design/ToolTeam390.dc.html (base block) and design/ToolTeamDesktop.dc.html
+     (the min-width: 1100px block; 1100px is the canvas's own "จอแคบกว่า 1100px" boundary) — ADR-0033.
+     Tokens stand in wherever the canvas value IS a token (--color-ground-warm, --color-line-strong,
+     --color-muted, --color-primary, --accent-sky, the font tokens); #f3efe4 and the rgba() alpha fills
+     are canvas literals with no token. Base = 390px artboard, mobile-first. */
+
+  :global(body) {
+    background-color: var(--color-ground-warm);
+  }
+
+  .tool-page {
     font-family: var(--font-sans);
     color: var(--color-text);
+    background: var(--color-ground-warm);
   }
 
-  .team-field {
+  /* tool chrome — 390 artboard's back row and badge */
+  .tool-chrome {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    margin: var(--space-md) 0;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 2.5px solid var(--color-line-strong);
   }
 
-  /* Count input: wide enough for 2 digits, doesn't overflow a 320px screen */
-  .team-field input {
-    width: 4rem;
-    padding: var(--space-xs);
-    font-size: 1rem;
+  .tool-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--color-text);
+    text-decoration: none;
   }
 
-  .team-note {
-    min-height: 3em;
-    margin: 0 0 var(--space-md);
+  .tool-back:hover {
+    color: var(--color-primary);
+  }
+
+  .tool-badge {
+    font-size: 13px;
+    font-weight: 500;
+    border: 2px solid var(--color-line-strong);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  /* title band — accent ground, page title and tagline */
+  .tool-band {
+    background: var(--accent-sky);
+    border-bottom: 3px solid var(--color-line-strong);
+  }
+
+  .tool-band-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px 20px 22px 20px;
+  }
+
+  .tool-eyebrow {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: 1px;
     color: var(--color-muted);
   }
 
-  .team-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
+  .tool-breadcrumb {
+    display: none;
   }
 
-  /* Reserves space for the result so content below doesn't shift when teams appear */
-  .team-list {
-    list-style: none;
-    padding: 0;
-    margin: var(--space-md) 0;
-    min-height: 2em;
+  .tool-band h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.3;
+  }
+
+  .tool-tagline {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+
+  /* content column: 390 artboard gap/padding; desktop block below retunes them */
+  .tool-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* the tool module panel */
+  .tool-module {
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+    padding: 18px 16px;
+  }
+
+  .module-title {
+    margin: 0 0 12px 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+  }
+
+  .team-count {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .team-count input {
+    width: 4rem;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    font-size: 18px;
+    text-align: center;
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 14px;
+  }
+
+  #team-split {
+    width: 100%;
+    min-height: 60px;
+    margin-top: 12px;
+    background: var(--accent-sky);
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 20px;
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 16px;
+    box-shadow: 4px 4px 0 var(--color-line-strong);
+    cursor: pointer;
+  }
+
+  .team-note {
+    margin: 10px 0 0 0;
+    min-height: 1.5em;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
+  /* the result region — its min-height is reserved (from script) before the first split so the
+     cards render into space that already exists and the ad below never moves */
+  .team-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .team-card {
+    background: #f3efe4;
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 16px;
+    padding: 14px 16px;
+  }
+
+  .team-card-heading {
+    margin: 0 0 6px 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+  }
+
+  .team-card-members {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  /* ad slot — mobile form per the 390 artboard: ground fill, top rule, one centred label; the inline
+     min-height 250px keeps the ADR-0004 reserve on every breakpoint */
+  .ad-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    border-top: 2.5px solid var(--color-line-strong);
+    background: #f3efe4;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+
+  .ad-slot-title,
+  .ad-slot-meta {
+    display: none;
+  }
+
+  #how-to-use h2 {
+    font-family: var(--font-display);
+    color: var(--color-text);
+  }
+
+  #how-to-use ol {
+    margin: 0;
+    padding-inline-start: var(--space-md);
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
   }
 
-  .team-list li {
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    padding: var(--space-sm);
+  #how-to-use p a {
+    color: var(--color-text);
   }
 
-  .team-list .team-heading {
-    margin: 0 0 var(--space-xs);
-    font-weight: 700;
+  #how-to-use p a:hover {
+    color: var(--color-primary);
   }
 
-  .team-list .team-members {
-    margin: 0;
-    overflow-wrap: anywhere;
+  /* desktop block — values from ToolTeamDesktop.dc.html. Minmax(0, 1fr) carries the canvas's 1fr 1fr
+     sizing plus a min-track clamp so a very long name cannot widen a column past the module. */
+  @media (min-width: 1100px) {
+    .tool-chrome,
+    .tool-eyebrow {
+      display: none;
+    }
+
+    .tool-band {
+      border-bottom-width: 5px;
+    }
+
+    .tool-band-inner {
+      gap: 0;
+      margin-inline: auto;
+      max-width: 1280px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 40px 0 36px 0;
+    }
+
+    .tool-breadcrumb {
+      display: block;
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .tool-breadcrumb a {
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 2px solid rgba(26, 26, 26, 0.35);
+      padding-bottom: 2px;
+    }
+
+    .tool-band h1 {
+      font-weight: 700;
+      font-size: 38px;
+      line-height: 1.2;
+    }
+
+    .tool-tagline {
+      margin: 10px 0 0 0;
+      font-size: 17px;
+      line-height: 1.7;
+      max-width: 56ch;
+    }
+
+    .tool-column {
+      width: 100%;
+      max-width: 940px;
+      margin-inline: auto;
+      box-sizing: border-box;
+      gap: 36px;
+      padding: 44px 0 20px 0;
+    }
+
+    .tool-module {
+      padding: 26px;
+    }
+
+    .module-title {
+      margin: 0 0 16px 0;
+      font-size: 26px;
+    }
+
+    .team-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .team-count {
+      font-size: 16px;
+    }
+
+    .team-count input {
+      min-height: 52px;
+      font-size: 20px;
+    }
+
+    #team-split {
+      flex: 1;
+      margin-top: 0;
+      min-height: 64px;
+      font-size: 22px;
+      box-shadow: 5px 5px 0 var(--color-line-strong);
+    }
+
+    .team-note {
+      margin: 0 0 14px 0;
+      font-size: 14px;
+    }
+
+    .team-cards {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 0;
+    }
+
+    .team-card {
+      padding: 16px 18px;
+    }
+
+    .team-card-heading {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+
+    .team-card-members {
+      font-size: 15px;
+    }
+
+    .ad-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 3px dashed rgba(26, 26, 26, 0.35);
+      border-radius: 16px;
+      background: none;
+      font-size: 13px;
+    }
+
+    .ad-slot-title {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 500;
+    }
+
+    .ad-slot-meta {
+      display: block;
+      font-size: 12px;
+    }
+
+    .ad-slot-mobile {
+      display: none;
+    }
   }
 </style>
 
@@ -123,12 +463,23 @@ import GameNav from '../../components/GameNav.astro';
 
   const countInput = document.getElementById('team-count') as HTMLInputElement;
   const noteEl = document.getElementById('team-note') as HTMLElement;
-  const resultEl = document.getElementById('team-result') as HTMLUListElement;
+  const resultEl = document.getElementById('team-result') as HTMLElement;
   const splitBtn = document.getElementById('team-split') as HTMLButtonElement;
 
+  // Astro's scoped styles key on the data-astro-cid attribute stamped on template elements only.
+  // Team cards are created at runtime, so each gets the attribute copied off a stamped ancestor —
+  // the same trap ToolNameEntry documents for its own runtime chips.
+  const scopeAttr = Array.from(resultEl.attributes).find((a) => a.name.startsWith('data-astro-cid'));
+
   let players: string[] = [];
-  // Whether a split already exists — controls whether changing the team count should re-split immediately or just update the status text
+  // Whether a split already exists — controls whether changing the team count should re-split
+  // immediately or just update the status text
   let hasResult = false;
+  // The next reveal, split ahead of the press so its exact height can be measured before it lands
+  // (ADR-0024: the reveal fills reserved space, it does not create it). What was never displayed has
+  // no history — the player cannot tell the first split was drawn a moment early. Later splits stay
+  // fresh-random per press.
+  let pendingSplit: string[][] | null = null;
 
   function currentCount(): number {
     return Math.floor(Number(countInput.value));
@@ -161,24 +512,70 @@ import GameNav from '../../components/GameNav.astro';
     }
   }
 
-  function renderTeams(teams: string[][]): void {
-    resultEl.innerHTML = '';
+  function renderTeamsInto(container: HTMLElement, teams: string[][]): void {
+    container.innerHTML = '';
     const sizes = teams.map((t) => t.length);
     const minSize = Math.min(...sizes);
     teams.forEach((team, i) => {
-      const li = document.createElement('li');
-      // Status conveyed by text, not color alone — reads as plain text
+      const card = document.createElement('div');
+      card.className = 'team-card';
+      if (scopeAttr) card.setAttribute(scopeAttr.name, scopeAttr.value);
+      // Status conveyed by text, not colour alone — reads as plain words
       const extra = team.length > minSize ? ' (ได้คนเกิน)' : '';
       const heading = document.createElement('p');
-      heading.className = 'team-heading';
+      heading.className = 'team-card-heading';
+      if (scopeAttr) heading.setAttribute(scopeAttr.name, scopeAttr.value);
       heading.textContent = `ทีม ${i + 1} — ${team.length} คน${extra}`;
       const members = document.createElement('p');
-      members.className = 'team-members';
+      members.className = 'team-card-members';
+      if (scopeAttr) members.setAttribute(scopeAttr.name, scopeAttr.value);
       members.textContent = team.join(', ');
-      li.appendChild(heading);
-      li.appendChild(members);
-      resultEl.appendChild(li);
+      card.appendChild(heading);
+      card.appendChild(members);
+      container.appendChild(card);
     });
+  }
+
+  // ADR-0024: the first split must not move the ad below. refreshReserve() draws the pending split
+  // early, measures the card stack it produces, clears it (same synchronous task — the fill is
+  // never painted), and pins the region's min-height to that measurement. Because the reveal IS
+  // that measured split, the reveal renders into space of exactly its own height. Fresh measurement
+  // per count change: the region is empty when this runs, so clearing the pin first never moves a
+  // rendered result.
+  function refreshReserve(): void {
+    if (hasResult || players.length === 0) return;
+    resultEl.style.minHeight = '';
+    pendingSplit = null;
+    let teams: string[][];
+    try {
+      teams = splitTeams(players, currentCount());
+    } catch {
+      return;
+    }
+    pendingSplit = teams;
+    renderTeamsInto(resultEl, teams);
+    const measured = resultEl.offsetHeight;
+    resultEl.innerHTML = '';
+    resultEl.style.minHeight = `${measured}px`;
+  }
+
+  // After a real split the pin only ever grows (a taller render than the reserve keeps its height,
+  // so the next split cannot shrink the page either).
+  function pinReserve(): void {
+    const current = parseFloat(resultEl.style.minHeight) || 0;
+    const now = resultEl.offsetHeight;
+    if (now > current) resultEl.style.minHeight = `${now}px`;
+  }
+
+  // The ready line is the note's text around the reveal; the empty note after the reveal must keep
+  // exactly its height, so the pin is measured with the real line inside it (one synchronous
+  // fill/measure/restore, never painted).
+  function pinNoteHeight(): void {
+    const saved = noteEl.textContent;
+    noteEl.style.minHeight = '';
+    noteEl.textContent = `พร้อมแบ่ง ${players.length} คน เป็น ${currentCount()} ทีม`;
+    noteEl.style.minHeight = `${noteEl.offsetHeight}px`;
+    noteEl.textContent = saved;
   }
 
   function split(): void {
@@ -188,17 +585,24 @@ import GameNav from '../../components/GameNav.astro';
       return;
     }
     let teams: string[][];
-    try {
-      // Not passing random = uses splitTeams' own Math.random — re-randomizes every call, no memoization
-      teams = splitTeams(players, currentCount());
-    } catch (error) {
-      // Last resort — the button is normally disabled first, but if this is reached the user must see the reason as text
-      const reasonText = error instanceof Error ? error.message : 'แบ่งทีมไม่ได้';
-      noteEl.textContent = reasonText;
-      return;
+    if (pendingSplit) {
+      teams = pendingSplit;
+      pendingSplit = null;
+    } else {
+      try {
+        // Not passing random = uses splitTeams' own Math.random — re-randomizes every call, no memoization
+        teams = splitTeams(players, currentCount());
+      } catch (error) {
+        // Last resort — the button is normally disabled first, but if this is reached the user must
+        // see the reason as text
+        const reasonText = error instanceof Error ? error.message : 'แบ่งทีมไม่ได้';
+        noteEl.textContent = reasonText;
+        return;
+      }
     }
     hasResult = true;
-    renderTeams(teams);
+    renderTeamsInto(resultEl, teams);
+    pinReserve();
     render();
   }
 
@@ -209,13 +613,19 @@ import GameNav from '../../components/GameNav.astro';
     hasResult = false;
     resultEl.innerHTML = '';
     render();
+    pinNoteHeight();
+    refreshReserve();
   });
 
   splitBtn.addEventListener('click', split);
 
   // Team count changed: update the live status text on every keystroke, but only re-split once the
-  // value is committed (blur/Enter/spinner) — re-splitting mid-type would flash a wrong-count result
-  countInput.addEventListener('input', render);
+  // value is committed (blur/Enter/spinner) — re-splitting mid-type would flash a wrong-count result.
+  // The pre-split reserve tracks the typed count too, so the first split at the new count is stable.
+  countInput.addEventListener('input', () => {
+    render();
+    if (!hasResult) refreshReserve();
+  });
   countInput.addEventListener('change', () => {
     if (hasResult) split();
   });

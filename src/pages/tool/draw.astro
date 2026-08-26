@@ -8,110 +8,534 @@ import GameNav from '../../components/GameNav.astro';
   title="จับฉลาก — วัดดวง"
   description="จับฉลากออนไลน์ ใส่ชื่อลงกล่องแล้วเลือกว่าจะจับกี่คน กดจับได้ทันที ไม่ซ้ำคนเดิมในรอบเดียวกัน"
 >
-  <main>
-    <h1>จับฉลาก</h1>
-    <p>ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p>
-
-    <ToolNameEntry heading="ชื่อในกล่อง" storageKey="watduang:tool:draw-names" ctaLabel="ใส่ชื่อลงกล่อง" />
-
-    <section id="draw" aria-labelledby="draw-heading">
-      <h2 id="draw-heading">กล่องฉลาก</h2>
-
-      <p class="draw-field">
-        <label for="draw-count">จับกี่คน</label>
-        <input id="draw-count" type="number" min="1" value="1" inputmode="numeric" />
-      </p>
-
-      <p id="draw-result" class="draw-result" role="status" aria-live="polite"></p>
-      <p id="draw-note" class="draw-note" role="status" aria-live="polite">
-        ยังจับไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงกล่อง"
-      </p>
-
-      <div class="draw-actions">
-        <button id="draw-go" type="button" disabled aria-describedby="draw-note">จับฉลาก</button>
-        <button id="draw-reset" type="button">เริ่มรอบใหม่</button>
+  <main class="tool-page">
+    <header class="tool-head">
+      {/* tool chrome (390 artboard) — the back row plus the accent title band; desktop artboards add
+          the site-wide top bar above this, which stays home-only per the page-chrome opt-in, so the
+          tool chrome renders at every width */}
+      <div class="tool-chrome">
+        <a href="/tools/" class="tool-back">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#1a1a1a"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          ><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
+          เครื่องมือสุ่มทั้งหมด
+        </a>
+        <span class="tool-badge">เครื่องมือ</span>
       </div>
 
-      <h3>ยังอยู่ในกล่อง</h3>
-      <ul id="draw-remaining" class="draw-names"></ul>
+      <div class="tool-band">
+        <div class="tool-band-inner">
+          <p class="tool-breadcrumb"><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
+          <p class="tool-eyebrow">ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง</p>
+          <h1>จับฉลาก</h1>
+          <p class="tool-tagline">ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p>
+        </div>
+      </div>
+    </header>
 
-      {/* Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists
-           Names flow through roster (localStorage), not session, so it doesn't overwrite an in-progress game checkpoint */}
-      <GameNav navClass="draw-next" />
-    </section>
+    <div class="tool-column">
+      <ToolNameEntry heading="ชื่อในกล่อง" storageKey="watduang:tool:draw-names" ctaLabel="ใส่ชื่อลงกล่อง" />
 
-    {/* Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
-         and nothing may be injected above content
-         Clearance vs a controls-driven layout shift here is verified by hand only, not in CI.
-         See scripts/ad-slot-grid-probe.mjs. */}
-    <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
+      {/* The draw itself: heading, field label, button labels, result format and the "เหลือในกล่อง N คน"
+          status live in draw.ts/the module strings, all byte-exact from the artboards. The dark result
+          box renders BEFORE the first draw — the reveal fills reserved space instead of reflowing the
+          page (ADR-0024, the reflow is the hazard), and the note below is reserved the same way. */}
+      <section id="draw" class="tool-module" aria-labelledby="draw-heading">
+        <h2 id="draw-heading" class="module-title">กล่องฉลาก</h2>
 
-    <section id="how-to-use">
-      <h2>วิธีใช้</h2>
-      <ol>
-        <li>เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด "ใส่ชื่อลงกล่อง"</li>
-        <li>เลือกจำนวนที่จะจับ แล้วกด "จับฉลาก" ผลขึ้นเป็นตัวหนังสือทันที</li>
-        <li>จับต่อได้เรื่อยๆ คนที่จับไปแล้วจะไม่ถูกจับซ้ำ จนกว่าจะกด "เริ่มรอบใหม่"</li>
-      </ol>
-      <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
-    </section>
+        <div class="draw-grid">
+          <div class="draw-left">
+            <label class="draw-count">
+              จับกี่คน
+              <input id="draw-count" type="number" min="1" value="2" inputmode="numeric" />
+            </label>
+
+            <div id="draw-result-box" class="draw-result-box"><p id="draw-result" role="status" aria-live="polite"></p></div>
+
+            <div class="draw-actions">
+              <button id="draw-go" type="button" disabled aria-describedby="draw-note">จับฉลาก</button>
+              <button id="draw-reset" type="button">เริ่มรอบใหม่</button>
+            </div>
+          </div>
+
+          <div id="draw-box" class="draw-box">
+            <h3>ยังอยู่ในกล่อง</h3>
+            <ul id="draw-remaining" class="draw-names"></ul>
+          </div>
+
+          <p id="draw-note" class="draw-note" role="status" aria-live="polite">
+            ยังจับไม่ได้ — เลือกหรือเพิ่มชื่ออย่างน้อย 2 ชื่อด้านบน แล้วกด "ใส่ชื่อลงกล่อง"
+          </p>
+        </div>
+      </section>
+
+      {/* Game continuation link sits next to the tool, not below the ad — #11 explains why the tool exists.
+           Names no longer flow through the roster (ADR-0039), so the heading drops the "ด้วยวงเดิม" claim
+           the games still get from the GameNav default. */}
+      <GameNav navClass="draw-next" heading="เล่นเกมต่อ" />
+
+      {/* Ad always sits below the tool (ADR-0004) · the inline min-height reserves space so content does
+           not jump on load. The placeholder copy and split labels are byte-exact from the two draw
+           artboards; the 250px reserve stays the runtime floor the artboards do not own. */}
+      <div class="ad-slot" aria-hidden="true" style="min-height: 250px;">
+        <span class="ad-slot-title">ช่องโฆษณา</span>
+        <span class="ad-slot-meta">728 × 90 · ใต้เครื่องมือ · ตาม ADR-0004</span>
+        <span class="ad-slot-mobile">ช่องโฆษณา — ใต้เครื่องมือ (ADR-0004)</span>
+      </div>
+
+      <section id="how-to-use">
+        <h2>วิธีใช้</h2>
+        <ol>
+          <li>เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด "ใส่ชื่อลงกล่อง"</li>
+          <li>เลือกจำนวนที่จะจับ แล้วกด "จับฉลาก" ผลขึ้นเป็นตัวหนังสือทันที</li>
+          <li>จับต่อได้เรื่อยๆ คนที่จับไปแล้วจะไม่ถูกจับซ้ำ จนกว่าจะกด "เริ่มรอบใหม่"</li>
+        </ol>
+        <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
+      </section>
+    </div>
   </main>
 </Base>
 
 <style>
-  main {
-    max-width: 34rem;
-    margin: 0 auto;
-    padding: var(--space-md);
+  /* Values byte-exact from design/ToolDraw390.dc.html (base block) and design/ToolDrawDesktop.dc.html
+     (the min-width: 1100px block; 1100px is the canvas's own "จอแคบกว่า 1100px" boundary) — ADR-0033.
+     Tokens stand in wherever the canvas value IS a token (--color-ground-warm, --color-line-strong,
+     --color-muted, --color-primary, --accent-sky, the font tokens); #f3efe4 and the rgba() alpha fills
+     are canvas literals with no token. Base = 390px artboard, mobile-first. */
+
+  :global(body) {
+    background-color: var(--color-ground-warm);
+  }
+
+  .tool-page {
     font-family: var(--font-sans);
     color: var(--color-text);
+    background: var(--color-ground-warm);
   }
 
-  .draw-field {
+  /* tool chrome — 390 artboard's back row and badge */
+  .tool-chrome {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    margin: var(--space-md) 0;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 2.5px solid var(--color-line-strong);
   }
 
-  /* Count input: wide enough for 2 digits, doesn't overflow a 320px screen */
-  .draw-field input {
-    width: 4rem;
-    padding: var(--space-xs);
-    font-size: 1rem;
+  .tool-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--color-text);
+    text-decoration: none;
   }
 
-  /* Reserves space for the result so content below doesn't shift when a name appears · long names wrap instead of pushing the layout */
-  .draw-result {
-    min-height: 2em;
+  .tool-back:hover {
+    color: var(--color-primary);
+  }
+
+  .tool-badge {
+    font-size: 13px;
+    font-weight: 500;
+    border: 2px solid var(--color-line-strong);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  /* title band — accent ground, page title and tagline */
+  .tool-band {
+    background: var(--accent-sky);
+    border-bottom: 3px solid var(--color-line-strong);
+  }
+
+  .tool-band-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px 20px 22px 20px;
+  }
+
+  .tool-eyebrow {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--color-muted);
+  }
+
+  .tool-breadcrumb {
+    display: none;
+  }
+
+  .tool-band h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.3;
+  }
+
+  .tool-tagline {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+
+  /* content column: 390 artboard gap/padding; desktop block below retunes them */
+  .tool-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* the tool module panel */
+  .tool-module {
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+    padding: 18px 16px;
+  }
+
+  .module-title {
+    margin: 0 0 12px 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+  }
+
+  .draw-count {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .draw-count input {
+    width: 4rem;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    font-size: 18px;
+    text-align: center;
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 14px;
+  }
+
+  /* The result box always renders so a reveal cannot move anything below it (ADR-0024 is the reflow
+     doctrine): the "จับได้:" line has a one-line reserve and long results wrap inside the box. */
+  .draw-result-box {
+    background: var(--color-line-strong);
+    color: var(--color-ground-warm);
+    border-radius: 16px;
+    padding: 14px 16px;
+    text-align: center;
+    margin-top: 12px;
+    /* The reveal pins border-box heights into min-height (reserveResultBox); without border-box the
+       pad inflates the box by its own padding on every pin and the ad below walks down one line per draw */
+    box-sizing: border-box;
+  }
+
+  #draw-result {
+    margin: 0;
+    min-height: 1.5em;
+    font-family: var(--font-display);
     font-weight: 700;
+    font-size: 24px;
+    overflow-wrap: anywhere;
+  }
+
+  .draw-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  #draw-go {
+    min-height: 60px;
+    background: var(--accent-sky);
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 20px;
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 16px;
+    box-shadow: 4px 4px 0 var(--color-line-strong);
+    cursor: pointer;
+  }
+
+  #draw-reset {
+    min-height: 52px;
+    background: var(--color-ground-warm);
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 16px;
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 14px;
+    cursor: pointer;
+  }
+
+  /* the remaining box — dashed ground, chips of names still in the box */
+  .draw-box {
+    border: 2.5px dashed var(--color-line-strong);
+    border-radius: 16px;
+    padding: 12px 14px;
+    background: #f3efe4;
+    margin-top: 14px;
+  }
+
+  .draw-box h3 {
+    margin: 0 0 10px 0;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+  }
+
+  .draw-names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .draw-names li {
+    max-width: 100%;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--color-ground-warm);
+    border: 2px solid var(--color-line-strong);
+    border-radius: 999px;
+    padding: 4px 12px;
     overflow-wrap: anywhere;
   }
 
   .draw-note {
-    min-height: 3em;
-    margin: var(--space-xs) 0 var(--space-md);
+    margin: 10px 0 0 0;
+    min-height: 1.5em;
+    font-size: 13px;
     color: var(--color-muted);
   }
 
-  /* Buttons wrap to a new line instead of overflowing when the screen is narrower than both buttons combined */
-  .draw-actions,
-  .draw-names {
+  /* ad slot — mobile form per the 390 artboard: ground fill, top rule, one centred label; the inline
+     min-height 250px keeps the ADR-0004 reserve on every breakpoint */
+  .ad-slot {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    border-top: 2.5px solid var(--color-line-strong);
+    background: #f3efe4;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+
+  .ad-slot-title,
+  .ad-slot-meta {
+    display: none;
+  }
+
+  #how-to-use h2 {
+    font-family: var(--font-display);
+    color: var(--color-text);
+  }
+
+  #how-to-use ol {
+    margin: 0;
+    padding-inline-start: var(--space-md);
+    display: flex;
+    flex-direction: column;
     gap: var(--space-sm);
   }
 
-  .draw-names {
-    list-style: none;
-    padding: 0;
-    margin: var(--space-md) 0;
+  #how-to-use p a {
+    color: var(--color-text);
   }
 
-  .draw-names li {
-    overflow-wrap: anywhere;
+  #how-to-use p a:hover {
+    color: var(--color-primary);
+  }
+
+  /* desktop block — values from ToolDrawDesktop.dc.html. Minmax(0, 1fr) carries the canvas's 1fr 1fr
+     sizing plus a min-track clamp so a very long name cannot widen the column past the module. */
+  @media (min-width: 1100px) {
+    .tool-chrome,
+    .tool-eyebrow {
+      display: none;
+    }
+
+    .tool-band {
+      border-bottom-width: 5px;
+    }
+
+    .tool-band-inner {
+      gap: 0;
+      margin-inline: auto;
+      max-width: 1280px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 40px 0 36px 0;
+    }
+
+    .tool-breadcrumb {
+      display: block;
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .tool-breadcrumb a {
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 2px solid rgba(26, 26, 26, 0.35);
+      padding-bottom: 2px;
+    }
+
+    .tool-band h1 {
+      font-weight: 700;
+      font-size: 38px;
+      line-height: 1.2;
+    }
+
+    .tool-tagline {
+      margin: 10px 0 0 0;
+      font-size: 17px;
+      line-height: 1.7;
+      max-width: 56ch;
+    }
+
+    .tool-column {
+      width: 100%;
+      max-width: 940px;
+      margin-inline: auto;
+      box-sizing: border-box;
+      gap: 36px;
+      padding: 44px 0 20px 0;
+    }
+
+    .tool-module {
+      padding: 26px;
+    }
+
+    .module-title {
+      margin: 0 0 16px 0;
+      font-size: 26px;
+    }
+
+    .draw-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 30px;
+      align-items: start;
+    }
+
+    .draw-left {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .draw-count {
+      font-size: 16px;
+    }
+
+    .draw-count input {
+      min-height: 52px;
+      font-size: 20px;
+    }
+
+    .draw-result-box {
+      padding: 18px 22px;
+      margin-top: 0;
+    }
+
+    #draw-result {
+      font-size: 30px;
+    }
+
+    .draw-actions {
+      gap: 10px;
+      margin-top: 0;
+    }
+
+    #draw-go {
+      min-height: 64px;
+      font-size: 22px;
+      box-shadow: 5px 5px 0 var(--color-line-strong);
+    }
+
+    #draw-reset {
+      min-height: 56px;
+      font-size: 18px;
+      border-radius: 16px;
+    }
+
+    .draw-box {
+      border-radius: 20px;
+      padding: 18px;
+      margin-top: 0;
+    }
+
+    .draw-box h3 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+    }
+
+    .draw-names {
+      gap: 8px;
+    }
+
+    .draw-names li {
+      font-size: 14px;
+      padding: 6px 14px;
+    }
+
+    .draw-note {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .ad-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 3px dashed rgba(26, 26, 26, 0.35);
+      border-radius: 16px;
+      background: none;
+      font-size: 13px;
+    }
+
+    .ad-slot-title {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 500;
+    }
+
+    .ad-slot-meta {
+      display: block;
+      font-size: 12px;
+    }
+
+    .ad-slot-mobile {
+      display: none;
+    }
   }
 </style>
 
@@ -122,15 +546,27 @@ import GameNav from '../../components/GameNav.astro';
   const resultEl = document.getElementById('draw-result') as HTMLElement;
   const noteEl = document.getElementById('draw-note') as HTMLElement;
   const remainingEl = document.getElementById('draw-remaining') as HTMLUListElement;
+  const boxEl = document.getElementById('draw-box') as HTMLElement;
+  const resultBoxEl = document.getElementById('draw-result-box') as HTMLElement;
   const drawBtn = document.getElementById('draw-go') as HTMLButtonElement;
   const resetBtn = document.getElementById('draw-reset') as HTMLButtonElement;
 
+  // Astro's scoped styles key on the data-astro-cid attribute stamped on template elements only.
+  // Chips and team cards are created at runtime, so each gets the attribute copied off a stamped
+  // ancestor — the same trap ToolNameEntry documents for its own runtime chips.
+  const scopeAttr = Array.from(boxEl.attributes).find((a) => a.name.startsWith('data-astro-cid'));
+
   let players: string[] = [];
-  // Who's already been drawn — deliberately memory-only, refresh starts a new round
-  // (names persist because the tool's own list is localStorage) · must not go into shell/session.ts because checkpoint
-  // is one slot shared across the whole site — the tool touching it would wipe an in-progress game instantly.
-  // Same for the group store: the tools left the shared roster (ADR-0039), so this page writes nothing shared at all.
+  // Who's already been drawn — deliberately memory-only, refresh starts a new round (names persist
+  // because the tool's own list is localStorage) · must not go into shell/session.ts, whose one
+  // checkpoint slot is shared site-wide — the tool touching it would wipe an in-progress game.
   const drawn = new Set<string>();
+
+  // The next reveal, drawn ahead of the press so its exact line-box can be measured before it lands
+  // (ADR-0024: the reveal fills reserved space, it does not create it). The player cannot tell the
+  // first draw was picked a moment early — what was never displayed has no history. Later draws stay
+  // pick-at-press.
+  let pendingPick: string[] | null = null;
 
   function remaining(): string[] {
     return players.filter((name) => !drawn.has(name));
@@ -142,6 +578,7 @@ import GameNav from '../../components/GameNav.astro';
     remainingEl.innerHTML = '';
     for (const name of left) {
       const li = document.createElement('li');
+      if (scopeAttr) li.setAttribute(scopeAttr.name, scopeAttr.value);
       li.textContent = name;
       remainingEl.appendChild(li);
     }
@@ -167,22 +604,92 @@ import GameNav from '../../components/GameNav.astro';
     }
   }
 
+  // The reflow rule (ADR-0024): names leaving the box on a draw must not move anything below the box.
+  // Freezing the box's height at round start keeps every draw inside the space the round began with —
+  // chips leave, the box keeps its size, and the ad slot below never rises mid-round.
+  function freezeBoxAtRoundStart(): void {
+    boxEl.style.minHeight = '';
+    boxEl.style.minHeight = `${boxEl.offsetHeight}px`;
+  }
+
+  // Pins the dark result box to the height of the pending reveal, so the result text fills space the
+  // box already occupies. The fill/measure/restore runs in one synchronous task — never painted.
+  function reserveResultBox(): void {
+    const saved = resultEl.textContent;
+    resultEl.textContent = pendingPick
+      ? pendingPick.length === 1
+        ? `จับได้: ${pendingPick[0]}`
+        : `จับได้: ${pendingPick.join(', ')}`
+      : 'จับได้: ';
+    resultBoxEl.style.minHeight = `${resultBoxEl.offsetHeight}px`;
+    resultEl.textContent = saved;
+  }
+
+  // Later reveals can only grow the pin — a shorter later result leaves the box at the pinned size
+  // (blank space inside a dark box, invisible by construction) instead of moving the page.
+  function pinResultBoxGrowOnly(): void {
+    const current = parseFloat(resultBoxEl.style.minHeight) || 0;
+    if (resultBoxEl.offsetHeight > current) {
+      resultBoxEl.style.minHeight = `${resultBoxEl.offsetHeight}px`;
+    }
+  }
+
+  // Draws the next reveal early and reserves its exact size — same mechanism for the count-change
+  // mid-round: whatever the press will show has already been measured.
+  function refreshPending(): void {
+    pendingPick = null;
+    if (players.length < 2) return;
+    const count = Math.floor(Number(countInput.value));
+    if (!(Number.isFinite(count) && count >= 1 && count <= remaining().length)) return;
+    try {
+      pendingPick = drawNames(remaining(), count);
+    } catch {
+      pendingPick = null;
+      return;
+    }
+    reserveResultBox();
+  }
+
+  // The status line's longest legal texts are round-over and the shortfall refusal — pinned to the
+  // taller of the two, so the note never outgrows its reserved slot, mid-round or at round end.
+  function pinNoteHeight(): void {
+    const saved = noteEl.textContent;
+    const candidates = [
+      `จับครบทั้ง ${players.length} คนแล้ว — กด "เริ่มรอบใหม่" เพื่อคืนทุกชื่อเข้ากล่อง`,
+      `เหลือในกล่องแค่ 1 คน จับ ${players.length} คนไม่ได้ — ลดจำนวน หรือกด "เริ่มรอบใหม่"`,
+    ];
+    let height = 0;
+    for (const text of candidates) {
+      noteEl.textContent = text;
+      height = Math.max(height, noteEl.offsetHeight);
+    }
+    noteEl.style.minHeight = `${height}px`;
+    noteEl.textContent = saved;
+  }
+
   function draw(): void {
     const left = remaining();
     const count = Math.floor(Number(countInput.value));
 
     let picked: string[];
-    try {
-      picked = drawNames(left, count);
-    } catch (error) {
-      // Last resort — the button is normally disabled first, but if this is reached the user must see the reason as text
-      const reason = error instanceof Error ? error.message : 'จับฉลากไม่ได้';
-      noteEl.textContent = reason;
-      return;
+    if (pendingPick) {
+      picked = pendingPick;
+      pendingPick = null;
+    } else {
+      try {
+        picked = drawNames(left, count);
+      } catch (error) {
+        // Last resort — the button is normally disabled first, but if this is reached the user must
+        // see the reason as text
+        const reason = error instanceof Error ? error.message : 'จับฉลากไม่ได้';
+        noteEl.textContent = reason;
+        return;
+      }
     }
 
     for (const name of picked) drawn.add(name);
     resultEl.textContent = picked.length === 1 ? `จับได้: ${picked[0]}` : `จับได้: ${picked.join(', ')}`;
+    pinResultBoxGrowOnly();
     render();
   }
 
@@ -193,6 +700,9 @@ import GameNav from '../../components/GameNav.astro';
     drawn.clear();
     resultEl.textContent = '';
     render();
+    freezeBoxAtRoundStart();
+    pinNoteHeight();
+    refreshPending();
   });
 
   drawBtn.addEventListener('click', draw);
@@ -201,9 +711,13 @@ import GameNav from '../../components/GameNav.astro';
     drawn.clear();
     resultEl.textContent = '';
     render();
+    refreshPending();
   });
 
-  countInput.addEventListener('input', render);
+  countInput.addEventListener('input', () => {
+    render();
+    refreshPending();
+  });
 
   render();
 </script>
