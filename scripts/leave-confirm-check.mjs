@@ -345,7 +345,7 @@ function checkPlayerSetupAstro(rawText, checked) {
   if (!/e\.metaKey\s*\|\|\s*e\.ctrlKey\s*\|\|\s*e\.shiftKey\s*\|\|\s*e\.altKey\s*\|\|\s*e\.button\s*!==\s*0/.test(text)) {
     violations.push('(d) modified/non-primary click passthrough (metaKey/ctrlKey/shiftKey/altKey/button check) is missing');
   }
-  // (d) GameLayout's stable /games/ link must stay excluded, or the guard intercepts the one link that
+  // (d) GameLayout's stable back-to-home link must stay excluded, or the guard intercepts the one link that
   // never moves and does not need asking about.
   if (!text.includes("a[href]:not([data-stable-exit])")) {
     violations.push("(d) the a[href]:not([data-stable-exit]) selector is missing — the stable exit link must stay excluded");
@@ -608,7 +608,7 @@ function selftest() {
   });
   console.log('PASS (d) known-bad fixture (no modified-click passthrough) is flagged');
 
-  // (d) known-bad: the stable-exit exclusion widened away, so the GameLayout /games/ link that never
+  // (d) known-bad: the stable-exit exclusion widened away, so the GameLayout back-to-home link that never
   // moves gets intercepted and asked about too.
   const astroBadNoStableExit = [
     "  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;",
@@ -643,7 +643,7 @@ function selftest() {
   const astroGoodWithComments = [
     "  // A modified or non-primary click is the round-PRESERVING gesture: e.metaKey || e.ctrlKey.",
     "  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;",
-    "  {/* Only data-stable-exit (GameLayout's /games/ link) opts out of a[href]:not([data-stable-exit]). */}",
+    "  {/* Only data-stable-exit (GameLayout's back-to-home link) opts out of a[href]:not([data-stable-exit]). */}",
     "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
     "  /* pendingHref = null must live on close, not per-button. */",
     "  leaveDlg.addEventListener('close', () => { pendingHref = null; });",

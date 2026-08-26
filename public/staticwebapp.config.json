@@ -1,4 +1,16 @@
 {
+  "routes": [
+    {
+      "route": "/games/",
+      "redirect": "/",
+      "statusCode": 301
+    },
+    {
+      "route": "/games",
+      "redirect": "/",
+      "statusCode": 301
+    }
+  ],
   "responseOverrides": {
     "404": {
       "rewrite": "/404.html"

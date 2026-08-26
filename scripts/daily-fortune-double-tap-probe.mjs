@@ -3,7 +3,7 @@
 // which was measured with a 2-name roster only. Run with an 8-name roster
 // (below) against real headless Chrome via scripts/driver.mjs and it produces
 // two CONFIRMED counter-examples: (1) tap-1 at the abandoned coordinate of
-// the last chip lands on the hub link <a href="/games/"> (a double-tap
+// the last chip lands on the topbar back-to-home link (a double-tap
 // navigates the group off their fortune), and (2) a double-tap on #df-again
 // lands on a different person's chip on the next round's ask screen
 // (reveal() would fire for the wrong person). Both are reachable because the

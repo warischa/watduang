@@ -7,7 +7,7 @@
 // that set is owned by Thai text length, roster size and the layout engine, so scanning for
 // it would never converge (docs/adr/0016). What CAN regress is the codebase-owned marker set
 // invented in #39: `data-stable-exit` is meant to sit on exactly one link
-// (src/layouts/GameLayout.astro's `/games/` link), and PlayerSetup.astro's leave-confirm guard
+// (src/layouts/GameLayout.astro's back-to-home link), and PlayerSetup.astro's leave-confirm guard
 // is meant to exempt exactly that marker via the selector `a[href]:not([data-stable-exit])`.
 // "Exactly one" is enforced as exactly one: the attribute must be ABSENT from every other file AND
 // PRESENT once in GameLayout.astro. Zero markers is a real regression — the leave-confirm would then
@@ -145,10 +145,10 @@ function selftest() {
     write(good, 'src/layouts/GameLayout.astro', [
       '{/* data-stable-exit (#39): this link never moves under a tap-transition,',
       '     so it is exempted from the leave-confirm guard. */}',
-      '<p><a href="/games/" data-stable-exit>ดูเกมทั้งหมด</a></p>',
+      '<p><a href="/" data-stable-exit>กลับหน้าแรก</a></p>',
     ].join('\n'));
     write(good, 'src/shell/PlayerSetup.astro', [
-      '  // Only data-stable-exit (GameLayout\'s /games/ link) opts out.',
+      '  // Only data-stable-exit (GameLayout\'s back-to-home link) opts out.',
       "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
     ].join('\n'));
     write(good, 'src/games/timebomb.ts', [
@@ -173,7 +173,7 @@ function selftest() {
     // Same shape, now WITH a marker hiding behind the URL on the same line: must be caught.
     const urlHole = fs.mkdtempSync(path.join(os.tmpdir(), 'stable-exit-urlhole-'));
     try {
-      write(urlHole, 'src/layouts/GameLayout.astro', '<p><a href="/games/" data-stable-exit>x</a></p>');
+      write(urlHole, 'src/layouts/GameLayout.astro', '<p><a href="/" data-stable-exit>x</a></p>');
       write(urlHole, 'src/shell/PlayerSetup.astro', "closest?.('a[href]:not([data-stable-exit])')");
       write(urlHole, 'src/layouts/Base.astro', '<a href="https://ex.com/a" data-stable-exit>hidden</a>');
       assert.deepEqual(
@@ -207,8 +207,8 @@ function selftest() {
     // GameLayout keeps the attribute ONLY in a comment: the refactor that drops the marker while
     // leaving the prose behind. Zero live markers means the guard now intercepts the stable exit.
     write(bad, 'src/layouts/GameLayout.astro', [
-      '{/* data-stable-exit used to sit on the /games/ link here. */}',
-      '<p><a href="/games/">ดูเกมทั้งหมด</a></p>',
+      '{/* data-stable-exit used to sit on the back-to-home link here. */}',
+      '<p><a href="/">กลับหน้าแรก</a></p>',
     ].join('\n'));
     write(bad, 'src/layouts/BaseLayout.astro', [
       '<footer><a href="/about/" data-stable-exit>เกี่ยวกับเรา</a></footer>',
@@ -232,7 +232,7 @@ function selftest() {
     // "Exactly one" also has an upper bound: a second marked link in the allowed file is a silent
     // widening of the closed set, and the absence scan above cannot see it (it skips that file).
     write(dup, 'src/layouts/GameLayout.astro', [
-      '<p><a href="/games/" data-stable-exit>ดูเกมทั้งหมด</a></p>',
+      '<p><a href="/" data-stable-exit>กลับหน้าแรก</a></p>',
       '<p><a href="/" data-stable-exit>หน้าแรก</a></p>',
     ].join('\n'));
     const dupLayout = walkSrcFiles(dup).find((f) => f.relPath === 'src/layouts/GameLayout.astro');

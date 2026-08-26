@@ -17,9 +17,15 @@ universal. The same in-stage anchor was then found in all six games.
 
 ## Decision
 
-`#stage` contains **no navigation targets**. A game renders no `<a href>` into the stage. The
-crawlable link to `/games/` lives in static page chrome above `#stage`
+`#stage` contains **no navigation targets**. A game renders no `<a href>` into the stage. The one
+crawlable outbound link lives in static page chrome above `#stage`
 (`src/layouts/GameLayout.astro`).
+
+**Retargeted 2026-08-26 by [ADR-0041](0041-the-all-games-page-cannot-exist-after-adr-0040.md):** that
+link pointed at `/games/`, and `/games/` no longer exists. It now points at `/`. Nothing in this ADR
+turns on the target — every property below is a property of where the link *sits*: static, first in
+`<main>`, nothing above it that changes height at runtime, and therefore the one link exempt from
+ADR-0015's leave-confirm. Read `/games/` in the sections below as "the outbound link".
 
 Chosen on ownership, not taste. The set this invariant must enumerate is "navigation targets inside
 `#stage`" — a set we own, and one we can make **empty by construction**, so it converges vacuously.

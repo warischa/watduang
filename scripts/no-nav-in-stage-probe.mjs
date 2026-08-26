@@ -25,7 +25,7 @@
 // hold for all three.
 //
 // Calibrated by construction: run this against the code BEFORE the in-stage hub anchors are removed and
-// every game must report FAIL with a `/games/` anchor hit. A green pre-fix run means the harness is
+// every game must report FAIL with an in-stage anchor hit. A green pre-fix run means the harness is
 // measuring nothing and its post-fix green is worthless.
 //
 // Run: node scripts/driver.mjs scripts/no-nav-in-stage-probe.mjs
@@ -198,7 +198,7 @@ export default async function (session) {
                seededRosterLength: JSON.parse(localStorage.getItem('watduang:roster') || '[]').length,
                sessionStorageLen: sessionStorage.length,
                stageChildren: document.getElementById('stage').children.length,
-               staticHubLinks: [...document.querySelectorAll('a[href="/games/"]')].length,
+               staticHubLinks: [...document.querySelectorAll('a[data-stable-exit]')].length,
                setupPanelVisible: !!document.querySelector('#start-round')?.offsetParent };`);
 
     const ticked = await session.evaluate(`
@@ -215,7 +215,7 @@ export default async function (session) {
     const started = await session.evaluate(`
       return { setupPanelVisible: !!document.querySelector('#start-round')?.offsetParent,
                stageChildren: document.getElementById('stage').children.length,
-               staticHubLinks: [...document.querySelectorAll('a[href="/games/"]')].length,
+               staticHubLinks: [...document.querySelectorAll('a[data-stable-exit]')].length,
                innerWidth: window.innerWidth };`);
 
     const walked = await session.evaluate(HELPERS + walk.body);

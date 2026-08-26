@@ -591,7 +591,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
   // the link's own navigation, and it is deliberately global (document, not #stage or GameNav): the
   // hazard is page chrome sliding under a tap-transition, and enumerating every link that could end up
   // there is exactly the maintenance burden ADR-0014 already rejected once. Only data-stable-exit
-  // (GameLayout's /games/ link, which never moves) opts out.
+  // (GameLayout's back-to-home link, which never moves) opts out.
   const leaveDlg = document.getElementById('leave-confirm') as HTMLDialogElement;
   const leaveStayBtn = document.getElementById('leave-stay') as HTMLButtonElement;
   const leaveGoBtn = document.getElementById('leave-go') as HTMLButtonElement;
