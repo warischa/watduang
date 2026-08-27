@@ -170,6 +170,8 @@ const game: GameModule = {
   names: { th: 'สุ่มคนโดน', en: 'Pick the Loser' },
   category: 'party',
   players: [2, 10],
+  // Party page — the setup panel carries the live-round bit for the leave-confirm (gh#121).
+  startsRound: true,
   keywords: ['สุ่มคนโดน', 'เกมส่งมือถือ', 'เกมปาร์ตี้', 'เกมกลุ่มเล่นฟรี', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'กดปุ่มเดียว สุ่มคนโดนในวงทันที',
   seo: {

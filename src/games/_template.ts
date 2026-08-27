@@ -9,6 +9,11 @@ const game: GameModule = {
   names: { th: 'ชื่อไทย', en: 'English name' },
   category: 'party',
   players: [2, 10],
+  // gh#121 — does playing this put the page into a live round, i.e. state a player loses by leaving
+  // mid-round? Answer it honestly; it is not decoration. A [1, 1] page that declares true must call
+  // announceRoundStarted from _round-start.ts at every entry into a round (a fresh start AND a
+  // resumed checkpoint), or scripts/round-start-announce-check.mjs reds and names this file's game.
+  startsRound: true,
   keywords: [],
   tagline: 'บรรทัดเดียวสั้นๆ ว่าเกมนี้สนุกยังไง — ขึ้นบนการ์ด OG',
   seo: {

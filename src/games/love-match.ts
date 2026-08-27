@@ -455,6 +455,8 @@ const game: GameModule = {
   // this module carries it while its content is still the party-shaped pair score. The solo mount
   // hands it an empty group; content redesign is the "เนื้อคู่" ticket, which this ticket unblocks.
   players: [1, 1],
+  // One person, one answer, no rounds (ADR-0040) — the leave-confirm must never arm on this page.
+  startsRound: false,
   keywords: ['ดวงความรัก', 'ดูดวงคู่', 'ดวงคู่วันนี้', 'ทดสอบความเข้ากัน', 'เกมส่งมือถือ', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'เลือกสองคนในวง แล้วดูว่าวันนี้ดวงเข้ากันกี่เปอร์เซ็นต์',
   seo: {

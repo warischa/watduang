@@ -244,6 +244,8 @@ const game: GameModule = {
   names: { th: 'จับไม้สั้น', en: 'Short Stick' },
   category: 'party',
   players: [2, 10],
+  // Party page — the setup panel carries the live-round bit for the leave-confirm (gh#121).
+  startsRound: true,
   keywords: ['จับไม้สั้น', 'เกมส่งมือถือ', 'เกมปาร์ตี้', 'เกมกลุ่มเล่นฟรี', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'ส่งมือถือวนจับไม้ทีละคน ใครได้ไม้สั้นคนนั้นโดน',
   seo: {

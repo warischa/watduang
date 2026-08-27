@@ -41,6 +41,7 @@ const { gameId } = Astro.props as Props;
 </dialog>
 
 <script>
+  import { ROUND_STARTED_EVENT } from '../games/_round-start';
   // #39 — a link click during a live round on this page asks first. Capture phase so this runs before
   // the link's own navigation, and it is deliberately global (document, not #stage or GameNav): the
   // hazard is page chrome sliding under a tap-transition, and enumerating every link that could end up
@@ -70,8 +71,12 @@ const { gameId } = Astro.props as Props;
   // `panel?.hidden`, which reads undefined on a solo page and would arm every one of them again.
   // LATCHED, not sampled: the predicate is "started", so a finished-round summary must still ask —
   // nothing clears this flag for the life of the page (ADR-0015's accepted ceiling, owner-ruled #39).
+  // gh#121 — the event NAME comes from the game-side module that dispatches it
+  // (src/games/_round-start.ts), never retyped here: a typo on either side is a silent loss of this
+  // guard, and no test would notice because both halves would still hold a string. Importing it makes
+  // a mismatch a `tsc` error instead.
   let roundStarted = false;
-  document.addEventListener('watduang:round-started', () => { roundStarted = true; });
+  document.addEventListener(ROUND_STARTED_EVENT, () => { roundStarted = true; });
 
   function roundLive(): boolean {
     if (roundStarted) return true;

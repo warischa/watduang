@@ -61,6 +61,20 @@ export interface GameModule {
   names: { th: string; en: string };
   category: Category;
   players: [min: number, max: number];
+  /** Whether playing this game puts the page into a live round — state a player would lose by
+   *  navigating away mid-round. Required, and required of every game, because gh#121's failure is a
+   *  module that starts one and never says so: the shell's leave-confirm (LeaveConfirm.astro) then
+   *  fails OPEN and a mid-round tap on a link loses the round with no confirm, silently.
+   *
+   *  Declaring it does not arm anything — nothing at runtime reads this field, and the shell stays
+   *  keyed on the signal rather than on a list of game ids (gh#106). It exists so the hazardous set is
+   *  DECLARED by the module author instead of guessed from source by a checker, and so `tsc` reds on a
+   *  new module that never answered the question. What enforces the consequence is
+   *  scripts/round-start-announce-check.mjs: a [1, 1] page declaring true must call
+   *  announceRoundStarted from _round-start.ts, one declaring false must not (and must write no
+   *  mid-round checkpoint, which is a round by another name), and a party page must declare true —
+   *  the setup panel starts a round by construction there. */
+  startsRound: boolean;
   keywords: string[];
   /** A short one-line hook for the OG card — seo.title runs too long, seo.description longer still.
    *  Used by scripts/make-og.mjs · without this the card is left with just the game name */

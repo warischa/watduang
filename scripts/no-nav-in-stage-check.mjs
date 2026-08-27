@@ -729,7 +729,8 @@ async function main() {
   }
   const overrideNote = process.env.GAMES_DIR_OVERRIDE ? ' (GAMES_DIR_OVERRIDE active)' : '';
   // "game module(s)" overstated this: scannedCount covers every .ts in src/games/ minus
-  // EXCLUDED_FILES, which today means the 6 games PLUS _template.ts and _el.ts. Saying
+  // EXCLUDED_FILES, which today means the 6 games PLUS the _-prefixed helpers that are not
+  // EXCLUDED (_template.ts, _el.ts, _round-start.ts). Saying
   // "game" implied coverage of 8 games when 6 exist (ADR-0019). The count is real; the noun
   // was not. Excluding the two helpers instead would have traded a label for lost coverage.
   //

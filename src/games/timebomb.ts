@@ -346,6 +346,9 @@ const game: GameModule = {
   names: { th: 'ระเบิดเวลา', en: 'Time Bomb' },
   category: 'party',
   players: [2, 10],
+  // A party page: the setup panel starts the round, so the shell reads its `hidden` bit and no
+  // announcement is needed here (gh#121).
+  startsRound: true,
   keywords: ['ระเบิดเวลา', 'เกมส่งมือถือ', 'เกมปาร์ตี้', 'เกมกลุ่มเล่นฟรี', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้',
   seo: {

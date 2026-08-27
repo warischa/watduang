@@ -3,6 +3,7 @@
 import type { GameContext, GameModule } from './types.ts';
 import { armAllButtons, ARM_DELAY_MS } from './_arm-gate.ts';
 import { el } from './_el.ts';
+import { announceRoundStarted } from './_round-start.ts';
 
 // ---- Fortunes + deck: pure and calculable, testable with no DOM (see siamsi.test.mjs) ----
 
@@ -593,16 +594,11 @@ function save(): void {
   );
 }
 
-/** gh#106 — the shell's leave-confirm (src/shell/LeaveConfirm.astro) arms on "a round was STARTED on
- *  this page". On a party page the setup panel's `hidden` carries that bit; ADR-0040's [1, 1] pages
- *  render no panel, so this page is the only thing that knows, and this event is how it says so. Any
- *  game whose solo page starts a round dispatches it — that is what keeps the guard off a page like
- *  daily-fortune, which starts none, without the shell holding a list of game ids. Fired at every
- *  entry into a live round (a fresh start, and a resumed one); the listener latches, so repeats are
- *  free and nothing here has to clear it — the confirm must still ask on the summary screen. */
-function announceRoundStarted(): void {
-  document.dispatchEvent(new CustomEvent('watduang:round-started'));
-}
+// gh#106 / gh#121 — the shell's leave-confirm (src/shell/LeaveConfirm.astro) arms on "a round was
+// started on this page". On a party page the setup panel's `hidden` carries that bit; ADR-0040's
+// [1, 1] pages render no panel, so this page is the only thing that knows, and announceRoundStarted()
+// is how it says so, at every entry into a live round (a fresh start, and a resumed one). The
+// reasoning that made this event exist at all lives in _round-start.ts.
 
 function startRound(): void {
   if (phase !== 'idle') return;
@@ -716,6 +712,9 @@ const game: GameModule = {
   // this module carries it while its content is still the party round. The solo mount hands it a
   // session with no checkpoint, so it sits on the idle screen; the "เสี่ยงเซียมซี" redesign ticket.
   players: [1, 1],
+  // A [1, 1] page renders no #player-setup, so the shell has no bit to read: this module announces
+  // the round itself via announceRoundStarted() (gh#121).
+  startsRound: true,
   keywords: ['เซียมซี', 'ดูดวง', 'เกมส่งมือถือ', 'เกมปาร์ตี้', 'เกมกลุ่มเล่นฟรี', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'ส่งมือถือวนรอบวง คนละใบ ใครได้ดวงอะไรบ้าง',
   seo: {

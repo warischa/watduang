@@ -341,6 +341,9 @@ const game: GameModule = {
   // party-facing screens this module still renders are the gap ADR-0040 names until the redesign
   // ticket replaces its content; the shape is legal and mounts without a start event today.
   players: [1, 1],
+  // One person, one answer, no rounds (ADR-0040) — there is nothing to lose by navigating away, and
+  // that is why the leave-confirm must stay silent here. Never announce a round from this file.
+  startsRound: false,
   keywords: ['ดวงวันนี้', 'วัดดวงวันนี้', 'ดูดวงรายวัน', 'คำทำนายวันนี้', 'เกมส่งมือถือ', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'ใส่ชื่อแล้วรู้ดวงวันนี้ทันที วันนี้กดกี่ครั้งก็ดวงเดิม',
   seo: {
