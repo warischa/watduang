@@ -201,3 +201,20 @@ budget. The leading `!` in the documented command flips it; read the status with
 verdict inverts.
 
 Full probe triage and the per-gate detail: `docs/verification/probe-triage-2026-08-26.md`.
+
+## `driver.mjs`'s `evaluate()` needs an explicit `return`, and a missing one looks like a missing element
+
+`session.evaluate(body)` wraps what you pass as `(async () => { <body> })()` with `awaitPromise: true`
+and `returnByValue: true`. So the body is a **function body, not an expression** — without an explicit
+`return` you get `{ value: null }`, and exceptions come back as `{ error }` rather than being thrown.
+
+Two ways this costs a run:
+
+- Passing a bare IIFE (`(() => { … })()`) reads as a statement whose value is discarded → `{value: null}`.
+- The `{value, error}` wrapper is an object, so comparing the *wrapper* instead of `.value` is always
+  truthy-or-always-falsy. This produced a false "`#start-numbered` not found" against a control that
+  was present and working, and sent a probe hunting a nonexistent setup bug.
+
+Confirm you can read back one trivial value (`return document.title`) before building a measurement on
+top of it. `#start-numbered` starts a round with **no roster names needed** — if it appears absent, suspect
+the return contract before suspecting the page.
