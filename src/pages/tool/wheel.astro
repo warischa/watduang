@@ -340,7 +340,6 @@ import GameNav from '../../components/GameNav.astro';
 
 <script>
   import {
-    pickName,
     landingRotation,
     segmentPath,
     labelGeometry,
@@ -348,7 +347,8 @@ import GameNav from '../../components/GameNav.astro';
     labelText,
     WHEEL_PALETTE,
   } from '../../tools/wheel';
-  import { remainingSlots, slotTokens, type NameSlot } from '../../tools/name-list';
+  import { type NameSlot } from '../../tools/name-list';
+  import { WheelRound } from '../../tools/wheel-round';
 
   const disc = document.getElementById('wheel-disc') as HTMLButtonElement;
   const group = document.querySelector<SVGGElement>('#wheel-group')!;
@@ -372,13 +372,13 @@ import GameNav from '../../components/GameNav.astro';
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  let players: string[] = [];
-  // Who's already out, as ROSTER POSITIONS — never names. Duplicates are allowed in the list on
-  // purpose, so two players who both typed the same name are two slots and each owes a spin; keying
-  // this on the name string took them both out on one pick. Deliberately memory-only, a refresh
-  // starts a fresh round (names survive because the tool's own list is localStorage) — tools never
-  // touch shell/session.ts.
-  const spun = new Set<number>();
+  // The round itself lives in wheel-round.ts: which slots are on the disc, which a spin picks, and
+  // who a reveal eliminates — all keyed on roster position, never on the name string (duplicates
+  // are allowed on purpose, so two players who both typed the same name are two slots and each owes
+  // a spin), and unit-tested there because this file is a page script no test can import.
+  // Deliberately memory-only, a refresh starts a fresh round (names survive because the tool's own
+  // list is localStorage) — tools never touch shell/session.ts.
+  const round = new WheelRound();
   let spinning = false;
   let pressMode = false;
   // Cumulative wheel rotation in degrees, owned by the landing math alone. The final angle is
@@ -391,7 +391,7 @@ import GameNav from '../../components/GameNav.astro';
   let discHoldsReveal = false;
 
   function remaining(): NameSlot[] {
-    return remainingSlots(players, eliminateBox.checked ? spun : new Set<number>());
+    return round.remaining(eliminateBox.checked);
   }
 
   function mode(): 'auto' | 'press' {
@@ -468,9 +468,10 @@ import GameNav from '../../components/GameNav.astro';
 
   function render(): void {
     namesEl.innerHTML = '';
-    for (let i = 0; i < players.length; i++) {
-      const name = players[i]!;
-      const isOut = eliminateBox.checked && spun.has(i);
+    const roster = round.list();
+    for (let i = 0; i < roster.length; i++) {
+      const name = roster[i]!;
+      const isOut = eliminateBox.checked && round.has(i);
       const li = document.createElement('li');
       // State is announced as text, not just color or strikethrough.
       li.textContent = isOut ? `${name} (ออกแล้ว)` : name;
@@ -480,7 +481,7 @@ import GameNav from '../../components/GameNav.astro';
 
     const left = remaining();
     // Spin still works with one person left — the last person deserves their own result like everyone else, not an unannounced leftover.
-    const canSpin = players.length >= 2 && left.length > 0;
+    const canSpin = round.size >= 2 && left.length > 0;
     spinBtn.disabled = spinning || !canSpin;
     disc.disabled = spinBtn.disabled;
     stopBtn.hidden = mode() !== 'press';
@@ -490,15 +491,15 @@ import GameNav from '../../components/GameNav.astro';
     if (spinning) {
       // behaviour B paints its own canvas copy over this, in spin()
       noteEl.textContent = 'กำลังหมุน…';
-    } else if (players.length === 0) {
+    } else if (round.size === 0) {
       noteEl.textContent = 'ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงวงล้อ"';
-    } else if (players.length < 2) {
+    } else if (round.size < 2) {
       // A CTA press with one name reaches this note legitimately — the panel refuses nothing, so this
       // guards the button dying silently (the list is localStorage, so nothing is lost in here).
-      noteEl.textContent = `วงล้อมีชื่อเดียว (${players[0]}) ต้องมีอย่างน้อย 2 ชื่อถึงจะหมุนได้ — รีเฟรชหน้านี้แล้วเลือกชื่อใหม่`;
+      noteEl.textContent = `วงล้อมีชื่อเดียว (${roster[0]}) ต้องมีอย่างน้อย 2 ชื่อถึงจะหมุนได้ — รีเฟรชหน้านี้แล้วเลือกชื่อใหม่`;
     } else if (left.length === 0) {
       // Round over: announce once that everyone's out · #wheel-result still holds the last name as "the result", not a separate answer.
-      noteEl.textContent = `ออกครบทั้ง ${players.length} คนแล้ว — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
+      noteEl.textContent = `ออกครบทั้ง ${round.size} คนแล้ว — กด "คืนทุกชื่อเข้าวงล้อ" เพื่อเริ่มรอบใหม่`;
     } else if (left.length === 1) {
       // States who's left, doesn't decide for the wheel — the word announcing "it's you" is only ever emitted by #wheel-result.
       noteEl.textContent = `เหลือ ${left[0]!.name} คนเดียวในวงล้อ — กด "หมุน" อีกครั้งเพื่อเฉลยคนสุดท้าย`;
@@ -518,7 +519,7 @@ import GameNav from '../../components/GameNav.astro';
     // eliminated", and a player who never asked to eliminate must not be able to uncover three
     // retroactive eliminations by tapping a checkbox. Ticking mid-round still works: spins after
     // the tick are eliminated, spins before it stay on the disc.
-    if (eliminateBox.checked) spun.add(picked.index);
+    round.reveal(picked, eliminateBox.checked);
     discHoldsReveal = true;
     // Reads state at reveal time, not at spin start — the checkbox can be toggled mid-spin.
     // This can only ever say "who got picked", a past fact that never changes · round state (done yet,
@@ -536,14 +537,8 @@ import GameNav from '../../components/GameNav.astro';
   /** The OFFSET into `left` that this spin lands on, or null if nothing can be picked. An offset,
    *  not a name: two slots can carry the same name, so a name cannot say which one was picked. */
   function pickFrom(left: NameSlot[]): number | null {
-    if (left.length === 1) {
-      // One person left = nothing to randomize, but it still has to be revealed as a result.
-      // (pickName deliberately throws below 2 names — a non-random pick doesn't belong forced into that.)
-      return 0;
-    }
     try {
-      // slotTokens are distinct even when the names collide, so the pick inverts back to one slot.
-      return Number(pickName(slotTokens(left)));
+      return round.pickFrom(left);
     } catch (error) {
       // Last line of defense — the button is normally disabled before this, but if this is somehow
       // reached, the user must see the reason as text with a way out, not a silently dead button or
@@ -652,8 +647,7 @@ import GameNav from '../../components/GameNav.astro';
   // channel the shell panel used. The tool stays a listener; its behaviour is untouched.
   document.addEventListener('watduang:start', (event) => {
     cancelPendingSpin();
-    players = (event as CustomEvent<{ players: string[] }>).detail.players;
-    spun.clear();
+    round.start((event as CustomEvent<{ players: string[] }>).detail.players);
     discHoldsReveal = false;
     resultEl.textContent = '';
     rotation = 0;
@@ -672,7 +666,7 @@ import GameNav from '../../components/GameNav.astro';
     group.style.transition = 'none';
     group.style.transform = '';
     rotation = 0;
-    spun.clear();
+    round.reset();
     discHoldsReveal = false;
     resultEl.textContent = '';
     drawWheel(remaining());

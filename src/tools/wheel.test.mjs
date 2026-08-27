@@ -22,6 +22,7 @@ import {
 } from './wheel.ts';
 import { remainingSlots, slotTokens } from './name-list.ts';
 import { drawNames } from './draw.ts';
+import { WheelRound } from './wheel-round.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -227,22 +228,27 @@ test('gh#confirmed-defect: reveal() ต้องไม่วาดวงล้�
 // Elimination used to be keyed on the name string, so two players who both typed "แนน" went out on
 // one pick. Rounds are keyed on ROSTER POSITION now. This driver is the wheel page's round loop with
 // the DOM taken out: same helpers, same pickers, same order of operations as spin() + reveal().
+// It DRIVES WheelRound rather than reimplementing it: every question the loop asks (who is left,
+// which offset a spin lands on, who a reveal takes out) is answered by the shipped class, so a
+// regression inside remaining()/pickFrom()/reveal() reds these tests. A test-side `spun` Set and a
+// local pickName call would only ever prove this file's own arithmetic.
 function runWheelRound(players, random) {
-  const spun = new Set();
+  const round = new WheelRound();
+  round.start(players);
   const reveals = [];
   let rotation = 0;
   while (true) {
-    const left = remainingSlots(players, spun);
+    const left = round.remaining(true);
     if (left.length === 0) break;
     assert.ok(reveals.length <= players.length, 'the round must terminate within one reveal per player');
     // The answer is picked FIRST; the landing angle is derived from its offset (never read back).
-    const offset = left.length === 1 ? 0 : Number(pickName(slotTokens(left), random));
+    const offset = round.pickFrom(left, random);
     const slot = left[offset];
     rotation = landingRotation(rotation, offset, left.length, 4);
     // The disc is drawn from this same `left`, so the pointer must sit on the announced slot.
     assert.equal(nameAtPointer(left.map((s) => s.name), rotation), slot.name, 'pointer/announcement mismatch');
-    spun.add(slot.index);
-    reveals.push({ name: slot.name, isLast: remainingSlots(players, spun).length === 0 });
+    round.reveal(slot, true);
+    reveals.push({ name: slot.name, isLast: round.remaining(true).length === 0 });
   }
   return reveals;
 }
@@ -293,17 +299,49 @@ test('draw: one press of N takes N distinct slots out, duplicates included', () 
   assert.equal(presses, 2, 'two presses of two');
 });
 
-// wheel.astro is a page script — plain node cannot import it, so its positional-elimination wiring
-// is pinned at source-text level (same bargain as the reveal() test above). Restoring the name-keyed
-// Set turns this red. draw.astro no longer needs a source-text pin: its round lives in DrawRound,
-// and draw.test.mjs drives that module directly — a source pin kept alongside a real test would only
-// re-create the false confidence the review found in it (a source pin cannot tell slot.index from
-// players.indexOf(slot.name)).
-test('wheel.astro eliminates by roster position, never by name string', () => {
-  const src = readFileSync(join(here, '..', 'pages', 'tool', 'wheel.astro'), 'utf8');
-  assert.match(src, /const spun = new Set<number>\(\)/, 'the elimination set must hold positions');
-  assert.ok(!/players\.filter\(\(name\)/.test(src), 'no name-keyed filter may survive');
-  assert.ok(!/spun\.has\(name/.test(src), 'nothing may be excluded by name');
+// The round itself now lives in wheel-round.ts (gh#118), so it is driven directly instead of read
+// as source text — a source pin cannot tell slot.index from players.indexOf(slot.name), and draw.ts
+// learned the same lesson first (DrawRound / draw.test.mjs). Mirrors DrawRound's own pin: offset 4
+// (0.85 * 5) is the THIRD "แนน", not the first one at index 1 — a name-lookup mutation
+// (spun.add(this.players.indexOf(picked.name)) instead of spun.add(picked.index)) takes the wrong
+// slot out and this goes red.
+test('WheelRound: หมุนได้สลอตที่ 4 ของชื่อซ้ำ ต้องเอาคนนั้นออก ไม่ใช่คนแรกที่ชื่อเหมือนกัน', () => {
+  const round = new WheelRound();
+  round.start(['บี', 'แนน', 'ซี', 'แนน', 'แนน']);
+  const left = round.remaining(true);
+  const offset = round.pickFrom(left, () => 0.85);
+  const picked = left[offset];
+  assert.equal(picked.index, 4);
+  round.reveal(picked, true);
+  const remainingIdx = round.remaining(true).map((s) => s.index);
+  assert.ok(!remainingIdx.includes(4), 'the slot that was picked must not still be on the disc');
+  assert.ok(remainingIdx.includes(1), 'the OTHER แนน must still be on the disc — the wrong person left');
+  assert.deepEqual(remainingIdx, [0, 1, 2, 3]);
+});
+
+test('WheelRound: วงล้อต้องหมดพอดีเท่าจำนวนสลอต ชื่อซ้ำนับแยกคน', () => {
+  const round = new WheelRound();
+  const players = ['บี', 'แนน', 'ซี', 'แนน', 'แนน'];
+  round.start(players);
+  assert.equal(round.size, players.length, 'no dedupe, no cap — every line is its own slot');
+
+  const takenNames = [];
+  const takenPositions = new Set();
+  let spins = 0;
+  const cycle = [0.85, 0, 0.999999, 0.4];
+  while (round.remaining(true).length > 0) {
+    assert.ok(spins < players.length, 'the disc must empty in one spin per slot');
+    const left = round.remaining(true);
+    const offset = round.pickFrom(left, () => cycle[spins % cycle.length]);
+    const picked = left[offset];
+    round.reveal(picked, true);
+    assert.ok(!takenPositions.has(picked.index), `position ${picked.index} was picked twice`);
+    takenPositions.add(picked.index);
+    takenNames.push(picked.name);
+    spins += 1;
+  }
+  assert.equal(spins, players.length);
+  assert.deepEqual(takenNames.sort(), [...players].sort(), 'แนน must be announced three times, not once');
 });
 
 // Defect 2: at rest AFTER a reveal the disc is frozen on the geometry `rotation` encodes, so the
@@ -326,76 +364,51 @@ test('the eliminate checkbox never redraws a disc that is holding a reveal, and 
 // ---- gh#119: recording is conditional, so it matches the conditional filter -------------------
 // Decision: record only while the eliminate box is checked. Ticking applies FORWARD only — a player
 // who left the box unchecked must never uncover retroactive eliminations by tapping it.
-// The gate is READ OUT OF wheel.astro rather than restated here, so reverting the one-line fix in
-// reveal() turns the four behaviour legs below red too — a driver that hard-coded the gate would
-// stay green against the unfixed page and pin nothing.
-function revealGatesRecording() {
-  const src = readFileSync(join(here, '..', 'pages', 'tool', 'wheel.astro'), 'utf8');
-  const start = src.indexOf('function reveal(');
-  const end = src.indexOf('function pickFrom(');
-  assert.ok(start > -1 && end > start, 'reveal() หรือ pickFrom() หาไม่เจอ — โครงสร้างไฟล์เปลี่ยน');
-  const body = src
-    .slice(start, end)
-    .split('\n')
-    .filter((line) => !line.trim().startsWith('//')) // the comment names the call — a text search cannot tell mention from use
-    .join('\n');
-  assert.match(body, /spun\.add\(picked\.index\)/, 'reveal() must still be the one place a pick is recorded');
-  return /if \(eliminateBox\.checked\) spun\.add\(picked\.index\)/.test(body);
-}
-
-// wheel.astro's round with the DOM taken out: same two halves, the recording gate taken from source.
-function makeRound(players, { gated }) {
-  const spun = new Set();
-  let checked = false;
-  const remaining = () => remainingSlots(players, checked ? spun : new Set());
-  return {
-    tick: () => { checked = true; },
-    onDisc: () => remaining().map((slot) => slot.name),
-    spin(offset) { // offset into the CURRENT disc, exactly what pickFrom() hands reveal()
-      const picked = remaining()[offset];
-      if (!gated || checked) spun.add(picked.index); // reveal(): `if (eliminateBox.checked) spun.add(...)`
-      return picked;
-    },
-  };
-}
+// WheelRound.reveal(picked, gated) is driven directly — the gate lives in the real shipped module
+// (wheel-round.ts), not restated in the test, so reverting the one-line fix there turns the four
+// behaviour legs below red too. `gated` stands in for a reveal-time read of the eliminate checkbox;
+// wheel.astro is the only caller that ever produces it from the DOM.
 
 test('gh#119: three spins with the box unchecked, then ticking it, leaves every name on the disc', () => {
-  const gated = revealGatesRecording();
-  assert.ok(gated, 'reveal() must gate spun.add on eliminateBox.checked — an unchecked box records nothing');
-  const round = makeRound(['เอ', 'บี', 'ซี', 'ดี'], { gated });
-  round.spin(0);
-  round.spin(1);
-  round.spin(1);
-  assert.deepEqual(round.onDisc(), ['เอ', 'บี', 'ซี', 'ดี'], 'unchecked: nothing may leave the disc');
-  round.tick();
+  const round = new WheelRound();
+  round.start(['เอ', 'บี', 'ซี', 'ดี']);
+  for (const offset of [0, 1, 1]) {
+    const left = round.remaining(false); // unchecked: nothing recorded while spinning
+    round.reveal(left[offset], false);
+  }
+  assert.deepEqual(round.remaining(false).map((s) => s.name), ['เอ', 'บี', 'ซี', 'ดี'], 'unchecked: nothing may leave the disc');
   assert.deepEqual(
-    round.onDisc(),
+    round.remaining(true).map((s) => s.name),
     ['เอ', 'บี', 'ซี', 'ดี'],
     'ticking the box must not retroactively eliminate the three picks made while it was unchecked',
   );
 });
 
 test('gh#119: with the box checked throughout, a pick is still eliminated', () => {
-  const round = makeRound(['เอ', 'บี', 'ซี'], { gated: revealGatesRecording() });
-  round.tick();
-  round.spin(0);
-  assert.deepEqual(round.onDisc(), ['บี', 'ซี'], 'the checked box must still take the pick out');
+  const round = new WheelRound();
+  round.start(['เอ', 'บี', 'ซี']);
+  const left = round.remaining(true);
+  round.reveal(left[0], true);
+  assert.deepEqual(round.remaining(true).map((s) => s.name), ['บี', 'ซี'], 'the checked box must still take the pick out');
 });
 
 test('gh#119: ticking mid-round eliminates only the picks made after the tick', () => {
-  const round = makeRound(['เอ', 'บี', 'ซี'], { gated: revealGatesRecording() });
-  const before = round.spin(0); // picked while unchecked — stays
-  round.tick();
-  const after = round.spin(1); // picked while checked — goes
+  const round = new WheelRound();
+  round.start(['เอ', 'บี', 'ซี']);
+  const before = round.remaining(false)[0]; // picked while unchecked — stays
+  round.reveal(before, false);
+  const after = round.remaining(true)[1]; // picked while checked — goes
+  round.reveal(after, true);
   assert.equal(before.name, 'เอ');
   assert.equal(after.name, 'บี');
-  assert.deepEqual(round.onDisc(), ['เอ', 'ซี'], 'only the post-tick pick leaves');
+  assert.deepEqual(round.remaining(true).map((s) => s.name), ['เอ', 'ซี'], 'only the post-tick pick leaves');
 });
 
 test('gh#119: gating the record keeps position-keying — one of two identical names goes, not both', () => {
-  const round = makeRound(['แนน', 'แนน', 'บี'], { gated: revealGatesRecording() });
-  round.tick();
-  const picked = round.spin(0);
+  const round = new WheelRound();
+  round.start(['แนน', 'แนน', 'บี']);
+  const picked = round.remaining(true)[0];
+  round.reveal(picked, true);
   assert.equal(picked.index, 0, 'the first slot was the pick');
-  assert.deepEqual(round.onDisc(), ['แนน', 'บี'], 'the other แนน is a different slot and must survive');
+  assert.deepEqual(round.remaining(true).map((s) => s.name), ['แนน', 'บี'], 'the other แนน is a different slot and must survive');
 });
