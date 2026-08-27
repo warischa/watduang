@@ -52,6 +52,13 @@ let rafId = 0;
 let startedAt = 0;
 let deadline = 0;
 let nextTickAt = 0;
+// gh#77 box7 — prefers-reduced-motion holds off the CSS side trivially (this game declares no
+// animation/transition), but the fuse's per-frame style.width write is JS-driven and CSS media
+// features do not reach it on their own; frame() has to read the query and act on it itself.
+const FUSE_STEP_MS = 250; // reduced-motion cadence: a few coarse updates a second, not every frame
+let prefersReducedMotion = false;
+let reducedMotionMql: MediaQueryList | null = null;
+let nextFuseUpdateAt = 0;
 // The ticking screen's fuse-bar fill — the one live node frame() mutates. Held so frame() never
 // re-queries; cleared on teardown and on the boom screen swap (the fill dies with the ticking screen).
 let fuseFillEl: HTMLElement | null = null;
@@ -212,6 +219,22 @@ function renderBoom(): void {
 
 // ---- Round lifecycle ----
 
+function onReducedMotionChange(e: MediaQueryListEvent): void {
+  prefersReducedMotion = e.matches;
+}
+
+/** Reads the query once at mount and keeps listening for the rest of the page's life — a player who
+ *  flips the OS setting mid-round gets the coarse cadence without a reload. Guarded with `?.` because
+ *  `MediaQueryList.addEventListener` is real-browser-only (the test harness's fake window carries no
+ *  such method); this is a nice-to-have, not a reachability guard, so failing to attach just means no
+ *  live update, never a wrong read of `.matches` itself. */
+function watchReducedMotion(): void {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+  reducedMotionMql = window.matchMedia('(prefers-reduced-motion: reduce)');
+  prefersReducedMotion = reducedMotionMql.matches;
+  reducedMotionMql.addEventListener?.('change', onReducedMotionChange);
+}
+
 function arm(): void {
   if (phase !== 'idle') return;
   const myRound = round;
@@ -237,6 +260,7 @@ function arm(): void {
   startedAt = now;
   deadline = pickDeadline(now);
   nextTickAt = now;
+  nextFuseUpdateAt = now; // first frame always writes; later frames throttle under reduced motion
   wakeWarned = false;
   wasHidden = document.hidden;
 
@@ -267,9 +291,12 @@ function frame(): void {
       if (audioCtx) tick(audioCtx, urgency);
     }
     // The fuse bar is the whole urgency signal. Its width is the remaining fuse, shrinking toward 0
-    // as the deadline nears, and no countdown number appears anywhere. No animation is added on
-    // purpose — the canvas has none, so prefers-reduced-motion holds trivially (exactly as gh#76).
-    if (fuseFillEl) {
+    // as the deadline nears, and no countdown number appears anywhere. This is a per-frame style
+    // write from script, not CSS animation — prefers-reduced-motion does not apply to it on its own
+    // (unlike gh#76's canvas, which declares none). Under the reduce query the information must
+    // survive, so the write itself is throttled to coarse steps instead of removed (gh#77 box7).
+    if (fuseFillEl && now >= nextFuseUpdateAt) {
+      if (prefersReducedMotion) nextFuseUpdateAt = now + FUSE_STEP_MS;
       fuseFillEl.style.width = `${((1 - urgency) * 100).toFixed(1)}%`;
     }
   }
@@ -320,6 +347,7 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
   gameCtx = ctx;
   phase = 'idle';
   on(document, 'visibilitychange', () => handleVisibility(document.hidden));
+  watchReducedMotion();
   renderIdle();
 }
 
@@ -330,6 +358,8 @@ function teardown(): void {
   rafId = 0;
   cleanup.forEach((fn) => fn());
   cleanup = [];
+  reducedMotionMql?.removeEventListener?.('change', onReducedMotionChange);
+  reducedMotionMql = null;
   releaseWake();
   audioCtx?.close().catch(() => {}); // closing the context closes every oscillator/gain audio.ts made
   audioCtx = null;

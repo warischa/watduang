@@ -298,3 +298,73 @@ test('no navigation target (no <a>) renders inside #stage on any screen', (t) =>
     Date.now = realDateNow;
   }
 });
+
+// ---- gh#77 box7: prefers-reduced-motion — the fuse's information must survive, the per-frame
+// style write must not. `window.matchMedia` is swapped per-test (restored in `finally`), since the
+// module-level stub above always reports `matches: false`. ----
+
+test('gh#77: prefers-reduced-motion reduces the fuse write to coarse steps, not once per frame', (t) => {
+  const realDateNow = Date.now;
+  const realMatchMedia = window.matchMedia;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  window.matchMedia = () => ({ matches: true, addEventListener() {}, removeEventListener() {} });
+  const stage = fakeDocument.createElement('div');
+  const ctx = makeCtx(['เอ', 'บี', 'ซี']);
+  try {
+    let fakeNow = 1_700_000_000_000;
+    Date.now = () => fakeNow;
+
+    game.mount(stage, ctx);
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    byId(stage, 'tb-start').click();
+
+    const fuse = findByIdDeep(stage, 'tb-fuse');
+    assert.ok(fuse, 'the ticking screen carries no fuse-bar fill');
+
+    assert.ok(pendingFrame, 'setup: arm() did not schedule a frame');
+    pendingFrame(); // primes the coarse-step clock at the round's start time
+    const primed = fuse.style.width;
+
+    fakeNow += 60; // well inside one coarse step
+    pendingFrame();
+    assert.equal(fuse.style.width, primed, `reduced motion wrote the fuse on a frame 60ms after the last coarse step: ${primed} -> ${fuse.style.width}`);
+
+    fakeNow += 300; // past one coarse step (a few updates per second)
+    pendingFrame();
+    assert.notEqual(fuse.style.width, primed, 'reduced motion never updated the fuse — the player loses the only urgency signal');
+
+    game.dispose();
+  } finally {
+    Date.now = realDateNow;
+    window.matchMedia = realMatchMedia;
+  }
+});
+
+test('gh#77: without prefers-reduced-motion, the fuse still writes on every frame', (t) => {
+  const realDateNow = Date.now;
+  // matches: false is what the module-level stub already reports — no override needed, this pins
+  // the unchanged path against the same reduced-motion code that gates it above.
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  const ctx = makeCtx(['เอ', 'บี', 'ซี']);
+  try {
+    let fakeNow = 1_700_000_000_000;
+    Date.now = () => fakeNow;
+
+    game.mount(stage, ctx);
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    byId(stage, 'tb-start').click();
+
+    const fuse = findByIdDeep(stage, 'tb-fuse');
+    pendingFrame();
+    const w1 = fuse.style.width;
+
+    fakeNow += 60; // well under the reduced-motion coarse step — must still update here
+    pendingFrame();
+    assert.notEqual(fuse.style.width, w1, `full motion should write every frame, not just every coarse step: ${w1} -> ${fuse.style.width}`);
+
+    game.dispose();
+  } finally {
+    Date.now = realDateNow;
+  }
+});

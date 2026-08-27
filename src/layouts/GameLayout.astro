@@ -137,8 +137,10 @@ const howToJsonLd = {
 <style>
   /* gh#76 — the themed game chrome, every value lifted verbatim from design/GamePickLoser.dc.html.
      Colours reference tokens from src/styles/tokens.css (never the literal, except where the brief
-     says no token exists); sizes are the brief's literals, byte for byte. No animation anywhere on
-     purpose — the canvas has none, which is how prefers-reduced-motion holds. Scoped: every selector
+     says no token exists); sizes are the brief's literals, byte for byte. This stylesheet declares no
+     animation or transition, so prefers-reduced-motion holds trivially for THIS scoped CSS — that
+     says nothing about a game module's own JS-driven style writes, which each module must honour
+     itself (gh#77 box7; see timebomb.ts's frame() for the pattern). Scoped: every selector
      here matches only GameLayout's own static markup; the runtime DOM game modules build is styled by
      src/pages/game/[id].astro's is:global sheet instead. */
   /* The shell's page ground — the design renders #fffdf7, which is exactly --color-ground-warm.
