@@ -20,6 +20,7 @@
     "check-node-version": "node -v; major=$(node -p \"process.versions.node.split('.')[0]\"); if [ \"$major\" -lt 22 ]; then echo \"::error::Node major version $major < 22 -- scripts/validate-games.mjs needs built-in .ts type stripping (Node >=22.18).\"; exit 1; fi",
     "no-nav-in-stage-check": "node scripts/no-nav-in-stage-check.mjs --selftest && node scripts/no-nav-in-stage-check.mjs",
     "leave-confirm-check": "node scripts/leave-confirm-check.mjs --selftest && node scripts/leave-confirm-check.mjs",
+    "round-start-announce-check": "node scripts/round-start-announce-check.mjs --selftest && node scripts/round-start-announce-check.mjs",
     "arm-gate-coverage-check": "node scripts/arm-gate-coverage-check.mjs --selftest && node scripts/arm-gate-coverage-check.mjs",
     "stable-exit-markers-check": "node scripts/stable-exit-markers-check.mjs --selftest && node scripts/stable-exit-markers-check.mjs",
     "roster-lock-structure-check": "node scripts/roster-lock-structure-check.mjs --selftest && node scripts/roster-lock-structure-check.mjs",
@@ -30,8 +31,11 @@
     "csp-inline-check": "node scripts/csp-inline-check.mjs --selftest && node scripts/csp-inline-check.mjs",
     "sitemap-tool-pages-check": "missing=''; for tool in wheel draw team number; do grep -q \"/tool/$tool/\" dist/sitemap-0.xml || missing=\"$missing /tool/$tool/\"; done; if [ -n \"$missing\" ]; then echo \"::error::dist/sitemap-0.xml missing:$missing -- tool pages must be discoverable\"; exit 1; fi",
     "crawl-check-gamenav": "node scripts/crawl-check-gamenav.mjs",
+    "party-size-claim-check": "node scripts/party-size-claim-check.mjs",
+    "repo-root-walk-check": "node scripts/repo-root-walk-check.mjs --selftest && node scripts/repo-root-walk-check.mjs",
     "smoke-dist": "bash scripts/smoke-dist.sh",
-    "ci": "npm run check-node-version && npm run validate && npm run check-citations && npm run added-lineno-citation-check && npm run thai-comments && npm run public-orphan-check && npm run no-nav-in-stage-check && npm run leave-confirm-check && npm run arm-gate-coverage-check && npm run stable-exit-markers-check && npm run roster-lock-structure-check && npm run checkpoint-writer-check && npm test && npm run astro-check && npm run build && npm run page-chrome-check && npm run dangling-css-var-check && npm run csp-allowlist-check && npm run csp-inline-check && npm run sitemap-tool-pages-check && npm run crawl-check-gamenav && npm run smoke-dist"
+    "ci-probes": "bash scripts/ci-probes.sh",
+    "ci": "npm run check-node-version && npm run validate && npm run check-citations && npm run added-lineno-citation-check && npm run thai-comments && npm run public-orphan-check && npm run no-nav-in-stage-check && npm run leave-confirm-check && npm run round-start-announce-check && npm run arm-gate-coverage-check && npm run stable-exit-markers-check && npm run roster-lock-structure-check && npm run checkpoint-writer-check && npm run repo-root-walk-check && npm test && npm run astro-check && npm run build && npm run page-chrome-check && npm run dangling-css-var-check && npm run csp-allowlist-check && npm run csp-inline-check && npm run sitemap-tool-pages-check && npm run crawl-check-gamenav && npm run smoke-dist"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.0.0",

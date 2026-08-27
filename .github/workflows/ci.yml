@@ -120,6 +120,13 @@ jobs:
       - name: Leave-confirm stays inert while closed (static check)
         run: node scripts/leave-confirm-check.mjs --selftest && node scripts/leave-confirm-check.mjs
 
+      # gh#121 — the leave-confirm above is only as good as the signal that arms it. GameModule now
+      # requires startsRound, so a new module cannot silently skip the question (astro check reds on
+      # a missing field); this gate enforces the consequence of the answer, including the bypass leg
+      # that forbids spelling the event as a literal. --selftest first, same reason as above.
+      - name: A module that starts a round announces it (gh#121)
+        run: node scripts/round-start-announce-check.mjs --selftest && node scripts/round-start-announce-check.mjs
+
       - name: Every render function gates its buttons (static check)
         run: node scripts/arm-gate-coverage-check.mjs --selftest && node scripts/arm-gate-coverage-check.mjs
 
@@ -134,6 +141,14 @@ jobs:
       # second src/games/*.ts file writes a checkpoint, and says to reopen gh#24, not to build.
       - name: Only one game writes a checkpoint (ADR-0010 trigger)
         run: node scripts/checkpoint-writer-check.mjs --selftest && node scripts/checkpoint-writer-check.mjs
+
+      # A meta-gate over the gates themselves. 14 scripts walk the filesystem; only check-citations
+      # roots its walk at the repo root, and it excludes .claude/worktrees by relative path. The
+      # other 13 are rooted at subdirectories, so a nested checkout is out of reach structurally
+      # rather than by an exclusion list. This fires when a FUTURE gate roots at the repo root
+      # without that exclusion — the case that would silently grade a second copy of the repo.
+      - name: No gate walks from the repo root unguarded (meta-check)
+        run: node scripts/repo-root-walk-check.mjs --selftest && node scripts/repo-root-walk-check.mjs
 
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob.
       # A glob that matches NOTHING is not an error: node prints "# tests 0" and exits 0. So a rename
@@ -233,6 +248,17 @@ jobs:
 
       - name: Smoke test (portability — dist/ must serve standalone, no Azure runtime)
         run: npm run smoke-dist
+
+      # gh#122 — the 7 trustworthy browser probes, finally running somewhere. They sit HERE, after
+      # Build and after every dist-artifact gate, and deliberately inside this same job rather than a
+      # separate one: a separate job would have to rebuild dist/ or ship it as an artifact, and a
+      # probe that measures a regenerated dist/ is not measuring the bytes Deploy below uploads.
+      # The script never builds; it refuses to start without dist/index.html, refuses ports already
+      # in use, and fails loud when no Chrome is present — none of the three can become a skip.
+      # Two of the 7 pass on "nothing moved", so the script runs positive controls that must go RED;
+      # a probe that silently stopped measuring cannot report a green.
+      - name: Browser probes against the deployed artifact (gh#122)
+        run: npm run ci-probes
 
       # Deploy authenticates with Entra ID workload identity federation (OIDC) — this repo stores
       # no deployment token. The federated credential is pinned to the subject
