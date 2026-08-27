@@ -40,8 +40,11 @@ test('gh#94: GameNav names no category — a fourth หมวด needs no nav ed
   for (const slug of slugs) {
     assert.ok(!body.includes(`'${slug}'`) && !body.includes(`"${slug}"`), `GameNav retypes ${slug}`);
   }
-  // It must actually filter on the declared category, not on a hand-written id list.
-  assert.match(navSrc, /g\.category === category/);
+  // gh#125 tried to drop the filter pin below as source spelling, and the REFUTE pass caught the
+  // replacement claim being false: the data test at the bottom filters the manifest in TEST code and
+  // never touches this component, so with the pin gone the component could stop filtering entirely
+  // and every test here would stay green. The pin stays until a rendered-output test exists.
+  assert.match(navSrc, /g\.category === category/, 'GameNav must filter the manifest on g.category');
   for (const g of games) {
     assert.ok(!body.includes(`'${g.id}'`), `GameNav retypes game id ${g.id}`);
   }

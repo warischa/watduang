@@ -1,5 +1,6 @@
 // node --test — no framework, no dependency. gh#87 seams, pinned at the source-text level (no
-// build/dist involved, same bargain as noindex.test.mjs). Two invariants:
+// build/dist involved, same bargain as noindex.test.mjs). One invariant (gh#125 dropped the second,
+// see the note at the bottom of this file):
 //
 //   1. The home page renders every manifest-held string by interpolation. A game name, tagline,
 //      tool name or tool description retyped as a literal in the page is the drift gh#87
@@ -9,10 +10,6 @@
 //      substrings of longer copy ("เกมดูดวงสำหรับวงเพื่อน"), and the pills render labels through
 //      {label} which is asserted directly instead. The <Base …> opening tag is stripped for the
 //      same reason — its owner-mandated description enumerates tool names as prose.
-//   2. The four hub-copy fields gh#87 removed — CategoryMeta.hubHeading / hubBody and
-//      toolsGroup.heading / body — stay removed. Their only reader was the three group cards,
-//      which went in the same change; a field that regrows with zero readers is the dead-schema
-//      hole that removal closed.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -23,8 +20,6 @@ import { tools } from '../tools/manifest.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pageSrc = readFileSync(join(here, 'index.astro'), 'utf8');
-const categoriesSrc = readFileSync(join(here, '..', 'games', 'categories.ts'), 'utf8');
-const toolsManifestSrc = readFileSync(join(here, '..', 'tools', 'manifest.ts'), 'utf8');
 
 // Comments and metadata are exempt from the literal scan: the frontmatter cites canvas copy in
 // quotes and the <Base …> tag carries the owner-mandated title/description that enumerates tool
@@ -73,12 +68,8 @@ test('category labels render through the manifest, never as page literals', () =
   assert.doesNotMatch(pageBody, />\s*สุ่มคนโดน\s*</, 'the literal label must not sit in markup as bare copy');
 });
 
-test('CategoryMeta no longer declares the hub-copy fields gh#87 removed', () => {
-  assert.doesNotMatch(categoriesSrc, /\bhubHeading\s*[:?]/, 'hubHeading must be gone, not commented out');
-  assert.doesNotMatch(categoriesSrc, /\bhubBody\s*[:?]/, 'hubBody must be gone, not commented out');
-});
-
-test('toolsGroup no longer declares the heading and body gh#87 removed', () => {
-  assert.doesNotMatch(toolsManifestSrc, /\bheading\s*:\s*'/, 'toolsGroup.heading must be gone, not commented out');
-  assert.doesNotMatch(toolsManifestSrc, /\bbody\s*:\s*'/, 'toolsGroup.body must be gone, not commented out');
-});
+// gh#125: the two "the field stays removed" bans are gone. A field with no reader is dead schema, not
+// broken behaviour, and these two banned a NAME rather than the harm — `\bbody\s*:\s*'` reds any
+// legitimate new `body:` field anywhere in the tools manifest, so the pin cost more than it protected.
+// The three drift scans above are what actually hold gh#87 criterion 1: if a hub field regrows AND the
+// page starts rendering it, the retyped-literal scan is what sees it.

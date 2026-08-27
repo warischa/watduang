@@ -447,11 +447,29 @@ test('the percentage uses the dedicated 62px step and the arc offset derives fro
   const label = meter.children[0];
   const scoreEl = label.children[0];
   assert.equal(scoreEl.className, 'lm-score', 'the percentage must use the dedicated dominant-type-step class');
-  // The type steps live in the CSS the fake DOM cannot measure: 62px must be the largest font-size in
-  // love-match.css — the percentage is the one big thing on screen.
-  const sizes = [...loveMatchCss.matchAll(/font-size:\s*(\d+)px/g)].map((m) => Number(m[1]));
-  assert.ok(sizes.length > 0, 'love-match.css declares no font-size step');
-  assert.equal(Math.max(...sizes), 62, '62px is not the largest type step on the screen');
+  // The type steps live in the CSS the fake DOM cannot measure. gh#125 restated the invariant: what
+  // matters is not that "62" appears somewhere in the file, but that the LARGEST step on the screen
+  // belongs to .lm-score — the percentage is the one big thing. Parsed per rule (comments stripped
+  // first, so a cited size in prose is not a declaration), so a bigger step added to any other
+  // selector reds this, and renaming the step's value while keeping it dominant does not.
+  const rules = [...loveMatchCss.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .map((m) => ({
+      selectors: m[1].split(',').map((s) => s.trim()),
+      sizes: [...m[2].matchAll(/font-size:\s*(\d+)px/g)].map((s) => Number(s[1])),
+    }))
+    .filter((r) => r.sizes.length > 0);
+  // Positive control: with fewer than two sized rules there is no "largest" to attribute to anyone.
+  assert.ok(rules.length > 1, `love-match.css declares ${rules.length} sized rule(s) — nothing to compare`);
+  // Every rule tied for the largest step must be .lm-score's: reduce-keeps-first hid a rival rule
+  // gaining an EQUAL step (REFUTE on gh#125's conversion).
+  const maxStep = Math.max(...rules.map((r) => Math.max(...r.sizes)));
+  const atMax = rules.filter((r) => Math.max(...r.sizes) === maxStep);
+  for (const r of atMax) {
+    assert.ok(
+      r.selectors.includes('.lm-score'),
+      `the largest type step (${maxStep}px) also belongs to "${r.selectors.join(', ')}" — the percentage must be the one big thing`,
+    );
+  }
   // The arc's dashoffset is derived from the percentage, never hardcoded:
   const score = Number(scoreEl.textContent);
   assert.equal(arcDashOffset(score), Math.round(264 * (1 - score / 100)), 'the offset did not derive from the score');

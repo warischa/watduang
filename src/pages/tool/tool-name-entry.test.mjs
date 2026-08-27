@@ -63,13 +63,46 @@ test('gh#91 the panel is a multi-line name box: one textarea, 20 visible rows, n
 
 // rows= bounds what is VISIBLE, never what fits (ADR-0039: tools carry no ceiling). A slice, a
 // length check or a cap constant in the panel would be the regression, and none of them is a type
-// error or a build break, so this is the only thing that would see it.
-test('gh#91 the name count stays unbounded — the panel never caps, slices or counts the list', () => {
+// error or a build break.
+//
+// gh#125 converted this: the old `/\.slice\(|MAX_|length\s*[<>]=?\s*\d/` ban was a paraphrase pin —
+// `filter((_, i) => i < 50)` caps the list and passes it, while a harmless `.slice()` anywhere in the
+// panel reds it. What is asserted instead is the OUTPUT: the CTA's own handler is extracted and run
+// against 250 typed lines, and the emitted detail.players must carry all 250. Any cap on the path from
+// textarea to event — wherever and however it is spelled — reds this.
+//
+// CEILING: this runs the click handler alone, not the whole island (the island's top-level lines carry
+// TS casts plain node cannot evaluate, and this repo has no .astro harness). The emitted list is what
+// the three tool pages consume, so that is the surface under guard; a cap applied only to the
+// storage-write listener, or a maxlength on the textarea, is out of this test's scope.
+test('gh#91 the name count stays unbounded — 250 typed lines all reach the emitted detail.players', () => {
   const component = read('../../components/ToolNameEntry.astro');
-  assert.doesNotMatch(component, /\.slice\(|MAX_|length\s*[<>]=?\s*\d/, 'the panel gained a ceiling');
   const { parseNameLines } = nameList;
+
+  const needle = "startBtn.addEventListener('click', () => {";
+  const at = component.indexOf(needle);
+  assert.ok(at > 0, 'positive control: the CTA click handler is where the panel emits its list');
+  const open = component.indexOf('{', at + needle.length - 1);
+  const body = component.slice(open + 1, component.indexOf('\n  });', open));
+  assert.match(body, /dispatchEvent/, 'positive control: the extracted handler body is the one that emits');
+
   const many = Array.from({ length: 250 }, (_, i) => `ผู้เล่น${i}`);
-  assert.equal(parseNameLines(many.join('\n')).length, 250, '250 lines must all survive parsing');
+  let emitted = null;
+  const fakeDocument = { dispatchEvent: (e) => { emitted = e; } };
+  // eslint-disable-next-line no-new-func -- the handler body is plain JS; its four free names are injected.
+  new Function('document', 'CustomEvent', 'parseNameLines', 'saveToolNames', 'input', 'storageKey', body)(
+    fakeDocument,
+    CustomEvent,
+    parseNameLines,
+    () => {},
+    { value: many.join('\n') },
+    'watduang:tool:test-names',
+  );
+
+  assert.ok(emitted, 'the CTA handler emitted no event at all');
+  assert.equal(emitted.type, 'watduang:start', 'the emitted channel changed');
+  assert.equal(emitted.detail.players.length, 250, 'the panel capped the list it emits');
+  assert.deepEqual(emitted.detail.players, many, '250 lines must reach the tool page in order, uncapped');
 });
 
 // wheel.astro, draw.astro and team.astro each listen for this one event and read detail.players.

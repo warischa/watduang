@@ -357,7 +357,26 @@ test('the eliminate checkbox never redraws a disc that is holding a reveal, and 
     .split('\n')
     .filter((line) => !line.trim().startsWith('//'))
     .join('\n');
-  assert.match(body, /if \(!spinning && !discHoldsReveal\) drawWheel\(/, 'the redraw must be guarded on both');
+  // gh#125 loosened this: it used to pin the exact string `if (!spinning && !discHoldsReveal)`, so
+  // swapping the two operands or writing `if (!(spinning || discHoldsReveal))` — both semantically
+  // identical — reddened it. What is load-bearing is that BOTH bits gate the redraw, not the order or
+  // the spelling. The guard is taken as the text of the nearest enclosing `if (` before the call, so a
+  // guard split over several lines is read too.
+  const drawAt = body.indexOf('drawWheel(');
+  assert.ok(drawAt > 0, 'the handler no longer redraws at all — this test is watching the wrong shape');
+  const guardAt = body.lastIndexOf('if (', drawAt);
+  assert.ok(guardAt >= 0, 'the redraw is unguarded — a disc holding a reveal gets repainted');
+  const guard = body.slice(guardAt, drawAt);
+  // REFUTE on gh#125's loosening: presence of the two identifiers is not the invariant — an inverted
+  // guard (`if (spinning && discHoldsReveal)`) redraws exactly when it must not, and a non-enclosing
+  // `if` on the line above an unguarded call both passed. The invariant is: the nearest `if` ENCLOSES
+  // the call (no statement boundary between them) and both bits appear NEGATED — as `!x && !y` in
+  // either order, or the de Morgan form `!(x || y)`.
+  assert.ok(!guard.includes('}'), 'the if above the redraw does not enclose it — the call is unguarded');
+  const negatedBoth =
+    /!\s*spinning\b[\s\S]*!\s*discHoldsReveal\b|!\s*discHoldsReveal\b[\s\S]*!\s*spinning\b/.test(guard);
+  const deMorgan = /!\s*\(\s*(spinning\s*\|\|\s*discHoldsReveal|discHoldsReveal\s*\|\|\s*spinning)\s*\)/.test(guard);
+  assert.ok(negatedBoth || deMorgan, 'the redraw must run only when NEITHER spinning nor discHoldsReveal holds');
   assert.ok(!/cancelPendingSpin\(/.test(body), 'cancelPendingSpin() here would swallow the pending reveal');
 });
 
