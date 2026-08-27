@@ -85,6 +85,21 @@ const measure = (root, boxes) => `
     boxes,
   };`;
 
+// The guard-stripping injection is shared by BOTH halves: it used to live only in the tools loop, so
+// the games half of this probe had no positive control at all and a silently-inert games run reported
+// bad:0. Runs after nav because nav drops the injected sheet.
+// ponytail: measured ceiling -- with the guard stripped and the 72-char token, 2 of the 6 game screens
+// go red (timebomb, short-stick: scrollX 405). The other 4 never paint the token wide enough to
+// overflow, so their clean zero is un-calibrated; upgrade path is a per-game arm (inject the token into
+// #stage) if a games regression ever slips through this leg.
+const CONTROL = !!process.env.BREAK_GUARD;
+const stripGuard = (session) =>
+  session.evaluate(`
+    const s = document.createElement('style');
+    s.textContent = '* { overflow-wrap: normal !important; word-break: normal !important; }';
+    document.head.appendChild(s);
+    return true;`);
+
 export default async function (session) {
   const out = [];
   for (const roster of [NAMES, LONG]) {
@@ -96,6 +111,7 @@ export default async function (session) {
         `localStorage.setItem('watduang:roster', ${JSON.stringify(JSON.stringify(roster))}); return true;`,
       );
       await session.nav(`${BASE}/game/${id}/`);
+      if (CONTROL) await stripGuard(session);
       await session.evaluate(`
         const boxes = [...document.querySelectorAll('#roster-list input[type=checkbox]')];
         for (const b of boxes) if (!b.checked) b.click();
@@ -142,15 +158,7 @@ export default async function (session) {
         );
       }
       await session.nav(`${BASE}/tool/${t.id}/`);
-      if (process.env.BREAK_GUARD) {
-        // Positive control: remove the very rule under test, so a clean verdict is one the apparatus
-        // could have failed. Runs after nav because nav drops the injected sheet.
-        await session.evaluate(`
-          const s = document.createElement('style');
-          s.textContent = '* { overflow-wrap: normal !important; word-break: normal !important; }';
-          document.head.appendChild(s);
-          return true;`);
-      }
+      if (CONTROL) await stripGuard(session);
       // Through the trigger, never past it: the CTA is what hands the names over, and its click is
       // what each tool page listens for.
       const handed = await session.evaluate(`
@@ -196,16 +204,25 @@ export default async function (session) {
   const result = {
     token: TOKEN,
     tokenLength: TOKEN.length,
-    breakGuard: !!process.env.BREAK_GUARD,
+    breakGuard: CONTROL,
     checked: out.length + tools.length,
+    checkedGames: out.length,
+    checkedTools: tools.length,
+    // Per half, not one total: the control leg has to prove BOTH detectors can go red, and a single
+    // `bad` count cannot tell 12 tool hits with an inert games half from real coverage.
+    badGames: bad.length,
+    badTools: badTools.length + dead.length,
     bad: bad.length + badTools.length + dead.length,
     badRows: [...bad, ...badTools, ...dead],
     games: out,
     tools,
   };
-  // Throwing is the point: driver.mjs propagates a non-zero exit on a throw, so an overflow is a
-  // red run and not a line of JSON someone has to read.
-  if (result.bad > 0) {
+  // Throwing is the point on a NORMAL run: driver.mjs propagates a non-zero exit on a throw, so an
+  // overflow is a red run and not a line of JSON someone has to read. On the CONTROL run it is the
+  // opposite -- the run must reach here and report what it found, because "exited non-zero" is also
+  // what a watchdog kill, a Chrome death and a page that never loaded look like. The control's
+  // verdict is the JSON below (see ci-probes-verdict.mjs), so an unexercised detector cannot pass.
+  if (result.bad > 0 && !CONTROL) {
     throw new Error(`320px overflow on ${result.bad} screen(s): ${JSON.stringify(result.badRows)}`);
   }
   return result;

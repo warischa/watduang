@@ -1,7 +1,8 @@
 // Site-wide double-tap hazard: every game tap-transitions by calling stage.replaceChildren(), so the
 // screen that lands under the finger is a brand-new node set. If any of those nodes is a navigation
 // target, a double-tap navigates the group off their round mid-game (first CONFIRMED in daily-fortune
-// by scripts/daily-fortune-double-tap-probe.mjs).
+// by docs/verification/evidence/34/12-daily-fortune-tap1-target.json; the one-game probe that produced
+// it was superseded by this file and deleted).
 //
 // Three claims, scored separately — one check per invariant, because they fail for different reasons
 // and only the first two are owned by the in-stage-anchor removal.
@@ -28,6 +29,24 @@
 // every game must report FAIL with an in-stage anchor hit. A green pre-fix run means the harness is
 // measuring nothing and its post-fix green is worthless.
 //
+// That pre-fix build is no longer reachable from this tree, so the same calibration is now available on
+// demand: BREAK_GUARD=1 appends one `<a href="/games/">` INTO #stage after every transition, positioned
+// over the box the finger just used. Claim 0 and claim 1 must BOTH go red under it. A clean run's zeros
+// are only worth reading when that armed run has been seen to report non-zero — a probe whose pass
+// signal is "nothing found" and which has never found anything cannot be told from one that measured
+// nothing (docs/verification/probe-triage-2026-08-26.md).
+//
+// ponytail: COVERAGE CEILING — 4 of the site's 6 games, deliberately. ADR-0040 (2026-08-25) made
+// daily-fortune, love-match and siamsi solo pages ([1, 1]): no PlayerSetup, no #start-round, and an
+// EMPTY group (`soloSession.players = []`, src/pages/game/[id].astro), so none of them renders the
+// roster chips the old walks tapped. daily-fortune's solo screens are the finished ones (its module
+// calls itself "the proving page of the solo class") and it keeps a walk, rewritten against #df-name /
+// #df-go. love-match and siamsi carry party-shaped content on a [1, 1] page pending their own redesign
+// tickets — with an empty group they have no pair to pick and no turn to pass, so a walk there would
+// measure a screen no player sees and be rewritten by that ticket. Both are dropped and named in
+// `notCovered`, so this summary can never be read as site-wide. Static, all-6 coverage of the same
+// invariant lives in scripts/no-nav-in-stage-check.mjs.
+//
 // Run: node scripts/driver.mjs scripts/no-nav-in-stage-probe.mjs
 // (needs `npx serve dist/ -l 4321` and headless Chrome on CDP_PORT — see scripts/driver.mjs's header)
 
@@ -47,6 +66,7 @@ const PLAYERS = [
 // Injected ahead of every walk body. `transition()` samples the tapped control's three points, fires
 // the trigger, then re-reads those same viewport points on the screen that replaced it.
 const HELPERS = `
+  const BREAK_GUARD = ${process.env.BREAK_GUARD ? 'true' : 'false'};
   const stage = document.getElementById('stage');
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const box = (e) => { const r = e.getBoundingClientRect(); return { cx: r.left + r.width / 2, cy: r.top + r.height / 2, top: r.top, bottom: r.bottom }; };
@@ -64,6 +84,11 @@ const HELPERS = `
   }
   async function transition(label, el, trigger) {
     if (!el) return { label, missing: true };
+    // src/games/_arm-gate.ts disables every freshly rendered button for 400ms. An el.click() inside
+    // that window is a silent no-op: the tap array still grows, so the walk keeps its length and reads
+    // as N transitions while the screen never changed. Wait the gate out, and record that we did.
+    let wasDisabled = false;
+    for (let i = 0; i < 20 && el.disabled; i++) { wasDisabled = true; await sleep(60); }
     const g = box(el);
     const pts = [[g.cx, g.cy], [g.cx, g.top + 2], [g.cx, g.bottom - 2]];
     // Every sampled point, not just the centre: the edge samples sit outside the centre row by
@@ -71,7 +96,24 @@ const HELPERS = `
     // were off-screen and silently returning null.
     const inViewport = pts.every(([x, y]) =>
       x >= 0 && x <= window.innerWidth && y >= 0 && y <= window.innerHeight);
+    const htmlBefore = stage.innerHTML;
     if (trigger) { await trigger(); } else { el.click(); await sleep(250); }
+    // Read before the control is injected, or the injection itself would answer this.
+    const changed = stage.innerHTML !== htmlBefore;
+    // Positive control (BREAK_GUARD=1): one real anchor, appended INTO #stage after the transition and
+    // positioned over the box that is about to be sampled. Claim 0 counts it, claim 1's
+    // elementFromPoint lands on it. It adds an intruder, it never disables the rule under test, so a
+    // green here means the detector is inert rather than that the site is clean.
+    if (BREAK_GUARD) {
+      const a = document.createElement('a');
+      a.href = '/games/';
+      a.textContent = 'probe control';
+      a.setAttribute('data-probe-control', '');
+      a.style.cssText = 'position:fixed;left:' + Math.round(g.cx - 20) + 'px;top:' + Math.round(g.top)
+        + 'px;width:60px;height:' + Math.max(8, Math.round(g.bottom - g.top)) + 'px;z-index:99999;';
+      stage.appendChild(a);
+      await sleep(60);
+    }
     const hits = pts.map(([x, y]) => hit(x, y));
     // Claim 0's count, plus how near a miss claim 1 was: the vertical gap between the tapped control
     // and the anchor that replaced its screen. A small positive gap means the same code is one line of
@@ -79,7 +121,7 @@ const HELPERS = `
     const stageAnchors = [...stage.querySelectorAll('a[href]')];
     const first = stageAnchors[0] ? box(stageAnchors[0]) : null;
     return {
-      label, tappedTag: el.tagName, tappedId: el.id || null, inViewport,
+      label, tappedTag: el.tagName, tappedId: el.id || null, inViewport, changed, wasDisabled,
       stageAnchorCount: stageAnchors.length,
       stageAnchor: first
         ? { href: stageAnchors[0].getAttribute('href'), top: Math.round(first.top),
@@ -97,29 +139,25 @@ const HELPERS = `
 
 // One walk per game: every tap-driven transition that game can reach with an 8-name roster.
 // minTransitions guards the other failure mode — a walk that silently did nothing must not read PASS.
+// Solo pages ([1, 1], ADR-0040) have no roster panel and no group, so their walk gets `solo: true`
+// and the runner mounts them by loading the page — the module mounts itself.
+const NOT_COVERED = {
+  'love-match': 'ADR-0040 solo page with an empty group: renders a pick screen with no chips to pick, so it has no tap-driven transition to walk until its "เนื้อคู่" redesign lands.',
+  siamsi: 'ADR-0040 solo page with an empty group: no turn to pass and no summary to reach, so its party-shaped walk measures a screen no player sees until its "เสี่ยงเซียมซี" redesign lands.',
+};
+
 const WALKS = {
   'daily-fortune': {
+    solo: true,
     minTransitions: 2,
+    // Rewritten for the solo screens: the old walk tapped roster chips, and a solo mount gets
+    // `players: []` so renderAsk() appends none. #df-name + #df-go is the only path to the result
+    // screen a real solo player has, and #df-again is the only way back.
     body: `
-      const chips = () => [...stage.querySelectorAll('button')].filter((b) => b.id !== 'df-go');
-      taps.push(await tap('chip(last) -> result', chips().at(-1)));
+      const input = document.getElementById('df-name');
+      if (input) { input.value = 'ทดสอบเอ'; input.dispatchEvent(new Event('input', { bubbles: true })); }
+      taps.push(await tap('#df-go -> result', document.getElementById('df-go')));
       taps.push(await tap('#df-again -> ask', document.getElementById('df-again')));
-      return taps;`,
-  },
-  siamsi: {
-    minTransitions: 18, // start + 8 draws + 8 passes + again
-    body: `
-      taps.push(await tap('#ss-start -> turn', document.getElementById('ss-start')));
-      for (let i = 0; i < 40 && !document.getElementById('ss-again'); i++) {
-        const draw = document.getElementById('ss-draw');
-        if (draw) { taps.push(await tap('#ss-draw -> drawn', draw)); continue; }
-        const pass = document.getElementById('ss-pass');
-        if (!pass) break;
-        const t = await tap('#ss-pass', pass);
-        t.label = document.getElementById('ss-again') ? '#ss-pass -> summary' : '#ss-pass -> turn';
-        taps.push(t);
-      }
-      taps.push(await tap('#ss-again -> idle', document.getElementById('ss-again')));
       return taps;`,
   },
   'pick-loser': {
@@ -164,15 +202,6 @@ const WALKS = {
       taps.push(await tap('#tb-again -> idle', document.getElementById('tb-again')));
       return taps;`,
   },
-  'love-match': {
-    minTransitions: 3,
-    body: `
-      const chips = () => [...stage.querySelectorAll('button')].filter((b) => b.id !== 'lm-reset' && b.id !== 'lm-again');
-      taps.push(await tap('chip(first) -> in-place pick', chips()[0]));
-      taps.push(await tap('chip(last) -> result', chips().at(-1)));
-      taps.push(await tap('#lm-again -> pick', document.getElementById('lm-again')));
-      return taps;`,
-  },
 };
 
 export default async function (session) {
@@ -201,12 +230,17 @@ export default async function (session) {
                staticHubLinks: [...document.querySelectorAll('a[data-stable-exit]')].length,
                setupPanelVisible: !!document.querySelector('#start-round')?.offsetParent };`);
 
-    const ticked = await session.evaluate(`
+    // A solo page has no panel and no checkboxes: [id].astro's `if (isSolo)` branch mounts the module
+    // itself on load, so the only "start" is the navigation already done above. Ticking a roster there
+    // used to throw on the null #start-round, which is how three legs read FAIL with nothing measured.
+    const ticked = walk.solo
+      ? { value: { solo: true, boxCount: 0, allChecked: null } }
+      : await session.evaluate(`
       const boxes = [...document.querySelectorAll('#roster-list input[type=checkbox]')];
       for (const b of boxes) if (!b.checked) b.click();
       return { boxCount: boxes.length, allChecked: boxes.length > 0 && boxes.every((b) => b.checked) };`);
 
-    await session.evaluate(`document.getElementById('start-round').click(); return true;`);
+    if (!walk.solo) await session.evaluate(`document.getElementById('start-round').click(); return true;`);
     await new Promise((r) => setTimeout(r, 900)); // [id].astro awaits a dynamic import before mount()
 
     // Detector calibration (trap 2), read both ways: before the start the panel is visible and #stage is
@@ -224,14 +258,23 @@ export default async function (session) {
       !walked.error &&
       env.value?.innerWidth === 320 &&
       env.value?.seededRosterLength === PLAYERS.length &&
-      env.value?.stageChildren === 0 &&
-      env.value?.setupPanelVisible === true &&
-      ticked.value?.allChecked === true &&
+      // The party half of the calibration (panel visible -> hidden, empty stage -> populated) does not
+      // exist on a solo page: it mounts on load, so #stage already has children and there is no panel
+      // to hide. The half that still reads both ways there is the walk itself — every transition must
+      // have actually changed #stage.
+      (walk.solo
+        ? env.value?.stageChildren > 0 && env.value?.setupPanelVisible === false
+        : env.value?.stageChildren === 0 &&
+          env.value?.setupPanelVisible === true &&
+          ticked.value?.allChecked === true &&
+          started.value?.setupPanelVisible === false) &&
       started.value?.innerWidth === 320 &&
-      started.value?.setupPanelVisible === false &&
       started.value?.stageChildren > 0 &&
       taps.length >= walk.minTransitions &&
-      taps.every((t) => !t.missing);
+      taps.every((t) => !t.missing) &&
+      // A click swallowed by the 400ms arm gate leaves the tap array full-length and the screen
+      // unchanged; that is a walk that measured the same screen N times, not N transitions.
+      taps.every((t) => t.changed === true);
 
     const screensWithStageAnchor = taps.filter((t) => t.stageAnchorCount > 0).length;
     const inStageAnchorHits = taps.filter((t) => t.anchorInStageHit).length;
@@ -283,6 +326,16 @@ export default async function (session) {
   return {
     summary: {
       games: ids.length,
+      // Read by a CI verdict predicate, not decoration: a control leg is only satisfied when
+      // breakGuard is true AND the walks reported the planted anchor. Split per claim, never averaged.
+      breakGuard: !!process.env.BREAK_GUARD,
+      gamesWithUsableWalk: ids.filter((i) => games[i].walkUsable).length,
+      totalTransitions: ids.reduce((n, i) => n + games[i].transitions, 0),
+      totalScreensWithStageAnchor: ids.reduce((n, i) => n + games[i].screensWithStageAnchor, 0),
+      totalInStageAnchorHits: ids.reduce((n, i) => n + games[i].inStageAnchorHits, 0),
+      // The 2 games this run does NOT cover, and why — so no reader can take the lists below as
+      // site-wide. See the ponytail ceiling note in this file's header.
+      notCovered: NOT_COVERED,
       claim0_stageHasNoAnchor: { pass: by('stageHasNoAnchor', 'PASS'), fail: by('stageHasNoAnchor', 'FAIL') },
       claim1_noNavTargetHitInStage: { pass: by('noNavTargetHitInStage', 'PASS'), fail: by('noNavTargetHitInStage', 'FAIL'), inconclusive: by('noNavTargetHitInStage', 'INCONCLUSIVE') },
       claim2_hitNeverInGameNext: { pass: by('hitNeverInGameNext', 'PASS'), fail: by('hitNeverInGameNext', 'FAIL'), inconclusive: by('hitNeverInGameNext', 'INCONCLUSIVE') },

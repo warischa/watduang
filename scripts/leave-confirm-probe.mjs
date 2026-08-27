@@ -2,8 +2,10 @@
 // against a state the author of the leave-confirm guard was not thinking about, and each was confirmed
 // RED on the shipped code before the fix landed:
 //
-//   A. CLOSED-DIALOG INERTNESS, on all 9 pages that render PlayerSetup (6 games + 3 tools, not
-//      /tool/number/). A closed <dialog> must have zero client rects and must not answer
+//   A. CLOSED-DIALOG INERTNESS, on all 6 pages that render #leave-confirm — the game pages, since
+//      gh#106 moved the dialog out of PlayerSetup and into GameLayout (it was "6 games + 3 tools" when
+//      this probe was written, on the false premise that tool pages mount it too; see NOT_SCANNED).
+//      A closed <dialog> must have zero client rects and must not answer
 //      elementFromPoint anywhere. tokens.css set `display: flex` on #leave-confirm unconditionally,
 //      which beats the UA's `dialog:not([open]) { display: none }` — so the closed dialog painted a
 //      178px panel with two live buttons on every one of those pages, and #leave-go there is an
@@ -12,7 +14,8 @@
 //      genuinely open (showModal) and must find the buttons, then again after close() and must not.
 //      A run whose positive control finds nothing is void, not a pass.
 //
-//   B. POST-DISMISS INERTNESS, on all 6 game pages. Open the guard with a REAL tap on a GameNav link,
+//   B. POST-DISMISS INERTNESS, on the 3 party game pages (ROUND_PAGES — the guard only arms where a
+//      round starts on the page; see NOT_ARMED). Open the guard with a REAL tap on a GameNav link,
 //      dismiss it with the safe branch, then tap (i) the same coordinate, (ii) where #leave-go sat
 //      while open, (iii) where #leave-go sits now. location.pathname must survive all three.
 //      Then the pendingHref check, which has no direct observable: re-open the dialog from the probe
@@ -25,7 +28,7 @@
 //      one on each side of the split — and the point-to-rect clearance to #leave-go is measured for
 //      both. Real anchoring keeps both large; UA-centred anchoring collapses them.
 //
-//   D. MODIFIED CLICKS PASS THROUGH, on all 6 game pages. cmd/ctrl/shift/middle on a sibling game is
+//   D. MODIFIED CLICKS PASS THROUGH, on the same 3 ROUND_PAGES as B/C. cmd/ctrl/shift/middle on a sibling game is
 //      the round-PRESERVING gesture — it opens a second tab. The guard intercepted it and then
 //      answered with location.href, turning it into the round-killing one. Calibrated in the same
 //      pass: the plain click on the same link must still be intercepted, or the guard was simply off.
@@ -47,8 +50,33 @@ const PLAYERS = [
   'แพรวพราวสาวน้อย',
 ];
 
-const GAME_PAGES = ['timebomb', 'siamsi', 'pick-loser', 'short-stick', 'daily-fortune', 'love-match'];
-const TOOL_PAGES = ['draw', 'team', 'wheel'];
+// Assertion A's set: every page that RENDERS #leave-confirm. Since gh#106 that is GameLayout's job,
+// unconditionally, so all 6 game pages carry the dialog — including the three ADR-0040 solo ones
+// (verified against the build: `grep -c 'id="leave-confirm"' dist/game/*/index.html` is 1 on all six).
+const DIALOG_PAGES = ['timebomb', 'siamsi', 'pick-loser', 'short-stick', 'daily-fortune', 'love-match'];
+
+// /tool/draw|team|wheel/ used to be scanned here on the assumption that they mount the same dialog.
+// They never did: the tools render ToolNameEntry, not PlayerSetup, and since gh#106 the dialog comes
+// from GameLayout, which tool pages do not use — "Tool pages stay unguarded by not rendering this
+// component at all — ADR-0015's own reason, 'there is no round to lose there'". Scanning them produced
+// three ERROR rows on a null #leave-confirm (docs/verification/probe-triage-2026-08-26.md), i.e. an
+// assertion about a dialog that was never built. Dropped, not fixed: there is nothing there to assert.
+const NOT_SCANNED = {
+  '/tool/draw/': 'renders no #leave-confirm by design (GameLayout mounts the guard; tool pages are not games — ADR-0015)',
+  '/tool/team/': 'renders no #leave-confirm by design (same)',
+  '/tool/wheel/': 'renders no #leave-confirm by design (same)',
+  '/tool/number/': 'renders no #leave-confirm and no name entry at all',
+};
+
+// Assertions B/C/D need an ARMED guard, which needs a round started ON this page. ponytail: the 3
+// party pages only, and the reason is the guard's own predicate rather than a shortcut —
+// LeaveConfirm.astro latches on #player-setup going hidden (party) or on ROUND_STARTED_EVENT (solo).
+const ROUND_PAGES = ['timebomb', 'pick-loser', 'short-stick'];
+const NOT_ARMED = {
+  'daily-fortune': 'startsRound: false — LeaveConfirm.astro never arms here ("daily-fortune and the current love-match never start one"), so there is no armed guard for B/C/D to measure. Assertion A above still covers the page.',
+  'love-match': 'startsRound: false — same. Assertion A above still covers the page.',
+  siamsi: 'startsRound: true on a [1, 1] page — the guard DOES arm here, via ROUND_STARTED_EVENT, but reaching that state needs the solo idle screen its own redesign ticket is about to replace. UNCOVERED gap, not a by-design N/A: B/C/D are unmeasured on this page.',
+};
 
 // rectOf reports getClientRects().length alongside the box: a display:none element still answers
 // getBoundingClientRect() with all-zero, but an element that is merely empty does too, and only the
@@ -192,14 +220,25 @@ export default async function (session) {
 
   // ---- A: closed-dialog inertness on all 9 PlayerSetup pages -------------------------------------
   const closedDialog = {};
-  const urls = [
-    ...GAME_PAGES.map((id) => `/game/${id}/`),
-    ...TOOL_PAGES.map((id) => `/tool/${id}/`),
-  ];
+  const urls = DIALOG_PAGES.map((id) => `/game/${id}/`);
   for (const url of urls) {
     await session.nav(`${base}${url}`);
     await session.setWidth(320, 900);
     await session.nav(`${base}${url}`); // re-load at the emulated size so the layout is the real one
+    // Positive control (BREAK_GUARD=1): re-plant the exact defect this assertion was written against —
+    // tokens.css set `display: flex` on #leave-confirm unconditionally, beating the UA's
+    // `dialog:not([open]) { display: none }`, so the CLOSED dialog painted a 178px panel with two live
+    // buttons. Assertion A must go FAIL on every page under it. Without this leg, "no stray buttons
+    // found" is indistinguishable from "nothing was scanned" — the false-green shape this whole round
+    // of work exists to remove. It plants a defect; it never disables the detector.
+    if (process.env.BREAK_GUARD) {
+      await session.evaluate(`
+        const s = document.createElement('style');
+        s.setAttribute('data-probe-control', '');
+        s.textContent = '#leave-confirm { display: flex !important; }';
+        document.head.appendChild(s);
+        return true;`);
+    }
     const r = await session.evaluate(CLOSED_DIALOG);
     const v = r.value;
     closedDialog[url] = v
@@ -227,7 +266,7 @@ export default async function (session) {
 
   // ---- B + C: post-dismiss inertness and boundary clearance, on every game page -------------------
   const perGame = {};
-  for (const id of GAME_PAGES) {
+  for (const id of ROUND_PAGES) {
     const started = await startRound(session, base, id);
     if (!started.roundLive) {
       perGame[id] = { roundLive: false, started, verdictB: 'VOID', verdictC: 'VOID' };
@@ -464,6 +503,17 @@ export default async function (session) {
   return {
     summary: {
       pagesScanned: urls.length,
+      // Judged by a CI predicate, not by the exit code: the control leg is satisfied only when
+      // breakGuard is true AND every page reported a stray button, and the clean leg only when every
+      // page's own two-way calibration (detectorCalibrated) found the buttons while open.
+      breakGuard: !!process.env.BREAK_GUARD,
+      assertionA_pagesWithCalibratedDetector: Object.values(closedDialog).filter((v) => v.detectorCalibrated).length,
+      assertionA_pagesWithStrayButtons: Object.values(closedDialog).filter(
+        (v) => v.buttonHitsWhileClosed > 0 || v.buttonHitsInFormerBoxAfterClose > 0,
+      ).length,
+      assertionBCD_pagesMeasured: ROUND_PAGES,
+      assertionBCD_pagesNotMeasured: NOT_ARMED,
+      pagesWithNoDialogByDesign: NOT_SCANNED,
       assertionA_closedDialogInert: closedVerdicts,
       assertionB_postDismissInert: Object.fromEntries(
         Object.entries(perGame).map(([k, v]) => [k, v.verdictB]),

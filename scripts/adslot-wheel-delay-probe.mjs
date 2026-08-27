@@ -66,21 +66,54 @@ async function runOnce(session) {
   await session.nav(url);
   await session.setWidth(WIDTH, 1400);
   await session.wipe();
-  await session.evaluate(`localStorage.setItem('watduang:roster', ${JSON.stringify(JSON.stringify(LONG_NAMES))}); return true;`);
-  await session.nav(url); // reload same tab so PlayerSetup reads the seeded roster (driver.mjs trap #3/#4)
+  // /tool/wheel/ takes its names from its OWN panel (src/components/ToolNameEntry.astro): a per-tool
+  // localStorage key read on render, then #name-start dispatching `watduang:start`. It has never
+  // rendered PlayerSetup's #roster-list / #start-round, so the previous seeding here was a no-op —
+  // #wheel-spin stayed `disabled`, all 5 repeats returned "wheel-spin click never fired", and the run
+  // still exited 0 (docs/verification/probe-triage-2026-08-26.md).
+  await session.evaluate(`localStorage.setItem('watduang:tool:wheel-names', ${JSON.stringify(JSON.stringify(LONG_NAMES))}); return true;`);
+  await session.nav(url); // reload same tab so ToolNameEntry reads the seeded list on its own render()
   await session.setWidth(WIDTH, 1400);
-  await session.evaluate(`
-    const boxes = [...document.querySelectorAll('#roster-list input[type=checkbox]')];
-    for (const b of boxes) if (!b.checked) b.click();
-    document.getElementById('start-round').click();
-    return true;`);
+  const start = await session.evaluate(`
+    const btn = document.getElementById('name-start');
+    if (!btn) return { missing: true };
+    btn.click();
+    return { missing: false };`);
+  if (start.error) return { error: start.error };
+  if (start.value?.missing) return { error: '#name-start not found — the tool name panel did not render' };
   await sleep(600);
+  // Liveness, checked before anything is measured: a `disabled` #wheel-spin swallows the real touch and
+  // every number below would be a reading of a screen that never changed.
+  const armed = await session.evaluate(`
+    const b = document.getElementById('wheel-spin');
+    return { present: !!b, disabled: b ? b.disabled : null,
+             names: document.querySelectorAll('#wheel-names li').length };`);
+  if (armed.error) return { error: armed.error };
+  if (!armed.value.present) return { error: '#wheel-spin not found' };
+  if (armed.value.disabled) return { error: `#wheel-spin is still disabled after the name list loaded (${armed.value.names} names rendered) — nothing can be measured` };
+  if (armed.value.names !== LONG_NAMES.length) return { error: `#wheel-names rendered ${armed.value.names} rows, expected ${LONG_NAMES.length} — the seeded list is not what the tool is showing` };
 
   const rm = await session.evaluate(`return window.matchMedia('(prefers-reduced-motion: reduce)').matches;`);
   if (rm.error) return { error: rm.error };
 
   const setup = await session.evaluate(`
     document.getElementById('wheel-eliminate').click();
+    // Positive control (BREAK_GUARD=1): on the measured spin, lift .ad-slot until it covers
+    // #wheel-reset's pre-tap box, so overlapWindow MUST report resetBtn_covered_by_ad. That is the
+    // shape of the hazard being measured — a tappable target arriving where another one was — and it
+    // is planted, never a disabled detector. Without it, a false tappableTargetCollision cannot be
+    // told apart from a probe that sampled nothing, which is exactly how this file read green while
+    // every one of its runs was erroring.
+    if (${process.env.BREAK_GUARD ? 'true' : 'false'}) {
+      document.getElementById('wheel-spin').addEventListener('click', () => {
+        const ad = document.querySelector('.ad-slot');
+        const reset = document.getElementById('wheel-reset');
+        if (!ad || !reset) return;
+        const a = ad.getBoundingClientRect();
+        const r = reset.getBoundingClientRect();
+        ad.style.transform = 'translateY(-' + ((a.top - r.top) + 20) + 'px)';
+      });
+    }
     window.__probe = { tTap: null, tMutation: null, samples: [] };
     function rectOf(el) {
       if (!el) return null;
@@ -110,9 +143,12 @@ async function runOnce(session) {
       if (window.__probe.tTap === null) window.__probe.tTap = performance.now();
     }, { capture: true });
     const t0 = performance.now();
+    // Must outlast the reveal: wheel.astro's SPIN_MS is 2000 (it was 1200 when this probe was written,
+    // and this window was 2200), so reveal() lands ~2060ms AFTER the tap, which itself happens after t0.
+    // A window that closes first reports shrinkNeverObserved on a shrink that did happen.
     function loop() {
       window.__probe.samples.push(snap());
-      if (performance.now() - t0 < 2200) requestAnimationFrame(loop);
+      if (performance.now() - t0 < 4000) requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
     const r = document.getElementById('wheel-spin').getBoundingClientRect();
@@ -122,7 +158,7 @@ async function runOnce(session) {
   const { cx, cy } = setup.value;
 
   await session.tap(cx, cy); // real touch (Input.dispatchTouchEvent) — proves the handler actually fires
-  await sleep(2400); // covers the 2200ms in-page sampling window + margin
+  await sleep(4300); // covers the 4000ms in-page sampling window + margin
 
   const result = await session.evaluate(`
     const p = window.__probe;
@@ -168,6 +204,16 @@ export default async function (session) {
   return {
     width: WIDTH,
     repeat: REPEAT,
+    // TOP LEVEL on purpose: scripts/driver.mjs fails a run on `out.anyRunErrored`, and this probe kept
+    // the flag one level down in `summary`, so the check written for exactly this file could not see it
+    // and a sweep where all 5 runs errored still exited 0. Both are reported; this is the one driver.mjs
+    // reads.
+    anyRunErrored: runs.some((r) => r.error),
+    breakGuard: !!process.env.BREAK_GUARD,
+    // Liveness, split out so no reader has to infer it: how many runs actually observed the shrink and
+    // reported a collision. A `false` collision verdict from 0 observed shrinks measures nothing.
+    runsWithShrinkObserved: okRuns.filter((r) => r.shrinkNeverObserved === false).length,
+    runsWithCollision: okRuns.filter((r) => r.tappableTargetCollision).length,
     runs,
     summary: {
       delayMsStats: stats(delays),

@@ -132,4 +132,15 @@ if (out === undefined || out === null) {
 }
 
 console.log(JSON.stringify(out, null, 2));
+
+// The two checks above catch a probe that THREW and a probe that returned nothing. Neither can see a
+// probe that ran, failed internally, and reported it in its own output: adslot-wheel-delay-probe.mjs
+// sets `anyRunErrored: true` when every one of its runs errored, and that whole sweep exited 0 --
+// recorded in docs/verification/probe-triage-2026-08-26.md as the reason a false green was possible.
+// The output is printed first on purpose, so a red run still shows which run errored.
+if (out.anyRunErrored) {
+  console.error('driver: probe reported anyRunErrored:true -- treating as failure');
+  process.exit(1);
+}
+
 process.exit(0);

@@ -48,6 +48,23 @@ async function settledAdTop(session) {
   return { value: r.value };
 }
 
+// BREAK_GUARD=1 arms a positive control: the trigger this leg is about to click also prepends a 200px
+// block above the ad slot, so the before/after pair MUST report a ~200px delta. A 0px verdict from a
+// probe that has never reported a non-zero delta is indistinguishable from a probe that measured
+// nothing (docs/verification/probe-triage-2026-08-26.md: two probes reported 0 while never firing
+// their trigger at all). scripts/ci-probes.sh runs this leg and fails if it does NOT go red.
+// It never touches the rule under test -- it is a synthetic mover, not a disabled guard.
+const armPositiveControl = (session, triggerId) =>
+  session.evaluate(`
+    const t = document.getElementById(${JSON.stringify(triggerId)});
+    if (!t) return false;
+    t.addEventListener('click', () => {
+      document.querySelector('.ad-slot')
+        ?.insertAdjacentHTML('beforebegin', '<div data-probe-control style="height:200px"></div>');
+    });
+    return true;
+  `);
+
 async function measureNameEntryPage(session, path, width) {
   const url = `${BASE}${path}`;
   await session.nav(url);
@@ -69,6 +86,7 @@ async function measureNameEntryPage(session, path, width) {
   if (before.error) return { path, width, verdict: 'FAIL(unmeasurable)', reason: before.error };
   if (before.value === null) return { path, width, verdict: 'FAIL(unmeasurable)', reason: '.ad-slot not found before' };
 
+  if (process.env.BREAK_GUARD) await armPositiveControl(session, 'name-start');
   const startClick = await session.evaluate(`
     const btn = document.getElementById('name-start');
     if (!btn) return { missing: true };
@@ -106,6 +124,7 @@ async function measureNumberPage(session, width) {
   if (before.error) return { path, width, verdict: 'FAIL(unmeasurable)', reason: before.error };
   if (before.value === null) return { path, width, verdict: 'FAIL(unmeasurable)', reason: '.ad-slot not found before' };
 
+  if (process.env.BREAK_GUARD) await armPositiveControl(session, 'number-go');
   const setup = await session.evaluate(`
     const min = document.getElementById('number-min');
     const max = document.getElementById('number-max');
