@@ -150,6 +150,21 @@ const RULE3_EXEMPTIONS = new Map([
   ],
 ]);
 
+// ADR-0045 latent gap 1: the workflow reader was blind to a step's sibling keys, so a gate step
+// placed behind `if:` or `continue-on-error:` kept rules 2/3 green while losing real coverage.
+// GitHub owns the set of execution-modifying keys (if, continue-on-error, needs, matrix, reusable
+// workflows, concurrency-cancel, path filters -- and it can add more), so per-key patching never
+// converges. This inverts it: a step's sibling key is safe ONLY if it is named here; anything else
+// beside a `run:` step is treated as capable of gating whether that step executes at all. Every
+// entry below is safe because it changes cosmetics or HOW the step runs, never WHETHER it runs.
+const SAFE_STEP_SIBLING_KEYS = new Set([
+  'name', // step label, purely cosmetic
+  'id', // reference id for other steps (e.g. steps.swa_token.outputs.*), does not gate this step
+  'env', // env vars visible to `run:`, does not gate whether it runs
+  'shell', // interpreter `run:` uses, does not gate whether it runs
+  'working-directory', // cwd for `run:`, does not gate whether it runs
+]);
+
 // ---------------------------------------------------------------------------
 // Pure: package.json scripts text -> the set of gate scripts it references. No IO here so the
 // selftest can feed synthetic scripts blocks directly.
@@ -167,35 +182,94 @@ export function scriptFilesInCommand(command) {
   return [...new Set([...command.matchAll(/\bnode\s+scripts\/([\w-]+\.mjs)/g)].map((m) => m[1]))];
 }
 
+/** Consumes a (possibly block-scalar) `run:` value starting at `lines[i]`'s own `key: rest` split,
+ * returning `{ command, lastIndex }` -- `lastIndex` is the last line the value occupied, so the
+ * caller's loop can skip past it. Shared by workflowSteps' single forward pass. */
+function collectRunCommand(lines, i, rawValue, keyIndent) {
+  const inline = rawValue.trim();
+  if (inline && !/^[|>][-+]?\d*$/.test(inline)) {
+    return { command: inline, lastIndex: i };
+  }
+  const body = [];
+  while (i + 1 < lines.length) {
+    const next = lines[i + 1];
+    if (next.trim() !== '' && next.match(/^[ \t]*/)[0].length <= keyIndent) break;
+    body.push(next);
+    i++;
+  }
+  return { command: body.join('\n'), lastIndex: i };
+}
+
 /**
- * Every command a `run:` step in the workflow executes, one string per step. A line-based read of
- * the `run:` keys, NOT a YAML parse (no yaml dependency in this repo, and a parse would still have to
- * walk jobs/steps to find them). Block scalars (`run: |`) are collected as one multi-line command,
- * because rule 3's `&&` chain must live inside ONE step: treating the whole workflow as a single blob
- * would let `--selftest` in step 7 satisfy a bare invocation in step 12.
+ * Every YAML sequence item shaped like a workflow step (a `- key: ...` list item, whatever key sits
+ * under it -- this reader does not track which top-level key owns the list, same discipline as the
+ * old `run:`-only scan) that carries a `run:` key, as `{ command, guardedKeys }`. A line-based read,
+ * NOT a YAML parse (no yaml dependency in this repo). Block scalars (`run: |`) are collected as one
+ * multi-line command, because rule 3's `&&` chain must live inside ONE step: treating the whole
+ * workflow as a single blob would let `--selftest` in step 7 satisfy a bare invocation in step 12.
+ *
+ * `guardedKeys` is every OTHER key found at the step's own indent (before or after `run:`, order does
+ * not matter -- one Set accumulates across the whole step) that is not on SAFE_STEP_SIBLING_KEYS.
+ * ADR-0045 latent gap 1: `if:` and `continue-on-error:` are exactly the keys this closes over.
  */
-export function workflowRunCommands(workflowText) {
+export function workflowSteps(workflowText) {
   const lines = workflowText.split('\n');
-  const commands = [];
+  const steps = [];
+  let cur = null;
+  const flush = () => {
+    if (cur && cur.command !== undefined) {
+      const guardedKeys = [...cur.keys].filter((k) => k !== 'run' && !SAFE_STEP_SIBLING_KEYS.has(k)).sort();
+      steps.push({ command: cur.command, guardedKeys });
+    }
+    cur = null;
+  };
+  const takeKey = (line, keyIndent) => {
+    const kv = /^([\w-]+):[ \t]*(.*)$/.exec(line);
+    if (!kv) return;
+    cur.keys.add(kv[1]);
+    if (kv[1] === 'run') return kv[2];
+    return undefined;
+  };
   for (let i = 0; i < lines.length; i++) {
-    const m = /^(\s*)(?:-\s+)?run:[ \t]*(.*)$/.exec(lines[i]);
-    if (!m) continue;
-    const indent = m[1].length;
-    const inline = m[2].trim();
-    if (inline && !/^[|>][-+]?\d*$/.test(inline)) {
-      commands.push(inline);
+    const line = lines[i];
+    const dash = /^(\s*)-\s+(.*)$/.exec(line);
+    if (dash && (!cur || dash[1].length <= cur.dashIndent)) {
+      flush();
+      cur = { dashIndent: dash[1].length, keyIndent: dash[1].length + 2, keys: new Set(), command: undefined };
+      const runVal = takeKey(dash[2], cur.keyIndent);
+      if (runVal !== undefined) {
+        const r = collectRunCommand(lines, i, runVal, cur.keyIndent);
+        cur.command = r.command;
+        i = r.lastIndex;
+      }
       continue;
     }
-    const body = [];
-    while (i + 1 < lines.length) {
-      const next = lines[i + 1];
-      if (next.trim() !== '' && next.match(/^[ \t]*/)[0].length <= indent) break;
-      body.push(next);
-      i++;
+    if (!cur || line.trim() === '') continue;
+    const indent = line.match(/^[ \t]*/)[0].length;
+    if (indent < cur.keyIndent) {
+      flush(); // dedent out of the step (defensive; not observed in this repo's real workflow)
+      continue;
     }
-    commands.push(body.join('\n'));
+    if (indent === cur.keyIndent) {
+      const runVal = takeKey(line.slice(cur.keyIndent), cur.keyIndent);
+      if (runVal !== undefined) {
+        const r = collectRunCommand(lines, i, runVal, cur.keyIndent);
+        cur.command = r.command;
+        i = r.lastIndex;
+      }
+    }
+    // indent > keyIndent: nested content under some other key (with:/env: sub-mapping) -- ignored,
+    // same bound this reader already discloses for anything past a `run:` line's own text.
   }
-  return commands;
+  flush();
+  return steps;
+}
+
+/** Back-compat shape: every `run:` step's command text, one string per step, same order as
+ * workflowSteps -- every existing caller that only needs the command (not its guarded keys) keeps
+ * working unchanged. */
+export function workflowRunCommands(workflowText) {
+  return workflowSteps(workflowText).map((s) => s.command);
 }
 
 /** scriptFile -> Set(npm entry names whose command references it). */
@@ -215,7 +289,10 @@ export function reachableEntryNames(entryNames, ciCommand) {
   if (!ciCommand) return [];
   return [...entryNames].filter((name) => {
     const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return new RegExp(`npm run ${escaped}(?![\\w-])`).test(ciCommand);
+    // `:` excluded too (ADR-0045 latent gap 4): without it, an entry named e.g. `check` matched
+    // inside `npm run check:all` -- npm's own colon-namespaced script convention, not a word
+    // boundary the original lookahead accounted for.
+    return new RegExp(`npm run ${escaped}(?![\\w:-])`).test(ciCommand);
   });
 }
 
@@ -230,19 +307,33 @@ export function isReachableFromCI(entryNames, ciCommand) {
  * workflow `run:` commands that invoke `node scripts/X.mjs` themselves (the house shape in ci.yml).
  * Every rule-2 and rule-3 verdict is derived from this one shape, so the two rules can never disagree
  * about who runs what.
+ *
+ * `workflowSteps` is workflowSteps()'s `{command, guardedKeys}[]` shape, not plain strings. ADR-0045
+ * latent gap 1: a step whose `guardedKeys` is non-empty (an `if:`/`continue-on-error:`/any other
+ * sibling key not on SAFE_STEP_SIBLING_KEYS) does NOT count toward workflowDirect/workflowEntryNames
+ * — it is collected into `workflowGated` instead, so rule 2 can name it as the specific reason,
+ * distinct from "no step reaches this at all".
  */
-export function computeReach(file, entryNames, ciCommand, workflowCommands) {
+export function computeReach(file, entryNames, ciCommand, workflowSteps) {
   const names = [...entryNames];
   const workflowEntryNames = new Set();
   const workflowDirect = [];
-  for (const cmd of workflowCommands) {
-    if (scriptFilesInCommand(cmd).includes(file)) workflowDirect.push(cmd);
-    for (const name of reachableEntryNames(names, cmd)) workflowEntryNames.add(name);
+  const workflowGated = [];
+  for (const { command, guardedKeys } of workflowSteps) {
+    const direct = scriptFilesInCommand(command).includes(file);
+    const viaEntries = reachableEntryNames(names, command);
+    if (guardedKeys.length) {
+      if (direct || viaEntries.length) workflowGated.push({ command, guardedKeys });
+      continue;
+    }
+    if (direct) workflowDirect.push(command);
+    for (const name of viaEntries) workflowEntryNames.add(name);
   }
   return {
     ciEntryNames: reachableEntryNames(names, ciCommand),
     workflowEntryNames: [...workflowEntryNames],
     workflowDirect,
+    workflowGated,
   };
 }
 
@@ -267,7 +358,18 @@ export function auditRule2(file, entryNames, reach, exemptions = RULE2_EXEMPTION
   if (exemptReason) return { ok: true, detail: `exempted: ${exemptReason}` };
   const missing = [];
   if (!npmSide) missing.push("package.json's `scripts.ci` aggregate (what a developer runs locally) never chains it");
-  if (!workflowSide) missing.push('.github/workflows/ci.yml (what gates the deploy) has no `run:` step that executes it — the workflow never runs `npm run ci`, so being in that aggregate buys nothing here');
+  if (!workflowSide) {
+    const gated = reach.workflowGated || [];
+    if (gated.length) {
+      const keys = [...new Set(gated.flatMap((g) => g.guardedKeys))].sort().join(', ');
+      missing.push(
+        `.github/workflows/ci.yml only reaches it through step(s) carrying an execution-modifying sibling key not on SAFE_STEP_SIBLING_KEYS (${keys}) — ` +
+          'ADR-0045 latent gap 1: a step behind `if:`/`continue-on-error:` (or any other unlisted key) does not unconditionally execute, so it is not counted as reachable',
+      );
+    } else {
+      missing.push('.github/workflows/ci.yml (what gates the deploy) has no `run:` step that executes it — the workflow never runs `npm run ci`, so being in that aggregate buys nothing here');
+    }
+  }
   return {
     ok: false,
     detail:
@@ -315,7 +417,11 @@ export function auditRule3(file, reach, scripts, exemptions = RULE3_EXEMPTIONS) 
  * clean, and this repo has been bitten by exactly that.
  */
 export function unauditableCommands(scripts, workflowCommands) {
-  const wrapperRe = /\b(?:bash|sh|zsh)\s+(scripts\/[\w.-]+\.(?:sh|bash))/g;
+  // ADR-0045 latent gap 3: match the ARTIFACT (a scripts/*.sh or scripts/*.bash path, anywhere in
+  // the command), not the invoker word that happened to precede it. The old `\b(?:bash|sh|zsh)\s+`
+  // prefix let `./scripts/foo.sh`, an exec-bit `scripts/foo.sh`, `source scripts/foo.sh`, and
+  // `bash -c "..."` all escape this scan and the coverage-gap line it feeds.
+  const wrapperRe = /\b(scripts\/[\w.-]+\.(?:sh|bash))\b/g;
   const out = [];
   const seen = new Set();
   const add = (source, command) => {
@@ -329,6 +435,31 @@ export function unauditableCommands(scripts, workflowCommands) {
   for (const [name, command] of Object.entries(scripts)) add(`npm entry \`${name}\``, command);
   for (const cmd of workflowCommands) add('ci.yml `run:` step', cmd);
   return out;
+}
+
+/**
+ * ADR-0045 latent gap 2: the union of references drops a gate with no denominator if it is removed
+ * from BOTH executors in one refactor -- nothing before this asserted the union was complete. This
+ * globs every `scripts/*.mjs` file whose name contains "check" (the header's own naming rule: "no
+ * `*-check` script in this repo may ship as a gate that cannot fail" -- verified against the real
+ * tree, not just the suffix case: it also covers the prefix shape, check-citations.mjs, and the
+ * mid-name shape, crawl-check-gamenav.mjs; a `-check.mjs$`-only glob false-flagged the latter as a
+ * stale RULE3 exemption the first time this ran) -- a REPO-OWNED, countable set, unlike GitHub's
+ * execution-modifying keys, so it converges. A disk file matching that glob but absent from
+ * `allFiles` (referenced by neither executor) and absent from `exemptions` vanished silently. The
+ * mirror direction is checked too: an exemption key that no longer matches on disk is stale.
+ */
+export function globGateCheckFiles(scriptsDir) {
+  return fs
+    .readdirSync(scriptsDir)
+    .filter((f) => f.endsWith('.mjs') && f.includes('check'))
+    .sort();
+}
+
+export function auditGateInventory(diskFiles, allFiles, exemptions) {
+  const missing = diskFiles.filter((f) => !allFiles.has(f) && !exemptions.has(f));
+  const staleExemptions = [...exemptions.keys()].filter((f) => !diskFiles.includes(f));
+  return { missing, staleExemptions };
 }
 
 // ---------------------------------------------------------------------------
@@ -402,7 +533,10 @@ export function scan(scriptsDir, packageJsonText, workflowText, rule3Exemptions 
   const pkg = JSON.parse(packageJsonText);
   const scripts = pkg.scripts || {};
   const ciCommand = scripts.ci || '';
-  const workflowCommands = workflowRunCommands(workflowText || '');
+  const steps = workflowSteps(workflowText || '');
+  // The audited SET still includes a gated step's script -- gap 1 must turn it into a named
+  // violation (computeReach/auditRule2 below), never make it vanish from the audit entirely.
+  const workflowCommands = steps.map((s) => s.command);
   const entryMap = buildEntryMap(scripts);
   // The set is the UNION over both executors: a gate wired only as a workflow step has no npm entry
   // to be found through, and would otherwise be audited by nothing at all.
@@ -426,7 +560,7 @@ export function scan(scriptsDir, packageJsonText, workflowText, rule3Exemptions 
     }
     const text = fs.readFileSync(scriptPath, 'utf8');
     const rule1 = auditRule1(text);
-    const reach = computeReach(file, entryNames, ciCommand, workflowCommands);
+    const reach = computeReach(file, entryNames, ciCommand, steps);
     const rule2 = auditRule2(file, entryNames, reach);
     const rule3 = auditRule3(file, reach, scripts, rule3Exemptions);
     results.push({ file, rule1, rule2, rule3 });
@@ -700,6 +834,78 @@ function selftest() {
     const fixedViolations = fixedResults.filter((r) => !r.rule1.ok || !r.rule2.ok || !r.rule3.ok);
     assert.equal(fixedViolations.length, 0, `fixing every planted defect must clear all violations, still saw: ${fixedViolations.map((v) => v.file).join(', ')}`);
     console.log('PASS calibration: fixing every planted defect (including chaining --selftest into the bare entry) returns the gate to green');
+
+    // ADR-0045 latent gap 2: a gate script glob-matched on disk but referenced by NEITHER executor
+    // and not exempted must be flagged, and a stale exemption pointing at a file that no longer
+    // exists (or no longer looks like a gate) must be flagged too — the denominator this repo had
+    // no assertion on before. The dir already holds the fixture's real `*-check.mjs` files; add one
+    // more that is deliberately orphaned from both `pkg.scripts` and the workflow.
+    fs.writeFileSync(path.join(dir, 'orphaned-check.mjs'), goodSelftestSrc());
+    const diskGateFiles = globGateCheckFiles(dir);
+    assert.ok(diskGateFiles.includes('orphaned-check.mjs'), 'the glob must find the new fixture file on disk');
+    const knownAllFiles = new Set(fixedResults.map((r) => r.file));
+    const orphanInventory = auditGateInventory(diskGateFiles, knownAllFiles, RULE2_EXEMPTIONS);
+    assert.deepEqual(orphanInventory.missing, ['orphaned-check.mjs'], 'known-bad: a *-check.mjs file referenced by neither executor and not exempted must be reported missing');
+    const staleInventory = auditGateInventory(diskGateFiles, knownAllFiles, new Map([['deleted-check.mjs', 'no longer real']]));
+    assert.deepEqual(staleInventory.staleExemptions, ['deleted-check.mjs'], 'known-bad: an exemption naming a file absent from the disk glob must be reported stale');
+    fs.rmSync(path.join(dir, 'orphaned-check.mjs'));
+    const clearedInventory = auditGateInventory(globGateCheckFiles(dir), knownAllFiles, RULE2_EXEMPTIONS);
+    assert.deepEqual(clearedInventory.missing, [], 'known-good: removing the orphan file must clear the missing-from-both-executors finding');
+    console.log('PASS calibration: gate-inventory glob flags an orphaned *-check.mjs file and a stale exemption entry, and clears once the orphan is removed');
+
+    // ADR-0045 latent gap 1: a `run:` step carrying `if:` or `continue-on-error:` (or any other
+    // sibling key not on SAFE_STEP_SIBLING_KEYS) must not count as workflow reachability, and rule 2
+    // must name it specifically -- not read as a generic "no step reaches this at all".
+    const gatedWorkflowText = [
+      'name: ci',
+      'on:',
+      '  push:',
+      'jobs:',
+      '  build:',
+      '    runs-on: ubuntu-latest',
+      '    steps:',
+      '      - uses: actions/checkout@v5',
+      '      - name: Gated by if',
+      "        if: ${{ github.ref == 'refs/heads/main' }}",
+      '        run: node scripts/gated-if-check.mjs --selftest && node scripts/gated-if-check.mjs',
+      '      - name: Gated by continue-on-error',
+      '        continue-on-error: true',
+      '        run: node scripts/gated-coe-check.mjs --selftest && node scripts/gated-coe-check.mjs',
+      '      - name: Ungated, safe siblings only',
+      '        id: ungated',
+      '        shell: bash',
+      '        run: node scripts/ungated-check.mjs --selftest && node scripts/ungated-check.mjs',
+      '',
+    ].join('\n');
+    const gatedSteps = workflowSteps(gatedWorkflowText);
+    assert.deepEqual(gatedSteps.find((s) => s.command.includes('gated-if-check')).guardedKeys, ['if'], 'an `if:` sibling must be captured as a guarded key');
+    assert.deepEqual(gatedSteps.find((s) => s.command.includes('gated-coe-check')).guardedKeys, ['continue-on-error'], 'a `continue-on-error:` sibling must be captured as a guarded key');
+    assert.deepEqual(gatedSteps.find((s) => s.command.includes('ungated-check')).guardedKeys, [], 'name:/id:/shell: siblings must never be treated as guarding execution');
+    console.log('PASS calibration: workflowSteps captures if:/continue-on-error: as guarded keys and leaves name:/id:/shell: alone');
+
+    fs.writeFileSync(path.join(dir, 'gated-if-check.mjs'), goodSelftestSrc());
+    const gatedPkgText = JSON.stringify({
+      scripts: {
+        'gated-if-check': 'node scripts/gated-if-check.mjs --selftest && node scripts/gated-if-check.mjs',
+        ci: 'npm run gated-if-check',
+      },
+    });
+    const gatedResults = scan(dir, gatedPkgText, gatedWorkflowText);
+    const gatedFile = gatedResults.find((r) => r.file === 'gated-if-check.mjs');
+    assert.equal(gatedFile.rule2.ok, false, 'known-bad: chained from npm ci but only reachable via an `if:`-gated workflow step must fail rule 2');
+    assert.match(gatedFile.rule2.detail, /execution-modifying sibling key/, 'the rule 2 failure must name the gap-1 reason, not a generic missing-side message');
+    assert.match(gatedFile.rule2.detail, /\(if\)/, 'the failure must name the actual guarded key found');
+
+    // Known-good control: the same step with the `if:` removed must clear rule 2.
+    const ungatedWorkflowText = gatedWorkflowText.replace(
+      "      - name: Gated by if\n        if: ${{ github.ref == 'refs/heads/main' }}\n        run: node scripts/gated-if-check.mjs --selftest && node scripts/gated-if-check.mjs\n",
+      '      - name: Gated by if, now unconditional\n        run: node scripts/gated-if-check.mjs --selftest && node scripts/gated-if-check.mjs\n',
+    );
+    assert.notEqual(ungatedWorkflowText, gatedWorkflowText, 'the control fixture must actually differ from the gated one, not silently no-op');
+    const ungatedResults = scan(dir, gatedPkgText, ungatedWorkflowText);
+    const ungatedFile = ungatedResults.find((r) => r.file === 'gated-if-check.mjs');
+    assert.equal(ungatedFile.rule2.ok, true, 'known-good: removing the `if:` sibling must clear the rule 2 violation');
+    console.log('PASS calibration: a gate step behind if:/continue-on-error: fails rule 2 by name (gap 1), and clears once unconditional');
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
@@ -746,6 +952,39 @@ async function main() {
     console.log('gate-selftest-coverage-check COVERAGE GAP: none — no shell-wrapper invocation found in either executor, so the audited set is the whole set');
   }
 
+  // ADR-0045 latent gap 2: a countable, repo-owned denominator on top of the reference union above —
+  // catches a gate deleted from BOTH executors in one refactor (the union has nothing to notice that
+  // against) and a stale exemption entry left pointing at a file that is no longer even a gate.
+  const diskGateFiles = globGateCheckFiles(scriptsDir);
+  const allFiles = new Set(results.map((r) => r.file));
+  const inventory = auditGateInventory(diskGateFiles, allFiles, RULE2_EXEMPTIONS);
+  if (inventory.missing.length) {
+    for (const f of inventory.missing) {
+      console.error(
+        `::error file=scripts/${f}::[gate-selftest-coverage gate inventory] scripts/${f} matches the *-check.mjs gate naming convention but is ` +
+          'referenced by neither executor and is not on RULE2_EXEMPTIONS — it either fell out of both lists silently, or it is not a gate and should ' +
+          'be renamed off the *-check.mjs convention',
+      );
+    }
+  }
+  if (inventory.staleExemptions.length) {
+    for (const f of inventory.staleExemptions) {
+      console.error(
+        `::error::[gate-selftest-coverage gate inventory] RULE2_EXEMPTIONS names scripts/${f}, which is no longer a *-check.mjs file on disk — stale entry, delete it`,
+      );
+    }
+  }
+  // Same staleness check on RULE3_EXEMPTIONS — reuses auditGateInventory purely for its
+  // staleExemptions half; RULE3's "missing" concept does not apply (a calibration-skip exemption
+  // says nothing about reachability), so `allFiles` here is a don't-care passed as the full set.
+  const rule3Stale = auditGateInventory(diskGateFiles, allFiles, RULE3_EXEMPTIONS).staleExemptions;
+  for (const f of rule3Stale) {
+    console.error(
+      `::error::[gate-selftest-coverage gate inventory] RULE3_EXEMPTIONS names scripts/${f}, which is no longer a *-check.mjs file on disk — stale entry, delete it`,
+    );
+  }
+  if (inventory.missing.length || inventory.staleExemptions.length || rule3Stale.length) process.exit(1);
+
   const violations = results.filter((r) => !r.rule1.ok || !r.rule2.ok || !r.rule3.ok);
   if (violations.length) {
     for (const v of violations) {
@@ -758,7 +997,7 @@ async function main() {
   }
 
   console.log(
-    `gate-selftest-coverage-check: ${results.length} gate script(s) audited from package.json's scripts block and ${workflowCommands.length} ci.yml \`run:\` step(s), ` +
+    `gate-selftest-coverage-check: ${results.length} gate script(s) audited across BOTH executors (the union of package.json's scripts block and ci.yml — a workflow-only gate is counted here too, so this is not a package.json count) and ${workflowCommands.length} ci.yml \`run:\` step(s) parsed, ` +
       `${RULE2_EXEMPTIONS.size} rule-2 exemption(s) and ${RULE3_EXEMPTIONS.size} rule-3 exemption(s) on the allowlists, 0 violation(s).`,
   );
 }
