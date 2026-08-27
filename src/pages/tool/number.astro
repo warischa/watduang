@@ -86,9 +86,23 @@ import GameNav from '../../components/GameNav.astro';
     margin: var(--space-sm) 0 var(--space-md);
   }
 
-  /* Reserves space for the result so content below doesn't shift when a number appears */
+  /* Reserves space for the result so content below doesn't shift when a number appears.
+     A BOUND, not a floor: both live regions here are role="status" whose text the island rewrites,
+     which is the confirmed gh#120 reflow mechanism on /tool/wheel/ — the site ships no @font-face,
+     so the line box and the wrap point are the visitor's OS and a floor is only safe on the
+     platforms someone measured. An explicit line-height makes the line box exactly 1.5x the font
+     size everywhere, so these em heights are exact line counts.
+     Both heights are unchanged (2em = 48px, 3em = 48px), so no ADR-0033 departure; the measurement
+     behind them, at 320px in a real browser: one result line is 36px and one note line 24px, the
+     longest realistic note text is two lines (48px), and the empty state is 0px — so both fit
+     whole. A 21-digit range interpolates into these strings (3 result lines / 4 note lines), an
+     unbounded set which now scrolls in place instead of moving the ad: with min-height the result
+     grew 48px -> 108px. max-height is FORECLOSED — an empty region would collapse and grow on the
+     first render (the gh#114 mechanism). */
   .number-result {
-    min-height: 2em;
+    line-height: 1.5;
+    height: 2em;
+    overflow-y: auto;
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
@@ -96,7 +110,9 @@ import GameNav from '../../components/GameNav.astro';
   }
 
   .number-note {
-    min-height: 3em;
+    line-height: 1.5;
+    height: 3em;
+    overflow-y: auto;
     margin: var(--space-xs) 0 var(--space-md);
     color: var(--color-muted);
   }

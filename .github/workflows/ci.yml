@@ -150,6 +150,14 @@ jobs:
       - name: No gate walks from the repo root unguarded (meta-check)
         run: node scripts/repo-root-walk-check.mjs --selftest && node scripts/repo-root-walk-check.mjs
 
+      # gh#120 — the ad-slot reflow's real mechanism. An announced live region whose text a script
+      # rewrites must not reserve space with a FLOOR: min-height lets it shrink when the text
+      # shortens, and everything below it — including the ad slot — moves. draw and team learned this
+      # in prose; wheel and number kept the floor, and it only ever showed on a runner whose Thai
+      # font metrics differ from a developer Mac's. This gate makes the rule enforceable.
+      - name: A live region above the ad slot reserves a bound, not a floor (gh#120)
+        run: node scripts/live-region-height-check.mjs --selftest && node scripts/live-region-height-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob.
       # A glob that matches NOTHING is not an error: node prints "# tests 0" and exits 0. So a rename
       # (.test.mjs -> .test.ts) or a move out of src/ would leave this step green with every test

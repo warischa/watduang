@@ -184,13 +184,20 @@ import GameNav from '../../components/GameNav.astro';
      the reserved box matches the canvas proportions), and the script keeps long names on one line
      by shrinking the type, so the ad below never moves when a name appears. The 1.2 line-height is
      the canvas's own title value — without it a 26px result line pushes the bar (and the ad below)
-     down by ~8px the moment a name appears, measured live. */
+     down by ~8px the moment a name appears, measured live.
+     A BOUND, not a floor (gh#120): the shrink is a glyph-advance ESTIMATE, so on a platform whose
+     Thai font runs wider it under-shrinks, the name wraps, and a floor let the bar grow. Measured at
+     320px in a real browser: empty 28px, one line 59px, two lines 90px — so min-height: 60px held
+     the first two and was beaten by the third. 60px is unchanged (the artboard's own button
+     min-height, so no ADR-0033 departure); a wrapped name now scrolls in place instead of moving
+     the ad. */
   .wheel-result {
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    min-height: 60px;
+    height: 60px;
+    overflow-y: auto;
     margin: 0;
     padding: 14px 16px;
     background: var(--color-line-strong);
@@ -204,8 +211,22 @@ import GameNav from '../../components/GameNav.astro';
     overflow-wrap: anywhere;
   }
 
+  /* A BOUND, not a floor — the confirmed gh#120 reflow on this page. The site ships no @font-face,
+     so both the line box and the wrap point are the visitor's OS: min-height: 3em (48px) rendered
+     the initial copy at 57px on ubuntu-latest (three 19px lines) and at 48px on macOS, and the -9px
+     drop to the floor on the next note text moved the ad slot up. An explicit line-height makes the
+     line box 24px everywhere, so an em height is an exact line count.
+     4.5em = 72px = three lines is a NEW design value, a deliberate ADR-0033 departure (gh#120):
+     measured at 320px in a real browser, every note text this page can emit with a realistic name
+     is at most three lines (the initial copy is 2 on macOS and 3 on ubuntu; the single-name and
+     last-name-left strings are 3), so the copy a first-time visitor reads shows whole on both.
+     Longer texts interpolate a user-supplied name, an unbounded set, and scroll in place —
+     bounding the box we own converges, enumerating those strings does not. max-height is
+     FORECLOSED: an empty note would collapse and grow on the first text (the gh#114 mechanism). */
   .wheel-note {
-    min-height: 3em;
+    line-height: 1.5;
+    height: 4.5em;
+    overflow-y: auto;
     margin: var(--space-xs) 0 var(--space-md);
     color: var(--color-muted);
   }
