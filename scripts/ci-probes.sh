@@ -164,6 +164,42 @@ probe leave-confirm-control     leave-confirm-probe.mjs             "$CDP_A" BRE
 probe arm-gate                  arm-gate-probe.mjs                  "$CDP_A"
 probe arm-gate-control          arm-gate-probe.mjs                  "$CDP_A" BREAK_GUARD=1
 
+# --- standalone legs -----------------------------------------------------------------------------
+# These two probes orchestrate their own driver.mjs run and judge their own measurements (exit
+# non-zero on a red) — but they serve NOTHING: their standalone entry expects a server and a Chrome
+# to already exist (their headers say "serve dist/ ... first"), so each leg is pointed at THIS
+# script's server and Chrome A via the BASE/CDP_PORT env vars both probes honor. Their default
+# 4455/9455 and 4580/9580 ports are for manual runs only and are never bound here.
+# Each ships its calibration as a BREAK_* control leg, judged the same way as the probe() controls:
+# a control that cannot make its own detector red fails the leg. They run here, behind this bash
+# wrapper, because control-floor-probe.mjs carries no --selftest by design (its calibration IS the
+# control leg) and the meta-gate audits node-invoked steps only.
+standalone() { # label, command...
+  label="$1"; shift
+  LEGS=$((LEGS + 1))
+  echo "probe: $label (standalone)"
+  ( "$@" ) > "$OUT_DIR/$label.log" 2>&1 &
+  pid=$!
+  ( sleep "$LEG_TIMEOUT"; kill -9 "$pid" 2> /dev/null ) &
+  watchdog=$!
+  set +e
+  wait "$pid"
+  rc=$?
+  set -e
+  { kill "$watchdog" && wait "$watchdog"; } 2> /dev/null || true
+  if [ "$rc" -eq 0 ]; then
+    echo "  PASS  $label"
+    PASSED="$PASSED $label"
+  else
+    echo "::error::probe FAIL: ${label} -- exit ${rc}: $(tail -n 3 "$OUT_DIR/$label.log" | tr '\n' ' ')"
+    FAILED="$FAILED $label"
+  fi
+}
+standalone live-region-floor         env BASE="$SITE" CDP_PORT="$CDP_A" node scripts/live-region-floor-probe.mjs
+standalone live-region-floor-control env BASE="$SITE" CDP_PORT="$CDP_A" BREAK_GUARD=1 node scripts/live-region-floor-probe.mjs
+standalone control-floor             env BASE="$SITE" CDP_PORT="$CDP_A" node scripts/control-floor-probe.mjs
+standalone control-floor-control     env BASE="$SITE" CDP_PORT="$CDP_A" BREAK_FLOOR=1 node scripts/control-floor-probe.mjs
+
 if [ -n "$FAILED" ]; then
   echo "::error::ci-probes: failing probe leg(s):${FAILED}"
   echo "ci-probes: output kept in ${OUT_DIR}"

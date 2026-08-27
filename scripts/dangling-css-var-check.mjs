@@ -20,12 +20,36 @@
 // THE TWO SETS, AND WHO OWNS THEM.
 //
 // REFERENCES = every var(--name) that appears with NO fallback (see "fallback", below), collected from
-// the page's own CSS. DEFINITIONS = every `--name:` value assignment on the page. A reference is
-// dangling iff its name is not in the definitions of the SAME page. Both sets are scoped PER PAGE, never
-// unioned across dist/: every built page in this repo is self-contained — dist/_astro/ ships only .js,
-// and the CSS (tokens.css' :root block included) is inlined into each HTML file's single <style> block.
-// A union across dist/ would false-pass a page that references a property only some OTHER page defines,
-// which is exactly the "clean" this gate exists to reject.
+// the page's own CSS and from its other attribute values. DEFINITIONS = every `--name:` value assignment
+// on the page. A reference is dangling iff its name is not in the definitions of the SAME page. Both sets
+// are scoped PER PAGE, never unioned across dist/: a union would false-pass a page that references a
+// property only some OTHER page defines, which is exactly the "clean" this gate exists to reject. That
+// argument stands on its own and does not need dist/ to be all-inline — which it is not.
+//
+// WHAT THE ARTIFACT ACTUALLY IS (gh#126, re-derived from the built tree, not assumed). dist/_astro/
+// ships BOTH .js and .css. The header used to claim it ships only .js and that every page's CSS is
+// inlined into its single <style> block; that was false. Astro externalises the per-route bundles above
+// assetsInlineLimit, so a page ships a <style> block AND links one stylesheet from dist/_astro/. The
+// shape is measured, never assumed:
+//   ls dist/_astro/*.css | wc -l                                        -> the external stylesheet count
+//   grep -rl 'rel="stylesheet"' dist --include='*.html' | wc -l         -> pages that link one
+//   find dist -name '*.html' | wc -l                                    -> pages this gate walks
+// At the time of writing that reads 5 external stylesheets, linked by 11 of the 15 walked pages.
+//
+// WHICH CASE THE GREEN WAS (gh#126 enumerated three; the answer is 1 on the external-CSS axis and 3 on
+// a different one). Case 1 on the definition axis: no page references a property whose only `--x:`
+// assignment lives in an external stylesheet — every :root token is still inlined per page, so the
+// external files carry references, not the definitions those references need. The external leg is
+// nonetheless load-bearing in the OTHER direction: those 11 external stylesheets contain ~10
+// fallback-less var() references each (--page-accent, --color-text, --font-sans, …), so a gate that
+// skipped them would silently drop ~110 references from the set it claims to check. It does not skip
+// them (pageCssText follows each page's own <link>, and only that page's), which is why the corrected
+// premise changes no verdict here. Case 3 DID hold on a separate axis and is fixed in this same edit:
+// main() built its reference text from the page CSS alone and never passed refOnlyTextsOf(), so every
+// non-style attribute value — the SVG stroke="var(--x)" paints the header claims below, on all six built
+// game pages — was scanned in the selftest and in no real run. Zero new dangling names appear on the
+// current tree once they are scanned, so the corrected scope is calibrated by a planted break, not by
+// a change in the verdict.
 //
 // OWNERSHIP of the definition set, member by member (the brief's seven bullets):
 //   · a `--x:` inside @media / @supports / @container    -> DEFINITION. It is a value assignment in the
@@ -52,11 +76,13 @@
 //     the definitions this repo ships; document the injected-definition ceiling rather than enumerate a
 //     set we do not own (a gate whose set it does not own never converges).
 //   · var() in a <style> block vs in an external .css the page links: BOTH are repo-owned (the build
-//     writes both into dist/). Today dist/_astro/ contains 0 .css files, so every stylesheet is inline;
-//     linked <link rel="stylesheet" href="*.css"> files are still followed and their definitions and
-//     references join the linking page's per-page sets, so a future Astro CSS externalization (a bundle
-//     over assetsInlineLimit) cannot false-red this gate. The linked leg is pinned in selftest and is
-//     empty on the real artifact (measured: ls dist/_astro/ | grep -c '\.css$' == 0).
+//     writes both into dist/), and both are followed. Each <link rel="stylesheet" href="*.css"> the page
+//     itself carries is resolved and read, and its definitions and references join THAT page's sets
+//     only — the per-page scoping above is preserved, because the link list comes from the page. This
+//     leg is NOT empty on the real artifact (see "what the artifact actually is"): Astro externalises
+//     the route bundles, and the external files are where most of the fallback-less references live. It
+//     is pinned in selftest both ways — a definition in a linked file resolves, a reference no linked
+//     file defines is still red.
 //
 // FALLBACK. var(--x, <anything>) is NOT dangling — the fallback makes it valid whether or not --x is
 // defined, and a gate that flagged it would train people to ignore the gate. The fallback is detected by
@@ -255,13 +281,20 @@ function pageCssText(raw, file, scanRoot) {
   return chunks.join('\n');
 }
 
+// The one place the real run and the selftest both go through, so the scope proven in selftest is the
+// scope main() runs: definitions from the page's CSS (inline + the stylesheets IT links), references
+// from that CSS plus every non-style attribute value.
+function pageDangling(raw, file, scanRoot) {
+  return classify(pageCssText(raw, file, scanRoot), refOnlyTextsOf(raw).join('\n')).dangling;
+}
+
 /** The success sentence. Names the root it scanned and the count it scanned there — the count is the
  *  length of the array the loop really iterated, never the length of a target list (ADR-0019: a green is
  *  a claim, and so is the sentence next to it). */
 export const successLine = (rel, pageCount) =>
   `dangling-css-var-check: ${pageCount} HTML page(s) scanned under ${rel}/, 0 references to custom ` +
-  'properties that nothing on the same page defines (per-page — CSS is inlined per page, not a ' +
-  'dist/-wide union).';
+  "properties that nothing on the same page defines (per-page: each page's own <style> blocks, style " +
+  'attributes, other attribute values and the stylesheets that page links — never a dist/-wide union).';
 
 function collectHtml(root) {
   const files = [];
@@ -408,7 +441,21 @@ function selftest() {
       ['nope-file'],
       'a reference no linked .css file defines must still be flagged',
     );
-    console.log('PASS linked stylesheet: a .css definition resolves (green), a reference the linked file does not define is still red — the external leg is followed, and is empty on real dist/ (0 .css files in dist/_astro/)');
+    console.log('PASS linked stylesheet: a .css definition resolves (green), a reference the linked file does not define is still red — the external leg is followed, and is NOT empty on the real artifact (dist/_astro/ ships .css bundles that most pages link)');
+
+    // Real-run reference scope: main() must hunt references in the page CSS *and* in non-style
+    // attribute values. It passed only the CSS text until gh#126, so an SVG stroke="var(--x)" was
+    // pinned above via findDangling() and scanned in no real run. Same call shape as main()'s.
+    const attrOnlyPage = page(':root{--ok:1}', '<svg><path stroke="var(--attr-only-nope)"/></svg>');
+    const attrFile = path.join(tmpDir, 'attr', 'index.html');
+    fs.mkdirSync(path.dirname(attrFile), { recursive: true });
+    fs.writeFileSync(attrFile, attrOnlyPage, 'utf8');
+    assert.deepEqual(
+      [...new Set(pageDangling(fs.readFileSync(attrFile, 'utf8'), attrFile, tmpDir).map((d) => d.name))],
+      ['attr-only-nope'],
+      "the real-run path must scan non-style attribute values: a stroke=\"var(--x)\" reference nothing defines is red (it was invisible while main() passed only the page's CSS text)",
+    );
+    console.log('PASS real-run reference scope: the same helper main() calls flags stroke="var(--attr-only-nope)" — attribute references are scanned in the real run, not only in findDangling()');
 
     // --- The CI refusal, both ways, at run level (same argv, only CI differs): a positional root is a
     // local convenience and is refused under CI, so a narrowed run cannot counterfeit a real dist/ scan.
@@ -472,7 +519,7 @@ async function main() {
   for (const file of files) {
     const shown = path.relative(repoRoot, file).split(path.sep).join('/');
     const raw = fs.readFileSync(file, 'utf8');
-    const { dangling } = classify(pageCssText(raw, file, root));
+    const dangling = pageDangling(raw, file, root);
     for (const name of [...new Set(dangling.map((d) => d.name))].sort()) {
       console.error(`::error file=${shown}::${shown}: var(--${name}) references custom property --${name}, which no <style> block, inline style attribute, or linked stylesheet on this page defines`);
       hitCount++;

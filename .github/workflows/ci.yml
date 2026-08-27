@@ -174,6 +174,13 @@ jobs:
       - name: A live region above the ad slot reserves a bound, not a floor (gh#120)
         run: node scripts/live-region-height-check.mjs --selftest && node scripts/live-region-height-check.mjs
 
+      # The accent trio must stay single-sourced: every surface that copies the values (wheel canvas,
+      # page chrome, the home hero) must carry the whole canonical set, every href->accent pairing
+      # must match the category registry, and every --accent-* mention must be defined. Catches a
+      # surface pointing at a DIFFERENT VALID token, which no dangling-property gate can see. gh#128.
+      - name: Accent colour single-sourced across its surfaces (gh#128)
+        run: node scripts/accent-single-source-check.mjs --selftest && node scripts/accent-single-source-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob.
       # A glob that matches NOTHING is not an error: node prints "# tests 0" and exits 0. So a rename
       # (.test.mjs -> .test.ts) or a move out of src/ would leave this step green with every test
@@ -209,9 +216,24 @@ jobs:
       - name: Page chrome confined to the opt-in set (dist artifact)
         run: node scripts/page-chrome-check.mjs --selftest && node scripts/page-chrome-check.mjs
 
+      # Three landing-page claims that no gate covered (gh#127): the category route filter must not
+      # widen past the manifest, two category pages must not ship identical copy, and the home page
+      # must carry a resolvable built <a href> to every category page — a link, not a marker.
+      # Reads dist/ only; --selftest is hermetic (temp fixtures, never dist/).
+      - name: Landing-page claims hold in the built artifact (gh#127)
+        run: node scripts/landing-claims-check.mjs --selftest && node scripts/landing-claims-check.mjs
+
+      # The shared JS bundle is frozen by set and size (gh#129): the reachable dist/_astro chunk set,
+      # keyed by hash-stripped basename, must equal its pinned manifest, and total bytes must sit in
+      # a +/-5% band. A deliberate bundle change edits the gate's baseline — that edit is the signal.
+      # Reads dist/ only, never rebuilds; --selftest is hermetic.
+      - name: Shared JS bundle set and size frozen (gh#129)
+        run: node scripts/bundle-freeze-check.mjs --selftest && node scripts/bundle-freeze-check.mjs
+
       # Dangling CSS custom-property gate, gh#85: every built page must reference only custom
-      # properties something on THAT SAME page defines. Per-page, not a dist/-wide union — CSS is
-      # inlined into each HTML (dist/_astro/ ships only .js), so a page referencing a property only
+      # properties something on THAT SAME page defines. Per-page, not a dist/-wide union — most CSS
+      # is inlined into each HTML and the rest ships as per-page linked files under dist/_astro/
+      # (which carries css as well as js — gh#126), so a page referencing a property only
       # another page defines must go red, not pass. Runs after Build because it reads the built
       # artifact; --selftest is hermetic (temp-dir fixtures only, never dist/) so it — like the CSP
       # gates below — never regenerates the artifact this step and every later step reads. gh#38.

@@ -34,6 +34,12 @@
 // scripts/ad-reflow-first-list-load-probe.mjs is what measures the actual reflow in a browser; this
 // gate only makes the one mechanism that already shipped twice impossible to reintroduce silently.
 //
+// ITS RENDERED COMPANION, for the first three of those blind spots: scripts/live-region-floor-probe.mjs
+// (gh#124) reads getComputedStyle on the same live regions in the BUILT page, so a floor arriving from
+// a global stylesheet, the cascade, or a style string built in a .ts module is caught by where it
+// lands rather than by where it was written. That leg is why this scan's .astro scope stays as narrow
+// as it is: widening it would trade an owned, converging set for every file that can emit a style.
+//
 //   node scripts/live-region-height-check.mjs             -> scan src/pages/tool/*.astro, exit non-zero on any hit
 //   node scripts/live-region-height-check.mjs --selftest   -> calibration both ways on fixtures (never reads src/)
 
