@@ -11,12 +11,14 @@
     "build": "astro build",
     "preview": "astro preview",
     "test": "node --test 'src/**/*.test.mjs'",
-    "validate": "node scripts/validate-games.mjs",
-    "check-citations": "node scripts/check-citations.mjs",
+    "validate": "node scripts/validate-games.mjs --selftest && node scripts/validate-games.mjs",
+    "gate-selftest-coverage-check": "node scripts/gate-selftest-coverage-check.mjs --selftest && node scripts/gate-selftest-coverage-check.mjs",
+    "js-motion-guard-check": "node scripts/js-motion-guard-check.mjs --selftest && node scripts/js-motion-guard-check.mjs",
+    "check-citations": "node scripts/check-citations.mjs --selftest && node scripts/check-citations.mjs",
     "added-lineno-citation-check": "node scripts/added-lineno-citation-check.mjs --selftest && node scripts/added-lineno-citation-check.mjs",
-    "thai-comments": "node scripts/thai-comments.mjs",
-    "dangling-css-var-check": "node scripts/dangling-css-var-check.mjs",
-    "public-orphan-check": "node scripts/public-orphan-check.mjs",
+    "thai-comments": "node scripts/thai-comments.mjs --selftest && node scripts/thai-comments.mjs",
+    "dangling-css-var-check": "node scripts/dangling-css-var-check.mjs --selftest && node scripts/dangling-css-var-check.mjs",
+    "public-orphan-check": "node scripts/public-orphan-check.mjs --selftest && node scripts/public-orphan-check.mjs",
     "check-node-version": "node -v; major=$(node -p \"process.versions.node.split('.')[0]\"); if [ \"$major\" -lt 22 ]; then echo \"::error::Node major version $major < 22 -- scripts/validate-games.mjs needs built-in .ts type stripping (Node >=22.18).\"; exit 1; fi",
     "no-nav-in-stage-check": "node scripts/no-nav-in-stage-check.mjs --selftest && node scripts/no-nav-in-stage-check.mjs",
     "leave-confirm-check": "node scripts/leave-confirm-check.mjs --selftest && node scripts/leave-confirm-check.mjs",
@@ -36,7 +38,7 @@
     "live-region-height-check": "node scripts/live-region-height-check.mjs --selftest && node scripts/live-region-height-check.mjs",
     "smoke-dist": "bash scripts/smoke-dist.sh",
     "ci-probes": "bash scripts/ci-probes.sh",
-    "ci": "npm run check-node-version && npm run validate && npm run check-citations && npm run added-lineno-citation-check && npm run thai-comments && npm run public-orphan-check && npm run no-nav-in-stage-check && npm run leave-confirm-check && npm run round-start-announce-check && npm run arm-gate-coverage-check && npm run stable-exit-markers-check && npm run roster-lock-structure-check && npm run checkpoint-writer-check && npm run repo-root-walk-check && npm run live-region-height-check && npm test && npm run astro-check && npm run build && npm run page-chrome-check && npm run dangling-css-var-check && npm run csp-allowlist-check && npm run csp-inline-check && npm run sitemap-tool-pages-check && npm run crawl-check-gamenav && npm run smoke-dist"
+    "ci": "npm run check-node-version && npm run validate && npm run check-citations && npm run added-lineno-citation-check && npm run thai-comments && npm run public-orphan-check && npm run no-nav-in-stage-check && npm run leave-confirm-check && npm run round-start-announce-check && npm run arm-gate-coverage-check && npm run stable-exit-markers-check && npm run roster-lock-structure-check && npm run checkpoint-writer-check && npm run repo-root-walk-check && npm run live-region-height-check && npm test && npm run astro-check && npm run build && npm run page-chrome-check && npm run dangling-css-var-check && npm run csp-allowlist-check && npm run csp-inline-check && npm run sitemap-tool-pages-check && npm run crawl-check-gamenav && npm run smoke-dist && npm run js-motion-guard-check && npm run gate-selftest-coverage-check"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.0.0",

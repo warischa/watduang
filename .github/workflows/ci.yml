@@ -58,6 +58,14 @@ jobs:
       - name: npm ci
         run: npm ci
 
+      # FIRST gate on purpose, and cheap: a static read of package.json plus this file. It answers
+      # "can any gate below this line even fail?" — including "is every gate wired into BOTH
+      # executors", since this workflow never runs `npm run ci` and a gate chained only into that
+      # aggregate would execute nowhere here. Catching that after Build, the browser probes and
+      # twenty minutes of runner time would mean burning the whole run to learn none of it counted.
+      - name: No gate can ship unable to fail (meta-check, both executors)
+        run: node scripts/gate-selftest-coverage-check.mjs --selftest && node scripts/gate-selftest-coverage-check.mjs
+
       # --selftest first, same reason as the guards below: the live scan over six known-good
       # manifest entries is green whether or not the rules still fire. The selftest drives 21
       # known-bad fixtures through the same validateGames() and fails if any rule stops
@@ -141,6 +149,14 @@ jobs:
       # second src/games/*.ts file writes a checkpoint, and says to reopen gh#24, not to build.
       - name: Only one game writes a checkpoint (ADR-0010 trigger)
         run: node scripts/checkpoint-writer-check.mjs --selftest && node scripts/checkpoint-writer-check.mjs
+
+      # gh#77 box7 — JS-driven motion (rAF, or a per-frame `.style.*` write) is invisible to a
+      # CSS-only prefers-reduced-motion check, so each such module must read the media query itself.
+      # Scans src/games/*.ts, so it belongs here with the other pre-build source gates and needs no
+      # dist/ artifact. It proves PRESENCE, never effectiveness — the per-module unit tests above own
+      # that half, and the script's header says which mechanisms and which files it does not see.
+      - name: JS-driven motion declares a prefers-reduced-motion guard (gh#77 box7)
+        run: node scripts/js-motion-guard-check.mjs --selftest && node scripts/js-motion-guard-check.mjs
 
       # A meta-gate over the gates themselves. 14 scripts walk the filesystem; only check-citations
       # roots its walk at the repo root, and it excludes .claude/worktrees by relative path. The
