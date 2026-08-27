@@ -20,6 +20,7 @@
 // page file serves every category through getStaticPaths over the manifest keys (gh#74 / ADR-0032).
 // No script of any kind (ADR-0005).
 import Base from '../../layouts/Base.astro';
+import PageChrome from '../../components/PageChrome.astro';
 import { categories } from '../../games/categories';
 import type { CategoryMeta } from '../../games/categories';
 import type { Category, GameModule } from '../../games/types';
@@ -54,7 +55,8 @@ type Props = {
 const { category, meta, otherCategories, games } = Astro.props as Props;
 ---
 
-<Base title={meta.seo.title} description={meta.seo.description}>
+<Base title={meta.seo.title} description={meta.seo.description} chrome>
+  <PageChrome>
   <main style={`--page-accent: var(--accent-${meta.accent});`}>
     <header class="cat-head">
       <div class="cat-head-inner">
@@ -166,6 +168,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
       </aside>
     </div>
   </main>
+  </PageChrome>
 </Base>
 
 <style>

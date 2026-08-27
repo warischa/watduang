@@ -76,8 +76,15 @@ const MARKER = 'data-page-chrome'; // stamped by src/components/PageChrome.astro
 // exist to prevent, so the game leg bans them below the allowlist entirely. Pinned by the selftest
 // (deepEqual), so an entry appearing or disappearing without updating the pin and this comment is
 // loud, never silent.
+// Deliberately an EXPLICIT list of built page paths, never derived from the category manifest:
+// permission is a per-page owner call, and an explicit list fails safe. A THIRD category page added
+// to the manifest renders the chrome from the shared layout, has no entry here, and goes red on the
+// opt-in leg — loudly, until the owner admits it and the pin below is updated. That red is the
+// designed behaviour, not a bug in the new page.
 const ALLOWED_CHROME = new Set([
   'index.html', // the home page — #86 shipped the chrome as home-only, and the owner ruled 2026-08-26 to keep it that way while gh#105 widened the scan
+  'c/fortune/index.html', // the fortune category landing — owner ruled 2026-08-27 that category pages get the same top bar as other non-game pages, answering the open gh#74 question
+  'c/party/index.html', // the party category landing — same 2026-08-27 owner decision, per page: each category landing is admitted on its own entry
 ]);
 
 // ponytail: PAGE_CHROME_DIST_OVERRIDE exists only so the selftest can spawn this script for real
@@ -171,10 +178,13 @@ const PLANTED_CHROME = [
 ].join('\n');
 
 // Every red fixture tree needs the other legs clean, or the planted member is not what went red:
-// a marked home page (satisfies the render leg) and, where the planted member is not itself a game
-// page, one clean game page (satisfies the game leg).
+// EVERY opt-in page marked (the render leg counts across the whole set, so one unmarked opt-in page
+// would red every fixture below for the wrong reason) and, where the planted member is not itself a
+// game page, one clean game page (satisfies the game leg). Driven off ALLOWED_CHROME itself so a
+// future entry cannot leave the fixtures behind.
+const MARKED_PAGE = '<header data-page-chrome>bar</header>';
 function baseTree(root, withGame = true) {
-  write(root, 'index.html', '<header data-page-chrome>bar</header>');
+  for (const rel of ALLOWED_CHROME) write(root, rel, MARKED_PAGE);
   if (withGame) write(root, 'game/a/index.html', '<!doctype html><title>a</title>');
 }
 
@@ -250,14 +260,14 @@ function selftest() {
   // goes red — a set change is loud, never silent (docs/adr/0019).
   assert.deepEqual(
     [...ALLOWED_CHROME],
-    ['index.html'],
+    ['index.html', 'c/fortune/index.html', 'c/party/index.html'],
     'ALLOWED_CHROME changed without this pin being updated — every entry must cite the owner decision that admits it; update the header comment, the pin, and the red fixtures together',
   );
-  console.log('PASS allowlist pin: the opt-in set is exactly [index.html] (the #86 home-only owner decision)');
+  console.log('PASS allowlist pin: the opt-in set is exactly [index.html, c/fortune/index.html, c/party/index.html] (#86 home-only, plus the 2026-08-27 owner decision admitting the two category landings)');
 
   // Green direction, EVERY member clean: two flat game pages, one NESTED game page (the recursion
-  // must not invent reds the old one-level helper never saw), the tools hub, a tool page, a
-  // category page, the games hub, 404 — plus a marked home page. Spawns the real script; the
+  // must not invent reds the old one-level helper never saw), the tools hub, a tool page, the
+  // games hub, 404 — the two category landings come from baseTree, marked, since they are opt-in now — plus a marked home page. Spawns the real script; the
   // success line must name the real counts, not hardcoded sizees (gh#46).
   const good = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-good-'));
   try {
@@ -266,17 +276,16 @@ function selftest() {
     write(good, 'game/x/y/index.html', '<!doctype html><title>nested</title>');
     write(good, 'tools/index.html', '<!doctype html><title>tools</title>');
     write(good, 'tool/wheel/index.html', '<!doctype html><title>wheel</title>');
-    write(good, 'c/fortune/index.html', '<!doctype html><title>fortune</title>');
     write(good, 'games/index.html', '<!doctype html><title>games</title>');
     write(good, '404.html', '<!doctype html><title>404</title>');
     const run = spawnAgainst(good);
     assert.equal(run.status, 0, `clean fixture must exit 0 — stderr: ${run.stderr}`);
     assert.match(
       run.stdout,
-      /3 game page\(s\) and 5 other page\(s\) outside the opt-in set clean of data-page-chrome in .+; opt-in set \[index\.html\] renders it \(1 hit\(s\)\)/,
+      /3 game page\(s\) and 4 other page\(s\) outside the opt-in set clean of data-page-chrome in .+; opt-in set \[index\.html, c\/fortune\/index\.html, c\/party\/index\.html\] renders it \(3 hit\(s\)\)/,
       'the success line must name the measured counts of both negative legs and the render leg',
     );
-    console.log(`PASS negative legs + render leg, green direction: spawned against ${good} — flat and nested game pages, tools hub, tool, category, games hub and 404 all clean; home renders the chrome`);
+    console.log(`PASS negative legs + render leg, green direction: spawned against ${good} — flat and nested game pages, tools hub, tool, games hub and 404 all clean; home and both category landings render the chrome`);
   } finally {
     fs.rmSync(good, { recursive: true, force: true });
   }
@@ -285,7 +294,9 @@ function selftest() {
   // the error that follows cannot be any other leg's. The three classes the widened gate must own:
   // a flat game page, a NESTED game page (gh#105 false green 2), and the non-game pages the old
   // scan never enumerated — the tools hub, a tool page, a category page, and 404 (gh#105 false
-  // green 1, all three of its named landing sites plus one level deeper). The message must name
+  // green 1, all three of its named landing sites plus one level deeper). The category shape stays
+  // covered after the 2026-08-27 opt-in: the planted page is a category landing with no entry, which
+  // is exactly what a newly added third category looks like before the owner admits it. The message must name
   // the file, the line, and which leg fired.
   const GAME_PHRASE = 'game pages must never render it';
   const OPTIN_PHRASE = 'not in the chrome opt-in set';
@@ -294,7 +305,7 @@ function selftest() {
     ['a NESTED game page — gh#105 false green 2', 'game/x/y/index.html', GAME_PHRASE],
     ['the /tools/ hub — gh#105 false green 1', 'tools/index.html', OPTIN_PHRASE],
     ['a tool page', 'tool/wheel/index.html', OPTIN_PHRASE],
-    ['a category page', 'c/fortune/index.html', OPTIN_PHRASE],
+    ['a category page with no opt-in entry — the fail-safe a third category hits', 'c/newcat/index.html', OPTIN_PHRASE],
     ['the 404 page', '404.html', OPTIN_PHRASE],
   ]) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-bad-'));
@@ -315,15 +326,18 @@ function selftest() {
   // the entry missing entirely, the entry built but unmarked, and (covered below in the empty-set
   // cases) the tree with no non-game pages at all. All three must fail, never read as clean.
   for (const [label, makeTree] of [
-    ['opt-in page missing', (root) => { write(root, 'game/a/index.html', '<!doctype html><title>a</title>'); write(root, '404.html', '<!doctype html><title>404</title>'); }],
-    ['opt-in page present but unmarked', (root) => { write(root, 'index.html', '<title>x</title>'); write(root, 'game/a/index.html', '<!doctype html><title>a</title>'); write(root, '404.html', '<!doctype html><title>404</title>'); }],
+    // The other opt-in entries stay present AND marked in both trees, so the failure named below can
+    // only be about index.html — with them absent, 'c/fortune/index.html not found' would satisfy a
+    // loose match and the leg would stop pinning the shape it is named for.
+    ['opt-in page missing', (root) => { baseTree(root); fs.rmSync(path.join(root, 'index.html')); write(root, '404.html', '<!doctype html><title>404</title>'); }],
+    ['opt-in page present but unmarked', (root) => { baseTree(root); write(root, 'index.html', '<title>x</title>'); write(root, '404.html', '<!doctype html><title>404</title>'); }],
   ]) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-render-'));
     try {
       makeTree(dir);
       const run = spawnAgainst(dir);
       assert.notEqual(run.status, 0, `${label}: the render leg must exit non-zero, or a marker rename goes green on nothing`);
-      assert.match(run.stderr, /index\.html (not found under|carries data-page-chrome 0 times)/, `${label}: the failure message must name the opt-in entry`);
+      assert.match(run.stderr, /check: index\.html (not found under|carries data-page-chrome 0 times)/, `${label}: the failure message must name the opt-in entry`);
       console.log(`PASS render leg, red direction: ${label} exits non-zero and names index.html`);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
@@ -416,8 +430,8 @@ async function main() {
 
   // Opt-in leg: a non-game page may carry the marker only with an entry in ALLOWED_CHROME. Game
   // pages never reach this branch — the game leg owns that message outright.
-  for (const abs of otherPages) {
-    if (ALLOWED_CHROME.has(relOf(abs))) continue;
+  const otherPagesOutsideOptIn = otherPages.filter((a) => !ALLOWED_CHROME.has(relOf(a)));
+  for (const abs of otherPagesOutsideOptIn) {
     for (const hit of readHits(abs)) {
       fail(`${relOf(abs)}:${hit.line} · ${MARKER} · not in the chrome opt-in set · ${hit.snippet}`);
     }
@@ -444,7 +458,10 @@ async function main() {
     process.exit(1);
   }
   console.log(
-    `page-chrome-check: ${gamePages.length} game page(s) and ${otherPages.length - ALLOWED_CHROME.size} other page(s) outside the opt-in set clean of ${MARKER} in ${distRoot}; opt-in set [${[...ALLOWED_CHROME].join(', ')}] renders it (${optInHits} hit(s))${process.env.PAGE_CHROME_DIST_OVERRIDE ? ' (PAGE_CHROME_DIST_OVERRIDE active)' : ''}`
+    // gh#46: every printed number comes from the set that was actually walked. otherPages.length -
+    // ALLOWED_CHROME.size was equivalent only while every entry was a real non-game page; it would
+    // undercount the moment an entry did not exist in the artifact or did not land in otherPages.
+    `page-chrome-check: ${gamePages.length} game page(s) and ${otherPagesOutsideOptIn.length} other page(s) outside the opt-in set clean of ${MARKER} in ${distRoot}; opt-in set [${[...ALLOWED_CHROME].join(', ')}] renders it (${optInHits} hit(s))${process.env.PAGE_CHROME_DIST_OVERRIDE ? ' (PAGE_CHROME_DIST_OVERRIDE active)' : ''}`
   );
 }
 

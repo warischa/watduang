@@ -96,6 +96,18 @@ test('cross-link cards paint the sibling manifest accent and the tools group acc
   assert.ok(pageSrc.includes('{link.label}'), 'the cross-card label must render the sibling manifest label');
 });
 
+// gh#owner-2026-08-27 — the owner confirmed a category page gets the same top bar as every other
+// page. Calibration for this test lives in the session's own verify step (delete the PageChrome
+// usage, watch this go red, restore it) rather than a second assertion here.
+test('the category page renders the shared PageChrome, the same top bar the home page renders', () => {
+  assert.match(
+    pageSrc,
+    /from '\.\.\/\.\.\/components\/PageChrome\.astro'/,
+    'must import the shared chrome component, the same one index.astro renders',
+  );
+  assert.match(pageSrc, /<PageChrome>/, 'the page must render PageChrome so the top bar appears');
+});
+
 test('a new category builds a page with no edit to this file', () => {
   assert.match(pageSrc, /Object\.keys\(categories\)/, 'getStaticPaths must enumerate the manifest keys');
   assert.match(pageSrc, /\.filter\(\(key\) => key !== category\)/, 'the cross-links must derive from the same keys minus self');
