@@ -47,6 +47,35 @@ exact proposition ADR-0040 denies. The boundary claim wins over the SEO link gra
 flowing to it — a real, revenue-relevant cost, not a free correctness win. This ADR does not claim
 the cost is small or already measured; ADR-0003's Search Console gate is what would measure it.
 
+### The link cost, counted in the built output (gh#116 box 3)
+
+Measured 2026-08-27 by building both commits and counting `dist/` with identical commands. "Before"
+is `9c52693`, the parent of the gh#94 commit `aec5f8e`; "after" is `883283b`. No tags exist, so the
+commits are the anchors.
+
+| | before (`9c52693`) | after (`883283b`) | change |
+|---|---|---|---|
+| internal `href="/…"` occurrences | 133 | 124 | −9 |
+| `href="/game/…"` occurrences | 67 | 46 | **−21** |
+| built HTML pages | 15 | 15 | 0 |
+
+Commands, run in each build's own tree:
+
+    grep -roh 'href="/[^"]*"' dist --include='*.html' | wc -l
+    grep -roh 'href="/game/[^"]*"' dist --include='*.html' | wc -l
+    find dist -name '*.html' | wc -l
+
+The narrowing removed 21 `/game/` hrefs while total internal hrefs fell only 9, so roughly 12 links
+were added on other targets (category and tool routes) as the nav's shape changed. The page set did
+not change.
+
+**What this measurement does NOT cover.** These are counts of `href` occurrences in the built HTML,
+not unique targets, not per-page reachability, and not crawl or indexation outcomes. An occurrence
+count cannot distinguish a lost path to an otherwise-reachable page from a page losing its only
+inbound link — no gate walks the whole `dist/` link graph (confirmed 2026-08-27: the crawl gate proves
+GameNav sibling links only). So this quantifies the *link* change and says nothing about the harm;
+ADR-0003's Search Console gate remains the only thing that would measure the cost itself.
+
 ## The fact that would reverse this
 
 Either of the following would justify restoring symmetric links or something like them:
