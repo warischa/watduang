@@ -355,6 +355,11 @@ import GameNav from '../../components/GameNav.astro';
   const resultEl = document.getElementById('wheel-result') as HTMLElement;
   const noteEl = document.getElementById('wheel-note') as HTMLElement;
   const namesEl = document.getElementById('wheel-names') as HTMLUListElement;
+  // Astro's scoped styles key on the data-astro-cid attribute stamped on template elements only.
+  // Chips are created at runtime, so each gets the attribute copied off a stamped ancestor — the
+  // same trap draw.astro documents on its own scopeAttr lookup (without it,
+  // .wheel-names li's overflow-wrap: anywhere matches no real chip, and long names overflow).
+  const scopeAttr = Array.from(namesEl.attributes).find((a) => a.name.startsWith('data-astro-cid'));
   const spinBtn = document.getElementById('wheel-spin') as HTMLButtonElement;
   const stopBtn = document.getElementById('wheel-stop') as HTMLButtonElement;
   const resetBtn = document.getElementById('wheel-reset') as HTMLButtonElement;
@@ -473,6 +478,7 @@ import GameNav from '../../components/GameNav.astro';
       const name = roster[i]!;
       const isOut = eliminateBox.checked && round.has(i);
       const li = document.createElement('li');
+      if (scopeAttr) li.setAttribute(scopeAttr.name, scopeAttr.value);
       // State is announced as text, not just color or strikethrough.
       li.textContent = isOut ? `${name} (ออกแล้ว)` : name;
       if (isOut) li.classList.add('is-out');

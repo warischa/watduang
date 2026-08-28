@@ -588,7 +588,7 @@ import GameNav from '../../components/GameNav.astro';
 
   // Astro's scoped styles key on the data-astro-cid attribute stamped on template elements only.
   // Chips and team cards are created at runtime, so each gets the attribute copied off a stamped
-  // ancestor — the same trap ToolNameEntry documents for its own runtime chips.
+  // ancestor. wheel.astro and team.astro carry the same stamp, for the same reason.
   const scopeAttr = Array.from(boxEl.attributes).find((a) => a.name.startsWith('data-astro-cid'));
 
   // The round itself lives in draw-round.ts: which slots are left, which a press hands out, and who

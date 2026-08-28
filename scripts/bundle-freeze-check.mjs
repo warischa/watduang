@@ -40,8 +40,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
-// Measured on the real dist/ (2026-08-27, `npm run build` on a clean checkout): 19 reachable
-// chunks, 91190 total bytes. Re-derive both with the same walk on any deliberate bundle change —
+// Measured on the real dist/ (2026-08-28, `npm run build` on a clean checkout after the wheel.astro
+// data-astro-cid stamp fix for gh#109 box 5): 19 reachable chunks, 91298 total
+// bytes. Re-derive both with the same walk on any deliberate bundle change —
 // see "RE-BASELINE IS THE INTENDED SIGNAL" above.
 const BASELINE_BASENAMES = [
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
@@ -64,7 +65,7 @@ const BASELINE_BASENAMES = [
   'timebomb.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 91190;
+const BASELINE_TOTAL_BYTES = 91298;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;
