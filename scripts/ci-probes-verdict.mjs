@@ -189,7 +189,12 @@ const V = {
     const s = out.summary;
     if (!s) return 'control leg produced no summary -- it never exercised the detector';
     if (s.breakGuard !== true) return `control leg ran without BREAK_GUARD (breakGuard=${JSON.stringify(s.breakGuard)}) -- the buttons were never force-enabled`;
-    if (s.totalGapTests !== 12) return `the control ran ${s.totalGapTests} gap test(s), expected 12 -- it does not cover what the clean leg covers`;
+    if (s.totalGapTests !== 12) {
+      const cause = Array.isArray(s.scenarioErrors) && s.scenarioErrors.length
+        ? `scenario error(s): ${s.scenarioErrors.join(' | ')}`
+        : 'scenarioErrors is empty -- the lost leg left no recorded cause';
+      return `the control ran ${s.totalGapTests} gap test(s), expected 12 (${cause}) -- it does not cover what the clean leg covers`;
+    }
     if (s.suppressionLegs !== 9) return `${s.suppressionLegs} sub-400ms suppression leg(s), expected 9 -- the legs whose PASS condition is "nothing happened" were not all run`;
     if (s.suppressionLegsRed !== s.suppressionLegs) return `positive control stayed GREEN on ${s.suppressionLegs - s.suppressionLegsRed}/${s.suppressionLegs} suppression legs with every #stage button force-enabled -- the arm gate's early-tap detector is inert there, so its clean leg measures nothing`;
     return null;
