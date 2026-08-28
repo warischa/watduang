@@ -187,3 +187,35 @@ test('gh#51 F4: saveGroup replaces the group wholesale — an untick must never 
   saveGroup(['เอ']); // this round: the player unticked the second name on this page
   assert.deepEqual(loadGroup(), ['เอ'], 'a merge with the stored group resurrected the unticked name');
 });
+
+// gh#133 — a name with no visible character is not a name. trim() strips U+FEFF and U+00A0 but NOT
+// U+200B ZERO WIDTH SPACE or U+2060 WORD JOINER, so a name pasted out of a chat app became a roster
+// row that renders as nothing, cannot be told apart from the next blank one, and — there being no
+// remove-a-name control — could never be got rid of. Every invisible character below is written as a
+// \uXXXX escape, never as a literal: a literal is invisible in the diff and dies to any whitespace
+// cleaner.
+test('#133 a name with no visible character never becomes a player', async () => {
+  slots.clear();
+  const roster = loadRoster();
+  // The divergence input: trim() leaves every one of these standing, so the pre-fix guard stored them.
+  for (const blank of ['\u200B', '\u2060', '\u200B\u200B\u2060', ' \u200B ', '\uFEFF', '\u00A0', '\u200E', '\u00AD', '', '   ']) {
+    await roster.add(blank);
+  }
+  assert.deepEqual(roster.names(), [], 'nothing that renders as nothing was stored');
+  assert.equal(slots.has(KEY), false, 'and storage was never written at all');
+
+  // The other half, and the one that matters more: Thai "สระ" and "วรรณยุกต์" are nonspacing marks and
+  // must still store, or the guard silently blocks real players.
+  for (const name of ['สมชาย', 'น้ำ', 'ปุ๊กกี้', 'Beam', '7', 'ก\u200B']) {
+    await roster.add(name);
+  }
+  assert.deepEqual(roster.names(), ['สมชาย', 'น้ำ', 'ปุ๊กกี้', 'Beam', '7', 'ก\u200B'], 'every ordinary name still stores');
+});
+
+test('#133 a blank already in storage is dropped when the roster and the group are read', () => {
+  slots.clear();
+  slots.set(KEY, JSON.stringify(['บีม', '\u200B', 'น้ำ', '\u2060']));
+  saveGroup(['บีม', '\u200B']); // saveGroup stores raw by design, so this is a blank genuinely persisted
+  assert.deepEqual(loadRoster().names(), ['บีม', 'น้ำ'], 'the stored blank is gone from the roster');
+  assert.deepEqual(loadGroup(), ['บีม'], 'and gone from the saved group');
+});

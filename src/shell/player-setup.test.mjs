@@ -219,9 +219,11 @@ test('#data-loss no HTML comment in the template — Astro ships those to the pl
  *  brace-matching as fnBody above, needed because startBtn's handler is an anonymous arrow function
  *  bound via addEventListener, not a `function name(...)` declaration. */
 function listenerBody(elementVar, event) {
-  const needle = `${elementVar}.addEventListener('${event}', () => {`;
-  const start = script.indexOf(needle);
-  assert.ok(start >= 0, `${needle} not found in the island script`);
+  // `async` is optional in the needle: addBtn's click handler awaits roster.add(), and a fixed
+  // "', () => {" string silently failed to find it rather than reporting a wrong body.
+  const needle = new RegExp(`${elementVar}\\.addEventListener\\('${event}',\\s*(?:async\\s*)?\\(\\s*\\)\\s*=>\\s*\\{`);
+  const start = script.search(needle);
+  assert.ok(start >= 0, `${elementVar}.addEventListener('${event}', ...) not found in the island script`);
   const open = script.indexOf('{', start);
   const close = matchBraceEnd(script, open);
   assert.ok(close >= 0, `unbalanced braces after ${needle}`);
@@ -761,5 +763,31 @@ test('#23 requestStart clears the notice BEFORE the resume question opens — th
     clear < ask,
     'the clear sits below the ask branch, so a failed mount or an over-max warning is still on screen ' +
       'when #resume-choice opens under it',
+  );
+});
+
+// gh#133 — the island script cannot be imported, so this reads its source the same way the rest of
+// this file does. The behaviour is pinned in src/tools/name-list.test.mjs and src/shell/roster.test.mjs;
+// what is pinned HERE is that this handler consults the shared predicate itself. roster.add() already
+// refuses a blank, but this handler does four more things after awaiting it — selected.add(name),
+// clearing the input, clearing the error, re-rendering — so relying on add()'s silent refusal alone
+// would tick a player into the group and report success for a name that was never stored.
+test('#133 the add button rejects a name with no visible character before anything acts on it', () => {
+  const body = listenerBody('addBtn', 'click');
+  // positive control: the handler really is the one that adds, so a body that matched nothing below
+  // would not be quietly green
+  assert.match(body, /roster\.add\(name\)/, 'positive control: this handler is the one that adds to the roster');
+
+  assert.match(body, /hasVisibleChar\(name\)/, 'the add handler must gate on hasVisibleChar, not on a falsy trim() result');
+  assert.doesNotMatch(body, /if \(!name\) return/, 'the bare `if (!name)` guard is the defect: trim() leaves U+200B and U+2060 standing');
+
+  const guard = body.indexOf('hasVisibleChar');
+  for (const after of ['roster.add(name)', 'selected.add(name)', "addNameInput.value = ''"]) {
+    assert.ok(guard < body.indexOf(after), `the guard must run before ${after}`);
+  }
+  assert.match(
+    script,
+    /import \{ hasVisibleChar \} from '\.\.\/tools\/name-list(\.ts)?'/,
+    'and it must be the ONE shared predicate, imported — not a second copy of the rule',
   );
 });

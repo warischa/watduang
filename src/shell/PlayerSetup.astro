@@ -101,6 +101,10 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
 
 <script>
   import { loadRoster, loadGroup, saveGroup } from './roster';
+  // The one shared "does this render anything" predicate (gh#133). roster.add() applies it too, but
+  // this handler keeps going after the await — it ticks the name into `selected` and clears the box —
+  // so without the guard here a name that was never stored would still report success on screen.
+  import { hasVisibleChar } from '../tools/name-list';
   import { loadSession, type StartKind } from './session';
   import { resolveStart, numberedPlayers, planStart, planClear, clearCopy, type ResumeChoice } from './player-select';
   // gh#61 — the window a tool page arms on collapse is the games' window, imported rather than copied:
@@ -348,7 +352,9 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
   // fire-and-forget for the sake of a sync handler — that is the race back, wearing a lock.
   addBtn.addEventListener('click', async () => {
     const name = addNameInput.value.trim();
-    if (!name) return;
+    // Not `if (!name)`: trim() strips U+FEFF and U+00A0 but leaves U+200B and U+2060 standing, so a
+    // name pasted out of a chat app used to become a row that renders as nothing and cannot be removed.
+    if (!hasVisibleChar(name)) return;
     await roster.add(name);
     selected.add(name);
     addNameInput.value = '';

@@ -22,7 +22,7 @@ const KEY = 'watduang:tool:wheel-names';
 // polices it): a canary standing in for every store a tool must not touch.
 const SHARED_CANARY = 'watduang:group';
 
-const { loadToolNames, saveToolNames } = await import('./name-list.ts');
+const { loadToolNames, saveToolNames, parseNameLines, hasVisibleChar } = await import('./name-list.ts');
 
 test('empty, missing and unreadable storage all load as an empty list', () => {
   slots.clear();
@@ -61,4 +61,46 @@ test('#91 key isolation — saving one tool list leaves every other stored key b
   assert.equal(slots.get(SHARED_CANARY), canaryValue, 'the shared store is untouched by a tool write');
   assert.equal(slots.get('watduang:tool:draw-names'), JSON.stringify(['ฟ้า']), 'another tool\'s list is untouched');
   assert.deepEqual(JSON.parse(slots.get(KEY)), ['ปอนด์', 'แทน'], 'only the handed key moved');
+});
+
+// gh#133 — a name with no visible character is not a name. trim() strips U+FEFF and U+00A0 but NOT
+// U+200B or U+2060, so a pasted zero-width line survived every guard and became an entry that renders
+// as nothing. Written as escapes, never as literal invisible characters: a literal is invisible in a
+// diff and dies to any whitespace cleaner.
+const INVISIBLE_ONLY = [
+  '',
+  '   ',
+  '\u200B', // ZERO WIDTH SPACE
+  '\u2060', // WORD JOINER
+  '\u200B\u200B\u2060',
+  ' \u200B ', // ordinary spaces around a ZERO WIDTH SPACE
+  '\uFEFF', // ZERO WIDTH NO-BREAK SPACE / BOM
+  '\u00AD', // SOFT HYPHEN
+  '\u200E', // LEFT-TO-RIGHT MARK
+  '\u00A0', // NO-BREAK SPACE
+  '\u3000', // IDEOGRAPHIC SPACE
+];
+// The false-reject side, and it is the one that matters more here: Thai "สระ" and "วรรณยุกต์" are
+// Unicode nonspacing marks (category Mn) that appear in ordinary names, so a predicate that rejected
+// Mn would silently block real players. Latin, digits and emoji must pass too.
+const REAL_NAMES = ['สมชาย', 'น้ำ', 'ปุ๊กกี้', 'แนน', 'Beam', '7', '🎉', 'ก\u200B'];
+
+test('#133 a string with no visible character is rejected, and every ordinary name is accepted', () => {
+  for (const blank of INVISIBLE_ONLY) {
+    assert.equal(hasVisibleChar(blank), false, `expected NO visible character in ${JSON.stringify(blank)}`);
+  }
+  for (const name of REAL_NAMES) {
+    assert.equal(hasVisibleChar(name), true, `expected a visible character in ${JSON.stringify(name)}`);
+  }
+});
+
+test('#133 parseNameLines drops a zero-width-only line and keeps every real name', () => {
+  const text = ['บีม', '\u200B', 'น้ำ', '\u2060\uFEFF', '', 'ปุ๊กกี้', ' \u200B '].join('\n');
+  assert.deepEqual(parseNameLines(text), ['บีม', 'น้ำ', 'ปุ๊กกี้']);
+});
+
+test('#133 a zero-width entry already in storage is dropped when the list is read', () => {
+  slots.clear();
+  slots.set(KEY, JSON.stringify(['บีม', '\u200B', 'น้ำ', '\u2060']));
+  assert.deepEqual(loadToolNames(KEY), ['บีม', 'น้ำ']);
 });

@@ -1,5 +1,11 @@
 // Player roster persists across rounds, across games — localStorage (every storage touch needs try/catch, issue #7)
 import type { Roster } from '../games/types';
+// One shared predicate for "this string contains a character that actually renders", consumed by
+// every place a name is authored or read back. It lives in the tool module, not here and not in a
+// module of its own, for a build reason: name-list.js is ALREADY an emitted shared chunk, so
+// importing from it changes no reachable-chunk basename, while a new file imported by both this
+// module and the tools would emit a new chunk and red bundle-freeze-check.
+import { hasVisibleChar } from '../tools/name-list.ts'; // .ts extension: node --test resolves this module directly (player-select.ts imports the same way)
 
 const KEY = 'watduang:roster';
 // "Group" = the subset of the roster actually playing — deliberately a separate key from roster (#15)
@@ -11,7 +17,18 @@ function read(key: string): string[] {
     const raw = localStorage.getItem(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((n): n is string => typeof n === 'string') : [];
+    // The read-side drop, and it covers loadRoster AND loadGroup because both come through here: a
+    // name with no visible character that was stored before this guard existed disappears the first
+    // time the roster is read. That is what makes the missing remove-a-name control survivable.
+    // What it does NOT cover: a checkpoint written before this guard existed. resumeFrom in the game
+    // modules restores from the checkpoint's own players array and never re-reads the roster, so an
+    // in-progress round saved with a blank in it resumes with that blank. Self-limiting — it dies
+    // with the round and cannot come back, because the roster it would be re-added from is filtered
+    // here. Left alone deliberately: rewriting a stored checkpoint is the one edit that can lose a
+    // round in progress, which is a worse failure than one invisible row for one round.
+    return Array.isArray(parsed)
+      ? parsed.filter((n): n is string => typeof n === 'string' && hasVisibleChar(n))
+      : [];
   } catch {
     return [];
   }
@@ -87,7 +104,9 @@ export function loadRoster(): Roster {
     },
     async add(name: string): Promise<void> {
       const trimmed = name.trim();
-      if (!trimmed) return; // nothing to store, so nothing worth queueing on the lock for
+      // Not `if (!trimmed)`: trim() strips U+FEFF and U+00A0 but leaves U+200B and U+2060 standing,
+      // so a name pasted out of a chat app used to pass here and become a row that renders as nothing.
+      if (!hasVisibleChar(trimmed)) return; // nothing to store, so nothing worth queueing on the lock for
       // #data-loss: re-read at the write, never at the load, and the re-read has to sit INSIDE the lock.
       // localStorage is shared by every tab on the domain, so the list captured above can be stale by the
       // time this runs: tab B adds a name, tab A adds another, and A writing its whole captured array back
