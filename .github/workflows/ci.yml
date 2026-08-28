@@ -181,6 +181,14 @@ jobs:
       - name: Accent colour single-sourced across its surfaces (gh#128)
         run: node scripts/accent-single-source-check.mjs --selftest && node scripts/accent-single-source-check.mjs
 
+      # gh#134 — a per-game stylesheet is imported if and only if its game is registered. Both
+      # directions ship silently: an import with no registration pushed page-global bytes no page
+      # consumed (601d498), and a registration with no import ships the page unstyled. Reads source
+      # text and imports the manifest only, no dist/, so it belongs with the pre-build gates.
+      # --selftest first, same reason as the gates above.
+      - name: Per-game CSS imported if and only if the game is registered (gh#134)
+        run: node scripts/css-reachability-check.mjs --selftest && node scripts/css-reachability-check.mjs
+
       # gh#89 — ADR-0040: the party-size claim is true of the สุ่มคนโดน หมวด, not of the site, so it
       # is permitted only where that หมวด or one of its members is the subject. Scans src/*.astro
       # and src/*.ts, so it belongs here with the other pre-build source-text gates. Its own header
