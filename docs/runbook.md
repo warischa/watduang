@@ -49,6 +49,36 @@ npx tsc --noEmit     # run separately, build doesn't do this
 CI calls `npm run build` in `.github/workflows/ci.yml` for the same reason — if someone ever reverts
 that to `npx astro build`, the gate goes silent instantly.
 
+## Adding a game trips two pinned-count gates, and `npm run ci` cannot see one of them
+
+**Symptom:** every gate passes locally, CI goes red anyway.
+
+`npm run ci` does **not** include `ci-probes`. The seven browser probes exist only as a workflow
+step, so a locally green `npm run ci` says nothing about them. Verified 2026-08-28 by grepping the
+`ci` script: it is a 32-command chain and `ci-probes` is not in it.
+
+**Locally green means all three, not two:**
+
+```bash
+npm run ci && npx astro check && npm run ci-probes
+```
+
+Two gates pin a COUNT, so registering any new game trips both by construction. Neither is a defect:
+
+| gate | what it pins | why a new game trips it |
+|---|---|---|
+| `scripts/bundle-freeze-check.mjs` | the chunk basename set exactly, plus total bytes within 5% | a new game adds a chunk name, and one game's bytes exceed the band |
+| `scripts/control-floor-probe.mjs` | `CONTROL_COUNT`, the `.game-btn` controls rendered across two screens per game page | a new page renders new controls |
+
+Both say the same thing in their own words: re-record **with the reason**, never to make a run pass.
+So attribute the delta before changing the number — a net +1 can hide a +2 with something else
+silently dropping to 0. Name which game contributes what, and check that no other game's module or
+the shell changed in the same commit.
+
+`ci-probes` cannot be run piecemeal: no single-leg flag, and it refuses to start if its ports are in
+use, so it can never probe a foreign server or attach to someone else's Chrome. It needs `dist/` and a
+real Chrome and fails loud rather than skipping. Run only ONE probe harness at a time.
+
 ## `tsc --noEmit` does not typecheck `.astro`
 
 **Symptom:** `npx tsc --noEmit` exits 0 and you conclude the types are clean. They may not be.
