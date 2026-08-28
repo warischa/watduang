@@ -10,11 +10,12 @@ import siamsi from './siamsi.ts';
 import pickLoser from './pick-loser.ts';
 import shortStick from './short-stick.ts';
 import dailyFortune from './daily-fortune.ts';
+import freezeTap from './freeze-tap.ts';
 // love-match is deliberately NOT registered: the page is delisted until gh#101 rebuilds it (the solo
 // mount hands it an empty roster, so every visitor hit "need 2+ people"). src/games/love-match.ts,
 // its test, and its stylesheet stay on disk on purpose — gh#101 rebuilds from them.
 
-export const games: GameModule[] = [timebomb, siamsi, pickLoser, shortStick, dailyFortune];
+export const games: GameModule[] = [timebomb, siamsi, pickLoser, shortStick, dailyFortune, freezeTap];
 
 export const byId = (id: string): GameModule | undefined =>
   games.find((g) => g.id === id);
