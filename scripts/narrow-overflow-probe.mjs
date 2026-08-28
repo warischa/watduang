@@ -1,10 +1,10 @@
-// 320px overflow check across BOTH families of screen that render a reader's names: the six game
+// 320px overflow check across BOTH families of screen that render a reader's names: the five game
 // pages, and the four /tool/ pages. The tool pages joined this probe for gh#109's last box — their
 // name lists got fixed heights in 95140b2, which bounds vertical growth and says nothing about a
 // long unbreakable token going sideways, and they seed from their OWN per-tool localStorage key
 // (ADR-0039 took the tools off the shared roster), never 'watduang:roster'.
 const BASE = process.env.BASE || 'http://localhost:4321';
-const GAMES = ['pick-loser', 'timebomb', 'siamsi', 'short-stick', 'daily-fortune', 'love-match'];
+const GAMES = ['pick-loser', 'timebomb', 'siamsi', 'short-stick', 'daily-fortune'];
 const NAMES = ['ก้อง', 'ฟ้า', 'ตูน', 'แนน', 'บอส', 'มิ้น'];
 // A 24-character spaceless Latin name is the worst case the roster allows. LONG_TOKEN is the
 // calibration knob, not a setting: an 80-character token proves the detector can go RED, and

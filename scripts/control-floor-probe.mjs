@@ -43,10 +43,12 @@
 // WHAT ITS GREEN DOES NOT MEAN. 320px only — 390px is UNMEASURED here, deliberately: 320 is the
 // binding width (a floor that holds at 320 holds wider, and every layout hazard in this repo has
 // surfaced at 320 first). Two screens per page, not every screen; one browser; and love-match
-// contributes ZERO controls today — its shipped solo wiring hands mount() an empty roster, so its
-// pick screen renders a static "need 2+ people" message with no button (the same dead end
-// scripts/ad-slot-game-probe.mjs documents and bypasses via a direct chunk mount; this leg does not
-// bypass it, and CONTROL_COUNT records the consequence).
+// contributes ZERO controls — it has no page at all any more. It was delisted pending its "เนื้อคู่"
+// redesign, so this manifest-driven walk never reaches it. It contributed zero before the delisting
+// too, for a different reason: its solo wiring handed mount() an empty roster and the pick screen
+// rendered a buttonless "need 2+ people" message. CONTROL_COUNT is unchanged either way, so a green
+// here says nothing about that game — scripts/ad-slot-game-probe.mjs still reaches its code, by
+// mounting the chunk directly rather than by visiting a page.
 //
 // WIRED as a ci-probes leg (a red = a floor that stopped reaching JS-created controls, or a control
 // below the tap minimum — both regressions in THIS repo). Not --selftest-audited: it lives behind the

@@ -1,18 +1,21 @@
 // Proves: the committed no-nav-in-stage-probe.mjs samples only 3 points on centre-x per transition,
-// which misses siamsi/love-match's "again" button anchors sitting ~7px off that axis (x=52 vs the
-// sampled x=45). This probe grid-scans the WHOLE button box instead. Result on the post-fix build:
-// roster 7 with 24-char names — 25 of 60 sampled points resolve to GameNav a[href] links
-// (/game/pick-loser/, /game/short-stick/ at roster 7; /game/daily-fortune/, /game/love-match/ at
-// roster 8) — a double-tap on "again" can land the group in a different game. See
-// docs/verification/evidence/34/15-no-nav-in-stage.json for the full writeup.
+// which misses the siamsi and love-match "again" button anchors sitting ~7px off that axis (x=52 vs
+// the sampled x=45). This probe grid-scans the WHOLE button box instead. Result on the post-fix build:
+// roster 7 with 24-char names — 25 of 60 sampled points resolve to GameNav a[href] links (pick-loser
+// and short-stick at roster 7; daily-fortune and love-match at roster 8) — a double-tap on "again" can
+// land the group in a different game. See docs/verification/evidence/34/15-no-nav-in-stage.json for
+// the full writeup. That capture predates the delisting below; its love-match rows are a historical
+// record of what was measured then, not a claim about today's routes.
 //
 // Run: ROSTER_JSON='[...]' GAME_ID=siamsi node scripts/driver.mjs scripts/gamenav-again-grid-probe.mjs
 // (needs `npx serve dist/ -l 4321` and headless Chrome on CDP_PORT — see scripts/driver.mjs's header)
-// GAME_ID also accepts love-match (WALKS/AGAIN below are already keyed per game id — no code change
-// needed to target a different game, just swap GAME_ID and its ROSTER_JSON roster size).
+// GAME_ID is siamsi only today: the love-match page is delisted until gh#101 rebuilds it, so pointing
+// GAME_ID at it now navigates to a 404 where #start-round is absent and the walk throws. Its
+// WALKS/AGAIN entries are kept below, unused, so the rebuilt page needs no code change here.
 //
 // Grid-scan the whole box of the end-of-round "again" button across its tap-transition,
-// walking the real game to reach it (siamsi: draw/pass to summary; love-match: two picks).
+// walking the real game to reach it (siamsi: draw/pass to summary; love-match, when it returns: two
+// picks).
 // STATUS (gh#43): CLOSED EVIDENCE, not a regression suite. ADR-0015 decided nothing moves and only the consequence changes, so the collision counts recorded above are the permanent accepted state — this probe is EXPECTED to report collisions and a green run is not the goal. What can regress is the marker set, now gated by scripts/stable-exit-markers-check.mjs.
 const PLAYERS = JSON.parse(process.env.ROSTER_JSON);
 const WALKS = {

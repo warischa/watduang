@@ -40,3 +40,22 @@ npm run build && npx serve@14 dist/ -l 4321 &   # then walk the smoke step's own
 runs without an Azure runtime, and the schema validator only executes inside the deploy. A failed
 deploy is the cheap end of that — it ships nothing and breaks nothing. Before pushing, the only checks
 available are that the file parses and that no two routes collide once trailing slashes are stripped.
+
+## The URL sweep above is blind to probes that build the URL from a bare id
+
+`grep -rn '/<the-url>/'` only finds callers that spell out the full path. Several `scripts/*-probe.mjs`
+files instead hold a bare page id in an array (`GAMES`, `DIALOG_PAGES`) or a skip-reason map keyed by
+that id, and build `/game/${id}/` at call time — the full-path sweep returns nothing for them, and
+`ci-probes` is not wired into `npm run ci`, so a deleted page's id can sit live in an active probe list
+through a push (2026-08-28, `/game/love-match/` delisted, found only after the fact). Run a second sweep
+for these:
+
+```bash
+grep -rn "'love-match'" scripts/   # the bare id, not the URL
+```
+
+Every hit in an ACTIVE list (drives real navigation) must lose the id. Every hit in a skip-reason map
+(documents why a page is deliberately not walked) is stale the moment the page stops existing at all —
+delete the entry rather than leave it describing something no longer there, and check the map's own
+sibling — a hardcoded page count in `scripts/ci-probes-verdict.mjs` or the probe's own summary — for a
+number that now needs to shrink by one too.

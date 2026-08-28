@@ -31,7 +31,9 @@ CDP_A="${PROBE_CDP_PORT:-9344}"
 CDP_B="${PROBE_CDP_REDUCED_PORT:-9345}"
 # driver.mjs's nav() waits on Page.loadEventFired with NO timeout -- a URL that never fires load hangs
 # forever, and in CI that burns the whole job budget instead of failing. Per-leg watchdog below.
-# ponytail: one flat timeout for every leg; narrow-overflow is the long one (24 pages x 2 navs).
+# ponytail: one flat timeout for every leg; narrow-overflow is the long one (22 screens — 5 games at
+# two rosters each, 4 tools at three). Re-count this when a page is added or delisted; the number is
+# pinned for real in ci-probes-verdict.mjs, and this comment is only a hint about which leg is slowest.
 LEG_TIMEOUT="${PROBE_TIMEOUT:-600}"
 OUT_DIR="${PROBE_OUT_DIR:-$(mktemp -d /tmp/ci-probes.XXXXXX)}"
 SITE="http://localhost:${PORT}"

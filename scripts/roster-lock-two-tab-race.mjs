@@ -20,7 +20,13 @@
 const [portArg, mode, nArg, urlPath] = process.argv.slice(2);
 const PORT = Number(portArg);
 const N = Number(nArg);
-const URL = `http://127.0.0.1:${PORT}${urlPath || '/game/love-match/'}`;
+// Default target: any page that renders PlayerSetup, i.e. a party game ([2, 10]) — the harness drives
+// #roster-add-name/#roster-add-btn, which only that panel ships. It used to default to
+// the love-match page, which stopped rendering PlayerSetup when ADR-0040 made it a [1, 1] solo page
+// and no longer exists at all now that it is delisted (gh#101). Either way the adds silently threw
+// on a null input and every round scored as a lost name, which reads exactly like the race it is
+// supposed to detect. pick-loser is the smallest party page that still exercises the same roster.add().
+const URL = `http://127.0.0.1:${PORT}${urlPath || '/game/pick-loser/'}`;
 
 const api = async (p, method = 'GET') =>
   (await fetch(`http://127.0.0.1:9222${p}`, { method })).json();

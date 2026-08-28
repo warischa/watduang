@@ -30,9 +30,9 @@ try { out = JSON.parse(read(outFile)); } catch { bad(`output was not JSON${label
 
 const V = {
   'narrow-overflow': () => {
-    // 6 games x 2 rosters + 4 tools x 3 rosters = 24 screens. Pinned, not ">0": a run that silently
+    // 5 games x 2 rosters + 4 tools x 3 rosters = 22 screens. Pinned, not ">0": a run that silently
     // stopped visiting pages reports bad:0 too.
-    if (out.checked !== 24) return `visited ${out.checked} screens, expected 24 (6 games x 2 rosters + 4 tools x 3 rosters)`;
+    if (out.checked !== 22) return `visited ${out.checked} screens, expected 22 (5 games x 2 rosters + 4 tools x 3 rosters)`;
     if (out.bad !== 0) return `${out.bad} screen(s) overflow at 320px`;
     return null;
   },
@@ -42,7 +42,7 @@ const V = {
   // is how a silently-inert games half hid.
   'narrow-overflow-control': () => {
     if (out.breakGuard !== true) return `control leg ran without BREAK_GUARD (breakGuard=${JSON.stringify(out.breakGuard)}) -- it measured the guarded pages, not the stripped ones`;
-    if (out.checked !== 24) return `visited ${out.checked} screens, expected 24 -- the control did not cover what the clean leg covers`;
+    if (out.checked !== 22) return `visited ${out.checked} screens, expected 22 -- the control did not cover what the clean leg covers`;
     if (!(out.badGames > 0)) return `positive control stayed GREEN on all ${out.checkedGames} GAME screens with overflow-wrap stripped and a ${out.tokenLength}-char unbreakable token -- the games half of the 320px detector is inert, so its clean leg measures nothing`;
     if (!(out.badTools > 0)) return `positive control stayed GREEN on all ${out.checkedTools} TOOL screens with overflow-wrap stripped and a ${out.tokenLength}-char unbreakable token -- the tools half of the 320px detector is inert, so its clean leg measures nothing`;
     return null;
@@ -147,13 +147,13 @@ const V = {
     const s = out.summary;
     if (!s) return 'no summary in probe output -- nothing was measured';
     if (s.breakGuard !== false) return `clean leg ran with BREAK_GUARD set (breakGuard=${JSON.stringify(s.breakGuard)})`;
-    if (s.pagesScanned !== 6) return `scanned ${s.pagesScanned} PlayerSetup page(s), expected 6`;
+    if (s.pagesScanned !== 5) return `scanned ${s.pagesScanned} PlayerSetup page(s), expected 5`;
     // Two-way calibration, per page: assertion A passes on "no stray buttons", which is also what a
     // scan that found no buttons at all looks like. detectorCalibrated is that page's own proof it
     // CAN see the buttons while the dialog is open.
-    if (s.assertionA_pagesWithCalibratedDetector !== 6) return `only ${s.assertionA_pagesWithCalibratedDetector}/6 pages proved the button detector can see buttons while the dialog is OPEN -- on the rest, "no stray buttons while closed" measures nothing`;
+    if (s.assertionA_pagesWithCalibratedDetector !== 5) return `only ${s.assertionA_pagesWithCalibratedDetector}/5 pages proved the button detector can see buttons while the dialog is OPEN -- on the rest, "no stray buttons while closed" measures nothing`;
     const a = Object.entries(s.assertionA_closedDialogInert ?? {}).filter(([, v]) => v !== 'PASS');
-    if (Object.keys(s.assertionA_closedDialogInert ?? {}).length !== 6) return `assertion A reported ${Object.keys(s.assertionA_closedDialogInert ?? {}).length} page verdicts, expected 6`;
+    if (Object.keys(s.assertionA_closedDialogInert ?? {}).length !== 5) return `assertion A reported ${Object.keys(s.assertionA_closedDialogInert ?? {}).length} page verdicts, expected 5`;
     if (a.length) return `assertion A (closed #leave-confirm is inert) not PASS on: ${JSON.stringify(a)}`;
     for (const [name, map] of [['B (post-dismiss inertness)', s.assertionB_postDismissInert], ['D (modified clicks pass through)', s.assertionD_modifiedClicksPassThrough]]) {
       const e = Object.entries(map ?? {});
@@ -167,8 +167,8 @@ const V = {
     const s = out.summary;
     if (!s) return 'control leg produced no summary -- it never exercised the detector';
     if (s.breakGuard !== true) return `control leg ran without BREAK_GUARD (breakGuard=${JSON.stringify(s.breakGuard)}) -- the display:flex defect was never planted`;
-    if (s.pagesScanned !== 6) return `the control scanned ${s.pagesScanned} page(s), expected 6 -- it does not cover what the clean leg covers`;
-    if (s.assertionA_pagesWithStrayButtons !== 6) return `positive control stayed GREEN on ${6 - s.assertionA_pagesWithStrayButtons}/6 pages with the tokens.css display:flex defect re-planted -- assertion A's hit-test cannot see two live buttons in a closed dialog there, so its clean leg measures nothing`;
+    if (s.pagesScanned !== 5) return `the control scanned ${s.pagesScanned} page(s), expected 5 -- it does not cover what the clean leg covers`;
+    if (s.assertionA_pagesWithStrayButtons !== 5) return `positive control stayed GREEN on ${5 - s.assertionA_pagesWithStrayButtons}/5 pages with the tokens.css display:flex defect re-planted -- assertion A's hit-test cannot see two live buttons in a closed dialog there, so its clean leg measures nothing`;
     return null;
   },
   'arm-gate': () => {

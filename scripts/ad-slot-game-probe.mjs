@@ -147,26 +147,40 @@ async function fillDailyFortuneName(session) {
   `);
 }
 
-// love-match's shipped isSolo wiring hands game.mount() a hardcoded soloSession whose `players` is
+// love-match's shipped isSolo wiring handed game.mount() a hardcoded soloSession whose `players` was
 // ALWAYS [] (src/pages/game/[id].astro's soloSession literal) — never read from localStorage or
 // anywhere else. renderPick() in src/games/love-match.ts requires roster.length >= 2 or it renders a
-// static "need 2+ people" message and returns, with NO button in #stage at all. That means love-match's
-// pick/result screens — including the HEADER_STYLE code path the brief asks about — are UNREACHABLE
-// through the real shipped UI today. This is a disclosed, pre-existing gap (the GameModule declaration in love-match.ts carries its own
-// comment: "content redesign is the เนื้อคู่ ticket, which this ticket unblocks"), not something this
-// probe introduces.
+// static "need 2+ people" message and returns, with NO button in #stage at all. Every visitor saw only
+// that message, so the owner delisted the page until gh#101 rebuilds it: the module is off the
+// manifest and NO page is generated for it any more. The module itself still ships as a chunk (the
+// game page's import.meta.glob still matches src/games/*.ts), so the HEADER_STYLE code path below is
+// still real compiled code and still worth measuring — it just has no page of its own to be reached
+// from, and never did through the real UI.
 //
 // To measure the real code anyway, this loads the already-fetched compiled module chunk (the page's own
 // isSolo branch already dynamic-imports it on mount — found via performance.getEntriesByType, never a
 // hardcoded build hash) and calls its mount() directly with a synthetic ctx carrying real player names.
 // This bypasses the shell's session wiring on purpose; it does not touch src/**.
 const LOVE_MATCH_CHUNK_RE = /\/_astro\/love-match\.[A-Za-z0-9_-]+\.js(?:\?.*)?$/;
+// The game page's own module chunk, and the relative specifier it holds for love-match's chunk.
+const PAGE_CHUNK_RE = /\/_astro\/_id_\.astro_astro_type_script[^/]*\.js(?:\?.*)?$/;
+const LOVE_MATCH_REL_RE = /["'](\.\/love-match\.[A-Za-z0-9_-]+\.js)["']/;
 
 async function mountLoveMatchDirect(session, names) {
   const res = await session.evaluate(`
     const entries = performance.getEntriesByType('resource').map((e) => e.name);
-    const match = entries.find((u) => ${LOVE_MATCH_CHUNK_RE}.test(u));
-    if (!match) return { missing: true, reason: 'love-match chunk not found in performance entries' };
+    let match = entries.find((u) => ${LOVE_MATCH_CHUNK_RE}.test(u));
+    if (!match) {
+      // No page imports love-match any more (delisted, gh#101), so nothing fetches its chunk. The host
+      // page's own module chunk still carries the glob's import("./love-match.<hash>.js") literal —
+      // read the hash off that instead of hardcoding a build hash, same principle as the branch above.
+      const pageChunk = entries.find((u) => ${PAGE_CHUNK_RE}.test(u));
+      if (!pageChunk) return { missing: true, reason: 'host page module chunk not found in performance entries' };
+      const src = await (await fetch(pageChunk)).text();
+      const rel = src.match(${LOVE_MATCH_REL_RE})?.[1];
+      if (!rel) return { missing: true, reason: 'love-match chunk not referenced by the host page module chunk' };
+      match = new URL(rel, pageChunk).href;
+    }
     const mod = await import(match);
     if (!mod.default || typeof mod.default.mount !== 'function') return { missing: true, reason: 'module has no default.mount' };
     const stage = document.getElementById('stage');
@@ -188,20 +202,28 @@ async function mountLoveMatchDirect(session, names) {
   return null;
 }
 
+// HOST_PAGE: love-match has no page of its own any more (see mountLoveMatchDirect's comment). Any
+// generated game page works as a host — it only has to be same-origin and load the game page's module
+// chunk, which is where the love-match chunk's hash is read from. daily-fortune is used because it is
+// the same [1, 1] solo shape love-match had, and calibrateLeg() below already hosts on it.
+const LOVE_MATCH_HOST = '/game/daily-fortune/';
+
 async function seedLoveMatch(session, width, names) {
-  const url = `${BASE}/game/love-match/`;
+  const url = `${BASE}${LOVE_MATCH_HOST}`;
   await session.nav(url);
   await session.setWidth(width, 1600);
   await session.wipe();
   await session.nav(url);
   await session.setWidth(width, 1600);
-  await sleep(700); // let the real (dead-end) isSolo mount finish first, so the chunk is fetched
+  await sleep(700); // let the host page's own solo mount finish first, so its module chunk is loaded
   return mountLoveMatchDirect(session, names);
 }
 
 // ---- Per-page config ----
 const PAGE_CONFIG = {
   'daily-fortune': { kind: 'solo', path: '/game/daily-fortune/', afterSeed: fillDailyFortuneName },
+  // Not a page: the love-match module direct-mounted onto LOVE_MATCH_HOST. Kept so gh#101's rebuild
+  // inherits the measurement; the 'page' label below names the module, not a URL.
   'love-match': { kind: 'lovematch', names: ['เอ', 'บี'] },
   'short-stick': { kind: 'party', path: '/game/short-stick/', names: ['เอ', 'บี', 'ซี'] },
   timebomb: { kind: 'party', path: '/game/timebomb/', names: ['เอ', 'บี', 'ซี'] },
@@ -255,15 +277,15 @@ async function measurePageTransitions(session, page, width) {
 
 // ---- love-match's own question: does HEADER_STYLE in love-match.ts ever wrap past 2 lines? ----
 async function loveMatchHeaderCase(session, width, caseLabel, name, viaLocalStorage) {
-  const url = `${BASE}/game/love-match/`;
+  const url = `${BASE}${LOVE_MATCH_HOST}`;
   await session.nav(url);
   await session.setWidth(width, 1600);
   await session.wipe();
   if (viaLocalStorage) {
     // Literal brief instruction: an old, uncapped localStorage roster entry can outlive today's input
     // maxlength. Written here so that state genuinely exists on disk — but per mountLoveMatchDirect's
-    // comment above, love-match's shipped soloSession never reads this key, so it has no effect on the
-    // real mount path. The direct-mount bypass below (same `name`, passed through the synthetic ctx) is
+    // comment above, love-match's soloSession never read this key, and it has no page left to mount on
+    // at all. The direct-mount bypass below (same `name`, passed through the synthetic ctx) is
     // what actually exercises headerNameFor() with it.
     await session.evaluate(`localStorage.setItem('watduang:roster', ${JSON.stringify(JSON.stringify([name, 'คู่ทดสอบ']))}); return true;`);
   }

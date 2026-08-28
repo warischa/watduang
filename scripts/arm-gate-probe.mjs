@@ -37,20 +37,21 @@
 
 const ARM_DELAY_MS = 400; // mirrors src/games/_arm-gate.ts
 
-// ponytail: COVERAGE CEILING — 3 of 6 games, and the missing 3 are named rather than averaged away.
-// This file used to carry daily-fortune, love-match and siamsi scenarios built on PlayerSetup's
-// #roster-list / #start-round and on roster chips. ADR-0040 (2026-08-25) made all three solo ([1, 1]):
+// ponytail: COVERAGE CEILING — 3 of 5 games, and the missing 2 are named rather than averaged away.
+// This file used to carry daily-fortune and siamsi scenarios built on PlayerSetup's
+// #roster-list / #start-round and on roster chips. ADR-0040 (2026-08-25) made both solo ([1, 1]):
 // no panel, no #start-round (every one of those legs threw "Cannot read properties of null (reading
-// 'click')"), and an empty group, so daily-fortune renders no chips at all and love-match/siamsi have
-// no pair to pick and no turn to pass until their own redesign tickets land. The scenarios were deleted
+// 'click')"), and an empty group, so daily-fortune renders no chips at all and siamsi has
+// no turn to pass until its own redesign ticket lands. The scenarios were deleted
 // rather than rewritten against screens that are about to be replaced. What they proved is not lost:
 // scripts/arm-gate-coverage-check.mjs statically gates that EVERY render function in EVERY game arms
 // its buttons (armAllButtons); what only this probe can prove — that a real touch on a `disabled`
 // button still bubbles pointerdown to #stage — is a physical property of the browser, not of a game,
-// so 3 games exercise it as convincingly as 6.
+// so 3 games exercise it as convincingly as 5.
+// (love-match was delisted pending its "เนื้อคู่" redesign, gh#101, and no longer resolves at all — it
+// carries no scenario and no NOT_COVERED entry, the same way a deleted page carries neither.)
 const NOT_COVERED = {
   'daily-fortune': 'ADR-0040 solo page: renders no roster chips (empty group), so the chip-exception and chip-driven legs have no chips to tap.',
-  'love-match': 'ADR-0040 solo page: no pair to pick with an empty group; party-shaped content pending its own redesign ticket.',
   siamsi: 'ADR-0040 solo page: no #start-round and no multi-player turn to pass; party-shaped content pending its own redesign ticket.',
 };
 

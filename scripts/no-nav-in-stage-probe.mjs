@@ -36,16 +36,19 @@
 // signal is "nothing found" and which has never found anything cannot be told from one that measured
 // nothing (docs/verification/probe-triage-2026-08-26.md).
 //
-// ponytail: COVERAGE CEILING — 4 of the site's 6 games, deliberately. ADR-0040 (2026-08-25) made
-// daily-fortune, love-match and siamsi solo pages ([1, 1]): no PlayerSetup, no #start-round, and an
-// EMPTY group (`soloSession.players = []`, src/pages/game/[id].astro), so none of them renders the
+// ponytail: COVERAGE CEILING — 4 of the site's 5 games, deliberately. ADR-0040 (2026-08-25) made
+// daily-fortune and siamsi solo pages ([1, 1]): no PlayerSetup, no #start-round, and an
+// EMPTY group (`soloSession.players = []`, src/pages/game/[id].astro), so neither renders the
 // roster chips the old walks tapped. daily-fortune's solo screens are the finished ones (its module
 // calls itself "the proving page of the solo class") and it keeps a walk, rewritten against #df-name /
-// #df-go. love-match and siamsi carry party-shaped content on a [1, 1] page pending their own redesign
-// tickets — with an empty group they have no pair to pick and no turn to pass, so a walk there would
-// measure a screen no player sees and be rewritten by that ticket. Both are dropped and named in
-// `notCovered`, so this summary can never be read as site-wide. Static, all-6 coverage of the same
-// invariant lives in scripts/no-nav-in-stage-check.mjs.
+// #df-go. siamsi carries party-shaped content on a [1, 1] page pending its own redesign ticket — with
+// an empty group it has no turn to pass, so a walk there would measure a screen no player sees and be
+// rewritten by that ticket. It is dropped and named in `notCovered`, so this summary can never be read
+// as site-wide. (love-match was delisted pending its "เนื้อคู่" redesign, gh#101, and no longer resolves
+// at all — it carries no WALKS entry and no notCovered entry, the same way a deleted page carries
+// neither.) Static coverage of the same invariant lives in scripts/no-nav-in-stage-check.mjs, which
+// enumerates src/games/*.ts straight off disk rather than from the manifest — so it still grades the
+// delisted love-match module, which this walk no longer reaches. Wider there than here, not narrower.
 //
 // Run: node scripts/driver.mjs scripts/no-nav-in-stage-probe.mjs
 // (needs `npx serve dist/ -l 4321` and headless Chrome on CDP_PORT — see scripts/driver.mjs's header)
@@ -142,7 +145,6 @@ const HELPERS = `
 // Solo pages ([1, 1], ADR-0040) have no roster panel and no group, so their walk gets `solo: true`
 // and the runner mounts them by loading the page — the module mounts itself.
 const NOT_COVERED = {
-  'love-match': 'ADR-0040 solo page with an empty group: renders a pick screen with no chips to pick, so it has no tap-driven transition to walk until its "เนื้อคู่" redesign lands.',
   siamsi: 'ADR-0040 solo page with an empty group: no turn to pass and no summary to reach, so its party-shaped walk measures a screen no player sees until its "เสี่ยงเซียมซี" redesign lands.',
 };
 
