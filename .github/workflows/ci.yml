@@ -181,6 +181,14 @@ jobs:
       - name: Accent colour single-sourced across its surfaces (gh#128)
         run: node scripts/accent-single-source-check.mjs --selftest && node scripts/accent-single-source-check.mjs
 
+      # gh#89 — ADR-0040: the party-size claim is true of the สุ่มคนโดน หมวด, not of the site, so it
+      # is permitted only where that หมวด or one of its members is the subject. Scans src/*.astro
+      # and src/*.ts, so it belongs here with the other pre-build source-text gates. Its own header
+      # names what it does not cover (the numeric-range form only). --selftest first, same reason
+      # as the gates above.
+      - name: Party-size claim confined to its permitted surfaces (gh#89)
+        run: node scripts/party-size-claim-check.mjs --selftest && node scripts/party-size-claim-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob.
       # A glob that matches NOTHING is not an error: node prints "# tests 0" and exits 0. So a rename
       # (.test.mjs -> .test.ts) or a move out of src/ would leave this step green with every test

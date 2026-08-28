@@ -10,6 +10,9 @@
 //   NOT COVERED — the phone-passing and shared-roster claims. Those are prose, not a shape a
 //                regex can bound, and they stay reviewer-owned until #94/#95/#96 land.
 //
+// A green run of this gate means only the numeric-range form was checked, on the enumerated
+// surface set above — it is not a clearance for the two NOT COVERED claims.
+//
 // ponytail: the shared category page is classified forbidden whole, because no
 // `category === 'party'` branch exists in it today. The rule permits copy inside such a branch; if
 // one is added, this gate reds on it and a human widens the classifier — it does not fail open.
