@@ -7,11 +7,15 @@ import type { GameModule } from '../../games/types';
 // page component renders every game URL, and Astro bundles a bare CSS import page-globally, so all of
 // these load on all of them: every selector inside is prefixed per game. Shared game-screen
 // vocabulary stays in the is:global block at the bottom of this file and is never overridden there.
+//
+// love-match.css is deliberately NOT imported while gh#101 keeps the game delisted. The sheet stayed
+// on disk so the rebuild starts from it, but a bare import here is page-global, and that shipped
+// every one of its rules to every live game page with no page left to consume them. Re-add this
+// import in the same change that puts the game back in the manifest, never before it.
 import '../../styles/games/timebomb.css';
 import '../../styles/games/siamsi.css';
 import '../../styles/games/short-stick.css';
 import '../../styles/games/daily-fortune.css';
-import '../../styles/games/love-match.css';
 
 export function getStaticPaths() {
   return games.map((game) => ({ params: { id: game.id }, props: { game } }));

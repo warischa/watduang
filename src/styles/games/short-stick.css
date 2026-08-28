@@ -4,7 +4,7 @@
 
    The shared game-screen classes (.stage-screen, .game-btn, .game-btn-primary, .game-btn-secondary)
    are shell vocabulary, declared once in src/pages/game/[id].astro. Never redeclare or override them
-   here — six games depend on them.
+   here — every game page loads them.
 
    Every value in this file comes from design/GameShortStick.dc.html verbatim (ADR-0033). The stage ground is
    var(--page-accent), which the shell resolves from the category manifest; the canvas's own per-game

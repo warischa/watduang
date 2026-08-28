@@ -37,7 +37,7 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
 
 // ---- Screens ----
 // gh#76 — the result screen is the approved design (design/GamePickLoser.dc.html) and the pattern the
-// five other games will follow. The class names (.stage-screen, .game-btn, .pl-*) are styled from
+// other games will follow. The class names (.stage-screen, .game-btn, .pl-*) are styled from
 // src/pages/game/[id].astro's global stylesheet — game modules create their DOM at runtime, so Astro
 // scoping never reaches it, which is why that sheet is is:global. Every colour there is a token from
 // src/styles/tokens.css; every size is verbatim from the canvas. If a copy string here disagrees with

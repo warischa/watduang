@@ -179,7 +179,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
     // Every shell-level start or resume closes it first. "Play again" is a second door: it calls
     // mountInto directly and never passes here, so an open question can survive that one — but it
     // stays on screen with its label intact, so that path is labelled loss, not the silent loss #25
-    // closes. Five games have that door today; grep the play-again handlers rather than trusting a
+    // closes. Several games have that door today; grep the play-again handlers rather than trusting a
     // list here, because an enumeration in a comment goes stale the next time a game ships.
     // Both states, in this order: `hidden` is the one the no-dialog fallback reads, [open] is the one
     // the UA sheet reads. Setting one and not the other leaves the question on screen in one browser
@@ -464,7 +464,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
     // function is unreachable there instead of gated. Do not re-add a flag check as defence in depth:
     // read off a missing button it evaluates to true and fails OPEN, which is worse than none.
     const session = loadSession();
-      // #data-loss: the checkpoint was never the liveness test. Only siamsi writes one — 1 of 6 games —
+      // #data-loss: the checkpoint was never the liveness test. Only siamsi writes one, alone among the live games,
       // and it empties the slot at round end, so an empty slot covered a live short-stick or timebomb
       // round and every fresh session, and the tap below reloaded the page and took the round with it.
       // The bit was here all along: requestStart sets root.hidden when a round begins. Read inside this

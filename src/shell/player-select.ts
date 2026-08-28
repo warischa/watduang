@@ -68,9 +68,9 @@ export function planStart(
  *
  * confirmed = the player pressed the labelled Clear-and-drop-pending-round button. An answer is never re-asked.
  *
- * #data-loss — the checkpoint alone was never the liveness test. Only siamsi writes a checkpoint (1 of
- * 6 games), and it empties the slot the moment a round ends, so "slot is empty" covered a live round of
- * the other five games and every fresh session. roundLive is the shell's own bit: PlayerSetup sets
+ * #data-loss — the checkpoint alone was never the liveness test. Only siamsi writes a checkpoint, alone
+ * among the live games, and it empties the slot the moment a round ends, so "slot is empty" covered a
+ * live round of every other game and every fresh session. roundLive is the shell's own bit: PlayerSetup sets
  * root.hidden = true when a round starts, and asked nothing about it here. Either signal alone is
  * enough — a stranded blob is a round someone can still go back to, and a round on screen is one they
  * are inside right now.

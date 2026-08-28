@@ -117,7 +117,7 @@ test('#25 no round in progress: clearing the group is unchanged — no question,
 });
 
 // ---- #data-loss: an empty checkpoint slot is not "no round" ----
-// Only siamsi writes a checkpoint — 1 of 6 games. Every other game's round is live with the slot empty,
+// Only siamsi writes a checkpoint, alone among the live games. Every other game's round is live with the slot empty,
 // and so is a siamsi round the moment it ends (saveCheckpoint(null)). The checkpoint was the whole test,
 // so on a fresh session mid-timebomb or mid-short-stick, \u0e25\u0e49\u0e32\u0e07\u0e01\u0e25\u0e38\u0e48\u0e21\u0e19\u0e35\u0e49 tore the round down without a word.
 // The shell already owns the missing bit: it sets root.hidden itself when a round starts.

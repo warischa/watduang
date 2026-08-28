@@ -801,7 +801,7 @@ test('gh#53 control: a round continued from another page is still reported as a 
 // and that proxy is owned by the PANEL, not by session.ts. A start placed over a checkpoint belonging
 // to ANOTHER game takes planStart's plain 'start' branch: nothing is asked, nothing is discarded, the
 // blob stays in the slot, and the proxy therefore says "continuation" about a round that is brand new.
-// Only siamsi writes checkpoints (ADR-0010), so the other five games are the whole of this case.
+// Only siamsi writes checkpoints (ADR-0010), so every other game is the whole of this case.
 //
 // Two starts, because the blob outlives both: every write carries session.checkpoint back, so the
 // second start read exactly what the first one did and inherited the same id again. The observable is

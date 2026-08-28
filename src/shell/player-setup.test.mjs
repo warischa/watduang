@@ -175,8 +175,8 @@ test(
 );
 
 // #data-loss — planClear can only judge with what it is handed. The island SETS root.hidden itself when
-// a round starts and then never read it back here, so with the checkpoint slot empty (five of six games
-// never write one, and siamsi empties it at round end) one tap on \u0e25\u0e49\u0e32\u0e07\u0e01\u0e25\u0e38\u0e48\u0e21\u0e19\u0e35\u0e49 reloaded the page and took
+// a round starts and then never read it back here, so with the checkpoint slot empty (every game but
+// siamsi never writes one, and siamsi empties it at round end) one tap on \u0e25\u0e49\u0e32\u0e07\u0e01\u0e25\u0e38\u0e48\u0e21\u0e19\u0e35\u0e49 reloaded the page and took
 // the live round with it, unasked. Pins the read AND the pass: a bare mention of root.hidden is dead code.
 test('#data-loss requestClear feeds the live-round bit it owns into planClear', () => {
   const body = fnBody('requestClear');
