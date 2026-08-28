@@ -244,7 +244,19 @@ async function main() {
     console.error(failureMessage(secondWriters));
     process.exit(1);
   }
-  console.log(`checkpoint-writer-check: ${ALLOWED_FILE} is the sole live saveCheckpoint caller across ${files.length} file(s) in src/games/*.ts`);
+  // The success sentence has to stay true after siamsi went solo (ADR-0040) and stopped writing a
+  // checkpoint at all: ALLOWED_FILE names who is PERMITTED to call, which is what the ADR fixes, and
+  // whether it actually does is read off the file rather than asserted. A gate printing a claim its
+  // own scan no longer supports is worse than no gate.
+  const allowed = files.find((f) => f.relPath === ALLOWED_FILE); // coverageGap above proved it is here
+  const allowedCalls = LIVE_CALL_RE.test(stripComments(allowed.text));
+  console.log(
+    `checkpoint-writer-check: no second checkpoint writer across ${files.length} file(s) in src/games/*.ts — ` +
+      `${ALLOWED_FILE} is the only file permitted to call saveCheckpoint and ` +
+      (allowedCalls
+        ? 'is the sole live caller'
+        : 'makes no live call, so no game in src/games/*.ts writes a checkpoint'),
+  );
 }
 
 await main();

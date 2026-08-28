@@ -40,9 +40,15 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
-// Measured on the real dist/ (2026-08-28, `npm run build` on a clean checkout after the wheel.astro
-// data-astro-cid stamp fix for gh#109 box 5): 19 reachable chunks, 91298 total
-// bytes. Re-derive both with the same walk on any deliberate bundle change —
+// Measured on the real dist/ (2026-08-28, `npm run build` after siamsi's dead party round and its
+// orphaned stylesheet rules were deleted): 19 reachable chunks, 87375 total bytes. The basename set
+// is unchanged from the previous baseline — the deletion shed bytes without dropping a chunk.
+// Deliberately TIGHTENED rather than left at the old 91298, which would have kept the ceiling at 95863.
+// Be precise about what that buys: it removes 3952 bytes of stale headroom, nothing more. The new band
+// is 83006-91744, so the deleted party round returning on its own (91298) STILL passes, with 446 bytes
+// to spare — only growth beyond that is blocked. This gate pins the chunk SET exactly and the total
+// loosely; it is not a guard against one specific deletion being reverted.
+// Re-derive both with the same walk on any deliberate bundle change —
 // see "RE-BASELINE IS THE INTENDED SIGNAL" above.
 const BASELINE_BASENAMES = [
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
@@ -65,7 +71,7 @@ const BASELINE_BASENAMES = [
   'timebomb.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 91298;
+const BASELINE_TOTAL_BYTES = 87375;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

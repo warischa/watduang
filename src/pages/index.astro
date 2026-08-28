@@ -14,9 +14,10 @@ import { games as allGames, byId } from '../games/manifest';
 import { tools, toolsGroup } from '../tools/manifest';
 import type { Category } from '../games/types';
 
-// The canvas features "เซียมซีปาร์ตี้" as the first-round game; it is read by id from the games
-// manifest, and its card accent resolves through its own category's accent name — no name, no
-// colour and no tagline is hardcoded here.
+// The canvas features the `siamsi` module as the first-round game. Named by id, never by display
+// name: the display name is manifest-owned and has already changed once (ADR-0040 renamed it off the
+// party shape), so quoting it here would rot. The card accent resolves through its own category's
+// accent name — no name, no colour and no tagline is hardcoded here.
 const featured = byId('siamsi')!;
 
 // Grid order is the canvas's own: the fortune games first (its record key already leads, so

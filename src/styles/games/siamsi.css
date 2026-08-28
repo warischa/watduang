@@ -18,28 +18,8 @@
    for it lives where the transform is written (siamsi.ts), not in a media query here: an inline
    style beats a stylesheet rule, so anything this file declared would be empty comfort. */
 
-/* Two-line holder block: kicker above the current holder's name. */
-.sm-holder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
 
-.sm-holder-kicker {
-  font-size: 13px;
-}
 
-.sm-holder-name {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 30px;
-  line-height: 1.2;  /* A player-typed name can be 24 characters with no space in it (the roster's maxlength), and
-     Latin has no dictionary break to fall back on. Without this the name overruns the stage and
-     the whole page scrolls sideways — measured at 320px, not inferred. */
-  overflow-wrap: anywhere;
-  min-width: 0;
-}
 
 /* Hero motif: the barrel panel. Full width, fixed 260px, warm ground, hard offset shadow. The 200x240
    SVG sits bottom-aligned via the flex container; overflow clips the sticks at the panel lip.
@@ -85,21 +65,5 @@
   text-align: center;
 }
 
-/* Progress: one dot per player, filled for each who has drawn. The --drawn modifier flips the warm
-   ground to the strong line colour. */
-.sm-dots {
-  display: flex;
-  gap: 6px;
-}
 
-.sm-dot {
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--color-line-strong);
-  border-radius: 50%;
-  background: var(--color-ground-warm);
-}
 
-.sm-dot--drawn {
-  background: var(--color-line-strong);
-}

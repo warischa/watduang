@@ -2,7 +2,7 @@
 // checks only the pure helpers exported from siamsi.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import game, { buildDeck, draw, nextTurn, toCheckpoint, resumeFrom, FORTUNES, isShake, SHAKE_KICK, HINT_SHAKE, HINT_TAP_ONLY, HINT_ENABLE_SHAKE } from './siamsi.ts';
+import game, { buildDeck, draw, FORTUNES, isShake, SHAKE_KICK, HINT_SHAKE, HINT_TAP_ONLY, HINT_ENABLE_SHAKE } from './siamsi.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
 
 // ---- Minimal fake DOM for the #42 gate test below — lifted from short-stick.test.mjs's harness
@@ -95,30 +95,19 @@ function assertNoAnchors(node) {
   for (const c of node.children || []) assertNoAnchors(c);
 }
 
-/** Filled-dot count: a dot carries `sm-dot--drawn` once its player has drawn, `sm-dot` alone before. */
-function countDrawn(dots) {
-  return dots.children.filter((c) => (c.className || '').split(/\s+/).includes('sm-dot--drawn')).length;
-}
-
 test('deck has 24 cards, numbers do not repeat', () => {
   assert.equal(FORTUNES.length, 24);
   const numbers = new Set(FORTUNES.map((f) => f.number));
   assert.equal(numbers.size, 24);
 });
 
-test('no repeat draws across a round — buildDeck then draw to empty for every player count', () => {
-  for (const playerCount of [2, 5, 10]) {
-    let deck = buildDeck(playerCount, Math.random);
-    assert.equal(deck.length, playerCount);
-    const seen = new Set();
-    for (let i = 0; i < playerCount; i++) {
-      const { fortune, remaining } = draw(deck);
-      assert.ok(!seen.has(fortune.number), `card ${fortune.number} drawn twice`);
-      seen.add(fortune.number);
-      deck = remaining;
-    }
-    assert.equal(deck.length, 0); // deck must be exactly empty once everyone has drawn
-    assert.equal(seen.size, playerCount);
+// buildDeck no longer slices to a player count — a solo round draws the top card of the whole deck,
+// so every reshuffle must still be the complete 24 with nothing lost or duplicated.
+test('buildDeck returns the whole 24-card deck every time, no repeats', () => {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const deck = buildDeck(Math.random);
+    assert.equal(deck.length, 24);
+    assert.equal(new Set(deck.map((i) => FORTUNES[i].number)).size, 24);
   }
 });
 
@@ -126,121 +115,24 @@ test('drawing from an empty deck must throw', () => {
   assert.throws(() => draw([]), /empty/);
 });
 
-test('round ends exactly after N players', () => {
-  const playerCount = 4;
-  let current = 0;
-  let turns = 0;
-  let roundOver = false;
-  while (!roundOver) {
-    const result = nextTurn(current, playerCount);
-    turns += 1;
-    current = result.index;
-    roundOver = result.roundOver;
-  }
-  assert.equal(turns, playerCount);
-  assert.equal(current, 0); // wraps back to the first player with a fresh round
-});
-
-test('reshuffle returns a full deck every time — buildDeck(24) must yield all 24 cards, no repeats, on every call', () => {
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const deck = buildDeck(24, Math.random);
-    assert.equal(deck.length, 24);
-    const numbers = new Set(deck.map((i) => FORTUNES[i].number));
-    assert.equal(numbers.size, 24); // every card present, none left over from a prior round
-  }
-});
-
 // REFUTE flagged that the first test suite didn't force a real shuffle — swapping buildDeck for a
-// plain slice still passed, even though "play another round" must yield a new order. This test
-// pins a controllable rand so the result is actually checkable.
+// plain slice still passed, even though "เล่นอีกรอบ" must yield a new order. This test pins a
+// controllable rand so the result is actually checkable.
 test('buildDeck really shuffles, not just returns the original order', () => {
-  // rand fixed at 0 → Fisher-Yates swaps order[i] with order[0] every round = a precomputable result
+  // rand fixed at 0 -> Fisher-Yates swaps order[i] with order[0] every round = a precomputable result
   const expected = (() => {
     const order = FORTUNES.map((_, i) => i);
     for (let i = order.length - 1; i > 0; i--) [order[i], order[0]] = [order[0], order[i]];
-    return order.slice(0, 5);
+    return order;
   })();
-  assert.deepEqual(buildDeck(5, () => 0), expected);
-  assert.notDeepEqual(buildDeck(5, () => 0), [0, 1, 2, 3, 4], 'buildDeck returned the original order = not shuffled');
+  assert.deepEqual(buildDeck(() => 0), expected);
+  assert.notDeepEqual(buildDeck(() => 0), FORTUNES.map((_, i) => i), 'buildDeck returned the original order = not shuffled');
 
   // different rand must give a different order, otherwise rand isn't being used at all
-  assert.notDeepEqual(buildDeck(8, () => 0), buildDeck(8, () => 0.99));
-});
+  assert.notDeepEqual(buildDeck(() => 0), buildDeck(() => 0.99));
 
-test('more players than cards must throw, not silently return a short deck', () => {
-  assert.throws(() => buildDeck(FORTUNES.length + 1), /มากกว่าใบเซียมซี/);
-  assert.equal(buildDeck(FORTUNES.length).length, FORTUNES.length);
-});
-
-// ---- guard against a mid-round refresh ----
-// every test sends the checkpoint through JSON first, because localStorage does exactly that —
-// a test sending the raw object would miss fields that don't survive serialize
-const store = (cp) => JSON.parse(JSON.stringify(cp));
-
-/** real mid-round state: 3 players, 1 card drawn already, sitting in front of the next draw */
-function midRound(players = ['เอ', 'บี', 'ซี']) {
-  const { fortune, remaining } = draw(buildDeck(players.length, () => 0.5));
-  return {
-    players,
-    deck: remaining,
-    holder: 0,
-    results: [{ player: players[0], fortune }],
-    phase: 'drawn',
-    drawn: fortune,
-  };
-}
-
-test('saved to storage and restored gives back the exact same state', () => {
-  const s = midRound();
-  assert.deepEqual(resumeFrom(store(toCheckpoint(s)), s.players), s);
-});
-
-test('an unusable blob must return null in every case, not resume in a corrupted state', () => {
-  const s = midRound();
-  const ok = store(toCheckpoint(s));
-  const cases = [
-    ['no checkpoint', null, s.players],
-    ['another game (storage slot is shared across games)', { ...ok, game: 'timebomb' }, s.players],
-    // A roster that disagrees with the blob is no longer a rejection reason (#23) — the two cases
-    // that used to live here (the roster-changed and roster-shrank cases) are now the two resume tests below.
-    // Only a blob that is structurally unusable may return null; a live round must never be dropped.
-    // The roster now leaves this function and becomes session.players (#23), so it is validated here:
-    // a non-string name used to survive every other check and end up in storage and on screen.
-    ['blob players are not strings', { ...ok, players: ['เอ', 42, 'ซี'] }, s.players],
-    ['empty players list', { ...ok, players: [] }, s.players],
-    ['card number does not exist', { ...ok, deck: [999, ...ok.deck.slice(1)] }, s.players],
-    ['card count does not match player count', { ...ok, deck: ok.deck.slice(1) }, s.players],
-    ['card already drawn appears again', { ...ok, deck: [ok.results[0].n, ...ok.deck.slice(1)] }, s.players],
-    ['holder exceeds player count', { ...ok, holder: 99 }, s.players],
-    ['holder does not match phase turn (should equal results.length)', { ...ok, phase: 'turn', drawn: null, holder: 0 }, s.players],
-    ['holder does not match phase drawn (should equal results.length - 1)', { ...ok, holder: 1 }, s.players],
-    ['phase drawn but no card', { ...ok, drawn: null }, s.players],
-    ['phase that should never be resumed', { ...ok, phase: 'summary' }, s.players],
-  ];
-  for (const [name, blob, players] of cases) {
-    assert.equal(resumeFrom(blob, players), null, `should return null: ${name}`);
-  }
-});
-
-test('a session with no roster (fallback names) must still resume, not silently drop the round', () => {
-  const s = midRound();
-  assert.deepEqual(resumeFrom(store(toCheckpoint(s)), []), s);
-});
-
-// #23 — the checkpoint owns its roster. Both inputs below are the ones the null-case table above
-// used to reject, so a re-introduced name gate turns these red instead of losing a round in silence.
-test('a numbered round resumes even when the panel hands back a different saved group', () => {
-  const s = midRound(['คนที่ 1', 'คนที่ 2', 'คนที่ 3']);
-  const resumed = resumeFrom(store(toCheckpoint(s)), ['เอ', 'บี']);
-  assert.deepEqual(resumed, s);
-  // the restored roster is the checkpoint's, never the panel's — mountInto pushes it back into session
-  assert.deepEqual(resumed.players, ['คนที่ 1', 'คนที่ 2', 'คนที่ 3']);
-});
-
-test('untick then re-tick the same names — order changed, round still resumes', () => {
-  const s = midRound();
-  const reTicked = [...s.players].reverse(); // Set iteration order after un/re-ticking
-  assert.deepEqual(resumeFrom(store(toCheckpoint(s)), reTicked), s);
+  // the drawn card follows the shuffle, so two different rands must be able to hand back different cards
+  assert.notEqual(draw(buildDeck(() => 0)).fortune.number, draw(buildDeck(() => 0.99)).fortune.number);
 });
 
 // gh#106 — this game's page declares [1, 1] (ADR-0040), so it renders no #player-setup and the shell
@@ -266,26 +158,27 @@ test('gh#106: startRound announces watduang:round-started — and the idle scree
   game.dispose();
 });
 
-// The resume path never runs startRound, and a resumed round is still a started one — the guard must
-// arm on it without waiting for a tap that will never come.
-test('gh#106: a resumed round announces watduang:round-started too', () => {
+// The resume path is gone with the party round: this page writes no checkpoint, and the site-wide
+// slot may still hold a live party round from another game. Mounting must ignore it outright — no
+// resume, and no announcement, because nothing has started here.
+test('gh#106: a checkpoint in the shared slot resumes nothing and announces nothing', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
   dispatchedTypes.length = 0;
-  const players = ['คนที่ 1', 'คนที่ 2', 'คนที่ 3'];
   const stage = fakeDocument.createElement('div');
-  const ctx = makeCtx(players);
-  ctx.session.checkpoint = store(toCheckpoint(midRound(players)));
+  const ctx = makeCtx(['ก', 'ข', 'ค']);
+  ctx.session.checkpoint = { game: 'siamsi', players: ['ก', 'ข', 'ค'], deck: [1, 2], holder: 0, results: [{ player: 'ก', n: 3 }], phase: 'drawn', drawn: 3 };
   game.mount(stage, ctx);
-  assert.ok(stage.children.some((c) => c.id === 'ss-pass'), 'positive control: the checkpoint really did resume (mid-draw screen)');
-  assert.deepEqual(dispatchedTypes, ['watduang:round-started'], 'a resumed round must announce once');
+
+  assert.ok(stage.children.some((c) => c.id === 'ss-start'), 'a checkpoint pulled the mount off the idle screen');
+  assert.deepEqual(dispatchedTypes, [], 'nothing started, so nothing may announce');
   game.dispose();
 });
 
 // #42: the ghost-tap gate — a rapid double-tap on a game-page transition must not steal an action.
-test('#42: ghost-tap gate — start/draw/pass/again all disable at render across a full 2-player round', (t) => {
+test('#42: ghost-tap gate — start/draw/again all disable at render across a full solo round', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const stage = fakeDocument.createElement('div');
-  const players = ['เอ', 'บี'];
-  game.mount(stage, makeCtx(players));
+  game.mount(stage, makeCtx(['ก', 'ข']));
 
   const start = stage.children.find((c) => c.id === 'ss-start');
   assert.ok(start, 'ss-start missing');
@@ -302,46 +195,28 @@ test('#42: ghost-tap gate — start/draw/pass/again all disable at render across
   assert.equal(start.disabled, false, '"ss-start" never armed');
   start.click(); // startRound()
 
-  const draw1 = stage.children.find((c) => c.id === 'ss-draw');
-  assert.ok(draw1, 'ss-draw missing for turn 1');
-  assert.equal(draw1.disabled, true,
-    'ss-draw must be disabled the instant the turn screen renders — a ghost tap must not draw for the next player before the phone changed hands');
-  const holderLine1 = q(stage, 'sm-holder-name').textContent;
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  assert.equal(draw1.disabled, false, '"ss-draw" never armed for turn 1');
-  draw1.click(); // drawForHolder() for holder 0
+  const drawBtn = stage.children.find((c) => c.id === 'ss-draw');
+  assert.ok(drawBtn, 'ss-draw missing on the turn screen');
+  assert.equal(drawBtn.disabled, true,
+    'ss-draw must be disabled the instant the turn screen renders — a ghost tap must not draw the card before the barrel is on screen');
+  drawBtn.click();
+  assert.ok(!stage.children.some((c) => c.id === 'ss-again'),
+    'a disabled "ss-draw" fired anyway — the card was drawn before the window elapsed');
 
-  const pass1 = stage.children.find((c) => c.id === 'ss-pass');
-  assert.ok(pass1, 'ss-pass missing for turn 1');
-  assert.equal(pass1.disabled, true,
-    'ss-pass must be disabled immediately after a draw — a ghost tap must not pass the phone before the card was read');
-  const drawnLine1 = stage.children[1].textContent;
   t.mock.timers.tick(ARM_DELAY_MS + 1);
-  assert.equal(pass1.disabled, false, '"ss-pass" never armed for turn 1');
-  pass1.click(); // passToNext() -> holder 1's turn (2 players, round not over yet)
+  assert.equal(drawBtn.disabled, false, '"ss-draw" never armed');
+  drawBtn.click(); // drawFortune()
 
-  const draw2 = stage.children.find((c) => c.id === 'ss-draw');
-  assert.ok(draw2, 'ss-draw missing for turn 2');
-  assert.equal(draw2.disabled, true, 'ss-draw must disable again on the next player\'s turn screen too');
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  assert.equal(draw2.disabled, false, '"ss-draw" never armed for turn 2');
-  draw2.click();
-
-  const pass2 = stage.children.find((c) => c.id === 'ss-pass');
-  assert.equal(pass2.disabled, true, 'ss-pass must disable again on the second draw too');
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  assert.equal(pass2.disabled, false, '"ss-pass" never armed for turn 2');
-  pass2.click(); // roundOver -> renderSummary
-
+  const drawnLine = stage.children[1].textContent;
   const again = stage.children.find((c) => c.id === 'ss-again');
-  assert.ok(again, 'ss-again missing at summary');
+  assert.ok(again, 'ss-again missing on the drawn screen');
   assert.equal(again.disabled, true,
-    'ss-again must be disabled at the summary screen — a ghost tap must not restart the round before it was read');
+    'ss-again must be disabled at the drawn screen — a ghost tap must not throw the card away before it was read');
 
   // before arming: a ghost tap on "ss-again" must not restart the round
   again.click();
   assert.ok(!stage.children.some((c) => c.id === 'ss-start'),
-    'a disabled "ss-again" fired anyway — the round restarted before the summary was read');
+    'a disabled "ss-again" fired anyway — the round restarted before the card was read');
 
   // one window later the same press really does restart the round
   t.mock.timers.tick(ARM_DELAY_MS + 1);
@@ -349,41 +224,9 @@ test('#42: ghost-tap gate — start/draw/pass/again all disable at render across
   again.click();
   assert.ok(stage.children.some((c) => c.id === 'ss-start'), '"ss-again" did not restart the round once armed');
 
-  // Every intermediate click in this test only ever fired once its own control was actually enabled —
-  // the turn/holder line and the drawn card text captured along the way must still be exactly what
-  // those real clicks produced.
-  assert.ok(holderLine1.includes(players[0]), 'turn 1 did not announce the first holder');
-  assert.ok(drawnLine1.length > 0, 'turn 1 drew no card text');
-
-  game.dispose();
-});
-
-// gh#78 — the progress dots derive from the live roster and the draw count, never a hardcoded six.
-test('gh#78: dot row = one dot per player, filled per person who has drawn (roster of 4, not 6)', (t) => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
-  const stage = fakeDocument.createElement('div');
-  const players = ['เอ', 'บี', 'ซี', 'ดี'];
-  game.mount(stage, makeCtx(players));
-
-  const start = stage.children.find((c) => c.id === 'ss-start');
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  start.click(); // renderTurn for holder 0 — nobody has drawn yet
-
-  let dots = q(stage, 'sm-dots');
-  assert.ok(dots, 'the turn screen rendered no dot row');
-  assert.equal(dots.children.length, 4, 'one dot per player — not a hardcoded 6');
-  assert.equal(countDrawn(dots), 0, 'no dots filled before the first draw');
-
-  const draw = stage.children.find((c) => c.id === 'ss-draw');
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  draw.click(); // holder 0 draws
-  const pass = stage.children.find((c) => c.id === 'ss-pass');
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  pass.click(); // renderTurn for holder 1
-
-  dots = q(stage, 'sm-dots');
-  assert.equal(dots.children.length, 4);
-  assert.equal(countDrawn(dots), 1, 'one dot filled after one person has drawn');
+  // Every intermediate click above only ever fired once its own control was actually enabled — the
+  // card text captured along the way must still be what that real click produced.
+  assert.ok(drawnLine.length > 0, 'the round drew no card text');
 
   game.dispose();
 });
@@ -403,7 +246,7 @@ test('gh#78: the draw control alone advances the round — no shake/gesture requ
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   draw.click(); // a tap alone — no devicemotion/shake anywhere on this path
 
-  assert.ok(stage.children.some((c) => c.id === 'ss-pass'),
+  assert.ok(stage.children.some((c) => c.id === 'ss-again'),
     'tapping ss-draw did not advance the round to the drawn screen');
 
   game.dispose();
@@ -413,7 +256,7 @@ test('gh#78: the draw control alone advances the round — no shake/gesture requ
 test('gh#78: no <a> element renders inside #stage on any screen', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const stage = fakeDocument.createElement('div');
-  game.mount(stage, makeCtx(['เอ', 'บี', 'ซี']));
+  game.mount(stage, makeCtx(['ก', 'ข', 'ค']));
   assertNoAnchors(stage); // idle
 
   const start = stage.children.find((c) => c.id === 'ss-start');
@@ -424,12 +267,12 @@ test('gh#78: no <a> element renders inside #stage on any screen', (t) => {
   const draw = stage.children.find((c) => c.id === 'ss-draw');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   draw.click();
-  assertNoAnchors(stage); // drawn
+  assertNoAnchors(stage); // drawn — the screen that took over the summary's restart button
 
-  const pass = stage.children.find((c) => c.id === 'ss-pass');
+  const again = stage.children.find((c) => c.id === 'ss-again');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
-  pass.click();
-  assertNoAnchors(stage); // next turn
+  again.click();
+  assertNoAnchors(stage); // idle again
 
   game.dispose();
 });
@@ -523,7 +366,7 @@ test('gh#83: a shake inside the arm window cannot advance the round; the same sh
   assert.ok(barrelSvg && barrelSvg.style.transform, 'no wobble transform reached the barrel svg');
 
   const ssDraw = () => stage.children.find((c) => c.id === 'ss-draw');
-  const ssPass = () => stage.children.find((c) => c.id === 'ss-pass');
+  const ssPass = () => stage.children.find((c) => c.id === 'ss-again');
 
   // a shake pair mid-window: the kick must not draw AND must re-defer arming, so ticking out the
   // original window alone must not arm the path either
@@ -545,42 +388,44 @@ test('gh#83: a shake inside the arm window cannot advance the round; the same sh
   delete globalThis.window;
 });
 
-test('gh#83: a double-shake straight after a draw never reaches the next player', (t) => {
+test('gh#83: the tail of a double-shake is swallowed by the drawn screen, and by the next round\u2019s arm window', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   globalThis.window = makeMotionWindow();
   const stage = fakeDocument.createElement('div');
-  game.mount(stage, makeCtx(['เอ', 'บี']));
+  game.mount(stage, makeCtx(['ก', 'ข']));
   const start = stage.children.find((c) => c.id === 'ss-start');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
-  start.click(); // turn 1 renders, shake disarmed
+  start.click(); // the turn renders, shake disarmed
   t.mock.timers.tick(ARM_DELAY_MS + 1); // the shake gate arms
   globalThis.window.motion(STILL);
-  globalThis.window.motion(KICK_UP); // players[0] draws — the screen swaps to drawn
-  const pass1 = stage.children.find((c) => c.id === 'ss-pass');
-  assert.ok(pass1, 'the armed shake did not draw');
+  globalThis.window.motion(KICK_UP); // the draw — the screen swaps to drawn
+  const again = stage.children.find((c) => c.id === 'ss-again');
+  assert.ok(again, 'the armed shake did not draw');
 
   // the tail of the double-shake lands on the drawn screen — the phase gate must swallow it
   globalThis.window.motion(KICK_DOWN);
   globalThis.window.motion(KICK_UP);
-  assert.ok(stage.children.some((c) => c.id === 'ss-pass') && !stage.children.some((c) => c.id === 'ss-draw'),
+  assert.ok(stage.children.some((c) => c.id === 'ss-again') && !stage.children.some((c) => c.id === 'ss-draw'),
     'a shake on the drawn screen advanced the round');
 
   t.mock.timers.tick(ARM_DELAY_MS + 1);
-  pass1.click(); // players[1]'s turn renders — the shake path must be disarmed again
-  const draw2 = stage.children.find((c) => c.id === 'ss-draw');
-  assert.ok(draw2, 'turn 2 never rendered');
+  again.click(); // back to idle, then start a second round
+  const start2 = stage.children.find((c) => c.id === 'ss-start');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  start2.click();
+  assert.ok(stage.children.some((c) => c.id === 'ss-draw'), 'the second round never rendered its turn screen');
 
-  // the second shake of the same hand motion lands inside turn 2's arm window: no draw for players[1]
+  // a shake inside the new round's arm window must not draw for it either
   globalThis.window.motion(STILL);
   globalThis.window.motion(KICK_UP);
   globalThis.window.motion(KICK_DOWN);
   globalThis.window.motion(KICK_UP);
-  assert.ok(stage.children.some((c) => c.id === 'ss-draw') && !stage.children.some((c) => c.id === 'ss-pass'),
-    'a shake inside turn 2’s arm window drew for the next player');
+  assert.ok(stage.children.some((c) => c.id === 'ss-draw') && !stage.children.some((c) => c.id === 'ss-again'),
+    'a shake inside the second round\u2019s arm window drew a card');
 
   t.mock.timers.tick(ARM_DELAY_MS + 1);
-  globalThis.window.motion(KICK_DOWN); // armed now — players[1]'s deliberate shake
-  assert.ok(stage.children.some((c) => c.id === 'ss-pass'), 'the armed shake on turn 2 did not draw');
+  globalThis.window.motion(KICK_DOWN); // armed now — a deliberate shake
+  assert.ok(stage.children.some((c) => c.id === 'ss-again'), 'the armed shake in the second round did not draw');
 
   game.dispose();
   delete globalThis.window;
@@ -624,11 +469,11 @@ test('gh#83: iOS — permission is asked only on the opt-in tap, and a grant arm
   // the granted path arms on the same delay as everything else — a shake first waits its window
   globalThis.window.motion(STILL);
   globalThis.window.motion(KICK_UP);
-  assert.ok(stage.children.some((c) => c.id === 'ss-draw') && !stage.children.some((c) => c.id === 'ss-pass'),
+  assert.ok(stage.children.some((c) => c.id === 'ss-draw') && !stage.children.some((c) => c.id === 'ss-again'),
     'a shake drew before the granted path had armed');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   globalThis.window.motion(KICK_DOWN);
-  assert.ok(stage.children.some((c) => c.id === 'ss-pass'), 'the armed shake on a granted device did not draw');
+  assert.ok(stage.children.some((c) => c.id === 'ss-again'), 'the armed shake on a granted device did not draw');
 
   gameFresh.dispose();
   delete globalThis.window;
@@ -660,13 +505,17 @@ test('gh#83: iOS — a refused permission degrades silently to tap-only, for the
   const draw = stage.children.find((c) => c.id === 'ss-draw');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   draw.click();
-  const pass = stage.children.find((c) => c.id === 'ss-pass');
-  assert.ok(pass, 'the tap-only path broke after a refusal');
+  const again = stage.children.find((c) => c.id === 'ss-again');
+  assert.ok(again, 'the tap-only path broke after a refusal');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
-  pass.click();
+  again.click(); // teardown + remount — the refusal must survive it
 
-  // the refusal is sticky for the page: the next turn advertises nothing again
-  assert.equal(q(stage, 'sm-hint').textContent, mod.HINT_TAP_ONLY, 'a later turn re-advertised the shake after a refusal');
+  const start2 = stage.children.find((c) => c.id === 'ss-start');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  start2.click();
+
+  // the refusal is sticky for the page, not the round: the next round advertises nothing again
+  assert.equal(q(stage, 'sm-hint').textContent, mod.HINT_TAP_ONLY, 'a later round re-advertised the shake after a refusal');
   assert.equal(globalThis.window.motionListeners(), 0);
   assert.equal(globalThis.window.permissionCalls.length, 1, 'permission was asked again on a later turn');
 
@@ -693,8 +542,34 @@ test('gh#83: prefers-reduced-motion — a shake still draws, but the barrel neve
   // the input path is not the movement: the shake still draws under reduced motion
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   globalThis.window.motion(KICK_UP);
-  assert.ok(stage.children.some((c) => c.id === 'ss-pass'), 'the shake could not draw under reduced motion');
+  assert.ok(stage.children.some((c) => c.id === 'ss-again'), 'the shake could not draw under reduced motion');
 
   game.dispose();
   delete globalThis.window;
+});
+
+// ADR-0040 — this page declares [1, 1] and the shell mounts it with a session that has no roster.
+// A multi-player session is the divergence input: a solo build must ignore it outright. Mounting
+// with players: [] would make a solo and a party build agree, so it would measure nothing.
+test('solo: a multi-player session is ignored — one draw, no holder line, no dots, no summary', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx(['ก', 'ข', 'ค']));
+
+  const start = stage.children.find((c) => c.id === 'ss-start');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  start.click();
+
+  assert.equal(q(stage, 'sm-holder-name'), null, 'the turn screen still names a phone holder');
+  assert.equal(q(stage, 'sm-dots'), null, 'the turn screen still renders per-player progress dots');
+
+  const draw = stage.children.find((c) => c.id === 'ss-draw');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  draw.click();
+
+  // one draw ends the round: the drawn card screen offers a restart, never a hand-off to a next player
+  assert.equal(stage.children.find((c) => c.id === 'ss-pass'), undefined, 'the drawn screen still passes the phone on');
+  assert.ok(stage.children.some((c) => c.id === 'ss-again'), 'the drawn screen offers no way to draw again');
+
+  game.dispose();
 });
