@@ -37,6 +37,10 @@ test('gh#94: every หมวด declares whether it carries the group onward', (
 
 test('gh#94: GameNav names no category — a fourth หมวด needs no nav edit', () => {
   const body = stripComments(navSrc);
+  // positive control: a strip that eats real code (not just comments) would make every absence
+  // check below vacuously green — gh#130. shown = games.filter(...) is the executable line the
+  // whole test exists to scan, so it must survive the strip.
+  assert.match(body, /g\.category === category/, 'positive control: stripComments blanked the manifest filter');
   for (const slug of slugs) {
     assert.ok(!body.includes(`'${slug}'`) && !body.includes(`"${slug}"`), `GameNav retypes ${slug}`);
   }
@@ -52,6 +56,10 @@ test('gh#94: GameNav names no category — a fourth หมวด needs no nav ed
 
 test('gh#94: GameLayout branches on the flag, not on a slug', () => {
   const body = stripComments(layoutSrc);
+  // positive control: `carriesGroup` alone also matches the frontmatter declaration, which sits
+  // before the template's first comment and survives a strip regardless of how greedy it gets — the
+  // ternary usage below sits deep in the comment-heavy template and is what a too-greedy strip eats.
+  assert.match(body, /carriesGroup\s*\?/, 'positive control: stripComments blanked the flag branch');
   for (const slug of slugs) {
     assert.ok(!body.includes(`'${slug}'`) && !body.includes(`"${slug}"`), `GameLayout retypes ${slug}`);
   }

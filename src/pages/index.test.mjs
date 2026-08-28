@@ -28,6 +28,12 @@ const pageBody = pageSrc
   .replace(/^---[\s\S]*?^---$/m, '')
   .replace(/<Base[\s\S]*?chrome\n>/m, '');
 
+// positive control: this file narrows scope (frontmatter + the <Base> tag), it does not strip
+// comments — but the retyped-literal scan below asserts ABSENCE, so the same vacuous-green risk
+// applies (gh#130) if either replace() ever ate more than intended. <PageChrome> is the first real
+// markup after the tag the second replace() removes.
+assert.match(pageBody, /<PageChrome>/, 'positive control: the frontmatter/<Base> strip blanked the template');
+
 const manifestCopy = [
   ...games.map((g) => g.names.th),
   ...games.map((g) => g.tagline),

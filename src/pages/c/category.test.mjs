@@ -33,12 +33,22 @@ const pageBody = pageSrc
   .replace(/^---[\s\S]*?^---$/m, '')
   .replace(/<Base[\s\S]*?>/m, '');
 
+// positive control: a strip that ate more than the frontmatter and the <Base …> tag would make the
+// retyped-literal scan below vacuously green (gh#130) — {meta.label} sits right after the tag it
+// removes, so it is the first thing to disappear if the strip runs too wide.
+assert.match(pageBody, /\{meta\.label\}/, 'positive control: the frontmatter/<Base> strip blanked the template');
+
 // Comments are blanked before the colour scan: the style block's provenance cites which token maps
 // to which canvas hex (the same way index.astro's does), and a citation is not a value written into
 // the page's CSS.
 const pageCode = pageSrc
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/(^|\n)\s*\/\/[^\n]*/g, '\n');
+
+// positive control: the colour-hex scan below asserts ABSENCE, so a strip that ate the whole style
+// block (first /* to last */, gh#130) would make it vacuously green — var(--page-accent) is a real
+// declaration between the file's first and last comment, not comment text itself.
+assert.match(pageCode, /var\(--page-accent\)/, 'positive control: the comment strip blanked the style block');
 
 const manifestCopy = [
   ...Object.values(categories).flatMap((meta) => [meta.label, meta.whenToUse, meta.intro]),

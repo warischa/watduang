@@ -48,10 +48,48 @@ test('no other page under src/pages passes noindex — a soft-404 fix must not d
 // organic search. Read as source text, no dist/build involved.
 const baseSrc = readFileSync(join(pagesDir, '..', 'layouts', 'Base.astro'), 'utf8');
 
+// Anchored to the destructure SITE (`const { ... } = Astro.props`), not a bare token scan of the
+// whole file — a comment mentioning `noindex = false` anywhere above the real destructure must not
+// be mistaken for it. Uses matchAll so a SECOND thing that happens to look like a destructure site
+// (e.g. a comment quoting `const { ... } = Astro.props` verbatim) is not silently resolved by taking
+// the first match — it throws instead. A human must look; the alternative is "which of two
+// candidates is real", which is grammar-owned (ways to write a JS comment) and never converges.
+function extractNoindexDefault(src) {
+  const sites = [...src.matchAll(/const\s*\{([^}]*)\}\s*=\s*Astro\.props/g)];
+  if (sites.length !== 1) {
+    throw new Error(`expected exactly 1 Astro.props destructure site, found ${sites.length} (the site regex cannot span nested braces)`);
+  }
+  const m = sites[0][1].match(/\bnoindex\s*=\s*([^,}]+)/);
+  return m ? m[1].trim() : null;
+}
+
 test('Base.astro noindex prop defaults to falsy', () => {
-  const m = baseSrc.match(/\bnoindex\s*=\s*([^,}]+)/);
-  assert.ok(m, 'Base.astro must destructure a noindex default from Astro.props');
-  assert.equal(m[1].trim(), 'false', `noindex must default to false, found "${m[1].trim()}"`);
+  const value = extractNoindexDefault(baseSrc);
+  assert.equal(value, 'false', `noindex must default to false, found "${value}"`);
+});
+
+test('matcher reads the destructure site, not a commented-out default sitting above it', () => {
+  // Reproduces gh#130: a comment line quoting `noindex = false` sits above the real destructure,
+  // which itself defaults noindex to `true`. A bare token scan takes the comment's `false` first
+  // and the test goes green while every page would ship noindex. The site-anchored matcher must
+  // read `true` from the real destructure, not `false` from the comment.
+  const decoy = `
+// Props defaults: noindex = false, chrome = false
+const { title, description, noindex = true, chrome = false } = Astro.props as Props;
+`;
+  assert.equal(extractNoindexDefault(decoy), 'true', 'must read the destructure site, not the comment above it');
+});
+
+test('matcher fails loud when more than one Astro.props destructure site is found', () => {
+  // A doc comment that quotes the fix's own pattern verbatim (`const { ... } = Astro.props`) creates
+  // a second candidate site. Silently picking the first one is exactly the gh#130 bug class moved,
+  // not closed — this must throw, not answer wrong.
+  const decoyA = '\n// e.g. const { title, noindex = false } = Astro.props\nconst { title, noindex = true } = Astro.props as Props;\n';
+  assert.throws(
+    () => extractNoindexDefault(decoyA),
+    /expected exactly 1 Astro\.props destructure site, found 2/,
+    'a second destructure-shaped candidate (even an innocent comment) must fail loud, not lose silently to a first-match pick'
+  );
 });
 
 test('Base.astro gates the robots noindex meta on the positive condition', () => {
