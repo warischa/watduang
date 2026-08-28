@@ -55,7 +55,7 @@ record no longer what was written.
 
 **GitHub Issues are the single source of truth** — the map is [#1](https://github.com/warischa/watduang/issues/1) · how to work the tracker, and the ticket-number rule: `docs/agents/issue-tracker.md`
 
-Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md` · src-edit rules: `docs/agents/src-edit-rules.md`
+Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md` · src-edit rules: `docs/agents/src-edit-rules.md` · porting a game from a mockup: `docs/agents/porting-a-mockup-game.md`
 
 ⚠ Before adding ANY binary — image, font, 3D model — read `docs/agents/assets.md` first: `public/` ships verbatim to the live site, so a file dropped there goes public with nothing referencing it.
 
