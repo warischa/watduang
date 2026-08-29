@@ -1,5 +1,41 @@
 # power-meter — build outcome and open defects
 
+## CLOSED BY DELETION (gh#136) — read this before acting on anything below
+
+The ported engine is gone. `src/games/power-meter.ts` (1056 lines), `src/games/power-meter.test.mjs`
+(1060 lines) and `src/styles/games/power-meter.css` (422 lines) are deleted; the game now runs the
+original mockup full screen at `/game/power-meter/play/`, and `src/games/power-meter.ts` is a landing
+page only. Same move as cannon-flag (687e83d).
+
+Every defect and mutant recorded below is closed by that deletion, because the code they describe no
+longer exists — none was fixed:
+
+- **MUST FIX 1** (bar paints 9.59 while the score records 10.00): the two-path scoring that caused it
+  was this port's own. The mockup has one meter and scores off it, so paint and score agree by
+  construction — which is exactly what the entry's "CORRECT FIX" asked for.
+- **MUST FIX 2** (spark burst draws to a detached canvas after the first attempt) and **MUST FIX 3**
+  (`cleanup` never drained, ~40 renders of accumulation): both live in the deleted mount/teardown
+  lifecycle. The play route mounts once and never re-mounts.
+- **All 7 surviving mutants + the vacuous assertion**: they were properties of `power-meter.test.mjs`
+  and its fake DOM, both deleted. Mutant 1 (the `<a href>` inside an `innerHTML` constant that the
+  ADR-0014 sweep could not see) is closed structurally instead: the built play route emits **0**
+  `<a href>` of any kind, matching cannon-flag's play route, and the crawlable outbound link stays in
+  page chrome above the stage.
+- The three **"Conflicts to resolve"** are moot for the same reason — they were all about this
+  stylesheet and this module's effect budget.
+
+What survives as a finding: the **spec-first method** measurements at the end of this file. Those are
+about how the port was produced, not about the artifact, and they are why games 3-10 read the mockup's
+HTML and skip its `.md`.
+
+Still open, and NOT closed by this change: power-meter has never been registered in
+`src/games/manifest.ts`, so `/game/power-meter/` does not build yet. `public/og/power-meter.png` does
+not exist either, while the module declares `og: 'power-meter.png'`.
+
+---
+
+## Historical record — the state before gh#136
+
 State: 3 files written, UNWIRED and UNCOMMITTED.
 `src/games/power-meter.ts` 1024 lines · `power-meter.test.mjs` 898 lines / 32 tests · `power-meter.css` 420 lines.
 11 gates exit 0, and the gate agent verified none is a vacuous pass (each either flat-globs

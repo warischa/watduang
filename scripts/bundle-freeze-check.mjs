@@ -86,11 +86,14 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 // THE COST IS REAL AND NAMING IT IS THIS GATE'S JOB: one play route is +25% on the site's reachable
 // JS. Three of them roughly double it. That number belongs in the decision about whether every game
 // gets this treatment, not buried inside a re-baseline.
-// Attributed additions:
-// - audio.js (shared shell audio helper referenced by power-meter)
-// - cannon-flag.js (new ported artillery game module)
-// - power-meter.js (unwired game module present in src/games/ and discovered by import.meta.glob)
-// Delta of reachable bytes (+52366 bytes) accounts for cannon-flag (~34KB), power-meter (~18KB), audio (~0.6KB).
+// Attributed changes (re-baseline 2026-08-29, gh#135 + gh#136 play routes, measured from npm run build):
+// - audio.js REMOVED: freeze-tap and power-meter engine deletions left timebomb the sole consumer
+//   of src/shell/audio.ts, so the bundler inlines it into timebomb.js — verified: AudioContext code
+//   present in the built timebomb chunk, absent as a standalone chunk. Sound still ships.
+// - play.astro_astro_type_script_index_0_lang.js now covers THREE chunks (cannon-flag, freeze-tap,
+//   power-meter play routes) — membership is a deduped set, so one entry stands for all three.
+// - Delta of reachable bytes (+44547, 159812 -> 204359): two lifted mockup bundles (~38KB + ~32KB)
+//   minus the two deleted ported engines and their shared-chunk shrinkage.
 const BASELINE_BASENAMES = [
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'PlayerSetup.astro_astro_type_script_index_0_lang.js',
@@ -99,7 +102,6 @@ const BASELINE_BASENAMES = [
   '_el.js',
   '_id_.astro_astro_type_script_index_0_lang.js',
   '_round-start.js',
-  'audio.js',
   'cannon-flag.js',
   'daily-fortune.js',
   'draw.astro_astro_type_script_index_0_lang.js',
@@ -118,7 +120,7 @@ const BASELINE_BASENAMES = [
   'roster.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 159812;
+const BASELINE_TOTAL_BYTES = 204359;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

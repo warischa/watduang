@@ -6,10 +6,8 @@
 //
 // READS THROUGH roster.ts, never through localStorage directly. ADR-0010 makes roster.ts the sole
 // writer of the roster key and scripts/roster-lock-structure-check.mjs enforces that by TEXT: spelling
-// the key anywhere else reds the gate. It red twice on this file — first when the key was hardcoded
-// here, then again when this very comment quoted it, because a text checker cannot tell a use from a
-// mention. Both were the gate working. Importing the accessor is also simply better: the key name
-// stays in one place, and the try/catch every storage touch needs (issue #7) already lives in read().
+// the key anywhere else reds the gate. Importing the accessor keeps the key name in one place, and the
+// try/catch every storage touch needs (issue #7) already lives in read().
 import { loadGroup, loadRoster } from '../../shell/roster';
 
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
@@ -25,34 +23,35 @@ function seedFromRoster(): void {
   // screen is exactly the right thing to show. Bail and leave it alone.
   if (names.length < 2) return;
 
-  const display = document.getElementById('display-player-count');
-  const inc = document.getElementById('btn-inc-players');
-  const dec = document.getElementById('btn-dec-players');
-  const container = document.getElementById('player-names-container');
-  const start = document.getElementById('btn-start-match');
-  if (!display || !inc || !dec || !container || !start) return;
+  // The mockup clamps player count to 2-20 (FreezeTapEngine.setPlayerCount); target inside that range
+  // rather than forcing a number it refused.
+  const target = Math.min(names.length, 20);
 
-  // Walk the counter with its own buttons. Capped at 40 presses so a control that stops responding
-  // ends the loop instead of spinning forever — a hang here would look like a broken game.
-  const target = names.length;
+  // decPlayerBtn/incPlayerBtn and .count-display are torn down and rebuilt on every count change
+  // (renderSetupScreen() replaces mainContent.innerHTML wholesale), so each iteration re-queries the
+  // live nodes instead of clicking a detached reference. Capped at 40 presses so a control that stops
+  // responding ends the loop instead of spinning forever — a hang here would look like a broken game.
   for (let i = 0; i < 40; i += 1) {
+    const display = document.querySelector('.count-display');
+    const inc = document.getElementById('incPlayerBtn');
+    const dec = document.getElementById('decPlayerBtn');
+    if (!display || !inc || !dec) return;
     const current = Number.parseInt(display.textContent ?? '', 10);
     if (!Number.isFinite(current) || current === target) break;
     (current < target ? inc : dec).click();
   }
 
-  // The mockup owns its own min/max. If it clamped the count somewhere else, fill only the rows it
-  // actually rendered rather than forcing a number it refused.
-  const inputs = container.querySelectorAll<HTMLInputElement>('.player-name-input');
+  // The final render owns however many .roster-input rows it actually drew; fill only those.
+  const inputs = document.querySelectorAll<HTMLInputElement>('.roster-input');
   inputs.forEach((input, i) => {
     if (i >= names.length) return;
     // Direct .value skips the attribute's maxlength — enforce it, or a long saved name overflows.
     input.value = input.maxLength > 0 ? names[i].slice(0, input.maxLength) : names[i];
     input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
-  if (inputs.length >= 2) start.click();
+  const start = document.getElementById('startGameBtn');
+  if (inputs.length >= 2) start?.click();
 }
 
 if (document.readyState === 'loading') {

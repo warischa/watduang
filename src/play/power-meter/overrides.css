@@ -1,0 +1,26 @@
+/* Site-specific adjustments layered ON TOP of the verbatim mockup stylesheet.
+   NOTHING here belongs in style.css: that file is what scripts/extract-mockup.mjs writes, byte-for-byte
+   from the mockup, and re-running the extractor overwrites it. Every change this site needs lives here
+   so the extraction stays reproducible and a diff against the mockup stays meaningful. */
+
+/* The mockup ships its own deterministic test runner — a 🧪 button in the header and a modal behind
+   it, which main.js also auto-runs on load. That is a developer tool and players must never reach it.
+   Hidden rather than deleted from the markup on purpose: main.js dereferences both
+   `#btn-tests-modal` (addEventListener at boot) and `#test-results-container` inside `#tests-modal`,
+   so removing the nodes would throw on load. display:none keeps the elements, removes them from the
+   accessibility tree, and takes them out of tab order in one declaration. */
+#btn-tests-modal,
+#tests-modal {
+  display: none !important;
+}
+
+/* Tap targets. `.icon-btn` is declared 40x40 in the mockup stylesheet (style.css, `.icon-btn`), under
+   the 44px floor the rest of this site meets. The mockup was built to be looked at on a desktop; this
+   site is a phone passed around a group, so the floor applies here and did not there.
+   min-* rather than width/height: it raises what is too small and leaves anything already larger
+   exactly where the mockup put it. Scoped to the header controls that survive the rule above. */
+#btn-audio-toggle,
+#btn-help-modal {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}

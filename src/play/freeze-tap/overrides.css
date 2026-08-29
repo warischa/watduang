@@ -1,0 +1,27 @@
+/* Site-specific adjustments layered ON TOP of the verbatim mockup stylesheet.
+   NOTHING here belongs in style.css: that file is what scripts/extract-mockup.mjs writes, byte-for-byte
+   from the mockup, and re-running the extractor overwrites it. Every change this site needs lives here
+   so the extraction stays reproducible and a diff against the mockup stays meaningful. */
+
+/* The mockup ships its own automated-test runner — a header button and a modal behind it. That is a
+   developer tool and players must never reach it. Hidden rather than deleted from the markup on purpose:
+   main.js holds references to both elements, and removing the nodes would hand it nulls to dereference
+   on boot. display:none keeps the element, removes it from the accessibility tree, and takes it out of
+   tab order in one declaration. */
+#testRunnerOpenBtn,
+#testModal {
+  display: none !important;
+}
+
+/* Tap targets. .count-btn is 38x38px in style.css, under the 44px floor the rest of this site meets —
+   the same class of defect cannon-flag's overrides.css already fixed for its own angle controls. The
+   mockup was built to be looked at on a desktop; this site is a phone passed around a group, so the
+   floor applies here and did not there. min-* rather than width/height: it raises what is too small
+   and leaves anything already larger exactly where the mockup put it. */
+#decPlayerBtn,
+#incPlayerBtn,
+#soundToggleBtn,
+#resetAppBtn {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}

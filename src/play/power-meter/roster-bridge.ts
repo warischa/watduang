@@ -6,9 +6,7 @@
 //
 // READS THROUGH roster.ts, never through localStorage directly. ADR-0010 makes roster.ts the sole
 // writer of the roster key and scripts/roster-lock-structure-check.mjs enforces that by TEXT: spelling
-// the key anywhere else reds the gate. It red twice on this file — first when the key was hardcoded
-// here, then again when this very comment quoted it, because a text checker cannot tell a use from a
-// mention. Both were the gate working. Importing the accessor is also simply better: the key name
+// the key anywhere else reds the gate. Importing the accessor is also simply better: the key name
 // stays in one place, and the try/catch every storage touch needs (issue #7) already lives in read().
 import { loadGroup, loadRoster } from '../../shell/roster';
 
@@ -25,34 +23,36 @@ function seedFromRoster(): void {
   // screen is exactly the right thing to show. Bail and leave it alone.
   if (names.length < 2) return;
 
-  const display = document.getElementById('display-player-count');
-  const inc = document.getElementById('btn-inc-players');
-  const dec = document.getElementById('btn-dec-players');
-  const container = document.getElementById('player-names-container');
-  const start = document.getElementById('btn-start-match');
-  if (!display || !inc || !dec || !container || !start) return;
+  // The mockup renders one count button per supported size and nothing outside that range, so read
+  // the range off the buttons it actually drew instead of hardcoding 2-10 a second time.
+  const countBtns = document.querySelectorAll<HTMLButtonElement>('.count-btn[data-arg]');
+  if (countBtns.length === 0) return;
+  const sizes = [...countBtns].map((b) => Number(b.dataset.arg));
+  const target = Math.min(names.length, Math.max(...sizes));
+  const countBtn = [...countBtns].find((b) => Number(b.dataset.arg) === target);
+  if (!countBtn) return;
 
-  // Walk the counter with its own buttons. Capped at 40 presses so a control that stops responding
-  // ends the loop instead of spinning forever — a hang here would look like a broken game.
-  const target = names.length;
-  for (let i = 0; i < 40; i += 1) {
-    const current = Number.parseInt(display.textContent ?? '', 10);
-    if (!Number.isFinite(current) || current === target) break;
-    (current < target ? inc : dec).click();
-  }
+  // EVERY control is re-queried after every click. main.js re-renders #view-root by replacing its
+  // innerHTML, so a node captured before a click is detached by the time the next one is due — and a
+  // click on a detached node never reaches the document-level dispatcher, so it silently does nothing.
+  countBtn.click();
 
-  // The mockup owns its own min/max. If it clamped the count somewhere else, fill only the rows it
-  // actually rendered rather than forcing a number it refused.
-  const inputs = container.querySelectorAll<HTMLInputElement>('.player-name-input');
+  const next = document.getElementById('btn-primary-action');
+  if (!next) return;
+  next.click();
+
+  const inputs = document.querySelectorAll<HTMLInputElement>('.name-input');
+  if (inputs.length < 2) return;
   inputs.forEach((input, i) => {
     if (i >= names.length) return;
     // Direct .value skips the attribute's maxlength — enforce it, or a long saved name overflows.
     input.value = input.maxLength > 0 ? names[i].slice(0, input.maxLength) : names[i];
+    // Bubbling, because main.js listens for `input` on the document, not on the field.
     input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
-  if (inputs.length >= 2) start.click();
+  const start = document.getElementById('btn-primary-action');
+  start?.click();
 }
 
 if (document.readyState === 'loading') {

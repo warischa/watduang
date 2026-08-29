@@ -1,0 +1,41 @@
+---
+// The full-screen play route: the power-meter mockup itself, served through this site so it gets a
+// real URL, a real <head>, and a bundler that turns its inline <script> into an external module the
+// CSP admits. `/game/power-meter/` keeps the crawlable page — how-to-play prose, JSON-LD, the ad slot
+// — and links here; this page is the app view and carries no chrome at all.
+//
+// ONE FILE PER GAME, not a [id] route. Each mockup's stylesheet styles bare `body` and generic class
+// names of its own, so a dynamic route would load every game's sheet on every play page and let them
+// fight. The same reasoning src/pages/game/[id].astro already records for its per-game imports, one
+// step further: here the sheets cannot be prefixed, because they are lifted verbatim.
+//
+// INDEXABLE, deliberately: src/pages/noindex.test.mjs allows noindex on 404.astro alone, because on a
+// site whose business model is organic search a page that deindexes itself is the worst available
+// outcome. The two URLs are differentiated by title instead — this one is the app view,
+// `/game/power-meter/` is the landing page that explains the game.
+import Base from '../../../layouts/Base.astro';
+import markup from '../../../play/power-meter/markup.html?raw';
+import '../../../play/power-meter/style.css';
+// AFTER style.css, always: overrides.css wins on equal specificity only if it comes second.
+import '../../../play/power-meter/overrides.css';
+// The MODULE, not `byId()` from the manifest: the module is the single source for this metadata and
+// the manifest only decides which modules get a landing URL — this import works whether or not the
+// game is registered there (it is, since gh#136 wired power-meter in).
+import game from '../../../games/power-meter';
+
+// `names.th`, not `title`: the module has no `title` field, and reading one puts the literal string
+// "undefined" at the front of the built <title>.
+const title = `${game.names.th} — เล่นเต็มจอ`;
+const description = game.seo.description;
+---
+
+<Base title={title} description={description} ogImage={`/og/${game.og}`} chrome>
+  <Fragment set:html={markup} />
+</Base>
+
+<script>
+  // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block of
+  // this size executes zero lines. Astro emits both of these as one external module.
+  import '../../../play/power-meter/main.js';
+  import '../../../play/power-meter/roster-bridge.ts';
+</script>

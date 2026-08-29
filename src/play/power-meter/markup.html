@@ -1,0 +1,69 @@
+  <div id="app-container">
+    <!-- 2D Particle Overlay Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Top Navigation Header -->
+    <header class="top-nav">
+      <div class="brand-title">
+        <span>⚡</span> วัดพลัง (1.5x)
+      </div>
+      <div class="nav-controls">
+        <button id="btn-audio-toggle" class="icon-btn" aria-label="เปิด/ปิดเสียง" title="เปิด/ปิดเสียง">
+          🔊
+        </button>
+        <button id="btn-help-modal" class="icon-btn" aria-label="กติกาและวิธีเล่น" title="กติกาและวิธีเล่น">
+          ❓
+        </button>
+        <button id="btn-tests-modal" class="icon-btn" aria-label="ทดสอบระบบ Logic" title="ตรวจสอบความถูกต้อง (Tests)">
+          🧪
+        </button>
+      </div>
+    </header>
+
+    <!-- View Container (FSM Router) -->
+    <main id="view-root" role="region" aria-label="หน้าจอเกม">
+      <!-- Dynamic View Injected Here -->
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast-msg" role="status" aria-live="polite"></div>
+
+    <!-- Screen Reader Live Status -->
+    <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <!-- Help & Rules Modal -->
+  <div id="help-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal-content">
+      <h2 id="help-title" style="margin-bottom: 12px; font-size: 1.3rem;">⚡ กติกาเกมวัดพลัง</h2>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 12px;">
+        เกมปาร์ตี้ส่งต่อมือถือ 2-10 คน เพื่อหา <strong>"ผู้แพ้เพียงคนเดียว"</strong>
+      </p>
+      <ul style="text-align: left; padding-left: 20px; font-size: 0.88rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 8px;">
+        <li>ผู้เล่นแต่ละคนได้กดหยุดเกจพลัง <strong>3 ครั้งต่อรอบ</strong></li>
+        <li>เกจจะวิ่งจาก 0.00 ไปหา 10.00 ด้วยความเร็วสูง <strong>(สปีด 1.5x)</strong></li>
+        <li>ความละเอียดคะแนนเป็น <strong>ทศนิยม 2 ตำแหน่ง</strong> (เช่น 8.75, 9.42)</li>
+        <li>หากแตะที่ 10.00 พอดี จะได้ 10.00 เต็ม (Perfect Score!)</li>
+        <li>หากปล่อยเลย 10.00 เกจจะ <strong>ร่วงลงมาอย่างรวดเร็ว</strong></li>
+        <li>คะแนนรวมเต็ม 30.00 (รวม 3 ครั้ง)</li>
+        <li>คนได้คะแนนรวม <strong>น้อยที่สุดคือผู้แพ้</strong></li>
+        <li>หากเสมอกันที่คะแนนต่ำสุด จะเข้าสู่รอบ <strong>Tiebreak</strong> แข่งเฉพาะคนที่เสมอกัน</li>
+      </ul>
+      <button class="btn-primary" data-act="closeModal" data-arg="help-modal">เข้าใจแล้ว</button>
+    </div>
+  </div>
+
+  <!-- Logic Test Runner Modal -->
+  <div id="tests-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="test-title">
+    <div class="modal-content">
+      <h2 id="test-title" style="margin-bottom: 12px; font-size: 1.3rem;">🧪 ตรวจสอบ Logic Engine</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
+        รัน Deterministic Unit Tests (ทศนิยม 2 ตำแหน่ง)
+      </p>
+      <div id="test-results-container" style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 10px; font-family: var(--font-mono); font-size: 0.8rem; max-height: 220px; overflow-y: auto; text-align: left; color: #38bdf8; margin-bottom: 14px;">
+        ยังไม่ได้รันการทดสอบ
+      </div>
+      <button class="btn-primary" data-act="runAllDeterministicTests">รันการทดสอบทันที</button>
+      <button class="btn-secondary" data-act="closeModal" data-arg="tests-modal">ปิด</button>
+    </div>
+  </div>

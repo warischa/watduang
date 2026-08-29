@@ -103,6 +103,15 @@ const EPS = 0.05;
 //   - The registering commit touches no other game module and none of the shell, so no other game's
 //     contribution can have moved. 9 + 1 = 10 closes exactly.
 //
+// 2026-08-29, 10 -> 9: freeze-tap's engine LEFT its module (gh#135) — same shape as cannon-flag's
+// port below: src/games/freeze-tap.ts is now an 87-line landing rendering prose and no <button>;
+// the game runs at src/pages/game/freeze-tap/play.astro. Its probe-visible contribution goes
+// 1 -> 0. In the SAME change power-meter JOINED the manifest (gh#136) contributing 0: it was never
+// probed before (unwired), and its landing mirrors cannon-flag's — no .game-btn on any screen.
+// ATTRIBUTED, not bumped: old freeze-tap.ts had 7 game-btn refs (1 rendered on the two walked
+// screens), new has 0; power-meter's landing has 0 refs. 10 - 1 + 0 = 9 closes exactly, measured
+// against the local 4-lane run whose red prompted this re-record.
+//
 // 2026-08-29, 11 -> 10: cannon-flag's engine LEFT this module. The game now runs on its own
 // full-screen route (src/pages/game/cannon-flag/play.astro) and src/games/cannon-flag.ts is an
 // 87-line landing module that renders prose and no <button> at all — the entry into the game is an
@@ -123,7 +132,7 @@ const EPS = 0.05;
 //     carries .game-btn, so it contributes 0, the same shape as freeze-tap's .ft-pad div.
 //   - The registering commit touches no other game module and none of the shell. 10 + 1 = 11 closes
 //     exactly.
-export const CONTROL_COUNT = 10;
+export const CONTROL_COUNT = 9;
 /** Every game in the manifest gets a page. Pinned so a page that stopped loading cannot read as clean. */
 export const PAGE_COUNT = games.length;
 
