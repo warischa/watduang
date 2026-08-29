@@ -8,6 +8,8 @@
 //   session.setWidth(w,h)         -> Emulation.setDeviceMetricsOverride
 //   session.evaluate(exprString)  -> Runtime.evaluate, returns {value, error}
 //   session.wipe()                -> localStorage.clear(); sessionStorage.clear()
+//   session.hold(x, y, ms)        -> touchstart, wait ms, touchend — for hold-to-charge controls that
+//                                     tap() cannot express (it releases immediately)
 //   session.tap(x, y)             -> real touchstart+touchend at a point (Input.dispatchTouchEvent) —
 //                                     unlike .click()+elementFromPoint, this drives Chrome's real
 //                                     touch-to-synthetic-click pipeline, so it proves navigation/guards
@@ -88,6 +90,15 @@ const session = {
   },
   async tap(x, y) {
     await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await settle(400);
+  },
+  // A press-and-HOLD, which tap() cannot express: it releases immediately. cannon-flag's fire
+  // control charges for as long as the finger is down, so tapping it measures the shortest possible
+  // shot and never the mechanic. Same Input domain as tap(), so it drives the real touch pipeline.
+  async hold(x, y, ms = 600) {
+    await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    await new Promise((r) => setTimeout(r, ms));
     await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await settle(400);
   },

@@ -1610,8 +1610,9 @@ function startAiming(): void {
   fireBtn.type = 'button';
 
   const startCharge = (e: Event) => {
-    if (e.type === 'touchstart') e.preventDefault();
     if (isAimingLocked) return;
+    // preventDefault only once this really is our charge, never speculatively — see releaseCharge.
+    if (e.type === 'touchstart') e.preventDefault();
     sound.init();
     isChargingPower = true;
     chargeDirection = 1;
@@ -1620,8 +1621,15 @@ function startAiming(): void {
   };
 
   const releaseCharge = (e: Event) => {
-    if (e.type === 'touchend') e.preventDefault();
+    // GUARD FIRST, THEN preventDefault. This handler is bound to WINDOW, so it sees every touchend
+    // on the page. Calling preventDefault() before the guard suppressed the synthetic click Chrome
+    // generates from touchend — which killed every click-bound control on this screen: both angle
+    // step buttons and the sound toggle. Measured in a real browser at 320px: three touch taps on an
+    // enabled 44x44 #cf-angle-inc left the angle at 58.0 deg, while .click() moved it to 59.0 deg.
+    // The fire button was unaffected only because it listens to touch directly, which is exactly why
+    // a unit suite over a fake DOM could not see this.
     if (!isChargingPower || isAimingLocked) return;
+    if (e.type === 'touchend') e.preventDefault();
     isChargingPower = false;
     fireBtn.classList.remove('charging');
     sound.stopChargeHum();

@@ -1,6 +1,7 @@
 // node --test src/games/cannon-flag.test.mjs — no framework, no dependency.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { ARM_DELAY_MS } from './_arm-gate.ts';
 import game, {
   WORLD_WIDTH,
   WORLD_HEIGHT,
@@ -316,6 +317,12 @@ const fakeDoc = {
 };
 
 globalThis.document = fakeDoc;
+// window's addEventListener used to be a no-op stub. This module binds its charge-release handler
+// to WINDOW, so every listener it registered there went into a black hole and no test in this file
+// could observe one. That hole hid a real shipping bug: releaseCharge called preventDefault() on
+// EVERY page-wide touchend before checking whether a charge was in progress, which suppressed the
+// synthetic click Chrome generates from touchend and left both angle buttons and the sound toggle
+// dead to touch. A fake that accepts a listener and never calls it is not a fake of an EventTarget.
 globalThis.window = {
   matchMedia: (q) => ({
     media: q,
@@ -324,8 +331,17 @@ globalThis.window = {
     removeEventListener() {},
   }),
   devicePixelRatio: 1,
-  addEventListener() {},
-  removeEventListener() {},
+  _listeners: {},
+  addEventListener(type, fn) {
+    (this._listeners[type] ??= []).push(fn);
+  },
+  removeEventListener(type, fn) {
+    this._listeners[type] = (this._listeners[type] || []).filter((f) => f !== fn);
+  },
+  dispatchEvent(ev) {
+    (this._listeners[ev.type] || []).forEach((fn) => fn(ev));
+    return true;
+  },
 };
 globalThis.CustomEvent = class {
   constructor(type, init) {
@@ -361,6 +377,66 @@ test('mount and dispose lifecycle cleans up cleanly without errors', () => {
   // Dispose cleans up
   game.dispose();
   assert.equal(stage.children.length, 0);
+});
+
+// A window-bound touchend handler must GUARD BEFORE it calls preventDefault(). Chrome generates the
+// synthetic click from touchend, so a page-wide preventDefault() kills every click-bound control on
+// the screen. Measured in a real browser at 320px before the fix: three real touch taps on an
+// enabled 44x44 #cf-angle-inc left the angle at 58.0 deg, while .click() moved it to 59.0 deg.
+// Both directions are asserted, because a handler that NEVER calls preventDefault would pass the
+// first assertion while breaking the hold-to-charge mechanic the second one pins.
+test('a touchend outside a charge must not preventDefault (it would kill every tap)', (t) => {
+  // The ghost-tap gate holds every rendered button `disabled` until the stage has been quiet for
+  // ARM_DELAY_MS, so a click dispatched immediately after a render is swallowed by design.
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = new FakeElement('div');
+  const session = {
+    players: ['ผู้เล่น A', 'ผู้เล่น B'],
+    setPlayers() {},
+    played: [],
+    markPlayed(id) {
+      this.played.push(id);
+    },
+    checkpoint: null,
+    saveCheckpoint() {},
+  };
+  game.mount(stage, { roster: { names: () => [], add() {} }, session });
+
+  const findById = (node, id) => {
+    if (node.id === id) return node;
+    for (const c of node.children || []) {
+      const hit = findById(c, id);
+      if (hit) return hit;
+    }
+    return null;
+  };
+  const ready = findById(stage, 'cf-ready-btn');
+  assert.equal(ready.disabled, true, 'the arm gate did not gate the ready button');
+  t.mock.timers.tick(ARM_DELAY_MS + 10);
+  assert.equal(ready.disabled, false, 'the arm gate never released the ready button');
+  ready.click(); // through the control a player actually touches
+
+  const fire = findById(stage, 'cf-btn-fire');
+  assert.ok(fire, 'the aiming screen never rendered its fire button');
+  assert.ok(
+    (window._listeners.touchend || []).length > 0,
+    'nothing registered a window touchend — this test cannot observe the bug it exists for',
+  );
+
+  const touchend = () => {
+    let prevented = false;
+    window.dispatchEvent({ type: 'touchend', preventDefault: () => { prevented = true; } });
+    return prevented;
+  };
+
+  // 1. No charge in progress: the page's own tap pipeline must be left alone.
+  assert.equal(touchend(), false, 'preventDefault fired on an unrelated touchend — taps are dead');
+
+  // 2. Mid-charge: this touchend IS ours, so suppressing the synthetic click is correct.
+  fire.dispatchEvent({ type: 'touchstart', preventDefault() {} });
+  assert.equal(touchend(), true, 'the charge release stopped suppressing its own synthetic click');
+
+  game.dispose();
 });
 
 test('SoundSynthesizer initializes and disposes safely in headless environment', () => {

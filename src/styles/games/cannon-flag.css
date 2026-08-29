@@ -198,9 +198,14 @@
   background: var(--color-ground-warm);
   border: 1.5px solid var(--color-line-strong);
   border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  font-size: 14px;
+  /* 44px is the floor every other control on this screen already meets — the angle steppers are
+     44x44 and the fire button is 62 tall. This one shipped at 32 and was the only control under it,
+     measured in a real browser at 320px. */
+  width: 44px;
+  height: 44px;
+  /* It is a flex child of .cf-hud-top, which shrank it to 43px wide — measured, not assumed. */
+  flex: none;
+  font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
