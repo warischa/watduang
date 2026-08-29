@@ -39,6 +39,9 @@ isn't injected removes the guardrail.
   `done:`/`dec:` entry that WRAPS onto a second physical line has its continuation policed, and
   renaming or adding a label silently changes what the gate checks. Change the vocabulary and change
   that script in the same commit. `inflight:` is exempt today behind a named constant there.
+- **`done:` and `errors:` follow master's wording verbatim (checked 2026-08-29):** `done:` carries only
+  what git cannot show — committed work is cited by SHA, never re-narrated. `errors:` is optional — own
+  errors this session, one clause each, class not story — omit the line when there are none.
 
 ## Budgets
 
