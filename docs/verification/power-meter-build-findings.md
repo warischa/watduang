@@ -55,10 +55,15 @@ so gutting the entire fall branch near the peak stays green. Its comment also st
 
 ## Conflicts to resolve, not defects
 
-- §7 (ship all 16 effects, owner's decision) vs §10 (the graphic direction, which forbids the pulse
-  animation and the motif animation). Three infinite CSS animations shipped that §10 banned. They sit
-  inside the reduce block, so the cost is paint and battery, not accessibility. OWNER RULING NEEDED:
-  §7 governs whether an effect exists, §10 governs how it looks — or §10 wins outright.
+- ~~§7 (ship all 16 effects, owner's decision) vs §10 (the graphic direction, which forbids the pulse
+  animation and the motif animation).~~ **RESOLVED 2026-08-29, owner ruling: §7 governs whether an
+  effect EXISTS, §10 governs how it LOOKS.** Both loops are gone and both effects are kept —
+  `.pm-tap--running` holds the pulse's end position as a static shadow, and `.pm-loser-motif` wobbles
+  once on entry and settles upright. Every animation in the stylesheet is now one-shot.
+  **Count corrected while acting on it: the entry said "three infinite CSS animations" but named only
+  two, and the stylesheet had two — `pm-pulse` and `pm-wobble`. `pm-pop` and `pm-rise` are one-shot
+  `both` fills and were never in question.** The reduce block already covered all of them, so the cost
+  had always been paint and battery, not accessibility.
 - `.pm-score` ships one colour where §10 prescribed three tiers. That follows from the orchestrator's
   no-new-tokens decision (gold 1.42:1, amber 1.75:1 on white — unusable as text). Consequence to check:
   with the tier colour gone AND the window widened, `10.00` now carries no visual distinction at all.

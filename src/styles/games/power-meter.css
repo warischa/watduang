@@ -172,16 +172,12 @@
 .pm-tap--running {
   background: var(--color-primary);
   color: var(--color-ground-warm);
-  animation: pm-pulse 0.6s ease-in-out infinite alternate;
-}
-
-@keyframes pm-pulse {
-  from {
-    box-shadow: 5px 5px 0 var(--color-line-strong);
-  }
-  to {
-    box-shadow: 2px 2px 0 var(--color-line-strong);
-  }
+  /* Owner ruling 2026-08-29: §7 governs whether an effect EXISTS, §10 governs how it LOOKS. The
+     running state still reads as running — it keeps its colour change and rests on the pulse's own
+     end position as a static shadow — but the 0.6s infinite loop §10 banned is gone. An idle loop
+     under a finger that is already watching the meter bought nothing and cost battery on every
+     attempt. @keyframes pm-pulse is deleted with its only user. */
+  box-shadow: 2px 2px 0 var(--color-line-strong);
 }
 
 .pm-sound {
@@ -346,16 +342,22 @@
 
 .pm-loser-motif {
   display: flex;
-  animation: pm-wobble 2s ease-in-out infinite;
+  /* Same ruling: the motif still ARRIVES with motion, then rests. One shot with the `both` fill the
+     two uncontested effects on this screen (pm-rise, pm-pop) already use, instead of rotating for as
+     long as the results screen is open. */
+  animation: pm-wobble 0.5s ease-in-out both;
 }
 
 @keyframes pm-wobble {
-  0%,
-  100% {
+  0% {
     transform: rotate(-4deg);
   }
   50% {
     transform: rotate(4deg);
+  }
+  /* Settles upright rather than back to -4deg: a one-shot run must not park the motif tilted. */
+  100% {
+    transform: rotate(0deg);
   }
 }
 
