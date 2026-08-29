@@ -1,0 +1,212 @@
+/* freeze-tap's own screen CSS. One stylesheet per game so separate visual tickets never write to the
+   same file. Astro bundles a bare CSS import page-globally, so EVERY game page loads every one of
+   these: each selector here MUST carry the `ft-` prefix, or it will restyle a sibling game.
+
+   The shared game-screen classes (.stage-screen, .game-btn, .game-btn-primary, .game-btn-secondary)
+   are shell vocabulary, declared once in src/pages/game/[id].astro. Never redeclare or override them
+   here — every game page loads them.
+
+   Every size below is copied from a shipped sheet rather than invented: the display step, the hero
+   panel and the hint chip come from src/styles/games/short-stick.css, the result label and the inert
+   hint from the .pl-* block in src/pages/game/[id].astro. Colours are shell tokens; the pad's lit
+   state references var(--page-accent) by name, which the shell resolves from the category manifest —
+   no accent hex is copied into this file.
+
+   No @keyframes, no animation and no transition, and therefore no reduced-motion block HERE — but
+   this game does move: the pad's spark canvas and its screen shake are driven from script
+   (freeze-tap.ts), which is a motion source a CSS media query cannot reach, so the reduce query is
+   read in the module itself and gates it there (ADR-0046). The trigger paint stays instant on
+   purpose — an animation between the logical trigger and the visible one would add frames to every
+   measured reaction time. */
+
+.ft-turn {
+  font-size: 13px;
+}
+
+/* Two-line block: kicker above a name (the phone's next holder, or whose time is on screen). */
+.ft-holder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.ft-holder-kicker {
+  font-size: 13px;
+}
+
+.ft-holder-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;
+  /* A player-typed name can be 24 characters with no space in it (the roster's maxlength), and Latin
+     has no dictionary break to fall back on. Without this the name overruns the stage and the whole
+     page scrolls sideways. */
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* The rule block: which signal this pass is waiting for. Shown on the hand-off and again beside the
+   pad, because a player who forgot the word must be able to read it while waiting. */
+.ft-rule {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.ft-rule-label {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.ft-rule-token {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.ft-rule-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* Hero motif: the tap surface. A div[role=button] rather than a <button> — the pointerdown listener
+   lives on #stage, so the surface never needs to be a control. Fixed height so the pad does not
+   resize between the resting token and a longer signal token: a surface that grew under the finger
+   mid-attempt would move the tap target the player is aiming at. */
+.ft-pad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 300px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  padding: 20px 14px;
+  box-sizing: border-box;
+  cursor: pointer;
+  /* No double-tap zoom delay on the one element the game measures reaction time against, and no
+     text selection from the long press a fast tap can look like. */
+  touch-action: manipulation;
+  user-select: none;
+  /* The spark canvas is an absolutely-positioned child, so the pad is its containing block. */
+  position: relative;
+}
+
+/* The spark layer. Sized in script from the pad's own client box, so inset:0 and the canvas bitmap
+   describe the same rectangle. pointer-events:none is load-bearing: the pad is the surface this
+   game measures a reaction against, and an overlay that swallowed the tap would break the game
+   outright rather than visibly. */
+.ft-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 20px;
+}
+
+/* Lit — a decoy and the real signal light identically. The only channel that tells them apart is the
+   token text, which is the whole skill the game tests. */
+.ft-pad--flash {
+  background: var(--page-accent);
+}
+
+.ft-pad-token {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.ft-shout {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.ft-remark {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.ft-foot {
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 30ch;
+}
+
+.ft-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+}
+
+.ft-hint {
+  font-size: 11px;
+  text-align: center;
+  color: rgba(26, 26, 26, 0.55); /* the shell sheet's own literal for this exact chip, no token exists */
+  /* same collapse as the secondary control above it */
+  margin-block-start: -12px;
+}
+
+/* The whole pass, fastest first, false start last. */
+.ft-rank {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.ft-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-ground-warm);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+/* The one who got it, marked by weight of border rather than by a colour the site does not define. */
+.ft-rank-row--loser {
+  border: 2.5px solid var(--color-line-strong);
+}
+
+.ft-rank-pos {
+  flex: 0 0 auto;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.ft-rank-name {
+  flex: 1 1 auto;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.ft-rank-ms {
+  font-size: 16px;
+  /* Times line up column-wise, so a 3-digit and a 4-digit ms are comparable at a glance. */
+  font-variant-numeric: tabular-nums;
+}

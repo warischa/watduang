@@ -37,9 +37,9 @@ everything a player reads is Thai. The two never swap.
 | Surface | Language |
 |---|---|
 | Every `.md` in this repo — `CLAUDE.md`, `SESSION-HANDOFF.md`, `docs/**`, ADRs, runbook, `CONTEXT.md` | **English** |
-| Code comments, identifiers, commit messages, PR bodies, GitHub issue bodies | **English** |
+| Code comments, identifiers, commit messages, PR bodies, GitHub issue bodies | **English, with no domain-term exception** — `scripts/thai-comments.mjs` fails ANY Thai character in a comment under `src/**` and `scripts/**`, and that gate is the rule, not an approximation of it (gh#123, owner ruling 2026-08-29). Name the หมวด in a comment as `fortune` / `party`, never in Thai |
 | `src/**` user-facing strings, UI copy, game and tool content, `seo.*` fields, OG text | **Thai — never translate.** This is a Thai-first product; the copy IS the product |
-| Domain terms that *are* Thai words (`วัดดวง`, `เซียมซี`, `วงล้อสุ่ม`) | keep the Thai term verbatim inside English prose |
+| Domain terms that *are* Thai words (`วัดดวง`, `เซียมซี`, `วงล้อสุ่ม`) | keep the Thai term verbatim inside English prose — **in `.md` files only** |
 
 Quote Thai UI copy verbatim when a doc needs to cite it — quoting is not translating.
 
@@ -55,7 +55,7 @@ record no longer what was written.
 
 **GitHub Issues are the single source of truth** — the map is [#1](https://github.com/warischa/watduang/issues/1) · how to work the tracker, and the ticket-number rule: `docs/agents/issue-tracker.md`
 
-Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md` · src-edit rules: `docs/agents/src-edit-rules.md`
+Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md` · src-edit rules: `docs/agents/src-edit-rules.md` · porting a game from a mockup: `docs/agents/porting-a-mockup-game.md`
 
 ⚠ Before adding ANY binary — image, font, 3D model — read `docs/agents/assets.md` first: `public/` ships verbatim to the live site, so a file dropped there goes public with nothing referencing it.
 

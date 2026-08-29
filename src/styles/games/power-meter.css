@@ -1,0 +1,422 @@
+/* power-meter's own screen CSS. Astro bundles a bare CSS import page-globally, so EVERY game page
+   loads every one of these sheets: each selector here MUST carry the `pm-` prefix, or it restyles a
+   sibling game and import order becomes load-bearing.
+
+   The shared game-screen classes (.stage-screen, .game-btn, .game-btn-primary, .game-btn-secondary)
+   are shell vocabulary declared once by the game page. Never redeclare or override them here.
+
+   A PORTED game, so its graphic direction was decided in the spec rather than on an artboard. Every
+   size marked "mockup" below is verbatim from the mockup's CSS; every colour is a token, because the
+   mockup is a dark neon arcade and none of its palette transfers. The stage ground is
+   var(--page-accent) — salmon on a party page — so everything here is judged against that, not white.
+
+   Two colour facts drive the whole sheet, measured rather than preferred: --accent-gold is 1.42:1 and
+   --color-accent is 1.75:1 against white, so neither can carry text at any size. The mockup's 4-tier
+   colour scale is therefore not portable: the gauge fill is SOLID ink and its HEIGHT is the
+   information, the score number is always ink, and the tier is carried by a badge or by text. */
+
+/* ---- round orientation ---- */
+.pm-round-kicker {
+  font-size: 13px;
+  color: var(--color-muted);
+  letter-spacing: 0.5px;
+}
+
+/* verbatim from the shipped topbar pill */
+.pm-tiebreak-badge {
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-ground-warm);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---- whose turn it is ---- */
+.pm-holder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.pm-holder-kicker {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.pm-holder-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;
+  text-align: center;
+  /* Not cosmetic: a player-typed name can be 24 characters with no space, and Latin has no
+     dictionary break to fall back on. Without this pair the page scrolls sideways at 320px —
+     measured in the shipped games, not inferred. */
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* ---- attempt dots: real game state, three states that must stay distinct on salmon ---- */
+.pm-attempt-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pm-dot {
+  width: 32px; /* mockup */
+  height: 8px; /* mockup */
+  border-radius: 4px; /* mockup */
+  border: 2px solid var(--color-line-strong);
+  background: var(--color-ground-warm);
+}
+
+.pm-dot--active {
+  width: 44px; /* mockup */
+  background: var(--color-primary);
+}
+
+.pm-dot--done {
+  background: var(--color-line-strong);
+}
+
+/* ---- the gauge: the playfield. This is the shipped fuse track rotated 90 degrees ---- */
+.pm-gauge-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 270px; /* mockup */
+  max-width: 320px; /* mockup: the meter arena */
+  width: 100%;
+}
+
+.pm-ticks {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 250px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pm-tick {
+  color: var(--color-text);
+}
+
+/* one accent, on the one label that matters. No distinct mid-scale colour: --color-accent sits too
+   close to the salmon ground, so 5.00 stays in --color-text. */
+.pm-tick--peak {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.pm-gauge-track {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 68px; /* mockup */
+  height: 250px; /* mockup */
+  padding: 4px; /* mockup */
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 999px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  box-sizing: border-box;
+}
+
+/* The static target band over SCORE_HIGH_MIN..MAX_HUNDREDTHS — the top 10% of the track. This is
+   what replaces the deleted colour ramp, and it is the channel that makes the target readable
+   without watching anything move. */
+.pm-target-band {
+  position: absolute;
+  inset-inline: 4px;
+  top: 4px;
+  height: 10%;
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+/* The mechanic: the height IS the score, written inline every animation frame. No transition — a
+   0.02s interpolation on a value the loop rewrites every frame fights the mechanic. */
+.pm-gauge-fill {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 0%;
+  background: var(--color-line-strong);
+  border-radius: 999px;
+}
+
+/* the >= PEAK_GLOW_MIN state: the track border only. No glow token exists, and an animated filter
+   is motion by another name. */
+.pm-gauge-track.pm-gauge-peak {
+  border-color: var(--color-primary);
+}
+
+/* the spark canvas, parented to a pm- element and sized from that element's own box (ADR-0047) */
+.pm-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---- the only input in the game ---- */
+.pm-tap {
+  min-height: 88px; /* mockup */
+}
+
+.pm-tap--running {
+  background: var(--color-primary);
+  color: var(--color-ground-warm);
+  /* Owner ruling 2026-08-29: §7 governs whether an effect EXISTS, §10 governs how it LOOKS. The
+     running state still reads as running — it keeps its colour change and rests on the pulse's own
+     end position as a static shadow — but the 0.6s infinite loop §10 banned is gone. An idle loop
+     under a finger that is already watching the meter bought nothing and cost battery on every
+     attempt. @keyframes pm-pulse is deleted with its only user. */
+  box-shadow: 2px 2px 0 var(--color-line-strong);
+}
+
+.pm-sound {
+  margin-block-start: -12px; /* the shipped negative-margin trick, not a new gap */
+  font-size: 13px;
+}
+
+/* ---- the revealed score ---- */
+.pm-score-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: pm-pop 0.25s ease-out both;
+}
+
+@keyframes pm-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* always ink (17.4:1). The tier is the comment line below, never the number's colour. */
+.pm-score {
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 1.1;
+  color: var(--color-line-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pm-score-comment {
+  font-size: 16px;
+  color: var(--color-muted);
+  max-width: 30ch;
+  text-align: center;
+}
+
+/* ---- your own three scores, and the out-of-30 box ---- */
+.pm-attempt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.pm-attempt-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 12px; /* mockup */
+  padding: 12px 6px; /* mockup */
+}
+
+.pm-attempt-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* the primary border does what the mockup's cyan border did: marks this box as the important one */
+.pm-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-primary);
+  border-radius: 16px;
+  padding: 16px; /* mockup */
+}
+
+/* ---- one player's line on the summary ---- */
+.pm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 12px;
+  padding: 12px 14px; /* mockup */
+  animation: pm-rise 0.25s ease-out both;
+}
+
+@keyframes pm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pm-row-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+.pm-row-total {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.pm-row--lowest {
+  border-color: var(--color-primary);
+}
+
+/* 2.5px dashed is the shell's own shipped inert idiom, so "dashed means not in play" is already
+   established vocabulary on this site. No green is invented; the site owns none. */
+.pm-row--safe {
+  border-style: dashed;
+  color: var(--color-muted);
+}
+
+.pm-badge {
+  flex: 0 0 auto;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 3px 8px; /* mockup */
+}
+
+.pm-badge--danger {
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.pm-badge--safe {
+  color: var(--color-muted);
+  border: 2px dashed var(--color-muted);
+}
+
+/* ---- the payoff ---- */
+.pm-loser-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-primary);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  padding: 32px 20px; /* mockup */
+  animation: pm-rise 0.25s ease-out both;
+}
+
+.pm-loser-motif {
+  display: flex;
+  /* Same ruling: the motif still ARRIVES with motion, then rests. One shot with the `both` fill the
+     two uncontested effects on this screen (pm-rise, pm-pop) already use, instead of rotating for as
+     long as the results screen is open. */
+  animation: pm-wobble 0.5s ease-in-out both;
+}
+
+@keyframes pm-wobble {
+  0% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+  /* Settles upright rather than back to -4deg: a one-shot run must not park the motif tilted. */
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* ---- notices, closing lines, the live region ---- */
+/* In flow inside the stage, never a fixed overlay: a floating layer over the stage is a tap surface
+   neither the arm gate nor the no-nav probe accounts for, and it reflows the ad slot below. */
+.pm-notice {
+  border: 2.5px solid var(--color-primary);
+  background: var(--color-ground-warm);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  max-width: 34ch;
+  /* Item 15 of the effects inventory, kept to ONE element rather than the mockup's four: on a cream
+     card over a flat ground it buys almost nothing and costs real paint on low-end Android. */
+  backdrop-filter: blur(12px);
+}
+
+.pm-foot {
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 30ch;
+}
+
+.pm-hint {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* The only channel a screen-reader user has for a locked score. Off-screen rather than
+   display:none — a hidden live region announces nothing. */
+.pm-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ADR-0046 — reduce, never remove. The gauge fill is NOT here on purpose: its height is the score,
+   so it keeps updating once per frame at full fidelity in both modes. Coarsening it would leave a
+   reduced-motion player aiming at a stale bar, which is a harder game than the rest of the group is
+   playing. What is dropped here is decoration only. The JS-driven shake, spark burst and peak-state
+   toggle are gated separately, in power-meter.ts, because CSS media features do not reach a script's
+   inline style writes. */
+@media (prefers-reduced-motion: reduce) {
+  .pm-tap--running,
+  .pm-score-box,
+  .pm-row,
+  .pm-loser-card,
+  .pm-loser-motif {
+    animation: none;
+  }
+
+  .pm-notice {
+    backdrop-filter: none;
+  }
+}

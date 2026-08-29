@@ -49,6 +49,14 @@ npx tsc --noEmit     # run separately, build doesn't do this
 CI calls `npm run build` in `.github/workflows/ci.yml` for the same reason — if someone ever reverts
 that to `npx astro build`, the gate goes silent instantly.
 
+## Adding a game trips two pinned-count gates, and one is invisible to `npm run ci`
+
+**Symptom:** every gate passes locally, CI goes red anyway.
+
+`bundle-freeze-check` and `control-floor-probe` both pin a count that any new game changes, and
+`ci-probes` is not in the `ci` chain. Full detail, and the three commands "locally green" actually
+means: `docs/agents/porting-a-mockup-game.md`.
+
 ## `tsc --noEmit` does not typecheck `.astro`
 
 **Symptom:** `npx tsc --noEmit` exits 0 and you conclude the types are clean. They may not be.

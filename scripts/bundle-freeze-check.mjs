@@ -40,16 +40,38 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
-// Measured on the real dist/ (2026-08-28, `npm run build` after siamsi's dead party round and its
-// orphaned stylesheet rules were deleted): 19 reachable chunks, 87375 total bytes. The basename set
-// is unchanged from the previous baseline — the deletion shed bytes without dropping a chunk.
-// Deliberately TIGHTENED rather than left at the old 91298, which would have kept the ceiling at 95863.
-// Be precise about what that buys: it removes 3952 bytes of stale headroom, nothing more. The new band
-// is 83006-91744, so the deleted party round returning on its own (91298) STILL passes, with 446 bytes
-// to spare — only growth beyond that is blocked. This gate pins the chunk SET exactly and the total
-// loosely; it is not a guard against one specific deletion being reverted.
-// Re-derive both with the same walk on any deliberate bundle change —
-// see "RE-BASELINE IS THE INTENDED SIGNAL" above.
+// Measured on the real dist/ (2026-08-28, `npm run build` after registering freeze-tap): 20 reachable
+// chunks, 101094 total bytes. Both legs of the previous baseline fired and both were expected: the SET
+// leg on the new `freeze-tap.js` basename, and the TOTAL leg because +13719 bytes is far outside a
+// +/-4.4KB band. Re-baselined, not widened — the band stays +/-5%.
+// Where that growth went: almost all of it is the freeze-tap.js chunk itself (module + canvas effect
+// layer, ADR-0046 keeping a reduced-motion path rather than deleting the motion); a small remainder is
+// growth inside _id_.astro_astro_type_script_index_0_lang.js, whose import.meta.glob map gained a
+// freeze-tap entry. Re-derive the split rather than trusting a number here —
+// `ls -l dist/_astro/freeze-tap.*.js` — because an exact byte count written into a comment goes stale
+// the moment the module is edited: the first version of this comment attributed the whole delta to the
+// game module (wrong, a REFUTE pass caught it), and the corrected version named a chunk size that a
+// +4-line fix invalidated 20 minutes later. The pinned constants below are the only numbers here that
+// are meant to be exact, and the gate itself is what keeps them honest.
+// WHAT THIS NUMBER IS, because it is easy to misread as a user cost: it is the UNION over every page,
+// following lazy imports, so it is CDN bytes and not what any visitor downloads. A game page statically
+// loads ~13.9 KB (a fortune page ~9.2 KB, which skips the setup panel), and the game's own chunk is
+// fetched only when the island's `watduang:start` handler awaits it — one dynamic importer, zero static
+// importers, zero modulepreload, verified against this dist/. So registering more games does NOT make
+// playing one game heavier.
+// SIZING NOTE for whoever adds game 3 onward: nine more ports at this size take this total past 200 KB.
+// That is a real number to re-baseline deliberately rather than reflexively, but it is an aggregate —
+// do not turn it into a per-visitor data-cost argument, and do not use it on its own to argue for a
+// shared harness over independent modules.
+// This gate pins the chunk SET exactly and the total loosely; it is not a guard against one specific
+// deletion being reverted.
+// Measured on real dist/ (2026-08-29, `npm run build` after registering cannon-flag): 23 reachable
+// chunks, 153460 total bytes. The previous baseline had 20 chunks / 101094 bytes.
+// Attributed additions:
+// - audio.js (shared shell audio helper referenced by power-meter)
+// - cannon-flag.js (new ported artillery game module)
+// - power-meter.js (unwired game module present in src/games/ and discovered by import.meta.glob)
+// Delta of reachable bytes (+52366 bytes) accounts for cannon-flag (~34KB), power-meter (~18KB), audio (~0.6KB).
 const BASELINE_BASENAMES = [
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'PlayerSetup.astro_astro_type_script_index_0_lang.js',
@@ -58,20 +80,24 @@ const BASELINE_BASENAMES = [
   '_el.js',
   '_id_.astro_astro_type_script_index_0_lang.js',
   '_round-start.js',
+  'audio.js',
+  'cannon-flag.js',
   'daily-fortune.js',
   'draw.astro_astro_type_script_index_0_lang.js',
+  'freeze-tap.js',
   'love-match.js',
   'name-list.js',
   'number.astro_astro_type_script_index_0_lang.js',
   'pick-loser.js',
   'player-select.js',
+  'power-meter.js',
   'short-stick.js',
   'siamsi.js',
   'team.astro_astro_type_script_index_0_lang.js',
   'timebomb.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 87375;
+const BASELINE_TOTAL_BYTES = 153460;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;
