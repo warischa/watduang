@@ -60,6 +60,22 @@ const howToJsonLd = {
       <span id="roster-count" class="game-topbar-pill" hidden>วง 6 คน</span>
     </header>
 
+    {/* The entry into a full-screen play route, for the games that have one. A real <a href>, in
+        STATIC CHROME ABOVE THE STAGE — ADR-0014's own words for where a navigation target belongs,
+        and the reason it is not a button inside #stage where a tap-transition could land on it.
+        No data-stable-exit: scripts/stable-exit-markers-check.mjs pins that attribute at exactly one
+        element site-wide (the back-to-home link above), and a second one is a regression by that
+        gate's definition. The cost is that the shell's leave-confirm treats this like any other exit
+        and asks before following it, once a round has started on the page. That is the fail-safe
+        direction: it over-asks, it never under-asks. The dialog used to answer that with "ไปเกมอื่น",
+        which is false on this link — the player is entering THIS game. ADR-0015 is amended
+        2026-08-29 so both buttons name the page rather than a destination. */}
+    {game.playRoute && (
+      <a class="game-play-cta" href={game.playRoute}>
+        ▶ เล่นเต็มจอ
+      </a>
+    )}
+
     <div class="play-area">
       <h1 class="game-title">{game.names.th}</h1>
 
@@ -190,6 +206,27 @@ const howToJsonLd = {
     border: 2px solid var(--color-line-strong);
     border-radius: 999px;
     padding: 3px 10px;
+  }
+
+  /* Styled here because this layout is what emits the element (ADR-0036). 44px minimum on both axes:
+     it is the primary action on the page and the site's tap floor applies to it like everything else. */
+  .game-play-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    min-block-size: 44px;
+    margin: var(--space-sm) var(--space-md) 0;
+    padding: var(--space-sm) var(--space-md);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 12px;
+    background: var(--page-accent, var(--color-primary));
+    box-shadow: 4px 4px 0 var(--color-line-strong);
+    color: var(--color-line-strong);
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: 1.05rem;
+    text-decoration: none;
   }
 
   /* the accent play region — the whole area between topbar and how-to carries the category accent */

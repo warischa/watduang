@@ -80,6 +80,16 @@ to resume a round that may already be over, so it names the page instead. The co
 placeholder. Stopping the stray tap was the goal; narrating what is at stake was never reachable
 without state this site does not have.
 
+**Amended 2026-08-29, owner ruling: the go button now names the page too.** `ไปเกมอื่นตอนนี้ไหม` /
+`ไปเกมอื่น` became `ออกจากหน้านี้ตอนนี้ไหม` / `ออกจากหน้านี้`. This is not a wording change against the
+ruling above — it is that ruling applied to a link the site did not have when it was made. A game whose
+module carries `playRoute` renders a chrome link INTO the same game's full-screen route
+(`src/layouts/GameLayout.astro`), and on that link `ไปเกมอื่น` claims a destination that is false: the
+player is entering this game, not leaving for another. The section above already rejects copy that
+"asserts" something untrue, and it already resolved the stay button the same way — by naming the page
+instead of the outcome. The go button was the one control still named after a destination, which held
+only while every intercepted link went somewhere else. It no longer does.
+
 ## Anti-recursion — the confirm must not become the bug
 
 A confirm is a tappable surface appearing at the moment a second tap is already queued. Three layers,

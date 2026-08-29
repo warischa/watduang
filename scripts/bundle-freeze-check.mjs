@@ -65,8 +65,27 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 // shared harness over independent modules.
 // This gate pins the chunk SET exactly and the total loosely; it is not a guard against one specific
 // deletion being reverted.
-// Measured on real dist/ (2026-08-29, `npm run build` after registering cannon-flag): 23 reachable
-// chunks, 153460 total bytes. The previous baseline had 20 chunks / 101094 bytes.
+// Measured on real dist/ (2026-08-29, `npm run build` after the cannon-flag play route AND the
+// deletion of the ported module it replaces): 25 reachable chunks, 159812 total bytes.
+// TWO MOVES, ONE NET NUMBER, and the net is the one that matters:
+//   153460  before either change
+//   191312  after the play route landed          (+37852, the mockup's engine arriving)
+//   159812  after src/games/cannon-flag.ts shrank 2086 lines -> 87  (-31500, the port leaving)
+// So replacing a ported module with the mockup it came from costs +6352 bytes, +4%, not the +25%
+// the intermediate number showed. Reading the middle figure as the price of this approach would
+// have been wrong by a factor of six.
+// The chunk SET is unchanged across both moves: cannon-flag.js still exists, now carrying an 87-line
+// landing module instead of an engine.
+// Attributed additions vs the 153460 baseline:
+// - play.astro_astro_type_script_index_0_lang.js — the play route's bundled module. This is the
+//   mockup's own 73KB inline <script>, lifted verbatim by scripts/extract-mockup.mjs and emitted as a
+//   file because `script-src 'self'` executes zero lines of an inline block (ADR-0005).
+// - roster.js — src/shell/roster.ts becomes a shared chunk the moment a second entry point imports it.
+//   The play route reads the group through loadGroup()/loadRoster() rather than touching the storage
+//   key, which is what ADR-0010's sole-writer rule requires.
+// THE COST IS REAL AND NAMING IT IS THIS GATE'S JOB: one play route is +25% on the site's reachable
+// JS. Three of them roughly double it. That number belongs in the decision about whether every game
+// gets this treatment, not buried inside a re-baseline.
 // Attributed additions:
 // - audio.js (shared shell audio helper referenced by power-meter)
 // - cannon-flag.js (new ported artillery game module)
@@ -95,9 +114,11 @@ const BASELINE_BASENAMES = [
   'siamsi.js',
   'team.astro_astro_type_script_index_0_lang.js',
   'timebomb.js',
+  'play.astro_astro_type_script_index_0_lang.js',
+  'roster.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 153460;
+const BASELINE_TOTAL_BYTES = 159812;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;
