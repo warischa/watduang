@@ -336,9 +336,58 @@ async function selftest() {
   // Positive control on the apparatus itself: a dead extractor returns 0 and looks like success.
   assert.deepEqual([...channelsSeen].sort(), [...CHANNELS].sort(), 'every channel must produce at least one counted Thai comment line');
   console.log(`PASS apparatus alive — channels firing: ${[...channelsSeen].sort().join(', ')}`);
+
+  // The verbatim-lift exemption, calibrated in BOTH directions. An exemption that only ever returns
+  // true is indistinguishable from deleting the gate for that path, so every leg that must stay
+  // POLICED is asserted here beside the ones that are exempt.
+  const sep = path.sep;
+  const exempt = [
+    `${sep}repo${sep}src${sep}play${sep}cannon-flag${sep}main.js`,
+    `${sep}repo${sep}src${sep}play${sep}cannon-flag${sep}style.css`,
+    `${sep}repo${sep}src${sep}play${sep}freeze-tap${sep}markup.html`,
+  ];
+  const policed = [
+    // agent-authored, and living in the very directory the ruling named — the reason this predicate is
+    // per-filename instead of per-directory
+    `${sep}repo${sep}src${sep}play${sep}cannon-flag${sep}roster-bridge.js`,
+    `${sep}repo${sep}src${sep}play${sep}cannon-flag${sep}overrides.css`,
+    // right basename, wrong depth: no game-id segment, so it is not an extractor output
+    `${sep}repo${sep}src${sep}play${sep}main.js`,
+    // right basename, wrong tree
+    `${sep}repo${sep}src${sep}games${sep}main.js`,
+    `${sep}repo${sep}scripts${sep}play${sep}cannon-flag${sep}main.js`,
+    // a name the extractor never writes
+    `${sep}repo${sep}src${sep}play${sep}cannon-flag${sep}engine.js`,
+  ];
+  for (const f of exempt) assert.equal(isVerbatimLift(f), true, `must be exempt: ${f}`);
+  for (const f of policed) assert.equal(isVerbatimLift(f), false, `must stay policed: ${f}`);
+  console.log(
+    `PASS verbatim-lift exemption calibrated both ways: ${exempt.length} exempt, ${policed.length} still policed ` +
+      '(agent-authored siblings, wrong depth, wrong tree, unknown basename)',
+  );
 }
 
 // ---------------------------------------------------------------------------
+// VERBATIM LIFTS. Owner ruling 2026-08-29, narrowing gh#123's "code comments are pure English with no
+// exception": that rule governs what an agent WRITES. These three files are written by
+// scripts/extract-mockup.mjs, byte-for-byte out of a standalone mockup this project did not author, and
+// the whole point of the extraction is that a diff against the mockup stays meaningful. Rewriting a
+// third-party author's comments would break that and buy nothing.
+//
+// SCOPED TO THE THREE FILENAMES THE EXTRACTOR WRITES, not to the directory the ruling named. A
+// directory-wide exemption would also silence roster-bridge.js and overrides.css, which live beside
+// them and ARE agent-authored — that is how an exemption written to cover one thing quietly grows to
+// cover the next file someone drops in. The extractor is the only writer of these three names.
+const VERBATIM_LIFT_BASENAMES = new Set(['markup.html', 'style.css', 'main.js']);
+function isVerbatimLift(absPath) {
+  const parts = absPath.split(path.sep);
+  const i = parts.lastIndexOf('play');
+  // src/play/<game-id>/<basename> — the id segment must be there, so src/play/main.js is NOT exempt.
+  if (i < 1 || parts[i - 1] !== 'src') return false;
+  if (parts.length !== i + 3) return false;
+  return VERBATIM_LIFT_BASENAMES.has(parts[parts.length - 1]);
+}
+
 function walkFiles(root, out = [], skipped = new Map()) {
   for (const e of fs.readdirSync(root, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
     const p = path.join(root, e.name);
@@ -364,6 +413,11 @@ async function main() {
     else files.push(abs);
   }
 
+  const lifted = files.filter(isVerbatimLift);
+  const scanned = files.filter((f) => !isVerbatimLift(f));
+  files.length = 0;
+  files.push(...scanned);
+
   let total = 0;
   const lines = [];
   const ambiguousLines = [];
@@ -379,6 +433,15 @@ async function main() {
   console.log(list ? lines.join('\n') : String(total));
   for (const a of ambiguousLines) process.stderr.write(`ambiguous (Thai in both a comment and a string) ${a}\n`);
   process.stderr.write(`files scanned: ${files.length} · Thai comment lines: ${total} · ambiguous: ${ambiguousLines.length}`);
+  // A green that does not name its exemptions reads as coverage it did not earn (ADR-0019). Printed
+  // with the paths, not just a count, so the reader can check each one is really an extractor output.
+  if (lifted.length) {
+    process.stderr.write(
+      ` · NOT SCANNED, verbatim third-party lifts (owner ruling 2026-08-29): ${lifted
+        .map((f) => path.relative(repoRoot, f))
+        .join(', ')}`,
+    );
+  }
   process.stderr.write(skipped.size ? ` · skipped (no analyzer): ${[...skipped].map(([e, n]) => `${e} x${n}`).join(', ')}\n` : '\n');
 
   // The gate: a Thai comment line or an ambiguous (comment+string on one line) hit must fail CI.

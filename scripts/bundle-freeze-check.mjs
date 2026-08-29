@@ -65,8 +65,18 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 // shared harness over independent modules.
 // This gate pins the chunk SET exactly and the total loosely; it is not a guard against one specific
 // deletion being reverted.
-// Measured on real dist/ (2026-08-29, `npm run build` after registering cannon-flag): 23 reachable
-// chunks, 153460 total bytes. The previous baseline had 20 chunks / 101094 bytes.
+// Measured on real dist/ (2026-08-29, `npm run build` after adding the cannon-flag play route): 25
+// reachable chunks, 191312 total bytes. The previous baseline was 23 chunks / 153460 bytes.
+// Attributed additions, +37852 bytes:
+// - play.astro_astro_type_script_index_0_lang.js — the play route's bundled module. This is the
+//   mockup's own 73KB inline <script>, lifted verbatim by scripts/extract-mockup.mjs and emitted as a
+//   file because `script-src 'self'` executes zero lines of an inline block (ADR-0005).
+// - roster.js — src/shell/roster.ts becomes a shared chunk the moment a second entry point imports it.
+//   The play route reads the group through loadGroup()/loadRoster() rather than touching the storage
+//   key, which is what ADR-0010's sole-writer rule requires.
+// THE COST IS REAL AND NAMING IT IS THIS GATE'S JOB: one play route is +25% on the site's reachable
+// JS. Three of them roughly double it. That number belongs in the decision about whether every game
+// gets this treatment, not buried inside a re-baseline.
 // Attributed additions:
 // - audio.js (shared shell audio helper referenced by power-meter)
 // - cannon-flag.js (new ported artillery game module)
@@ -95,9 +105,11 @@ const BASELINE_BASENAMES = [
   'siamsi.js',
   'team.astro_astro_type_script_index_0_lang.js',
   'timebomb.js',
+  'play.astro_astro_type_script_index_0_lang.js',
+  'roster.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 153460;
+const BASELINE_TOTAL_BYTES = 191312;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

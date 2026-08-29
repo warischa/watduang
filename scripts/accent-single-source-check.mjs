@@ -64,6 +64,16 @@ const SRC = path.join(repoRoot, 'src');
 const TOKENS_REL = 'src/styles/tokens.css';
 const EXT = new Set(['.ts', '.astro', '.mjs', '.css']);
 
+const VERBATIM_LIFT_BASENAMES = new Set(['markup.html', 'style.css', 'main.js']);
+/** src/play/<game-id>/<extractor output> — see the block at the files= call for why this exists. */
+function isVerbatimLift(absPath) {
+  const parts = absPath.split(path.sep);
+  const i = parts.lastIndexOf('play');
+  if (i < 1 || parts[i - 1] !== 'src') return false;
+  if (parts.length !== i + 3) return false;
+  return VERBATIM_LIFT_BASENAMES.has(parts[parts.length - 1]);
+}
+
 const HEX_RE = /#[0-9a-fA-F]{3,8}\b/g;
 const ACCENT_TOKEN_RE = /--accent-([A-Za-z0-9_-]+)\s*:\s*(#[0-9a-fA-F]{3,8})\b/g;
 const ACCENT_MENTION_RE = /--accent-([A-Za-z0-9_-]+)/g;
@@ -282,8 +292,19 @@ function main() {
   const read = (rel) => stripComments(fs.readFileSync(path.join(repoRoot, rel), 'utf8'));
   const parsed = parseTokens(stripComments(fs.readFileSync(tokensPath, 'utf8')));
   const registry = parseRegistry(read('src/games/categories.ts'), read('src/tools/manifest.ts'));
-  const files = collectSrc(SRC)
-    .filter((f) => f !== tokensPath)
+  // VERBATIM LIFTS. ADR-0048 exempts a ported game from ADR-0033's design canvas, and these files ARE
+  // the port: scripts/extract-mockup.mjs writes them byte-for-byte out of a standalone mockup that
+  // carries its own palette (--accent-cyan, --accent-amber, --accent-crimson and their glows — 44
+  // mentions this gate has no definition for, because it never had one to single-source FROM).
+  // Rewriting them to this site's three accents would be exactly the invention ADR-0048 forbids, and
+  // would break the diff against the mockup that makes re-extraction meaningful.
+  // Scoped to the three filenames the extractor writes, NOT to the directory: roster-bridge.ts and
+  // overrides.css live beside them, are agent-authored, and stay audited. Same predicate and same
+  // reasoning as scripts/thai-comments.mjs.
+  const all = collectSrc(SRC).filter((f) => f !== tokensPath);
+  const liftedRel = all.filter(isVerbatimLift).map((f) => path.relative(repoRoot, f).split(path.sep).join('/'));
+  const files = all
+    .filter((f) => !isVerbatimLift(f))
     .map((f) => ({ rel: path.relative(repoRoot, f).split(path.sep).join('/'), text: fs.readFileSync(f, 'utf8') }));
 
   const { errors, counts } = audit(files, parsed, registry);
@@ -292,7 +313,15 @@ function main() {
     console.error(`\n${errors.length} accent divergence(s) across ${files.length} src file(s). The accent is single-sourced from ${TOKENS_REL}; a different-but-valid token or hex on one surface is the defect this gate exists to reject.`);
     process.exit(1);
   }
-  console.log(successLine(counts));
+  // A green that does not name its exemptions reads as coverage it did not earn (ADR-0019), and this
+  // one now skips whole files rather than lines. Paths, not a count, so a reader can check each is
+  // really an extractor output rather than something that drifted in beside them.
+  console.log(
+    successLine(counts) +
+      (liftedRel.length
+        ? ` NOT AUDITED, verbatim third-party lifts under ADR-0048: ${liftedRel.join(', ')}.`
+        : ''),
+  );
 }
 
 main();

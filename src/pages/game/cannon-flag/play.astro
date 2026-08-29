@@ -1,0 +1,45 @@
+---
+// The full-screen play route: the cannon-flag mockup itself, served through this site so it gets a
+// real URL, a real <head>, and a bundler that turns its inline <script> into an external module the
+// CSP admits. `/game/cannon-flag/` keeps the crawlable page — how-to-play prose, JSON-LD, the ad slot
+// — and links here; this page is the app view and carries no chrome at all.
+//
+// ONE FILE PER GAME, not a [id] route. Each mockup's stylesheet styles bare `body` and generic class
+// names of its own, so a dynamic route would load every game's sheet on every play page and let them
+// fight. The same reasoning src/pages/game/[id].astro already records for its per-game imports, one
+// step further: here the sheets cannot be prefixed, because they are lifted verbatim.
+//
+// INDEXABLE, and that was not the first instinct. This page was written with noindex, on the reasoning
+// that `/game/cannon-flag/` is the surface carrying the prose a search result needs and a second thin
+// URL would only compete with it. src/pages/noindex.test.mjs rejected that outright: only 404.astro
+// may pass noindex to Base, because on a site whose business model is organic search, a page that
+// deindexes itself is the worst available outcome and the rule exists so nobody re-derives an
+// exception one page at a time. The two URLs are differentiated by title instead — this one is the
+// app view, `/game/cannon-flag/` is the landing page that explains the game. Whether this pair wants
+// an explicit rel=canonical is an SEO call for the owner; Base.astro emits a self-canonical today.
+import Base from '../../../layouts/Base.astro';
+import markup from '../../../play/cannon-flag/markup.html?raw';
+import '../../../play/cannon-flag/style.css';
+// AFTER style.css, always: overrides.css wins on equal specificity only if it comes second.
+import '../../../play/cannon-flag/overrides.css';
+import { byId } from '../../../games/manifest';
+
+// The manifest is the single source for the game's name and copy — a literal here would be a second
+// copy to drift. `names.th`, not `title`: the module has no `title` field, and reading one silently
+// put the literal string "undefined" at the front of the built <title> on the first build.
+const game = byId('cannon-flag');
+if (!game) throw new Error('cannon-flag is not registered in the manifest — this play route has no game to name');
+const title = `${game.names.th} — เล่นเต็มจอ`;
+const description = game.seo.description;
+---
+
+<Base title={title} description={description} ogImage="/og/cannon-flag.png" chrome>
+  <Fragment set:html={markup} />
+</Base>
+
+<script>
+  // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block of
+  // this size executes zero lines. Astro emits both of these as one external module.
+  import '../../../play/cannon-flag/main.js';
+  import '../../../play/cannon-flag/roster-bridge.ts';
+</script>

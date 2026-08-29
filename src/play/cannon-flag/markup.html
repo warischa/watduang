@@ -1,0 +1,201 @@
+  <div id="app-container">
+    
+    <!-- TOP NAVIGATION BAR -->
+    <header id="top-nav">
+      <div class="brand-title">
+        <span>🎯</span> ยิงธง
+      </div>
+      <div class="nav-tools">
+        <div id="hud-match-seed" class="match-pill" title="เลขประจำด่าน">SEED: #8841</div>
+        <button id="btn-sound-toggle" class="icon-btn" title="เปิด/ปิดเสียง">🔊</button>
+        <button id="btn-open-tests" class="icon-btn" title="รันชุดทดสอบความถูกต้อง">🧪</button>
+      </div>
+    </header>
+
+    <!-- SCREEN VIEWPORT -->
+    <main id="screen-viewport">
+      
+      <!-- SCREEN 1: SETUP -->
+      <section id="screen-setup" class="game-screen active">
+        <div class="setup-card">
+          <h1 class="setup-title">ตั้งค่าผู้เล่น</h1>
+          <p class="setup-subtitle">เกมดวลปืนใหญ่ผลัดกันยิง หาผู้แพ้เพียง 1 เดียว</p>
+          
+          <div>
+            <div class="section-label">
+              <span>จำนวนผู้เล่น</span>
+              <span id="label-player-count">4 คน</span>
+            </div>
+            <div class="player-stepper" style="margin-top: 6px;">
+              <button id="btn-dec-players" class="step-btn" aria-label="ลดจำนวนผู้เล่น">-</button>
+              <div id="display-player-count" class="player-count-display">4</div>
+              <button id="btn-inc-players" class="step-btn" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-label" style="margin-bottom: 6px;">
+              <span>รายชื่อผู้เล่น (เว้นว่างได้)</span>
+            </div>
+            <div id="player-names-container" class="player-names-list">
+              <!-- Dynamically populated name inputs -->
+            </div>
+          </div>
+
+          <div class="rules-hint">
+            📌 <strong>กติกา:</strong> ผู้เล่นแต่ละคนจะได้ยิง <strong>2 นัดติดต่อกัน</strong> (นัดละ 30 วินาที) โดยระบบจะนับผลจากนัดที่ <strong>ใกล้ฐานธงที่สุด</strong> ผู้ที่ทำผลงานแย่ที่สุดจะเป็นผู้แพ้
+          </div>
+
+          <button id="btn-start-match" class="btn-primary">
+            <span>🚀 เริ่มการแข่งขัน</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: PASS DEVICE INTERSTITIAL -->
+      <section id="screen-pass-device" class="game-screen">
+        <div class="interstitial-card">
+          <div class="pass-icon">📱 ➔ 🤝</div>
+          <div class="pass-subtitle">ส่งเครื่องให้อยู่ในมือของ</div>
+          <div id="pass-player-name" class="pass-player-name">ผู้เล่น 1</div>
+          <div id="pass-turn-order" class="turn-order-badge">ลำดับที่ 1 / 4</div>
+          <p class="pass-instructions">
+            คุณจะได้ยิงปืนใหญ่ <strong>2 นัดติดต่อกัน</strong><br>
+            ปรับมุม ชาร์จพลัง และกะแรงลมเพื่อยิงให้ใกล้ฐานธงที่สุด
+          </p>
+          <button id="btn-ready-to-aim" class="btn-primary" style="width: 100%;">
+            <span>🎯 พร้อมแล้ว! เริ่มนัดที่ 1</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: GAMEPLAY CANVAS & CONTROLS -->
+      <section id="screen-gameplay" class="game-screen">
+        <div id="canvas-container">
+          <canvas id="game-canvas"></canvas>
+          
+          <!-- Top Floating HUD -->
+          <div class="game-hud-top">
+            <div class="hud-chip">
+              <span class="hud-label">ผู้เล่นปัจจุบัน</span>
+              <div class="hud-value-lg" id="hud-player-name">ผู้เล่น 1</div>
+              <span id="hud-shot-badge" style="font-size: 0.75rem; color: var(--accent-amber); font-weight: 700;">นัดที่ 1 / 2</span>
+            </div>
+
+            <div class="hud-chip" style="min-width: 110px;">
+              <div style="display: flex; justify-content: space-between;">
+                <span class="hud-label">เวลาเล็ง</span>
+                <span id="hud-timer-num" class="hud-value-lg timer-badge">30.0s</span>
+              </div>
+              <div class="timer-bar-container">
+                <div id="hud-timer-bar" class="timer-bar-fill"></div>
+              </div>
+            </div>
+
+            <div class="hud-chip">
+              <span class="hud-label">ทิศทาง & แรงลม</span>
+              <div class="hud-value-lg wind-indicator">
+                <span id="hud-wind-arrow" class="wind-arrow">➔</span>
+                <span id="hud-wind-val">12.5</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ม./วิ</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mid-Screen In-Game Shot Result Modal -->
+          <div id="shot-modal-overlay" class="shot-modal-overlay">
+            <div class="shot-result-box">
+              <div id="shot-modal-title" class="shot-result-title">ผลการยิงนัดที่ 1</div>
+              <div id="shot-modal-distance" class="shot-distance-display">00.00 ม.</div>
+              <div id="shot-modal-detail" class="shot-result-detail">ห่างจากฐานธง 00.00 เมตร</div>
+              <button id="btn-modal-next-shot" class="btn-primary" style="width: 100%; margin-top: 8px;">
+                <span>ถัดไป</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Controls Dashboard -->
+        <div class="controls-dashboard">
+          <div class="control-row-aim">
+            <div class="angle-adjust-group">
+              <button id="btn-angle-dec" class="angle-btn" title="ลดมุม 1°">-</button>
+              <div class="angle-slider-wrapper">
+                <input id="slider-angle" class="angle-slider" type="range" min="5" max="85" step="0.5" value="45">
+                <div class="angle-lcd">มุม: <span id="display-angle-val">45.0</span>°</div>
+              </div>
+              <button id="btn-angle-inc" class="angle-btn" title="เพิ่มมุม 1°">+</button>
+            </div>
+          </div>
+
+          <div class="control-row-fire">
+            <div class="power-gauge-container">
+              <div id="power-gauge-fill" class="power-gauge-fill"></div>
+              <div id="power-gauge-text" class="power-lcd-text">พลัง: 15%</div>
+            </div>
+            <button id="btn-fire-cannon" class="btn-fire">
+              <span>🔥 กดยิงค้างเพื่อชาร์จพลัง (HOLD FIRE)</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: MATCH RESULTS / LEADERBOARD -->
+      <section id="screen-results" class="game-screen">
+        <div class="results-card">
+          <div class="results-header">
+            <h2 class="results-title">สรุปผลการแข่งขัน</h2>
+            <p class="results-subtitle">จัดอันดับจากผู้ที่ยิงใกล้ฐานธงที่สุด (ระยะทางน้อยสุด)</p>
+          </div>
+
+          <table class="leaderboard-table">
+            <thead>
+              <tr style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                <th style="padding: 4px 10px; text-align: center;">#</th>
+                <th style="padding: 4px 10px; text-align: left;">ผู้เล่น</th>
+                <th style="padding: 4px 10px; text-align: center;">นัดที่ 1</th>
+                <th style="padding: 4px 10px; text-align: center;">นัดที่ 2</th>
+                <th style="padding: 4px 10px; text-align: right;">ดีที่สุด</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+
+          <!-- Dynamic Verdict Section: Tie / Final Loser -->
+          <div id="results-verdict-container">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 6px;">
+            <button id="btn-replay-match" class="btn-primary" style="flex: 1; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-glass); box-shadow: none;">
+              <span>🔄 เล่นซ้ำกลุ่มเดิม</span>
+            </button>
+            <button id="btn-new-setup" class="btn-primary" style="flex: 1;">
+              <span>🏠 ตั้งค่าผู้เล่นใหม่</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- TEST RUNNER MODAL -->
+    <div id="test-modal">
+      <div class="test-card">
+        <div class="test-header">
+          <div style="font-weight: 800; color: var(--accent-cyan);">🧪 การทดสอบระบบ (Automated Tests)</div>
+          <button id="btn-close-tests" class="icon-btn" style="width: 32px; height: 32px;">✕</button>
+        </div>
+        <div id="test-output-list" class="test-body">
+          <div>กำลังโหลดและรันชุดการทดสอบ...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =========================================================
+       GAME SCRIPT LOGIC (PURE PROCEDURAL JAVASCRIPT)
+       ========================================================= -->
