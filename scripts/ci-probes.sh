@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 # The 7 CI-worthy browser probes (docs/verification/probe-triage-2026-08-26.md, "What's actually
-# trustworthy right now"), run in one pass against the ALREADY-BUILT dist/ -- this script never runs
-# a build. It is meant to be called as a late step in ci.yml's single `build` job, after the Build
-# step, because a probe that measures a freshly regenerated dist/ is not measuring the bytes that get
-# deployed (the standing no-post-Build-rebuild invariant in .github/workflows/ci.yml).
+# trustworthy right now"), run in FOUR PARALLEL LANES against the ALREADY-BUILT dist/ -- this script
+# never runs a build. It is meant to be called as a late step in ci.yml's single `build` job, after
+# the Build step, because a probe that measures a freshly regenerated dist/ is not measuring the
+# bytes that get deployed (the standing no-post-Build-rebuild invariant in .github/workflows/ci.yml).
 #
-# Exit: 0 only if every probe leg passes. Any failing leg prints `::error::probe FAIL: <label>` with
-# a reason, and the final line lists every failed label.
+# Why lanes: measured on CI run 2026-08-29 (main), the sequential pass took 723s and the whole job
+# 14.4 min -- 84% of the job was this step. Legs are independent (each drives its own tab against a
+# read-only static server), so they are packed into 4 lanes by those measured times; the longest
+# lane (arm-gate + its control) is ~200s. Legs WITHIN a lane still run one at a time, and every
+# lane gets its OWN Chrome instance -- per docs/runbook.md "Two headless probes at once attach to
+# each other's browser", two drivers sharing one CDP port silently measure each other's state. The
+# static server is shared on purpose: that hazard lives in the browser, not in `serve`.
+#
+# Exit: 0 only if every probe leg passes AND exactly EXPECTED_LEGS legs report. Any failing leg
+# prints `::error::probe FAIL: <label>` with a reason, and the final lines list every failed label.
 #
 # DELIBERATELY NOT WIRED, not an oversight: ad-slot-grid-probe.mjs and adslot-wheel-delay-probe.mjs are
 # both fixed and calibrated, and both stay MANUAL per their own STATUS reasoning -- ad-slot-grid measures
@@ -27,8 +35,11 @@ set -e
 # Own ports, deliberately not smoke-dist.sh's 4321 nor the 9222/4322/4399 other sessions have used,
 # so this script can never probe a foreign server or attach to someone else's Chrome.
 PORT="${PROBE_PORT:-4344}"
-CDP_A="${PROBE_CDP_PORT:-9344}"
+CDP_1="${PROBE_CDP_PORT:-9344}"
 CDP_B="${PROBE_CDP_REDUCED_PORT:-9345}"
+CDP_2="${PROBE_CDP_PORT_2:-9346}"
+CDP_3="${PROBE_CDP_PORT_3:-9347}"
+CDP_4="${PROBE_CDP_PORT_4:-9348}"
 # driver.mjs's nav() waits on Page.loadEventFired with NO timeout -- a URL that never fires load hangs
 # forever, and in CI that burns the whole job budget instead of failing. Per-leg watchdog below.
 # ponytail: one flat timeout for every leg; narrow-overflow is the long one (22 screens — 5 games at
@@ -38,6 +49,12 @@ LEG_TIMEOUT="${PROBE_TIMEOUT:-600}"
 OUT_DIR="${PROBE_OUT_DIR:-$(mktemp -d /tmp/ci-probes.XXXXXX)}"
 SITE="http://localhost:${PORT}"
 mkdir -p "$OUT_DIR"
+# Pinned, not counted from what ran: a lane is a background subshell, and a lane that dies mid-run
+# (errexit, an OOM-killed Chrome) would otherwise read as FEWER GREENS and still exit 0 -- the exact
+# silent-skip shape docs/agents/ci-verification.md exists to kill. 20 = the probe/standalone
+# invocations in the lanes below (grep -cE '^  (probe|standalone) ' agrees); re-record this number
+# in the same commit that adds or removes a leg.
+EXPECTED_LEGS=20
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -45,12 +62,12 @@ if [ ! -f dist/index.html ]; then
   exit 1
 fi
 
-for p in "$PORT" "$CDP_A" "$CDP_B"; do
+for p in "$PORT" "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4" "$CDP_B"; do
   # A port already LISTENing before this script starts belongs to some other process -- probing it
   # would report a green for someone else's (possibly stale) dist/ or browser profile.
   if (exec 3<>"/dev/tcp/localhost/${p}") 2>/dev/null; then
     exec 3>&- 3<&-
-    echo "::error::Port ${p} is already in use before this script started -- refusing to probe a foreign server/browser. Set PROBE_PORT / PROBE_CDP_PORT / PROBE_CDP_REDUCED_PORT."
+    echo "::error::Port ${p} is already in use before this script started -- refusing to probe a foreign server/browser. Set PROBE_PORT / PROBE_CDP_PORT / PROBE_CDP_PORT_2..4 / PROBE_CDP_REDUCED_PORT."
     exit 1
   fi
 done
@@ -68,21 +85,25 @@ if [ -z "$CHROME" ]; then
   exit 1
 fi
 
-# --- serve + two browsers ----------------------------------------------------------------------
-# Chrome B exists only for home-direction-c-probe.mjs's reduced-motion leg: prefers-reduced-motion is
-# a launch flag, not something CDP can toggle per tab, and that probe's own header prescribes two
-# instances. Both legs of that probe run, or its motion criterion is never checked at all.
+# --- serve + five browsers ---------------------------------------------------------------------
+# One normal Chrome per lane (CDP_1..CDP_4) so no two concurrent legs ever share a browser. Chrome B
+# exists only for home-direction-c-probe.mjs's reduced-motion leg: prefers-reduced-motion is a launch
+# flag, not something CDP can toggle per tab, and that probe's own header prescribes two instances.
+# Both legs of that probe run, or its motion criterion is never checked at all. Chrome B is driven
+# only from lane four, so it is never shared either.
 npx serve@14 dist/ -l "$PORT" > "$OUT_DIR/serve.log" 2>&1 &
-SERVER_PID=$!
-"$CHROME" --headless --disable-gpu --no-sandbox --remote-debugging-port="$CDP_A" \
-  --user-data-dir="$OUT_DIR/prof-a" > /dev/null 2>&1 &
-CHROME_A_PID=$!
+KILL_PIDS="$!"
+for cdp in "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4"; do
+  "$CHROME" --headless --disable-gpu --no-sandbox --remote-debugging-port="$cdp" \
+    --user-data-dir="$OUT_DIR/prof-$cdp" > /dev/null 2>&1 &
+  KILL_PIDS="$KILL_PIDS $!"
+done
 "$CHROME" --headless --disable-gpu --no-sandbox --force-prefers-reduced-motion \
   --remote-debugging-port="$CDP_B" --user-data-dir="$OUT_DIR/prof-b" > /dev/null 2>&1 &
-CHROME_B_PID=$!
+KILL_PIDS="$KILL_PIDS $!"
 # Unconditional teardown on every exit path, so a failure never leaves an orphan holding a port for
 # the next run to falsely pass against.
-trap 'kill "$SERVER_PID" "$CHROME_A_PID" "$CHROME_B_PID" 2>/dev/null || true' EXIT
+trap 'kill $KILL_PIDS 2>/dev/null || true' EXIT
 
 wait_ready() { # url, label
   for _ in $(seq 1 30); do
@@ -93,7 +114,9 @@ wait_ready() { # url, label
   exit 1
 }
 wait_ready "${SITE}/" "server on ${PORT}"
-wait_ready "http://127.0.0.1:${CDP_A}/json/version" "Chrome A on ${CDP_A}"
+for cdp in "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4"; do
+  wait_ready "http://127.0.0.1:${cdp}/json/version" "Chrome on ${cdp}"
+done
 wait_ready "http://127.0.0.1:${CDP_B}/json/version" "Chrome B (reduced motion) on ${CDP_B}"
 
 # --- the verdicts ------------------------------------------------------------------------------
@@ -105,14 +128,13 @@ wait_ready "http://127.0.0.1:${CDP_B}/json/version" "Chrome B (reduced motion) o
 # heredoc: macOS bash 3.2 cannot parse an apostrophe inside a heredoc nested in $( )).
 
 # --- the run -----------------------------------------------------------------------------------
-FAILED=""
-PASSED=""
-LEGS=0
+# probe()/standalone() run inside lane subshells, so shell variables cannot carry results back to
+# the parent -- each leg appends its label to $LANE.pass or $LANE.fail instead, and the parent
+# aggregates from those files after the lanes join. LANE is set at the top of each lane function.
 probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   label="$1"; file="$2"; cdp="$3"; shift 3
   out="$OUT_DIR/$label.json"
   err="$OUT_DIR/$label.err"
-  LEGS=$((LEGS + 1))
   echo "probe: $label ($file)"
   # Both env var names on purpose: the 7 probes disagree (BASE vs PROBE_BASE) and exporting both is
   # cheaper and safer than a per-probe table that goes stale when one probe is edited.
@@ -134,51 +156,24 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   set -e
   if [ "$vrc" -eq 0 ]; then
     echo "  PASS  $label"
-    PASSED="$PASSED $label"
+    echo "$label" >> "$OUT_DIR/$LANE.pass"
   else
     echo "::error::probe FAIL: ${label} -- ${msg}"
-    FAILED="$FAILED $label"
+    echo "$label" >> "$OUT_DIR/$LANE.fail"
   fi
 }
 
-# Positive-control legs sit next to the probe they calibrate. narrow-overflow and ad-reflow both pass
-# on "nothing moved" and neither reports a calibration of its own, so each is run twice: once clean,
-# once with its detector handed something it MUST see. category-pop and home-direction-c inject their
-# own overflow and report it in `calibration`, checked above -- they need no second leg.
-probe narrow-overflow          narrow-overflow-probe.mjs          "$CDP_A"
-probe narrow-overflow-control  narrow-overflow-probe.mjs          "$CDP_A" BREAK_GUARD=1 LONG_TOKEN=Wolfeschlegelsteinhausenbergerdorffvoralternwarengewissenhaftschaferswes
-probe ad-reflow                ad-reflow-first-list-load-probe.mjs "$CDP_A"
-probe ad-reflow-control        ad-reflow-first-list-load-probe.mjs "$CDP_A" BREAK_GUARD=1
-probe category-pop             category-pop-probe.mjs              "$CDP_A"
-probe home-direction-c-normal  home-direction-c-probe.mjs          "$CDP_A"
-probe home-direction-c-reduced home-direction-c-probe.mjs          "$CDP_B"
-probe mount-failed-network     mount-failed-network-probe.mjs      "$CDP_A"
-probe stick-tap-target         stick-tap-target-probe.mjs          "$CDP_A"
-probe wheel-pointer-name       wheel-pointer-name-probe.mjs        "$CDP_A"
-# The next three pass on "nothing happened" too (no anchor in #stage, no live button in a closed
-# dialog, no early tap getting through), so each gets its own BREAK_GUARD control leg. Their clean
-# predicates read only what each probe MEASURED -- see the per-label notes in ci-probes-verdict.mjs,
-# including why no-nav-in-stage claim 2 is deliberately not gated.
-probe no-nav-in-stage           no-nav-in-stage-probe.mjs           "$CDP_A"
-probe no-nav-in-stage-control   no-nav-in-stage-probe.mjs           "$CDP_A" BREAK_GUARD=1
-probe leave-confirm             leave-confirm-probe.mjs             "$CDP_A"
-probe leave-confirm-control     leave-confirm-probe.mjs             "$CDP_A" BREAK_GUARD=1
-probe arm-gate                  arm-gate-probe.mjs                  "$CDP_A"
-probe arm-gate-control          arm-gate-probe.mjs                  "$CDP_A" BREAK_GUARD=1
-
-# --- standalone legs -----------------------------------------------------------------------------
 # These two probes orchestrate their own driver.mjs run and judge their own measurements (exit
 # non-zero on a red) — but they serve NOTHING: their standalone entry expects a server and a Chrome
 # to already exist (their headers say "serve dist/ ... first"), so each leg is pointed at THIS
-# script's server and Chrome A via the BASE/CDP_PORT env vars both probes honor. Their default
-# 4455/9455 and 4580/9580 ports are for manual runs only and are never bound here.
+# script's server and its lane's Chrome via the BASE/CDP_PORT env vars both probes honor. Their
+# default 4455/9455 and 4580/9580 ports are for manual runs only and are never bound here.
 # Each ships its calibration as a BREAK_* control leg, judged the same way as the probe() controls:
 # a control that cannot make its own detector red fails the leg. They run here, behind this bash
 # wrapper, because control-floor-probe.mjs carries no --selftest by design (its calibration IS the
 # control leg) and the meta-gate audits node-invoked steps only.
 standalone() { # label, command...
   label="$1"; shift
-  LEGS=$((LEGS + 1))
   echo "probe: $label (standalone)"
   ( "$@" ) > "$OUT_DIR/$label.log" 2>&1 &
   pid=$!
@@ -191,23 +186,94 @@ standalone() { # label, command...
   { kill "$watchdog" && wait "$watchdog"; } 2> /dev/null || true
   if [ "$rc" -eq 0 ]; then
     echo "  PASS  $label"
-    PASSED="$PASSED $label"
+    echo "$label" >> "$OUT_DIR/$LANE.pass"
   else
     echo "::error::probe FAIL: ${label} -- exit ${rc}: $(tail -n 3 "$OUT_DIR/$label.log" | tr '\n' ' ')"
-    FAILED="$FAILED $label"
+    echo "$label" >> "$OUT_DIR/$LANE.fail"
   fi
 }
-standalone live-region-floor         env BASE="$SITE" CDP_PORT="$CDP_A" node scripts/live-region-floor-probe.mjs
-standalone live-region-floor-control env BASE="$SITE" CDP_PORT="$CDP_A" BREAK_GUARD=1 node scripts/live-region-floor-probe.mjs
-standalone control-floor             env BASE="$SITE" CDP_PORT="$CDP_A" node scripts/control-floor-probe.mjs
-standalone control-floor-control     env BASE="$SITE" CDP_PORT="$CDP_A" BREAK_FLOOR=1 node scripts/control-floor-probe.mjs
 
-if [ -n "$FAILED" ]; then
-  echo "::error::ci-probes: failing probe leg(s):${FAILED}"
+# --- the lanes -----------------------------------------------------------------------------------
+# Packed from the per-leg times measured on the 2026-08-29 sequential CI run, so the lanes finish
+# together instead of one dragging: lane1 199s · lane2 186s · lane3 167s · lane4 163s. A probe and
+# its positive control always share a lane -- the control exists to calibrate that probe's detector
+# in the same environment, and splitting the pair would let them see different browsers.
+#
+# Positive-control legs sit next to the probe they calibrate. narrow-overflow and ad-reflow both pass
+# on "nothing moved" and neither reports a calibration of its own, so each is run twice: once clean,
+# once with its detector handed something it MUST see. category-pop and home-direction-c inject their
+# own overflow and report it in `calibration`, checked above -- they need no second leg.
+# no-nav-in-stage, leave-confirm and arm-gate pass on "nothing happened" too (no anchor in #stage, no
+# live button in a closed dialog, no early tap getting through), so each gets its own BREAK_GUARD
+# control leg. Their clean predicates read only what each probe MEASURED -- see the per-label notes
+# in ci-probes-verdict.mjs, including why no-nav-in-stage claim 2 is deliberately not gated.
+lane1() {
+  LANE=lane1
+  probe arm-gate                  arm-gate-probe.mjs                  "$CDP_1"
+  probe arm-gate-control          arm-gate-probe.mjs                  "$CDP_1" BREAK_GUARD=1
+}
+lane2() {
+  LANE=lane2
+  probe narrow-overflow          narrow-overflow-probe.mjs          "$CDP_2"
+  probe narrow-overflow-control  narrow-overflow-probe.mjs          "$CDP_2" BREAK_GUARD=1 LONG_TOKEN=Wolfeschlegelsteinhausenbergerdorffvoralternwarengewissenhaftschaferswes
+  probe ad-reflow                ad-reflow-first-list-load-probe.mjs "$CDP_2"
+  probe ad-reflow-control        ad-reflow-first-list-load-probe.mjs "$CDP_2" BREAK_GUARD=1
+}
+lane3() {
+  LANE=lane3
+  probe no-nav-in-stage           no-nav-in-stage-probe.mjs           "$CDP_3"
+  probe no-nav-in-stage-control   no-nav-in-stage-probe.mjs           "$CDP_3" BREAK_GUARD=1
+  probe leave-confirm             leave-confirm-probe.mjs             "$CDP_3"
+  probe leave-confirm-control     leave-confirm-probe.mjs             "$CDP_3" BREAK_GUARD=1
+  probe category-pop              category-pop-probe.mjs              "$CDP_3"
+}
+lane4() {
+  LANE=lane4
+  probe stick-tap-target          stick-tap-target-probe.mjs          "$CDP_4"
+  probe wheel-pointer-name        wheel-pointer-name-probe.mjs        "$CDP_4"
+  probe home-direction-c-normal   home-direction-c-probe.mjs          "$CDP_4"
+  probe home-direction-c-reduced  home-direction-c-probe.mjs          "$CDP_B"
+  probe mount-failed-network      mount-failed-network-probe.mjs      "$CDP_4"
+  standalone live-region-floor         env BASE="$SITE" CDP_PORT="$CDP_4" node scripts/live-region-floor-probe.mjs
+  standalone live-region-floor-control env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_GUARD=1 node scripts/live-region-floor-probe.mjs
+  standalone control-floor             env BASE="$SITE" CDP_PORT="$CDP_4" node scripts/control-floor-probe.mjs
+  standalone control-floor-control     env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_FLOOR=1 node scripts/control-floor-probe.mjs
+}
+
+echo "ci-probes: 4 lanes launched -- per-lane output prints when each lane's log is collected below"
+LANE_PIDS=""
+lane1 > "$OUT_DIR/lane1.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
+lane2 > "$OUT_DIR/lane2.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
+lane3 > "$OUT_DIR/lane3.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
+lane4 > "$OUT_DIR/lane4.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
+set +e
+for p in $LANE_PIDS; do wait "$p"; done
+set -e
+
+for n in 1 2 3 4; do
+  echo "--- lane$n ---"
+  cat "$OUT_DIR/lane$n.log" 2>/dev/null || echo "(lane$n produced no log)"
+done
+
+# --- aggregate ---------------------------------------------------------------------------------
+PASS_LABELS=$(cat "$OUT_DIR"/lane?.pass 2>/dev/null || true)
+FAIL_LABELS=$(cat "$OUT_DIR"/lane?.fail 2>/dev/null || true)
+N_PASS=$(printf '%s\n' "$PASS_LABELS" | grep -c . || true)
+N_FAIL=$(printf '%s\n' "$FAIL_LABELS" | grep -c . || true)
+LEGS=$((N_PASS + N_FAIL))
+
+if [ -n "$FAIL_LABELS" ]; then
+  echo "::error::ci-probes: failing probe leg(s): $(echo $FAIL_LABELS)"
   echo "ci-probes: output kept in ${OUT_DIR}"
+  exit 1
+fi
+if [ "$LEGS" -ne "$EXPECTED_LEGS" ]; then
+  # Fewer (or more) legs than pinned means a lane died before finishing its list, or a leg wrote no
+  # verdict -- a green with missing legs is a silent skip, and this repo treats those as red.
+  echo "::error::ci-probes: ${LEGS} leg(s) reported but ${EXPECTED_LEGS} are pinned -- a lane died mid-run. Logs in ${OUT_DIR}"
   exit 1
 fi
 # Every number and every name here comes from the legs actually run: the parenthetical that used to
 # describe the set ("7 probes + 2 positive controls + ...") was a literal, and this repo has shipped a
 # gate whose success line printed a number from a different expression than the thing it measured.
-echo "ci-probes: ${LEGS} leg(s) passed:${PASSED}"
+echo "ci-probes: ${LEGS} leg(s) passed: $(echo $PASS_LABELS)"
