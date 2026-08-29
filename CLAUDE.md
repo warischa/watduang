@@ -32,10 +32,16 @@ Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 ## Batch boundaries
 
 Deploy once per work batch, never per feature: approved work stacks as local commits while agents
-keep building; push to main when the batch integrates (full gates + REFUTE) or when the owner asks
-to see it live. Tracker writes queue in the session ledger and land as ONE approved batch. Docs
-commits batch and push once at save (ADR-0049 b). Never defer: gate re-records, REFUTE findings,
-verification — a red blocks everyone.
+keep building; the batch's ONE src push to main still gets ONE ask, with the evidence line. Never
+defer: gate re-records, REFUTE findings, verification — a red blocks everyone.
+
+**The SH batch is PRE-AUTHORIZED (owner ruling 2026-08-29) — do it, don't ask.** At session save,
+in one pass, no per-item questions: (1) docs commits + one docs push to main (ADR-0049 b);
+(2) tracker writes for work VERIFIED DONE this session — close with an evidence comment, add the
+gh#141 row per shipped game, one read-back to confirm; (3) cleanup — integrated agent worktrees
+removed, budget sweep, memory/handoff writes. Condition that keeps the grant valid: every gate
+green and the evidence cited in the save report. Outside the grant (still ask): closing a ticket
+whose work is NOT verified done, anything money/prod-config, and the batch's src deploy.
 
 ## Language
 
