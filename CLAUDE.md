@@ -29,6 +29,14 @@ Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 
 ⚠ Before generating an OG image · running a build · **deleting or renaming a page** · driving two headless probes at once · or putting a choice to the site owner → read `docs/runbook.md` first · verifying anything the way CI does, or reading CI's own verdict → `docs/agents/ci-verification.md` (it carries the shell traps that make a probe lie, and the per-step endpoint).
 
+## Batch boundaries
+
+Deploy once per work batch, never per feature: approved work stacks as local commits while agents
+keep building; push to main when the batch integrates (full gates + REFUTE) or when the owner asks
+to see it live. Tracker writes queue in the session ledger and land as ONE approved batch. Docs
+commits batch and push once at save (ADR-0049 b). Never defer: gate re-records, REFUTE findings,
+verification — a red blocks everyone.
+
 ## Language
 
 **Write English. Ship Thai.** Effective 2026-08-14 — everything an agent reads or writes is English;
