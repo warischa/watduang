@@ -17,7 +17,6 @@ import '../../styles/games/siamsi.css';
 import '../../styles/games/short-stick.css';
 import '../../styles/games/daily-fortune.css';
 import '../../styles/games/freeze-tap.css';
-import '../../styles/games/cannon-flag.css';
 
 export function getStaticPaths() {
   return games.map((game) => ({ params: { id: game.id }, props: { game } }));

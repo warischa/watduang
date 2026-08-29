@@ -35,9 +35,9 @@ const { gameId } = Astro.props as Props;
     ending or resuming unless the predicate is narrowed to match — and narrowing it means building round
     state this site does not have (ADR-0015). */}
 <dialog id="leave-confirm" data-game-id={gameId}>
-  <p id="leave-confirm-msg" role="alert">ไปเกมอื่นตอนนี้ไหม</p>
+  <p id="leave-confirm-msg" role="alert">ออกจากหน้านี้ตอนนี้ไหม</p>
   <button id="leave-stay" type="button">อยู่หน้านี้ต่อ</button>
-  <button id="leave-go" type="button">ไปเกมอื่น</button>
+  <button id="leave-go" type="button">ออกจากหน้านี้</button>
 </dialog>
 
 <script>

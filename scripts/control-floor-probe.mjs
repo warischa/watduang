@@ -103,8 +103,19 @@ const EPS = 0.05;
 //   - The registering commit touches no other game module and none of the shell, so no other game's
 //     contribution can have moved. 9 + 1 = 10 closes exactly.
 //
-// 2026-08-29, 10 -> 11: cannon-flag joined the manifest, and it contributes 1+0. Attributed the same
-// way, for the same reason:
+// 2026-08-29, 11 -> 10: cannon-flag's engine LEFT this module. The game now runs on its own
+// full-screen route (src/pages/game/cannon-flag/play.astro) and src/games/cannon-flag.ts is an
+// 87-line landing module that renders prose and no <button> at all — the entry into the game is an
+// <a> in chrome above the stage, which is where ADR-0014 puts a navigation target. So cannon-flag's
+// contribution goes 1 -> 0 and the total returns to the 10 that stood before it was registered.
+// ATTRIBUTED, not bumped: a net -1 could equally hide a -2 with something else newly rendering. The
+// deleting commit touches no other game module and none of the shell, and the walk still reaches the
+// same two screens on every other page, so 11 - 1 = 10 closes exactly. The block below records what
+// cannon-flag used to contribute, kept because a future reader asking "why 10" needs the history the
+// number no longer carries.
+//
+// 2026-08-29, 10 -> 11 (SUPERSEDED by the line above): cannon-flag joined the manifest, and it
+// contributed 1+0. Attributed the same way, for the same reason:
 //   - cannon-flag's own .game-btn set is renderHandoff 1 (readyBtn), plus a next button, a sudden
 //     death button, and renderResults 2 (replay primary + change secondary) on screens this walk
 //     never reaches.
@@ -112,7 +123,7 @@ const EPS = 0.05;
 //     carries .game-btn, so it contributes 0, the same shape as freeze-tap's .ft-pad div.
 //   - The registering commit touches no other game module and none of the shell. 10 + 1 = 11 closes
 //     exactly.
-export const CONTROL_COUNT = 11;
+export const CONTROL_COUNT = 10;
 /** Every game in the manifest gets a page. Pinned so a page that stopped loading cannot read as clean. */
 export const PAGE_COUNT = games.length;
 

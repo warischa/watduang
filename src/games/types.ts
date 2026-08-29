@@ -88,6 +88,12 @@ export interface GameModule {
    *  must generate no ad request at all, which is a content decision rather than a layout one.
    *  scripts/validate-games.mjs holds the list of pages where false is mandatory and why. */
   ads: boolean;
+  /** Set when the playable game lives on its own full-screen route instead of inside #stage. The
+   *  module then carries only the metadata this page needs — name, category, SEO, ad flag — and the
+   *  route is where the game actually runs. src/layouts/GameLayout.astro renders the link to it in
+   *  static chrome ABOVE the stage, which is where ADR-0014 puts every navigation target.
+   *  Absent on a game whose module renders its own screens, which is every other game today. */
+  playRoute?: string;
   mount(stage: HTMLElement, ctx: GameContext): void;
   /** Clear timers / listeners / audio on every exit path — required */
   dispose(): void;
