@@ -5,9 +5,9 @@
 landing page, which ADR-0050 deletes. The recipe is **run-as-is, then full assess**: the mockup is
 carried into the repo whole and must run before anything is adapted; a full assessment pass against
 the shared concept follows, and fixes come off that checklist. The freeze-tap (มือลั่น) mockup's dark
-visual design is the design reference every port targets. The detailed step-by-step recipe write-up
-stays [gh#138](https://github.com/warischa/watduang/issues/138)'s job — this file is the interim
-method below, still useful for the extraction and test-harness detail it covers.
+visual design is the design reference every port targets. The step-by-step recipe lives in
+`docs/agents/play-route-recipe.md` (gh#138, written after the third port) — follow THAT for a new
+port; this file stays for the stage-module method it documents, which party games no longer use.
 
 Written after two ports — `freeze-tap` (มือลั่น) and `power-meter` (วัดพลัง) — that used deliberately
 different methods so the difference could be measured. This file is the merged method, plus the
