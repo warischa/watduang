@@ -7,6 +7,15 @@ on:
 # CSP note: no report-uri/report-to directive is set in staticwebapp.config.json —
 # there is no collector endpoint yet. Add CSP reporting once one exists.
 
+# A second push to the same branch makes the first run's verdict worthless — nobody merges on a
+# superseded SHA — but without this block that run keeps a runner for its full ~13 minutes anyway.
+# Measured 2026-08-29: three runs on feat/freeze-tap-port were superseded mid-flight and each ran to
+# completion. main is DELIBERATELY exempt: a run on main is the one that deploys, and cancelling it
+# mid-deploy would leave the live site in whatever state the upload had reached.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -319,7 +328,42 @@ jobs:
       # in use, and fails loud when no Chrome is present — none of the three can become a skip.
       # Two of the 7 pass on "nothing moved", so the script runs positive controls that must go RED;
       # a probe that silently stopped measuring cannot report a green.
+      # These probes are 88% of this workflow's wall clock — 698s of 794s, measured on run
+      # 33236941662. Every input they read comes from dist/, and dist/ is a pure function of src/
+      # and public/, so a push that touches neither cannot move a single byte they measure.
+      # THREE THINGS KEEP THIS FROM BECOMING A SKIP THAT HIDES WORK:
+      #   - main is never skipped. That run is the one that gates Deploy.
+      #   - anything this step cannot diff (a new branch, a pull_request event with no `before`,
+      #     a base commit not in this clone) falls back to RUNNING them. It fails safe, not open.
+      #   - the decision and the file list are echoed, so a skipped run says why in its own log
+      #     rather than reading as coverage it did not earn (ADR-0019).
+      - name: Decide whether the browser probes can add anything
+        id: probe-scope
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "probe-scope: main — probes always run, this run gates Deploy"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          base="${{ github.event.before }}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            echo "probe-scope: no usable base commit — failing safe, probes run"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only "$base" "$GITHUB_SHA")
+          echo "probe-scope: files changed since ${base}:"
+          echo "$changed" | sed 's/^/  /'
+          if printf '%s\n' "$changed" | grep -qE '^(src/|public/)'; then
+            echo "probe-scope: touches src/ or public/ — dist/ can differ, probes run"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "probe-scope: nothing under src/ or public/ — dist/ is unchanged, probes SKIPPED"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Browser probes against the deployed artifact (gh#122)
+        if: steps.probe-scope.outputs.run == 'true'
         run: npm run ci-probes
 
       # Deploy authenticates with Entra ID workload identity federation (OIDC) — this repo stores
