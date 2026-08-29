@@ -43,6 +43,21 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
 // src/styles/tokens.css; every size is verbatim from the canvas. If a copy string here disagrees with
 // the design, the repo's shipped string wins (see GameLayout.astro).
 
+/** The player-visible strings the tests assert on (NOT exhaustive — some inline literals remain,
+ *  e.g. the holder prompt and the roster-size template), in one exported place so a test asserts against
+ *  the shipped value instead of a retyped second copy (retyped Thai drifts invisibly — a zero-width
+ *  space or a differently composed vowel looks identical in a diff). Read from tests via
+ *  `copyOf()` in _module-copy.mjs. Adding a rendered string means adding it here, not inline. */
+export const COPY = {
+  PICK: 'สุ่มคนโดน',
+  PROMPT: 'กดปุ่มแล้วสุ่มคนโดนหนึ่งคนจากวงทันที',
+  LABEL: 'คนโดนคือ',
+  FOOT: 'วงตกลงกันเองว่าคนโดนต้องทำอะไร',
+  AGAIN: 'เล่นอีกรอบ',
+  CHANGE: 'เปลี่ยนคนเล่น',
+  HINT: 'ปุ่มรองจะกดได้หลังผลออก 0.4 วินาที กันนิ้วลั่น',
+} as const;
+
 // The burst star, byte-exact from the canvas (12-point starburst, viewBox 200). Drawn, never an image.
 // fill/stroke reference tokens by name — presentation attributes can resolve var().
 const BURST_SVG =
@@ -58,9 +73,9 @@ function renderIdle(): void {
 
   const names = gameCtx?.session.players ?? [];
   stage.appendChild(el('p', `วง ${names.length || '-'} คน`));
-  stage.appendChild(el('p', 'กดปุ่มแล้วสุ่มคนโดนหนึ่งคนจากวงทันที'));
+  stage.appendChild(el('p', COPY.PROMPT));
 
-  const pickBtn = el('button', 'สุ่มคนโดน');
+  const pickBtn = el('button', COPY.PICK);
   pickBtn.id = 'pl-pick';
   pickBtn.type = 'button';
   pickBtn.className = 'game-btn game-btn-primary';
@@ -78,7 +93,7 @@ function renderResult(): void {
   stage.className = 'stage-screen';
 
   // Direct children in canvas order — the #42 gate test reads stage.children[1] as the picked name.
-  const label = el('span', 'คนโดนคือ');
+  const label = el('span', COPY.LABEL);
   label.className = 'pl-label';
   stage.appendChild(label);
 
@@ -90,11 +105,11 @@ function renderResult(): void {
   burst.appendChild(name);
   stage.appendChild(burst);
 
-  const foot = el('p', 'วงตกลงกันเองว่าคนโดนต้องทำอะไร');
+  const foot = el('p', COPY.FOOT);
   foot.className = 'pl-foot';
   stage.appendChild(foot);
 
-  const again = el('button', 'เล่นอีกรอบ');
+  const again = el('button', COPY.AGAIN);
   again.id = 'pl-again';
   again.type = 'button';
   again.className = 'game-btn game-btn-primary';
@@ -110,7 +125,7 @@ function renderResult(): void {
   // to the panel DOM directly — the game tears itself down and dispatches watduang:change-players on
   // document, and src/pages/game/[id].astro is the one place that owns putting the panel back (the
   // same split gh#54's failed-mount path uses). No checkpoint exists to strand.
-  const change = el('button', 'เปลี่ยนคนเล่น');
+  const change = el('button', COPY.CHANGE);
   change.id = 'pl-change';
   change.type = 'button';
   change.className = 'game-btn game-btn-secondary';
@@ -120,7 +135,7 @@ function renderResult(): void {
   });
   stage.appendChild(change);
 
-  const hint = el('span', 'ปุ่มรองจะกดได้หลังผลออก 0.4 วินาที กันนิ้วลั่น');
+  const hint = el('span', COPY.HINT);
   hint.className = 'pl-hint';
   stage.appendChild(hint);
   // No outbound link here — #stage must hold no navigation target (a tap-transition would drop it under

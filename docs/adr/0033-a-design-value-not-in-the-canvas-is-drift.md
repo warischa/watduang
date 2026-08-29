@@ -1,6 +1,9 @@
 # ADR-0033 — a design value not in the canvas is drift, not a choice
 
 Date: 2026-08-25 · Status: accepted · Supersedes: nothing · Relates: ADR-0031, ADR-0032, gh#74, gh#75, gh#76
+Narrowed by: [ADR-0050](0050-party-games-go-full-screen-landings-deleted.md) — the canvas stops
+governing party-game surfaces (2026-08-29); it still governs the shell, home, category pages, and
+tools.
 
 ## Context
 

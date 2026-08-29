@@ -2,47 +2,19 @@
 // checks only the pure helper exported from pick-loser.ts (no DOM needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import * as pickLoserModule from './pick-loser.ts';
 import game, { pickLoser } from './pick-loser.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
+// The shared harness replaces the FakeElement this file used to inline. Its innerHTML now parses
+// into real children, so BURST_SVG materialises as an element: the picked name is read by class
+// (.pl-name), not by a child index that the burst's svg would silently shift.
+import { makeDocument } from './_fake-dom.mjs';
+// Copy is read out of the module instead of retyped here — see _module-copy.mjs for why.
+import { copyOf } from './_module-copy.mjs';
 
-// ---- Minimal fake DOM for the #42 gate test below — lifted from short-stick.test.mjs's harness
-// (the reference DOM harness in this repo, no jsdom/happy-dom dependency) rather than inventing a second one.
-class FakeElement {
-  constructor(tagName) {
-    this.tagName = tagName;
-    this.children = [];
-    this._text = '';
-    this.style = {};
-    this._attrs = {};
-    this._listeners = {};
-    this.disabled = false;
-    this.hidden = false;
-  }
-  set textContent(v) { this._text = v; }
-  get textContent() { return this._text; }
-  setAttribute(k, v) { this._attrs[k] = String(v); }
-  getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null; }
-  removeAttribute(k) { delete this._attrs[k]; }
-  appendChild(child) { this.children.push(child); return child; }
-  replaceChildren() { this.children = []; }
-  addEventListener(type, fn) { (this._listeners[type] ??= []).push(fn); }
-  removeEventListener(type, fn) {
-    this._listeners[type] = (this._listeners[type] || []).filter((f) => f !== fn);
-  }
-  dispatch(type) { (this._listeners[type] || []).forEach((fn) => fn()); }
-  // A disabled control dispatches no activation — the platform swallows the click before any
-  // listener runs. The fake models that on purpose: without it every gate assertion passes vacuously.
-  click() { if (!this.disabled) this.dispatch('click'); }
-}
-const fakeDocument = {
-  createElement: (tag) => new FakeElement(tag),
-  // records every document.dispatchEvent() call so tests can assert what the game asked the page for
-  dispatched: [],
-  dispatchEvent(ev) {
-    this.dispatched.push(ev);
-  },
-};
+const fakeDocument = makeDocument();
 globalThis.document = fakeDocument;
+const COPY = copyOf(pickLoserModule);
 
 function makeCtx(players) {
   return {
@@ -118,9 +90,9 @@ test('#42: ghost-tap gate — pl-pick stays live (documented exception), pl-agai
 
   pickBtn.click(); // draws a loser, same as a real un-gated tap
 
-  // children[1] is the result screen's burst box (gh#76); the picked name is the span inside it, and
-  // this fake's textContent is own-text only, so the name must be read from the span, not the box.
-  const pickedName = stage.children[1].children[0].textContent;
+  // children[1] is the result screen's burst box (gh#76); the picked name is the .pl-name span inside
+  // it, alongside the burst svg that BURST_SVG renders through innerHTML.
+  const pickedName = stage.querySelector('.pl-name').textContent;
   assert.ok(players.includes(pickedName), `picked name "${pickedName}" is not a roster member`);
 
   const again = stage.children.find((c) => c.id === 'pl-again');
@@ -130,7 +102,7 @@ test('#42: ghost-tap gate — pl-pick stays live (documented exception), pl-agai
 
   // before arming: a ghost tap on "pl-again" must not restart the round
   again.click();
-  assert.equal(stage.children[1].children[0].textContent, pickedName,
+  assert.equal(stage.querySelector('.pl-name').textContent, pickedName,
     'a disabled "pl-again" fired anyway — the picked name changed without a real re-render');
   assert.ok(!stage.children.some((c) => c.id === 'pl-pick'),
     'a disabled "pl-again" fired anyway — the round restarted before the window elapsed');
@@ -155,16 +127,26 @@ test('gh#76 result screen: design copy is byte-exact, pl-change is gated by armA
   game.mount(stage, makeCtx(['เอ', 'บี', 'ซี']));
   stage.children.find((c) => c.id === 'pl-pick').click();
 
-  // design copy, byte-for-byte, in document order ([1] is the burst, its first child the picked name)
-  assert.equal(stage.children[0].textContent, 'คนโดนคือ');
-  assert.ok(['เอ', 'บี', 'ซี'].includes(stage.children[1].children[0].textContent), 'the picked name must sit inside the burst');
-  assert.equal(stage.children[2].textContent, 'วงตกลงกันเองว่าคนโดนต้องทำอะไร');
+  // Design copy in document order. Each expected value is read out of the module's exported COPY,
+  // so this asserts "this node carries that role's string" — the structural claim the test means —
+  // rather than comparing the shipped string against a second, drift-prone copy typed here.
+  assert.equal(stage.children[0].textContent, COPY['COPY.LABEL']);
+  assert.ok(['เอ', 'บี', 'ซี'].includes(stage.querySelector('.pl-name').textContent),
+    'the picked name must sit inside the burst');
+  assert.equal(stage.children[2].textContent, COPY['COPY.FOOT']);
   const again = stage.children.find((c) => c.id === 'pl-again');
-  assert.equal(again.textContent, 'เล่นอีกรอบ');
+  assert.equal(again.textContent, COPY['COPY.AGAIN']);
   const change = stage.children.find((c) => c.id === 'pl-change');
   assert.ok(change, 'pl-change missing after reveal');
-  assert.equal(change.textContent, 'เปลี่ยนคนเล่น');
-  assert.equal(stage.children[5].textContent, 'ปุ่มรองจะกดได้หลังผลออก 0.4 วินาที กันนิ้วลั่น');
+  assert.equal(change.textContent, COPY['COPY.CHANGE']);
+  assert.equal(stage.children[5].textContent, COPY['COPY.HINT']);
+
+  // ADR-0014, now actually checkable: the burst renders through innerHTML, and with the old
+  // string-only fake a link hidden in that markup constant was invisible to a stage sweep (this is
+  // power-meter mutant 1). querySelectorAll descends into the parsed markup.
+  assert.equal(stage.querySelectorAll('a').length, 0, '#stage must contain no <a> — ADR-0014');
+  assert.equal(stage.querySelectorAll('[href]').length, 0, '#stage must contain no href target');
+  assert.ok(stage.querySelector('svg'), 'the burst svg must render — a zero-element sweep proves nothing');
 
   // the gate that arms pl-again also arms pl-change — same call, no second timer
   assert.equal(again.disabled, true, '"pl-again" must be disabled at reveal');

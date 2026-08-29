@@ -14,6 +14,9 @@
 // outcome. The two URLs are differentiated by title instead — this one is the app view,
 // `/game/power-meter/` is the landing page that explains the game.
 import Base from '../../../layouts/Base.astro';
+// gh#144 — the shared exit X, page chrome outside the mockup root. One component for all three play
+// routes; it brings its own style and its own arm gate.
+import PlayExit from '../../../shell/PlayExit.astro';
 import markup from '../../../play/power-meter/markup.html?raw';
 import '../../../play/power-meter/style.css';
 // AFTER style.css, always: overrides.css wins on equal specificity only if it comes second.
@@ -30,6 +33,7 @@ const description = game.seo.description;
 ---
 
 <Base title={title} description={description} ogImage={`/og/${game.og}`} chrome>
+  <PlayExit />
   <Fragment set:html={markup} />
 </Base>
 

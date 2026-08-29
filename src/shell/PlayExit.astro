@@ -1,0 +1,180 @@
+---
+// The one exit control on every full-screen play route (gh#144, owner ruling in gh#143): the same X,
+// in the same corner, on /game/*/play/, leaving to the home page. Imported by all three play.astro
+// files so there is one implementation and one stylesheet — a per-route copy is the thing that drifts.
+//
+// A <button> that navigates, NOT an <a href>. Two reasons, and the first is the guard:
+//   1. The arm-gate class this control reuses renders a control inert by setting `disabled` — an
+//      attribute only a form control has. An anchor can be dimmed but stays tappable, which is
+//      exactly the "the guard is itself a live tap surface when idle" failure this ticket names.
+//   2. ADR-0014 keeps navigation targets out of the game surface. This sits OUTSIDE the mockup root
+//      (#app / #app-container) in DOM order and out of flow (position: fixed), so no runtime height
+//      change inside the game can pull it under a finger. A crawlable link is not lost by making it
+//      a button: the landing page /game/<id>/ is the crawl surface for each game, and it is the page
+//      that links here.
+//
+// Not a leave-confirm. LeaveConfirm.astro is mounted by GameLayout only; play routes have never used
+// it, and the ticket's guard is the arm delay, not a dialog. A dialog here would add a second tap
+// surface over the game for no ruling that asks for one.
+---
+
+<button id="play-exit" type="button" aria-label="ออกจากเกม" disabled>✕</button>
+
+<style>
+  /* Fixed, so nothing the game re-renders can move it. z-index 300 clears every layer the three
+     mockups declare (highest measured in src/play/**: 200) — the exit stays reachable even over a
+     game's own modal. Top-left: the mockups all put their icon buttons at the top RIGHT, so this
+     corner is the one that covers no control on any of the three. */
+  #play-exit {
+    position: fixed;
+    top: max(6px, env(safe-area-inset-top));
+    left: max(6px, env(safe-area-inset-left));
+    z-index: 300;
+    /* 44px is the tap-target floor the rest of the site uses; it is also what makes the disabled
+       state readable as "not yet", instead of a control that looks the same armed or not. */
+    inline-size: 44px;
+    block-size: 44px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    /* The three mockups all paint a near-black header behind this corner, so the disc needs its own
+       edge or the control disappears into it — measured on the 320px captures, where the first
+       version read as a bare glyph. */
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  /* Disabled is the armed/not-armed readout. No transition: motion here would need a
+     prefers-reduced-motion branch, and an instant opacity change needs neither. */
+  /* Still legible, clearly not ready: at 0.35 on a dark header it vanished entirely, and an exit a
+     player cannot find is a worse outcome than one that looks dim for 400ms. */
+  #play-exit:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+</style>
+
+<script>
+  // Bundled by Astro, never inline (ADR-0005 + `script-src 'self'`).
+  import { ARM_DELAY_MS } from '../games/_arm-gate';
+
+  const btn = document.getElementById('play-exit') as HTMLButtonElement | null;
+
+  if (btn) {
+    // Same guard CLASS as src/games/_arm-gate.ts — a control is inert until nothing has been touched
+    // for ARM_DELAY_MS, and it classifies nothing (no timing heuristic, no click-count), so it
+    // converges the way ADR-0016 describes. It is not armAfterQuiet() itself because that helper
+    // arms ONCE per rendered screen: the games call it again on every replaceChildren(), while this
+    // control outlives every render, so a one-shot arm would leave it permanently live and a mid-round
+    // burst at this corner would exit on the first contact. Here the window restarts on every contact.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    // Pointers currently down anywhere on the page. The quiet window only runs while this is zero:
+    // a finger still on the screen is not "quiet", so a press-and-hold can never arm the X under
+    // its own contact, and a held aim (cannon-flag drags) keeps the X disarmed for a stray second
+    // finger. pointercancel is counted like pointerup so a contact leaving the viewport cannot
+    // leak the counter high and disarm the X forever.
+    let active = 0;
+
+    const disarm = (): void => {
+      btn.disabled = true;
+      clearTimeout(timer);
+      if (active === 0) {
+        timer = setTimeout(() => { btn.disabled = false; }, ARM_DELAY_MS);
+      }
+    };
+
+    // Capture phase on the document: a game that stops propagation inside its own root still cannot
+    // hide a contact from this gate. A contact on the button while it is ALREADY ARMED is the one
+    // exception — that is the deliberate tap, and disarming mid-gesture would cancel the click Chrome
+    // is about to dispatch (a button disabled between pointerdown and click fires no click at all).
+    // Every other contact, including a burst landing on this button while it is disabled, restarts
+    // the window — which is what stops a burst from arming the control under its own taps.
+    const onBtn = (ev: Event): boolean => ev.target instanceof Node && btn.contains(ev.target);
+
+    // The current press began on the ALREADY-ARMED button. Activation requires it: without this, a
+    // press that starts disabled and outlives the quiet window (hold on the X, or a hold elsewhere
+    // arming it mid-gesture) would exit on release.
+    let pressArmed = false;
+
+    document.addEventListener(
+      'pointerdown',
+      (ev) => {
+        active += 1;
+        if (!btn.disabled && onBtn(ev)) {
+          pressArmed = true;
+          return;
+        }
+        disarm();
+      },
+      true,
+    );
+
+    // Activation is `pointerup`, not `click`, and that is measured, not stylistic: a real touch on
+    // this button inside /game/cannon-flag/play/ dispatches pointerdown, touchstart, pointerup and
+    // touchend — and NO click at all (walked 2026-08-29 at 320px; freeze-tap and power-meter do fire
+    // one). A click-only handler is therefore dead on one of the three routes. Document capture, so
+    // no page-level handler can stop the event before this gate sees it. `click` is kept as the
+    // keyboard path (Enter/Space fire click and no pointer events); `leaving` stops the two paths
+    // from navigating twice.
+    let leaving = false;
+    const leave = (): void => {
+      if (leaving || btn.disabled) return;
+      leaving = true;
+      window.location.href = '/';
+    };
+
+    document.addEventListener(
+      'pointerup',
+      (ev) => {
+        active = Math.max(0, active - 1);
+        // Touch has implicit pointer capture: a finger that starts here and slides away still lands
+        // its pointerup on this button. Require the release point to be inside the box, so a drag
+        // off the control cancels it the way a native button does — and require pressArmed, so only
+        // a press that STARTED on the armed button can activate.
+        const wasArmedPress = pressArmed;
+        pressArmed = false;
+        if (wasArmedPress && onBtn(ev)) {
+          const r = btn.getBoundingClientRect();
+          const e = ev as PointerEvent;
+          const inside =
+            e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+          if (inside) {
+            leave();
+            return;
+          }
+        }
+        // Every release restarts the quiet window (scheduling only once no contact remains), so a
+        // window that expired under a held finger cannot leave the X armed the instant the hold ends.
+        disarm();
+      },
+      true,
+    );
+    document.addEventListener(
+      'pointercancel',
+      () => {
+        active = Math.max(0, active - 1);
+        pressArmed = false;
+        disarm();
+      },
+      true,
+    );
+    btn.addEventListener('click', leave);
+
+    // bfcache: back-navigation restores this page with module state intact and scripts NOT re-run.
+    // Without this reset, `leaving` stays true after an exit and the X is permanently dead on the
+    // restored page.
+    window.addEventListener('pageshow', () => {
+      leaving = false;
+      active = 0;
+      pressArmed = false;
+      disarm();
+    });
+
+    disarm();
+  }
+</script>

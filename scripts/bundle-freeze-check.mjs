@@ -94,8 +94,10 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 //   power-meter play routes) — membership is a deduped set, so one entry stands for all three.
 // - Delta of reachable bytes (+44547, 159812 -> 204359): two lifted mockup bundles (~38KB + ~32KB)
 //   minus the two deleted ported engines and their shared-chunk shrinkage.
+// gh#144: PlayExit.astro_... added — the shared exit X on every play route ships one small chunk.
 const BASELINE_BASENAMES = [
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
+  'PlayExit.astro_astro_type_script_index_0_lang.js',
   'PlayerSetup.astro_astro_type_script_index_0_lang.js',
   'ToolNameEntry.astro_astro_type_script_index_0_lang.js',
   '_arm-gate.js',

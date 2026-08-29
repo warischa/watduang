@@ -1,5 +1,14 @@
 # Porting a mockup game
 
+**Current target (ADR-0050, 2026-08-29): a port lands as a full-screen play route** — the shape
+`freeze-tap`, `power-meter`, and `cannon-flag` already ship in — not a retrofit of the old game
+landing page, which ADR-0050 deletes. The recipe is **run-as-is, then full assess**: the mockup is
+carried into the repo whole and must run before anything is adapted; a full assessment pass against
+the shared concept follows, and fixes come off that checklist. The freeze-tap (มือลั่น) mockup's dark
+visual design is the design reference every port targets. The detailed step-by-step recipe write-up
+stays [gh#138](https://github.com/warischa/watduang/issues/138)'s job — this file is the interim
+method below, still useful for the extraction and test-harness detail it covers.
+
 Written after two ports — `freeze-tap` (มือลั่น) and `power-meter` (วัดพลัง) — that used deliberately
 different methods so the difference could be measured. This file is the merged method, plus the
 measurements that justify each choice. Games 3-10 start here.

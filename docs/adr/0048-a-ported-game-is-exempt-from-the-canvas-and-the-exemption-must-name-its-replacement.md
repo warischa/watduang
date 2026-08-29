@@ -1,6 +1,9 @@
 # ADR-0048 — a ported game is exempt from the design canvas, and the exemption names what replaces it
 
 Date: 2026-08-28 · Status: accepted · Owner decision · Narrows: [ADR-0033](0033-a-design-value-not-in-the-canvas-is-drift.md)
+Narrowed by: [ADR-0050](0050-party-games-go-full-screen-landings-deleted.md) — the light-warm palette
+stops governing party-game surfaces (2026-08-29); it still governs the shell, home, category pages,
+and tools.
 
 ## Context
 
@@ -40,6 +43,14 @@ commissioned for these games, it is the input.
   therefore cannot cross over, whatever the artboard question is.
 - **ADR-0033's rule for everything else is unchanged.** The shell, the hub, the category pages and the
   tool pages keep the canvas as their source of truth.
+
+## Restated after ADR-0050 (2026-08-29)
+
+The contrast measurements above (`--accent-gold` 1.42:1, `--color-accent` 1.75:1) were taken against
+a white ground, because that was this site's ground when this ADR was written. Party games now render
+on the play routes' dark ground (ADR-0050), and a ratio measured against white does not transfer to a
+dark ground — it is a different pair of colours being compared. Per-surface contrast measurement on
+the dark ground is not this ADR's job; it belongs to each retrofit ticket (gh#145, gh#146, gh#147).
 
 ## Consequences
 
