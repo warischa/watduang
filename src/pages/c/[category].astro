@@ -87,7 +87,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
           <h2 class="kicker">เกมในหมวดนี้</h2>
           <div class="cards-grid">
             {games.map((game) => (
-              <a class="game-card" href={`/game/${game.id}/`}>
+              <a class="game-card" href={game.playRoute ?? `/game/${game.id}/`}>
                 <h3>{game.names.th}</h3>
                 <p>{game.tagline}</p>
                 <span class="card-cta">

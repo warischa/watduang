@@ -47,7 +47,12 @@ function scanCategoryFilter(distDir) {
       problems.push({ page: slug, kind: 'missing-grid', text: `dist/c/${slug}/: no <div class="cards-grid"> game listing found` });
       continue;
     }
-    const shipped = new Set([...grid[1].matchAll(/class="game-card" href="\/game\/([^"/]+)\/"/g)].map((m) => m[1]));
+    // A card may point at the landing (/game/<id>/) or, since the card-to-play flip (owner ruling
+    // 2026-08-29, ADR-0050 ruling 2), straight at the play route (/game/<id>/play/). Either one
+    // counts as the category listing the game; the capture stays the game id in both shapes.
+    const shipped = new Set(
+      [...grid[1].matchAll(/class="game-card" href="\/game\/([^"/]+)\/(?:play\/)?"/g)].map((m) => m[1]),
+    );
     const expected = new Set(games.filter((g) => g.category === slug).map((g) => g.id));
     const extra = [...shipped].filter((id) => !expected.has(id));
     const missing = [...expected].filter((id) => !shipped.has(id));
@@ -139,8 +144,37 @@ function scanHomeLinks(distDir) {
   return problems;
 }
 
+// ---- 4. a declared play route must exist in the artifact ----------------------------------------
+// Owned expectation: every manifest game carrying `playRoute` has dist/game/<id>/play/index.html.
+// The card-to-play flip (ADR-0050 ruling 2) makes home + category cards link this route directly,
+// and nothing else proved the page was built: deleting src/pages/game/<id>/play.astro while the
+// module keeps its route shipped 404 cards on an otherwise green build (REFUTE finding 2026-08-29).
+// The shape check guards the same failure on the home page, which has no href scan of its own.
+function scanPlayRoutes(distDir) {
+  const problems = [];
+  for (const g of games) {
+    if (!g.playRoute) continue;
+    if (g.playRoute !== `/game/${g.id}/play/`) {
+      problems.push({
+        page: g.id,
+        kind: 'play-route-shape',
+        text: `${g.id}: playRoute "${g.playRoute}" is not /game/${g.id}/play/ — cards would ship a link this gate cannot follow`,
+      });
+      continue;
+    }
+    if (!fs.existsSync(path.join(distDir, 'game', g.id, 'play', 'index.html'))) {
+      problems.push({
+        page: g.id,
+        kind: 'play-route-missing',
+        text: `dist/game/${g.id}/play/index.html missing while the module declares playRoute — home and category cards 404`,
+      });
+    }
+  }
+  return problems;
+}
+
 function scanAll(distDir) {
-  return [...scanCategoryFilter(distDir), ...scanCopy(distDir), ...scanHomeLinks(distDir)];
+  return [...scanCategoryFilter(distDir), ...scanCopy(distDir), ...scanHomeLinks(distDir), ...scanPlayRoutes(distDir)];
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -173,6 +207,14 @@ function buildFixtureDist(root, categoryData, homeSlugs = categorySlugs) {
     fs.writeFileSync(path.join(dir, 'index.html'), categoryPageHtml(data));
   }
   fs.writeFileSync(path.join(root, 'index.html'), homePageHtml(homeSlugs));
+  // Every declared play route gets a stub page, so the known-good fixture stays green under
+  // scanPlayRoutes with the REAL manifest — the calibrated red deletes one of these.
+  for (const g of games) {
+    if (!g.playRoute) continue;
+    const dir = path.join(root, 'game', g.id, 'play');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), '<html></html>');
+  }
 }
 
 function selftest() {
@@ -230,6 +272,18 @@ function selftest() {
     const unresolvable = scanAll(tmp).filter((p) => p.kind === 'unresolvable');
     assert.equal(unresolvable.length, 1, `expected exactly one unresolvable problem, got ${unresolvable.length}`);
     console.log(`PASS calibrated red — home links to an unbuilt category page: ${unresolvable[0].text}`);
+    reset();
+
+    // calibration 5: a module declares playRoute but the play page was never built — the exact
+    // green-build-404-cards hole the REFUTE named; skipped only while no manifest game has one.
+    const withRoute = games.find((g) => g.playRoute);
+    if (withRoute) {
+      buildFixtureDist(tmp, { [slugA]: copyOf(slugA, gamesA), [slugB]: copyOf(slugB, gamesB) });
+      fs.rmSync(path.join(tmp, 'game', withRoute.id, 'play', 'index.html'));
+      const missing = scanAll(tmp).filter((p) => p.kind === 'play-route-missing');
+      assert.equal(missing.length, 1, `expected exactly one play-route-missing problem, got ${missing.length}`);
+      console.log(`PASS calibrated red — declared playRoute with no built page: ${missing[0].text}`);
+    }
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }

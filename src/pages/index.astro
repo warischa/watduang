@@ -116,7 +116,7 @@ const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
           <p class="kicker">เล่นครั้งแรก เริ่มที่เกมนี้</p>
           <a
             class="featured-card bob-1"
-            href={`/game/${featured.id}/`}
+            href={featured.playRoute ?? `/game/${featured.id}/`}
             style={`--card-accent: var(--accent-${categories[featured.category].accent});`}
           >
             <div class="featured-copy">
@@ -149,7 +149,7 @@ const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
             {gameCards.map(({ game, label, accent }, index) => (
               <a
                 class={`game-card ${BOB_PHASES[index] ?? ''}`}
-                href={`/game/${game.id}/`}
+                href={game.playRoute ?? `/game/${game.id}/`}
                 style={`--card-accent: var(--accent-${accent});`}
               >
                 <span class="game-pill">{label}</span>
