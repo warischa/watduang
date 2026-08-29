@@ -15,12 +15,12 @@ import game, {
   DURATION_UP_MS,
   LOCK_FLOOR_HUNDREDTHS,
   MAX_HUNDREDTHS,
-  NATURAL_PERFECT_WINDOW_MS,
   PERFECT_WINDOW_MS,
+  PLATEAU_END_MS,
+  PLATEAU_START_MS,
   STOP_GUARD_MS,
   evaluateRound,
   formatScore,
-  lockedScoreAt,
   meterValueAt,
   sumAttempts,
 } from './power-meter.ts';
@@ -66,9 +66,14 @@ class FakeElement {
     this.id = '';
     this.disabled = false;
     this.innerHTML = '';
-    this.clientWidth = 0; // never laid out: attachSparkCanvas bails, which is its documented path
-    this.clientHeight = 0;
+    // A LAID-OUT box. These were 0, so attachSparkCanvas() bailed on its third line and the entire
+    // burst path was unreachable from every test in this file — four of the seven surviving mutants
+    // lived in there, invisible behind a green suite. A fake that makes a code path impossible is
+    // not modelling the browser, it is excusing the test from the path.
+    this.clientWidth = 320;
+    this.clientHeight = 180;
     this.classList = new FakeClassList(this);
+    this._ctx2d = null;
     const self = this;
     this.style = new Proxy(
       {},
@@ -93,6 +98,29 @@ class FakeElement {
   getAttribute(k) {
     return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null;
   }
+  /** Records every 2d call instead of performing one. The burst is only observable through this. */
+  getContext(kind) {
+    if (kind !== '2d') return null;
+    if (!this._ctx2d) {
+      const calls = [];
+      const target = { calls, canvas: this };
+      this._ctx2d = new Proxy(target, {
+        get(t, prop) {
+          if (prop in t) return t[prop];
+          return (...args) => {
+            calls.push({ fn: String(prop), args });
+          };
+        },
+        set(t, prop, value) {
+          calls.push({ fn: `set:${String(prop)}`, args: [value] });
+          t[prop] = value;
+          return true;
+        },
+      });
+    }
+    return this._ctx2d;
+  }
+
   appendChild(child) {
     this.children.push(child);
     return child;
@@ -137,10 +165,37 @@ globalThis.CustomEvent = class {
 };
 
 let reduceMotion = false; // flipped by the reduced-motion tests BEFORE mount
+// The change listeners the module registers. This used to be a no-op stub, so `change` registered
+// into a black hole: gutting onReducedMotionChange entirely left every test green. A fake that
+// accepts a listener and never calls it is not a fake of an EventTarget, it is a hole.
+const mqlListeners = [];
 globalThis.window = {
-  matchMedia: (q) => ({ media: q, matches: reduceMotion, addEventListener() {}, removeEventListener() {} }),
+  matchMedia: (q) => ({
+    media: q,
+    get matches() {
+      return reduceMotion;
+    },
+    addEventListener(type, fn) {
+      if (type === 'change') mqlListeners.push(fn);
+    },
+    removeEventListener(type, fn) {
+      const i = mqlListeners.indexOf(fn);
+      if (i >= 0) mqlListeners.splice(i, 1);
+    },
+  }),
   devicePixelRatio: 1,
 };
+
+/** Flip the OS preference AFTER mount and deliver the event, the way a real MediaQueryList does. */
+function flipReducedMotion(value) {
+  reduceMotion = value;
+  for (const fn of [...mqlListeners]) {
+    fn({ matches: value, media: '(prefers-reduced-motion: reduce)' });
+  }
+}
+// attachSparkCanvas() reads --color-line-strong off the host BY TOKEN NAME and bails when it is
+// empty. Without a computed style the burst is unreachable even with a laid-out box.
+globalThis.getComputedStyle = () => ({ getPropertyValue: () => '#101010' });
 // no window.AudioContext -> unlockAudio() returns null, so every audio path is a no-op here
 const vibrations = [];
 Object.defineProperty(globalThis, 'navigator', {
@@ -244,7 +299,7 @@ function armedClick(t, stage, id) {
 /** The elapsed time at which the climb rounds to exactly `target` hundredths, found by search so a
  *  wrong closed form here cannot silently pick an off-by-one input. */
 function elapsedFor(target) {
-  let e = DURATION_UP_MS * Math.sqrt(target / MAX_HUNDREDTHS);
+  let e = PLATEAU_START_MS * Math.sqrt(target / MAX_HUNDREDTHS);
   for (let k = 0; k < 200; k++) {
     const v = meterValueAt(e);
     if (v === target) {
@@ -293,6 +348,7 @@ function setup(t, players) {
   styleWrites.length = 0;
   classCalls.length = 0;
   vibrations.length = 0;
+  mqlListeners.length = 0;
   localStorage.map.clear();
   sessionStorage.map.clear();
   const stage = fakeDocument.createElement('div');
@@ -445,27 +501,32 @@ test('11 — duplicate names resolve by index', (t) => {
 // ---------------------------------------------------------------------------
 
 // 12. A linear implementation returns 500 at the half-way point — a clean 2x gap at one input.
+// Anchored to PLATEAU_START_MS, which is where the climb now ends: the midpoint of the CLIMB is the
+// input that separates squared from linear, and it stopped being DURATION_UP_MS / 2 when the peak
+// was flattened.
 test('12 — the climb is squared, not linear', () => {
-  assert.equal(meterValueAt(DURATION_UP_MS / 2), 250);
+  assert.equal(meterValueAt(PLATEAU_START_MS / 2), 250);
 });
 
-// 13. A linear fall returns 500 at +280ms instead of 580.
+// 13. A linear fall returns 500 at the fall's midpoint instead of 580. Anchored to PLATEAU_END_MS,
+// where the fall now starts.
 test('13 — the fall uses EASE_DOWN_POW = 1.25, not linear', () => {
-  assert.equal(meterValueAt(DURATION_UP_MS + 280), 580);
-  assert.equal(meterValueAt(DURATION_UP_MS + 5), 997); // the soft shoulder, not a cliff
-  assert.equal(meterValueAt(DURATION_UP_MS + 140), 823);
+  assert.equal(meterValueAt(PLATEAU_END_MS + DURATION_DOWN_MS / 2), 580);
+  assert.equal(meterValueAt(DURATION_UP_MS + 5), MAX_HUNDREDTHS); // inside the flat top now
+  assert.equal(meterValueAt(DURATION_UP_MS + 140), 869); // the soft shoulder, 30 ms later than before
 });
 
 // 14. An off-by-one `<` in the phase switch drops the peak to 999; a missing clamp lets the value
 // exceed 1000. meterValueAt(1000) would agree in both, so that input measures nothing.
-// The spec's own 1461.28 row is 999 under the stated formula (the true boundary is 1461.2795, and
-// the table rounded it up), so the reachability of 10.00 just past the peak is asserted through
-// lockedScoreAt — which is where a perfect score is actually decided.
+// The peak is a PLATEAU, so the diverging inputs are its two edges: one hundredth of a ms before
+// PLATEAU_START_MS the climb has not arrived, and everything from the edge inward is exactly MAX.
+// There is no second function to ask — a lock records whatever the bar is painting.
 test('14 — 10.00 is reachable and clamped', () => {
   assert.equal(meterValueAt(DURATION_UP_MS), MAX_HUNDREDTHS);
-  assert.equal(meterValueAt(1459.635), MAX_HUNDREDTHS); // the first instant the climb rounds to 1000
-  assert.equal(meterValueAt(1459.6), 999); // one hundredth of a ms earlier it is NOT yet 1000
-  assert.equal(lockedScoreAt(1461.28), MAX_HUNDREDTHS);
+  assert.equal(meterValueAt(PLATEAU_START_MS), MAX_HUNDREDTHS); // first instant of the flat top
+  assert.equal(meterValueAt(PLATEAU_START_MS - 1), 999); // 1 ms earlier it is NOT yet 1000
+  assert.equal(meterValueAt(PLATEAU_END_MS), MAX_HUNDREDTHS); // last instant of the flat top
+  assert.equal(meterValueAt(1461.28), MAX_HUNDREDTHS);
   let max = -1;
   for (let e = -50; e <= DURATION_UP_MS + DURATION_DOWN_MS + 500; e += 0.37) {
     max = Math.max(max, meterValueAt(e));
@@ -503,10 +564,10 @@ test('16 — the stop guard swallows a ghost second tap', (t) => {
   assert.equal(byId(stage, 'pm-next'), undefined, 'a score was recorded inside the stop guard');
   nowMs += 300; // elapsed 400
   tap.click();
-  assert.equal(meterValueAt(400), 75);
+  assert.equal(meterValueAt(400), 78);
   const text = stageText(stage);
   assert.match(text, /ผลครั้งที่ 1/);
-  assert.match(text, /0\.75/, `expected the score at elapsed 400, got: ${text}`);
+  assert.match(text, /0\.78/, `expected the score at elapsed 400, got: ${text}`);
   assert.ok(100 < STOP_GUARD_MS && 400 > STOP_GUARD_MS, 'the two inputs must straddle the guard');
 });
 
@@ -519,11 +580,11 @@ test('17 — a duplicate tap after the lock records nothing', (t) => {
   const tap = byId(stage, 'pm-tap'); // the detached node a ghost second contact still lands on
   nowMs += 1000;
   tap.click();
-  assert.equal(meterValueAt(1000), 469);
+  assert.equal(meterValueAt(1000), 489);
   tap.click(); // the ghost
   const text = stageText(stage);
   assert.match(text, /ผลครั้งที่ 1/, `the attempt counter advanced past 1: ${text}`);
-  assert.match(text, /4\.69/);
+  assert.match(text, /4\.89/);
   armedClick(t, stage, 'pm-next');
   assert.match(stageText(stage), /ครั้งที่ 2/); // attempt 2, not 3
 });
@@ -551,7 +612,7 @@ test('18 — attempt 4 is impossible', (t) => {
 // Tab visibility
 // ---------------------------------------------------------------------------
 
-// 19. An implementation that locks on hide records 3.00; one that advances the counter skips a turn.
+// 19. An implementation that locks on hide records 3.13; one that advances the counter skips a turn.
 // Hiding at elapsed 0 would agree in both, because the value is already 0.
 test('19 — hiding mid-attempt records nothing and replays the same attempt', (t) => {
   const { stage } = setup(t, ['เอ', 'บี']);
@@ -559,13 +620,13 @@ test('19 — hiding mid-attempt records nothing and replays the same attempt', (
   armedClick(t, stage, 'pm-tap');
   nowMs += 800;
   drainFrames(1, 0);
-  assert.equal(meterValueAt(800), 300); // the value that a lock-on-hide would have recorded
+  assert.equal(meterValueAt(800), 313); // the value that a lock-on-hide would have recorded
   game.onVisibility(true);
   const text = stageText(stage);
   assert.equal(byId(stage, 'pm-next'), undefined, 'an attempt was recorded on hide');
   assert.equal(byId(stage, 'pm-tap').textContent, '🚀 แตะเพื่อเริ่ม', 'not back on the ready screen');
   assert.match(text, /สลับหน้าจอ/, 'no in-stage notice explained the reset');
-  assert.doesNotMatch(text, /3\.00/, 'the thrown-away value was recorded anyway');
+  assert.doesNotMatch(text, /3\.13/, 'the thrown-away value was recorded anyway');
   assert.equal(byClass(stage, 'pm-dot--active').length, 1);
   assert.match(byClass(stage, 'pm-dot--active')[0].getAttribute('aria-label'), /ครั้งที่ 1/);
   // and the replay still scores into slot 1
@@ -602,10 +663,18 @@ test('21 — no anchor and no navigation target in the stage, on all nine phases
   const seen = [];
   const check = (stage, phase) => {
     seen.push(phase);
-    const anchors = descendants(stage).filter((e) => e.tagName === 'a');
+    const nodes = descendants(stage);
+    const anchors = nodes.filter((e) => e.tagName === 'a');
     assert.equal(anchors.length, 0, `phase ${phase} rendered ${anchors.length} anchor(s)`);
-    for (const node of descendants(stage)) {
+    for (const node of nodes) {
       assert.equal(node.getAttribute('href'), null, `phase ${phase} carries an href`);
+      // A children walk cannot see inside innerHTML: this fake DOM keeps it as a raw string, and the
+      // module assigns a whole SVG constant to it. An <a href> added to that constant was invisible
+      // here while the test stayed green — an ADR-0014 hole hiding behind a pass. Matched as text,
+      // because that is the only form the markup takes before a real browser parses it.
+      const html = String(node.innerHTML || '');
+      assert.doesNotMatch(html, /<a[\s/>]/i, `phase ${phase} smuggled an anchor through innerHTML`);
+      assert.doesNotMatch(html, /href\s*=/i, `phase ${phase} smuggled an href through innerHTML`);
     }
   };
 
@@ -753,6 +822,59 @@ test('25 — input B: no reduce, so the same run DOES shake', (t) => {
   assert.ok(peak.length > 0, 'the peak state never fired, so input A proves nothing about it');
 });
 
+// The listener half of ADR-0046. Tests 25A/25B both decide reduce BEFORE mount, so they pass even
+// if onReducedMotionChange is gutted to an empty body — the mount-time read alone satisfies them.
+// This is the only input where a live listener and a dead one disagree: the preference flips WHILE
+// the box is mid-decay, and only a live listener settles it.
+test('25 — input C: a flip mid-decay is delivered and settles the box', (t) => {
+  reduceMotion = false;
+  lockPerfectAndDrive(t, 3);
+  const moving = styleWrites.filter(
+    (w) => w.prop === 'transform' && w.value !== 'none' && w.value !== '',
+  );
+  assert.ok(moving.length > 0, 'nothing was shaking before the flip, so this input proves nothing');
+
+  styleWrites.length = 0;
+  flipReducedMotion(true);
+  const settled = styleWrites.filter((w) => w.prop === 'transform' && w.value === 'none');
+  assert.ok(settled.length > 0, 'the flip never settled the box — the change listener is inert');
+
+  drainFrames(5, 16);
+  const movedAfter = styleWrites.filter(
+    (w) => w.prop === 'transform' && w.value !== 'none' && w.value !== '',
+  );
+  assert.equal(movedAfter.length, 0, 'the box kept shaking after the preference flipped to reduce');
+});
+
+// The burst defect: attachSparkCanvas() bails on `if (fxCtx || !host)`, and only teardown used to
+// clear fxCtx. Every render calls stage.replaceChildren(), which DETACHES the canvas while leaving
+// fxCtx pointing at it — so the burst painted on the first lock of a mount and drew into a detached
+// node for every lock after. Attempt 1 alone cannot see it: the two attempts must be compared.
+test('the burst attaches on every lock, not once per mount', (t) => {
+  reduceMotion = false;
+  const { stage } = setup(t, ['เอ', 'บี']);
+  const canvases = () => descendants(stage).filter((e) => e.tagName === 'canvas');
+  armedClick(t, stage, 'pm-start');
+
+  armedClick(t, stage, 'pm-tap');
+  nowMs += elapsedFor(810);
+  byId(stage, 'pm-tap').click();
+  const first = canvases();
+  assert.equal(first.length, 1, 'attempt 1 attached no burst canvas — the harness cannot see the path');
+
+  armedClick(t, stage, 'pm-next');
+  armedClick(t, stage, 'pm-tap');
+  nowMs += elapsedFor(810);
+  byId(stage, 'pm-tap').click();
+  const second = canvases();
+  assert.equal(second.length, 1, 'attempt 2 attached no burst canvas — fxCtx outlived its node');
+  assert.notEqual(second[0], first[0], 'attempt 2 reused the canvas detached by the re-render');
+  assert.ok(
+    second[0].getContext('2d').calls.length > 0,
+    'the second canvas was attached but never drawn into',
+  );
+});
+
 // 26. An implementation that copies timebomb's 250 ms reduced cadence onto the gauge writes about 6
 // distinct heights instead of about 90 — a reduced-motion player aims at a bar up to 3.4 points
 // stale. Same input, opposite verdicts.
@@ -885,14 +1007,54 @@ test('30 — the three shipped house strings are reused, not paraphrased', () =>
 test('derived constants — the stop floor and the widened perfect window', () => {
   assert.equal(meterValueAt(STOP_GUARD_MS), LOCK_FLOOR_HUNDREDTHS);
   assert.ok(LOCK_FLOOR_HUNDREDTHS > 0, 'a zero floor makes the uncapped tiebreak non-terminating');
-  assert.ok(
-    NATURAL_PERFECT_WINDOW_MS > 1.6 && NATURAL_PERFECT_WINDOW_MS < 1.7,
-    `the natural window drifted: ${NATURAL_PERFECT_WINDOW_MS}`,
-  );
   assert.ok(PERFECT_WINDOW_MS >= 50, 'the widened window is under three frames at 60 Hz');
   assert.ok(PERFECT_WINDOW_MS / (1000 / 60) >= 3);
-  // and it is a widening of the natural window, not a replacement of the curve
-  assert.equal(lockedScoreAt(DURATION_UP_MS - PERFECT_WINDOW_MS / 2), MAX_HUNDREDTHS);
-  assert.notEqual(lockedScoreAt(DURATION_UP_MS - PERFECT_WINDOW_MS / 2 - 1), MAX_HUNDREDTHS);
-  assert.equal(meterValueAt(DURATION_UP_MS - PERFECT_WINDOW_MS / 2), 959); // the gauge is untouched
+  // The window is IN the curve: both edges paint MAX, and one ms outside either edge does not.
+  assert.equal(meterValueAt(PLATEAU_START_MS), MAX_HUNDREDTHS);
+  assert.equal(meterValueAt(PLATEAU_END_MS), MAX_HUNDREDTHS);
+  assert.notEqual(meterValueAt(PLATEAU_START_MS - 1), MAX_HUNDREDTHS);
+  assert.notEqual(meterValueAt(PLATEAU_END_MS + DURATION_DOWN_MS / 20), MAX_HUNDREDTHS);
+});
+
+// The defect this replaces: a second function overrode the score after the fact, so the bar painted
+// 9.59 while 10.00 was recorded. A mutant that reintroduces ANY separate widening — or that widens
+// the score without flattening the meter — is caught here, because the only thing asserted is that
+// the number the gauge paints IS the number a lock records, sampled across the whole cycle.
+test('paint and score cannot disagree — one function, no cliff, a real flat top', () => {
+  // 1. the gauge's own height expression and the lock's value come from the same call
+  const src = fs.readFileSync(new URL('./power-meter.ts', import.meta.url), 'utf8');
+  assert.equal(
+    (src.match(/lockedScoreAt/g) || []).length,
+    0,
+    'a second scoring path is back; paint and score can drift again',
+  );
+  assert.match(src, /lockedValue = meterValueAt\(elapsedMs\)/);
+
+  // 2. no cliff anywhere: flattening must be a flattening, not a splice. A reintroduced override
+  //    shows up as a ~41-hundredth step at the window edge; the real curve never steps by more than 1.
+  let prev = meterValueAt(0);
+  let maxStep = 0;
+  for (let e = 0.05; e <= PLATEAU_END_MS + DURATION_DOWN_MS + 100; e += 0.05) {
+    const v = meterValueAt(e);
+    maxStep = Math.max(maxStep, Math.abs(v - prev));
+    prev = v;
+  }
+  assert.ok(maxStep <= 1, `the curve steps by ${maxStep} hundredths somewhere — that is a cliff`);
+
+  // 3. the flat top is genuinely at least as wide as the window it advertises
+  let first = null;
+  let last = null;
+  for (let e = 0; e <= PLATEAU_END_MS + DURATION_DOWN_MS; e += 0.01) {
+    if (meterValueAt(e) === MAX_HUNDREDTHS) {
+      if (first === null) first = e;
+      last = e;
+    }
+  }
+  assert.ok(first !== null, 'the meter never reaches 10.00');
+  assert.ok(
+    last - first >= PERFECT_WINDOW_MS,
+    `the meter holds 10.00 for ${(last - first).toFixed(2)} ms, less than the advertised ${PERFECT_WINDOW_MS}`,
+  );
+  // and the window is centred on the peak the copy points at
+  assert.ok(Math.abs((first + last) / 2 - DURATION_UP_MS) < 1);
 });

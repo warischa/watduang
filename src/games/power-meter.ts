@@ -33,10 +33,13 @@ export const ATTEMPTS_PER_PLAYER = 3; // round ceiling 3000 = 30.00
  *  action only, and 250 is the repo's existing coarse-cadence constant, not a new number. Its cost
  *  is exact and identical for everyone: the floor rises from 0.00 to LOCK_FLOOR_HUNDREDTHS of 3000. */
 export const STOP_GUARD_MS = 250;
-/** Derived: round((STOP_GUARD_MS / DURATION_UP_MS) ** EASE_UP_POW * MAX_HUNDREDTHS). Named because
+/** Derived: round((STOP_GUARD_MS / PLATEAU_START_MS) ** EASE_UP_POW * MAX_HUNDREDTHS). Named because
  *  the uncapped tiebreak rests on it being > 0 — a no-tap attempt is exactly 0, so one tap by any
- *  tied player breaks an all-zero tie, and a cap would need a rule nobody has decided. */
-export const LOCK_FLOOR_HUNDREDTHS = 29;
+ *  tied player breaks an all-zero tie, and a cap would need a rule nobody has decided.
+ *  29 until the peak was flattened: the climb now spans PLATEAU_START_MS, not DURATION_UP_MS, so the
+ *  same 250 ms is a slightly later fraction of it. Re-derived, not bumped — the test asserts this
+ *  equals meterValueAt(STOP_GUARD_MS), so a stale value here goes red rather than silently drifting. */
+export const LOCK_FLOOR_HUNDREDTHS = 31;
 
 export const PEAK_GLOW_MIN = 980;
 export const SCORE_PERFECT = 1000, SCORE_HIGH_MIN = 900, SCORE_GOOD_MIN = 700, SCORE_MID_MIN = 400;
@@ -45,39 +48,46 @@ export const SCORE_PERFECT = 1000, SCORE_HIGH_MIN = 900, SCORE_GOOD_MIN = 700, S
 const AUDIO_PERFECT = 1000, AUDIO_HIGH_MIN = 800, AUDIO_MID_MIN = 500;
 const MIN_PLAYERS = 2;
 
-/** The natural 10.00 window, derived from the two formulas rather than sampled: the climb first
- *  rounds to MAX_HUNDREDTHS at PERFECT_CLIMB_MS and the fall leaves it PERFECT_FALL_MS later.
- *  About 1.65 ms of a 2020 ms cycle — under two frames at 60 Hz, luck rather than skill. */
-const PERFECT_CLIMB_MS = DURATION_UP_MS * (1 - 0.5 / MAX_HUNDREDTHS) ** (1 / EASE_UP_POW);
-const PERFECT_FALL_MS = DURATION_DOWN_MS * (0.5 / MAX_HUNDREDTHS) ** (1 / EASE_DOWN_POW);
-export const NATURAL_PERFECT_WINDOW_MS = DURATION_UP_MS - PERFECT_CLIMB_MS + PERFECT_FALL_MS;
 
-/** The shipped window, centred on DURATION_UP_MS: a lock inside it records MAX_HUNDREDTHS. 60 ms is
+/** The shipped window, centred on DURATION_UP_MS: the meter HOLDS MAX_HUNDREDTHS across it. 60 ms is
  *  3.6 frames at 60 Hz and 7.2 at 120 Hz, so three or more sampled frames always land inside it and
- *  the perfect score becomes something to aim at rather than be handed. 36x
- *  NATURAL_PERFECT_WINDOW_MS. Hit probability, so a later reader can retune: a blind tap hits it
- *  60/2020 = 3.0% of attempts, up from 0.08%; a player aiming at the top hits it whenever the tap
- *  lands within 30 ms either side of the peak, and PEAK_GLOW_MIN's 39.65 ms state is the on-screen
- *  cue for about that same instant. Nothing else in the scoring model moves: meterValueAt is
- *  untouched, so the gauge still paints the true curve and every checkpoint still holds. */
+ *  the perfect score becomes something to aim at rather than be handed. Hit probability, so a later
+ *  reader can retune: a blind tap hits it 60/2050 = 2.9% of attempts, up from 0.08%.
+ *  THE WINDOW IS IN THE CURVE, NOT BESIDE IT. An earlier version widened the score with a second
+ *  function that overrode meterValueAt after the fact, so the bar painted 9.59 while 10.00 was
+ *  recorded — up to 0.41 of visible disagreement, and worse under reduce where the static target band
+ *  is the only target channel. There is now exactly ONE scoring function: the climb is compressed into
+ *  PLATEAU_START_MS, the meter sits at MAX across the window, and the fall starts at PLATEAU_END_MS.
+ *  Paint and score agree by construction and there is nothing to keep in sync. The cost is exact and
+ *  recorded: the cycle is 2050 ms rather than 2020, and the climb runs 2% faster. */
 export const PERFECT_WINDOW_MS = 60;
 
-/** The gauge's value at `elapsedMs`, integer hundredths — never a float score. Climbs to
- *  DURATION_UP_MS, then falls; at DURATION_UP_MS + DURATION_DOWN_MS it is exactly 0. */
+/** The flat top, derived so the window stays centred on DURATION_UP_MS. Sampling at 0.05 ms shows the
+ *  largest adjacent step anywhere in the cycle is 1 hundredth, so compressing the climb introduces no
+ *  cliff at either edge — the plateau is a flattening, not a splice. */
+export const PLATEAU_START_MS = DURATION_UP_MS - PERFECT_WINDOW_MS / 2;
+export const PLATEAU_END_MS = DURATION_UP_MS + PERFECT_WINDOW_MS / 2;
+
+/** The instant the gauge is back to exactly 0, and the ONLY expression of the cycle's end. The
+ *  auto-lock used to spell it `elapsed - DURATION_UP_MS >= DURATION_DOWN_MS`, which was the end only
+ *  while the peak was a single point. Flattening moved the end 30 ms later, and that literal kept
+ *  firing 30 ms early — a no-tap attempt recorded 0.40 while its comment still said "at exactly 0".
+ *  That is the same defect class as the old second scoring path: a copy of the curve's shape, stored
+ *  somewhere the curve cannot reach. Derive the end here or the drift comes back. */
+export const CYCLE_MS = PLATEAU_END_MS + DURATION_DOWN_MS;
+
+/** The gauge's value at `elapsedMs`, integer hundredths — never a float score. THE ONE scoring
+ *  function: what the bar paints and what a lock records are the same call, so they cannot disagree.
+ *  Climbs to PLATEAU_START_MS, holds MAX_HUNDREDTHS to PLATEAU_END_MS, then falls; at
+ *  PLATEAU_END_MS + DURATION_DOWN_MS it is exactly 0. */
 export function meterValueAt(elapsedMs: number): number {
-  if (elapsedMs <= DURATION_UP_MS) {
-    const progress = Math.min(1, Math.max(0, elapsedMs) / DURATION_UP_MS);
+  if (elapsedMs <= PLATEAU_START_MS) {
+    const progress = Math.min(1, Math.max(0, elapsedMs) / PLATEAU_START_MS);
     return Math.min(MAX_HUNDREDTHS, Math.round(progress ** EASE_UP_POW * MAX_HUNDREDTHS));
   }
-  const down = Math.min(1, (elapsedMs - DURATION_UP_MS) / DURATION_DOWN_MS);
+  if (elapsedMs <= PLATEAU_END_MS) return MAX_HUNDREDTHS;
+  const down = Math.min(1, (elapsedMs - PLATEAU_END_MS) / DURATION_DOWN_MS);
   return Math.max(0, Math.round((1 - down ** EASE_DOWN_POW) * MAX_HUNDREDTHS));
-}
-
-/** What a lock RECORDS: meterValueAt widened to PERFECT_WINDOW_MS at the peak. Separate from
- *  meterValueAt so the painted gauge and the tested checkpoints stay the mockup's curve exactly. */
-export function lockedScoreAt(elapsedMs: number): number {
-  if (Math.abs(elapsedMs - DURATION_UP_MS) <= PERFECT_WINDOW_MS / 2) return MAX_HUNDREDTHS;
-  return meterValueAt(elapsedMs);
 }
 
 export function sumAttempts(hundredths: readonly number[]): number {
@@ -155,7 +165,14 @@ type Phase =
   | 'tiebreak'
   | 'result';
 
-let cleanup: Array<() => void> = [];
+// Two scopes, not one. Everything registered while building a screen dies with that screen; only
+// listeners on targets that OUTLIVE the screen (document, the media query list) may survive it.
+// A single array meant ~4 closures plus a detached screen accumulated per render — about 40 over a
+// 10-player game, which pick-loser's 2 renders never exposed. Draining ALL of it per render is the
+// other obvious fix and it is wrong: it would tear off the visibility and reduced-motion listeners
+// the mount depends on.
+let screenCleanup: Array<() => void> = [];
+let mountCleanup: Array<() => void> = [];
 let phase: Phase = 'handoff';
 let stageEl: HTMLElement | null = null;
 let gameCtx: GameContext | null = null;
@@ -192,9 +209,15 @@ let reducedMotionMql: MediaQueryList | null = null;
 
 const clock = (): number => performance.now();
 
-function on(target: EventTarget, type: string, handler: EventListener): void {
+function on(
+  target: EventTarget,
+  type: string,
+  handler: EventListener,
+  scope: 'screen' | 'mount' = 'screen',
+): void {
   target.addEventListener(type, handler);
-  cleanup.push(() => target.removeEventListener(type, handler));
+  const off = (): void => target.removeEventListener(type, handler);
+  (scope === 'mount' ? mountCleanup : screenCleanup).push(off);
 }
 
 /** el() plus the class and the append that always follow it. Eight screens are built out of this;
@@ -254,7 +277,7 @@ function watchReducedMotion(): void {
   reducedMotionMql = window.matchMedia('(prefers-reduced-motion: reduce)');
   prefersReducedMotion = reducedMotionMql.matches;
   if (typeof reducedMotionMql.addEventListener === 'function') {
-    on(reducedMotionMql, 'change', onReducedMotionChange);
+    on(reducedMotionMql, 'change', onReducedMotionChange, 'mount');
   }
 }
 
@@ -553,6 +576,13 @@ function paintGauge(stage: HTMLElement): void {
 function beginScreen(): HTMLElement | null {
   const stage = stageEl;
   if (!stage) return null;
+  // The outgoing screen's nodes are about to be detached by the caller's replaceChildren(). Release
+  // what pointed at them FIRST, or the pointers outlive the nodes: stopFx() drops fxCtx, which
+  // otherwise keeps a detached canvas alive and makes attachSparkCanvas() bail on every later lock —
+  // the burst then paints once per mount and draws into nothing after that.
+  screenCleanup.forEach((fn) => fn());
+  screenCleanup = [];
+  stopFx();
   stage.className = 'stage-screen';
   gaugeFillEl = null;
   gaugeTrackEl = null;
@@ -572,7 +602,7 @@ function renderNeedMore(): void {
 
   wire(stage, el('button', 'เปลี่ยนคนเล่น'), 'pm-change', 'game-btn-secondary', changePlayers);
   paintLive(stage, 'วงยังไม่ครบ ต้องมีอย่างน้อย 2 คน');
-  cleanup.push(armAllButtons(stage));
+  screenCleanup.push(armAllButtons(stage));
 }
 
 function renderHandoff(): void {
@@ -594,7 +624,7 @@ function renderHandoff(): void {
 
   add(stage, 'span', 'pm-hint', HINT_ARM);
   paintLive(stage, `ส่งมือถือให้ ${currentName()}`);
-  cleanup.push(armAllButtons(stage));
+  screenCleanup.push(armAllButtons(stage));
 }
 
 /** `ready` and `running` are ONE rendered screen whose button label and class swap in place, and
@@ -616,7 +646,7 @@ function renderPlay(): void {
 
   tapHintEl = add(stage, 'p', 'pm-score-comment', 'แตะเพื่อปล่อยเกจวัดพลัง');
   paintLive(stage, `${currentName()} ครั้งที่ ${attempt}`);
-  cleanup.push(armAllButtons(stage));
+  screenCleanup.push(armAllButtons(stage));
 }
 
 function renderLocked(): void {
@@ -639,7 +669,7 @@ function renderLocked(): void {
   wire(stage, el('button', nextLabel), 'pm-next', 'game-btn-primary', afterLocked);
 
   paintLive(stage, `ผลครั้งที่ ${attempt}: ได้ ${formatScore(lockedValue)} คะแนน`);
-  cleanup.push(armAllButtons(stage));
+  screenCleanup.push(armAllButtons(stage));
 }
 
 function renderPlayerTotal(): void {
@@ -665,7 +695,7 @@ function renderPlayerTotal(): void {
   wire(stage, el('button', passLabel), 'pm-after-total', 'game-btn-primary', afterPlayerTotal);
 
   paintLive(stage, `${currentName()} ได้คะแนนรวม ${formatScore(sumAttempts(attempts))} จาก 30.00`);
-  cleanup.push(armAllButtons(stage));
+  screenCleanup.push(armAllButtons(stage));
 }
 
 function renderSummary(): void {
@@ -695,7 +725,7 @@ function renderSummary(): void {
   wire(stage, el('button', goLabel), 'pm-after-summary', 'game-btn-primary', afterSummary);
 
   paintLive(stage, 'หน้าสรุปคะแนนประจำรอบ');
-  cleanup.push(armAllButtons(stage));
+  screenCleanup.push(armAllButtons(stage));
 }
 
 function renderTiebreak(): void {
@@ -718,7 +748,7 @@ function renderTiebreak(): void {
   wire(stage, el('button', 'เริ่มรอบ Tiebreak ➔'), 'pm-start-tiebreak', 'game-btn-primary', startTiebreak);
 
   paintLive(stage, 'รอบ Tiebreak ตัดสินผู้เล่นที่เสมอกัน');
-  cleanup.push(armAllButtons(stage));
+  screenCleanup.push(armAllButtons(stage));
 }
 
 function renderResult(): void {
@@ -741,7 +771,7 @@ function renderResult(): void {
   // No outbound link here — #stage must hold no navigation target (a tap-transition would drop it
   // under the finger that just tapped). The crawlable one is static chrome in the game layout.
   paintLive(stage, `คนโดนคือ ${name}`);
-  cleanup.push(armAllButtons(stage));
+  screenCleanup.push(armAllButtons(stage));
 }
 
 // ---- Round lifecycle ----
@@ -804,7 +834,7 @@ function startMeter(): void {
     rafId = 0;
     if (phase !== 'running' || token !== runToken) return;
     const elapsed = clock() - startedAt;
-    if (elapsed - DURATION_UP_MS >= DURATION_DOWN_MS) {
+    if (elapsed >= CYCLE_MS) {
       lockAttempt(elapsed); // the gauge reached 0 on the way down: auto-lock at exactly 0
       return;
     }
@@ -836,7 +866,7 @@ function lockAttempt(elapsedMs: number): void {
   cancelFrame();
   stopHum();
   runToken += 1;
-  lockedValue = lockedScoreAt(elapsedMs);
+  lockedValue = meterValueAt(elapsedMs);
   attempts[attempt - 1] = lockedValue;
   phase = 'locked';
   renderLocked();
@@ -946,7 +976,7 @@ function mountInto(stage: HTMLElement, ctx: GameContext): void {
   stage.className = 'stage-screen';
   audioOn = readAudioPref();
   watchReducedMotion();
-  on(document, 'visibilitychange', () => handleVisibility(document.hidden));
+  on(document, 'visibilitychange', () => handleVisibility(document.hidden), 'mount');
   // The shell owns names; this module reads the roster once and never asks again. A solo mount would
   // name the only player the loser, which is nonsense — hence need-more, whose only exit is the shell.
   players = (ctx.session.players ?? []).map((n) => n.trim()).filter((n) => n.length > 0);
@@ -966,8 +996,10 @@ function teardown(): void {
   cancelFrame();
   stopFx();
   stopHum();
-  cleanup.forEach((fn) => fn());
-  cleanup = [];
+  screenCleanup.forEach((fn) => fn());
+  screenCleanup = [];
+  mountCleanup.forEach((fn) => fn());
+  mountCleanup = [];
   reducedMotionMql = null;
   audioCtx?.close().catch(() => {}); // closing the context kills every oscillator and gain it made
   audioCtx = null;
