@@ -1,6 +1,9 @@
 # ADR-0049 — docs-only pushes to main still pay full probes
 
-Status: proposed · 2026-08-29 · owner decision pending
+Status: accepted — option (b), policy only · 2026-08-29 · owner ruling in-session (popup, S2026-08-29#5):
+the workflow stays unchanged and the deploy gate keeps re-verifying every main push; docs commits are
+batched and pushed once at session save. The probe cost of a stray docs-only push is accepted as the
+price of an unconditional deploy gate.
 
 ## Context
 

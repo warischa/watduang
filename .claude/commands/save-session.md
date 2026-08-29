@@ -70,6 +70,7 @@ docs sat over budget unnoticed. Sweep before saving:
 cd "$(git rev-parse --show-toplevel)" && ! find . -name '*.md' \
   -not -path './node_modules/*' -not -path './.git/*' -not -path './dist/*' \
   -not -path './.scratch/*' -not -path './docs/verification/*' \
+  -not -path './.claude/worktrees/*' \
   -not -name 'sessions-archive.md' \
   -exec ~/.claude/scripts/check-budgets.sh {} \; | grep -v '^PASS'
 ```
