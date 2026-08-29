@@ -65,8 +65,13 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 // shared harness over independent modules.
 // This gate pins the chunk SET exactly and the total loosely; it is not a guard against one specific
 // deletion being reverted.
-// Re-derive both with the same walk on any deliberate bundle change —
-// see "RE-BASELINE IS THE INTENDED SIGNAL" above.
+// Measured on real dist/ (2026-08-29, `npm run build` after registering cannon-flag): 23 reachable
+// chunks, 153460 total bytes. The previous baseline had 20 chunks / 101094 bytes.
+// Attributed additions:
+// - audio.js (shared shell audio helper referenced by power-meter)
+// - cannon-flag.js (new ported artillery game module)
+// - power-meter.js (unwired game module present in src/games/ and discovered by import.meta.glob)
+// Delta of reachable bytes (+52366 bytes) accounts for cannon-flag (~34KB), power-meter (~18KB), audio (~0.6KB).
 const BASELINE_BASENAMES = [
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'PlayerSetup.astro_astro_type_script_index_0_lang.js',
@@ -75,21 +80,24 @@ const BASELINE_BASENAMES = [
   '_el.js',
   '_id_.astro_astro_type_script_index_0_lang.js',
   '_round-start.js',
+  'audio.js',
+  'cannon-flag.js',
   'daily-fortune.js',
-  'freeze-tap.js',
   'draw.astro_astro_type_script_index_0_lang.js',
+  'freeze-tap.js',
   'love-match.js',
   'name-list.js',
   'number.astro_astro_type_script_index_0_lang.js',
   'pick-loser.js',
   'player-select.js',
+  'power-meter.js',
   'short-stick.js',
   'siamsi.js',
   'team.astro_astro_type_script_index_0_lang.js',
   'timebomb.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 101094;
+const BASELINE_TOTAL_BYTES = 153460;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

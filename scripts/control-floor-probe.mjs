@@ -102,7 +102,17 @@ const EPS = 0.05;
 //     game. A future reader expecting 2 from freeze-tap should look there first.
 //   - The registering commit touches no other game module and none of the shell, so no other game's
 //     contribution can have moved. 9 + 1 = 10 closes exactly.
-export const CONTROL_COUNT = 10;
+//
+// 2026-08-29, 10 -> 11: cannon-flag joined the manifest, and it contributes 1+0. Attributed the same
+// way, for the same reason:
+//   - cannon-flag's own .game-btn set is renderHandoff 1 (readyBtn), plus a next button, a sudden
+//     death button, and renderResults 2 (replay primary + change secondary) on screens this walk
+//     never reaches.
+//   - Screen 2 is the aiming dashboard, whose controls are cf-step-btn and cf-btn-fire — neither
+//     carries .game-btn, so it contributes 0, the same shape as freeze-tap's .ft-pad div.
+//   - The registering commit touches no other game module and none of the shell. 10 + 1 = 11 closes
+//     exactly.
+export const CONTROL_COUNT = 11;
 /** Every game in the manifest gets a page. Pinned so a page that stopped loading cannot read as clean. */
 export const PAGE_COUNT = games.length;
 
