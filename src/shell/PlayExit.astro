@@ -16,9 +16,18 @@
 // Not a leave-confirm. LeaveConfirm.astro is mounted by GameLayout only; play routes have never used
 // it, and the ticket's guard is the arm delay, not a dialog. A dialog here would add a second tap
 // surface over the game for no ruling that asks for one.
+//
+// TWO controls now, not a second component (owner decision 2026-08-29): the edit-players control is
+// page chrome with exactly the same rules — outside the mockup root, out of flow, and inert until the
+// same quiet window has passed. A sibling component would have to either import this file's gate or
+// carry a second copy of it, and a second copy of a tap guard is how one of them drifts. One gate now
+// drives a list of controls; each control differs only in what its activation does.
 ---
 
 <button id="play-exit" type="button" aria-label="ออกจากเกม" disabled>✕</button>
+<!-- Hidden until the script confirms this device knows two or more names: with no saved group the
+     mockup already opens on its own setup screen, so the control would offer what is on screen. -->
+<button id="play-edit-players" type="button" disabled hidden>แก้ผู้เล่น</button>
 
 <style>
   /* Fixed, so nothing the game re-renders can move it. z-index 300 clears every layer the three
@@ -53,19 +62,69 @@
      prefers-reduced-motion branch, and an instant opacity change needs neither. */
   /* Still legible, clearly not ready: at 0.35 on a dark header it vanished entirely, and an exit a
      player cannot find is a worse outcome than one that looks dim for 400ms. */
-  #play-exit:disabled {
+  #play-exit:disabled,
+  #play-edit-players:disabled {
     opacity: 0.55;
     cursor: default;
+  }
+
+  /* Directly BELOW the X, same left edge (the X is 44px tall from the same inset, so this starts at
+     inset + 50px). Top-LEFT is the corner gh#144 measured as covering no control on any of the three
+     mockups — their own icon buttons are top-RIGHT, and freeze-tap's second one still ends far to the
+     right of this pill at 320px. Beside the X was measured first and rejected on the captures: it
+     covers no control, but it sits on all three mockups' header TITLE. The row under the header is
+     empty on all three. Bottom was rejected outright: all three put their primary action low on the
+     screen, which is where a mid-round tap actually lands. */
+  #play-edit-players {
+    position: fixed;
+    top: calc(max(6px, env(safe-area-inset-top)) + 50px);
+    left: max(6px, env(safe-area-inset-left));
+    z-index: 300;
+    block-size: 44px;
+    padding-inline: 14px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 22px;
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  /* `hidden` on a button whose display is set here would otherwise still render. */
+  #play-edit-players[hidden] {
+    display: none;
   }
 </style>
 
 <script>
   // Bundled by Astro, never inline (ADR-0005 + `script-src 'self'`).
   import { ARM_DELAY_MS } from '../games/_arm-gate';
+  import { loadRoster } from './roster';
+  // The edit control's whole per-game story lives there: it reloads the play route with a flag, and
+  // each roster-bridge.ts answers that flag by prefilling the mockup's OWN setup and not starting it.
+  // Nothing here reaches into a mockup, so nothing here can be broken by a mockup's innerHTML render.
+  import { requestSetupEdit } from '../play/_setup-bridge';
 
-  const btn = document.getElementById('play-exit') as HTMLButtonElement | null;
+  const exitBtn = document.getElementById('play-exit') as HTMLButtonElement | null;
+  const editBtn = document.getElementById('play-edit-players') as HTMLButtonElement | null;
 
-  if (btn) {
+  // One gate, a list of controls. `run` is what a completed, armed tap on that control does.
+  const controls: { el: HTMLButtonElement; run: () => void }[] = [];
+  if (exitBtn) controls.push({ el: exitBtn, run: () => { window.location.href = '/'; } });
+  // Two names is the threshold the bridges use to skip setup, so it is exactly the case where a
+  // player has no other way back to the setup screen — and the only case this control is for.
+  if (editBtn && loadRoster().names().length >= 2) {
+    editBtn.hidden = false;
+    controls.push({ el: editBtn, run: requestSetupEdit });
+  }
+
+  if (controls.length > 0) {
     // Same guard CLASS as src/games/_arm-gate.ts — a control is inert until nothing has been touched
     // for ARM_DELAY_MS, and it classifies nothing (no timing heuristic, no click-count), so it
     // converges the way ADR-0016 describes. It is not armAfterQuiet() itself because that helper
@@ -81,10 +140,12 @@
     let active = 0;
 
     const disarm = (): void => {
-      btn.disabled = true;
+      for (const c of controls) c.el.disabled = true;
       clearTimeout(timer);
       if (active === 0) {
-        timer = setTimeout(() => { btn.disabled = false; }, ARM_DELAY_MS);
+        timer = setTimeout(() => {
+          for (const c of controls) c.el.disabled = false;
+        }, ARM_DELAY_MS);
       }
     };
 
@@ -94,19 +155,23 @@
     // is about to dispatch (a button disabled between pointerdown and click fires no click at all).
     // Every other contact, including a burst landing on this button while it is disabled, restarts
     // the window — which is what stops a burst from arming the control under its own taps.
-    const onBtn = (ev: Event): boolean => ev.target instanceof Node && btn.contains(ev.target);
+    const hit = (ev: Event): { el: HTMLButtonElement; run: () => void } | undefined =>
+      ev.target instanceof Node
+        ? controls.find((c) => c.el.contains(ev.target as Node))
+        : undefined;
 
-    // The current press began on the ALREADY-ARMED button. Activation requires it: without this, a
-    // press that starts disabled and outlives the quiet window (hold on the X, or a hold elsewhere
-    // arming it mid-gesture) would exit on release.
-    let pressArmed = false;
+    // The control the current press began on, while it was ALREADY ARMED. Activation requires it:
+    // without this, a press that starts disabled and outlives the quiet window (hold on a control, or
+    // a hold elsewhere arming it mid-gesture) would activate on release.
+    let pressed: { el: HTMLButtonElement; run: () => void } | undefined;
 
     document.addEventListener(
       'pointerdown',
       (ev) => {
         active += 1;
-        if (!btn.disabled && onBtn(ev)) {
-          pressArmed = true;
+        const target = hit(ev);
+        if (target && !target.el.disabled) {
+          pressed = target;
           return;
         }
         disarm();
@@ -121,11 +186,13 @@
     // no page-level handler can stop the event before this gate sees it. `click` is kept as the
     // keyboard path (Enter/Space fire click and no pointer events); `leaving` stops the two paths
     // from navigating twice.
+    // Both activations are one-way transitions off this page (navigate, or reload into setup), so one
+    // flag stops either path from firing twice — including the pointerup and click paths racing.
     let leaving = false;
-    const leave = (): void => {
-      if (leaving || btn.disabled) return;
+    const activate = (control: { el: HTMLButtonElement; run: () => void }): void => {
+      if (leaving || control.el.disabled) return;
       leaving = true;
-      window.location.href = '/';
+      control.run();
     };
 
     document.addEventListener(
@@ -136,15 +203,15 @@
         // its pointerup on this button. Require the release point to be inside the box, so a drag
         // off the control cancels it the way a native button does — and require pressArmed, so only
         // a press that STARTED on the armed button can activate.
-        const wasArmedPress = pressArmed;
-        pressArmed = false;
-        if (wasArmedPress && onBtn(ev)) {
-          const r = btn.getBoundingClientRect();
+        const armedPress = pressed;
+        pressed = undefined;
+        if (armedPress && hit(ev) === armedPress) {
+          const r = armedPress.el.getBoundingClientRect();
           const e = ev as PointerEvent;
           const inside =
             e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
           if (inside) {
-            leave();
+            activate(armedPress);
             return;
           }
         }
@@ -158,12 +225,13 @@
       'pointercancel',
       () => {
         active = Math.max(0, active - 1);
-        pressArmed = false;
+        pressed = undefined;
         disarm();
       },
       true,
     );
-    btn.addEventListener('click', leave);
+    // Keyboard path only (Enter/Space fire click and no pointer events).
+    for (const c of controls) c.el.addEventListener('click', () => activate(c));
 
     // bfcache: back-navigation restores this page with module state intact and scripts NOT re-run.
     // Without this reset, `leaving` stays true after an exit and the X is permanently dead on the
@@ -171,7 +239,7 @@
     window.addEventListener('pageshow', () => {
       leaving = false;
       active = 0;
-      pressArmed = false;
+      pressed = undefined;
       disarm();
     });
 

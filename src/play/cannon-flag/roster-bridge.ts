@@ -11,6 +11,12 @@
 // mention. Both were the gate working. Importing the accessor is also simply better: the key name
 // stays in one place, and the try/catch every storage touch needs (issue #7) already lives in read().
 import { loadGroup, loadRoster } from '../../shell/roster';
+// Shared with the other two play routes: the chrome's edit request, and the write-back that makes
+// whatever the player finishes this setup with the group the NEXT game inherits.
+import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
+
+const START = '#btn-start-match';
+const NAME_INPUT = '.player-name-input';
 
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
@@ -20,6 +26,11 @@ function playingNames(): string[] {
 }
 
 function seedFromRoster(): void {
+  saveOnSetupComplete(START, NAME_INPUT);
+  // The chrome's edit control reloads with this flag set. Same seeding, one difference: the setup is
+  // left ON SCREEN, prefilled, instead of being started — that IS the edit screen, so there is no
+  // second setup UI to build or keep in sync with the mockup's own.
+  const editing = takeSetupEditRequest();
   const names = playingNames();
   // Fewer than two names is not a failure — it is a first-time device, and the mockup's own setup
   // screen is exactly the right thing to show. Bail and leave it alone.
@@ -43,7 +54,7 @@ function seedFromRoster(): void {
 
   // The mockup owns its own min/max. If it clamped the count somewhere else, fill only the rows it
   // actually rendered rather than forcing a number it refused.
-  const inputs = container.querySelectorAll<HTMLInputElement>('.player-name-input');
+  const inputs = container.querySelectorAll<HTMLInputElement>(NAME_INPUT);
   inputs.forEach((input, i) => {
     if (i >= names.length) return;
     // Direct .value skips the attribute's maxlength — enforce it, or a long saved name overflows.
@@ -52,7 +63,7 @@ function seedFromRoster(): void {
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
-  if (inputs.length >= 2) start.click();
+  if (!editing && inputs.length >= 2) start.click();
 }
 
 if (document.readyState === 'loading') {

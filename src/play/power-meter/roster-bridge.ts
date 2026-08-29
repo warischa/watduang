@@ -9,6 +9,14 @@
 // the key anywhere else reds the gate. Importing the accessor is also simply better: the key name
 // stays in one place, and the try/catch every storage touch needs (issue #7) already lives in read().
 import { loadGroup, loadRoster } from '../../shell/roster';
+// Shared with the other two play routes: the chrome's edit request, and the write-back that makes
+// whatever the player finishes this setup with the group the NEXT game inherits.
+import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
+
+// Every screen reuses the id `btn-primary-action`, so the completion control is identified by the
+// action it carries, not by the id — the id alone would fire the write-back on every screen advance.
+const START = '[data-act="startNewMatch"]';
+const NAME_INPUT = '.name-input';
 
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
@@ -18,6 +26,10 @@ function playingNames(): string[] {
 }
 
 function seedFromRoster(): void {
+  saveOnSetupComplete(START, NAME_INPUT);
+  // The chrome's edit control reloads with this flag set. Same seeding, one difference: the names
+  // screen is left ON SCREEN, prefilled, instead of being started — that IS the edit screen.
+  const editing = takeSetupEditRequest();
   const names = playingNames();
   // Fewer than two names is not a failure — it is a first-time device, and the mockup's own setup
   // screen is exactly the right thing to show. Bail and leave it alone.
@@ -41,7 +53,7 @@ function seedFromRoster(): void {
   if (!next) return;
   next.click();
 
-  const inputs = document.querySelectorAll<HTMLInputElement>('.name-input');
+  const inputs = document.querySelectorAll<HTMLInputElement>(NAME_INPUT);
   if (inputs.length < 2) return;
   inputs.forEach((input, i) => {
     if (i >= names.length) return;
@@ -51,6 +63,7 @@ function seedFromRoster(): void {
     input.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
+  if (editing) return;
   const start = document.getElementById('btn-primary-action');
   start?.click();
 }

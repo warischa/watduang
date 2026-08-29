@@ -11,7 +11,46 @@ import { readFileSync } from 'node:fs';
 const src = readFileSync(new URL('./PlayExit.astro', import.meta.url), 'utf8');
 
 test('the X renders disabled — inert until armed, never a live tap surface on load', () => {
-  assert.match(src, /<button[^>]*\bdisabled\b/s);
+  assert.match(src, /<button[^>]*id="play-exit"[^>]*\bdisabled\b/);
+});
+
+test('the edit-players control renders disabled AND hidden — same guard as the X, shown only once the script confirms a saved group', () => {
+  assert.match(src, /<button[^>]*id="play-edit-players"[^>]*\bdisabled\b[^>]*\bhidden\b/);
+  // The player-visible label, verbatim Thai.
+  assert.match(src, /แก้ผู้เล่น/);
+});
+
+test('one arm gate drives BOTH controls — a second control cannot arm on its own schedule', () => {
+  // The gate operates over the controls list, so adding a control cannot bypass it: pin the loop
+  // that sets `disabled` over the list rather than a per-id line.
+  assert.match(src, /for\s*\(const c of controls\)\s*c\.el\.disabled\s*=\s*true/);
+  assert.match(src, /setTimeout\(\s*\(\)\s*=>\s*\{[\s\S]*?for\s*\(const c of controls\)\s*c\.el\.disabled\s*=\s*false;[\s\S]*?\},\s*ARM_DELAY_MS\s*\)/);
+  assert.match(src, /controls\.push\(\s*\{\s*el:\s*editBtn/);
+});
+
+test('the edit control re-enters the mockup setup through the shared bridge, never a second setup UI', () => {
+  assert.match(src, /import\s*\{[^}]*requestSetupEdit[^}]*\}\s*from\s*['"][^'"]*_setup-bridge/);
+  assert.match(src, /run:\s*requestSetupEdit/);
+});
+
+test('every play route persists what its setup finishes with, and answers the edit request', () => {
+  for (const id of ['cannon-flag', 'freeze-tap', 'power-meter']) {
+    const bridge = readFileSync(
+      new URL(`../play/${id}/roster-bridge.ts`, import.meta.url),
+      'utf8',
+    );
+    // Registrations, not prose: the write-back call and the flag read, plus the one line that makes
+    // the edit flow different from the seeded flow (setup is left on screen, not started).
+    assert.match(bridge, /saveOnSetupComplete\(\s*START,\s*NAME_INPUT\s*\)/, `${id} does not persist its setup`);
+    assert.match(bridge, /takeSetupEditRequest\(\)/, `${id} ignores the edit request`);
+    // Pin the guard's USE at the start-click site, not the identifier: the `const editing = ...`
+    // declaration alone must not satisfy this test.
+    assert.match(
+      bridge,
+      /if \(editing\) return|!editing\s*&&[^;]*\.click\(\)|if \(!editing[^)]*\)\s*start/,
+      `${id} starts the match even when editing`,
+    );
+  }
 });
 
 test('the arm delay is the shared arm-gate constant, not a local copy that can drift', () => {

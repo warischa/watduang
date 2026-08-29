@@ -95,7 +95,10 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 // - Delta of reachable bytes (+44547, 159812 -> 204359): two lifted mockup bundles (~38KB + ~32KB)
 //   minus the two deleted ported engines and their shared-chunk shrinkage.
 // gh#144: PlayExit.astro_... added — the shared exit X on every play route ships one small chunk.
+// Edit-players (owner decision 2026-08-29): _setup-bridge.js added — the shared roster<->mockup-setup
+// contract (edit request flag + save-on-setup-complete) used by all three play routes, ~731B.
 const BASELINE_BASENAMES = [
+  '_setup-bridge.js',
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'PlayExit.astro_astro_type_script_index_0_lang.js',
   'PlayerSetup.astro_astro_type_script_index_0_lang.js',

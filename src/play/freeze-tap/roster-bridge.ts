@@ -9,6 +9,12 @@
 // the key anywhere else reds the gate. Importing the accessor keeps the key name in one place, and the
 // try/catch every storage touch needs (issue #7) already lives in read().
 import { loadGroup, loadRoster } from '../../shell/roster';
+// Shared with the other two play routes: the chrome's edit request, and the write-back that makes
+// whatever the player finishes this setup with the group the NEXT game inherits.
+import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
+
+const START = '#startGameBtn';
+const NAME_INPUT = '.roster-input';
 
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
@@ -18,6 +24,10 @@ function playingNames(): string[] {
 }
 
 function seedFromRoster(): void {
+  saveOnSetupComplete(START, NAME_INPUT);
+  // The chrome's edit control reloads with this flag set. Same seeding, one difference: the setup is
+  // left ON SCREEN, prefilled, instead of being started — that IS the edit screen.
+  const editing = takeSetupEditRequest();
   const names = playingNames();
   // Fewer than two names is not a failure — it is a first-time device, and the mockup's own setup
   // screen is exactly the right thing to show. Bail and leave it alone.
@@ -42,7 +52,7 @@ function seedFromRoster(): void {
   }
 
   // The final render owns however many .roster-input rows it actually drew; fill only those.
-  const inputs = document.querySelectorAll<HTMLInputElement>('.roster-input');
+  const inputs = document.querySelectorAll<HTMLInputElement>(NAME_INPUT);
   inputs.forEach((input, i) => {
     if (i >= names.length) return;
     // Direct .value skips the attribute's maxlength — enforce it, or a long saved name overflows.
@@ -50,8 +60,8 @@ function seedFromRoster(): void {
     input.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
-  const start = document.getElementById('startGameBtn');
-  if (inputs.length >= 2) start?.click();
+  const start = document.querySelector<HTMLElement>(START);
+  if (!editing && inputs.length >= 2) start?.click();
 }
 
 if (document.readyState === 'loading') {
