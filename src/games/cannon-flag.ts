@@ -1432,7 +1432,7 @@ function renderHandoff(): void {
   readyBtn.type = 'button';
   on(readyBtn, 'click', () => {
     sound.playClick();
-    startAiming();
+    renderAiming();
   });
   card.appendChild(readyBtn);
 
@@ -1440,7 +1440,11 @@ function renderHandoff(): void {
   cleanup.push(armAllButtons(stage));
 }
 
-function startAiming(): void {
+// Named render* deliberately, like every other screen builder in src/games/. That prefix is not
+// cosmetic: scripts/arm-gate-coverage-check.mjs finds screen builders by it, so a screen function
+// named anything else is gated at runtime but never AUDITED. Before this rename the gate saw 1 of
+// this module's 4 button-building functions and still printed "13 module(s) clean".
+function renderAiming(): void {
   const stage = stageEl;
   if (!stage) return;
   phase = 'aiming';
@@ -1774,11 +1778,11 @@ function handleShotImpact(simResult: SimulationResult): void {
   }
 
   setTimeout(() => {
-    showShotModal(simResult);
+    renderShotModal(simResult);
   }, 700);
 }
 
-function showShotModal(simResult: SimulationResult): void {
+function renderShotModal(simResult: SimulationResult): void {
   const stage = stageEl;
   if (!stage) return;
 
@@ -1830,12 +1834,12 @@ function showShotModal(simResult: SimulationResult): void {
 
     if (currentShotNumber === 1) {
       currentShotNumber = 2;
-      startAiming();
+      renderAiming();
     } else {
       currentShotNumber = 1;
       currentTurnIndex++;
       if (currentTurnIndex >= activePlayerPool.length) {
-        showResultsScreen();
+        renderResults();
       } else {
         renderHandoff();
       }
@@ -1849,7 +1853,7 @@ function showShotModal(simResult: SimulationResult): void {
   cleanup.push(armAllButtons(overlay));
 }
 
-function showResultsScreen(): void {
+function renderResults(): void {
   const stage = stageEl;
   if (!stage) return;
   phase = 'results';
