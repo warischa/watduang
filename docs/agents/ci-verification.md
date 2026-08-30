@@ -71,6 +71,29 @@ Point of traps 1, 3 and 4: all fail **silently** — the wrong answer looks exac
 no exit code or error message flagging it. Run every probe with real `bash`, and don't trust "it
 printed something" as proof it printed the right thing.
 
+## `npm run ci` is NOT the list that gates deploy — run the workflow's own
+
+This repo carries **two** gate lists and they have drifted. `package.json`'s `ci` aggregate is what a
+developer runs locally; `.github/workflows/ci.yml` is what gates the deploy, and the workflow never
+invokes `npm run ci` — it spells every gate out as its own step. `scripts/gate-selftest-coverage-check.mjs`'s
+header documents the same split. So a green `npm run ci` is not evidence the push will pass: on
+2026-08-30 the workflow list ran 30 steps and three of them were red while the npm chain had no
+opinion about two of the three.
+
+    bash scripts/run-workflow-gates.sh
+
+It reads `ci.yml` and derives the list, so it cannot drift from the thing it is standing in for. Exit
+code is the number of failed gates; **98 means the extractor is broken, not the tree** — never read
+that as a pass. `MIN_STEPS=` raises the floor.
+
+**Why that 98 leg exists.** The first version of that script used `mapfile -t CMDS < <(awk ...)`.
+macOS ships bash 3.2 and `mapfile` arrived in bash 4, so the array came back empty, the loop body
+never ran, the failure counter stayed 0, and the script exited **0** — identical to every gate
+passing. The lesson generalises past this one builtin: in a verification script, an empty work-set
+must be a hard failure, and "run it in bash, not zsh" is not enough when the local bash is a 2007
+build. Calibrate the abort leg the way you would calibrate a gate — it is checked in three ways
+(impossible floor, empty workflow, outside a repo) and all three return non-zero.
+
 ## Reading CI's verdict on this repo
 
 **This section used to say `gh run list` always 404s. As of 2026-08-19 that is no longer true, and
