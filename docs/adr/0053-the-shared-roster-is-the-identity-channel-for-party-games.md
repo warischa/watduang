@@ -1,6 +1,6 @@
 # ADR-0053 — the shared roster is the identity channel for party games
 
-Date: 2026-08-30 · Status: accepted · Owner decision · Reverses: the gh#140 ruling comment of 2026-08-29 (ticket text only, never an ADR) · Relates: [ADR-0010](0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md), [ADR-0050](0050-party-games-go-full-screen-landings-deleted.md), gh#164, gh#140, gh#145, gh#146, gh#152
+Date: 2026-08-30 · Status: accepted · Owner decision · Supersedes: [ADR-0054](0054-one-fixed-mascot-identity-baseline-for-party-games.md) ruling 4, and the gh#140 ruling comment of 2026-08-29 that restated it · Relates: [ADR-0010](0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md), [ADR-0050](0050-party-games-go-full-screen-landings-deleted.md), gh#164, gh#140, gh#145, gh#146, gh#152
 
 ## Context
 
@@ -38,12 +38,23 @@ result of this ADR.
 
 The losing text is what gets corrected, not the code.
 
-**This reverses the gh#140 ruling quoted above.** That rule was never recorded in an ADR — checked
-both candidates the live source comments name: ADR-0050's ruling 4 is *"The port recipe is run-as-is,
-then full assess"*, about porting, and says nothing about player lists or roster ownership;
-ADR-0049 is about docs-only pushes and has no ruling 4 at all. The reversed rule existed only as
-ticket text. So this ADR is now where the rule lives in **both** directions: what the site does, and
-what it no longer does.
+**This reverses the gh#140 ruling quoted above.** When this ADR was written the rule appeared to be
+recorded nowhere — checked both candidates the live source comments name: ADR-0050's ruling 4 is
+*"The port recipe is run-as-is, then full assess"*, about porting, and says nothing about player
+lists or roster ownership; the ADR-0049 that exists on `main` is about docs-only pushes and has no
+ruling 4 at all.
+
+**Corrected on 2026-08-30.** The rule WAS recorded in an accepted ADR, under gh#142 on 2026-08-29 —
+written to number 0049 on a branch that never merged, so it was invisible from `main` while the
+number 0049 was taken there by an unrelated decision. That ADR has since been lifted onto `main` as
+[ADR-0054](0054-one-fixed-mascot-identity-baseline-for-party-games.md), and its **ruling 4** —
+*"Renames are local to each game"* — is what this ADR supersedes. The pair reads in both directions:
+ADR-0054 holds the data baseline every party game still matches (the 20-mascot list, its fixed order,
+the ceiling of 20 — rulings 1, 2 and 5), this ADR holds the runtime channel. Only ruling 4 is
+reversed; the rest of ADR-0054 stands.
+
+So this ADR is where the rule lives in **both** directions: what the site does, and what it no longer
+does.
 
 What survives from the gh#140 ruling is the part that was never in conflict: the canonical 20-mascot
 list (names, emoji, colors, fixed order, ceiling 20) is the data baseline every game matches. Data

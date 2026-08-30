@@ -17,7 +17,7 @@ import { el } from './_el.ts';
 export const MIN_RANGE = 0;
 export const MAX_RANGE = 100;
 
-/** ADR-0049 ruling 5: the count is this game's own number, and the site-wide ceiling is 20. The
+/** ADR-0054 ruling 5: the count is this game's own number, and the site-wide ceiling is 20. The
  *  mockup already offered 2 to 20 and needed no change. Written as a literal on purpose -- gh#140
  *  keeps the shared cast out of src/games entirely, so deriving this from the cast's length would
  *  be a dependency this file is not allowed to have. */
@@ -41,7 +41,7 @@ function defaultSeat(index: number): Seat {
   return { emoji: '', name: `ผู้เล่น ${index + 1}` };
 }
 
-/** The seat colour, as a CSS custom property REFERENCE rather than a value. ADR-0048/ADR-0049 put
+/** The seat colour, as a CSS custom property REFERENCE rather than a value. ADR-0048/ADR-0054 put
  *  colour in a stylesheet as a named token; the MAX_PLAYERS tokens are declared in
  *  src/play/cursed-number/overrides.css and this only ever names one. A var() reference is legal
  *  anywhere the mockup puts this string -- style.setProperty and a style attribute both resolve it.
@@ -341,7 +341,7 @@ const game: GameModule = {
   id: 'cursed-number',
   names: { th: 'เลขอาถรรพ์', en: 'Cursed Number' },
   category: 'party',
-  // Per-game count with the site-wide ceiling of 20 (ADR-0049 ruling 5). The mockup's own stepper
+  // Per-game count with the site-wide ceiling of 20 (ADR-0054 ruling 5). The mockup's own stepper
   // already ran 2-20 and the cast is exactly 20 animals long.
   players: [MIN_PLAYERS, MAX_PLAYERS],
   startsRound: true,

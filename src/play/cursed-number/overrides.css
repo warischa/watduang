@@ -3,11 +3,11 @@
    from the mockup, and re-running the extractor overwrites it. Every change this site needs lives here
    so the extraction stays reproducible and a diff against the mockup stays meaningful. */
 
-/* The twenty seat colours, as NAMED TOKENS. ADR-0048/ADR-0049: colour enters a stylesheet by name and
+/* The twenty seat colours, as NAMED TOKENS. ADR-0048/ADR-0054: colour enters a stylesheet by name and
    never as a hex literal copied into script, so src/games/cursed-number.ts emits `var(--mascot-N)`
    as each player's colour and this block is the only place a value appears.
    The values are the canonical cast's own, derived from src/play/freeze-tap/main.js (the source
-   ADR-0049 ruling 1 names) rather than from this game's mockup, whose cast disagreed with it. Index N
+   ADR-0054 ruling 1 names) rather than from this game's mockup, whose cast disagreed with it. Index N
    is seat N in src/play/_mascots.ts, one-based, and the two lists are pinned row-for-row by
    src/play/mascot-defaults.test.mjs -- so a seat can never take another animal's colour without that
    test going red first. No name appears here: seat order is the identifier, and this file is under
@@ -77,7 +77,7 @@
    site hides on purpose (`scrollbar-width: none`), and the player strip ran to 394px. `body` already
    sets `overflow-x: hidden`, so the page never scrolls sideways — the controls were simply
    unreachable, and a per-element overflow scan reads the rect, not the scroll.
-   Wrapping rather than shrinking: the strip has to hold up to twenty seats (ADR-0049 ruling 5) and
+   Wrapping rather than shrinking: the strip has to hold up to twenty seats (ADR-0054 ruling 5) and
    the count row nine controls, and no font size makes either fit on one 320px line while keeping the
    44px tap floor below. Centred, so a part-full last row does not read as a broken grid. */
 .player-count-row,

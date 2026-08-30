@@ -185,7 +185,7 @@ test('a typed name survives a resize, and clearing it restores the seat default'
   assert.equal(m.players[0].name, SEATS[0].name, 'a blank field falls back to the supplied seat');
 });
 
-// ADR-0048/ADR-0049: colour enters a stylesheet by name. What this pins is that the rule emits a
+// ADR-0048/ADR-0054: colour enters a stylesheet by name. What this pins is that the rule emits a
 // REFERENCE and never a value — a hex literal here is the exact drift the rule exists to stop.
 test('seat colour is a token reference, never a literal', () => {
   const m = new CursedNumberGameModel(SEATS);

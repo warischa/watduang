@@ -1,5 +1,5 @@
 // Play-route controller for the timebomb game (gh#145). Two jobs, and deliberately nothing else:
-//   1. render the player baseline screen ADR-0049 prescribes (mascot defaults ready to play, fixed
+//   1. render the player baseline screen ADR-0054 prescribes (mascot defaults ready to play, fixed
 //      order, rename that stays local to THIS game), and
 //   2. hand the finished roster to the SHIPPED ENGINE and mount it.
 //
@@ -16,7 +16,7 @@ import type { GameContext, GameSession } from '../../games/types.ts';
 import { armAllButtons } from '../../games/_arm-gate.ts';
 import { loadRoster } from '../../shell/roster';
 import { loadSession } from '../../shell/session';
-// The canonical mascot cast, ADR-0049 rulings 1-3: fixed order, identical in every game. It used to
+// The canonical mascot cast, ADR-0054 rulings 1-3: fixed order, identical in every game. It used to
 // be a second copy of the freeze-tap mockup's array, diffed against it row by row; it is now the one
 // shared definition, and src/play/mascot-defaults.test.mjs pins that definition to the mockup.
 import { MASCOTS } from '../_mascots.ts';
@@ -26,7 +26,7 @@ import { startBombCanvas } from './bomb-canvas.ts';
 
 
 // Range from the module's own declared players field, so this screen can never offer a count the
-// manifest does not claim. ADR-0049 ruling 5 sets the site-wide ceiling at 20, which is also the
+// manifest does not claim. ADR-0054 ruling 5 sets the site-wide ceiling at 20, which is also the
 // length of the mascot list — this game's own maximum (10) sits under it.
 const MIN_PLAYERS = game.players[0];
 const MAX_PLAYERS = Math.min(game.players[1], MASCOTS.length);
@@ -38,7 +38,8 @@ const NAME_MAX = 12;
  *  and migrating it would drop the lists players already have saved under this key. That is an open
  *  owner question, not a bug to fix in passing. Earlier revisions of this comment cited "ADR-0049
  *  ruling 4" for a per-game rule; ADR-0049 is about docs-only pushes and ADR-0050's ruling 4 is the
- *  port recipe, so that rule was never in either ADR. Not the roster key either — that one is spelled
+ *  port recipe, so that rule was never in either ADR. It did exist, as ADR-0054 ruling 4, which
+ *  ADR-0053 supersedes. Not the roster key either — that one is spelled
  *  in src/shell/roster.ts and nowhere else (ADR-0010, enforced by roster-lock-structure-check). */
 const STORE_KEY = 'watduang:timebomb-players';
 
@@ -46,7 +47,7 @@ type Saved = { count: number; names: string[] };
 
 let count = DEFAULT_COUNT;
 // One entry per mascot seat, defaulted to the mascot's own name — "ready to play" means this array is
-// already valid before the player touches anything (ADR-0049 ruling 3).
+// already valid before the player touches anything (ADR-0054 ruling 3).
 let names: string[] = MASCOTS.map((m) => m.name);
 
 function load(): void {

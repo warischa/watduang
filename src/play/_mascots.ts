@@ -1,5 +1,5 @@
 // The animal cast every party game opens with: one fixed order, identical in every game, defined
-// HERE and read by the play routes (issue #152, ADR-0049 rulings 1-3).
+// HERE and read by the play routes (issue #152, ADR-0054 rulings 1-3).
 //
 // One copy still exists outside this file. src/play/freeze-tap/main.js declares MASCOT_PLAYERS inline
 // and keeps it: that file is a verbatim mockup lift and the thai-comments exemption is keyed to its
@@ -7,7 +7,7 @@
 // row for row by src/play/mascot-defaults.test.mjs, so a drift is a red test rather than two casts
 // that quietly stop matching.
 //
-// The colours that array carries are deliberately NOT copied: ADR-0049 requires colour to enter a
+// The colours that array carries are deliberately NOT copied: ADR-0054 requires colour to enter a
 // stylesheet as a named token, and every screen that paints a mascot row paints it from play.css.
 export type Mascot = { emoji: string; name: string };
 

@@ -380,19 +380,21 @@
         .replace(/'/g, '&#039;');
     }
 
-    // watduang: TWO strings in this port are edited, not lifted, and both for the same reason -- the
-    // mockup's first preset here, and the placeholder inside `#modal-penalty-text` in markup.html
-    // (which this file overwrites at runtime anyway). Each was a drink-a-glass dare carrying a beer
-    // emoji; this site bars alcohol copy AND alcohol imagery outright, because the imagery alone
-    // triggers Thai Alcohol Act s.32/1 -- and an emoji of a glass IS that imagery. The note lives
-    // here rather than beside the markup one because an HTML comment SHIPS: it was measured in
-    // dist/game/zero-trigger/play/index.html before being moved. Replaced with harmless lines in the
-    // same register. Every other entry below is the mockup's own copy.
+    // watduang: THREE strings in this port are edited, not lifted. Two are the placeholder inside
+    // `#modal-penalty-text` in markup.html (which this file overwrites at runtime anyway) and this
+    // file's first preset below: each was a drink-a-glass dare carrying a beer emoji, and this site
+    // bars alcohol copy AND alcohol imagery outright, because the imagery alone triggers Thai
+    // Alcohol Act s.32/1 -- an emoji of a glass IS that imagery. The third is the pushups-or-
+    // jumping-jacks preset below: a dare toward real exertion/harm, an AdSense account-termination
+    // risk. The note lives here rather than beside the markup one because an HTML comment SHIPS: it
+    // was measured in dist/game/zero-trigger/play/index.html before being moved. All three are
+    // replaced with harmless lines in the same register. Every other entry below is the mockup's
+    // own copy.
     const PRESET_PENALTIES = [
       'ร้องเพลงท่อนฮิต 1 ท่อนให้ทั้งวงฟัง! 🎤',
       'เลี้ยงขนมเพื่อนคนละ 1 อย่าง! 🧋',
       'โดนทำหน้าตลกให้ทุกคนถ่ายรูป! 📸',
-      'วิดพื้น 10 ครั้ง หรือกระโดดตบ 15 ครั้ง! 💪',
+      'นับถอยหลังรอบต่อไปแทนทุกคน! 🔢',
       'พูดลงท้ายด้วย "เมี๊ยว" ตลอด 2 รอบถัดไป! 🐱',
       'สารภาพความลับมา 1 เรื่อง! 🤫',
       'เต้นเพลงฮิต 10 วินาทีแบบใส่สุด! 💃',

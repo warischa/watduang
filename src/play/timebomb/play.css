@@ -1,7 +1,7 @@
 /* The timebomb game, full screen (gh#145). Authored for this route — no mockup exists for this game, so
    nothing here is a lift and every value is chosen here rather than copied from a canvas.
 
-   COLOUR ENTERS BY NAME (ADR-0049 / ADR-0048): the dark palette is declared once, in the block below,
+   COLOUR ENTERS BY NAME (ADR-0054 / ADR-0048): the dark palette is declared once, in the block below,
    and every rule downstream references a token. The family matches the freeze-tap dark reference
    ADR-0050 ruling 1 names, so the two routes read as one system.
 

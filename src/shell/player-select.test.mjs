@@ -88,7 +88,7 @@ test('#22 defaultPlayers: a count that is not a number (NaN/0) falls back to min
   assert.equal(defaultPlayers(0, 2, 5).length, 2);
 });
 
-// The cast has a ceiling of 20 (ADR-0049 ruling 5) and every page today asks for at most 10, but a
+// The cast has a ceiling of 20 (ADR-0054 ruling 5) and every page today asks for at most 10, but a
 // page asking for more must not be handed two players with the same label: games pick and eliminate
 // BY NAME, so a duplicate is one player answering for two.
 test('gh#140 defaultPlayers: past the end of the cast the labels stay unique', () => {

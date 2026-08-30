@@ -3,7 +3,7 @@
 // mockup's own:
 //
 //   1. The mockup's twenty-row MASCOT_PLAYERS literal is GONE. The cast is single-sourced in
-//      src/play/_mascots.ts (gh#152, ADR-0049) and the mockup's own list disagreed with it, so
+//      src/play/_mascots.ts (gh#152, ADR-0054) and the mockup's own list disagreed with it, so
 //      keeping the literal would have shipped a second cast. The rule that consumed it moved out
 //      with it -- see item 2.
 //   2. CursedNumberGameModel is imported from src/games/cursed-number.ts instead of declared here.

@@ -267,17 +267,17 @@
         ROUND_OVER: 'ROUND_OVER'
       });
 
-      // watduang: two of the mockup's presets are edited, not lifted. The alcohol one ("dium 1 shot"
+      // watduang: three of the mockup's presets are edited, not lifted. The alcohol one ("dium 1 shot"
       // with a clinking-glasses emoji) is barred outright by this site's content rule -- alcohol
       // imagery alone triggers Thai Alcohol Act s.32/1, and the emoji IS an image of branded glasses.
-      // The ice-in-the-mouth one is a dare toward real physical harm, which is an AdSense
-      // account-termination risk. Both are replaced with harmless equivalents in the same register.
-      // Everything else in this array is the mockup's own copy.
+      // The ice-in-the-mouth one and the forehead-flick one are dares toward real physical harm,
+      // which is an AdSense account-termination risk. All three are replaced with harmless
+      // equivalents in the same register. Everything else in this array is the mockup's own copy.
       const PENALTY_PRESETS = [
         '💸 จ่ายค่าน้ำ / ค่าขนมรอบนี้',
         '🕺 เต้นท่าประจำตัว 15 วินาที',
         '🤫 เล่าความลับ 1 เรื่องที่ไม่มีใครรู้',
-        '💥 โดนดีดหน้าผาก 1 ที',
+        '😜 ให้เพื่อนตั้งฉายาให้ 1 วัน',
         '🎤 ร้องเพลงท่อนฮิต 1 ท่อน',
         '👑 ทำตามคำสั่งคนข้างขวา 1 ข้อ',
         '🤪 ทำหน้าตลกให้ทั้งวงถ่ายรูปเก็บไว้'

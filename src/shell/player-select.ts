@@ -2,7 +2,7 @@
 // Always takes in the full ticked group, never the pool left after clamping (ADR-0004 fixed this)
 import type { Checkpoint } from '../games/types.ts';
 import type { WriteRefusal } from './session';
-// The ONE mascot cast (gh#152, ADR-0049 rulings 1-2). Imported, never re-typed: a second copy of
+// The ONE mascot cast (gh#152, ADR-0054 rulings 1-2). Imported, never re-typed: a second copy of
 // these 20 rows is the exact failure gh#140 exists to prevent, and _mascots.ts is already the file
 // the play routes read. The direction is new but the seam is not — PlayerSetup already imports
 // ../games/_arm-gate, and the play routes import this folder's roster. No cycle: _mascots.ts imports
@@ -36,18 +36,20 @@ export interface StartResolution {
  *  today, and the reason is worth stating rather than assuming — the shared panel has NO rename
  *  control (its roster rows are a checkbox and a text label, and a default player never enters the
  *  roster: the shortcut goes straight to requestStart and never touches saveGroup). The rename that
- *  does exist is each play route's own setup screen (ADR-0049 ruling 3), where the icon is bound to
+ *  does exist is each play route's own setup screen (ADR-0054 ruling 3), where the icon is bound to
  *  the row's slot and the input holds the bare name — applyMascotDefaults in ../play/_mascots.ts
  *  writes `MASCOTS[i].name` into the field, never the emoji — so a rename there cannot take the icon
- *  with it. CONSEQUENCE, both halves stated: because renames do not travel between games (ADR-0049
- *  ruling 4), a play-route game paints its own mascot row and a shell-rendered game paints this
- *  label; the cast, the order and the ceiling match because both read MASCOTS. If a rename control is
+ *  with it. CONSEQUENCE, both halves stated: renames DO travel between games (ADR-0053 — the shared
+ *  roster is the identity channel for party games, and saveOnSetupComplete writes a setup rename into
+ *  it on every bridged route; ADR-0054 ruling 4, "renames are local to each game", is the superseded
+ *  predecessor). A play-route game still paints its own mascot row and a shell-rendered game paints
+ *  this label; the cast, the order and the ceiling match because both read MASCOTS. If a rename control is
  *  ever added HERE, it must rewrite the part after the first space and keep the icon in place. */
 export function defaultPlayers(count: number, min: number, max: number): string[] {
   const n = Math.min(max, Math.max(min, count || min));
   return Array.from({ length: n }, (_, i) => {
     const mascot = MASCOTS[i % MASCOTS.length];
-    // Past the cast's 20 (ADR-0049 ruling 5's site-wide ceiling), wrap and number the cycle. Not
+    // Past the cast's 20 (ADR-0054 ruling 5's site-wide ceiling), wrap and number the cycle. Not
     // decoration: games pick and eliminate BY NAME, so two players sharing a label is one player
     // answering for two. No page asks for more than 10 today, which is precisely why nothing would
     // catch it if this wrapped silently.
