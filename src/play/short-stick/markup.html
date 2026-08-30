@@ -172,7 +172,22 @@
         <div class="bamboo-stage">
           <h2 class="bamboo-stage-title" id="stage-action-text">แตะเลือกไม้ 1 อัน</h2>
           <p class="bamboo-stage-subtitle">ส่งมือถือให้ผู้เล่นตามชื่อด้านบน แล้วแตะดึงไม้ได้เลย</p>
-          
+
+          <!-- watduang: the play surface (owner request 2026-08-30). The bundle is DRAWN, in Canvas 2D,
+               with the depth hand-built -- projected ground shadows, a cylinder gradient across each
+               stick, shading down its length. It sits BEHIND #stick-grid and takes no pointer events:
+               the buttons main.js renders are still the tap targets and still carry their aria-labels,
+               so the art can never send a tap to the wrong stick and the board stays operable.
+               Canvas pixels are invisible to assistive tech, so this element carries a label and the
+               round's state is announced as text in #stick-live below it. -->
+          <canvas
+            id="stick-canvas"
+            class="stick-canvas"
+            role="img"
+            aria-label="มัดไม้ตั้งขึ้นเป็นแถว ไม้ที่ถูกดึงแล้วจะเผยความยาวจริงออกมา"
+            hidden></canvas>
+          <p id="stick-live" class="stick-visually-hidden" role="status" aria-live="polite"></p>
+
           <div class="stick-grid" id="stick-grid"></div>
         </div>
       </div>

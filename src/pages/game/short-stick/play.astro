@@ -42,4 +42,8 @@ const description = game.seo.description;
   // this size executes zero lines. Astro emits both of these as one external module.
   import '../../../play/short-stick/main.js';
   import '../../../play/short-stick/roster-bridge.ts';
+  // The drawn play surface. Imported LAST and it measures rather than drives: it reads the buttons
+  // main.js has rendered and paints depth behind them, so the draw logic (and the fairness lock inside
+  // it) has no code path into this renderer. See the header of that file.
+  import '../../../play/short-stick/stick-canvas.ts';
 </script>

@@ -93,3 +93,63 @@
     display: none;
   }
 }
+
+/* ------------------------------------------------------------------
+   THE DRAWN PLAY SURFACE (owner request 2026-08-30)
+   ------------------------------------------------------------------
+   The bundle of sticks is painted in Canvas 2D by stick-canvas.ts, which measures these buttons and
+   draws inside their boxes. So the buttons stop being the picture and become the hit test only: they
+   keep every dimension, every transform and every state class main.js and style.css already give them
+   -- that is what the renderer reads -- and give up only their paint.
+   Why not let the canvas own the layout too: .stick-grid wraps, and that wrap is what keeps ten seats
+   at >=44px tap targets in a 320px viewport (see the .straw-unit rule above). A single-row fan would
+   need 440px. The DOM keeps the layout; the canvas keeps the depth. */
+.stick-canvas {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  /* The buttons underneath are the tap targets. Without this the canvas would swallow every tap on the
+     board and the round could not be played at all. */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* The canvas is a positioned z-index:0 box, and a static sibling's text paints BELOW that in the
+   stacking order -- so the stage's own heading needs to be positioned to stay on top of it. */
+.bamboo-stage-title,
+.bamboo-stage-subtitle,
+.stick-grid {
+  position: relative;
+  z-index: 1;
+}
+
+/* border-COLOR, not `border: none`: the border is 2px of the border-box, so removing it would resize
+   the very box the renderer measures and every stick would be drawn 4px narrower than its tap target.
+   Same reason height/width/transform are all left exactly as style.css set them. */
+.straw-btn,
+.straw-unit.used .straw-btn,
+.straw-unit.used.is-short .straw-btn {
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  filter: none;
+}
+
+/* The mockup's painted-on details -- the drilled hole and the three grain marks. The canvas draws its
+   own cut end and its own shading, and these would sit on top of it as flat stickers. */
+.straw-btn::before,
+.straw-btn::after {
+  display: none;
+}
+
+/* Screen-reader-only. #stick-live carries what the canvas cannot: canvas pixels are invisible to
+   assistive tech, so the turn and the result are mirrored here as text. */
+.stick-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
