@@ -44,6 +44,33 @@ in it, so the seven browser probes only run in the workflow.
 npm run ci && npx astro check && npm run ci-probes
 ```
 
+## A mockup that waits for `DOMContentLoaded` makes the roster bridge silently dead
+
+Found on gh#162 (wire-snip-panic), and it is a class, not one mockup. Measured 2026-08-30:
+
+- Of the play routes already shipped, **0** wire up inside `DOMContentLoaded` in their `main.*` — the
+  template you copy (`src/play/cursed-number/`) attaches at module-body time.
+- Of the mockups in the mockup-games tree, **4 do**: `wire-snip-panic`, `ZERO_TRIGGER`, `dice-loser`,
+  `เข้งับ`. So roughly every third port meets this.
+
+The copied `roster-bridge.ts` pattern — a `document` listener plus an immediate-call else branch —
+then runs *before the mockup has created a single control*. Seeding clicks nothing. The route opens on
+the mockup's own menu with the group already saved, which looks like a plausible screen.
+
+**The danger is not the bug, it is that nothing catches it.** On gh#162 every gate was green while the
+feature was dead: `tsc`, `validate-games`, `thai-comments`, `no-nav-in-stage`, `roster-lock`,
+`csp-inline`, and the exit-guard probe all passed. No gate asserts that seeded names arrive.
+
+Before copying the bridge, grep the mockup for `DOMContentLoaded`. If it is there, the fix that worked
+on gh#162 is to listen on `window` rather than `document` — `main.js` imports first, so it registers
+and fires first — but check your own mockup's structure rather than assuming.
+
+Either way, the port is not done until a real browser round-trip proves seeded names **arrive**:
+names entered in setup, setup completed, the round started with those exact names on screen. Assert on
+the names, not on the absence of an error. Then break the seeding once on purpose and confirm that
+check goes red before you trust its green — an unfalsified seeding check is how this hid in the first
+place. Test the storage-cleared path too: the route must stay on the mockup's menu, not auto-start.
+
 ## Do these two things once, before game 3
 
 ### 1. Fix the test harness, not each game's tests
