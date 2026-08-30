@@ -71,6 +71,26 @@ clean tree, exit 1 with the planted error present.
 Do not accept "tsc 0" as evidence that a change to a `.astro` file typechecks, and do not write it into
 a definition of done — name `astro check` instead.
 
+## The live site's address, and two things that will send you to the wrong one
+
+Production is served from the Azure Static Web Apps default hostname:
+
+`https://white-plant-05ad7c600.7.azurestaticapps.net`
+
+It is a default hostname, not the intended one, and is expected to be replaced once gh#9 registers
+`watduang.com`. It also changes if the SWA resource is ever recreated, so treat it as current-value,
+not constant.
+
+**The sitemap will send you somewhere that does not resolve.** `astro.config.mjs`'s `site` key and
+`public/robots.txt` both carry `https://watduang.com`, so every `<loc>` in the built
+`dist/sitemap-0.xml` does too — and `host watduang.com` exits 1 (measured 2026-08-30). A probe that
+fetches each `<loc>` reaches nothing and reports zero findings, which reads exactly like a clean pass.
+Take the origin from above and only the *path* from the sitemap.
+
+**CI has not checked the live site.** The `ci.yml` step named "Browser probes against the deployed
+artifact" runs `npm run ci-probes`, and `scripts/ci-probes.sh` sets `SITE` to a localhost port and
+serves `dist/` there. The name says deployed; the target is local. A green CI is not a live check.
+
 ## Verify work the way CI does
 
 Moved to `docs/agents/ci-verification.md` (ADR-0012 task seam). Read it before reproducing any CI
