@@ -1323,6 +1323,19 @@
     // ---------------------------------------------------------
     let setupPlayerCount = 4;
 
+    // Roster names are typed by players, so they are untrusted text wherever this file builds
+    // markup by string. Same helper, same idiom as src/play/freeze-tap/main.js — kept local because
+    // each main.js is a verbatim lift with no imports. Pinned by src/play/name-escaping.test.mjs.
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function renderSetupPlayerInputs() {
       if (!DOM || !DOM.displayPlayerCount) return;
       DOM.displayPlayerCount.textContent = setupPlayerCount;
@@ -1337,7 +1350,7 @@
         row.className = 'player-name-row';
         row.innerHTML = `
           <span class="player-tag">#${i + 1}</span>
-          <input type="text" class="player-name-input" placeholder="ผู้เล่น ${i + 1}" maxlength="20" value="${existingNames[i] || ''}">
+          <input type="text" class="player-name-input" placeholder="ผู้เล่น ${i + 1}" maxlength="20" value="${escapeHtml(existingNames[i] || '')}">
         `;
         DOM.playerNamesContainer.appendChild(row);
       }
@@ -1671,7 +1684,7 @@
         tr.innerHTML = `
           <td>${idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `#${idx + 1}`))}</td>
           <td>
-            <strong>${p.name}</strong>
+            <strong>${escapeHtml(p.name)}</strong>
             ${isLoser ? '<span class="loser-badge-tag">อันดับสุดท้าย</span>' : ''}
           </td>
           <td style="text-align:center;">${p.shot1Distance !== null ? p.shot1Distance.toFixed(2) : '-'}</td>
@@ -1692,7 +1705,7 @@
         banner.className = 'tie-banner';
         banner.innerHTML = `
           <div style="font-size: 1.15rem; margin-bottom: 4px;">🚨 เสมอกันที่คะแนน ${standings.worstDistance.toFixed(2)} ม.!</div>
-          <div style="color: var(--text-primary); margin-bottom: 10px;">ผู้เล่นที่ต้องดวลรอบตัดสิน: <strong>${tiedNames}</strong></div>
+          <div style="color: var(--text-primary); margin-bottom: 10px;">ผู้เล่นที่ต้องดวลรอบตัดสิน: <strong>${escapeHtml(tiedNames)}</strong></div>
           <button id="btn-start-sudden-death" class="btn-primary" style="margin: 6px auto 0; background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);">
             <span>⚡ เข้าสู่รอบตัดสิน Sudden Death</span>
           </button>
@@ -1714,7 +1727,7 @@
         banner.innerHTML = `
           <div class="loser-crown">💥 ➔ 🏆 (ผู้แพ้)</div>
           <div style="font-size: 0.95rem; color: var(--text-secondary);">ผู้แพ้ประจำแมตช์นี้คือ</div>
-          <div class="loser-name">${loser.name}</div>
+          <div class="loser-name">${escapeHtml(loser.name)}</div>
           <div style="font-size: 0.88rem; color: var(--text-muted);">ระยะดีที่สุดห่างจากฐานธง ${loser.bestDistance.toFixed(2)} เมตร</div>
         `;
         DOM.resultsVerdictContainer.appendChild(banner);
@@ -1912,7 +1925,7 @@
           row.innerHTML = `
             <div>
               <strong>${res.pass ? '✅ ผ่าน (PASS)' : '❌ ไม่ผ่าน (FAIL)'}: ${res.name}</strong>
-              ${res.details ? `<div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">${res.details}</div>` : ''}
+              ${res.details ? `<div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">${escapeHtml(res.details)}</div>` : ''}
             </div>
           `;
           DOM.testOutputList.appendChild(row);

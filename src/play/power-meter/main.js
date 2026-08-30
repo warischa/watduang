@@ -551,6 +551,19 @@
       renderUI();
     }
 
+    // Roster names are typed by players, so they are untrusted text wherever this file builds
+    // markup by string. Same helper, same idiom as src/play/freeze-tap/main.js — kept local because
+    // each main.js is a verbatim lift with no imports. Pinned by src/play/name-escaping.test.mjs.
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     /* --- VIEW 2: SETUP NAMES --- */
     function renderSetupNamesView() {
       let namesHtml = '';
@@ -559,7 +572,7 @@
           <div class="name-row">
             <div class="avatar-badge" style="border: 2px solid ${p.color};">${p.avatar}</div>
             <input type="text" class="name-input" id="input-name-${idx}"
-                   value="${p.name}" placeholder="ผู้เล่น ${idx + 1}"
+                   value="${escapeHtml(p.name)}" placeholder="ผู้เล่น ${idx + 1}"
                    maxlength="16" data-act="updatePlayerName" data-arg="${idx}"
                    aria-label="ชื่อผู้เล่นที่ ${idx + 1}">
           </div>
@@ -653,7 +666,7 @@
           </div>
 
           <div class="player-hero-name" style="color: ${curPlayer.color};">
-            ${curPlayer.name}
+            ${escapeHtml(curPlayer.name)}
           </div>
 
           <p style="color: var(--text-muted); font-size: 0.88rem; margin: 16px 0;">
@@ -757,7 +770,7 @@
           <!-- Header Bar -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">${roundTitle}</span>
-            <span style="font-size: 0.95rem; font-weight: 700; color: ${curPlayer.color};">${curPlayer.avatar} ${curPlayer.name}</span>
+            <span style="font-size: 0.95rem; font-weight: 700; color: ${curPlayer.color};">${curPlayer.avatar} ${escapeHtml(curPlayer.name)}</span>
           </div>
 
           <!-- Attempt tracker -->
@@ -937,7 +950,7 @@
             ${curPlayer.avatar}
           </div>
           <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; color: ${curPlayer.color};">
-            ${curPlayer.name}
+            ${escapeHtml(curPlayer.name)}
           </h2>
           <div style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px;">
             สรุปผลคะแนน 3 ครั้งของคุณ
@@ -1038,7 +1051,7 @@
             <div class="summary-left">
               <div class="avatar-badge" style="border: 2px solid ${item.color};">${item.avatar}</div>
               <div>
-                <div style="font-weight: 700; color: ${item.color};">${item.name}</div>
+                <div style="font-weight: 700; color: ${item.color};">${escapeHtml(item.name)}</div>
                 <div class="summary-score-breakdown">${breakdown}</div>
               </div>
             </div>
@@ -1114,7 +1127,7 @@
             <div class="avatar-badge" style="width: 52px; height: 52px; font-size: 1.8rem; border: 2px solid ${p.color};">
               ${p.avatar}
             </div>
-            <span style="font-size: 0.88rem; font-weight: 700; color: ${p.color};">${p.name}</span>
+            <span style="font-size: 0.88rem; font-weight: 700; color: ${p.color};">${escapeHtml(p.name)}</span>
           </div>
         `;
       });
@@ -1187,7 +1200,7 @@
           </div>
 
           <h1 style="font-size: 2rem; font-weight: 900; color: #fff; margin-bottom: 4px;">
-            ${loserPlayer.name}
+            ${escapeHtml(loserPlayer.name)}
           </h1>
 
           <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
