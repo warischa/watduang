@@ -118,35 +118,11 @@ steering someone into the wrong call.
 
 **Don't:** assume "closed issue = done, don't read it" — a closed issue is where the decision lives,
 not where abandoned work goes.
-
 ## Driving the site in a headless browser
 
-`scripts/driver.mjs` + CDP on `:9222`, against a real `npm run build` served by `npx serve dist/ -l 4321`.
-`docs/agents/browser-verification.md` governs — read it first.
+Moved to `docs/agents/browser-verification.md` — the setup, the driver usage and the traps now live
+together there. CLAUDE.md already routes browser work to that file before you start.
 
-**Do:**
-
-```bash
-# wipe storage ON THE ORIGIN — a wipe issued from about:blank clears nothing
-# siamsi needs BOTH clicks to be genuinely mid-round:
-#   start-round  -> mounts the game idle
-#   #ss-start    -> actually enters phase 'turn'
-```
-
-**Don't:** assume `start-round` alone put you mid-round — a harness that skips `#ss-start` reads
-`phase: null` and then reports a clean pass on a state that never existed.
-
-Before trusting any null result, run both controls: a positive one (the detector sees a write you
-know happens) and a negative one (the thing is absent when it should be). Pick the detector to match
-the failure — checking `checkpoint` misses a variant that revives the record with `checkpoint: null`;
-raw record presence catches it.
-
-**Two more ways the driver reports a dead page that is alive.** `driver.mjs`'s `evaluate(body)` wraps
-what you pass in `(async () => { body })()`, so an expression **without `return`** yields
-`{value: null}` — indistinguishable from a page that never loaded. Write `return document.title`, not
-`document.title`. And `driver.mjs` **attaches** to an existing CDP endpoint; it does not launch
-Chrome. With nothing listening you get `ECONNREFUSED`, which reads like a broken build rather than a
-browser you forgot to start.
 
 ## Two headless probes at once attach to each other's browser
 
