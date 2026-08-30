@@ -43,6 +43,14 @@ The pre-migration markdown originals under `.scratch/free-game/` were deleted 20
 
 Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
+### `state: OPEN` is not proof work is undone either — check the artifact
+
+The bullet above says an unticked box proves nothing and to read `state` instead. `state` is weaker than it looks: work lands and nobody comes back to close the ticket. A full-backlog plan on 2026-08-30 came out **42% stale** — of 19 rows, four were already shipped (gh#120's fix is commit `5bd204f`, whose message names the ticket), one had 7 of 8 boxes done, two were owner-blocked, one rested on a false premise. Two rows were genuinely undone code. Three agents were dispatched onto finished work and returned zero-file diffs, costing about 186k tokens.
+
+**Do not try to detect this from the commit log.** That was tried and calibrated on 2026-08-30, and it fails in both directions: `git log --grep="gh#14"` matches gh#146 and gh#145 by substring; adding a word boundary returns nothing at all, because git's POSIX regex has no `\b`; and `--grep="^fix.*gh#120"` finds zero commits even though `5bd204f` is titled exactly that. A detector that silently returns nothing is worse than no detector.
+
+**Check the artifact instead.** Take the ticket's top acceptance criterion and resolve it against `src/` and `dist/` before writing any brief. Confirming all four randomizer tools existed — source files present, built into `dist/`, and in the sitemap — took 0.006s. Budget about a minute for a whole batch. Sitemap membership matters as much as the build on this site: a page that builds but is unlisted is shipped and unfindable, which is not "done".
+
 ### เลขใบ vs issue number
 
 A ticket title starts with **เลขใบ**, which is not the issue number — **เลขใบ + 1 = issue number**
