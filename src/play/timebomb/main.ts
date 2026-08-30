@@ -33,9 +33,13 @@ const MAX_PLAYERS = Math.min(game.players[1], MASCOTS.length);
 const DEFAULT_COUNT = 6;
 const NAME_MAX = 12;
 
-/** localStorage, and NOT the shared roster: ADR-0049 ruling 4 makes each game own its player list, so
- *  a rename here must not travel to another game. Not the roster key either — that one is spelled in
- *  src/shell/roster.ts and nowhere else (ADR-0010, enforced by roster-lock-structure-check). */
+/** localStorage, and NOT the shared roster. ADR-0053 rules the shared roster IS the identity channel
+ *  for party games, and names this route the one deliberate exception: it is an engine-reuse retrofit,
+ *  and migrating it would drop the lists players already have saved under this key. That is an open
+ *  owner question, not a bug to fix in passing. Earlier revisions of this comment cited "ADR-0049
+ *  ruling 4" for a per-game rule; ADR-0049 is about docs-only pushes and ADR-0050's ruling 4 is the
+ *  port recipe, so that rule was never in either ADR. Not the roster key either — that one is spelled
+ *  in src/shell/roster.ts and nowhere else (ADR-0010, enforced by roster-lock-structure-check). */
 const STORE_KEY = 'watduang:timebomb-players';
 
 type Saved = { count: number; names: string[] };
@@ -135,8 +139,9 @@ function setCount(next: number): void {
  *  the fields this route owns are answered here, and the one fact that belongs to the whole site —
  *  which games this group already played — is forwarded to the real shell session so the engine's
  *  markPlayed('timebomb') still lands somewhere real.
- *  setPlayers is a no-op on purpose: this route's identity is local (ADR-0049 ruling 4), and writing
- *  these names into the site-wide session slot is exactly how a rename would travel to another game. */
+ *  setPlayers is a no-op on purpose: this route's identity is local, which ADR-0053 records as this
+ *  route's named exception rather than as the site-wide rule. Writing these names into the site-wide
+ *  session slot is exactly how a rename would leave this game. */
 function buildContext(): GameContext {
   const shell = loadSession();
   const session: GameSession = {
