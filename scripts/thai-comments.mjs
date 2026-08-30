@@ -100,6 +100,21 @@ const FIXTURES = [
     comment: [1],
   },
   {
+    // gh#123 DoD calibration leg: CLAUDE.md's Thai-domain-term allowance is scoped to .md files
+    // only, and does NOT reach a code comment. Modelled on the two real trigger lines from the
+    // ticket (fortune/party category-landing comments) — an unquoted domain term in a comment
+    // must still count, while the same term string-side or quoted-as-citation must not.
+    name: "ts — a Thai domain term in a comment is still a violation; CLAUDE.md's .md-only allowance does not reach code",
+    file: 'domain.ts',
+    text: [
+      "const s = 'ดูดวง'; // string, not comment", //         1  string
+      'const t = `ดูดวง`;', //                                2  template
+      '// wording "ดูดวง" was rejected', //                   3  quoted citation, not counted
+      "  'c/fortune/index.html', // ดูดวง category landing", // 4  unquoted domain term in comment, counted
+    ],
+    comment: [4],
+  },
+  {
     name: 'mjs — comments counted; string and template not',
     file: 'f.mjs',
     text: [
