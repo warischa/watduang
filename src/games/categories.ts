@@ -12,6 +12,15 @@ export interface CategoryMeta {
   label: string;
   /** One short Thai line: when to pick a game from this category */
   whenToUse: string;
+  /** Thai heading for this group's section on the home hub (gh#75). Separate from `label`: the
+   *  category page's H1 is the bare category name, while the hub section carries the keyword form.
+   *  Restored with the wording gh#75 shipped and gh#87 removed together with its cards — approved
+   *  copy, not new Thai (ADR-0034: a second surface's copy is a manifest field, never a page
+   *  literal). */
+  hubHeading: string;
+  /** Thai when-to-use line for this group's section on the home hub (gh#75) — longer than
+   *  `whenToUse`, which belongs to the category page. */
+  hubBody: string;
   /** Thai intro copy paragraph for the listing page */
   intro: string;
   /** Accent NAME, not a colour value — the page/token layer resolves it to real colours */
@@ -33,6 +42,8 @@ export const categories: Record<Category, CategoryMeta> = {
   fortune: {
     label: 'ดูดวง',
     whenToUse: 'อยากรู้ว่าวันนี้ดวงเป็นยังไง หรือคู่ไหนเข้ากัน',
+    hubHeading: 'ดูดวง ทำนายโชคชะตา',
+    hubBody: 'ไม่มีใครแพ้ ไม่มีใครโดน จั่วได้แล้วอ่านให้วงฟัง เหมาะกับวงที่เพิ่งเจอกัน',
     intro: 'รวมเกมดูดวงเล่นฟรีบนมือถือเครื่องเดียว เสี่ยงเซียมซี เปิดดวงประจำวัน หรือวัดว่าคู่ไหนเข้ากัน ส่งเครื่องวนกันในวง ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
     accent: 'gold',
     carriesGroup: false,
@@ -44,6 +55,8 @@ export const categories: Record<Category, CategoryMeta> = {
   party: {
     label: 'สุ่มคนโดน',
     whenToUse: 'ต้องหาคนโดน คนจ่าย หรือคนเริ่มก่อน',
+    hubHeading: 'เกมวัดดวง สุ่มคนโดน',
+    hubBody: 'จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลงกันเองว่าคนโดนต้องทำอะไร',
     intro: 'รวมเกมสุ่มคนโดนสำหรับวงเพื่อน จับไม้สั้น ระเบิดเวลา หรือสุ่มคนโดนแบบตรง ๆ ตัดสินว่าใครจ่าย ใครเริ่ม ใครโดน ด้วยมือถือเครื่องเดียว',
     accent: 'punch',
     carriesGroup: true,

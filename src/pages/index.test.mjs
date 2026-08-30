@@ -59,17 +59,30 @@ test('the home page reads game names and taglines from the games manifest', () =
   assert.match(pageSrc, /from '\.\.\/games\/manifest'/, 'must import the games manifest, not a copy of it');
   assert.match(pageSrc, /\{[^}]*\.names\.th[^}]*\}/, 'a card must render names.th by interpolation');
   assert.match(pageSrc, /\{[^}]*tagline[^}]*\}/, 'a card must render the tagline by interpolation');
+  // gh#75: the grouped cards feed the same two fields through the model, and the featured card's own
+  // interpolation above would otherwise satisfy the two assertions on its own.
+  assert.match(pageSrc, /title:\s*game\.names\.th\b/, 'the card model must take its title from the games manifest');
+  assert.match(pageSrc, /desc:\s*game\.tagline\b/, 'the card model must take its body from the games manifest');
 });
 
+// gh#75 moved the manifest read one step up: the page builds a `groups` model in its frontmatter and
+// the markup renders `{card.title}` / `{card.desc}` / `{card.pill}` for all three groups at once.
+// The invariant is unchanged and is now pinned at BOTH ends — the frontmatter field must be fed by
+// the manifest expression, and the markup must render that field by interpolation. Pinning only the
+// markup would pass on a page whose model retyped the string; pinning only the model would pass on a
+// page that never rendered it.
 test('the home page reads tool names and descriptions from the tools manifest', () => {
   assert.match(pageSrc, /from '\.\.\/tools\/manifest'/, 'must import the tools manifest, not a copy of it');
-  assert.match(pageSrc, /\{tool\.name\}/, 'a tool card must render the name by interpolation');
-  assert.match(pageSrc, /\{tool\.desc\}/, 'a tool card must render the description by interpolation');
+  assert.match(pageSrc, /title:\s*tool\.name\b/, 'the card model must take its title from the manifest tool name');
+  assert.match(pageSrc, /desc:\s*tool\.desc\b/, 'the card model must take its body from the manifest tool description');
+  assert.match(pageBody, /\{card\.title\}/, 'a card must render the title by interpolation');
+  assert.match(pageBody, /\{card\.desc\}/, 'a card must render the description by interpolation');
 });
 
 test('category labels render through the manifest, never as page literals', () => {
   assert.match(pageSrc, /from '\.\.\/games\/categories'/, 'must import the categories record');
-  assert.match(pageSrc, /\{[^}]*label[^}]*\}/, 'a game pill must render categories[label] by interpolation');
+  assert.match(pageSrc, /pill:\s*categories\[[^\]]+\]\.label\b/, 'the pill must take its text from the categories record');
+  assert.match(pageBody, /\{card\.pill\}/, 'a game pill must render that field by interpolation');
   assert.doesNotMatch(pageBody, />\s*ดูดวง\s*</, 'the literal label must not sit in markup as bare copy');
   assert.doesNotMatch(pageBody, />\s*สุ่มคนโดน\s*</, 'the literal label must not sit in markup as bare copy');
 });

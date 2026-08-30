@@ -20,20 +20,52 @@ import type { Category } from '../games/types';
 // accent name — no name, no colour and no tagline is hardcoded here.
 const featured = byId('siamsi')!;
 
-// Grid order is the canvas's own: the fortune games first (its record key already leads, so
-// `categories` key order is page order), then the party games. A new game renders a new card with
-// no edit to this file; a new category key would too, once the canvas's per-card bob phase below
-// stops being a fixed six-position list.
-const gameCards = (Object.keys(categories) as Category[])
-  .flatMap((cat) => allGames.filter((game) => game.category === cat))
-  .map((game) => ({
-    game,
-    label: categories[game.category].label,
-    accent: categories[game.category].accent,
-  }));
-
 // The canvas's per-card bob phase, in canvas order — the stagger is a design value, not i % 3.
 const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
+
+// gh#75 — the page presents GROUPS, never one flat games list headed by a claim about the whole
+// catalogue (the heading ADR-0041 left owing). Two game groups come from the category manifest, in
+// its record key order, so fortune presents first; the tools group comes from the tools manifest
+// and links to the tools hub, never to a /c/<slug>/ URL — tools are not a category (ADR-0032).
+// Every string a group shows is manifest-held (ADR-0034), including its when-to-use line.
+// A fourth group is one more entry in this array and nothing above it moves: the H1 and the lead
+// name no group, no content type and no count.
+// The bob phase counter keeps the canvas's flat card order across the game groups.
+let bobPhase = 0;
+const groups = [
+  ...(Object.keys(categories) as Category[]).map((cat) => ({
+    heading: categories[cat].hubHeading,
+    body: categories[cat].hubBody,
+    href: `/c/${cat}/`,
+    gridClass: 'games-grid',
+    cards: allGames
+      .filter((game) => game.category === cat)
+      .map((game) => ({
+        cardClass: 'game-card',
+        href: game.playRoute ?? `/game/${game.id}/`,
+        pill: categories[cat].label as string | null,
+        title: game.names.th,
+        desc: game.tagline,
+        accentVar: `--accent-${categories[cat].accent}`,
+        bob: BOB_PHASES[bobPhase++] ?? '',
+      })),
+  })),
+  {
+    heading: toolsGroup.heading,
+    body: toolsGroup.body,
+    href: toolsGroup.href,
+    gridClass: 'tools-grid',
+    cards: tools.map((tool) => ({
+      cardClass: 'tool-card',
+      href: tool.href,
+      pill: null as string | null,
+      title: tool.name,
+      desc: tool.desc,
+      accentVar: toolsGroup.accentVar,
+      bob: '',
+    })),
+  },
+];
 ---
 
 <Base
@@ -140,44 +172,39 @@ const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
           </a>
         </section>
 
-        <section class="games">
-          <div class="section-head">
-            <h2>เกมทั้งหมด</h2>
-            <a class="section-link" href="/c/party/">ดูเรียงเป็นรายการ →</a>
-          </div>
-          <div class="games-grid">
-            {gameCards.map(({ game, label, accent }, index) => (
-              <a
-                class={`game-card ${BOB_PHASES[index] ?? ''}`}
-                href={game.playRoute ?? `/game/${game.id}/`}
-                style={`--card-accent: var(--accent-${accent});`}
-              >
-                <span class="game-pill">{label}</span>
-                <h3>{game.names.th}</h3>
-                <p>{game.tagline}</p>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        {/* Ad slot 2 of 4 — the in-content unit the canvas marks between the games and the tools.
-            90px reserved. */}
-        <div class="ad-slot ad-inline" aria-hidden="true">ช่องโฆษณา</div>
-
-        <section class="tools">
-          <div class="section-head">
-            <h2>เครื่องมือสุ่ม กดทีเดียวจบ</h2>
-            <a class="section-link" href={toolsGroup.href}>ดูทั้งหมด →</a>
-          </div>
-          <div class="tools-grid">
-            {tools.map((tool) => (
-              <a class="tool-card" href={tool.href} style={`--card-accent: var(${toolsGroup.accentVar});`}>
-                <h3>{tool.name}</h3>
-                <p>{tool.desc}</p>
-              </a>
-            ))}
-          </div>
-        </section>
+        {/* One section per group, same markup for all three: a group is data, not a hand-written
+            block, so a fourth one renders here with no edit to this file and none to the hero.
+            Ad slot 2 of 4 — the in-content unit the canvas marks between the games and the tools —
+            keeps its place by rendering before the last group. 90px reserved. */}
+        {groups.map((group, index) => (
+          <>
+            {index === groups.length - 1 && (
+              <div class="ad-slot ad-inline" aria-hidden="true">ช่องโฆษณา</div>
+            )}
+            <section class="group">
+              <div class="section-head">
+                <div class="section-head-copy">
+                  <h2>{group.heading}</h2>
+                  <p class="section-body">{group.body}</p>
+                </div>
+                <a class="section-link" href={group.href}>ดูทั้งหมด →</a>
+              </div>
+              <div class={group.gridClass}>
+                {group.cards.map((card) => (
+                  <a
+                    class={`${card.cardClass} ${card.bob}`}
+                    href={card.href}
+                    style={`--card-accent: var(${card.accentVar});`}
+                  >
+                    {card.pill && <span class="game-pill">{card.pill}</span>}
+                    <h3>{card.title}</h3>
+                    <p>{card.desc}</p>
+                  </a>
+                ))}
+              </div>
+            </section>
+          </>
+        ))}
 
         <section class="howto">
           <h2>เล่นยังไง</h2>
@@ -560,6 +587,23 @@ const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
   .section-link {
     font-size: 15px;
     color: var(--color-primary);
+  }
+
+  /* gh#75 — a group's heading and its when-to-use line stack in the head's left column while the
+     link keeps the row. No new design values: the copy line is the .faq-item p pair (15px / 1.75)
+     in the .kicker's muted ink, and the 8px stack gap is the tool card's own. */
+  .section-head-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .section-body {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--color-muted);
   }
 
   .games-grid {
