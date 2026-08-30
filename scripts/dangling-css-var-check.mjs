@@ -13,7 +13,7 @@
 // repo-owned stylesheets — names a property something on that same page defines. It does NOT cover
 // markup that only exists at runtime: a var() inside a string that JS writes via innerHTML, or a
 // property set through element.style.setProperty(). Those are authored in .ts and never appear in
-// dist/, so no build-time scan of dist/ can see them (src/games/pick-loser.ts BURST_SVG is one).
+// dist/, so no build-time scan of dist/ can see them (src/games/siamsi.ts's inline svg is one).
 // That set is guarded at authorship per ADR-0026, not here — claiming otherwise would be the same
 // unearned sentence-next-to-the-code this gate was written to catch.
 //

@@ -3,8 +3,10 @@
 // SIBLING of .play-area, so any height change inside #stage/.play-area shifts it, per ADR-0044).
 //
 // Confirmed against the manifest, not trusted from the brief:
-//   grep -n "ads:" src/games/*.ts  ->  daily-fortune/love-match/short-stick/timebomb/siamsi = true,
-//   pick-loser = false. Matches this script's PAGE_CONFIG exactly; no mismatch to report.
+//   grep -n "ads:" src/games/*.ts  ->  daily-fortune/love-match/short-stick/timebomb/siamsi = true.
+//   Matches this script's PAGE_CONFIG exactly; no mismatch to report. gh#154 removed the one game
+//   that carried ads: false, so every remaining ads-bearing page is in PAGE_CONFIG and no game module
+//   opts out of ad requests any more.
 //
 // READ-ONLY — makes no src/ changes.
 //

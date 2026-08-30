@@ -38,11 +38,14 @@ const categoriesPath = path.join(root, 'src/games/categories.ts');
 // game and the hub as inventory — which is where GameLayout renders the slot. The scaffold flattened
 // "never on the play screen" into "never on the page", and that flattened rule then kept every game
 // page slot-free. Issue #5's game table carries the per-game values.
-const NO_AD_REQUEST = {
-  'pick-loser':
-    'the "ใครแพ้หมดแก้ว" page is AdSense restricted content (issue #10): it carries an Auto ads page ' +
-    'exclusion and must place no manual slot, so it generates no ad request at all',
-};
+//
+// gh#154, 2026-08-30: THIS MAP IS NOW EMPTY, and that means the rule below has ZERO live instances.
+// Its only entry was the party game deleted by that ticket (issue #10 had excluded that one page from
+// Auto ads as restricted content). The entry went with the page rather than staying behind as a
+// record of a decision about a URL that no longer resolves. The rule itself is NOT dead code: it is
+// still exercised in both directions by the selftest against FIXTURE_NO_AD_REQUEST, and main() now
+// prints the denylist size so a green never reads as "the ad-policy rule checked something".
+const NO_AD_REQUEST = {};
 
 const isStr = (v) => typeof v === 'string' && v.length > 0;
 const isStrArray = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string');
@@ -55,7 +58,7 @@ const isFn = (v) => typeof v === 'function';
 // repo. Normal invocation below passes the real `root` and the real categories record; the selftest
 // passes fixture records, so behaviour there is unchanged.
 // ---------------------------------------------------------------------------
-function validateGames(games, checkRoot, categories) {
+function validateGames(games, checkRoot, categories, noAdRequest = NO_AD_REQUEST) {
   const errors = [];
   // ADR-0019: a gate's green must not imply coverage it has not earned. Every rule below is
   // per-game, so an empty array satisfies all of them vacuously and main() prints
@@ -154,8 +157,8 @@ function validateGames(games, checkRoot, categories) {
 
     if (typeof g?.ads !== 'boolean') {
       err('ads', 'must be a boolean');
-    } else if (g.ads === true && NO_AD_REQUEST[g.id]) {
-      err('ads', `must be false for "${g.id}" — ${NO_AD_REQUEST[g.id]}`);
+    } else if (g.ads === true && noAdRequest[g.id]) {
+      err('ads', `must be false for "${g.id}" — ${noAdRequest[g.id]}`);
     }
 
     if (!isFn(g?.mount)) err('mount', 'must be a function');
@@ -194,9 +197,11 @@ function selftest() {
     fs.writeFileSync(path.join(tmpDir, 'src/games/happy-game.ts'), '');
     fs.writeFileSync(path.join(tmpDir, 'public/og/happy-game.png'), '');
     // the ads denylist case below mutates the fixture's id, so it needs its own two files on disk —
-    // otherwise it would trip the id and og existence rules and pass for the wrong reason
-    fs.writeFileSync(path.join(tmpDir, 'src/games/pick-loser.ts'), '');
-    fs.writeFileSync(path.join(tmpDir, 'public/og/pick-loser.png'), '');
+    // otherwise it would trip the id and og existence rules and pass for the wrong reason. gh#154:
+    // the id is a FIXTURE id, not a real page — the real denylist is empty, and a selftest keyed to a
+    // real id would have gone unrunnable the moment that page was deleted.
+    fs.writeFileSync(path.join(tmpDir, 'src/games/restricted-fixture.ts'), '');
+    fs.writeFileSync(path.join(tmpDir, 'public/og/restricted-fixture.png'), '');
 
     const goodGame = () => ({
       id: 'happy-game',
@@ -214,7 +219,7 @@ function selftest() {
 
     // Known-good for the ADR-0040 binds: a fortune page declaring [1, 1] is the new legal shape. It
     // claims 'fortune' (so partyAndFortune's keys are all claimed) and needs its own id file on disk,
-    // exactly like the pick-loser fixture above.
+    // exactly like the restricted-fixture files above.
     fs.writeFileSync(path.join(tmpDir, 'src/games/solo-game.ts'), '');
     const soloGame = () => ({ ...goodGame(), id: 'solo-game', category: 'fortune', players: [1, 1] });
 
@@ -235,11 +240,17 @@ function selftest() {
     assert.deepEqual(validateGames([goodGame()], tmpDir, partyOnly), [], 'a fully-valid GameModule must report zero violations');
     console.log('PASS known-good: a fully-valid GameModule reports zero violations');
 
+    // gh#154 — the ad-policy denylist the known-bad loop runs against. The REAL NO_AD_REQUEST is
+    // empty (its only page was deleted), so a selftest reading the real map would exercise nothing.
+    // A fixture denylist keeps the rule calibrated in the failing direction while the shipped map has
+    // zero instances; `restricted-fixture` is not, and must never become, a real page id.
+    const FIXTURE_NO_AD_REQUEST = { 'restricted-fixture': 'fixture page: AdSense restricted content' };
+
     // The ads rule has to be calibrated in BOTH directions. The blanket rule this replaced made every
     // ads: true a violation, so a selftest that only proves the failing direction would have passed
     // against the wrong gate too. This is the case that would have caught it.
     assert.deepEqual(
-      validateGames([{ ...goodGame(), ads: true }], tmpDir, partyOnly), [],
+      validateGames([{ ...goodGame(), ads: true }], tmpDir, partyOnly, FIXTURE_NO_AD_REQUEST), [],
       'ads: true on a game that is not on the no-ad-request denylist must report zero violations',
     );
     console.log('PASS known-good: ads: true on an ordinary game reports zero violations');
@@ -276,14 +287,14 @@ function selftest() {
       { field: 'og (not a string)', mutate: (g) => ({ ...g, og: '' }), expect: /og must be a non-empty string/ },
       { field: 'og (file missing)', mutate: (g) => ({ ...g, og: 'ghost.png' }), expect: /og "ghost\.png" — public\/og\/ghost\.png does not exist/ },
       { field: 'ads (not a boolean)', mutate: (g) => ({ ...g, ads: 'yes' }), expect: /ads must be a boolean/ },
-      { field: 'ads (true on a no-ad-request id)', mutate: (g) => ({ ...g, id: 'pick-loser', og: 'pick-loser.png', ads: true }), expect: /ads must be false for "pick-loser" — the "\u0e43\u0e04\u0e23\u0e41\u0e1e\u0e49\u0e2b\u0e21\u0e14\u0e41\u0e01\u0e49\u0e27" page is AdSense restricted content/ },
+      { field: 'ads (true on a no-ad-request id)', mutate: (g) => ({ ...g, id: 'restricted-fixture', og: 'restricted-fixture.png', ads: true }), expect: /ads must be false for "restricted-fixture" — fixture page: AdSense restricted content/ },
       { field: 'mount', mutate: (g) => ({ ...g, mount: undefined }), expect: /mount must be a function/ },
       { field: 'dispose', mutate: (g) => ({ ...g, dispose: undefined }), expect: /dispose must be a function/ },
       { field: 'onVisibility (present, not a function)', mutate: (g) => ({ ...g, onVisibility: 'nope' }), expect: /onVisibility must be a function when present/ },
     ];
 
     for (const { field, mutate, expect } of cases) {
-      const errors = validateGames([mutate(goodGame())], tmpDir, partyOnly);
+      const errors = validateGames([mutate(goodGame())], tmpDir, partyOnly, FIXTURE_NO_AD_REQUEST);
       assert.ok(errors.length > 0, `${field}: known-bad fixture must report at least one violation`);
       assert.ok(errors.some((e) => expect.test(e)), `${field}: expected a violation matching ${expect}, got: ${JSON.stringify(errors)}`);
     }
@@ -387,7 +398,15 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`validate-games: ${games.length} game(s) OK`);
+  // gh#154 / ADR-0019 — the denylist size is printed, not implied. With zero entries the ad-policy
+  // rule fires on nothing, so a green here says nothing about ad policy; it says every other per-game
+  // rule passed. NOT covered by this line either way: whether Google classifies any shipped page as
+  // restricted content (that set is Google's, not this repo's).
+  const denyIds = Object.keys(NO_AD_REQUEST);
+  const denyNote = denyIds.length === 0
+    ? ' · no-ad-request denylist is EMPTY — the ad-policy rule matched 0 game(s) and is NOT MEASURING (calibrated only by --selftest against a fixture denylist)'
+    : ` · no-ad-request denylist: ${denyIds.length} id(s) — ${denyIds.join(', ')}`;
+  console.log(`validate-games: ${games.length} game(s) OK${denyNote}`);
 }
 
 await main();

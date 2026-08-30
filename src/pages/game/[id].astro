@@ -177,12 +177,17 @@ const { game } = Astro.props as { game: GameModule };
     }
   });
 
-  // gh#76 — "เปลี่ยนคนเล่น" (pick-loser's secondary control) asks the page to put the setup panel back
-  // so the group can re-tick. The game tears itself down and then dispatches this on document; the page
-  // owns the panel restore, the same split gh#54's failed-mount path uses. Showing the panel is what
-  // drops the live-round bit (root.hidden), which is correct here: pick-loser keeps no checkpoint, so
-  // by the time this control is pressable the round already has nothing left to lose. The stale
-  // write-refused notice is cleared too, on the same reasoning as the start path above.
+  // gh#76 — the shell's "put the setup panel back so the group can re-tick" contract. A game module
+  // tears itself down and then dispatches this on document; the page owns the panel restore, the same
+  // split gh#54's failed-mount path uses. Showing the panel drops the live-round bit (root.hidden),
+  // which is only correct for a game that keeps no checkpoint — a dispatcher that does keep one must
+  // clear it before dispatching. The stale write-refused notice is cleared too, on the same reasoning
+  // as the start path above.
+  //
+  // gh#154 — ZERO DISPATCHERS TODAY. The only one was the change-players secondary control on the
+  // party game deleted by that ticket. Kept as shell API (_fake-dom.mjs records this event type for
+  // every game test), not because anything currently fires it: `git grep "watduang:change-players"
+  // src/games` returns only the fake DOM. A future game wiring such a control gets the restore free.
   document.addEventListener('watduang:change-players', () => {
     const panel = document.getElementById('player-setup');
     if (panel) {
@@ -250,6 +255,11 @@ const { game } = Astro.props as { game: GameModule };
     box-shadow: 5px 5px 0 rgba(26, 26, 26, 0.3);
   }
 
+  /* gh#154 — ZERO PRODUCERS TODAY. The party game deleted by that ticket was the only module that
+     built a .game-btn-secondary, so this rule and the 56px floor below it currently style nothing:
+     scripts/control-floor-probe.mjs prints "NOT MEASURED: zero .game-btn-secondary" on every run.
+     Kept as the shell's declared secondary-control style, which the next game with a secondary
+     control inherits — not because anything renders it now. */
   .game-btn-secondary {
     min-height: 56px;
     background: transparent;
@@ -264,57 +274,5 @@ const { game } = Astro.props as { game: GameModule };
   .game-btn-secondary:disabled {
     color: rgba(26, 26, 26, 0.45);
     border: 2.5px dashed rgba(26, 26, 26, 0.35);
-  }
-
-  .pl-label {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 20px;
-  }
-
-  .pl-burst {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 290px;
-    height: 290px;
-    /* the canvas measures 290px inside a 390px frame; at 320px the box shrinks and the svg follows */
-    max-width: 100%;
-  }
-
-  .pl-burst svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .pl-name {
-    position: relative;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 44px;
-    line-height: 1.1;
-    text-align: center;
-    max-width: 6ch;
-    word-break: break-word;
-  }
-
-  .pl-foot {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 1.6;
-    text-align: center;
-    max-width: 28ch;
-  }
-
-  .pl-hint {
-    font-size: 11px;
-    text-align: center;
-    color: rgba(26, 26, 26, 0.55);
-    /* same 22 -> 10 collapse as the secondary control above */
-    margin-block-start: -12px;
   }
 </style>

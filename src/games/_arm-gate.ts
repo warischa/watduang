@@ -13,8 +13,9 @@
  *  legitimate sub-500ms follow-up tap, because on the paths gated here the phone is in transit
  *  between two people. Assumption (2) holds PER CONTROL, not per game — a control one player taps
  *  twice in a row (rapid-fire rounds, a hold-and-repeat) needs its real inter-tap gap measured
- *  before it is gated, not this number copied. Two such controls are already known and deliberately
- *  left ungated: daily-fortune's roster chips and pick-loser's #pl-pick. Read
+ *  before it is gated, not this number copied. One such control is still recorded as deliberately
+ *  left ungated on this reasoning: daily-fortune's roster chips. The second, a party game's pick
+ *  button, went with its page in gh#154. Read
  *  `docs/adr/0016-a-gate-that-classifies-nothing-converges.md` § "Known premise exceptions"
  *  before gating anything new.
  *

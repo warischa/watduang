@@ -105,12 +105,6 @@ const UNGATED_EXCEPTIONS = new Set([
   'short-stick.ts::renderPassing',
   'timebomb.ts::renderTicking',
   'timebomb.ts::renderBoom',
-  // src/games/pick-loser.ts, the "Exception (owner's call)" comment closing renderIdle — "pl-pick is
-  // deliberately NOT gated. No hand-off exists in the pl-again -> pl-pick flow — the same hand that
-  // tapped the again button taps this button next, so gating it would delay a real, single-user
-  // action." Anchored to the symbol, not a line range: the range this used to carry had already
-  // rotted past the comment it names, and renumbering it would only rot again.
-  'pick-loser.ts::renderIdle',
 ]);
 
 // Condition 2: render*() functions allowed to call armAllButtons(stage, except) with a non-empty
@@ -448,7 +442,7 @@ function selftest() {
 
     // --- Condition 1: known-bad — this codebase's real idiom for the regression: replaceChildren,
     // el('button', ...), appendChild, no armAllButtons call. Not a synthetic string; this is the
-    // shape short-stick.ts/timebomb.ts/pick-loser.ts's own render functions use verbatim. ---
+    // shape short-stick.ts's and timebomb.ts's own render functions use verbatim. ---
     const badGating = write('bad-gating.ts', [
       "function renderFoo(): void {",
       "  const stage = stageEl;",
@@ -928,7 +922,25 @@ async function main() {
   // gh#66: gamesDir is always printed (not only when the override is set), so a narrowed run is
   // readable from the resolved directory alone — a fixture path visibly differs from src/games/,
   // rather than a reader having to infer narrowing from the absence of a failure.
-  console.log(`arm-gate-coverage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}`);
+  // gh#154 / ADR-0019 — the exception sets are sized in the success line, not left implied. The
+  // deleted party game's `renderIdle` entry went with its module, and this STATIC gate keeps its
+  // subjects: the three entries left are real ungated render functions in real modules, and
+  // scanTargetFiles above fails on an entry naming a file that no longer exists, which is what stops
+  // this list rotting into a set of ghosts.
+  //
+  // What the deletion cost is a DYNAMIC leg, not this one. scripts/arm-gate-probe.mjs's `pl-pick
+  // exception` leg proved a specific shape in a real browser: a control that a PRECEDING gated
+  // control's tap renders, itself deliberately left live at t0. That subject is gone and the leg is
+  // not repointed. Note the narrower wording — the three entries below ARE ungated in-#stage buttons
+  // that still ship, so "no ungated button is left" would be false; what is gone is the one whose
+  // liveness a real touch was driven against.
+  console.log(
+    `arm-gate-coverage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}` +
+    ` · recorded exceptions: ${UNGATED_EXCEPTIONS.size} ungated (${[...UNGATED_EXCEPTIONS].join(', ')}),` +
+    ` ${EXCEPT_ARG_EXCEPTIONS.size} pinned except-arg` +
+    ' · NOT covered here: whether a real touch on a gated control still reaches #stage (browser-only,' +
+    ' scripts/arm-gate-probe.mjs), and the ungated-exception leg that probe LOST with gh#154',
+  );
 }
 
 await main();

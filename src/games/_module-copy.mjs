@@ -12,8 +12,13 @@
 // SEAM REQUIRED — and this is the pattern that blocks a pure import: the game modules build their UI
 // with inline literals (the label is typed straight into the el() call), so there is nothing to read.
 // The seam
-// is one exported const object of copy per module, which the render functions then reference. See
-// pick-loser.ts's `COPY` for the proof-of-concept; the other five games still inline theirs.
+// is one exported const object of copy per module, which the render functions then reference.
+//
+// gh#154 — NO GAME MODULE EXPORTS A `COPY` OBJECT TODAY. The proof-of-concept lived in the party game
+// that ticket deleted, and every remaining game still inlines its labels, so this helper has zero
+// production callers: `git grep -l _module-copy src/` returns only _fake-dom.test.mjs, which
+// exercises exportedStrings against fixture modules. Kept because the seam is still the answer the
+// next copy-drift bug needs — but read its green as "the helper works", never as "a game uses it".
 
 /** Flattens every string reachable from a module's named exports into `dotted.path -> string`.
  *  Functions, numbers and cycles are skipped; arrays index numerically (`FORTUNES.0.text`). */

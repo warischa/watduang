@@ -9,6 +9,16 @@
       "route": "/game/love-match",
       "redirect": "/c/fortune/",
       "statusCode": 301
+    },
+    {
+      "route": "/game/pick-loser",
+      "redirect": "/c/party/",
+      "statusCode": 301
+    },
+    {
+      "route": "/og/pick-loser.png",
+      "redirect": "/og/site.png",
+      "statusCode": 301
     }
   ],
   "responseOverrides": {

@@ -24,9 +24,9 @@
 //     correct, so the gate must be silent about it, and it must go red the moment either half moves
 //     without the other.
 //   - a registered game with NO sheet on disk is outside the domain entirely (the loop is over
-//     sheets, not games). That is pick-loser, whose `.pl-*` rules live in the is:global block of
-//     src/pages/game/[id].astro. Adding it to an exemption list would be recording a fact the
-//     filesystem already states.
+//     sheets, not games). Most of the manifest is in that state today — the gh#139 ports and the
+//     playRoute games style themselves under src/play/, not here. Adding them to an exemption list
+//     would be recording a fact the filesystem already states.
 //
 // HOW THE REGISTERED SET IS READ: by IMPORTING src/games/manifest.ts with node and reading
 // `games.map(g => g.id)`, exactly as scripts/validate-games.mjs does — the manifest spells the full
@@ -58,8 +58,8 @@
 //
 // WHAT THIS GATE DOES NOT COVER, stated so a green is not read as more than it is:
 //   - CSS inside `<style>` / `<style is:global>` blocks. Those rules are not a file in
-//     src/styles/games/, so they are neither a sheet nor an import here — pick-loser's whole
-//     visual lives there and is invisible to this check.
+//     src/styles/games/, so they are neither a sheet nor an import here — the shared game-screen
+//     classes in src/pages/game/[id].astro live there and are invisible to this check.
 //   - any CSS outside src/styles/games/ — src/styles/tokens.css, component-scoped styles, dist.
 //   - dead rules INSIDE a sheet that is legitimately imported. This gate proves a sheet has a page
 //     that can consume it; it says nothing about whether every selector in it matches anything.
@@ -243,7 +243,7 @@ function successLine(counts) {
     `css-reachability-check: ${counts.sheets} per-game stylesheet(s) checked in ${SHEETS_REL} — ` +
     `${counts.live} registered AND imported, ${counts.dormant} registered by nobody and imported by nobody (dormant on purpose), ` +
     `read from ${counts.files} file(s) under ${SRC_REL}/ and ${counts.games} manifest game(s). ` +
-    'NOT covered: CSS in <style>/is:global blocks (pick-loser\'s rules live there), any CSS outside ' +
+    'NOT covered: CSS in <style>/is:global blocks (the shared .game-btn* rules live there), any CSS outside ' +
     `${SHEETS_REL}, dead rules inside a sheet that IS imported, an import whose specifier is not a literal ` +
     'string (a computed import() reads as not-imported, which passes silently on the unregistered half), and ' +
     'transitive reach — "imported" is ONE HOP, so a sheet reached only by another dormant sheet\'s @import ' +
@@ -269,7 +269,7 @@ async function selftest() {
     "const raw = readFileSync(new URL('../styles/games/love-match.css', import.meta.url), 'utf8');",
     '---',
     '<!-- and short-stick.css in markup prose -->',
-    '<p>pick-loser.css named in template text</p>',
+    '<p>dice-loser.css named in template text</p>',
   ].join('\n');
   assert.deepEqual(
     [...await importedSheetsIn(pageText, '.astro')].sort(),
@@ -294,7 +294,7 @@ async function selftest() {
   // --- known-good: the shipped shape. Two registered+imported sheets, one dormant sheet, and a
   // registered game with no sheet at all. ---
   assert.deepEqual(
-    audit(S('timebomb', 'siamsi', 'love-match'), S('timebomb', 'siamsi', 'pick-loser'), S('timebomb', 'siamsi')).errors,
+    audit(S('timebomb', 'siamsi', 'love-match'), S('timebomb', 'siamsi', 'dice-loser'), S('timebomb', 'siamsi')).errors,
     [],
     'the shipped shape must report zero violations: registered+imported sheets, a dormant sheet, and a registered game whose rules are inline',
   );

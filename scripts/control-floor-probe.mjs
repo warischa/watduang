@@ -32,13 +32,15 @@
 // ([1, 1] is the ADR-0040 solo class, which renders no setup panel). A seventh game is covered the
 // build after it lands. The navigation shape (seed the roster in localStorage, tick every box, click
 // #start-round · or let the solo branch mount itself) is the one in scripts/ad-slot-game-probe.mjs,
-// plus pick-loser, which that probe skips because it carries no ad slot — it is included here because
-// it is the ONLY page that renders a .game-btn-secondary, i.e. the only page where the 56px floor is
-// measurable at all.
+// gh#154: this walk USED to also reach the party game that was the ONLY page rendering a
+// .game-btn-secondary, i.e. the only page where the 56px secondary floor was measurable at all. That
+// page is deleted and nothing replaced it (`git grep -n game-btn-secondary src/` returns the
+// declaration in [id].astro and no producer). The 56px floor is therefore UNMEASURED, and the
+// success line says so per-variant rather than folding it into a total.
 //
 // EACH PAGE IS WALKED TWO SCREENS DEEP (seeded screen, then one click on the first enabled #stage
 // button), because several games' controls only exist after a transition: daily-fortune's screen 1 has
-// no .game-btn at all, and pick-loser's secondary lives on its result screen.
+// no .game-btn at all, and the deleted party game's secondary lived on its result screen.
 //
 // WHAT ITS GREEN DOES NOT MEAN. 320px only — 390px is UNMEASURED here, deliberately: 320 is the
 // binding width (a floor that holds at 320 holds wider, and every layout hazard in this repo has
@@ -132,7 +134,12 @@ const EPS = 0.05;
 //     carries .game-btn, so it contributes 0, the same shape as freeze-tap's .ft-pad div.
 //   - The registering commit touches no other game module and none of the shell. 10 + 1 = 11 closes
 //     exactly.
-export const CONTROL_COUNT = 9;
+// 2026-08-30, 9 -> 6: gh#154 deleted the party game whose page contributed 3 of the 9 — 1 on screen 1
+// (its pick button) and 2 on screen 2 (a primary and the site's only secondary). ATTRIBUTED, not
+// bumped: the deleting commit touches no other game module and none of the shell, and the walk still
+// reaches the same two screens on every other page, so 9 - 3 = 6 closes exactly. RE-MEASURED against
+// a real run of this probe on the post-deletion dist/, not carried over from the arithmetic.
+export const CONTROL_COUNT = 6;
 /** Every game in the manifest gets a page. Pinned so a page that stopped loading cannot read as clean. */
 export const PAGE_COUNT = games.length;
 
@@ -391,7 +398,19 @@ function main() {
     console.error(`\n${violations.length} of ${controlsMeasured} rendered .game-btn control(s) fail a floor claim at ${out.width}px.`);
     process.exit(1);
   }
-  console.log(`OK ${controlsMeasured} rendered .game-btn control(s) across ${out.pagesWalked} game page(s) at ${out.width}px: every one resolves a non-zero min-height, renders at or above it, and clears the ${MIN_TAP_PX}px tap minimum.`);
+  // gh#154 / ADR-0019 — the per-variant tally is printed because a variant with zero instances is a
+  // claim this run did NOT test. `.game-btn-secondary` lost its only producer when the party game was
+  // deleted, so its 56px floor is measured by nothing; the declaration still sits in [id].astro's
+  // is:global block and would go on resolving even if it stopped reaching JS-created controls.
+  const byVariant = { primary: 0, secondary: 0, bare: 0 };
+  for (const s of out.screens) for (const c of s.controls) byVariant[c.variant] = (byVariant[c.variant] ?? 0) + 1;
+  // Only the two variants that DECLARE their own floor in [id].astro can be unmeasured in the sense
+  // that matters; `bare` is the no-variant bucket and declares nothing, so a zero there is not a gap.
+  const unmeasured = ['primary', 'secondary'].filter((v) => byVariant[v] === 0);
+  const unmeasuredNote = unmeasured.length
+    ? ` · NOT MEASURED: zero .game-btn-${unmeasured.join(' and zero .game-btn-')} control(s) rendered anywhere in this walk — that floor is declared in [id].astro and exercised by nothing, so this green says nothing about it`
+    : '';
+  console.log(`OK ${controlsMeasured} rendered .game-btn control(s) across ${out.pagesWalked} game page(s) at ${out.width}px (primary ${byVariant.primary}, secondary ${byVariant.secondary}, bare ${byVariant.bare}): every one resolves a non-zero min-height, renders at or above it, and clears the ${MIN_TAP_PX}px tap minimum.${unmeasuredNote}`);
 }
 
 // Entry point only — driver.mjs imports this module for its default export, and that must not fire

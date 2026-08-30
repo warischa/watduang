@@ -7,7 +7,6 @@ import type { GameModule } from './types';
 // with node directly, and node's ESM cannot guess the extension · Vite/Astro already accept .ts.
 import timebomb from './timebomb.ts';
 import siamsi from './siamsi.ts';
-import pickLoser from './pick-loser.ts';
 import shortStick from './short-stick.ts';
 import dailyFortune from './daily-fortune.ts';
 import freezeTap from './freeze-tap.ts';
@@ -20,11 +19,14 @@ import pinocchioLuck from './pinocchio-luck.ts';
 // love-match is deliberately NOT registered: the page is delisted until gh#101 rebuilds it (the solo
 // mount hands it an empty roster, so every visitor hit "need 2+ people"). src/games/love-match.ts,
 // its test, and its stylesheet stay on disk on purpose — gh#101 rebuilds from them.
+// pick-loser is GONE, not delisted (gh#154, owner decision 2026-08-30: too simple to be interesting).
+// The module, its test and its OG image are deleted; /game/pick-loser 301s to /c/party/ in
+// public/staticwebapp.config.json. Its one reusable part, pickLoser(), already lives in
+// _pick-index.ts, which short-stick.ts imports.
 
 export const games: GameModule[] = [
   timebomb,
   siamsi,
-  pickLoser,
   shortStick,
   dailyFortune,
   freezeTap,

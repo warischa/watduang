@@ -113,9 +113,10 @@ const BASELINE_BASENAMES = [
   '_id_.astro_astro_type_script_index_0_lang.js',
   // gh#152 — the single-sourced animal cast, previously copied per play route.
   '_mascots.js',
-  // gh#154 prep — pickLoser moved out of pick-loser.js so that game can be deleted without
-  // breaking short-stick, which imports the helper.
-  '_pick-index.js',
+  // gh#154 — _pick-index.js is NOT in this inventory. pickLoser() was split into its own chunk as
+  // prep for deleting the party game that shared it; with that game gone short-stick is its only
+  // importer, so Rollup inlines the helper back into short-stick.js and no separate chunk ships.
+  // Adding it back here would pin a chunk the bundler has no reason to emit.
   '_round-start.js',
   'cannon-flag.js',
   'daily-fortune.js',
@@ -128,7 +129,6 @@ const BASELINE_BASENAMES = [
   'love-match.js',
   'name-list.js',
   'number.astro_astro_type_script_index_0_lang.js',
-  'pick-loser.js',
   'player-select.js',
   'power-meter.js',
   'short-stick.js',
@@ -147,7 +147,12 @@ const BASELINE_BASENAMES = [
 // that one is a MOVE, not new weight — pick-loser.js shrinks by the same function.
 // Measured by `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session,
 // not carried over from any earlier run.
-const BASELINE_TOTAL_BYTES = 323013;
+// Re-baselined 2026-08-30 (gh#154), 323013 -> 318560 (-4453, -1.4%). One cause: the party game's
+// chunk and its route bundle stopped shipping. Attributed, not assumed — the deleting change touches
+// no other game module and none of the shell, and the pinned set above lost exactly that chunk plus
+// _pick-index.js (inlined back into short-stick.js, its only importer left). Measured by
+// `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session.
+const BASELINE_TOTAL_BYTES = 318560;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

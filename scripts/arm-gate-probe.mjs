@@ -588,11 +588,18 @@ async function runTimebombScenario(session, base, scenario) {
 // control lands under the finger that caused the swap. Every game registered since ADR-0040 runs full
 // screen at a playRoute and renders no button in #stage, so none of them can host this leg.
 //
-// LOST with pick-loser, and not replaced: its `pl-pick exception` leg. That was the one recorded
-// owner decision (arm-gate-coverage-check.mjs, UNGATED_EXCEPTIONS) where a freshly rendered button is
-// deliberately NOT gated, and siamsi gates all three of its screens — there is no ungated in-#stage
-// button left on the site to point that leg at. The exception is gone with the page that had it, so
-// nothing untested remains behind; the STATIC gate on the exception list still stands.
+// LOST with pick-loser, and not replaced: its `pl-pick exception` leg. That was the recorded owner
+// decision (arm-gate-coverage-check.mjs, UNGATED_EXCEPTIONS) where a button rendered BY a preceding
+// gated control's tap is deliberately left live at t0, and siamsi gates all three of its screens, so
+// nothing in this probe's page set can host it.
+//
+// gh#154 correction, checked against the tree rather than carried forward: the earlier wording here
+// said "there is no ungated in-#stage button left on the site", and that is FALSE — UNGATED_EXCEPTIONS
+// still holds short-stick.ts::renderPassing, timebomb.ts::renderTicking and timebomb.ts::renderBoom,
+// each of which really does build an in-#stage button with no armAllButtons call (ADR-0017 left them
+// ungated on purpose). What has no subject is the narrower shape above. Whether one of those three
+// can host a repointed leg is an OPEN question, not a settled no — it needs the same real-touch
+// scenario written against it, which this ticket did not do.
 
 async function seedSolo(session, base, path, width) {
   // ADR-0040 solo page: no roster, no #start-round. [id].astro's isSolo branch mounts the module on
@@ -716,6 +723,13 @@ export default async function (session) {
       breakGuard: !!process.env.BREAK_GUARD,
       gamesCovered: ['short-stick', 'timebomb', 'siamsi'],
       gamesNotCovered: NOT_COVERED,
+      // gh#154 / ADR-0019 — emitted so the loss is READ, not only commented. The `pl-pick exception`
+      // leg (a freshly rendered button deliberately left ungated by owner decision, proven still
+      // tappable at t0) had exactly one subject on the site, and that page is deleted. Nothing here
+      // measures it now, and no surviving page can: siamsi gates all three of its screens, and every
+      // game registered since ADR-0040 renders no button in #stage at all. This string must not be
+      // removed until a page with an ungated in-#stage button exists and a leg is pointed at it.
+      ungatedExceptionLeg: 'NOT MEASURED — gh#154 deleted the only page carrying the shape (a control rendered by a preceding gated control\'s tap and deliberately left live at t0). The leg is gone, not passing. Three ungated in-#stage buttons DO still ship (short-stick renderPassing, timebomb renderTicking/renderBoom); repointing at one of them is an open question, not done.',
       totalGapTests: allGapTests.length,
       suppressionLegs: suppressionLegs.length,
       // Under BREAK_GUARD every one of these must be FAIL; under a clean run, none of them.
