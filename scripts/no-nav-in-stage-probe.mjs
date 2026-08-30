@@ -36,9 +36,9 @@
 // signal is "nothing found" and which has never found anything cannot be told from one that measured
 // nothing (docs/verification/probe-triage-2026-08-26.md).
 //
-// ponytail: COVERAGE CEILING — 4 walked pages, and the set is bounded by the hazard's own
-// precondition rather than by effort. This probe needs a tap that REPLACES #stage; only four pages
-// still have one. ADR-0040 (2026-08-25) made daily-fortune and siamsi solo pages ([1, 1]): no
+// ponytail: COVERAGE CEILING — 2 walked pages (gh#149, down from 4), and the set is bounded by the
+// hazard's own precondition rather than by effort. This probe needs a tap that REPLACES #stage; only
+// two pages still have one. ADR-0040 (2026-08-25) made daily-fortune and siamsi solo pages ([1, 1]): no
 // PlayerSetup, no #start-round, and an EMPTY group (`soloSession.players = []`,
 // src/pages/game/[id].astro), so neither renders the roster chips the old walks tapped — both are
 // walked through their own solo screens instead. Every game registered since (cannon-flag, freeze-tap,
@@ -165,9 +165,9 @@ const WALKS = {
       taps.push(await tap('#df-again -> ask', document.getElementById('df-again')));
       return taps;`,
   },
-  // gh#153 — siamsi replaces pick-loser as the fourth walk. It is the only remaining page besides the
-  // three below that renders its own buttons INSIDE #stage: every game added since runs full screen at
-  // its own playRoute and its landing is prose with no button, so there is nothing there to tap-
+  // gh#153 — siamsi replaces pick-loser here. Since gh#149 it is, with daily-fortune above, one of the
+  // only two pages left that renders its own buttons INSIDE #stage: every other game runs full screen
+  // at its own playRoute and has no /game/<id>/ page at all, so there is nothing there to tap-
   // transition and nothing for this probe to measure. Walked solo, which is what ADR-0040 made this
   // page: no roster panel, the module mounts itself on load, and #ss-start -> #ss-draw -> #ss-again is
   // the complete cycle a real solo player has. That is a longer walk than pick-loser's two taps, so
@@ -181,45 +181,14 @@ const WALKS = {
       taps.push(await tap('#ss-again -> idle', document.getElementById('ss-again')));
       return taps;`,
   },
-  'short-stick': {
-    minTransitions: 2, // the short stick can come on the first draw
-    body: `
-      for (let i = 0; i < 40 && !document.getElementById('ss-again'); i++) {
-        const pass = document.getElementById('ss-pass');
-        if (pass) { taps.push(await tap('#ss-pass -> draw', pass)); continue; }
-        const stick = stage.querySelector('button[aria-label="จับไม้"]');
-        if (!stick) break;
-        const t = await tap('stick', stick);
-        t.label = document.getElementById('ss-again') ? 'stick -> result' : 'stick -> passing';
-        taps.push(t);
-      }
-      taps.push(await tap('#ss-again -> draw', document.getElementById('ss-again')));
-      return taps;`,
-  },
-  timebomb: {
-    minTransitions: 3,
-    body: `
-      taps.push(await tap('#tb-start -> ticking', document.getElementById('tb-start')));
-      // The boom is timer-driven (30-90s fuse since gh#151; it was 15-45s), not tap-driven — but the
-      // finger's last position is #tb-pass, so the same coordinate collision applies and this is the
-      // honest analogue. The wait below MUST exceed FUSE_MAX_MS in src/games/timebomb.ts or a long
-      // draw never reaches the boom screen, that transition plants no anchor, and the CONTROL leg
-      // reds with "hit on only N of M transitions" — which reads as a broken hit-test rather than a
-      // timeout. That is exactly how this went red on the gh#151 integration.
-      const pass = document.getElementById('tb-pass');
-      let waitedMs = null;
-      const t = await transition('detonation -> boom (finger last on #tb-pass)', pass, async () => {
-        pass.click();
-        const t0 = Date.now();
-        while (!document.getElementById('tb-again') && Date.now() - t0 < 120000) await sleep(250);
-        waitedMs = Date.now() - t0;
-      });
-      t.boomWaitedMs = waitedMs;
-      t.boomScreenReached = !!document.getElementById('tb-again');
-      taps.push(t);
-      taps.push(await tap('#tb-again -> idle', document.getElementById('tb-again')));
-      return taps;`,
-  },
+  // gh#149 — the 'short-stick' and timebomb walks were deleted with their landing pages (ADR-0050
+  // ruling 2): both games declare a playRoute, so /game/<id>/ no longer builds and there is nothing
+  // to navigate to. That leaves TWO walks, both solo fortune pages, and the pinned count in
+  // ci-probes-verdict.mjs drops from 4 to 2 with them. RETIRED, not relocated: the in-#stage
+  // double-tap collision this probe measured on those two party games is not measured anywhere in
+  // ci-probes today — their play routes put the exit control in chrome outside #stage (ADR-0050's
+  // own ADR-0014 section) and scripts/play-exit-guard-probe.mjs measures that, but no lane in
+  // scripts/ci-probes.sh runs it yet.
 };
 
 export default async function (session) {

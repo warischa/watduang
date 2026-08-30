@@ -1,5 +1,6 @@
 // gh#144 PlayExit REWORKED guard walk: hold-through, hold-elsewhere+stray-tap, bfcache, regression.
-// Reuses the CDP client shape from play-exit-probe.mjs. Manual tool, not a CI leg.
+// Reuses the CDP client shape from play-exit-probe.mjs. A CI leg since gh#149 (ci-probes.sh lane1):
+// it judges its own JSON at the bottom and exits non-zero on a red.
 // Usage: npx serve dist -l 5052 (or set BASE), then: node scripts/play-exit-guard-probe.mjs <cdpPort> <shotDir>
 // Each scenario group runs in its OWN tab (browser-verification.md trap 3: state -- and, it turns out,
 // bfcache eligibility itself -- can carry across navigations in one tab; a fresh tab per group is the
@@ -90,7 +91,10 @@ const gotoIdleArmed = async (s, route) => {
 };
 
 const findTransitionTrigger = async (s) => (await s.evaluate(`
-  const root = document.querySelector('#app, #app-container');
+  // #appRoot is how-close-is-near's game root. Measured: without it, root was null there, this
+  // expression threw, and the route reported "no transition trigger" on every run -- a permanent skip
+  // that reads exactly like a route with nothing to press.
+  const root = document.querySelector('#app, #app-container, #appRoot');
   const cands = [...root.querySelectorAll('button')].filter((b) => {
     const r = b.getBoundingClientRect();
     return r.width > 60 && r.height > 30 && r.top >= 0 && !b.closest('header') && getComputedStyle(b).visibility !== 'hidden' && b.offsetParent !== null;
@@ -263,4 +267,36 @@ for (const route of ROUTES_ALL) {
 }
 
 console.log(JSON.stringify(out, null, 2));
-process.exit(0);
+
+// --- verdict ------------------------------------------------------------------------------------
+// The four scenarios above used to end in a bare process.exit(0), so every per-route pass flag they
+// compute was thrown away. Since gh#149 deleted the party landing pages, this walk and play-exit-probe
+// are the only things in CI measuring ADR-0050 ruling 3's guarded X -- so this one judges itself.
+// exercisable:false is a SKIP with its reason, never a pass: s1 needs a touch to land inside the 400ms
+// disabled window (headless main-thread contention can make that impossible on a given route/run) and
+// s3 needs bfcache to actually engage. Every leg that IS judged must pass; zero judged legs, or an
+// empty route set (refused by the throw at the top of this file), is a RED.
+const fails = [], skips = [];
+let judged = 0;
+const check = (pass, msg) => { judged++; if (!pass) fails.push(msg); };
+for (const [g, r] of Object.entries(out.s1)) {
+  if (!r.exercisable) skips.push(`s1/${g}: ${r.reason}`);
+  else check(r.pass, `s1/${g}: a press that STARTED while the X was disabled still left the round (pathname ${r.pathAfter}, capture ${JSON.stringify(r.pressStartedDisabled)})`);
+}
+for (const [g, r] of Object.entries(out.s2)) {
+  check(r.passNoNav, `s2/${g}: a stray tap on the X during a held touch left the round (during hold ${r.pathDuringHold}, after release ${r.pathAfterRelease})`);
+  check(r.passControlNav, `s2/${g}: positive control -- a quiet deliberate tap did NOT exit (pathname ${r.pathAfterControl}), so this scenario's green measures a dead control`);
+}
+for (const [g, r] of Object.entries(out.s3)) {
+  if (!r.exercisable) skips.push(`s3/${g}: ${r.reason}`);
+  else check(r.pass, `s3/${g}: after a bfcache restore the X no longer exits (pathname ${r.pathAfterTap})`);
+}
+for (const [g, r] of Object.entries(out.s4)) {
+  check(r.passDeliberateNav, `s4/${g}: a deliberate tap after the burst did not exit (pathname ${r.pathAfterDeliberate})`);
+  if (!r.transitionTriggered) skips.push(`s4/${g}: no transition trigger found, so nothing disarmed the X and the burst is not exercisable`);
+  else check(r.passNoNav, `s4/${g}: the 5-tap burst after a transition LEFT THE ROUND (pathname ${r.pathAfterBurst})`);
+}
+for (const f of fails) console.log(`  FAIL ${f}`);
+for (const s of skips) console.log(`  SKIP ${s}`);
+console.log(`play-exit-guard: ${ROUTES_ALL.length} route(s) checked, ${judged} scenario leg(s) judged, ${fails.length} failed, ${skips.length} not exercisable`);
+process.exit(fails.length > 0 || ROUTES_ALL.length === 0 || judged === 0 ? 1 : 0);

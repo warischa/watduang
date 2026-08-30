@@ -51,10 +51,10 @@ SITE="http://localhost:${PORT}"
 mkdir -p "$OUT_DIR"
 # Pinned, not counted from what ran: a lane is a background subshell, and a lane that dies mid-run
 # (errexit, an OOM-killed Chrome) would otherwise read as FEWER GREENS and still exit 0 -- the exact
-# silent-skip shape docs/agents/ci-verification.md exists to kill. 20 = the probe/standalone
+# silent-skip shape docs/agents/ci-verification.md exists to kill. 18 = the probe/standalone
 # invocations in the lanes below (grep -cE '^  (probe|standalone) ' agrees); re-record this number
 # in the same commit that adds or removes a leg.
-EXPECTED_LEGS=20
+EXPECTED_LEGS=18
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -207,10 +207,29 @@ standalone() { # label, command...
 # live button in a closed dialog, no early tap getting through), so each gets its own BREAK_GUARD
 # control leg. Their clean predicates read only what each probe MEASURED -- see the per-label notes
 # in ci-probes-verdict.mjs, including why no-nav-in-stage claim 2 is deliberately not gated.
+# gh#149 — LANE 1 IS GONE, and with it four legs (20 -> 16): arm-gate + arm-gate-control (lane1),
+# stick-tap-target and mount-failed-network (lane4). Every one of them drove a /game/<id>/ landing
+# page that ADR-0050 ruling 2 deleted, and none of their subjects survived the move: the arm-gate
+# scenarios were short-stick's and timebomb's stage screens, stick-tap-target measured short-stick's
+# stick row, and mount-failed-network exercised src/pages/game/[id].astro's panel-restore path, which
+# only a party page could reach. THIS IS A COVERAGE LOSS, not a relocation — ADR-0050 ruling 3 still
+# promises every game a double-tap-guarded X control, and nothing in this file measures it today.
+# The successors exist and are NOT wired: scripts/play-exit-probe.mjs and
+# scripts/play-exit-guard-probe.mjs already walk every play route derived from the manifest, but both
+# are standalone tools that print JSON and exit 0 unconditionally, so each needs a verdict predicate
+# in scripts/ci-probes-verdict.mjs before it can gate anything. That is the change that puts these
+# four legs back; adding a page id to a probe list cannot.
+# THAT CHANGE IS lane1 BELOW (16 -> 18 legs). Both probes now aggregate their own per-route pass flags
+# and exit non-zero, so they need no verdict predicate here -- they are standalone() legs like
+# control-floor, judged on their own exit code. Coverage is NOT identical to the four retired legs: the
+# X guard is measured again on every play route, the deleted landing pages' own DOM is not.
 lane1() {
   LANE=lane1
-  probe arm-gate                  arm-gate-probe.mjs                  "$CDP_1"
-  probe arm-gate-control          arm-gate-probe.mjs                  "$CDP_1" BREAK_GUARD=1
+  # Positional args, not env: both probes read <cdpPort> <shotDir> from argv (their headers document
+  # a manual `node scripts/... 9222 /tmp` call). BASE is the only env they take, and *-FAIL.png
+  # screenshots land in $OUT_DIR next to the leg logs.
+  standalone play-exit       env BASE="$SITE" node scripts/play-exit-probe.mjs       "$CDP_1" "$OUT_DIR" ci
+  standalone play-exit-guard env BASE="$SITE" node scripts/play-exit-guard-probe.mjs "$CDP_1" "$OUT_DIR"
 }
 lane2() {
   LANE=lane2
@@ -229,11 +248,9 @@ lane3() {
 }
 lane4() {
   LANE=lane4
-  probe stick-tap-target          stick-tap-target-probe.mjs          "$CDP_4"
   probe wheel-pointer-name        wheel-pointer-name-probe.mjs        "$CDP_4"
   probe home-direction-c-normal   home-direction-c-probe.mjs          "$CDP_4"
   probe home-direction-c-reduced  home-direction-c-probe.mjs          "$CDP_B"
-  probe mount-failed-network      mount-failed-network-probe.mjs      "$CDP_4"
   standalone live-region-floor         env BASE="$SITE" CDP_PORT="$CDP_4" node scripts/live-region-floor-probe.mjs
   standalone live-region-floor-control env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_GUARD=1 node scripts/live-region-floor-probe.mjs
   standalone control-floor             env BASE="$SITE" CDP_PORT="$CDP_4" node scripts/control-floor-probe.mjs

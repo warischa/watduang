@@ -25,7 +25,12 @@ const shown = games.filter((g) => (!category || g.category === category) && g.id
 
 <nav class={navClass} aria-label={heading}>
   <h3>{heading}</h3>
-  <ul>{shown.map((g) => <li><a href={`/game/${g.id}/`}>{g.names.th}</a></li>)}</ul>
+  {/* gh#149 — `playRoute ?? /game/<id>/`, the same fallback src/pages/index.astro and
+      src/pages/c/[category].astro already use. A game with a play route has no landing page left to
+      link (ADR-0050 ruling 2), so spelling the landing URL here would put a 301 in the crawlable
+      chrome ADR-0014 relies on. WHICH games are listed is unchanged and is not this ticket's to
+      change (ADR-0043, gh#111) — only where each link points. */}
+  <ul>{shown.map((g) => <li><a href={g.playRoute ?? `/game/${g.id}/`}>{g.names.th}</a></li>)}</ul>
 </nav>
 
 <style>

@@ -30,9 +30,10 @@ try { out = JSON.parse(read(outFile)); } catch { bad(`output was not JSON${label
 
 const V = {
   'narrow-overflow': () => {
-    // 5 games x 2 rosters + 4 tools x 3 rosters = 22 screens. Pinned, not ">0": a run that silently
-    // stopped visiting pages reports bad:0 too.
-    if (out.checked !== 22) return `visited ${out.checked} screens, expected 22 (5 games x 2 rosters + 4 tools x 3 rosters)`;
+    // gh#149: 4 tools x 3 rosters = 12 screens, down from 22. The games half of this probe is retired
+    // — see GAMES in scripts/narrow-overflow-probe.mjs for the measurement that retired it. Pinned,
+    // not ">0": a run that silently stopped visiting pages reports bad:0 too.
+    if (out.checked !== 12) return `visited ${out.checked} screens, expected 12 (0 game screens since gh#149 + 4 tools x 3 rosters)`;
     if (out.bad !== 0) return `${out.bad} screen(s) overflow at 320px`;
     return null;
   },
@@ -42,8 +43,12 @@ const V = {
   // is how a silently-inert games half hid.
   'narrow-overflow-control': () => {
     if (out.breakGuard !== true) return `control leg ran without BREAK_GUARD (breakGuard=${JSON.stringify(out.breakGuard)}) -- it measured the guarded pages, not the stripped ones`;
-    if (out.checked !== 22) return `visited ${out.checked} screens, expected 22 -- the control did not cover what the clean leg covers`;
-    if (!(out.badGames > 0)) return `positive control stayed GREEN on all ${out.checkedGames} GAME screens with overflow-wrap stripped and a ${out.tokenLength}-char unbreakable token -- the games half of the 320px detector is inert, so its clean leg measures nothing`;
+    if (out.checked !== 12) return `visited ${out.checked} screens, expected 12 -- the control did not cover what the clean leg covers`;
+    // gh#149 — the games half is GONE, not weakened: GAMES is empty, so there is no game screen for
+    // this control to redden and asserting badGames > 0 would pin an outcome nothing can produce. The
+    // tools assertion below is the whole calibration now, and the coverage that left is named in
+    // scripts/narrow-overflow-probe.mjs rather than quietly absorbed here.
+    if (out.checkedGames !== 0) return `the control visited ${out.checkedGames} GAME screen(s) -- gh#149 retired that half, so a non-zero count means the two files disagree about what is being measured`;
     if (!(out.badTools > 0)) return `positive control stayed GREEN on all ${out.checkedTools} TOOL screens with overflow-wrap stripped and a ${out.tokenLength}-char unbreakable token -- the tools half of the 320px detector is inert, so its clean leg measures nothing`;
     return null;
   },
@@ -119,13 +124,14 @@ const V = {
     const s = out.summary;
     if (!s) return 'no summary in probe output -- nothing was measured';
     if (s.breakGuard !== false) return `clean leg ran with BREAK_GUARD set (breakGuard=${JSON.stringify(s.breakGuard)}) -- it measured a planted anchor, not the shipped pages`;
-    // Pinned to 4, not ">0": the walk is what produces every claim below, and a run whose taps stopped
+    // Pinned to 2 (gh#149, down from 4 with the party landings), not ">0": the walk is what produces
+    // every claim below, and a run whose taps stopped
     // landing reports empty fail lists too. Claim 2 is deliberately NOT gated -- a game can be
     // legitimately red on it (a sampled point lands inside nav.game-next's own box with
     // anchorHref: null, so there is no anchor and no navigation to leave the round). It was
-    // pick-loser that measured that; gh#153 re-pointed the fourth walk at siamsi, and claim 2 stays
+    // pick-loser that measured that; gh#153 re-pointed that walk at siamsi, and claim 2 stays
     // ungated for the same reason -- nav.game-next is page chrome under ADR-0013, not #stage.
-    if (s.gamesWithUsableWalk !== 4) return `${s.gamesWithUsableWalk} game(s) had a usable walk, expected 4 -- the claims below rest on walks that did not happen`;
+    if (s.gamesWithUsableWalk !== 2) return `${s.gamesWithUsableWalk} game(s) had a usable walk, expected 2 -- the claims below rest on walks that did not happen`;
     const c0 = s.claim0_stageHasNoAnchor?.fail;
     const c1 = s.claim1_noNavTargetHitInStage?.fail;
     if (!Array.isArray(c0) || !Array.isArray(c1)) return `claim 0/1 fail lists absent from the summary (${JSON.stringify([c0, c1])}) -- refusing to read a missing list as clean`;
@@ -142,24 +148,27 @@ const V = {
     if (s.totalInStageAnchorHits !== s.totalTransitions) return `the planted in-#stage anchor was hit on only ${s.totalInStageAnchorHits} of ${s.totalTransitions} transitions -- the coordinate hit-test misses anchors it must see, so its clean leg measures nothing`;
     const c0 = s.claim0_stageHasNoAnchor?.fail;
     if (!Array.isArray(c0)) return 'claim 0 fail list absent from the control summary -- nothing was measured';
-    if (c0.length !== 4) return `positive control stayed GREEN on claim 0: ${c0.length}/4 games reported the planted <a href> inside #stage -- the DOM scan is inert on the rest`;
+    if (c0.length !== 2) return `positive control stayed GREEN on claim 0: ${c0.length}/2 games reported the planted <a href> inside #stage -- the DOM scan is inert on the rest`;
     return null;
   },
   'leave-confirm': () => {
     const s = out.summary;
     if (!s) return 'no summary in probe output -- nothing was measured';
     if (s.breakGuard !== false) return `clean leg ran with BREAK_GUARD set (breakGuard=${JSON.stringify(s.breakGuard)})`;
-    if (s.pagesScanned !== 5) return `scanned ${s.pagesScanned} PlayerSetup page(s), expected 5`;
+    if (s.pagesScanned !== 2) return `scanned ${s.pagesScanned} PlayerSetup page(s), expected 2`;
     // Two-way calibration, per page: assertion A passes on "no stray buttons", which is also what a
     // scan that found no buttons at all looks like. detectorCalibrated is that page's own proof it
     // CAN see the buttons while the dialog is open.
-    if (s.assertionA_pagesWithCalibratedDetector !== 5) return `only ${s.assertionA_pagesWithCalibratedDetector}/5 pages proved the button detector can see buttons while the dialog is OPEN -- on the rest, "no stray buttons while closed" measures nothing`;
+    if (s.assertionA_pagesWithCalibratedDetector !== 2) return `only ${s.assertionA_pagesWithCalibratedDetector}/2 pages proved the button detector can see buttons while the dialog is OPEN -- on the rest, "no stray buttons while closed" measures nothing`;
     const a = Object.entries(s.assertionA_closedDialogInert ?? {}).filter(([, v]) => v !== 'PASS');
-    if (Object.keys(s.assertionA_closedDialogInert ?? {}).length !== 5) return `assertion A reported ${Object.keys(s.assertionA_closedDialogInert ?? {}).length} page verdicts, expected 5`;
+    if (Object.keys(s.assertionA_closedDialogInert ?? {}).length !== 2) return `assertion A reported ${Object.keys(s.assertionA_closedDialogInert ?? {}).length} page verdicts, expected 2`;
     if (a.length) return `assertion A (closed #leave-confirm is inert) not PASS on: ${JSON.stringify(a)}`;
     for (const [name, map] of [['B (post-dismiss inertness)', s.assertionB_postDismissInert], ['D (modified clicks pass through)', s.assertionD_modifiedClicksPassThrough]]) {
       const e = Object.entries(map ?? {});
-      if (e.length !== 3) return `assertion ${name} reported ${e.length} game verdicts, expected 3 armed round pages`;
+      // gh#149: 0, not 3. Every party landing page is deleted (ADR-0050 ruling 2) and only a party
+      // page can arm the guard, so B and D are UNMEASURED here, not passing — see ROUND_PAGES in
+      // scripts/leave-confirm-probe.mjs for where that coverage goes back.
+      if (e.length !== 0) return `assertion ${name} reported ${e.length} game verdicts, expected 0 armed round pages (none exist since gh#149)`;
       const bad2 = e.filter(([, v]) => v !== 'PASS');
       if (bad2.length) return `assertion ${name} not PASS on: ${JSON.stringify(bad2)}`;
     }
@@ -169,8 +178,8 @@ const V = {
     const s = out.summary;
     if (!s) return 'control leg produced no summary -- it never exercised the detector';
     if (s.breakGuard !== true) return `control leg ran without BREAK_GUARD (breakGuard=${JSON.stringify(s.breakGuard)}) -- the display:flex defect was never planted`;
-    if (s.pagesScanned !== 5) return `the control scanned ${s.pagesScanned} page(s), expected 5 -- it does not cover what the clean leg covers`;
-    if (s.assertionA_pagesWithStrayButtons !== 5) return `positive control stayed GREEN on ${5 - s.assertionA_pagesWithStrayButtons}/5 pages with the tokens.css display:flex defect re-planted -- assertion A's hit-test cannot see two live buttons in a closed dialog there, so its clean leg measures nothing`;
+    if (s.pagesScanned !== 2) return `the control scanned ${s.pagesScanned} page(s), expected 2 -- it does not cover what the clean leg covers`;
+    if (s.assertionA_pagesWithStrayButtons !== 2) return `positive control stayed GREEN on ${2 - s.assertionA_pagesWithStrayButtons}/2 pages with the tokens.css display:flex defect re-planted -- assertion A's hit-test cannot see two live buttons in a closed dialog there, so its clean leg measures nothing`;
     return null;
   },
   'arm-gate': () => {

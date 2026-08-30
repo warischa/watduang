@@ -12,13 +12,26 @@ import type { GameModule } from '../../games/types';
 // on disk so the rebuild starts from it, but a bare import here is page-global, and that shipped
 // every one of its rules to every live game page with no page left to consume them. Re-add this
 // import in the same change that puts the game back in the manifest, never before it.
+//
+// gh#149 — timebomb.css and short-stick.css now style nothing this route builds: both games moved to
+// a play route (below) whose own sheet lives under src/play/<id>/. The imports stay because
+// scripts/css-reachability-check.mjs requires a sheet to be imported exactly while its game is
+// registered, and the manifest is not this ticket's to edit. Drop the sheet and its import together
+// in the ticket that retires the stage module (gh#145, gh#146).
 import '../../styles/games/timebomb.css';
 import '../../styles/games/siamsi.css';
 import '../../styles/games/short-stick.css';
 import '../../styles/games/daily-fortune.css';
 
+// gh#149 / ADR-0050 ruling 2 — a game that declares a playRoute runs full screen there, and its
+// landing page under /game/<id>/ is DELETED (301 to the play route, public/staticwebapp.config.json).
+// Keyed on playRoute, not on category, because that is the exact complement of what the cards link:
+// index.astro and c/[category].astro both render `game.playRoute ?? /game/<id>/`, so "this route
+// builds a page iff the game has no playRoute" is what keeps every card link resolvable, with no
+// second list to drift. Today that is the two fortune games (siamsi, daily-fortune); ADR-0050 ruling 7
+// keeps them page-shaped.
 export function getStaticPaths() {
-  return games.map((game) => ({ params: { id: game.id }, props: { game } }));
+  return games.filter((g) => !g.playRoute).map((game) => ({ params: { id: game.id }, props: { game } }));
 }
 
 const { game } = Astro.props as { game: GameModule };

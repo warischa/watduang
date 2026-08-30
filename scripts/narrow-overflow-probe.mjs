@@ -1,18 +1,22 @@
-// 320px overflow check across BOTH families of screen that render a reader's names: the five game
-// pages, and the four /tool/ pages. The tool pages joined this probe for gh#109's last box — their
+// 320px overflow check on the screens that render a reader's names. It used to cover two families,
+// game pages and /tool/ pages; since gh#149 the games half is empty and only the tools half runs (see
+// GAMES below for why, and what that retires). The tool pages joined this probe for gh#109's last box — their
 // name lists got fixed heights in 95140b2, which bounds vertical growth and says nothing about a
 // long unbreakable token going sideways, and they seed from their OWN per-tool localStorage key
 // (ADR-0039 took the tools off the shared roster), never 'watduang:roster'.
 const BASE = process.env.BASE || 'http://localhost:4321';
-// gh#153 — dice-loser stands in for the retired pick-loser here. Same shell shape (party page:
-// #player-setup + #roster-list + #start-round, verified in dist/), so the seed-tick-start walk below
-// is unchanged and the pinned screen count in ci-probes-verdict.mjs stays 22. What it does NOT do is
-// carry a reader's name into #stage: dice-loser's landing is two <p> and the game itself runs at its
-// playRoute. MEASURED, not assumed: the control leg (BREAK_GUARD=1, 72-char token) was re-run on the
-// PRE-SWAP file and pick-loser's own row came back scrollX 0 / 0 overflowing, exactly as dice-loser's
-// does now — this leg was already un-calibrated on that subject, so no calibrated coverage moves. A
-// name-in-#stage regression is carried by timebomb and short-stick, the only two legs that go red.
-const GAMES = ['dice-loser', 'timebomb', 'siamsi', 'short-stick', 'daily-fortune'];
+// gh#149 — EMPTY, and measured rather than assumed. dice-loser, timebomb and short-stick left with
+// their landing pages (ADR-0050 ruling 2 deletes every /game/<id>/ page whose game declares a
+// playRoute). The two survivors, siamsi and daily-fortune, were then walked once and the CONTROL leg
+// came back GREEN on all 4 of their screens: with overflow-wrap stripped and a 72-char unbreakable
+// token seeded into 'watduang:roster', neither page overflowed — because ADR-0040 made both solo, and
+// a solo mount gets `players: []`, so a roster name never reaches their DOM at all. A detector that
+// cannot be made red on the only pages left measures nothing there, so the games half is retired
+// outright rather than kept as four screens of decoration. RETIRED, not relocated: the 320px
+// name-overflow regression this leg caught on timebomb and short-stick is measured nowhere in
+// ci-probes today — no lane walks a play route. The tools half below is untouched and still fully
+// calibrated by its own control.
+const GAMES = [];
 const NAMES = ['ก้อง', 'ฟ้า', 'ตูน', 'แนน', 'บอส', 'มิ้น'];
 // A 24-character spaceless Latin name is the worst case the roster allows. LONG_TOKEN is the
 // calibration knob, not a setting: an 80-character token proves the detector can go RED, and
@@ -96,8 +100,10 @@ const measure = (root, boxes) => `
 // The guard-stripping injection is shared by BOTH halves: it used to live only in the tools loop, so
 // the games half of this probe had no positive control at all and a silently-inert games run reported
 // bad:0. Runs after nav because nav drops the injected sheet.
-// ponytail: measured ceiling -- with the guard stripped and the 72-char token, 2 of the 6 game screens
-// go red (timebomb, short-stick: scrollX 405). The other 4 never paint the token wide enough to
+// ponytail: gh#149 left the games half with ZERO screens, so the shared injection now only ever
+// reaches the tools loop. Historical ceiling, kept because it is why the games half was retired: with
+// the guard stripped and the 72-char token, 2 of the 6 game screens went red (timebomb, short-stick:
+// scrollX 405). The other 4 never painted the token wide enough to
 // overflow, so their clean zero is un-calibrated; upgrade path is a per-game arm (inject the token into
 // #stage) if a games regression ever slips through this leg.
 const CONTROL = !!process.env.BREAK_GUARD;

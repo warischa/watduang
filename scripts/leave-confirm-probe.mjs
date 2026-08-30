@@ -59,7 +59,11 @@ const PLAYERS = [
 // gh#153 — dice-loser replaces pick-loser as the fifth subject. GameLayout renders the dialog
 // unconditionally, so any game page satisfies assertion A; dist/game/dice-loser/index.html carries
 // exactly one #leave-confirm, same as the page it replaces.
-const DIALOG_PAGES = ['timebomb', 'siamsi', 'dice-loser', 'short-stick', 'daily-fortune'];
+// gh#149 — timebomb, dice-loser and short-stick left this list with their landing pages (ADR-0050
+// ruling 2 deletes every /game/<id>/ page whose game declares a playRoute). GameLayout still renders
+// the dialog unconditionally, so the property is unchanged; the set it can be measured on is now the
+// two fortune pages, and the pinned counts in ci-probes-verdict.mjs drop from 5 to 2 with it.
+const DIALOG_PAGES = ['siamsi', 'daily-fortune'];
 
 // /tool/draw|team|wheel/ used to be scanned here on the assumption that they mount the same dialog.
 // They never did: the tools render ToolNameEntry, not PlayerSetup, and since gh#106 the dialog comes
@@ -80,7 +84,13 @@ const NOT_SCANNED = {
 // gh#153 — dice-loser replaces pick-loser here too, and it has the property B/C/D need: it is a
 // [2, 10] party page, so LeaveConfirm.astro latches on its #player-setup going hidden exactly as
 // before. Its landing hands off to a playRoute, which the guard neither knows nor cares about.
-const ROUND_PAGES = ['timebomb', 'dice-loser', 'short-stick'];
+// gh#149 — EMPTY, and that is a RETIREMENT this file states rather than hides. B/C/D need a guard
+// armed by #player-setup going hidden, which only a [2, 10] party page does; every party page is now
+// a play route with no #player-setup, so there is no page left to arm one. Assertions B, C and D are
+// therefore unmeasured — not passing. The successor invariant (the exit control's own arm gate on a
+// play route) is scripts/play-exit-guard-probe.mjs, which no lane in scripts/ci-probes.sh runs yet;
+// wiring it is the change that restores this coverage, not putting an id back here.
+const ROUND_PAGES = [];
 const NOT_ARMED = {
   'daily-fortune': 'startsRound: false — LeaveConfirm.astro never arms here, so there is no armed guard for B/C/D to measure. Assertion A above still covers the page.',
   siamsi: 'startsRound: true on a [1, 1] page — the guard DOES arm here, via ROUND_STARTED_EVENT, but reaching that state needs the solo idle screen its own redesign ticket is about to replace. UNCOVERED gap, not a by-design N/A: B/C/D are unmeasured on this page.',

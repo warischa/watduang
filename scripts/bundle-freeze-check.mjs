@@ -106,7 +106,10 @@ const BASELINE_BASENAMES = [
   '_setup-bridge.js',
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'PlayExit.astro_astro_type_script_index_0_lang.js',
-  'PlayerSetup.astro_astro_type_script_index_0_lang.js',
+  // gh#149 — PlayerSetup.astro_astro_type_script_index_0_lang.js is NOT in this inventory. The setup
+  // island only mounts for a party player range (GameLayout guards it), and the party landing pages
+  // are deleted (ADR-0050 ruling 2), so the only pages this route still builds are the two solo
+  // fortune ones and nothing seeds the chunk. The component and its island are untouched on disk.
   'ToolNameEntry.astro_astro_type_script_index_0_lang.js',
   '_arm-gate.js',
   '_el.js',
@@ -152,7 +155,13 @@ const BASELINE_BASENAMES = [
 // no other game module and none of the shell, and the pinned set above lost exactly that chunk plus
 // _pick-index.js (inlined back into short-stick.js, its only importer left). Measured by
 // `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session.
-const BASELINE_TOTAL_BYTES = 318560;
+// Re-baselined 2026-08-30 (gh#149), 318560 -> 314326 (-4234, -1.3%) — inside the +/-5% band, so the
+// SET leg is what fired and the byte number is re-pinned deliberately rather than left to drift up to
+// the bound. One cause: deleting the eight party landing pages leaves no page whose player range
+// mounts the setup island, so its chunk stops shipping. Attributed, not assumed — the set lost exactly
+// that one basename and gained none, and no game module or shell file changed in this ticket.
+// Measured by `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session.
+const BASELINE_TOTAL_BYTES = 314326;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

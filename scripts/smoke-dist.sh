@@ -43,14 +43,26 @@ fi
 status=0
 # Every built game must be smoke-tested, not just the ones whose names we remembered when writing this file —
 # the old list hardcoded /game/timebomb/, so game #2 onward never got hit at all.
-GAME_PATHS=$(for d in dist/game/*/; do [ -d "$d" ] || continue; echo "/game/$(basename "$d")/"; done)
+# gh#149 / ADR-0050 ruling 2 — a game declaring `playRoute` has NO landing page any more, but
+# dist/game/<id>/ still exists as a directory holding play/index.html. Listing directory names would
+# put a path here that only resolves through the Azure 301, and this step exists precisely to prove
+# dist/ stands up with no Azure runtime. The set is the built index.html files, one list per shape.
+GAME_PATHS=$(for f in dist/game/*/index.html; do [ -f "$f" ] || continue; echo "/game/$(basename "$(dirname "$f")")/"; done)
+PLAY_PATHS=$(for f in dist/game/*/play/index.html; do [ -f "$f" ] || continue; echo "/game/$(basename "$(dirname "$(dirname "$f")")")/play/"; done)
 # Compares the number of pages built against the number of games in the manifest — "more than zero"
 # alone can still stay green while one game is missing (manifest reverted but the game file still
-# exists → validate passes, smoke passes, prod 404s).
+# exists → validate passes, smoke passes, prod 404s). Split the same way the route is: a game without
+# playRoute owes a landing page, a game with one owes a play page, and every game owes exactly one.
 BUILT=$(printf '%s\n' "$GAME_PATHS" | grep -c . || true)
-EXPECTED=$(node --input-type=module -e "const {games} = await import('./src/games/manifest.ts'); console.log(games.length)")
+BUILT_PLAY=$(printf '%s\n' "$PLAY_PATHS" | grep -c . || true)
+EXPECTED=$(node --input-type=module -e "const {games} = await import('./src/games/manifest.ts'); console.log(games.filter((g) => !g.playRoute).length)")
+EXPECTED_PLAY=$(node --input-type=module -e "const {games} = await import('./src/games/manifest.ts'); console.log(games.filter((g) => g.playRoute).length)")
 if [ "$BUILT" -ne "$EXPECTED" ]; then
-  echo "::error::Built $BUILT game page(s) but manifest declares $EXPECTED"
+  echo "::error::Built $BUILT game landing page(s) but manifest declares $EXPECTED game(s) with no playRoute"
+  exit 1
+fi
+if [ "$BUILT_PLAY" -ne "$EXPECTED_PLAY" ]; then
+  echo "::error::Built $BUILT_PLAY play page(s) but manifest declares $EXPECTED_PLAY game(s) with a playRoute"
   exit 1
 fi
 # Compares dist/tool/*/ against the slug list declared right here (not derived from src/pages/tool/ —
@@ -64,14 +76,14 @@ for slug in $EXPECTED_TOOL_SLUGS; do
     exit 1
   fi
 done
-echo "smoke: $BUILT game page(s) (matches manifest) + tool page(s) ($EXPECTED_TOOL_SLUGS) + core pages"
+echo "smoke: $BUILT game landing page(s) + $BUILT_PLAY play page(s) (both match manifest) + tool page(s) ($EXPECTED_TOOL_SLUGS) + core pages"
 # /games/ was in this list until ADR-0041 deleted that page. Its 301 lives in
 # staticwebapp.config.json, which `npx serve` does not read — this step exists precisely to
 # prove dist/ stands up with no Azure runtime, so a path that only resolves through Azure
 # routing can never belong here. The two category pages that took over its job are listed
 # instead: they were not smoke-tested before, which is why deleting one page could break
 # this step at all.
-for path in "/" "/c/fortune/" "/c/party/" "/tools/" $GAME_PATHS $TOOL_PATHS; do
+for path in "/" "/c/fortune/" "/c/party/" "/tools/" $GAME_PATHS $PLAY_PATHS $TOOL_PATHS; do
   body=$(curl -sf "http://localhost:${PORT}${path}") || { echo "::error::curl failed for ${path}"; status=1; continue; }
   if ! echo "$body" | grep -qi '<title>'; then
     echo "::error::No <title> tag found for ${path}"

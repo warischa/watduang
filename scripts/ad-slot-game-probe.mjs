@@ -1,3 +1,7 @@
+// gh#149 STALE TARGET — this file drives /game/<id>/ landing pages that ADR-0050 ruling 2 deleted.
+// It is a manual tool wired into no gate, so it cannot red anything; run it and it navigates to a
+// URL that only Azure resolves, via a 301 to the play route, and measures the wrong page. Re-point
+// it at /game/<id>/play/ (a different DOM) or delete it — do not read a run of it as evidence.
 // Measures .ad-slot's top offset, its own height, and #stage's height, across a turn transition on
 // the 5 ads-bearing game pages (the .ad-slot element in GameLayout.astro, which sits in #how-to-play, a
 // SIBLING of .play-area, so any height change inside #stage/.play-area shifts it, per ADR-0044).

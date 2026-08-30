@@ -1,3 +1,7 @@
+// gh#149 STALE TARGET — this file drives /game/<id>/ landing pages that ADR-0050 ruling 2 deleted.
+// It is a manual tool wired into no gate, so it cannot red anything; run it and it navigates to a
+// URL that only Azure resolves, via a 301 to the play route, and measures the wrong page. Re-point
+// it at /game/<id>/play/ (a different DOM) or delete it — do not read a run of it as evidence.
 // Proves: the committed no-nav-in-stage-probe.mjs clicks #start-round with zero hit-sampling, so the
 // setup-panel-collapse transition was structurally unmeasured. This probe grid-scans the WHOLE
 // #start-round button box instead. Result on the post-fix build: pick-loser, roster 10 — the panel

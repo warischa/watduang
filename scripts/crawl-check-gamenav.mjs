@@ -87,20 +87,36 @@ const expectedSiblings = (game) =>
 // legitimately allowed to name itself somewhere else in its own chrome.
 const NAV_BLOCK = /<nav class="game-next"[\s\S]*?<\/nav>/;
 
+// gh#149 / ADR-0050 ruling 2 — a GameNav link is `/game/<id>/` for a game that still has a landing
+// page and `/game/<id>/play/` for one that no longer does. Both shapes are the crawlable link to that
+// game, so the capture is the ID in either shape (the same reading scripts/landing-claims-check.mjs
+// already takes of the category cards) — counting only the landing shape would score a page that
+// links every sibling correctly as having lost eight of them.
+const NAV_LINK_IDS = (nav) => new Set([...nav.matchAll(/href="\/game\/([^"/]+)\/(?:play\/)?"/g)].map((m) => m[1]));
+
+// The pages this route actually builds: a game with a playRoute has no landing page (its 301 lives in
+// public/staticwebapp.config.json), so the manifest's own length stopped being the expected count.
+const landingGames = games.filter((g) => !g.playRoute);
+
 // `root` is a parameter only so the page-count calibration below can point it at an empty temp dir
 // without rebuilding dist/. Every real caller uses the default.
 function scan(root = distDir) {
-  const dirs = fs.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory());
+  // A directory is only a landing page if it holds an index.html: dist/game/timebomb/ survives its
+  // page's deletion because dist/game/timebomb/play/index.html lives under it, and reading the
+  // absent index.html would crash this gate instead of scoring it.
+  const dirs = fs
+    .readdirSync(root, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && fs.existsSync(path.join(root, d.name, 'index.html')));
   const problems = [];
   // ADR-0019: every problem below is per-page, so an EMPTY dist/game/ satisfies all of them
   // vacuously — measured by moving the six page dirs aside: exit 0, printing the full-coverage OK
   // line over zero pages. The set is not a guess:
   // CLAUDE.md pins 1 game = 1 static URL, so the manifest's own length is what dist/game/ must hold.
-  if (dirs.length !== games.length) {
+  if (dirs.length !== landingGames.length) {
     problems.push({
       page: '(all)',
       kind: 'page-count',
-      text: `dist/game/: ${dirs.length} game page(s) built, manifest declares ${games.length} — the scanned set must match the manifest (1 game = 1 static URL), or a per-page scan reports clean over pages that were never built`,
+      text: `dist/game/: ${dirs.length} landing page(s) built, manifest declares ${landingGames.length} game(s) with no playRoute — the scanned set must match the manifest (1 landing page per game that has no play route), or a per-page scan reports clean over pages that were never built`,
     });
   }
   for (const d of dirs) {
@@ -118,12 +134,11 @@ function scan(root = distDir) {
       problems.push({ page: d.name, kind: 'missing-nav', text: `dist/game/${d.name}/: no <nav class="game-next"> block` });
       continue;
     }
-    const hrefs = new Set([...nav[0].matchAll(/href="(\/game\/[^"/]+\/)"/g)].map((m) => m[1]));
-    const self = `/game/${d.name}/`;
-    if (hrefs.has(self)) {
-      problems.push({ page: d.name, kind: 'self-link', text: `dist/game/${d.name}/: GameNav links to its own game (${self})` });
+    const hrefs = NAV_LINK_IDS(nav[0]);
+    if (hrefs.has(d.name)) {
+      problems.push({ page: d.name, kind: 'self-link', text: `dist/game/${d.name}/: GameNav links to its own game (/game/${d.name}/ or its play route)` });
     }
-    hrefs.delete(self);
+    hrefs.delete(d.name);
     if (hrefs.size !== want) {
       problems.push({ page: d.name, kind: 'count', text: `dist/game/${d.name}/: found ${hrefs.size} sibling /game/*/ links in GameNav, expected ${want} (category=${game.category}, carriesGroup=${categories[game.category].carriesGroup})` });
     }
@@ -163,7 +178,7 @@ function scanTools(toolRoot = path.join(repoRoot, 'dist', 'tool')) {
       problems.push({ page: `tool/${t.slug}`, kind: 'missing-nav', text: `dist/tool/${t.slug}/: no <nav class="${t.navClass}"> block` });
       continue;
     }
-    const hrefs = new Set([...nav[0].matchAll(/href="(\/game\/[^"/]+\/)"/g)].map((m) => m[1]));
+    const hrefs = NAV_LINK_IDS(nav[0]);
     if (hrefs.size !== t.expected) {
       problems.push({
         page: `tool/${t.slug}`,

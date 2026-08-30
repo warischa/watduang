@@ -1,3 +1,7 @@
+// gh#149 STALE TARGET — this file drives /game/<id>/ landing pages that ADR-0050 ruling 2 deleted.
+// It is a manual tool wired into no gate, so it cannot red anything; run it and it navigates to a
+// URL that only Azure resolves, via a 301 to the play route, and measures the wrong page. Re-point
+// it at /game/<id>/play/ (a different DOM) or delete it — do not read a run of it as evidence.
 // gh#54 — the two DoD boxes the source-structural tests (player-setup.test.mjs, session.test.mjs)
 // cannot settle, because the island cannot be imported there: they pin the dispatch order and the
 // notice string against SOURCE TEXT, never against a rendered page.

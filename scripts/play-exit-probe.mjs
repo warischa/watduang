@@ -1,5 +1,6 @@
 // gh#144 PlayExit walk. Standalone CDP client (driver.mjs has no raw send / no sub-400ms burst).
-// Manual tool, not a CI leg. Serve dist first (npx serve dist -l 5051, or set BASE).
+// A CI leg since gh#149 (scripts/ci-probes.sh lane1) — it judges its own JSON at the bottom and exits
+// non-zero on a red. Serve dist first (npx serve dist -l 5051, or set BASE).
 // Usage: node scripts/play-exit-probe.mjs <cdpPort> <shotDir> <tag>
 const [PORT = '9222', SHOT = '/tmp', TAG = 'normal'] = process.argv.slice(2);
 const { writeFile } = await import('node:fs/promises');
@@ -119,7 +120,10 @@ for (const g of ROUTES) {
   // Drive the transition through the game's own trigger: the largest visible button inside the game
   // root that is not a header icon button.
   const startBtn = (await evaluate(`
-    const root = document.querySelector('#app, #app-container');
+    // #appRoot is how-close-is-near's game root. Measured: without it, root was null there, the
+    // expression threw, and the route reported "no transition trigger" forever -- a permanent skip
+    // that looked exactly like a route with nothing to press.
+    const root = document.querySelector('#app, #app-container, #appRoot');
     const cands = [...root.querySelectorAll('button')].filter((b) => {
       const r = b.getBoundingClientRect();
       return r.width > 60 && r.height > 30 && r.top >= 0 && !b.closest('header') && getComputedStyle(b).visibility !== 'hidden' && b.offsetParent !== null;
@@ -164,4 +168,30 @@ for (const g of ROUTES) {
 await fetch(`http://127.0.0.1:${PORT}/json/close/${target.id}`);
 ws.close();
 console.log(JSON.stringify(out, null, 2));
-process.exit(0);
+
+// --- verdict ------------------------------------------------------------------------------------
+// Every measurement above used to be thrown away by a bare process.exit(0). ADR-0050 ruling 3 promises
+// every game a double-tap-guarded X, and since gh#149 deleted the party landing pages this walk is the
+// only thing in CI that measures it -- so it judges itself here.
+// A scenario that was NOT exercisable is a SKIP with its reason, never a pass: the burst only means
+// something after a real transition disarmed the X, and a route whose transition trigger was not found
+// was never disarmed at all (measured: short-stick's trigger is found or missed depending on machine
+// load, so gating its burst unconditionally would pin a flaky red). All-skipped is a RED -- so is an
+// empty route set, which the throw at the top of this file already refuses.
+const fails = [], skips = [];
+for (const [g, r] of Object.entries(out)) {
+  if (!r.idle?.present) { fails.push(`${g}: no #play-exit on the play page at all`); continue; }
+  if (r.m1_pathname !== '/') fails.push(`${g}: M1 -- an idle deliberate tap on the X did not leave the round (pathname ${r.m1_pathname})`);
+  if (!r.transitionTrigger) { skips.push(`${g} burst: no transition trigger found, so nothing disarmed the X`); continue; }
+  // The harm first, liveness second: with the guard broken the burst navigates home, which also wipes
+  // the in-page contact counter -- so a liveness-first order reports "measured nothing" for a run that
+  // in fact measured the exact regression this leg exists to catch (observed, calibration run).
+  if (r.burst?.pathname === '/') fails.push(`${g}: the 5-tap burst continuing a transition tap LEFT THE ROUND (pathname ${r.burst.pathname})`);
+  else if (!(r.burst?.contacts?.onBtnWhileDisabled > 0)) fails.push(`${g}: the burst put ${r.burst?.contacts?.onBtnWhileDisabled ?? 'no'} contact(s) on a DISABLED X -- a no-exit result here rests on nothing`);
+  if (r.m3_pathname !== '/') fails.push(`${g}: M3 -- after the arm delay a deliberate tap no longer exits (pathname ${r.m3_pathname})`);
+}
+const checked = Object.keys(out).length;
+for (const f of fails) console.log(`  FAIL ${f}`);
+for (const s of skips) console.log(`  SKIP ${s}`);
+console.log(`play-exit: ${checked} route(s) checked, ${fails.length} failed, ${skips.length} burst leg(s) not exercisable`);
+process.exit(fails.length > 0 || checked === 0 || skips.length === checked ? 1 : 0);

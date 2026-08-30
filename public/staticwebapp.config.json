@@ -16,6 +16,46 @@
       "statusCode": 301
     },
     {
+      "route": "/game/timebomb",
+      "redirect": "/game/timebomb/play/",
+      "statusCode": 301
+    },
+    {
+      "route": "/game/short-stick",
+      "redirect": "/game/short-stick/play/",
+      "statusCode": 301
+    },
+    {
+      "route": "/game/freeze-tap",
+      "redirect": "/game/freeze-tap/play/",
+      "statusCode": 301
+    },
+    {
+      "route": "/game/cannon-flag",
+      "redirect": "/game/cannon-flag/play/",
+      "statusCode": 301
+    },
+    {
+      "route": "/game/power-meter",
+      "redirect": "/game/power-meter/play/",
+      "statusCode": 301
+    },
+    {
+      "route": "/game/dice-loser",
+      "redirect": "/game/dice-loser/play/",
+      "statusCode": 301
+    },
+    {
+      "route": "/game/how-close-is-near",
+      "redirect": "/game/how-close-is-near/play/",
+      "statusCode": 301
+    },
+    {
+      "route": "/game/pinocchio-luck",
+      "redirect": "/game/pinocchio-luck/play/",
+      "statusCode": 301
+    },
+    {
       "route": "/og/pick-loser.png",
       "redirect": "/og/site.png",
       "statusCode": 301

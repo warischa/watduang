@@ -139,9 +139,21 @@ const EPS = 0.05;
 // bumped: the deleting commit touches no other game module and none of the shell, and the walk still
 // reaches the same two screens on every other page, so 9 - 3 = 6 closes exactly. RE-MEASURED against
 // a real run of this probe on the post-deletion dist/, not carried over from the arithmetic.
-export const CONTROL_COUNT = 6;
+// 2026-08-30, 6 -> 3: gh#149 deleted the landing page of every game declaring a playRoute (ADR-0050
+// ruling 2), so this manifest-driven walk now reaches two pages instead of six. ATTRIBUTED, not
+// bumped: the surviving pages are siamsi (1 on screen 1 + 1 on screen 2) and daily-fortune (0 on
+// screen 1, which renders no .game-btn, + 1 on screen 2) = 3, exactly the breakdown recorded for
+// those two pages on the first green run above, and the three pages that left (timebomb 1+1,
+// short-stick 0+1) account for the other 3. RE-MEASURED against a real ci-probes run on the
+// post-deletion dist/, not carried over from the arithmetic. WHAT THIS COSTS: with only solo pages
+// left, this leg no longer measures a primary control on any party surface — those controls now
+// render at the play routes, which no ci-probes leg walks.
+export const CONTROL_COUNT = 3;
 /** Every game in the manifest gets a page. Pinned so a page that stopped loading cannot read as clean. */
-export const PAGE_COUNT = games.length;
+// gh#149 — the games that still HAVE a /game/<id>/ page, which is no longer every game in the
+// manifest: ADR-0050 ruling 2 deleted the landing of every game declaring a playRoute. Derived from
+// the same predicate pageSet() filters on, so the two can never disagree.
+export const PAGE_COUNT = games.filter((g) => !g.playRoute).length;
 
 const NAMES = ['เอ', 'บี', 'ซี'];
 const STYLE_ID = 'control-floor-probe-mutant';
@@ -167,13 +179,19 @@ export function claimsFor(c) {
 
 /** The page set and its seeding kind, both derived from the manifest. */
 export function pageSet() {
-  return games.map((g) => ({
-    id: g.id,
-    url: `/game/${g.id}/`,
-    // ADR-0040: a [1, 1] page renders no setup panel, so there is no #start-round to click and the
-    // page's own solo branch mounts the module straight into the stage.
-    kind: g.players[0] === 1 && g.players[1] === 1 ? 'solo' : 'party',
-  }));
+  // gh#149 / ADR-0050 ruling 2 — only a game WITHOUT a playRoute still has a /game/<id>/ page. The
+  // eight party games run full screen at their play route and their landing 301s, so seeding one here
+  // would report "#start-round not found" on a page that no longer exists. The successor measurement
+  // for those games belongs with the play routes (scripts/play-exit-probe.mjs), not here.
+  return games
+    .filter((g) => !g.playRoute)
+    .map((g) => ({
+      id: g.id,
+      url: `/game/${g.id}/`,
+      // ADR-0040: a [1, 1] page renders no setup panel, so there is no #start-round to click and the
+      // page's own solo branch mounts the module straight into the stage.
+      kind: g.players[0] === 1 && g.players[1] === 1 ? 'solo' : 'party',
+    }));
 }
 
 const measureExpr = (mutantCss) => `
@@ -353,7 +371,7 @@ function main() {
   if (broken.length) process.exit(1);
 
   if (out.pagesWalked !== PAGE_COUNT) {
-    console.error(`::error::walked ${out.pagesWalked} game page(s), expected ${PAGE_COUNT} (every game in src/games/manifest.ts) — a page that never loaded reads exactly like a clean one.`);
+    console.error(`::error::walked ${out.pagesWalked} game page(s), expected ${PAGE_COUNT} (every game in src/games/manifest.ts with no playRoute) — a page that never loaded reads exactly like a clean one.`);
     process.exit(1);
   }
   const controlsMeasured = out.screens.reduce((n, s) => n + s.controls.length, 0);
