@@ -19,7 +19,8 @@ turn that pattern, decided game-by-game so far, into policy for the remaining pa
    double-taps.
 4. **The port recipe is run-as-is, then full assess.** A mockup is carried into the repo whole and
    must run before anything is adapted. Then one full assessment pass compares it to the shared
-   concept — player baseline (the ADR-0049 ticket), viewport behavior, and other small alignments —
+   concept — player baseline (gh#142, landed as ADR-0054), viewport behavior, and other small
+   alignments —
    and the fixes come off that checklist. No rewriting a mockup into a stage module; the assessment
    checklist is committed as evidence.
 5. **Thai comments inside ported mockup code are exempt.** The thai-comments gate carries a carve-out

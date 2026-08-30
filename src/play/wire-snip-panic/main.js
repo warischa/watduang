@@ -475,6 +475,20 @@
     }
 
     // --- 5. UI CONTROLLERS & RENDERING ---
+    // Player names are typed by players and persisted to the shared roster by _setup-bridge.ts, so
+    // they are untrusted text wherever this file builds markup by string. Same helper and same idiom
+    // as src/play/zero-trigger/main.js -- kept local because a lift file with an import loses the
+    // thai-comments verbatim exemption. Applied at the three sinks that print a roster name.
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       const target = document.getElementById(screenId);
@@ -492,7 +506,7 @@
 
         row.innerHTML = `
           <div class="player-avatar">${avatar}</div>
-          <input type="text" class="player-input" value="${name}" data-idx="${idx}" maxlength="15">
+          <input type="text" class="player-input" value="${escapeHtml(name)}" data-idx="${idx}" maxlength="15">
           ${game.players.length > 2 ? `<button class="player-remove-btn" data-idx="${idx}" title="ลบผู้เล่น">✕</button>` : ''}
         `;
         container.appendChild(row);
@@ -558,7 +572,7 @@
         const avatar = PLAYER_AVATARS[idx % PLAYER_AVATARS.length];
         badge.innerHTML = `
           <span>${avatar}</span>
-          <span>${name}</span>
+          <span>${escapeHtml(name)}</span>
           <span style="font-size: 10px; opacity: 0.8;">(${game.scores[idx]}★)</span>
         `;
         strip.appendChild(badge);
@@ -954,7 +968,7 @@
         row.innerHTML = `
           <div style="display: flex; align-items: center; gap: 6px;">
             <span>${PLAYER_AVATARS[idx % PLAYER_AVATARS.length]}</span>
-            <span style="${isLoser ? 'color: var(--accent); text-decoration: line-through;' : ''}">${name}</span>
+            <span style="${isLoser ? 'color: var(--accent); text-decoration: line-through;' : ''}">${escapeHtml(name)}</span>
             ${isLoser ? '<span style="color: var(--accent); font-size: 11px;">(แพ้รอบนี้)</span>' : ''}
           </div>
           <div style="font-family: var(--font-mono); font-weight: 700; color: var(--electric-cyan);">
