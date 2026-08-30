@@ -52,7 +52,7 @@ const ARM_DELAY_MS = 400; // mirrors src/games/_arm-gate.ts
 // carries no scenario and no NOT_COVERED entry, the same way a deleted page carries neither.)
 const NOT_COVERED = {
   'daily-fortune': 'ADR-0040 solo page: renders no roster chips (empty group), so the chip-exception and chip-driven legs have no chips to tap.',
-  siamsi: 'ADR-0040 solo page: no #start-round and no multi-player turn to pass; party-shaped content pending its own redesign ticket.',
+  'dice-loser': 'gh#139 port: the landing renders prose and no button, the game runs full screen at its playRoute — no in-#stage button exists here for a gate to arm. Same for cannon-flag, freeze-tap, power-meter, how-close-is-near and pinocchio-luck.',
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -574,7 +574,7 @@ async function runTimebombScenario(session, base, scenario) {
   return result;
 }
 
-// ---- #42: pick-loser ----------------------------------------------------------------------------
+// ---- #42 / gh#153: siamsi -----------------------------------------------------------------------
 // Same real-touch method as short-stick/timebomb above, simplified where the geometry allows it: every
 // control here is a single full-width button (no stick/card bundle to grid-scan), so getRect's own
 // centre point IS the real, current position of the real button — `disabled` blocks a click uniformly
@@ -582,106 +582,86 @@ async function runTimebombScenario(session, base, scenario) {
 // there was for short-stick's stick bundle (#39). A short untimed dry run still learns each control's
 // rect before the timed gap test, exactly as above, because the target does not exist until the prior
 // screen's tap creates it.
+//
+// gh#153 — this scenario was pick-loser's; siamsi inherits it because it has the property the leg
+// tests: three screens that each call stage.replaceChildren() and then armAllButtons(stage), so a
+// control lands under the finger that caused the swap. Every game registered since ADR-0040 runs full
+// screen at a playRoute and renders no button in #stage, so none of them can host this leg.
+//
+// LOST with pick-loser, and not replaced: its `pl-pick exception` leg. That was the one recorded
+// owner decision (arm-gate-coverage-check.mjs, UNGATED_EXCEPTIONS) where a freshly rendered button is
+// deliberately NOT gated, and siamsi gates all three of its screens — there is no ungated in-#stage
+// button left on the site to point that leg at. The exception is gone with the page that had it, so
+// nothing untested remains behind; the STATIC gate on the exception list still stands.
 
-async function rosterTick(session) {
-  await ev(
-    session,
-    `
-    const boxes = [...document.querySelectorAll('#roster-list input[type=checkbox]')];
-    for (const b of boxes) if (!b.checked) b.click();
-    document.getElementById('start-round').click(); return true;`,
-  );
-  await sleep(900);
-}
-
-async function seedRoster(session, base, path, roster, width) {
+async function seedSolo(session, base, path, width) {
+  // ADR-0040 solo page: no roster, no #start-round. [id].astro's isSolo branch mounts the module on
+  // load, so navigation IS the start. Wipe from the real origin, then reload — a wipe on about:blank
+  // clears nothing (docs/agents/browser-verification.md trap 4).
   await session.nav(`${base}${path}`);
   await session.setWidth(width, 900);
   await session.wipe();
-  await ev(session, `localStorage.setItem('watduang:roster', ${JSON.stringify(JSON.stringify(roster))}); return true;`);
   await session.nav(`${base}${path}`);
   await ev(session, INSTALL_PDLOG);
 }
 
-// ---- pick-loser -----------------------------------------------------------------------------------
-
-const PL_NAMES = ['ทดสอบเอ', 'ทดสอบบี'];
-
-async function readPLState(session) {
+async function readSiamsiState(session) {
   return ev(
     session,
     `
-    return { hasPick: !!document.getElementById('pl-pick'), hasAgain: !!document.getElementById('pl-again') };
+    return { hasStart: !!document.getElementById('ss-start'), hasDraw: !!document.getElementById('ss-draw'),
+             hasAgain: !!document.getElementById('ss-again') };
   `,
   );
 }
 
-async function runPickLoserScenario(session, base) {
-  const result = { label: 'pl-again gate + pl-pick exception', gapTests: [], pickException: null, scenarioError: null };
+// idle(#ss-start) -> turn(#ss-draw) -> drawn(#ss-again) -> idle. The gate under test is the one on the
+// turn screen: tapping #ss-start swaps #stage under the finger and puts #ss-draw where it just was.
+async function runSiamsiScenario(session, base) {
+  const result = { label: 'ss-draw gate (idle -> turn swap under the finger)', gapTests: [], scenarioError: null };
   try {
-    await seedRoster(session, base, '/game/pick-loser/', PL_NAMES, 320);
-    await rosterTick(session);
+    await seedSolo(session, base, '/game/siamsi/', 320);
 
-    // Dry run: learn pl-again's rect, then return to idle for real so the loop below can start there.
-    const pickRect0 = await getRect(session, '#pl-pick');
-    if (!pickRect0) throw new Error('pick-loser: #pl-pick not found on idle screen');
-    await session.tap(pickRect0.cx, pickRect0.cy);
-    const againRect = await getRect(session, '#pl-again');
-    if (!againRect) throw new Error('pick-loser: #pl-again not found');
-    await session.tap(againRect.cx, againRect.cy); // back to idle, for real
+    // Dry run: learn each control's rect, then come back to idle for real so the loop starts there.
+    const startRect0 = await getRect(session, '#ss-start');
+    if (!startRect0) throw new Error('siamsi: #ss-start not found on the idle screen');
+    await session.tap(startRect0.cx, startRect0.cy);
+    const drawRect = await getRect(session, '#ss-draw');
+    if (!drawRect) throw new Error('siamsi: #ss-draw not found on the turn screen');
+    await session.tap(drawRect.cx, drawRect.cy);
+    const againRect0 = await getRect(session, '#ss-again');
+    if (!againRect0) throw new Error('siamsi: #ss-again not found on the drawn screen');
+    await session.tap(againRect0.cx, againRect0.cy); // back to idle, for real
 
     for (const gapMs of [100, 500]) {
       await sleep(500);
-      const c1 = await getRect(session, '#pl-pick');
-      if (!c1) throw new Error('pick-loser: expected idle screen before the gap test');
-      await ghostDoubleTap(session, c1.cx, c1.cy, againRect.cx, againRect.cy, gapMs);
-      const after = await readPLState(session);
-      const suppressed = after.hasAgain === true && after.hasPick === false;
-      const registered = after.hasPick === true && after.hasAgain === false;
+      const c1 = await getRect(session, '#ss-start');
+      if (!c1) throw new Error('siamsi: expected the idle screen before the gap test');
+      await ghostDoubleTap(session, c1.cx, c1.cy, drawRect.cx, drawRect.cy, gapMs);
+      const after = await readSiamsiState(session);
+      const suppressed = after.hasDraw === true && after.hasAgain === false;
+      const registered = after.hasAgain === true && after.hasDraw === false;
       const verdict = gapMs < ARM_DELAY_MS ? (suppressed ? 'PASS' : 'FAIL') : registered ? 'PASS' : 'FAIL';
       result.gapTests.push({
-        control: 'pl-again',
+        control: 'ss-draw',
         gapMs,
         after,
         verdict,
-        note: gapMs < ARM_DELAY_MS ? 'ghost tap on pl-again must not fire — still on the result screen' : 'deliberate post-window tap on pl-again must fire — back on idle with pl-pick',
+        note:
+          gapMs < ARM_DELAY_MS
+            ? 'ghost tap on ss-draw must not fire — still on the turn screen'
+            : 'deliberate post-window tap on ss-draw must fire — on the drawn screen with ss-again',
       });
-      if (!after.hasPick) {
-        // still on result — reset to idle for the next iteration
-        const ag = await getRect(session, '#pl-again');
+      // Return to idle for the next iteration, from whichever screen this landed on.
+      if (!after.hasStart) {
+        if (!after.hasAgain) {
+          const dr = await getRect(session, '#ss-draw');
+          if (dr) await session.tap(dr.cx, dr.cy);
+        }
+        const ag = await getRect(session, '#ss-again');
         if (ag) await session.tap(ag.cx, ag.cy);
       }
     }
-
-    // ---- pl-pick exception: a real second contact 60ms after pl-again's own tap (the swap that
-    // remounts the idle screen and creates a fresh pl-pick) must still register. `session.tap()`
-    // always sleeps ~400ms internally before its own promise resolves (driver.mjs), so wrapping
-    // Date.now() around an awaited tap can never read under 400ms regardless of the real behaviour —
-    // this reuses ghostDoubleTap's un-awaited-dispatch trick for a genuine, controlled 60ms gap
-    // between two real touches instead (browser-verification.md trap #2: calibrate the detector). ----
-    await sleep(500);
-    let preExceptionState = await readPLState(session);
-    if (!preExceptionState.hasAgain) {
-      // The loop above may have ended on idle (its last iteration registered normally) — reach the
-      // result screen for real before the exception test needs it.
-      const p = await getRect(session, '#pl-pick');
-      if (!p) throw new Error('pick-loser: neither pl-again nor pl-pick found before the exception test');
-      await session.tap(p.cx, p.cy);
-      await sleep(500);
-      preExceptionState = await readPLState(session);
-    }
-    if (!preExceptionState.hasAgain) throw new Error('pick-loser: expected the result screen before the pl-pick exception test');
-    const ag2 = await getRect(session, '#pl-again');
-    if (!ag2) throw new Error('pick-loser: #pl-again not found before the pl-pick exception test');
-    // The idle screen's pl-pick sits at the same place every time (deterministic layout) — reuse pickRect0.
-    await ghostDoubleTap(session, ag2.cx, ag2.cy, pickRect0.cx, pickRect0.cy, 60);
-    const s = await readPLState(session);
-    result.pickException = {
-      gapMs: 60,
-      after: s,
-      verdict: s.hasAgain === true && s.hasPick === false ? 'PASS' : 'FAIL',
-      note: 'pl-pick is exempt from the gate — a real touch 60ms after pl-again must still register a pick, landing on the result screen',
-    };
   } catch (e) {
     result.scenarioError = String((e && e.stack) || e);
   }
@@ -699,14 +679,14 @@ export default async function (session) {
   const timebomb = [];
   for (const scenario of TIMEBOMB_SCENARIOS) timebomb.push(await runTimebombScenario(session, base, scenario));
 
-  const pickLoser = [await runPickLoserScenario(session, base)];
+  const siamsi = [await runSiamsiScenario(session, base)];
 
   const allGapTests = [
     ...shortStick.flatMap((s) => s.gapTests.map((g) => ({ game: 'short-stick', scenario: s.label, ...g }))),
     ...timebomb.flatMap((s) => s.gapTests.map((g) => ({ game: 'timebomb', scenario: s.label, ...g }))),
-    ...pickLoser.flatMap((s) => s.gapTests.map((g) => ({ game: 'pick-loser', scenario: s.label, ...g }))),
+    ...siamsi.flatMap((s) => s.gapTests.map((g) => ({ game: 'siamsi', scenario: s.label, ...g }))),
   ];
-  const scenarioErrors = [...shortStick, ...timebomb, ...pickLoser].filter((s) => s.scenarioError);
+  const scenarioErrors = [...shortStick, ...timebomb, ...siamsi].filter((s) => s.scenarioError);
   const failing = allGapTests.filter((g) => g.verdict !== 'PASS');
   // The suppression legs are the ones whose PASS condition is "nothing happened", so they are the ones
   // BREAK_GUARD has to be able to turn red. Counted, not averaged with the >=400ms legs, which stay
@@ -734,7 +714,7 @@ export default async function (session) {
   return {
     summary: {
       breakGuard: !!process.env.BREAK_GUARD,
-      gamesCovered: ['short-stick', 'timebomb', 'pick-loser'],
+      gamesCovered: ['short-stick', 'timebomb', 'siamsi'],
       gamesNotCovered: NOT_COVERED,
       totalGapTests: allGapTests.length,
       suppressionLegs: suppressionLegs.length,
@@ -747,7 +727,7 @@ export default async function (session) {
     pointerdownOnDisabled,
     shortStick,
     timebomb,
-    pickLoser,
+    siamsi,
     consoleErrors: session.consoleErrors,
   };
 }

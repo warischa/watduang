@@ -36,15 +36,15 @@
 // signal is "nothing found" and which has never found anything cannot be told from one that measured
 // nothing (docs/verification/probe-triage-2026-08-26.md).
 //
-// ponytail: COVERAGE CEILING — 4 of the site's 5 games, deliberately. ADR-0040 (2026-08-25) made
-// daily-fortune and siamsi solo pages ([1, 1]): no PlayerSetup, no #start-round, and an
-// EMPTY group (`soloSession.players = []`, src/pages/game/[id].astro), so neither renders the
-// roster chips the old walks tapped. daily-fortune's solo screens are the finished ones (its module
-// calls itself "the proving page of the solo class") and it keeps a walk, rewritten against #df-name /
-// #df-go. siamsi carries party-shaped content on a [1, 1] page pending its own redesign ticket — with
-// an empty group it has no turn to pass, so a walk there would measure a screen no player sees and be
-// rewritten by that ticket. It is dropped and named in `notCovered`, so this summary can never be read
-// as site-wide. (love-match was delisted pending its "เนื้อคู่" redesign, gh#101, and no longer resolves
+// ponytail: COVERAGE CEILING — 4 walked pages, and the set is bounded by the hazard's own
+// precondition rather than by effort. This probe needs a tap that REPLACES #stage; only four pages
+// still have one. ADR-0040 (2026-08-25) made daily-fortune and siamsi solo pages ([1, 1]): no
+// PlayerSetup, no #start-round, and an EMPTY group (`soloSession.players = []`,
+// src/pages/game/[id].astro), so neither renders the roster chips the old walks tapped — both are
+// walked through their own solo screens instead. Every game registered since (cannon-flag, freeze-tap,
+// power-meter, dice-loser, how-close-is-near, pinocchio-luck) runs full screen at its `playRoute`, and
+// its /game/<id>/ landing renders prose with no button, so it has no in-#stage transition to walk.
+// A green here is therefore NOT site-wide: it is every page that can tap-transition #stage. (love-match was delisted pending its "เนื้อคู่" redesign, gh#101, and no longer resolves
 // at all — it carries no WALKS entry and no notCovered entry, the same way a deleted page carries
 // neither.) Static coverage of the same invariant lives in scripts/no-nav-in-stage-check.mjs, which
 // enumerates src/games/*.ts straight off disk rather than from the manifest — so it still grades the
@@ -144,9 +144,12 @@ const HELPERS = `
 // minTransitions guards the other failure mode — a walk that silently did nothing must not read PASS.
 // Solo pages ([1, 1], ADR-0040) have no roster panel and no group, so their walk gets `solo: true`
 // and the runner mounts them by loading the page — the module mounts itself.
-const NOT_COVERED = {
-  siamsi: 'ADR-0040 solo page with an empty group: no turn to pass and no summary to reach, so its party-shaped walk measures a screen no player sees until its "เสี่ยงเซียมซี" redesign lands.',
-};
+// gh#153 — siamsi moved OUT of this map and into WALKS above: the objection recorded here was that a
+// party-shaped walk on a [1, 1] page measures a screen no player sees, and the solo walk added above
+// is not party-shaped. Every other game on the site now runs at a playRoute and renders no button in
+// #stage at all, so it has no tap-driven transition for this probe to walk — that is an absence of the
+// hazard's precondition, not an uncovered page, and it is why this map is empty rather than long.
+const NOT_COVERED = {};
 
 const WALKS = {
   'daily-fortune': {
@@ -162,11 +165,20 @@ const WALKS = {
       taps.push(await tap('#df-again -> ask', document.getElementById('df-again')));
       return taps;`,
   },
-  'pick-loser': {
-    minTransitions: 2,
+  // gh#153 — siamsi replaces pick-loser as the fourth walk. It is the only remaining page besides the
+  // three below that renders its own buttons INSIDE #stage: every game added since runs full screen at
+  // its own playRoute and its landing is prose with no button, so there is nothing there to tap-
+  // transition and nothing for this probe to measure. Walked solo, which is what ADR-0040 made this
+  // page: no roster panel, the module mounts itself on load, and #ss-start -> #ss-draw -> #ss-again is
+  // the complete cycle a real solo player has. That is a longer walk than pick-loser's two taps, so
+  // claim 0 is now sampled on 3 screens here instead of 2.
+  siamsi: {
+    solo: true,
+    minTransitions: 3,
     body: `
-      taps.push(await tap('#pl-pick -> result', document.getElementById('pl-pick')));
-      taps.push(await tap('#pl-again -> idle', document.getElementById('pl-again')));
+      taps.push(await tap('#ss-start -> turn', document.getElementById('ss-start')));
+      taps.push(await tap('#ss-draw -> drawn', document.getElementById('ss-draw')));
+      taps.push(await tap('#ss-again -> idle', document.getElementById('ss-again')));
       return taps;`,
   },
   'short-stick': {

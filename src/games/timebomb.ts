@@ -40,11 +40,19 @@ export function urgencyAt(now: number, startedAt: number, deadline: number): num
 export const SHIMMER_PERIOD_MS = 1200;
 const SHIMMER_FLOOR_PCT = 88;
 const SHIMMER_SWING_PCT = 12;
+/** ADR-0046 is "reduce, not remove", and throttling the WRITE RATE alone does not reduce anything a
+ *  viewer perceives — a browser capture of the reduce query measured this bar still cycling the full
+ *  88.8-99.8% range, just in coarser steps. That is a loop that pulses forever, and it is new: before
+ *  gh#151 the bar shrank monotonically toward the deadline, so under the reduce query it was nearly
+ *  static. Amplitude is therefore reduced too. NOT to zero: a still bar would say the round had
+ *  stopped, and this shimmer is the only remaining signal that the fuse is lit. */
+const SHIMMER_SWING_REDUCED_PCT = 3;
 
-export function shimmerAt(now: number): number {
+export function shimmerAt(now: number, reduced = false): number {
   const phase = (((now % SHIMMER_PERIOD_MS) + SHIMMER_PERIOD_MS) % SHIMMER_PERIOD_MS) / SHIMMER_PERIOD_MS;
   const triangle = phase < 0.5 ? phase * 2 : 2 - phase * 2;
-  return SHIMMER_FLOOR_PCT + triangle * SHIMMER_SWING_PCT;
+  const swing = reduced ? SHIMMER_SWING_REDUCED_PCT : SHIMMER_SWING_PCT;
+  return SHIMMER_FLOOR_PCT + triangle * swing;
 }
 
 const TICK_SLOW_MS = 900;
@@ -326,7 +334,9 @@ function frame(): void {
     // than removed: the "round is running" signal must survive (gh#77 box7, ADR-0046).
     if (fuseFillEl && now >= nextFuseUpdateAt) {
       if (prefersReducedMotion) nextFuseUpdateAt = now + FUSE_STEP_MS;
-      fuseFillEl.style.width = `${shimmerAt(now).toFixed(1)}%`;
+      // Both levers move under the query: coarser steps AND a smaller swing. Throttling alone left
+      // the full 12% cycle visible, which a browser capture caught.
+      fuseFillEl.style.width = `${shimmerAt(now, prefersReducedMotion).toFixed(1)}%`;
     }
   }
 

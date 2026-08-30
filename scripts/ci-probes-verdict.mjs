@@ -120,9 +120,11 @@ const V = {
     if (!s) return 'no summary in probe output -- nothing was measured';
     if (s.breakGuard !== false) return `clean leg ran with BREAK_GUARD set (breakGuard=${JSON.stringify(s.breakGuard)}) -- it measured a planted anchor, not the shipped pages`;
     // Pinned to 4, not ">0": the walk is what produces every claim below, and a run whose taps stopped
-    // landing reports empty fail lists too. Claim 2 is deliberately NOT gated -- pick-loser is
+    // landing reports empty fail lists too. Claim 2 is deliberately NOT gated -- a game can be
     // legitimately red on it (a sampled point lands inside nav.game-next's own box with
-    // anchorHref: null, so there is no anchor and no navigation to leave the round).
+    // anchorHref: null, so there is no anchor and no navigation to leave the round). It was
+    // pick-loser that measured that; gh#153 re-pointed the fourth walk at siamsi, and claim 2 stays
+    // ungated for the same reason -- nav.game-next is page chrome under ADR-0013, not #stage.
     if (s.gamesWithUsableWalk !== 4) return `${s.gamesWithUsableWalk} game(s) had a usable walk, expected 4 -- the claims below rest on walks that did not happen`;
     const c0 = s.claim0_stageHasNoAnchor?.fail;
     const c1 = s.claim1_noNavTargetHitInStage?.fail;

@@ -359,11 +359,27 @@ async function selftest() {
     // a name the extractor never writes
     `${sep}repo${sep}src${sep}play${sep}cannon-flag${sep}engine.js`,
   ];
-  for (const f of exempt) assert.equal(isVerbatimLift(f), true, `must be exempt: ${f}`);
-  for (const f of policed) assert.equal(isVerbatimLift(f), false, `must stay policed: ${f}`);
+  const noImportText = 'const x = 1;\nfunction f() { return x; }';
+  for (const f of exempt) assert.equal(isVerbatimLift(f, noImportText), true, `must be exempt: ${f}`);
+  for (const f of policed) assert.equal(isVerbatimLift(f, noImportText), false, `must stay policed: ${f}`);
+
+  // Narrowed owner ruling 2026-08-30 (gh#123): an import statement proves the lift file was
+  // edited since extraction, so it loses the exemption in BOTH directions — the untouched
+  // sibling stays exempt, the one with an import is scanned like any other source file.
+  const liftPath = `${sep}repo${sep}src${sep}play${sep}pinocchio-luck${sep}main.js`;
+  const importedText = 'import { roll } from "./engine.js";\nconst x = 1;';
+  assert.equal(isVerbatimLift(liftPath, noImportText), true, 'lift file with no import stays exempt');
+  assert.equal(isVerbatimLift(liftPath, importedText), false, 'lift file WITH an import loses the exemption');
+
+  // End-to-end: once isVerbatimLift says "scanned", the pipeline must actually catch a Thai
+  // comment in that file — losing the exemption on paper is worthless if nothing then reads it.
+  const importedTextWithThaiComment = 'import { roll } from "./engine.js";\n// ไทย agent-authored comment\nconst x = 1;';
+  assert.equal(isVerbatimLift(liftPath, importedTextWithThaiComment), false);
+  const { counted: caughtLines } = split(await analyzeFile(liftPath, importedTextWithThaiComment));
+  assert.deepEqual(caughtLines, [2], 'Thai comment in a scanned (imported) lift file must be caught');
   console.log(
     `PASS verbatim-lift exemption calibrated both ways: ${exempt.length} exempt, ${policed.length} still policed ` +
-      '(agent-authored siblings, wrong depth, wrong tree, unknown basename)',
+      '(agent-authored siblings, wrong depth, wrong tree, unknown basename), plus import-narrows-the-exemption calibrated both ways',
   );
 }
 
@@ -378,14 +394,25 @@ async function selftest() {
 // directory-wide exemption would also silence roster-bridge.js and overrides.css, which live beside
 // them and ARE agent-authored — that is how an exemption written to cover one thing quietly grows to
 // cover the next file someone drops in. The extractor is the only writer of these three names.
+//
+// NARROWED owner ruling 2026-08-30 (gh#123): the exemption's premise is that the file is
+// byte-for-byte what the extractor wrote. An `import` statement proves an agent has since
+// edited it, so the file keeps the filename/depth shape but loses the exemption.
 const VERBATIM_LIFT_BASENAMES = new Set(['markup.html', 'style.css', 'main.js']);
-function isVerbatimLift(absPath) {
+// Keyed on "import" anchored at the start of a (whitespace-trimmed) line — that is where a real
+// ES module import statement sits, and it excludes the word appearing mid-line inside a string or
+// a `//` comment (which starts the line with `//`, not `import`). Miss: a multi-line `/* ... */`
+// block comment or template literal whose OWN line happens to start with "import " would still
+// trip this. Acceptable here — these are third-party lift files, not free-form prose.
+const IMPORT_STATEMENT = /^[ \t]*import\b/m;
+function isVerbatimLift(absPath, text) {
   const parts = absPath.split(path.sep);
   const i = parts.lastIndexOf('play');
   // src/play/<game-id>/<basename> — the id segment must be there, so src/play/main.js is NOT exempt.
   if (i < 1 || parts[i - 1] !== 'src') return false;
   if (parts.length !== i + 3) return false;
-  return VERBATIM_LIFT_BASENAMES.has(parts[parts.length - 1]);
+  if (!VERBATIM_LIFT_BASENAMES.has(parts[parts.length - 1])) return false;
+  return !IMPORT_STATEMENT.test(text);
 }
 
 function walkFiles(root, out = [], skipped = new Map()) {
@@ -413,8 +440,11 @@ async function main() {
     else files.push(abs);
   }
 
-  const lifted = files.filter(isVerbatimLift);
-  const scanned = files.filter((f) => !isVerbatimLift(f));
+  // Read once, up front — isVerbatimLift needs the text to check for an import statement, and
+  // analyzeFile needs it again below; the cache avoids reading a scanned file twice.
+  const textByFile = new Map(files.map((f) => [f, fs.readFileSync(f, 'utf8')]));
+  const lifted = files.filter((f) => isVerbatimLift(f, textByFile.get(f)));
+  const scanned = files.filter((f) => !isVerbatimLift(f, textByFile.get(f)));
   files.length = 0;
   files.push(...scanned);
 
@@ -422,7 +452,7 @@ async function main() {
   const lines = [];
   const ambiguousLines = [];
   for (const f of files) {
-    const res = await analyzeFile(f, fs.readFileSync(f, 'utf8'));
+    const res = await analyzeFile(f, textByFile.get(f));
     const { counted, ambiguous } = split(res);
     const rel = path.relative(repoRoot, f);
     total += counted.length;

@@ -4,7 +4,9 @@
 // collapse drops <a href="/game/timebomb/"> under the button, 8 of 45 grid points (x 8-66, y 529-553).
 // See docs/verification/evidence/34/15-no-nav-in-stage.json for the full writeup.
 //
-// Run: ROSTER_JSON='[...]' GAME_ID=pick-loser node scripts/driver.mjs scripts/gamenav-start-grid-probe.mjs
+// Run: ROSTER_JSON='[...]' GAME_ID=dice-loser node scripts/driver.mjs scripts/gamenav-start-grid-probe.mjs
+// (gh#153 — was pick-loser; GAME_ID takes any [2, 10] page, the panel and #start-round are GameLayout's.
+// The measurement recorded on line 3 above stays attributed to the page it was taken on.)
 // (needs `npx serve dist/ -l 4321` and headless Chrome on CDP_PORT — see scripts/driver.mjs's header)
 //
 // Grid-scan the #start-round button box across the panel-collapse transition.

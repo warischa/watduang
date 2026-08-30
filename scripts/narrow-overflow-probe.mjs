@@ -4,7 +4,15 @@
 // long unbreakable token going sideways, and they seed from their OWN per-tool localStorage key
 // (ADR-0039 took the tools off the shared roster), never 'watduang:roster'.
 const BASE = process.env.BASE || 'http://localhost:4321';
-const GAMES = ['pick-loser', 'timebomb', 'siamsi', 'short-stick', 'daily-fortune'];
+// gh#153 — dice-loser stands in for the retired pick-loser here. Same shell shape (party page:
+// #player-setup + #roster-list + #start-round, verified in dist/), so the seed-tick-start walk below
+// is unchanged and the pinned screen count in ci-probes-verdict.mjs stays 22. What it does NOT do is
+// carry a reader's name into #stage: dice-loser's landing is two <p> and the game itself runs at its
+// playRoute. MEASURED, not assumed: the control leg (BREAK_GUARD=1, 72-char token) was re-run on the
+// PRE-SWAP file and pick-loser's own row came back scrollX 0 / 0 overflowing, exactly as dice-loser's
+// does now — this leg was already un-calibrated on that subject, so no calibrated coverage moves. A
+// name-in-#stage regression is carried by timebomb and short-stick, the only two legs that go red.
+const GAMES = ['dice-loser', 'timebomb', 'siamsi', 'short-stick', 'daily-fortune'];
 const NAMES = ['ก้อง', 'ฟ้า', 'ตูน', 'แนน', 'บอส', 'มิ้น'];
 // A 24-character spaceless Latin name is the worst case the roster allows. LONG_TOKEN is the
 // calibration knob, not a setting: an 80-character token proves the detector can go RED, and

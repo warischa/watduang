@@ -5,7 +5,7 @@
 // frame() actually touch — see love-match.test.mjs's #36 tests for the same pattern.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import game, { urgencyAt, pickDeadline, FUSE_MIN_MS, FUSE_MAX_MS } from './timebomb.ts';
+import game, { urgencyAt, pickDeadline, FUSE_MIN_MS, FUSE_MAX_MS, shimmerAt, SHIMMER_PERIOD_MS } from './timebomb.ts';
 
 const START = 1_700_000_000_000;
 const DEADLINE = START + 30_000;
@@ -473,4 +473,33 @@ test('gh#151: the fuse bar still animates, and its animation is a fixed cycle of
   const widthOf = (snap) => JSON.stringify(snap).match(/"width":"[^"]*"/g);
   assert.ok(widthOf(a), 'the ticking screen carries no fuse bar at all');
   assert.notDeepEqual(widthOf(a), widthOf(b), 'the fuse bar is frozen — the screen no longer shows a live round');
+});
+
+// ADR-0046 is "reduce, not remove". A browser capture of the reduce query measured the fuse bar
+// still cycling its full range because only the write RATE was throttled, so amplitude is pinned
+// here too. Sampling a whole period is what makes this bite: a single sample, or a sample at the
+// triangle's floor, is identical in both modes and would pass a version that reduces nothing.
+test('gh#151 / ADR-0046: the reduced-motion shimmer swings less, and still swings', () => {
+  const step = SHIMMER_PERIOD_MS / 24;
+  const spread = (reduced) => {
+    const vals = [];
+    for (let i = 0; i < 24; i += 1) vals.push(shimmerAt(i * step, reduced));
+    return Math.max(...vals) - Math.min(...vals);
+  };
+  const normal = spread(false);
+  const reduced = spread(true);
+  assert.ok(reduced > 0, 'the reduced shimmer is frozen — that is remove, not reduce (ADR-0046)');
+  assert.ok(
+    reduced < normal / 2,
+    `reduced motion must cut the swing, not just the write rate: reduced ${reduced.toFixed(1)}% vs normal ${normal.toFixed(1)}%`,
+  );
+});
+
+// The value must still carry no deadline term in either mode: same instant -> same width, whatever
+// fuse was drawn. This is the gh#151 invariant, re-asserted on the branch the flag added.
+test('gh#151: shimmer is deadline-free in reduced mode too', () => {
+  for (const reduced of [false, true]) {
+    assert.equal(shimmerAt(1_000_000, reduced), shimmerAt(1_000_000, reduced));
+    assert.equal(shimmerAt(500, reduced), shimmerAt(500 + SHIMMER_PERIOD_MS, reduced));
+  }
 });

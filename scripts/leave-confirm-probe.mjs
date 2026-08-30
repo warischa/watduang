@@ -56,7 +56,10 @@ const PLAYERS = [
 // unconditionally, so all 5 game pages carry the dialog — including the two ADR-0040 solo ones still
 // shipped (verified against the build: `grep -c 'id="leave-confirm"' dist/game/*/index.html` is 1 on
 // all five).
-const DIALOG_PAGES = ['timebomb', 'siamsi', 'pick-loser', 'short-stick', 'daily-fortune'];
+// gh#153 — dice-loser replaces pick-loser as the fifth subject. GameLayout renders the dialog
+// unconditionally, so any game page satisfies assertion A; dist/game/dice-loser/index.html carries
+// exactly one #leave-confirm, same as the page it replaces.
+const DIALOG_PAGES = ['timebomb', 'siamsi', 'dice-loser', 'short-stick', 'daily-fortune'];
 
 // /tool/draw|team|wheel/ used to be scanned here on the assumption that they mount the same dialog.
 // They never did: the tools render ToolNameEntry, not PlayerSetup, and since gh#106 the dialog comes
@@ -74,7 +77,10 @@ const NOT_SCANNED = {
 // Assertions B/C/D need an ARMED guard, which needs a round started ON this page. ponytail: the 3
 // party pages only, and the reason is the guard's own predicate rather than a shortcut —
 // LeaveConfirm.astro latches on #player-setup going hidden (party) or on ROUND_STARTED_EVENT (solo).
-const ROUND_PAGES = ['timebomb', 'pick-loser', 'short-stick'];
+// gh#153 — dice-loser replaces pick-loser here too, and it has the property B/C/D need: it is a
+// [2, 10] party page, so LeaveConfirm.astro latches on its #player-setup going hidden exactly as
+// before. Its landing hands off to a playRoute, which the guard neither knows nor cares about.
+const ROUND_PAGES = ['timebomb', 'dice-loser', 'short-stick'];
 const NOT_ARMED = {
   'daily-fortune': 'startsRound: false — LeaveConfirm.astro never arms here, so there is no armed guard for B/C/D to measure. Assertion A above still covers the page.',
   siamsi: 'startsRound: true on a [1, 1] page — the guard DOES arm here, via ROUND_STARTED_EVENT, but reaching that state needs the solo idle screen its own redesign ticket is about to replace. UNCOVERED gap, not a by-design N/A: B/C/D are unmeasured on this page.',
