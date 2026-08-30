@@ -16,37 +16,14 @@ import type { GameContext, GameSession } from '../../games/types.ts';
 import { armAllButtons } from '../../games/_arm-gate.ts';
 import { loadRoster } from '../../shell/roster';
 import { loadSession } from '../../shell/session';
+// The canonical mascot cast, ADR-0049 rulings 1-3: fixed order, identical in every game. It used to
+// be a second copy of the freeze-tap mockup's array, diffed against it row by row; it is now the one
+// shared definition, and src/play/mascot-defaults.test.mjs pins that definition to the mockup.
+import { MASCOTS } from '../_mascots.ts';
 // The drawn play surface. It reads the engine's fuse element and holds no clock of its own — see the
 // header of that file for why that split is what keeps the absolute deadline the only clock.
 import { startBombCanvas } from './bomb-canvas.ts';
 
-/** The canonical mascot list, ADR-0049 ruling 1-2: fixed order, identical in every game. Derived from
- *  the freeze-tap mockup's own MASCOT_PLAYERS array (src/play/freeze-tap/main.js) and diffed against
- *  it row by row, rather than retyped from a doc.
- *  The colours that array carries are deliberately NOT copied: ADR-0049 requires colour to enter a
- *  stylesheet as a named token, and this screen paints every row from the tokens in play.css. */
-const MASCOTS: readonly { emoji: string; name: string }[] = [
-  { emoji: '🐱', name: 'แมวส้ม' },
-  { emoji: '🐶', name: 'ชิบะ' },
-  { emoji: '🐰', name: 'บันนี่' },
-  { emoji: '🐸', name: 'ฟร็อกกี้' },
-  { emoji: '🐻', name: 'หมีทอง' },
-  { emoji: '🐼', name: 'แพนด้า' },
-  { emoji: '🐧', name: 'เพนกวิน' },
-  { emoji: '🐥', name: 'ลูกเจี๊ยบ' },
-  { emoji: '🐷', name: 'หมูอ้วน' },
-  { emoji: '⭐', name: 'สไลม์ดาว' },
-  { emoji: '🐨', name: 'โคอาล่า' },
-  { emoji: '🦊', name: 'จิ้งจอก' },
-  { emoji: '🐿️', name: 'กระรอก' },
-  { emoji: '🦦', name: 'นากน้อย' },
-  { emoji: '🦁', name: 'สิงโต' },
-  { emoji: '🦌', name: 'กวางน้อย' },
-  { emoji: '🐹', name: 'แฮมสเตอร์' },
-  { emoji: '🦝', name: 'แรคคูน' },
-  { emoji: '🦭', name: 'แมวน้ำ' },
-  { emoji: '🐲', name: 'มังกรน้อย' },
-];
 
 // Range from the module's own declared players field, so this screen can never offer a count the
 // manifest does not claim. ADR-0049 ruling 5 sets the site-wide ceiling at 20, which is also the

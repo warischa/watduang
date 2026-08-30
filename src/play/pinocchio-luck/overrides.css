@@ -1,0 +1,22 @@
+/* Site-specific adjustments layered ON TOP of the verbatim mockup stylesheet.
+   NOTHING here belongs in style.css: that file is what scripts/extract-mockup.mjs writes, byte-for-byte
+   from the mockup, and re-running the extractor overwrites it. Every change this site needs lives here
+   so the extraction stays reproducible and a diff against the mockup stays meaningful. */
+
+/* Tap target. `.icon-btn` is declared 42x42 in the mockup stylesheet (style.css, `.icon-btn`), two
+   pixels under the 44px floor the rest of this site meets — the sound toggle is the only control it
+   styles. The mockup was built to be looked at on a desktop; this site is a phone passed around a
+   group, so the floor applies here and did not there.
+   min-* rather than width/height: it raises what is too small and leaves the border-radius circle
+   and everything already larger exactly where the mockup put it. */
+.icon-btn {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}
+
+/* NOTHING here about the missing-WebGL state, deliberately. ADR-0051 requires that this route never
+   blank the page when the drawing context is unavailable, and the mockup already satisfies it without
+   help: initGL() returns null instead of throwing, puts `no-webgl` on #app, and style.css's
+   `.no-webgl` rules swap the canvas for a CSS puppet and an explanatory notice. The round itself is
+   plain DOM in #panel
+   and never touched the context at all, so it plays through either way. */

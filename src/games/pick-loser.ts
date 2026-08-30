@@ -7,17 +7,12 @@
 import type { GameContext, GameModule } from './types.ts';
 import { armAllButtons } from './_arm-gate.ts';
 import { el } from './_el.ts';
+import { pickLoser } from './_pick-index.ts';
 
 // ---- Picking: pure and calculable, testable with no DOM (see pick-loser.test.mjs) ----
-
-/** Picks one index out of the roster — returns the index, never a name, so callers stay safe
- *  against duplicate names in the roster */
-export function pickLoser(players: readonly string[], rand: () => number = Math.random): number {
-  if (players.length === 0) {
-    throw new Error('pick-loser: ผู้เล่นว่างเปล่า — ต้องมีอย่างน้อย 1 คนถึงจะสุ่มได้');
-  }
-  return Math.floor(rand() * players.length);
-}
+// Moved to _pick-index.ts — short-stick.ts needs it and outlives this game (gh#154). Re-exported
+// here so this module and its test keep resolving the same symbol.
+export { pickLoser };
 
 // ---- Current round state (one game per page) ----
 

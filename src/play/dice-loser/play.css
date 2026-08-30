@@ -1,0 +1,452 @@
+/* The dice-loser game, full screen (gh#156). Authored for this route — the mockup's neon-on-dark palette is
+   not carried across as literals, so every value here is chosen against the freeze-tap dark reference
+   the other play routes target.
+
+   COLOUR ENTERS BY NAME: the palette is declared once, in the #app block below, and every rule
+   downstream references a --dl-* token. No hex literal appears outside that one block.
+
+   play.css, not style.css: the thai-comments carve-out exempts the extractor's three basenames
+   (main.js / markup.html / style.css) inside a play folder as verbatim lifts. Nothing here IS a lift,
+   so the file is named off that exemption and stays under the full gate.
+
+   ONE animation is declared — the dice tumble — and the reduced-motion block at the end SHORTENS it
+   rather than deleting it (ADR-0046: reduce, not remove). main.ts reads the same query so its reveal
+   timer shrinks with it.
+
+   Loaded only by src/pages/game/dice-loser/play.astro, so the bare `body` rule cannot reach another
+   page. */
+
+#app {
+  --dl-bg: #080b14;
+  --dl-bg-glow: #1e1b4b;
+  --dl-panel: rgba(15, 23, 42, 0.88);
+  --dl-edge: rgba(255, 255, 255, 0.14);
+  --dl-edge-strong: rgba(255, 255, 255, 0.34);
+  --dl-ink: #f8fafc;
+  --dl-muted: #94a3b8;
+  --dl-accent: #a78bfa;
+  --dl-danger: #ef4444;
+  --dl-die-face: #f8fafc;
+  --dl-die-pip: #0f172a;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  min-block-size: 100dvh;
+  background: radial-gradient(circle at 50% 12%, var(--dl-bg-glow) 0%, var(--dl-bg) 70%);
+  color: var(--dl-ink);
+  font-family: var(--font-sans);
+}
+
+body {
+  /* Rubber-band scroll past the app root would otherwise show the site's white page ground. */
+  background: var(--dl-bg);
+}
+
+/* ---- chrome ----------------------------------------------------------------------------------- */
+
+.dl-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 56px;
+  /* The shared X exit (PlayExit.astro) is fixed top-LEFT with a 44px box; this padding keeps the
+     title out from under it at 320px, where the two would otherwise overlap. */
+  padding: 8px 56px;
+  border-block-end: 1px solid var(--dl-edge);
+}
+
+.dl-brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.dl-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.dl-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---- shared panel vocabulary ------------------------------------------------------------------ */
+
+.dl-setup,
+.dl-play,
+.dl-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  inline-size: 100%;
+  max-inline-size: 420px;
+  margin-inline: auto;
+}
+
+.dl-section-title {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  text-align: center;
+}
+
+.dl-tagline {
+  margin: 0;
+  text-align: center;
+  line-height: 1.6;
+  color: var(--dl-muted);
+}
+
+.dl-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--dl-muted);
+}
+
+/* ---- setup ------------------------------------------------------------------------------------ */
+
+.dl-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.dl-step {
+  inline-size: 44px;
+  block-size: 44px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 50%;
+  background: var(--dl-panel);
+  color: var(--dl-ink);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dl-step:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dl-count-read {
+  min-inline-size: 84px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.dl-players {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dl-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 14px;
+  background: var(--dl-panel);
+}
+
+.dl-player-seat {
+  flex: none;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 50%;
+  background: var(--dl-edge);
+  color: var(--dl-ink);
+  text-align: center;
+  line-height: 28px;
+  font-size: 13px;
+}
+
+.dl-player-name {
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--dl-ink);
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.dl-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dl-mode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-block-size: 60px;
+  padding: 10px 14px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 16px;
+  background: var(--dl-panel);
+  color: var(--dl-ink);
+  text-align: start;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.dl-mode.is-selected {
+  border-color: var(--dl-accent);
+  box-shadow: inset 0 0 0 1px var(--dl-accent);
+}
+
+.dl-mode-icon {
+  font-size: 24px;
+}
+
+.dl-mode-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dl-mode-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+
+.dl-mode-desc {
+  font-size: 12px;
+  color: var(--dl-muted);
+}
+
+/* ---- play ------------------------------------------------------------------------------------- */
+
+.dl-round-label {
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--dl-muted);
+}
+
+.dl-turn-name {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 24px;
+  /* Long names wrap instead of pushing the dice arena off a 320px screen. */
+  overflow-wrap: anywhere;
+}
+
+.dl-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dl-pill {
+  max-inline-size: 100%;
+  padding: 4px 10px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--dl-muted);
+  overflow-wrap: anywhere;
+}
+
+.dl-pill.is-done {
+  border-color: var(--dl-edge-strong);
+  color: var(--dl-ink);
+}
+
+.dl-pill.is-current {
+  border-color: var(--dl-accent);
+  color: var(--dl-accent);
+}
+
+.dl-dice {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-block: 8px;
+}
+
+.dl-die {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  inline-size: min(26vw, 92px);
+  aspect-ratio: 1;
+  padding: 9px;
+  border-radius: 16px;
+  background: var(--dl-die-face);
+  box-shadow: 0 6px 0 0 var(--dl-bg-glow);
+}
+
+.dl-pip {
+  border-radius: 50%;
+  background: transparent;
+}
+
+.dl-pip.is-on {
+  background: var(--dl-die-pip);
+}
+
+.dl-die.is-rolling {
+  animation: dl-tumble 300ms linear infinite;
+}
+
+@keyframes dl-tumble {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.9);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.dl-score {
+  margin: 0;
+  min-block-size: 30px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--dl-accent);
+}
+
+/* ---- summary, tiebreak, result ---------------------------------------------------------------- */
+
+.dl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dl-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 14px;
+  background: var(--dl-panel);
+}
+
+.dl-row.is-losing {
+  border-color: var(--dl-danger);
+  color: var(--dl-danger);
+}
+
+.dl-row-name {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.dl-row-score {
+  flex: none;
+  font-family: var(--font-display);
+}
+
+.dl-final-label {
+  margin: 0;
+  text-align: center;
+  color: var(--dl-muted);
+}
+
+.dl-final-name {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 30px;
+  color: var(--dl-danger);
+  overflow-wrap: anywhere;
+}
+
+.dl-final-details {
+  margin: 0 0 8px;
+  text-align: center;
+  color: var(--dl-muted);
+}
+
+/* ---- controls ---------------------------------------------------------------------------------
+   .game-btn* is shell vocabulary; on the game landing page it is styled by the is:global block in
+   src/pages/game/[id].astro, which this route does not load. The dark equivalents live here. */
+
+.game-btn {
+  inline-size: 100%;
+  min-block-size: 60px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 16px;
+  background: var(--dl-panel);
+  color: var(--dl-ink);
+  font-family: var(--font-display);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.game-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.game-btn-primary {
+  background: var(--dl-accent);
+  color: var(--dl-bg);
+  font-weight: 500;
+  font-size: 21px;
+}
+
+/* Reduce, never remove (ADR-0046): the tumble still reads as a roll, at a fraction of the movement.
+   main.ts reads this same query so its reveal timer shrinks to match. */
+@media (prefers-reduced-motion: reduce) {
+  .dl-die.is-rolling {
+    animation-duration: 600ms;
+    animation-name: dl-tumble-reduced;
+  }
+
+  @keyframes dl-tumble-reduced {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}

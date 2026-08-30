@@ -80,7 +80,9 @@ const READ_PIXELS = `
     devicePixelRatio,
     coverage: Number((painted / total).toFixed(4)),
     distinctColours: colours.size,
-    fuseWidth: document.getElementById('tb-fuse')?.style.width ?? null,
+    // gh#151: this width is the fuse bar's fixed-cycle shimmer, NOT the time left — reported as a
+    // liveness read only. Nothing here may be used to infer the remaining fuse.
+    fuseShimmerWidth: document.getElementById('tb-fuse')?.style.width ?? null,
     reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
   };`;
 
@@ -102,7 +104,7 @@ out.start = (await evaluate(CLICK_WHEN_ARMED('#tb-start'))).value;
 await sleep(1500);
 out.pixels = (await evaluate(READ_PIXELS)).value;
 
-// TB_FULL_ROUND=1 plays the round out: the fuse is 15-45s of real time, so this leg is slow on
+// TB_FULL_ROUND=1 plays the round out: the fuse is 30-90s of real time (gh#151), so this leg is slow on
 // purpose. It answers the only question the pixel readback cannot — can a player finish a round on
 // this surface, and does the result reach a screen reader.
 if (process.env.TB_FULL_ROUND === '1') {
@@ -112,7 +114,7 @@ if (process.env.TB_FULL_ROUND === '1') {
     b.click();
     return { passed: true, holder: document.querySelector('.tb-holder-name')?.textContent ?? null };`)).value;
   out.round = (await evaluate(`
-    const until = performance.now() + 50000;
+    const until = performance.now() + 120000; // must outlive the 90s ceiling, or a long fuse reads as a hang
     while (performance.now() < until) {
       if (document.getElementById('tb-again')) {
         return {

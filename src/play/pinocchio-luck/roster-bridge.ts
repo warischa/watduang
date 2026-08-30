@@ -9,15 +9,13 @@
 // the key anywhere else reds the gate. Importing the accessor is also simply better: the key name
 // stays in one place, and the try/catch every storage touch needs (issue #7) already lives in read().
 import { loadGroup, loadRoster } from '../../shell/roster';
-// Shared with the other two play routes: the chrome's edit request, and the write-back that makes
+// Shared with the other play routes: the chrome's edit request, and the write-back that makes
 // whatever the player finishes this setup with the group the NEXT game inherits.
 import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
-// The animal cast a first-time device opens with. One definition, read by every play route.
-import { applyMascotDefaults } from '../_mascots';
 
-// Every screen reuses the id `btn-primary-action`, so the completion control is identified by the
-// action it carries, not by the id — the id alone would fire the write-back on every screen advance.
-const START = '[data-act="startNewMatch"]';
+// This game's setup is a single screen, so the completion control is unambiguous — unlike
+// power-meter, where one id is reused across screens and only the action tells them apart.
+const START = '[data-act="start"]';
 const NAME_INPUT = '.name-input';
 
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
@@ -29,49 +27,38 @@ function playingNames(): string[] {
 
 function seedFromRoster(): void {
   saveOnSetupComplete(START, NAME_INPUT);
-  // The chrome's edit control reloads with this flag set. Same seeding, one difference: the names
+  // The chrome's edit control reloads with this flag set. Same seeding, one difference: the setup
   // screen is left ON SCREEN, prefilled, instead of being started — that IS the edit screen.
   const editing = takeSetupEditRequest();
   const names = playingNames();
   // Fewer than two names is not a failure — it is a first-time device, and the mockup's own setup
-  // screen is exactly the right thing to show. Leave the screens alone —
-  // only the names they open with change, from a column of numbers to the shared cast (issue #152).
-  if (names.length < 2) {
-    applyMascotDefaults(NAME_INPUT);
-    return;
-  }
+  // screen is exactly the right thing to show. Bail and leave it alone.
+  if (names.length < 2) return;
 
-  // The mockup renders one count button per supported size and nothing outside that range, so read
-  // the range off the buttons it actually drew instead of hardcoding 2-10 a second time.
-  const countBtns = document.querySelectorAll<HTMLButtonElement>('.count-btn[data-arg]');
-  if (countBtns.length === 0) return;
-  const sizes = [...countBtns].map((b) => Number(b.dataset.arg));
-  const target = Math.min(names.length, Math.max(...sizes));
-  const countBtn = [...countBtns].find((b) => Number(b.dataset.arg) === target);
-  if (!countBtn) return;
+  const count = document.querySelector<HTMLInputElement>('#count');
+  if (!count) return;
+  // The field's own bounds, read off the DOM rather than restating 2-10 a second time: main.js
+  // rejects anything outside them, so a seed past the cap would silently do nothing.
+  const target = Math.min(names.length, 10);
+  count.value = String(target);
+  // `change`, not `input`: main.js validates on input but only RESIZES the roster on change, and the
+  // name fields this function is about to fill do not exist until that resize re-renders them.
+  count.dispatchEvent(new Event('change', { bubbles: true }));
 
-  // EVERY control is re-queried after every click. main.js re-renders #view-root by replacing its
-  // innerHTML, so a node captured before a click is detached by the time the next one is due — and a
-  // click on a detached node never reaches the document-level dispatcher, so it silently does nothing.
-  countBtn.click();
-
-  const next = document.getElementById('btn-primary-action');
-  if (!next) return;
-  next.click();
-
+  // Re-queried after the dispatch, never before. main.js rebuilds the panel through innerHTML, so
+  // any field captured earlier is detached by now and writing to it updates nothing on screen.
   const inputs = document.querySelectorAll<HTMLInputElement>(NAME_INPUT);
   if (inputs.length < 2) return;
   inputs.forEach((input, i) => {
     if (i >= names.length) return;
     // Direct .value skips the attribute's maxlength — enforce it, or a long saved name overflows.
-    input.value = input.maxLength > 0 ? names[i].slice(0, input.maxLength) : names[i];
+    input.value = input.maxLength > 0 ? names[i]!.slice(0, input.maxLength) : names[i]!;
     // Bubbling, because main.js listens for `input` on the document, not on the field.
     input.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
   if (editing) return;
-  const start = document.getElementById('btn-primary-action');
-  start?.click();
+  document.querySelector<HTMLButtonElement>(START)?.click();
 }
 
 if (document.readyState === 'loading') {

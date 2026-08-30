@@ -1,0 +1,47 @@
+---
+// The full-screen play route: the how-close-is-near mockup itself, served through this site so it gets
+// a real URL, a real <head>, and a bundler that turns its inline <script> into an external module the
+// CSP admits. `/game/how-close-is-near/` keeps the crawlable page — how-to-play prose, JSON-LD, the ad
+// slot — and links here; this page is the app view and carries no chrome at all.
+//
+// ONE FILE PER GAME, not a [id] route. Each mockup's stylesheet styles bare `body` and generic class
+// names of its own, so a dynamic route would load every game's sheet on every play page and let them
+// fight. Here the sheets cannot be prefixed, because they are lifted verbatim.
+//
+// INDEXABLE. src/pages/noindex.test.mjs rejects noindex on any page but 404.astro, on the reasoning
+// that a site whose business model is organic search must never deindex a page one page at a time.
+// The two URLs are differentiated by title instead.
+import Base from '../../../layouts/Base.astro';
+// gh#144 — the shared exit X, page chrome outside the mockup root. One component for every play
+// route; it brings its own style and its own arm gate.
+import PlayExit from '../../../shell/PlayExit.astro';
+import markup from '../../../play/how-close-is-near/markup.html?raw';
+import '../../../play/how-close-is-near/style.css';
+// AFTER style.css, always: overrides.css wins on equal specificity only if it comes second.
+import '../../../play/how-close-is-near/overrides.css';
+import { byId } from '../../../games/manifest';
+
+// The manifest is the single source for the game's name and copy — a literal here would be a second
+// copy to drift. `names.th`, not `title`: the module has no `title` field, and reading one silently
+// put the literal string "undefined" at the front of the built <title> on the first build.
+const game = byId('how-close-is-near');
+if (!game)
+  throw new Error(
+    'how-close-is-near is not registered in the manifest — this play route has no game to name',
+  );
+const title = `${game.names.th} — เล่นเต็มจอ`;
+const description = game.seo.description;
+---
+
+<Base title={title} description={description} ogImage="/og/how-close-is-near.png" chrome>
+  <PlayExit />
+  <Fragment set:html={markup} />
+</Base>
+
+<script>
+  // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block of
+  // this size executes zero lines. Astro emits both of these as one external module.
+  import '../../../play/how-close-is-near/main.js';
+  // AFTER main.js: the bridge drives that module's own setup controls, so they have to exist first.
+  import '../../../play/how-close-is-near/roster-bridge.ts';
+</script>

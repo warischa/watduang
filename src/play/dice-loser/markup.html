@@ -1,0 +1,115 @@
+<!-- Full-screen play route for เต๋าชี้คนแพ้ (gh#156, owner decision gh#139, ADR-0050 ruling 1).
+     The static frame ONLY — every player row, die face, summary card and result line is built at
+     runtime by main.ts with createElement/textContent, so a player's own name never travels through
+     innerHTML on any path (the bug three sibling routes shipped).
+     No <a href> anywhere in here: ADR-0014 keeps navigation out of the play surface, and the one exit
+     is <PlayExit />'s button, mounted by play.astro outside this root.
+     Not a verbatim mockup lift — the mockup's third lose condition (the random cursed number) is out
+     of scope per gh#139 "Nothing extra", so this frame is authored and carries only high vs low. -->
+<!-- id="app": the same game-root id the other play routes use. Not cosmetic — the shared chrome
+     (PlayExit.astro) and the play-route probes resolve the game root as `#app, #app-container`, so a
+     third id would make every one of those checks silently void on this route. -->
+<div id="app">
+  <header class="dl-top">
+    <h1 class="dl-brand">เต๋าชี้คนแพ้</h1>
+  </header>
+
+  <main class="dl-main">
+    <!-- SETUP: player baseline (ADR-0049) plus the one thing this game must agree on before the first
+         roll — whether the high total or the low total loses. -->
+    <section id="dl-setup" class="dl-setup">
+      <p class="dl-tagline">ผลัดกันทอยเต๋าคนละ 3 ลูก ใครเข้าเงื่อนไขคนนั้นโดน</p>
+
+      <div class="dl-count">
+        <button id="dl-count-dec" class="dl-step" type="button" aria-label="ลดจำนวนคนเล่น">−</button>
+        <span class="dl-count-read"><span id="dl-count-num">3</span> คน</span>
+        <button id="dl-count-inc" class="dl-step" type="button" aria-label="เพิ่มจำนวนคนเล่น">+</button>
+      </div>
+
+      <ul id="dl-players" class="dl-players"></ul>
+
+      <p class="dl-hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อที่ตั้งไว้ใช้เฉพาะเกมนี้</p>
+
+      <h2 class="dl-section-title">เลือกเงื่อนไขคนแพ้</h2>
+      <p class="dl-hint">กติกานี้จะใช้ตลอดทั้งเกม รวมทั้งในรอบตัดสินเสมอ</p>
+      <div class="dl-modes" role="radiogroup" aria-label="เงื่อนไขคนแพ้">
+        <button
+          id="dl-mode-high"
+          class="dl-mode is-selected"
+          type="button"
+          role="radio"
+          aria-checked="true"
+          data-mode="HIGH_LOSES">
+          <span class="dl-mode-icon" aria-hidden="true">🔥</span>
+          <span class="dl-mode-body">
+            <span class="dl-mode-name">แต้มสูงแพ้</span>
+            <span class="dl-mode-desc">ผู้ที่ทอยได้แต้มรวมสูงสุดคือผู้แพ้</span>
+          </span>
+        </button>
+        <button
+          id="dl-mode-low"
+          class="dl-mode"
+          type="button"
+          role="radio"
+          aria-checked="false"
+          data-mode="LOW_LOSES">
+          <span class="dl-mode-icon" aria-hidden="true">❄️</span>
+          <span class="dl-mode-body">
+            <span class="dl-mode-name">แต้มต่ำแพ้</span>
+            <span class="dl-mode-desc">ผู้ที่ทอยได้แต้มรวมต่ำสุดคือผู้แพ้</span>
+          </span>
+        </button>
+      </div>
+
+      <button id="dl-begin" class="game-btn game-btn-primary" type="button">เริ่มเกมเลย</button>
+    </section>
+
+    <!-- PLAY: one turn at a time, the phone passed around. -->
+    <section id="dl-play" class="dl-play" hidden>
+      <div id="dl-round-label" class="dl-round-label">รอบที่ 1</div>
+      <div id="dl-turn-name" class="dl-turn-name"></div>
+      <ul id="dl-pills" class="dl-pills"></ul>
+
+      <!-- The three dice. Pips are built by main.ts into these boxes; the faces are decorative, the
+           real value is announced as text in #dl-score and #dl-live below. -->
+      <div class="dl-dice" aria-hidden="true">
+        <div id="dl-die-1" class="dl-die"></div>
+        <div id="dl-die-2" class="dl-die"></div>
+        <div id="dl-die-3" class="dl-die"></div>
+      </div>
+
+      <p id="dl-score" class="dl-score"></p>
+
+      <button id="dl-roll" class="game-btn game-btn-primary" type="button">ทอยลูกเต๋าเลย</button>
+      <button id="dl-next" class="game-btn game-btn-primary" type="button" hidden>ส่งต่อคนถัดไป</button>
+    </section>
+
+    <!-- SUMMARY: everyone in the round, sorted so the losing end reads first. -->
+    <section id="dl-summary" class="dl-panel" hidden>
+      <h2 id="dl-summary-title" class="dl-section-title">สรุปผลรอบที่ 1</h2>
+      <p class="dl-hint">ผลคะแนนของผู้เล่นทุกคนในรอบนี้</p>
+      <ul id="dl-summary-list" class="dl-list"></ul>
+      <button id="dl-summary-continue" class="game-btn game-btn-primary" type="button">ดูผลการตัดสิน</button>
+    </section>
+
+    <!-- TIEBREAK: two or more players sit on the losing score, so only they roll again. -->
+    <section id="dl-tiebreak" class="dl-panel" hidden>
+      <h2 class="dl-section-title">เสมอในแต้มแพ้!</h2>
+      <p class="dl-hint">มีผู้เล่นได้แต้มแพ้เท่ากัน ต้องดวลรอบตัดสินเฉพาะคนที่เสมอ</p>
+      <ul id="dl-tiebreak-list" class="dl-list"></ul>
+      <button id="dl-tiebreak-start" class="game-btn game-btn-primary" type="button">เริ่มรอบตัดสินเลย</button>
+    </section>
+
+    <!-- RESULT. -->
+    <section id="dl-final" class="dl-panel" hidden>
+      <p class="dl-final-label">ผู้แพ้ในเกมนี้คือ</p>
+      <p id="dl-final-name" class="dl-final-name"></p>
+      <p id="dl-final-details" class="dl-final-details"></p>
+      <button id="dl-rematch" class="game-btn game-btn-primary" type="button">เล่นอีกครั้ง (ผู้เล่นเดิม)</button>
+      <button id="dl-new-setup" class="game-btn" type="button">ตั้งเกมใหม่</button>
+    </section>
+  </main>
+
+  <!-- The dice are decorative pixels to assistive tech; every state change is mirrored here as text. -->
+  <p id="dl-live" class="dl-visually-hidden" role="status" aria-live="polite"></p>
+</div>

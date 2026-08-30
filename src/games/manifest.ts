@@ -13,6 +13,10 @@ import dailyFortune from './daily-fortune.ts';
 import freezeTap from './freeze-tap.ts';
 import cannonFlag from './cannon-flag.ts';
 import powerMeter from './power-meter.ts';
+// Ports 1-3 of the seven the owner ordered in gh#139, registered in that order.
+import diceLoser from './dice-loser.ts';
+import howCloseIsNear from './how-close-is-near.ts';
+import pinocchioLuck from './pinocchio-luck.ts';
 // love-match is deliberately NOT registered: the page is delisted until gh#101 rebuilds it (the solo
 // mount hands it an empty roster, so every visitor hit "need 2+ people"). src/games/love-match.ts,
 // its test, and its stylesheet stay on disk on purpose — gh#101 rebuilds from them.
@@ -26,6 +30,9 @@ export const games: GameModule[] = [
   freezeTap,
   cannonFlag,
   powerMeter,
+  diceLoser,
+  howCloseIsNear,
+  pinocchioLuck,
 ];
 
 export const byId = (id: string): GameModule | undefined =>

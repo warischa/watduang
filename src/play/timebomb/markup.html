@@ -37,13 +37,17 @@
          OUTSIDE #tb-stage on purpose — the engine calls replaceChildren() on the stage at every screen
          change, which would destroy a canvas placed inside it.
          Canvas pixels are invisible to assistive tech, so this element carries a label and the round's
-         live state is announced in the DOM below it: the holder's name and the fuse bar are real text
-         and a real element the engine keeps updated, and #tb-live announces each phase change. -->
+         live state is announced in the DOM below it: the holder's name is real text and #tb-live
+         announces each phase change.
+         The label says the fuse is BURNING and not how much of it is left: gh#151 gives a player on a
+         screen reader the same uncertainty as everyone else. The label this replaced described the
+         cord as shortening with the time remaining — a spoken countdown, and no longer true of what
+         the renderer draws. -->
     <canvas
       id="tb-canvas"
       class="tb-canvas"
       role="img"
-      aria-label="ระเบิดลูกกลมพร้อมสายชนวนที่สั้นลงเรื่อยๆ ตามเวลาที่เหลือ"
+      aria-label="ระเบิดลูกกลมพร้อมสายชนวนที่จุดไฟติดอยู่"
       hidden></canvas>
     <p id="tb-live" class="tb-visually-hidden" role="status" aria-live="polite"></p>
 

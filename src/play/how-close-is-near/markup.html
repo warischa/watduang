@@ -1,0 +1,32 @@
+  <!-- Particle FX Canvas Overlay -->
+  <canvas id="particlesCanvas"></canvas>
+
+  <!-- App Main Root -->
+  <div id="appRoot">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="game-logo" id="logoText">
+        <span>🎯</span>
+        <span>ไกลแค่ไหนคือใกล้</span>
+      </div>
+      <div class="header-controls">
+        <button id="btnAudioToggle" class="icon-btn" title="เปิด/ปิดเสียง" aria-label="เปิดหรือปิดเสียง">🔊</button>
+        <button id="btnTestRunner" class="icon-btn" title="ทดสอบตรรกะเกม (Tests)" aria-label="เปิดชุดทดสอบระบบ">🧪</button>
+      </div>
+    </header>
+
+    <!-- Dynamic Screen Container -->
+    <main id="screenContainer" class="screen-container" role="main"></main>
+  </div>
+
+  <!-- Test Runner Modal -->
+  <div id="testModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="testModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="testModalTitle">ชุดทดสอบตรรกะเกม (Deterministic Tests)</h3>
+        <button id="btnCloseTestModal" class="icon-btn" style="width: 36px; height: 36px;">✕</button>
+      </div>
+      <div id="testLog" class="test-log-box">กำลังเตรียมการทดสอบ...</div>
+      <button id="btnRunTestsNow" class="btn-primary" style="margin-top: 14px;">รันการทดสอบทั้งหมด</button>
+    </div>
+  </div>

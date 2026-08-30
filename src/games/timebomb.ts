@@ -12,9 +12,11 @@ import { el } from './_el.ts';
 
 // ---- Time: pure and calculable, testable with no DOM (see timebomb.test.mjs) ----
 
-/** Shortest/longest fuse — random within this range, players must not be able to guess it */
-export const FUSE_MIN_MS = 15_000;
-export const FUSE_MAX_MS = 45_000;
+/** Shortest/longest fuse — random within this range, players must not be able to guess it.
+ *  30-90s (gh#151, owner ruling 2026-08-30): wide enough that "it has been a while" tells you
+ *  nothing, and paired with the rule below that no observable channel may narrow it down. */
+export const FUSE_MIN_MS = 30_000;
+export const FUSE_MAX_MS = 90_000;
 
 /** Returns the "detonation time" as an absolute timestamp, not a duration */
 export function pickDeadline(now: number, rand: () => number = Math.random): number {
@@ -29,10 +31,34 @@ export function urgencyAt(now: number, startedAt: number, deadline: number): num
   return ratio < 0 ? 0 : ratio > 1 ? 1 : ratio;
 }
 
+/** The fuse bar's animation, and the only thing written to it. A fixed-period triangle wave off the
+ *  ABSOLUTE clock: it reads neither the deadline nor the round's start, so a player watching the bar
+ *  learns what time it is and nothing else. Returns a width percentage.
+ *  gh#151: any value derived from the deadline — a bar length, a number, an attribute — is a ratio of
+ *  elapsed to total, and a player who counts elapsed seconds can solve it for the remaining time. So
+ *  the ticking screen carries no such value at all; this shimmer only says "the fuse is lit". */
+export const SHIMMER_PERIOD_MS = 1200;
+const SHIMMER_FLOOR_PCT = 88;
+const SHIMMER_SWING_PCT = 12;
+
+export function shimmerAt(now: number): number {
+  const phase = (((now % SHIMMER_PERIOD_MS) + SHIMMER_PERIOD_MS) % SHIMMER_PERIOD_MS) / SHIMMER_PERIOD_MS;
+  const triangle = phase < 0.5 ? phase * 2 : 2 - phase * 2;
+  return SHIMMER_FLOOR_PCT + triangle * SHIMMER_SWING_PCT;
+}
+
 const TICK_SLOW_MS = 900;
 const TICK_FAST_MS = 120;
 
-/** Tick sound spacing — used to pace the sound only, not a timer */
+/** Tick sound spacing — used to pace the sound only, not a timer.
+ *  ponytail: audio is the one urgency-carrying channel left after gh#151, and it leaks MORE than
+ *  spacing. tick() in src/shell/audio.ts derives all three of its parameters from the same urgency:
+ *  frequency `440 + u * 660`, duration `0.15 - u * 0.1`, and the interval below. So a single tick's
+ *  PITCH is an instantaneous readout of the fraction elapsed — a player does not have to count
+ *  anything, and two ticks solve for the deadline. Kept on purpose: the accelerating tick is the
+ *  game's tension mechanic, the ticking screen's own copy advertises it, and gh#151 enumerates
+ *  screen, announcements and drawing only. Removing it is an owner decision — and it means changing
+ *  tick()'s frequency and duration terms too, not just this interval. */
 function tickIntervalMs(urgency: number): number {
   return TICK_SLOW_MS - (TICK_SLOW_MS - TICK_FAST_MS) * urgency;
 }
@@ -55,11 +81,11 @@ let nextTickAt = 0;
 // gh#77 box7 — prefers-reduced-motion holds off the CSS side trivially (this game declares no
 // animation/transition), but the fuse's per-frame style.width write is JS-driven and CSS media
 // features do not reach it on their own; frame() has to read the query and act on it itself.
-const FUSE_STEP_MS = 250; // reduced-motion cadence: a few coarse updates a second, not every frame
+const FUSE_STEP_MS = 250; // reduced-motion cadence: a few coarse steps a second, not every frame
 let prefersReducedMotion = false;
 let reducedMotionMql: MediaQueryList | null = null;
 let nextFuseUpdateAt = 0;
-// The ticking screen's fuse-bar fill — the one live node frame() mutates. Held so frame() never
+// The ticking screen's shimmer bar — the one live node frame() mutates. Held so frame() never
 // re-queries; cleared on teardown and on the boom screen swap (the fill dies with the ticking screen).
 let fuseFillEl: HTMLElement | null = null;
 let wakeWarned = false;
@@ -146,8 +172,10 @@ function renderTicking(): void {
   bomb.innerHTML = BOMB_SVG;
   stage.appendChild(bomb);
 
-  // Fuse block — caption, the live bar (the only urgency signal: its width is the remaining fuse,
-  // never a countdown number), hint.
+  // Fuse block — caption, the shimmer bar, hint. The bar says the fuse is LIT; it does not say how
+  // much is left (gh#151), so its width comes from shimmerAt(now) and never from the deadline.
+  // The id stays `tb-fuse`: it is how the play route's canvas renderer and the arm-gate probe
+  // recognise the ticking screen, and it now carries phase only — no time value.
   const fuseBlock = document.createElement('div');
   fuseBlock.className = 'tb-fuse';
   const caption = el('span', 'ฟิวส์กำลังเดิน');
@@ -290,14 +318,15 @@ function frame(): void {
       nextTickAt = now + tickIntervalMs(urgency); // set from the current time, never accumulated
       if (audioCtx) tick(audioCtx, urgency);
     }
-    // The fuse bar is the whole urgency signal. Its width is the remaining fuse, shrinking toward 0
-    // as the deadline nears, and no countdown number appears anywhere. This is a per-frame style
-    // write from script, not CSS animation — prefers-reduced-motion does not apply to it on its own
-    // (unlike gh#76's canvas, which declares none). Under the reduce query the information must
-    // survive, so the write itself is throttled to coarse steps instead of removed (gh#77 box7).
+    // The fuse bar shows that the round is LIVE, not how much of it is left (gh#151). Its width is
+    // shimmerAt(now) — a fixed cycle of the wall clock — so it is identical at the same moment
+    // whether the fuse drawn was 30s or 90s. This is a per-frame style write from script, not CSS
+    // animation — prefers-reduced-motion does not apply to it on its own (unlike gh#76's canvas,
+    // which declares none), so under the reduce query the write is throttled to coarse steps rather
+    // than removed: the "round is running" signal must survive (gh#77 box7, ADR-0046).
     if (fuseFillEl && now >= nextFuseUpdateAt) {
       if (prefersReducedMotion) nextFuseUpdateAt = now + FUSE_STEP_MS;
-      fuseFillEl.style.width = `${((1 - urgency) * 100).toFixed(1)}%`;
+      fuseFillEl.style.width = `${shimmerAt(now).toFixed(1)}%`;
     }
   }
 

@@ -1,0 +1,34 @@
+<main id="app">
+  <div class="curtain-top" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">ย</div>
+      <h1>พิน็อคคิอวย</h1>
+    </div>
+    <div class="top-actions">
+      <span class="round-tag" id="roundTag">ตั้งวง</span>
+      <button class="icon-btn" id="soundBtn" data-act="sound" type="button" aria-label="ปิดเสียง" aria-pressed="true">♪</button>
+    </div>
+  </header>
+  <section id="stageFrame" aria-label="หุ่นไม้จมูกยาวแบบสามมิติ">
+    <div class="stage-spotlight" aria-hidden="true"></div>
+    <canvas id="gameCanvas" aria-hidden="true"></canvas>
+    <div class="css-puppet" aria-hidden="true">
+      <div class="css-hat">
+        <div class="css-feather"></div>
+      </div>
+      <div class="css-hair"></div>
+      <div class="css-ear"></div>
+      <div class="css-eye"></div>
+      <div class="css-cheek"></div>
+      <div class="css-mouth"></div>
+      <div class="css-bowtie"></div>
+    </div>
+    <div class="stage-vignette"></div>
+    <div class="webgl-error" role="status">อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย</div>
+  </section>
+  <div class="panel-wrap">
+    <section class="panel" id="panel" aria-label="พื้นที่เล่นเกม"></section>
+  </div>
+  <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+</main>

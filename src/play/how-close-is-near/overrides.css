@@ -1,0 +1,31 @@
+/* Site-specific adjustments layered ON TOP of the verbatim mockup stylesheet.
+   NOTHING here belongs in style.css: that file is what scripts/extract-mockup.mjs writes, byte-for-byte
+   from the mockup, and re-running the extractor overwrites it. Every change this site needs lives here
+   so the extraction stays reproducible and a diff against the mockup stays meaningful. */
+
+/* The mockup ships its own deterministic test runner — a button in the header and a modal behind it.
+   That is a developer tool and players must never reach it. Hidden rather than deleted from the
+   markup: main.js dereferences #btnTestRunner, #btnCloseTestModal, #btnRunTestsNow and #testLog at
+   boot, so removing the nodes would throw on load and blank the page. display:none keeps the
+   elements, removes them from the accessibility tree, and takes them out of tab order in one
+   declaration — a hidden modal is not a live tap target the way a transparent one is. */
+#btnTestRunner,
+#testModal {
+  display: none !important;
+}
+
+/* Clearance for the shell's own chrome. PlayExit renders the exit X and the edit-players pill fixed at
+   the TOP-LEFT (src/shell/PlayExit.astro: X at inset, 44px tall; pill at inset + 50px, also 44px), so
+   together they occupy inset + 94px down the left edge. This mockup is the first of the ported set to
+   put its own title block at the top LEFT rather than centred, so without this reserve the X lands on
+   the game name. The value is derived from PlayExit's own declared geometry, using the same
+   safe-area expression, so the two cannot drift apart by one editing a magic number.
+
+   Reserved on #appRoot rather than on .app-header so the offset survives the header being
+   re-rendered, and so nothing inside the mockup has to know the chrome exists. */
+#appRoot {
+  padding-block-start: calc(max(6px, env(safe-area-inset-top)) + 94px);
+}
+
+/* The mockup's own icon buttons sit top-RIGHT and are already 44x44 in style.css, and .count-chip is
+   52px tall — no tap-target floor to raise here. Recorded so the next reader does not re-measure it. */

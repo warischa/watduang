@@ -6,7 +6,7 @@
 // The .ts extension in the import path is required for `node --test` (Node does not guess
 // extensions) — Vite/tsc accept both.
 import type { GameContext, GameModule } from './types.ts';
-import { pickLoser } from './pick-loser.ts';
+import { pickLoser } from './_pick-index.ts';
 import { armAllButtons } from './_arm-gate.ts';
 import { el } from './_el.ts';
 

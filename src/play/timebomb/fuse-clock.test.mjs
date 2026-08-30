@@ -28,7 +28,7 @@ const START = 1_700_000_000_000;
 const DEADLINE = pickDeadline(START, () => 0.5);
 const FRAME_MS = 16;
 const FRAMES_BEFORE_HIDE = 60; // ~1s of visible play before the phone is put away
-const GAP_MS = 120_000; // two minutes backgrounded — longer than the longest fuse (45s)
+const GAP_MS = 120_000; // two minutes backgrounded — longer than the longest fuse (90s, gh#151)
 
 /** The shipped clock: every sample is recomputed from the absolute deadline. */
 const absoluteUrgency = (now, framesRendered) => urgencyAt(now, START, DEADLINE);
@@ -59,7 +59,7 @@ function urgencyOnFirstFrameBack(read) {
 
 const underTest = process.env.TB_FUSE_MUTANT === '1' ? mutantUrgency : absoluteUrgency;
 
-test('the fuse is absolute: a 120s background gap over a ~30s fuse comes back expired', () => {
+test('the fuse is absolute: a 120s background gap over a ~60s fuse comes back expired', () => {
   assert.ok(GAP_MS > DEADLINE - START, 'the gap must outlive the fuse or this proves nothing');
   assert.equal(
     urgencyOnFirstFrameBack(underTest),
@@ -88,7 +88,7 @@ test('the play route mounts the shipped engine instead of re-deriving the clock'
 // The canvas renderer is the one file that DOES run a frame loop, which is the shape most likely to
 // grow a clock of its own ("elapsed += dt") and quietly replace the deadline. It is allowed rAF and
 // performance.now (both absolute, both cosmetic); it is not allowed to compute remaining time. What it
-// must do instead is READ the engine's fuse element, whose width the engine writes from the deadline.
+// reads from the engine's fuse element is one bit — whether the ticking screen is up (gh#151).
 test('the canvas renderer reads the fuse instead of timing it', () => {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const renderer = fs.readFileSync(path.join(here, 'bomb-canvas.ts'), 'utf8');
@@ -103,4 +103,25 @@ test('the canvas renderer reads the fuse instead of timing it', () => {
     .filter((line) => !/^\s*(\/\/|\/\*|\*)/.test(line))
     .join('\n');
   assert.doesNotMatch(code, /Date\.now|setInterval|deadline|pickDeadline|urgencyAt\(/);
+});
+
+// gh#151, the DRAWING half of "nothing reveals the remaining time". The engine's own test file pins
+// the DOM channels; the canvas is the one channel no DOM assertion can see, because its output is
+// pixels. What makes it safe is structural — the renderer takes no time-derived input at all — so
+// that is what is asserted here: it may ask whether #tb-fuse exists, and it may not read a value off
+// it or carry any notion of urgency to scale a drawing by.
+test('gh#151: the canvas renderer draws nothing proportional to the time left', () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const renderer = fs.readFileSync(path.join(here, 'bomb-canvas.ts'), 'utf8');
+  const code = renderer
+    .split('\n')
+    .filter((line) => !/^\s*(\/\/|\/\*|\*)/.test(line))
+    .join('\n');
+  assert.match(code, /getElementById\('tb-fuse'\)/, 'the renderer no longer detects the ticking screen');
+  assert.doesNotMatch(code, /urgenc/i, 'the renderer carries an urgency value again — that is a drawable countdown');
+  assert.doesNotMatch(
+    code,
+    /style\.width|getComputedStyle|getBoundingClientRect\(\)\.width\s*\/|offsetWidth/,
+    'the renderer reads a width back off the fuse element — that value is the remaining time',
+  );
 });

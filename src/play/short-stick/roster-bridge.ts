@@ -12,6 +12,8 @@ import { loadGroup, loadRoster } from '../../shell/roster';
 // Shared with the other play routes: the chrome's edit request, and the write-back that makes whatever
 // the player finishes this setup with the group the NEXT game inherits.
 import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
+// The animal cast a first-time device opens with. One definition, read by every play route.
+import { applyMascotDefaults } from '../_mascots';
 
 const START = '#btn-begin-game';
 const NAME_INPUT = '.player-input';
@@ -38,8 +40,12 @@ function seedFromRoster(): void {
   const editing = takeSetupEditRequest();
   const names = playingNames();
   // Fewer than two names is not a failure — it is a first-time device, and the mockup's own hero and
-  // setup screen are exactly the right thing to show. Bail and leave it alone.
-  if (names.length < 2) return;
+  // setup screen are exactly the right thing to show. Leave the screens alone —
+  // only the names they open with change, from a column of numbers to the shared cast (issue #152).
+  if (names.length < 2) {
+    applyMascotDefaults(NAME_INPUT);
+    return;
+  }
 
   const openSetup = document.querySelector<HTMLElement>(OPEN_SETUP);
   if (!openSetup) return;

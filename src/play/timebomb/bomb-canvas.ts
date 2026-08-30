@@ -8,12 +8,13 @@
 // src/play/cannon-flag/main.js: backing store sized to devicePixelRatio, ctx.scale(dpr, dpr) inside
 // one save/restore, gradients and shadowBlur for depth.
 //
-// THIS RENDERER HOLDS NO CLOCK. It never computes remaining time, never reads Date.now(), and never
-// accumulates frame deltas. Every frame it READS the engine's fuse element (#tb-fuse, whose width the
-// engine writes from `deadline - Date.now()` — src/games/timebomb.ts's frame()), so the absolute
-// deadline stays the single source of the round's time and a renderer bug cannot drift it. The only
-// thing this file animates on its own is a cosmetic wobble, and that is off performance.now(), which
-// is also absolute.
+// THIS RENDERER HOLDS NO CLOCK, and since gh#151 it holds no countdown either. It never computes
+// remaining time, never reads Date.now(), and never accumulates frame deltas. It reads the engine's
+// #tb-fuse element for ONE bit — is the ticking screen up — and nothing else: no size, no position and
+// no length drawn below is proportional to the time left, because a drawn quantity that tracks the
+// deadline is a countdown a player can read (owner ruling 2026-08-30). Burning, flickering and
+// sparking are what say the fuse is lit. Everything that moves here is off performance.now(), which is
+// absolute and cosmetic, so a throttled tab resumes where the wall clock is.
 
 /** Screen state, derived from what the engine currently has on the stage — the renderer owns no
  *  state machine of its own. #tb-fuse exists only on the ticking screen, #tb-again only after the
@@ -26,17 +27,6 @@ function readSurface(): Surface {
   return 'off';
 }
 
-/** 0 at the start of the fuse, 1 at detonation — read back out of the engine's own fuse bar, whose
- *  width IS the remaining fuse. Returns null when there is no fuse on screen. */
-function readUrgency(): number | null {
-  const fill = document.getElementById('tb-fuse');
-  if (!fill) return null;
-  const remaining = Number.parseFloat(fill.style.width);
-  if (!Number.isFinite(remaining)) return null;
-  const urgency = 1 - remaining / 100;
-  return urgency < 0 ? 0 : urgency > 1 ? 1 : urgency;
-}
-
 /** Hand-rolled perspective: a point sitting `depth` behind the picture plane shrinks by this factor.
  *  One divide, no matrices — the whole scene is one object on one ground plane. */
 function perspective(depth: number): number {
@@ -45,7 +35,7 @@ function perspective(depth: number): number {
 }
 
 export interface BombCanvas {
-  /** Draws one frame at the current urgency — exported so a probe can force a frame without rAF. */
+  /** Draws one frame of the current surface — exported so a probe can force a frame without rAF. */
   drawOnce(): void;
   stop(): void;
 }
@@ -60,7 +50,7 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
   let dpr = 1;
   let rafId = 0;
   let lastSurface: Surface = 'off';
-  let lastPainted = -1;
+  let lastPainted: Surface | null = null;
 
   function resize(): void {
     const rect = canvas.getBoundingClientRect();
@@ -73,7 +63,7 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
   }
 
-  function paint(urgency: number, exploded: boolean): void {
+  function paint(exploded: boolean): void {
     if (!ctx || width === 0 || height === 0) return;
     const reduced = reduceQuery?.matches === true;
     // Cosmetic only. performance.now() is absolute like the fuse itself, so a throttled tab resumes
@@ -86,20 +76,21 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
 
     const cx = width / 2;
     const groundY = height * 0.78;
-    // The bomb sits slightly behind the picture plane and rises toward the viewer as the fuse burns:
-    // the projection does the work, so "closer" is drawn simply as "bigger".
-    const depth = 120 - urgency * 40;
-    const scale = perspective(depth);
-    const radius = Math.min(width * 0.30, height * 0.30) * (1 + urgency * 0.06) * scale * 1.25;
-    // Pass-the-phone motion: a slow sway and a breathing scale, both quickening with the fuse.
-    const sway = reduced ? 0 : Math.sin(t * (1.1 + urgency * 3)) * (2 + urgency * 5);
-    const tilt = reduced ? 0 : Math.sin(t * (0.7 + urgency * 2)) * (0.02 + urgency * 0.05);
-    const hover = reduced ? 0 : Math.sin(t * (1.4 + urgency * 3)) * (2 + urgency * 3);
+    // The bomb sits at a FIXED depth. It used to rise toward the viewer as the fuse burned, which made
+    // its drawn size a readout of the time left (gh#151) — this constant is that same projection taken
+    // at the start of the round.
+    const scale = perspective(120);
+    const radius = Math.min(width * 0.30, height * 0.30) * scale * 1.25;
+    // Pass-the-phone motion: a slow sway and a breathing hover, at ONE fixed rate. The rate used to
+    // quicken with the fuse, which is a countdown a player can watch just as well as a shrinking bar.
+    const sway = reduced ? 0 : Math.sin(t * 1.1) * 2;
+    const tilt = reduced ? 0 : Math.sin(t * 0.7) * 0.02;
+    const hover = reduced ? 0 : Math.sin(t * 1.4) * 2;
     const cy = groundY - radius * 1.05 + hover;
 
     // 1. Ground shadow — an ELLIPSE, not a circle: that foreshortening is what puts the bomb on a
     //    floor instead of on a flat backdrop. It tightens and darkens as the bomb rises.
-    const shadowSpread = radius * (1.15 - urgency * 0.12);
+    const shadowSpread = radius * 1.15;
     ctx.save();
     ctx.translate(cx + sway * 0.6, groundY + radius * 0.08);
     ctx.scale(1, 0.26);
@@ -171,9 +162,9 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     ctx.fill();
     ctx.restore();
 
-    // 5. The fuse. Its drawn length IS the remaining fuse: the cord shortens in screen space toward
-    //    the bomb as urgency climbs, and the spark rides its end. Same signal as the DOM fuse bar,
-    //    same source — no second clock.
+    // 5. The fuse cord, drawn at a CONSTANT length with the spark riding its end. Its length used to
+    //    shrink in proportion to the time left — exactly the readable countdown gh#151 removes. The
+    //    cord now says the fuse is lit and nothing more.
     const capW = radius * 0.34;
     const capH = radius * 0.26;
     ctx.fillStyle = '#1c2533';
@@ -181,8 +172,7 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     ctx.rect(-capW / 2, -radius - capH * 0.75, capW, capH);
     ctx.fill();
 
-    const fuseFull = radius * 1.15;
-    const fuseLen = fuseFull * (1 - urgency);
+    const fuseLen = radius * 1.15;
     const baseX = 0;
     const baseY = -radius - capH * 0.7;
     const tipX = baseX + fuseLen * 0.75;
@@ -202,7 +192,7 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     const flicker = reduced ? 1 : 0.75 + Math.abs(Math.sin(t * 22)) * 0.25;
     ctx.save();
     ctx.shadowColor = 'rgba(245, 158, 11, 0.9)';
-    ctx.shadowBlur = (10 + urgency * 22) * flicker;
+    ctx.shadowBlur = 18 * flicker; // a fixed glow: it used to grow with the fuse, which read as a gauge
     ctx.fillStyle = '#fde68a';
     ctx.beginPath();
     ctx.arc(tipX, tipY, Math.max(2.5, radius * 0.07 * flicker), 0, Math.PI * 2);
@@ -242,7 +232,7 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     const surface = readSurface();
     if (surface === 'off') return;
     resize();
-    paint(surface === 'boom' ? 1 : (readUrgency() ?? 0), surface === 'boom');
+    paint(surface === 'boom');
   }
 
   function frame(): void {
@@ -254,18 +244,20 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
       // The canvas only occupies space while there is a round to show, so the setup and idle screens
       // keep their full height at 320px.
       canvas.hidden = surface === 'off';
+      // resize() writes canvas.width, which CLEARS the backing store — so the reduced-motion
+      // paint-once bookkeeping has to be reset here or a re-entered surface stays blank.
+      lastPainted = null;
       if (surface !== 'off') resize();
     }
 
     if (surface !== 'off') {
-      const urgency = surface === 'boom' ? 1 : (readUrgency() ?? 0);
-      // Under reduced motion nothing on this canvas moves except the fuse, and the engine already
-      // throttles that to coarse steps — so an unchanged urgency has nothing new to paint. Skipping
-      // it costs a comparison and saves a full redraw per frame on the devices least able to afford
-      // one. Never skipped otherwise: the wobble is what needs those frames.
-      if (!(reduceQuery?.matches === true && urgency === lastPainted)) {
-        paint(urgency, surface === 'boom');
-        lastPainted = urgency;
+      // Under reduced motion every term in paint() is a constant, so a second frame of the same
+      // surface would paint the identical image — one paint per surface is the whole picture, and
+      // skipping the rest saves a full redraw per frame on the devices least able to afford one. Never
+      // skipped otherwise: the wobble and the spark's flicker are what need those frames.
+      if (!(reduceQuery?.matches === true && lastPainted === surface)) {
+        paint(surface === 'boom');
+        lastPainted = surface;
       }
     }
     rafId = requestAnimationFrame(frame);

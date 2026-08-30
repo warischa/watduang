@@ -111,9 +111,18 @@ const BASELINE_BASENAMES = [
   '_arm-gate.js',
   '_el.js',
   '_id_.astro_astro_type_script_index_0_lang.js',
+  // gh#152 — the single-sourced animal cast, previously copied per play route.
+  '_mascots.js',
+  // gh#154 prep — pickLoser moved out of pick-loser.js so that game can be deleted without
+  // breaking short-stick, which imports the helper.
+  '_pick-index.js',
   '_round-start.js',
   'cannon-flag.js',
   'daily-fortune.js',
+  // gh#139 ports 1-3, in the owner's recorded ship order.
+  'dice-loser.js',
+  'how-close-is-near.js',
+  'pinocchio-luck.js',
   'draw.astro_astro_type_script_index_0_lang.js',
   'freeze-tap.js',
   'love-match.js',
@@ -131,7 +140,14 @@ const BASELINE_BASENAMES = [
   'session.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 232716;
+// Re-baselined 2026-08-30, 232716 -> 323013 (+90297, +38.8%). Attribution, one cause per group:
+// gh#139 ports 1-3 (dice-loser, how-close-is-near, pinocchio-luck) add three whole game engines
+// plus their lifted route bundles — that is nearly all of the growth and it is a deliberate
+// three-game addition, not drift. gh#152 adds _mascots.js; gh#154 prep adds _pick-index.js, and
+// that one is a MOVE, not new weight — pick-loser.js shrinks by the same function.
+// Measured by `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session,
+// not carried over from any earlier run.
+const BASELINE_TOTAL_BYTES = 323013;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

@@ -188,14 +188,18 @@ const WALKS = {
     minTransitions: 3,
     body: `
       taps.push(await tap('#tb-start -> ticking', document.getElementById('tb-start')));
-      // The boom is timer-driven (15-45s fuse), not tap-driven — but the finger's last position is
-      // #tb-pass, so the same coordinate collision applies and this is the honest analogue.
+      // The boom is timer-driven (30-90s fuse since gh#151; it was 15-45s), not tap-driven — but the
+      // finger's last position is #tb-pass, so the same coordinate collision applies and this is the
+      // honest analogue. The wait below MUST exceed FUSE_MAX_MS in src/games/timebomb.ts or a long
+      // draw never reaches the boom screen, that transition plants no anchor, and the CONTROL leg
+      // reds with "hit on only N of M transitions" — which reads as a broken hit-test rather than a
+      // timeout. That is exactly how this went red on the gh#151 integration.
       const pass = document.getElementById('tb-pass');
       let waitedMs = null;
       const t = await transition('detonation -> boom (finger last on #tb-pass)', pass, async () => {
         pass.click();
         const t0 = Date.now();
-        while (!document.getElementById('tb-again') && Date.now() - t0 < 60000) await sleep(250);
+        while (!document.getElementById('tb-again') && Date.now() - t0 < 120000) await sleep(250);
         waitedMs = Date.now() - t0;
       });
       t.boomWaitedMs = waitedMs;
