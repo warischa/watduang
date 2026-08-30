@@ -4,6 +4,9 @@
 // one by accident; keep the key OUT of here for that reason (number.astro's range store is the same
 // pattern). Every storage touch runs inside try/catch (issue #7): private mode and full-quota both
 // degrade to an in-memory list for this page, never a throw.
+// The lock is named by the tool key handed in, deliberately NOT the roster's lock: each tool key is
+// its own critical section, because ADR-0039 moved the tools off the stores the games share.
+import { withLock } from '../shell/lock.ts';
 
 /** Does this string contain at least one character that actually RENDERS? A name that renders as
  *  nothing is not a name: it becomes a roster row or a tool entry the reader cannot see, cannot
@@ -65,25 +68,6 @@ export function loadToolNames(key: string): string[] {
   const names = read(key);
   lastSeen.set(key, names);
   return names;
-}
-
-/** Runs `fn` inside the cross-tab critical section for one tool key, or straight through where there
- *  is no lock to take. Same discipline as src/shell/roster.ts's withLock, and deliberately NOT the
- *  same lock: each tool key is its own critical section, because ADR-0039 moved the tools off the
- *  stores the games share. Written here rather than imported from roster.ts because roster.ts already
- *  imports hasVisibleChar from this module — reusing its helper would make the two files a cycle.
- *  navigator.locks is absent in the Node test runner, on plain http and in Safari before 15.4, and
- *  request() itself rejects on an opaque origin (sandboxed iframe, file://); all three fall back to
- *  running unlocked, which is exactly the best-effort behaviour this function replaced — it still
- *  loses a concurrent write, but never throws and never silently drops one. */
-function withLock(name: string, fn: () => void): Promise<void> {
-  if (typeof navigator === 'undefined' || typeof navigator.locks?.request !== 'function') {
-    fn();
-    return Promise.resolve();
-  }
-  return navigator.locks.request(name, fn).catch(() => {
-    fn();
-  });
 }
 
 /** gh#132. The panel reads its list once, at mount, so by the time a tap lands that snapshot can be

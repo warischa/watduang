@@ -6,11 +6,13 @@
 // unfixed-build arm, so wiring it into CI would produce a number that means nothing. This script
 // checks the structural property the fix rests on instead: the re-read sits INSIDE the lock's
 // critical section, the critical section stays synchronous, and roster.ts stays the sole writer
-// of the roster key.
+// of the roster key. The structure scan covers EVERY caller of the shared withLock
+// (src/shell/lock.ts), not just roster.ts — src/tools/name-list.ts runs the same pattern on its
+// per-tool keys.
 //
 // ponytail: this is a raw source-text scan (brace/regex matching), not a real parser. It cannot
 // distinguish a locked run from the no-lock fallback branch (the early-return guard inside
-// src/shell/roster.ts's withLock()), which still loses a concurrent add on plain http, on
+// src/shell/lock.ts's withLock()), which still loses a concurrent add on plain http, on
 // Safari < 15.4, or on an opaque origin (sandboxed iframe, file://) — those all fall through
 // to running `fn()` unlocked. The committed unit tests
 // all exercise that fallback branch (src/shell/roster.test.mjs asserts the Node runner has no
@@ -24,7 +26,8 @@
 // or a template with an interpolation (`watduang:${ns}`) — and it reads comments as code, so a
 // commented-out mention outside the allow-list fails the gate and a human decides.
 //
-//   node scripts/roster-lock-structure-check.mjs             -> scan src/shell/roster.ts + src/**, exit non-zero on any hit
+//   node scripts/roster-lock-structure-check.mjs             -> scan every src/** importer of the shared
+//                                                              withLock, plus src/** for key ownership
 //   node scripts/roster-lock-structure-check.mjs --selftest  -> both-direction calibration on temp fixtures
 
 import fs from 'node:fs';
@@ -34,8 +37,14 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
-const rosterPath = path.join(repoRoot, 'src/shell/roster.ts');
 const srcDir = path.join(repoRoot, 'src');
+
+// The lock-structure scan set is DERIVED, not listed: every file under src/** that imports the shared
+// withLock from src/shell/lock.ts. Deriving it off the IMPORT (not off the call shape) is deliberate —
+// a file whose call sites stopped matching findWithLockSpans must stay in the set so the gate can fail
+// on it, instead of quietly dropping out and reading green. main() fails if the set is empty, and if any
+// file in it yields zero recognised call sites.
+const LOCK_IMPORT_RE = /from\s*(['"])(?:[^'"]*\/)?lock\.ts\1/;
 
 // Closed allow-list — no growable skip-list. A new writer of the roster key anywhere else fails
 // the gate and a human decides; this script never grows the exemption on its own.
@@ -60,13 +69,19 @@ function matchBraces(text) {
   return matchFor;
 }
 
-// Finds every `withLock(() => { ... })` / `withLock(async () => { ... })` callback in the text,
-// returning each callback's brace span plus the span of its immediate enclosing block (the
-// function that makes the withLock(...) call — e.g. add()). Condition 2 checks inside the
-// callback span; condition 1 checks the gap between the enclosing span and the callback span.
+// Finds every `withLock(() => { ... })` / `withLock(KEY, () => { ... })` callback in the text (both
+// with an optional `async`), returning each callback's brace span plus the span of its immediate
+// enclosing block (the function that makes the withLock(...) call — e.g. add()). Condition 2 checks
+// inside the callback span; condition 1 checks the gap between the enclosing span and the callback span.
+//
+// The optional leading `<identifier>,` is the lock NAME argument the shared src/shell/lock.ts takes.
+// Both shapes stay matched because the one-argument form is still what a fixture, a mock or a future
+// caller may write; what the regex still REQUIRES is the literal `withLock(` and a zero-parameter arrow
+// with a block body, so it cannot drift onto unrelated code — the optional part is a single identifier
+// and a comma, nothing more.
 function findWithLockSpans(text, matchFor) {
   const spans = [];
-  const re = /withLock\(\s*(?:async\s*)?\(\s*\)\s*=>\s*\{/g;
+  const re = /withLock\(\s*(?:[A-Za-z_$][\w$]*\s*,\s*)?(?:async\s*)?\(\s*\)\s*=>\s*\{/g;
   let m;
   while ((m = re.exec(text))) {
     const openBrace = m.index + m[0].length - 1;
@@ -103,8 +118,16 @@ function checkLockStructure(text) {
   const inAnyEnclosing = (idx) =>
     lockSpans.some((s) => s.enclosing && within(idx, s.enclosing.open, s.enclosing.close));
 
-  // Condition 1a: write(KEY, ...) outside every withLock callback, anywhere in the file.
-  const writeRe = /\bwrite\(\s*KEY\s*,/g;
+  // Condition 1a: write(KEY, ...) outside every withLock callback, anywhere in the file. `key` (the
+  // per-tool storage key name-list.ts is handed) counts as the same thing. The `function` lookbehind on
+  // both this and the read regex below is what keeps a DECLARATION (`function write(key, list)`) out of
+  // the call set — the colon in the TS annotation does that too, but only in TS, and the selftest
+  // fixtures are plain JS. Without it the good fixture flagged its own helper declaration.
+  // DISCLOSED CEILING: only the write() helper is matched, not a bare localStorage.setItem(key, ...).
+  // Matching setItem too would flag roster.ts's own write() helper, which sits outside every callback
+  // by design. Condition 1b below is what covers the regression that actually shipped (gh#132): the
+  // re-read hoisted out of the critical section.
+  const writeRe = /(?<!function\s+)\bwrite\(\s*(?:KEY|key)\s*,/g;
   let wm;
   while ((wm = writeRe.exec(text))) {
     if (!inAnyCallback(wm.index)) {
@@ -120,7 +143,7 @@ function checkLockStructure(text) {
   // mutation path), but outside that call's callback — the hoisted-re-read regression. A
   // read(KEY) outside that enclosing function entirely (loadGroup, the initial capture in
   // loadRoster) is a plain load, not a mutation path, and is not in scope.
-  const readRe = /\bread\(\s*KEY\s*\)/g;
+  const readRe = /(?<!function\s+)\bread\(\s*(?:KEY|key)\s*\)/g;
   let rm;
   while ((rm = readRe.exec(text))) {
     if (inAnyCallback(rm.index)) continue; // inside the critical section — fine
@@ -174,82 +197,119 @@ function checkKeyOwnership(files) {
 // ---------------------------------------------------------------------------
 // Self-test: temp fixtures under os.tmpdir(), never repo content — never touches src/, dist/, or
 // the working tree. Calibrated both ways per condition: a clean fixture passes, each planted
-// violation is flagged. Bad fixtures copy roster.ts's real withLock(() => { ... }) call shape.
+// violation is flagged. EVERY lock-structure fixture runs TWICE, once per call shape: the
+// two-argument `withLock(KEY, () => { ... })` that src/shell/roster.ts and src/tools/name-list.ts
+// ship today, and the one-argument `withLock(() => { ... })` the regex still accepts. A fixture set
+// carrying only one shape would prove nothing about the other, which is exactly how widening the
+// call-site regex could have left the gate matching nothing and reporting green.
 // ---------------------------------------------------------------------------
+const CALL_SHAPES = [
+  { label: 'withLock(fn)', open: 'withLock(', openAsync: 'withLock(async ' },
+  { label: 'withLock(NAME, fn)', open: 'withLock(KEY, ', openAsync: 'withLock(KEY, async ' },
+];
+
 function selftest() {
-  // --- Conditions 1 + 2, known-good: the real shape roster.ts ships today. ---
-  const goodLockText = [
-    "function read(key) { return []; }",
-    "function write(key, list) {}",
-    "const KEY = 'watduang:roster';",
-    "function withLock(fn) { return Promise.resolve(fn()); }",
-    "export function loadGroup() {",
-    "  const names = read(KEY);", // plain load, not a mutation path — must not be flagged
-    "  return names;",
-    "}",
-    "export function loadRoster() {",
-    "  let list = read(KEY);", // initial capture, outside add() — must not be flagged
-    "  return {",
-    "    async add(name) {",
-    "      await withLock(() => {",
-    "        list = [...list, ...read(KEY).filter((n) => !list.includes(n))];",
-    "        write(KEY, list);",
-    "      });",
-    "    },",
-    "  };",
-    "}",
-  ].join('\n');
-  assert.deepEqual(checkLockStructure(goodLockText), [], 'real roster.ts shape must report zero violations');
-  console.log('PASS known-good fixture: read/write(KEY) inside the callback, sync callback, zero violations');
-
-  // --- Condition 1a known-bad: write(KEY outside any withLock callback. ---
-  const badWriteOutside = [
-    "async function add(name) {",
-    "  write(KEY, [name]);", // no lock at all
-    "  await withLock(() => {",
-    "    read(KEY);",
-    "  });",
-    "}",
-  ].join('\n');
-  const v1a = checkLockStructure(badWriteOutside);
-  assert.ok(
-    v1a.some((v) => v.rule === 'write(KEY outside withLock callback' && v.line === 2),
-    'write(KEY outside every withLock callback must be flagged'
+  // A single-argument callback is NOT a lock callback — the widened regex must not start matching it,
+  // or a `withLock(name, (grant) => {...})` body would be scanned as if it were the critical section.
+  const shapeProbe = "await withLock(KEY, (grant) => {\n  write(KEY, []);\n});";
+  assert.equal(
+    findWithLockSpans(shapeProbe, matchBraces(shapeProbe)).length,
+    0,
+    'a callback that takes a parameter must not be recognised as a withLock critical section'
   );
-  console.log('PASS known-bad fixture (1a): write(KEY outside withLock callback is flagged');
+  console.log('PASS regex calibration: a non-zero-argument arrow callback is not matched');
 
-  // --- Condition 1b known-bad: the exact hoist regression — read(KEY) moved just before the
-  // withLock call, still inside add(), but outside the callback.
-  const badHoistedRead = [
-    "async function add(name) {",
-    "  const stale = read(KEY);", // hoisted out of the critical section
-    "  await withLock(() => {",
-    "    write(KEY, [...stale, name]);",
-    "  });",
-    "}",
-  ].join('\n');
-  const v1b = checkLockStructure(badHoistedRead);
-  assert.ok(
-    v1b.some((v) => v.rule === 'mutation-path read(KEY) outside withLock callback' && v.line === 2),
-    'read(KEY) hoisted out of the critical section, inside the mutating function, must be flagged'
-  );
-  console.log('PASS known-bad fixture (1b): hoisted mutation-path read(KEY) is flagged');
+  for (const shape of CALL_SHAPES) {
+    // --- Conditions 1 + 2, known-good: the real shape roster.ts ships today. ---
+    const goodLockText = [
+      "function read(key) { return []; }",
+      "function write(key, list) {}",
+      "const KEY = 'watduang:roster';",
+      "export function loadGroup() {",
+      "  const names = read(KEY);", // plain load, not a mutation path — must not be flagged
+      "  return names;",
+      "}",
+      "export function loadRoster() {",
+      "  let list = read(KEY);", // initial capture, outside add() — must not be flagged
+      "  return {",
+      "    async add(name) {",
+      `      await ${shape.open}() => {`,
+      "        list = [...list, ...read(KEY).filter((n) => !list.includes(n))];",
+      "        write(KEY, list);",
+      "      });",
+      "    },",
+      "  };",
+      "}",
+    ].join('\n');
+    assert.deepEqual(checkLockStructure(goodLockText), [], `real roster.ts shape must report zero violations [${shape.label}]`);
+    console.log(`PASS known-good fixture [${shape.label}]: read/write(KEY) inside the callback, sync callback, zero violations`);
 
-  // --- Condition 2 known-bad: an await inside the withLock callback. ---
-  const badAwaitInCallback = [
-    "async function add(name) {",
-    "  await withLock(async () => {",
-    "    const list = await Promise.resolve(read(KEY));",
-    "    write(KEY, [...list, name]);",
-    "  });",
-    "}",
-  ].join('\n');
-  const v2 = checkLockStructure(badAwaitInCallback);
-  assert.ok(
-    v2.some((v) => v.rule === 'await inside withLock callback' && v.line === 3),
-    'an await inside the withLock callback must be flagged'
-  );
-  console.log('PASS known-bad fixture (2): await inside withLock callback is flagged');
+    // --- Condition 1a known-bad: write(KEY outside any withLock callback. ---
+    const badWriteOutside = [
+      "async function add(name) {",
+      "  write(KEY, [name]);", // no lock at all
+      `  await ${shape.open}() => {`,
+      "    read(KEY);",
+      "  });",
+      "}",
+    ].join('\n');
+    const v1a = checkLockStructure(badWriteOutside);
+    assert.ok(
+      v1a.some((v) => v.rule === 'write(KEY outside withLock callback' && v.line === 2),
+      `write(KEY outside every withLock callback must be flagged [${shape.label}]`
+    );
+    console.log(`PASS known-bad fixture (1a) [${shape.label}]: write(KEY outside withLock callback is flagged`);
+
+    // --- Condition 1b known-bad: the exact hoist regression — read(KEY) moved just before the
+    // withLock call, still inside add(), but outside the callback.
+    const badHoistedRead = [
+      "async function add(name) {",
+      "  const stale = read(KEY);", // hoisted out of the critical section
+      `  await ${shape.open}() => {`,
+      "    write(KEY, [...stale, name]);",
+      "  });",
+      "}",
+    ].join('\n');
+    const v1b = checkLockStructure(badHoistedRead);
+    assert.ok(
+      v1b.some((v) => v.rule === 'mutation-path read(KEY) outside withLock callback' && v.line === 2),
+      `read(KEY) hoisted out of the critical section, inside the mutating function, must be flagged [${shape.label}]`
+    );
+    console.log(`PASS known-bad fixture (1b) [${shape.label}]: hoisted mutation-path read(KEY) is flagged`);
+
+    // --- Condition 1b known-bad, the tools spelling: the same hoist written with the lowercase
+    // per-tool `key` src/tools/name-list.ts is handed, which the KEY-only regexes never saw. ---
+    const badHoistedToolRead = [
+      "export function saveToolNames(key, names) {",
+      "  const seen = read(key);", // hoisted out of the critical section
+      `  return ${shape.open}() => {`,
+      "    localStorage.setItem(key, JSON.stringify([...seen, ...names]));",
+      "  });",
+      "}",
+    ].join('\n');
+    const v1bTool = checkLockStructure(badHoistedToolRead);
+    assert.ok(
+      v1bTool.some((v) => v.rule === 'mutation-path read(KEY) outside withLock callback' && v.line === 2),
+      `a hoisted read(key) on the per-tool key must be flagged too [${shape.label}]`
+    );
+    console.log(`PASS known-bad fixture (1b, per-tool key) [${shape.label}]: hoisted read(key) is flagged`);
+
+    // --- Condition 2 known-bad: an await inside the withLock callback. ---
+    const badAwaitInCallback = [
+      "async function add(name) {",
+      `  await ${shape.openAsync}() => {`,
+      "    const list = await Promise.resolve(read(KEY));",
+      "    write(KEY, [...list, name]);",
+      "  });",
+      "}",
+    ].join('\n');
+    const v2 = checkLockStructure(badAwaitInCallback);
+    assert.ok(
+      v2.some((v) => v.rule === 'await inside withLock callback' && v.line === 3),
+      `an await inside the withLock callback must be flagged [${shape.label}]`
+    );
+    console.log(`PASS known-bad fixture (2) [${shape.label}]: await inside withLock callback is flagged`);
+  }
 
   // --- Condition 3, known-good: the two allowed files carry the key, nothing else does. ---
   const goodFiles = [
@@ -322,13 +382,34 @@ async function main() {
 
   let anyFail = false;
 
-  const rosterText = fs.readFileSync(rosterPath, 'utf8');
-  for (const v of checkLockStructure(rosterText)) {
-    console.error(`src/shell/roster.ts:${v.line} · ${v.rule} · ${v.snippet}`);
-    anyFail = true;
-  }
-
   const files = walkSrcFiles(srcDir).map(({ relPath, abs }) => ({ relPath, text: fs.readFileSync(abs, 'utf8') }));
+
+  // Scan set: every src file that imports the shared withLock. Derived, so a third caller is guarded
+  // the day it is written — nobody has to remember this list.
+  const lockCallers = files.filter((f) => LOCK_IMPORT_RE.test(f.text));
+  if (lockCallers.length === 0) {
+    console.error(
+      'roster-lock-structure-check: no file under src/** imports src/shell/lock.ts — the scan set is ' +
+        'empty, so this gate checked nothing. Either the lock module moved or the import shape changed.'
+    );
+    process.exit(1);
+  }
+  for (const { relPath, text } of lockCallers) {
+    // A file that imports withLock but shows no recognised `withLock(... () => {` call site means the
+    // call-site regex has gone blind, not that the file is clean. That reads as green otherwise, which
+    // is the one failure this gate cannot afford.
+    if (findWithLockSpans(text, matchBraces(text)).length === 0) {
+      console.error(
+        `${relPath} · imports withLock but no withLock(... () => { ... }) call site was recognised — ` +
+          'the call-site regex in findWithLockSpans no longer matches this file'
+      );
+      anyFail = true;
+    }
+    for (const v of checkLockStructure(text)) {
+      console.error(`${relPath}:${v.line} · ${v.rule} · ${v.snippet}`);
+      anyFail = true;
+    }
+  }
   for (const v of checkKeyOwnership(files)) {
     console.error(`${v.file}:${v.line} · ${v.rule} · ${v.snippet}`);
     anyFail = true;
@@ -341,7 +422,10 @@ async function main() {
     );
     process.exit(1);
   }
-  console.log('roster-lock-structure-check: src/shell/roster.ts lock structure and roster-key ownership both clean');
+  console.log(
+    `roster-lock-structure-check: lock structure clean in ${lockCallers.length} withLock caller(s) ` +
+      `(${lockCallers.map((f) => f.relPath).join(', ')}); roster-key ownership clean`
+  );
 }
 
 await main();

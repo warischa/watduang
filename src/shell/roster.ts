@@ -6,6 +6,12 @@ import type { Roster } from '../games/types';
 // importing from it changes no reachable-chunk basename, while a new file imported by both this
 // module and the tools would emit a new chunk and red bundle-freeze-check.
 import { hasVisibleChar } from '../tools/name-list.ts'; // .ts extension: node --test resolves this module directly (player-select.ts imports the same way)
+// The cross-tab critical section, shared with the tools. Its own module, not this one and not
+// name-list.ts, because those two already import one way and either direction would be a cycle.
+// It does NOT emit a chunk of its own, unlike the case the note above warns about: name-list.ts
+// imports it too, so every entry that reaches lock.ts already reaches name-list.ts and Rollup folds
+// the two into one chunk — measured, bundle-freeze-check stays green on the same 27 basenames.
+import { withLock } from './lock.ts';
 
 const KEY = 'watduang:roster';
 // "Group" = the subset of the roster actually playing — deliberately a separate key from roster (#15)
@@ -44,27 +50,6 @@ function write(key: string, list: string[]): void {
 
 // One name for the whole roster key, so every tab on the origin queues on the same lock.
 const LOCK = 'watduang:roster';
-
-/** Runs `fn` inside the cross-tab critical section, or straight through where there is no lock to take.
- *  navigator.locks is absent in the Node test runner and in any non-secure context (plain http, Safari
- *  before 15.4), and request() itself rejects on an opaque origin (sandboxed iframe, file://). All three
- *  fall back to running unlocked — the old best-effort behaviour, which still loses a concurrent add, but
- *  never throws and never silently drops the write. Re-running `fn` on the rejection path is safe: add()
- *  returns early on a name the list already holds.
- *
- *  scripts/roster-lock-structure-check.mjs gates the STRUCTURE of this function. The committed unit
- *  tests all exercise the no-lock fallback branch (roster.test.mjs asserts the Node runner has no
- *  navigator.locks); the only committed check of the locked path is a mocked one at roster.test.mjs:149.
- *  Real two-tab behaviour is proven only by the manual scripts/roster-lock-two-tab-race.mjs. */
-function withLock(fn: () => void): Promise<void> {
-  if (typeof navigator === 'undefined' || typeof navigator.locks?.request !== 'function') {
-    fn();
-    return Promise.resolve();
-  }
-  return navigator.locks.request(LOCK, fn).catch(() => {
-    fn();
-  });
-}
 
 /** The last group that started a round — drops names no longer in the roster, so a removed name
  *  never comes back as a stuck ghost tick. Ordered as saved (= the order the player picked), not roster order. */
@@ -120,7 +105,7 @@ export function loadRoster(): Roster {
       // roster before this add resolves is milliseconds wide, far under human tap timing. Holds only
       // while nothing in here awaits. The moment it does (IndexedDB, network, async storage), disable
       // add and start for the duration, or have the start handler await any in-flight add.
-      await withLock(() => {
+      await withLock(LOCK, () => {
         // Union, not adoption. Storage replacing memory would break the promise write() makes above: after
         // a swallowed write (quota full, Safari private mode) storage is missing every name typed since, so
         // adopting it would erase them from the rendered list while their ticks are still in `selected`. So
