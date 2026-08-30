@@ -20,3 +20,66 @@
    `.no-webgl` rules swap the canvas for a CSS puppet and an explanatory notice. The round itself is
    plain DOM in #panel
    and never touched the context at all, so it plays through either way. */
+
+/* Narrow-phone header fit. Measured 2026-08-30 in headless Chrome at a real 320px viewport
+   (Emulation.setDeviceMetricsOverride): `.topbar` min-content was 335-337px against a 320px
+   `#app` grid track, because both of its children are `white-space:nowrap` — the brand title and
+   `#roundTag`, whose text grows from the setup label to the in-round label once play starts. The
+   grid track took that min-content and every sibling inherited it: header, #stageFrame,
+   #gameCanvas and .panel-wrap all measured 337px wide. The mockup never saw this: it was designed
+   at desktop width, where the header has room to spare.
+   Below 360px only, tighten the header's own spacing — padding, the three flex gaps, and the round
+   tag's horizontal padding — which buys back ~32px without touching a single player-facing string
+   or the layout at 375px and up. The `min-width:0` + ellipsis on the title is the safety valve for
+   the widest label this game can produce (a two-digit round with ten players); with the spacing
+   above it does not engage at four players. */
+@media (max-width: 360px) {
+  .topbar {
+    gap: 8px;
+    padding-inline: max(10px, calc(env(safe-area-inset-left) + 6px)) max(10px, calc(env(safe-area-inset-right) + 6px));
+  }
+  .brand { gap: 6px; }
+  .brand h1 { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .top-actions { gap: 6px; }
+  .round-tag { padding-inline: 8px; }
+}
+
+/* Stage clipping parity between the WebGL path and the fallback. `#gameCanvas` is a fixed-size box,
+   so the 3D nose can grow as long as the round demands and the canvas simply clips it. The no-WebGL
+   fallback draws the same nose as `.css-puppet:after`, sized from the `--fallback-nose` custom
+   property (34px + 14px per unit of length), which is an absolutely positioned box with nothing
+   bounding it: measured at a real 320px viewport it pushed `#app`'s scrollWidth to 372 against a
+   320px client width, and at 375px too, so this is not a narrow-screen bug — it is the fallback
+   missing the clip its WebGL twin gets for free. One `overflow:hidden` on the frame both paths
+   already live inside restores that, and clips nothing that was ever meant to escape the
+   proscenium (the spotlight, the vignette and the WebGL notice are all inset within it). */
+#stageFrame { overflow: hidden; }
+
+/* The nose-length readout scales past the viewport, box-only. `.growth` is a block, so its box is
+   the full panel content width even though the number inside it is a few glyphs wide; the `pop`
+   keyframes scale it to 1.22 and the easing overshoots past that, which put the box's right edge at
+   336.9px against 320px. Nothing paints out there — the digits are centred and far inside — but the
+   box really does cross the edge, and a scan cannot tell the two apart. Shrink the box to its own
+   content and keep it centred (`.result` is already `text-align:center`, so the glyphs do not move)
+   and the scale then applies to a box that has room to grow. */
+.growth { width: fit-content; margin-inline: auto; }
+
+/* The grid track that propagated the header's width to every screen. `#app` is a one-column grid
+   with an implicit `auto` column, and an `auto` track's minimum is the largest content-based minimum
+   of its items — `.topbar`, whose two children are both `white-space:nowrap`. Measured at a real
+   320px viewport: that minimum was 337px, the track took it, and `.topbar`, `#stageFrame`,
+   `#gameCanvas` and `.panel-wrap` all came back 337px wide against a 320px client width. Only from
+   the pass-card onward, because that is when `#roundTag`'s text grows from the setup label to the
+   in-round one. `minmax(0, 1fr)` drops that automatic minimum, so the track is the viewport and
+   nothing a child contains can widen it again; the title then shrinks with the ellipsis declared
+   above, which the spacing block keeps it from ever needing at four players. */
+#app { grid-template-columns: minmax(0, 1fr); }
+
+/* Room for the camera shake to move without crossing the viewport. `main.js` translates
+   `#stageFrame` by up to +/-6px on each axis while trauma decays (`visual.trauma` is capped at 1 and
+   the offset is `(rand - .5) * trauma^2 * 12`), and the frame is exactly as wide as its track, so
+   every shake put its right edge past the edge of the screen — measured 320.5px at 320 and 376.8px
+   at 375. Reserving 7px a side lets the whole shake land inside the viewport instead of being
+   clipped by `#app`'s overflow. Reduced motion never reaches this code (`addTrauma` is a no-op
+   there), so this costs that path nothing. */
+#stageFrame { width: min(calc(100% - 14px), 780px); }

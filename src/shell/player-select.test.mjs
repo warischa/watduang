@@ -2,7 +2,8 @@
 // Checks pure logic exported from player-select.ts (no DOM/localStorage needed)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveStart, numberedPlayers, planStart, planClear, clearCopy, refusalCopy } from './player-select.ts';
+import { resolveStart, defaultPlayers, planStart, planClear, clearCopy, refusalCopy } from './player-select.ts';
+import { MASCOTS } from '../play/_mascots.ts';
 
 test('เกิน max: ตัดคนท้ายไปเล่น สั่งเตือนก่อนถ้ายังไม่เคยเตือน', () => {
   const selected = ['เอ', 'บี', 'ซี', 'ดี'];
@@ -60,20 +61,39 @@ test('gh#94: 30 names into a 10-max game -> 10 play, 20 sit out, none dropped', 
   assert.equal(r.belowMin, false);
 });
 
-test('#22 numberedPlayers: สร้าง "คนที่ 1..N" ตามจำนวนที่กรอก', () => {
-  assert.deepEqual(numberedPlayers(3, 1, 10), ['คนที่ 1', 'คนที่ 2', 'คนที่ 3']);
+test('gh#140 defaultPlayers: the mascot cast in MASCOTS order, icon and name in one label', () => {
+  assert.deepEqual(defaultPlayers(3, 1, 10), ['\ud83d\udc31 \u0e41\u0e21\u0e27\u0e2a\u0e49\u0e21', '\ud83d\udc36 \u0e0a\u0e34\u0e1a\u0e30', '\ud83d\udc30 \u0e1a\u0e31\u0e19\u0e19\u0e35\u0e48']);
 });
 
-test('#22 numberedPlayers: clamp ขึ้นถึง min ถ้ากรอกน้อยกว่า', () => {
-  assert.deepEqual(numberedPlayers(1, 3, 10), ['คนที่ 1', 'คนที่ 2', 'คนที่ 3']);
+test('gh#140 defaultPlayers: no label is a numbered default any more', () => {
+  for (const label of defaultPlayers(10, 1, 10)) {
+    assert.doesNotMatch(label, /\u0e04\u0e19\u0e17\u0e35\u0e48 \d/, 'a numbered default is exactly what this replaced');
+  }
 });
 
-test('#22 numberedPlayers: clamp ลงถึง max ถ้ากรอกมากกว่า', () => {
-  assert.equal(numberedPlayers(99, 1, 4).length, 4);
+test('gh#140 defaultPlayers: every label opens with its mascot icon', () => {
+  const labels = defaultPlayers(MASCOTS.length, 1, MASCOTS.length);
+  assert.deepEqual(labels.map((l) => l.split(' ')[0]), MASCOTS.map((m) => m.emoji));
 });
 
-test('#22 numberedPlayers: count ไม่ใช่ตัวเลข (NaN/0) ถอยไปใช้ min', () => {
-  assert.deepEqual(numberedPlayers(0, 2, 5), ['คนที่ 1', 'คนที่ 2']);
+test('#22 defaultPlayers: clamp up to min when fewer are asked for', () => {
+  assert.equal(defaultPlayers(1, 3, 10).length, 3);
+});
+
+test('#22 defaultPlayers: clamp down to max when more are asked for', () => {
+  assert.equal(defaultPlayers(99, 1, 4).length, 4);
+});
+
+test('#22 defaultPlayers: a count that is not a number (NaN/0) falls back to min', () => {
+  assert.equal(defaultPlayers(0, 2, 5).length, 2);
+});
+
+// The cast has a ceiling of 20 (ADR-0049 ruling 5) and every page today asks for at most 10, but a
+// page asking for more must not be handed two players with the same label: games pick and eliminate
+// BY NAME, so a duplicate is one player answering for two.
+test('gh#140 defaultPlayers: past the end of the cast the labels stay unique', () => {
+  const labels = defaultPlayers(45, 1, 45);
+  assert.equal(new Set(labels).size, 45, 'every default player is distinct');
 });
 
 // ---- #23: a live round in progress is a question, never a silent choice ----

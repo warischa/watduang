@@ -4,7 +4,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { resolveStart, numberedPlayers } from './player-select.ts';
+import { resolveStart, defaultPlayers } from './player-select.ts';
+import { MASCOTS } from '../play/_mascots.ts';
 // gh#61 — the window this panel arms on a tool page is the games' window, imported rather than retyped:
 // ADR-0016 owns the number and the premise under it.
 import { ARM_DELAY_MS } from '../games/_arm-gate.ts';
@@ -243,28 +244,28 @@ test('matchBraceEnd ignores braces inside /* */ comments and string literals', (
   }
 });
 
-// 0 players ticked: startBtn substitutes a synthesized "Player 1..N" set for the empty selection BEFORE
-// resolveStart runs (see the long comment on this branch in PlayerSetup.astro). numberedPlayers always
+// 0 players ticked: startBtn substitutes a synthesized default set for the empty selection BEFORE
+// resolveStart runs (see the long comment on this branch in PlayerSetup.astro). defaultPlayers always
 // clamps up to at least min, so belowMin can never fire from this path — the guard is provably dead code
 // here (a separate issue tracks removing it; this test only pins the fact, it does not act on it).
-test('0 players ticked: startBtn substitutes numberedPlayers before resolveStart runs, so belowMin can never fire from this path', () => {
+test('0 players ticked: startBtn substitutes defaultPlayers before resolveStart runs, so belowMin can never fire from this path', () => {
   const body = listenerBody('startBtn', 'click');
   assert.match(body, /selected\.size > 0/, 'positive control: this really is the zero-selection branch');
   assert.match(
     body,
-    /fullSelection = numberedPlayers\(Number\(countInput\.value\), min, max\)/,
-    '0 ticked names must fall back to a synthesized "คนที่ 1..N" set',
+    /fullSelection = defaultPlayers\(Number\(countInput\.value\), min, max\)/,
+    '0 ticked names must fall back to the synthesized mascot set',
   );
   assert.ok(
-    body.indexOf('numberedPlayers(') < body.indexOf('resolveStart('),
+    body.indexOf('defaultPlayers(') < body.indexOf('resolveStart('),
     'the substitution must happen before resolveStart runs, or belowMin would see the real empty selection',
   );
 
-  // The consequence, proven with the real functions rather than trusted from the comment: numberedPlayers
+  // The consequence, proven with the real functions rather than trusted from the comment: defaultPlayers
   // clamps to at least min, so feeding its output straight into resolveStart can never trip belowMin —
   // for any min/max the zero-selected branch might run under.
   for (const [min, max] of [[1, 4], [2, 6], [3, 3]]) {
-    const r = resolveStart(numberedPlayers(0, min, max), min, max, false);
+    const r = resolveStart(defaultPlayers(0, min, max), min, max, false);
     assert.equal(r.belowMin, false, `min=${min} max=${max}: belowMin fired from the substituted set`);
   }
 });
@@ -790,4 +791,44 @@ test('#133 the add button rejects a name with no visible character before anythi
     /import \{ hasVisibleChar \} from '\.\.\/tools\/name-list(\.ts)?'/,
     'and it must be the ONE shared predicate, imported — not a second copy of the rule',
   );
+});
+
+// gh#140 box 1 — what a fresh device is OFFERED, not only what it gets after the tap. The shortcut
+// button and the paragraph that points at it both have to name the mascot defaults, and both have to
+// build that text from MASCOTS: three animals typed into the Thai copy would drift the first time the
+// cast is reordered, and nothing would notice.
+test('gh#140 the defaults shortcut offers mascot names and icons, built from the one cast', () => {
+  assert.match(
+    template,
+    /<button id="start-numbered" type="button">[^<]*\{defaultsHint\}/,
+    'the shortcut button must render the cast-derived hint, not a hand-typed animal list',
+  );
+  assert.equal(
+    (template.match(/\{defaultsHint\}/g) ?? []).length,
+    2,
+    'the button and the paragraph pointing at it must both name the defaults',
+  );
+  assert.match(
+    src,
+    /const defaultsHint = MASCOTS\.slice\(0, 3\)/,
+    'and the hint comes from MASCOTS, so it cannot drift from what the button actually starts',
+  );
+  // The negative half: the numbered default this replaced must be gone from the panel's copy AND from
+  // the strings the island can start with. Asserted on the whole file, template and script together.
+  assert.doesNotMatch(src, /\u0e04\u0e19\u0e17\u0e35\u0e48 1, 2, 3/, 'the numbered offer must be gone from the panel');
+  // The icon reaching a player is the whole point of the label form -- the panel hands games a
+  // string[], so an icon outside the string reaches no game at all.
+  assert.match(defaultPlayers(2, 2, 10)[0], /^\p{Extended_Pictographic} /u, 'a default player carries its icon');
+  assert.equal(defaultPlayers(2, 2, 10)[0].includes(MASCOTS[0].name), true, 'and its mascot name');
+});
+
+// gh#140 box 6 -- the panel and the roster own this, so a ninth game inherits it for free. The check
+// is that no game module knows the cast exists: MASCOTS is imported by the shell and by the play
+// routes, and by nothing under src/games.
+test('gh#140 no game module imports the mascot cast', () => {
+  const dir = new URL('../games/', import.meta.url);
+  const offenders = readdirSync(dir)
+    .filter((f) => f.endsWith('.ts') || f.endsWith('.mjs'))
+    .filter((f) => /_mascots|MASCOTS/.test(readFileSync(new URL(f, dir), 'utf8')));
+  assert.deepEqual(offenders, [], 'a game module reached for the cast; identity stays in the shell');
 });

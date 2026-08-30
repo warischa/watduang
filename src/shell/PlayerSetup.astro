@@ -1,6 +1,12 @@
 ---
 interface Props { min: number; max: number; ctaLabel?: string; gameId?: string }
 const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props as Props;
+// gh#140 - the shortcut button and the paragraph below it both name the defaults, and both read them
+// from the one cast rather than spelling three animals into Thai copy that would then drift from
+// player-select.ts. Frontmatter, so this is resolved at build time into static HTML: no runtime cost,
+// nothing added to the island's chunk, and a player with no JS still sees what the button offers.
+import { MASCOTS } from '../play/_mascots.ts';
+const defaultsHint = MASCOTS.slice(0, 3).map((m) => `${m.emoji} ${m.name}`).join(', ');
 ---
 {/* Every comment in this template is a JS-style brace comment, never an HTML one: Astro renders an HTML
     comment straight into the built page, so a note like this one would ship English engineering prose to
@@ -14,11 +20,11 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
   <div id="setup-number-picker">
     <label for="player-count">จำนวนคนเล่น</label>
     <input id="player-count" type="number" min={min} max={max} value={min} />
-    <button id="start-numbered" type="button">เริ่มแบบ "คนที่ 1, 2, 3…"</button>
+    <button id="start-numbered" type="button">เริ่มแบบ "{defaultsHint}…"</button>
   </div>
 
   <div id="setup-roster-grid">
-    <p>เลือกชื่อจากกลุ่มเดิม หรือเพิ่มชื่อใหม่ — วงที่เล่นล่าสุดจะถูกติ๊กไว้ให้ ถ้าอยากเล่นแบบไม่ใช้ชื่อ กดปุ่ม "เริ่มแบบ คนที่ 1, 2, 3…" ด้านบนได้เลย กลุ่มเดิมยังอยู่ครบ</p>
+    <p>เลือกชื่อจากกลุ่มเดิม หรือเพิ่มชื่อใหม่ — วงที่เล่นล่าสุดจะถูกติ๊กไว้ให้ ถ้าอยากเล่นเลยโดยไม่ต้องพิมพ์ชื่อ กดปุ่ม "เริ่มแบบ {defaultsHint}…" ด้านบนได้เลย ทุกคนจะได้ชื่อสัตว์พร้อมไอคอน กลุ่มเดิมยังอยู่ครบ</p>
     <ul id="roster-list"></ul>
     <input id="roster-add-name" type="text" maxlength="24" placeholder="เพิ่มชื่อใหม่" />
     <button id="roster-add-btn" type="button">เพิ่ม</button>
@@ -106,7 +112,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
   // so without the guard here a name that was never stored would still report success on screen.
   import { hasVisibleChar } from '../tools/name-list';
   import { loadSession, type StartKind } from './session';
-  import { resolveStart, numberedPlayers, planStart, planClear, clearCopy, type ResumeChoice } from './player-select';
+  import { resolveStart, defaultPlayers, planStart, planClear, clearCopy, type ResumeChoice } from './player-select';
   // gh#61 — the window a tool page arms on collapse is the games' window, imported rather than copied:
   // ADR-0016 owns the number and the premise under it, and _arm-gate is already imported across this
   // seam in the other direction (timebomb imports this folder's audio and wake-lock modules).
@@ -365,7 +371,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
   });
 
   // #22: a direct route into "Player 1, 2, 3…" even while the old group is fully ticked — it never
-  // touches selected or saveGroup. Unlike startBtn it skips resolveStart: numberedPlayers already
+  // touches selected or saveGroup. Unlike startBtn it skips resolveStart: defaultPlayers already
   // clamps into [min, max], so there is nothing over max to warn about and nothing below min to refuse.
   // #23: this button is never hidden any more. It used to disappear whenever ANY checkpoint existed,
   // because pressing it fired setPlayers("Player N") and the resume path then failed a name gate and
@@ -375,7 +381,7 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
   // with no resume at all. It routes through requestStart like "Start round" does, so a live round of this
   // game reaches the same two-button question here too — no entry point discards a round on its own.
   startNumberedBtn.addEventListener('click', () => {
-    requestStart(numberedPlayers(Number(countInput.value), min, max));
+    requestStart(defaultPlayers(Number(countInput.value), min, max));
   });
 
   startBtn.addEventListener('click', () => {
@@ -389,10 +395,10 @@ const { min, max, ctaLabel = 'เริ่มรอบ', gameId } = Astro.props 
       // 0 ticked names substitutes a synthesized "Player 1..N" set for the player's actual (empty)
       // selection BEFORE resolveStart runs (same #22 fallback startNumberedBtn uses explicitly) — the
       // guard at result.belowMin below never sees the empty selection, only the substitute. Since
-      // numberedPlayers clamps to at least min, belowMin can never fire from this branch; the refusal
+      // defaultPlayers clamps to at least min, belowMin can never fire from this branch; the refusal
       // gate only ever triggers on a partial tick. Deliberate, not a non-event: see CONTEXT.md's
       // "numbered-players group" entry for why this does not repeat the ADR-0007-scored guard-sees-the-wrong-set defect.
-      fullSelection = numberedPlayers(Number(countInput.value), min, max);
+      fullSelection = defaultPlayers(Number(countInput.value), min, max);
     }
 
     const result = resolveStart(fullSelection, min, max, overMaxWarned);

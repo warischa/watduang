@@ -33,6 +33,10 @@ function restoreNavigator() {
 }
 
 const { loadRoster, loadGroup, saveGroup } = await import('./roster.ts');
+// Imported after the stub for the same reason roster.ts is: both reach localStorage through the
+// module graph, and a static import would run before the map above exists.
+const { hasVisibleChar } = await import('../tools/name-list.ts');
+const { defaultPlayers } = await import('./player-select.ts');
 
 // Lost update across tabs. loadRoster() captured the list at load and add() wrote that whole captured
 // array back, so the later writer erased the earlier one's name. The interleave is the ordinary one:
@@ -218,4 +222,40 @@ test('#133 a blank already in storage is dropped when the roster and the group a
   saveGroup(['บีม', '\u200B']); // saveGroup stores raw by design, so this is a blank genuinely persisted
   assert.deepEqual(loadRoster().names(), ['บีม', 'น้ำ'], 'the stored blank is gone from the roster');
   assert.deepEqual(loadGroup(), ['บีม'], 'and gone from the saved group');
+});
+
+// gh#140 — the identity a fresh device starts with is a mascot label, icon included, and the roster
+// is the channel it has to survive. Round trip, not a read of the code: store the whole default cast,
+// re-read it through a second loadRoster(), and require identity.
+test('gh#140 the default players round-trip through the roster unchanged, icons included', async () => {
+  slots.clear();
+  const defaults = defaultPlayers(10, 2, 10);
+  const roster = loadRoster();
+  for (const label of defaults) await roster.add(label);
+
+  assert.deepEqual(loadRoster().names(), defaults, 'serialize then deserialize is identity');
+  assert.deepEqual(JSON.parse(slots.get(KEY)), defaults, 'and what sits in storage is the same again');
+  saveGroup(defaults);
+  assert.deepEqual(loadGroup(), defaults, 'the saved group survives too, so nothing un-ticks itself');
+  // The icon specifically: deepEqual above would still pass if every label had lost its emoji on both
+  // sides of the trip, because both sides come from the same source.
+  assert.equal(
+    defaults.every((label) => /^\p{Extended_Pictographic}/u.test(label)),
+    true,
+    'every stored label still opens with its icon',
+  );
+});
+
+// gh#140 — an emoji is a surrogate pair, and \ud83d\udc3f\ufe0f carries a U+FE0F variation selector, which is
+// Cf: exactly the category the predicate drops. If the pair were tested alone the label would still
+// pass on its Thai half, so both halves are asserted separately.
+test('gh#140 every default label, and every icon alone, survives hasVisibleChar', () => {
+  const labels = defaultPlayers(20, 1, 20);
+  assert.equal(labels.length, 20, 'the whole cast is under test, not a sample');
+  for (const label of labels) {
+    assert.equal(hasVisibleChar(label), true, `label must be storable: ${label}`);
+    const [icon, ...rest] = label.split(' ');
+    assert.equal(hasVisibleChar(icon), true, `icon alone must be visible: ${icon}`);
+    assert.equal(hasVisibleChar(rest.join(' ')), true, `name alone must be visible: ${rest.join(' ')}`);
+  }
 });

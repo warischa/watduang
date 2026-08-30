@@ -61,12 +61,23 @@ const INFO_SVG =
   '<circle cx="12" cy="12" r="9"></circle><path d="M12 8v5"></path><path d="M12 16h.01"></path></svg>';
 
 // ---- Screens ----
-// gh#79 — the draw screen is the approved design (design/GameShortStick.dc.html). Class names are
-// styled from src/styles/games/short-stick.css (the `st-` prefix); shared controls reuse the
-// .stage-screen / .game-btn / .game-btn-primary shell vocabulary from src/pages/game/[id].astro's
-// is:global sheet. The stage ground is var(--page-accent), resolved by the shell's .play-area — the
-// canvas's own per-game accent hex is a colour the site does not define. No animation on purpose:
-// the canvas has none, which is the whole prefers-reduced-motion story.
+// gh#79 — the draw screen is the approved design (design/GameShortStick.dc.html). Shared controls
+// reuse the .stage-screen / .game-btn / .game-btn-primary shell vocabulary from
+// src/pages/game/[id].astro's is:global sheet. The stage ground is var(--page-accent), resolved by
+// the shell's .play-area — the canvas's own per-game accent hex is a colour the site does not
+// define. No animation on purpose: the canvas has none, which is the whole prefers-reduced-motion
+// story.
+//
+// gh#146 — the `st-` prefixed classes below had their sheet at src/styles/games/short-stick.css.
+// That sheet and its import are DELETED: once this game declared a playRoute, [id].astro stopped
+// building /game/short-stick/, so no page rendered them. Nothing styles them today.
+//
+// This module is NOT the play route's engine — unlike timebomb, where src/play/timebomb/main.ts
+// imports src/games/timebomb.ts as-is, src/play/short-stick/main.js runs the mockup's own markup
+// and sheets and imports nothing from this directory. What still needs this file is the manifest
+// registration, which src/pages/game/short-stick/play.astro reads via byId('short-stick') and the
+// home and category pages read to render the card. Retiring it is therefore a manifest question,
+// not a dead-code deletion, and it is not gh#146's to answer.
 
 function renderDraw(): void {
   const stage = stageEl;

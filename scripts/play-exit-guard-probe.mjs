@@ -23,6 +23,11 @@ const ROUTES_ALL = games
   .sort();
 if (!ROUTES_ALL.length) throw new Error('no play routes derived from the manifest — refusing to report a vacuous pass');
 const ROUTE_ONLY_CANNON = ['cannon-flag']; // scenarios 2 and 3 (cannon-flag is the one named in the brief)
+// ponytail: calibration hook for the coverage reconciliation at the bottom of this file. It drops a
+// route from the RUN while leaving it in the expected leg set, which is the only way to make a
+// required leg genuinely missing on demand without editing the expected value. Same idiom as the
+// BREAK_GUARD control legs in ci-probes.sh. Never set in CI.
+const DROP_ROUTE = process.env.DROP_ROUTE;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const api = async (p, m = 'GET') => (await fetch(`http://127.0.0.1:${PORT}${p}`, { method: m })).json();
@@ -50,9 +55,6 @@ async function openTab() {
     return { value: r?.result?.value ?? null };
   };
   const nav = async (url) => { const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); };
-  // No baked-in settle delay -- scenario 1 must touch down WHILE the X is still `disabled` (inside the
-  // 400ms ARM_DELAY_MS window); nav()'s own 900ms wait would already arm it before control returns.
-  const navFast = async (url) => { const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; };
   const setup320 = async () => { await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 1, mobile: true }); };
   const tap = async (x, y) => {
     await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 0 }] });
@@ -72,7 +74,7 @@ async function openTab() {
   const disabledState = async () => (await evaluate("return document.getElementById('play-exit')?.disabled ?? null;")).value;
   const close = async () => { await fetch(`http://127.0.0.1:${PORT}/json/close/${target.id}`); ws.close(); };
 
-  return { send, evaluate, nav, navFast, setup320, tap, touchDown, touchAddPoint, touchRemovePoint, touchReleaseAll, mouseClick, shot, pathname, disabledState, close };
+  return { send, evaluate, nav, setup320, tap, touchDown, touchAddPoint, touchRemovePoint, touchReleaseAll, mouseClick, shot, pathname, disabledState, close };
 }
 
 const XSTATE = `
@@ -95,9 +97,17 @@ const findTransitionTrigger = async (s) => (await s.evaluate(`
   // expression threw, and the route reported "no transition trigger" on every run -- a permanent skip
   // that reads exactly like a route with nothing to press.
   const root = document.querySelector('#app, #app-container, #appRoot');
+  // AREA, not width-and-height. The predicate used to be r.width > 60 && r.height > 30, and that is
+  // what made short-stick report "no transition trigger" on every run: with a roster already stored
+  // the route boots straight into the round, where the only visible controls are its four 44x180
+  // straw buttons -- tall, narrow, and the actual round-transition control on that screen. 44 is not
+  // > 60, so the finder returned null and the burst leg was skipped for a reason that was false.
+  // Measured on this exact page: #btn-start-setup, the button the skip implied was missing, is 0x0
+  // with offsetParent null there because the setup screen is hidden. 44 is also the tap-target floor
+  // this site builds to, so it is the right minimum on either axis.
   const cands = [...root.querySelectorAll('button')].filter((b) => {
     const r = b.getBoundingClientRect();
-    return r.width > 60 && r.height > 30 && r.top >= 0 && !b.closest('header') && getComputedStyle(b).visibility !== 'hidden' && b.offsetParent !== null;
+    return r.width >= 44 && r.height >= 30 && r.width * r.height >= 2000 && r.top >= 0 && !b.closest('header') && getComputedStyle(b).visibility !== 'hidden' && b.offsetParent !== null;
   }).sort((a, z) => z.getBoundingClientRect().width * z.getBoundingClientRect().height - a.getBoundingClientRect().width * a.getBoundingClientRect().height);
   const b = cands[0];
   if (!b) return null;
@@ -109,56 +119,95 @@ const findTransitionTrigger = async (s) => (await s.evaluate(`
 // A point clearly inside the game area, away from the X (top-left) and away from any header control.
 const GAME_X = 160, GAME_Y = 400;
 
+// #play-exit is position:fixed at 6,6 / 44x44 on every play route, so (28,28) is its centre everywhere.
+const X_HIT = 28;
+const topAtX = async (s) => (await s.evaluate(
+  `const e = document.elementFromPoint(${X_HIT}, ${X_HIT}); return e ? (e.id || e.className || e.tagName) : 'NONE';`)).value;
+
+// A tap dispatched at the X's coordinates does NOT mean a tap on the X. Measured on short-stick, 2 of
+// 8 runs: its hazard reveal <dialog> (#short-reveal-dialog, opened with showModal() ~750ms after a
+// straw is pulled and closed only by its own button -- it never auto-closes) sat over those exact
+// coordinates, so the "deliberate tap" landed on the dialog and the leg recorded a non-exit that had
+// nothing to do with the guard. Which straw hides the short one is random, so this was a ~25% flake
+// that could equally have been a silent vacuous PASS on the burst leg.
+// Dismissal goes through HTMLDialogElement.close(), the native API, on every open <dialog> -- no route
+// names and no game knowledge. Escape via Input.dispatchKeyEvent was tried first and is NOT usable
+// here: measured, one iteration wedged for over ten minutes with the CDP call never answering, and a
+// probe that hangs is worse in CI than one that reds. close() is a synchronous DOM call inside an
+// evaluate that already has a round trip, and it dispatches no pointer events, so it cannot disarm the
+// X either. Whatever is on top AFTER this runs is returned, and the caller judges the leg on it -- a
+// non-dialog overlay is not cleared, and must not be, because that would be a real finding.
+const clearOverlayAtX = async (s) => {
+  const before = await topAtX(s);
+  if (before === 'play-exit') return { before, after: before };
+  await s.evaluate("for (const d of document.querySelectorAll('dialog[open]')) d.close(); return true;");
+  await sleep(400);
+  return { before, after: await topAtX(s) };
+};
+
 const out = {};
 
-// --- Scenario 1: HOLD-THROUGH --- (press must start WHILE the X is disabled, i.e. right after load,
-// before ARM_DELAY_MS/400ms elapses. Measured: reading `disabled` back via a post-hoc Runtime.evaluate
-// round trip is itself racy under headless main-thread contention -- a probe evaluate() call was seen
-// to take 450ms+ on first contact with a freshly-loaded page, by which point the real 400ms arm timer
-// had already fired for real, making a "touched while disabled" claim from that reading false. Fixed
-// by an in-page capture installed via Page.addScriptToEvaluateOnNewDocument BEFORE navigation: it
-// records `disabled` synchronously in the SAME pointerdown handler dispatch, so what gets read back
-// later is unaffected by how late the read happens. #play-exit's CSS position (top/left: 6px, 44x44)
-// is fixed across all three play routes, so the touch target (28, 28) needs no DOM query either.
-// Also measured: Emulation.setDeviceMetricsOverride(mobile:true) must be set BEFORE navigation, not
-// after -- set immediately after a fresh load with near-zero settle, a dispatchTouchEvent silently
-// produced zero pointerdown events on the page (touch input wiring for the frame was not ready yet).
-// Setting it pre-navigation, as this block now does, is what scenario 2/3/4's own gotoIdleArmed also
-// does, just with an 800ms settle after -- here there is no settle to spare, so order is what matters.)
+// --- Scenario 1: HOLD-THROUGH --- (a press that STARTS on the X while it is disabled must never
+// exit the round, however long it is held.)
+//
+// This block used to race the clock: navigation resolved on Page.loadEventFired and the touch was
+// dispatched blind, hoping to land inside the 400ms window that PlayExit.astro's init disarm() opens.
+// But that timer starts when the module script runs, not when `load` fires, so how much of the window
+// was left depended on the gap between the two -- which varies per route and per run. Measured over
+// five identical runs: 6 of 8 routes flipped between SKIP and PASS, and a route could also land the
+// touch just AFTER the arm and report a FAIL on healthy code. That is a flaky instrument, so the
+// clock is gone from this scenario entirely.
+//
+// The deterministic construction: hold a finger in the game area FIRST. Its pointerdown reaches
+// PlayExit.astro's document-capture handler, which calls disarm() -- and disarm() only re-schedules
+// the arm timer when `active === 0`, so with a contact still down the X is disabled and CANNOT arm,
+// for as long as we like. The press under test then goes down on the X as a second finger, with no
+// deadline. Finger 1 lifts while finger 2 is still down (still no arm), we outlive ARM_DELAY_MS, and
+// finger 2 releases on the X. The guard path exercised is identical to the old one: `pressed` is only
+// set for a press that began on an ARMED control, so a press that began disabled must not activate
+// on release.
+//
+// Ceiling, stated because a green here must not be read as more than it is (ADR-0019 rule 1): this no
+// longer presses during the initial post-load disabled window. Nothing else in this walk does either.
+// It cannot be driven deterministically over CDP -- every route to it goes through a round trip whose
+// latency is the thing being raced.
+//
+// The in-page capture stays (Page.addScriptToEvaluateOnNewDocument, so it registers before
+// PlayExit.astro's own capture listener and therefore reads `disabled` before that handler can touch
+// it). It now records every contact ON the X rather than the first contact anywhere, since finger 1
+// is a contact too. #play-exit's CSS position (top/left: 6px, 44x44) is fixed across play routes.
 out.s1 = {};
 for (const route of ROUTES_ALL) {
+  if (route === DROP_ROUTE) continue;
   const s = await openTab();
   await s.send('Page.addScriptToEvaluateOnNewDocument', {
     source: `
+      window.__s1 = [];
       document.addEventListener('pointerdown', (ev) => {
-        if (window.__s1seen) return;
-        window.__s1seen = true;
         const b = document.getElementById('play-exit');
-        window.__s1disabled = b ? b.disabled : 'no-btn';
+        if (!b) { window.__s1.push('no-btn'); return; }
+        if (ev.target instanceof Node && b.contains(ev.target)) window.__s1.push(b.disabled);
       }, true);`,
   });
-  await s.setup320();
-  await s.navFast(`${BASE}/game/${route}/play/`);
-  const t0 = Date.now();
-  await s.touchDown(28, 28, 0); // dispatched immediately after loadEventFired, well inside 400ms
-  const ackMs = Date.now() - t0; // measured: this route's main thread can block long enough that the
-  // touch is only PROCESSED once it frees -- if that exceeds ARM_DELAY_MS, no touch can land inside
-  // the disabled window at all on this route under headless CDP, and the scenario is not exercisable.
-  await sleep(700); // outlives ARM_DELAY_MS while the finger is still down
-  await s.touchReleaseAll();
-  await sleep(300);
-  const path = await s.pathname();
-  const capture = (await s.evaluate('return { seen: window.__s1seen, disabled: window.__s1disabled };')).value;
-  if (!capture?.seen && ackMs > 380) {
-    out.s1[route] = {
-      exercisable: false,
-      reason: `Input.dispatchTouchEvent ack took ${ackMs}ms (> ARM_DELAY_MS=400ms) -- this route's main thread was busy long enough that no touch could reach the page while #play-exit was still disabled`,
-      pathAfter: path,
-    };
-  } else {
-    out.s1[route] = { exercisable: true, pressStartedDisabled: capture, ackMs, pathAfter: path, pass: capture?.disabled === true && path !== '/' };
-    if (!out.s1[route].pass) await s.shot(`${SHOT}/s1-${route}-FAIL.png`);
-  }
+  const { rect } = await gotoIdleArmed(s, route);
+  const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
+  await s.touchDown(GAME_X, GAME_Y, 0); // finger 1: pins the X disabled with no timer pending
+  await sleep(200);
+  const disabledBeforePress = await s.disabledState();
+  await s.touchAddPoint([{ x: GAME_X, y: GAME_Y, id: 0 }], cx, cy, 1); // finger 2: the press under test
+  await sleep(100);
+  await s.touchRemovePoint([{ x: cx, y: cy, id: 1 }]); // lift finger 1; finger 2 still down
+  await sleep(700); // outlives ARM_DELAY_MS with the press still down
+  await s.touchReleaseAll(); // release finger 2 on the X
+  await sleep(900);
+  const pathAfter = await s.pathname();
+  const capture = (await s.evaluate('return window.__s1 ?? null;')).value;
+  const startedDisabled = Array.isArray(capture) && capture[0] === true;
+  out.s1[route] = {
+    disabledBeforePress, contactsOnX: capture, startedDisabled, pathAfter,
+    pass: startedDisabled && pathAfter !== '/',
+  };
+  if (!out.s1[route].pass) await s.shot(`${SHOT}/s1-${route}-FAIL.png`);
   await s.close();
 }
 
@@ -244,22 +293,43 @@ for (const route of ROUTE_ONLY_CANNON) {
 // --- Scenario 4: REGRESSION (5-tap burst after transition, then deliberate tap) ---
 out.s4 = {};
 for (const route of ROUTES_ALL) {
+  if (route === DROP_ROUTE) continue;
   const s = await openTab();
   const { rect } = await gotoIdleArmed(s, route);
   const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
   const startBtn = await findTransitionTrigger(s);
   if (startBtn) await s.mouseClick(startBtn.x, startBtn.y);
+  // KNOWN CEILING, named so a later reader does not mistake this for coverage it has not earned:
+  // topBeforeBurst is read ONCE, here, before the burst. The burst spans roughly 400-600ms, and
+  // short-stick's #short-reveal-dialog opens about 750ms after the straw click (two chained timers in
+  // src/play/short-stick/main.js). On a runner slower than this laptop, later taps in the burst can
+  // land on that dialog while this single pre-read still says the X was on top, so passNoNav would
+  // credit a full five-tap burst on the X when it was not one.
+  // Why this is a measurement ceiling and not a hole in the verdict: a tap on the dialog, or on its
+  // own close button, routes to the result view and never navigates, so the burst leg cannot go green
+  // for the wrong reason -- it can only be weaker than it reads. Tightening it means sampling the top
+  // element per tap, which costs a CDP round trip inside the burst and would change the very timing
+  // the burst is trying to reproduce. Left deliberately.
+  const topBeforeBurst = await topAtX(s);
   for (let i = 0; i < 5; i++) { await sleep(80); await s.tap(cx, cy); }
   await sleep(150);
   const pathAfterBurst = await s.pathname();
   await sleep(600);
+  const { before: overlayAtX, after: topBeforeDeliberate } = await clearOverlayAtX(s);
+  const disabledBeforeDeliberate = await s.disabledState();
   await s.tap(cx, cy);
   await sleep(900);
   const pathAfterDeliberate = await s.pathname();
   out.s4[route] = {
-    transitionTriggered: !!startBtn, pathAfterBurst, pathAfterDeliberate,
-    passNoNav: pathAfterBurst !== '/',
-    passDeliberateNav: pathAfterDeliberate === '/',
+    transitionTriggered: !!startBtn, topBeforeBurst, pathAfterBurst,
+    overlayAtX, topBeforeDeliberate, disabledBeforeDeliberate, pathAfterDeliberate,
+    // "the burst did not exit" only means something if the burst was landing ON the X.
+    passNoNav: !!startBtn && topBeforeBurst === 'play-exit' && pathAfterBurst !== '/',
+    // Gated on the burst NOT having navigated. Measured on short-stick: the burst left the round, so
+    // this tap landed on the home page and asserted '/' === '/' -- a leg that passes by measuring the
+    // wrong page is worse than a missing leg. A burst that already exited fails BOTH legs, which is
+    // correct: nothing here observed a deliberate tap on a play route.
+    passDeliberateNav: pathAfterBurst !== '/' && topBeforeDeliberate === 'play-exit' && pathAfterDeliberate === '/',
   };
   if (!out.s4[route].passNoNav) await s.shot(`${SHOT}/s4-${route}-burst-FAIL.png`);
   if (!out.s4[route].passDeliberateNav) await s.shot(`${SHOT}/s4-${route}-deliberate-FAIL.png`);
@@ -272,31 +342,76 @@ console.log(JSON.stringify(out, null, 2));
 // The four scenarios above used to end in a bare process.exit(0), so every per-route pass flag they
 // compute was thrown away. Since gh#149 deleted the party landing pages, this walk and play-exit-probe
 // are the only things in CI measuring ADR-0050 ruling 3's guarded X -- so this one judges itself.
-// exercisable:false is a SKIP with its reason, never a pass: s1 needs a touch to land inside the 400ms
-// disabled window (headless main-thread contention can make that impossible on a given route/run) and
-// s3 needs bfcache to actually engage. Every leg that IS judged must pass; zero judged legs, or an
-// empty route set (refused by the throw at the top of this file), is a RED.
+//
+// A bare "N failed" verdict is not enough, and that was measured, not feared: five identical runs of
+// the pre-fix probe reported 19, 20, 20, 23 and 22 judged legs and ALL FIVE exited 0. A run covering
+// four fewer legs than the last one is indistinguishable from a full green if the only number gated is
+// the failure count. So the leg set itself is reconciled here, and it is DERIVED from the route set --
+// adding a play route raises the floor with no edit to this file.
+//
+// REQUIRED legs have no exercisability escape hatch: not judging one is a RED, whatever the reason.
+// OPTIONAL legs may report a SKIP with a reason -- s3 is the only one, because whether Chrome grants
+// bfcache on a headless run is not ours to control -- but a skip must still be RECORDED, so a leg that
+// silently disappears from the walk is a red too. Scenario 1 is required because it no longer races a
+// clock, and s4's burst is required because its old skip reason ("no transition trigger found") was
+// measured FALSE on short-stick: that is a finder bug, and a probe must not launder its own bugs into
+// a skip line. See findTransitionTrigger's header.
 const fails = [], skips = [];
-let judged = 0;
-const check = (pass, msg) => { judged++; if (!pass) fails.push(msg); };
+const judgedIds = new Set(), skippedIds = new Set();
+const check = (id, pass, msg) => { judgedIds.add(id); if (!pass) fails.push(msg); };
+const skip = (id, reason) => { skippedIds.add(id); skips.push(`${id}: ${reason}`); };
 for (const [g, r] of Object.entries(out.s1)) {
-  if (!r.exercisable) skips.push(`s1/${g}: ${r.reason}`);
-  else check(r.pass, `s1/${g}: a press that STARTED while the X was disabled still left the round (pathname ${r.pathAfter}, capture ${JSON.stringify(r.pressStartedDisabled)})`);
+  check(`s1/${g}`, r.pass, `s1/${g}: a press that STARTED while the X was disabled still left the round (pathname ${r.pathAfter}, contacts on X ${JSON.stringify(r.contactsOnX)}, disabled before press ${r.disabledBeforePress})`);
 }
 for (const [g, r] of Object.entries(out.s2)) {
-  check(r.passNoNav, `s2/${g}: a stray tap on the X during a held touch left the round (during hold ${r.pathDuringHold}, after release ${r.pathAfterRelease})`);
-  check(r.passControlNav, `s2/${g}: positive control -- a quiet deliberate tap did NOT exit (pathname ${r.pathAfterControl}), so this scenario's green measures a dead control`);
+  check(`s2/${g}/no-nav`, r.passNoNav, `s2/${g}: a stray tap on the X during a held touch left the round (during hold ${r.pathDuringHold}, after release ${r.pathAfterRelease})`);
+  check(`s2/${g}/control`, r.passControlNav, `s2/${g}: positive control -- a quiet deliberate tap did NOT exit (pathname ${r.pathAfterControl}), so this scenario's green measures a dead control`);
 }
 for (const [g, r] of Object.entries(out.s3)) {
-  if (!r.exercisable) skips.push(`s3/${g}: ${r.reason}`);
-  else check(r.pass, `s3/${g}: after a bfcache restore the X no longer exits (pathname ${r.pathAfterTap})`);
+  if (!r.exercisable) skip(`s3/${g}`, r.reason);
+  else check(`s3/${g}`, r.pass, `s3/${g}: after a bfcache restore the X no longer exits (pathname ${r.pathAfterTap})`);
 }
 for (const [g, r] of Object.entries(out.s4)) {
-  check(r.passDeliberateNav, `s4/${g}: a deliberate tap after the burst did not exit (pathname ${r.pathAfterDeliberate})`);
-  if (!r.transitionTriggered) skips.push(`s4/${g}: no transition trigger found, so nothing disarmed the X and the burst is not exercisable`);
-  else check(r.passNoNav, `s4/${g}: the 5-tap burst after a transition LEFT THE ROUND (pathname ${r.pathAfterBurst})`);
+  check(`s4/${g}/deliberate`, r.passDeliberateNav, r.pathAfterBurst === '/'
+    ? `s4/${g}: the burst had already left the round, so this leg tapped the HOME page and its '/' === '/' means nothing`
+    : r.topBeforeDeliberate !== 'play-exit'
+      ? `s4/${g}: ${r.topBeforeDeliberate} was on top of the X at (${X_HIT},${X_HIT}) and closing every open <dialog> did not clear it, so this tap could not reach the control it claims to test`
+      : `s4/${g}: a deliberate tap after the burst did not exit (pathname ${r.pathAfterDeliberate}, X disabled before the tap: ${r.disabledBeforeDeliberate})`);
+  // No skip here any more, and that is the point. Every play route has a control big enough to press;
+  // "no transition trigger found" was never a property of a route, only of the finder above, and a
+  // skip whose stated reason can be false reads as coverage while measuring nothing.
+  check(`s4/${g}/burst`, r.passNoNav, !r.transitionTriggered
+    ? `s4/${g}: findTransitionTrigger found nothing to press on this route, so no transition disarmed the X and this burst measured nothing -- fix the finder, do not skip the leg`
+    : r.topBeforeBurst !== 'play-exit'
+      ? `s4/${g}: ${r.topBeforeBurst} was on top of the X at (${X_HIT},${X_HIT}) when the burst started, so "the burst did not exit" measured that overlay, not the guard`
+      : `s4/${g}: the 5-tap burst after a transition LEFT THE ROUND (pathname ${r.pathAfterBurst})`);
 }
+
+// --- coverage reconciliation ---
+const REQUIRED_LEGS = [
+  ...ROUTES_ALL.map((r) => `s1/${r}`),
+  ...ROUTE_ONLY_CANNON.flatMap((r) => [`s2/${r}/no-nav`, `s2/${r}/control`]),
+  ...ROUTES_ALL.flatMap((r) => [`s4/${r}/deliberate`, `s4/${r}/burst`]),
+];
+// s3 is the only genuinely optional leg left: whether Chrome grants bfcache on a given headless run is
+// not ours to control, and its skip reason is read back from the page, not asserted by the probe.
+const OPTIONAL_LEGS = ROUTE_ONLY_CANNON.map((r) => `s3/${r}`);
+const EXPECTED = new Set([...REQUIRED_LEGS, ...OPTIONAL_LEGS]);
+if (!REQUIRED_LEGS.length) fails.push('coverage: the required leg set is empty -- this walk would report a vacuous pass');
+for (const id of REQUIRED_LEGS) {
+  if (judgedIds.has(id)) continue;
+  fails.push(`coverage: required leg ${id} was not judged (${skippedIds.has(id) ? 'reported as a skip, which this leg is not allowed to do' : 'never reached the verdict at all'})`);
+}
+for (const id of OPTIONAL_LEGS) {
+  if (judgedIds.has(id) || skippedIds.has(id)) continue;
+  fails.push(`coverage: leg ${id} was neither judged nor skipped -- it vanished from the walk without a reason`);
+}
+for (const id of [...judgedIds, ...skippedIds]) {
+  if (!EXPECTED.has(id)) fails.push(`coverage: leg ${id} is not in this walk's expected set -- the leg id scheme drifted from the reconciliation above`);
+}
+
 for (const f of fails) console.log(`  FAIL ${f}`);
 for (const s of skips) console.log(`  SKIP ${s}`);
-console.log(`play-exit-guard: ${ROUTES_ALL.length} route(s) checked, ${judged} scenario leg(s) judged, ${fails.length} failed, ${skips.length} not exercisable`);
-process.exit(fails.length > 0 || ROUTES_ALL.length === 0 || judged === 0 ? 1 : 0);
+const req = REQUIRED_LEGS.filter((id) => judgedIds.has(id)).length;
+console.log(`play-exit-guard: ${ROUTES_ALL.length} route(s) checked, ${judgedIds.size} scenario leg(s) judged (${req}/${REQUIRED_LEGS.length} required, ${judgedIds.size - req}/${OPTIONAL_LEGS.length} optional), ${fails.length} failed, ${skips.length} not exercisable`);
+process.exit(fails.length > 0 ? 1 : 0);

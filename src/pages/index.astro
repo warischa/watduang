@@ -10,18 +10,28 @@
 import Base from '../layouts/Base.astro';
 import PageChrome from '../components/PageChrome.astro';
 import { categories } from '../games/categories';
-import { games as allGames, byId } from '../games/manifest';
+import { games as allGames, popularGames, popularGroup } from '../games/manifest';
 import { tools, toolsGroup } from '../tools/manifest';
-import type { Category } from '../games/types';
-
-// The canvas features the `siamsi` module as the first-round game. Named by id, never by display
-// name: the display name is manifest-owned and has already changed once (ADR-0040 renamed it off the
-// party shape), so quoting it here would rot. The card accent resolves through its own category's
-// accent name — no name, no colour and no tagline is hardcoded here.
-const featured = byId('siamsi')!;
+import type { Category, GameModule } from '../games/types';
 
 // The canvas's per-card bob phase, in canvas order — the stagger is a design value, not i % 3.
 const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
+
+// One card shape for every game the page shows, wherever it shows it: the promoted row and the
+// category groups feed the same model, so a promoted card enters the game by exactly the route a
+// group card does (ADR-0050 ruling 2) and carries its own category pill — the promoted row mixes
+// categories, and the pill is what says which one a card belongs to. The bob phase counter is
+// shared and runs in render order, so a new row joins the canvas stagger instead of restarting it.
+let bobPhase = 0;
+const gameCard = (game: GameModule) => ({
+  cardClass: 'game-card',
+  title: game.names.th,
+  desc: game.tagline,
+  pill: categories[game.category].label as string | null,
+  href: game.playRoute ?? `/game/${game.id}/`,
+  accentVar: `--accent-${categories[game.category].accent}`,
+  bob: BOB_PHASES[bobPhase++] ?? '',
+});
 
 // gh#75 — the page presents GROUPS, never one flat games list headed by a claim about the whole
 // catalogue (the heading ADR-0041 left owing). Two game groups come from the category manifest, in
@@ -30,25 +40,27 @@ const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
 // Every string a group shows is manifest-held (ADR-0034), including its when-to-use line.
 // A fourth group is one more entry in this array and nothing above it moves: the H1 and the lead
 // name no group, no content type and no count.
-// The bob phase counter keeps the canvas's flat card order across the game groups.
-let bobPhase = 0;
+// gh#159 / ADR-0052 — the promoted row is the FIRST group and is data like the rest: its games and
+// their order are the manifest's (popularGames), its heading is the manifest's (ADR-0034), and the
+// page names none of them. It has no "see all" destination — there is no popularity hub — so its
+// href is null and the head renders without the link; `body` is null for the same reason, the row's
+// heading is the whole of its copy. Nothing here describes a group size, a player count or how a
+// phone is passed around: the row mixes categories, and those claims belong to the party category
+// alone (ADR-0040).
 const groups = [
+  {
+    heading: popularGroup.heading,
+    body: null as string | null,
+    href: null as string | null,
+    gridClass: 'games-grid',
+    cards: popularGames.map(gameCard),
+  },
   ...(Object.keys(categories) as Category[]).map((cat) => ({
     heading: categories[cat].hubHeading,
-    body: categories[cat].hubBody,
-    href: `/c/${cat}/`,
+    body: categories[cat].hubBody as string | null,
+    href: `/c/${cat}/` as string | null,
     gridClass: 'games-grid',
-    cards: allGames
-      .filter((game) => game.category === cat)
-      .map((game) => ({
-        cardClass: 'game-card',
-        href: game.playRoute ?? `/game/${game.id}/`,
-        pill: categories[cat].label as string | null,
-        title: game.names.th,
-        desc: game.tagline,
-        accentVar: `--accent-${categories[cat].accent}`,
-        bob: BOB_PHASES[bobPhase++] ?? '',
-      })),
+    cards: allGames.filter((game) => game.category === cat).map(gameCard),
   })),
   {
     heading: toolsGroup.heading,
@@ -144,35 +156,11 @@ const groups = [
 
     <div class="body-grid">
       <div class="col">
-        <section class="featured">
-          <p class="kicker">เล่นครั้งแรก เริ่มที่เกมนี้</p>
-          <a
-            class="featured-card bob-1"
-            href={featured.playRoute ?? `/game/${featured.id}/`}
-            style={`--card-accent: var(--accent-${categories[featured.category].accent});`}
-          >
-            <div class="featured-copy">
-              <h2>{featured.names.th}</h2>
-              <p>{featured.tagline}</p>
-              <span class="featured-cta">เขย่าเลย →</span>
-            </div>
-            <svg width="230" height="160" viewBox="0 0 230 160" aria-hidden="true">
-              <rect x="4" y="4" width="222" height="152" rx="14" fill="#fffdf7" stroke="#1a1a1a" stroke-width="4"></rect>
-              <g stroke="#1a1a1a" stroke-width="7" stroke-linecap="round">
-                <line x1="94" y1="72" x2="84" y2="34"></line>
-                <line x1="115" y1="68" x2="116" y2="26"></line>
-                <line x1="136" y1="72" x2="147" y2="36"></line>
-              </g>
-              <path
-                d="M88 74 h54 l-7 46 a20 20 0 0 1 -40 0 z"
-                fill="#f89880"
-                stroke="#1a1a1a"
-                stroke-width="4"></path>
-            </svg>
-          </a>
-        </section>
+        {/* gh#159 — the single hardcoded featured card that stood here is gone; the promoted row
+            below is the same slot turned into data (ADR-0052). Its copy went with it: the kicker
+            addressed a first-time player, which is not what a popular row says.
 
-        {/* One section per group, same markup for all three: a group is data, not a hand-written
+            One section per group, same markup for all of them: a group is data, not a hand-written
             block, so a fourth one renders here with no edit to this file and none to the hero.
             Ad slot 2 of 4 — the in-content unit the canvas marks between the games and the tools —
             keeps its place by rendering before the last group. 90px reserved. */}
@@ -185,9 +173,9 @@ const groups = [
               <div class="section-head">
                 <div class="section-head-copy">
                   <h2>{group.heading}</h2>
-                  <p class="section-body">{group.body}</p>
+                  {group.body && <p class="section-body">{group.body}</p>}
                 </div>
-                <a class="section-link" href={group.href}>ดูทั้งหมด →</a>
+                {group.href && <a class="section-link" href={group.href}>ดูทั้งหมด →</a>}
               </div>
               <div class={group.gridClass}>
                 {group.cards.map((card) => (
@@ -501,69 +489,6 @@ const groups = [
     gap: 56px;
   }
 
-  /* ------------------------------ featured ----------------------------- */
-
-  .kicker {
-    margin: 0 0 16px 0;
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 15px;
-    letter-spacing: 1px;
-    color: var(--color-muted);
-  }
-
-  .featured-card {
-    display: grid;
-    grid-template-columns: 1fr 230px;
-    gap: 30px;
-    align-items: center;
-    padding: 32px 34px;
-    background: var(--card-accent);
-    border: 4px solid var(--color-line-strong);
-    border-radius: 20px;
-    box-shadow: 8px 8px 0 0 var(--color-line-strong);
-    color: var(--color-line-strong);
-    /* structural: the canvas art is 230px wide inside a 34px padding — a grid track whose min is
-       that (230 + 68 + 8 = 306px) would blow a 320px phone column to 306 and expand the mobile
-       viewport sideways. min-width 0 lets the track take its 1fr share instead. */
-    min-width: 0;
-  }
-
-  .featured-card svg {
-    max-width: 100%;
-    height: auto; /* structural: the 230px canvas art shrinks inside a narrower phone column */
-  }
-
-  .featured-card:hover {
-    color: var(--color-line-strong); /* the card keeps its ink; the canvas hover is for its text links */
-  }
-
-  .featured-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .featured-copy h2 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 38px;
-    line-height: 1.2;
-  }
-
-  .featured-copy p {
-    margin: 0;
-    font-size: 17px;
-    line-height: 1.7;
-  }
-
-  .featured-cta {
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 16px;
-  }
-
   /* ------------------------------ games grid --------------------------- */
 
   .section-head {
@@ -591,7 +516,7 @@ const groups = [
 
   /* gh#75 — a group's heading and its when-to-use line stack in the head's left column while the
      link keeps the row. No new design values: the copy line is the .faq-item p pair (15px / 1.75)
-     in the .kicker's muted ink, and the 8px stack gap is the tool card's own. */
+     in the muted ink of the removed featured kicker, and the 8px stack gap is the tool card's own. */
   .section-head-copy {
     display: flex;
     flex-direction: column;
@@ -847,10 +772,6 @@ const groups = [
 
     .ad-rail {
       display: none;
-    }
-
-    .featured-card {
-      grid-template-columns: 1fr;
     }
 
     .games-grid,

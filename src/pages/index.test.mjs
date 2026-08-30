@@ -15,7 +15,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { games } from '../games/manifest.ts';
+import { games, popularGroup, popularGames } from '../games/manifest.ts';
 import { tools } from '../tools/manifest.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -39,6 +39,9 @@ const manifestCopy = [
   ...games.map((g) => g.tagline),
   ...tools.map((t) => t.name),
   ...tools.map((t) => t.desc),
+  // gh#159: the popular-row heading is hub copy, so ADR-0034 puts it in the manifest — the same
+  // retyped-literal ban that guards names and taglines guards it.
+  popularGroup.heading,
 ];
 
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -63,6 +66,12 @@ test('the home page reads game names and taglines from the games manifest', () =
   // interpolation above would otherwise satisfy the two assertions on its own.
   assert.match(pageSrc, /title:\s*game\.names\.th\b/, 'the card model must take its title from the games manifest');
   assert.match(pageSrc, /desc:\s*game\.tagline\b/, 'the card model must take its body from the games manifest');
+  // gh#159: the featured card that used to carry `{featured.names.th}` in the markup is gone, so the
+  // two loose scans above now match the card model itself. The markup end of the invariant is
+  // therefore pinned here explicitly rather than left to those regexes: model field fed by the
+  // manifest AND that field rendered by interpolation, the same both-ends shape as the tools test.
+  assert.match(pageBody, /\{card\.title\}/, 'a game card must render the title by interpolation');
+  assert.match(pageBody, /\{card\.desc\}/, 'a game card must render the tagline by interpolation');
 });
 
 // gh#75 moved the manifest read one step up: the page builds a `groups` model in its frontmatter and
@@ -77,6 +86,32 @@ test('the home page reads tool names and descriptions from the tools manifest', 
   assert.match(pageSrc, /desc:\s*tool\.desc\b/, 'the card model must take its body from the manifest tool description');
   assert.match(pageBody, /\{card\.title\}/, 'a card must render the title by interpolation');
   assert.match(pageBody, /\{card\.desc\}/, 'a card must render the description by interpolation');
+});
+
+// gh#159 / ADR-0052 — the popular row is data. Which games and in what order is one manifest edit;
+// the page holds no game id of its own. This is pinned at both ends like the group model above: the
+// order is read from the manifest export, and the page must contain no id-picking call at all.
+test('the popular row is driven by the manifest, not by a game id in the page', () => {
+  assert.ok(
+    popularGames.length >= 3 && popularGames.length <= 4,
+    `the row is three to four games — the manifest order holds ${popularGames.length}`,
+  );
+  assert.match(pageSrc, /from '\.\.\/games\/manifest'/, 'must import the games manifest, not a copy of it');
+  assert.match(pageSrc, /popularGames\b/, 'the row must render the manifest-held order');
+  assert.match(pageSrc, /popularGroup\.heading\b/, 'the heading is manifest copy (ADR-0034)');
+  assert.doesNotMatch(
+    pageSrc,
+    /byId\(/,
+    'no card on this page may be picked by a game id written into the page',
+  );
+  // ADR-0050 ruling 2: a promoted card enters the game directly wherever a play route exists.
+  assert.match(pageSrc, /game\.playRoute \?\? `\/game\/\$\{game\.id\}\/`/, 'a card must prefer the play route');
+  // CLAUDE.md: games live in the party and fortune categories only, and a fortune page or a
+  // randomizer tool is not a game — the row promotes GAMES, so every id resolves through the games
+  // manifest and a tool or a non-game page can never enter the row.
+  for (const game of popularGames) {
+    assert.ok(games.includes(game), `${game.id} must be a registered game`);
+  }
 });
 
 test('category labels render through the manifest, never as page literals', () => {

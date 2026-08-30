@@ -13,14 +13,22 @@ import type { GameModule } from '../../games/types';
 // every one of its rules to every live game page with no page left to consume them. Re-add this
 // import in the same change that puts the game back in the manifest, never before it.
 //
-// gh#149 — timebomb.css and short-stick.css now style nothing this route builds: both games moved to
-// a play route (below) whose own sheet lives under src/play/<id>/. The imports stay because
-// scripts/css-reachability-check.mjs requires a sheet to be imported exactly while its game is
-// registered, and the manifest is not this ticket's to edit. Drop the sheet and its import together
-// in the ticket that retires the stage module (gh#145, gh#146).
-import '../../styles/games/timebomb.css';
+// gh#145 / gh#146 — timebomb.css and short-stick.css were retired: both games run at a play route
+// (below) whose own sheet lives under src/play/<id>/, and neither page this route builds could reach
+// the stage sheets. Only the dead stylesheets and their imports were removed.
+//
+// Both stage modules stay, but NOT for the same reason, and the difference matters to whoever
+// finally retires them:
+//   - src/games/timebomb.ts IS the play route's engine — src/play/timebomb/main.ts has a top-level
+//     `import game from '../../games/timebomb.ts'` and mounts it as-is. Deleting it takes down a
+//     shipping route.
+//   - src/games/short-stick.ts is NOT. src/pages/game/short-stick/play.astro loads
+//     src/play/short-stick/main.js, which imports nothing from src/games/. That module survives on
+//     its manifest registration alone, which play.astro reads via byId and the card lists read to
+//     render the game. Retiring it is a manifest question, not a dead-code deletion.
+// See the matching note in src/games/short-stick.ts. Stating this as one rule for both games is what
+// this comment said before, and it was false for half of them.
 import '../../styles/games/siamsi.css';
-import '../../styles/games/short-stick.css';
 import '../../styles/games/daily-fortune.css';
 
 // gh#149 / ADR-0050 ruling 2 — a game that declares a playRoute runs full screen there, and its

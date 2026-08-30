@@ -39,3 +39,37 @@ export const games: GameModule[] = [
 
 export const byId = (id: string): GameModule | undefined =>
   games.find((g) => g.id === id);
+
+// gh#159 / ADR-0052 — the home page's popular row. Popularity is measured off-site by analytics and
+// the resulting order is BAKED IN HERE at build time: nothing counts at runtime, nothing is stored
+// per visitor, and no request leaves the page for this feature. Promoting a different game, or
+// adding one, is an edit to `ids` alone — no page file changes. The heading lives here rather than
+// in the page because it is hub copy (ADR-0034); it is deliberately an adjective and never a count,
+// because there is no number behind it yet (gh#160 reconciles the label with real data).
+// Three to four ids: the row is a podium, not a ranking.
+export const popularGroup = {
+  heading: 'ยอดนิยม',
+  // OWNER'S PICK, 2026-08-30: the newest games that have a play route.
+  //
+  // Derived from history, never from memory: `git log --diff-filter=A` on each
+  // src/pages/game/<id>/play.astro puts these three at fa01c8c (2026-08-30T11:34), ahead of
+  // timebomb and short-stick at 59c909c and the rest earlier. Three rather than four because the
+  // next two landed in the SAME commit, so a fourth slot would be a coin flip rather than a pick.
+  // Order inside fa01c8c is by ticket number descending (gh#158, gh#157, gh#156).
+  //
+  // Every id here is a game whose `category` is 'party'. That is load-bearing, not incidental:
+  // ADR-0040 says the fortune pages and the randomizer tools are NOT games, and this row's heading
+  // promises games. A fortune id in this array would make the heading false.
+  //
+  // Not a measurement. ADR-0052: the row ships before the numbers exist, and gh#160 is where the
+  // label and real analytics data get reconciled. Replace this array wholesale; nothing else moves.
+  ids: ['pinocchio-luck', 'how-close-is-near', 'dice-loser'],
+};
+
+/** The row's games, in `popularGroup.ids` order. An id no game answers to fails the build loudly —
+ *  the alternative is a card rendering `undefined` on the home page after a one-word typo. */
+export const popularGames: GameModule[] = popularGroup.ids.map((id) => {
+  const game = byId(id);
+  if (!game) throw new Error(`popularGroup.ids: no game is registered under the id "${id}"`);
+  return game;
+});

@@ -329,7 +329,17 @@ async function selftest() {
   // --- the live trap, pinned read-only: the real page's real comment, through the real scanner. ---
   const livePage = fs.readFileSync(path.join(repoRoot, 'src/pages/game/[id].astro'), 'utf8');
   const liveImports = await importedSheetsIn(livePage, '.astro');
-  assert.ok(liveImports.has('timebomb'), 'the scanner must find the real timebomb.css import in the live page — if it finds nothing, every other leg here is measuring nothing');
+  // gh#145/gh#146: this asserted `liveImports.has('timebomb')` and went red the moment timebomb.css
+  // was legitimately retired — the pin named ONE instance, so any lawful deletion of that instance
+  // broke the apparatus rather than the code under test. The hazard it guards is stated in its own
+  // old message: "if it finds nothing, every other leg here is measuring nothing". That hazard is
+  // the EMPTY set, not the absence of one particular sheet, so assert the class.
+  //
+  // Ceiling, so the next reader does not have to rediscover it: this still depends on [id].astro
+  // importing at least one per-game sheet, which it does today (siamsi, daily-fortune). If that page
+  // ever legitimately imports none, MOVE this pin to a file that does — do not delete it. A selftest
+  // with no live leg cannot tell a working scanner from one that matches nothing.
+  assert.ok(liveImports.size > 0, `the scanner must find at least one real per-game sheet import in the live page — it found none, so every other leg here is measuring nothing. Sheets seen: ${JSON.stringify([...liveImports])}`);
   // ponytail: there is deliberately NO `!liveImports.has('love-match')` assertion here. It asserted
   // the very condition the gate measures, so it was circular; and because both executors invoke this
   // as `--selftest && <real run>`, it made the required positive control impossible — on a tree where
