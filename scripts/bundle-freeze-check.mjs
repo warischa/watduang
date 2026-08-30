@@ -132,6 +132,18 @@ const BASELINE_BASENAMES = [
   // moved. Kept in the ports block rather than in alphabetical position, because the block records
   // the order the owner shipped them in and that is the more useful thing to read here.
   'cursed-number.js',
+  // gh#162 and gh#163 — ports 5 and 6, same ship order, added in one batch. The SET leg fired on
+  // these two basenames alone and none left the inventory, so this is two games shipping and
+  // nothing else moving.
+  //
+  // WORTH KNOWING, because it limits what the SET leg can prove: every play route's inline script
+  // compiles to a chunk whose hash-stripped basename is the SAME string,
+  // play.astro_astro_type_script_index_0_lang.js — one entry covering all eleven routes. A new play
+  // route therefore adds NO new basename for its own script, and the SET leg cannot see it. Only
+  // the BYTES leg can. Measured this session: the two new scripts are 26022 and 22903 bytes and the
+  // set gained only the two game-module basenames below.
+  'wire-snip-panic.js',
+  'zero-trigger.js',
   'draw.astro_astro_type_script_index_0_lang.js',
   'freeze-tap.js',
   'love-match.js',
@@ -182,7 +194,23 @@ const BASELINE_BASENAMES = [
 // can attribute later.
 // Measured by `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session,
 // and the number here is that command's output rather than a figure carried over from a brief.
-const BASELINE_TOTAL_BYTES = 342492;
+// Re-baselined 2026-08-30 (gh#162 + gh#163), 342492 -> 397772 (+55280, +16.1%) — far outside the
+// +/-5% band, so the BYTES leg fired alongside the SET leg and both are re-pinned together. Two
+// ports land at once here, and the gh#161 note above already records that ONE port is expected to
+// clear a 5% band; two clearing it by 16% is the same phenomenon, not a new one.
+//
+// Attributed, not assumed. Measured against a fresh build this session, per route, by reading each
+// built page's own script src rather than by guessing which chunk belongs to which game:
+//   wire-snip-panic play script  26022
+//   zero-trigger play script     22903
+//   the two new game modules      6074  (wire-snip-panic.js 3262 + zero-trigger.js 2812)
+//   sum                          54999
+//   observed growth              55280
+//   residual                        281  — the party hub and the sitemap gaining two entries
+// A residual of 281 bytes against a 55280-byte growth is 0.5%, and no existing game module or
+// shell file changed in this batch. The one src edit outside the two new ports was two rewritten
+// comments in src/play/timebomb/main.ts, which do not survive minification.
+const BASELINE_TOTAL_BYTES = 397772;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

@@ -1,0 +1,232 @@
+  <!-- Canvas FX for screen shake, sparkles, explosions & confetti -->
+  <canvas id="fx-canvas"></canvas>
+
+  <!-- Toast Notification -->
+  <div id="toast-banner">แจ้งเตือน</div>
+
+  <div id="app-container">
+    
+    <!-- Top Sticky Header -->
+    <header>
+      <div class="brand-title">
+        <span>⏱️</span> ZERO TRIGGER
+      </div>
+      <div class="nav-btn-group">
+        <button id="btn-audio-toggle" class="icon-btn" title="เปิด/ปิดเสียง" aria-label="Audio Toggle">🔊</button>
+        <button id="btn-open-rules" class="icon-btn" title="กติกาการเล่น" aria-label="Rules">📖</button>
+        <button id="btn-home-menu" class="icon-btn" title="กลับหน้าแรก" aria-label="Home" style="display: none;">🏠</button>
+      </div>
+    </header>
+
+    <!-- =========================================
+         SCREEN 1: MENU SCREEN
+         ========================================= -->
+    <section id="screen-menu" class="screen active">
+      <div class="hero-box">
+        <div class="hero-icon-wrap">⏱️💥</div>
+        <h1 class="hero-title">แตะหยุดเวลา</h1>
+        <p class="hero-subtitle">เกมวัดดวงจับจังหวะสุดระทึก สุ่มเลขต้องห้ามประจำรอบ ส่งต่อมือถือรอบวง ใครหยุดโดนเลขนั้นโดนระเบิด!</p>
+        <div class="feature-tags">
+          <span class="tag-pill">👥 2–10 คน</span>
+          <span class="tag-pill">🎯 เลขต้องห้ามเดียวกันทุกคน</span>
+          <span class="tag-pill">⚡ 3 ระดับความเร็ว</span>
+          <span class="tag-pill">🔥 100% Offline</span>
+        </div>
+      </div>
+
+      <div class="menu-action-box">
+        <button id="btn-quick-start" class="btn-primary">
+          <span>🚀 เริ่มเล่นทันที</span>
+        </button>
+        <button id="btn-goto-setup" class="btn-secondary">
+          <span>⚙️ ตั้งค่าผู้เล่น & บทลงโทษ</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================
+         SCREEN 2: SETUP SCREEN
+         ========================================= -->
+    <section id="screen-setup" class="screen">
+      <div class="setup-header-card glass-card">
+        <div class="setup-title">
+          <span>👥 ตั้งวงเล่น</span>
+        </div>
+        <div class="player-counter" id="setup-player-count-badge">2 / 10 คน</div>
+      </div>
+
+      <!-- Shared Rule Note -->
+      <div class="shared-rule-card">
+        <span style="font-size: 1.2rem;">🎲</span>
+        <div><strong>ระบบเลขต้องห้าม:</strong> ระบบจะสุ่มเลขต้องห้าม 1 ตัว (0–9) เมื่อเริ่มรอบ ซึ่งทุกคนในวงจะมีเลขต้องห้ามเดียวกัน!</div>
+      </div>
+
+      <!-- Player list scroll container -->
+      <div class="player-roster-list" id="player-roster-container">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="setup-actions-row">
+        <button id="btn-add-player" class="btn-secondary" style="flex: 1;">
+          <span>➕ เพิ่มผู้เล่น</span>
+        </button>
+        <button id="btn-random-avatars" class="btn-secondary" style="flex: 1;" title="สุ่ม Avatar ให้ทุกคน">
+          <span>🎲 สุ่ม Avatar</span>
+        </button>
+      </div>
+
+      <!-- Penalty Options -->
+      <div class="penalty-config-card glass-card">
+        <div class="penalty-header">
+          <span>💥 ระบบบทลงโทษคนแพ้</span>
+        </div>
+        <div class="penalty-toggle-group">
+          <button class="penalty-btn active" data-mode="preset">🎯 สุ่มอัตโนมัติ</button>
+          <button class="penalty-btn" data-mode="custom">✏️ กำหนดเอง</button>
+          <button class="penalty-btn" data-mode="none">🚫 ไม่เปิดใช้</button>
+        </div>
+      </div>
+
+      <button id="btn-confirm-start-game" class="btn-primary" style="margin-top: auto;">
+        <span>🎮 เข้าสู่เกม!</span>
+      </button>
+    </section>
+
+    <!-- =========================================
+         SCREEN 3: GAMEPLAY SCREEN
+         ========================================= -->
+    <section id="screen-game" class="screen">
+      <!-- Tier & Round Banner -->
+      <div class="tier-banner glass-card">
+        <div id="tier-badge-indicator" class="tier-badge">
+          <span>⚡</span> Tier 1 · Speed 0.0s
+        </div>
+        <div id="round-number-indicator" class="round-indicator">
+          รอบที่ 1 (วงที่ 1)
+        </div>
+      </div>
+
+      <!-- Active Turn Player Box -->
+      <div class="active-player-card glass-card" id="active-player-card">
+        <div class="player-bio">
+          <div class="player-avatar-large" id="game-active-avatar">🦊</div>
+          <div class="player-text-info">
+            <span class="player-turn-label">ตาของ</span>
+            <span class="player-name-display" id="game-active-name">ผู้เล่น 1</span>
+          </div>
+        </div>
+        <div class="forbidden-target-box">
+          <span class="forbidden-label">เลขต้องห้ามประจำรอบ</span>
+          <div class="forbidden-number-pill" id="game-forbidden-digit">?</div>
+        </div>
+      </div>
+
+      <!-- Live Tension Odds -->
+      <div class="odds-meter-box" id="odds-meter-box">
+        <span class="odds-text">🎯 โอกาสรอดตายโดยประมาณ: <strong class="odds-highlight" id="odds-percentage">90% (9 ใน 10)</strong></span>
+        <span id="tier-speed-hint" style="color: #94a3b8; font-size: 0.7rem;">(กะจังหวะง่าย)</span>
+      </div>
+
+      <!-- The Digital Stopwatch Center Stage -->
+      <div class="stopwatch-stage glass-card" id="stopwatch-stage-box">
+        <div class="lcd-digital-timer" id="lcd-timer-display">00.0</div>
+      </div>
+
+      <!-- Action Button Area & Anti-Cheat Lock Status -->
+      <div class="action-button-area">
+        <div class="lock-cooldown-text" id="lock-status-text">
+          <span>👆 กด START เพื่อเริ่มจับเวลา</span>
+        </div>
+        <button id="btn-big-action" class="big-trigger-btn">
+          <span id="action-btn-main-text">START</span>
+          <span id="action-btn-sub-text" class="btn-subtext">แตะเพื่อเริ่ม</span>
+        </button>
+      </div>
+
+      <!-- Horizontal Surviving Players Strip -->
+      <div class="player-strip-container" id="game-player-strip">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+  </div>
+
+  <!-- =========================================
+       MODAL 1: HAZARD EXPLOSION / ROUND RESULT
+       ========================================= -->
+  <div id="modal-result" class="modal-backdrop">
+    <div class="modal-window">
+      <h2 class="modal-title" style="color: var(--danger-glow);">💥 BOOM! โดนระเบิด!</h2>
+      
+      <div class="loser-banner-box">
+        <div class="loser-avatar-big" id="modal-loser-avatar">🦊</div>
+        <h3 id="modal-loser-name" style="font-size: 1.3rem; font-weight: 800;">ผู้เล่น 1</h3>
+        <p class="loser-reason-text" id="modal-loser-reason">
+          หยุดเวลาที่ <strong id="modal-stopped-time" style="color: var(--danger-glow); font-family: var(--font-mono);">02.47</strong> (เลขท้าย <strong id="modal-matched-digit" style="color: var(--danger-glow);">7</strong> ตรงกับเลขต้องห้ามประจำรอบ!)
+        </p>
+      </div>
+
+      <div class="penalty-reveal-card" id="modal-penalty-box" style="display: none;">
+        <div class="penalty-reveal-title">บทลงโทษที่ได้รับ</div>
+        <div class="penalty-reveal-desc" id="modal-penalty-text">ทำตามบทลงโทษที่สุ่มได้! 🎯</div>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button id="btn-next-round" class="btn-primary" style="flex: 1;">
+          <span>🔄 เล่นรอบใหม่ (สุ่มเลขใหม่)</span>
+        </button>
+        <button id="btn-result-menu" class="btn-secondary" style="flex: 1;">
+          <span>🏠 กลับหน้าแรก</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================
+       MODAL 2: HOW TO PLAY / RULES
+       ========================================= -->
+  <div id="modal-rules" class="modal-backdrop">
+    <div class="modal-window">
+      <h2 class="modal-title">📖 กติกา แตะหยุดเวลา</h2>
+      
+      <div class="rules-content">
+        <div class="rules-item">
+          <div class="rules-num">1</div>
+          <div><strong>สุ่มเลขต้องห้ามประจำรอบ:</strong> เมื่อเริ่มเกม ระบบจะสุ่มเลขต้องห้าม 1 ตัว (0–9) ซึ่งทุกคนในวงจะมีเลขต้องห้ามเดียวกัน</div>
+        </div>
+        <div class="rules-item">
+          <div class="rules-num">2</div>
+          <div><strong>ส่งมือถือต่อรอบวง:</strong> เมื่อถึงตาคุณ ให้กด <strong>START</strong> เพื่อให้เวลานับเดิน</div>
+        </div>
+        <div class="rules-item">
+          <div class="rules-num">3</div>
+          <div><strong>กด STOP เมื่อพร้อม:</strong> (มีระบบล็อก 1.00 วินาทีแรกป้องกันการกดโกง) ให้หยุดตรงไหนก็ได้ที่ <em>เลขทศนิยมหลักสุดท้ายไม่ตรงกับเลขต้องห้ามประจำรอบ!</em></div>
+        </div>
+        <div class="rules-item">
+          <div class="rules-num">4</div>
+          <div><strong>เลื่อนความเร็ว (Escalation):</strong> หากทุกคนรอดครบวง เวลาจะเร็วขึ้นเรื่อยๆ (Tier 1: 0.0s ➔ Tier 2: 0.00s ➔ Tier 3+: 0.000s มิลลิวินาทีมหาภัย!)</div>
+        </div>
+      </div>
+
+      <button id="btn-close-rules" class="btn-primary">
+        <span>เข้าใจแล้ว 👍</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================
+       MODAL 4: AVATAR PICKER MODAL
+       ========================================= -->
+  <div id="modal-avatar-picker" class="modal-backdrop">
+    <div class="modal-window">
+      <h2 class="modal-title">🦊 เลือกตัวละคร / Avatar</h2>
+      <div class="avatar-grid" id="avatar-picker-grid">
+        <!-- Avatar buttons -->
+      </div>
+      <button id="btn-close-avatar-picker" class="btn-secondary">ยกเลิก</button>
+    </div>
+  </div>
+
+  <!-- =========================================
+       JAVASCRIPT GAME ENGINE
+       ========================================= -->

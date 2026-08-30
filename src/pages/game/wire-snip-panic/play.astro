@@ -1,0 +1,48 @@
+---
+// The full-screen play route: the wire-snip-panic mockup itself, served through this site so it gets a
+// real URL, a real <head>, and a bundler that turns its inline <script> into an external module the
+// CSP admits.
+//
+// This is the game's ONLY page. ADR-0050 ruling 2 deleted the party-game landing pages, and
+// getStaticPaths() in src/pages/game/[id].astro builds a landing only for a game with no playRoute —
+// so `/game/wire-snip-panic/` does not exist and how-to-play lives inside the game, behind the ❓
+// control the mockup already ships.
+//
+// ONE FILE PER GAME, not a [id] route. Each mockup's stylesheet styles bare `body` and generic class
+// names of its own, so a dynamic route would load every game's sheet on every play page and let them
+// fight. The same reasoning src/pages/game/[id].astro already records for its per-game imports, one
+// step further: here the sheets cannot be prefixed, because they are lifted verbatim.
+//
+// INDEXABLE, deliberately: src/pages/noindex.test.mjs allows noindex on 404.astro alone, because on a
+// site whose business model is organic search a page that deindexes itself is the worst available
+// outcome.
+import Base from '../../../layouts/Base.astro';
+// gh#144 — the shared exit X, page chrome outside the mockup root. One component for every play
+// route; it brings its own style and its own arm gate.
+import PlayExit from '../../../shell/PlayExit.astro';
+import markup from '../../../play/wire-snip-panic/markup.html?raw';
+import '../../../play/wire-snip-panic/style.css';
+// AFTER style.css, always: overrides.css wins on equal specificity only if it comes second, and its
+// rules deliberately re-declare properties the mockup's own shorthand set.
+import '../../../play/wire-snip-panic/overrides.css';
+// The MODULE, not `byId()` from the manifest: the module is the single source for this metadata and
+// the manifest only decides which modules get a landing URL.
+import game from '../../../games/wire-snip-panic';
+
+// `names.th`, not `title`: the module has no `title` field, and reading one puts the literal string
+// "undefined" at the front of the built <title>.
+const title = `${game.names.th} — เล่นเต็มจอ`;
+const description = game.seo.description;
+---
+
+<Base title={title} description={description} ogImage={`/og/${game.og}`} chrome>
+  <PlayExit />
+  <Fragment set:html={markup} />
+</Base>
+
+<script>
+  // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block of
+  // this size executes zero lines. Astro emits both of these as one external module.
+  import '../../../play/wire-snip-panic/main.js';
+  import '../../../play/wire-snip-panic/roster-bridge.ts';
+</script>

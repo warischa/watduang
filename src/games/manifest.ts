@@ -18,6 +18,10 @@ import howCloseIsNear from './how-close-is-near.ts';
 import pinocchioLuck from './pinocchio-luck.ts';
 // Port 4, gh#161.
 import cursedNumber from './cursed-number.ts';
+// Port 5, gh#162.
+import wireSnipPanic from './wire-snip-panic.ts';
+// Port 6, gh#163.
+import zeroTrigger from './zero-trigger.ts';
 // love-match is deliberately NOT registered: the page is delisted until gh#101 rebuilds it (the solo
 // mount hands it an empty roster, so every visitor hit "need 2+ people"). src/games/love-match.ts,
 // its test, and its stylesheet stay on disk on purpose — gh#101 rebuilds from them.
@@ -38,6 +42,8 @@ export const games: GameModule[] = [
   howCloseIsNear,
   pinocchioLuck,
   cursedNumber,
+  wireSnipPanic,
+  zeroTrigger,
 ];
 
 export const byId = (id: string): GameModule | undefined =>
@@ -52,7 +58,12 @@ export const byId = (id: string): GameModule | undefined =>
 // Three to four ids: the row is a podium, not a ranking.
 export const popularGroup = {
   heading: 'ยอดนิยม',
-  // OWNER'S PICK, 2026-08-30: the newest games that have a play route.
+  // OWNER'S PICK, 2026-08-30. These three ids are the pick itself. The sentence below records HOW
+  // the owner made it on that date -- the newest games that then had a play route -- and it is
+  // history, NOT a rule to re-run. Ports 5 and 6 (gh#162, gh#163) landed later the same day, so
+  // re-deriving "newest with a play route" now returns a different set and would quietly replace
+  // the owner's choice. Changing this row is an owner decision, and gh#160 replaces the whole
+  // heuristic with measured data.
   //
   // Derived from history, never from memory: `git log --diff-filter=A` on each
   // src/pages/game/<id>/play.astro puts these three at fa01c8c (2026-08-30T11:34), ahead of

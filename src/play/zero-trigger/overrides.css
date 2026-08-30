@@ -1,0 +1,54 @@
+/* Site-specific adjustments layered ON TOP of the verbatim mockup stylesheet.
+   NOTHING here belongs in style.css: that file is what scripts/extract-mockup.mjs writes, byte-for-byte
+   from the mockup, and re-running the extractor overwrites it. Every change this site needs lives here
+   so the extraction stays reproducible and a diff against the mockup stays meaningful.
+
+   Every value below was measured in a real 320px viewport
+   (Emulation.setDeviceMetricsOverride, CDP 9333) on this build — never calculated. */
+
+/* Clearance for the shell's own chrome. PlayExit renders the exit X and the edit-players pill fixed
+   at the TOP-LEFT (src/shell/PlayExit.astro: X at the safe-area inset, 44px tall; the pill at
+   inset + 50px, also 44px), so together they occupy inset + 94px down the left edge. Measured on
+   this build at 320x640 with a seeded roster: the X landed at 6,6 44x44 on top of the brand block,
+   and the pill at 6,56 75x44 on top of the tier banner, hiding the round indicator entirely.
+   The mockup's own header is a 56px flex row at the top of `#app-container` with the brand at the
+   LEFT, and it does not stick, so a reserve on the container moves everything below both controls
+   and keeps it there at every scroll position. Written with the same safe-area expression PlayExit
+   uses, so the two cannot drift apart by one editing a magic number, and `#app-container` is
+   `height: 100%` under the mockup's global `box-sizing: border-box`, so the reserve eats into the
+   content box instead of pushing the page past the viewport.
+   The full 94px band the other routes reserve was measured here FIRST and rejected on evidence: it
+   pushed `#btn-big-action`, the control every turn of this game is played with, 71px below a 320x640
+   viewport. This reserve is the pill's own height instead, and the rest of the clearance is bought
+   sideways in the rule below — this route has width to spare at the header and no vertical room. */
+#app-container {
+  padding-block-start: calc(max(6px, env(safe-area-inset-top)) + 38px);
+}
+
+/* The horizontal half of the same clearance, and the one piece of the mockup this route drops. The
+   header row still sits inside the pill's band (pill 6,56 75x44; header 44-100), so whatever is at
+   the header's LEFT is under the pill. That is the brand block, and it is the one thing in the row
+   with no job here: the page title, the OG card and the menu screen's own heading all name the game
+   already, while the three icon controls beside it are real controls.
+   Padding the header across instead was measured and rejected: at 320px an 88px inset ran
+   `.nav-btn-group` to 366px and put `#btn-home-menu` entirely off-screen at 322-366 (the flex
+   default `min-width: auto` on the brand refuses to shrink below its own text), and letting the
+   brand clip instead left the visible fragment "Z T", which reads as a broken render rather than a
+   design. `margin-inline-start: auto` holds the controls at the right edge, which `space-between`
+   alone stops doing once it has a single child. */
+.brand-title {
+  display: none;
+}
+
+.nav-btn-group {
+  margin-inline-start: auto;
+}
+
+/* The 44px tap floor, which the rest of this site meets and a desktop mockup had no reason to.
+   Measured in the same run: `.icon-btn` renders 38x38 for the audio and rules controls, the only
+   two sub-floor controls on the route. min-* raises what is too small and leaves the circle and
+   anything already larger where the mockup put it. */
+.icon-btn {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}

@@ -48,8 +48,11 @@ npm run ci && npx astro check && npm run ci-probes
 
 Found on gh#162 (wire-snip-panic), and it is a class, not one mockup. Measured 2026-08-30:
 
-- Of the play routes already shipped, **0** wire up inside `DOMContentLoaded` in their `main.*` — the
-  template you copy (`src/play/cursed-number/`) attaches at module-body time.
+- The template you copy (`src/play/cursed-number/`) attaches at module-body time, and so did every
+  play route shipped before ports 5 and 6. Those two are the first that do NOT: their mockups wire
+  up inside `DOMContentLoaded`, and each needed its own guard. Re-derive the current split rather
+  than trusting a number written here — `grep -rl DOMContentLoaded src/play/*/main.*` — because
+  this very section was committed saying "0", and the same batch made it "2".
 - Of the mockups in the mockup-games tree, **4 do**: `wire-snip-panic`, `ZERO_TRIGGER`, `dice-loser`,
   `เข้งับ`. So roughly every third port meets this.
 

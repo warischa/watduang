@@ -1,0 +1,241 @@
+  <div id="app">
+    <!-- Particle Canvas for Arcade Spark & Explosion Effects -->
+    <canvas id="particle-canvas"></canvas>
+    
+    <!-- Red Alert Flash on Detonation -->
+    <div id="flash-overlay"></div>
+
+    <!-- Scissor Snip Icon Tool -->
+    <div id="scissor-tool">
+      <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#f3f4f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));">
+        <circle cx="6" cy="6" r="3"></circle>
+        <circle cx="6" cy="18" r="3"></circle>
+        <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+        <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
+        <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+      </svg>
+    </div>
+
+    <!-- Header Navigation -->
+    <header>
+      <button class="header-btn" id="btn-home" title="หน้าหลัก">
+        <span>🏠</span> <span>หน้าหลัก</span>
+      </button>
+      <div class="brand-title">
+        <span>⚡</span> ตัดสายกู้ชีพ
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button class="header-btn" id="btn-sound-toggle" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+        </button>
+        <button class="header-btn" id="btn-rules" title="กติกาการเล่น">
+          <span>❓</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- SCREEN 1: MENU -->
+    <div class="screen active" id="screen-menu">
+      <div class="hero-container">
+        <div class="hero-badge">
+          <span>⚡</span> ปาร์ตี้เกมผลัดกันเล่น (PASS & PLAY)
+        </div>
+        <h1 class="game-logo">ตัดสายกู้ชีพ</h1>
+        <div class="game-sublogo">WIRE SNIP PANIC • 6 สายไฟ</div>
+
+        <div class="menu-bomb-graphic">
+          <div class="menu-bomb-core">
+            <div class="menu-led-display">เปิดระบบ 00:00</div>
+            <div class="hazard-stripe"></div>
+          </div>
+        </div>
+
+        <div class="rules-card">
+          🎮 <b>เกมปาร์ตี้ตัดสายระเบิดจำลำดับ 6 สายไฟ (2-10 คน):</b><br>
+          จำลำดับสัญญาณไฟที่กระพริบ และตัดสายไฟตามลำดับให้ถูกต้องครบทุกเส้น<b>ภายในเวลาที่กำหนด</b> (5วิ ➔ 4วิ ➔ 3วิ) หากตัดผิดลำดับหรือเกินเวลา... ตูมมม!
+        </div>
+      </div>
+
+      <div class="menu-actions">
+        <button class="btn-primary" id="btn-menu-start">
+          <span>⚡</span> เริ่มตั้งค่าเกม (2-10 คน)
+        </button>
+        <button class="btn-secondary" id="btn-menu-rules">
+          <span>📖</span> วิธีการเล่นและกติกา
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: SETUP -->
+    <div class="screen" id="screen-setup">
+      <div class="setup-section">
+        <div class="setup-title">
+          <span>👥 รายชื่อผู้เล่น (2 - 10 คน)</span>
+          <span id="player-count-badge" style="color: var(--muted); font-size: 12px;">4 คน</span>
+        </div>
+
+        <div class="player-list" id="player-list-container">
+          <!-- Dynamic Player Rows Injected by JS -->
+        </div>
+
+        <div class="add-player-row">
+          <input type="text" id="input-new-player" class="player-input" placeholder="พิมพ์ชื่อผู้เล่นใหม่..." style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;" maxlength="15">
+          <button class="btn-secondary btn-small" id="btn-add-player">➕ เพิ่มผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <div class="setup-title">
+          <span>🎯 บทลงโทษคนแพ้</span>
+        </div>
+
+        <div class="penalty-options">
+          <div class="penalty-tab active" data-mode="preset">บทลงโทษสำเร็จรูป</div>
+          <div class="penalty-tab" data-mode="custom">กำหนดเอง</div>
+          <div class="penalty-tab" data-mode="none">ไม่มีบทลงโทษ</div>
+        </div>
+
+        <div class="penalty-presets-grid" id="penalty-presets-grid">
+          <div class="preset-chip selected" data-text="💸 เลี้ยงน้ำ/เลี้ยงขนมเพื่อนทั้งวง">💸 เลี้ยงน้ำเพื่อนทั้งวง</div>
+          <div class="preset-chip" data-text="🤫 สารภาพความลับ 1 ข้อ">🤫 สารภาพความลับ 1 ข้อ</div>
+          <div class="preset-chip" data-text="💥 โดนดีดหน้าผากคนละ 1 ที">💥 โดนดีดหน้าผาก</div>
+          <div class="preset-chip" data-text="🎤 ร้องเพลงท่อนฮุกแบบมีอินเนอร์">🎤 ร้องเพลงท่อนฮุก</div>
+          <div class="preset-chip" data-text="👑 ทำตามคำสั่งผู้ชนะ 1 ข้อ">👑 ทำตามคำสั่งผู้ชนะ</div>
+        </div>
+
+        <input type="text" id="input-custom-penalty" class="custom-penalty-input" placeholder="พิมพ์บทลงโทษที่ตกลงกันไว้..." maxlength="50">
+      </div>
+
+      <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn-primary" id="btn-start-match">
+          <span>🚀</span> เริ่มเกมตัดสายกู้ชีพ!
+        </button>
+        <button class="btn-secondary" id="btn-setup-back">
+          <span>↩</span> ย้อนกลับ
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: GAMEPLAY -->
+    <div class="screen" id="screen-game">
+      <!-- Player Carousel Strip -->
+      <div class="hud-player-strip" id="hud-player-strip">
+        <!-- Player Badges Injected by JS -->
+      </div>
+
+      <!-- Tension & Status Bar -->
+      <div class="hud-status-bar">
+        <div class="round-tag" id="hud-round-tag">รอบที่ 1</div>
+        <div class="odds-pill" id="hud-odds-pill">
+          <span>⚡</span> <span id="hud-odds-text">เป้าหมาย 2 เส้น (5.0วิ)</span>
+        </div>
+      </div>
+
+      <!-- Cyberpunk Bomb Chassis -->
+      <div class="bomb-chassis" id="bomb-chassis">
+        <div class="rivet top-left"></div>
+        <div class="rivet top-right"></div>
+        <div class="rivet bottom-left"></div>
+        <div class="rivet bottom-right"></div>
+
+        <!-- Digital LCD Readout -->
+        <div class="bomb-lcd">
+          <div>
+            <div class="lcd-text-primary" id="lcd-main-status">พร้อมเริ่ม</div>
+            <div class="lcd-text-secondary" id="lcd-sub-status">รอเริ่มสแกนสัญญาณวงจร</div>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+            <div class="lcd-timer-badge" id="lcd-timer-badge">⏳ 5.0วิ</div>
+            <div style="font-size: 10px; color: var(--muted);" id="lcd-step-indicator">ขั้น 0/2</div>
+          </div>
+        </div>
+
+        <!-- Dynamic Countdown Progress Bar -->
+        <div class="timer-bar-wrap">
+          <div class="timer-bar-fill" id="timer-bar-fill"></div>
+        </div>
+
+        <!-- Interactive Wires Bay (Fixed 6 Wires) -->
+        <div class="wires-bay" id="wires-bay">
+          <!-- Wires Injected Dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Pass Device / Turn Banner -->
+      <div class="turn-action-banner" id="turn-action-banner">
+        <div class="turn-instructions" id="turn-instructions">
+          ถึงตาของ: <b id="current-turn-player-name">ผู้เล่น 1</b>
+        </div>
+        <button class="btn-primary" id="btn-trigger-scan">
+          <span>⚡</span> กดเพื่อเริ่มสแกนจำลำดับสายไฟ
+        </button>
+      </div>
+    </div>
+
+    <!-- RULES MODAL -->
+    <div class="modal-backdrop" id="modal-rules">
+      <div class="modal-box">
+        <div class="modal-title">
+          <span>📖</span> กติกาเกมตัดสายกู้ชีพ
+        </div>
+        <div class="modal-body">
+          <p><b>1. ระบบการเล่น (ผลัดกันเล่นในเครื่องเดียว):</b> ผู้เล่นผลัดกันถืออุปกรณ์ตามลำดับชื่อด้านบน</p>
+          <br>
+          <p><b>2. แผงวงจร 6 สายไฟ:</b> บนตัวเครื่องจะมีสายไฟ 6 เส้น 6 สีให้เลือกตัด (#1 แดง, #2 ฟ้า, #3 เหลือง, #4 เขียว, #5 ม่วง, #6 ส้ม)</p>
+          <br>
+          <p><b>3. ลำดับกระพริบและความยากแบบก้าวกระโดด:</b>
+            <br>• <b>รอบ 1–2:</b> 2 และ 3 เส้น (ความเร็วปกติ)
+            <br>• <b>รอบ 3:</b> 3 เส้น (⚡ <b>เร่งความเร็วก่อน 1 ขั้น!</b>)
+            <br>• <b>รอบ 4:</b> 4 เส้น (🎯 <b>เพิ่มเป็น 4 เส้น แต่กลับมาความเร็วปกติ!</b>)
+            <br>• <b>รอบต่อไป:</b> สลับระหว่าง ⚡ <i>เร่งความเร็ว</i> กับ 🎯 <i>เพิ่มจำนวนเส้นความเร็วปกติ</i> วนไปเรื่อยๆ!
+          </p>
+          <br>
+          <p><b>4. เวลานับถอยหลังจำกัด (ใครตัดเกินเวลาแพ้ทันที!):</b>
+            <br>• <b>รอบที่ 1 – 3:</b> เวลา <b>5.0 วินาที</b>
+            <br>• <b>รอบที่ 4 – 5:</b> ลดเหลือ <b>4.0 วินาที</b>
+            <br>• <b>รอบที่ 6 ขึ้นไป:</b> ลดเหลือเพียง <b>3.0 วินาที</b>
+          </p>
+          <br>
+          <p><b>5. เงื่อนไขการแพ้:</b> หากตัดผิดลำดับ, ตัดผิดเส้น, หรือ<b>ตัดไม่ทันเวลา</b>... เครื่องจะระเบิดทันที ตูมมม!</p>
+        </div>
+        <button class="btn-secondary" id="btn-close-rules">เข้าใจแล้ว</button>
+      </div>
+    </div>
+
+    <!-- DETONATION / ROUND OVER MODAL -->
+    <div class="modal-backdrop" id="modal-detonation">
+      <div class="modal-box">
+        <div class="detonation-banner">
+          <div style="font-size: 14px; font-weight: 800; color: var(--accent); letter-spacing: 1.5px;">💥 ระเบิดทำงาน! (BOMB DETONATED!) 💥</div>
+          <div class="loser-avatar-big" id="loser-avatar-display">💣</div>
+          <div class="loser-name" id="loser-name-display">ผู้เล่น 1</div>
+          <div style="font-size: 13px; color: #fca5a5;" id="detonation-reason-text">ตัดผิดลำดับสายไฟ!</div>
+        </div>
+
+        <div id="penalty-result-container" style="display: none;">
+          <div class="penalty-reveal-card" id="penalty-result-text">
+            บทลงโทษ: เลี้ยงน้ำเพื่อนทั้งวง
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 12px; font-weight: 800; color: var(--electric-cyan); margin-bottom: 6px;">
+            🏆 คะแนนผู้รอดชีวิต
+          </div>
+          <div class="scoreboard-list" id="scoreboard-container">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+          <button class="btn-primary" id="btn-replay-match" style="flex: 1.2;">
+            <span>🔄</span> เล่นรอบถัดไป
+          </button>
+          <button class="btn-secondary" id="btn-edit-players" style="flex: 1;">
+            <span>⚙️</span> ปรับแต่งผู้เล่น
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>

@@ -24,7 +24,8 @@ this ADR reverses it:
 
 **The count in gh#164's body is stale, and the corrected count strengthens the ruling.** That body was
 written before gh#161's port landed and says "seven of the eight play routes". Measured again on
-2026-08-30: there are **9** play routes under `src/pages/game/`, and **8 of the 9** reach the shared
+2026-08-30, against the tree this ruling was made on and BEFORE ports 5 and 6 landed in the same
+session: there were **9** play routes under `src/pages/game/`, and **8 of the 9** reached the shared
 setup bridge — seven through their own `roster-bridge.ts` under `src/play/`, and dice-loser through
 `src/play/dice-loser/main.ts`. timebomb (ระเบิดเวลา) alone is off it. The shared roster is not an
 edge case that leaked into a couple of ports; it is what almost every party game already runs on.

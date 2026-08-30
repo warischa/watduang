@@ -1,0 +1,25 @@
+/* Site-specific adjustments layered ON TOP of the verbatim mockup stylesheet.
+   NOTHING here belongs in style.css: that file is what scripts/extract-mockup.mjs writes, byte-for-byte
+   from the mockup, and re-running the extractor overwrites it. Every change this site needs lives here
+   so the extraction stays reproducible and a diff against the mockup stays meaningful. */
+
+/* Clearance for the shell's own chrome. PlayExit renders the exit X and the edit-players pill fixed
+   at the TOP-LEFT (src/shell/PlayExit.astro: X at the safe-area inset, 44px tall; the pill at
+   inset + 50px, also 44px), so together they occupy inset + 94px down the left edge. This mockup puts
+   its own home button (#btn-home) at the top LEFT of a full-width header, so without this reserve the
+   X lands on it. The value is derived from PlayExit's declared geometry using the same safe-area expression,
+   so the two cannot drift apart by one editing a magic number. */
+#app {
+  padding-block-start: calc(max(6px, env(safe-area-inset-top)) + 94px);
+}
+
+/* The 44px tap floor, which the rest of this site meets and a desktop mockup had no reason to. Both
+   values were measured in a real 320px viewport (Emulation.setDeviceMetricsOverride, 2026-08-30):
+   #btn-sound-toggle and #btn-rules each render 42x35, and they are the only controls on the route
+   under the floor. They are also the only way to reach the sound switch and the how-to-play sheet, so
+   there is no larger alternative path to either. min-* rather than width/height: it raises what is too
+   small and leaves the header's other buttons where the mockup put them. */
+.header-btn {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}
