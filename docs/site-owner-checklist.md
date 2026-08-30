@@ -68,9 +68,17 @@ Background on what was already built in Azure before these steps — moved to
 
 **Steps — add three repository secrets:**
 - [ ] Open this repo in your browser → **Settings** tab → **Secrets and variables** (left sidebar) → **Actions** → **New repository secret**.
-- [ ] Name field: exactly `AZURE_CLIENT_ID`. Secret field: `5ba15c58-2635-40b9-9b50-e69594d69430`. Click **Add secret**.
-- [ ] **New repository secret** again — name `AZURE_TENANT_ID`, secret `bbf3b249-d680-458b-9ec7-52dba8859dca`, **Add secret**.
-- [ ] **New repository secret** again — name `AZURE_SUBSCRIPTION_ID`, secret `b337bf17-02fa-4dd0-8526-e71fee2b6f61`, **Add secret**.
+- [ ] Name field: exactly `AZURE_CLIENT_ID`. Secret field: `<redacted - see note below>`. Click **Add secret**.
+- [ ] **New repository secret** again — name `AZURE_TENANT_ID`, secret `<redacted - see note below>`, **Add secret**.
+- [ ] **New repository secret** again — name `AZURE_SUBSCRIPTION_ID`, secret `<redacted - see note below>`, **Add secret**.
+
+> **Where those three values went.** They were removed from this file on 2026-08-30, when this
+> repository was made public. They are identifiers, not credentials, and a fork pull request cannot
+> read repository secrets - but they do name your Azure tenant and subscription. Read the current
+> values from the Azure portal, or from this repository's own Actions secrets where they are already
+> set. Redacting this file does **not** remove them from git history: commit `f9f4d5a` still carries
+> them and that history is public. Rotating the app registration in Entra ID is the only change that
+> actually invalidates them.
 
 Why these are *secrets* not *variables*, and what `total_count` doesn't tell you — moved to
 [site-owner-checklist-background.md](site-owner-checklist-background.md) (byte-identical).

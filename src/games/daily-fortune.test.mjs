@@ -328,3 +328,34 @@ test('the card pins no fixed height and no scroll/clip overflow', () => {
   assert.ok(!/(?<![\w-])height\s*:/.test(text[1]), '.df-fortune-text declares a fixed height');
   assert.ok(!/(?<![\w-])overflow\s*:/.test(text[1]), '.df-fortune-text declares overflow (scroll/clip)');
 });
+
+// gh#80: the fortune has to be readable aloud at arm's length, and nothing guarded that. The size
+// already matches design/GameDailyFortune.dc.html, which paints the fortune paragraph at 19px and
+// notes the type needs 16px+ to breathe -- so this pins the shipped value rather than changing it.
+// ADR-0033: the canvas is the source of a design value, so raising this floor means editing the
+// canvas first. No gate compares code to the canvas, which is why the floor lives here.
+test('the fortune text keeps the canvas size, so it stays readable at arm\'s length', () => {
+  const css = readFileSync(new URL('./../styles/games/daily-fortune.css', import.meta.url), 'utf8');
+  const text = /\.df-fortune-text\s*\{([^}]*)\}/.exec(css);
+  assert.ok(text, '.df-fortune-text rule missing from daily-fortune.css');
+
+  // Every .df-fortune-text block, not just the first: a later media query or a more specific rule
+  // could shrink the rendered text while a first-match check stayed green.
+  const blocks = [...css.matchAll(/\.df-fortune-text[^{}]*\{([^}]*)\}/g)].map((m) => m[1]);
+  assert.ok(blocks.length > 0, 'no .df-fortune-text rule found at all — the extractor matched nothing');
+
+  const sizes = blocks
+    .map((body) => /(?<![\w-])font-size\s*:\s*(\d+(?:\.\d+)?)(px|rem|em)/.exec(body))
+    .filter(Boolean);
+  assert.ok(sizes.length > 0, '.df-fortune-text declares no font-size, so it silently inherits the shell size');
+
+  for (const s of sizes) {
+    // px is the unit the canvas uses. A relative unit is not comparable here, so it fails loudly
+    // rather than passing on an assumed root size.
+    assert.equal(s[2], 'px', `.df-fortune-text uses ${s[2]}, which this floor cannot compare to the canvas px value`);
+    assert.ok(
+      Number(s[1]) >= 19,
+      `.df-fortune-text is ${s[1]}px, below the canvas value of 19px (design/GameDailyFortune.dc.html)`,
+    );
+  }
+});
