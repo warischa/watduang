@@ -127,6 +127,11 @@ const BASELINE_BASENAMES = [
   'dice-loser.js',
   'how-close-is-near.js',
   'pinocchio-luck.js',
+  // gh#161 — port 4, same ship order. Added, not substituted: the SET leg fired on this basename
+  // alone and no basename left the inventory, so this is one new game shipping and nothing else
+  // moved. Kept in the ports block rather than in alphabetical position, because the block records
+  // the order the owner shipped them in and that is the more useful thing to read here.
+  'cursed-number.js',
   'draw.astro_astro_type_script_index_0_lang.js',
   'freeze-tap.js',
   'love-match.js',
@@ -161,7 +166,23 @@ const BASELINE_BASENAMES = [
 // mounts the setup island, so its chunk stops shipping. Attributed, not assumed — the set lost exactly
 // that one basename and gained none, and no game module or shell file changed in this ticket.
 // Measured by `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session.
-const BASELINE_TOTAL_BYTES = 314326;
+// Re-baselined 2026-08-30 (gh#161), 314326 -> 342419 (+28093, +8.9%) — outside the +/-5% band, so
+// the BYTES leg fired on top of the SET leg and both are re-pinned in the same change. Attributed,
+// not assumed: the set gained exactly one basename (cursed-number.js) and lost none, no existing
+// game module or shell file changed in this ticket, and the growth is one lifted mockup — its
+// markup, its own stylesheet and its engine — arriving whole. A port adds a game's entire client
+// bundle at once, so a single port is expected to clear a 5% band; that is the band doing its job,
+// not a signal to widen it.
+// Re-pinned twice more in the same session as gh#161 settled: 342419 -> 342499 (+80) when the port's
+// cast dependency moved out of the game module into the play route to satisfy the gh#140 pin, then
+// -> 342492 (-7) when its root element's id was shortened from "appWrapper" to "app". Both deltas
+// are noise against the band and would have passed unpinned. They are written down anyway, because
+// this file's convention is to re-pin deliberately rather than leave a known number drifting toward
+// the bound, and because a baseline that no longer names the tree it ships with is a baseline nobody
+// can attribute later.
+// Measured by `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session,
+// and the number here is that command's output rather than a figure carried over from a brief.
+const BASELINE_TOTAL_BYTES = 342492;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;

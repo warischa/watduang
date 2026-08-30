@@ -16,6 +16,8 @@ import powerMeter from './power-meter.ts';
 import diceLoser from './dice-loser.ts';
 import howCloseIsNear from './how-close-is-near.ts';
 import pinocchioLuck from './pinocchio-luck.ts';
+// Port 4, gh#161.
+import cursedNumber from './cursed-number.ts';
 // love-match is deliberately NOT registered: the page is delisted until gh#101 rebuilds it (the solo
 // mount hands it an empty roster, so every visitor hit "need 2+ people"). src/games/love-match.ts,
 // its test, and its stylesheet stay on disk on purpose — gh#101 rebuilds from them.
@@ -35,6 +37,7 @@ export const games: GameModule[] = [
   diceLoser,
   howCloseIsNear,
   pinocchioLuck,
+  cursedNumber,
 ];
 
 export const byId = (id: string): GameModule | undefined =>

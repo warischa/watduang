@@ -1,0 +1,313 @@
+  <!-- Background Embers Canvas -->
+  <canvas id="particlesCanvas" aria-hidden="true"></canvas>
+
+  <!-- id="app", not the mockup's own "appWrapper": every play route names its game root with one of
+       the ids the shared chrome probes look for (#app here, #appRoot on how-close-is-near), and a
+       root under a name outside that set is invisible to them. scripts/play-exit-guard-probe.mjs
+       resolves this element to find the control whose press moves the game between screens, and with
+       no match its whole 5-tap-burst leg reports "nothing to press" -- a green-looking result that
+       measured nothing. Styling is unaffected: style.css targets the .app-wrapper CLASS. -->
+  <div class="app-wrapper" id="app">
+    
+    <!-- Top Header Bar -->
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-icon">💀</div>
+        <span>เลขอาถรรพ์</span>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="soundToggleBtn" title="เปิด/ปิดเสียง" aria-label="เปิด/ปิดเสียง">🔊</button>
+        <button class="icon-btn" id="rulesBtn" title="กติกาการเล่น" aria-label="กติกาการเล่น">❓</button>
+        <button class="icon-btn" id="homeResetBtn" title="กลับหน้าแรก" aria-label="กลับหน้าแรก">🏠</button>
+      </div>
+    </header>
+
+    <!-- SCREEN 1: SETUP & PLAYER ROSTER -->
+    <section class="screen active" id="screenSetup">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">👥 แก๊งสัตว์ปาร์ตี้</h2>
+          <span style="font-size:0.85rem; color:var(--text-dim);" id="playerCountBadge">4 คน</span>
+        </div>
+
+        <!-- Player Count Quick Pills & Stepper (เข้งับ Concept) -->
+        <div class="stepper-label-group">
+          <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700;">จำนวนผู้เล่น (2 - 20 คน):</label>
+        </div>
+        <div class="player-count-row">
+          <button type="button" class="count-stepper-btn" id="countMinusBtn" title="ลดจำนวนผู้เล่น">-</button>
+          <div style="display:flex; gap:6px;" id="countPillsContainer">
+            <!-- Dynamically populated count pills -->
+          </div>
+          <button type="button" class="count-stepper-btn" id="countPlusBtn" title="เพิ่มจำนวนผู้เล่น">+</button>
+        </div>
+
+        <!-- Mascot Name Customization List -->
+        <div class="mascot-list" id="mascotsListContainer"></div>
+
+        <div style="margin-top: 6px;">
+          <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:6px; font-weight:600;">🎯 บทลงโทษผู้แพ้ (ไม่บังคับ):</label>
+          <select class="penalty-select" id="penaltySelect">
+            <option value="none">-- ไม่ระบุบทลงโทษ --</option>
+            <option value="💸 เลี้ยงน้ำ/ขนมเพื่อนทั้งวง" selected>💸 เลี้ยงน้ำ/ขนมเพื่อนทั้งวง</option>
+            <option value="🤫 สารภาพความลับ 1 ข้อ">🤫 สารภาพความลับ 1 ข้อ</option>
+            <option value="💥 โดนดีดหน้าผาก">💥 โดนดีดหน้าผาก</option>
+            <option value="🎤 ร้องเพลงท่อนฮุก 1 ท่อน">🎤 ร้องเพลงท่อนฮุก 1 ท่อน</option>
+            <option value="👑 ทำตามคำสั่งผู้ชนะ 1 ข้อ">👑 ทำตามคำสั่งผู้ชนะ 1 ข้อ</option>
+            <option value="custom">✍️ กำหนดเอง...</option>
+          </select>
+          <input type="text" class="add-input" id="customPenaltyInput" placeholder="พิมพ์บทลงโทษที่ต้องการ..." maxlength="50" style="display:none; margin-bottom:12px;">
+        </div>
+
+        <button class="btn btn-primary" id="startGameBtn" style="margin-top:10px;">
+          🎮 เริ่มประลองความเสี่ยง! (Start Game)
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: TURN HANDOFF -->
+    <section class="screen" id="screenHandoff">
+      <!-- Player Carousel Strip -->
+      <div class="player-strip" id="handoffPlayerStrip"></div>
+
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="font-size:0.9rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-weight:700;">
+          📱 ส่งเครื่องให้ผู้เล่นถัดไป
+        </div>
+
+        <div class="player-avatar" id="handoffAvatar" style="width:72px; height:72px; font-size:2.4rem; margin:0 auto 14px;">🐱</div>
+        <h2 id="handoffPlayerName" style="font-size:1.8rem; font-weight:900; color:#fff; margin-bottom:18px;">แมวส้ม</h2>
+
+        <div class="range-hero">
+          <div class="range-label">ช่วงตัวเลขปัจจุบัน</div>
+          <div class="range-numbers">
+            <div class="range-num-box range-min" id="handoffMin">0</div>
+            <div class="range-separator">-</div>
+            <div class="range-num-box range-max" id="handoffMax">100</div>
+          </div>
+          <div class="odds-badge" id="handoffOddsBadge">🎯 โอกาสโดน: 1 ใน 101 (1.0%)</div>
+        </div>
+
+        <button class="btn btn-primary" id="readyBtn" style="margin-top:16px;">
+          👁️ ฉันพร้อมแล้ว (I'm Ready)
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: NUMBER SELECTION (ACTIVE TURN) -->
+    <section class="screen" id="screenSelection">
+      <!-- Player Carousel Strip -->
+      <div class="player-strip" id="selectionPlayerStrip"></div>
+
+      <!-- Player Info Bar -->
+      <div class="player-banner" id="activePlayerBanner">
+        <div class="player-avatar" id="activePlayerAvatar">🐱</div>
+        <div class="player-info">
+          <div class="player-turn-label" id="turnIndicatorLabel">ตาของผู้เล่น</div>
+          <div class="player-name" id="activePlayerName">แมวส้ม</div>
+        </div>
+        <div class="odds-badge safe" id="turnOddsBadge">1 ใน 101</div>
+      </div>
+
+      <!-- Range Header -->
+      <div class="range-hero">
+        <div class="range-label">ช่วงตัวเลขที่ถูกต้อง (CURRENT RANGE)</div>
+        <div class="range-numbers">
+          <div class="range-num-box range-min" id="currentMin">0</div>
+          <div class="range-separator">-</div>
+          <div class="range-num-box range-max" id="currentMax">100</div>
+        </div>
+        <div class="range-bar-track">
+          <div class="range-bar-active" id="rangeBarActive" style="left:0%; width:100%;"></div>
+        </div>
+      </div>
+
+      <!-- Interactive Selection Card -->
+      <div class="card" style="padding:16px;">
+        <div class="input-mode-tabs">
+          <button class="tab-btn active" id="tabSliderBtn">🎚️ สไลเดอร์ / ปุ่มลัด</button>
+          <button class="tab-btn" id="tabKeypadBtn">🔢 แป้นพิมพ์ตัวเลข</button>
+        </div>
+
+        <div class="selection-box">
+          <div class="range-label">ตัวเลขที่คุณเลือก</div>
+          <div class="selected-display" id="selectedNumberDisplay">50</div>
+        </div>
+
+        <!-- Slider & Quick Steppers View -->
+        <div id="sliderModeContainer">
+          <div class="slider-container">
+            <input type="range" class="range-slider" id="numberSlider" min="0" max="100" value="50">
+          </div>
+
+          <div class="stepper-row">
+            <button class="step-btn" data-step="-10">-10</button>
+            <button class="step-btn" data-step="-5">-5</button>
+            <button class="step-btn" data-step="-1">-1</button>
+            <button class="step-btn" data-step="1">+1</button>
+            <button class="step-btn" data-step="5">+5</button>
+            <button class="step-btn" data-step="10">+10</button>
+          </div>
+
+          <div class="stepper-row" style="margin-top:2px;">
+            <button class="step-btn quick-btn" id="quickMinBtn">ต่ำสุด (<span id="quickMinVal">0</span>)</button>
+            <button class="step-btn quick-btn" id="quickMidBtn">กึ่งกลาง (<span id="quickMidVal">50</span>)</button>
+            <button class="step-btn quick-btn" id="quickMaxBtn">สูงสุด (<span id="quickMaxVal">100</span>)</button>
+          </div>
+        </div>
+
+        <!-- Keypad View -->
+        <div id="keypadModeContainer" style="display:none; align-items:center; flex-direction:column;">
+          <div class="keypad-grid">
+            <button class="key-btn" data-key="1">1</button>
+            <button class="key-btn" data-key="2">2</button>
+            <button class="key-btn" data-key="3">3</button>
+            <button class="key-btn" data-key="4">4</button>
+            <button class="key-btn" data-key="5">5</button>
+            <button class="key-btn" data-key="6">6</button>
+            <button class="key-btn" data-key="7">7</button>
+            <button class="key-btn" data-key="8">8</button>
+            <button class="key-btn" data-key="9">9</button>
+            <button class="key-btn action-key" id="keypadClearBtn">C</button>
+            <button class="key-btn" data-key="0">0</button>
+            <button class="key-btn action-key" id="keypadBackspaceBtn">⌫</button>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="confirmLockBtn" style="margin-top:14px;">
+          🔒 ล็อกตัวเลข (Lock Number)
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: SAFE RESULT -->
+    <section class="screen" id="screenSafeResult">
+      <!-- Player Carousel Strip -->
+      <div class="player-strip" id="safePlayerStrip"></div>
+
+      <div class="safe-hero">
+        <div class="safe-badge">🎉 <span id="safeGuessNum">54</span> ปลอดภัย!</div>
+        <div style="font-size:0.95rem; color:var(--text-muted);" id="safePlayerQuote">คุณรอดจากเลขอาถรรพ์ในตานี้</div>
+
+        <div class="direction-card">
+          <div style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">คำใบ้ทิศทาง (HINT)</div>
+          <div class="direction-title" id="directionTitle">
+            ⬆️ เลขอาถรรพ์ <strong>สูงกว่านี้</strong> (HIGHER)
+          </div>
+        </div>
+
+        <div class="range-label">ช่วงตัวเลขใหม่ (NEW RANGE)</div>
+        <div class="range-numbers" style="margin-top:4px;">
+          <div class="range-num-box range-min" id="nextMin">55</div>
+          <div class="range-separator">-</div>
+          <div class="range-num-box range-max" id="nextMax">100</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="passToNextBtn">
+        ส่งต่อให้ <span id="nextPlayerNameTarget">Next</span> ➡️
+      </button>
+
+      <!-- Round History Mini-View -->
+      <div class="history-card" id="safeHistoryCard">
+        <div class="history-header" id="safeHistoryHeader">
+          <span>📜 ประวัติการเลือกในรอบนี้ (<span id="safeHistoryCount">0</span>)</span>
+          <span>▼</span>
+        </div>
+        <div class="history-list" id="safeHistoryList"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: FORCED REVEAL (CLIMAX - ONLY 1 NUMBER LEFT) -->
+    <section class="screen" id="screenForcedReveal">
+      <div class="forced-hero">
+        <div class="forced-skull">💀</div>
+        <div class="forced-title">เหลือตัวเลขสุดท้ายเพียงตัวเดียว!</div>
+        <div class="forced-desc">ไม่มีทางหนีอีกต่อไป... ตัวเลขนี้คือชะตากรรม</div>
+
+        <div class="forced-number-display" id="forcedRemainingNumber">63</div>
+
+        <div class="player-banner" id="forcedPlayerBanner" style="background:rgba(0,0,0,0.5); border-color:rgba(239,68,68,0.4); margin-bottom:0;">
+          <div class="player-avatar" id="forcedPlayerAvatar">👤</div>
+          <div class="player-info">
+            <div class="player-turn-label" style="color:#fca5a5;">ถึงคิวของผู้เล่น</div>
+            <div class="player-name" id="forcedPlayerName">Player</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-danger" id="revealCursedBtn">
+        💀 เปิดเผยตัวเลขอาถรรพ์ (Reveal)
+      </button>
+    </section>
+
+    <!-- SCREEN 6: RESULT / GAME OVER -->
+    <section class="screen" id="screenGameOver">
+      <div class="result-hero">
+        <div style="font-size:1.1rem; font-weight:800; color:#fca5a5; text-transform:uppercase; letter-spacing:1px;">
+          💥 โดนเลขอาถรรพ์! (CURSED NUMBER)
+        </div>
+        
+        <div class="cursed-revealed-num" id="revealedCursedNumber">63</div>
+
+        <div class="loser-banner">
+          <div class="player-avatar" id="loserAvatar" style="width:38px; height:38px; font-size:1.3rem; border-color:#ef4444;">👤</div>
+          <div class="loser-name" id="loserPlayerName">Player แพ้ในเกมนี้!</div>
+        </div>
+
+        <div class="penalty-box" id="penaltyResultBox" style="display:none;">
+          <div class="penalty-label">⚡ บทลงโทษ</div>
+          <div class="penalty-text" id="penaltyResultText">เลี้ยงน้ำเพื่อนทั้งวง</div>
+        </div>
+      </div>
+
+      <div class="history-card" style="margin-bottom:16px;">
+        <div class="history-header">
+          <span>📜 ลำดับเหตุการณ์ทั้งหมดในรอบนี้</span>
+        </div>
+        <div class="history-list" id="gameOverHistoryList" style="max-height:160px;"></div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+        <button class="btn btn-primary" id="replayMatchBtn">
+          🔄 เล่นอีกรอบ (Play Again)
+        </button>
+        <button class="btn btn-secondary" id="editPlayersBtn">
+          👥 ปรับรายชื่อผู้เล่น (Edit Players)
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODAL: HOW TO PLAY -->
+  <div class="modal-backdrop" id="rulesModal">
+    <div class="modal-card" style="position:relative;">
+      <button class="modal-close-btn" id="closeRulesBtn">&times;</button>
+      <h3 style="font-size:1.3rem; margin-bottom:16px; color:#fff; display:flex; align-items:center; gap:8px;">
+        📖 กติกาการเล่น เลขอาถรรพ์
+      </h3>
+      
+      <div class="rule-step">
+        <div class="rule-num">1</div>
+        <div class="rule-text">ระบบจะทำการสุ่ม <strong>เลขอาถรรพ์ (0 - 100)</strong> ขึ้นมา 1 ตัวอย่างลับๆ ตั้งแต่เริ่มเกม</div>
+      </div>
+      <div class="rule-step">
+        <div class="rule-num">2</div>
+        <div class="rule-text">ผู้เล่นผลัดกันส่งเครื่องตามลำดับ และเลือกทายตัวเลข 1 ตัวภายในช่วงตัวเลขที่ยังคงเหลืออยู่</div>
+      </div>
+      <div class="rule-step">
+        <div class="rule-num">3</div>
+        <div class="rule-text">ถ้าตัวเลขที่เลือก <strong>ปลอดภัย</strong> ระบบจะบอกว่าเลขอาถรรพ์ <em>สูงกว่า</em> หรือ <em>ต่ำกว่า</em> และบีบช่วงตัวเลขให้แคบลง</div>
+      </div>
+      <div class="rule-step">
+        <div class="rule-num">4</div>
+        <div class="rule-text">ใครที่กดเลือกตรงกับ <strong>เลขอาถรรพ์</strong> หรือเหลือตัวเลขสุดท้ายเพียงตัวเดียวในตาของตัวเอง จะเป็น <strong>ผู้แพ้ทันที! 💀</strong></div>
+      </div>
+      
+      <button class="btn btn-secondary" id="rulesOkBtn" style="margin-top:16px;">เข้าใจแล้ว</button>
+    </div>
+  </div>
+
+
+  <!-- JAVASCRIPT LOGIC & ENGINES -->

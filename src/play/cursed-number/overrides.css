@@ -1,0 +1,131 @@
+/* Site-specific adjustments layered ON TOP of the verbatim mockup stylesheet.
+   NOTHING here belongs in style.css: that file is what scripts/extract-mockup.mjs writes, byte-for-byte
+   from the mockup, and re-running the extractor overwrites it. Every change this site needs lives here
+   so the extraction stays reproducible and a diff against the mockup stays meaningful. */
+
+/* The twenty seat colours, as NAMED TOKENS. ADR-0048/ADR-0049: colour enters a stylesheet by name and
+   never as a hex literal copied into script, so src/games/cursed-number.ts emits `var(--mascot-N)`
+   as each player's colour and this block is the only place a value appears.
+   The values are the canonical cast's own, derived from src/play/freeze-tap/main.js (the source
+   ADR-0049 ruling 1 names) rather than from this game's mockup, whose cast disagreed with it. Index N
+   is seat N in src/play/_mascots.ts, one-based, and the two lists are pinned row-for-row by
+   src/play/mascot-defaults.test.mjs -- so a seat can never take another animal's colour without that
+   test going red first. No name appears here: seat order is the identifier, and this file is under
+   the full thai-comments gate. */
+:root {
+  --mascot-1: #FF6B35;
+  --mascot-2: #2E86AB;
+  --mascot-3: #8E44AD;
+  --mascot-4: #27AE60;
+  --mascot-5: #F39C12;
+  --mascot-6: #E84393;
+  --mascot-7: #00CEC9;
+  --mascot-8: #FDCB6E;
+  --mascot-9: #FF7675;
+  --mascot-10: #6C5CE7;
+  --mascot-11: #74B9FF;
+  --mascot-12: #E17055;
+  --mascot-13: #D63031;
+  --mascot-14: #A29BFE;
+  --mascot-15: #FFA502;
+  --mascot-16: #B33939;
+  --mascot-17: #E58E26;
+  --mascot-18: #57606F;
+  --mascot-19: #70A1FF;
+  --mascot-20: #2ED573;
+}
+
+/* Tap target. `.icon-btn` is declared 38x38 in the mockup stylesheet, six pixels under the 44px floor
+   the rest of this site meets. The mockup was built to be looked at on a desktop; this site is a phone
+   passed around a group, so the floor applies here and did not there. min-* rather than width/height:
+   it raises what is too small and leaves the circle and everything already larger where the mockup
+   put it. */
+.icon-btn {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}
+
+/* Clearance for the shell's own chrome. PlayExit renders the exit X and the edit-players pill fixed
+   at the TOP-LEFT (src/shell/PlayExit.astro: X at the safe-area inset, 44px tall; the pill at
+   inset + 50px, also 44px), so together they occupy inset + 94px down the left edge. This mockup puts
+   its brand block at the top LEFT inside a full-width pill, so without this reserve the X lands on the
+   game's own name. The value is derived from PlayExit's declared geometry using the same safe-area
+   expression, so the two cannot drift apart by one editing a magic number.
+   The mockup's own shorthand sets `padding: 16px 16px 32px`, so this longhand must come after it --
+   which it does, because play.astro imports style.css first and this file second. */
+.app-wrapper {
+  padding-block-start: calc(max(6px, env(safe-area-inset-top)) + 94px);
+}
+
+/* Room for the screen shake to move without crossing the viewport. ParticleEngine translates
+   `.app-wrapper` by up to +/-9px on each axis while trauma decays (trauma is capped at 1 and the
+   offset is `(rand - 0.5) * 18 * trauma^2`), and the wrapper is exactly as wide as a 320px screen, so
+   every shake put its edge past the edge of the screen. `body` already sets `overflow-x: hidden`,
+   which hides the scrollbar but does NOT stop an element's box from crossing the viewport -- the
+   per-element overflow scan reads the rect, not the scroll. Reserving 10px a side lets the whole
+   shake land inside instead of being clipped, and the wrapper is centred so the cost is symmetric.
+   Reduced motion still shakes, at +/-2px (ADR-0046 reduces the amplitude rather than removing it), so
+   this reserve covers both paths with the full-motion one as the binding case. */
+.app-wrapper {
+  max-width: min(520px, calc(100% - 20px));
+}
+
+/* Two horizontal scrollers that hide their own controls on a narrow phone. `.player-count-row` and
+   `.player-strip` are both `overflow-x: auto` in the mockup, which is fine at the desktop width it
+   was drawn at. Measured at a real 320px viewport (Emulation.setDeviceMetricsOverride, 2026-08-30):
+   the count row ran to 437px, putting the `+` stepper entirely off-screen behind a scrollbar this
+   site hides on purpose (`scrollbar-width: none`), and the player strip ran to 394px. `body` already
+   sets `overflow-x: hidden`, so the page never scrolls sideways — the controls were simply
+   unreachable, and a per-element overflow scan reads the rect, not the scroll.
+   Wrapping rather than shrinking: the strip has to hold up to twenty seats (ADR-0049 ruling 5) and
+   the count row nine controls, and no font size makes either fit on one 320px line while keeping the
+   44px tap floor below. Centred, so a part-full last row does not read as a broken grid. */
+.player-count-row,
+.player-strip {
+  flex-wrap: wrap;
+  justify-content: center;
+  overflow-x: visible;
+}
+
+/* The 44px tap floor, which the rest of this site meets and a desktop mockup had no reason to. Every
+   value below was measured in the same 320px run: the count pills and steppers render 38x38, the
+   step and quick buttons 35 and 31 tall (their `min-width: 44px` covers only one axis), and the
+   mode tabs 30. min-* raises what is too small and leaves everything already larger alone. */
+.count-pill,
+.count-stepper-btn {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}
+
+.step-btn,
+.tab-btn {
+  min-block-size: 44px;
+}
+
+/* The range slider is a 12px-tall bar whose background IS the track, so raising its height would
+   draw a 44px slab. A transparent block border grows the hit box to 44px while `background-clip`
+   keeps the painted track at the 12px the mockup drew: with the global `box-sizing: border-box`, a
+   44px box minus two 16px borders leaves exactly the original 12px padding box, and the thumb
+   centres on that. The step buttons and the keypad tab reach every value too, so this is the floor
+   on a control that has alternatives, not the only way in. */
+.range-slider {
+  block-size: 44px;
+  border-block: 16px solid transparent;
+  background-clip: padding-box;
+}
+
+/* The pills sit in a nested flex box of their own, declared as a style ATTRIBUTE on the markup
+   (`display:flex; gap:6px`). The attribute wins only on the properties it names, so wrapping is
+   still ours to set — and it has to be set here as well as on the row, or the row wraps around a
+   child that never breaks and the last pill still crosses the viewport. */
+#countPillsContainer {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* The modal close control renders 13x26 — the smallest tap target on the route by some way, and it
+   is the only way out of the how-to-play sheet other than the button at the bottom. */
+.modal-close-btn {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}
