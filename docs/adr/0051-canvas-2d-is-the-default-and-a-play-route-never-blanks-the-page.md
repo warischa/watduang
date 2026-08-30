@@ -1,4 +1,4 @@
-# ADR-0051 — a play route draws with Canvas 2D, never WebGL
+# ADR-0051 — Canvas 2D is the default, and a play route never blanks the page
 
 Date: 2026-08-30 · Status: accepted · Owner decision · Relates: [ADR-0050](0050-party-games-go-full-screen-landings-deleted.md), [ADR-0046](0046-reduced-motion-does-not-reach-js-driven-motion-and-the-answer-is-reduce-not-remove.md), gh#145, gh#146, gh#150
 
@@ -21,11 +21,26 @@ framework. A 3D library would be the first runtime dependency this product has e
 
 ## Decision
 
-A play route draws with `getContext('2d')`. Depth is drawn by hand — a perspective factor, a projected
-ground shadow, gradients for volume, an offset specular highlight — not delegated to a 3D pipeline.
+**Revised the same day by the owner. The original text banned WebGL outright; that was wider than the
+owner intended and is superseded by what follows. The reasoning in Context still stands — it is why
+the default is what it is, not a prohibition.**
 
-WebGL, and any 3D library, is out. This is not a preference between rendering technologies; it is the
-refusal of a failure mode where the page can go blank on the device the reader actually owns.
+Canvas 2D is the **starting point**. A play route draws with `getContext('2d')` and hand-drawn depth —
+a perspective factor, a projected ground shadow, gradients for volume, an offset specular highlight —
+unless there is a reason to do otherwise.
+
+WebGL and a 3D library are **permitted where a game genuinely needs them to look right** (owner ruling
+2026-08-30). Reach for one because the game demands it, not by default.
+
+**The one condition that does not move: a play route must never blank the page.** The `Bomb` mockup
+replaces `document.body` with an error string when `getContext('webgl')` returns null, and on a
+low-end Android — a core audience here, not an edge case — that is a white screen where a game should
+be. Any route that uses WebGL ships a path that keeps the page usable when the context is unavailable:
+a 2D fallback, or at minimum the round still playable without the 3D surface. The owner permitted the
+technology; nothing in that permission asked for a blank page.
+
+A 3D library would also be this product's first runtime dependency (`astro` and `@astrojs/sitemap` are
+the whole list today). That is a real cost to weigh per game, not a veto.
 
 Two obligations come with drawing on a canvas at all:
 
