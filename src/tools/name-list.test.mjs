@@ -104,3 +104,79 @@ test('#133 a zero-width entry already in storage is dropped when the list is rea
   slots.set(KEY, JSON.stringify(['บีม', '\u200B', 'น้ำ', '\u2060']));
   assert.deepEqual(loadToolNames(KEY), ['บีม', 'น้ำ']);
 });
+
+// ---- gh#132 two tabs on one tool page ------------------------------------------------------------
+// The tool key never inherited what src/shell/roster.ts's add() calls load-bearing: re-read at the
+// write, INSIDE the lock. Same limits as roster.test.mjs's lock tests — no unit test can prove the
+// cross-tab fix, because the interleaving belongs to the browser scheduler. What these pin is what
+// this file owns: a lock is asked for, the re-read sits inside its critical section, and a name this
+// page never saw is not overwritten by this page's snapshot.
+function setLocks(locks) {
+  Object.defineProperty(globalThis, 'navigator', { value: { locks }, configurable: true, writable: true });
+}
+const realNavigator = globalThis.navigator;
+function restoreNavigator() {
+  Object.defineProperty(globalThis, 'navigator', { value: realNavigator, configurable: true, writable: true });
+}
+
+// Calibrates every other test in this file: none of them call setLocks, so they all run the no-lock
+// fallback. Checks the capability, never its container — Node 22 defines navigator but not .locks.
+test('the Node runner has no navigator.locks — every other test here exercises the fallback path', () => {
+  assert.equal(typeof globalThis.navigator?.locks, 'undefined');
+});
+
+// The ticket's own interleave, and the one the harm is named for: A mounted before B typed, so A's
+// snapshot is stale, and A's tap writes that whole snapshot back over B's names. No grant gap needed —
+// this loses names even when the lock is granted instantly.
+test('#132 the stale tab\'s save must not wipe the names another tab typed after it mounted', async () => {
+  slots.clear();
+  setLocks({ request: (name, fn) => Promise.resolve(fn()) }); // granted immediately
+  try {
+    assert.deepEqual(loadToolNames(KEY), [], 'positive control: tab A mounts on an empty list');
+    slots.set(KEY, JSON.stringify(['บี', 'ซี'])); // tab B types the group's real names; A never shows them
+    await saveToolNames(KEY, ['เอ']); // A's stale tap
+    assert.deepEqual(loadToolNames(KEY), ['เอ', 'บี', 'ซี'], "tab B's names are still there");
+  } finally {
+    restoreNavigator();
+  }
+});
+
+test('#132 a write landing inside the grant gap is not clobbered either', async () => {
+  slots.clear();
+  const asked = [];
+  setLocks({
+    request: async (name, fn) => {
+      asked.push(name);
+      await Promise.resolve(); // grant late, the way a lock held by another tab does
+      return fn();
+    },
+  });
+  try {
+    // Tab A mounts on an empty list — this is the only read the panel ever did (ToolNameEntry.astro).
+    assert.deepEqual(loadToolNames(KEY), [], 'positive control: both tabs start on an empty list');
+    slots.set(KEY, JSON.stringify(['บี'])); // tab B types its group's names; A's textarea never shows them
+    const pending = saveToolNames(KEY, ['เอ']); // A's stale tap — queued, critical section has NOT run
+    slots.set(KEY, JSON.stringify(['บี', 'ซี'])); // B's next keystroke lands in the grant gap
+    await pending;
+
+    assert.deepEqual(
+      loadToolNames(KEY),
+      ['เอ', 'บี', 'ซี'],
+      "this tab's names in typing order, then every name it never saw — nothing is wiped"
+    );
+    assert.deepEqual(asked, [KEY], 'the save takes a lock named for the key it writes, once');
+  } finally {
+    restoreNavigator();
+  }
+});
+
+// The wrong fix this guards against: a plain union with storage. The panel is one textarea, so every
+// keystroke deletes something — union would keep both spellings of a name backspaced by one
+// character, and would resurrect a line the reader deleted on purpose. Only names this page never saw may be carried over.
+test('#132 negative control: a name this tab deleted from the textarea does not come back', async () => {
+  slots.clear();
+  await saveToolNames(KEY, ['แนน', 'บีม']);
+  await saveToolNames(KEY, ['แน', 'บีม']); // backspaced one character, then dropped the line entirely
+  await saveToolNames(KEY, ['บีม']);
+  assert.deepEqual(loadToolNames(KEY), ['บีม']);
+});
