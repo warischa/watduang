@@ -1,0 +1,54 @@
+<!-- Full-screen play route for the timebomb game (gh#145, ADR-0050 ruling 1). NOT a lifted mockup: it
+     has none, so the shipped engine (src/games/timebomb.ts) is kept and re-dressed to the freeze-tap
+     dark reference. This file is the static frame only — the player rows inside #tb-players and every
+     game screen inside #tb-stage are built at runtime (main.ts renders the first, the engine's own
+     render functions the second, unchanged).
+     No <a href> anywhere in here: ADR-0014 keeps navigation out of the play surface, and the one exit
+     is <PlayExit />'s button, mounted by play.astro outside this root. -->
+<!-- id="app": the same game-root id the other play routes use. Not a cosmetic choice — the shared
+     chrome (PlayExit.astro) and the play-route probes both resolve the game root as `#app,
+     #app-container`, so a third id would make every one of those checks silently void on this route. -->
+<div id="app">
+  <header class="tb-top">
+    <h1 class="tb-brand">ระเบิดเวลา</h1>
+  </header>
+
+  <main class="tb-main">
+    <!-- The player baseline screen (ADR-0049): mascot defaults are already filled in, so the round
+         starts with one tap and typing a name is optional. -->
+    <section id="tb-setup" class="tb-setup">
+      <p class="tb-tagline">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
+
+      <div class="tb-count">
+        <button id="tb-count-dec" class="tb-step" type="button" aria-label="ลดจำนวนคนเล่น">−</button>
+        <span class="tb-count-read"><span id="tb-count-num">6</span> คน</span>
+        <button id="tb-count-inc" class="tb-step" type="button" aria-label="เพิ่มจำนวนคนเล่น">+</button>
+      </div>
+
+      <ul id="tb-players" class="tb-players"></ul>
+
+      <p class="tb-hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อที่ตั้งไว้ใช้เฉพาะเกมนี้</p>
+
+      <button id="tb-begin" class="game-btn game-btn-primary" type="button">พร้อมเล่น</button>
+    </section>
+
+    <!-- The play surface (owner direction 2026-08-30): the bomb is DRAWN, in Canvas 2D, with the depth
+         hand-built (projected ground shadow, radial-gradient sphere, offset highlight). It lives
+         OUTSIDE #tb-stage on purpose — the engine calls replaceChildren() on the stage at every screen
+         change, which would destroy a canvas placed inside it.
+         Canvas pixels are invisible to assistive tech, so this element carries a label and the round's
+         live state is announced in the DOM below it: the holder's name and the fuse bar are real text
+         and a real element the engine keeps updated, and #tb-live announces each phase change. -->
+    <canvas
+      id="tb-canvas"
+      class="tb-canvas"
+      role="img"
+      aria-label="ระเบิดลูกกลมพร้อมสายชนวนที่สั้นลงเรื่อยๆ ตามเวลาที่เหลือ"
+      hidden></canvas>
+    <p id="tb-live" class="tb-visually-hidden" role="status" aria-live="polite"></p>
+
+    <!-- The engine mounts here. It replaces the children of this element wholesale on every screen
+         change, so nothing static may live inside it. -->
+    <section id="tb-stage" class="tb-stage" hidden></section>
+  </main>
+</div>

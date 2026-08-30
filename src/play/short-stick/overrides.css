@@ -1,0 +1,95 @@
+/* Site-specific adjustments layered ON TOP of the verbatim mockup stylesheet.
+   NOTHING here belongs in style.css: that file is what scripts/extract-mockup.mjs writes, byte-for-byte
+   from the mockup, and re-running the extractor overwrites it. Every change this site needs that CSS
+   can express lives here so the extraction stays reproducible and a diff against the mockup stays
+   meaningful. The two things CSS cannot express -- the fairness lock and the two out-of-bounds penalty
+   presets -- are marked with `watduang:` comments inside main.js, which is where they had to go. */
+
+/* THE FAIRNESS LOCK, display half. main.js pins stickCount to the player count and shortCount to 1,
+   which is what keeps every turn position at exactly 1/N of losing; these two steppers exist to break
+   that, so they must not be reachable. Hidden, not deleted from markup.html: main.js writes
+   textContent and .disabled on all four controls every renderSetup, and removing the nodes would hand
+   it nulls to dereference on the first setup render. display:none also takes them out of the
+   accessibility tree and out of tab order, which a `pointer-events: none` would not. */
+.option-group:has(#btn-fewer-sticks),
+.option-group:has(#btn-fewer-shorts) {
+  display: none;
+}
+
+/* The mockup's own home control, top-LEFT. Two independent reasons, either one sufficient:
+   1. It sits underneath PlayExit.astro's X, which is fixed at the same corner with z-index 300. The
+      other three play routes escape this because their mockups put every icon button top-RIGHT.
+   2. It is a second exit from the round with none of the X's arm gate -- a mid-round double-tap would
+      open its leave dialog, whose confirm button is a live navigation target from the first contact.
+   The X does what this button did, guarded. Hidden rather than removed for the same null-reference
+   reason as above: main.js binds a click listener to it at boot. */
+#home-button {
+  display: none;
+}
+
+/* ...and the consequence of hiding it, measured at 320px, not guessed: .topnav-inner is a
+   space-between flex row, so with its only left-hand child gone the nav tools slid to x=16 and put
+   the sound toggle at 16,6,44x44 -- underneath the X at 6,6,44x44. scripts/play-exit-probe.mjs
+   reported coversInteractive=6 of 9 sampled points for exactly that. Pinning the row to the end keeps
+   the tools where the mockup drew them and leaves the corner to the X. */
+.topnav-inner {
+  justify-content: flex-end;
+}
+
+/* Tap targets. The site floor is 44px; the mockup was built to be looked at on a desktop, and this
+   site is a phone passed around a group. min-* rather than width/height so anything already larger
+   stays exactly where the mockup put it. The select carries its 38px as an INLINE style in
+   markup.html, which no external rule can outrank without !important. */
+.input,
+.player-input {
+  min-block-size: 44px;
+}
+
+#penalty-mode-select {
+  min-block-size: 44px !important;
+}
+
+.chip {
+  min-block-size: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* The sticks are THE control of this game and they were the worst offender: style.css narrows
+   .straw-btn to 28px under its own `max-width: 380px` query, measured 28x180 in a 320px viewport.
+   Width only — the 180px height is already far over the floor, and the mockup's desktop stick is
+   36px, so this lands between the two rather than inventing a size. .stick-grid already wraps
+   (flex-wrap), so ten seats at 50px per unit fall into two rows instead of overflowing 320px. */
+.straw-unit {
+  min-inline-size: 50px;
+}
+
+.straw-btn {
+  min-inline-size: 44px;
+}
+
+/* Room for the two fixed chrome controls PlayExit.astro mounts: the X at the top-left inset, and the
+   edit-players pill 50px below it. Without this the pill lands on each view's own heading block. */
+#app {
+  padding-block-start: 56px;
+}
+
+/* Reduced motion. The mockup ships no prefers-reduced-motion branch at all, so everything below is
+   this site's, not a tweak of the mockup's. The view fade, the straw-pull keyframes and the impact
+   shake are decoration: removing them changes nothing the game needs, because the round advances on
+   main.js's own 450ms timer, which is not a CSS animation and still runs. The particle canvas is the
+   one motion source CSS cannot slow down -- it is a requestAnimationFrame loop writing to a 2D
+   context -- so it is taken off screen entirely here rather than left running unreduced. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  #particle-canvas {
+    display: none;
+  }
+}

@@ -1,0 +1,338 @@
+/* The timebomb game, full screen (gh#145). Authored for this route — no mockup exists for this game, so
+   nothing here is a lift and every value is chosen here rather than copied from a canvas.
+
+   COLOUR ENTERS BY NAME (ADR-0049 / ADR-0048): the dark palette is declared once, in the block below,
+   and every rule downstream references a token. The family matches the freeze-tap dark reference
+   ADR-0050 ruling 1 names, so the two routes read as one system.
+
+   NO ANIMATION AND NO TRANSITION IS DECLARED IN THIS FILE, on purpose: prefers-reduced-motion then
+   holds trivially for the CSS side, and the one moving thing on screen — the fuse bar's width — is a
+   per-frame style write the engine itself throttles under the reduce query (src/games/timebomb.ts's
+   frame(); ADR-0046). Adding a transition here would put motion outside that guard.
+
+   Loaded only by src/pages/game/timebomb/play.astro, so the bare `body` rule below cannot reach
+   another page. */
+
+#app {
+  /* The route's own palette. --tb-* names are local; the two site-token names re-declared at the end
+     of this block are the ones the SHIPPED ENGINE's markup already references by name — its inline
+     bomb SVG paints with var(--color-line-strong) and var(--page-accent). Re-pointing them here is
+     what re-dresses the engine's own DOM for a dark ground without editing the engine. */
+  --tb-bg: #070c14;
+  --tb-bg-glow: #172554;
+  --tb-panel: rgba(15, 23, 42, 0.88);
+  --tb-edge: rgba(255, 255, 255, 0.14);
+  --tb-ink: #f8fafc;
+  --tb-muted: #94a3b8;
+  --tb-flame: #f59e0b;
+  --tb-danger: #ef4444;
+
+  --color-line-strong: var(--tb-ink);
+  --page-accent: var(--tb-flame);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  min-block-size: 100dvh;
+  background: radial-gradient(circle at 50% 15%, var(--tb-bg-glow) 0%, var(--tb-bg) 70%);
+  color: var(--tb-ink);
+  font-family: var(--font-sans);
+}
+
+body {
+  /* Rubber-band scroll past the app root would otherwise show the site's white page ground. */
+  background: var(--tb-bg);
+}
+
+/* ---- chrome ---------------------------------------------------------------------------------- */
+
+.tb-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 56px;
+  /* The shared X exit (PlayExit.astro) is fixed at the top-LEFT with a 44px box; the padding keeps
+     the title out from under it at 320px, where the two would otherwise overlap. */
+  padding: 8px 56px;
+  border-block-end: 1px solid var(--tb-edge);
+}
+
+.tb-brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.tb-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+/* ---- setup screen ---------------------------------------------------------------------------- */
+
+.tb-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  inline-size: 100%;
+  max-inline-size: 420px;
+  margin-inline: auto;
+}
+
+.tb-setup[hidden] {
+  display: none;
+}
+
+.tb-tagline {
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--tb-muted);
+}
+
+.tb-count {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tb-step {
+  inline-size: 48px;
+  block-size: 48px;
+  border: 1px solid var(--tb-edge);
+  border-radius: 50%;
+  background: var(--tb-panel);
+  color: var(--tb-ink);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tb-step:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tb-count-read {
+  min-inline-size: 5ch;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.tb-players {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tb-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--tb-edge);
+  border-radius: 14px;
+  background: var(--tb-panel);
+}
+
+.tb-player-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tb-player-name {
+  flex: 1;
+  min-inline-size: 0;
+  /* The row is the tap target for the rename, so the field itself carries the 44px floor. */
+  min-block-size: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--tb-ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+}
+
+.tb-player-name:focus {
+  outline: 2px solid var(--tb-flame);
+  outline-offset: 2px;
+}
+
+.tb-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--tb-muted);
+}
+
+/* ---- the engine's own screens ----------------------------------------------------------------
+   .stage-screen / .game-btn* are shell vocabulary the engine's render functions emit; on the game
+   landing page they are styled by the is:global block in src/pages/game/[id].astro, which this route
+   does not load. The dark equivalents live here so the engine's markup needs no edit. */
+
+.tb-stage[hidden] {
+  display: none;
+}
+
+.stage-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  inline-size: 100%;
+  max-inline-size: 420px;
+  margin-inline: auto;
+}
+
+.stage-screen p {
+  margin: 0;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.game-btn {
+  inline-size: 100%;
+  border: 1px solid var(--tb-edge);
+  border-radius: 16px;
+  font-family: var(--font-display);
+  cursor: pointer;
+}
+
+.game-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.game-btn-primary {
+  min-block-size: 60px;
+  background: var(--tb-flame);
+  color: var(--tb-bg);
+  font-weight: 500;
+  font-size: 21px;
+}
+
+/* ---- the drawn play surface ------------------------------------------------------------------- */
+
+.tb-canvas {
+  display: block;
+  inline-size: 100%;
+  /* Capped so the engine's own controls below still fit at 320px without scrolling; the renderer
+     reads this box back and sizes its backing store to devicePixelRatio, so the drawing stays sharp
+     on a phone rather than being upscaled from CSS pixels. */
+  block-size: min(46vh, 320px);
+  margin-block-end: 12px;
+}
+
+.tb-canvas[hidden] {
+  display: none;
+}
+
+/* The engine's ticking screen draws its own bomb as an inline SVG in a bordered disc. On this route
+   the canvas above IS the bomb, so the DOM one would be a second, flatter copy of the same object.
+   Hidden rather than removed: the element belongs to the engine's render function, which this port
+   deliberately does not edit. */
+.tb-bomb {
+  display: none;
+}
+
+/* Screen-reader-only: the phase announcements that canvas pixels cannot carry. */
+.tb-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- ticking screen -------------------------------------------------------------------------- */
+
+.tb-holder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tb-holder-label {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: var(--tb-muted);
+}
+
+.tb-holder-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.2;
+  text-align: center;
+  /* A renamed player can fill the field with unbroken Latin; without this the name overruns the
+     screen and the page scrolls sideways at 320px. */
+  overflow-wrap: anywhere;
+  min-inline-size: 0;
+}
+
+
+.tb-fuse {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+}
+
+.tb-fuse-caption {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+}
+
+.tb-fuse-track {
+  inline-size: 100%;
+  block-size: 16px;
+  border: 1px solid var(--tb-edge);
+  border-radius: 999px;
+  background: var(--tb-panel);
+  overflow: hidden;
+}
+
+.tb-fuse-fill {
+  block-size: 100%;
+  inline-size: 100%; /* the engine overwrites this inline every frame — the remaining fuse */
+  background: var(--tb-flame);
+}
+
+.tb-fuse-hint {
+  font-size: 12px;
+  color: var(--tb-muted);
+}
+
+.tb-warn {
+  font-weight: 600;
+  color: var(--tb-danger);
+}
+
+.tb-warn[hidden] {
+  display: none;
+}
+
+.tb-foot {
+  font-size: 13px;
+  line-height: 1.6;
+  max-inline-size: 30ch;
+  color: var(--tb-muted);
+}

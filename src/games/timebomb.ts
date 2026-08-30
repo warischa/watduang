@@ -396,6 +396,11 @@ const game: GameModule = {
   // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:
   // the decision was no slot on the PLAY SCREEN, never no slot on the page.
   ads: true,
+  // The full-screen route this page hands off to (gh#145). GameLayout.astro turns it into the chrome
+  // link, and the game card flips to it. mount() below is still the live entry point on BOTH surfaces:
+  // the play route mounts this same module rather than reimplementing it, so the fuse, the wake lock
+  // and the arm gate have one implementation.
+  playRoute: '/game/timebomb/play/',
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

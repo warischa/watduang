@@ -1,0 +1,266 @@
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Top Navigation -->
+  <header class="topnav" id="topnav">
+    <div class="container topnav-inner">
+      <button class="logo btn-ghost" id="home-button" type="button" aria-label="กลับหน้าแรก">
+        <span>🥢</span>
+        <span>ไม้สั้นชี้ชะตา</span>
+        <span class="logo-badge">PASS & PICK</span>
+      </button>
+      <div class="nav-tools">
+        <button class="icon-btn" id="audio-toggle" type="button" aria-label="เปิด/ปิดเสียง" title="เปิด/ปิดเสียง">🔊</button>
+        <button class="btn btn-secondary" id="rules-nav-button" type="button">กติกา</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- VIEW 1: MENU / HERO -->
+    <section class="view active section" id="view-start">
+      <div class="container">
+        <div class="hero-split">
+          <div class="hero-copy">
+            <p class="eyebrow">เกมปาร์ตี้ส่งมือถือเครื่องเดียว · NO APPS</p>
+            <h1 class="h1">ไม้สั้น<br>ชี้ชะตา.</h1>
+            <p class="lead" style="margin-top:14px;">
+              ส่งมือถือวนรอบวง แตะดึงไม้คนละ 1 อัน ใครดึงได้ไม้สั้นสุดรับบทลงโทษทันที!
+            </p>
+            <div class="hero-cta">
+              <button class="btn btn-primary" id="btn-start-setup" type="button">เริ่มตั้งวงเล่น ➔</button>
+              <button class="btn btn-secondary" id="btn-quick-rules" type="button">วิธีกติกา</button>
+            </div>
+          </div>
+
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-sticks-bundle">
+              <div class="hero-stick-item"></div>
+              <div class="hero-stick-item"></div>
+              <div class="hero-stick-item"></div>
+              <div class="hero-stick-item"></div>
+              <div class="hero-stick-item"></div>
+            </div>
+            <div class="hero-cup"></div>
+          </div>
+        </div>
+
+        <div class="feature-strip">
+          <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <h3>ระบบ Live Odds คำนวณความเสี่ยง</h3>
+            <p>คำนวณโอกาสโดนแบบสดๆ ทุกตา พร้อมระบบเสียงเต้นระทึกเมื่อเข้าโซนอันตราย</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🥢</div>
+            <h3>Physics & Haptics ดึงไม้สมจริง</h3>
+            <p>แอนิเมชันดึงไม้สัมผัสสมจริง พร้อมระบบสั่นและการแสดงความยาวเซนติเมตรจริง</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🎯</div>
+            <h3>กำหนดบทลงโทษเอง หรือเลือก Preset</h3>
+            <p>เลือกได้ว่าจะให้มีบทลงโทษหรือไม่ หรือเลือกจาก Preset สนุกๆ</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: SETUP -->
+    <section class="view section" id="view-setup">
+      <div class="container">
+        <div style="margin-bottom: 24px;">
+          <p class="eyebrow">SETUP MATCH</p>
+          <h2 class="h2">ใครอยู่ในวงรอบนี้?</h2>
+          <p class="lead">พิมพ์ชื่อเล่น 2–10 คน ได้ไม้คนละ 1 อันพอดี</p>
+        </div>
+
+        <div class="setup-grid">
+          <div class="card">
+            <!-- 1. Stick Count -->
+            <div class="option-group">
+              <div>
+                <strong>จำนวนไม้ทั้งหมด</strong>
+                <p style="font-size:13px; color:var(--muted);">เพิ่มไม้ได้มากกว่าจำนวนคน เพื่อเพิ่มความลุ้น</p>
+              </div>
+              <div class="stepper">
+                <button class="icon-btn" id="btn-fewer-sticks" type="button">−</button>
+                <span class="stepper-val" id="val-stick-count">6 ไม้</span>
+                <button class="icon-btn" id="btn-more-sticks" type="button">+</button>
+              </div>
+            </div>
+
+            <!-- 2. Short Straws Count -->
+            <div class="option-group">
+              <div>
+                <strong>จำนวนคนโดน (ไม้สั้น)</strong>
+                <p style="font-size:13px; color:var(--muted);">เลือก 1 คน หรือหลายคนในวงใหญ่</p>
+              </div>
+              <div class="stepper">
+                <button class="icon-btn" id="btn-fewer-shorts" type="button">−</button>
+                <span class="stepper-val" id="val-short-count">1 คน</span>
+                <button class="icon-btn" id="btn-more-shorts" type="button">+</button>
+              </div>
+            </div>
+
+            <!-- 3. Penalty Option (Default: None) -->
+            <div class="option-group" style="flex-direction:column; align-items:stretch; gap:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <strong>บทลงโทษสำหรับคนแพ้</strong>
+                  <p style="font-size:13px; color:var(--muted);">กำหนดบทลงโทษคนดึงได้ไม้สั้น (ไม่ใส่ก็ได้)</p>
+                </div>
+                <select id="penalty-mode-select" class="input" style="width:auto; min-height:38px; padding:4px 10px; font-size:14px;">
+                  <option value="none">ไม่มี (ค่าเริ่มต้น)</option>
+                  <option value="preset">เลือกจาก Preset</option>
+                  <option value="custom">กำหนดเอง (Custom)</option>
+                </select>
+              </div>
+
+              <!-- Preset Selector Area -->
+              <div id="penalty-preset-wrapper" style="display:none;">
+                <p style="font-size:12px; color:var(--muted); margin-bottom:8px;">แตะเลือกบทลงโทษที่ต้องการ:</p>
+                <div id="preset-chips-container" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+              </div>
+
+              <!-- Custom Input Area -->
+              <div id="penalty-custom-wrapper" style="display:none;">
+                <input class="input" id="penalty-custom-input" placeholder="พิมพ์บทลงโทษ เช่น เลี้ยงกาแฟทั้งวง, โดนดีดหน้าผาก..." maxlength="50">
+              </div>
+            </div>
+
+            <!-- Player List Inputs -->
+            <div class="player-list" id="player-inputs-container"></div>
+            <button class="add-player-btn" id="btn-add-player" type="button">+ เพิ่มผู้เล่น</button>
+
+            <div style="display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;">
+              <button class="btn btn-primary" id="btn-begin-game" type="button" style="flex:1;">เริ่มรอบนี้ ➔</button>
+              <button class="btn btn-secondary" id="btn-setup-back" type="button">กลับ</button>
+            </div>
+          </div>
+
+          <aside class="card" style="background:var(--surface-subtle);">
+            <h3 style="font-size:18px; margin-bottom:8px;">💡 กฎความแฟร์ (Fairness)</h3>
+            <p style="font-size:14px; color:var(--muted); line-height:1.6;">
+              ระบบจะสุ่มตำแหน่งไม้สั้นอย่างยุติธรรมในทุกรอบ ไม้สั้นสุดจะมีความยาว 1–5 ซม. ส่วนไม้อื่นจะยาว 6–20 ซม. ผู้เล่นจะผลัดกันจับตามลำดับที่จัดไว้
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: DRAW BOARD -->
+    <section class="view section" id="view-draw">
+      <div class="container draw-layout">
+        <!-- Live Odds & Turn Banner -->
+        <div class="live-odds-banner">
+          <div class="active-player-badge">
+            <div class="avatar" id="draw-player-avatar">👤</div>
+            <div>
+              <div class="name" id="draw-player-name">ตาของผู้เล่น 1</div>
+              <div class="round-step" id="draw-round-step">ดึงไม้ที่ 1 · เหลือ 6 ไม้</div>
+            </div>
+          </div>
+          <div class="tension-pill" id="live-odds-pill">
+            <span>⚠️ โอกาสโดน:</span>
+            <strong id="live-odds-val">1 in 6 (16.7%)</strong>
+          </div>
+        </div>
+
+        <!-- Player Strip Carousel -->
+        <div class="player-strip" id="draw-player-strip"></div>
+
+        <!-- 3D Straw Stage -->
+        <div class="bamboo-stage">
+          <h2 class="bamboo-stage-title" id="stage-action-text">แตะเลือกไม้ 1 อัน</h2>
+          <p class="bamboo-stage-subtitle">ส่งมือถือให้ผู้เล่นตามชื่อด้านบน แล้วแตะดึงไม้ได้เลย</p>
+          
+          <div class="stick-grid" id="stick-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: RESULT -->
+    <section class="view section" id="view-result">
+      <div class="container result-layout">
+        <div class="result-badge-loser">💥</div>
+        <p class="eyebrow" style="color:var(--accent);">จบรอบแล้ว!</p>
+        <h2 class="h1" id="result-loser-title">ผู้เล่น 1 โดนเลือก!</h2>
+        <p class="lead" id="result-loser-desc">จับได้ไม้สั้นสุดความยาว 2 ซม.</p>
+
+        <!-- Optional Penalty Box (Only shows if penalty is set) -->
+        <div class="penalty-box" id="result-penalty-box" style="display:none;">
+          <h4>🎯 บทลงโทษสำหรับคนแพ้</h4>
+          <div class="penalty-text" id="result-penalty-text"></div>
+        </div>
+
+        <!-- Round History -->
+        <div class="history-card">
+          <h3 style="font-size:17px; margin-bottom:12px;">สรุปผลการจับไม้รอบนี้</h3>
+          <div id="history-rows-container"></div>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="btn-replay-round" type="button">เล่นรอบต่อไป (ผู้เล่นเดิม) ➔</button>
+          <button class="btn btn-secondary" id="btn-edit-players" type="button">ปรับเปลี่ยนผู้เล่น / กติกา</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODALS -->
+  <!-- 1. Rules Dialog -->
+  <dialog class="dialog" id="rules-dialog">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">HOW TO PLAY</p>
+          <h2>กติกาการเล่น</h2>
+        </div>
+        <button class="icon-btn" id="btn-close-rules" type="button">✕</button>
+      </div>
+      <ol style="padding-left:20px; display:grid; gap:12px; font-size:14px; color:var(--fg); line-height:1.6;">
+        <li><b>ตั้งวง:</b> พิมพ์ชื่อเล่นผู้เล่น (2–10 คน) ระบบแจกไม้ให้คนละ 1 อัน และมีไม้สั้นอยู่ 1 อัน.</li>
+        <li><b>ส่งมือถือ:</b> ส่งมือถือให้คนที่ถึงตาเล่น แล้วแตะเลือกไม้ในกระบอก 1 อัน.</li>
+        <li><b>ลุ้นผล:</b> ถ้าเป็นไม้ยาวจะปลอดภัยและส่งต่อให้คนถัดไป ถ้าเป็นไม้สั้นจะจบเกมและตัดสินคนแพ้ทันที!</li>
+      </ol>
+      <button class="btn btn-primary" id="btn-rules-ok" type="button" style="width:100%; margin-top:20px;">เข้าใจแล้ว</button>
+    </div>
+  </dialog>
+
+  <!-- 2. Short Straw Hazard Reveal Modal -->
+  <dialog class="dialog" id="short-reveal-dialog">
+    <div class="dialog-inner" style="text-align:center;">
+      <div style="font-size:42px; margin-bottom:8px;">😱</div>
+      <p class="eyebrow" style="color:var(--accent);">SHORT STRAW TRIGGERED</p>
+      <h2 id="hazard-player-name" style="font-size:28px; margin-bottom:6px;">ผู้เล่น 1</h2>
+      <p style="color:var(--muted); font-size:15px; margin-bottom:16px;">ดึงได้ไม้สั้นที่สุดในรอบนี้!</p>
+      
+      <div style="background:var(--surface-subtle); padding:20px; border-radius:var(--radius); border:2px solid var(--border-dark); margin-bottom:20px; display:flex; flex-direction:column; align-items:center;">
+        <div id="hazard-stick-preview" style="width:32px; height:60px; background:#f43f5e; border:2px solid #000; border-radius:6px 6px 3px 3px; box-shadow:3px 3px 0 #000;"></div>
+        <strong id="hazard-stick-len" style="font-family:var(--font-mono); font-size:24px; margin-top:10px; color:var(--accent);">2 ซม.</strong>
+      </div>
+
+      <button class="btn btn-accent" id="btn-close-hazard" type="button" style="width:100%;">ดูผลสรุปจบรอบ ➔</button>
+    </div>
+  </dialog>
+
+  <!-- 3. Leave Dialog -->
+  <dialog class="dialog" id="leave-dialog">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">CONFIRM</p>
+          <h2>ออกจากรอบปัจจุบัน?</h2>
+        </div>
+        <button class="icon-btn" id="btn-close-leave" type="button">✕</button>
+      </div>
+      <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">
+        ผลการเล่นในรอบนี้จะถูกยกเลิก แต่รายชื่อผู้เล่นที่ตั้งไว้จะยังคงอยู่
+      </p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-secondary" id="btn-cancel-leave" type="button" style="flex:1;">เล่นต่อ</button>
+        <button class="btn btn-primary" id="btn-confirm-leave" type="button" style="flex:1;">กลับหน้าแรก</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- GAME SCRIPT -->

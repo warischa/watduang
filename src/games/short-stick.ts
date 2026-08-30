@@ -259,6 +259,8 @@ const game: GameModule = {
     ],
   },
   og: 'short-stick.png',
+  // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
+  playRoute: '/game/short-stick/play/',
   // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:
   // the decision was no slot on the PLAY SCREEN, never no slot on the page.
   ads: true,

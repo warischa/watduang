@@ -1,0 +1,46 @@
+---
+// The full-screen play route for the timebomb game (gh#145, ADR-0050 ruling 1).
+//
+// NOT a mockup lift, and that is the one difference from the other three play routes. There is no
+// ~/claude/mockup-games entry for this game (checked 2026-08-30 — the Bomb mockup is a 5x5 tile board,
+// a different game), so ADR-0050 ruling 4's second branch applies: the SHIPPED ENGINE is kept and
+// reskinned to the freeze-tap dark reference. src/games/timebomb.ts still owns the round — the
+// absolute-deadline fuse, the wake lock, the arm gate, markPlayed — and src/play/timebomb/main.ts only
+// renders the player baseline screen and mounts it.
+//
+// ONE FILE PER GAME, not a [id] route: each play route's stylesheet styles bare `body` and shared
+// game-screen class names, so a dynamic route would load every game's sheet on every play page and let
+// them fight. Same reasoning src/pages/game/[id].astro records for its per-game imports.
+//
+// INDEXABLE, like the other three: src/pages/noindex.test.mjs rejects noindex on every page but
+// 404.astro, because a site whose business model is organic search must not deindex page by page. The
+// two URLs are differentiated by title — this is the app view, /game/timebomb/ is the landing page.
+import Base from '../../../layouts/Base.astro';
+// The shared exit X (and the edit-players pill) — page chrome outside the game root, which is where
+// ADR-0014 puts a navigation target. It brings its own style and its own arm gate.
+import PlayExit from '../../../shell/PlayExit.astro';
+import markup from '../../../play/timebomb/markup.html?raw';
+// play.css, not style.css: the thai-comments carve-out exempts the extractor's three basenames
+// (main.js / markup.html / style.css) inside a play folder as verbatim lifts. Nothing here IS a lift,
+// so the file is named off that exemption and stays under the full gate.
+import '../../../play/timebomb/play.css';
+import { byId } from '../../../games/manifest';
+
+// The manifest is the single source for this game's name and copy — a literal here would be a second
+// copy to drift. `names.th`, not `title`: the module declares no `title` field.
+const game = byId('timebomb');
+if (!game) throw new Error('timebomb is not registered in the manifest — this play route has no game to name');
+const title = `${game.names.th} — เล่นเต็มจอ`;
+const description = game.seo.description;
+---
+
+<Base title={title} description={description} ogImage="/og/timebomb.png" chrome>
+  <PlayExit />
+  <Fragment set:html={markup} />
+</Base>
+
+<script>
+  // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block here
+  // executes zero lines. Astro emits this as one external module.
+  import '../../../play/timebomb/main.ts';
+</script>
