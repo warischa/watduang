@@ -4,7 +4,21 @@
 const [PORT = '9222', SHOT = '/tmp', TAG = 'normal'] = process.argv.slice(2);
 const { writeFile } = await import('node:fs/promises');
 const BASE = process.env.BASE ?? 'http://localhost:5051';
-const ROUTES = ['cannon-flag', 'freeze-tap', 'power-meter'];
+
+// Derived, never listed. A hardcoded list silently drops every new port: short-stick shipped and was
+// never added here, and timebomb would have been the next one. The manifest is the declaration of
+// record, and landing-claims-check already reds a declared playRoute with no built page, so a route
+// that reaches this list is a route that exists. Same dynamic-import idiom as landing-claims-check.mjs
+// (plain node strips the TypeScript). Set ROUTES_ONLY=a,b to narrow it while debugging one route.
+const { fileURLToPath } = await import('node:url');
+const { games } = await import(`${fileURLToPath(new URL('..', import.meta.url))}src/games/manifest.ts`);
+const only = process.env.ROUTES_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
+const ROUTES = games
+  .filter((g) => g.playRoute)
+  .map((g) => g.id)
+  .filter((id) => !only?.length || only.includes(id))
+  .sort();
+if (!ROUTES.length) throw new Error('no play routes derived from the manifest — refusing to report a vacuous pass');
 
 const api = async (p, m = 'GET') => (await fetch(`http://127.0.0.1:${PORT}${p}`, { method: m })).json();
 const target = await api('/json/new?about:blank', 'PUT');

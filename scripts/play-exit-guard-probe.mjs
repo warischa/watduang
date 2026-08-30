@@ -8,7 +8,19 @@
 const [PORT = '9222', SHOT = '/tmp'] = process.argv.slice(2);
 const { writeFile } = await import('node:fs/promises');
 const BASE = process.env.BASE ?? 'http://localhost:5052';
-const ROUTES_ALL = ['cannon-flag', 'freeze-tap']; // scenarios 1 and 4
+// Scenarios 1 and 4 run against EVERY play route, derived rather than listed. This list had drifted
+// two routes behind the site (power-meter and short-stick both shipped without being added), and a
+// probe that silently skips a route reads exactly like a probe that passed it. Same dynamic-import
+// idiom as landing-claims-check.mjs. Set ROUTES_ONLY=a,b to narrow it while debugging one route.
+const { fileURLToPath } = await import('node:url');
+const { games } = await import(`${fileURLToPath(new URL('..', import.meta.url))}src/games/manifest.ts`);
+const only = process.env.ROUTES_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
+const ROUTES_ALL = games
+  .filter((g) => g.playRoute)
+  .map((g) => g.id)
+  .filter((id) => !only?.length || only.includes(id))
+  .sort();
+if (!ROUTES_ALL.length) throw new Error('no play routes derived from the manifest — refusing to report a vacuous pass');
 const ROUTE_ONLY_CANNON = ['cannon-flag']; // scenarios 2 and 3 (cannon-flag is the one named in the brief)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

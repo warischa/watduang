@@ -97,6 +97,11 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 // gh#144: PlayExit.astro_... added — the shared exit X on every play route ships one small chunk.
 // Edit-players (owner decision 2026-08-29): _setup-bridge.js added — the shared roster<->mockup-setup
 // contract (edit request flag + save-on-setup-complete) used by all three play routes, ~731B.
+// 2026-08-30 batch (gh#146 short-stick + gh#145 timebomb play routes): session.js added --
+//   session.ts went from one consumer to two (the page route plus the new timebomb play island), so
+//   Rollup split it out of its former parent into its own chunk. Bytes 204359 -> 232716 (+28357):
+//   two more lifted/authored play bundles, minus nothing -- no engine was deleted this batch, because
+//   the stage modules stay until gh#149 removes the landing pages that still render them.
 const BASELINE_BASENAMES = [
   '_setup-bridge.js',
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
@@ -123,9 +128,10 @@ const BASELINE_BASENAMES = [
   'timebomb.js',
   'play.astro_astro_type_script_index_0_lang.js',
   'roster.js',
+  'session.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
-const BASELINE_TOTAL_BYTES = 204359;
+const BASELINE_TOTAL_BYTES = 232716;
 const BAND = 0.05; // +/-5%
 
 const HTML_SCRIPT_RE = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;
