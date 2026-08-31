@@ -17,8 +17,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MAX_PLAYERS } from '../games/cursed-number.ts';
 import { FakeElement, makeDocument } from '../games/_fake-dom.mjs';
-import { MASCOTS, applyMascotDefaults } from './_mascots.ts';
+import { MASCOTS, applyMascotDefaults, mascotNames, resetCastNames } from './_mascots.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const NUMBERED = /^ผู้เล่น\s*\d+$/;
@@ -53,6 +54,18 @@ test('the cast in _mascots.ts is row-for-row the freeze-tap mockup array', () =>
   // A parse that silently matched nothing would deepEqual an empty MASCOTS and read as a pass.
   assert.equal(rows.length, 20, 'parsed the wrong number of mockup rows');
   assert.deepEqual([...MASCOTS], rows);
+});
+
+// mascotNames wraps past the end of the cast rather than handing back undefined, so a cast SHORTER
+// than the largest seat count a route allows seats two players under the same animal -- silently, and
+// only at the top of the range where nobody tests. The row-for-row test above already reds if MASCOTS
+// alone shrinks; what it cannot see is the seat cap GROWING past a cast that never moved. Couple the
+// two constants here so either side moving is a red, and never re-pin the literal 20 (gh#173, REFUTE).
+test('the cast is at least as long as the largest seat count any route allows', () => {
+  assert.ok(
+    MASCOTS.length >= MAX_PLAYERS,
+    `mascotNames would wrap: ${MASCOTS.length} mascots for up to ${MAX_PLAYERS} seats, so the last players open sharing an animal with the first`,
+  );
 });
 
 test('power-meter opens with the animal cast, not the numbered default', () => {
@@ -205,4 +218,34 @@ test('fields that appear after a later render still open with the cast, and watc
     globalThis.document = savedDoc;
     globalThis.MutationObserver = savedObs;
   }
+});
+
+// The two shapes the input-filling helper above does not reach (issue #173): a route that holds its
+// players as a state array of strings, and a route that has to put an existing cast BACK to defaults.
+// Both are pinned against MASCOTS itself plus one hard literal, so an implementation that invented
+// its own names -- or fell back to the numbered default -- goes red instead of agreeing with a list
+// this test built for it.
+test('a route can ask for a default cast of N and gets the mascot names', () => {
+  assert.deepEqual(mascotNames(4), ['แมวส้ม', 'ชิบะ', 'บันนี่', 'ฟร็อกกี้']);
+  assert.deepEqual(mascotNames(10), MASCOTS.slice(0, 10).map((m) => m.name));
+  for (const name of mascotNames(10)) assert.ok(!NUMBERED.test(name), `numbered default leaked: ${name}`);
+  // 2-10 is the product's range, but nothing in the module enforces it -- past the end it wraps
+  // rather than handing a caller `undefined` to render.
+  assert.deepEqual(mascotNames(22).slice(20), MASCOTS.slice(0, 2).map((m) => m.name));
+  assert.deepEqual(mascotNames(0), []);
+  assert.deepEqual(mascotNames(-3), []);
+});
+
+test('reset keeps the player count and overwrites the names a player typed', () => {
+  const typed = ['ป๋อง', 'ตูน', 'เอ', 'บี', 'ซี'];
+  const reset = resetCastNames(typed);
+  assert.equal(reset.length, typed.length, 'reset changed the player count');
+  assert.deepEqual(reset, MASCOTS.slice(0, 5).map((m) => m.name));
+  // The owner's ruling, stated as a test: not one typed name survives.
+  for (const name of typed) assert.ok(!reset.includes(name), `reset preserved a typed name: ${name}`);
+  // The caller's array is left alone -- a route that resets still owns its own state.
+  assert.deepEqual(typed, ['ป๋อง', 'ตูน', 'เอ', 'บี', 'ซี']);
+  // A cast of objects: only the count is read, which is why nothing typed can survive.
+  assert.deepEqual(resetCastNames([{ name: 'ป๋อง' }, { name: 'ตูน' }]), ['แมวส้ม', 'ชิบะ']);
+  assert.deepEqual(resetCastNames([]), []);
 });

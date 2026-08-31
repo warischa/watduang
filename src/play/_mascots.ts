@@ -34,6 +34,28 @@ export const MASCOTS: readonly Mascot[] = [
   { emoji: '🐲', name: 'มังกรน้อย' },
 ];
 
+/** The default cast for a party of `count`, as plain strings -- for the routes that hold their
+ *  players as a state array and need names BEFORE any input exists, so applyMascotDefaults (which
+ *  can only fill inputs it can query) has nothing to attach to.
+ *
+ *  Past the end of the list it wraps rather than handing a caller `undefined` to render. The product
+ *  range is 2-10 and every route enforces its own; nothing here does. */
+export function mascotNames(count: number): string[] {
+  const n = Math.max(0, Math.floor(count));
+  return Array.from({ length: n }, (_, i) => MASCOTS[i % MASCOTS.length].name);
+}
+
+/** Puts an existing cast back to defaults, keeping the player count and DISCARDING every name the
+ *  players typed (owner ruling 2026-08-31: reset restores the animal names, keeps the group, wipes
+ *  typed names behind a confirm -- the confirm is the caller's, this is the wipe).
+ *
+ *  It takes the cast only to read its length, and never looks inside an entry: that is why a typed
+ *  name cannot survive a reset, whatever a caller passes. Callers holding objects map the result
+ *  back onto their own state; the input array is not mutated. */
+export function resetCastNames(cast: readonly unknown[]): string[] {
+  return mascotNames(cast.length);
+}
+
 /** The numbered default the lifted mockups render when they have no names of their own -- the ONLY
  *  value replaced below. A roster-seeded name never matches it, because the bridge only runs this
  *  when there is no roster.
