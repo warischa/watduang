@@ -49,7 +49,15 @@ function seedFromRoster(): void {
   const names = playingNames();
   // Fewer than two names is not a failure — it is a first-time device, and the mockup's own menu and
   // setup screens are exactly the right thing to show. Bail and leave them alone.
-  if (names.length < 2) return;
+  //
+  // But the flag is already spent by here (takeSetupEditRequest clears on read), and this route boots
+  // on the MENU: bailing outright would land the reload back on the menu with the request gone, so
+  // the edit control reads as a dead button and a second tap does the same nothing (gh#169). Nothing
+  // is seedable with one name, so open setup and stop — that is the whole request honoured.
+  if (names.length < 2) {
+    if (editing) document.querySelector<HTMLButtonElement>(GOTO_SETUP)?.click();
+    return;
+  }
 
   const target = Math.min(names.length, MAX_PLAYERS);
   // One click is one seat, so the walk is bounded by the range itself. The bound is a guard against a

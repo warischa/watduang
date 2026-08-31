@@ -42,7 +42,14 @@ function seedFromRoster(): void {
   // Fewer than two names is not a failure — it is a first-time device, and the mockup's own hero and
   // setup screen are exactly the right thing to show. Leave the screens alone —
   // only the names they open with change, from a column of numbers to the shared cast (issue #152).
+  //
+  // Except when an edit was requested. The flag is already spent by here (takeSetupEditRequest
+  // clears on read) and this route boots on a HERO, not on setup: bailing outright would land the
+  // reload back on the hero with the request gone, so the edit control reads as a dead button and a
+  // second tap does the same nothing (gh#169). Nothing is seedable with one name, so render the
+  // setup view and stop — that is the whole request honoured.
   if (names.length < 2) {
+    if (editing) document.querySelector<HTMLElement>(OPEN_SETUP)?.click();
     applyMascotDefaults(NAME_INPUT);
     return;
   }
