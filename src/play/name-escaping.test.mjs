@@ -50,6 +50,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { FakeElement, makeDocument } from '../games/_fake-dom.mjs';
+// Real modules, not fakes. loadFrom() brace-slices DECLARATIONS out of a route's own text, so an
+// `import` its sliced functions depend on can never be sliced and has to be supplied. Supplying the
+// genuine module beats hand-rolling a stub that drifts from it: that drift is exactly how this file
+// broke when the cast moved to _mascots.ts and the losing rule moved to turn-rules.ts, and a stale
+// `PLAYER_AVATARS` stub kept it green until CI ran the suite. Node >=22.18 strips the TS types,
+// which package.json's check-node-version already requires.
+import { MASCOTS } from './_mascots.ts';
+import { loserOf } from './wire-snip-panic/turn-rules.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -347,13 +355,17 @@ function wireSnipHarness() {
     state: 'MENU',
   };
   const api = loadFrom('wire-snip-panic',
-    ['escapeHtml', 'renderSetupPlayerList', 'renderHUDPlayerStrip', 'showDetonationModal'], {
+    ['escapeHtml', 'avatarFor', 'renderSetupPlayerList', 'renderHUDPlayerStrip', 'showDetonationModal'], {
       document,
       game,
       // `const GameState = Object.freeze({...})` does not brace-slice; a key-echoing proxy is the
       // same object for every branch these renders take on it.
       GameState: new Proxy({}, { get: (_t, k) => k }),
-      PLAYER_AVATARS: ['🦊', '🐱'],
+      // The route's two imports, passed through real (see the header note). avatarFor and the
+      // renders are SLICED, so the route's own lookup and its own escaping execute -- only what
+      // crosses a module boundary is injected here.
+      MASCOTS,
+      loserOf,
       spawnConfetti: () => {},
     }, ['escapeHtml']);
   return { api, document };
