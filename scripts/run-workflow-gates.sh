@@ -71,6 +71,39 @@ while IFS= read -r cmd; do
   rm -f "$step_log"
 done < "$CMDFILE"
 
+# ---------------------------------------------------------------------------
+# RECONCILIATION (gh#171). `n` is the count of commands this extractor could PARSE, not the count
+# the workflow RUNS, and a reader takes those for the same number. On 2026-08-31 this script printed
+# TOTAL=30 FAILS=0 on a tree whose `npm test` was red, that push went to main, and CI failed on the
+# Unit tests step -- which is a multi-line `run: |` block the extractor cannot read. The pass was
+# honest about its 30 and silent about the rest, which is the ADR-0019 failure: a green implying
+# coverage it has not earned.
+#
+# So the skipped set is named on every run. Derived from the workflow each time, never a pinned list,
+# so it cannot rot when a step is added, removed, or converted between the two forms.
+declared=$(grep -c '^[[:space:]]*run:' "$WORKFLOW")
+SKIPFILE="$OUT_DIR/skipped-steps"
+awk '
+  /^[[:space:]]*-[[:space:]]+name:[[:space:]]/ {
+    name = $0
+    sub(/^[[:space:]]*-[[:space:]]+name:[[:space:]]*/, "", name)
+  }
+  /^[[:space:]]*run:[[:space:]]*\|[[:space:]]*$/ { print (name == "" ? "(unnamed step)" : name) }
+' "$WORKFLOW" > "$SKIPFILE"
+multiline=$(grep -c . "$SKIPFILE" 2>/dev/null || echo 0)
+other=$((declared - n - multiline))
+
+echo "" | tee -a "$LOG"
+echo "NOT EXECUTED HERE -- $WORKFLOW declares $declared run: step(s); this run executed $n." | tee -a "$LOG"
+while IFS= read -r s; do
+  [ -z "$s" ] && continue
+  echo "  multi-line 'run: |' block, not extractable  ->  $s" | tee -a "$LOG"
+done < "$SKIPFILE"
+if [ "$other" -gt 0 ]; then
+  echo "  $other further single-line step(s) filtered by the extractor (the npm ci install)" | tee -a "$LOG"
+fi
+echo "  A green below does NOT cover the steps above. Run them yourself -- 'npm test' above all." | tee -a "$LOG"
+
 echo "" | tee -a "$LOG"
 echo "TOTAL=$n FAILS=$fails" | tee -a "$LOG"
 echo "log: $LOG"
