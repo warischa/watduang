@@ -25,8 +25,16 @@
 // Neither strip can hide a live hazard sharing the line; each function says why, and both directions
 // are pinned by selftest.
 //
-// ponytail: SCOPE CEILING — the globbed set is src/games/*.ts, i.e. the game modules. The element
-// itself is DECLARED IN NEITHER OF THEM: `<div id="stage" data-game-id={game.id}>` is markup in
+// ponytail: SCOPE — THREE regions, because ADR-0014's invariant lives in three places and no single
+// glob reaches all of them:
+//   1. src/games/*.ts — the game modules that fill #stage at runtime;
+//   2. src/layouts/GameLayout.astro, between the #stage tags only (STAGE_FILE below);
+//   3. src/play/<id>/ — every play route's own directory (gh#167, listPlayFiles below).
+// Region 3 was the hole: NO play route renders #stage, so regions 1 and 2 scanned a layer the party
+// category's live play surface does not use, and an `<a href>` typed into src/play/<id>/markup.html
+// shipped with every gate green. The ceiling this comment used to record — "the globbed set is
+// src/games/*.ts" — is lifted, not reworded.
+// The element itself is DECLARED IN NEITHER of regions 1 and 2's sources: `<div id="stage" data-game-id={game.id}>` is markup in
 // src/layouts/GameLayout.astro, so until gh#68 an `<a href>` typed straight between those tags broke
 // ADR-0014 with every gate green. That file is now checked too, but ONLY between the stage's own open
 // and close tags (STAGE_FILE below) — a whole-file scan is still refused, because GameLayout.astro's
@@ -92,6 +100,40 @@ function listTargetFiles(dir) {
     .sort();
 }
 
+// --- gh#167: the play-route region --------------------------------------------------------
+// The party category's play routes do not render #stage at all — the layer both halves of this gate
+// scanned above (src/games/*.ts + GameLayout.astro) is not the layer a player taps on /game/<id>/play.
+// So the protected region here is a DIRECTORY boundary: everything under src/play/<id>/. That
+// boundary is what makes a flat ban safe — the one crawlable exit link ADR-0014 mandates lives in
+// page chrome (src/shell/PlayExit.astro, src/pages/game/<id>/play.astro), OUTSIDE src/play/ by
+// construction, so nothing in this region is allowed to be an anchor and no allow-list is needed.
+// Inverted deliberately: the safe set is empty today (zero real anchors across all 11 routes,
+// measured), and the hazardous set grows with every port, so "ban all" converges and "allow these"
+// would not.
+const playDir = path.join(repoRoot, 'src/play');
+const PLAY_EXTS = new Set(['.html', '.js', '.ts']);
+
+/** Every scannable file inside each play-route DIRECTORY under `dir`. Derived from the directories
+ *  themselves, never a list of route ids — a twelfth port is scanned the day its directory lands.
+ *
+ *  ponytail: TWO disclosed ceilings, both fail-open, both cheap to lift if they ever bite.
+ *  (1) Only files DIRECTLY inside src/play/<id>/ are scanned, and only .html/.js/.ts — a route
+ *      shipping src/play/<id>/parts/foo.js is invisible here, and so is the shared _mascots.ts /
+ *      _setup-bridge.ts sitting directly under src/play/ (they are not inside a route directory).
+ *      Both are pinned by the derivation selftest, so widening must update that case.
+ *  (2) *.test.* files are skipped on purpose: src/play/name-escaping.test.mjs holds a hostile
+ *      `<a href>` fixture BY DESIGN, and a test that plants an anchor to prove it gets escaped must
+ *      not read as a route rendering one. Tests render nothing. */
+function listPlayFiles(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((entry) => fs.readdirSync(path.join(dir, entry.name))
+      .filter((name) => PLAY_EXTS.has(path.extname(name)) && !name.includes('.test.'))
+      .map((name) => `${entry.name}/${name}`))
+    .sort();
+}
+
 // ---------------------------------------------------------------------------
 // Pure: text -> violations. No file IO here, so the selftest can feed it strings directly.
 // ---------------------------------------------------------------------------
@@ -104,7 +146,13 @@ function listTargetFiles(dir) {
 //
 // `href` is matched before `=` OR `:` — the property-literal form `Object.assign(link, { href: url })`
 // builds exactly the same navigation target and carried no `=` at all. `href:` appears nowhere in the
-// scanned set today (measured: src/games/*.ts has zero `href` tokens), so this costs no false positive.
+// scanned set today, so this costs no false positive — re-measured over the WIDENED set (gh#167), not
+// carried over from the src/games-only reading it replaces: across src/games/*.ts plus every
+// src/play/<id>/*.{html,js,ts}, zero `href:` and zero `href=` survive the strips. The only raw `href`
+// tokens in that whole set are the two ADR-0014 prose sentences inside HTML comments
+// (src/play/dice-loser/markup.html, src/play/timebomb/markup.html), which stripHtmlComments blanks.
+// Re-measure rather than trusting this paragraph:
+//   grep -rn 'href' src/games/*.ts src/play/*/markup.html src/play/*/main.* src/play/*/roster-bridge.ts
 //
 // The anchor pattern's trailing class is ` \t>` and deliberately NOT `\s`: with whole-text matching a
 // `\s` there spans the newline, so any line ENDING in `<a` — a comparison a formatter wrapped after
@@ -293,8 +341,45 @@ function stripTypeSpace(text) {
   return out;
 }
 
-function findViolations(rawText) {
-  const text = stripTypeSpace(stripComments(rawText));
+/** Blanks `<!-- … -->` comments, the .html analogue of stripComments(). Length-preserving, same as
+ *  every other strip here, so offsets and line numbers are unchanged.
+ *
+ *  Why it is required and not optional: every play route's markup.html states the ADR-0014 rule as
+ *  prose — "No <a href> anywhere in here" — inside an HTML comment. Feeding that to the pattern set
+ *  unstripped makes the sentence a violation of the rule it states, on two routes, on the first run.
+ *  The fix is stripping the comment, never loosening the pattern.
+ *
+ *  Not the JS walk: these files have no `<script>` and no `//` anywhere (measured), but a URL in an
+ *  href-less attribute would give the JS walk a false comment opener that blanks the rest of the
+ *  line — including a live anchor after it. A `<!--` with no closing `-->` matches nothing and so
+ *  blanks nothing: fail-SAFE, the file scans whole. */
+function stripHtmlComments(text) {
+  return text.replace(/<!--[\s\S]*?-->/g, blank);
+}
+
+/** `kind` picks how much of the text is blanked before the patterns run, and the three regions do
+ *  NOT get the same treatment:
+ *    'html' — blank <!-- --> only. Required, not optional: src/play/dice-loser/markup.html and
+ *             src/play/timebomb/markup.html both state the ADR-0014 rule as prose ("No <a href>
+ *             anywhere in here") inside a comment, and unstripped that sentence violates the rule
+ *             it states.
+ *    'raw'  — blank NOTHING. This is the play region's .js/.ts (see scanTargetFiles's caller).
+ *             stripComments() is fail-OPEN on a quote-bearing regex literal (its header explains
+ *             why, and why wiring findRegexLiterals() in is a trap), and 7 files under a play route
+ *             directory carry one today — so stripping there can blank a live anchor out of the
+ *             scan. Raw has no walk to desync. It is affordable because no play script contains an
+ *             `<a` or an `href` in code OR in a comment (measured; re-measure with
+ *             `grep -rnE '<a |href' src/play/<id>/main.js src/play/<id>/roster-bridge.ts`, globbing
+ *             the id), and it fails CLOSED: the day one does, this reds. That is the correct outcome for a
+ *             live anchor and a tolerable one for a commented-out anchor or an `href: string` type
+ *             in a play bridge — which is exactly what would start it false-firing. Fix the comment,
+ *             or lift the ceiling in stripComments() first and switch this back to 'js'.
+ *    'js'   — the game modules and STAGE_FILE: comments and TypeScript type space blanked. Those
+ *             files DO carry ADR-0014 prose and `interface { href: string }` declarations, so the
+ *             strips are load-bearing there, and their regex literals are pinned quote-free below. */
+function findViolations(rawText, kind = 'js') {
+  const text =
+    kind === 'html' ? stripHtmlComments(rawText) : kind === 'raw' ? rawText : stripTypeSpace(stripComments(rawText));
   const violations = [];
   const lines = rawText.split('\n'); // snippets quote REAL source, which is what blanking (not deleting) buys
   const lineOf = (index) => text.slice(0, index).split('\n').length;
@@ -494,6 +579,82 @@ function selftest() {
     fs.rmSync(globTmpDir, { recursive: true, force: true });
   }
 
+  // --- gh#167: the PLAY-ROUTE region. src/play/<id>/ is a directory boundary, so the scanned set is
+  // derived from the directories themselves — a twelfth port is scanned the day its directory lands.
+  // Page chrome (src/shell/PlayExit.astro, src/pages/game/<id>/play.astro) is OUTSIDE src/play/ by
+  // construction, so the crawlable exit link ADR-0014 mandates is never in this set and the rule here
+  // is a flat ban, not an allow-list. Calibrated: reverting listPlayFiles to a hardcoded list of the
+  // route ids makes the derivation case meaningless, and dropping the .html branch out of
+  // findViolations makes the HTML-comment cases below go red. ---
+  const playTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'no-nav-play-set-'));
+  try {
+    fs.mkdirSync(path.join(playTmpDir, 'a-route'));
+    for (const name of ['markup.html', 'main.js', 'roster-bridge.ts', 'style.css', 'fairness.test.mjs', 'shape.test.ts']) {
+      fs.writeFileSync(path.join(playTmpDir, 'a-route', name), '');
+    }
+    fs.mkdirSync(path.join(playTmpDir, 'b-route'));
+    fs.writeFileSync(path.join(playTmpDir, 'b-route', 'main.ts'), '');
+    fs.writeFileSync(path.join(playTmpDir, '_shared.ts'), '');
+    assert.deepEqual(
+      listPlayFiles(playTmpDir),
+      ['a-route/main.js', 'a-route/markup.html', 'a-route/roster-bridge.ts', 'b-route/main.ts'],
+      'listPlayFiles must derive every .html/.js/.ts under each play-route DIRECTORY, and exclude .css, test files and the shared files sitting directly under src/play/',
+    );
+    console.log('PASS play-route set derivation: per-directory glob picks up markup.html/main.js/main.ts/roster-bridge.ts, excludes .css, *.test.*, and files directly under src/play/');
+    assert.deepEqual(listPlayFiles(path.join(playTmpDir, 'does-not-exist')), [], 'a missing play directory must yield an empty list, never throw');
+  } finally {
+    fs.rmSync(playTmpDir, { recursive: true, force: true });
+  }
+
+  // Known-bad, PLAY MARKUP: a real anchor in the body of a route's markup.html is the exact hazard
+  // gh#167 widened this gate to catch. The old (src/games-only) script exits 0 on this file.
+  const playDirty = findViolations('<section class="round">\n  <a href="/">x</a>\n</section>\n', 'html');
+  assert.ok(playDirty.some((v) => v.line === 2), 'an <a href> in play markup must be flagged on its own line');
+  console.log(`PASS play markup known-bad: ${playDirty.length} hit(s) on a planted <a href="/"> in a route's markup`);
+
+  // Other direction, and the must-NOT-fire control this widening ships with: every play route's
+  // markup carries the ADR-0014 rule itself as prose inside an HTML comment (src/play/dice-loser/
+  // markup.html and src/play/timebomb/markup.html both say "No <a href> anywhere in here"). Without
+  // the .html branch blanking <!-- --> those comments ARE violations of the rule they state — the
+  // same trap the JS `stripComments` case above pins. The pattern must not be weakened to dodge it.
+  for (const [label, text] of [
+    ["the ADR-0014 prose every route's markup carries", '<!--\n  No <a href> anywhere in here: ADR-0014 keeps navigation out of the play surface.\n-->\n<section></section>'],
+    ['a commented-out anchor', '<!-- was: <a href="/">back</a> -->'],
+  ]) {
+    assert.deepEqual(findViolations(text, 'html'), [], `${label}: HTML comment prose must not be a violation`);
+  }
+  // ...and blanking a comment must not become a bypass: a live anchor sharing the line still reds.
+  assert.ok(
+    findViolations('<!-- no anchors here --><a href="/">x</a>', 'html').length > 0,
+    'an anchor after an HTML comment on the same line must still be flagged',
+  );
+  console.log('PASS play markup, other direction: HTML-comment prose citing ADR-0014 and a commented-out anchor are clean, while an anchor sharing the line with a comment still reds');
+
+  // Known-bad, PLAY SCRIPT: the reason play .js/.ts is scanned RAW ('raw' kind, no stripComments).
+  // Every element of this fixture is real: `.replace(/'/g, '&#039;')` is lifted verbatim from the
+  // escapeHtml replace chain in src/play/zero-trigger/main.js — cited by symbol, not by line, because
+  // added-lineno-citation-check.mjs rejects a new line-number citation into a non-.md target, and it
+  // rejected this very comment once. 7 files under src/play/*/ carry a quote-bearing regex literal. That
+  // literal desyncs stripComments()'s string walk (see its header), the walk then reads the `/*`
+  // inside an ordinary string as a comment opener, and it blanks live code up to the next `*/` —
+  // taking the anchor between them out of the scan. Measured against the pre-fix script: this exact
+  // text returned ZERO violations through the 'js' kind while carrying a live <a href>. Route the
+  // play walk back through stripComments and this case goes green again, which is the failure.
+  const playScriptDirty = findViolations(
+    [
+      "const esc = raw.replace(/'/g, '&#039;');",
+      "const open = '/*';",
+      'const planted = `<a href="/">go</a>`;',
+      "const close = '*/';",
+    ].join('\n'),
+    'raw',
+  );
+  assert.ok(
+    playScriptDirty.some((v) => v.line === 3),
+    'a live <a href> in a play route script must be flagged even when a quote-bearing regex literal and a string holding /* precede it',
+  );
+  console.log(`PASS play script known-bad: ${playScriptDirty.length} hit(s) on an <a href> that a stripComments desync blanks out of the scan`);
+
   // --- gh#68: #stage's own declaration, pinned to EMPTY. Fixture text, never the real file, so
   // fixing GameLayout.astro can never retune this. The chrome here is the real thing the layout
   // ships above the stage — the ADR-0014-MANDATED `<a href="/games/">`, its brace comment (with an
@@ -685,16 +846,20 @@ function selftest() {
 // ---------------------------------------------------------------------------
 // Scans `files` under `dir`, returning how many were actually read (not files.length) and whether
 // any carried a violation. `log` is injectable so the selftest can silence real output.
-function scanTargetFiles(dir, files, log = console.error) {
+// `prefix` names the region in the failure line, so a play-route hit reads as src/play/<id>/… and is
+// attributable to a route by its own message.
+// `nonHtmlKind` is what a non-.html file in this region is scanned as — 'js' (comments and type
+// space blanked) for src/games, 'raw' (nothing blanked) for src/play. See findViolations's header.
+function scanTargetFiles(dir, files, log = console.error, prefix = 'src/games', nonHtmlKind = 'js') {
   let scannedCount = 0;
   let anyFail = false;
   for (const name of files) {
     const abs = path.join(dir, name);
     if (!fs.existsSync(abs)) continue; // ponytail: don't hard-fail if a listed file moves; validate-games.mjs already owns "does every game exist"
     scannedCount++;
-    const violations = findViolations(fs.readFileSync(abs, 'utf8'));
+    const violations = findViolations(fs.readFileSync(abs, 'utf8'), path.extname(name) === '.html' ? 'html' : nonHtmlKind);
     for (const v of violations) {
-      log(`src/games/${name}:${v.line} · ${v.pattern} · ${v.snippet}`);
+      log(`${prefix}/${name}:${v.line} · ${v.pattern} · ${v.snippet}`);
       anyFail = true;
     }
   }
@@ -722,9 +887,20 @@ async function main() {
   const stageViolations = findStageViolations(fs.readFileSync(stageAbs, 'utf8'));
   for (const v of stageViolations) console.error(v);
 
-  const anyFail = gamesFail || stageViolations.length > 0;
+  // gh#167: the play-route region. Not affected by GAMES_DIR_OVERRIDE — that flag narrows the game
+  // glob only, so this region is scanned on every run. Empty is a failure for the same reason the
+  // game set is: 11 route directories exist today, and a derivation that suddenly matches none is a
+  // gate scanning nothing, not a repo with no play routes (docs/adr/0019).
+  const PLAY_FILES = listPlayFiles(playDir);
+  if (PLAY_FILES.length === 0) {
+    console.error(`no-nav-in-stage-check: matched zero files under ${playDir} — the play-route set must never be empty (docs/adr/0019).`);
+    process.exit(1);
+  }
+  const { scannedCount: playScannedCount, anyFail: playFail } = scanTargetFiles(playDir, PLAY_FILES, console.error, 'src/play', 'raw');
+
+  const anyFail = gamesFail || playFail || stageViolations.length > 0;
   if (anyFail) {
-    console.error('\nADR-0014: no navigation target inside #stage — not appended by a game module at runtime, and not typed into the layout that declares it (docs/adr/0014-no-navigation-target-inside-the-stage.md).');
+    console.error('\nADR-0014: no navigation target inside the play surface — not appended by a game module at runtime, not typed into the layout that declares #stage, and not anywhere under src/play/<id>/ (docs/adr/0014-no-navigation-target-inside-the-stage.md). The one crawlable exit link lives in page chrome, outside all three.');
     process.exit(1);
   }
   const overrideNote = process.env.GAMES_DIR_OVERRIDE ? ' (GAMES_DIR_OVERRIDE active)' : '';
@@ -739,7 +915,9 @@ async function main() {
   // rather than a reader having to infer narrowing from the absence of a failure.
   // gh#68: the stage file is named in the success line too — the two surfaces are checked, so a
   // green must say both, not just the count of modules (docs/adr/0019).
-  console.log(`no-nav-in-stage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}; ${STAGE_FILE} declares exactly one #stage and it ships empty`);
+  // gh#167: the play-route count is printed too, and it is playScannedCount (files actually read),
+  // never PLAY_FILES.length — a printed number must trace to what was scanned, not to a list length.
+  console.log(`no-nav-in-stage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}; ${STAGE_FILE} declares exactly one #stage and it ships empty; ${playScannedCount} file(s) across ${new Set(PLAY_FILES.map((f) => f.split('/')[0])).size} play-route director(ies) under ${playDir} carry no anchor`);
 }
 
 await main();
