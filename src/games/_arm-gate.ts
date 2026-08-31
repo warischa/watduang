@@ -30,13 +30,20 @@ export const ARM_DELAY_MS = 400;
  *  until `stage` has been quiet for ARM_DELAY_MS. Any pointerdown inside the stage restarts the
  *  window, so the gate fails closed: a ghost tap costs one deliberate re-tap, never a stolen action.
  *  Returns a canceller the caller pushes onto its own teardown list. */
-function armAfterQuiet(stage: HTMLElement, controls: readonly HTMLButtonElement[]): () => void {
+function armAfterQuiet(
+  stage: HTMLElement,
+  controls: readonly HTMLButtonElement[],
+  onArm?: () => void,
+): () => void {
   let timer: ReturnType<typeof setTimeout> | undefined;
   for (const control of controls) control.disabled = true;
 
   const arm = (): void => {
     stage.removeEventListener('pointerdown', restart);
     for (const control of controls) control.disabled = false;
+    // Runs AFTER the blanket re-enable, so a caller that owns a control's `disabled` for its own
+    // reason can take it back. Optional and undefined for every caller that has no such control.
+    onArm?.();
   };
   const restart = (): void => {
     clearTimeout(timer);
@@ -59,8 +66,20 @@ function armAfterQuiet(stage: HTMLElement, controls: readonly HTMLButtonElement[
  *  `stage`'s current children for every rendered <button> and gates all of them except `except`. This
  *  exists so the gate is self-maintaining — a button a render function adds later is picked up on the
  *  next call automatically, with no call site to edit, so a new control cannot silently ship ungated
- *  the way a hand-written `[a, b, c]` list would let it (issue #42). */
-export function armAllButtons(stage: HTMLElement, except: readonly HTMLButtonElement[] = []): () => void {
+ *  the way a hand-written `[a, b, c]` list would let it (issue #42).
+ *
+ *  `onArm` is the one hook out of the gate: it fires once, synchronously, right after the window
+ *  closes and every collected control has been set `disabled = false`. It exists because a control
+ *  whose enabled state is OWNED by the page (pinocchio-luck's `#start`, owned by validateCount())
+ *  is otherwise forced enabled by that blanket write, which would offer an invalid roster as
+ *  startable. Excepting such a control instead would leave it with no ghost-tap guard at all, so the
+ *  hook re-asserts the owner's state rather than opting the control out of the gate. Default
+ *  `undefined` — the gate's behaviour for every caller that omits it is byte-for-byte what it was. */
+export function armAllButtons(
+  stage: HTMLElement,
+  except: readonly HTMLButtonElement[] = [],
+  onArm?: () => void,
+): () => void {
   const found: HTMLButtonElement[] = [];
   const walk = (node: Element): void => {
     for (let i = 0; i < node.children.length; i++) {
@@ -70,5 +89,5 @@ export function armAllButtons(stage: HTMLElement, except: readonly HTMLButtonEle
     }
   };
   walk(stage);
-  return armAfterQuiet(stage, found.filter((btn) => !except.includes(btn)));
+  return armAfterQuiet(stage, found.filter((btn) => !except.includes(btn)), onArm);
 }

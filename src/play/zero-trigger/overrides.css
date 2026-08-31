@@ -97,3 +97,14 @@
   .modal-backdrop { animation-duration: 0.1s; }
   .modal-window { animation-duration: 0.12s; }
 }
+
+/* Off-screen but readable: the round-start live region (#zt-live) carries no visual duty, and
+   display:none / visibility:hidden would take it out of the accessibility tree entirely. */
+.zt-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

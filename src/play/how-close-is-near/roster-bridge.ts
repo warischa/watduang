@@ -19,6 +19,24 @@ const NAME_INPUT = '.player-text-input';
 // still in the DOM for saveOnSetupComplete to read. A later control would read zero inputs.
 const NAMES_DONE = '#btnNextNames';
 
+/** Drives one of the mockup's own controls the way a player would.
+ *
+ *  main.js now arms the ghost-tap gate on the panels it reveals (ADR-0017), which ships every button
+ *  on a freshly revealed panel `disabled` for 400ms. `HTMLElement.click()` on a disabled form control
+ *  returns without dispatching anything and without throwing, so seeding would stop here silently and
+ *  the group would be asked to type its names again. Seeding is not a tap: it is this module replaying
+ *  what the player already told the device, so it clears the flag for the one call and puts it back.
+ *  The gate's own timer still owns when the HUMAN may press the button. Safe on a non-button element:
+ *  reading `.disabled` off one yields undefined, which is not `=== true`, so the plain-click path runs
+ *  and nothing is written back. */
+function drive(el: HTMLElement): void {
+  const btn = el as HTMLButtonElement;
+  const wasDisabled = btn.disabled === true;
+  if (wasDisabled) btn.disabled = false;
+  el.click();
+  if (wasDisabled) btn.disabled = true;
+}
+
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
   const group = loadGroup();
@@ -49,11 +67,11 @@ function seedFromRoster(): void {
   // EVERY control is re-queried after every click. main.js re-renders the screen container by
   // replacing its children, so a node captured before a click is detached by the time the next one is
   // due, and this mockup binds its handlers per node — a click on a detached node reaches nothing.
-  chip.click();
+  drive(chip);
 
   const toNames = document.getElementById('btnNextCount');
   if (!toNames) return;
-  toNames.click();
+  drive(toNames);
 
   const inputs = document.querySelectorAll<HTMLInputElement>(NAME_INPUT);
   if (inputs.length < 2) return;
@@ -66,7 +84,8 @@ function seedFromRoster(): void {
 
   if (editing) return;
   // Advance to the lose-condition screen and stop there: see the note at the top of this file.
-  document.getElementById('btnNextNames')?.click();
+  const nextNames = document.getElementById('btnNextNames');
+  if (nextNames) drive(nextNames);
 }
 
 if (document.readyState === 'loading') {

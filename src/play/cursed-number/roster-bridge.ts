@@ -24,6 +24,24 @@ const NAME_INPUT = '.mascot-name-input';
 const COUNT_PLUS = '#countPlusBtn';
 const COUNT_MINUS = '#countMinusBtn';
 
+/** Drives one of the mockup's own controls the way a player would.
+ *
+ *  main.js now arms the ghost-tap gate on the panels it reveals (ADR-0017), which ships every button
+ *  on a freshly revealed panel `disabled` for 400ms. `HTMLElement.click()` on a disabled form control
+ *  returns without dispatching anything and without throwing, so seeding would stop here silently and
+ *  the group would be asked to type its names again. Seeding is not a tap: it is this module replaying
+ *  what the player already told the device, so it clears the flag for the one call and puts it back.
+ *  The gate's own timer still owns when the HUMAN may press the button. Safe on a non-button element:
+ *  reading `.disabled` off one yields undefined, which is not `=== true`, so the plain-click path runs
+ *  and nothing is written back. */
+function drive(el: HTMLElement): void {
+  const btn = el as HTMLButtonElement;
+  const wasDisabled = btn.disabled === true;
+  if (wasDisabled) btn.disabled = false;
+  el.click();
+  if (wasDisabled) btn.disabled = true;
+}
+
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
   const group = loadGroup();
@@ -57,7 +75,7 @@ function seedFromRoster(): void {
   // stepper that stops moving (it refuses to go past 2 or past MAX_PLAYERS by design), not a retry
   // budget: without it a target the stepper cannot reach would spin forever.
   for (let guard = 0; guard <= MAX_PLAYERS && seatCount() !== target; guard++) {
-    (target > seatCount() ? plus : minus).click();
+    drive(target > seatCount() ? plus : minus);
   }
 
   // Re-queried after the clicks, never before. renderMascotsList() rebuilds the panel through
@@ -75,7 +93,8 @@ function seedFromRoster(): void {
   });
 
   if (editing) return;
-  document.querySelector<HTMLButtonElement>(START)?.click();
+  const start = document.querySelector<HTMLButtonElement>(START);
+  if (start) drive(start);
 }
 
 if (document.readyState === 'loading') {

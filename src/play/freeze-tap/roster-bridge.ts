@@ -16,6 +16,24 @@ import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
 const START = '#startGameBtn';
 const NAME_INPUT = '.roster-input';
 
+/** Drives one of the mockup's own controls the way a player would.
+ *
+ *  main.js now arms the ghost-tap gate on the panels it reveals (ADR-0017), which ships every button
+ *  on a freshly revealed panel `disabled` for 400ms. `HTMLElement.click()` on a disabled form control
+ *  returns without dispatching anything and without throwing, so seeding would stop here silently and
+ *  the group would be asked to type its names again. Seeding is not a tap: it is this module replaying
+ *  what the player already told the device, so it clears the flag for the one call and puts it back.
+ *  The gate's own timer still owns when the HUMAN may press the button. Safe on a non-button element:
+ *  reading `.disabled` off one yields undefined, which is not `=== true`, so the plain-click path runs
+ *  and nothing is written back. */
+function drive(el: HTMLElement): void {
+  const btn = el as HTMLButtonElement;
+  const wasDisabled = btn.disabled === true;
+  if (wasDisabled) btn.disabled = false;
+  el.click();
+  if (wasDisabled) btn.disabled = true;
+}
+
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
   const group = loadGroup();
@@ -48,7 +66,7 @@ function seedFromRoster(): void {
     if (!display || !inc || !dec) return;
     const current = Number.parseInt(display.textContent ?? '', 10);
     if (!Number.isFinite(current) || current === target) break;
-    (current < target ? inc : dec).click();
+    drive(current < target ? inc : dec);
   }
 
   // The final render owns however many .roster-input rows it actually drew; fill only those.
@@ -61,7 +79,7 @@ function seedFromRoster(): void {
   });
 
   const start = document.querySelector<HTMLElement>(START);
-  if (!editing && inputs.length >= 2) start?.click();
+  if (!editing && inputs.length >= 2 && start) drive(start);
 }
 
 if (document.readyState === 'loading') {

@@ -1,3 +1,8 @@
+// ADR-0017's ghost-tap gate. Imported at the top of the file rather than inside the IIFE below
+// because an import declaration is only legal at module top level; play.astro already loads this
+// file as a module, so nothing about how it ships changes.
+import { armAllButtons } from '../../games/_arm-gate.ts';
+
 (() => {
   'use strict';
 
@@ -212,6 +217,29 @@
   let trauma = 0.0;
   let lastFrameTime = performance.now();
 
+  // ADR-0046. prefers-reduced-motion is a CSS media feature: it does not reach the two style writes
+  // this file makes from script (shakeRoot's transform, the target button's colour), so the query is
+  // read here as well as in style.css. Reduce, not remove — everything that carries the round's
+  // STATE still happens on the normal path: the target still changes colour, text and symbol at the
+  // same instant, the decoys still appear, the reaction time is still measured. What stops is the
+  // decorative layer only: the camera shake, the haptic pulse and the particle spray.
+  // Live, not a snapshot: a player who turns the setting on mid-round gets the quiet version from
+  // that moment, and the shake already in flight is cancelled instead of finishing.
+  const reducedMotionQuery =
+    typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  let reducedMotion = reducedMotionQuery ? reducedMotionQuery.matches : false;
+  if (reducedMotionQuery && typeof reducedMotionQuery.addEventListener === 'function') {
+    reducedMotionQuery.addEventListener('change', (event) => {
+      reducedMotion = event.matches;
+      if (reducedMotion) {
+        // The loop paints 'none' on the next frame once trauma is spent, so clearing the two
+        // sources is enough — no second transform write to keep in sync with the loop.
+        trauma = 0;
+        particles.length = 0;
+      }
+    });
+  }
+
   function resizeCanvas() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(window.innerWidth * dpr);
@@ -222,6 +250,9 @@
   resizeCanvas();
 
   function addTrauma(amount = 0.8) {
+    // Decoration, not state: the screen shake and its haptic twin say nothing the screen does not
+    // already say in words, so reduced motion drops both (ADR-0046).
+    if (reducedMotion) return;
     trauma = Math.min(1.0, trauma + amount);
     if (navigator.vibrate) {
       try { navigator.vibrate(amount >= 0.7 ? [80, 40, 120] : 40); } catch(e) {}
@@ -229,6 +260,7 @@
   }
 
   function spawnConfetti() {
+    if (reducedMotion) return;
     const w = window.innerWidth;
     const colors = ['#38bdf8', '#f59e0b', '#10b981', '#ec4899', '#a855f7', '#f43f5e'];
     for (let i = 0; i < 70; i++) {
@@ -249,6 +281,7 @@
   }
 
   function spawnShockParticles(x, y, isHazard = false) {
+    if (reducedMotion) return;
     const colors = isHazard 
       ? ['#ef4444', '#f87171', '#fca5a5', '#dc2626'] 
       : ['#38bdf8', '#60a5fa', '#a7f3d0', '#ffffff'];
@@ -321,7 +354,7 @@
      3. TRIGGER CONDITIONS & DECOY SPECIFICATIONS (THAI)
      ========================================================================== */
   const TRIGGER_CONDITIONS = [
-    // หมวดสี
+    // Colour conditions
     {
       id: 'COLOR_RED',
       category: 'color',
@@ -386,7 +419,7 @@
         { bg: '#64748b', text: 'สีเทา', symbol: '●' }
       ]
     },
-    // หมวดข้อความ
+    // Word conditions
     {
       id: 'TEXT_TAP',
       category: 'text',
@@ -435,7 +468,7 @@
         { bg: '#334155', text: 'แข็งค้างไว้', symbol: '❄️' }
       ]
     },
-    // หมวดสัญลักษณ์
+    // Symbol conditions
     {
       id: 'SYMBOL_STAR',
       category: 'symbol',
@@ -819,7 +852,9 @@
       if (engine.state === GameState.WAITING || engine.state === GameState.TRIGGERED) {
         engine.clearTimers();
         engine.interruptedState = engine.state;
-        document.getElementById('interruptionModal').style.display = 'flex';
+        const modal = document.getElementById('interruptionModal');
+        modal.style.display = 'flex';
+        armPanel(modal);
       }
     }
   }
@@ -827,7 +862,9 @@
   window.addEventListener('blur', () => {
     if (engine.state === GameState.WAITING || engine.state === GameState.TRIGGERED) {
       engine.clearTimers();
-      document.getElementById('interruptionModal').style.display = 'flex';
+      const modal = document.getElementById('interruptionModal');
+      modal.style.display = 'flex';
+      armPanel(modal);
     }
   });
 
@@ -841,6 +878,53 @@
      6. UI RENDERER & SCREEN TEMPLATES
      ========================================================================== */
   const mainContent = document.getElementById('mainContent');
+
+  // ADR-0017: every screen this route shows is mounted by replacing an existing container's
+  // innerHTML, so the gate has to be re-armed on each reveal — one call at init would arm the setup
+  // screen's buttons and nothing after it. One canceller PER CONTAINER, because a container is
+  // reused across screens: without it every render would leave another pointerdown listener on the
+  // same node, each one still flipping `disabled` on buttons that are no longer in the document.
+  const disarmers = new Map();
+  function armPanel(el, except = []) {
+    if (!el) return;
+    const cancel = disarmers.get(el);
+    if (cancel) cancel();
+    disarmers.set(el, armAllButtons(el, except));
+  }
+
+  // The controls a player deliberately taps twice in a row, so the 400ms window must never cover
+  // them. _arm-gate.ts records that ceiling as PER CONTROL, and the count steppers are the case it
+  // names: a group of eight presses + six times in a burst, and a gate that swallowed presses 2..6
+  // would take the setup away rather than protect it. Same list cannon-flag's rapidTapControls()
+  // keeps for its own steppers. Re-queried per call because renderSetupScreen() replaces
+  // #mainContent wholesale — a cached reference would name a detached node. Empty on every other
+  // screen, where neither id exists, so one unconditional call covers the whole route.
+  function rapidTapControls() {
+    return [document.getElementById('decPlayerBtn'), document.getElementById('incPlayerBtn')]
+      .filter(Boolean);
+  }
+
+  // The live region ships empty in markup.html; this is the only thing that writes it. Round state
+  // ONLY — whose turn it is and what the round's rule is, both of which are already on screen in
+  // large type. The trigger itself is never announced: a screen reader firing at the instant the
+  // target goes live would hand one player a cue the others do not have, which is the whole game.
+  const liveEl = document.getElementById('ftRoundLive');
+  function announce(message) {
+    if (liveEl) liveEl.textContent = message;
+  }
+
+  function announceForState() {
+    const cond = engine.currentCondition;
+    if (engine.state === GameState.RULE_REVEAL) {
+      announce(`เริ่มรอบใหม่ กติกาของรอบนี้: ${cond ? cond.prompt : ''}`);
+      return;
+    }
+    if (engine.state === GameState.PASS_DEVICE) {
+      const player = engine.getCurrentPlayer();
+      const who = player ? player.name : 'ผู้เล่นคนถัดไป';
+      announce(engine.isSuddenDeath ? `รอบดวลตัดสิน ถึงตาของ ${who}` : `ถึงตาของ ${who} ส่งเครื่องให้เขา`);
+    }
+  }
 
   function renderApp() {
     mainContent.innerHTML = '';
@@ -872,6 +956,18 @@
         renderFinalResultsScreen();
         break;
     }
+
+    // Every screen, setup included. Setup was excepted here until both of the reasons for it were
+    // answered: (1) roster-bridge.ts seeds a saved group by clicking the setup controls and
+    // .click() on a `disabled` button dispatches nothing — that bridge now routes every
+    // programmatic press through its drive() helper, which clears the flag for the one call and
+    // restores it, so seeding no longer depends on the screen being ungated; (2) nothing else in
+    // this file writes .disabled, so arming cannot fight a second owner of the flag. And the hazard
+    // is real rather than theoretical: #resetAppBtn calls renderApp() with no page reload, so the
+    // second contact of a double-tap on it lands on a setup screen that was painted between the two
+    // contacts — exactly the ghost tap ADR-0017 exists to stop.
+    armPanel(mainContent, rapidTapControls());
+    announceForState();
   }
 
   // 1. SETUP SCREEN
@@ -1296,6 +1392,7 @@
   document.getElementById('testRunnerOpenBtn').addEventListener('click', () => {
     sound.playClick();
     testModal.style.display = 'flex';
+    armPanel(testModal);
     runAllUnitTests();
   });
 

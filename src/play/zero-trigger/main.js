@@ -5,6 +5,13 @@
 // The .ts extension is spelled out in full, the way cursed-number/main.js does it.
 import { MASCOTS } from '../_mascots.ts';
 
+// Ghost-tap gate (ADR-0014 / ADR-0016 / ADR-0017): every panel a transition reveals re-arms, because
+// the second contact of a double-tap aimed at the screen that just went away must not activate the
+// control that replaced it. Armed at the reveal seam, never inside a re-render of an already-visible
+// panel -- the roster re-renders on every add/remove tap, and gating there would disable the very
+// button the player is tapping twice on purpose (the per-control ceiling _arm-gate.ts records).
+import { armAllButtons } from '../../games/_arm-gate.ts';
+
     /**
      * PROCEDURAL WEB AUDIO SYNTHESIZER
      * Implements gamedev-skills/skills/web-audio-sound-synth specification
@@ -499,6 +506,10 @@ import { MASCOTS } from '../_mascots.ts';
         this.loadStorage();
         this.initUIBindings();
         this.renderPlayerRoster();
+
+        // First paint is a transition too: the tap that opened this route can still be mid-double.
+        const firstScreen = document.querySelector('.screen.active');
+        if (firstScreen) armAllButtons(firstScreen);
       }
 
       loadStorage() {
@@ -545,7 +556,10 @@ import { MASCOTS } from '../_mascots.ts';
         this.state.screen = newScreen;
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
         const target = document.getElementById(`screen-${newScreen.toLowerCase()}`);
-        if (target) target.classList.add('active');
+        if (target) {
+          target.classList.add('active');
+          armAllButtons(target);
+        }
 
         // Header buttons control
         const homeBtn = document.getElementById('btn-home-menu');
@@ -647,7 +661,10 @@ import { MASCOTS } from '../_mascots.ts';
       openModal(modalId) {
         this.synth.playClick();
         const modal = document.getElementById(modalId);
-        if (modal) modal.classList.add('active');
+        if (modal) {
+          modal.classList.add('active');
+          armAllButtons(modal);
+        }
       }
 
       closeModal(modalId) {
@@ -840,6 +857,20 @@ import { MASCOTS } from '../_mascots.ts';
         document.getElementById('lock-status-text').innerHTML = `<span>ส่งมือถือให้ <strong>${escapeHtml(activePlayer.name)}</strong> (หลบเลข ${this.state.forbiddenDigit})</span>`;
 
         this.renderPlayerStrip();
+        this.announceTurn(activePlayer);
+      }
+
+      /** Speaks the round change into #zt-live (gh#170). Carries only what the header already shows
+       *  on screen -- round, cycle, whose turn, and the shared forbidden digit that #game-forbidden-digit
+       *  displays to everyone. Nothing hidden from a sighted player is spoken here: the stopped time
+       *  is the outcome and is announced by nothing. Cleared first so an identical repeat still fires. */
+      announceTurn(activePlayer) {
+        const live = document.getElementById('zt-live');
+        if (!live) return;
+        live.textContent = '';
+        live.textContent =
+          `รอบที่ ${this.state.roundNumber} วงที่ ${this.state.cycleCount} · ` +
+          `ตาของ ${activePlayer.name} · หลบเลข ${this.state.forbiddenDigit}`;
       }
 
       renderPlayerStrip() {

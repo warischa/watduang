@@ -23,6 +23,18 @@
 // The .ts extension is spelled out in full, the way manifest.ts does it.
 import { CursedNumberGameModel } from '../../games/cursed-number.ts';
 import { MASCOTS } from '../_mascots.ts';
+// Ghost-tap gate (ADR-0014/ADR-0017). This route never rebuilds a stage: it reveals pre-existing
+// markup, and it does so on FOUR paths, each wired to armAllButtons at the reveal itself.
+//   1. showScreen()  -- toggles `.screen.active`. Every screen-to-screen move.
+//   2. the constructor -- screenSetup ships `active` in markup.html and never passes showScreen.
+//   3. the rulesBtn handler -- `#rulesModal.classList.add('active')`, 2 buttons, no showScreen.
+//   4. setInputMode() -- shows #sliderModeContainer / #keypadModeContainer by `style.display`
+//      INSIDE a screen that is already up, so showScreen's call has long since armed and left.
+// A fifth display toggle, #penaltyResultBox, contains no button and needs no call.
+// This list is the coverage claim, and it is only true while it is complete: a new reveal path that
+// does not appear here ships ungated, and scripts/arm-gate-coverage-check.mjs CANNOT catch that --
+// it asks whether the route imports and calls armAllButtons at all, not whether every reveal does.
+import { armAllButtons } from '../../games/_arm-gate.ts';
 
 
     /**
@@ -173,8 +185,12 @@ import { MASCOTS } from '../_mascots.ts';
 
         // ADR-0046: prefers-reduced-motion is a CSS media feature and does not reach anything drawn
         // from script, so it is read HERE, in the same file as the motion. The literal string is
-        // what scripts/js-motion-guard-check.mjs looks for in the modules it scans; this file is
-        // outside its glob, and the query is real regardless.
+        // what scripts/js-motion-guard-check.mjs looks for, and that gate now scans this route
+        // directory too. CORRECTED 2026-08-31: this comment used to say the file was outside the
+        // gate's glob. It no longer is -- and the sentence hid the mirror-image defect for months.
+        // This query covers the CANVAS ONLY. It cannot opt a stylesheet out: the route's CSS-declared
+        // transitions and keyframes are guarded by the @media (prefers-reduced-motion: reduce) block
+        // in overrides.css, and neither guard substitutes for the other.
         this.motionQuery =
           typeof window.matchMedia === 'function'
             ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -361,6 +377,17 @@ import { MASCOTS } from '../_mascots.ts';
         this.bindEvents();
         this.renderCountPills();
         this.renderMascotsList();
+
+        const first = document.getElementById(this.currentScreen);
+        if (first) armAllButtons(first);
+      }
+
+      /** Speaks `text` into the route's live region. Nothing here may name the cursed number: the
+       *  round only works while it is secret, and a live region is read out loud on the phone that
+       *  is being passed around. Whose turn it is, and that a turn began, is all that is announced. */
+      announce(text) {
+        const live = document.getElementById('cn-live');
+        if (live) live.textContent = text;
       }
 
       bindEvents() {
@@ -373,7 +400,13 @@ import { MASCOTS } from '../_mascots.ts';
 
         document.getElementById('rulesBtn').addEventListener('click', () => {
           this.sound.playClick();
-          document.getElementById('rulesModal').classList.add('active');
+          // A modal is a reveal path like any other (ADR-0017): this puts 2 buttons (closeRulesBtn,
+          // rulesOkBtn) under the finger that just tapped rulesBtn, and the close control sits in
+          // the same top-right corner rulesBtn does. armAllButtons is called on the revealed
+          // element, not through showScreen -- showScreen never runs on this path.
+          const modal = document.getElementById('rulesModal');
+          modal.classList.add('active');
+          armAllButtons(modal);
         });
         document.getElementById('closeRulesBtn').addEventListener('click', () => {
           document.getElementById('rulesModal').classList.remove('active');
@@ -516,6 +549,7 @@ import { MASCOTS } from '../_mascots.ts';
         const target = document.getElementById(screenId);
         if (target) {
           target.classList.add('active');
+          armAllButtons(target);
           this.currentScreen = screenId;
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -540,6 +574,14 @@ import { MASCOTS } from '../_mascots.ts';
           keypadCont.style.display = 'flex';
           this.keypadBuffer = String(this.game.selectedNumber);
         }
+        // The THIRD reveal path on this route, and the one with the tightest geometry: the tab
+        // strip sits directly above both containers, so the second contact of a double-tap on
+        // tabKeypadBtn lands on the keypad's top row (9 step buttons under slider, 12 keys under
+        // keypad). showScreen already armed the screen when it was shown; this reveal happens
+        // inside a screen that is already up, so it needs its own call. ADR-0016's premise holds
+        // per control: the 400ms is spent once per MODE SWITCH, not between two digits -- the gate
+        // stops disabling as soon as it arms, so rapid entry after the first tap is untouched.
+        armAllButtons(mode === 'slider' ? sliderCont : keypadCont);
       }
 
       setPlayerCount(count) {
@@ -643,6 +685,7 @@ import { MASCOTS } from '../_mascots.ts';
         badge.textContent = `🎯 โอกาสโดน: ${odds.fraction} (${odds.percent})`;
 
         this.renderPlayerStrip('handoffPlayerStrip');
+        this.announce(`เริ่มตาใหม่ ถึงตาของ ${player.name} ส่งเครื่องให้ผู้เล่นคนนี้`);
       }
 
       syncSelectionUI() {

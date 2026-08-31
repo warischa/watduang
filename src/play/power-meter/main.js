@@ -1,6 +1,34 @@
+// Ghost-tap gate (ADR-0014 / ADR-0016 / ADR-0017): every view this route renders re-arms its own
+// buttons, because the second contact of a double-tap aimed at the screen that just went away must
+// not activate the control that replaced it. This route replaces #view-root wholesale on every state
+// change, so arming once at init would gate nothing past the first screen.
+// The .ts extension is spelled out in full, the way src/play/zero-trigger/main.js does it.
+import { armAllButtons } from '../../games/_arm-gate.ts';
+
     /* ==========================================================================
        1. PURE LOGIC & DETERMINISTIC TIEBREAK ENGINE (2 DECIMAL PLACES)
        ========================================================================== */
+
+    // ADR-0046: prefers-reduced-motion is a CSS media feature and it does not reach the `.style`
+    // writes and requestAnimationFrame loops in this file, so the query is read HERE, in the same
+    // file as the motion it gates. style.css carrying an @media block does NOT cover any of it.
+    // Read PER CALL rather than cached into a boolean: a cached flag is a value an edit can pin to
+    // false while this file still reads as guarded, and reading live also means a player who flips
+    // the OS setting mid-round gets the new behaviour with no reload. Same shape as
+    // src/play/how-close-is-near/main.js.
+    // REDUCE, not remove, and this route is the sharp case: the gauge IS the mechanic, so it keeps
+    // rising and falling on the same clock and locks the same score -- only its repaint steps on a
+    // coarse cadence instead of every frame. What is dropped outright is the screen shake and most of
+    // the confetti: decoration that carries no state.
+    function prefersReducedMotion() {
+      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    // Reduced-motion repaint cadence, the shape src/games/timebomb.ts uses for its fuse, and the
+    // share of particles that still spawn, the shape src/play/how-close-is-near/main.js uses.
+    const REDUCED_PAINT_MS = 120;
+    const REDUCED_PARTICLE_SCALE = 0.25;
 
     /**
      * Stored as integer hundredths internally (e.g. 875 = 8.75)
@@ -299,7 +327,11 @@
     resizeCanvas();
 
     function addTrauma(amount = 0.5) {
-      trauma = Math.min(1.0, trauma + amount);
+      // ADR-0046: the screen shake carries no state -- the score is in the number on the card -- so
+      // under the reduce query it is dropped rather than slowed. The haptic below is NOT dropped:
+      // prefers-reduced-motion is about moving pictures, and the buzz is the feedback a player who
+      // asked for less motion still gets.
+      if (!prefersReducedMotion()) trauma = Math.min(1.0, trauma + amount);
       if (navigator.vibrate) {
         try {
           if (amount >= 0.7) {
@@ -312,6 +344,8 @@
     }
 
     function spawnSparkles(x, y, count = 20, color = '#00f2fe') {
+      // ADR-0046: thinned, not switched off -- a win still visibly celebrates.
+      if (prefersReducedMotion()) count = Math.max(1, Math.round(count * REDUCED_PARTICLE_SCALE));
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 1.5 + Math.random() * 4.5;
@@ -329,6 +363,8 @@
     }
 
     function spawnConfetti(count = 50) {
+      // ADR-0046: thinned, not switched off -- see spawnSparkles.
+      if (prefersReducedMotion()) count = Math.max(1, Math.round(count * REDUCED_PARTICLE_SCALE));
       const colors = ['#00f2fe', '#ffd700', '#ff2a5f', '#10b981', '#a855f7'];
       for (let i = 0; i < count; i++) {
         particles.push({
@@ -464,6 +500,26 @@
       }, 2400);
     }
 
+    // One arm at a time. armAllButtons returns a canceller, and #view-root outlives every view drawn
+    // into it, so without cancelling the previous arm a pointerdown listener would pile up on that one
+    // node for every screen advance of the match.
+    let disarmActive = null;
+
+    /** Arms the buttons of the view just drawn (ADR-0017).
+     *
+     *  EXCEPTION, on the per-control ceiling _arm-gate.ts records: #main-tap-btn is the meter itself.
+     *  The same player taps it twice inside about 1.5 seconds -- once to release the gauge, once to
+     *  stop it at the peak -- and the stop tap is the entire game. A 400ms window over it would eat
+     *  that tap, and the window's pointerdown restart would then keep eating it for as long as the
+     *  player kept trying. Every other control this route renders is a one-shot transition and is
+     *  gated. */
+    function armRenderedView() {
+      if (!viewRoot) return;
+      if (disarmActive) disarmActive();
+      const meterBtn = document.getElementById('main-tap-btn');
+      disarmActive = armAllButtons(viewRoot, meterBtn ? [meterBtn] : []);
+    }
+
     function renderUI() {
       switch (game.state) {
         case GameState.SETUP_COUNT:
@@ -493,6 +549,9 @@
           renderFinalLoserView();
           break;
       }
+      // Every branch above replaced #view-root, so the arm runs here, once, after the new controls
+      // exist -- not in each renderer, where a branch added later would ship ungated.
+      armRenderedView();
     }
 
     /* --- VIEW 1: SETUP COUNT --- */
@@ -830,11 +889,25 @@
 
       soundSynth.startMeterHum();
       renderAttemptView();
+      // Also bypasses renderUI. The only control it draws is the excepted meter button, so this arms
+      // nothing today -- it is here so a button added to the running view later cannot ship ungated.
+      armRenderedView();
 
       const gaugeFill = document.getElementById('gauge-fill-bar');
 
+      // ADR-0046, and this is the line that decides whether the reduce query removes the game. The
+      // meter's VALUE is recomputed every frame below, off performance.now() -- so the score a player
+      // locks, and the score the result card then renders, are identical with or without the setting.
+      // Only the repaint of the bar is throttled: the gauge steps a handful of times a second instead
+      // of gliding. Freezing or hiding it would take the mechanic away, which ADR-0046 rejects.
+      let nextGaugePaintAt = 0;
+
       function meterLoop(now) {
         if (game.state !== GameState.ATTEMPT_RUNNING) return;
+
+        const reduced = prefersReducedMotion();
+        const paintGauge = !reduced || now >= nextGaugePaintAt;
+        if (reduced && paintGauge) nextGaugePaintAt = now + REDUCED_PAINT_MS;
 
         const elapsed = now - game.meter.startTime;
         const T_up = game.meter.durationUpMs;
@@ -849,7 +922,7 @@
 
           soundSynth.updateMeterHum(easedProgress, false);
 
-          if (gaugeFill) {
+          if (gaugeFill && paintGauge) {
             gaugeFill.style.height = `${game.meter.currentValueHundredths / 10}%`;
             if (game.meter.currentValueHundredths >= 980) {
               gaugeFill.classList.add('peak-active');
@@ -867,7 +940,7 @@
 
           soundSynth.updateMeterHum(easedDown, true);
 
-          if (gaugeFill) {
+          if (gaugeFill && paintGauge) {
             gaugeFill.style.height = `${game.meter.currentValueHundredths / 10}%`;
             gaugeFill.classList.remove('peak-active');
           }
@@ -919,6 +992,9 @@
       }
 
       renderAttemptView();
+      // Bypasses renderUI, so it arms for itself. This is the sharpest ghost tap on the route: the
+      // player just tapped to stop the meter and the "next attempt" button lands under that finger.
+      armRenderedView();
       announceSR(`ผลครั้งที่ ${game.currentAttempt}: ได้ ${formatScore(lockedHundredths)} คะแนน`);
     }
 
@@ -1297,9 +1373,23 @@
     btnAudioToggle.textContent = soundSynth.enabled ? '🔊' : '🔇';
 
     // Modal Helpers
+    //
+    // The modals get their OWN arm slot, not armRenderedView()'s. #btn-help-modal and
+    // #btn-tests-modal live in the header, outside #view-root, so they are never gated and can be
+    // tapped while a freshly rendered view is still inside its window. Sharing one slot would let
+    // that tap cancel the pending view arm, and the canceller does not re-enable -- the view's
+    // buttons would stay disabled until a renderUI() that only those buttons could trigger.
+    let disarmModal = null;
+
+    /** Arms the modal just revealed (ADR-0017): a double-tap on the header icon that opens it lands
+     *  its second contact on the close button the reveal put under the finger. */
     function openModal(id) {
       soundSynth.playClick(500);
-      document.getElementById(id).classList.add('active');
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.add('active');
+      if (disarmModal) disarmModal();
+      disarmModal = armAllButtons(modal);
     }
     function closeModal(id) {
       soundSynth.playClick(400);

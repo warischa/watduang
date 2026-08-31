@@ -15,13 +15,68 @@
 
 /* The 44px tap floor, which the rest of this site meets and a desktop mockup had no reason to. Both
    values were measured in a real 320px viewport (Emulation.setDeviceMetricsOverride, 2026-08-30):
-   #btn-sound-toggle and #btn-rules each render 42x35, and they are the only controls on the route
-   under the floor. They are also the only way to reach the sound switch and the how-to-play sheet, so
-   there is no larger alternative path to either. min-* rather than width/height: it raises what is too
-   small and leaves the header's other buttons where the mockup put them. */
+   #btn-sound-toggle and #btn-rules each render 42x35. They are also the only way to reach the sound
+   switch and the how-to-play sheet, so there is no larger alternative path to either. min-* rather
+   than width/height: it raises what is too small and leaves the header's other buttons where the
+   mockup put them.
+
+   CORRECTION 2026-08-31: this comment used to claim these were "the only controls on the route under
+   the floor". That was never true — it was written when control-floor-probe.mjs still excluded every
+   play route by construction (gh#170), so the walk that would have found the others had never run
+   here. It has now: the same probe against a built dist/ also found .player-remove-btn and .btn-small
+   below the floor, both handled below. Kept and corrected rather than deleted, per ADR-0046: a
+   deleted comment leaves the next reader to re-derive the same wrong conclusion. */
 .header-btn {
   min-inline-size: 44px;
   min-block-size: 44px;
+}
+
+/* The same 44px floor, for the setup screen's per-row remove control. Measured on a built dist/ at
+   innerWidth 320 (scripts/control-floor-probe.mjs, screen 2, 2026-08-31): four .player-remove-btn at
+   26px with a computed floor of `auto` - one per roster row, and the only way to drop a player.
+   The mockup styles it as a bare transparent glyph, so the box IS the hit area: raising the box to
+   44x44 grows the tap target without touching the glyph, which stays at its 16px font size.
+   The row cannot overflow on the extra 18px of inline size, because .player-input takes it. That
+   field is the row's only `flex: 1` item, and a flex item's default `min-width: auto` floors it at
+   its intrinsic width - which is what would push the row wide. Zeroing that lets the field absorb
+   the button's growth instead, so the row is strictly less prone to overflow than before this rule.
+   Applies to the add-player row's field too, which sits next to a button for the same reason. */
+.player-remove-btn {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}
+
+.player-input {
+  min-inline-size: 0;
+}
+
+/* The same 44px floor for the add-player control, measured on the dist/ built 2026-08-31 with the
+   two rules above already in place: #btn-add-player (.btn-secondary.btn-small) rendered 39px at
+   innerWidth 320, resolved floor `auto`. It only became visible once .player-remove-btn was raised —
+   the probe reports per control, and the taller row is what let this one be measured on screen 2.
+
+   Anchored on .btn-small rather than the id: .btn-small is exactly `padding: 8px 14px` plus
+   `font-size: 13px` in the mockup (style.css § .btn-small), which is where the 39px comes from, so the
+   class IS the cause. It has one user on this route today, so the two are equivalent in effect now,
+   and a second small button added later inherits the floor instead of reappearing as a new finding.
+   Block size only: the label is wide enough that inline size was never the failing dimension, and a
+   <button> centres its own content, so nothing needs re-centring. */
+.btn-small {
+  min-block-size: 44px;
+}
+
+/* Off-screen but spoken. Not `display: none` and not `visibility: hidden` - either one takes the
+   live region out of the accessibility tree, and then nothing is announced at all. */
+.wsp-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Reduced motion, CSS half. The mockup ships no prefers-reduced-motion branch at all, so everything

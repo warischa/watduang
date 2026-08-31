@@ -15,6 +15,11 @@
       </div>
     </header>
 
+    <!-- Round-start announcement channel (gh#170). Ships EMPTY -- a live region with its text baked
+         in is a static message, not an announcement -- and main.js writes each turn's intro into it.
+         Separate from #rejectionBanner, which is a visible role="alert" for a rejected number. -->
+    <p id="hc-live" class="hc-visually-hidden" role="status" aria-live="polite"></p>
+
     <!-- Dynamic Screen Container -->
     <main id="screenContainer" class="screen-container" role="main"></main>
   </div>

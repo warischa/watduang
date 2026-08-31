@@ -29,3 +29,33 @@
 
 /* The mockup's own icon buttons sit top-RIGHT and are already 44x44 in style.css, and .count-chip is
    52px tall — no tap-target floor to raise here. Recorded so the next reader does not re-measure it. */
+
+/* Screen-reader-only. #hc-live carries what the visuals cannot: which player the phone goes to and
+   that a new turn began. Never the drawn target and never a pick -- both are secret by the rules of
+   the game, and this text is spoken out loud next to the other players. */
+.hc-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Reduced motion. The mockup ships no prefers-reduced-motion branch at all, so this block is this
+   site's. REDUCE, NOT REMOVE (ADR-0046): the durations shrink, the effects still resolve, so every
+   entrance animation still ends on its final state -- the screen still arrives at opacity 1, the
+   locked-pick badge still appears at full size, a rejected number still flashes its banner in.
+   What goes is the travel and targetPulse, which loops forever on the revealed target and says
+   nothing the number itself does not. iteration-count 1 stops it at its from-frame, which is the
+   element's unanimated rendering. The particle canvas is a rAF loop no media query reaches: main.js
+   reads the same query itself, and neither guard covers the other mechanism (ADR-0046). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

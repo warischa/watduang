@@ -13,6 +13,22 @@
   display: none !important;
 }
 
+/* The round-start live region (#cf-live in markup.html). Off-screen for sighted players, present in
+   the accessibility tree: display:none or visibility:hidden would take it out of that tree and the
+   announcement would never be made. Prefixed cf- because style.css is a verbatim mockup lift and a
+   bare .sr-only could collide with a name the extractor brings in later. */
+.cf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Tap targets. Measured on the live play route at 375px: the mockup's own controls come in at 38-40px,
    under the 44px floor the rest of this site meets — the same class of defect that shipped in the
    ported module's sound toggle at 32px. The mockup was built to be looked at on a desktop; this site

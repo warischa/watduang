@@ -4,8 +4,12 @@
   <!-- Toast Notification -->
   <div id="toast-banner">แจ้งเตือน</div>
 
+  <!-- Round-start announcement channel (gh#170). Ships EMPTY: main.js writes whose turn it is and
+       which round began, so a screen-reader user is told what the header shows sighted players. -->
+  <p id="zt-live" class="zt-visually-hidden" role="status" aria-live="polite"></p>
+
   <div id="app-container">
-    
+
     <!-- Top Sticky Header -->
     <header>
       <div class="brand-title">

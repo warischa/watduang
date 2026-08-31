@@ -16,6 +16,11 @@
 
     <!-- Main Screen Viewport -->
     <main id="mainContent"></main>
+
+    <!-- Ships EMPTY on purpose: it is an announcement channel, not a message. main.js is the only
+         thing that writes it, and it writes the round's state only (whose turn, this round's rule)
+         — never the trigger, which would leak the timing the game is played on. -->
+    <p id="ftRoundLive" class="ft-visually-hidden" role="status" aria-live="polite"></p>
   </div>
 
   <!-- In-Game Interruption Overlay -->

@@ -16,6 +16,10 @@
 // The .ts extension is spelled out in full, the way manifest.ts does it.
 import { MASCOTS } from '../_mascots.ts';
 import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
+// ADR-0017, the ghost-tap gate. This route reveals controls on FIVE paths, not one, and
+// scripts/arm-gate-coverage-check.mjs can only see that the import exists and is called somewhere --
+// it counts per directory, never per reveal. ./arm-reveal-paths.test.mjs pins the set instead.
+import { armAllButtons } from '../../games/_arm-gate.ts';
 
     /**
      * Wire Snip Panic -- the Thai title this route ships lives in markup.html and the game module, not
@@ -584,10 +588,33 @@ import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
         .replace(/'/g, '&#039;');
     }
 
+    // gh#170: this route owns its announcement channel -- #wsp-live in markup.html, resolved here and
+    // nowhere else. No helper: src/games/_round-start.ts speaks for shell-mounted game modules, and
+    // this page has no shell. The node is re-read per call rather than cached, because markup.html is
+    // injected by the Astro page and not by this file. Written as text, never as markup.
+    function announceRound(text) {
+      const region = document.getElementById('wsp-live');
+      if (region) region.textContent = text;
+    }
+
+    // REVEAL PATH 1 of 5. Screen-to-screen: the second contact of a double-tap aimed at the screen
+    // that just went away must not land on the control that replaced it.
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       const target = document.getElementById(screenId);
-      if (target) target.classList.add('active');
+      if (target) {
+        target.classList.add('active');
+        armAllButtons(target);
+      }
+    }
+
+    // REVEAL PATH 2 of 5. #modal-rules is opened by two separate controls and passes showScreen on
+    // neither, so its close button is revealed with nothing gating it. One function so the two
+    // openers cannot drift apart, and so there is one receiver to pin.
+    function openRulesModal() {
+      const rulesModal = document.getElementById('modal-rules');
+      rulesModal.classList.add('active');
+      armAllButtons(rulesModal);
     }
 
     function renderSetupPlayerList() {
@@ -631,6 +658,13 @@ import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
           }
         });
       });
+
+      // REVEAL PATH 3 of 5, and the one showScreen cannot cover: #btn-menu-start switches to the
+      // setup screen and THEN calls this, so the remove buttons do not exist yet when showScreen
+      // arms. It is also a reveal with no screen change at all -- every add and every remove rebuilds
+      // this container through innerHTML, putting a fresh remove button under the finger that just
+      // pressed one, at the same coordinates.
+      armAllButtons(container);
     }
 
     function renderPenaltyUI() {
@@ -809,6 +843,17 @@ import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
       const scanBtn = document.getElementById('btn-trigger-scan');
       scanBtn.style.display = 'flex';
       scanBtn.disabled = false;
+
+      // REVEAL PATH 4 of 5, and it must be armed HERE rather than left to showScreen above: the line
+      // directly above clears `disabled` on the one control this screen offers, which would undo
+      // showScreen's gate on exactly the control that matters most -- this is the pass-the-phone
+      // moment, so the stale contact belongs to the PREVIOUS player. Arming last wins.
+      armAllButtons(actionBanner);
+
+      // gh#170. What a sighted player already reads off the LCD, and nothing more: the seat, the
+      // round, and how many wires. The FLASH SEQUENCE -- which wires and in what order -- is the
+      // secret this game is played for and is never spoken.
+      announceRound(`รอบที่ ${game.roundLevel} ส่งให้ ${currentPlayerName} จำนวน ${game.flashSequence.length} เส้น`);
     }
 
     function triggerScanSequence() {
@@ -1074,7 +1119,11 @@ import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
         scoreboard.appendChild(row);
       });
 
+      // REVEAL PATH 5 of 5. #modal-detonation opens on a timer 850ms after the blast, over a screen
+      // the player was tapping wires on a moment ago, and its two buttons (replay, edit players) sit
+      // in the middle of that surface. No showScreen on this path either.
       modal.classList.add('active');
+      armAllButtons(modal);
       spawnConfetti();
     }
 
@@ -1104,7 +1153,7 @@ import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
 
       document.getElementById('btn-rules').addEventListener('click', () => {
         soundSynth.playClick();
-        document.getElementById('modal-rules').classList.add('active');
+        openRulesModal();
       });
 
       document.getElementById('btn-close-rules').addEventListener('click', () => {
@@ -1123,7 +1172,7 @@ import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
 
       document.getElementById('btn-menu-rules').addEventListener('click', () => {
         soundSynth.playClick();
-        document.getElementById('modal-rules').classList.add('active');
+        openRulesModal();
       });
 
       // Setup Buttons

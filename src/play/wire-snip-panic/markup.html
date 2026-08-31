@@ -1,4 +1,9 @@
   <div id="app">
+    <!-- gh#170: the round-start announcement channel. Ships EMPTY on purpose - main.js resolves this
+         id and writes the seat and round into it. Baked-in prose here would be a static message, not
+         an announcement. -->
+    <p id="wsp-live" class="wsp-visually-hidden" role="status" aria-live="polite"></p>
+
     <!-- Particle Canvas for Arcade Spark & Explosion Effects -->
     <canvas id="particle-canvas"></canvas>
     

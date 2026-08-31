@@ -1,5 +1,11 @@
   <div id="app-container">
-    
+
+    <!-- Round-start announcement channel (gh#170). Ships EMPTY on purpose: it is a channel, not a
+         message, and main.js is the only thing that ever writes to it. It says whose turn it is and
+         where that turn sits in the order -- never the aim timer, which is information a player
+         looking at the screen does not get either. Styled by .cf-sr-only in overrides.css. -->
+    <p id="cf-live" class="cf-sr-only" role="status" aria-live="polite"></p>
+
     <!-- TOP NAVIGATION BAR -->
     <header id="top-nav">
       <div class="brand-title">

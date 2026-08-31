@@ -22,6 +22,11 @@
       </div>
     </header>
 
+    <!-- Round-start announcement channel (gh#170). Ships EMPTY: whatever a live region already holds
+         when the page loads is not an announcement, and main.js writes the turn text into it at each
+         handoff. Assistive tech is the only consumer -- .cn-visually-hidden keeps it off screen. -->
+    <p id="cn-live" class="cn-visually-hidden" role="status" aria-live="polite"></p>
+
     <!-- SCREEN 1: SETUP & PLAYER ROSTER -->
     <section class="screen active" id="screenSetup">
       <div class="card">

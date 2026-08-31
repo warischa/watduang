@@ -32,6 +32,29 @@ const NEW_NAME_INPUT = '#input-new-player';
 const ADD = '#btn-add-player';
 const REMOVE = '#player-list-container .player-remove-btn';
 
+/** Drives one of the mockup's own controls the way a player would.
+ *
+ *  main.js now arms the ghost-tap gate on every reveal path (ADR-0017), which ships the controls this
+ *  module presses `disabled` for 400ms. `HTMLElement.click()` on a disabled form control returns
+ *  without dispatching anything and without throwing, so seeding would silently stop and a saved
+ *  group would be asked to type its names again -- no error, no exception, no failing test. Seeding
+ *  is not a tap: it is this module replaying what the player already told the device, so it clears
+ *  the flag for the one call and puts it back. The gate's own timer still owns when the HUMAN may
+ *  press the button.
+ *
+ *  Non-button elements take the plain path: reading `.disabled` off an element that has no such IDL
+ *  attribute yields `undefined`, which is not `=== true`, so nothing is written and nothing is
+ *  restored. Every one of this file's four call sites is a real <button> in markup.html, so that leg
+ *  is not exercised here -- it is kept identical to the shape cannon-flag and power-meter settled on
+ *  so the three cannot drift. */
+function drive(el: HTMLElement): void {
+  const btn = el as HTMLButtonElement;
+  const wasDisabled = btn.disabled === true;
+  if (wasDisabled) btn.disabled = false;
+  el.click();
+  if (wasDisabled) btn.disabled = true;
+}
+
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
   const group = loadGroup();
@@ -74,12 +97,12 @@ function resize(target: number, names: string[]): void {
       const buttons = document.querySelectorAll<HTMLButtonElement>(REMOVE);
       const last = buttons[buttons.length - 1];
       if (!last) return;
-      last.click();
+      drive(last);
     } else {
       const name = names[seatCount()];
       if (name === undefined) return;
       fill(newName, name);
-      add.click();
+      drive(add);
     }
   }
 }
@@ -99,7 +122,8 @@ function seedFromRoster(): void {
 
   // Unlike the count-stepper ports, this one has to press a control before it has anything to seed:
   // the seat fields do not exist until #btn-menu-start renders them.
-  document.querySelector<HTMLButtonElement>(OPEN_SETUP)?.click();
+  const openSetup = document.querySelector<HTMLButtonElement>(OPEN_SETUP);
+  if (openSetup) drive(openSetup);
   if (names.length < 2) return;
 
   resize(Math.min(names.length, MAX_PLAYERS), names);
@@ -118,7 +142,8 @@ function seedFromRoster(): void {
   });
 
   if (editing) return;
-  document.querySelector<HTMLButtonElement>(START)?.click();
+  const start = document.querySelector<HTMLButtonElement>(START);
+  if (start) drive(start);
 }
 
 // WINDOW, and DOMContentLoaded, and neither is interchangeable here. This mockup is the only one of

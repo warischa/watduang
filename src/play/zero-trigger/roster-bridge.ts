@@ -27,6 +27,24 @@ const REMOVE_SEAT = '.remove-player-btn';
 // fields exist and are seedable while the setup section is still hidden.
 const GOTO_SETUP = '#btn-goto-setup';
 
+/** Drives one of the mockup's own controls the way a player would.
+ *
+ *  main.js now arms the ghost-tap gate on the panels it reveals (ADR-0017), which ships every button
+ *  on a freshly revealed panel `disabled` for 400ms. `HTMLElement.click()` on a disabled form control
+ *  returns without dispatching anything and without throwing, so seeding would stop here silently and
+ *  the group would be asked to type its names again. Seeding is not a tap: it is this module replaying
+ *  what the player already told the device, so it clears the flag for the one call and puts it back.
+ *  The gate's own timer still owns when the HUMAN may press the button. Safe on a non-button element:
+ *  reading `.disabled` off one yields undefined, which is not `=== true`, so the plain-click path runs
+ *  and nothing is written back. */
+function drive(el: HTMLElement): void {
+  const btn = el as HTMLButtonElement;
+  const wasDisabled = btn.disabled === true;
+  if (wasDisabled) btn.disabled = false;
+  el.click();
+  if (wasDisabled) btn.disabled = true;
+}
+
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
   const group = loadGroup();
@@ -55,7 +73,10 @@ function seedFromRoster(): void {
   // the edit control reads as a dead button and a second tap does the same nothing (gh#169). Nothing
   // is seedable with one name, so open setup and stop — that is the whole request honoured.
   if (names.length < 2) {
-    if (editing) document.querySelector<HTMLButtonElement>(GOTO_SETUP)?.click();
+    if (editing) {
+      const goto = document.querySelector<HTMLButtonElement>(GOTO_SETUP);
+      if (goto) drive(goto);
+    }
     return;
   }
 
@@ -67,14 +88,14 @@ function seedFromRoster(): void {
     if (target > seatCount()) {
       const add = document.querySelector<HTMLButtonElement>(ADD_SEAT);
       if (!add) return;
-      add.click();
+      drive(add);
     } else {
       // The LAST row's control, so shrinking drops the tail rather than reshuffling names that are
       // about to be overwritten anyway. Re-queried every pass: each removal re-renders the list.
       const removes = document.querySelectorAll<HTMLButtonElement>(REMOVE_SEAT);
       const last = removes[removes.length - 1];
       if (!last) return;
-      last.click();
+      drive(last);
     }
   }
 
@@ -93,10 +114,12 @@ function seedFromRoster(): void {
   });
 
   if (editing) {
-    document.querySelector<HTMLButtonElement>(GOTO_SETUP)?.click();
+    const goto = document.querySelector<HTMLButtonElement>(GOTO_SETUP);
+    if (goto) drive(goto);
     return;
   }
-  document.querySelector<HTMLButtonElement>(START)?.click();
+  const start = document.querySelector<HTMLButtonElement>(START);
+  if (start) drive(start);
 }
 
 // `!== 'complete'`, not `=== 'loading'`, and that difference is load-bearing here. This mockup builds

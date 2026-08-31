@@ -12,6 +12,10 @@ import {
   getLoser,
   currentPlayer as currentPlayerOf,
 } from '../../games/pinocchio-luck.ts';
+// ADR-0017's ghost-tap gate: the second contact of a double-tap aimed at the screen that just went
+// away must not land on the control that replaced it. On this route that control is an ANSWER — the
+// tap that decides whether a player's nose grows — so the gate is not cosmetic here.
+import { armAllButtons } from '../../games/_arm-gate.ts';
 
 (()=>{'use strict';
 const panel=document.querySelector('#panel'),roundTag=document.querySelector('#roundTag'),announcer=document.querySelector('#announcer'),app=document.querySelector('#app'),stageFrame=document.querySelector('#stageFrame');
@@ -95,6 +99,21 @@ function renderSetup(){
   visual.targetNose=0;
   panel.innerHTML=setupMarkup();
   validateCount();
+  // Setup is armed like every other screen (ADR-0017). Two things made it look unarmable and
+  // neither does any more:
+  // (1) roster-bridge.ts seeds a saved group by clicking [data-act="start"] right after this module
+  //     runs, and .click() on a `disabled` button dispatches nothing at all. Its drive() unlocks the
+  //     control for that one programmatic call and restores what it found, so seeding survives;
+  // (2) validateCount() owns #start's `disabled`, and the gate's blanket re-enable would fight it,
+  //     offering a roster of one as startable. Handing validateCount to the gate as its onArm makes
+  //     the owner run last: the window still disables every setup button for its 400ms, and when it
+  //     closes #start goes back to whatever the live count says. Excepting #start from the gate was
+  //     the rejected option — it would leave the one button a ghost tap most wants with no guard.
+  // Read the size of what (2) fixes correctly: an invalid count was never a REACHABLE start —
+  // startMatch() re-runs validateCount() and returns on false. What the hook closes is a button
+  // that looks pressable when it is not, and the aria-invalid state next to it. An affordance, not
+  // an exploit; weigh the next change to this seam on that basis.
+  armPanel(countSteppers(),validateCount);
 }
 
 // Reads the live #count field. Returns FALSE when the field is absent rather than assuming a missing
@@ -272,8 +291,33 @@ function editNames(){
   renderSetup();
 }
 
+// Every screen below is mounted by replacing #panel's innerHTML, so the gate is re-armed on each
+// reveal — a single call at module init would arm the setup screen and nothing a player ever taps
+// into. #panel is the SAME node across screens, so the previous gate is cancelled first; otherwise
+// each render would leave another pointerdown listener on it, still flipping `disabled` on buttons
+// that left the document several screens ago.
+let disarmPanel=null;
+function armPanel(except=[],onArm){
+  if(disarmPanel)disarmPanel();
+  disarmPanel=armAllButtons(panel,except,onArm);
+}
+
+// The roster steppers, excepted from the gate. _arm-gate.ts records why the exception exists and it
+// is per CONTROL, not per game: the 400ms window assumes the gated control has no legitimate
+// sub-500ms follow-up tap, and #minus/#plus are the one pair on this screen a single player taps
+// repeatedly — their own handler re-renders #panel, so gating them would disable the button under
+// the finger on every step and a player walking 2 to 10 would wait 400ms nine times. Same list
+// timebomb, dice-loser, power-meter and freeze-tap's rapidTapControls() keep, and the same ruling
+// short-stick's +/- re-render seam got. Re-queried per call: renderSetup() replaces #panel
+// wholesale, so a cached reference would name a detached node.
+function countSteppers(){
+  return [document.querySelector('#minus'),document.querySelector('#plus')].filter(Boolean);
+}
+
 function render(){
   delete panel.dataset.qaCorrect;
+  // Setup arms itself inside renderSetup(), because three of its four reveal sites never pass
+  // through here: setSetupCount(), editNames() and module init all call it directly.
   if(!game)return renderSetup();
   roundTag.textContent=`รอบ ${game.rerollRound} · ${game.currentTurnIndex+1}/${game.players.length}`;
   if(game.phase===PHASE.PASS)renderPass();
@@ -282,6 +326,7 @@ function render(){
   else if(game.phase===PHASE.TURN_RESULT)renderTurnResult();
   else if(game.phase===PHASE.ALL_SAFE)renderAllSafe();
   else if(game.phase===PHASE.RESULTS)renderResults();
+  armPanel();
 }
 
 class SoundSynth{

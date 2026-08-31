@@ -20,6 +20,22 @@ import { applyMascotDefaults } from '../_mascots';
 const START = '[data-act="startNewMatch"]';
 const NAME_INPUT = '.name-input';
 
+/** Drives one of the mockup's own controls the way a player would.
+ *
+ *  main.js now arms the ghost-tap gate on every view it renders (ADR-0017), which ships each freshly
+ *  drawn button `disabled` for 400ms. `HTMLElement.click()` on a disabled form control returns
+ *  without dispatching anything and without throwing, so this three-click seeding chain would stop
+ *  silently at its first step and the group would be asked to type its names again. Seeding is not a
+ *  tap: it is this module replaying what the player already told the device. It clears the flag for
+ *  the one call and puts it back; the gate's own timer still owns when the HUMAN may press. */
+function drive(el: HTMLElement): void {
+  const btn = el as HTMLButtonElement;
+  const wasDisabled = btn.disabled === true;
+  if (wasDisabled) btn.disabled = false;
+  el.click();
+  if (wasDisabled) btn.disabled = true;
+}
+
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
   const group = loadGroup();
@@ -53,11 +69,11 @@ function seedFromRoster(): void {
   // EVERY control is re-queried after every click. main.js re-renders #view-root by replacing its
   // innerHTML, so a node captured before a click is detached by the time the next one is due — and a
   // click on a detached node never reaches the document-level dispatcher, so it silently does nothing.
-  countBtn.click();
+  drive(countBtn);
 
   const next = document.getElementById('btn-primary-action');
   if (!next) return;
-  next.click();
+  drive(next);
 
   const inputs = document.querySelectorAll<HTMLInputElement>(NAME_INPUT);
   if (inputs.length < 2) return;
@@ -71,7 +87,7 @@ function seedFromRoster(): void {
 
   if (editing) return;
   const start = document.getElementById('btn-primary-action');
-  start?.click();
+  if (start) drive(start);
 }
 
 if (document.readyState === 'loading') {

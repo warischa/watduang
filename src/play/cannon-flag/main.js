@@ -1,7 +1,38 @@
+// Ghost-tap gate (ADR-0014 / ADR-0016 / ADR-0017): every screen this route reveals re-arms its own
+// buttons, because the second contact of a double-tap aimed at the screen that just went away must
+// not activate the control that replaced it. Armed at the reveal seam only. The aiming controls are
+// excepted by name at the call sites below -- they are the per-control ceiling _arm-gate.ts records,
+// where the same player taps twice on purpose.
+// The .ts extension is spelled out in full, the way src/play/zero-trigger/main.js does it.
+import { armAllButtons } from '../../games/_arm-gate.ts';
+
     /**
-     * CANNON FLAG ('ยิงธง') - ZERO EXTERNAL ASSET GAME ENGINE
+     * CANNON FLAG (route id: cannon-flag) - ZERO EXTERNAL ASSET GAME ENGINE
      */
-    
+
+    // ADR-0046: prefers-reduced-motion is a CSS media feature and it does not reach the `.style`
+    // writes and requestAnimationFrame loops in this file, so the query is read HERE, in the same
+    // file as the motion it gates. style.css carrying an @media block does NOT cover any of it.
+    // Read PER CALL rather than cached into a boolean: a cached flag is a value an edit can pin to
+    // false while this file still reads as guarded, and reading live also means a player who flips
+    // the OS setting mid-round gets the new cadence with no reload. Same shape as
+    // src/play/how-close-is-near/main.js.
+    // REDUCE, not remove: the canvas keeps rendering, the aim timer keeps counting and the power
+    // gauge keeps filling -- on a coarse cadence instead of once per frame -- so the round is still
+    // playable and still shows its state. Only the screen shake is dropped outright: it carries no
+    // state at all, and it is the one effect that exists purely to move the picture.
+    function prefersReducedMotion() {
+      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    // Reduced-motion repaint cadence: a few coarse steps a second, the shape src/games/timebomb.ts
+    // uses for its fuse. The simulation itself is never throttled -- it is dt-based, so a shot fired
+    // under reduced motion lands exactly where the same shot lands without it.
+    const REDUCED_PAINT_MS = 125;
+    let nextCoarsePaintAt = 0;
+
+
     // ---------------------------------------------------------
     // 1. SOUND SYNTHESIZER (Web Audio API)
     // ---------------------------------------------------------
@@ -783,6 +814,10 @@
       }
 
       addTrauma(amount = 0.6) {
+        // ADR-0046: screen shake is the one effect here that carries no state -- the shot result is
+        // in the numbers and the impact particles, not in the camera jolt -- so under the reduce
+        // query it is dropped rather than slowed. Nothing else in this class is skipped.
+        if (prefersReducedMotion()) return;
         this.trauma = Math.min(1.0, this.trauma + amount);
       }
 
@@ -955,7 +990,7 @@
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // 5. Water Pond (แอ่งน้ำ) Rendering
+        // 5. Water pond rendering
         if (env.pond) {
           const pLeft = this.worldToScreen(env.pond.left, env.pond.waterLevel);
           const pRight = this.worldToScreen(env.pond.right, env.pond.waterLevel);
@@ -1307,6 +1342,48 @@
     // ---------------------------------------------------------
     // SCREEN NAVIGATION
     // ---------------------------------------------------------
+    // gh#170: this route owns its announcement channel -- #cf-live in markup.html, resolved here and
+    // nowhere else. No helper: the shared src/games/_round-start.ts speaks for shell-mounted games,
+    // and this page has no shell. The node is re-read per call rather than cached because markup.html
+    // is injected by the Astro page, not by this file. Written as text, never as markup.
+    function announceRound(text) {
+      const region = document.getElementById('cf-live');
+      if (region) region.textContent = text;
+    }
+
+    // The controls a player deliberately taps twice in a row, so the 400ms window must never cover
+    // them. _arm-gate.ts records this ceiling as PER CONTROL: the counter steppers are held down and
+    // repeated, the angle nudges are tapped in bursts, and the FIRE button is press-and-hold -- a
+    // gate that disabled any of them would take the game away rather than protect it. Everything
+    // else on these screens is a one-shot transition control and is gated.
+    function rapidTapControls() {
+      if (!DOM) return [];
+      return [DOM.btnDecPlayers, DOM.btnIncPlayers, DOM.btnAngleDec, DOM.btnAngleInc, DOM.btnFireCannon]
+        .filter(Boolean);
+    }
+
+    // One arm at a time. armAllButtons returns a canceller and this route reveals panels in a strict
+    // sequence, so holding the last one and cancelling it before the next reveal keeps a pointerdown
+    // listener from accumulating on every screen for the life of the page.
+    let disarmActive = null;
+    function armPanel(panelEl) {
+      if (!panelEl) return;
+      if (disarmActive) disarmActive();
+      disarmActive = armAllButtons(panelEl, rapidTapControls());
+    }
+
+    // #test-modal gets a SEPARATE slot instead of armPanel's. Its trigger, #btn-open-tests, sits in
+    // the header outside every game-screen, so it is never gated and can be tapped while a screen
+    // reveal is still inside its window. Through armPanel that tap would cancel the pending screen
+    // arm, and the canceller does not re-enable: the setup screen's buttons would stay disabled with
+    // no control left that could call showScreen() again.
+    let disarmTestModal = null;
+    function armTestModal() {
+      if (!DOM || !DOM.testModal) return;
+      if (disarmTestModal) disarmTestModal();
+      disarmTestModal = armAllButtons(DOM.testModal);
+    }
+
     function showScreen(screenEl) {
       if (!DOM) return;
       [DOM.screenSetup, DOM.screenPassDevice, DOM.screenGameplay, DOM.screenResults].forEach(s => {
@@ -1316,6 +1393,7 @@
       if (screenEl === DOM.screenGameplay && renderer) {
         renderer.resize();
       }
+      armPanel(screenEl);
     }
 
     // ---------------------------------------------------------
@@ -1325,7 +1403,8 @@
 
     // Roster names are typed by players, so they are untrusted text wherever this file builds
     // markup by string. Same helper, same idiom as src/play/freeze-tap/main.js — kept local because
-    // each main.js is a verbatim lift with no imports. Pinned by src/play/name-escaping.test.mjs.
+    // each main.js is a verbatim lift whose only imports are the shared gates the site's own CI
+    // demands. Pinned by src/play/name-escaping.test.mjs.
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -1395,6 +1474,9 @@
       DOM.passPlayerName.textContent = p.name;
       DOM.passTurnOrder.textContent = `ลำดับที่ ${gameEngine.currentTurnIndex + 1} / ${gameEngine.activePlayerPool.length}`;
       showScreen(DOM.screenPassDevice);
+      // gh#170: the round starts on this screen, so it is announced here. Same two facts the screen
+      // itself shows -- whose turn, and where in the order -- and nothing about the aim timer.
+      announceRound(`ตาของ ${p.name} ลำดับที่ ${gameEngine.currentTurnIndex + 1} จาก ${gameEngine.activePlayerPool.length}`);
     }
 
     if (DOM) {
@@ -1571,13 +1653,17 @@
       function animBall() {
         if (frameIndex < totalFrames) {
           const pt = simResult.path[frameIndex];
+          // ADR-0046: under the reduce query the ball walks the SAME trajectory in bigger strides --
+          // a few stepped positions instead of a smooth arc. It is not frozen and it is not hidden,
+          // because where the shot went is the round's result and the player has to see it.
+          const reduced = prefersReducedMotion();
           if (renderer) {
             renderer.flyingBall = pt;
-            if (frameIndex % 3 === 0) {
+            if (!reduced && frameIndex % 3 === 0) {
               renderer.emitParticles('smoke', pt.x, pt.y, 2);
             }
           }
-          frameIndex += 2;
+          frameIndex += reduced ? 8 : 2;
           requestAnimationFrame(animBall);
         } else {
           // Impact reached!
@@ -1649,6 +1735,9 @@
       }
 
       DOM.shotModalOverlay.classList.add('active');
+      // The sharpest ghost tap on this route: the modal lands on top of the FIRE button the player
+      // was just holding, so the release tap can arrive as the modal's own control appears.
+      armPanel(DOM.shotModalOverlay);
     }
 
     if (DOM) {
@@ -1766,6 +1855,15 @@
       const dt = Math.min(0.1, (now - lastAnimTime) / 1000);
       lastAnimTime = now;
 
+      // ADR-0046, the reduce-not-remove half. Under the reduce query the PAINT is throttled to
+      // REDUCED_PAINT_MS; the charge oscillation and the renderer's own state update still run every
+      // frame, so the power a player releases at is the same number either way. Skipping the paint is
+      // what makes the gauge and the scene step instead of glide -- it never freezes them, and it
+      // never changes what the shot does.
+      const reduced = prefersReducedMotion();
+      const paint = !reduced || now >= nextCoarsePaintAt;
+      if (reduced && paint) nextCoarsePaintAt = now + REDUCED_PAINT_MS;
+
       // Update power charge oscillation if button is held
       if (isChargingPower && !isAimingLocked) {
         powerCharge += chargeDirection * dt * 0.9;
@@ -1776,13 +1874,13 @@
           powerCharge = 0.0;
           chargeDirection = 1;
         }
-        updatePowerUI();
+        if (paint) updatePowerUI();
         sound.updateChargePitch(powerCharge);
       }
 
       if (renderer) {
         renderer.update(dt);
-        renderer.render(
+        if (paint) renderer.render(
           gameEngine.getCurrentEnvironment(),
           currentAngle,
           isChargingPower,
@@ -1801,6 +1899,10 @@
 
     // Initial setup display
     renderSetupPlayerInputs();
+
+    // First paint is a transition too: the tap that opened this route can still be mid-double, and
+    // the setup screen ships `active` in markup.html without ever going through showScreen().
+    if (DOM) armPanel(DOM.screenSetup);
 
     // ---------------------------------------------------------
     // 8. AUTOMATED IN-BROWSER & HEADLESS TEST SUITE
@@ -1917,6 +2019,10 @@
       // Modal Test Trigger
       DOM.btnOpenTests.addEventListener('click', () => {
         DOM.testModal.classList.add('active');
+        // Same reveal seam as the shot modal: a double-tap on 🧪 would land its second contact on
+        // the modal's own close button. Armed before the rows are appended -- they are <div>s, so
+        // the button set does not change. Its own slot, never armPanel's: see disarmTestModal.
+        armTestModal();
         DOM.testOutputList.innerHTML = '';
         const testResults = runAllAutomatedTests();
         testResults.forEach(res => {

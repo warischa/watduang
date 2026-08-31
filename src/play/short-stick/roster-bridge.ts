@@ -26,6 +26,24 @@ const REMOVE_PLAYER = '.remove-p-btn';
 // `players: [2, 10]` agree, so seeding never asks for a seat the setup would refuse.
 const MAX_PLAYERS = 10;
 
+/** Drives one of the mockup's own controls the way a player would.
+ *
+ *  main.js now arms the ghost-tap gate on the panels it reveals (ADR-0017), which ships every button
+ *  on a freshly revealed panel `disabled` for 400ms. `HTMLElement.click()` on a disabled form control
+ *  returns without dispatching anything and without throwing, so seeding would stop here silently and
+ *  the group would be asked to type its names again. Seeding is not a tap: it is this module replaying
+ *  what the player already told the device, so it clears the flag for the one call and puts it back.
+ *  The gate's own timer still owns when the HUMAN may press the button. Safe on a non-button element:
+ *  reading `.disabled` off one yields undefined, which is not `=== true`, so the plain-click path runs
+ *  and nothing is written back. */
+function drive(el: HTMLElement): void {
+  const btn = el as HTMLButtonElement;
+  const wasDisabled = btn.disabled === true;
+  if (wasDisabled) btn.disabled = false;
+  el.click();
+  if (wasDisabled) btn.disabled = true;
+}
+
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
   const group = loadGroup();
@@ -49,14 +67,17 @@ function seedFromRoster(): void {
   // second tap does the same nothing (gh#169). Nothing is seedable with one name, so render the
   // setup view and stop — that is the whole request honoured.
   if (names.length < 2) {
-    if (editing) document.querySelector<HTMLElement>(OPEN_SETUP)?.click();
+    if (editing) {
+      const open = document.querySelector<HTMLElement>(OPEN_SETUP);
+      if (open) drive(open);
+    }
     applyMascotDefaults(NAME_INPUT);
     return;
   }
 
   const openSetup = document.querySelector<HTMLElement>(OPEN_SETUP);
   if (!openSetup) return;
-  openSetup.click();
+  drive(openSetup);
 
   const target = Math.min(names.length, MAX_PLAYERS);
 
@@ -67,17 +88,24 @@ function seedFromRoster(): void {
   for (let i = 0; i < 40; i += 1) {
     const rows = document.querySelectorAll<HTMLInputElement>(NAME_INPUT);
     if (rows.length === target) break;
+    // `disabled` is NOT read as the stop condition, and that is the whole point: setView() arms the
+    // setup view the instant drive(openSetup) reveals it (ADR-0017), so both controls are disabled
+    // for 400ms for a reason that has nothing to do with the seat count. Breaking on the flag here
+    // stopped the walk on its first pass and the group was asked to retype its names. Progress is
+    // the honest signal instead — the mockup's own handler enforces the 2..10 clamp itself, so a
+    // forced click at the clamp changes nothing and this loop ends on the very next check.
+    const before = rows.length;
     if (rows.length < target) {
       const add = document.querySelector<HTMLButtonElement>(ADD_PLAYER);
-      if (!add || add.disabled) break;
-      add.click();
+      if (!add) break;
+      drive(add);
     } else {
       const removes = document.querySelectorAll<HTMLButtonElement>(REMOVE_PLAYER);
       const last = removes[removes.length - 1];
-      // Disabled at two seats by the mockup; target is never below two, so this is a stuck control.
-      if (!last || last.disabled) break;
-      last.click();
+      if (!last) break;
+      drive(last);
     }
+    if (document.querySelectorAll(NAME_INPUT).length === before) break;
   }
 
   // The final render owns however many rows it actually drew; fill only those.
@@ -90,7 +118,7 @@ function seedFromRoster(): void {
   });
 
   const start = document.querySelector<HTMLElement>(START);
-  if (!editing && inputs.length >= 2) start?.click();
+  if (!editing && inputs.length >= 2 && start) drive(start);
 }
 
 if (document.readyState === 'loading') {

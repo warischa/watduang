@@ -1,3 +1,11 @@
+// Ghost-tap gate (ADR-0014 / ADR-0016 / ADR-0017): the second contact of a double-tap aimed at the
+// screen that just went away must not activate the control that replaced it. This route is the gate's
+// original consumer -- _arm-gate.ts names it -- and the play-route port dropped the wiring.
+// Armed at reveal seams only (setView, each dialog, and every renderDraw, which IS a turn handover).
+// NOT armed inside renderSetup: the +/- stick and add-player buttons re-render themselves on every
+// tap, and gating those is the per-control exception _arm-gate.ts warns about.
+import { armAllButtons } from '../../games/_arm-gate.ts';
+
     (() => {
       'use strict';
 
@@ -378,7 +386,19 @@
             el.hidden = !active;
           }
         });
+        // Every view goes through here, so a view added later is gated with no list to remember.
+        const shown = $(`view-${viewName}`);
+        if (shown) armAllButtons(shown);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      /** Opens a <dialog> and gates its buttons. The hazard dialog is the sharpest case: it pops
+       *  300ms after the tap that revealed the short stick, squarely inside the ghost-tap window. */
+      const openDialog = (id) => {
+        const dlg = $(id);
+        if (!dlg) return;
+        dlg.showModal();
+        armAllButtons(dlg);
       };
 
       const calculateOdds = () => {
@@ -550,6 +570,12 @@
           unit.appendChild(label);
           grid.appendChild(unit);
         });
+
+        // The straw buttons are built here, after setView already revealed the panel, and every
+        // re-render is a handover to the next player -- so this is the ghost-tap seam, not setView.
+        // stick-canvas.ts adds no control of its own: it paints inside these same button boxes.
+        const drawView = $('view-draw');
+        if (drawView) armAllButtons(drawView);
       };
 
       const renderResult = () => {
@@ -679,7 +705,7 @@
             setTimeout(() => {
               $('hazard-player-name').textContent = `${player} โดนแล้ว!`;
               $('hazard-stick-len').textContent = `${length} ซม.`;
-              $('short-reveal-dialog').showModal();
+              openDialog('short-reveal-dialog');
             }, 300);
 
           } else {
@@ -700,14 +726,14 @@
       loadDraft();
 
       // Navigation & Dialogs
-      $('btn-start-setup').addEventListener('click', () => { sounds.playClick(); setView('setup'); renderSetup(); });
+      $('btn-start-setup').addEventListener('click', () => { sounds.playClick(); renderSetup(); setView('setup'); });
       $('btn-setup-back').addEventListener('click', () => { sounds.playClick(); setView('start'); });
       $('btn-begin-game').addEventListener('click', () => startMatch());
       $('btn-replay-round').addEventListener('click', () => { sounds.playVictory(); particles.spawnConfetti(); startMatch(true); });
-      $('btn-edit-players').addEventListener('click', () => { sounds.playClick(); setView('setup'); renderSetup(); });
+      $('btn-edit-players').addEventListener('click', () => { sounds.playClick(); renderSetup(); setView('setup'); });
 
       // Rules Dialog
-      const openRules = () => { sounds.playClick(); $('rules-dialog').showModal(); };
+      const openRules = () => { sounds.playClick(); openDialog('rules-dialog'); };
       const closeRules = () => { sounds.playClick(); $('rules-dialog').close(); };
       $('rules-nav-button').addEventListener('click', openRules);
       $('btn-quick-rules').addEventListener('click', openRules);
@@ -728,7 +754,7 @@
       $('home-button').addEventListener('click', () => {
         if (game.state === GameState.TURN_WAIT || game.state === GameState.RESOLVING) {
           sounds.playClick();
-          $('leave-dialog').showModal();
+          openDialog('leave-dialog');
         } else {
           sounds.playClick();
           setView('start');

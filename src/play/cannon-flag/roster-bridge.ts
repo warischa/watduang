@@ -20,6 +20,22 @@ import { applyMascotDefaults } from '../_mascots';
 const START = '#btn-start-match';
 const NAME_INPUT = '.player-name-input';
 
+/** Drives one of the mockup's own controls the way a player would.
+ *
+ *  main.js now arms the ghost-tap gate on the setup screen (ADR-0017), which ships every button on it
+ *  `disabled` for 400ms. `HTMLElement.click()` on a disabled form control returns without dispatching
+ *  anything and without throwing, so seeding would silently stop here and the group would be asked to
+ *  type its names again. Seeding is not a tap: it is this module replaying what the player already
+ *  told the device, so it clears the flag for the one call and puts it back. The gate's own timer
+ *  still owns when the HUMAN may press the button. */
+function drive(el: HTMLElement): void {
+  const btn = el as HTMLButtonElement;
+  const wasDisabled = btn.disabled === true;
+  if (wasDisabled) btn.disabled = false;
+  el.click();
+  if (wasDisabled) btn.disabled = true;
+}
+
 /** The group is the subset the player last ticked; the roster is everyone this device knows. */
 function playingNames(): string[] {
   const group = loadGroup();
@@ -55,7 +71,7 @@ function seedFromRoster(): void {
   for (let i = 0; i < 40; i += 1) {
     const current = Number.parseInt(display.textContent ?? '', 10);
     if (!Number.isFinite(current) || current === target) break;
-    (current < target ? inc : dec).click();
+    drive(current < target ? inc : dec);
   }
 
   // The mockup owns its own min/max. If it clamped the count somewhere else, fill only the rows it
@@ -69,7 +85,7 @@ function seedFromRoster(): void {
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
-  if (!editing && inputs.length >= 2) start.click();
+  if (!editing && inputs.length >= 2) drive(start);
 }
 
 if (document.readyState === 'loading') {

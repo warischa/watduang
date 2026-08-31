@@ -739,3 +739,38 @@
     display: flex;
     flex-direction: column;
   }
+
+  /* Screen-reader-only, for #ftRoundLive. Not `display:none` and not `visibility:hidden`: either one
+     takes the element out of the accessibility tree and the announcement is never made. */
+  .ft-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ADR-0046 — the CSS half of the reduced-motion guard. It has to be declared here and not in
+     main.js, because script cannot opt a stylesheet's animation out; the JS half of the same guard
+     (the camera shake and the particles) is read with matchMedia in main.js.
+     Reduce, not remove: nothing here hides a control or changes what a screen says. The button
+     press feedback, the decoy pop and the colour changes still HAPPEN — they arrive at once
+     instead of easing in, so the round still reads exactly as it does with motion on. In
+     particular the decoy pop keeps its background change: that is the decoy, not decoration. */
+  @media (prefers-reduced-motion: reduce) {
+    .icon-btn,
+    .btn-primary,
+    .btn-danger,
+    .btn-secondary,
+    .target-surface-center {
+      transition: none;
+    }
+
+    .target-surface-center.decoy-pulse {
+      animation: none;
+    }
+  }

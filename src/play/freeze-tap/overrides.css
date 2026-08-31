@@ -25,3 +25,25 @@
   min-inline-size: 44px;
   min-block-size: 44px;
 }
+
+/* Same defect, second set: the eight count-shortcut pills on the setup screen. style.css gives
+   .preset-pill padding and a font size and no height at all, which lands them at 32px — the eight
+   controls scripts/control-floor-probe.mjs measures on screen 1. Fixed here, not there, for the
+   reason at the top of this file.
+
+   Why this does not overflow the row at 320px: .preset-pills is already an `overflow-x: auto`
+   scroller in the mockup, because eight pills never fitted on a phone in the first place. So the
+   inline floor pushes the narrowest pills into a row that was built to scroll, and the growth that
+   actually matters is the block one — 32px to 44px of extra height on a column-flex card with no
+   fixed height, which reflows the card and clips nothing. min-* again, so a pill whose Thai label
+   is already wider than 44px keeps the width the mockup gave it.
+
+   The flex centering only re-states what a UA already does for button content; it is here so the
+   label's position in the now-taller box is this stylesheet's decision and not an inherited one. */
+.preset-pill {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

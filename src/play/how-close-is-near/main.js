@@ -11,6 +11,10 @@ import {
   resolveLoser,
   drawTarget,
 } from '../../games/how-close-is-near.ts';
+// Ghost-tap gate (ADR-0014/ADR-0017). Every screen this route shows is built by render(), which
+// empties #screenContainer and repopulates it, so one call at the end of render() gates every
+// freshly rendered control on every screen -- there is no second path that reveals a button.
+import { armAllButtons } from '../../games/_arm-gate.ts';
 
     /**
      * Procedural Web Audio Synthesizer
@@ -478,6 +482,15 @@ import {
           renderResultsScreen();
           break;
       }
+      armAllButtons(container);
+    }
+
+    /** Speaks `text` into the route's live region. It must never carry the drawn target or another
+     *  player's pick: this game is played by hiding those from everyone but the player holding the
+     *  phone, and a live region is read out loud. Whose turn it is, and that a turn began, only. */
+    function announce(text) {
+      const live = document.getElementById('hc-live');
+      if (live) live.textContent = text;
     }
 
     // 1. Player Count Screen
@@ -664,6 +677,10 @@ import {
       };
 
       container.appendChild(card);
+      announce(
+        `เริ่มตาใหม่ ตาที่ ${game.currentTurnIndex + 1} จาก ${game.players.length} ` +
+          `ส่งมือถือให้ ${player.name} คนอื่นห้ามดูหน้าจอ`,
+      );
     }
 
     // 6. Number Entry Screen
@@ -983,6 +1000,10 @@ import {
     btnTestRunner.onclick = () => {
       sound.playClick();
       testModal.style.display = 'flex';
+      // #testModal is a SIBLING of #screenContainer, so render()'s armAllButtons(container) never
+      // walks into it: without this call its close and re-run buttons take the second contact of a
+      // double-tap on the header's 🧪 (ADR-0017).
+      armAllButtons(testModal);
       runAllDeterministicTests();
     };
 

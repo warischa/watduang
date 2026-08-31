@@ -129,3 +129,35 @@
   min-inline-size: 44px;
   min-block-size: 44px;
 }
+
+/* Screen-reader-only. #cn-live carries what the visuals cannot: which player the phone is being
+   passed to, and that a new turn began. Never the cursed number -- the round only works while that
+   stays secret, and this text is spoken out loud on a phone in the middle of the group. */
+.cn-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Reduced motion. The mockup ships no prefers-reduced-motion branch at all, so this block is this
+   site's. REDUCE, NOT REMOVE (ADR-0046): every declaration below shortens a duration instead of
+   deleting the effect, so each transition and each entrance animation still lands on its FINAL
+   state -- the screen still fades in to opacity 1, the odds badge still turns amber then red, the
+   pressed button still shows its pressed styling. What goes is the travel between the two states
+   and the attention loops (pulseWarning, pulseDanger, skullShake), which repeat forever and carry
+   no information the colour and the text do not already carry. iteration-count 1 is what stops
+   those; their 0%/100% frames equal the base style, so the element is left exactly as it renders
+   unanimated. The canvas embers are a rAF loop no media query reaches -- main.js reads the same
+   query itself (ADR-0046: a script's read and this block guard two different mechanisms). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
