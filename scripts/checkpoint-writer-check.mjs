@@ -1,4 +1,17 @@
 #!/usr/bin/env node
+// Hoisted to the top of the file deliberately, and it has to stay here. Two separate reasons, both
+// measured:
+//   1. The walk below is rooted at src/play, so a git worktree under .claude/worktrees cannot be
+//      reached from it. This set is defensive, not the thing keeping a second copy of the repo out
+//      of the scan - the narrowing is. Do not read it as the load-bearing guard.
+//   2. scripts/repo-root-walk-check.mjs demands this literal in live code, and its comment stripper
+//      pairs any slash-star with the next star-slash. The glob shapes in this file's own prose
+//      (there are 22 such openers against 3 real closers) therefore blank out large spans of the
+//      file before the literal test runs, and anywhere lower down this constant is erased before it
+//      can be seen. Above every glob is the one place it survives. That stripper desync is the same
+//      class of defect ADR-0055 recorded, and it is filed rather than worked around twice.
+const EXCLUDE_REL_DIRS = new Set(['.claude/worktrees']);
+
 // Static tripwire for docs/adr/0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md.
 // ADR-0010 keeps ONE site-wide checkpoint slot, and its own "fact that would change this" names the
 // exact trigger: a second checkpoint-writing game entering the manifest. At that moment the shared
@@ -176,8 +189,10 @@ function walkSourceFiles(root) {
   const walk = (dir) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const abs = path.join(dir, entry.name);
-      if (entry.isDirectory()) walk(abs);
-      else if (entry.isFile() && PLAY_EXT_RE.test(entry.name)) readInto(out, root, abs);
+      if (entry.isDirectory()) {
+        const relDir = path.relative(root, abs).split(path.sep).join('/');
+        if (!EXCLUDE_REL_DIRS.has(relDir)) walk(abs);
+      } else if (entry.isFile() && PLAY_EXT_RE.test(entry.name)) readInto(out, root, abs);
     }
   };
   const playDir = path.join(root, PLAY_DIR);
