@@ -1,5 +1,26 @@
+// LIFTED from the wire-snip-panic mockup, then adapted for this site. Every other line is the
+// mockup's own; what this site changed is listed here, because a reader otherwise cannot tell which
+// is which (gh#162):
+//
+//   1. The mockup's ten-emoji PLAYER_AVATARS literal is GONE. The cast is single-sourced in
+//      src/play/_mascots.ts (gh#152, ADR-0054 rulings 1-2: one list, one fixed seat order, identical
+//      in every party game), and the mockup's own list DISAGREED with it -- see the note at the
+//      former literal's site for the exact difference. Keeping it would have shipped a second cast.
+//   2. The particle engine no longer assumes a 2D context exists (ADR-0051: a play route never
+//      blanks the page). getContext('2d') returning null used to throw at module top level, which
+//      killed every line below it -- setup, turns, the round -- and left a dead page.
+//   3. A prefers-reduced-motion branch was added, because the mockup had none (ADR-0046: reduce the
+//      motion, do not remove it). Both the amplitude and the cadence drop; the canvas keeps drawing.
+//   4. The losing rule moved to ./turn-rules.ts so a node test can reach it (gh#162 box 7).
+//
+// The .ts extension is spelled out in full, the way manifest.ts does it.
+import { MASCOTS } from '../_mascots.ts';
+import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
+
     /**
-     * ตัดสายกู้ชีพ (Wire Snip Panic)
+     * Wire Snip Panic -- the Thai title this route ships lives in markup.html and the game module, not
+     * here: this file lost the verbatim-lift exemption the moment it took an import, so its comments
+     * are English like every other scanned file (scripts/thai-comments.mjs, owner ruling 2026-08-29)
      * 6-Wire Progressive Difficulty + Countdown Timer Edition
      */
 
@@ -178,12 +199,62 @@
     const soundSynth = new GameSoundSynth();
 
     // --- 2. PARTICLE ENGINE & SCREEN JUICE ---
+    // ADR-0051: a play route never blanks the page. `canvas` can be null (the element is markup this
+    // file does not own) and getContext('2d') returns null on a device that has run out of context
+    // slots -- a real outcome on the low-end Android this site treats as core audience, not an edge
+    // case. Both used to be dereferenced unguarded HERE, at module top level, so either one took down
+    // every line below: setup, the turn loop, the whole round. The particles are decoration; the game
+    // is DOM-driven and plays without them.
     const canvas = document.getElementById('particle-canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas ? canvas.getContext('2d') : null;
     let particles = [];
 
+    // ADR-0046: reduced motion REDUCES the motion, it does not delete it. This is a CSS media feature,
+    // so it does not reach the per-frame writes this engine makes to a 2D context -- it has to be read
+    // in script. The CSS half (the mockup's six @keyframes rules) is answered in overrides.css.
+    const reducedMotionQuery =
+      typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    let reducedMotion = reducedMotionQuery ? reducedMotionQuery.matches : false;
+    // The METHOD is guarded, not the object: MediaQueryList.addEventListener does not exist before
+    // Safari 14 / iOS 14, and this runs at module top level -- an unguarded call there throws and
+    // takes the whole route down, the blank page ADR-0051 forbids. Same shape as the siblings
+    // (src/play/zero-trigger/main.js, src/play/cursed-number/main.js). No addListener fallback: on
+    // those devices the setting is read once at load, which is a lesser miss than a dead page.
+    if (reducedMotionQuery && reducedMotionQuery.addEventListener) {
+      reducedMotionQuery.addEventListener('change', (e) => { reducedMotion = e.matches; });
+    }
+    // What "reduced" means here, all three at once so the result is less motion rather than the same
+    // motion sampled less often: velocity scaled down (AMPLITUDE), lifetime shortened so nothing
+    // drifts across the screen, a hard ceiling on how many particles exist, and a coarse redraw
+    // cadence. The canvas still clears and still paints -- ADR-0051 forbids it going dark.
+    const REDUCED_AMPLITUDE = 0.3;
+    const REDUCED_DECAY_MULTIPLIER = 4;
+    const REDUCED_PARTICLE_CAP = 12;
+    const REDUCED_FRAME_MS = 100;
+
+    // ponytail: one funnel for every particle, so the context guard and the reduced-motion cut each
+    // exist once instead of once per spawner. Without the !ctx bail the spawners would still fill an
+    // array nothing ever drains, because the render loop -- the only reader -- is not running.
+    function addParticle(p) {
+      if (!ctx) return;
+      if (reducedMotion) {
+        if (particles.length >= REDUCED_PARTICLE_CAP) return;
+        p.vx *= REDUCED_AMPLITUDE;
+        p.vy *= REDUCED_AMPLITUDE;
+        if (p.vrot !== undefined) p.vrot *= REDUCED_AMPLITUDE;
+        p.decay = Math.min(1, p.decay * REDUCED_DECAY_MULTIPLIER);
+      }
+      particles.push(p);
+    }
+
+    // One null-safe reader of the canvas box. The three cut/detonate sites below project another
+    // element's rect into canvas space through it, and they run whether or not the context exists.
+    const EMPTY_BOX = { left: 0, top: 0, width: 0, height: 0 };
+    const particleCanvasBox = () => (canvas ? canvas.getBoundingClientRect() : EMPTY_BOX);
+
     function resizeCanvas() {
-      const rect = canvas.getBoundingClientRect();
+      if (!ctx) return;
+      const rect = particleCanvasBox();
       canvas.width = rect.width * window.devicePixelRatio;
       canvas.height = rect.height * window.devicePixelRatio;
       ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
@@ -195,7 +266,7 @@
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 2.5 + Math.random() * 6.5;
-        particles.push({
+        addParticle({
           type: 'spark',
           x, y,
           vx: Math.cos(angle) * speed,
@@ -212,7 +283,7 @@
       for (let i = 0; i < 30; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 1.5 + Math.random() * 4.5;
-        particles.push({
+        addParticle({
           type: 'sparkle',
           x, y,
           vx: Math.cos(angle) * speed,
@@ -229,7 +300,7 @@
       for (let i = 0; i < 45; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 3.5 + Math.random() * 8.5;
-        particles.push({
+        addParticle({
           type: 'fire',
           x, y,
           vx: Math.cos(angle) * speed,
@@ -243,7 +314,7 @@
       for (let i = 0; i < 25; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 1.5 + Math.random() * 4.0;
-        particles.push({
+        addParticle({
           type: 'smoke',
           x: x + (Math.random() - 0.5) * 20,
           y: y + (Math.random() - 0.5) * 20,
@@ -259,9 +330,9 @@
 
     function spawnConfetti() {
       const colors = ['#06b6d4', '#ef4444', '#f59e0b', '#10b981', '#a855f7', '#f97316'];
-      const rect = canvas.getBoundingClientRect();
+      const rect = particleCanvasBox();
       for (let i = 0; i < 70; i++) {
-        particles.push({
+        addParticle({
           type: 'confetti',
           x: Math.random() * rect.width,
           y: -10 - Math.random() * 50,
@@ -278,8 +349,23 @@
       }
     }
 
-    function updateAndRenderParticles() {
-      const rect = canvas.getBoundingClientRect();
+    // The engine's ONLY motion source, and both of this file's requestAnimationFrame call sites are
+    // here: the tail call below and the kickoff after it, which start and continue this one loop.
+    //   awk '/requestAnimationFrame/ {print NR": "$0}' src/play/wire-snip-panic/main.js
+    let lastParticleDraw = 0;
+    function updateAndRenderParticles(now = 0) {
+      // No context: the loop never runs, and nothing else in the round depends on it (ADR-0051).
+      if (!ctx) return;
+      // ADR-0046, cadence half: under reduced motion the physics steps a few times a second instead
+      // of once per frame. The frame is still REQUESTED, so the loop stays alive and the canvas keeps
+      // being redrawn -- this slows the motion, it does not stop the surface.
+      if (reducedMotion && now - lastParticleDraw < REDUCED_FRAME_MS) {
+        requestAnimationFrame(updateAndRenderParticles);
+        return;
+      }
+      lastParticleDraw = now;
+
+      const rect = particleCanvasBox();
       ctx.clearRect(0, 0, rect.width, rect.height);
 
       for (let i = particles.length - 1; i >= 0; i--) {
@@ -362,7 +448,16 @@
       { name: 'สีส้ม',    hex: '#f97316', glow: 'rgba(249, 115, 22, 0.7)' }
     ];
 
-    const PLAYER_AVATARS = ['🦊', '🐱', '🐼', '🐰', '🐸', '🐯', '🐵', '🐨', '🦁', '🦄'];
+    // THE CAST IS NOT DECLARED HERE. It is src/play/_mascots.ts, for every party game, in one fixed
+    // seat order (ADR-0054 rulings 1-2). The mockup's own ten-emoji literal that used to sit on this
+    // line was a DIFFERENT cast, not a subset: it read
+    //   ['\u{1F98A}','\u{1F431}','\u{1F43C}','\u{1F430}','\u{1F438}','\u{1F42F}','\u{1F435}','\u{1F428}','\u{1F981}','\u{1F984}']
+    // and three of those -- tiger, monkey, unicorn -- appear nowhere in the shared list, while seat 1
+    // was fox where every other party game seats the orange cat. Reported rather than forked: the
+    // shared list wins, so seat 1 here is now the same player it is in every other game.
+    // Modulo, not a bare index: MAX_PLAYERS is 10 against a 20-row list, so this cannot wrap today --
+    // it is there so a future seat ceiling raise degrades to a repeat instead of `undefined`.
+    const avatarFor = (idx) => MASCOTS[idx % MASCOTS.length].emoji;
 
     // Countdown Time Limit Formula:
     // Round 1-3: 5.0s | Round 4-5: 4.0s | Round 6+: 3.0s
@@ -502,7 +597,7 @@
       game.players.forEach((name, idx) => {
         const row = document.createElement('div');
         row.className = 'player-row';
-        const avatar = PLAYER_AVATARS[idx % PLAYER_AVATARS.length];
+        const avatar = avatarFor(idx);
 
         row.innerHTML = `
           <div class="player-avatar">${avatar}</div>
@@ -569,7 +664,7 @@
       game.players.forEach((name, idx) => {
         const badge = document.createElement('div');
         badge.className = `player-card-badge ${idx === game.currentPlayerIndex ? 'current' : ''}`;
-        const avatar = PLAYER_AVATARS[idx % PLAYER_AVATARS.length];
+        const avatar = avatarFor(idx);
         badge.innerHTML = `
           <span>${avatar}</span>
           <span>${escapeHtml(name)}</span>
@@ -760,7 +855,7 @@
 
       // Spark particles at wire center
       const rect = wireCol.getBoundingClientRect();
-      const canvasRect = canvas.getBoundingClientRect();
+      const canvasRect = particleCanvasBox();
       const px = rect.left - canvasRect.left + rect.width / 2;
       const py = rect.top - canvasRect.top + rect.height / 2;
       spawnSparks(px, py, colorInfo.hex, 20);
@@ -852,7 +947,7 @@
         const wireCol = document.querySelector(`.wire-column[data-wire-index="${wireIndex}"]`);
         if (wireCol) {
           const rect = wireCol.getBoundingClientRect();
-          const canvasRect = canvas.getBoundingClientRect();
+          const canvasRect = particleCanvasBox();
           const px = rect.left - canvasRect.left + rect.width / 2;
           const py = rect.top - canvasRect.top + rect.height / 2;
           spawnSafeBurst(px, py);
@@ -899,13 +994,12 @@
       // Award point for surviving a turn
       game.scores[game.currentPlayerIndex] += 1;
 
-      game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
-      game.turnRotationIndex++;
-
-      // When full rotation completes, escalate round level
-      if (game.turnRotationIndex % game.players.length === 0) {
-        game.roundLevel++;
-      }
+      // The seat advance and the round escalation both live in ./turn-rules.ts now, with the losing
+      // rule they are the other half of -- see that file's header and turn-rules.test.mjs.
+      const next = afterSurvivedTurn(game, game.players.length);
+      game.currentPlayerIndex = next.currentPlayerIndex;
+      game.turnRotationIndex = next.turnRotationIndex;
+      game.roundLevel = next.roundLevel;
 
       setupTurn();
     }
@@ -926,7 +1020,7 @@
       // Explosion Particles at bomb center
       const chassis = document.getElementById('bomb-chassis');
       const rect = chassis.getBoundingClientRect();
-      const canvasRect = canvas.getBoundingClientRect();
+      const canvasRect = particleCanvasBox();
       const px = rect.left - canvasRect.left + rect.width / 2;
       const py = rect.top - canvasRect.top + rect.height / 2;
       spawnExplosionParticles(px, py);
@@ -942,10 +1036,12 @@
     function showDetonationModal() {
       game.state = GameState.ROUND_OVER;
       const modal = document.getElementById('modal-detonation');
-      const loserIndex = game.currentPlayerIndex;
+      // Not `game.currentPlayerIndex` read inline: the rule that the detonation does NOT advance the
+      // seat is the thing worth pinning, and it is pinned in turn-rules.test.mjs.
+      const loserIndex = loserOf(game);
       const loserName = game.players[loserIndex];
 
-      document.getElementById('loser-avatar-display').textContent = PLAYER_AVATARS[loserIndex % PLAYER_AVATARS.length];
+      document.getElementById('loser-avatar-display').textContent = avatarFor(loserIndex);
       document.getElementById('loser-name-display').textContent = loserName;
 
       // Penalty Display
@@ -967,7 +1063,7 @@
         const isLoser = idx === loserIndex;
         row.innerHTML = `
           <div style="display: flex; align-items: center; gap: 6px;">
-            <span>${PLAYER_AVATARS[idx % PLAYER_AVATARS.length]}</span>
+            <span>${avatarFor(idx)}</span>
             <span style="${isLoser ? 'color: var(--accent); text-decoration: line-through;' : ''}">${escapeHtml(name)}</span>
             ${isLoser ? '<span style="color: var(--accent); font-size: 11px;">(แพ้รอบนี้)</span>' : ''}
           </div>

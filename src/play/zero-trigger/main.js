@@ -1,3 +1,10 @@
+// watduang: the one cast, defined once (ADR-0054 rulings 1-3). Adding this import costs the file its
+// thai-comments verbatim-lift exemption, which is why the escaping helper below stayed local -- so
+// every comment in this file is now scanned, and none of them may hold a Thai character.
+//
+// The .ts extension is spelled out in full, the way cursed-number/main.js does it.
+import { MASCOTS } from '../_mascots.ts';
+
     /**
      * PROCEDURAL WEB AUDIO SYNTHESIZER
      * Implements gamedev-skills/skills/web-audio-sound-synth specification
@@ -188,6 +195,27 @@
       }
     }
 
+    // watduang: ADR-0046 and ADR-0051. Reduced motion REDUCES the motion, it never deletes it, and
+    // what drops is the AMPLITUDE, not only the write rate -- so the canvas keeps being drawn, the
+    // burst still happens, and every decorative distance below shrinks instead. The query string is
+    // written as a literal because that is what the repo's motion gate matches on.
+    // Read once and kept live: a visitor who flips the setting mid-round is obeyed on the next frame.
+    const reducedMotionQuery =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-reduced-motion: reduce)')
+        : null;
+    let prefersReducedMotion = reducedMotionQuery ? reducedMotionQuery.matches : false;
+    if (reducedMotionQuery && reducedMotionQuery.addEventListener) {
+      reducedMotionQuery.addEventListener('change', (event) => {
+        prefersReducedMotion = event.matches;
+      });
+    }
+    /** The single knob every decorative amplitude in this file multiplies by. Never 0: at 0 the
+     *  particles and the shake are gone rather than reduced, which is the thing ADR-0046 forbids. */
+    const motionScale = () => (prefersReducedMotion ? 0.3 : 1);
+    /** Counts scale with the same knob, but never below one particle -- a burst of zero is a deletion. */
+    const scaledCount = (n) => Math.max(1, Math.round(n * motionScale()));
+
     /**
      * PARTICLE & SCREEN SHAKE ENGINE
      * Implements gamedev-skills/skills/game-juice-and-polish specification
@@ -195,9 +223,20 @@
     class FXEngine {
       constructor(canvas) {
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
+        // watduang: ADR-0051 -- a play route must never blank the page when the context is
+        // unavailable. Everything this class does is decoration (particles, screen shake, haptics),
+        // so a missing context degrades to no decoration and the round is played exactly as before.
+        // getContext itself is wrapped: it throws rather than returning null when the element is
+        // already bound to a different context type.
+        this.ctx = null;
+        try {
+          this.ctx = canvas ? canvas.getContext('2d') : null;
+        } catch {
+          this.ctx = null;
+        }
         this.particles = [];
         this.trauma = 0.0;
+        if (!this.ctx) return;
         this.resize();
         window.addEventListener('resize', () => this.resize());
         this.lastTime = performance.now();
@@ -210,17 +249,21 @@
       }
 
       addTrauma(amount = 0.8) {
-        this.trauma = Math.min(1.0, this.trauma + amount);
-        if (navigator.vibrate) {
+        if (!this.ctx) return;
+        this.trauma = Math.min(1.0, this.trauma + amount * motionScale());
+        // Haptics are motion too, and a phone in the hand is where it is felt most.
+        if (navigator.vibrate && !prefersReducedMotion) {
           navigator.vibrate([100, 50, 200, 50, 400]);
         }
       }
 
       spawnSafeSparkles(x, y) {
-        if (navigator.vibrate) navigator.vibrate(40);
-        for (let i = 0; i < 30; i++) {
+        if (!this.ctx) return;
+        if (navigator.vibrate && !prefersReducedMotion) navigator.vibrate(40);
+        const count = scaledCount(30);
+        for (let i = 0; i < count; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const speed = 2 + Math.random() * 5;
+          const speed = (2 + Math.random() * 5) * motionScale();
           this.particles.push({
             type: 'sparkle',
             x: x || this.canvas.width / 2,
@@ -236,13 +279,15 @@
       }
 
       spawnExplosion(x, y) {
+        if (!this.ctx) return;
         const cx = x || this.canvas.width / 2;
         const cy = y || this.canvas.height / 2;
 
         // Fireballs
-        for (let i = 0; i < 50; i++) {
+        const fireballs = scaledCount(50);
+        for (let i = 0; i < fireballs; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const speed = 3 + Math.random() * 9;
+          const speed = (3 + Math.random() * 9) * motionScale();
           this.particles.push({
             type: 'fire',
             x: cx,
@@ -257,9 +302,10 @@
         }
 
         // Shrapnel Debris
-        for (let i = 0; i < 25; i++) {
+        const shrapnel = scaledCount(25);
+        for (let i = 0; i < shrapnel; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const speed = 2 + Math.random() * 6;
+          const speed = (2 + Math.random() * 6) * motionScale();
           this.particles.push({
             type: 'debris',
             x: cx,
@@ -277,14 +323,16 @@
       }
 
       spawnConfetti() {
+        if (!this.ctx) return;
         const colors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'];
-        for (let i = 0; i < 70; i++) {
+        const count = scaledCount(70);
+        for (let i = 0; i < count; i++) {
           this.particles.push({
             type: 'confetti',
             x: Math.random() * this.canvas.width,
             y: -20 - Math.random() * 50,
-            vx: (Math.random() - 0.5) * 4,
-            vy: 2 + Math.random() * 4,
+            vx: (Math.random() - 0.5) * 4 * motionScale(),
+            vy: (2 + Math.random() * 4) * motionScale(),
             rot: Math.random() * Math.PI * 2,
             vRot: (Math.random() - 0.5) * 0.15,
             size: 6 + Math.random() * 6,
@@ -296,6 +344,7 @@
       }
 
       renderLoop() {
+        if (!this.ctx) return;
         const now = performance.now();
         const dt = (now - this.lastTime) / 1000;
         this.lastTime = now;
@@ -307,7 +356,9 @@
         if (this.trauma > 0) {
           this.trauma = Math.max(0, this.trauma - dt * 2.2);
           const shake = Math.pow(this.trauma, 2);
-          const maxOffset = 18; // px
+          // The amplitude, and the one line reduced motion changes about the shake. It is scaled,
+          // not zeroed: the hit still registers as a hit, it just stops throwing the screen around.
+          const maxOffset = 18 * motionScale(); // px
           const offsetX = (Math.random() - 0.5) * maxOffset * shake;
           const offsetY = (Math.random() - 0.5) * maxOffset * shake;
           appContainer.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
@@ -364,12 +415,21 @@
     /**
      * PRESET AVATARS & PENALTIES
      */
-    const AVATAR_LIST = ['🦊', '🐼', '🐯', '🐰', '🐸', '🐱', '🐶', '🦄', '🦁', '🐨', '🐵', '🐙', '🦖', '🐲', '👽'];
+    // watduang: the mockup shipped its own 15 emoji in its own order. ADR-0054 rulings 1 and 2 fix
+    // ONE cast and ONE order for every party game -- player 1 is always the first row -- so the list
+    // is read from _mascots.ts instead of forked here. The picker grid, the auto-assign in
+    // addNewPlayer() and randomizeAllAvatars() all read this, so they all move together.
+    const AVATAR_LIST = MASCOTS.map((m) => m.emoji);
+    /** The default label for seat i, per ADR-0054 ruling 3: ready to play without typing a name.
+     *  Falls back to the numbered form past the cast, which this game's 10-seat ceiling never
+     *  reaches -- it is there so a shrunk cast degrades instead of writing "undefined" on a card. */
+    const defaultPlayerName = (index) => MASCOTS[index]?.name ?? `ผู้เล่น ${index + 1}`;
     
     // watduang: roster names are typed by players and reach this file from the shared roster, so
     // they are untrusted text wherever it builds markup by string. Same helper and same idiom as
-    // src/play/cannon-flag/main.js -- kept local because a lift file with an import loses the
-    // thai-comments verbatim exemption. Applied at the three innerHTML sinks that print a name.
+    // src/play/cannon-flag/main.js. It was kept local to preserve this file's thai-comments
+    // verbatim-lift exemption; the cast import at the top spends that exemption, so the reason is
+    // gone and only inertia keeps the copy. Applied at the three innerHTML sinks that print a name.
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -416,9 +476,11 @@
           cycleCount: 1,
           turnIndex: 0,
           forbiddenDigit: 7, // Shared forbidden digit for all players in this round
+          // The two seats the game opens with ARE the first two rows of the cast, in order
+          // (ADR-0054 ruling 2): player 1 is always the first, player 2 always the second.
           players: [
-            { id: 1, name: 'ผู้เล่น 1', avatar: '🦊', score: 0 },
-            { id: 2, name: 'ผู้เล่น 2', avatar: '🐼', score: 0 }
+            { id: 1, name: defaultPlayerName(0), avatar: AVATAR_LIST[0], score: 0 },
+            { id: 2, name: defaultPlayerName(1), avatar: AVATAR_LIST[1], score: 0 }
           ],
           penaltyMode: 'preset', // 'preset' | 'custom' | 'none'
           customPenaltyList: [...PRESET_PENALTIES],
@@ -448,7 +510,7 @@
               this.state.players = data.players.map(p => ({
                 id: p.id,
                 name: p.name,
-                avatar: p.avatar || '🦊',
+                avatar: p.avatar || AVATAR_LIST[0],
                 score: 0
               }));
             }
@@ -621,7 +683,7 @@
 
           const nameInput = row.querySelector('.player-name-input');
           nameInput.addEventListener('input', (e) => {
-            this.state.players[index].name = e.target.value.trim() || `ผู้เล่น ${index + 1}`;
+            this.state.players[index].name = e.target.value.trim() || defaultPlayerName(index);
             this.saveStorage();
           });
 
@@ -652,7 +714,7 @@
 
         this.state.players.push({
           id: nextId,
-          name: `ผู้เล่น ${nextId}`,
+          name: defaultPlayerName(nextId - 1),
           avatar: randomAvatar,
           score: 0
         });
@@ -702,7 +764,9 @@
         let rolls = 0;
         const rollInterval = setInterval(() => {
           badge.textContent = Math.floor(Math.random() * 10);
-          badge.style.transform = `scale(${1 + (rolls % 2) * 0.15})`;
+          // Reduced motion keeps the digit rolling -- the roll IS the announcement of the round's
+          // forbidden number -- and shrinks only how far the badge pumps.
+          badge.style.transform = `scale(${1 + (rolls % 2) * 0.15 * motionScale()})`;
           this.synth.playRoll();
           rolls++;
           if (rolls > 8) {
@@ -897,7 +961,12 @@
             }
           }
 
-          // Render LCD string
+          // Render LCD string. DELIBERATELY not coarsened under reduced motion, unlike every other
+          // moving thing on this route: the running digits are the mechanic, not decoration -- the
+          // player stops the clock by reading them, and a slower cadence would make stopping off the
+          // forbidden digit easier. ADR-0046's rule is to reduce the motion without removing the
+          // game; here reducing the cadence WOULD remove the game, so the decoration was reduced
+          // instead. The route stays readable: the digits are text in the DOM, not a canvas.
           timerState.formattedString = this.formatTime(timerState.elapsedMs, this.state.tier);
           lcd.textContent = timerState.formattedString;
 

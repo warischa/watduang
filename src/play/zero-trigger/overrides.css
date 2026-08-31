@@ -52,3 +52,48 @@
   min-inline-size: 44px;
   min-block-size: 44px;
 }
+
+/* Reduced motion (ADR-0046, ADR-0051). The mockup ships no prefers-reduced-motion branch at all, so
+   everything below is this site's, not a tweak of the mockup's.
+
+   REDUCED, NOT DELETED, and the amplitude is what drops. Every keyframe here is redeclared with a
+   smaller travel rather than switched off, because each one carries meaning: floatPulse says the menu
+   art is alive, alertPulse is the danger tier, screenShock is the hit, shakeLoser names the player who
+   just lost. The two infinite loops keep running -- at a distance and a glow the eye can rest on --
+   and the one-shot reactions still play, just shorter and smaller.
+
+   Two motion sources are NOT here because CSS cannot reach them, and both are handled in main.js:
+   the fx-canvas particle/shake loop scales its own amplitude (the canvas keeps being drawn -- ADR-0051
+   forbids taking the surface away), and the LCD timer deliberately keeps its per-frame cadence because
+   those digits are the mechanic, not decoration. */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes floatPulse {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-1px) scale(1.005); }
+  }
+
+  @keyframes alertPulse {
+    from { box-shadow: 0 0 4px rgba(239, 68, 68, 0.35); }
+    to { box-shadow: 0 0 7px rgba(239, 68, 68, 0.45); }
+  }
+
+  @keyframes screenShock {
+    0% { transform: scale(1.01); filter: brightness(1.2); }
+    100% { transform: scale(1); filter: brightness(1); }
+  }
+
+  @keyframes shakeLoser {
+    0%, 100% { transform: rotate(0deg); }
+    20%, 60% { transform: rotate(-2deg) scale(1.01); }
+    40%, 80% { transform: rotate(2deg) scale(1.01); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(1px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* The modal entrance keyframes are pure scale/opacity pops; shortening them is the whole reduction. */
+  .modal-backdrop { animation-duration: 0.1s; }
+  .modal-window { animation-duration: 0.12s; }
+}

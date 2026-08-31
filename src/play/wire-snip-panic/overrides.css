@@ -23,3 +23,69 @@
   min-inline-size: 44px;
   min-block-size: 44px;
 }
+
+/* Reduced motion, CSS half. The mockup ships no prefers-reduced-motion branch at all, so everything
+   below is this site's, not a tweak of the mockup's. The JS half -- the particle canvas, which is a
+   requestAnimationFrame loop writing to a 2D context and therefore invisible to this media query --
+   lives in main.js; ADR-0046 is why it has to be read in script there rather than answered here.
+
+   REDUCE, NOT REMOVE (ADR-0046). No blanket `animation: none` and no `animation-duration: 0.001ms`
+   sweep: three of the six rules below carry state a player reads -- the speed-up pill and the danger
+   timer badge beat to say the clock is short, the LED display blinks to say the machine is live.
+   Killing them would answer an accessibility request by deleting information. So each keeps its
+   animation and loses its AMPLITUDE: the shake stops throwing the screen around, the modal stops
+   scaling, the pulses stay visible but shallow, and the loops run slower.
+
+   Enumerated, not spotted -- these are all six `animation:` declarations in style.css:
+     awk '/@keyframes|animation:/ {print FILENAME":"NR": "$0}' src/play/wire-snip-panic/style.css */
+@media (prefers-reduced-motion: reduce) {
+  /* Screen shake on detonation: 7px of translate and 1.2deg of rotate become 1px and no rotate. The
+     impact still registers; it no longer moves the whole page under the reader. */
+  .shake-impact {
+    animation: wspSoftShake 0.45s ease-out both;
+  }
+
+  /* The two heartbeat pills: 8% scale becomes 2%, and each beat runs at roughly half the rate. */
+  .odds-pill.speed-up {
+    animation: wspSoftHeartbeat 1.6s infinite ease-in-out;
+  }
+
+  .lcd-timer-badge.danger {
+    animation: wspSoftHeartbeat 1.2s infinite ease-in-out;
+  }
+
+  /* Glow and blink are opacity/shadow only -- nothing translates -- so they just slow down. The LED
+     keeps a visible swing, because a display that stops blinking reads as a dead machine. */
+  .menu-bomb-core {
+    animation-duration: 6s;
+  }
+
+  .menu-led-display {
+    animation: wspSoftBlink 3s infinite ease-in-out;
+  }
+
+  /* The modal keeps its entrance, minus the overshooting scale that made it pop. */
+  .modal-box {
+    animation: wspSoftFadeIn 0.25s ease-out;
+  }
+}
+
+@keyframes wspSoftShake {
+  25%, 75% { transform: translate3d(-1px, 0, 0); }
+  50% { transform: translate3d(1px, 0, 0); }
+}
+
+@keyframes wspSoftHeartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes wspSoftBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+
+@keyframes wspSoftFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
