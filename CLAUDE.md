@@ -27,7 +27,7 @@ Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 
 **Game screens** — a game renders no `<a href>` inside the play surface; a double-tap on a transition lands on it and leaves the round. The surface is `#stage` on a shell-rendered game, and the whole of `src/play/<id>/` on a play route — the directory **is** the boundary, because page chrome lives outside it: ADR-0014, retargeted by ADR-0041, re-scoped by ADR-0055. The one crawlable outbound link lives in static page chrome above the surface, and today it points at `/`. What is load-bearing is that the link is static and sits outside the play surface — not where it goes. Two instruments, two owners: `scripts/no-nav-in-stage-check.mjs` scans both regions for literal anchors, and player names reaching the DOM are a separate, attacker-owned channel guarded at the escape sink by `src/play/name-escaping.test.mjs` (ADR-0026). Neither substitutes for the other. ⚠ Most of the rest of the gate fleet still globs `src/games` only and is blind to `src/play` — do not read any other gate's green as covering a play route.
 
-⚠ Before generating an OG image · running a build · **deleting or renaming a page** · driving two headless probes at once · or putting a choice to the site owner → read `docs/runbook.md` first · verifying anything the way CI does, or reading CI's own verdict → `docs/agents/ci-verification.md` (it carries the shell traps that make a probe lie, and the per-step endpoint).
+⚠ Before running a build · **deleting or renaming a page** · driving two headless probes at once · or putting a choice to the site owner → read `docs/runbook.md` first · verifying anything the way CI does, or reading CI's own verdict → `docs/agents/ci-verification.md` (it carries the shell traps that make a probe lie, and the per-step endpoint).
 
 ## Batch boundaries
 
@@ -71,7 +71,7 @@ record no longer what was written.
 
 Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md` · src-edit rules: `docs/agents/src-edit-rules.md` · porting a game from a mockup: `docs/agents/porting-a-mockup-game.md`
 
-⚠ Before adding ANY binary — image, font, 3D model — read `docs/agents/assets.md` first: `public/` ships verbatim to the live site, so a file dropped there goes public with nothing referencing it.
+⚠ Before adding ANY binary — image, font, 3D model — **or generating an OG image** — read `docs/agents/assets.md` first: `public/` ships verbatim to the live site, so a file dropped there goes public with nothing referencing it, and Thai text rendered the wrong way shatters into dotted circles while the script exits 0.
 
 ⚠ Proving anything in a browser (320px · reduced-motion · refresh-and-resume) → `docs/agents/browser-verification.md` first — `--window-size` does not reflow the layout, and a screenshot of it will lie to you
 

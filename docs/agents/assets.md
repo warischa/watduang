@@ -96,3 +96,29 @@ automatic refusal:
 
 Generate large, then downsample on the way out — `sips -Z <max-dim>` or `magick <in> -resize <w>x <out>`
 are both on this machine, as is `rsvg-convert`, which is the proven path for anything carrying Thai text.
+
+## OG images — Thai vowels shatter silently
+
+**Symptom:** the script runs clean, no error, every PNG comes out — but Thai vowels and tone marks
+turn into dotted-circle placeholders (◌). "ระเบิดเวลา" comes out as "ระเบ ◌ ิ ดเวลา".
+
+**Cause:** this machine has no libraqm, so Pillow's normal text path skips complex-script shaping
+for Thai. Already shipped broken once, as `public/og/timebomb.png`.
+
+**Don't:** render Thai text with Pillow · break a line mid-Thai-word (splitting a consonant from a
+vowel that has to compose with it produces the same dotted-circle result).
+
+**Proven path:** SVG → `rsvg-convert` (pango+fontconfig shape Thai correctly) → PNG.
+
+```bash
+node scripts/make-og.mjs <game-id>
+node scripts/make-og.mjs site      # site-wide card, for every non-game page
+```
+
+**Verify:** open the PNG and look at it, every time. "Ran clean" is not evidence here — broken and
+correct look obviously different to the eye, but no exit code says so.
+
+`scripts/make-og.mjs` is deliberately not wired into an npm script — the output has to pass human
+eyes before use. The backstop is `validate-games.mjs`, which hard-fails if `public/og/<og>` doesn't
+exist as a real file.
+

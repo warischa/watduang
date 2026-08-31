@@ -7,28 +7,9 @@ to sit in a file that auto-loads, not `SESSION-HANDOFF.md`, which doesn't get in
 
 ## OG images — Thai vowels shatter silently
 
-**Symptom:** the script runs clean, no error, every PNG comes out — but Thai vowels and tone marks
-turn into dotted-circle placeholders (◌). "ระเบิดเวลา" comes out as "ระเบ ◌ ิ ดเวลา".
-
-**Cause:** this machine has no libraqm, so Pillow's normal text path skips complex-script shaping
-for Thai. Already shipped broken once, as `public/og/timebomb.png`.
-
-**Don't:** render Thai text with Pillow · break a line mid-Thai-word (splitting a consonant from a
-vowel that has to compose with it produces the same dotted-circle result).
-
-**Proven path:** SVG → `rsvg-convert` (pango+fontconfig shape Thai correctly) → PNG.
-
-```bash
-node scripts/make-og.mjs <game-id>
-node scripts/make-og.mjs site      # site-wide card, for every non-game page
-```
-
-**Verify:** open the PNG and look at it, every time. "Ran clean" is not evidence here — broken and
-correct look obviously different to the eye, but no exit code says so.
-
-`scripts/make-og.mjs` is deliberately not wired into an npm script — the output has to pass human
-eyes before use. The backstop is `validate-games.mjs`, which hard-fails if `public/og/<og>` doesn't
-exist as a real file.
+Moved 2026-08-31 to `docs/agents/assets.md`, which already owns every binary-asset rule and is
+where CLAUDE.md routes anything carrying an image. Symptom to recognise from here: the script
+runs clean and Thai vowels come out as dotted circles.
 
 ## build — must go through `npm run`, nothing else
 
