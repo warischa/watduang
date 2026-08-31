@@ -151,12 +151,31 @@ export function findRepoRootWalkers(text) {
   return walkers;
 }
 
-// Naive comment strip (line + block comments) — this is a text heuristic, not a parser, and can
-// over-strip inside a string that happens to contain `//` or `/* */`. That is the safe direction:
-// over-stripping can only remove a real exclusion literal and make the gate MORE likely to flag,
-// never less.
+// Blanks comments so the literal test below reads live code only. PER LINE, WITH NO OPENER/CLOSER
+// PAIRING ANYWHERE — that absence is the whole point, so do not reintroduce a `/*[\s\S]*?*/` regex
+// here (gh#172). The old version paired every slash-star with the next star-slash across newlines,
+// and a glob written in prose (`src/games/*.ts`) is an unbalanced comment OPENER: in
+// checkpoint-writer-check.mjs, 22 such openers against 3 real closers blanked most of the file, so a
+// live exclusion sitting anywhere below the first glob was erased before it could be seen and the
+// gate reported a guarded file as unguarded. Cross-line pairing is what made prose able to blind the
+// gate to code; classifying each line on its own removes that channel rather than patching it.
+//
+// A line is a comment if it OPENS as one; otherwise it is code, truncated at its first `//`.
+//
+// CEILING, disclosed, two directions:
+//   - OVER-strips (safe here — it can only make this gate flag MORE): a `//` inside a string blanks
+//     the rest of that line, so `['https://x', '.claude/worktrees']` on ONE line reads as empty. Put
+//     the exclusion on its own line, which the house idiom already does.
+//   - UNDER-strips (the unsafe direction, and the price of dropping pairing): a block comment whose
+//     continuation lines start with neither `*` nor `//` is read as code, so a mention of the
+//     exclusion inside such a comment would satisfy this gate. Measured on the real tree before
+//     shipping: zero `.claude/worktrees` mentions sit in that position anywhere under scripts/. If
+//     that ever changes the fix is a real parser, not another regex.
 function stripComments(text) {
-  return text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  return text
+    .split('\n')
+    .map((line) => (/^[ \t]*(\/\/|\/\*|\*)/.test(line) ? '' : line.split('//')[0]))
+    .join('\n');
 }
 
 // The exclusion literal must appear in live code, not merely be mentioned in a comment (a TODO
@@ -249,17 +268,85 @@ function selftest() {
         ].join('\n'),
     );
 
-    const good = scan(dir);
-    assert.equal(good.files.length, 3, 'must examine all 3 fixture files');
-    assert.deepEqual(good.walkerFiles.sort(), ['bad-root-walk.mjs', 'good-root-walk.mjs'], 'exactly the two root-rooted walkers must be found, not the subdir walker');
-    assert.deepEqual(good.violations.map((v) => v.file), ['bad-root-walk.mjs'], 'exactly bad-root-walk.mjs must violate — good-root-walk.mjs carries the exclusion, subdir-walker.mjs never walks from repo root');
-    console.log('PASS calibration: subdir walker never flagged, unexcluded repo-root walker reds and is named, excluded repo-root walker greens');
+    // The walker body every glob fixture below reuses — identical in all three, so the ONLY variable
+    // between them is what the comments/strings around it contain.
+    const walkerBody = [
+      'function walk(dir) {',
+      '  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {',
+      '    if (e.isDirectory()) walk(path.join(dir, e.name));',
+      '  }',
+      '}',
+      'walk(repoRoot);',
+    ];
+    const exclusionLine = "const EXCLUDE_REL_DIRS = new Set(['.claude/worktrees']);";
 
-    // Removing the bad file must clear the violation (proves the gate can go green again, not just red).
+    // gh#172, the divergence input. A glob in a LINE comment contributes an unbalanced comment
+    // OPENER; the next real block-comment CLOSER, many lines below, pairs with it. A stripper that
+    // pairs openers to closers across lines therefore blanks everything in between — including the
+    // live exclusion — and reports this file as unguarded. It is guarded, so it must pass.
+    fs.writeFileSync(
+      path.join(dir, 'glob-comment-walk.mjs'),
+      rootDecl +
+        [
+          '// Scans src/games/*.ts for the marker.',
+          ...walkerBody,
+          exclusionLine,
+          '/* A real block comment. Its closer is the one this file pairs with. */',
+        ].join('\n'),
+    );
+
+    // The same file with the exclusion REMOVED — the negative leg. A fix that made the gate see
+    // through globs by simply not stripping anything would pass the leg above and this one too;
+    // this is the leg that says the gate still has teeth.
+    fs.writeFileSync(
+      path.join(dir, 'glob-comment-no-exclusion.mjs'),
+      rootDecl +
+        [
+          '// Scans src/games/*.ts for the marker.',
+          ...walkerBody,
+          '/* A real block comment. Its closer is the one this file pairs with. */',
+        ].join('\n'),
+    );
+
+    // A comment opener sitting inside a STRING literal opens nothing. Same divergence shape as the
+    // glob case but sourced from code rather than prose, because the two reach the stripper by
+    // different routes and a fix can close one without closing the other.
+    fs.writeFileSync(
+      path.join(dir, 'string-literal-slashstar.mjs'),
+      rootDecl +
+        [
+          "const OPENER_IN_A_STRING = '/*';",
+          ...walkerBody,
+          exclusionLine,
+          "const CLOSER_IN_A_STRING = '*/';",
+        ].join('\n'),
+    );
+
+    const good = scan(dir);
+    assert.equal(good.files.length, 6, 'must examine all 6 fixture files');
+    assert.deepEqual(
+      good.walkerFiles.sort(),
+      ['bad-root-walk.mjs', 'glob-comment-no-exclusion.mjs', 'glob-comment-walk.mjs', 'good-root-walk.mjs', 'string-literal-slashstar.mjs'],
+      'exactly the five root-rooted walkers must be found, not the subdir walker',
+    );
+    assert.deepEqual(
+      good.violations.map((v) => v.file),
+      ['bad-root-walk.mjs', 'glob-comment-no-exclusion.mjs'],
+      'exactly the two files with no exclusion may violate — the glob-comment and string-literal files carry a live exclusion and must be SEEN to',
+    );
+    console.log('PASS calibration: subdir walker never flagged, unexcluded repo-root walker reds and is named, excluded repo-root walker greens');
+    console.log('PASS calibration (gh#172): a live exclusion below a glob comment is seen; the same file without it still reds; a slash-star in a string opens no comment');
+
+    // Removing the bad files must clear the violations (proves the gate can go green again, not just red).
     fs.rmSync(path.join(dir, 'bad-root-walk.mjs'));
+    fs.rmSync(path.join(dir, 'glob-comment-no-exclusion.mjs'));
     const afterDelete = scan(dir);
-    assert.equal(afterDelete.violations.length, 0, 'deleting the offending file must clear all violations');
-    assert.deepEqual(afterDelete.walkerFiles, ['good-root-walk.mjs'], 'the excluded repo-root walker is still counted, just not a violation');
+    assert.equal(afterDelete.violations.length, 0, 'deleting the offending files must clear all violations');
+    assert.deepEqual(
+      afterDelete.walkerFiles,
+      ['glob-comment-walk.mjs', 'good-root-walk.mjs', 'string-literal-slashstar.mjs'],
+      'the excluded repo-root walkers are still counted, just not violations',
+    );
     console.log('PASS calibration: deleting the offending file returns the gate to green');
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
