@@ -183,6 +183,12 @@ test('short-stick: setup inputs, draw strip and history escape roster names', ()
     $: (id) => document.getElementById(id),
     AVATARS: ['🦊', '🐼'],
     PENALTY_PRESETS: ['ก', 'ข'],
+    // gh#174 routed the seat default through mascotNames() in ../_mascots.ts. renderSetup prints it
+    // into the placeholder attribute, but this factory evals sliced text and cannot resolve that
+    // import, so the helper is stubbed like every other collaborator here. Benign on purpose: a
+    // default name is OURS, never the attacker's, and the channel this file guards is the roster
+    // value beside it. The real cast is pinned by ./mascot-defaults.test.mjs.
+    defaultName: (i) => `P${i + 1}`,
     sounds: noopProxy(),
     saveDraft: () => {},
     handleDrawStick: () => {},

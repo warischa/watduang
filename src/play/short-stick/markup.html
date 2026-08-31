@@ -130,6 +130,8 @@
             <!-- Player List Inputs -->
             <div class="player-list" id="player-inputs-container"></div>
             <button class="add-player-btn" id="btn-add-player" type="button">+ เพิ่มผู้เล่น</button>
+            <!-- gh#174 — sits with the rows it acts on. `.btn` is 48px tall already: 44px floor, no new rule. -->
+            <button class="btn btn-secondary" id="btn-reset-names" type="button" style="width:100%; margin-top:10px;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
 
             <div style="display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;">
               <button class="btn btn-primary" id="btn-begin-game" type="button" style="flex:1;">เริ่มรอบนี้ ➔</button>
@@ -274,6 +276,26 @@
       <div style="display:flex; gap:10px;">
         <button class="btn btn-secondary" id="btn-cancel-leave" type="button" style="flex:1;">เล่นต่อ</button>
         <button class="btn btn-primary" id="btn-confirm-leave" type="button" style="flex:1;">กลับหน้าแรก</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 4. Reset Player Names Dialog (gh#174) — copy rationale in main.js at the reset handler. -->
+  <dialog class="dialog" id="reset-names-dialog">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">CONFIRM</p>
+          <h2>รีเซ็ตเป็นชื่อสัตว์?</h2>
+        </div>
+        <button class="icon-btn" id="btn-close-reset-names" type="button">✕</button>
+      </div>
+      <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">
+        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
+      </p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-secondary" id="btn-cancel-reset-names" type="button" style="flex:1;">เก็บชื่อเดิมไว้</button>
+        <button class="btn btn-primary" id="btn-confirm-reset-names" type="button" style="flex:1;">รีเซ็ตเป็นชื่อสัตว์</button>
       </div>
     </div>
   </dialog>

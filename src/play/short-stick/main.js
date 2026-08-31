@@ -5,6 +5,11 @@
 // NOT armed inside renderSetup: the +/- stick and add-player buttons re-render themselves on every
 // tap, and gating those is the per-control exception _arm-gate.ts warns about.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#174 / ADR-0054: the party opens on the shared animal cast, never on a column of numbers. Every
+// default name on this route comes from here -- the state array it boots with, the placeholder a row
+// shows while empty, the fallback for a field left blank, and the seat that + adds. resetCastNames is
+// the reset control's wipe: it keeps the count and discards whatever the players typed.
+import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 
     (() => {
       'use strict';
@@ -291,7 +296,15 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         '🤪 ทำหน้าตลกให้ทั้งวงถ่ายรูปเก็บไว้'
       ];
 
-      const AVATARS = ['🦊', '🐼', '🐯', '🐰', '🦁', '🐸', '🐨', '🦄', '🐙', '🐶'];
+      // The badge beside each name row. Taken from the shared cast rather than kept as the mockup's
+      // own list, because the names now come from that cast too and the two lists disagreed row for
+      // row -- seat 1 read "แมวส้ม" next to a fox. Longer than the 10-seat ceiling; the modulo below
+      // never reaches the tail.
+      const AVATARS = MASCOTS.map((m) => m.emoji);
+
+      // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
+      // exactly one definition, in _mascots.ts, and none here.
+      const defaultName = (i) => mascotNames(i + 1)[i];
 
       const draftKey = 'short-stick-pro-v2';
       const sounds = new SoundSynth();
@@ -299,7 +312,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 
       const game = {
         state: GameState.MENU,
-        players: ['ผู้เล่น 1', 'ผู้เล่น 2', 'ผู้เล่น 3', 'ผู้เล่น 4'],
+        players: mascotNames(4),
         stickCount: 6,
         shortCount: 1,
         penaltyMode: 'none', // 'none' | 'preset' | 'custom'
@@ -485,7 +498,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           row.className = 'player-row';
           row.innerHTML = `
             <div class="player-avatar-badge">${AVATARS[i % AVATARS.length]}</div>
-            <input class="input player-input" maxlength="15" value="${escapeHtml(name)}" placeholder="ชื่อเล่นผู้เล่น ${i + 1}" data-index="${i}">
+            <input class="input player-input" maxlength="15" value="${escapeHtml(name)}" placeholder="${escapeHtml(defaultName(i))}" data-index="${i}">
             <button class="icon-btn remove-p-btn" type="button" data-index="${i}" ${game.players.length <= 2 ? 'disabled' : ''}>✕</button>
           `;
           list.appendChild(row);
@@ -493,19 +506,36 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 
         list.querySelectorAll('.player-input').forEach((inp) => {
           inp.addEventListener('input', (e) => {
-            game.players[Number(e.target.dataset.index)] = e.target.value.trim() || `ผู้เล่น ${Number(e.target.dataset.index) + 1}`;
+            game.players[Number(e.target.dataset.index)] = e.target.value.trim() || defaultName(Number(e.target.dataset.index));
             saveDraft();
           });
         });
 
         list.querySelectorAll('.remove-p-btn').forEach((btn) => {
           btn.addEventListener('click', () => {
+            // The `disabled` attribute this button renders with is a UI hint, never the invariant.
+            // armAllButtons re-enables every collected control with a blanket write when its window
+            // closes (games/_arm-gate.ts), which clears page-owned disabled state -- so the floor is
+            // enforced here or not at all. Without it a 2-player party can be cut to 1, and to 0 on
+            // a second visit to setup, after which renderDraw divides by a roster of zero.
+            // Same condition as the `disabled` expression that renders this button; they move together.
+            if (game.players.length <= 2) return;
             sounds.playClick(420);
             game.players.splice(Number(btn.dataset.index), 1);
             saveDraft();
             renderSetup();
           });
         });
+      };
+
+      /** gh#174. The wipe the reset confirm guards: the cast goes back to its animal names and the
+       *  party keeps its size. resetCastNames only reads the length and never looks inside an entry,
+       *  so a typed name cannot survive this call -- that is exactly the loss the confirm names.
+       *  Deliberately free of any DOM or storage call: the redraw and the draft write belong to the
+       *  handler, which leaves this a pure state move that reset-names.test.mjs can lift out of
+       *  main.js and execute without a browser. */
+      const resetPlayerNames = () => {
+        game.players = resetCastNames(game.players);
       };
 
       const renderDraw = () => {
@@ -638,7 +668,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         if (!reusePlayers) {
           const inputs = document.querySelectorAll('.player-input');
           if (inputs.length >= 2) {
-            game.players = [...inputs].map((inp, idx) => inp.value.trim() || `ผู้เล่น ${idx + 1}`);
+            game.players = [...inputs].map((inp, idx) => inp.value.trim() || defaultName(idx));
           }
           if (game.penaltyMode === 'custom') {
             game.selectedPenalty = $('penalty-custom-input').value.trim();
@@ -768,6 +798,45 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         setView('start');
       });
 
+      // Reset Player Names Dialog (gh#174). The question is asked because the answer is destructive:
+      // every name a player typed is replaced. The dialog is opened through openDialog, so its two
+      // buttons arrive gated -- they appear directly over the control that was just pressed.
+      //
+      // The copy in markup.html names every loss this causes, which is what
+      // docs/agents/src-edit-rules.md requires: all typed names go, and they do not come back. It
+      // also names what survives -- the player count and the round settings -- because over-naming
+      // is acceptable there and under-naming is not. Both safe branches -- the close X and cancel --
+      // precede the destructive button in the markup, so showModal() autofocuses a control that only
+      // closes. That ordering is worth keeping, but do NOT rely on it as the guard: openDialog arms
+      // the dialog immediately after showModal(), and the blanket disable that follows drops focus
+      // off the autofocused X onto <body>. Past that point no button is focused at all, so an Enter
+      // still held from the tap that opened this answers nothing -- safer than the ordering claim,
+      // but a different mechanism. What actually protects this dialog is the 400ms gate, not the
+      // markup order (same outcome as the clear-round confirms in "PlayerSetup.astro", different route).
+      $('btn-reset-names').addEventListener('click', () => {
+        sounds.playClick();
+        openDialog('reset-names-dialog');
+      });
+      const closeResetNames = () => $('reset-names-dialog').close();
+      $('btn-close-reset-names').addEventListener('click', closeResetNames);
+      $('btn-cancel-reset-names').addEventListener('click', closeResetNames);
+      $('btn-confirm-reset-names').addEventListener('click', () => {
+        closeResetNames();
+        sounds.playClick(420);
+        resetPlayerNames();
+        saveDraft();
+        renderSetup();
+        // ADR-0017. renderSetup rebuilds the row X buttons and the preset chips through innerHTML,
+        // and the gate setView installed on entry has long since fired and removed itself, so
+        // without this the rows come back LIVE under the finger that just confirmed. The second
+        // contact of a double-tap on the confirm would land on a row X and remove a player -- the
+        // one thing this dialog's own copy promises survives. Same class as zero-trigger's
+        // renderPlayerRoster and dice-loser's renderTurn; a reveal with no view change to hang the
+        // arming on, so it is armed here.
+        const setupView = $('view-setup');
+        if (setupView) armAllButtons(setupView);
+      });
+
       // Audio Toggle
       $('audio-toggle').addEventListener('click', () => {
         sounds.enabled = !sounds.enabled;
@@ -829,7 +898,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       $('btn-add-player').addEventListener('click', () => {
         if (game.players.length < 10) {
           sounds.playClick(580);
-          game.players.push(`ผู้เล่น ${game.players.length + 1}`);
+          game.players.push(defaultName(game.players.length));
           saveDraft();
           renderSetup();
         }
