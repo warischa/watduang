@@ -2,6 +2,30 @@
 // It is a manual tool wired into no gate, so it cannot red anything; run it and it navigates to a
 // URL that only Azure resolves, via a 301 to the play route, and measures the wrong page. Re-point
 // it at /game/<id>/play/ (a different DOM) or delete it — do not read a run of it as evidence.
+// Measured 2026-08-31 against the built dist/, PAGE_CONFIG entry by entry: daily-fortune and siamsi
+// still have a landing; short-stick and timebomb have only a play route; love-match has no page of
+// either kind. So three of its five targets do not exist, and the staleness above is not a warning
+// about the future — it is the current state.
+//
+// gh#170, TWO THINGS SETTLED HERE so neither gets re-litigated from a false premise.
+//
+// (1) THIS FILE IS NOT BROKEN BY ITS IMPORT, and it is not to be deleted for that reason. gh#170's
+// survey proposed retiring it on the grounds that it imports a delisted module. Checked rather than
+// believed: src/games/love-match.ts is present, it exports HEADER_NAME_MAX, and importing it
+// resolves to 20. The module was delisted from the MANIFEST (so no page is built for it); the file
+// itself never went anywhere. The import is live.
+//
+// (2) NOTHING CLAIMS COVERAGE ON THIS PROBE'S BEHALF ANY MORE. scripts/control-floor-probe.mjs used
+// to close its "what its green does not mean" section by saying this probe "still reaches
+// love-match's code, by mounting the chunk directly rather than by visiting a page". Whatever that
+// sentence was worth when it was written, it was false by the time it was read: nothing in
+// .github/, scripts/ci-probes.sh, scripts/run-workflow-gates.sh or package.json invokes this file,
+// so it executes on no runner and covers nothing. That sentence has been struck there, and
+// love-match's HEADER_NAME_MAX path is now recorded as UNCOVERED rather than as covered by this.
+//
+// STILL NOT WIRED, and that is a decision, not an omission — see the STATUS block below. Wiring it
+// would also fail on its own terms today, given the three missing targets above. If it is ever
+// wanted in CI, the target list is what has to be fixed first, not the wiring.
 // Measures .ad-slot's top offset, its own height, and #stage's height, across a turn transition on
 // the 5 ads-bearing game pages (the .ad-slot element in GameLayout.astro, which sits in #how-to-play, a
 // SIBLING of .play-area, so any height change inside #stage/.play-area shifts it, per ADR-0044).
