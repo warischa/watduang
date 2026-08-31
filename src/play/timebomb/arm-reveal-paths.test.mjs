@@ -9,9 +9,12 @@
 // timebomb is unlike the other ten routes: it has no game logic of its own. main.ts renders exactly
 // one screen (#tb-setup, the player baseline) and then hands off to the SHIPPED ENGINE
 // (src/games/timebomb.ts) via game.mount(). Every screen inside #tb-stage is drawn by that engine,
-// which arms its own stage once at mount time (games/timebomb.ts:156, `armAllButtons(stage)`) and is
-// already covered by src/games/timebomb.test.mjs. Re-deriving that coverage here would just be a
-// second, driftable copy of a test that already exists — so this file pins what is actually THIS
+// which arms its own stage once at mount time, through the `armAllButtons(stage)` call in
+// `games/timebomb.ts`. That call is NOT covered by a unit test: `grep -n armAllButtons
+// src/games/*.test.mjs` returns one hit repo-wide and it is in `love-match.test.mjs`, so the only
+// thing watching it is `scripts/arm-gate-coverage-check.mjs`, which asks whether a route calls
+// `armAllButtons` at all and never whether every reveal is covered. Recorded here rather than fixed
+// because the engine is out of this file's scope — so this file pins what is actually THIS
 // file's job: the screen-swap main.ts performs, the controls it renders, and (since gh#177) the
 // confirm dialog it opens over them.
 //
@@ -101,7 +104,8 @@ test('the play stage is not armed a second time by this file', () => {
     source,
     /armAllButtons\(\s*stageEl\b/,
     'stageEl now has its own armAllButtons call — the engine already arms the whole stage at mount ' +
-      '(games/timebomb.ts:156); update the EXPECTED entry above instead of double-arming it here.',
+      '(the `armAllButtons(stage)` call in `games/timebomb.ts`); update the EXPECTED entry above ' +
+      'instead of double-arming it here.',
   );
 });
 
