@@ -268,6 +268,13 @@ function renderTurn(): void {
   if (scoreEl) scoreEl.textContent = '';
   if (rollEl) rollEl.hidden = false;
   if (nextEl) nextEl.hidden = true;
+  // ADR-0014, the ghost-tap gate. This is a reveal with no panel change to hang the arming on, so
+  // it must be armed HERE: startRound reaches this through show(playEl), which arms, but nextTurn
+  // calls renderTurn directly on every later turn and nothing else arms. Without this, #dl-roll
+  // reappears already enabled in the very slot #dl-next just vacated -- both are the sole
+  // .game-btn-primary in #dl-play -- so the second contact of a double-tap aimed at "next" rolls
+  // the dice for the next player with no consent. Reveal, then arm, then announce, matching roll().
+  if (playEl) armAllButtons(playEl);
   announce(`ถึงตาของ ${seatName(seat)} แล้ว`);
 }
 

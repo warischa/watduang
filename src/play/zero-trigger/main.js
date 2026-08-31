@@ -714,6 +714,14 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           container.appendChild(row);
         });
 
+        // ADR-0017, the ghost-tap gate. Same shape as wire-snip-panic's renderSetupPlayerList:
+        // switchScreen arms the setup screen once, but every add, every remove and every avatar
+        // pick rebuilds these rows through innerHTML afterwards, putting a fresh `avatar-btn` or
+        // `remove-player-btn` under the finger that just pressed one, at the same coordinates and
+        // with no arming of its own. It is a reveal with no screen change to hang it on, so it is
+        // armed here. Pinned by ./arm-reveal-paths.test.mjs.
+        armAllButtons(container);
+
         // Sync penalty buttons state
         document.querySelectorAll('.penalty-btn').forEach(btn => {
           btn.classList.toggle('active', btn.dataset.mode === this.state.penaltyMode);
