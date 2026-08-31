@@ -187,6 +187,9 @@ test('short-stick: setup inputs, draw strip and history escape roster names', ()
     saveDraft: () => {},
     handleDrawStick: () => {},
     lockFairCounts: () => {},
+    // renderDraw re-arms the ghost-tap gate on every turn handover (ADR-0017). Stubbed like every
+    // other collaborator here: this test measures escaping, and armAllButtons writes no markup.
+    armAllButtons: () => {},
     calculateOdds: () => ({ remaining: 2, text: '50%', isCritical: false, isWarning: false }),
   }, ['escapeHtml']);
 
@@ -367,6 +370,11 @@ function wireSnipHarness() {
       MASCOTS,
       loserOf,
       spawnConfetti: () => {},
+      // renderSetupPlayerList and showDetonationModal now arm the ghost-tap gate on the container
+      // they just rebuilt (ADR-0017). Stubbed like every other collaborator above, and for the same
+      // reason as the short-stick harness: this test measures escaping, and armAllButtons writes no
+      // markup. Without the stub the sliced renders throw before the assertions run.
+      armAllButtons: () => {},
     }, ['escapeHtml']);
   return { api, document };
 }
