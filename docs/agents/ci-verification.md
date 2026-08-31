@@ -83,8 +83,75 @@ opinion about two of the three.
     bash scripts/run-workflow-gates.sh
 
 It reads `ci.yml` and derives the list, so it cannot drift from the thing it is standing in for. Exit
-code is the number of failed gates; **98 means the extractor is broken, not the tree** — never read
-that as a pass. `MIN_STEPS=` raises the floor.
+code is the number of runnable gates that failed **plus the number that were never executed**;
+**98 means the extractor is broken, not the tree**, and **96 means the workflow moved the unit tests
+out of local reach** — never read either as a pass. `MIN_STEPS=` raises
+the floor. `CLASSIFY_ONLY=1` prints the partition and executes nothing.
+
+**What a local green does and does not prove.** It proves every step this script classified
+RUNNABLE-LOCALLY ran and passed, in the workflow's own order — single-line `run:` commands and
+multi-line `run: |` blocks alike. It proves nothing about the STRUCTURALLY-NOT-RUNNABLE set, which
+the script names on every run with the marker that classified each: a run body containing `${{` (a
+GitHub expression that has no meaning outside Actions) or writing `$GITHUB_OUTPUT` (a step that
+exists to feed a later one). Today that set is `Decide whether the browser probes can add anything`
+and `Fetch SWA deployment token`, plus the `npm ci` install, which is a deliberate skip. Those gates
+are covered by the real run on GitHub and by nothing else — read the run's per-step conclusions
+below, never this script's exit code, for them.
+
+**Why the `$GITHUB_OUTPUT` half of that rule is load-bearing.** `Fetch SWA deployment token` carries
+`${{` only in its `if:`; its run body is expression-free and shells out to `az staticwebapp secrets
+list` against the production resource group. A partition keyed on `${{` alone would classify a
+production token fetch as safe to run locally and then run it.
+
+**Why two markers were still not enough, and the two guards this repo owns.** `${{` and
+`$GITHUB_OUTPUT` are *GitHub's* vocabulary. The set they enumerate is not one this repo controls, so
+an ordinary workflow edit moves a step across the boundary without anyone thinking about the script.
+Both directions were demonstrated on doctored copies of `ci.yml`, 2026-08-31: rewriting the token
+step's `>> "$GITHUB_OUTPUT"` to `>> "$GITHUB_ENV"` left its body holding **neither** marker, the
+pre-guard script classified it `RUN`, and a local invocation would have fired
+`az staticwebapp secrets list` at production; adding `${{ matrix.foo }}` to the `Unit tests` body
+flipped it to `NORUN`, restoring the gh#171 defect of a red `npm test` exiting 0. Two guards keyed on
+**this repo's own command shapes** now wrap the marker rules, re-derived from the workflow text every
+run (no pinned name, index, or title — a pinned list is what rotted the original extractor):
+
+- **DENY, and deny wins over every other rule.** A run body whose *lines* invoke a cloud CLI
+  (`az`, `aws`, `gcloud`, `kubectl`, and siblings, anchored to a command position), emit
+  `::add-mask::`, or carry credential-shaped text (secret / credential / password / token / apiKey)
+  is `NORUN` whatever its markers say — the banner prints the rule that caught it, e.g.
+  `[DENY cloud CLI: az]`. Deliberately over-broad: a false deny costs one locally-skipped gate,
+  printed with its reason; a false allow runs a production credential fetch on a laptop.
+- **REQUIRE, and it aborts rather than discloses.** A body line starting `node --test` or `npm test`
+  must land in a runnable class, and at least one such step must exist. Otherwise the script prints
+  `ABORT: the workflow moved the unit tests out of local reach` and **exits 96** — before the banner,
+  before `CLASSIFY_ONLY` can exit 0. A disclosure in a banner is exactly what let a reader trust
+  `TOTAL=30 FAILS=0`, so the unit tests leaving local reach is not a footnote.
+
+**The honest limit.** These guards bound the damage; they do not prove the partition complete. The
+classification is still derived by reading a file whose *semantics* belong to GitHub — a construct
+Actions treats specially and neither guard recognises would still be classified by shape alone. What
+is now owned is the consequence: a step this repo would be reckless to run cannot become runnable,
+and the one step whose failure must always be reachable cannot become unreachable quietly. Full
+inversion (allowlisting every runnable command) was considered and rejected: it is a second set that
+rots on its own schedule, and the extractor already aborts 98 when parsed ≠ declared.
+
+**Why the exit code counts unexecuted steps as failures (gh#171).** The extractor used to read
+single-line `run:` commands only, so all five multi-line `run: |` blocks — `Unit tests` among them —
+were silently outside the work-set. On 2026-08-31 it printed `TOTAL=30 FAILS=0` on a tree whose
+`npm test` was red; the push went to main and CI failed on `Unit tests`. The count was honest and the
+summary line was still readable as "CI would pass", which is the ADR-0019 failure: a green implying
+coverage it has not earned. A step that is runnable here but did not run is now arithmetic in the
+exit code, and the summary line ends in a verdict that states its own scope rather than a bare
+`FAILS=0`.
+
+**The one expensive step, and the opt-out that costs you the exit code.** The browser probes are 88%
+of the workflow's wall clock and drive a real Chrome — a second probe run attaches to the first one's
+browser (`docs/runbook.md`), so a second one is wrong, not just slow. The script classifies that step
+EXPENSIVE by a derived property, never by name: the workflow itself gates it on
+`if: steps.<id>.outputs.<x>`, so CI decides per run whether it is worth paying for. It runs by
+default. `SKIP_EXPENSIVE=1` skips it and counts it as **not-executed**, which forces a non-zero exit
+and the "never executed. Do not push." verdict — so a run that used the opt-out is always visibly
+incomplete and never predicts CI. `CLASSIFY_ONLY=1` prints all four classes (RUN / EXP / SKIP /
+NORUN) as **tab-separated** columns.
 
 **Why that 98 leg exists.** The first version of that script used `mapfile -t CMDS < <(awk ...)`.
 macOS ships bash 3.2 and `mapfile` arrived in bash 4, so the array came back empty, the loop body
