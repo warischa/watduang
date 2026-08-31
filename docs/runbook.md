@@ -54,8 +54,11 @@ that to `npx astro build`, the gate goes silent instantly.
 **Symptom:** every gate passes locally, CI goes red anyway.
 
 `bundle-freeze-check` and `control-floor-probe` both pin a count that any new game changes, and
-`ci-probes` is not in the `ci` chain. Full detail, and the three commands "locally green" actually
-means: `docs/agents/porting-a-mockup-game.md`.
+`ci-probes` is not in the `ci` chain. Two gates, but **three** constants to re-record —
+`bundle-freeze-check` pins `BASELINE_BASENAMES`, `BASELINE_TOTAL_BYTES` and (since gh#168)
+`BASELINE_PAGE_ENTRIES`, the page-to-entry-chunk pair set that is what actually catches a new play
+route, since every play route's script shares one hash-stripped basename. Full detail, and the three
+commands "locally green" actually means: `docs/agents/porting-a-mockup-game.md`.
 
 ## `tsc --noEmit` does not typecheck `.astro`
 

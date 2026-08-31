@@ -142,7 +142,7 @@ that should break it, plant it, confirm red, restore, confirm the hash matches.
 
 | gate | pins | why a new game trips it |
 |---|---|---|
-| `scripts/bundle-freeze-check.mjs` | the chunk basename set exactly, plus total bytes within 5% | a new chunk name, and one game's bytes exceed the band |
+| `scripts/bundle-freeze-check.mjs` | **three** constants: `BASELINE_BASENAMES` (the chunk basename set, exactly), `BASELINE_TOTAL_BYTES` (within 5%), and `BASELINE_PAGE_ENTRIES` (every page-to-entry-chunk pair, exactly — gh#168) | a new chunk name, one game's bytes exceeding the band, and the new play route's own page-entry pairs. The pair leg is the one that catches a new play route on its own: all play-route scripts share ONE hash-stripped basename, so the basename leg cannot see route N+1 |
 | `scripts/control-floor-probe.mjs` | `CONTROL_COUNT`, the `.game-btn` controls across two screens per page | a new page renders new controls |
 
 Both demand a re-record **with the reason**. Attribute the delta before changing the number: a net +1
