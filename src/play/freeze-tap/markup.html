@@ -49,4 +49,21 @@
       <button id="executeTestsBtn" class="btn-primary">▶ เริ่มการทดสอบทั้งหมด</button>
     </div>
   </div>
+
+  <!-- Reset Player Names Confirm (gh#177, pattern gh#174) — copy rationale and wiring in main.js. -->
+  <div id="resetNamesModal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog" style="text-align: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: 1.3rem; font-weight: 800;">รีเซ็ตเป็นชื่อสัตว์?</h3>
+        <button id="closeResetNamesModalBtn" class="icon-btn">✕</button>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
+      </p>
+      <div style="display: flex; gap: 10px;">
+        <button id="cancelResetNamesBtn" class="btn-secondary" style="flex: 1;">เก็บชื่อเดิมไว้</button>
+        <button id="confirmResetNamesBtn" class="btn-primary" style="flex: 1;">รีเซ็ตเป็นชื่อสัตว์</button>
+      </div>
+    </div>
+  </div>
 </div>

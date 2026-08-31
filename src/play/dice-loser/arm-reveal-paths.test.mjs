@@ -39,7 +39,9 @@ const source = fs
 // and no style.display write anywhere in the file. Two shapes both count as a reveal: a literal
 // `= false`, and show()'s loop form `el.hidden = el !== panel` (false exactly when `el` is the
 // panel being switched to). `.hidden = true` (a HIDE) matches neither branch and is excluded.
-const REVEAL_RE = /([\w.'"()\-]+?)\.hidden\s*=\s*(?:false\b|\w+\s*!==\s*\w+)/g;
+// gh#175 adds a third shape: showModal(), for the reset-names <dialog> -- a dialog is not in the
+// PANELS array show() walks, so it needs its own branch here or it would be invisible to this test.
+const REVEAL_RE = /([\w.'"()\-]+?)\.(?:hidden\s*=\s*(?:false\b|\w+\s*!==\s*\w+)|showModal\(\))/g;
 
 // receiver -> why it is or is not armed. Every entry is a decision, not an observation.
 const EXPECTED = new Map([
@@ -64,6 +66,12 @@ const EXPECTED = new Map([
     'nextEl',
     "roll()'s setTimeout callback: reveals #dl-next once the tumble settles. Armed two lines below " +
       'via armAllButtons(playEl).',
+  ],
+  [
+    'resetDialogEl',
+    'gh#175: the reset-names confirm, opened directly by its trigger with no panel change to hang ' +
+      "the arming on -- it is not one of show()'s five PANELS, so armAllButtons has to be called " +
+      'here explicitly. Armed on the next line via armAllButtons(resetDialogEl).',
   ],
 ]);
 
@@ -106,5 +114,25 @@ test('each armed reveal receiver has an arming call naming it', () => {
     /if \(rollEl\) rollEl\.hidden = false;\s*\n\s*if \(nextEl\) nextEl\.hidden = true;\s*\n\s*if \(playEl\) armAllButtons\(playEl\);/,
     'rollEl is revealed by renderTurn() with no arming call next to it on the nextTurn() path — see ' +
       'the rollEl entry in EXPECTED for the game-safety reasoning; main.ts needs a fix, not this test',
+  );
+  // resetDialogEl (gh#175): showModal(), armed the very next line.
+  assert.match(
+    source,
+    /resetDialogEl\.showModal\(\);\s*\n\s*armAllButtons\(resetDialogEl\);/,
+    'resetDialogEl is revealed but the arming call right after showModal() is missing',
+  );
+});
+
+// Found by adversarial review, 2026-08-31, and invisible to every assertion above: CLOSING the
+// dialog is a reveal too. #dl-begin sits behind it, enabled, its own 400ms window long expired --
+// and that expiry is exactly why a second contact activates it. The wave shipped three routes whose
+// comments argued the opposite ("nothing is rebuilt, so nothing to re-arm"); the rebuild is not the
+// hazard, the reveal is. Pinned on the shared closer so all three branches stay covered by one call.
+test('closing the reset dialog re-arms the setup screen behind it', () => {
+  assert.match(
+    source,
+    /resetDialogEl\.close\(\);[\s\S]{0,120}?if \(setupEl\) armAllButtons\(setupEl\);/,
+    'closeResetDialog no longer arms #dl-setup: a double-tap on close, cancel or confirm puts the ' +
+      'second contact on #dl-begin and starts the round with the phone still in one player\'s hand',
   );
 });

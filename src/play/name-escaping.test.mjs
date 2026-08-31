@@ -253,6 +253,11 @@ function powerMeterHarness() {
     soundSynth: noopProxy(),
     addTrauma: () => {},
     evaluateRoundElimination: () => outcome,
+    // gh#175 routed the seat default through mascotNames() in ../_mascots.ts, which this factory
+    // cannot resolve — it evals sliced text. Stubbed like every other collaborator here, and benign
+    // on purpose: a default name is OURS, never the attacker's, and the channel this file guards is
+    // the roster value beside it. The real cast is pinned by ./mascot-defaults.test.mjs.
+    defaultName: (i) => `P${i + 1}`,
   }, ['escapeHtml']);
   return { api, viewRoot };
 }
@@ -298,6 +303,10 @@ function cannonFlagHarness(standings) {
     sound: noopProxy(),
     showScreen: () => {},
     showPassDeviceScreen: () => {},
+    // Same as power-meter above: gh#175 put the seat default behind ../_mascots.ts, which this
+    // factory cannot import. Benign by design — the attacker-controlled channel here is the typed
+    // name this route re-reads off its own live inputs, not the placeholder beside it.
+    defaultName: (i) => `P${i + 1}`,
   }, ['escapeHtml']);
   return { api, DOM };
 }

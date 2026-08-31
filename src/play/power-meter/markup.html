@@ -67,3 +67,15 @@
       <button class="btn-secondary" data-act="closeModal" data-arg="tests-modal">ปิด</button>
     </div>
   </div>
+
+  <!-- Reset Player Names Modal (gh#175) — copy rationale in main.js at confirmResetNames. -->
+  <div id="reset-names-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-names-title">
+    <div class="modal-content">
+      <h2 id="reset-names-title" style="margin-bottom: 12px; font-size: 1.3rem;">รีเซ็ตเป็นชื่อสัตว์?</h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">
+        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่
+      </p>
+      <button class="btn-primary" data-act="confirmResetNames">รีเซ็ตเป็นชื่อสัตว์</button>
+      <button class="btn-secondary" data-act="closeModal" data-arg="reset-names-modal">เก็บชื่อเดิมไว้</button>
+    </div>
+  </div>

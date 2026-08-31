@@ -37,19 +37,27 @@ const source = fs
   .filter((line) => !line.trimStart().startsWith('//'))
   .join('\n');
 
-// The two ways a control becomes visible on this route: a container's markup is replaced wholesale,
-// or an element that ships hidden is switched on. Hiding writes are not reveals and are not matched.
-const REVEAL_RE = /([\w.'"()\-]+?)\.(?:innerHTML\s*=|style\.display\s*=\s*['"](?:block|flex)['"])/g;
+// The three ways a control becomes visible on this route: a container's markup is replaced
+// wholesale, an element that ships hidden is switched on, or a <dialog> is opened. Hiding writes and
+// .close() are not reveals and are not matched.
+const REVEAL_RE =
+  /([\w.'"()\-]+?)\.(?:innerHTML\s*=|style\.display\s*=\s*['"](?:block|flex)['"]|showModal\(\))/g;
 
 // receiver -> why it is or is not armed. Every entry is a decision, not an observation.
 const EXPECTED = new Map([
   [
     'panel',
-    'the only reveal receiver on this route: every screen, setup included, is mounted by replacing ' +
-      "#panel's markup. render() arms it on its last line for the six in-game screens, and " +
+    'the only innerHTML reveal receiver on this route: every screen, setup included, is mounted by ' +
+      "replacing #panel's markup. render() arms it on its last line for the six in-game screens, and " +
       'renderSetup() arms it itself for setup -- three of setup\'s four reveal sites (setSetupCount, ' +
       'editNames, module init) never pass through render(), so an arm placed in render() alone ' +
       'would have covered only the fourth.',
+  ],
+  [
+    'dlg',
+    'gh#179. openResetNames() showModal()s the reset-names confirm -- a fresh pair of buttons ' +
+      'appearing directly under the finger that just tapped the trigger. Armed inside ' +
+      'openResetNames(), scoped to the dialog rather than the whole panel.',
   ],
 ]);
 
@@ -161,4 +169,32 @@ test('the hook fires at the real arm, not at a fixed timeout the deferral outrun
   panel.dispatch('pointerdown');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   assert.equal(start.disabled, true, '#start must be re-validated after the DEFERRED arm too');
+});
+
+// gh#179. The reset control overwrites every typed name, so it asks first -- and the confirm it
+// opens is itself a fresh pair of buttons appearing under the finger that just pressed reset.
+test('the reset-names confirm is opened and armed at the moment it is revealed', () => {
+  assert.match(
+    source,
+    /function openResetNames\(\)\{[\s\S]*?dlg\.showModal\(\);\s*\n\s*if\(disarmDialog\)disarmDialog\(\);\s*\n\s*disarmDialog=armAllButtons\(dlg\);/,
+    'openResetNames must showModal() the dialog and arm it fresh -- a dialog armed only once at ' +
+      "panel mount carries a long-expired window, live under the finger that just tapped the trigger",
+  );
+  // The wipe hangs off the confirm button, never off the trigger: a reset that ran before the
+  // question was answered would make the confirm decorative.
+  assert.match(source, /function confirmResetNames\(\)\{[\s\S]{0,200}?resetSetupNames\(\);/);
+  assert.doesNotMatch(
+    source,
+    /function openResetNames\(\)\{[^}]*resetSetupNames\(\)/,
+    'openResetNames calls resetSetupNames — the confirm would be asking about work already done',
+  );
+});
+
+// The class gh#174's adversarial review found on short-stick: a confirm that rebuilds its own
+// screen without re-arming leaves the rebuilt controls live under a double-tap. This route's shape
+// closes it differently -- renderSetup() is the ONE path every setup rebuild goes through, and it
+// already ends in armPanel(), pinned above -- so the fix here is that confirmResetNames goes through
+// renderSetup() rather than patching the DOM itself.
+test('the reset confirm rebuilds through renderSetup, not by patching the DOM directly', () => {
+  assert.match(source, /function confirmResetNames\(\)\{[^}]*renderSetup\(\);\s*\n\}/);
 });

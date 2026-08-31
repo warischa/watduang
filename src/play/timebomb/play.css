@@ -21,6 +21,9 @@
   --tb-bg: #070c14;
   --tb-bg-glow: #172554;
   --tb-panel: rgba(15, 23, 42, 0.88);
+  /* The opaque twin of --tb-panel, for the one surface that renders in the TOP LAYER (.tb-dialog):
+     there is no page behind it to blend the alpha against, only ::backdrop. Same hue, alpha 1. */
+  --tb-panel-solid: #0f172a;
   --tb-edge: rgba(255, 255, 255, 0.14);
   --tb-ink: #f8fafc;
   --tb-muted: #94a3b8;
@@ -175,6 +178,73 @@ body {
   text-align: center;
   font-size: 12px;
   color: var(--tb-muted);
+}
+
+/* ---- reset-to-animal-names control and its confirm (gh#177) ----------------------------------- */
+
+/* One rule for the three buttons this feature adds: the setup trigger and the confirm's two answers.
+   48px, above the 44px tap floor the rest of the route uses, and no new floor rule is needed. */
+.tb-secondary-btn,
+.tb-danger-btn {
+  inline-size: 100%;
+  min-block-size: 48px;
+  padding-inline: 14px;
+  border: 1px solid var(--tb-edge);
+  border-radius: 16px;
+  background: var(--tb-panel);
+  color: var(--tb-ink);
+  font-family: var(--font-display);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* The armed/not-armed readout, same as .tb-step and .game-btn: these three buttons are all gated. */
+.tb-secondary-btn:disabled,
+.tb-danger-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tb-danger-btn {
+  border-color: transparent;
+  background: var(--tb-flame);
+  color: var(--tb-bg);
+  font-weight: 500;
+}
+
+.tb-dialog {
+  inline-size: min(340px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid var(--tb-edge);
+  border-radius: 18px;
+  /* Opaque: a modal dialog paints over ::backdrop, not over the page, so the alpha panel token would
+     read as a tinted backdrop rather than as a card. */
+  background: var(--tb-panel-solid);
+  color: var(--tb-ink);
+}
+
+.tb-dialog::backdrop {
+  background: rgba(7, 12, 20, 0.72);
+}
+
+.tb-dialog-title {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 20px;
+}
+
+.tb-dialog-body {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--tb-muted);
+}
+
+.tb-dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* ---- the engine's own screens ----------------------------------------------------------------

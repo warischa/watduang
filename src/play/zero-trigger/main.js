@@ -613,6 +613,37 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           this.randomizeAllAvatars();
         });
 
+        // gh#177 / ADR-0054. Reset is asked first because its answer is destructive: it overwrites
+        // every name a player typed AND every emoji a player picked. The question is put through
+        // openModal, so both answers arrive gated -- they appear directly over the control just
+        // pressed. The copy in markup.html names both losses and what survives (the player count and
+        // the penalty setting), which is what docs/agents/src-edit-rules.md requires: over-naming is
+        // acceptable, under-naming is not.
+        // Do NOT read the cancel-before-confirm ordering as the guard. openModal arms the modal
+        // immediately after revealing it, and that blanket disable drops focus onto <body>, so
+        // nothing is focused at all; the 400ms gate is what protects this answer, not the order.
+        document.getElementById('btn-open-reset-cast').addEventListener('click', () => {
+          this.openModal('modal-reset-cast');
+        });
+
+        document.getElementById('btn-cancel-reset-cast').addEventListener('click', () => {
+          this.closeModal('modal-reset-cast');
+        });
+
+        document.getElementById('btn-confirm-reset-cast').addEventListener('click', () => {
+          this.closeModal('modal-reset-cast');
+          this.resetPlayerCast();
+          this.saveStorage();
+          // ADR-0017. This rebuilds every roster row through innerHTML, putting a fresh avatar-btn
+          // where the finger that just confirmed still is, and the modal that was on top of it is
+          // gone by now. renderPlayerRoster arms the container it rebuilds, which covers this path;
+          // ./arm-reveal-paths.test.mjs pins both halves so a later edit cannot take that arming
+          // away and leave the confirm's second contact live on a row control.
+          this.renderPlayerRoster();
+          this.synth.playClick(400);
+          this.showToast('↺ กลับไปใช้ชื่อและรูปสัตว์เริ่มต้นแล้ว');
+        });
+
         document.querySelectorAll('.penalty-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             document.querySelectorAll('.penalty-btn').forEach(b => b.classList.remove('active'));
@@ -766,6 +797,27 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         this.renderPlayerRoster();
         this.synth.playClick(700);
         this.showToast('🎲 สุ่ม Avatar ใหม่ให้ทุกคนแล้ว');
+      }
+
+      /** gh#177. The wipe the reset confirm guards: every seat goes back to the cast row that owns
+       *  it, and the party keeps its size.
+       *  ADR-0054 ruling 1 makes name + emoji ONE identity and ruling 2 fixes the order, so both
+       *  halves come from a SINGLE MASCOTS lookup per seat -- a second lookup for the emoji is
+       *  exactly what would let the pair drift apart. The modulo wrap keeps them on the same row
+       *  past the end of the cast, where defaultPlayerName's numbered fallback would not; the
+       *  10-seat ceiling reaches neither.
+       *  It reads only the roster's length and each seat's position, never an entry's name or
+       *  avatar, so nothing a player typed or picked can survive it -- that is the loss the confirm
+       *  names. id and score are carried through: neither belongs to the mascot identity, and score
+       *  is a per-match value this pre-match screen has no business touching.
+       *  No DOM and no storage call on purpose -- the redraw and the save belong to the handler,
+       *  which leaves this a pure state move that ./reset-cast.test.mjs lifts out and runs without
+       *  a browser. */
+      resetPlayerCast() {
+        this.state.players = this.state.players.map((player, index) => {
+          const mascot = MASCOTS[index % MASCOTS.length];
+          return { ...player, name: mascot.name, avatar: mascot.emoji };
+        });
       }
 
       selectAvatar(emoji) {

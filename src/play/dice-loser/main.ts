@@ -22,6 +22,9 @@ import game, {
 import { armAllButtons } from '../../games/_arm-gate.ts';
 import { loadGroup, loadRoster, saveGroup } from '../../shell/roster';
 import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
+// gh#175 / ADR-0054: the party opens on the shared animal cast, never on a numbered placeholder.
+// resetCastNames is the reset control's wipe -- it reads only the array's length and keeps the count.
+import { mascotNames, resetCastNames } from '../_mascots.ts';
 
 const MIN_PLAYERS = game.players[0];
 const MAX_PLAYERS = game.players[1];
@@ -34,8 +37,11 @@ const NAME_MAX = 12;
  *  (ADR-0010, enforced by text). */
 const STORE_KEY = 'watduang:dice-loser-players';
 
-/** The mockup's own default label for an unnamed seat, kept byte-exact: "ผู้เล่น 1", "ผู้เล่น 2". */
-const defaultName = (seat: number): string => `ผู้เล่น ${seat + 1}`;
+/** One seat's default name, from the shared cast (gh#175). Before gh#175 this was kept byte-exact
+ *  to the mockup's numbered placeholder ("ผู้เล่น 1", "ผู้เล่น 2"); that claim is gone now that the
+ *  default routes through the shared cast instead. Routed through mascotNames so the wrap past the
+ *  cast's end has exactly one definition, in _mascots.ts, and none here. */
+const defaultName = (seat: number): string => mascotNames(seat + 1)[seat];
 
 /** Which of the nine cells in a 3x3 grid carry a pip, per face. A die is decorative here — the value
  *  that counts is announced as text — but a dice game that shows numerals is not a dice game. */
@@ -128,6 +134,11 @@ const incEl = $<HTMLButtonElement>('dl-count-inc');
 const beginEl = $<HTMLButtonElement>('dl-begin');
 const modeHighEl = $<HTMLButtonElement>('dl-mode-high');
 const modeLowEl = $<HTMLButtonElement>('dl-mode-low');
+const resetNamesEl = $<HTMLButtonElement>('dl-reset-names');
+const resetDialogEl = $<HTMLDialogElement>('dl-reset-dialog');
+const resetCloseEl = $<HTMLButtonElement>('dl-reset-close');
+const resetCancelEl = $<HTMLButtonElement>('dl-reset-cancel');
+const resetConfirmEl = $<HTMLButtonElement>('dl-reset-confirm');
 
 const roundLabelEl = $('dl-round-label');
 const turnNameEl = $('dl-turn-name');
@@ -210,6 +221,16 @@ function setCount(next: number): void {
   count = clamped;
   save();
   renderRows();
+}
+
+/** gh#175. The wipe the reset confirm guards: the cast goes back to its animal names, and the array's
+ *  own length is untouched -- resetCastNames reads only that length, never an entry, so a typed name
+ *  cannot survive this call. `names` is fixed at MAX_PLAYERS regardless of `count` (load() and the
+ *  count stepper both index into it that way), so resetting the whole array also clears the names of
+ *  seats currently hidden past `count`, not just the visible ones -- there is no "count" to keep here
+ *  because count is a separate field this function never touches. */
+function resetPlayerNames(): void {
+  names = resetCastNames(names);
 }
 
 function setCondition(next: LoseCondition): void {
@@ -430,6 +451,45 @@ decEl?.addEventListener('click', () => setCount(count - 1));
 incEl?.addEventListener('click', () => setCount(count + 1));
 modeHighEl?.addEventListener('click', () => setCondition('HIGH_LOSES'));
 modeLowEl?.addEventListener('click', () => setCondition('LOW_LOSES'));
+
+// Reset Player Names Dialog (gh#175). Asked because the answer is destructive: every typed name is
+// replaced. #dl-reset-dialog is not reached through show(), so it is armed here explicitly rather
+// than inheriting the panel-swap arming show() gives the five main screens.
+//
+// The copy in markup.html names every loss this causes (docs/agents/src-edit-rules.md): all typed
+// names go and do not come back; the player count and the win condition stay. Do NOT read the close
+// X sitting before the destructive button in the markup as what protects this dialog -- armAllButtons
+// disables the autofocused close control the instant showModal() returns and drops focus to <body>,
+// so nothing is focused at all once the dialog is armed. What actually protects it is the 400ms gate,
+// not the button order (same mechanism note as short-stick's reset confirm, gh#174).
+resetNamesEl?.addEventListener('click', () => {
+  if (!resetDialogEl) return;
+  resetDialogEl.showModal();
+  armAllButtons(resetDialogEl);
+});
+const closeResetDialog = (): void => {
+  if (!resetDialogEl) return;
+  resetDialogEl.close();
+  // ADR-0017. Closing this dialog is ITSELF a reveal, and that -- not a rebuild -- is the hazard.
+  // #dl-begin and the seat steppers sat behind the dialog a frame ago, enabled, their 400ms window
+  // long expired. A double-tap on close, cancel or confirm therefore puts the second contact on
+  // #dl-begin and starts the round with the phone still in the first player's hand. Armed in this
+  // shared closer rather than in the three handlers, so no branch out of this dialog can miss it.
+  if (setupEl) armAllButtons(setupEl);
+};
+resetCloseEl?.addEventListener('click', closeResetDialog);
+resetCancelEl?.addEventListener('click', closeResetDialog);
+resetConfirmEl?.addEventListener('click', () => {
+  closeResetDialog();
+  resetPlayerNames();
+  save();
+  // renderRows() rebuilds only <li> rows holding a seat badge and a name <input>, so it creates no
+  // button of its own. That was once written here as the reason no re-arm was needed; it is the
+  // wrong model and adversarial review caught it. The reveal that matters is the DIALOG CLOSING
+  // over the live setup screen, which closeResetDialog above now arms for all three branches.
+  renderRows();
+});
+
 beginEl?.addEventListener('click', () => {
   // The group the round actually plays with, written through roster.ts — saveOnSetupComplete reads
   // the inputs, and this covers the seats whose field was left at its default.

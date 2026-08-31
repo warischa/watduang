@@ -244,6 +244,88 @@ body {
   color: var(--dl-muted);
 }
 
+.dl-reset-btn {
+  inline-size: 100%;
+  min-block-size: 44px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--dl-muted);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ---- reset dialog (gh#175) ---------------------------------------------------------------------- */
+
+.dl-dialog {
+  inline-size: min(92vw, 420px);
+  border: 1px solid var(--dl-edge-strong);
+  border-radius: 20px;
+  padding: 0;
+  background: var(--dl-panel);
+  color: var(--dl-ink);
+  margin: auto;
+}
+
+.dl-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.dl-dialog-inner {
+  padding: 20px;
+}
+
+.dl-dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dl-dialog-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--dl-muted);
+}
+
+.dl-dialog-title {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.dl-dialog-close {
+  flex: none;
+  inline-size: 44px;
+  block-size: 44px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--dl-ink);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dl-dialog-body {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--dl-muted);
+}
+
+.dl-dialog-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dl-dialog-actions .game-btn {
+  flex: 1;
+  min-block-size: 48px;
+}
+
 /* ---- play ------------------------------------------------------------------------------------- */
 
 .dl-round-label {

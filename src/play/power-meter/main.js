@@ -4,6 +4,11 @@
 // change, so arming once at init would gate nothing past the first screen.
 // The .ts extension is spelled out in full, the way src/play/zero-trigger/main.js does it.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#175 / ADR-0054: the party opens on the shared animal cast, never on a column of numbers. Every
+// default name on this route -- the seat built when count is chosen, the placeholder an empty field
+// shows, and the fallback for a name left blank at match start -- comes from here. resetCastNames is
+// the reset control's wipe: it keeps the seat count and discards whatever a player typed.
+import { mascotNames, resetCastNames } from '../_mascots.ts';
 
     /* ==========================================================================
        1. PURE LOGIC & DETERMINISTIC TIEBREAK ENGINE (2 DECIMAL PLACES)
@@ -455,6 +460,12 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       '#38bdf8', '#34d399', '#fbbf24', '#f43f5e', '#c084fc'
     ];
 
+    // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
+    // exactly one definition, in _mascots.ts, and none here. PLAYER_AVATARS/PLAYER_COLORS are left
+    // as this route's own lists -- unlike short-stick's badge, nothing here claimed they had to match
+    // the cast row for row, so they are out of scope for gh#175.
+    const defaultName = (i) => mascotNames(i + 1)[i];
+
     const game = {
       state: GameState.SETUP_COUNT,
       playerCount: 4,
@@ -601,7 +612,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         const existingName = currentMap.get(id);
         game.players.push({
           id,
-          name: existingName || `ผู้เล่น ${i + 1}`,
+          name: existingName || defaultName(i),
           avatar: PLAYER_AVATARS[i % PLAYER_AVATARS.length],
           color: PLAYER_COLORS[i % PLAYER_COLORS.length]
         });
@@ -631,7 +642,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           <div class="name-row">
             <div class="avatar-badge" style="border: 2px solid ${p.color};">${p.avatar}</div>
             <input type="text" class="name-input" id="input-name-${idx}"
-                   value="${escapeHtml(p.name)}" placeholder="ผู้เล่น ${idx + 1}"
+                   value="${escapeHtml(p.name)}" placeholder="${escapeHtml(defaultName(idx))}"
                    maxlength="16" data-act="updatePlayerName" data-arg="${idx}"
                    aria-label="ชื่อผู้เล่นที่ ${idx + 1}">
           </div>
@@ -648,6 +659,12 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           <div class="names-list">
             ${namesHtml}
           </div>
+
+          <!-- gh#175 -- sits with the rows it acts on. .btn-secondary is 48px tall already: 44px
+               floor, no new rule. -->
+          <button class="btn-secondary" data-act="openResetNamesModal" style="width:100%; margin-top:10px;">
+            ↺ รีเซ็ตเป็นชื่อสัตว์
+          </button>
 
           <button id="btn-primary-action" class="btn-primary" data-act="startNewMatch">
             🎮 เริ่มเกมทันที!
@@ -666,6 +683,18 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       }
     }
 
+    /** gh#175. The wipe the reset confirm guards: every seat keeps its id/avatar/color and gets an
+     *  animal name back; resetCastNames only reads game.players.length and never looks inside an
+     *  entry, so a typed name cannot survive this call -- that is exactly the loss the confirm's
+     *  copy names. Deliberately free of any DOM write: the redraw belongs to the caller, which lets
+     *  reset-names.test.mjs lift this out of main.js and run it without a browser. */
+    function resetPlayerNames() {
+      const names = resetCastNames(game.players);
+      game.players.forEach((p, idx) => {
+        p.name = names[idx];
+      });
+    }
+
     // The one inline handler that was an expression rather than a call:
     // `onclick="game.state = GameState.SETUP_COUNT; renderUI();"`. Named so the delegated dispatcher
     // below has a function to reach; the two statements are unchanged and in the same order.
@@ -678,7 +707,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       soundSynth.playClick(700);
       game.players.forEach((p, idx) => {
         if (!p.name || p.name.trim() === '') {
-          p.name = `ผู้เล่น ${idx + 1}`;
+          p.name = defaultName(idx);
         } else {
           p.name = p.name.trim();
         }
@@ -1414,12 +1443,32 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
        modals in markup.html too, which live outside #view-root. Behaviour is unchanged: same
        functions, same arguments, same click that triggered them — only the dispatch point moved from
        the element to the document, one bubble step later in the same event. */
+    // gh#175. The reset overwrites every typed name, so it hides behind #reset-names-modal rather
+    // than firing straight off the trigger, and the modal's own copy in markup.html names every loss
+    // that causes (docs/agents/src-edit-rules.md). Do NOT read primary-before-secondary button order
+    // as what protects it: openModal() arms every control the modal reveals, which disables the
+    // autofocused element and drops focus to <body>, so nothing is focused by the time a held tap
+    // from opening the modal could land -- the 400ms arm window is the guard, not the markup order.
+    const openResetNamesModal = () => openModal('reset-names-modal');
+    const confirmResetNames = () => {
+      closeModal('reset-names-modal');
+      soundSynth.playClick(420);
+      resetPlayerNames();
+      // renderUI() re-renders #view-root (still SETUP_NAMES) and calls armRenderedView() itself --
+      // the same re-arm every state change already gets. Without it the rebuilt name inputs would
+      // land live under a double-tap on the confirm; here they come back re-armed like every other
+      // rebuild in this file.
+      renderUI();
+    };
+
     const clickActions = {
       selectPlayerCount: (el) => selectPlayerCount(Number(el.dataset.arg)),
       closeModal: (el) => closeModal(el.dataset.arg),
       goToSetupNames,
       backToSetupCount,
       startNewMatch,
+      openResetNamesModal,
+      confirmResetNames,
       beginPlayerTurn,
       startMeter,
       stopMeter,

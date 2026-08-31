@@ -29,6 +29,11 @@
 
       <p class="tb-hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อที่ตั้งไว้ใช้เฉพาะเกมนี้</p>
 
+      <!-- gh#177 — the reset control sits with the rows it acts on, INSIDE #tb-setup, so it is
+           unreachable the moment begin() hides this section. Why it is setup-only, and why the copy
+           in the dialog below says what it says, is argued in main.ts at the reset handler. -->
+      <button id="tb-reset-names" class="tb-secondary-btn" type="button">↺ รีเซ็ตเป็นชื่อสัตว์</button>
+
       <button id="tb-begin" class="game-btn game-btn-primary" type="button">พร้อมเล่น</button>
     </section>
 
@@ -54,5 +59,20 @@
     <!-- The engine mounts here. It replaces the children of this element wholesale on every screen
          change, so nothing static may live inside it. -->
     <section id="tb-stage" class="tb-stage" hidden></section>
+
+    <!-- The reset confirm (gh#177). Placed OUTSIDE both #tb-setup and #tb-stage, for two different
+         reasons: the engine calls replaceChildren() on the stage at every screen change and would
+         destroy anything left in it, and a top-layer dialog whose ancestor carries `hidden` is not
+         rendered at all — #tb-setup is exactly such an ancestor once begin() has run. Out of flow
+         either way: a closed <dialog> is display:none and adds nothing to .tb-main's column.
+         No <a href> here, as everywhere in this directory (ADR-0014, ADR-0055). -->
+    <dialog class="tb-dialog" id="tb-reset-dialog" aria-labelledby="tb-reset-title">
+      <h2 class="tb-dialog-title" id="tb-reset-title">รีเซ็ตเป็นชื่อสัตว์?</h2>
+      <p class="tb-dialog-body">ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่</p>
+      <div class="tb-dialog-actions">
+        <button id="tb-reset-cancel" class="tb-secondary-btn" type="button">เก็บชื่อเดิมไว้</button>
+        <button id="tb-reset-confirm" class="tb-danger-btn" type="button">รีเซ็ตเป็นชื่อสัตว์</button>
+      </div>
+    </dialog>
   </main>
 </div>

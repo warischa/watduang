@@ -609,6 +609,18 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       }
     }
 
+    // gh#177 (pattern from gh#174). The wipe the reset confirm guards: every seat's name goes back
+    // to its mascot default and the roster keeps its size. Reads MASCOT_PLAYERS by index rather than
+    // calling setPlayerCount, because setPlayerCount also resizes the array and deliberately keeps a
+    // renamed player -- the opposite of what this reset promises.
+    resetPlayerNames() {
+      this.players = this.players.map((p, i) => ({
+        ...p,
+        name: MASCOT_PLAYERS[i % MASCOT_PLAYERS.length].defaultName
+      }));
+      this.savePlayers();
+    }
+
     savePlayers() {
       try {
         localStorage.setItem('freeze_tap_players', JSON.stringify(this.players));
@@ -1014,6 +1026,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
             </div>
             <div class="roster-list">${rosterHtml}</div>
           </div>
+
+          <!-- gh#177 — sits with the roster it acts on, same placement short-stick's reset uses. -->
+          <button id="resetNamesBtn" class="btn-secondary" type="button" style="width: 100%;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
         </div>
 
         <button id="startGameBtn" class="btn-primary" style="font-size: 1.25rem;">
@@ -1047,6 +1062,12 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         engine.updatePlayerName(idx, e.target.value);
       };
     });
+
+    document.getElementById('resetNamesBtn').onclick = () => {
+      sound.playClick();
+      resetNamesModal.style.display = 'flex';
+      armPanel(resetNamesModal);
+    };
 
     document.getElementById('startGameBtn').onclick = () => {
       sound.playClick(640);
@@ -1375,11 +1396,38 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
     soundToggleBtn.textContent = isEnabled ? '🔊' : '🔇';
   });
 
+  // #resetAppBtn (above) only returns to the setup screen -- it keeps every typed name, it is not
+  // destructive, and no confirm guards it. #resetNamesBtn (inside renderSetupScreen) is the
+  // opposite: it overwrites every typed name with the mascot cast and cannot be undone, which is
+  // why it opens this modal and asks first, per gh#177 / gh#174.
   const resetAppBtn = document.getElementById('resetAppBtn');
   resetAppBtn.addEventListener('click', () => {
     sound.playClick();
     engine.clearTimers();
     engine.state = GameState.SETUP;
+    renderApp();
+  });
+
+  // Reset Player Names Confirm (gh#177, pattern gh#174). #resetNamesBtn opens this; the button
+  // itself lives inside renderSetupScreen()'s template and is re-wired there each render, the same
+  // way decPlayerBtn and startGameBtn are. This modal is static markup (markup.html) that only
+  // toggles display, so its own three buttons are wired once, here.
+  //
+  // What protects a double-tap on #confirmResetNamesBtn is the 400ms armPanel window opened above,
+  // not the order the close/cancel/confirm buttons appear in -- armPanel disables every button it
+  // collects (including the autofocus target) until the window is quiet, so no button is a safe
+  // "first contact" to rely on. Confirming re-renders #mainContent through renderApp(), which arms
+  // it again unconditionally on its last line (see the comment at renderApp() for why setup is
+  // included), so a double-tap landing on the rebuilt setup screen is covered without arming it a
+  // second time here.
+  const resetNamesModal = document.getElementById('resetNamesModal');
+  const closeResetNamesModal = () => { resetNamesModal.style.display = 'none'; };
+  document.getElementById('closeResetNamesModalBtn').addEventListener('click', closeResetNamesModal);
+  document.getElementById('cancelResetNamesBtn').addEventListener('click', closeResetNamesModal);
+  document.getElementById('confirmResetNamesBtn').addEventListener('click', () => {
+    sound.playClick(420);
+    engine.resetPlayerNames();
+    closeResetNamesModal();
     renderApp();
   });
 

@@ -24,12 +24,19 @@
 import { CursedNumberGameModel } from '../../games/cursed-number.ts';
 import { MASCOTS } from '../_mascots.ts';
 // Ghost-tap gate (ADR-0014/ADR-0017). This route never rebuilds a stage: it reveals pre-existing
-// markup, and it does so on FOUR paths, each wired to armAllButtons at the reveal itself.
+// markup, and it does so on SIX paths, each wired to armAllButtons at the reveal itself.
 //   1. showScreen()  -- toggles `.screen.active`. Every screen-to-screen move.
 //   2. the constructor -- screenSetup ships `active` in markup.html and never passes showScreen.
 //   3. the rulesBtn handler -- `#rulesModal.classList.add('active')`, 2 buttons, no showScreen.
 //   4. setInputMode() -- shows #sliderModeContainer / #keypadModeContainer by `style.display`
 //      INSIDE a screen that is already up, so showScreen's call has long since armed and left.
+//   5. the resetNamesBtn handler (gh#177) -- `#resetNamesModal.classList.add('active')`, 3 buttons,
+//      and they land directly over the trigger that was just pressed.
+//   6. the reset CONFIRM handler -- not a reveal by a class or a display write, which is why the
+//      pattern in arm-reveal-paths.test.mjs cannot see it: closing the modal uncovers the setup
+//      screen, whose own arming fired and left when the screen was shown. #screenSetup is re-armed
+//      there. Two things need it: the count pills and #startGameBtn, which sit under the modal card,
+//      and the name rows the reset itself rebuilds through innerHTML.
 // A fifth display toggle, #penaltyResultBox, contains no button and needs no call.
 // This list is the coverage claim, and it is only true while it is complete: a new reveal path that
 // does not appear here ships ungated, and scripts/arm-gate-coverage-check.mjs CANNOT catch that --
@@ -421,6 +428,58 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           this.showScreen('screenSetup');
         });
 
+        // Reset player names (gh#177). THREE controls on this route can be confused for one another,
+        // so the split is deliberate and a player has to be able to predict which one costs them a
+        // name. Two of them NAVIGATE and change nothing: #homeResetBtn above (the header house icon,
+        // on every screen) and #editPlayersBtn (game over) both just show #screenSetup with the
+        // roster intact. This one MUTATES. It is a third control rather than a behaviour bolted onto
+        // either of those, because:
+        //   - #homeResetBtn is an icon-only button reachable from mid-round on every screen. Wiping
+        //     names from there would put the destruction one tap away with nothing on the control
+        //     saying so, and its `Reset` is a mockup id no player ever sees -- the label they read is
+        //     `กลับหน้าแรก`. The id is left alone on purpose; renaming it changes no behaviour.
+        //   - #editPlayersBtn's label promises editing the names, which is the opposite of
+        //     discarding them, and it is exactly the path a group takes to fix ONE name after a round.
+        // What makes the three tellable apart is not the label alone: this is the only one that lives
+        // on the setup screen beside the rows it rewrites, the only one whose label names what happens
+        // to the names, and the only one that asks first. The control that asks is the control that
+        // destroys.
+        //
+        // The copy in markup.html is short-stick's, reused verbatim (gh#174): every clause of it is
+        // true here. Typed names go and do not come back -- updatePlayerName(i, '') clears rawName,
+        // which is the only place a typed name is kept. The count survives: nothing here touches
+        // playerCount, and renderMascotsList rebuilds only #mascotsListContainer. `กติกาที่ตั้งไว้`
+        // survives too -- the penalty select and #customPenaltyInput are read at handleStartGame and
+        // are outside everything this path writes.
+        // Stated ceiling, deliberately NOT put in the copy: the device roster from ADR-0010 is a
+        // different store. A reset leaves it alone, so a later visit can seed the old names back
+        // through roster-bridge.ts. That is not a loss this confirm causes, and the rule names losses.
+        const closeResetNames = () => {
+          document.getElementById('resetNamesModal').classList.remove('active');
+        };
+        document.getElementById('resetNamesBtn').addEventListener('click', () => {
+          this.sound.playClick();
+          // Reveal path 5: three buttons appear over the one just pressed, so the revealed card is
+          // armed here -- showScreen never runs on this path.
+          const resetModal = document.getElementById('resetNamesModal');
+          resetModal.classList.add('active');
+          armAllButtons(resetModal);
+        });
+        document.getElementById('closeResetNamesBtn').addEventListener('click', closeResetNames);
+        document.getElementById('cancelResetNamesBtn').addEventListener('click', closeResetNames);
+        document.getElementById('confirmResetNamesBtn').addEventListener('click', () => {
+          closeResetNames();
+          this.sound.playClick(420);
+          this.resetPlayerNames();
+          this.renderMascotsList();
+          // Reveal path 6. Dismissing the card uncovers a setup screen whose gate fired long ago, and
+          // renderMascotsList has just replaced the rows underneath it. The second contact of a
+          // double-tap on the confirm lands on whatever is now there -- a count pill would change the
+          // player count, which is the one thing this dialog's own copy promises survives.
+          const setup = document.getElementById('screenSetup');
+          if (setup) armAllButtons(setup);
+        });
+
         // Setup Screen - Stepper buttons
         document.getElementById('countMinusBtn').addEventListener('click', () => {
           if (this.game.playerCount > 2) {
@@ -621,6 +680,14 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           row.className = 'mascot-row';
           row.style.setProperty('--pColor', p.color);
 
+          // The aria-label below stays NUMBERED, and that is a decision, not a site gh#177 missed.
+          // It is the field's accessible name, not a player's default name: it answers "which row am
+          // I in", and no one ever reads it as an identity -- the visible default is the placeholder,
+          // which already comes from the cast through p.defaultName. Naming the field after the
+          // animal would make it drift from its own value the moment a row is renamed (the label
+          // would still say `แมวส้ม` while the box holds a typed name), and because an aria-label
+          // suppresses the placeholder as the accessible name, the seat ordinal would be the only
+          // positional cue lost. Numbered here is correct; numbered on a visible-name path is not.
           row.innerHTML = `
             <div class="mascot-avatar-badge">${p.avatar}</div>
             <input type="text" class="mascot-name-input" value="${escapeHtml(p.rawName || '')}" placeholder="${escapeHtml(p.defaultName)}" maxlength="20" aria-label="ชื่อผู้เล่น ${idx + 1}">
@@ -633,6 +700,25 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 
           container.appendChild(row);
         });
+      }
+
+      /** gh#177. The wipe the reset confirm guards: every seat goes back to its animal name and the
+       *  party keeps its size.
+       *
+       *  It writes an EMPTY string through the model's own updatePlayerName rather than pushing
+       *  resetCastNames() from _mascots.ts back over the roster, and that is the whole reason the
+       *  count cannot move: this route does not hold names in a flat array the way short-stick does.
+       *  A seat here carries rawName (what was typed) beside name (what is shown), and empty rawName
+       *  IS the untouched state -- the model then falls back to seat(i).name, which comes from the
+       *  MASCOTS handed to the constructor. Writing cast strings into rawName would restore the same
+       *  visible names while marking every seat as hand-typed, so the placeholder would vanish and
+       *  the next count change would treat an animal name as a name to preserve.
+       *
+       *  Deliberately free of DOM and storage: the redraw and the re-arm belong to the handler, which
+       *  leaves this a pure state move that reset-names.test.mjs can lift out and run without a
+       *  browser. */
+      resetPlayerNames() {
+        this.game.players.forEach((_, i) => this.game.updatePlayerName(i, ''));
       }
 
       renderPlayerStrip(containerId) {

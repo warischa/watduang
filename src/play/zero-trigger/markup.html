@@ -79,6 +79,12 @@
         </button>
       </div>
 
+      <!-- gh#177 - sits with the rows it acts on, below the two controls that add to the roster
+           rather than replace it. Styled off the same .btn-secondary as its neighbours: no new rule. -->
+      <button id="btn-open-reset-cast" class="btn-secondary" style="width: 100%; margin-top: 10px;" title="กลับไปใช้ชื่อและรูปสัตว์เริ่มต้น">
+        <span>↺ รีเซ็ตเป็นชื่อและรูปสัตว์</span>
+      </button>
+
       <!-- Penalty Options -->
       <div class="penalty-config-card glass-card">
         <div class="penalty-header">
@@ -215,6 +221,28 @@
       <button id="btn-close-rules" class="btn-primary">
         <span>เข้าใจแล้ว 👍</span>
       </button>
+    </div>
+  </div>
+
+  <!-- =========================================
+       MODAL 5: RESET CAST CONFIRM (gh#177)
+       Why this is asked, and why the button order is not the guard: main.js, at the reset handler.
+       The body names BOTH losses this causes and what survives it.
+       ========================================= -->
+  <div id="modal-reset-cast" class="modal-backdrop">
+    <div class="modal-window">
+      <h2 class="modal-title">↺ รีเซ็ตเป็นชื่อและรูปสัตว์?</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">
+        ชื่อผู้เล่นที่พิมพ์ไว้และรูปสัตว์ที่เลือกไว้จะถูกแทนด้วยชุดเริ่มต้นทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและบทลงโทษที่ตั้งไว้จะยังคงอยู่
+      </p>
+      <div style="display: flex; gap: 8px;">
+        <button id="btn-cancel-reset-cast" class="btn-secondary" style="flex: 1;">
+          <span>เก็บชื่อเดิมไว้</span>
+        </button>
+        <button id="btn-confirm-reset-cast" class="btn-primary" style="flex: 1;">
+          <span>รีเซ็ตเป็นชื่อและรูปสัตว์</span>
+        </button>
+      </div>
     </div>
   </div>
 

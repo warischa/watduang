@@ -44,7 +44,11 @@ const EXPECTED = new Map([
     "switchScreen(): the screen-to-screen path, menu/setup/game (see the switchScreen call-site " +
       'enumeration below). Armed on the line below the reveal.',
   ],
-  ['modal', 'openModal(): shared by modal-rules, modal-avatar-picker and modal-result. Armed on the line below the reveal.'],
+  [
+    'modal',
+    'openModal(): shared by modal-rules, modal-avatar-picker, modal-result and the gh#177 reset ' +
+      'confirm modal-reset-cast. Armed on the line below the reveal.',
+  ],
   [
     'btn',
     'the .penalty-btn click handler: restyles a button the player is already tapping, not a new ' +
@@ -112,9 +116,27 @@ test('switchScreen is called with exactly the known set of destinations', () => 
 // a fresh .avatar-btn and (when the roster has more than 2 players) a fresh .remove-player-btn -- one
 // of them lands at the coordinates of the button the player just pressed. Unlike wire-snip-panic's
 // renderSetupPlayerList (the same shape, and armed), renderPlayerRoster here never calls
-// armAllButtons on the container it rebuilds. This assertion is written to the CORRECT behaviour, not
-// the current one, and is EXPECTED TO FAIL until main.js is fixed -- see the session report for this
-// route; main.js is out of scope for this file.
+// armAllButtons on the container it rebuilds. Fixed in the same session this file was written; the
+// assertion stays as the pin, because nothing else in the fleet can see this reveal.
 test('renderPlayerRoster arms the container it rebuilds', () => {
   assert.match(source, /armAllButtons\(container\)/);
+});
+
+// gh#177 adds a FIFTH way into that rebuild, and it is the worst-placed one: the reset confirm closes
+// the modal that was covering the roster and redraws every row underneath it, so the second contact of
+// a double-tap on the confirm lands on a freshly built .avatar-btn at almost the same coordinates --
+// the short-stick bug (eb9891f), one route over. The arming that covers it lives inside
+// renderPlayerRoster (pinned above); what is pinned HERE is that the confirm still goes through
+// renderPlayerRoster rather than touching the DOM some other way, because the day it stops, the arming
+// above is still green and covers nothing on this path.
+test('the reset confirm redraws through the armed renderPlayerRoster', () => {
+  const handler = source.slice(source.indexOf("getElementById('btn-confirm-reset-cast')"));
+  const upToEnd = handler.slice(0, handler.indexOf('});'));
+  assert.ok(upToEnd.length > 0, 'the reset confirm handler was not found -- this test is vacuous');
+  assert.match(
+    upToEnd,
+    /this\.renderPlayerRoster\(\)/,
+    'the reset confirm rebuilds the roster without going through renderPlayerRoster, so nothing arms ' +
+      'the rows it puts back under the finger that just confirmed',
+  );
 });

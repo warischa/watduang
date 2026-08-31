@@ -16,6 +16,11 @@ import {
 // away must not land on the control that replaced it. On this route that control is an ANSWER — the
 // tap that decides whether a player's nose grows — so the gate is not cosmetic here.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#179 / ADR-0054: setup opens on the shared animal cast, never on a numbered placeholder. The one
+// default name on this route -- the placeholder a blank seat shows -- comes from mascotNames.
+// resetCastNames is the reset control's wipe: it keeps the seat count and discards whatever a player
+// typed.
+import { mascotNames, resetCastNames } from '../_mascots.ts';
 
 (()=>{'use strict';
 const panel=document.querySelector('#panel'),roundTag=document.querySelector('#roundTag'),announcer=document.querySelector('#announcer'),app=document.querySelector('#app'),stageFrame=document.querySelector('#stageFrame');
@@ -63,6 +68,12 @@ function setSetupCount(value){
   renderSetup();
 }
 
+// One seat's default name, gh#179. Routed through mascotNames so the wrap past the end of the cast
+// has exactly one definition, in _mascots.ts, and none here. The aria-label beside it keeps stating
+// the SEAT NUMBER, not this name -- it identifies which row a screen reader is in, same as
+// cursed-number and power-meter already do once their placeholders carry a mascot name too.
+const defaultName=(i)=>mascotNames(i+1)[i];
+
 function setupMarkup(){
   return `<div class="view">
     <p class="kicker">เกมปาร์ตี้เครื่องเดียว · 2–10 คน</p>
@@ -84,12 +95,29 @@ function setupMarkup(){
       ${Array.from({length:setupCount},(_,i)=>`
         <label class="name-field">
           <span>${i+1}</span>
-          <input class="name-input" maxlength="28" autocomplete="off" value="${esc(setupNames[i]||'')}" placeholder="ผู้เล่น ${i+1}" aria-label="ชื่อผู้เล่น ${i+1}">
+          <input class="name-input" maxlength="28" autocomplete="off" value="${esc(setupNames[i]||'')}" placeholder="${esc(defaultName(i))}" aria-label="ชื่อผู้เล่น ${i+1}">
         </label>
       `).join('')}
     </div>
+    <!-- gh#179 — sits with the rows it acts on, same placement short-stick used. -->
+    <button class="secondary" id="reset-names" type="button" data-act="reset-names" style="width:100%;margin-top:10px">↺ รีเซ็ตเป็นชื่อสัตว์</button>
     <button class="primary" id="start" type="button" data-act="start">สุ่มคิว แล้วเริ่มเกม</button>
     <p class="tiny">คำตอบถูก/ผิดและแต้มจมูกจะสุ่มใหม่ทุกเกม</p>
+    <!-- gh#179 reset confirm. Copy rationale at resetSetupNames/openResetNames below: names every -->
+    <!-- loss (all typed names go) and what survives (the seat count and the round settings). -->
+    <dialog id="reset-names-dialog">
+      <div style="padding:20px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px">
+          <h2 style="margin:0">รีเซ็ตเป็นชื่อสัตว์?</h2>
+          <button class="icon-btn" id="close-reset-names" type="button" data-act="close-reset-names" aria-label="ปิด">✕</button>
+        </div>
+        <p class="tiny" style="margin-bottom:20px">ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่</p>
+        <div style="display:flex;gap:10px">
+          <button class="secondary" id="cancel-reset-names" type="button" data-act="cancel-reset-names" style="flex:1">เก็บชื่อเดิมไว้</button>
+          <button class="primary" id="confirm-reset-names" type="button" data-act="confirm-reset-names" style="flex:1">รีเซ็ตเป็นชื่อสัตว์</button>
+        </div>
+      </div>
+    </dialog>
   </div>`;
 }
 
@@ -291,6 +319,52 @@ function editNames(){
   renderSetup();
 }
 
+/** gh#179. The wipe the reset confirm guards: setup goes back to the animal cast and the seat count
+ *  stays put. resetCastNames only reads the length and never looks inside an entry, so a typed name
+ *  cannot survive this call -- that is exactly the loss the confirm names. Built off setupCount, not
+ *  setupNames.length: setupNames can be shorter than the screen's own row count (a row the stepper
+ *  added that a player never focused), and setupCount is what setupMarkup() actually renders. */
+function resetSetupNames(){
+  setupNames=resetCastNames(Array.from({length:setupCount}));
+}
+
+// Reset Names Dialog (gh#179). It sits on the SETUP screen only -- reroll only ever renders on the
+// all-safe screen and never touches names, edit-names only ever renders on the results screen and
+// re-seeds setup from the CURRENT roster rather than clearing it -- so this control cannot be read as
+// either of them, and overloading neither was needed.
+//
+// The dialog is part of setupMarkup()'s own markup rather than a static block in markup.html the way
+// short-stick's are, because #panel is this route's one reveal receiver (arm-reveal-paths.test.mjs)
+// and everything else already lives there. That is enough to gate the CLOSED dialog -- it is walked
+// and disabled by the same armPanel() call renderSetup() already runs -- but showModal() is its own
+// reveal: without a fresh arm at the moment it opens, its buttons carry whatever state that far
+// earlier window left them in, live under the finger that just tapped the trigger. disarmDialog
+// cancels the previous window before arming a new one, same reason armPanel keeps disarmPanel -- the
+// dialog node is reused across a cancel-then-reopen within one setup render, and arming again without
+// cancelling would stack a second pointerdown listener on it.
+let disarmDialog=null;
+function openResetNames(){
+  const dlg=document.querySelector('#reset-names-dialog');
+  if(!dlg)return;
+  sounds.click();
+  dlg.showModal();
+  if(disarmDialog)disarmDialog();
+  disarmDialog=armAllButtons(dlg);
+}
+function closeResetNames(){
+  document.querySelector('#reset-names-dialog')?.close();
+}
+function confirmResetNames(){
+  closeResetNames();
+  sounds.click(420);
+  resetSetupNames();
+  // renderSetup() rebuilds the whole panel -- rows, trigger and dialog -- through innerHTML and ends
+  // in armPanel(countSteppers(),validateCount), so the rebuilt screen is re-armed by the same call
+  // every other setup entry already goes through. Nothing rebuilt here lands live under the finger
+  // that just confirmed.
+  renderSetup();
+}
+
 // Every screen below is mounted by replacing #panel's innerHTML, so the gate is re-armed on each
 // reveal — a single call at module init would arm the setup screen and nothing a player ever taps
 // into. #panel is the SAME node across screens, so the previous gate is cancelled first; otherwise
@@ -411,6 +485,10 @@ const ACTIONS={
   reroll:resetAllSafe,
   replay:replayMatch,
   'edit-names':editNames,
+  'reset-names':openResetNames,
+  'close-reset-names':closeResetNames,
+  'cancel-reset-names':closeResetNames,
+  'confirm-reset-names':confirmResetNames,
   sound:toggleSound,
 };
 

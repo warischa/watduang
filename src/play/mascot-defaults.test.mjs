@@ -76,6 +76,12 @@ test('power-meter opens with the animal cast, not the numbered default', () => {
   doc.querySelectorAll = (sel) => viewRoot.querySelectorAll(sel);
 
   const game = { players: [], playerCount: 4 };
+  // gh#175 routed the seat default through `defaultName`. It CANNOT be sliced in: sliceDecl walks
+  // braces, and `const defaultName = (i) => ...` is a brace-less arrow, so the walk runs on and
+  // swallows the `const game = {` that follows it -- which collides with the `game` stub below.
+  // So it is stubbed for execution, and pinned by source separately, immediately after this block.
+  // Between them the two cover what one slice would have: the stub uses the REAL `mascotNames`, so
+  // what reaches the inputs is the real cast, and the pin proves the route asks the cast for it.
   const parts = ['goToSetupNames', 'escapeHtml', 'renderSetupNamesView'].map((name) => {
     const slice = sliceDecl(source, name);
     assert.ok(slice, `power-meter/main.js no longer declares ${name}`);
@@ -90,6 +96,10 @@ test('power-meter opens with the animal cast, not the numbered default', () => {
     soundSynth: new Proxy({}, { get: () => () => {} }),
     PLAYER_AVATARS: ['A', 'B', 'C', 'D'],
     PLAYER_COLORS: ['#111', '#222', '#333', '#444'],
+    // Built on the REAL `mascotNames` imported at the top of this file, never on a literal list, so
+    // the names that reach the inputs below are the actual cast. The route's own one-liner is held
+    // to this shape by the source pin that follows this test.
+    defaultName: (i) => mascotNames(i + 1)[i],
     renderUI: () => {},
     announceSR: () => {},
   };
@@ -113,12 +123,24 @@ test('power-meter opens with the animal cast, not the numbered default', () => {
     el.dispatchEvent = () => true;
   }
 
-  // Positive control: without it, a run where the mockup rendered blanks would "pass" on nothing.
+  // gh#175 INVERTED what this test watches. It used to assert the mockup rendered `ผู้เล่น 1..4` and
+  // that applyMascotDefaults then converted them. The route no longer produces a numbered default at
+  // all -- it asks the cast directly -- so that old positive control is now false BY DESIGN, and
+  // keeping it would have made this test demand the very bug gh#175 removed.
+  // What is pinned instead is stronger: the cast arrives with no conversion step at all.
+  // Positive control retained in a form that can still fail: a run where the mockup rendered blanks
+  // or seat numbers reds on the deepEqual below, because both differ from the cast.
   assert.deepEqual(
     inputs.map((el) => el.value),
-    ['ผู้เล่น 1', 'ผู้เล่น 2', 'ผู้เล่น 3', 'ผู้เล่น 4'],
+    MASCOTS.slice(0, 4).map((m) => m.name),
+    'power-meter no longer seeds its own name fields from the cast — check defaultName in main.js',
   );
+  for (const el of inputs) assert.ok(!NUMBERED.test(el.value), `still numbered: ${el.value}`);
 
+  // applyMascotDefaults still runs on this route through its roster-bridge, so it is exercised here
+  // for the property that now matters: it must be a NO-OP over names that are already the cast.
+  // Before gh#175 this call did the work; now it must be able to run and change nothing.
+  const before = inputs.map((el) => el.value);
   const saved = globalThis.document;
   globalThis.document = doc;
   try {
@@ -128,8 +150,30 @@ test('power-meter opens with the animal cast, not the numbered default', () => {
   }
 
   assert.equal(inputs[0].value, 'แมวส้ม');
-  assert.deepEqual(inputs.map((el) => el.value), MASCOTS.slice(0, 4).map((m) => m.name));
-  for (const el of inputs) assert.ok(!NUMBERED.test(el.value), `still numbered: ${el.value}`);
+  assert.deepEqual(inputs.map((el) => el.value), before, 'applyMascotDefaults rewrote cast names');
+});
+
+// The other half of the test above. `defaultName` is STUBBED there (sliceDecl walks braces and this
+// is a brace-less arrow, so slicing it swallows the `const game = {` that follows). A stub can drift
+// from the thing it stands for, so this pins the route's own one-liner by source: the stub is only
+// honest while main.js really does ask the shared cast. Remove the import or hand-roll a list here
+// and this reds, even though every assertion above would still pass.
+test('power-meter asks the shared cast for its seat default, rather than carrying its own list', () => {
+  const source = fs.readFileSync(path.join(here, 'power-meter', 'main.js'), 'utf8');
+  assert.match(
+    source,
+    // The index must be the SAME identifier the arrow takes, not merely word-shaped: `\[\w+\]` also
+    // matches `mascotNames(i + 1)[0]`, which names every seat "แมวส้ม" and would pass both this pin
+    // and the exec test above (that one runs the stub, not this arrow). Backreferenced instead.
+    /const defaultName = \((\w+)\) => mascotNames\(\1 \+ 1\)\[\1\]/,
+    'power-meter/main.js no longer derives defaultName from mascotNames — the stub in the test above ' +
+      'now stands for something that does not exist, so that test is measuring its own fixture',
+  );
+  assert.match(
+    source,
+    /import \{[^}]*mascotNames[^}]*\} from '\.\.\/_mascots\.ts'/,
+    'power-meter/main.js stopped importing mascotNames from the shared cast module',
+  );
 });
 
 test('a name the roster already seeded is never overwritten', () => {

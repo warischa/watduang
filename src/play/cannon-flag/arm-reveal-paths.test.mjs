@@ -50,6 +50,12 @@ const EXPECTED = new Map([
     'DOM.testModal',
     'the #btn-open-tests handler: opened from the header, never through showScreen. Armed through armTestModal, on its own slot.',
   ],
+  [
+    'DOM.resetNamesConfirm',
+    'gh#175/ADR-0054. #btn-reset-names sits inside #screen-setup, same as the FIRE button sits inside ' +
+      '#screen-gameplay before shotModalOverlay lands on top of it, so this reveal reuses the shared ' +
+      'armPanel slot the same way. Armed through armPanel.',
+  ],
 ]);
 
 // Which wrapper each armed receiver must be named by. armPanel and armTestModal both end in
@@ -59,6 +65,7 @@ const MUST_BE_ARMED = new Map([
   ['screenEl', 'armPanel'],
   ['DOM.shotModalOverlay', 'armPanel'],
   ['DOM.testModal', 'armTestModal|armAllButtons'],
+  ['DOM.resetNamesConfirm', 'armPanel'],
 ]);
 
 test('every reveal receiver in cannon-flag/main.js is a known one', () => {
@@ -99,4 +106,39 @@ test('each armed reveal receiver has an arming call naming it', () => {
 test('the test modal arms on its own slot, not the panel slot', () => {
   assert.match(source, /disarmTestModal = armAllButtons\(DOM\.testModal\)/);
   assert.doesNotMatch(source, /disarmActive = armAllButtons\(DOM\.testModal\)/);
+});
+
+// gh#175. The reset control overwrites every typed name, so it asks first. "Opened through armPanel"
+// alone (asserted above, generically, for every receiver in EXPECTED) would not catch a reset wired
+// to run before the question is answered, so the wipe itself gets its own pinning here.
+test('the reset-names confirm is opened through the arming path, and the wipe hangs off the confirm button', () => {
+  assert.match(
+    source,
+    /DOM\.btnResetNames\.addEventListener\('click', \(\) => \{[\s\S]{0,240}?armPanel\(DOM\.resetNamesConfirm\)/,
+    '#btn-reset-names must reveal its confirm through armPanel — a raw classList.add with no arm ' +
+      'leaves two fresh buttons under the finger with no ghost-tap window',
+  );
+  assert.match(
+    source,
+    /DOM\.btnConfirmResetNames\.addEventListener\('click',[\s\S]{0,240}?resetPlayerNames\(/,
+    'the wipe must hang off the confirm button, never off the trigger',
+  );
+  assert.doesNotMatch(
+    source,
+    /DOM\.btnResetNames\.addEventListener\('click', \(\) => \{[\s\S]{0,240}?resetPlayerNames\(/,
+    'the trigger itself calls resetPlayerNames — the confirm would be asking about work already done',
+  );
+});
+
+// Found by adversarial review, 2026-08-31, and invisible to every assertion above: CLOSING the
+// overlay is a reveal too. #btn-start-match sits behind it, enabled, its own 400ms window long
+// expired -- and that expiry is exactly why a second contact activates it. The rebuild is not the
+// hazard, the reveal is. Pinned on the shared closer so all three branches stay covered by one call.
+test('closing the reset overlay re-arms the setup screen behind it', () => {
+  assert.match(
+    source,
+    /resetNamesConfirm\.classList\.remove\('active'\);[\s\S]{0,120}?armPanel\(DOM\.screenSetup\);/,
+    'closeResetNamesConfirm no longer arms #screen-setup: a double-tap on close, cancel or confirm ' +
+      'puts the second contact on #btn-start-match and begins the match with the phone unpassed',
+  );
 });

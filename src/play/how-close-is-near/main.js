@@ -15,6 +15,10 @@ import {
 // empties #screenContainer and repopulates it, so one call at the end of render() gates every
 // freshly rendered control on every screen -- there is no second path that reveals a button.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#175 / ADR-0054: the names screen opens on the shared animal cast, never on a column of numbers.
+// Both places a numbered default could show -- the fallback for a blank field and the placeholder a
+// player never typed over -- read from here through defaultName below.
+import { mascotNames } from '../_mascots.ts';
 
     /**
      * Procedural Web Audio Synthesizer
@@ -280,6 +284,10 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       FARTHEST_LOSES
     });
 
+    // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
+    // exactly one definition, in _mascots.ts, and none here (same idiom as short-stick's defaultName).
+    const defaultName = (i) => mascotNames(i + 1)[i];
+
     class GameModel {
       constructor() {
         this.state = GameState.PLAYER_COUNT;
@@ -333,7 +341,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         this.players = [];
         for (let i = 0; i < this.playerCount; i++) {
           const rawName = names && names[i] ? names[i].trim() : '';
-          const displayName = rawName || `ผู้เล่น ${i + 1}`;
+          const displayName = rawName || defaultName(i);
           this.players.push({
             id: `p_${i + 1}`,
             name: displayName,
@@ -528,6 +536,19 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
     }
 
     // 2. Player Names Screen
+    // gh#175 (pattern from gh#174). The wipe the reset confirm below guards: every name input still
+    // on screen goes back to its seat's animal name, in place -- data-index IS the seat, so no player
+    // is added or removed. This screen holds no array of the typed names (game.players does not exist
+    // until initPlayers runs, on Next), so there is nothing for a typed string to survive inside;
+    // whatever was in inputs[i].value is simply overwritten. Deliberately DOM-only and free of
+    // sound/storage/render calls, so a test can drive it with plain `{ value }` objects
+    // -- it needs nothing shaped like a real <input>, only the property this writes.
+    function resetNameInputs(inputs) {
+      inputs.forEach((input, i) => {
+        input.value = defaultName(i);
+      });
+    }
+
     function renderPlayerNamesScreen() {
       const card = document.createElement('div');
       card.className = 'card';
@@ -535,6 +556,8 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         <h2 class="screen-title">ชื่อผู้เล่น</h2>
         <p class="screen-subtitle">ระบุชื่อของผู้เล่นแต่ละคน (ไม่ระบุได้)</p>
         <div class="player-name-list" id="nameList"></div>
+        <!-- gh#175 -- sits with the rows it acts on. -->
+        <button id="btnResetNames" class="btn-secondary" style="width:100%; margin-top:10px;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
         <button id="btnNextNames" class="btn-primary">ถัดไป ➔</button>
         <button id="btnBackToCount" class="btn-secondary">ย้อนกลับ</button>
       `;
@@ -545,7 +568,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         row.className = 'player-input-row';
         row.innerHTML = `
           <div class="player-badge">${i + 1}</div>
-          <input type="text" class="player-text-input" placeholder="ผู้เล่น ${i + 1}" maxlength="20" data-index="${i}">
+          <input type="text" class="player-text-input" placeholder="${defaultName(i)}" maxlength="20" data-index="${i}">
         `;
         list.appendChild(row);
       }
@@ -563,6 +586,73 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         sound.playClick();
         game.state = GameState.PLAYER_COUNT;
         render();
+      };
+
+      // Reset Player Names Modal (gh#175, pattern decided by gh#174). The question is asked because
+      // the answer is destructive: every name a player typed is replaced. #resetNamesModal is a
+      // SIBLING of #nameList inside this same card, so it reuses #testModal's own reveal shape
+      // (style.display, armed by hand at the reveal) rather than render()'s walk, which only covers
+      // #screenContainer's switch-driven rebuilds.
+      //
+      // The copy names every loss this causes -- all typed names go, and they do not come back --
+      // and what survives: the player count, because this screen has not asked about a losing rule
+      // yet (that is the NEXT screen), so gh#174's "and the rules stay" clause does not hold here and
+      // is dropped rather than copied verbatim over something not yet set.
+      const resetModal = document.createElement('div');
+      resetModal.id = 'resetNamesModal';
+      resetModal.className = 'modal-overlay';
+      resetModal.setAttribute('role', 'dialog');
+      resetModal.setAttribute('aria-modal', 'true');
+      resetModal.setAttribute('aria-labelledby', 'resetNamesTitle');
+      resetModal.innerHTML = `
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="resetNamesTitle">รีเซ็ตเป็นชื่อสัตว์?</h3>
+            <button id="btnCloseResetNames" class="icon-btn" style="width: 36px; height: 36px;">✕</button>
+          </div>
+          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">
+            ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่
+          </p>
+          <div style="display: flex; gap: 10px;">
+            <button id="btnCancelResetNames" class="btn-secondary" style="flex:1;">เก็บชื่อเดิมไว้</button>
+            <button id="btnConfirmResetNames" class="btn-primary" style="flex:1;">รีเซ็ตเป็นชื่อสัตว์</button>
+          </div>
+        </div>
+      `;
+      card.appendChild(resetModal);
+
+      const closeResetNamesModal = () => {
+        resetModal.style.display = 'none';
+        // ADR-0017. Closing this modal is ITSELF a reveal, and that -- not a rebuild -- is the
+        // hazard. "#btnNextNames", "#btnBackToCount" and "#btnResetNames" sat behind it a frame ago,
+        // and the fact their 400ms window is long expired is exactly WHY a second contact activates
+        // one: a double-tap on close, cancel or confirm advances the screen. Armed in this shared
+        // closer so no branch out of the modal can miss it.
+        armAllButtons(card);
+      };
+
+      card.querySelector('#btnResetNames').onclick = () => {
+        sound.playClick();
+        resetModal.style.display = 'flex';
+        // #resetNamesModal is a SIBLING of #nameList, revealed by a direct style write outside
+        // render()'s own container walk -- without this call its two buttons take the second
+        // contact of a double-tap on the trigger that just opened them (ADR-0017), same class as
+        // #testModal above.
+        armAllButtons(resetModal);
+      };
+      resetModal.querySelector('#btnCloseResetNames').onclick = closeResetNamesModal;
+      resetModal.querySelector('#btnCancelResetNames').onclick = closeResetNamesModal;
+      resetModal.querySelector('#btnConfirmResetNames').onclick = () => {
+        sound.playClick(420);
+        closeResetNamesModal();
+        // No render() here on purpose: resetNameInputs writes each input's `.value` in place and
+        // creates no new DOM, so a typed string is simply overwritten. What used to be written here
+        // was that the surrounding buttons "stay the exact elements render() armed, so their 400ms
+        // window is long past" -- offered as the reason no re-arm was needed. That is the wrong way
+        // round, and adversarial review caught it: a long-expired window is precisely why a second
+        // contact ACTIVATES them. The arming now lives in closeResetNamesModal above, which every
+        // branch out of this modal goes through.
+        resetNameInputs(card.querySelectorAll('.player-text-input'));
       };
 
       container.appendChild(card);

@@ -63,6 +63,11 @@ const EXPECTED = new Map([
     'NOT a button reveal: rows of <div>/<span>/<strong> inside #testModal, which is already armed ' +
       'at its own reveal.',
   ],
+  [
+    'resetNamesModal',
+    'gh#177 — the confirm guarding #resetNamesBtn (inside renderSetupScreen, distinct from the ' +
+      'non-destructive #resetAppBtn). Revealed and armed together in the same handler.',
+  ],
 ]);
 
 test('every reveal receiver in freeze-tap/main.js is a known one', () => {
@@ -83,7 +88,7 @@ test('every reveal receiver in freeze-tap/main.js is a known one', () => {
 });
 
 test('each armed reveal receiver has an armPanel call naming it', () => {
-  for (const receiver of ['mainContent', 'modal', 'testModal']) {
+  for (const receiver of ['mainContent', 'modal', 'testModal', 'resetNamesModal']) {
     assert.match(
       source,
       new RegExp(`armPanel\\([^)]*\\b${receiver}\\b`),

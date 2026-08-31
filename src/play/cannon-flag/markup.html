@@ -48,6 +48,12 @@
             </div>
           </div>
 
+          <!-- gh#175 / ADR-0054 -- sits with the rows it resets. .btn-primary reused with the same
+               secondary look #btn-replay-match already uses; no new class. -->
+          <button id="btn-reset-names" class="btn-primary" type="button" style="width: 100%; margin-top: 10px; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-glass); box-shadow: none;">
+            <span>↺ รีเซ็ตเป็นชื่อสัตว์</span>
+          </button>
+
           <div class="rules-hint">
             📌 <strong>กติกา:</strong> ผู้เล่นแต่ละคนจะได้ยิง <strong>2 นัดติดต่อกัน</strong> (นัดละ 30 วินาที) โดยระบบจะนับผลจากนัดที่ <strong>ใกล้ฐานธงที่สุด</strong> ผู้ที่ทำผลงานแย่ที่สุดจะเป็นผู้แพ้
           </div>
@@ -55,6 +61,26 @@
           <button id="btn-start-match" class="btn-primary">
             <span>🚀 เริ่มการแข่งขัน</span>
           </button>
+        </div>
+
+        <!-- Reset Player Names Confirm (gh#175 / ADR-0054) -- copy rationale in main.js at the reset
+             handler. Reuses .shot-modal-overlay / .shot-result-box verbatim: same reveal shape
+             (opacity + pointer-events toggled by .active), no new CSS. -->
+        <div id="reset-names-confirm" class="shot-modal-overlay">
+          <div class="shot-result-box">
+            <div class="shot-result-title">รีเซ็ตเป็นชื่อสัตว์?</div>
+            <p class="shot-result-detail">
+              ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่
+            </p>
+            <div style="display: flex; gap: 10px; width: 100%; margin-top: 8px;">
+              <button id="btn-cancel-reset-names" class="btn-primary" type="button" style="flex: 1; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-glass); box-shadow: none;">
+                <span>เก็บชื่อเดิมไว้</span>
+              </button>
+              <button id="btn-confirm-reset-names" class="btn-primary" type="button" style="flex: 1;">
+                <span>รีเซ็ตเป็นชื่อสัตว์</span>
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 

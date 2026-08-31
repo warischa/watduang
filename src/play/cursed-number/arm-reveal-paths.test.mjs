@@ -42,6 +42,11 @@ const REVEAL_RE = /([\w.'"()\-]+?)\.(?:classList\.add\(\s*['"]active['"]\s*\)|st
 const EXPECTED = new Map([
   ['target', 'showScreen(): the screen-to-screen path. Armed on the line below the reveal.'],
   ['modal', 'the rulesBtn handler: #rulesModal, 2 buttons, never passes showScreen. Armed.'],
+  [
+    'resetModal',
+    'the resetNamesBtn handler (gh#177): #resetNamesModal, 3 buttons, and the sharpest geometry on ' +
+      'the route -- the card opens directly over the trigger that was just pressed. Armed.',
+  ],
   ['sliderCont', 'setInputMode(): 9 step buttons revealed inside a screen already up. Armed.'],
   ['keypadCont', 'setInputMode(): 12 keys revealed inside a screen already up. Armed.'],
   ['sliderTab', 'NOT a reveal: an .active state class on a tab button that was already visible.'],
@@ -68,7 +73,7 @@ test('every reveal receiver in cursed-number/main.js is a known one', () => {
 });
 
 test('each armed reveal receiver has an armAllButtons call naming it', () => {
-  for (const receiver of ['modal', 'sliderCont', 'keypadCont']) {
+  for (const receiver of ['modal', 'resetModal', 'sliderCont', 'keypadCont']) {
     assert.match(
       source,
       new RegExp(`armAllButtons\\([^)]*\\b${receiver}\\b`),
@@ -77,4 +82,19 @@ test('each armed reveal receiver has an armAllButtons call naming it', () => {
   }
   // showScreen's is written against `target`, on the line after the class is added.
   assert.match(source, /target\.classList\.add\('active'\);\s*\n\s*armAllButtons\(target\);/);
+});
+
+// The reveal REVEAL_RE structurally cannot see, so it is asserted by name instead of by receiver.
+// The gh#177 confirm reveals by REMOVING a class: dismissing #resetNamesModal uncovers a setup screen
+// that was armed when it was shown and has been live ever since, and the confirm has just replaced
+// the name rows under the card through innerHTML. A double-tap on the confirm therefore lands on a
+// count pill or #startGameBtn, and the count is the one thing the confirm's own copy promises
+// survives. Nothing in the receiver set above can fail if this call is deleted -- this can.
+test('the reset confirm re-arms the setup screen it uncovers', () => {
+  const handler = source.slice(source.indexOf("getElementById('confirmResetNamesBtn')"));
+  assert.ok(handler.length > 0, "the confirmResetNamesBtn handler is gone — this test measures nothing");
+  const body = handler.slice(0, handler.indexOf('});'));
+  assert.match(body, /armAllButtons\(setup\)/, 'the reset confirm no longer re-arms #screenSetup');
+  assert.match(body, /getElementById\('screenSetup'\)/, 're-arm target is no longer #screenSetup');
+  assert.match(body, /resetPlayerNames\(\)/, 'the confirm no longer performs the wipe it asks about');
 });

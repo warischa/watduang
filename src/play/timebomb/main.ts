@@ -19,7 +19,9 @@ import { loadSession } from '../../shell/session';
 // The canonical mascot cast, ADR-0054 rulings 1-3: fixed order, identical in every game. It used to
 // be a second copy of the freeze-tap mockup's array, diffed against it row by row; it is now the one
 // shared definition, and src/play/mascot-defaults.test.mjs pins that definition to the mockup.
-import { MASCOTS } from '../_mascots.ts';
+// resetCastNames is gh#177's wipe: it reads only the LENGTH of the cast handed to it and never looks
+// inside an entry, which is why no typed name can survive a reset whatever this route passes.
+import { MASCOTS, resetCastNames } from '../_mascots.ts';
 // The drawn play surface. It reads the engine's fuse element and holds no clock of its own — see the
 // header of that file for why that split is what keeps the absolute deadline the only clock.
 import { startBombCanvas } from './bomb-canvas.ts';
@@ -87,6 +89,10 @@ const incEl = document.getElementById('tb-count-inc') as HTMLButtonElement | nul
 const beginEl = document.getElementById('tb-begin') as HTMLButtonElement | null;
 const canvasEl = document.getElementById('tb-canvas') as HTMLCanvasElement | null;
 const liveEl = document.getElementById('tb-live');
+const resetEl = document.getElementById('tb-reset-names') as HTMLButtonElement | null;
+const resetDialogEl = document.getElementById('tb-reset-dialog') as HTMLDialogElement | null;
+const resetCancelEl = document.getElementById('tb-reset-cancel') as HTMLButtonElement | null;
+const resetConfirmEl = document.getElementById('tb-reset-confirm') as HTMLButtonElement | null;
 
 /** The names the round actually plays with: the first `count` seats, with a blanked field falling back
  *  to its mascot default so the engine can never be handed an empty label. */
@@ -117,6 +123,13 @@ function renderRows(): void {
     input.type = 'text';
     input.value = names[i];
     input.maxLength = NAME_MAX;
+    // The one numbered string left on this screen, and it stays numbered ON PURPOSE (gh#177). What
+    // ADR-0054 removed from the other routes is the numbered default NAME — a value a player reads as
+    // their own identity. This is not a value: it is the field's positional label, "the name of the
+    // Nth player", it is never rendered as a name, never persisted, and never handed to the engine.
+    // Sourcing it from the cast would make it lie the moment the player types (the label would still
+    // say the mascot while the field says something else) and would give two seats the same label
+    // once two seats are renamed alike, which is the one thing a positional label is for.
     input.setAttribute('aria-label', `ชื่อผู้เล่นคนที่ ${i + 1}`);
     input.addEventListener('input', () => {
       names[i] = input.value;
@@ -126,6 +139,16 @@ function renderRows(): void {
     row.append(badge, input);
     listEl.appendChild(row);
   }
+}
+
+/** gh#177's wipe, and deliberately nothing else: no DOM write, no storage write. The redraw and the
+ *  save belong to the confirm handler, which leaves this a pure state move that reset-names.test.mjs
+ *  can lift out of this file and execute without a browser.
+ *
+ *  `count` is a separate variable and is not named here, which is how the confirm's promise that the
+ *  party keeps its size is kept — not by remembering to restore it afterwards. */
+function resetNames(): void {
+  names = resetCastNames(names);
 }
 
 function setCount(next: number): void {
@@ -193,16 +216,70 @@ if (stageEl) {
   new MutationObserver(() => announceFromStage(stageEl)).observe(stageEl, { childList: true });
 }
 
+/** The two count steppers, excepted from every gate on this screen — they are tapped repeatedly on
+ *  purpose, which is the premise ARM_DELAY_MS's comment says to check per control before gating one.
+ *  Excepting them is also what keeps their page-owned `disabled` (the MIN/MAX readout renderRows
+ *  writes) intact: a gate that collected them would clear it with its blanket re-enable. The range
+ *  itself does not depend on that attribute either way — setCount clamps, so the attribute is the
+ *  hint and the clamp is the invariant. */
+function steppers(): HTMLButtonElement[] {
+  return [decEl, incEl].filter((el): el is HTMLButtonElement => el !== null);
+}
+
 if (setupEl && beginEl) {
   // Same ghost-tap gate the engine's own screens use: a double-tap aimed at the game card that
-  // navigated here must not start a round on arrival. The two count steppers are excepted — they are
-  // tapped repeatedly on purpose, which is the premise ARM_DELAY_MS's comment says to check per
-  // control before gating it.
-  armAllButtons(setupEl, [decEl, incEl].filter((el): el is HTMLButtonElement => el !== null));
+  // navigated here must not start a round on arrival.
+  armAllButtons(setupEl, steppers());
   beginEl.addEventListener('click', begin);
 }
 decEl?.addEventListener('click', () => setCount(count - 1));
 incEl?.addEventListener('click', () => setCount(count + 1));
+
+// Reset to the animal cast (gh#177, owner ruling 2026-08-31). The control lives on the SETUP screen
+// only, and that is a decision, not an omission:
+//   * begin() is one-way — it hides #tb-setup and nothing reverses it — so a reset placed anywhere
+//     reachable mid-round would have to live inside #tb-stage, whose children the engine replaces
+//     wholesale on every screen change (src/games/timebomb.ts). A control there is destroyed by the
+//     next render, and putting it there means editing the shared engine for one route's feature.
+//   * A way back already exists and is not this file's to build: the shared "แก้ผู้เล่น" pill in
+//     src/shell/PlayExit.astro reloads the page, and THIS route opens on #tb-setup on every load
+//     (the setup section ships with no `hidden` attribute and no code path skips it). So mid-round
+//     the sequence is pill -> reload -> setup -> reset, with the round ended by the reload.
+// Because the trigger cannot be reached while a round is running, this reset can never end a round,
+// and the confirm copy is not asked to name a loss that cannot happen here.
+//
+// The copy is short-stick's (gh#174) with ONE clause adapted: "จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่"
+// became "จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่", because this route has no rule settings at all — its setup
+// screen offers a count and names and nothing else, and promising that settings survive would promise
+// something that does not exist. Everything the confirm does cost is still named: every typed name is
+// replaced, and it does not come back (they are persisted under STORE_KEY, so the save below
+// overwrites them for good).
+if (resetEl && resetDialogEl && resetCancelEl && resetConfirmEl) {
+  resetEl.addEventListener('click', () => {
+    resetDialogEl.showModal();
+    // ADR-0017. The confirm's two buttons appear directly over the control that was just pressed,
+    // which is the sharpest ghost-tap shape there is, so they arrive inert. The safe answer is first
+    // in the markup and that ordering is worth keeping — but it is NOT the guard, and nothing here
+    // relies on it: this call disables the autofocused button immediately after showModal(), which
+    // drops focus onto the dialog itself, so past this point no button is focused to be activated by
+    // an Enter still held from the tap that opened this. The 400ms window is what protects it.
+    armAllButtons(resetDialogEl);
+  });
+  resetCancelEl.addEventListener('click', () => resetDialogEl.close());
+  resetConfirmEl.addEventListener('click', () => {
+    resetDialogEl.close();
+    resetNames();
+    save();
+    renderRows();
+    // ADR-0017 again, for the shape the gh#174 review found the hard way: closing the dialog puts the
+    // whole setup screen back under a finger that is still on the confirm's coordinates, and the gate
+    // installed at first paint fired and removed itself long ago. Without this, the second contact of
+    // a double-tap on the confirm lands live on #tb-begin and starts the round. renderRows() rebuilds
+    // only <li> rows, which hold no <button>, so this re-arms controls that were never destroyed —
+    // the hazard here is the reveal, not the rebuild.
+    if (setupEl) armAllButtons(setupEl, steppers());
+  });
+}
 
 // The engine holds an AudioContext, a wake lock and a rAF loop; leaving the page without disposing
 // leaks all three. persisted = bfcache, where the same round is resumed on return by the engine's own

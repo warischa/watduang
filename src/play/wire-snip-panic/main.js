@@ -14,9 +14,12 @@
 //   4. The losing rule moved to ./turn-rules.ts so a node test can reach it (gh#162 box 7).
 //
 // The .ts extension is spelled out in full, the way manifest.ts does it.
-import { MASCOTS } from '../_mascots.ts';
+// gh#176 / ADR-0054: names come from the shared cast, never from a hardcoded numbered array.
+// mascotNames seeds the state array and backfills a blank field; resetCastNames is the reset
+// control's wipe (owner ruling 2026-08-31, decided in gh#174 and copied here unchanged).
+import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
-// ADR-0017, the ghost-tap gate. This route reveals controls on FIVE paths, not one, and
+// ADR-0017, the ghost-tap gate. This route reveals controls on SIX paths, not one, and
 // scripts/arm-gate-coverage-check.mjs can only see that the import exists and is called somewhere --
 // it counts per directory, never per reveal. ./arm-reveal-paths.test.mjs pins the set instead.
 import { armAllButtons } from '../../games/_arm-gate.ts';
@@ -463,6 +466,11 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
     // it is there so a future seat ceiling raise degrades to a repeat instead of `undefined`.
     const avatarFor = (idx) => MASCOTS[idx % MASCOTS.length].emoji;
 
+    // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
+    // exactly one definition, in _mascots.ts, and none here (gh#176, same helper shape as short-stick's
+    // defaultName from gh#174).
+    const defaultName = (i) => mascotNames(i + 1)[i];
+
     // Countdown Time Limit Formula:
     // Round 1-3: 5.0s | Round 4-5: 4.0s | Round 6+: 3.0s
     function getRoundTimeLimit(round) {
@@ -474,7 +482,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
     // Game Core State Object
     const game = {
       state: GameState.MENU,
-      players: ['ผู้เล่น 1', 'ผู้เล่น 2', 'ผู้เล่น 3', 'ผู้เล่น 4'],
+      players: mascotNames(4),
       scores: [0, 0, 0, 0],
       penaltyMode: 'preset',
       selectedPenalty: '💸 เลี้ยงน้ำ/เลี้ยงขนมเพื่อนทั้งวง',
@@ -597,7 +605,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       if (region) region.textContent = text;
     }
 
-    // REVEAL PATH 1 of 5. Screen-to-screen: the second contact of a double-tap aimed at the screen
+    // REVEAL PATH 1 of 6. Screen-to-screen: the second contact of a double-tap aimed at the screen
     // that just went away must not land on the control that replaced it.
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -608,7 +616,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       }
     }
 
-    // REVEAL PATH 2 of 5. #modal-rules is opened by two separate controls and passes showScreen on
+    // REVEAL PATH 2 of 6. #modal-rules is opened by two separate controls and passes showScreen on
     // neither, so its close button is revealed with nothing gating it. One function so the two
     // openers cannot drift apart, and so there is one receiver to pin.
     function openRulesModal() {
@@ -640,7 +648,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       container.querySelectorAll('.player-input').forEach(input => {
         input.addEventListener('change', (e) => {
           const idx = parseInt(e.target.dataset.idx);
-          const val = e.target.value.trim() || `ผู้เล่น ${idx + 1}`;
+          const val = e.target.value.trim() || defaultName(idx);
           game.players[idx] = val;
           saveSettings();
         });
@@ -659,13 +667,23 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         });
       });
 
-      // REVEAL PATH 3 of 5, and the one showScreen cannot cover: #btn-menu-start switches to the
+      // REVEAL PATH 3 of 6, and the one showScreen cannot cover: #btn-menu-start switches to the
       // setup screen and THEN calls this, so the remove buttons do not exist yet when showScreen
       // arms. It is also a reveal with no screen change at all -- every add and every remove rebuilds
       // this container through innerHTML, putting a fresh remove button under the finger that just
       // pressed one, at the same coordinates.
       armAllButtons(container);
     }
+
+    /** gh#176, the pattern set in gh#174. The wipe the reset confirm guards: the cast goes back to
+     *  its animal names and the party keeps its size. resetCastNames only reads the length and never
+     *  looks inside an entry, so a typed name cannot survive this call -- that is exactly the loss
+     *  the confirm names. Deliberately free of any DOM or storage call: the redraw and the settings
+     *  write belong to the handler, which leaves this a pure state move that reset-names.test.mjs can
+     *  lift out of main.js and execute without a browser. */
+    const resetPlayerNames = () => {
+      game.players = resetCastNames(game.players);
+    };
 
     function renderPenaltyUI() {
       document.querySelectorAll('.penalty-tab').forEach(tab => {
@@ -844,7 +862,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       scanBtn.style.display = 'flex';
       scanBtn.disabled = false;
 
-      // REVEAL PATH 4 of 5, and it must be armed HERE rather than left to showScreen above: the line
+      // REVEAL PATH 4 of 6, and it must be armed HERE rather than left to showScreen above: the line
       // directly above clears `disabled` on the one control this screen offers, which would undo
       // showScreen's gate on exactly the control that matters most -- this is the pass-the-phone
       // moment, so the stale contact belongs to the PREVIOUS player. Arming last wins.
@@ -1119,7 +1137,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         scoreboard.appendChild(row);
       });
 
-      // REVEAL PATH 5 of 5. #modal-detonation opens on a timer 850ms after the blast, over a screen
+      // REVEAL PATH 5 of 6. #modal-detonation opens on a timer 850ms after the blast, over a screen
       // the player was tapping wires on a moment ago, and its two buttons (replay, edit players) sit
       // in the middle of that surface. No showScreen on this path either.
       modal.classList.add('active');
@@ -1184,7 +1202,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 
       document.getElementById('btn-add-player').addEventListener('click', () => {
         const input = document.getElementById('input-new-player');
-        const name = input.value.trim() || `ผู้เล่น ${game.players.length + 1}`;
+        const name = input.value.trim() || defaultName(game.players.length);
         if (game.players.length < 10) {
           soundSynth.playClick(600);
           game.players.push(name);
@@ -1193,6 +1211,40 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           saveSettings();
           renderSetupPlayerList();
         }
+      });
+
+      // Reset Player Names Modal (gh#176, the reset control decided in gh#174). The question is
+      // asked because the answer is destructive: every name a player typed is replaced. The modal
+      // copy in markup.html names every loss this causes -- all typed names go, and they do not come
+      // back -- and what survives -- the player count and the penalty setting -- per
+      // docs/agents/src-edit-rules.md's "over-naming is acceptable, under-naming is not". This route
+      // has no <dialog>/showModal(): every modal here is a .modal-backdrop opened with classList and
+      // armed through armAllButtons, same as #modal-rules and #modal-detonation, so this one follows
+      // that shape rather than short-stick's <dialog> element. Do NOT read the cancel-before-confirm
+      // button order as what protects this: armAllButtons's blanket disable drops focus off both
+      // buttons onto <body>, so nothing is focused a moment later and the 400ms gate is the real
+      // guard (same mechanism gh#174 documented, not the markup order).
+      document.getElementById('btn-reset-names').addEventListener('click', () => {
+        soundSynth.playClick();
+        const resetModal = document.getElementById('modal-reset-names');
+        resetModal.classList.add('active');
+        armAllButtons(resetModal);
+      });
+
+      document.getElementById('btn-cancel-reset-names').addEventListener('click', () => {
+        soundSynth.playClick();
+        document.getElementById('modal-reset-names').classList.remove('active');
+      });
+
+      document.getElementById('btn-confirm-reset-names').addEventListener('click', () => {
+        document.getElementById('modal-reset-names').classList.remove('active');
+        soundSynth.playClick(420);
+        resetPlayerNames();
+        saveSettings();
+        // renderSetupPlayerList rebuilds the row remove buttons through innerHTML and arms the
+        // rebuilt container itself (see the armAllButtons(container) call inside it) -- the same fix
+        // gh#174 needed for short-stick's confirm, already the shape this call takes.
+        renderSetupPlayerList();
       });
 
       // Penalty Tab Selection

@@ -30,6 +30,11 @@
 
       <p class="dl-hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อที่ตั้งไว้ใช้เฉพาะเกมนี้</p>
 
+      <!-- gh#175 — sits with the rows it acts on. Restores the shared animal cast; owner ruling
+           2026-08-31 (see _mascots.ts resetCastNames) is that reset overwrites typed names, so it
+           confirms first via #dl-reset-dialog below. -->
+      <button id="dl-reset-names" class="dl-reset-btn" type="button">↺ รีเซ็ตเป็นชื่อสัตว์</button>
+
       <h2 class="dl-section-title">เลือกเงื่อนไขคนแพ้</h2>
       <p class="dl-hint">กติกานี้จะใช้ตลอดทั้งเกม รวมทั้งในรอบตัดสินเสมอ</p>
       <div class="dl-modes" role="radiogroup" aria-label="เงื่อนไขคนแพ้">
@@ -112,4 +117,26 @@
 
   <!-- The dice are decorative pixels to assistive tech; every state change is mirrored here as text. -->
   <p id="dl-live" class="dl-visually-hidden" role="status" aria-live="polite"></p>
+
+  <!-- Reset Player Names Dialog (gh#175, pattern from gh#174 in short-stick) — copy rationale in
+       main.ts at the reset handler. Names every loss the confirm causes (typed names) and what
+       survives (player count, the win condition), per docs/agents/src-edit-rules.md. -->
+  <dialog class="dl-dialog" id="dl-reset-dialog">
+    <div class="dl-dialog-inner">
+      <div class="dl-dialog-head">
+        <div>
+          <p class="dl-dialog-eyebrow">CONFIRM</p>
+          <h2 class="dl-dialog-title">รีเซ็ตเป็นชื่อสัตว์?</h2>
+        </div>
+        <button class="dl-dialog-close" id="dl-reset-close" type="button" aria-label="ปิด">✕</button>
+      </div>
+      <p class="dl-dialog-body">
+        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
+      </p>
+      <div class="dl-dialog-actions">
+        <button class="game-btn" id="dl-reset-cancel" type="button">เก็บชื่อเดิมไว้</button>
+        <button class="game-btn game-btn-primary" id="dl-reset-confirm" type="button">รีเซ็ตเป็นชื่อสัตว์</button>
+      </div>
+    </div>
+  </dialog>
 </div>

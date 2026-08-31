@@ -43,7 +43,8 @@ const REVEAL_RE =
 const EXPECTED = new Map([
   [
     'modal',
-    'openModal(): #help-modal and #tests-modal, opened straight from the header icons, never through renderUI(). Armed on its OWN slot.',
+    'openModal(): #help-modal and #tests-modal from the header icons, plus gh#175 #reset-names-modal ' +
+      'from the setup-names view -- none go through renderUI(). Armed on its OWN slot.',
   ],
   ['toast', 'NOT a button reveal: #toast-msg is a transient text status line with no control in it.'],
 ]);
@@ -90,4 +91,35 @@ test('openModal arms on its own slot, not the view slot', () => {
 test('renderUI arms the view it just drew', () => {
   assert.match(source, /function armRenderedView\(\) \{[\s\S]*?armAllButtons\(viewRoot/);
   assert.match(source, /armRenderedView\(\);\s*\n\s*\}\s*\n/);
+});
+
+// gh#175. The reset control overwrites every typed name, so it asks first -- and the confirm it
+// opens is itself a fresh pair of buttons appearing under the finger that just pressed reset. Both
+// halves are pinned: the trigger reaches the modal only through openModal (which arms), and the
+// wipe hangs off the confirm button, never the trigger.
+test('the reset-names modal is opened through the arming path', () => {
+  assert.match(
+    source,
+    /openResetNamesModal = \(\) => openModal\('reset-names-modal'\)/,
+    '#btn-reset-names must open its confirm through openModal — a raw classList.add reveals two ' +
+      'buttons with no ghost-tap window',
+  );
+  // The wipe hangs off the confirm button, never off the trigger: a reset that ran before the
+  // question was answered would make the confirm decorative.
+  assert.match(source, /confirmResetNames = \(\) => \{[\s\S]{0,240}?resetPlayerNames\(\)/);
+});
+
+// Found by adversarial review of gh#174, the pattern this ticket copies: the CLOSING of a reset
+// confirm is a reveal too, because the redraw rebuilds #view-root's name inputs through innerHTML.
+// Unlike short-stick, this route already centralises its re-arm inside renderUI() -- every state
+// change calls armRenderedView() once, after the switch (pinned above) -- so the guard here is that
+// the confirm routes its redraw through that same renderUI(), rather than a bespoke re-render that
+// would skip it and leave the rebuilt inputs live under a double-tap on the confirm.
+test('the reset confirm redraws through renderUI(), which re-arms the view it rebuilds', () => {
+  assert.match(
+    source,
+    /confirmResetNames = \(\) => \{[\s\S]{0,320}?resetPlayerNames\(\);[\s\S]{0,120}?renderUI\(\);/,
+    'confirmResetNames must call renderUI() after resetPlayerNames() — a bare re-render of the name ' +
+      'inputs would rebuild them live under the finger that just confirmed',
+  );
 });

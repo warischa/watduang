@@ -50,6 +50,13 @@
         <!-- Mascot Name Customization List -->
         <div class="mascot-list" id="mascotsListContainer"></div>
 
+        <!-- gh#177 — the ONLY control on this route that destroys a typed name, and the only one that
+             sits with the rows it rewrites. The two controls that also lead back here (#homeResetBtn
+             in the header, #editPlayersBtn on game over) navigate and keep everything; the decision
+             and why it is a third control rather than a change to either of those is recorded in
+             main.js at the reset handler. `.btn` is already 48px tall: 44px floor met, no new rule. -->
+        <button class="btn btn-secondary" type="button" id="resetNamesBtn" style="width:100%; margin-top:10px;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
+
         <div style="margin-top: 6px;">
           <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:6px; font-weight:600;">🎯 บทลงโทษผู้แพ้ (ไม่บังคับ):</label>
           <select class="penalty-select" id="penaltySelect">
@@ -311,6 +318,25 @@
       </div>
       
       <button class="btn btn-secondary" id="rulesOkBtn" style="margin-top:16px;">เข้าใจแล้ว</button>
+    </div>
+  </div>
+
+  <!-- MODAL: RESET PLAYER NAMES (gh#177) — copy rationale in main.js at the reset handler. Built on
+       this route's own .modal-backdrop/.active pattern rather than <dialog>: #rulesModal above is the
+       idiom here, and a second mechanism would need its own arming path. Both non-destructive
+       branches come first in source order, which is worth keeping but is NOT the guard -- the guard
+       is the 400ms gate armAllButtons installs on this card when it is revealed. -->
+  <div class="modal-backdrop" id="resetNamesModal">
+    <div class="modal-card" style="position:relative;">
+      <button class="modal-close-btn" id="closeResetNamesBtn">&times;</button>
+      <h3 style="font-size:1.3rem; margin-bottom:16px; color:#fff;">รีเซ็ตเป็นชื่อสัตว์?</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px; line-height:1.6;">
+        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
+      </p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-secondary" type="button" id="cancelResetNamesBtn" style="flex:1;">เก็บชื่อเดิมไว้</button>
+        <button class="btn btn-primary" type="button" id="confirmResetNamesBtn" style="flex:1;">รีเซ็ตเป็นชื่อสัตว์</button>
+      </div>
     </div>
   </div>
 

@@ -50,9 +50,16 @@ const EXPECTED = new Map([
     'banner',
     'NOT a button reveal: #rejectionBanner is a role="alert" text strip inside the number-entry card, and it holds no control.',
   ],
+  [
+    'resetModal',
+    'gh#175. #btnResetNames handler on the names screen: #resetNamesModal is created fresh each visit ' +
+      'to renderPlayerNamesScreen and appended as a sibling of #nameList inside that card, so it is ' +
+      'never on screen when render() arms the card and needs its own arm at the reveal, same shape as ' +
+      '#testModal.',
+  ],
 ]);
 
-const MUST_BE_ARMED = ['testModal'];
+const MUST_BE_ARMED = ['testModal', 'resetModal'];
 
 test('every reveal receiver in how-close-is-near/main.js is a known one', () => {
   const found = [...source.matchAll(REVEAL_RE)].map((m) => m[1]);
@@ -80,6 +87,45 @@ test('each armed reveal receiver has an armAllButtons call naming it', () => {
   // The arm has to sit at the reveal itself: the modal is outside the container render() arms, so a
   // call anywhere else in the file would not cover this path.
   assert.match(source, /testModal\.style\.display = 'flex';\s*\n\s*armAllButtons\(testModal\);/);
+  assert.match(source, /resetModal\.style\.display = 'flex';\s*\n\s*armAllButtons\(resetModal\);/);
+});
+
+// gh#175. The reset control overwrites every typed name, so it asks first -- and the confirm it
+// opens is a fresh pair of buttons appearing under the finger that just pressed reset.
+test('the reset-names confirm is opened, and its wipe hangs off the confirm button', () => {
+  assert.match(
+    source,
+    /\.querySelector\('#btnResetNames'\)\.onclick = \(\) => \{[^}]*armAllButtons\(resetModal\)/,
+    "#btnResetNames must reveal #resetNamesModal through the arming path, not a raw style write with " +
+      'no arm reaching it',
+  );
+  // The wipe hangs off the confirm button, never off the trigger: a reset that ran before the
+  // question was answered would make the confirm decorative.
+  assert.match(
+    source,
+    /#btnConfirmResetNames'\)\.onclick = \(\) => \{[\s\S]{0,240}?resetNameInputs\(/,
+  );
+  assert.doesNotMatch(
+    source,
+    /\.querySelector\('#btnResetNames'\)\.onclick = \(\) => \{[^}]*resetNameInputs\(/,
+    'the trigger itself calls resetNameInputs — the confirm would be asking about work already done',
+  );
+});
+
+// Found by adversarial review of gh#174 (short-stick) and deliberately checked here too: that
+// route's confirm closes its dialog and rebuilds the setup rows through innerHTML, so it has to
+// re-arm the rebuilt view or a double-tap on the confirm lands on a fresh, unarmed control. This
+// route's confirm does not rebuild anything -- resetNameInputs writes each input's `.value` in place
+// -- so there is no fresh DOM for a second tap to land on, and no re-arm call is needed. Pinned by
+// absence: render() must NOT run between closing the modal and writing the reset, because a render()
+// there would empty #screenContainer and put this whole screen behind the newly-armed one.
+test('the reset confirm does not re-render the screen it is on', () => {
+  assert.doesNotMatch(
+    source,
+    /#btnConfirmResetNames'\)\.onclick = \(\) => \{[\s\S]{0,240}?render\(\)/,
+    'the reset confirm calls render() — that empties #screenContainer mid-handler, and the elements ' +
+      'this function is about to write .value onto would already be gone',
+  );
 });
 
 // The reveal REVEAL_RE cannot see at all: render() empties #screenContainer and rebuilds the whole
@@ -87,4 +133,19 @@ test('each armed reveal receiver has an armAllButtons call naming it', () => {
 // once after the switch, not inside each of the eight screen builders.
 test('render arms the container it just rebuilt', () => {
   assert.match(source, /armAllButtons\(container\);\s*\n\s*\}/);
+});
+
+// Found by adversarial review, 2026-08-31, and invisible to every assertion above: CLOSING the
+// reset modal is a reveal too. #btnNextNames, #btnBackToCount and #btnResetNames sit behind it,
+// enabled, their 400ms window long expired -- and that expiry is exactly why a second contact
+// activates one. This route's own comment used to cite the expired window as the REASON no re-arm
+// was needed, which is the argument backwards. Pinned on the shared closer, which every branch
+// out of the modal goes through.
+test('closing the reset modal re-arms the screen behind it', () => {
+  assert.match(
+    source,
+    /resetModal\.style\.display = 'none';[\s\S]{0,120}?armAllButtons\(card\);/,
+    'closeResetNamesModal no longer arms the name screen: a double-tap on close, cancel or confirm ' +
+      'puts the second contact on #btnNextNames and advances past the roster',
+  );
 });

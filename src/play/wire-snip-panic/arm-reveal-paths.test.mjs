@@ -1,9 +1,10 @@
 // The hole scripts/arm-gate-coverage-check.mjs cannot see, pinned here.
 //
 // That gate asks ONE question of a play route: does it import armAllButtons and call it at least
-// once? This route does, five times -- and the gate would stay green with four of those five
+// once? This route does, six times -- and the gate would stay green with five of those six
 // deleted. It counts calls per DIRECTORY, not per reveal, so it has no way to know that this route
-// puts controls under the finger on five separate paths. The real rule (ADR-0017) is per reveal: the
+// puts controls under the finger on six separate paths (gh#176 added the sixth). The real rule
+// (ADR-0017) is per reveal: the
 // second contact of a double-tap must not land on a control the first contact just revealed.
 //
 // So this test does not re-check the gate. It pins the SET of reveal sites, by the receiver each one
@@ -45,6 +46,7 @@ const EXPECTED = new Map([
   ['target', 'showScreen(): the screen-to-screen path, menu/setup/game. Armed on the line below.'],
   ['rulesModal', 'openRulesModal(): #modal-rules, 1 close button, opened by 2 controls, never through showScreen. Armed.'],
   ['modal', 'showDetonationModal(): #modal-detonation, 2 buttons, opened on an 850ms timer over the game screen. Armed.'],
+  ['resetModal', 'gh#176: #modal-reset-names, 2 buttons, opened by btn-reset-names over the setup screen. Armed.'],
   ['actionBanner', 'setupTurn(): #turn-action-banner, revealed inside a screen already up. Armed LAST, after btn-trigger-scan is re-enabled.'],
   ['scanBtn', 'the button BEING revealed, not a container. Gated through its parent #turn-action-banner, which armAllButtons walks into.'],
   ['presetsGrid', 'NOT a button reveal: every .preset-chip in #penalty-presets-grid is a <div>, and armAllButtons gates <button> only.'],
@@ -56,7 +58,7 @@ const EXPECTED = new Map([
 
 // The receivers above that carry buttons and therefore MUST have a call naming them. `target` is
 // checked separately because its call is written against the variable, not the element id.
-const MUST_BE_ARMED = ['rulesModal', 'modal', 'actionBanner'];
+const MUST_BE_ARMED = ['rulesModal', 'modal', 'actionBanner', 'resetModal'];
 
 test('every reveal receiver in wire-snip-panic/main.js is a known one', () => {
   const found = [...source.matchAll(REVEAL_RE)].map((m) => m[1]);

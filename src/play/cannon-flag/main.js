@@ -5,6 +5,12 @@
 // where the same player taps twice on purpose.
 // The .ts extension is spelled out in full, the way src/play/zero-trigger/main.js does it.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#175 / ADR-0054: the setup screen opens on the shared animal cast, never on a column of numbers.
+// Both numbered-default sites on this route -- the placeholder renderSetupPlayerInputs shows on an
+// empty row, and the fallback setupMatch applies when a player left a field blank -- read from here.
+// resetCastNames is the reset control's wipe: it keeps the roster's length and discards whatever the
+// players typed.
+import { mascotNames, resetCastNames } from '../_mascots.ts';
 
     /**
      * CANNON FLAG (route id: cannon-flag) - ZERO EXTERNAL ASSET GAME ENGINE
@@ -660,7 +666,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         // Construct player records with deterministic Thai fallbacks
         const roster = playerNames.map((name, idx) => ({
           id: `p_${Date.now()}_${idx}`,
-          name: (name && name.trim().length > 0) ? name.trim() : `ผู้เล่น ${idx + 1}`,
+          name: (name && name.trim().length > 0) ? name.trim() : defaultName(idx),
           originalIndex: idx,
           turnOrder: 0,
           shot1Distance: null,
@@ -1290,6 +1296,10 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         btnIncPlayers: document.getElementById('btn-inc-players'),
         playerNamesContainer: document.getElementById('player-names-container'),
         btnStartMatch: document.getElementById('btn-start-match'),
+        btnResetNames: document.getElementById('btn-reset-names'),
+        resetNamesConfirm: document.getElementById('reset-names-confirm'),
+        btnCancelResetNames: document.getElementById('btn-cancel-reset-names'),
+        btnConfirmResetNames: document.getElementById('btn-confirm-reset-names'),
 
         // Pass device
         passPlayerName: document.getElementById('pass-player-name'),
@@ -1415,6 +1425,11 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         .replace(/'/g, '&#039;');
     }
 
+    // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
+    // exactly one definition, in _mascots.ts, and none here. Used by the placeholder below and by
+    // MatchEngine.setupMatch's blank-field fallback -- declared before both run.
+    const defaultName = (i) => mascotNames(i + 1)[i];
+
     function renderSetupPlayerInputs() {
       if (!DOM || !DOM.displayPlayerCount) return;
       DOM.displayPlayerCount.textContent = setupPlayerCount;
@@ -1429,11 +1444,20 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         row.className = 'player-name-row';
         row.innerHTML = `
           <span class="player-tag">#${i + 1}</span>
-          <input type="text" class="player-name-input" placeholder="ผู้เล่น ${i + 1}" maxlength="20" value="${escapeHtml(existingNames[i] || '')}">
+          <input type="text" class="player-name-input" placeholder="${escapeHtml(defaultName(i))}" maxlength="20" value="${escapeHtml(existingNames[i] || '')}">
         `;
         DOM.playerNamesContainer.appendChild(row);
       }
     }
+
+    /** gh#175 / ADR-0054, same wipe short-stick's gh#174 confirms. Roster names on this route live as
+     *  DOM input values until Start is pressed -- there is no game.players array before that, so the
+     *  state IS the array of current input strings. Takes that array and returns the same-length
+     *  animal cast for the confirm handler to write back; never reads or writes the DOM itself, so
+     *  reset-names.test.mjs can lift it out of main.js and run it without a browser. resetCastNames
+     *  only reads the array's length and never looks inside an entry, so a typed name cannot survive
+     *  this call -- that is exactly the loss the confirm copy names. */
+    const resetPlayerNames = (names) => resetCastNames(names);
 
     if (DOM) {
       DOM.btnDecPlayers.addEventListener('click', () => {
@@ -1462,6 +1486,47 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         DOM.hudMatchSeed.textContent = `SEED: #${env.seed}`;
         
         showPassDeviceScreen();
+      });
+
+      // Reset Player Names (gh#175 / ADR-0054). The question is asked because the answer is
+      // destructive: every name a player typed is replaced. #reset-names-confirm is not a native
+      // <dialog> -- it reuses .shot-modal-overlay, the same opacity/pointer-events reveal
+      // showShotResultModal() already uses on this route, armed the same way: armPanel disables every
+      // button inside it for the route's usual 400ms window. Nothing here is autofocused the way a
+      // <dialog>'s showModal() would be, so there is no button-order claim to make -- the 400ms
+      // window is the only thing standing between a held tap and the confirm button.
+      DOM.btnResetNames.addEventListener('click', () => {
+        sound.playClick();
+        DOM.resetNamesConfirm.classList.add('active');
+        armPanel(DOM.resetNamesConfirm);
+      });
+
+      const closeResetNamesConfirm = () => {
+        DOM.resetNamesConfirm.classList.remove('active');
+        // ADR-0017. Closing this overlay is ITSELF a reveal, and that -- not a rebuild -- is the
+        // hazard. "#btn-start-match" and the count controls sat behind it a frame ago, enabled,
+        // their 400ms window long expired, so a double-tap on close, cancel or confirm puts the
+        // second contact on the start button and begins the match with the phone unpassed. Armed
+        // in this shared closer so no branch out of the overlay can miss it.
+        armPanel(DOM.screenSetup);
+      };
+
+      DOM.btnCancelResetNames.addEventListener('click', () => {
+        closeResetNamesConfirm();
+        sound.playClick();
+      });
+
+      DOM.btnConfirmResetNames.addEventListener('click', () => {
+        closeResetNamesConfirm();
+        sound.playClick();
+        const inputs = DOM.playerNamesContainer.querySelectorAll('.player-name-input');
+        const reset = resetPlayerNames(Array.from(inputs).map((inp) => inp.value));
+        // No renderSetupPlayerInputs() call: a row here carries no button at all -- only the #N tag
+        // and the text input -- so overwriting .value in place creates and destroys no control.
+        // That was once written here as the reason no re-arm was needed. It is the wrong model, and
+        // adversarial review caught it: the reveal that matters is the OVERLAY CLOSING over a live
+        // setup screen, which closeResetNamesConfirm above now arms for all three branches.
+        inputs.forEach((inp, i) => { inp.value = reset[i]; });
       });
     }
 
