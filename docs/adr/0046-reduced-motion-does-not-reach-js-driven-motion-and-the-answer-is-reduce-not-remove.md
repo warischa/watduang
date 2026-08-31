@@ -42,3 +42,27 @@ An earlier version of the gate stripped only comments that began a line, so an u
 ## The fact that would change this
 
 If the owner resolves gh#120 by self-hosting the Thai fonts, text metrics become repo-owned. That does not change this decision, but it removes the excuse that motion and layout behaviour here can only ever be bounded rather than known.
+
+## Amendment 2026-08-31 — the by-eye review is deferred, by owner decision
+
+This ADR requires the owner to review a reduced-motion appearance change by eye, on the ground that
+machine checks cannot judge whether the result reads as intentional. gh#170 then added a guard to
+five more games at once: cursed-number, how-close-is-near, freeze-tap, cannon-flag and power-meter.
+
+**The owner ruled on 2026-08-31 to ship first and review on the live site.** Recorded here so the
+next reader sees a decision rather than a step someone skipped. What was shipped without the review:
+
+- cannon-flag and power-meter keep the mechanic and the outcome; only smoothness changes. The gauge
+  runs the same clock and locks the identical score; a shot fired under reduce lands identically.
+- cursed-number and how-close-is-near neutralise decorative fades and loops. State is carried by
+  colour and position, which survive, so the round stays readable.
+- freeze-tap loses screen shake, confetti and haptics. The target still flips colour, word and
+  symbol at the same instant.
+
+What the machine checks DID establish, so the by-eye review is about taste and not correctness: every
+guard is live rather than pinned to a constant, the swept keyframes have 0% and 100% frames equal to
+base style, and neither swept route depends on an animationend or transitionend event that a
+zeroed duration would starve.
+
+This amendment does not weaken the rule. The next reduced-motion change earns the same review, and
+this one is owed retrospectively.
