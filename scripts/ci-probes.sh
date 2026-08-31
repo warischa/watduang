@@ -51,10 +51,11 @@ SITE="http://localhost:${PORT}"
 mkdir -p "$OUT_DIR"
 # Pinned, not counted from what ran: a lane is a background subshell, and a lane that dies mid-run
 # (errexit, an OOM-killed Chrome) would otherwise read as FEWER GREENS and still exit 0 -- the exact
-# silent-skip shape docs/agents/ci-verification.md exists to kill. 18 = the probe/standalone
+# silent-skip shape docs/agents/ci-verification.md exists to kill. 20 = the probe/standalone
 # invocations in the lanes below (grep -cE '^  (probe|standalone) ' agrees); re-record this number
 # in the same commit that adds or removes a leg.
-EXPECTED_LEGS=18
+# gh#179, 18 -> 20: play-screen-fit and its play-screen-fit-control joined lane3.
+EXPECTED_LEGS=20
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -195,7 +196,9 @@ standalone() { # label, command...
 
 # --- the lanes -----------------------------------------------------------------------------------
 # Packed from the per-leg times measured on the 2026-08-29 sequential CI run, so the lanes finish
-# together instead of one dragging: lane1 199s · lane2 186s · lane3 167s · lane4 163s. A probe and
+# together instead of one dragging: lane1 199s · lane2 186s · lane3 167s · lane4 163s. THAT PACKING IS
+# NO LONGER BALANCED as of gh#179: lane3 took the play-screen-fit pair (~704s measured locally) and is
+# now the critical lane on its own. Re-pack from a real CI run's per-leg times, not from these.  A probe and
 # its positive control always share a lane -- the control exists to calibrate that probe's detector
 # in the same environment, and splitting the pair would let them see different browsers.
 #
@@ -245,6 +248,18 @@ lane3() {
   probe leave-confirm             leave-confirm-probe.mjs             "$CDP_3"
   probe leave-confirm-control     leave-confirm-probe.mjs             "$CDP_3" BREAK_GUARD=1
   probe category-pop              category-pop-probe.mjs              "$CDP_3"
+  # gh#179 — the first leg that walks a play route PAST its setup screen. Standalone: it aggregates
+  # its own per-row verdict and exits non-zero, like control-floor, so it needs no predicate in
+  # ci-probes-verdict.mjs. What it GATES is the walk (a route whose walk stayed on setup) plus the
+  # FITS_ROWS regression pin; the scroll and width-fill numbers it prints are a REPORT that
+  # gh#180/#181/#182/#183 act on, deliberately not a threshold. Its control leg makes the walk stand
+  # still and requires every row to report it never left setup.
+  # MEASURED on this machine, 2026-08-31: 324s clean + 380s control = 704s, so this pair makes
+  # lane3 the critical lane (it was 167s). That is under LEG_TIMEOUT but not by much on a slower
+  # runner — if these legs start getting killed at 600s, drop PRESS_CAP in the probe rather than
+  # splitting the pair, which would let the control see a different browser.
+  standalone play-screen-fit         env BASE="$SITE" CDP_PORT="$CDP_3" node scripts/play-screen-fit-probe.mjs
+  standalone play-screen-fit-control env BASE="$SITE" CDP_PORT="$CDP_3" BREAK_WALK=1 node scripts/play-screen-fit-probe.mjs
 }
 lane4() {
   LANE=lane4
