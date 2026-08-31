@@ -13,13 +13,14 @@ app behaviour is anchored to a `file:line` in this repo, for whoever verifies it
 ## Before you start
 
 1. **Check your phone's own screen-sleep timeout** (iOS: Settings → Display & Brightness →
-   Auto-Lock). A Time Bomb round lasts a random 15–45 seconds
-   (`FUSE_MIN_MS`/`FUSE_MAX_MS`, `src/games/timebomb.ts:16-17`) — **shorten Auto-Lock to
-   its minimum (30 seconds on iOS)** for this test, and set it back afterwards. Note that
-   30 seconds is still not guaranteed to be shorter than any given round: since the fuse
-   is random within 15–45s, roughly half of all rounds will run under 30 seconds and
-   cannot test the wake lock even with Auto-Lock at its shortest. See Invariant 1 below
-   for how this script handles that.
+   Auto-Lock). A Time Bomb round lasts a random 30–90 seconds
+   (`FUSE_MIN_MS`/`FUSE_MAX_MS` in `src/games/timebomb.ts`) — **shorten Auto-Lock to
+   its minimum (30 seconds on iOS)** for this test, and set it back afterwards. The fuse
+   floor is 30 seconds, so every round now runs at least as long as the shortest Auto-Lock
+   iOS offers. That is what makes the test conclusive: a screen that sleeps has failed, and
+   there is no short-round excuse left to explain it away. Invariant 1 below still describes
+   how the script handles an inconclusive round; with a 30-second floor that branch should
+   no longer be reachable, and if it fires the fuse constants have moved again.
 2. **Check the phone is not on silent/mute** (the physical ringer switch on iOS). This is
    a device setting, not something this codebase controls — Safari's Web Audio output can
    be silenced by it, and a muted phone would look identical to a broken audio unlock.
@@ -94,12 +95,13 @@ script does not control.
 3. From that tap onward, **do not touch the test phone at all** — no "ส่งต่อ" taps, no
    waking it, nothing — until it detonates ("ตูม!" / boom sound / vibration).
 4. Stop your independent timer at boom and read off the untouched duration.
-5. **The fuse is random between 15–45 seconds** (`FUSE_MIN_MS`/`FUSE_MAX_MS`,
-   `src/games/timebomb.ts:16-17`), so roughly half of untouched rounds will land under
-   30 seconds — those are **inconclusive, not fail**: discard and run another untouched
-   round. Repeat until one round's independently-timed untouched span exceeds 30
-   seconds before boom. Budget up to 5 attempts (the odds of needing more than 5 are
-   under 5%, since each attempt is roughly a coin flip).
+5. **The fuse is random between 30–90 seconds**
+   (`FUSE_MIN_MS`/`FUSE_MAX_MS` in `src/games/timebomb.ts`), so **every** untouched round runs at least 30 seconds
+   and every round qualifies. The old "under 30 seconds is inconclusive — discard and
+   retry, budget 5 attempts" rule is dead: with a 30-second floor there are no such
+   rounds, and one untouched round is enough. If you do time a round under 30 seconds,
+   do **not** discard it as a bad sample — the fuse constants have changed underneath this
+   script, and its verdict means nothing until they are re-read.
 
 **Pass/fail — only on a qualifying round** (independently timed at over 30 seconds
 untouched before boom):

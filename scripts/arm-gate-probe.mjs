@@ -463,7 +463,7 @@ async function startTimebombRound(session, base, roster, width) {
   await ev(
     session,
     `
-    // Patch Date.now so the 15-45s real fuse can be fast-forwarded in this probe without waiting it
+    // Patch Date.now so the 30-90s real fuse can be fast-forwarded in this probe without waiting it
     // out — game logic samples Date.now() fresh every frame (never accumulates), so this is safe.
     if (!window.__realNow) { window.__realNow = Date.now; window.__nowOffset = 0; Date.now = () => window.__realNow() + window.__nowOffset; }
     const boxes = [...document.querySelectorAll('#roster-list input[type=checkbox]')];
