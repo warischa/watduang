@@ -110,3 +110,29 @@ test('roster-bridge clears the gate around every programmatic click', () => {
   assert.match(code, /const wasDisabled = btn\.disabled === true;/);
   assert.match(code, /if \(wasDisabled\) btn\.disabled = true;/);
 });
+
+// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates. REVEAL_RE matches
+// `classList.add`, so a closer -- which only REMOVES the class -- is invisible to it, and the confirm
+// was covered only incidentally, by the rebuild inside renderSetupPlayerList(). #btn-close-rules and
+// #btn-cancel-reset-names rebuild nothing, so every check above stayed green while the screen under
+// the card sat live with an expired window. Pinned on the one closer they now share.
+test('closeModal re-arms the screen the modal was covering', () => {
+  const at = source.indexOf('function closeModal(id)');
+  assert.ok(at > -1, 'closeModal is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('\n    }', at));
+  assert.match(
+    body,
+    /querySelector\('\.screen\.active'\)[\s\S]{0,80}?armAllButtons\(screen\)/,
+    'closeModal no longer re-arms the live screen: a double-tap on #btn-close-rules or on ' +
+      '#btn-cancel-reset-names puts the second contact on whatever button sits behind the card',
+  );
+  // Each dismissal that does NOT change screen has to route through it; a direct
+  // classList.remove('active') is the regression, and it is what shipped before this ruling.
+  for (const id of ['modal-rules', 'modal-reset-names']) {
+    assert.match(
+      source,
+      new RegExp(`closeModal\\('${id}'\\)`),
+      `${id} is dismissed without closeModal, so nothing re-arms the screen behind it`,
+    );
+  }
+});

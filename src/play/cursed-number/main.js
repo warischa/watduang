@@ -24,7 +24,7 @@
 import { CursedNumberGameModel } from '../../games/cursed-number.ts';
 import { MASCOTS } from '../_mascots.ts';
 // Ghost-tap gate (ADR-0014/ADR-0017). This route never rebuilds a stage: it reveals pre-existing
-// markup, and it does so on SIX paths, each wired to armAllButtons at the reveal itself.
+// markup, and it does so on EIGHT paths, each wired to armAllButtons at the reveal itself.
 //   1. showScreen()  -- toggles `.screen.active`. Every screen-to-screen move.
 //   2. the constructor -- screenSetup ships `active` in markup.html and never passes showScreen.
 //   3. the rulesBtn handler -- `#rulesModal.classList.add('active')`, 2 buttons, no showScreen.
@@ -37,6 +37,9 @@ import { MASCOTS } from '../_mascots.ts';
 //      screen, whose own arming fired and left when the screen was shown. #screenSetup is re-armed
 //      there. Two things need it: the count pills and #startGameBtn, which sit under the modal card,
 //      and the name rows the reset itself rebuilds through innerHTML.
+//   7. closeResetNames (gh#187) -- the close X and the cancel button. Same reveal as 6 without the
+//      rebuild, which is the point: the rebuild was never the hazard, the modal closing is.
+//   8. closeRules (gh#187) -- the same for #rulesModal, re-arming whichever screen is live.
 // A fifth display toggle, #penaltyResultBox, contains no button and needs no call.
 // This list is the coverage claim, and it is only true while it is complete: a new reveal path that
 // does not appear here ships ungated, and scripts/arm-gate-coverage-check.mjs CANNOT catch that --
@@ -415,12 +418,20 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           modal.classList.add('active');
           armAllButtons(modal);
         });
-        document.getElementById('closeRulesBtn').addEventListener('click', () => {
+        // Reveal path 7 (gh#187). CLOSING #rulesModal is itself a reveal: the screen under it was
+        // armed when it was shown and its 400ms window expired long ago, so the second contact of a
+        // double-tap on the close X -- which sits in the same top-right corner as rulesBtn -- lands
+        // on whatever live control is there. Armed in one shared closer so neither branch can miss
+        // it. `this.currentScreen` is the only record of which screen is live.
+        const closeRules = () => {
           document.getElementById('rulesModal').classList.remove('active');
-        });
+          const screen = document.getElementById(this.currentScreen);
+          if (screen) armAllButtons(screen);
+        };
+        document.getElementById('closeRulesBtn').addEventListener('click', closeRules);
         document.getElementById('rulesOkBtn').addEventListener('click', () => {
           this.sound.playClick();
-          document.getElementById('rulesModal').classList.remove('active');
+          closeRules();
         });
 
         document.getElementById('homeResetBtn').addEventListener('click', () => {
@@ -454,8 +465,13 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         // Stated ceiling, deliberately NOT put in the copy: the device roster from ADR-0010 is a
         // different store. A reset leaves it alone, so a later visit can seed the old names back
         // through roster-bridge.ts. That is not a loss this confirm causes, and the rule names losses.
+        // Shared closer, and the arming lives here rather than in the two listeners (gh#187):
+        // dismissing the card IS the reveal. The count pills and #startGameBtn sit under it, still
+        // enabled, their own gate long expired -- which is exactly why a second contact fires one.
         const closeResetNames = () => {
           document.getElementById('resetNamesModal').classList.remove('active');
+          const setup = document.getElementById('screenSetup');
+          if (setup) armAllButtons(setup);
         };
         document.getElementById('resetNamesBtn').addEventListener('click', () => {
           this.sound.playClick();

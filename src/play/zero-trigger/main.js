@@ -698,10 +698,20 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         }
       }
 
+      // gh#187 (owner ruling 2026-09-01), openModal's counterpart: CLOSING a modal is itself a reveal
+      // ADR-0017 gates. The screen underneath was armed when switchScreen showed it and that window
+      // closed long ago -- which is exactly why the second contact of a double-tap on a close or
+      // cancel control fires the button behind it. No rebuild is involved, which is why the reset
+      // confirm's renderPlayerRoster() arming never covered cancel, close-rules or close-avatar.
+      // Every modal on this route overlays the live screen and every dismissal goes through here, so
+      // one call covers all of them; the live screen is looked up rather than named because a modal
+      // is reachable from more than one screen.
       closeModal(modalId) {
         this.synth.playClick();
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.remove('active');
+        const screen = document.querySelector('.screen.active');
+        if (screen) armAllButtons(screen);
       }
 
       /* =========================================

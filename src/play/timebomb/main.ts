@@ -16,6 +16,7 @@ import type { GameContext, GameSession } from '../../games/types.ts';
 import { armAllButtons } from '../../games/_arm-gate.ts';
 import { loadRoster } from '../../shell/roster';
 import { loadSession } from '../../shell/session';
+import { takeSetupEditRequest } from '../_setup-bridge';
 // The canonical mascot cast, ADR-0054 rulings 1-3: fixed order, identical in every game. It used to
 // be a second copy of the freeze-tap mockup's array, diffed against it row by row; it is now the one
 // shared definition, and src/play/mascot-defaults.test.mjs pins that definition to the mockup.
@@ -210,6 +211,14 @@ function begin(): void {
 
 load();
 renderRows();
+// gh#185. The chrome's edit-players pill writes a sessionStorage flag and reloads; whoever mounts
+// PlayExit owes that flag a read, because takeSetupEditRequest clears on read and an unread flag
+// survives the navigation to force the NEXT game opened in this tab onto its setup screen. This
+// route always opens on its setup screen (begin() is the only thing that hides it), so the request
+// is already honoured on arrival and taking it only clears it -- same shape as dice-loser. No
+// saveOnSetupComplete here: ADR-0053 names this route the deliberate shared-roster exception, so
+// there is no group to write back.
+takeSetupEditRequest();
 
 if (canvasEl) startBombCanvas(canvasEl);
 if (stageEl) {
@@ -265,9 +274,17 @@ if (resetEl && resetDialogEl && resetCancelEl && resetConfirmEl) {
     // an Enter still held from the tap that opened this. The 400ms window is what protects it.
     armAllButtons(resetDialogEl);
   });
-  resetCancelEl.addEventListener('click', () => resetDialogEl.close());
-  resetConfirmEl.addEventListener('click', () => {
+  // gh#187: closing the dialog is ITSELF the reveal, on the cancel branch exactly as much as on the
+  // confirm. #tb-begin sits behind the card, enabled, its arm window long expired -- which is why a
+  // second contact fires it and starts the round with the phone still in one player's hand. Armed in
+  // this shared closer so no branch out of the dialog can miss it.
+  const closeResetDialog = (): void => {
     resetDialogEl.close();
+    if (setupEl) armAllButtons(setupEl, steppers());
+  };
+  resetCancelEl.addEventListener('click', closeResetDialog);
+  resetConfirmEl.addEventListener('click', () => {
+    closeResetDialog();
     resetNames();
     save();
     renderRows();

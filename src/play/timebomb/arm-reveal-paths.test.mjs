@@ -154,6 +154,26 @@ test('accepting the reset confirm re-arms the setup screen it uncovers', () => {
   );
 });
 
+// gh#187, owner ruling 2026-09-01: the CANCEL branch is the same reveal. It rebuilds nothing, which
+// is precisely why it went unnoticed -- the confirm test above stays green while cancel dismisses
+// the dialog over a live #tb-begin. Pinned on the shared closer both branches now route through.
+test('cancelling the reset confirm re-arms the setup screen it uncovers', () => {
+  const at = source.indexOf('const closeResetDialog');
+  assert.ok(at > -1, 'closeResetDialog is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('};', at));
+  assert.match(
+    body,
+    /if \(setupEl\) armAllButtons\(setupEl, steppers\(\)\);/,
+    'closeResetDialog no longer re-arms #tb-setup: a double-tap on cancel puts the second contact ' +
+      'on #tb-begin and starts the round with the phone still in one player’s hand',
+  );
+  assert.match(
+    source,
+    /resetCancelEl\.addEventListener\('click', closeResetDialog\)/,
+    'the cancel button no longer routes through closeResetDialog, so nothing re-arms #tb-setup',
+  );
+});
+
 // The scout's claim that begin() is one-way, re-checked here rather than trusted: no control in
 // this file's source sets #tb-setup's `.hidden` back to false or #tb-stage's back to true.
 test('begin() really is one-way — no control reverses the screen swap', () => {

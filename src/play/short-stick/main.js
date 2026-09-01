@@ -414,6 +414,20 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
         armAllButtons(dlg);
       };
 
+      /** openDialog's counterpart (gh#187): CLOSING a dialog is itself a reveal ADR-0017 gates. The
+       *  view underneath was armed when setView showed it and that window closed long ago, which is
+       *  exactly why the second contact of a double-tap on a close or cancel control fires the
+       *  button behind it -- no rebuild is involved and none is needed. Re-arms whichever view is
+       *  live rather than a named one, so a dialog reachable from more than one screen (the rules
+       *  dialog opens from both #rules-nav-button and #btn-quick-rules) is covered from all of
+       *  them. Closers that transition instead -- the hazard dialog, the leave confirm -- keep
+       *  their own setView() call, which arms the view it switches to. */
+      const closeDialog = (id) => {
+        $(id)?.close();
+        const shown = document.querySelector('.view.active');
+        if (shown) armAllButtons(shown);
+      };
+
       const calculateOdds = () => {
         const remainingTotal = game.used.filter((u) => !u).length;
         const remainingShorts = game.shortIndices.filter((idx) => !game.used[idx]).length;
@@ -764,7 +778,7 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 
       // Rules Dialog
       const openRules = () => { sounds.playClick(); openDialog('rules-dialog'); };
-      const closeRules = () => { sounds.playClick(); $('rules-dialog').close(); };
+      const closeRules = () => { sounds.playClick(); closeDialog('rules-dialog'); };
       $('rules-nav-button').addEventListener('click', openRules);
       $('btn-quick-rules').addEventListener('click', openRules);
       $('btn-close-rules').addEventListener('click', closeRules);
@@ -790,8 +804,8 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
           setView('start');
         }
       });
-      $('btn-close-leave').addEventListener('click', () => $('leave-dialog').close());
-      $('btn-cancel-leave').addEventListener('click', () => $('leave-dialog').close());
+      $('btn-close-leave').addEventListener('click', () => closeDialog('leave-dialog'));
+      $('btn-cancel-leave').addEventListener('click', () => closeDialog('leave-dialog'));
       $('btn-confirm-leave').addEventListener('click', () => {
         $('leave-dialog').close();
         game.state = GameState.MENU;
@@ -817,7 +831,7 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
         sounds.playClick();
         openDialog('reset-names-dialog');
       });
-      const closeResetNames = () => $('reset-names-dialog').close();
+      const closeResetNames = () => closeDialog('reset-names-dialog');
       $('btn-close-reset-names').addEventListener('click', closeResetNames);
       $('btn-cancel-reset-names').addEventListener('click', closeResetNames);
       $('btn-confirm-reset-names').addEventListener('click', () => {

@@ -1420,9 +1420,17 @@ import { mascotNames, resetCastNames } from '../_mascots.ts';
       if (disarmModal) disarmModal();
       disarmModal = armAllButtons(modal);
     }
+    /** gh#187: CLOSING a modal is itself a reveal ADR-0017 gates. Whatever view was live when the
+     *  modal opened is still mounted underneath it, enabled, its own arm window long expired -- and
+     *  that expiry is exactly why the second contact of a double-tap on a close control fires the
+     *  button behind it. Every modal on this route overlays #view-root and every dismissal path
+     *  (the close X, cancel, and the reset confirm) goes through this one function, so arming here
+     *  covers them all. armRenderedView() is the same call renderUI() ends in, so the meter button
+     *  keeps its per-control exception. */
     function closeModal(id) {
       soundSynth.playClick(400);
       document.getElementById(id).classList.remove('active');
+      armRenderedView();
     }
 
     document.getElementById('btn-help-modal').addEventListener('click', () => openModal('help-modal'));

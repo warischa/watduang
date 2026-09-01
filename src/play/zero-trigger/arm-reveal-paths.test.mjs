@@ -140,3 +140,21 @@ test('the reset confirm redraws through the armed renderPlayerRoster', () => {
       'the rows it puts back under the finger that just confirmed',
   );
 });
+
+// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates, and the REBUILD was
+// never what made it one. The confirm was covered only because it happened to redraw; cancel-reset-
+// cast, close-rules and close-avatar-picker redraw nothing, so every check above stayed green while
+// the screen under the card sat live with a window that expired screens ago. REVEAL_RE matches
+// `classList.add` and cannot see a closer either. This is the only pin on that whole class.
+test('closeModal re-arms the screen the modal was covering', () => {
+  const at = source.indexOf('closeModal(modalId) {');
+  assert.ok(at > -1, 'closeModal is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('\n      }', at));
+  assert.match(
+    body,
+    /querySelector\('\.screen\.active'\)[\s\S]{0,80}?armAllButtons\(screen\)/,
+    'closeModal no longer re-arms the live screen: a double-tap on #btn-cancel-reset-cast, ' +
+      '#btn-close-rules or #btn-close-avatar-picker puts the second contact on a roster row button ' +
+      'behind the card — an avatar-btn or a remove-player-btn, at almost the same coordinates',
+  );
+});

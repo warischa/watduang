@@ -351,8 +351,14 @@ function openResetNames(){
   if(disarmDialog)disarmDialog();
   disarmDialog=armAllButtons(dlg);
 }
+// gh#187: closing the dialog is ITSELF a reveal. #start and the name rows sit behind it on the live
+// setup panel, still enabled, their arm window long expired -- which is exactly why the second
+// contact of a double-tap on close or cancel fires one. Armed here in the shared closer so no branch
+// out of the dialog can miss it, with the same except list and onArm hook renderSetup() uses, so
+// #start goes back to whatever validateCount() says rather than being forced enabled.
 function closeResetNames(){
   document.querySelector('#reset-names-dialog')?.close();
+  armPanel(countSteppers(),validateCount);
 }
 function confirmResetNames(){
   closeResetNames();

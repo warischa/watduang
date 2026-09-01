@@ -1418,10 +1418,18 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
   // collects (including the autofocus target) until the window is quiet, so no button is a safe
   // "first contact" to rely on. Confirming re-renders #mainContent through renderApp(), which arms
   // it again unconditionally on its last line (see the comment at renderApp() for why setup is
-  // included), so a double-tap landing on the rebuilt setup screen is covered without arming it a
-  // second time here.
+  // included).
+  //
+  // gh#187: the rebuild was never what made the confirm safe, and close/cancel rebuild nothing at
+  // all. HIDING this modal is itself a reveal -- #startGameBtn and the preset pills sit under the
+  // card, still enabled, their own arm window long expired, which is exactly why a second contact
+  // fires one. So the arming lives in the shared closer, where all three branches pass through it,
+  // and the rapid-tap steppers stay excepted the same way renderApp() excepts them.
   const resetNamesModal = document.getElementById('resetNamesModal');
-  const closeResetNamesModal = () => { resetNamesModal.style.display = 'none'; };
+  const closeResetNamesModal = () => {
+    resetNamesModal.style.display = 'none';
+    armPanel(mainContent, rapidTapControls());
+  };
   document.getElementById('closeResetNamesModalBtn').addEventListener('click', closeResetNamesModal);
   document.getElementById('cancelResetNamesBtn').addEventListener('click', closeResetNamesModal);
   document.getElementById('confirmResetNamesBtn').addEventListener('click', () => {

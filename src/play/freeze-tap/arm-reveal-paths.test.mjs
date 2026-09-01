@@ -109,3 +109,19 @@ test('renderApp arms unconditionally — no screen is excepted by state', () => 
   );
   assert.match(source, /^\s*armPanel\(mainContent, rapidTapControls\(\)\);$/m);
 });
+
+// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates. REVEAL_RE matches
+// only writes that SHOW something, so a closer -- which writes display:'none' -- is structurally
+// invisible to it and neither test above can fail when this call is deleted. This one can.
+test('closing the reset-names modal re-arms the screen behind it', () => {
+  const at = source.indexOf('const closeResetNamesModal');
+  assert.ok(at > -1, 'closeResetNamesModal is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('};', at));
+  assert.match(
+    body,
+    /armPanel\(mainContent, rapidTapControls\(\)\)/,
+    'closeResetNamesModal no longer re-arms #mainContent: close and cancel rebuild nothing, so a ' +
+      'double-tap on either puts the second contact on #startGameBtn or a preset pill, live under ' +
+      'the card with their own arm window long expired',
+  );
+});

@@ -98,3 +98,32 @@ test('the reset confirm re-arms the setup screen it uncovers', () => {
   assert.match(body, /getElementById\('screenSetup'\)/, 're-arm target is no longer #screenSetup');
   assert.match(body, /resetPlayerNames\(\)/, 'the confirm no longer performs the wipe it asks about');
 });
+
+// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates. REVEAL_RE matches
+// `classList.add`, so a closer -- which only REMOVES the class -- is structurally invisible to it,
+// the same blind spot the confirm test above works around. Pinned by slicing each closer's body.
+test('closing the reset-names card re-arms the setup screen behind it', () => {
+  const at = source.indexOf('const closeResetNames');
+  assert.ok(at > -1, 'closeResetNames is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('};', at));
+  assert.match(
+    body,
+    /armAllButtons\(setup\)/,
+    'closeResetNames no longer re-arms #screenSetup: a double-tap on the close X or on cancel puts ' +
+      'the second contact on a count pill or #startGameBtn, both live under the card',
+  );
+});
+
+test('closing the rules modal re-arms the live screen behind it', () => {
+  const at = source.indexOf('const closeRules');
+  assert.ok(at > -1, 'closeRules is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('};', at));
+  assert.match(
+    body,
+    /armAllButtons\(screen\)/,
+    'closeRules no longer re-arms the live screen: #closeRulesBtn sits in the same top-right corner ' +
+      'as #rulesBtn, so the second contact of a double-tap on it lands on a control armed when the ' +
+      'screen was shown and enabled ever since',
+  );
+  assert.match(body, /getElementById\(this\.currentScreen\)/, 're-arm target is no longer the live screen');
+});

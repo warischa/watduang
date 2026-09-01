@@ -108,6 +108,14 @@ on gh#146 (short-stick) it is simply wrong.
   every party game through the roster, with timebomb as the named exception.
 - The citation in `docs/verification/timebomb-play-route-assess.md` to ADR-0050's ruling 4 is correct
   as written and is untouched — it cites the port-recipe branch, not a roster rule.
+- **timebomb still mounts the shared edit-players control, and that is deliberate.** Owner ruling,
+  2026-09-01, closing the open question in gh#185. The exception above is about where the player
+  *list* lives, not about which page chrome the route wears: the chrome is uniform across all eleven
+  routes, and a player who has learned where the edit control sits should find it here too. What the
+  route owes in return is to *consume* the request the control writes — `takeSetupEditRequest` clears
+  on read, and an unread flag survives the navigation and forces the next game opened in that tab
+  onto its setup screen. Before gh#185 this route wrote the flag and never read it. It does now, even
+  though it always opens on its setup screen anyway, so taking the request only clears it.
 
 ## The fact that would change this
 

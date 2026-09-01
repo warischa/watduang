@@ -123,3 +123,19 @@ test('the reset confirm redraws through renderUI(), which re-arms the view it re
       'inputs would rebuild them live under the finger that just confirmed',
   );
 });
+
+// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates, on its own, with no
+// rebuild involved. The test above only covers the confirm branch; #btn-close-help and every cancel
+// rebuild nothing, so they stayed green while the view under the card sat live. REVEAL_RE cannot see
+// a closer either -- it matches writes that SHOW. This is the only pin on that path.
+test('closeModal re-arms the view the modal was covering', () => {
+  const at = source.indexOf('function closeModal(');
+  assert.ok(at > -1, 'closeModal is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('\n    }', at));
+  assert.match(
+    body,
+    /armRenderedView\(\)/,
+    'closeModal no longer re-arms #view-root: a double-tap on any close or cancel control puts the ' +
+      'second contact on whatever view button sits behind the card, its own arm window long expired',
+  );
+});

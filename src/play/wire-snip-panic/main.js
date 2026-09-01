@@ -19,7 +19,7 @@
 // control's wipe (owner ruling 2026-08-31, decided in gh#174 and copied here unchanged).
 import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
-// ADR-0017, the ghost-tap gate. This route reveals controls on SIX paths, not one, and
+// ADR-0017, the ghost-tap gate. This route reveals controls on SEVEN paths, not one, and
 // scripts/arm-gate-coverage-check.mjs can only see that the import exists and is called somewhere --
 // it counts per directory, never per reveal. ./arm-reveal-paths.test.mjs pins the set instead.
 import { armAllButtons } from '../../games/_arm-gate.ts';
@@ -605,7 +605,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       if (region) region.textContent = text;
     }
 
-    // REVEAL PATH 1 of 6. Screen-to-screen: the second contact of a double-tap aimed at the screen
+    // REVEAL PATH 1 of 7. Screen-to-screen: the second contact of a double-tap aimed at the screen
     // that just went away must not land on the control that replaced it.
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -616,13 +616,27 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       }
     }
 
-    // REVEAL PATH 2 of 6. #modal-rules is opened by two separate controls and passes showScreen on
+    // REVEAL PATH 2 of 7. #modal-rules is opened by two separate controls and passes showScreen on
     // neither, so its close button is revealed with nothing gating it. One function so the two
     // openers cannot drift apart, and so there is one receiver to pin.
     function openRulesModal() {
       const rulesModal = document.getElementById('modal-rules');
       rulesModal.classList.add('active');
       armAllButtons(rulesModal);
+    }
+
+    // REVEAL PATH 7 of 7, gh#187 (owner ruling 2026-09-01), openRulesModal's counterpart: CLOSING a
+    // modal is itself a reveal. The screen under the card was armed when showScreen switched to it
+    // and that window closed long ago, so the second contact of a double-tap on a close or cancel
+    // control lands on a live button behind it -- no rebuild involved, which is why the confirm's
+    // renderSetupPlayerList() note above never covered this. Re-arms whichever screen is live rather
+    // than a named one, so a modal reachable from more than one screen (#modal-rules opens from both
+    // #btn-rules and the menu) is covered from all of them. Dismissals that also CHANGE screen keep
+    // their own showScreen() call, which arms the screen it switches to.
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+      const screen = document.querySelector('.screen.active');
+      if (screen) armAllButtons(screen);
     }
 
     function renderSetupPlayerList() {
@@ -667,7 +681,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         });
       });
 
-      // REVEAL PATH 3 of 6, and the one showScreen cannot cover: #btn-menu-start switches to the
+      // REVEAL PATH 3 of 7, and the one showScreen cannot cover: #btn-menu-start switches to the
       // setup screen and THEN calls this, so the remove buttons do not exist yet when showScreen
       // arms. It is also a reveal with no screen change at all -- every add and every remove rebuilds
       // this container through innerHTML, putting a fresh remove button under the finger that just
@@ -862,7 +876,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       scanBtn.style.display = 'flex';
       scanBtn.disabled = false;
 
-      // REVEAL PATH 4 of 6, and it must be armed HERE rather than left to showScreen above: the line
+      // REVEAL PATH 4 of 7, and it must be armed HERE rather than left to showScreen above: the line
       // directly above clears `disabled` on the one control this screen offers, which would undo
       // showScreen's gate on exactly the control that matters most -- this is the pass-the-phone
       // moment, so the stale contact belongs to the PREVIOUS player. Arming last wins.
@@ -1137,7 +1151,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         scoreboard.appendChild(row);
       });
 
-      // REVEAL PATH 5 of 6. #modal-detonation opens on a timer 850ms after the blast, over a screen
+      // REVEAL PATH 5 of 7. #modal-detonation opens on a timer 850ms after the blast, over a screen
       // the player was tapping wires on a moment ago, and its two buttons (replay, edit players) sit
       // in the middle of that surface. No showScreen on this path either.
       modal.classList.add('active');
@@ -1176,7 +1190,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 
       document.getElementById('btn-close-rules').addEventListener('click', () => {
         soundSynth.playClick();
-        document.getElementById('modal-rules').classList.remove('active');
+        closeModal('modal-rules');
       });
 
       // Menu Buttons
@@ -1233,11 +1247,11 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 
       document.getElementById('btn-cancel-reset-names').addEventListener('click', () => {
         soundSynth.playClick();
-        document.getElementById('modal-reset-names').classList.remove('active');
+        closeModal('modal-reset-names');
       });
 
       document.getElementById('btn-confirm-reset-names').addEventListener('click', () => {
-        document.getElementById('modal-reset-names').classList.remove('active');
+        closeModal('modal-reset-names');
         soundSynth.playClick(420);
         resetPlayerNames();
         saveSettings();
@@ -1302,7 +1316,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       // Keyboard Shortcuts (Desktop Accessibility 1-6)
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          document.getElementById('modal-rules').classList.remove('active');
+          closeModal('modal-rules');
         } else if (e.key === ' ' || e.key === 'Enter') {
           if (game.state === GameState.TURN_WAIT) {
             triggerScanSequence();

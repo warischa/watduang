@@ -198,3 +198,15 @@ test('the reset-names confirm is opened and armed at the moment it is revealed',
 test('the reset confirm rebuilds through renderSetup, not by patching the DOM directly', () => {
   assert.match(source, /function confirmResetNames\(\)\{[^}]*renderSetup\(\);\s*\n\}/);
 });
+
+// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates, and the rebuild was
+// never the hazard. Close and cancel rebuild nothing, so every assertion above stays green with this
+// call deleted -- the reveal is the dialog going away over a live #panel. This is the only pin on it.
+test('closing the reset-names dialog re-arms the setup panel behind it', () => {
+  assert.match(
+    source,
+    /function closeResetNames\(\)\{[^}]*armPanel\(countSteppers\(\),validateCount\);/,
+    'closeResetNames no longer re-arms #panel: a double-tap on close or cancel puts the second ' +
+      'contact on #start or a name row, live behind the dialog with a long-expired arm window',
+  );
+});

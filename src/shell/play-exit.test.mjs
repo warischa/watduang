@@ -22,8 +22,10 @@ const BRIDGE = 'roster-bridge.ts';
  *  from one of the six it skipped left the whole suite green.
  *
  *  THIS FILE CONTAINS THE PATTERNS IT LOOKS FOR, in prose and in the matchers below. That is handled
- *  structurally, not by escaping: evidence is only ever read from files NAMED roster-bridge.ts or
- *  play.astro, and this file is neither, so it can never be evidence about itself. */
+ *  structurally, not by escaping: evidence is only ever read from play.astro files and from shipped
+ *  .ts modules under src/play/, and this file is neither (it is a .test.mjs under src/shell/), so it
+ *  can never be evidence about itself. Test files under a route directory are excluded for the same
+ *  reason -- a route's own test naming a guard is prose about the guard, not the guard. */
 const dirsWith = (root, child) =>
   readdirSync(root, { withFileTypes: true })
     .filter((e) => e.isDirectory() && existsSync(path.join(root, e.name, child)))
@@ -32,6 +34,30 @@ const dirsWith = (root, child) =>
 
 const bridgeRoutes = dirsWith(PLAY_DIR, BRIDGE);
 const playRoutes = dirsWith(PAGES_DIR, 'play.astro');
+
+/** The set that owes an answer to the edit request is the set that OFFERS the control: every route
+ *  whose play.astro mounts PlayExit. That set is owned by the pages tree, so it is derived from it
+ *  here and never hand-listed. It is strictly wider than the bridge set -- gh#185: timebomb and
+ *  dice-loser carry no roster-bridge.ts, so a loop over `bridgeRoutes` excluded them BY CONSTRUCTION
+ *  while a `>= 9` floor kept it green, and timebomb shipped writing the flag and never clearing it.
+ *  The leak is cross-game: an unconsumed flag survives in sessionStorage and forces the NEXT play
+ *  route opened in that tab onto its setup screen. */
+const mountingRoutes = playRoutes.filter((id) =>
+  /PlayExit/.test(readFileSync(path.join(PAGES_DIR, id, 'play.astro'), 'utf8')),
+);
+
+/** A route answers the request from wherever its controller lives -- a bridge on the nine mockup
+ *  ports, `main.ts` on the two routes that own their setup screen outright. So the evidence is the
+ *  route's whole shipped surface, not one filename: reading only roster-bridge.ts is the exact
+ *  mistake gh#185 is. Tests are excluded (see above), and comments are stripped by codeOf. */
+const routeCode = (id) => {
+  const dir = path.join(PLAY_DIR, id);
+  if (!existsSync(dir)) return null;
+  return readdirSync(dir)
+    .filter((f) => f.endsWith('.ts') && !f.endsWith('.test.ts'))
+    .map((f) => codeOf(path.join(dir, f)))
+    .join('\n');
+};
 
 /** Whole-line comments always go. A trailing `//` goes only when no quote opened earlier on the line,
  *  so a `//` living inside a string never truncates real code. String CONTENTS are left intact on
@@ -145,8 +171,26 @@ test('the edit control re-enters the mockup setup through the shared bridge, nev
   assert.match(src, /run:\s*requestSetupEdit/);
 });
 
-test('every play route persists what its setup finishes with, and answers the edit request', () => {
-  assert.ok(bridgeRoutes.length >= 9, `found ${bridgeRoutes.length} roster bridges — expected every play route with a saved group`);
+test('every route that mounts the edit control also consumes the request it writes', () => {
+  // Tied to the real set, not to a floor: a `>= 9` count passes while the two routes that leak are
+  // outside the loop. If a play route stops mounting PlayExit, that shows up here as a mismatch
+  // rather than as silently shrinking coverage.
+  assert.equal(
+    mountingRoutes.length,
+    playRoutes.length,
+    `${playRoutes.length} play routes but only ${mountingRoutes.length} mount PlayExit`,
+  );
+  for (const id of mountingRoutes) {
+    const code = routeCode(id);
+    assert.ok(code, `${id} mounts PlayExit but has no src/play/${id}/ controller to consume the flag`);
+    // Read-and-clear, called from anywhere in the route. Writing the flag without ever taking it
+    // leaves it in sessionStorage for whatever game is opened next in the same tab.
+    assert.match(code, /takeSetupEditRequest\(\)/, `${id} ignores the edit request`);
+  }
+});
+
+test('every roster bridge persists what its setup finishes with, and does not start the match while editing', () => {
+  assert.notEqual(bridgeRoutes.length, 0, 'no roster bridges found — this loop is measuring nothing');
   for (const id of bridgeRoutes) {
     const bridge = codeOf(path.join(PLAY_DIR, id, BRIDGE));
     // Registrations, not prose: the write-back call and the flag read, plus the one thing that makes

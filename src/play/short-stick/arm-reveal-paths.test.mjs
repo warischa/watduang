@@ -152,6 +152,31 @@ test('the reset confirm re-arms the setup rows it rebuilds', () => {
   );
 });
 
+// gh#187, owner ruling 2026-09-01: closing a dialog IS a reveal ADR-0017 gates, with no rebuild
+// anywhere in it. The test above covers the confirm only; close, cancel and the rules OK rebuild
+// nothing at all, and every check in this file stayed green while the view under the card sat live
+// with an expired window. Pinned on closeDialog, the one function all of them now route through.
+test('closeDialog re-arms the live view every dismissal uncovers', () => {
+  const at = source.indexOf('const closeDialog = (id) =>');
+  assert.ok(at > -1, 'closeDialog is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('};', at));
+  assert.match(
+    body,
+    /querySelector\('\.view\.active'\)[\s\S]{0,80}?armAllButtons\(shown\)/,
+    'closeDialog no longer re-arms the live view: a double-tap on a close X or a cancel puts the ' +
+      'second contact on whatever button sits behind the dialog, armed on entry and enabled since',
+  );
+  // Each pure closer routes through it. A closer that calls .close() directly is the regression:
+  // it dismisses the dialog and leaves the view underneath ungated, which is what shipped before.
+  for (const id of ['rules-dialog', 'reset-names-dialog', 'leave-dialog']) {
+    assert.match(
+      source,
+      new RegExp(`closeDialog\\('${id}'\\)`),
+      `the ${id} closers no longer go through closeDialog, so nothing re-arms the view behind it`,
+    );
+  }
+});
+
 test('removing a player enforces the two-player floor in the handler, not in the attribute', () => {
   assert.match(
     source,
