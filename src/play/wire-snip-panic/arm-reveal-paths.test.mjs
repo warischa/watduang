@@ -136,3 +136,66 @@ test('closeModal re-arms the screen the modal was covering', () => {
     );
   }
 });
+
+// ---------------------------------------------------------------------------
+// gh#188 boxes 13-15. Two claims, both about #btn-trigger-scan, the one control this route disables
+// for its own reason.
+//
+// The named mechanism box 15 asks about: keydown Escape calls closeModal('modal-rules'), which arms
+// the whole live screen; keydown Enter then calls triggerScanSequence(). Before gh#188 the arm
+// window's blanket re-enable cleared the mid-scan `disabled` set in triggerScanSequence, so the
+// button came back live during its own sequence. Two independent legs close it and both are pinned
+// below, because a general argument covers neither:
+//   (1) the gate no longer re-enables a control that was already disabled when it was called
+//       (games/_arm-gate.ts, pinned behaviourally in short-stick's arm-reveal-paths.test.mjs);
+//   (2) triggerScanSequence writes game.state BEFORE it disables, so its own TURN_WAIT guard
+//       rejects the re-entry regardless of what the button's `disabled` says. That is a source
+//       ORDER, and order is exactly the kind of thing a refactor reorders silently.
+//
+// Ceiling: leg (2) is asserted as source order, not driven. Nothing here boots this route's DOM.
+const OWNED_DISABLED = new Map([
+  [
+    'scanBtn',
+    'renderTurnStart(): the pass-the-phone screen offers #btn-trigger-scan, enabled. armAllButtons ' +
+      'is called AFTER this write, and the gate treats an ENABLED control as gateable — so the ' +
+      'ghost-tap window still covers it. Setting false, not true, so nothing is preserved here.',
+  ],
+  [
+    "document.getElementById('btn-trigger-scan')",
+    'triggerScanSequence(): disabled for the duration of the scan. This is the one write the gate ' +
+      'must preserve, and the reason box 15 exists.',
+  ],
+]);
+
+test('gh#188 the set of game-owned disabled writes in wire-snip-panic/main.js is a known one', () => {
+  const found = [...source.matchAll(/([\w.$'"()[\]-]+?)\.disabled\s*=/g)].map((m) => m[1]);
+  assert.ok(found.length > 0, 'the disabled-write pattern matched nothing — this test would pass vacuously');
+  const unknown = [...new Set(found)].filter((r) => !OWNED_DISABLED.has(r)).sort();
+  assert.deepEqual(
+    unknown,
+    [],
+    `new game-owned disabled write(s) ${unknown.join(', ')}: the arm window preserves a control ` +
+      'already disabled when it was called, so record what state this write means and whether any ' +
+      'reveal path re-exposes it.',
+  );
+  const stale = [...OWNED_DISABLED.keys()].filter((r) => !found.includes(r)).sort();
+  assert.deepEqual(stale, [], `OWNED_DISABLED names writes that no longer exist: ${stale.join(', ')}`);
+});
+
+test('gh#188 box 15 — triggerScanSequence sets its state before it disables the button', () => {
+  assert.match(
+    source,
+    /if \(game\.state !== GameState\.TURN_WAIT\) return;[\s\S]*?game\.state = GameState\.SCANNING_HINTS;\s*\n\s*document\.getElementById\('btn-trigger-scan'\)\.disabled = true;/,
+    'the guard, the state write and the disable must appear in that order. If the disable moves ' +
+      'above the state write, Escape (which arms the live screen) followed by Enter re-enters ' +
+      'triggerScanSequence and starts a second scan over the first',
+  );
+  // The Escape leg is what makes the ordering above load-bearing rather than incidental: it is the
+  // only path that touches the button's `disabled` without going through triggerScanSequence.
+  assert.match(
+    source,
+    /if \(e\.key === 'Escape'\) \{\s*\n\s*closeModal\('modal-rules'\);/,
+    'the Escape key must dismiss through closeModal — a bare classList.remove leaves the screen ' +
+      'behind the modal ungated (ADR-0057)',
+  );
+});

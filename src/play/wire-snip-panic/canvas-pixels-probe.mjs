@@ -76,6 +76,11 @@ const CLICK_WHEN_ARMED = (selector) => `
 // SAMPLED OVER TIME, not once. This canvas is empty at rest -- the sparks are spawned per flashed
 // wire and each one fades in well under a second -- so a single read lands wherever it lands and a
 // working surface can look blank. `SAMPLE_PIXELS` reads repeatedly and keeps the busiest frame.
+//
+// Ceiling (gh#189 box 38): the sample count and the gap between samples are both fixed numbers,
+// calibrated to this machine, not a poll that runs until coverage stops rising -- the same class of
+// gap that once made a fixed settle in timebomb's copy of this probe read a boom as blank. Manual
+// tool only, not wired into CI today; if it ever is, widen this to poll until the peak stabilizes.
 const SAMPLE_PIXELS = (samples, gapMs) => `
   let best = null;
   for (let i = 0; i < ${samples}; i++) {

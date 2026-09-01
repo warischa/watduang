@@ -158,3 +158,34 @@ test('closeModal re-arms the screen the modal was covering', () => {
       'behind the card — an avatar-btn or a remove-player-btn, at almost the same coordinates',
   );
 });
+
+// ---------------------------------------------------------------------------
+// gh#188 box 13. This route takes the "state why a blanket re-enable is correct here" branch, and
+// the statement is a count rather than a judgement: zero-trigger writes `disabled` on no control at
+// all. Every button is enabled whenever it is on screen, so closeModal's armAllButtons over the live
+// screen re-asserts exactly the state the route already holds — there is nothing to except.
+//
+// The reason this is a test and not a comment: that claim is true today and one render function away
+// from false. A `disabled` write added anywhere in main.js fails here, and whoever adds it then owns
+// the decision — the shared gate preserves a control already disabled when it was called
+// (games/_arm-gate.ts, gh#188), but a control disabled DURING the window still needs the onArm hook.
+test('gh#188 zero-trigger owns no button disabled state, so the arm window has nothing to preserve', () => {
+  const writes = [...source.matchAll(/([\w.$'"()[\]-]+?)\.disabled\s*=/g)].map((m) => m[1]);
+  const attrs = [...source.matchAll(/(?:set|toggle)Attribute\(\s*['"]disabled['"]/g)].map(() => 'setAttribute');
+  assert.deepEqual(
+    [...writes, ...attrs].sort(),
+    [],
+    'main.js now owns button disabled state. closeModal() and switchScreen() arm the whole live ' +
+      'screen, so decide whether this control must survive the window: if the write happens BEFORE ' +
+      'the arming call the gate already preserves it, and if it happens during the window pass an ' +
+      'onArm callback that re-asserts it. Then record the answer in closeModal()\'s comment.',
+  );
+  // Positive control: the pattern must be able to see a write at all, or the empty result above
+  // would mean nothing. The gate module has one.
+  const gate = fs.readFileSync(path.join(import.meta.dirname, '../../games/_arm-gate.ts'), 'utf8');
+  assert.ok(
+    /\.disabled\s*=/.test(gate),
+    'the disabled-write pattern found nothing in _arm-gate.ts either — the pattern is broken, not ' +
+      'the route',
+  );
+});

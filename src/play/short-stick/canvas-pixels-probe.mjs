@@ -119,6 +119,10 @@ const out = { url, reducedRequested: reduced };
 out.openSetup = (await evaluate(CLICK_WHEN_READY('#btn-start-setup'))).value;
 await sleep(400);
 out.begin = (await evaluate(CLICK_WHEN_READY('#btn-begin-game'))).value;
+// Fixed settle before the readback, calibrated to this machine, not a poll. Ceiling (gh#189 box 38):
+// on a slower machine this could still capture a frame before the board finishes painting -- the
+// same class of gap that once made a boom readback in timebomb's copy of this probe read as blank.
+// Manual tool only, not wired into CI today; if it ever is, replace with poll-until-pixels-stabilize.
 await sleep(900);
 out.pixelsAtBoard = (await evaluate(READ_PIXELS)).value;
 

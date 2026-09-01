@@ -145,6 +145,10 @@ out.startClock = (await evaluate(CLICK_WHEN_ARMED('#btn-big-action'))).value;
 await sleep(1400);
 out.stopClock = (await evaluate(CLICK_WHEN_ARMED('#btn-big-action'))).value;
 // Sparkles decay at 0.02-0.04 per frame and are gone inside a second: read while they are alive.
+// Fixed settle, calibrated to this machine, not a poll. Ceiling (gh#189 box 38): too slow a machine
+// could still read after the sparkles have faded, or (the timebomb precedent) one frame before a
+// paint lands. Manual tool only, not wired into CI today; if it ever is, replace with a poll that
+// stops on peak coverage instead of a fixed delay.
 await sleep(220);
 out.pixels = (await evaluate(READ_PIXELS)).value;
 

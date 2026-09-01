@@ -141,16 +141,32 @@ test('each armed reveal receiver has an arming call naming it', () => {
 // removed itself long ago. #tb-begin is right there: a ghost tap on it starts the round. This is the
 // same failure adversarial review found in the short-stick original (gh#174), where the second
 // contact landed on a rebuilt remove button and deleted a player.
-test('accepting the reset confirm re-arms the setup screen it uncovers', () => {
+//
+// gh#188 box 23: that arm is the CLOSER's, and only the closer's. Since ADR-0057 every branch out of
+// the dialog routes through closeResetDialog, so the confirm's own copy was a second gate over the
+// same controls -- equivalent in effect (armAfterQuiet snapshots the caller's own disabled controls
+// at construction, so neither call clobbers page-owned state) and a lie about where the
+// responsibility lives. Both halves are pinned below: red if the handler stops routing through the
+// closer (the path would have NO arm), and red if the handler arms #tb-setup itself on top of it
+// (both calls restored). A test asserting only the first would pass with one call or two and would
+// measure nothing about this box.
+test('accepting the reset confirm re-arms the setup screen exactly once, via the shared closer', () => {
   const handler = source.match(
     /resetConfirmEl\.addEventListener\('click',[\s\S]*?\n {2}\}\);/,
   );
   assert.ok(handler, 'the reset confirm handler is no longer recognisable — this test measures nothing');
   assert.match(
     handler[0],
-    /armAllButtons\(setupEl/,
-    'the confirm handler closes the dialog without re-arming #tb-setup: the second contact of a ' +
-      'double-tap on the confirm lands live on #tb-begin and starts the round.',
+    /closeResetDialog\(\)/,
+    'the confirm handler no longer routes through closeResetDialog, so nothing re-arms #tb-setup: ' +
+      'the second contact of a double-tap on the confirm lands live on #tb-begin and starts the round.',
+  );
+  assert.doesNotMatch(
+    handler[0],
+    /armAllButtons\(/,
+    'the confirm handler arms #tb-setup on top of closeResetDialog’s call — two gates over the same ' +
+      'controls, which is the double-arm gh#188 box 23 removed. Delete the call here; the closer ' +
+      'arms every branch out of the dialog, cancel and confirm alike.',
   );
 });
 

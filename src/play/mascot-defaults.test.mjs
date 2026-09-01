@@ -22,6 +22,11 @@ import { FakeElement, makeDocument } from '../games/_fake-dom.mjs';
 import { MASCOTS, applyMascotDefaults, mascotNames, resetCastNames } from './_mascots.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+// SCOPE (gh#189, owner ruling 2026-09-01): this pattern -- and the sibling one further down that scans
+// markup.html -- is about PLAYER IDENTITY only. It matches "ผู้เล่น" (player) followed by a number,
+// never a bare digit on its own. A turn-order badge, a shot counter, or any other numbered placeholder
+// that is not naming a player (cannon-flag's "position 1 of 4", "shot 1 of 2") is explicitly allowed
+// and outside what either scan checks. Do not read a green here as "no numbered placeholder anywhere".
 const NUMBERED = /^ผู้เล่น\s*\d+$/;
 
 /** Same brace-walking slice as name-escaping.test.mjs: take a declaration out of a main.js by text. */
@@ -322,6 +327,8 @@ test('no play route ships a numbered player default in its markup', async () => 
 
   // Same shape as NUMBERED above, unanchored: in markup the default sits inside a text node next to
   // other copy ("ตาของผู้เล่น 1", "ผู้เล่น 1 โดนเลือก!"), so an anchored match would miss every one.
+  // Same SCOPE as NUMBERED too (gh#189): requires the literal "ผู้เล่น" before the digit, so a turn
+  // counter or a shot counter with no player noun attached is not a hit -- that is allowed, not missed.
   //
   // Both digit systems. U+0E50..U+0E59 are THAI DIGIT ZERO through THAI DIGIT NINE, written as
   // escapes rather than literals so the class survives any future encoding or whitespace sweep of

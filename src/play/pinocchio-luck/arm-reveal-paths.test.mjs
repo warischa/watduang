@@ -106,7 +106,14 @@ function setupPanel(count) {
     start.disabled = !(count >= 2 && count <= 10);
   };
   validate();
-  return { panel, start, other, steppers: [minus, plus], validate };
+  // gh#188: the count must be able to change WHILE the window is open. That is what the excepted
+  // #minus/#plus do on the real route -- they stay live through the window by design -- and it is the
+  // one hazard the gate's own snapshot cannot see, so it is what the naive leg below reproduces.
+  const step = (to) => {
+    count = to;
+    validate();
+  };
+  return { panel, start, other, steppers: [minus, plus], validate, step };
 }
 
 test('#start stays disabled at an invalid count after the arm window closes', (t) => {
@@ -114,13 +121,35 @@ test('#start stays disabled at an invalid count after the arm window closes', (t
 
   // The naive implementation this route shipped against: arm with no re-validation. Kept as the
   // must-red leg — without it the assertion below is a green nobody has seen fail.
-  const naive = setupPanel(1);
-  armAllButtons(naive.panel);
+  //
+  // gh#188 RESTATED, and the restatement is the point. This leg used to arm an ALREADY-disabled
+  // #start (count 1 from construction) and rely on the gate's blanket re-enable to force it live.
+  // The gate no longer re-enables a control that was disabled when it was called, so that scenario
+  // stopped reproducing anything and the leg became a control that could not fire. It is NOT retired,
+  // because the hazard it guards is still live — it moved. The snapshot is taken at construction, so
+  // what it cannot see is the count going invalid DURING the window: #start is enabled and gateable
+  // at the arm call, the player taps the excepted #minus (live by design, which is what makes this
+  // reachable rather than hypothetical), and when the window closes the gate hands #start back
+  // enabled from a snapshot that is now stale. onArm is the only thing that re-asserts the validator.
+  const naive = setupPanel(2);
+  armAllButtons(naive.panel, naive.steppers);
+  naive.step(1);
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   assert.equal(naive.start.disabled, false, 'naive leg no longer reproduces the bug — this test is no longer calibrated');
+  // Second half of the same control, and it is what stops the leg passing for the wrong reason: a
+  // #start left enabled is only a BUG if the count behind it is invalid. Re-running the validator
+  // must flip it — if it does not, the re-enable above was legitimate and reproduced nothing.
+  naive.validate();
+  assert.equal(
+    naive.start.disabled,
+    true,
+    'naive leg is enabled at a VALID count — the re-enable it observed was legitimate, so the leg ' +
+      'reproduces no bug and this test is no longer calibrated',
+  );
 
-  const fixed = setupPanel(1);
-  armAllButtons(fixed.panel, [], fixed.validate);
+  const fixed = setupPanel(2);
+  armAllButtons(fixed.panel, fixed.steppers, fixed.validate);
+  fixed.step(1);
   assert.equal(fixed.start.disabled, true, 'the window is open: every button is inert');
   assert.equal(fixed.other.disabled, true, 'the window is open: every button is inert');
   t.mock.timers.tick(ARM_DELAY_MS + 1);

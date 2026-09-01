@@ -288,13 +288,11 @@ if (resetEl && resetDialogEl && resetCancelEl && resetConfirmEl) {
     resetNames();
     save();
     renderRows();
-    // ADR-0017 again, for the shape the gh#174 review found the hard way: closing the dialog puts the
-    // whole setup screen back under a finger that is still on the confirm's coordinates, and the gate
-    // installed at first paint fired and removed itself long ago. Without this, the second contact of
-    // a double-tap on the confirm lands live on #tb-begin and starts the round. renderRows() rebuilds
-    // only <li> rows, which hold no <button>, so this re-arms controls that were never destroyed —
-    // the hazard here is the reveal, not the rebuild.
-    if (setupEl) armAllButtons(setupEl, steppers());
+    // ADR-0017's re-arm for this branch is closeResetDialog()'s, above, and deliberately not repeated
+    // here (gh#188 box 23): the hazard is the reveal, not the rebuild — renderRows() rebuilds only
+    // <li> rows, which hold no <button> — so there is nothing this branch uncovers that the closer
+    // did not already gate. A second call here would be a second gate over the same controls, and
+    // src/play/timebomb/arm-reveal-paths.test.mjs fails if one is added back.
   });
 }
 

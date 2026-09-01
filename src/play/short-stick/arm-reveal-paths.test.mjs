@@ -182,8 +182,130 @@ test('removing a player enforces the two-player floor in the handler, not in the
     source,
     /remove-p-btn[\s\S]{0,500}?if \(game\.players\.length <= 2\) return;/,
     'the .remove-p-btn handler splices with no floor. The `disabled` attribute it renders with is ' +
-      'not the invariant: armAllButtons re-enables every control it collected with one blanket ' +
-      'write, clearing page-owned disabled state, so a 2-player party can be cut to 1 and then to ' +
-      '0 — after which renderDraw divides by an empty roster',
+      'not the invariant — gh#188 makes the gate preserve it in a real browser, but nothing here ' +
+      'depends on attribute reflection and a row re-rendered mid-window is disabled by neither. ' +
+      'Without this check a 2-player party can be cut to 1 and then to 0 — after which renderDraw ' +
+      'divides by an empty roster',
   );
+});
+
+// ---------------------------------------------------------------------------
+// gh#188 box 14 — the arm window must not clear `disabled` the GAME owns.
+//
+// The bug this pins is in the shared gate, not in this route: armAfterQuiet disabled every control
+// it collected, then re-enabled ALL of them when the window closed. A control the game had already
+// disabled for its OWN reason -- a count pill at its cap, a straw already drawn -- came back
+// enabled, and closeDialog() calls armAllButtons on the whole live view, so every dismissal of the
+// rules dialog on the setup screen ran that blanket write across all five pills.
+//
+// The fix is one line in games/_arm-gate.ts: the gate snapshots which collected controls were
+// ALREADY disabled when it was called and leaves those alone at arm time. The game's own state is
+// the exception list, computed at arm time -- which is why nothing here is hand-listed and why
+// renderDraw()'s per-straw write (`btn.disabled = isUsed || game.isResolving`, inside the loop that
+// builds the straw grid) cannot rot it.
+//
+// Two ceilings, stated rather than hidden:
+// (1) the fake DOM does not reflect a boolean `disabled` ATTRIBUTE onto the property, so the
+//     markup-rendered case -- renderSetup()'s `.remove-p-btn`, which carries a bare `disabled`
+//     attribute in its row template -- is NOT covered by the behavioural test below. A real browser does reflect it, so the gate preserves it there; the handler-side floor
+//     is kept anyway as defence in depth and is pinned by its own test above.
+// (2) this drives the gate directly. It proves the gate's contract, not that this route's markup
+//     puts these particular ids inside the container closeDialog arms.
+import { armAllButtons, ARM_DELAY_MS } from '../../games/_arm-gate.ts';
+import { FakeElement } from '../../games/_fake-dom.mjs';
+
+// Every `.disabled =` write in main.js, keyed by its receiver expression, with the decision. A new
+// game-owned disabled write fails this on the day it is added; one that disappears fails it too.
+const OWNED_DISABLED = new Map([
+  ["$('btn-fewer-sticks')", 'renderSetup(): floor, stickCount <= roster size.'],
+  ["$('btn-more-sticks')", 'renderSetup(): ceiling, stickCount >= 20.'],
+  ["$('btn-fewer-shorts')", 'renderSetup(): floor, shortCount <= 1.'],
+  ["$('btn-more-shorts')", 'renderSetup(): ceiling, min(3, roster-1).'],
+  ["$('btn-add-player')", 'renderSetup(): roster cap of 10.'],
+  ['btn', 'renderDraw(): a straw already drawn, or the draw is resolving. Written in a render loop.'],
+]);
+
+test('gh#188 the set of game-owned disabled writes in short-stick/main.js is a known one', () => {
+  const found = [...source.matchAll(/([\w.$'"()[\]-]+?)\.disabled\s*=/g)].map((m) => m[1]);
+  assert.ok(found.length > 0, 'the disabled-write pattern matched nothing — this test would pass vacuously');
+  const unknown = [...new Set(found)].filter((r) => !OWNED_DISABLED.has(r)).sort();
+  assert.deepEqual(
+    unknown,
+    [],
+    `new game-owned disabled write(s) ${unknown.join(', ')}: the arm window preserves them, so add ` +
+      'each one here with the state the game means it to hold.',
+  );
+  const stale = [...OWNED_DISABLED.keys()].filter((r) => !found.includes(r)).sort();
+  assert.deepEqual(stale, [], `OWNED_DISABLED names writes that no longer exist: ${stale.join(', ')}`);
+});
+
+test('gh#188 the arm window leaves game-owned disabled alone and re-enables the rest', async () => {
+  const view = new FakeElement('div');
+  // The divergence input: a container holding BOTH kinds of button. A correct gate and the blanket
+  // one agree on every button the game left enabled, so a fixture with only those measures nothing.
+  const capPill = view.appendChild(new FakeElement('button')); // #btn-more-sticks at 20 sticks
+  const usedStraw = view.appendChild(new FakeElement('button')); // a straw already drawn
+  const freeStraw = view.appendChild(new FakeElement('button')); // a straw still in the bundle
+  capPill.disabled = true;
+  usedStraw.disabled = true;
+
+  let clicks = 0;
+  for (const b of [capPill, usedStraw, freeStraw]) b.addEventListener('click', () => { clicks++; });
+
+  const cancel = armAllButtons(view);
+  assert.deepEqual(
+    [capPill.disabled, usedStraw.disabled, freeStraw.disabled],
+    [true, true, true],
+    'inside the window every button is inert, including the ones the game already owned',
+  );
+
+  await new Promise((resolve) => setTimeout(resolve, ARM_DELAY_MS + 100));
+  cancel();
+
+  assert.equal(capPill.disabled, true, 'the pill at its cap must STAY disabled after the window closes');
+  assert.equal(usedStraw.disabled, true, 'a straw already drawn must STAY disabled after the window closes');
+  // The other direction, and the positive control: a gate that simply stopped re-enabling anything
+  // would satisfy the two assertions above and break the game. It must not.
+  assert.equal(freeStraw.disabled, false, 'a button the game left enabled must be tappable again');
+
+  for (const b of [capPill, usedStraw, freeStraw]) b.click();
+  assert.equal(clicks, 1, 'exactly one of the three activates — the one the game left enabled');
+});
+
+// gh#188 follow-up. The snapshot above cannot tell the CALLER's `disabled` from the gate's own
+// disable-all residue, and the canceller re-enables nothing, so cancel-then-rearm on the same
+// non-rebuilt nodes used to strand every control permanently: gate 1 disables all, the disarmer
+// clears the timer without arming, gate 2 then snapshots that residue as caller intent and re-enables
+// nobody. Pre-fix the blanket re-enable self-healed this in one window. Reachable through the
+// `if (disarm) disarm(); disarm = armAllButtons(modal);` idiom on the header-triggered modals, where
+// the trigger keeps focus and a held Enter fires the handler twice inside one window -- leaving the
+// player behind an overlay whose close button is dead, with reload the only exit.
+//
+// This lives in short-stick's file because short-stick is the route whose owned-disabled controls the
+// same hunk protects: the two properties are one seam and they trade off against each other, so a
+// fix for either must be read against both. The third button is what pins that trade-off.
+test('gh#188 cancelling the gate mid-window does not strand the controls it disabled', async () => {
+  const modal = new FakeElement('div');
+  const closeBtn = modal.appendChild(new FakeElement('button'));
+  const confirmBtn = modal.appendChild(new FakeElement('button'));
+  // The other half of the trade-off: a control the GAME owns must still survive the whole sequence,
+  // or this test would pass against a plain revert of the snapshot.
+  const ownedPill = modal.appendChild(new FakeElement('button'));
+  ownedPill.disabled = true;
+
+  const first = armAllButtons(modal);
+  assert.equal(closeBtn.disabled, true, 'gate 1 opened its window');
+  first();
+  const second = armAllButtons(modal);
+  await new Promise((resolve) => setTimeout(resolve, ARM_DELAY_MS + 100));
+  second();
+
+  assert.equal(
+    closeBtn.disabled,
+    false,
+    'the close control is permanently dead: gate 1 disabled it, the disarmer left it that way, and ' +
+      'gate 2 read that residue as caller intent. The player is stuck behind the overlay',
+  );
+  assert.equal(confirmBtn.disabled, false, 'same stranding, on the confirm control');
+  assert.equal(ownedPill.disabled, true, 'and the game-owned control must STILL be preserved');
 });

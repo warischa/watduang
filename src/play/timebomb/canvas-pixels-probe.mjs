@@ -101,6 +101,9 @@ const out = { url, reducedRequested: reduced };
 out.begin = (await evaluate(CLICK_WHEN_ARMED('#tb-begin'))).value;
 await sleep(700);
 out.start = (await evaluate(CLICK_WHEN_ARMED('#tb-start'))).value;
+// Fixed settle, calibrated to this machine, not a poll -- see the longer note on the boom settle
+// below for the concrete hazard this shape already caused once (gh#189 box 38). Manual tool only,
+// not wired into CI today; if it ever is, this becomes poll-until-pixels-stop-changing.
 await sleep(1500);
 out.pixels = (await evaluate(READ_PIXELS)).value;
 
@@ -133,6 +136,9 @@ if (process.env.TB_FULL_ROUND === '1') {
   // indistinguishable from "the explosion never drew". Measured on this build under reduced motion:
   // no settle gave coverage 0.3756 / 163 colours (identical to the ticking read), a 1500ms settle
   // gave 0.6619 / 617. Full motion hid it, because every frame repaints there anyway.
+  // Ceiling (gh#189 box 38): 1500ms is calibrated to this machine, not a guarantee on a slower one.
+  // Not wired into CI today -- manual evidence probe only. If it ever is wired in, replace this fixed
+  // sleep with a poll that waits until the readback stops changing, instead of raising the number.
   await sleep(1500);
   out.pixelsAfterBoom = (await evaluate(READ_PIXELS)).value;
 }

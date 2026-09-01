@@ -706,6 +706,14 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       // Every modal on this route overlays the live screen and every dismissal goes through here, so
       // one call covers all of them; the live screen is looked up rather than named because a modal
       // is reachable from more than one screen.
+      //
+      // gh#188 box 13 -- no exception list is passed, and none is needed: this route writes `disabled`
+      // on NOTHING. Every control here is enabled whenever it is on screen, so re-enabling all of
+      // them is re-asserting the state the route already holds. That is the whole argument, and it is
+      // a countable one rather than a judgement -- arm-reveal-paths.test.mjs asserts the count is
+      // zero, so the day a control here gains a game-owned `disabled` this claim fails and whoever
+      // added it decides. (The gate also preserves an already-disabled control since gh#188, so the
+      // fix is not load-bearing here either way.)
       closeModal(modalId) {
         this.synth.playClick();
         const modal = document.getElementById(modalId);

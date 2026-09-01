@@ -527,12 +527,14 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 
         list.querySelectorAll('.remove-p-btn').forEach((btn) => {
           btn.addEventListener('click', () => {
-            // The `disabled` attribute this button renders with is a UI hint, never the invariant.
-            // armAllButtons re-enables every collected control with a blanket write when its window
-            // closes (games/_arm-gate.ts), which clears page-owned disabled state -- so the floor is
-            // enforced here or not at all. Without it a 2-player party can be cut to 1, and to 0 on
-            // a second visit to setup, after which renderDraw divides by a roster of zero.
+            // The `disabled` attribute this button renders with is a UI hint, never the invariant, so
+            // the floor is enforced HERE. Without it a 2-player party can be cut to 1, and to 0 on a
+            // second visit to setup, after which renderDraw divides by a roster of zero.
             // Same condition as the `disabled` expression that renders this button; they move together.
+            // gh#188 narrowed the gate -- armAllButtons now preserves a control that was already
+            // disabled when it was called, so in a real browser the reflected attribute survives the
+            // window. This check stays: it is one line, it does not depend on attribute reflection,
+            // and it is the only leg that holds if the row is re-rendered mid-window.
             if (game.players.length <= 2) return;
             sounds.playClick(420);
             game.players.splice(Number(btn.dataset.index), 1);

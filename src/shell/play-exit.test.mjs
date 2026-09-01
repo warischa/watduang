@@ -47,9 +47,12 @@ const mountingRoutes = playRoutes.filter((id) =>
 );
 
 /** A route answers the request from wherever its controller lives -- a bridge on the nine mockup
- *  ports, `main.ts` on the two routes that own their setup screen outright. So the evidence is the
- *  route's whole shipped surface, not one filename: reading only roster-bridge.ts is the exact
- *  mistake gh#185 is. Tests are excluded (see above), and comments are stripped by codeOf. */
+ *  ports, `main.ts` on the two routes that own their setup screen outright. So the surface is the
+ *  route's whole shipped .ts, not one filename: reading only roster-bridge.ts is the exact mistake
+ *  gh#185 is. Tests are excluded (see above), and comments are stripped by codeOf.
+ *
+ *  Since gh#188 this is read for EXISTENCE only -- whether the code answers the request is settled by
+ *  running it, in src/play/setup-edit-request.test.mjs. Null means there is no controller at all. */
 const routeCode = (id) => {
   const dir = path.join(PLAY_DIR, id);
   if (!existsSync(dir)) return null;
@@ -171,7 +174,7 @@ test('the edit control re-enters the mockup setup through the shared bridge, nev
   assert.match(src, /run:\s*requestSetupEdit/);
 });
 
-test('every route that mounts the edit control also consumes the request it writes', () => {
+test('every route that mounts the edit control has a controller to answer it', () => {
   // Tied to the real set, not to a floor: a `>= 9` count passes while the two routes that leak are
   // outside the loop. If a play route stops mounting PlayExit, that shows up here as a mismatch
   // rather than as silently shrinking coverage.
@@ -180,13 +183,24 @@ test('every route that mounts the edit control also consumes the request it writ
     playRoutes.length,
     `${playRoutes.length} play routes but only ${mountingRoutes.length} mount PlayExit`,
   );
+  // WHAT THIS TEST NO LONGER DOES, gh#188. It used to assert `takeSetupEditRequest()` appears in each
+  // route's source. That was a source-shape match, and it is gone rather than kept alongside: it
+  // stayed green on a call that is dead code, on a call in a branch nothing reaches, and on a call
+  // whose result is discarded before the clear -- and being green is exactly what let timebomb ship
+  // writing the flag and never taking it. The consuming call is now proved by EXECUTION, on all
+  // eleven routes, in src/play/setup-edit-request.test.mjs: the flag is set, the route's controller
+  // is run, and the tab is read back. What stays here is the pair of facts that live in the pages
+  // tree, which that file does not own -- the mounting set equals the play-route set, and every
+  // mounted route has a controller at all.
   for (const id of mountingRoutes) {
-    const code = routeCode(id);
-    assert.ok(code, `${id} mounts PlayExit but has no src/play/${id}/ controller to consume the flag`);
-    // Read-and-clear, called from anywhere in the route. Writing the flag without ever taking it
-    // leaves it in sessionStorage for whatever game is opened next in the same tab.
-    assert.match(code, /takeSetupEditRequest\(\)/, `${id} ignores the edit request`);
+    assert.ok(routeCode(id), `${id} mounts PlayExit but has no src/play/${id}/ controller to consume the flag`);
   }
+  // The handoff is named, so deleting the file that took over reds HERE rather than silently
+  // dropping the invariant on the floor.
+  assert.ok(
+    existsSync(path.join(PLAY_DIR, 'setup-edit-request.test.mjs')),
+    'the round trip that replaced the source match here is gone -- nothing executes the flag consumption now',
+  );
 });
 
 test('every roster bridge persists what its setup finishes with, and does not start the match while editing', () => {

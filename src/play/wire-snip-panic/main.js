@@ -633,6 +633,15 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
     // than a named one, so a modal reachable from more than one screen (#modal-rules opens from both
     // #btn-rules and the menu) is covered from all of them. Dismissals that also CHANGE screen keep
     // their own showScreen() call, which arms the screen it switches to.
+    //
+    // gh#188 box 13/15 -- no exception list is passed, and it is not a blanket re-enable either. The
+    // gate preserves any control that was already disabled when it was called, so arming the whole
+    // live screen no longer clears #btn-trigger-scan's mid-sequence disable (set below in
+    // triggerScanSequence). Before that fix the Escape-then-Enter path hit exactly this: Escape here
+    // re-enabled the scan button mid-scan. The ACTION leak was already closed by state ordering --
+    // triggerScanSequence sets game.state before it disables, so its own TURN_WAIT guard rejects the
+    // re-entry -- but the control still LOOKED live to the player and to a screen reader. Both legs
+    // are now closed, and both are pinned in arm-reveal-paths.test.mjs.
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
       const screen = document.querySelector('.screen.active');
@@ -893,6 +902,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       soundSynth.playClick(620);
       triggerHaptics('spark');
 
+      // Order is load-bearing (gh#188 box 15): the state write comes FIRST, so the guard at the top
+      // of this function rejects a re-entry even in the window where the button reads enabled. Swap
+      // these two lines and Escape-then-Enter on #modal-rules starts a second scan.
       game.state = GameState.SCANNING_HINTS;
       document.getElementById('btn-trigger-scan').disabled = true;
       document.getElementById('lcd-main-status').textContent = game.isSpeedUp ? '⚡ กำลังสแกนความเร็วสูง...' : 'จำลำดับสายไฟ!';

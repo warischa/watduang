@@ -322,17 +322,35 @@ function selftest() {
         ].join('\n'),
     );
 
+    // A comment opener sitting inside a REGEX literal opens nothing either — same divergence shape
+    // as the string-literal case above, but the stripper's `//`-split truncation path and its
+    // comment-opener-at-line-start path are both driven by different literal shapes than a quoted
+    // string, so this is a separate calibration input, not a restatement of the one above.
+    fs.writeFileSync(
+      path.join(dir, 'regex-literal-slashstar.mjs'),
+      rootDecl +
+        [
+          // A `/` does not need escaping inside a regex character class, so `[/*]` puts a raw,
+          // unescaped '/' immediately next to a raw '*' — a genuine slash-star, not an escaped
+          // one (`\/\*` never produces adjacent bytes, since a backslash sits between them).
+          'const OPENER_IN_A_REGEX = /[/*]/;',
+          ...walkerBody,
+          exclusionLine,
+          'const CLOSER_IN_A_REGEX = /[*/]/;',
+        ].join('\n'),
+    );
+
     const good = scan(dir);
-    assert.equal(good.files.length, 6, 'must examine all 6 fixture files');
+    assert.equal(good.files.length, 7, 'must examine all 7 fixture files');
     assert.deepEqual(
       good.walkerFiles.sort(),
-      ['bad-root-walk.mjs', 'glob-comment-no-exclusion.mjs', 'glob-comment-walk.mjs', 'good-root-walk.mjs', 'string-literal-slashstar.mjs'],
-      'exactly the five root-rooted walkers must be found, not the subdir walker',
+      ['bad-root-walk.mjs', 'glob-comment-no-exclusion.mjs', 'glob-comment-walk.mjs', 'good-root-walk.mjs', 'regex-literal-slashstar.mjs', 'string-literal-slashstar.mjs'],
+      'exactly the six root-rooted walkers must be found, not the subdir walker',
     );
     assert.deepEqual(
       good.violations.map((v) => v.file),
       ['bad-root-walk.mjs', 'glob-comment-no-exclusion.mjs'],
-      'exactly the two files with no exclusion may violate — the glob-comment and string-literal files carry a live exclusion and must be SEEN to',
+      'exactly the two files with no exclusion may violate — the glob-comment, string-literal, and regex-literal files carry a live exclusion and must be SEEN to',
     );
     console.log('PASS calibration: subdir walker never flagged, unexcluded repo-root walker reds and is named, excluded repo-root walker greens');
     console.log('PASS calibration (gh#172): a live exclusion below a glob comment is seen; the same file without it still reds; a slash-star in a string opens no comment');
@@ -344,7 +362,7 @@ function selftest() {
     assert.equal(afterDelete.violations.length, 0, 'deleting the offending files must clear all violations');
     assert.deepEqual(
       afterDelete.walkerFiles,
-      ['glob-comment-walk.mjs', 'good-root-walk.mjs', 'string-literal-slashstar.mjs'],
+      ['glob-comment-walk.mjs', 'good-root-walk.mjs', 'regex-literal-slashstar.mjs', 'string-literal-slashstar.mjs'],
       'the excluded repo-root walkers are still counted, just not violations',
     );
     console.log('PASS calibration: deleting the offending file returns the gate to green');
