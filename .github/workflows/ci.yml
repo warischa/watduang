@@ -362,9 +362,33 @@ jobs:
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # PROBE_OUT_DIR is set here only so the upload step below has a path it can name. Left to its
+      # default the script mktemp's a directory whose name nothing outside the script knows, and it
+      # sits outside the workspace on purpose: it fills with Chrome user-data dirs and screenshots,
+      # and a probe run must not leave a byte in the tree that the Build step's dist/ came from.
       - name: Browser probes against the deployed artifact (gh#122)
         if: steps.probe-scope.outputs.run == 'true'
+        env:
+          PROBE_OUT_DIR: ${{ runner.temp }}/ci-probes
         run: npm run ci-probes
+
+      # Every measurement the probes make lives in that directory, and until now only `tail -n 3` of
+      # each leg's log reached this workflow's log -- which is why a red on run 33491962091 (attempt 1
+      # red, attempt 2 green, same SHA and same runner image) could not be attributed to anything.
+      # The per-contact timings the probes now record are only worth recording if they survive the run.
+      # The Chrome profiles are excluded: tens of MB, and they measure nothing.
+      # failure() covers a red in any earlier step too -- harmless, the path is then simply absent, and
+      # scoping it to this step's own outcome would lose the case where a later step's red is explained
+      # by what the probes saw.
+      - name: Keep the probe output when anything fails
+        if: failure() && steps.probe-scope.outputs.run == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-probe-output-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/ci-probes
+            !${{ runner.temp }}/ci-probes/prof-*
+          if-no-files-found: warn
 
       # Deploy authenticates with Entra ID workload identity federation (OIDC) — this repo stores
       # no deployment token. The federated credential is pinned to the subject

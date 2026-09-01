@@ -566,32 +566,6 @@
       color: var(--electric-cyan);
     }
 
-    .odds-pill {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid var(--success);
-      color: var(--success);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.3s ease;
-    }
-    .odds-pill.speed-up {
-      background: rgba(239, 68, 68, 0.25);
-      border-color: var(--accent);
-      color: var(--accent);
-      animation: heartbeatPill 0.75s infinite;
-    }
-    .odds-pill.warning {
-      background: rgba(245, 158, 11, 0.18);
-      border-color: var(--warning);
-      color: var(--warning);
-    }
-
     @keyframes heartbeatPill {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.08); box-shadow: 0 0 10px var(--accent-glow); }

@@ -782,10 +782,6 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         document.getElementById('handoffMin').textContent = this.game.min;
         document.getElementById('handoffMax').textContent = this.game.max;
 
-        const odds = this.game.calculateOdds();
-        const badge = document.getElementById('handoffOddsBadge');
-        badge.textContent = `🎯 โอกาสโดน: ${odds.fraction} (${odds.percent})`;
-
         this.renderPlayerStrip('handoffPlayerStrip');
         this.announce(`เริ่มตาใหม่ ถึงตาของ ${player.name} ส่งเครื่องให้ผู้เล่นคนนี้`);
       }
@@ -822,12 +818,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         bar.style.left = `${leftPercent}%`;
         bar.style.width = `${Math.max(2, widthPercent)}%`;
 
-        // Tension Odds badge
+        // Odds are no longer shown on the play screen (owner ruling 2026-09-01: the roster strip
+        // stays, the odds pill goes). calculateOdds still drives the heartbeat tension audio.
         const odds = this.game.calculateOdds();
-        const oddsBadge = document.getElementById('turnOddsBadge');
-        oddsBadge.className = 'odds-badge ' + (odds.isCritical ? 'danger' : (odds.isWarning ? 'warning' : 'safe'));
-        oddsBadge.textContent = `${odds.fraction} (${odds.percent})`;
-
         if (odds.isCritical) this.sound.playHeartbeat(true);
         else if (odds.isWarning) this.sound.playHeartbeat(false);
 

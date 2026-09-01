@@ -12,7 +12,11 @@ const BASE = process.env.BASE ?? 'http://localhost:5051';
 // that reaches this list is a route that exists. Same dynamic-import idiom as landing-claims-check.mjs
 // (plain node strips the TypeScript). Set ROUTES_ONLY=a,b to narrow it while debugging one route.
 const { fileURLToPath } = await import('node:url');
-const { games } = await import(`${fileURLToPath(new URL('..', import.meta.url))}src/games/manifest.ts`);
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const { games } = await import(`${ROOT}src/games/manifest.ts`);
+// Imported, never retyped: the burst is red exactly when one inter-contact gap outlives the arm
+// window, so the failure message has to quote the SAME constant the gate consumes.
+const { ARM_DELAY_MS } = await import(`${ROOT}src/games/_arm-gate.ts`);
 const only = process.env.ROUTES_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
 const ROUTES = games
   .filter((g) => g.playRoute)
@@ -61,13 +65,35 @@ const shot = async (path) => { const s = await send('Page.captureScreenshot', { 
 
 // Page-side instrumentation: count contacts that reach the document while the X is disabled. If this
 // stays 0 during the burst, the guard rests on nothing and a "no exit" result would be vacuous.
+//
+// It also records WHEN each contact landed. The arm window restarts on every pointerdown and is only
+// scheduled once no pointer is down, so the one number that decides whether a burst red is a real
+// regression or a slow runner is the pointerup -> next pointerdown gap: five gaps nominally 80ms
+// apart, against ARM_DELAY_MS. Measured in-page, not from Node, because a Node clock reading also
+// carries two CDP round trips -- lag the guard never saw.
+// Written through sessionStorage on every contact, because the run that most needs these timings is
+// the run where the guard let a tap through: that navigates home mid-burst and takes the page's own
+// variables with it (the same wipe the contact counter suffers, see the verdict section). Same
+// origin, so the timings are still readable from the page it landed on.
+const CONTACT_KEY = 'playexit-probe-contacts';
 const INSTRUMENT = `
   window.__pd = { total: 0, onBtnWhileDisabled: 0 };
+  window.__pdlog = [];
+  sessionStorage.removeItem(${JSON.stringify(CONTACT_KEY)});
   const b = document.getElementById('play-exit');
+  // timeOrigin-absolute, so a gap that straddles the navigation is still a real interval.
+  const mark = (ev, kind) => {
+    window.__pdlog.push({ kind, t: Math.round((performance.timeOrigin + performance.now()) * 10) / 10,
+                          pointerType: ev.pointerType || null,
+                          disabled: document.getElementById('play-exit')?.disabled ?? null });
+    sessionStorage.setItem(${JSON.stringify(CONTACT_KEY)}, JSON.stringify(window.__pdlog));
+  };
   document.addEventListener('pointerdown', (ev) => {
     window.__pd.total++;
+    mark(ev, 'down');
     if (b && ev.target instanceof Node && b.contains(ev.target) && b.disabled) window.__pd.onBtnWhileDisabled++;
   }, true);
+  document.addEventListener('pointerup', (ev) => mark(ev, 'up'), true);
   return true;`;
 
 const XSTATE = `
@@ -153,6 +179,20 @@ for (const g of ROUTES) {
     disabledAfterBurst: (await evaluate("return document.getElementById('play-exit')?.disabled ?? null;")).value,
     contacts: (await evaluate('return window.__pd;')).value,
   };
+  // Six contacts (the transition mouse press, then the five touches) -> five pointerup->pointerdown
+  // gaps. The first one is the transition tap's own release, which is what starts the arm window.
+  const contactLog = (await evaluate(`return JSON.parse(sessionStorage.getItem(${JSON.stringify(CONTACT_KEY)}) || '[]');`)).value ?? [];
+  const gaps = [];
+  let lastUp = null;
+  for (const e of contactLog) {
+    if (e.kind === 'down' && lastUp !== null) gaps.push(Math.round((e.t - lastUp) * 10) / 10);
+    if (e.kind === 'up') lastUp = e.t;
+  }
+  res.burst.armDelayMs = ARM_DELAY_MS;
+  res.burst.timeline = contactLog;
+  res.burst.gaps = gaps;
+  res.burst.maxGap = gaps.length ? Math.max(...gaps) : null;
+  res.burst.gapsOverArmDelay = gaps.filter((g) => g > ARM_DELAY_MS).length;
   await shot(`${SHOT}/playexit-${TAG}-${g}-burst.png`);
 
   // --- M3: after the arm delay, one deliberate tap exits (also the positive control for M2:
@@ -178,6 +218,13 @@ console.log(JSON.stringify(out, null, 2));
 // was never disarmed at all (measured: short-stick's trigger is found or missed depending on machine
 // load, so gating its burst unconditionally would pin a flaky red). All-skipped is a RED -- so is an
 // empty route set, which the throw at the top of this file already refuses.
+// Carried into every burst-side message on purpose: only `tail -n 3` of this file's output reaches the
+// CI log, so the number that decides the cause has to be IN the failure line. A gap above
+// ARM_DELAY_MS means the X had armed before that contact -- a slow runner, not a broken guard; every
+// gap under it and the guard itself is the suspect.
+const gapNote = (r) => r.burst?.maxGap == null
+  ? 'no contact timings captured, so this red names no cause'
+  : `largest pointerup->pointerdown gap ${r.burst.maxGap}ms vs ARM_DELAY_MS ${ARM_DELAY_MS} (${r.burst.gapsOverArmDelay} over it; gaps ${r.burst.gaps.join(', ')})`;
 const fails = [], skips = [];
 for (const [g, r] of Object.entries(out)) {
   if (!r.idle?.present) { fails.push(`${g}: no #play-exit on the play page at all`); continue; }
@@ -186,8 +233,8 @@ for (const [g, r] of Object.entries(out)) {
   // The harm first, liveness second: with the guard broken the burst navigates home, which also wipes
   // the in-page contact counter -- so a liveness-first order reports "measured nothing" for a run that
   // in fact measured the exact regression this leg exists to catch (observed, calibration run).
-  if (r.burst?.pathname === '/') fails.push(`${g}: the 5-tap burst continuing a transition tap LEFT THE ROUND (pathname ${r.burst.pathname})`);
-  else if (!(r.burst?.contacts?.onBtnWhileDisabled > 0)) fails.push(`${g}: the burst put ${r.burst?.contacts?.onBtnWhileDisabled ?? 'no'} contact(s) on a DISABLED X -- a no-exit result here rests on nothing`);
+  if (r.burst?.pathname === '/') fails.push(`${g}: the 5-tap burst continuing a transition tap LEFT THE ROUND (pathname ${r.burst.pathname}) -- ${gapNote(r)}`);
+  else if (!(r.burst?.contacts?.onBtnWhileDisabled > 0)) fails.push(`${g}: the burst put ${r.burst?.contacts?.onBtnWhileDisabled ?? 'no'} contact(s) on a DISABLED X -- a no-exit result here rests on nothing -- ${gapNote(r)}`);
   if (r.m3_pathname !== '/') fails.push(`${g}: M3 -- after the arm delay a deliberate tap no longer exits (pathname ${r.m3_pathname})`);
 }
 const checked = Object.keys(out).length;

@@ -761,17 +761,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       const targetCount = game.flashSequence.length;
       const currentStep = game.currentSequenceStep;
 
-      // Update Odds / Sequence Pill with Speed & Time Status
-      const oddsPill = document.getElementById('hud-odds-pill');
-      const oddsText = document.getElementById('hud-odds-text');
-      
-      if (game.isSpeedUp) {
-        oddsText.textContent = `⚡ เร่งความเร็ว! (${targetCount} เส้น • ${game.timeLimit.toFixed(1)}วิ)`;
-        oddsPill.className = 'odds-pill speed-up';
-      } else {
-        oddsText.textContent = `🎯 เป้าหมาย ${targetCount} เส้น (เวลา ${game.timeLimit.toFixed(1)}วิ)`;
-        oddsPill.className = 'odds-pill' + (targetCount >= 4 ? ' warning' : '');
-      }
+      // The odds pill is gone from the HUD (owner ruling 2026-09-01: roster strip stays, odds pill
+      // goes). Target count and time still reach the player via lcd-step-indicator and
+      // lcd-timer-badge below.
 
       // Update Header Text & Initial Timer Badge
       document.getElementById('hud-round-tag').textContent = `รอบที่ ${game.roundLevel}`;

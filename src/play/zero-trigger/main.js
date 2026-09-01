@@ -922,10 +922,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 
         document.getElementById('round-number-indicator').textContent = `รอบที่ ${this.state.roundNumber} (วงที่ ${this.state.cycleCount})`;
 
-        // Odds meter update
-        const hint = this.state.tier === 1 ? '(กะจังหวะง่าย 100ms)' : (this.state.tier === 2 ? '(เริ่มเร็ว 10ms)' : '(ความเร็วเสี้ยววิ 1ms!)');
-        document.getElementById('odds-percentage').textContent = `รอด 90% · โดน 10%`;
-        document.getElementById('tier-speed-hint').textContent = hint;
+        // The odds meter box is gone from the play screen (owner ruling 2026-09-01: roster strip
+        // stays, odds pill goes). It also carried the tier speed hint, which tier-badge-indicator
+        // above already states as its own Speed value.
 
         // Reset Action Button
         const btn = document.getElementById('btn-big-action');

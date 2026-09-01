@@ -77,8 +77,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
-      min-height: 100dvh;
+      /* gh#182: no viewport floor here on purpose. body already carries min-height:100dvh, and
+         body also has padding-bottom, so a second 100dvh floor on this wrapper made the document
+         taller than the screen by that padding on every screen -- the play screen scrolled with
+         nothing to see. The wrapper still fills the screen when its content does; when the content
+         is shorter, body's own floor keeps the background full-height. */
       transition: transform 0.05s ease-out;
     }
 
@@ -454,46 +457,6 @@
       border-radius: var(--radius-full);
       box-shadow: 0 0 12px var(--primary-glow);
       transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    /* Tension Odds Meter */
-    .odds-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border-radius: var(--radius-full);
-      font-size: 0.85rem;
-      font-weight: 700;
-      margin-top: 10px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      transition: all 0.3s ease;
-    }
-
-    .odds-badge.safe {
-      color: var(--success);
-      border-color: rgba(16, 185, 129, 0.35);
-      background: rgba(16, 185, 129, 0.1);
-    }
-
-    .odds-badge.warning {
-      color: var(--accent-amber);
-      border-color: rgba(245, 158, 11, 0.35);
-      background: rgba(245, 158, 11, 0.12);
-      animation: pulseWarning 1.8s infinite;
-    }
-
-    .odds-badge.danger {
-      color: var(--danger);
-      border-color: rgba(239, 68, 68, 0.45);
-      background: rgba(239, 68, 68, 0.16);
-      animation: pulseDanger 1s infinite;
-    }
-
-    @keyframes pulseWarning {
-      0%, 100% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
-      50% { box-shadow: 0 0 14px var(--accent-amber-glow); }
     }
 
     @keyframes pulseDanger {

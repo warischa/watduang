@@ -562,11 +562,8 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
         $('draw-player-avatar').textContent = AVATARS[(game.turn % game.players.length) % AVATARS.length];
         $('draw-round-step').textContent = `ดึงครั้งที่ ${game.drawIndex + 1} · เหลือ ${odds.remaining} ไม้`;
 
-        // Update Tension Pill
-        const pill = $('live-odds-pill');
-        $('live-odds-val').textContent = odds.text;
-        pill.className = 'tension-pill' + (odds.isCritical ? ' critical' : odds.isWarning ? ' warning' : '');
-
+        // The tension pill is gone from the draw board (owner ruling 2026-09-01: roster strip stays,
+        // odds pill goes). calculateOdds still feeds the remaining-sticks line and the heartbeat.
         if (odds.isCritical) {
           sounds.playHeartbeat();
         }

@@ -100,11 +100,7 @@
     animation: wspSoftShake 0.45s ease-out both;
   }
 
-  /* The two heartbeat pills: 8% scale becomes 2%, and each beat runs at roughly half the rate. */
-  .odds-pill.speed-up {
-    animation: wspSoftHeartbeat 1.6s infinite ease-in-out;
-  }
-
+  /* The heartbeat pill: 8% scale becomes 2%, and each beat runs at roughly half the rate. */
   .lcd-timer-badge.danger {
     animation: wspSoftHeartbeat 1.2s infinite ease-in-out;
   }

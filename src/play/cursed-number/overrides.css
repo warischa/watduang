@@ -145,9 +145,9 @@
 /* Reduced motion. The mockup ships no prefers-reduced-motion branch at all, so this block is this
    site's. REDUCE, NOT REMOVE (ADR-0046): every declaration below shortens a duration instead of
    deleting the effect, so each transition and each entrance animation still lands on its FINAL
-   state -- the screen still fades in to opacity 1, the odds badge still turns amber then red, the
-   pressed button still shows its pressed styling. What goes is the travel between the two states
-   and the attention loops (pulseWarning, pulseDanger, skullShake), which repeat forever and carry
+   state -- the screen still fades in to opacity 1, the pressed button still shows its pressed
+   styling. What goes is the travel between the two states
+   and the attention loops (pulseDanger, skullShake), which repeat forever and carry
    no information the colour and the text do not already carry. iteration-count 1 is what stops
    those; their 0%/100% frames equal the base style, so the element is left exactly as it renders
    unanimated. The canvas embers are a rAF loop no media query reaches -- main.js reads the same
