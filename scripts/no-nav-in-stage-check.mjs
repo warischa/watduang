@@ -352,7 +352,21 @@ function stripTypeSpace(text) {
  *  Not the JS walk: these files have no `<script>` and no `//` anywhere (measured), but a URL in an
  *  href-less attribute would give the JS walk a false comment opener that blanks the rest of the
  *  line — including a live anchor after it. A `<!--` with no closing `-->` matches nothing and so
- *  blanks nothing: fail-SAFE, the file scans whole. */
+ *  blanks nothing: fail-SAFE, the file scans whole.
+ *
+ *  ponytail: DISCLOSED CEILING, gh#186 / ADR-0056 — an unterminated opener is the safe direction, but
+ *  the set this regex enumerates is "text that is an HTML comment", owned by the HTML grammar and by
+ *  whoever writes the next markup file, not by this repo, so it does not converge. The open rung: a
+ *  literal `<!--` that is TEXT rather than an opener (inside an attribute value, or escaped prose)
+ *  pairs with the next real `-->`, and a live `<a href>` between them is blanked before the pattern
+ *  set runs — this gate then greens a play surface carrying exactly the anchor ADR-0014 forbids.
+ *  Bounded, not closed: the scanned markup is authored in this repo or written verbatim by
+ *  scripts/extract-mockup.mjs, so the rung is guarded at authorship per ADR-0026, and the escaping
+ *  sink for player names is a separate instrument (src/play/name-escaping.test.mjs) that this does not
+ *  substitute for. Trigger to close it: any scanned file ever containing a `<!--` that is not a
+ *  comment opener — then conserve on the hazard token this repo owns (`<a` with an `href`:
+ *  raw-present, stripped-absent) and abort before printing, the way accent-single-source-check's
+ *  conservationFailures does. */
 function stripHtmlComments(text) {
   return text.replace(/<!--[\s\S]*?-->/g, blank);
 }

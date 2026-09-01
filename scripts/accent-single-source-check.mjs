@@ -46,6 +46,14 @@
 // green unless it actually enumerated: >= 2 accent tokens, >= 1 value copy, >= 1 named pair. The counts
 // it prints are the lengths of the arrays it really walked.
 //
+// ANTI-VOID, SECOND DIRECTION (gh#186, ADR-0056). The counts above are honest about what the queries
+// found, and say nothing about whether the TEXT they ran on still contained the evidence. Comment
+// stripping is textual and fails open, so a canonical accent hex could vanish before any query saw it
+// and the gate would print its success line for a file it never audited — observed, both shapes. So
+// conservationFailures() runs first, over the raw text, and a lost hex ABORTS the run (exit 2) before
+// anything a reader could take as a verdict is printed. Not a banner note: a banner is what lets a
+// reader trust a green. Its header names the set it enumerates and why this repo owns that one.
+//
 // PONYTAIL — text scan, no CSS/TS parser (same bargain as the sibling gates). Hex literals are matched
 // as #[0-9a-fA-F]{3,8}; an accent expressed as rgb()/hsl() or split across template pieces would be
 // invisible to CLASS V. Every accent in this repo is a plain hex in both the canvas and the tokens file,
@@ -88,12 +96,62 @@ const OBJ_RE = /\{[^{}]*\}/g;
 // hexes in prose. Scanning prose made three comments look like three divergences on the first real run.
 // Blanked: /* … */, <!-- … -->, and `//` to end of line — the last only where `//` is not preceded by
 // `:`, so a `https://` URL does not blank the rest of its line. Offsets and line counts are preserved.
+//
+// THIS STRIPPER IS TEXTUAL AND IT FAILS OPEN, AND NO AMOUNT OF REGEX MAKES IT NOT (gh#186, ADR-0056).
+// It is trying to enumerate "text that is a JS/CSS/HTML comment". That set belongs to the language
+// grammars and to whoever writes the next file — not to this repo — so it cannot converge: a `/*` inside
+// a string literal (`'src/*'`, a glob, a regex source) pairs with the next real `*/` ANYWHERE LATER and
+// every live line between them is blanked. A canonical accent hex in that span stops existing, CLASS V
+// never sees the file, and the gate prints its success line. Both shapes were observed greening.
+// The answer is NOT another marker rule. It is the conservation check below, keyed on a set this repo
+// really does own.
 const blank = (m) => m.replace(/[^\n]/g, ' ');
 export const stripComments = (text) =>
   text
     .replace(/\/\*[\s\S]*?\*\//g, blank)
     .replace(/<!--[\s\S]*?-->/g, blank)
     .replace(/(^|[^:\w])\/\/[^\n]*/g, (m, pre) => pre + blank(m.slice(pre.length)));
+
+/**
+ * CONSERVATION — the gate asserts it actually audited the file, gh#186 / ADR-0056.
+ *
+ * THE SET IT ENUMERATES: the canonical `--accent-*` hex VALUES, parsed from src/styles/tokens.css on
+ * every run. That set is owned by this repository — one file, in the tree, that this gate already reads
+ * as its source of truth. It is not owned by a language grammar, so unlike "text that is a comment" it
+ * converges, and it is derived rather than listed, so a fourth accent is covered the moment it lands.
+ *
+ * THE RULE: a canonical hex present in the RAW text and absent after stripComments() is hazard evidence
+ * the gate silently lost. There is no exemption for "but it was a real comment" — a green printed for a
+ * file whose accent evidence vanished is exactly the verdict gh#186 exists to forbid, and a canonical
+ * hex sitting in prose is itself the value copy this gate wants moved to var(--accent-x). Fail-closed:
+ * the caller aborts non-zero BEFORE printing anything a reader could take as a verdict (ADR-0056's
+ * hard-require shape — an abort, never a banner note).
+ *
+ * Measured on the tree this landed against: 0 of 165 src files lose a canonical hex, so the rule costs
+ * nothing today and only ever fires on new text.
+ *
+ * @param {{rel: string, text: string}[]} files raw, UNSTRIPPED text
+ * @param {string[]} canonicalHexes lowercase `#rrggbb` values from the tokens block
+ * @returns {string[]} one message per file that lost evidence; empty means the audit is trustworthy
+ */
+export function conservationFailures(files, canonicalHexes) {
+  const out = [];
+  for (const { rel, text } of files) {
+    const raw = text.toLowerCase();
+    const stripped = stripComments(text).toLowerCase();
+    const lost = canonicalHexes.filter((h) => raw.includes(h) && !stripped.includes(h));
+    if (lost.length) {
+      out.push(
+        `${rel}: ${lost.join(', ')} is present in this file and gone after comment-stripping, so every ` +
+          `query below ran on text this gate cannot prove it read. Either the hex sits in prose (move it ` +
+          `to var(--accent-x) — a hex in a comment is a value copy that no gate can single-source), or a ` +
+          `\`/*\`, \`<!--\` or \`//\` inside a string literal is blanking live lines. This gate will not ` +
+          `print a verdict for a file whose accent evidence it lost.`,
+      );
+    }
+  }
+  return out;
+}
 
 /** tokens.css text -> { accents: Map<name,hex>, byHex: Map<hex, name[]> } (names carry the `--`). */
 export function parseTokens(css) {
@@ -279,6 +337,32 @@ function selftest() {
   assert.match(noTokens.errors.join('\n'), /fewer than 2 --accent-\* tokens/, 'a tokens block with no accents must refuse rather than pass on an empty canonical set');
   console.log('PASS anti-void: empty CLASS V / CLASS N queries and an accent-less tokens block all refuse instead of printing a green');
 
+  // --- CONSERVATION (gh#186). Both directions, because a guard that has never been observed failing is
+  // measuring nothing. The hazard is a canonical hex that stripComments() blanks: audit() then walks a
+  // file with no accent evidence in it, finds nothing to complain about, and the run greens. Pinned here
+  // as the pre-fix behaviour it replaces, so a later "simplification" of the stripper cannot restore it. ---
+  const canonical = [...new Set(parsed.accents.values())];
+  const inBlockComment = { rel: 'hazard.css', text: '.x{\n/* the hero fill is\n   #ffd27f today */\n  color: red;\n}\n' };
+  // The stripper's OTHER direction: `/*` inside a string literal pairs with the next real `*/` further
+  // down the file, so the live line between them — hex and all — is blanked. Nothing in the text is a
+  // comment; the regex only thinks so.
+  const inStringGlob = { rel: 'hazard.ts', text: "const glob = 'src/*';\nexport const HERO = '#ffd27f';\n/* note */\n" };
+  for (const hz of [inBlockComment, inStringGlob]) {
+    assert.ok(hz.text.toLowerCase().includes('#ffd27f'), `${hz.rel}: the fixture must really carry the canonical hex, or this pin proves nothing`);
+    assert.ok(!stripComments(hz.text).toLowerCase().includes('#ffd27f'), `${hz.rel}: positive control — stripComments() must really lose the hex here, else the pin below is unfailable by construction`);
+    assert.deepEqual(audit([palette, pills, hz], parsed, registry).errors, [], `${hz.rel}: pre-fix behaviour, pinned: audit() alone reports ZERO divergences on a file whose accent evidence it never saw — that green is the gh#186 defect`);
+    assert.equal(conservationFailures([hz], canonical).length, 1, `${hz.rel}: the conservation check must refuse the run — a hex present in raw and gone after stripping means the gate did not audit this file`);
+    assert.match(conservationFailures([hz], canonical)[0], /#ffd27f.*gone after comment-stripping/, 'the refusal must name the hex it lost, not just say something went wrong');
+  }
+  console.log('PASS conservation red, both shapes: a canonical hex lost to a cross-line /* */ AND to a string-borne `/*` each refuse the run, where audit() alone printed a green');
+
+  // The other direction — the check must not fire on ordinary text, or it is a gate nobody can keep green.
+  assert.deepEqual(conservationFailures([palette, pills, mentionOnly], canonical), [], 'a full value copy, registry-matching pills, and comments that mention --accent-* names but no canonical hex must all conserve');
+  const urlLine = { rel: 'url.css', text: '/* docs: https://example.test/x */\n.hero{color:#ffd27f;border-color:#f89880;outline-color:#7fd8e8}\n' };
+  assert.deepEqual(conservationFailures([urlLine], canonical), [], 'a `//` inside a https:// URL must not blank the hexes on the lines after it');
+  assert.match(stripComments(urlLine.text), /#ffd27f/, 'same input from the stripper side: the URL line is not treated as a line comment');
+  console.log('PASS conservation green: clean files, prose that mentions --accent-* names, and a https:// URL beside real hexes all conserve — the check is not simply always-red');
+
   assert.ok(!successLine(good.counts).includes('undefined,'), 'the success line must not interpolate an undefined count');
   assert.match(successLine(good.counts), /1 value-copy surface\(s\).*3 href\+accent pair\(s\)/, 'the success line must name the counts it actually walked');
   console.log('PASS success line names the counts it walked and distinguishes itself from the undefined-property gate');
@@ -306,6 +390,23 @@ function main() {
   const files = all
     .filter((f) => !isVerbatimLift(f))
     .map((f) => ({ rel: path.relative(repoRoot, f).split(path.sep).join('/'), text: fs.readFileSync(f, 'utf8') }));
+
+  // ABORT BEFORE ANY VERDICT. conservationFailures() answers "did this gate actually read these files",
+  // which is a different question from "are they clean" — so it exits on its own code and never reaches
+  // the divergence report below. See the function's header for the set it enumerates and who owns it.
+  const lostEvidence = conservationFailures(files, [...new Set(parsed.accents.values())]);
+  if (lostEvidence.length) {
+    for (const e of lostEvidence) console.error(`::error::${e}`);
+    console.error(
+      `\n${lostEvidence.length} file(s) lost accent evidence to comment-stripping. This gate did NOT audit them ` +
+        'and is refusing to print a pass or a fail for the run (gh#186, docs/adr/0056). Fix the FILE — move the ' +
+        'canonical hex out of the comment, or out of the string that pairs with a later comment closer. Do NOT ' +
+        '"fix" stripComments() to be smarter: ADR-0056 rejected bounding a set the language grammar owns, and ' +
+        "this file's own selftest pins the stripper losing the hex as its positive control, so a parser-backed " +
+        'rewrite would red the pin that proves this abort can fire.',
+    );
+    process.exit(2);
+  }
 
   const { errors, counts } = audit(files, parsed, registry);
   if (errors.length) {

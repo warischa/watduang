@@ -74,6 +74,14 @@ export function parseRules(cssWithComments) {
   // comments that both spell "height:" (a comment before a declaration otherwise swallows it, and
   // the fixed-height ancestor exemption then never fires) and name "min-height" while explaining why
   // it is not used (which would red a correct page).
+  // ponytail: DISCLOSED CEILING, gh#186 / ADR-0056 — the set enumerated is "text that is a CSS
+  // comment", owned by the CSS grammar and by whoever writes the next style block, not by this repo,
+  // so it does not converge. A `/*` inside a string value pairs with the next real `*/` and every
+  // declaration between them stops existing: the fixed-height ancestor exemption then never fires and
+  // this gate reports a clean live region it never read. Trigger to close it: a `/*` ever appearing
+  // inside a CSS string in a scanned style block — then conserve on the declaration names this gate
+  // actually keys on (`height`, `min-height`: raw-present, stripped-absent) and abort before printing,
+  // the way accent-single-source-check's conservationFailures does.
   const css = cssWithComments.replace(/\/\*[\s\S]*?\*\//g, ' ');
   const rules = [];
   let buf = '';

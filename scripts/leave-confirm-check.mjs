@@ -63,7 +63,18 @@ function listAstroFiles(root = path.join(repoRoot, 'src')) {
 // temp fixture, exactly the way main() feeds it text read from the two real files.
 // ---------------------------------------------------------------------------
 function parseCssRules(text) {
-  const clean = text.replace(/\/\*[\s\S]*?\*\//g, ''); // strip comments first — this file's own header talks about display/dvh in prose
+  // ponytail: DISCLOSED CEILING, gh#186 / ADR-0056 — strip comments first, because this file's own
+  // header talks about display/dvh in prose. The set enumerated is "text that is a CSS comment", owned
+  // by the CSS grammar, not by this repo, so it does not converge: a `/*` inside a string value
+  // (content: "/*", a url() with one in it) pairs with the next real `*/` and every declaration
+  // between them stops existing, so the confirm-overlay rules go unchecked and the gate greens.
+  // Deletes rather than blanks, so offsets shift too — acceptable only because parseCssRules reports
+  // selectors, never line numbers. Bounded, not closed: the input is the two authored files main()
+  // names, both agent-authored, guarded at authorship per ADR-0026. Trigger to close it: this parser
+  // ever fed a file this repo does not author, or a `/*` appearing inside a CSS string here — then
+  // conserve on the selector names the checks require (raw-present, stripped-absent) and abort before
+  // printing, the way accent-single-source-check's conservationFailures does.
+  const clean = text.replace(/\/\*[\s\S]*?\*\//g, '');
   const rules = [];
   const re = /([^{}]+)\{([^{}]*)\}/g;
   let m;

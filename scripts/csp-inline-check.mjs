@@ -165,7 +165,20 @@ const blank = (m) => m.replace(/[^\n]/g, ' ');
  *    `--!?>`  — `--!>` is a real closer (comment end bang state), not just `-->`.
  *  Both abrupt forms END the comment sooner than a naive lazy match does, so the fix can only ever
  *  expose MORE markup to the checks, never less — it cannot turn a real comment into a false
- *  positive. No quote-state tracking: ADR-0019 records that as rejected, and it is not needed here. */
+ *  positive. No quote-state tracking: ADR-0019 records that as rejected, and it is not needed here.
+ *
+ *  ponytail: DISCLOSED CEILING, gh#186 / ADR-0056 — the set this enumerates is "text that is an HTML
+ *  comment", owned by the HTML tokenizer spec and by whatever the build emits next, never by this
+ *  repo. It does not converge. The arms above are all in the fail-SAFE direction, but one rung is
+ *  open the other way: a literal `<!--` arriving as TEXT rather than as an opener pairs with the next
+ *  real closer, and any inline handler or inline <script> between them is blanked before
+ *  findInlineHazards ever sees it — a green over markup this gate did not read.
+ *  Left open deliberately: the input is generated dist/ markup, so a bare `<!--` in text would have to
+ *  survive the escape sink upstream first, and stripRawTextBodies already removes the common carrier
+ *  (a JSON-LD string). Trigger to close it: dist/ ever carrying a `<!--` that is not a comment opener
+ *  — then conserve on the hazard tokens this repo owns (the `on*` attribute names and `<script`
+ *  itself: raw-present, stripped-absent) and abort before printing, the way
+ *  accent-single-source-check's conservationFailures does. */
 export const stripHtmlComments = (html) => html.replace(/<!--(?:>|->|[\s\S]*?(?:--!?>|$))/g, blank);
 
 /** Blanks the BODY of raw-text and escapable-raw-text elements, preserving every offset and line

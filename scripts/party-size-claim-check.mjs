@@ -32,6 +32,22 @@ const CLAIM = /\d+\s*(?:-|–|—|ถึง|to)\s*\d+\s*(?:คน|players)/g;
 // agreed to. Spans newlines on purpose — a manifest's `description:` key and its value sit on
 // different lines.
 const EXEMPT_META = /\b(?:title|description)\s*[:=]\s*(['"`])(?:\\.|(?!\1)[\s\S])*?\1/g;
+// ponytail: DISCLOSED CEILING, gh#186 / ADR-0056 — these three enumerate "text that is a JS, CSS or
+// HTML comment". That set is owned by the language grammars and by whoever writes the next surface,
+// not by this repo, so it does not converge and the `[^:]` arm (which only keeps `https://` from
+// blanking its line) is not an approximation of it. Two rungs open: a `/*` inside a string literal
+// pairs with the next real `*/` and blanks every live line between them, and a `//` inside a quoted
+// value that is not preceded by `:` blanks the rest of its line. A CLAIM in that span stops existing
+// and this gate greens a surface it did not read — the direction that matters, since the whole point
+// is catching a player-count claim made outside the party category.
+// Trigger to close it: conserve on the hazard this repo owns — run CLAIM over the RAW text as well,
+// and if a match is present raw and absent after blanking, abort before printing rather than pass,
+// the way accent-single-source-check's conservationFailures does. NOT free, and that is why it is not
+// done here: measured on the tree this was written against, a raw-vs-blanked CLAIM diff over the 81
+// scanned surfaces found 26 raw matches and exactly 1 lost to comment blanking — and that one is a
+// genuine HTML comment in src/pages/index.astro citing the gh#89 / ADR-0040 ruling by quoting the
+// claim it forbids. So a conservation abort here would need a use-vs-mention exemption first, which
+// is a second unowned set. The accent gate has no such case, which is why it could take the abort.
 const COMMENTS = [/\/\*[\s\S]*?\*\//g, /(^|[^:])\/\/[^\n]*/g, /<!--[\s\S]*?-->/g];
 
 /** Replace every match with same-shape blanks, so reported line numbers stay true to the file. */

@@ -136,6 +136,19 @@ const blank = (m) => m.replace(/[^\n]/g, ' ');
 
 // HTML comments blanked (offsets and line numbers preserved) — ADR-0019 rule 2, negative-presence
 // direction: a comment that merely mentions var(--x) must trip nothing.
+//
+// ponytail: DISCLOSED CEILING, gh#186 / ADR-0056 — this regex enumerates "text that is an HTML
+// comment". That set is owned by the HTML tokenizer spec and by whatever the Astro build emits next,
+// not by this repo, so it cannot converge and more marker rules would not make it. The abrupt-close
+// arms (`>`, `->`, `--!>`) only ever END a comment sooner, which is the fail-SAFE direction; the
+// open rung is the other one — a literal `<!--` reaching the output as TEXT (inside an attribute
+// value, or emitted by a page) pairs with the next real `-->` and every `var(--x)` between them
+// stops existing for this gate, which then greens a page it never read.
+// Not closed here, and the reason is that the fix has a cheaper home: this gate reads GENERATED
+// markup out of dist/, so the escape sink upstream is what decides whether a bare `<!--` can ever be
+// text. Trigger to close it: dist/ ever carrying a `<!--` that is not a comment opener — then key a
+// conservation check on the property names src/styles/tokens.css defines (a set this repo owns) and
+// abort before printing, the way accent-single-source-check's conservationFailures does.
 const COMMENT_RE = /<!--(?:>|->|[\s\S]*?(?:--!?>|$))/g;
 
 // Raw-text bodies that are NOT CSS blanked: inside <script> (a JSON-LD string can carry `var(--x)` as
