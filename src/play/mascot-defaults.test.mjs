@@ -16,7 +16,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { MAX_PLAYERS } from '../games/cursed-number.ts';
 import { FakeElement, makeDocument } from '../games/_fake-dom.mjs';
 import { MASCOTS, applyMascotDefaults, mascotNames, resetCastNames } from './_mascots.ts';
@@ -292,4 +292,40 @@ test('reset keeps the player count and overwrites the names a player typed', () 
   // A cast of objects: only the count is read, which is why nothing typed can survive.
   assert.deepEqual(resetCastNames([{ name: 'ป๋อง' }, { name: 'ตูน' }]), ['แมวส้ม', 'ชิบะ']);
   assert.deepEqual(resetCastNames([]), []);
+});
+
+// The gap the tests above and every per-route reset-names.test.mjs shared: they read main.js, and a
+// numbered default shipped as STATIC TEXT in markup.html is never scanned by any of them. Seven of
+// them sat in three routes' markup and every name test was green -- the scripts paint over the nodes
+// before their screen is shown, so the strings were invisible to a player AND to the suite, which is
+// the worst pair: nothing to see and nothing to fail.
+//
+// The set is derived, never listed: every play route the manifest ships, so the next port is covered
+// the day its manifest line lands. The manifest owns the set; a route with no markup.html is a red
+// that names it rather than a silent skip.
+//
+// Ceiling, stated because it is a text scan: it reads the file as bytes, so a numbered default inside
+// an HTML comment counts too, and a default assembled at runtime is main.js's business (each route's
+// own reset-names.test.mjs pins that half). One occurrence is enough to fail, and the message names
+// the route and the line.
+test('no play route ships a numbered player default in its markup', async () => {
+  const repoRoot = path.join(here, '..', '..');
+  const { games } = await import(pathToFileURL(path.join(repoRoot, 'src/games/manifest.ts')).href);
+  const routes = games.filter((g) => g.playRoute).map((g) => g.id).sort();
+  assert.ok(routes.length > 0,
+    'no play routes derived from src/games/manifest.ts -- refusing to report a vacuous pass on an empty work set');
+
+  // Same shape as NUMBERED above, unanchored: in markup the default sits inside a text node next to
+  // other copy ("ตาของผู้เล่น 1", "ผู้เล่น 1 โดนเลือก!"), so an anchored match would miss every one.
+  const numbered = /ผู้เล่น\s*\d/;
+  const hits = [];
+  for (const id of routes) {
+    const file = path.join(here, id, 'markup.html');
+    assert.ok(fs.existsSync(file), `no src/play/${id}/markup.html -- the manifest ships a play route with no markup here`);
+    fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+      if (numbered.test(line)) hits.push(`${id}/markup.html:${i + 1}: ${line.trim()}`);
+    });
+  }
+  assert.deepEqual(hits, [], `numbered player default(s) shipped in markup:\n  ${hits.join('\n  ')}`);
+  console.log(`markup numbered-default scan: ${routes.length} play route(s) derived from the manifest`);
 });

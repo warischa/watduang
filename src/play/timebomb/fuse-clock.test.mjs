@@ -126,6 +126,15 @@ test('gh#151: the canvas renderer draws nothing proportional to the time left', 
   );
 });
 
+// What the gh#151 assertions in this file do NOT cover, said here so nobody reads them as proving the
+// fuse is silent: AUDIO. tick() in src/shell/audio.ts scales both its frequency and its duration by
+// the same urgency, so one tick's pitch is an instantaneous readout of the fraction elapsed. No
+// assertion above or below touches it, and none is coming.
+// Owner ruling 2026-09-01 on gh#151 box 2: the tick sound is NOT a channel that leaks the remaining
+// time — it IS the game, the tension mechanic the round's own copy advertises. Box 2 is CLOSED with
+// this recorded as an accepted ceiling. Left as a comment rather than a test on purpose: there is no
+// invariant to pin here, only a scope boundary a future reader would otherwise have to rediscover.
+
 // gh#151, the ANNOUNCEMENT half of "nothing reveals the remaining time". The engine's own snapshot
 // test serialises everything inside #tb-stage, so every aria-* attribute the ENGINE writes is
 // already covered. This route adds one channel that snapshot cannot see, because it lives outside
