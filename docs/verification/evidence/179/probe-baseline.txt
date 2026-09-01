@@ -1,0 +1,34 @@
+OK 33 route/viewport row(s) left the fresh screen; 123 distinct play screen(s) measured across 11 route(s) x 3 viewport(s). 9 row(s) asserted to fit within 8px; the other 24 are REPORTED, not gated — gh#180/#181/#182/#183 own those.
+  cannon-flag        320x568   scrolls YES     9px  clipped     2px  width-fill   100%  (2 screen(s), worst at press 1, 23 ink)
+  cannon-flag        390x844   scrolls YES     9px  clipped     2px  width-fill   100%  (2 screen(s), worst at press 1, 23 ink)
+  cannon-flag        1440x900  scrolls YES     9px  clipped     2px  width-fill  62.6%  (2 screen(s), worst at press 1, 23 ink)
+  cursed-number      320x568   scrolls YES   699px  clipped     0px  width-fill  75.6%  (7 screen(s), worst at press 1, 33 ink)
+  cursed-number      390x844   scrolls YES   317px  clipped     0px  width-fill  77.9%  (7 screen(s), worst at press 1, 33 ink)
+  cursed-number      1440x900  scrolls YES   157px  clipped     0px  width-fill  31.5%  (7 screen(s), worst at press 1, 33 ink)
+  dice-loser         320x568   scrolls no      0px  clipped     0px  width-fill    95%  (2 screen(s), worst at press 3, 7 ink) [pinned fits]
+  dice-loser         390x844   scrolls no      0px  clipped     0px  width-fill  95.9%  (2 screen(s), worst at press 3, 7 ink) [pinned fits]
+  dice-loser         1440x900  scrolls no      0px  clipped     0px  width-fill  64.6%  (2 screen(s), worst at press 3, 7 ink) [pinned fits]
+  freeze-tap         320x568   scrolls YES   187px  clipped     0px  width-fill   100%  (3 screen(s), worst at press 1, 11 ink)
+  freeze-tap         390x844   scrolls no      0px  clipped     0px  width-fill   100%  (3 screen(s), worst at press 0, 9 ink) [pinned fits]
+  freeze-tap         1440x900  scrolls no      0px  clipped     0px  width-fill   100%  (3 screen(s), worst at press 0, 9 ink) [pinned fits]
+  how-close-is-near  320x568   scrolls YES   194px  clipped     0px  width-fill  89.1%  (6 screen(s), worst at press 4, 19 ink)
+  how-close-is-near  390x844   scrolls YES     6px  clipped     0px  width-fill  86.4%  (6 screen(s), worst at press 6, 18 ink)
+  how-close-is-near  1440x900  scrolls YES     6px  clipped     0px  width-fill  29.7%  (6 screen(s), worst at press 6, 18 ink)
+  pinocchio-luck     320x568   scrolls YES   107px  clipped     4px  width-fill  95.6%  (3 screen(s), worst at press 1, 14 ink)
+  pinocchio-luck     390x844   scrolls YES    22px  clipped     4px  width-fill  96.4%  (3 screen(s), worst at press 0, 7 ink)
+  pinocchio-luck     1440x900  scrolls YES    22px  clipped     4px  width-fill  54.2%  (3 screen(s), worst at press 0, 7 ink)
+  power-meter        320x568   scrolls YES    81px  clipped    76px  width-fill   100%  (6 screen(s), worst at press 0, 8 ink)
+  power-meter        390x844   scrolls no      0px  clipped    76px  width-fill   100%  (6 screen(s), worst at press 0, 8 ink)
+  power-meter        1440x900  scrolls no      0px  clipped    76px  width-fill   100%  (6 screen(s), worst at press 0, 8 ink)
+  short-stick        320x568   scrolls YES   198px  clipped     0px  width-fill  89.6%  (1 screen(s), worst at press 0, 18 ink)
+  short-stick        390x844   scrolls YES    73px  clipped     0px  width-fill  90.8%  (1 screen(s), worst at press 0, 18 ink)
+  short-stick        1440x900  scrolls YES    81px  clipped     0px  width-fill  50.8%  (1 screen(s), worst at press 0, 18 ink)
+  timebomb           320x568   scrolls YES   119px  clipped     0px  width-fill  90.3%  (6 screen(s), worst at press 2, 8 ink)
+  timebomb           390x844   scrolls YES     4px  clipped     0px  width-fill  92.1%  (6 screen(s), worst at press 2, 8 ink)
+  timebomb           1440x900  scrolls YES     4px  clipped     0px  width-fill  97.8%  (6 screen(s), worst at press 2, 8 ink)
+  wire-snip-panic    320x568   scrolls YES   138px  clipped     0px  width-fill   100%  (2 screen(s), worst at press 0, 27 ink)
+  wire-snip-panic    390x844   scrolls no      0px  clipped     0px  width-fill   100%  (2 screen(s), worst at press 0, 27 ink) [pinned fits]
+  wire-snip-panic    1440x900  scrolls no      0px  clipped     0px  width-fill  36.2%  (2 screen(s), worst at press 0, 27 ink) [pinned fits]
+  zero-trigger       320x568   scrolls YES   159px  clipped     0px  width-fill  88.9%  (3 screen(s), worst at press 0, 20 ink)
+  zero-trigger       390x844   scrolls no      0px  clipped     0px  width-fill  82.6%  (3 screen(s), worst at press 0, 20 ink) [pinned fits]
+  zero-trigger       1440x900  scrolls no      0px  clipped     0px  width-fill  30.4%  (3 screen(s), worst at press 0, 20 ink) [pinned fits]
