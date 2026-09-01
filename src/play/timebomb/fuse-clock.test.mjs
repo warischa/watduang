@@ -125,3 +125,69 @@ test('gh#151: the canvas renderer draws nothing proportional to the time left', 
     'the renderer reads a width back off the fuse element — that value is the remaining time',
   );
 });
+
+// gh#151, the ANNOUNCEMENT half of "nothing reveals the remaining time". The engine's own snapshot
+// test serialises everything inside #tb-stage, so every aria-* attribute the ENGINE writes is
+// already covered. This route adds one channel that snapshot cannot see, because it lives outside
+// the stage: the #tb-live status region in markup.html, written only by announceFromStage(). A
+// screen-reader user must get the same information as everyone else — "the fuse is lit" — and no
+// number, ratio or countdown on top of it.
+//
+// ponytail: matched on source text, like every other route test in this repo. Ceiling: it proves the
+// ticking-phase write CANNOT carry a value (it is a literal with no interpolation and no read off a
+// live element), not that a browser announces it politely. The full-round leg of
+// canvas-pixels-probe.mjs is what reads the region back out of a real screen.
+test('gh#151: the screen reader is told the fuse is lit, never how much is left', () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const markup = fs.readFileSync(path.join(here, 'markup.html'), 'utf8');
+  const main = fs.readFileSync(path.join(here, 'main.ts'), 'utf8');
+
+  // The region ships EMPTY. A fuse length baked into the markup would be announced at load.
+  assert.match(
+    markup,
+    /<p id="tb-live"[^>]*aria-live="polite"[^>]*><\/p>/,
+    'the #tb-live status region is gone, or no longer ships empty',
+  );
+  // The other two static screen-reader channels on this route's chrome. `title` is included because
+  // it is announced and is invisible in a DOM snapshot of text; a digit in either would be a number
+  // only assistive tech hears.
+  assert.doesNotMatch(markup, /\stitle=/, 'a title attribute appeared — that is an unaudited announced channel');
+  for (const [, label] of markup.matchAll(/aria-label="([^"]*)"/g)) {
+    assert.doesNotMatch(label, /\d/, `aria-label "${label}" carries a number`);
+  }
+
+  // Whole-line comments go first: the prose above announceFromStage names "fuse" and this file's own
+  // rule, and a checker cannot tell use from mention.
+  const code = main
+    .split('\n')
+    .filter((line) => !/^\s*(\/\/|\/\*|\*)/.test(line))
+    .join('\n');
+  const body = code.slice(code.indexOf('function announceFromStage'));
+  const fn = body.slice(0, body.indexOf('\n}'));
+  assert.ok(fn.includes('liveEl.textContent'), 'announceFromStage no longer writes the live region');
+
+  // It may ask WHETHER the ticking screen is up. It may not measure anything on it: a width, a
+  // computed style or a box is the fuse bar's value, and the fuse bar is the shimmer only by
+  // convention — reading it back would resurrect the channel gh#151 closed.
+  assert.doesNotMatch(
+    fn,
+    /style|width|getComputedStyle|offsetWidth|getBoundingClientRect|urgenc|Date\.now|performance\.now/i,
+    'announceFromStage measures something on the ticking screen',
+  );
+
+  // The ticking-phase write, by construction: a bare string literal. No interpolation means no value
+  // can reach it however the round is going.
+  const ticking = /#tb-fuse'\)\)\s*\{\s*liveEl\.textContent\s*=\s*'([^']*)';/.exec(fn);
+  assert.ok(ticking, 'the ticking branch no longer assigns a plain literal to the live region');
+  assert.doesNotMatch(ticking[1], /[\d$]/, `the ticking announcement carries a value: ${ticking[1]}`);
+
+  // Everything before the boom guard is the live round. Interpolation is allowed only after it — the
+  // boom screen's own result text, at which point there is no remaining time to leak.
+  const boomAt = fn.indexOf("#tb-again");
+  assert.ok(boomAt > 0, 'the boom branch is gone — this test can no longer tell the phases apart');
+  assert.doesNotMatch(
+    fn.slice(0, boomAt),
+    /\$\{/,
+    'the live round announces an interpolated value — that value is derived from the round in progress',
+  );
+});

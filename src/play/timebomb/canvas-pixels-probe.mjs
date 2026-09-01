@@ -127,6 +127,13 @@ if (process.env.TB_FULL_ROUND === '1') {
       await new Promise((r) => setTimeout(r, 250));
     }
     return { detonated: false };`)).value;
+  // Settle before the readback. The loop above returns the instant #tb-again appears, which is one
+  // rAF EARLIER than the renderer's boom frame — the surface flip clears the backing store and
+  // repaints on the next frame. Read immediately and the boom leg returns the ticking image, which is
+  // indistinguishable from "the explosion never drew". Measured on this build under reduced motion:
+  // no settle gave coverage 0.3756 / 163 colours (identical to the ticking read), a 1500ms settle
+  // gave 0.6619 / 617. Full motion hid it, because every frame repaints there anyway.
+  await sleep(1500);
   out.pixelsAfterBoom = (await evaluate(READ_PIXELS)).value;
 }
 

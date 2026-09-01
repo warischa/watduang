@@ -1,0 +1,58 @@
+{
+  "url": "http://localhost:4326/game/timebomb/play/",
+  "reducedRequested": true,
+  "begin": {
+    "clicked": true,
+    "selector": "#tb-begin"
+  },
+  "start": {
+    "clicked": true,
+    "selector": "#tb-start"
+  },
+  "pixels": {
+    "present": true,
+    "hidden": false,
+    "backingStore": {
+      "w": 576,
+      "h": 589
+    },
+    "cssBox": {
+      "w": 288,
+      "h": 294
+    },
+    "devicePixelRatio": 2,
+    "coverage": 0.3756,
+    "distinctColours": 163,
+    "fuseShimmerWidth": "90.2%",
+    "reducedMotion": true
+  },
+  "pass": {
+    "passed": true,
+    "holder": "ตอนนี้อยู่ที่ ชิบะ"
+  },
+  "round": {
+    "detonated": true,
+    "liveRegion": "ระเบิดแล้ว ชิบะ ถือมือถืออยู่ตอนระเบิด — แพ้รอบนี้",
+    "stageText": "ตูม! ชิบะ ถือมือถืออยู่ตอนระเบิด — แพ้รอบนี้ เล่นอีกรอบ",
+    "canvasHidden": false
+  },
+  "pixelsAfterBoom": {
+    "present": true,
+    "hidden": false,
+    "backingStore": {
+      "w": 576,
+      "h": 589
+    },
+    "cssBox": {
+      "w": 288,
+      "h": 294
+    },
+    "devicePixelRatio": 2,
+    "coverage": 0.6619,
+    "distinctColours": 617,
+    "fuseShimmerWidth": null,
+    "reducedMotion": true
+  },
+  "drawn": true,
+  "screenshot": "docs/verification/evidence/151/full-round-reduced-motion-320.png"
+}

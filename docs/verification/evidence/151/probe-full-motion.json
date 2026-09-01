@@ -1,0 +1,31 @@
+{
+  "url": "http://localhost:4326/game/timebomb/play/",
+  "reducedRequested": false,
+  "begin": {
+    "clicked": true,
+    "selector": "#tb-begin"
+  },
+  "start": {
+    "clicked": true,
+    "selector": "#tb-start"
+  },
+  "pixels": {
+    "present": true,
+    "hidden": false,
+    "backingStore": {
+      "w": 576,
+      "h": 589
+    },
+    "cssBox": {
+      "w": 288,
+      "h": 294
+    },
+    "devicePixelRatio": 2,
+    "coverage": 0.3774,
+    "distinctColours": 160,
+    "fuseShimmerWidth": "91.7%",
+    "reducedMotion": false
+  },
+  "drawn": true,
+  "screenshot": "docs/verification/evidence/151/full-motion-320.png"
+}
