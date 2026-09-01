@@ -294,7 +294,7 @@ test('reset keeps the player count and overwrites the names a player typed', () 
   assert.deepEqual(resetCastNames([]), []);
 });
 
-// The gap the tests above and every per-route reset-names.test.mjs shared: they read main.js, and a
+// The gap the tests above and every per-route reset test shared: they read main.js, and a
 // numbered default shipped as STATIC TEXT in markup.html is never scanned by any of them. Seven of
 // them sat in three routes' markup and every name test was green -- the scripts paint over the nodes
 // before their screen is shown, so the strings were invisible to a player AND to the suite, which is
@@ -306,8 +306,13 @@ test('reset keeps the player count and overwrites the names a player typed', () 
 //
 // Ceiling, stated because it is a text scan: it reads the file as bytes, so a numbered default inside
 // an HTML comment counts too, and a default assembled at runtime is main.js's business (each route's
-// own reset-names.test.mjs pins that half). One occurrence is enough to fail, and the message names
-// the route and the line.
+// own reset test pins that half). One occurrence is enough to fail, and the message names the route
+// and the line.
+//
+// Do NOT describe those per-route files by a single filename. Ten are reset-names.test.mjs and
+// zero-trigger's is reset-cast.test.mjs, deliberately -- that route resets avatars as well as names.
+// A count taken by filename glob therefore returns ten of eleven and reads as a real gap. Derive the
+// set from the manifest and the route directory, the way this test does.
 test('no play route ships a numbered player default in its markup', async () => {
   const repoRoot = path.join(here, '..', '..');
   const { games } = await import(pathToFileURL(path.join(repoRoot, 'src/games/manifest.ts')).href);
@@ -317,7 +322,13 @@ test('no play route ships a numbered player default in its markup', async () => 
 
   // Same shape as NUMBERED above, unanchored: in markup the default sits inside a text node next to
   // other copy ("ตาของผู้เล่น 1", "ผู้เล่น 1 โดนเลือก!"), so an anchored match would miss every one.
-  const numbered = /ผู้เล่น\s*\d/;
+  //
+  // Both digit systems. U+0E50..U+0E59 are THAI DIGIT ZERO through THAI DIGIT NINE, written as
+  // escapes rather than literals so the class survives any future encoding or whitespace sweep of
+  // this file, and named by codepoint so a reader can check it without rendering the glyphs.
+  // None ship today -- this closes the hole before a Thai-numeral default can walk through it, since
+  // a guard that only knows Arabic digits is silent on the numerals this product's own language uses.
+  const numbered = /ผู้เล่น\s*[\d\u0E50-\u0E59]/;
   const hits = [];
   for (const id of routes) {
     const file = path.join(here, id, 'markup.html');
