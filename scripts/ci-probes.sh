@@ -187,6 +187,9 @@ standalone() { # label, command...
   { kill "$watchdog" && wait "$watchdog"; } 2> /dev/null || true
   if [ "$rc" -eq 0 ]; then
     echo "  PASS  $label"
+    # A green leg's log is otherwise swallowed; surface its warnings as job annotations (gh#182: the
+    # fit probe reports px drift on KNOWN_OVERFLOW rows this way and never reds on it).
+    grep '^::warning::' "$OUT_DIR/$label.log" || true
     echo "$label" >> "$OUT_DIR/$LANE.pass"
   else
     echo "::error::probe FAIL: ${label} -- exit ${rc}: $(tail -n 3 "$OUT_DIR/$label.log" | tr '\n' ' ')"
