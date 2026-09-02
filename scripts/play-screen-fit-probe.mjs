@@ -74,9 +74,11 @@
 // on CDP_PORT first; this leg must never build.
 //
 // WHAT ITS GREEN DOES NOT MEAN — the blind spots, stated so nobody reads more into a pass:
-//   * IT FIXES NOTHING AND GATES NO LAYOUT. scrolls/widthFillPct are REPORTED, never asserted
-//     against a threshold. gh#179 is the measurement; gh#180/#181/#182/#183 own the layout. A pin
-//     here would red on every one of those tickets' first commit.
+//   * IT FIXES NOTHING AND SETS NO LAYOUT THRESHOLD. widthFillPct is REPORTED only, and an
+//     overflowing row is held at the number it was RECORDED at, never at a number somebody decided
+//     was acceptable. gh#179 is the measurement; gh#180/#181/#182/#183 own the layout. What a
+//     layout commit does red is rule (iii): a fixed row must move from KNOWN_OVERFLOW to FITS_ROWS
+//     in that same commit.
 //   * It proves the measured screen is not the FRESH screen. It does not prove it is the round's main
 //     screen: a pass-device or handoff screen satisfies the invariant, and on a route whose first
 //     press lands there the reported numbers may be that screen's.
@@ -123,35 +125,96 @@ export const VIEWPORTS = [
 /** Presses per viewport after the seeded load. Bounded so a mockup that never advances ends the loop. */
 const PRESS_CAP = 6;
 
-// THE ONLY PIN IN THIS FILE, and the direction it can move is the point. RECORDED FROM REAL RUNS,
-// never derived by reading CSS: these are the route/viewport rows where every play screen this walk
-// reached FITS — nothing to scroll, nothing clipped away. A row NOT listed here overflows today and is
-// REPORTED, not gated: gh#180/#181/#182/#183 own those, and pinning them would red on their first
-// commit. So the guard is INVERTED onto the provably-clean set (the hazardous set is unowned and
-// growing; the safe set is small and converges). It can only ever red when a row that fits today stops
-// fitting, and every one of those tickets makes this list LONGER. Add a row in the commit that makes
-// it fit; never remove one to make a run pass.
+// THE TWO PINS IN THIS FILE, and the direction each one can move is the point. EVERY route/viewport
+// row this walk produces belongs to EXACTLY ONE of them, so "not listed anywhere" is no longer a
+// silent third state: a new route, a new viewport, or a screen that started overflowing reds as
+// UNCLASSIFIED instead of being reported into the void.
+//   FITS_ROWS      — the rows whose worst play screen overflows by ZERO px. GROWS ONLY. A row is
+//                    added in the commit that makes it fit; it is never removed to make a run pass,
+//                    and never admitted at 4px "because that is under the tolerance". The tolerance
+//                    is drift room for a row already pinned, never an admission rule: a row admitted
+//                    at 7px would have one pixel of headroom and would flap.
+//   KNOWN_OVERFLOW — the rows that do NOT fit today, each with the reason it is allowed to stand.
+//                    SHRINKS ONLY in the normal case: when a layout ticket lands, the row leaves this
+//                    map for FITS_ROWS and the probe reds until it does (rule iii below). It grows
+//                    only with a reason line that names an owner decision — every value starts with
+//                    'owner ruling <date>:' (the site owner accepted this screen as it is) or
+//                    'gh#182 open:' (nobody has ruled yet; the row is recorded, not blessed). A bare
+//                    number with no prefix is not a reason and must not be added.
+// RECORDED FROM REAL RUNS, never derived by reading CSS. Both sets were re-recorded 2026-09-02 from
+// three consecutive full runs against a real dist/, under the self-scroller measurement rule above:
+// the rows below fit; every other row in this map overflows.
 // WHAT IS NOT PINNED: widthFillPct. Measured across two consecutive runs it moved 89.2 -> 100 on
 // cannon-flag, because these games advance on their own clock and press 1 lands on a different screen
 // each time. It is a report, and a pin on it would flap forever.
-// Recorded 2026-08-31 from a full run against a real dist/: the 9 of 33 rows whose worst play screen
-// overflowed by ZERO px, not merely by less than the tolerance. Deliberately stricter than the gate —
-// a row admitted at 7px would have one pixel of headroom and would flap.
 export const FITS_ROWS = new Set([
   'dice-loser 320x568',
   'dice-loser 390x844',
   'dice-loser 1440x900',
+  // Added 2026-09-02: 0px under the self-scroller rule (it read 160-187px while an inner
+  // overflow-y:auto box was being counted as page overflow).
   'freeze-tap 390x844',
   'freeze-tap 1440x900',
   'wire-snip-panic 390x844',
   'wire-snip-panic 1440x900',
   'zero-trigger 390x844',
   'zero-trigger 1440x900',
+  // Added 2026-09-02: 0px once visible-overflow boxes stopped counting.
+  'how-close-is-near 390x844',
+  'how-close-is-near 1440x900',
+  'timebomb 390x844',
+  'timebomb 1440x900',
+]);
+/**
+ * Row -> why it is allowed to overflow. Recorded 2026-09-02 from three consecutive full runs; the
+ * numbers are what those runs measured (they agreed to the pixel on every row in this map), not what
+ * a fix is expected to leave behind. cursed-number is the only row carrying an owner ruling, and that ruling
+ * names ONE viewport: its 390 and 1440 rows are 'gh#182 open', because whether the exception is the
+ * route or only the 320 screen has not been ruled on.
+ */
+export const KNOWN_OVERFLOW = new Map([
+  ['cannon-flag 320x568', 'gh#182 open: 2px on press 1 - 2px clipped by div.power-gauge-container'],
+  ['cannon-flag 390x844', 'gh#182 open: 2px on press 1 - 2px clipped by div.power-gauge-container'],
+  ['cannon-flag 1440x900', 'gh#182 open: 2px on press 1 - 2px clipped by div.power-gauge-container'],
+  ['cursed-number 320x568', 'owner ruling 2026-09-01: 689px on press 1 - 689px to scroll on documentElement (accepted exception at 320x568, worst screen 2.21 viewports, removable blocks 252px vs 689px)'],
+  ['cursed-number 390x844', 'gh#182 open: 317px on press 1 - 317px to scroll on documentElement'],
+  ['cursed-number 1440x900', 'gh#182 open: 157px on press 1 - 157px to scroll on documentElement'],
+  // Moved from FITS_ROWS 2026-09-02: E1 bounded the self-scroller rule to boxes under 0.6x viewport
+  // height, so a box that fills the screen (a scroll surface in name only) counts as page overflow
+  // again. Measured under the bounded rule, not a regression in the page itself.
+  ['freeze-tap 320x568', 'gh#182 open: 187px on press 1 - 187px to scroll on main#mainContent'],
+  ['how-close-is-near 320x568', 'gh#182 open: 194px on press 4 - 194px to scroll on documentElement'],
+  ['pinocchio-luck 320x568', 'gh#182 open: 136px on press 1 - 136px to scroll on documentElement, 4px clipped by div.css-mouth; measured 107-136px across 15 runs (13x107, 1x116, 1x120, 1x136) on this route/viewport, a self-timed screen per the press-timing note in the file header'],
+  ['pinocchio-luck 390x844', 'gh#182 open: 14px on press 1 - 14px to scroll on documentElement, 4px clipped by div.css-mouth'],
+  ['pinocchio-luck 1440x900', 'gh#182 open: 17px on press 2 - 17px to scroll on documentElement, 4px clipped by div.css-mouth'],
+  ['power-meter 320x568', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
+  ['power-meter 390x844', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
+  ['power-meter 1440x900', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
+  ['short-stick 320x568', 'gh#182 open: 191px on press 0 - 191px to scroll on documentElement'],
+  ['short-stick 390x844', 'gh#182 open: 73px on press 0 - 73px to scroll on documentElement'],
+  ['short-stick 1440x900', 'gh#182 open: 81px on press 0 - 81px to scroll on documentElement'],
+  ['timebomb 320x568', 'gh#182 open: 119px on press 2 - 119px to scroll on documentElement'],
+  // Moved from FITS_ROWS 2026-09-02: same self-scroller bound as freeze-tap above.
+  ['wire-snip-panic 320x568', 'gh#182 open: 111px on press 0 - 111px to scroll on div#screen-game.screen.active'],
+  ['zero-trigger 320x568', 'gh#182 open: 96px on press 0 - 96px to scroll on section#screen-game.screen.active'],
 ]);
 /** A pinned row may drift by this much without reading as a regression — under a line of text. */
 const OVERFLOW_TOLERANCE_PX = 8;
 /** Sub-pixel slack: a scrollHeight and a clientHeight can disagree in the last fraction of a device px. */
 const EPS = 1;
+
+// GATE ON THE REASON STRING ITSELF: every KNOWN_OVERFLOW value must open with the prefix that carries
+// its recorded px, so check (iv) below can parse it back out. A reason that drifts from this shape
+// (a rewrite that drops the number, a typo in the ruling-date format) throws at import time instead of
+// silently making check (iv) unable to find a number to compare against.
+const KNOWN_OVERFLOW_PREFIX = /^(owner ruling \d{4}-\d{2}-\d{2}|gh#\d+ open): (\d+)px /;
+for (const [key, reason] of KNOWN_OVERFLOW) {
+  if (!KNOWN_OVERFLOW_PREFIX.test(reason)) {
+    throw new Error(`KNOWN_OVERFLOW["${key}"] does not start with "<owner ruling YYYY-MM-DD|gh#N open>: <N>px ": "${reason}"`);
+  }
+}
+/** The px a KNOWN_OVERFLOW reason was recorded at — used by check (iv) to catch a regression past it. */
+const recordedPx = (reason) => Number(KNOWN_OVERFLOW_PREFIX.exec(reason)[2]);
 
 /**
  * THE ONE ROUTE-ENUMERATION EXPRESSION, shared verbatim with scripts/play-exit-probe.mjs (and with
@@ -214,7 +277,11 @@ const MEASURE = `
   // pinned body turns overflow into is not scrolling but CLIPPING — content the player cannot reach
   // at all — so both are measured and the gate is on whichever is larger.
   let scrollPx = docScrollPx > ${EPS} ? docScrollPx : 0;
+  let scrollFrom = scrollPx ? 'documentElement' : null;
   let clippedPx = 0;
+  let clipFrom = null;
+  const desc = (e) => (e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') +
+    (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\\s+/).join('.') : '')).slice(0, 60);
   for (const e of [de, document.body, ...document.querySelectorAll('body *')]) {
     if (!e || (e !== de && e !== document.body && !visible(e))) continue;
     const over = e.scrollHeight - e.clientHeight;
@@ -225,8 +292,32 @@ const MEASURE = `
     // and friends — a plausible number, on every route, describing nothing a player can see.
     if (e.clientHeight <= 1 || e.clientWidth <= 1) continue;
     const oy = getComputedStyle(e).overflowY;
-    if (oy === 'hidden' || oy === 'clip') clippedPx = Math.max(clippedPx, over);
-    else scrollPx = Math.max(scrollPx, over);
+    if (oy === 'hidden' || oy === 'clip') {
+      if (over > clippedPx) { clippedPx = over; clipFrom = desc(e); }
+      continue;
+    }
+    // OWNER RULING 2026-09-01, applied here as a MEASUREMENT rule rather than as an exception list:
+    // an INNER self-scroller does not violate the fit criterion. A box the page itself declared
+    // scrollable (overflow-y auto/scroll) is a designed scroll surface — a log, a roster column — and
+    // its content is reachable inside a screen that does not itself scroll. What the criterion is
+    // about is the PAGE not fitting, so html/body and docScrollPx keep counting. hidden/clip is
+    // untouched by the ruling and still counts: clipped content is unreachable, not scrollable.
+    // A non-root box whose overflow is VISIBLE cannot scroll either: its spill lands in an ancestor,
+    // where it is counted once, as documentElement scroll or as clipping by the hidden/clip box above
+    // it. Counting it here invented 9px on a range input and 71px on a box inside a designed scroller
+    // (measured 2026-09-02), so only the two roots and a bounded self-scroller below reach the line
+    // below.
+    const isRoot = e === de || e === document.body;
+    const isScroller = oy === 'auto' || oy === 'scroll';
+    // ponytail: 0.6 x viewport is a heuristic ceiling; a log or roster column sits well under it, a
+    // screen container sits at or above it. Raise to a per-route declaration only if a real widget
+    // crosses it. Failure direction: a box AT or ABOVE the line fails LOUD (its spill reads as page
+    // overflow, an UNCLASSIFIED or regressed row names it); a screen container UNDER the line would
+    // fail SILENT (its spill hidden as a designed scroller) — measured 2026-09-02, no route has one:
+    // every .screen / main / #view-root is height:100%.
+    const fillsViewport = isScroller && e.clientHeight >= 0.6 * innerHeight;
+    if (!isRoot && !fillsViewport) continue;
+    if (over > scrollPx) { scrollPx = over; scrollFrom = desc(e); }
   }
   // INK, not boxes: leaves that render text, plus the media and control elements that render
   // themselves. A full-bleed wrapper is not content and must not count as width filled.
@@ -248,6 +339,8 @@ const MEASURE = `
   return {
     ok: true, innerWidth, innerHeight,
     docScrollPx, scrollPx, clippedPx, overflowPx: Math.max(scrollPx, clippedPx),
+    // Named so a KNOWN_OVERFLOW reason can say WHICH box overflows instead of only by how much.
+    scrollFrom, clipFrom,
     inkCount: n,
     inkLeft: n ? left : null, inkRight: n ? right : null,
     widthFillPct: n ? Math.round((span / innerWidth) * 1000) / 10 : 0,
@@ -435,9 +528,32 @@ function main() {
   // A narrowed run cannot judge the pins it never walked, and must not be read as if it had.
   const narrowed = Boolean(process.env.ROUTES_ONLY?.trim());
   if (narrowed) console.log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${out.routesWalked} of ${games.filter((g) => g.playRoute).length} play route(s). This is a debug run, not a gate.`);
-  const stalePins = narrowed ? [] : [...FITS_ROWS].filter((k) => !keys.has(k));
+  // (i) EVERY produced row lands in exactly one set. A row in neither is the state this check exists
+  // to kill: before it, a new route or a screen that started overflowing was simply "not pinned" and
+  // printed into the report with nothing asserting anything about it.
+  const unclassified = out.rows.map(rowKey).filter((k) => !FITS_ROWS.has(k) && !KNOWN_OVERFLOW.has(k));
+  for (const k of unclassified) {
+    console.error(`::error::"${k}" is UNCLASSIFIED — this run produced it and neither FITS_ROWS nor KNOWN_OVERFLOW holds it. Measure the row, then either pin it as fitting (0px) or record it in KNOWN_OVERFLOW with a reason starting "owner ruling <date>:" or "gh#182 open:". Do not leave it out of both.`);
+  }
+  const inBoth = out.rows.map(rowKey).filter((k) => FITS_ROWS.has(k) && KNOWN_OVERFLOW.has(k));
+  for (const k of inBoth) {
+    console.error(`::error::"${k}" is in BOTH FITS_ROWS and KNOWN_OVERFLOW — a row cannot both fit and be an accepted overflow, and whichever set is wrong is asserting nothing.`);
+  }
+  // (ii) Stale pins, both sets: a key nobody produced asserts nothing, whichever set it sits in.
+  const stalePins = narrowed ? [] : [...FITS_ROWS, ...KNOWN_OVERFLOW.keys()].filter((k) => !keys.has(k));
   for (const k of stalePins) {
-    console.error(`::error::FITS_ROWS pins "${k}", which this run never produced — the pin is stale (a route left the manifest, or a viewport changed), so it is asserting nothing.`);
+    const which = FITS_ROWS.has(k) ? 'FITS_ROWS' : 'KNOWN_OVERFLOW';
+    console.error(`::error::${which} pins "${k}", which this run never produced — the pin is stale (a route left the manifest, or a viewport changed), so it is asserting nothing.`);
+  }
+  // (iii) An exception that no longer overflows. The trigger is ZERO overflow, not
+  // OVERFLOW_TOLERANCE_PX: FITS_ROWS admits 0px rows only, so a tolerance-based trigger would red
+  // the 4-6px rows into a set that is not allowed to hold them, and no edit could clear it.
+  const fixed = out.rows
+    .filter((r) => KNOWN_OVERFLOW.has(rowKey(r)))
+    .map((r) => ({ r, w: worstOf(r) }))
+    .filter((x) => x.w.overflowPx <= EPS);
+  for (const x of fixed) {
+    console.error(`::error::${x.r.url} at ${x.r.vp}: exception no longer needed, move to FITS_ROWS. KNOWN_OVERFLOW records it as "${KNOWN_OVERFLOW.get(rowKey(x.r))}" and this run measured ${Math.round(x.w.overflowPx)}px — an exception nobody deletes is how a fixed screen keeps a licence to regress.`);
   }
   const regressions = out.rows
     .filter((r) => FITS_ROWS.has(rowKey(r)))
@@ -446,14 +562,25 @@ function main() {
   for (const x of regressions) {
     console.error(`::error::${x.r.url} at ${x.r.vp} no longer fits: ${Math.round(x.w.scrollPx)}px to scroll and ${Math.round(x.w.clippedPx)}px clipped away on a play screen (press ${x.w.press}). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.`);
   }
-  if (stalePins.length || regressions.length) process.exit(1);
+  // (iv) A KNOWN_OVERFLOW row that grew past the px its reason was recorded at (plus the same drift
+  // tolerance FITS_ROWS gets). This is the check that makes "held at the number it was RECORDED at"
+  // (see header) an assertion rather than a sentence nobody checks.
+  const knownRegressions = out.rows
+    .filter((r) => KNOWN_OVERFLOW.has(rowKey(r)))
+    .map((r) => ({ r, w: worstOf(r), recorded: recordedPx(KNOWN_OVERFLOW.get(rowKey(r))) }))
+    .filter((x) => x.w.overflowPx > x.recorded + OVERFLOW_TOLERANCE_PX);
+  for (const x of knownRegressions) {
+    console.error(`::error::${x.r.url} at ${x.r.vp} regressed past its recorded overflow: recorded ${x.recorded}px, this run measured ${Math.round(x.w.overflowPx)}px (press ${x.w.press}). KNOWN_OVERFLOW holds a row at the number it was measured at, not a licence to grow further. A recorded px may only go DOWN; raising it is allowed solely for a flapping row, and then the reason must carry the sample count and the range (see pinocchio-luck 320x568). Otherwise fix what grew.`);
+  }
+  if (unclassified.length || inBoth.length || stalePins.length || regressions.length || fixed.length || knownRegressions.length) process.exit(1);
 
   const measured = out.rows.reduce((n, r) => n + r.screens.length, 0);
   // Every number here comes from the expression that describes it: the asserted count is the rows
   // this run actually walked AND has a pin for, never FITS_ROWS.size, which a narrowed run would
   // print as coverage it does not have.
   const asserted = out.rows.filter((r) => FITS_ROWS.has(rowKey(r))).length;
-  console.log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${out.routesWalked} route(s) x ${out.viewports} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px; the other ${out.rows.length - asserted} are REPORTED, not gated — gh#180/#181/#182/#183 own those.`);
+  const excepted = out.rows.filter((r) => KNOWN_OVERFLOW.has(rowKey(r))).length;
+  console.log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${out.routesWalked} route(s) x ${out.viewports} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (each reds if it stops overflowing) — every produced row is in exactly one of the two sets.`);
   for (const r of out.rows) console.log('  ' + fmt(r));
 }
 
