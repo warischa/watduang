@@ -9,22 +9,25 @@
 // All motion is CSS only (ADR-0005: no inline page script) and stops under prefers-reduced-motion.
 import Base from '../layouts/Base.astro';
 import PageChrome from '../components/PageChrome.astro';
+import Section from '../components/landing/Section.astro';
+import Card from '../components/landing/Card.astro';
+import type { Props as CardProps } from '../components/landing/Card.astro';
 import { categories } from '../games/categories';
-import { games as allGames, popularGames, popularGroup } from '../games/manifest';
+import { popularGames, popularGroup } from '../games/manifest';
 import { tools, toolsGroup } from '../tools/manifest';
 import type { Category, GameModule } from '../games/types';
 
 // The canvas's per-card bob phase, in canvas order — the stagger is a design value, not i % 3.
 const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
 
-// One card shape for every game the page shows, wherever it shows it: the promoted row and the
-// category groups feed the same model, so a promoted card enters the game by exactly the route a
-// group card does (ADR-0050 ruling 2) and carries its own category pill — the promoted row mixes
-// categories, and the pill is what says which one a card belongs to. The bob phase counter is
-// shared and runs in render order, so a new row joins the canvas stagger instead of restarting it.
+// One card shape for every game the page shows, wherever it shows it. The promoted row is its only
+// caller today, and a promoted card enters the game by the play route wherever one exists (ADR-0050
+// ruling 2) and carries its own category pill — the row mixes categories, and the pill is what says
+// which one a card belongs to. The bob phase counter is shared and runs in render order, so a new
+// row of games joins the canvas stagger instead of restarting it.
 let bobPhase = 0;
-const gameCard = (game: GameModule) => ({
-  cardClass: 'game-card',
+const gameCard = (game: GameModule): CardProps => ({
+  kind: game.category,
   title: game.names.th,
   desc: game.tagline,
   pill: categories[game.category].label as string | null,
@@ -34,12 +37,13 @@ const gameCard = (game: GameModule) => ({
 });
 
 // gh#75 — the page presents GROUPS, never one flat games list headed by a claim about the whole
-// catalogue (the heading ADR-0041 left owing). Two game groups come from the category manifest, in
-// its record key order, so fortune presents first; the tools group comes from the tools manifest
-// and links to the tools hub, never to a /c/<slug>/ URL — tools are not a category (ADR-0032).
-// Every string a group shows is manifest-held (ADR-0034), including its when-to-use line.
-// A fourth group is one more entry in this array and nothing above it moves: the H1 and the lead
-// name no group, no content type and no count.
+// catalogue (the heading ADR-0041 left owing). Two groups render: the promoted row and the tools
+// group. The per-category groups that used to sit between them are gone — the intent panels below
+// carry each category to its own hub instead, which is where a full listing belongs. The tools
+// group comes from the tools manifest and links to the tools hub, never to a /c/<slug>/ URL —
+// tools are not a category (ADR-0032). Every string a group shows is manifest-held (ADR-0034),
+// including its when-to-use line. A further group is one more entry in this array and nothing
+// above it moves: the H1 and the lead name no group, no content type and no count.
 // gh#159 / ADR-0052 — the promoted row is the FIRST group and is data like the rest: its games and
 // their order are the manifest's (popularGames), its heading is the manifest's (ADR-0034), and the
 // page names none of them. It has no "see all" destination — there is no popularity hub — so its
@@ -52,23 +56,18 @@ const groups = [
     heading: popularGroup.heading,
     body: null as string | null,
     href: null as string | null,
-    gridClass: 'games-grid',
+    id: 'popular',
+    cols: 3 as const,
     cards: popularGames.map(gameCard),
   },
-  ...(Object.keys(categories) as Category[]).map((cat) => ({
-    heading: categories[cat].hubHeading,
-    body: categories[cat].hubBody as string | null,
-    href: `/c/${cat}/` as string | null,
-    gridClass: 'games-grid',
-    cards: allGames.filter((game) => game.category === cat).map(gameCard),
-  })),
   {
     heading: toolsGroup.heading,
     body: toolsGroup.body,
     href: toolsGroup.href,
-    gridClass: 'tools-grid',
-    cards: tools.map((tool) => ({
-      cardClass: 'tool-card',
+    id: 'group-tools',
+    cols: 4 as const,
+    cards: tools.map((tool): CardProps => ({
+      kind: 'tool',
       href: tool.href,
       pill: null as string | null,
       title: tool.name,
@@ -76,6 +75,31 @@ const groups = [
       accentVar: toolsGroup.accentVar,
       bob: '',
     })),
+  },
+];
+
+// Intent panels (design/landing-playful-arcade.md, "Three intent panels"): one whole-panel link
+// per product type, in the groups' own order (categories record order, fortune first per gh#75,
+// then tools). Copy is the groups' own hub pair — hubHeading/hubBody from the categories record,
+// heading/body from toolsGroup — so a panel says exactly what its section says, and no panel can
+// describe a roster, a player count or phone-passing unless the party category's own manifest
+// copy does (ADR-0040). Nothing here is new Thai.
+const intents: CardProps[] = [
+  ...(Object.keys(categories) as Category[]).map((cat): CardProps => ({
+    kind: cat,
+    panel: true,
+    href: `/c/${cat}/`,
+    title: categories[cat].hubHeading,
+    desc: categories[cat].hubBody,
+    accentVar: `--accent-${categories[cat].accent}`,
+  })),
+  {
+    kind: 'tool',
+    panel: true,
+    href: toolsGroup.href,
+    title: toolsGroup.heading,
+    desc: toolsGroup.body,
+    accentVar: toolsGroup.accentVar,
   },
 ];
 ---
@@ -169,28 +193,37 @@ const groups = [
             {index === groups.length - 1 && (
               <div class="ad-slot ad-inline" aria-hidden="true">ช่องโฆษณา</div>
             )}
-            <section class="group">
-              <div class="section-head">
-                <div class="section-head-copy">
-                  <h2>{group.heading}</h2>
-                  {group.body && <p class="section-body">{group.body}</p>}
-                </div>
-                {group.href && <a class="section-link" href={group.href}>ดูทั้งหมด →</a>}
-              </div>
-              <div class={group.gridClass}>
+            <Section id={group.id} heading={group.heading} body={group.body} href={group.href} linkLabel="ดูทั้งหมด →">
+              <div class="card-grid" data-cols={group.cols}>
                 {group.cards.map((card) => (
-                  <a
-                    class={`${card.cardClass} ${card.bob}`}
+                  <Card
+                    kind={card.kind}
                     href={card.href}
-                    style={`--card-accent: var(${card.accentVar});`}
-                  >
-                    {card.pill && <span class="game-pill">{card.pill}</span>}
-                    <h3>{card.title}</h3>
-                    <p>{card.desc}</p>
-                  </a>
+                    title={card.title}
+                    desc={card.desc}
+                    pill={card.pill}
+                    accentVar={card.accentVar}
+                    bob={card.bob}
+                  />
                 ))}
               </div>
-            </section>
+            </Section>
+            {/* The three intent panels sit right under the popular row (design order). Each panel
+                heads its own h2 region, so no section heading — and no new copy — stands above them. */}
+            {index === 0 && (
+              <div class="card-grid" data-cols={3}>
+                {intents.map((card) => (
+                  <Card
+                    kind={card.kind}
+                    panel
+                    href={card.href}
+                    title={card.title}
+                    desc={card.desc}
+                    accentVar={card.accentVar}
+                  />
+                ))}
+              </div>
+            )}
           </>
         ))}
 
@@ -260,12 +293,12 @@ const groups = [
   /* gh#87 — every value below is design/HomeArcade.dc.html's own (ADR-0033). Colours go through
      tokens where the canvas value IS a token (--color-primary #d6336c is the canvas accent
      default, --color-line-strong #1a1a1a, --color-ground-warm #fffdf7, the three accent tokens);
-     the rgba() fills and #fff8e8 are canvas literals, no token exists for them. --card-accent is
+     the rgba() fills are canvas literals, no token exists for them. --card-accent is
      defined per card by the inline custom property above, resolved from the manifest accent NAME
      (category accent / toolsGroup.accentVar), never a hex. The `main a:hover` colour is the
      canvas's own global a:hover rule. */
   main {
-    background: var(--color-ground-warm);
+    background: var(--surface-page);
     color: var(--color-text);
     font-family: var(--font-sans);
   }
@@ -283,9 +316,9 @@ const groups = [
   .hero {
     position: relative;
     overflow: hidden;
-    background: var(--color-primary);
-    color: var(--color-ground-warm);
-    border-block-end: 5px solid var(--color-line-strong);
+    background: var(--surface-hero);
+    color: var(--ink-on-hero);
+    border-block-end: 5px solid var(--ink);
   }
 
   .hero-stripes {
@@ -299,9 +332,9 @@ const groups = [
   .hero-inner {
     position: relative;
     width: 100%;
-    max-width: 1280px;
+    max-width: var(--container-max);
     margin-inline: auto;
-    padding-inline: 18px;
+    padding-inline: var(--gutter);
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 48px;
@@ -314,6 +347,8 @@ const groups = [
     display: flex;
     flex-direction: column;
     gap: 24px;
+    min-width: 0;
+    overflow-wrap: anywhere; /* handoff D7: the hero clips (overflow: hidden), so a no-break string must wrap here — measured running to 1140px at 320 without this */
   }
 
   .hero-badge {
@@ -333,7 +368,7 @@ const groups = [
     margin: 0;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 76px;
+    font-size: var(--text-hero);
     line-height: 1.1;
     letter-spacing: -2px;
     text-wrap: pretty;
@@ -383,10 +418,19 @@ const groups = [
   }
 
   .cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap-min); /* tap minimum: the canvas link is a 16px text line */
     font-size: 16px;
     color: var(--color-ground-warm);
     border-block-end: 2px solid rgba(255, 253, 247, 0.6);
     padding-block-end: 3px;
+  }
+
+  /* the page-wide a:hover paints --color-primary, which is the hero surface itself: without this
+     the link vanished on hover (REFUTE 2026-09-02) */
+  .cta-secondary:hover {
+    color: var(--ink-on-hero);
   }
 
   .hero-art {
@@ -412,9 +456,9 @@ const groups = [
      slots on the category pages render the same label (gh#82). */
   .ad-band {
     width: 100%;
-    max-width: 1280px;
+    max-width: var(--container-max);
     margin-inline: auto;
-    padding-inline: 18px;
+    padding-inline: var(--gutter);
     display: flex;
     justify-content: center;
     box-sizing: border-box;
@@ -472,9 +516,9 @@ const groups = [
 
   .body-grid {
     width: 100%;
-    max-width: 1280px;
+    max-width: var(--container-max);
     margin-inline: auto;
-    padding-inline: 18px;
+    padding-inline: var(--gutter);
     display: grid;
     grid-template-columns: minmax(0, 1fr) 300px;
     gap: 40px;
@@ -486,142 +530,34 @@ const groups = [
   .col {
     display: flex;
     flex-direction: column;
-    gap: 56px;
+    gap: var(--section-gap);
   }
 
-  /* ------------------------------ games grid --------------------------- */
+  /* ------------------------------ card grid ---------------------------- */
 
-  .section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 22px;
-    flex-wrap: wrap; /* structural: the long tools heading must not collide with its link on a phone */
-    margin-block-end: 22px;
-  }
-
-  .section-head h2,
-  .howto h2,
-  .faq h2 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 32px;
-  }
-
-  .section-link {
-    font-size: 15px;
-    color: var(--color-primary);
-  }
-
-  /* gh#75 — a group's heading and its when-to-use line stack in the head's left column while the
-     link keeps the row. No new design values: the copy line is the .faq-item p pair (15px / 1.75)
-     in the muted ink of the removed featured kicker, and the 8px stack gap is the tool card's own. */
-  .section-head-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .section-body {
-    margin: 0;
-    font-size: 15px;
-    line-height: 1.75;
-    color: var(--color-muted);
-  }
-
-  .games-grid {
+  /* The one grid every card section uses (handoff D6). Columns: desktop 3, or 4 with
+     data-cols="4"; tablet 2; phone 1 — set through --cols so a section never writes its own
+     template. The phone/tablet rules repeat the [data-cols] selector on purpose: without it a
+     4-column grid (specificity 0,2,0) outranks the media rule (0,1,0) and stays 4-wide on a phone. */
+  .card-grid {
+    --cols: 3;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: var(--grid-gap);
   }
 
-  .game-card {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 22px;
-    background: var(--card-accent);
-    border: 3.5px solid var(--color-line-strong);
-    border-radius: 18px;
-    box-shadow: 5px 5px 0 0 var(--color-line-strong);
-    color: var(--color-line-strong);
-    min-height: 176px;
-    box-sizing: border-box;
-  }
-
-  .game-card:hover {
-    color: var(--color-line-strong);
-  }
-
-  .game-pill {
-    align-self: flex-start;
-    font-size: 12px;
-    font-weight: 600;
-    background: var(--color-ground-warm);
-    border: 2px solid var(--color-line-strong);
-    border-radius: 999px;
-    padding: 3px 10px;
-  }
-
-  .game-card h3 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 23px;
-  }
-
-  .game-card p {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.65;
-  }
-
-  /* ------------------------------ tools grid --------------------------- */
-
-  .tools-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
-  }
-
-  .tool-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 20px;
-    background: var(--card-accent);
-    border: 3.5px solid var(--color-line-strong);
-    border-radius: 18px;
-    box-shadow: 5px 5px 0 0 var(--color-line-strong);
-    color: var(--color-line-strong);
-    min-height: 190px;
-    box-sizing: border-box;
-  }
-
-  .tool-card:hover {
-    color: var(--color-line-strong);
-  }
-
-  .tool-card h3 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 20px;
-  }
-
-  .tool-card p {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.6;
+  .card-grid[data-cols='4'] {
+    --cols: 4;
   }
 
   /* ------------------------------ how-to ------------------------------- */
 
   .howto h2,
   .faq h2 {
-    margin-block-end: 22px;
+    margin: 0 0 22px 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-xl);
   }
 
   .howto-grid {
@@ -677,7 +613,7 @@ const groups = [
 
   .faq-item {
     padding: 22px 24px;
-    background: #fff8e8; /* canvas literal — no token exists for the faq paper */
+    background: var(--surface-paper);
     border: 3px solid var(--color-line-strong);
     border-radius: 16px;
   }
@@ -704,16 +640,6 @@ const groups = [
     }
   }
 
-  @keyframes arc-bob {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-9px);
-    }
-  }
-
   @keyframes arc-wheel {
     to {
       transform: rotate(360deg);
@@ -730,26 +656,27 @@ const groups = [
     }
   }
 
-  .bob-1 {
-    animation: arc-bob 6s ease-in-out infinite;
+  /* ------------------------------ focus & motion contracts ------------ */
+
+  /* Handoff D10 — the one focus treatment on the page. :global reaches the anchors the landing
+     components render (their scoped attribute is not this file's), so a component never writes an
+     outline of its own and none is ever removed. Ink on every surface here clears the 3:1
+     non-text minimum, the hero's primary red included. */
+  main :global(:focus-visible) {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-offset);
   }
 
-  .bob-2 {
-    animation: arc-bob 6s ease-in-out infinite 0.8s;
-  }
-
-  .bob-3 {
-    animation: arc-bob 6s ease-in-out infinite 1.6s;
-  }
-
+  /* Handoff D12 — every animation and transition on this page is decorative, so under reduced
+     motion ALL of them stop, not a listed few: any motion a later section adds, in this file or in
+     a landing component, falls under this rule with no edit. !important is what makes that true
+     against the components' scoped selectors; it is the only !important on the page. */
   @media (prefers-reduced-motion: reduce) {
-    .hero-stripes,
-    .hero-badge,
-    .hero-wheel,
-    .bob-1,
-    .bob-2,
-    .bob-3 {
-      animation: none;
+    main :global(*),
+    main :global(*::before),
+    main :global(*::after) {
+      animation: none !important;
+      transition: none !important;
     }
   }
 
@@ -763,7 +690,7 @@ const groups = [
     }
 
     h1 {
-      font-size: 30px;
+      font-size: var(--text-hero-narrow);
     }
 
     .body-grid {
@@ -774,10 +701,31 @@ const groups = [
       display: none;
     }
 
-    .games-grid,
-    .tools-grid,
+    .card-grid,
+    .card-grid[data-cols] {
+      --cols: 2;
+    }
+
     .howto-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  /* Phone: one column everywhere and the CTA pair stacks (design/landing-playful-arcade.md,
+     "Mobile first"). The second and last query on this page — the set is closed in tokens.css. */
+  @media (max-width: 639px) {
+    .card-grid,
+    .card-grid[data-cols] {
+      --cols: 1;
+    }
+
+    .hero-cta {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .cta-primary {
+      justify-content: center;
     }
   }
 </style>

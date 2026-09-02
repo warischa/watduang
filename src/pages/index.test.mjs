@@ -16,10 +16,17 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { games, popularGroup, popularGames } from '../games/manifest.ts';
-import { tools } from '../tools/manifest.ts';
+import { categories } from '../games/categories.ts';
+import { tools, toolsGroup } from '../tools/manifest.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pageSrc = readFileSync(join(here, 'index.astro'), 'utf8');
+// Landing components render the card and section markup the page used to hold inline. They are
+// scanned whole: a component has no frontmatter copy exemption, because nothing it renders may be
+// a literal (handoff D2 — zero content literals in components).
+const componentSrc = ['Card.astro', 'Section.astro']
+  .map((name) => readFileSync(join(here, '..', 'components', 'landing', name), 'utf8'))
+  .join('\n');
 
 // Comments and metadata are exempt from the literal scan: the frontmatter cites canvas copy in
 // quotes and the <Base …> tag carries the owner-mandated title/description that enumerates tool
@@ -42,6 +49,10 @@ const manifestCopy = [
   // gh#159: the popular-row heading is hub copy, so ADR-0034 puts it in the manifest — the same
   // retyped-literal ban that guards names and taglines guards it.
   popularGroup.heading,
+  // Intent panels and section heads render the hub pair (ADR-0034) — same ban, same scan.
+  ...Object.values(categories).flatMap((c) => [c.hubHeading, c.hubBody]),
+  toolsGroup.heading,
+  toolsGroup.body,
 ];
 
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -54,8 +65,9 @@ const THAI = '[\\u0e00-\\u0e7f]';
 const standalone = (s) => new RegExp(`(?<!${THAI})${escapeRegExp(s)}(?!${THAI})`);
 
 test('no manifest-held game/tool copy is retyped as a literal in the home page', () => {
-  const offenders = [...new Set(manifestCopy)].filter((s) => standalone(s).test(pageBody));
-  assert.deepEqual(offenders, [], 'game names, taglines, tool names and tool descriptions must render from the manifests');
+  const scanned = pageBody + '\n' + componentSrc;
+  const offenders = [...new Set(manifestCopy)].filter((s) => standalone(s).test(scanned));
+  assert.deepEqual(offenders, [], 'game names, taglines, tool names, tool descriptions and hub copy must render from the manifests');
 });
 
 test('the home page reads game names and taglines from the games manifest', () => {

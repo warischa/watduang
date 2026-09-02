@@ -1,0 +1,154 @@
+---
+// The ONE whole-card link the home page renders, for every content type it shows. `kind` is the
+// product type the card belongs to: the repo's own Category union (party | fortune) plus 'tool'.
+// The three are discriminated on purpose (ADR-0040: fortune pages and randomizer tools are not
+// party games) — a tool card can never carry a category pill, and a game card must carry the pill
+// that says which category it is, because the popular row mixes categories. Both are build-time
+// errors below, not conventions. `panel` is the intent-panel size of the same card: it links to a
+// hub rather than an item, so it heads its own region with an h2 while an item card is an h3 under
+// the section's h2. No copy lives here: every string is a prop fed from a manifest by the page.
+import type { Category } from '../../games/types';
+
+export type CardKind = Category | 'tool';
+
+export interface Props {
+  kind: CardKind;
+  href: string;
+  title: string;
+  desc: string;
+  /** Category label from the categories record — games only; null on a tool card. */
+  pill?: string | null;
+  /** An accent token NAME such as `--accent-gold`, resolved to a colour here — never a hex, and
+   *  never a surface token: the template type is what stops `--surface-paper` painting a card. */
+  accentVar: `--accent-${string}`;
+  /** Intent panel (hub link, h2) instead of an item card (h3). */
+  panel?: boolean;
+  /** Stagger class for the decorative bob: 'bob-1' | 'bob-2' | 'bob-3' | ''. */
+  bob?: string;
+}
+
+const { kind, href, title, desc, pill = null, accentVar, panel = false, bob = '' } = Astro.props;
+if (kind === 'tool' && pill) throw new Error(`Card ${href}: a tool card carries no category pill`);
+if (kind !== 'tool' && !panel && !pill) throw new Error(`Card ${href}: a game card must carry its category pill`);
+const Heading = panel ? 'h2' : 'h3';
+---
+
+<a
+  class:list={['card', bob]}
+  data-kind={kind}
+  data-panel={panel || undefined}
+  href={href}
+  style={`--card-accent: var(${accentVar});`}
+>
+  {pill && <span class="card-pill">{pill}</span>}
+  <Heading class="card-title">{title}</Heading>
+  <p class="card-desc">{desc}</p>
+</a>
+
+<style>
+  /* Values are the home page's own (design/HomeArcade.dc.html via ADR-0033), now read through the
+     landing tokens in src/styles/tokens.css. --card-accent is set per card by the inline custom
+     property above from a manifest accent NAME. min-width: 0 and overflow-wrap: anywhere are the
+     Thai-text guard: a grid child defaults to min-width:auto and a name with no break opportunity
+     would then widen the column and the page (gh#87's no-sideways-scroll criterion). min-height is
+     a floor, never a fixed height — text may always grow the card. */
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    padding: var(--card-pad);
+    background: var(--card-accent);
+    border: var(--card-line);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    color: var(--ink);
+    text-decoration: none;
+    min-height: 176px;
+    box-sizing: border-box;
+  }
+
+  .card:hover {
+    color: var(--ink);
+  }
+
+  .card-pill {
+    align-self: flex-start;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    background: var(--surface-page);
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  .card-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-lg);
+  }
+
+  .card-desc {
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.65;
+  }
+
+  /* tool cards: the canvas's own tighter pair */
+  .card[data-kind='tool'] {
+    gap: 8px;
+    padding: 20px;
+    min-height: 190px;
+  }
+
+  .card[data-kind='tool'] .card-title {
+    font-size: 20px;
+  }
+
+  .card[data-kind='tool'] .card-desc {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* intent panel: the concept's own 24px padding and 30px heading (design/landing-playful-arcade.md) */
+  .card[data-panel] {
+    padding: 24px;
+    min-height: 0;
+  }
+
+  .card[data-panel] .card-title {
+    font-size: 30px;
+  }
+
+  .card[data-panel] .card-desc {
+    font-size: var(--text-base);
+    line-height: 1.75;
+  }
+
+  /* Decorative bob, canvas keyframes verbatim. Declared here so a card bobs wherever it is rendered;
+     it stops under prefers-reduced-motion via the page's blanket rule in src/pages/index.astro —
+     that rule, not a list here, is what guarantees any new motion stops too. */
+  @keyframes arc-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-9px);
+    }
+  }
+
+  .bob-1 {
+    animation: arc-bob 6s ease-in-out infinite;
+  }
+
+  .bob-2 {
+    animation: arc-bob 6s ease-in-out infinite 0.8s;
+  }
+
+  .bob-3 {
+    animation: arc-bob 6s ease-in-out infinite 1.6s;
+  }
+</style>

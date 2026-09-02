@@ -1,0 +1,76 @@
+---
+// The heading row every home-page section shares. Owns the heading level — h2, under the hero's
+// h1, with item cards as h3 inside — and the aria-labelledby wiring. What goes under the head is
+// the page's slot. Zero copy of its own: heading, body and the link label all arrive as props from
+// manifest data or the page (ADR-0034), so a label cannot be invented here.
+export interface Props {
+  /** Unique on the page; becomes the h2 id that aria-labelledby points at. */
+  id: string;
+  heading: string;
+  body?: string | null;
+  /** Hub the section links to; null when there is no hub (the popular row, ADR-0052). */
+  href?: string | null;
+  /** Required with href. */
+  linkLabel?: string;
+}
+
+const { id, heading, body = null, href = null, linkLabel } = Astro.props;
+if (href && !linkLabel) throw new Error(`Section ${id}: href needs a linkLabel`);
+---
+
+<section aria-labelledby={id}>
+  <div class="section-head">
+    <div class="section-head-copy">
+      <h2 id={id}>{heading}</h2>
+      {body && <p class="section-body">{body}</p>}
+    </div>
+    {href && <a class="section-link" href={href}>{linkLabel}</a>}
+  </div>
+  <slot />
+</section>
+
+<style>
+  /* gh#75 values, read through the landing tokens. flex-wrap is structural: the long tools heading
+     must not collide with its link on a phone. min-width: 0 + overflow-wrap on the copy column is
+     the Thai-text guard (a flex child defaults to min-width:auto). The link is sized to the tap
+     minimum the way Base.astro sizes its footer link, with inline-flex so the baseline row holds. */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--grid-gap);
+    flex-wrap: wrap;
+    margin-block-end: var(--grid-gap);
+  }
+
+  .section-head-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-xl);
+  }
+
+  .section-body {
+    margin: 0;
+    font-size: var(--text-base);
+    line-height: 1.75;
+    color: var(--ink-muted);
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap-min);
+    font-size: var(--text-base);
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+</style>

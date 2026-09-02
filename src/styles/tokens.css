@@ -94,3 +94,49 @@
   inset-block-end: auto;
   flex-direction: column-reverse;
 }
+
+/* ---- Landing-page contract (design/landing-playful-arcade.md, foundation laid 2026-09-02) ----
+   A semantic layer over the primitives above. The landing components under src/components/landing/
+   and src/pages/index.astro reference THESE names, never the primitives, so a palette or rhythm
+   change is an edit to this block alone. Every value is one the home page already shipped from
+   design/HomeArcade.dc.html (ADR-0033). The concept's own palette (coral #f54867, ink #17213a) is
+   NOT applied: the --accent-* block above is owner-confirmed and gated by
+   scripts/accent-single-source-check.mjs, so swapping it is an owner decision, not a token edit.
+
+   Breakpoints cannot be custom properties, so the closed set lives in this comment and nowhere else:
+     phone    <= 639px    written  @media (max-width: 639px)
+     tablet   640-1099px  written  @media (max-width: 1099px)   -- also where the 300px ad rail goes
+     desktop  >= 1100px
+   No file adds a third query. */
+:root {
+  --surface-page: var(--color-ground-warm);
+  --surface-paper: #fff8e8; /* the canvas's FAQ paper; the concept's cream is the same value */
+  --surface-hero: var(--color-primary);
+  --ink: var(--color-line-strong);
+  --ink-on-hero: var(--color-ground-warm);
+  --ink-muted: var(--color-muted);
+
+  --container-max: 1280px;
+  --gutter: 18px;
+  --section-gap: 56px;
+  --grid-gap: 22px;
+  --tap-min: 44px;
+
+  --card-line: 3.5px solid var(--ink);
+  --card-radius: 18px;
+  --card-shadow: 5px 5px 0 0 var(--ink);
+  --card-pad: 22px;
+
+  /* type scale: the sizes the shipped page uses; a new section picks from these, never a literal */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 15px;
+  --text-md: 19px;
+  --text-lg: 23px;
+  --text-xl: 32px;
+  --text-hero: 76px;
+  --text-hero-narrow: 30px;
+
+  --focus-ring: 3px solid var(--ink);
+  --focus-offset: 3px;
+}

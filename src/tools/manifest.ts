@@ -29,5 +29,5 @@ export const toolsGroup = {
   heading: 'เครื่องมือกิจกรรมสันทนาการ',
   body: 'ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง',
   href: '/tools/',
-  accentVar: '--accent-sky',
+  accentVar: '--accent-sky' as const,
 };
