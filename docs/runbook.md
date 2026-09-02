@@ -119,6 +119,16 @@ Give each concurrent run its own pair — e.g. `CDP_PORT=9333` with `-l 4322` �
 matching `--remote-debugging-port` and its own `--user-data-dir`. A probe that finds itself attached to
 a target it did not launch should stop, not measure.
 
+Two more ways separate ports still collide (measured 2026-09-02):
+
+- **Tear down by the pids you started, never by process name.** A sibling's `pkill`-style cleanup
+  killed another agent's `npx serve` twice mid-run with no code change on either side; the victim's
+  run just stopped. Record the pids at launch and kill those.
+- **`scripts/run-workflow-gates.sh` runs the browser leg too — run it alone.** It is the whole CI,
+  not the non-browser subset. Run while two worktree agents were building and driving Chrome on their
+  own ports, `play-screen-fit-control` died with exit 137 (a kill, not a verdict). One builder, no
+  sibling Chrome, then the suite; a green from a run that shared the machine proves nothing.
+
 ## Thai character classes in grep are locale-dependent
 
 Unlocaled `grep '[ก-๛]'` mis-collates and invents matches — 42 false positives on one file, and a
