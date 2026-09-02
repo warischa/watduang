@@ -132,3 +132,23 @@ the deploy job fails to federate despite a subject that matches the documentatio
 Moved to `docs/agents/ci-gate-calibration.md` (a further ADR-0012 task seam) — proving a **brand-new**
 gate fires on `main` is read only when someone is standing up that gate, not on every routine verify or
 read-a-verdict pass covered above.
+
+## A pixel the fit probe records is one machine's number
+
+`scripts/play-screen-fit-probe.mjs` records overflow px per route x viewport. On 2026-09-02 the CI
+runner measured every non-zero row 4-28% above this Mac's numbers on the same commit (power-meter
+76 -> 268 clipped) and read 0px on three rows the Mac records at 2-17px — the workflow installs no
+font, so Thai text wraps under a fallback face (inferred). Zero held on both machines.
+
+**Do:** gate only what both machines agree on — a row is classified, no key is stale, a `FITS_ROWS`
+row stays within `OVERFLOW_TOLERANCE_PX` of zero. Growth or a 0px reading on a `KNOWN_OVERFLOW` row
+prints a `::warning::`, which `scripts/ci-probes.sh` surfaces on a green leg. Before pinning any
+new measured number, download the last `browser-probe-output-*` artifact and `diff` its rows
+against a local run first — two text files, no new run.
+
+**Don't:** widen `OVERFLOW_TOLERANCE_PX` to cover a machine difference; it hides the same regression
+on both. The converging fix is a self-hosted Thai webfont on play routes (owner decision).
+
+**Cheaper proof:** the probe's set checks (union = manifest x viewports, no stale key, reason prefix)
+are pure functions of two files — prove them with `node --test`, never with a browser walk; re-measure
+only when src or the measurement code changed.
