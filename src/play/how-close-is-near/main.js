@@ -293,6 +293,16 @@ import { mascotNames } from '../_mascots.ts';
         this.state = GameState.PLAYER_COUNT;
         this.playerCount = 3;
         this.players = []; // [{ id, name, originalOrder }]
+        // gh#196. What a player typed on the names screen, indexed BY SEAT, so it survives every
+        // rebuild of that screen -- going back to the count screen and forward again, or back from
+        // the losing-rule screen. Before this existed the typed text lived only as live DOM state on
+        // one input element and every re-render silently threw it away. Written on the way OUT of
+        // the names screen (both exits), read on the way IN.
+        // SHRINK IS DECIDED HERE: the write reads only the inputs currently on screen, so lowering
+        // the count and leaving drops the removed seats' names for good while every remaining seat
+        // keeps its own. Raising the count again gives the new seats empty fields, not a name that
+        // belonged to somebody who left.
+        this.typedNames = [];
         this.loseCondition = LoseCondition.NEAREST_LOSES;
         this.secretTarget = 0;
         this.currentTurnIndex = 0;
@@ -571,19 +581,32 @@ import { mascotNames } from '../_mascots.ts';
           <input type="text" class="player-text-input" placeholder="${defaultName(i)}" maxlength="20" data-index="${i}">
         `;
         list.appendChild(row);
+        // gh#196. Restores what this seat's player typed on an earlier visit to this screen. Written
+        // as a DOM PROPERTY on the element parsed above, deliberately NOT interpolated into a value=
+        // attribute in the template: a player name is attacker-owned text (ADR-0026), and a property
+        // write is not an HTML sink at all, so this line adds no new place for a name to break out
+        // of. The placeholder beside it stays the seat's animal name and is not a typed name.
+        row.querySelector('.player-text-input').value = game.typedNames[i] ?? '';
       }
+
+      // gh#196. The names screen's ONLY durable copy of what was typed. Both exits below go through
+      // it, because both re-enter this screen later: Next reaches the losing-rule screen, which has
+      // its own #btnBackToNames, and Back reaches the count screen. It reads the inputs still on
+      // screen, which is what makes a lowered count drop the seats it removed -- see game.typedNames.
+      const captureTypedNames = () =>
+        Array.from(card.querySelectorAll('.player-text-input')).map(inp => inp.value);
 
       card.querySelector('#btnNextNames').onclick = () => {
         sound.playClick();
-        const inputs = card.querySelectorAll('.player-text-input');
-        const names = Array.from(inputs).map(inp => inp.value);
-        game.initPlayers(names);
+        game.typedNames = captureTypedNames();
+        game.initPlayers(game.typedNames);
         game.state = GameState.LOSE_CONDITION;
         render();
       };
 
       card.querySelector('#btnBackToCount').onclick = () => {
         sound.playClick();
+        game.typedNames = captureTypedNames();
         game.state = GameState.PLAYER_COUNT;
         render();
       };
