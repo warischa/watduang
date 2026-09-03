@@ -10,7 +10,7 @@
     "prebuild": "node scripts/validate-games.mjs",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node --test 'src/**/*.test.mjs'",
+    "test": "node --test 'src/**/*.test.mjs' 'scripts/**/*.test.mjs'",
     "validate": "node scripts/validate-games.mjs --selftest && node scripts/validate-games.mjs",
     "gate-selftest-coverage-check": "node scripts/gate-selftest-coverage-check.mjs --selftest && node scripts/gate-selftest-coverage-check.mjs",
     "js-motion-guard-check": "node scripts/js-motion-guard-check.mjs --selftest && node scripts/js-motion-guard-check.mjs",

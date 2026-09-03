@@ -216,8 +216,12 @@ for (const [key, reason] of KNOWN_OVERFLOW) {
     throw new Error(`KNOWN_OVERFLOW["${key}"] does not start with "<owner ruling YYYY-MM-DD|gh#N open>: <N>px ": "${reason}"`);
   }
 }
-/** The px a KNOWN_OVERFLOW reason was recorded at — used by check (iv) to catch a regression past it. */
-const recordedPx = (reason) => Number(KNOWN_OVERFLOW_PREFIX.exec(reason)[2]);
+/**
+ * The px a KNOWN_OVERFLOW reason was recorded at — used by check (iv) to catch a regression past it.
+ * Exported for scripts/play-screen-fit-probe.test.mjs, which asserts every recorded reason parses
+ * without driving a browser: it THROWS on a reason that does not match, so a silent NaN is impossible.
+ */
+export const recordedPx = (reason) => Number(KNOWN_OVERFLOW_PREFIX.exec(reason)[2]);
 
 /**
  * THE ONE ROUTE-ENUMERATION EXPRESSION, shared verbatim with scripts/play-exit-probe.mjs (and with

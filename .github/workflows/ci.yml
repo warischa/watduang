@@ -211,10 +211,19 @@ jobs:
       # (.test.mjs -> .test.ts) or a move out of src/ would leave this step green with every test
       # silently not running — measured, gh#45. The pass count is therefore asserted non-zero:
       # an inverted guard must count, not just exclude (ADR-0019).
+      # TWO globs, not one. A single src/** glob is exactly the gh#45 failure with a different subject:
+      # scripts/*.test.mjs matched nothing here for the whole life of the file, so the tests covering
+      # the gate scripts themselves ran NOWHERE — green because they never executed, which is the one
+      # shape a passing gate and a dead gate share. A new scripts-level test is only real once it is
+      # inside this line. To see the gap for yourself, diff the two counts:
+      #   node --test 'src/**/*.test.mjs' | grep '^# tests'
+      #   node --test 'src/**/*.test.mjs' 'scripts/**/*.test.mjs' | grep '^# tests'
+      # No count is written here on purpose: a number in a comment cannot be checked by the step it
+      # sits above, and the next test added anywhere would make it silently false.
       # PIPESTATUS, not $? — after a pipe, $? is tee's status and is always 0 (agent CI-verification doc).
       - name: Unit tests
         run: |
-          node --test 'src/**/*.test.mjs' 2>&1 | tee /tmp/unit-tests.txt
+          node --test 'src/**/*.test.mjs' 'scripts/**/*.test.mjs' 2>&1 | tee /tmp/unit-tests.txt
           [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
           grep -qE '^# pass [1-9]' /tmp/unit-tests.txt \
             || { echo 'Unit tests: 0 tests ran — the glob matched nothing (gh#45)'; exit 1; }
