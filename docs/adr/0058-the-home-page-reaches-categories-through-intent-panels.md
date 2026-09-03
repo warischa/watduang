@@ -41,3 +41,19 @@ Consequences the next agent must preserve:
 Measured evidence that visitors reached games from the home lists rather than the hubs — the
 analytics gh#160 reconciles — or an owner ruling that every game must be one tap from the home
 page. Either restores the spread; nothing else moves.
+
+## Outcome recorded 2026-09-03: item (i) is decided
+
+This ADR left the tools group list in place "for now" and named dropping it as the owner's call,
+carried as handoff item (i). **The owner ruled on 2026-09-03: drop the tools group list, keep the
+tools panel.** The duplicate `toolsGroup.heading` this ADR's own "Alternatives rejected" section
+flagged is the reason.
+
+Two consequences that ride with the change, both already stated above and now load-bearing:
+`src/pages/index.test.mjs` pins the list as a gh#75 acceptance, so that pin moves WITH the code and
+gh#75's closure moves with it — a test left asserting the list must be updated, never satisfied by
+leaving the list; and `scripts/landing-claims-check.mjs` still needs a resolvable `/c/<slug>/` per
+category, which the panels supply, so removing the list must not remove a panel.
+
+The rationale for the ruling lives on gh#192; this section records only that the open item closed
+and which way.

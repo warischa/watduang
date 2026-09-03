@@ -57,3 +57,28 @@ to end (a genuinely ungated control vanished from the stripped text while the sc
 verdict), and closed in both gates. The general form: when a fix changes what a mechanism covers, every
 sentence describing that coverage is unverified until re-read against the new code, including sentences
 written minutes earlier as part of the same fix.
+
+## Confirmed again 2026-09-03, with a boundary this ADR had not drawn
+
+Consolidating seven hand-rolled strippers onto the TypeScript-parser one reproduced this ADR's
+thesis twice over. The hand-rolled ones desynced as predicted. But the shared parser-backed one
+**introduced a fail-open of its own**: it skips `//` only inside quoted spans the parser can see,
+and in an `.astro` file HTML template text and unquoted attribute values yield no span, so a bare
+`://` blanked the rest of its line and two gates went silent. Reproduced at the stripper and then
+wired on a real source file — pre-change gates `rc=1`, converted gates `rc=0`.
+
+**The boundary this adds: delegating to a grammar's owner only covers the grammar that owner owns.**
+TypeScript does not own the HTML template, the CSS block, or the JSON-LD body inside an `.astro`
+file. The cure was routing by grammar — frontmatter to TS, script bodies to JS, style to CSS,
+template to `{/* */}` only, JSON-LD left alone as data — not a wider regex, which would have
+recreated the hand-rolled classifier under a new name.
+
+The honest form of the invariant is therefore scoped: *no script blanks **JS/TS** comments outside
+the shared stripper.* CSS and HTML residues remain by grammar, not by neglect. Widening it further
+needs a CSS tokenizer this repo would then own — which is this ADR's own argument, applied to the
+consolidation itself.
+
+Rejected while fixing it, and worth recording: refusing whenever a needle disappears between raw and
+stripped text. `party-size-claim-check` legitimately loses 1 of 26 raw matches to a **genuine** HTML
+comment quoting the ADR-0040 ruling, so needle-loss refusal reds a clean tree until a use-vs-mention
+exemption exists — a second unowned set, which is the thing this ADR exists to avoid.
