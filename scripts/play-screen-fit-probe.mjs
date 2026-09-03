@@ -194,7 +194,25 @@ export const KNOWN_OVERFLOW = new Map([
   // again. Measured under the bounded rule, not a regression in the page itself.
   ['freeze-tap 320x568', 'gh#182 open: 187px on press 1 - 187px to scroll on main#mainContent'],
   ['how-close-is-near 320x568', 'gh#182 open: 194px on press 4 - 194px to scroll on documentElement'],
-  ['pinocchio-luck 320x568', 'gh#182 open: 136px on press 1 - 136px to scroll on documentElement, 4px clipped by div.css-mouth; measured 107-136px across 15 runs (13x107, 1x116, 1x120, 1x136) on this route/viewport, a self-timed screen per the press-timing note in the file header'],
+  // gh#195, 2026-09-03: the NUMBER below does not move, and that is the recorded finding rather than
+  // an omission. No layout changed on this route, and re-recording it at this run's 107px would only
+  // make the next 136px run warn; 136 stays as the high end of the measured band. What DID change is
+  // that the screen gh#195 asks about was measured, and it is NOT the screen this row reports.
+  // MEASURED IN A REAL BROWSER (headless Chrome 152, CDP, a true 320x568 emulated viewport read back
+  // as 320/568, against a real npm run build served from dist/): on the RESULTS screen the document
+  // scrolls 244px, nothing in the chain from the results panel up to <html> clips, and scrolling to
+  // 244 brings the last control fully into view - reachable. Identical at 4 and at 10 players.
+  // THIS WALK CANNOT REACH THAT SCREEN, arithmetically: renderResults costs 1 press to start plus 3
+  // per player (ready, answer, next), i.e. 1+3N, measured 13 at N=4, against PRESS_CAP 6 - and the
+  // cheapest round, N=2, still needs 7. Raising the cap would not reach it either: this walk presses
+  // the largest visible button and never forces a WRONG answer, and a correct round ends on
+  // renderAllSafe instead. PROVED, not assumed: planting the fix gh#195 was filed about
+  // (#app{height:100svh;max-height:100svh}) left this probe GREEN at exit 0 while the results panel
+  // became unreachable (0px document scroll, 219px clipped by main#app) - and it moved this row to
+  // 0px scroll / 81px clipped and the 390x844 row to 0px scroll, i.e. it read as an IMPROVEMENT.
+  // WHAT MEASURES THAT SCREEN INSTEAD: src/play/pinocchio-luck/results-reachable.test.mjs, which
+  // guards the CSS shape that keeps the panel reachable and carries every number above.
+  ['pinocchio-luck 320x568', 'gh#182 open: 136px on press 1 - 136px to scroll on documentElement, 4px clipped by div.css-mouth; measured 107-136px across 15 runs (13x107, 1x116, 1x120, 1x136) plus 107px on a 16th run 2026-09-03, a self-timed screen per the press-timing note in the file header. This row measures press 1, NOT the results screen: gh#195 measured that one separately at 244px document scroll with nothing clipping and the last control reachable, and the comment above records why this walk cannot reach it and what guards it instead'],
   ['pinocchio-luck 390x844', 'gh#182 open: 14px on press 1 - 14px to scroll on documentElement, 4px clipped by div.css-mouth'],
   ['pinocchio-luck 1440x900', 'gh#182 open: 17px on press 2 - 17px to scroll on documentElement, 4px clipped by div.css-mouth'],
   ['power-meter 320x568', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
