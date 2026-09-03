@@ -175,6 +175,15 @@ jobs:
       - name: No gate walks from the repo root unguarded (meta-check)
         run: node scripts/repo-root-walk-check.mjs --selftest && node scripts/repo-root-walk-check.mjs
 
+      # gh#184 — one stray top-level `}` in src/play/short-stick/style.css silently killed the rule
+      # below it: .player-strip never got display:flex, so its chips stacked instead of forming a
+      # strip, and the page grew 270px taller at 320px. The build DID warn (esbuild: Unexpected "}")
+      # and a session read that warning, called it pre-existing, and moved on — a warning nothing
+      # gates is a warning nothing reads. Source-side gate: it reads src/ only, never dist/, so it
+      # belongs before Build with the other source-text gates.
+      - name: CSS brace balance check (src stylesheets)
+        run: node scripts/css-brace-balance-check.mjs --selftest && node scripts/css-brace-balance-check.mjs
+
       # gh#120 — the ad-slot reflow's real mechanism. An announced live region whose text a script
       # rewrites must not reserve space with a FLOOR: min-height lets it shrink when the text
       # shortens, and everything below it — including the ad slot — moves. draw and team learned this
