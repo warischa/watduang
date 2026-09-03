@@ -153,3 +153,23 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* gh#182 — the view reserves a screenful that does not exist here, and the arithmetic is exact.
+   style.css sets `.view { min-height: calc(100vh - 64px) }`, i.e. it assumes the topnav is the ONLY
+   thing outside the view. On this site three boxes are:
+     topnav-inner 56px (<=520px) or 64px, + the topnav's 1px border-bottom
+     #app padding-block-start 56px (the PlayExit clearance a few rules above)
+     body padding-bottom max(24px, safe-area) = 24px
+   so the page is always (topnav + 1 + 56 + 24) - 64 taller than the viewport, whatever the content
+   does. That predicts 73px at 390x844 (56+1+56+24-64) and 81px at 1440x900 (64+1+56+24-64), and
+   scripts/play-screen-fit-probe.mjs recorded exactly 73 and 81 on those two rows.
+   min-height:0 rather than a corrected calc(): the correction needs the topnav's height, which
+   changes at the mockup's own 520px breakpoint, so it would hard-code two numbers that style.css can
+   move under it. .view is display:block and carries no background, so the reserved height positions
+   nothing — dropping it is invisible, and body still paints the page background to the full screen.
+   ponytail: this does NOT fix 320x568 (191px recorded), where the game screen's own content is
+   taller than the screen on top of this 73px; that part is content, not arithmetic, and needs the
+   browser cycle. */
+.view {
+  min-height: 0;
+}

@@ -47,3 +47,85 @@
   align-items: center;
   justify-content: center;
 }
+
+/* ================================================================================================
+   gh#183 — DESKTOP FILL. Appended as one block; no rule above this line is modified or reordered.
+   Everything lives in the single `@media (min-width: 1100px)` block gh#180 fixed as the one desktop
+   breakpoint for this work. This project's other two breakpoints are 639 and 1099; no third is
+   invented here, and nothing below can reach the 320px rules another ticket is tuning.
+
+   The defect: every screen container on this route is capped between 460px and 540px, so at a
+   1440px-wide window the whole game reads as a phone strip in the middle of the screen. The widest
+   of them, `.setup-container`, is 540px = 37.5% of 1440.
+
+   TOKENS ARE PER-ROUTE LOCALS on `#app`, named `--ft-*`, so nothing here can leak into another
+   route or into the site tokens.
+
+   ARITHMETIC, from gh#180's rules — the rule is what is durable here, not the pixel value:
+
+   --ft-desktop-target-min: 56px   fixed by gh#180.
+   --ft-desktop-gap:        28px   fixed by gh#180.
+   --ft-board-max-inline:   746px  RULE: the game's own grid arithmetic. The board on this route is
+                                   `.roster-list`, declared in the lifted stylesheet as
+                                   `repeat(auto-fill, minmax(140px, 1fr))` with an 8px gap, 6px of
+                                   padding and a 1px border. Five columns is the desktop row this game
+                                   wants at its ten-player maximum, and this stylesheet DOES set
+                                   `box-sizing: border-box` on `*`, so the padding and border come out
+                                   of the cap rather than sitting outside it:
+                                     content needed = 5 x 140px + 4 x 8px gap = 700 + 32 = 732px
+                                     cap = 732 + 2 x 6px padding + 2 x 1px border = 746px
+                                   At the old 540px cap the same auto-fill resolves to three columns
+                                   ((540 - 14 + 8) / 148 = 3.6), so this is a real column change and
+                                   not a cosmetic widening. Two pixels short of 746 and it silently
+                                   drops back to four, which is what makes this number checkable.
+
+   NO RAIL TOKEN. gh#180's `rail-inline` sizes a control rail beside a board. This route's markup is
+   a single centred column -- `main#mainContent` holds one screen container at a time and there is no
+   second column for a rail to occupy -- so that rule has no subject here and inventing one would be
+   a structural change to a play surface, not a sizing decision.
+
+   THE PARTICLE CANVAS IS UNAFFECTED, checked before widening anything. `#particleCanvas` is
+   `position: absolute; inset: 0` inside `#app`, which is `width: 100vw` -- so its CSS box is already
+   the whole window at any width. Its backing store is sized from `window.innerWidth` in
+   `resizeCanvas()` in main.js, and particles are spawned in window coordinates
+   (`Math.random() * window.innerWidth` in `spawnConfetti()`). Box and backing store therefore agree
+   at 1440 exactly as they do at 375, and none of the containers widened below is an ancestor of the
+   canvas. Nothing here moves the particle layer.
+
+   FALSIFIABLE AT 1440x900: `.setup-container` measures 746px (51.8% of the window, up from 540px /
+   37.5%), `.roster-list` lays out FIVE columns of 140px, and `#particleCanvas` still measures
+   1440px wide. Any of those three being wrong falsifies this block. */
+@media (min-width: 1100px) {
+  #app {
+    --ft-desktop-target-min: 56px;
+    --ft-desktop-gap: 28px;
+    --ft-board-max-inline: 746px;
+  }
+
+  /* All five screen containers take one measure, so the game does not change width as it advances
+     through its screens. Modals are deliberately left at their own caps: a dialog is meant to be
+     narrower than the page behind it. */
+  .setup-container,
+  .rule-reveal-container,
+  .pass-container,
+  .result-container,
+  .leaderboard-container {
+    max-width: var(--ft-board-max-inline);
+  }
+
+  /* Vertical rhythm at the desktop gap. `.roster-list`'s own 8px gap is NOT changed -- the five-column
+     arithmetic above depends on it. */
+  .setup-container,
+  .leaderboard-container {
+    gap: var(--ft-desktop-gap);
+  }
+
+  /* gh#180's fixed 56px desktop target floor. min-block-size only raises: every control already
+     larger stays exactly where the lifted stylesheet put it. */
+  .icon-btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    min-block-size: var(--ft-desktop-target-min);
+  }
+}

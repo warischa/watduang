@@ -532,3 +532,82 @@ body {
     }
   }
 }
+
+/* ================================================================================================
+   gh#183 — DESKTOP FILL. Appended as one block; no rule above this line is modified or reordered.
+   One `@media (min-width: 1100px)` block, the single desktop breakpoint gh#180 fixed. This project's
+   other two breakpoints are 639 and 1099; no third is invented here.
+
+   This route has no style.css / overrides.css pair -- nothing here is an extractor lift, as the file
+   header above says -- so the desktop block lives at the end of this file rather than in a sibling.
+
+   The defect: `.dl-setup`, `.dl-play` and `.dl-panel` are all capped at 420px, so at 1440px the whole
+   game is a 420px strip = 29.2% of the window, and the three dice render at 92px each in the middle
+   of it.
+
+   TOKENS ARE PER-ROUTE LOCALS on `#app`, named `--dl-*`, matching this file's existing palette
+   prefix.
+
+   ARITHMETIC, from gh#180's rules:
+
+   --dl-desktop-target-min: 56px   fixed by gh#180.
+   --dl-desktop-gap:        28px   fixed by gh#180.
+   --dl-die-inline:        184px   RULE: element target = the phone render roughly doubled, floored
+                                   around 100px. `.dl-die` ships `min(26vw, 92px)`, which resolves to
+                                   92px on any phone at or above 354px wide; 92 x 2 = 184px.
+   --dl-board-max-inline:  662px   RULE: the game's own grid arithmetic. The board is `.dl-dice`, a
+                                   flex row of exactly three `.dl-die` boxes (the markup declares
+                                   dl-die-1, dl-die-2, dl-die-3 and main.ts holds those three in
+                                   `dieEls`), separated by the fixed desktop gap. Summed as BORDER
+                                   boxes, not content boxes: this route inherits no `box-sizing`
+                                   reset -- there is none in this file, in tokens.css or in the
+                                   layouts -- so `.dl-die`'s 9px padding sits OUTSIDE its declared
+                                   inline-size on both the phone and the desktop arm:
+                                     die border box = 184px + 2 x 9px padding = 202px
+                                     3 x 202px + 2 x 28px gap = 606 + 56 = 662px
+                                   Summing the content boxes instead would give 608px and overflow
+                                   the column by 54px, which is a gated FITS row on this route.
+
+   NO RAIL TOKEN. gh#180's `rail-inline` sizes a control rail beside a board. This route is a single
+   centred column -- `.dl-setup`, `.dl-play` and `.dl-panel` are stacked flex columns with no second
+   track -- so that rule has no subject here, and adding one would restructure a play surface rather
+   than size it. The three columns instead take ONE measure, the board's, so the game does not change
+   width as it advances between setup and play.
+
+   NO CANVAS ON THIS ROUTE: the dice are DOM elements, so nothing here can desynchronise a backing
+   store from its CSS box.
+
+   FALSIFIABLE AT 1440x900: `.dl-play` measures 662px (46.0% of the window, up from 420px / 29.2%),
+   each `.dl-die` measures 202px square as a border box (184px of content plus its padding), the gap
+   between them measures 28px, and the route's fit row stays at 0px of overflow. Any of those being
+   wrong falsifies this block. */
+@media (min-width: 1100px) {
+  #app {
+    --dl-desktop-target-min: 56px;
+    --dl-desktop-gap: 28px;
+    --dl-die-inline: 184px;
+    --dl-board-max-inline: 662px;
+  }
+
+  .dl-setup,
+  .dl-play,
+  .dl-panel {
+    max-inline-size: var(--dl-board-max-inline);
+  }
+
+  /* The gap is load-bearing: the 608px above is computed from it. */
+  .dl-dice {
+    gap: var(--dl-desktop-gap);
+  }
+
+  .dl-die {
+    inline-size: var(--dl-die-inline);
+  }
+
+  /* gh#180's fixed 56px desktop target floor. min-block-size only raises: anything already taller
+     stays where it is. */
+  .game-btn,
+  .dl-reset-btn {
+    min-block-size: var(--dl-desktop-target-min);
+  }
+}

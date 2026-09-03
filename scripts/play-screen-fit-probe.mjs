@@ -199,7 +199,7 @@ export const KNOWN_OVERFLOW = new Map([
   ['timebomb 320x568', 'gh#182 open: 119px on press 2 - 119px to scroll on documentElement'],
   // Moved from FITS_ROWS 2026-09-02: same self-scroller bound as freeze-tap above.
   ['wire-snip-panic 320x568', 'gh#182 open: 111px on press 0 - 111px to scroll on div#screen-game.screen.active'],
-  ['zero-trigger 320x568', 'gh#182 open: 96px on press 0 - 96px to scroll on section#screen-game.screen.active'],
+  ['zero-trigger 320x568', 'gh#182 open: 131px on press 0 - 131px to scroll on section#screen-game.screen.active. RE-RECORDED UPWARD from 96px, measured this run on this Mac: gh#194 deliberately gives the player strip its real height (flex-shrink:0 in overrides.css), and that height is added to a screen that was already over. The growth is the fix, not a regression — a chip row nobody can see is not a saving. Promotion to FITS_ROWS is not owed here; this row still overflows by design until the 320px play screen is redesigned'],
 ]);
 /** A pinned row may drift by this much without reading as a regression — under a line of text. */
 const OVERFLOW_TOLERANCE_PX = 8;

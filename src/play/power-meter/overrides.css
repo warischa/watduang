@@ -24,3 +24,92 @@
   min-inline-size: 44px;
   min-block-size: 44px;
 }
+
+/* ================================================================================================
+   gh#183 — DESKTOP FILL. Appended as one block; no rule above this line is modified or reordered.
+   One `@media (min-width: 1100px)` block, the single desktop breakpoint gh#180 fixed. This project's
+   other two breakpoints are 639 and 1099; no third is invented, and nothing below can reach the
+   320px rules another ticket is tuning.
+
+   The defect: `#view-root` -- the one scrolling column every screen renders into -- is capped at
+   540px, which is 37.5% of a 1440px window. The gauge inside it is capped harder still:
+   `.meter-arena` at 320px around a `.gauge-track` 68px wide, a size chosen for a phone.
+
+   TOKENS ARE PER-ROUTE LOCALS on `#app-container`, named `--pm-*`.
+
+   ARITHMETIC, from gh#180's rules:
+
+   --pm-desktop-target-min: 56px   fixed by gh#180.
+   --pm-desktop-gap:        28px   fixed by gh#180.
+   --pm-track-inline:      136px   RULE: element target = the phone render roughly doubled, floored
+                                   around 100px. `.gauge-track` ships 68px wide; 68 x 2 = 136px,
+                                   clear of the floor. Its height is deliberately NOT doubled -- 250px
+                                   is already most of the vertical budget at 900px tall.
+   --pm-arena-max-inline:  400px   RULE: the arena must still hold the doubled track plus the surround
+                                   the phone layout gives it: 320px - 68px = 252px of surround, so
+                                   136 + 252 = 388px, rounded up to 400px.
+   --pm-board-max-inline:  744px   RULE: the game's own grid arithmetic. The board on this route is
+                                   `.count-grid`, declared `repeat(5, 1fr)`. At gh#180's 120px desktop
+                                   element target and its fixed 28px gap, inside `#view-root`'s own
+                                   16px padding:
+                                     5 x 120px + 4 x 28px + 2 x 16px = 600 + 112 + 32 = 744px.
+
+   NO RAIL TOKEN. gh#180's `rail-inline` sizes a control rail beside a board. `#view-root` is a single
+   flex column and the markup has no second column for a rail to occupy, so that rule has no subject
+   here; adding one would be a structural change to a play surface rather than a sizing decision.
+
+   THE PARTICLE CANVAS IS UNAFFECTED, checked before widening anything. `#particle-canvas` is
+   `position: absolute; top: 0; left: 0; width: 100%; height: 100%` inside `#app-container`, which is
+   `width: 100%` of the body -- so its CSS box is already the whole window. Its backing store is set
+   from `window.innerWidth` in `resizeCanvas()` in main.js and sparkles are spawned in window
+   coordinates (`spawnSparkles(window.innerWidth / 2, ...)`). Box and backing store agree at 1440
+   exactly as at 375, and `#view-root` -- the only element widened below -- is the canvas's SIBLING,
+   not its ancestor. Nothing here moves the particle layer.
+
+   FALSIFIABLE AT 1440x900: `#view-root` measures 744px (51.7%, up from 540px / 37.5%), each
+   `.count-btn` measures 120px square, `.gauge-track` measures 136px wide and still 250px tall, and
+   `#particle-canvas` still measures 1440px wide. Any of those falsifies this block. */
+@media (min-width: 1100px) {
+  #app-container {
+    --pm-desktop-target-min: 56px;
+    --pm-desktop-gap: 28px;
+    --pm-track-inline: 136px;
+    --pm-arena-max-inline: 400px;
+    --pm-board-max-inline: 744px;
+  }
+
+  #view-root {
+    max-width: var(--pm-board-max-inline);
+  }
+
+  /* The gap is load-bearing: the 744px above is computed from it. */
+  .count-grid {
+    gap: var(--pm-desktop-gap);
+  }
+
+  .meter-arena {
+    max-width: var(--pm-arena-max-inline);
+  }
+
+  /* The track is a stadium on the phone because its radius is half its width; keeping the radius
+     tied to the width keeps it one at 136px instead of turning it into a rounded rectangle. */
+  .gauge-track {
+    width: var(--pm-track-inline);
+    border-radius: calc(var(--pm-track-inline) / 2);
+  }
+
+  /* gh#180's fixed 56px desktop target floor. min-block-size only raises: anything already taller
+     stays where the lifted stylesheet put it. */
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    min-block-size: var(--pm-desktop-target-min);
+  }
+
+  /* `.icon-btn` ships as an explicit 40x40 square, so it takes the floor on BOTH axes -- a
+     min-block-size alone would stretch it into a 40x56 rectangle. */
+  .icon-btn {
+    width: var(--pm-desktop-target-min);
+    height: var(--pm-desktop-target-min);
+  }
+}

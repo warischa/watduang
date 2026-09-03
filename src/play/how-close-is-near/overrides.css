@@ -59,3 +59,98 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ============================================================================
+   gh#181 -- desktop layout at >=1100px. Reuses the sizing decisions gh#180 made
+   on wire-snip-panic; see docs/agents/desktop-sizing-decisions.md. One media
+   block only: this project has exactly two breakpoints, 639 and 1099, and this
+   is the 1099 one -- do not add a third.
+   Every value below is this route's own arithmetic under the tracer's RULE.
+
+   Text-width estimate used by the rail rule, stated once: at the label's own
+   font-size, a Thai advancing glyph ~0.55em, a Latin letter ~0.5em, a space
+   ~0.28em, an emoji ~1.15em. Thai combining marks advance 0 and are not counted.
+
+   Scoping note: main.js builds every screen as a bare .card inside
+   #screenContainer, so there is no id to hang this on. .card:has(.numpad-grid)
+   is the number-entry card and nothing else -- the setup, names, mode, handoff
+   and results cards carry no numpad. Without the :has() this would reshape every
+   screen on the route.
+   ========================================================================= */
+@media (min-width: 1100px) {
+  #appRoot {
+    /* Fixed by the tracer, copied as values. */
+    --hc-desktop-target-min: 56px;
+    --hc-desktop-gap: 28px;
+
+    /* element target. RULE: phone render, roughly doubled, floored around 100px.
+       The repeated element is .num-btn, whose phone render is its 52px
+       min-height: 52 x 2 = 104, over the 100px floor. */
+    --hc-key-block: 104px;
+
+    /* board-max-inline. RULE: the game's own grid arithmetic. The board is the
+       numpad -- three columns at the element target, separated by the desktop
+       gap, inside the card:
+         3 x 104px + 2 x 28px = 312 + 56 = 368px
+         368 + .card padding 20px each side + its 1px border each side = 410px
+       track-inline is the same number: the tracer defined it as the board cap. */
+    --hc-board-max-inline: 410px;
+
+    /* rail-inline. RULE: wide enough for the longest shipped Thai control label
+       on this route to sit on one line. That is the rematch button's label, on
+       .btn-primary at 1.15rem = 18.4px:
+         emoji 1.15 + space 0.28 + 8 advancing Thai x 0.55 (4.40)
+         + space 0.28 + open paren 0.5 + 7 advancing Thai x 0.55 (3.85)
+         + close paren 0.5 = 10.96em
+         10.96 x 18.4 = 202px. .btn-primary carries no inline padding of its own
+         (it is width:100%), so the rail adds the .turn-status-bar padding it
+         sits behind, 12px each side => 226px, rounded up to a multiple of 4. */
+    --hc-rail-inline: 228px;
+
+    /* The measured defect: style.css caps this root at 480px, so at a 1440px
+       window the game fills 480/1440 = 33.3% -- the 33% gh#181 recorded on
+       2026-08-31. Removing the cap is what takes the root to the full window. */
+    max-width: none;
+  }
+
+  /* Two columns, board + rail, centred as a pair inside the now-full-width root.
+     The card's children are placed explicitly because they are siblings with no
+     wrapper of their own; #rejectionBanner keeps its own row whether main.js has
+     it shown or hidden. */
+  .card:has(.numpad-grid) {
+    display: grid;
+    grid-template-columns: minmax(0, var(--hc-board-max-inline)) var(--hc-rail-inline);
+    grid-template-rows: auto auto 1fr auto;
+    justify-content: center;
+    align-content: start;
+    column-gap: var(--hc-desktop-gap);
+    row-gap: var(--hc-desktop-gap);
+  }
+  /* Rail: whose turn, the mode, the rejection alert, the number so far.
+     Board: the keypad and the lock button. */
+  .card:has(.numpad-grid) > .turn-status-bar    { grid-column: 2; grid-row: 1; margin-bottom: 0; }
+  .card:has(.numpad-grid) > .rejection-banner   { grid-column: 2; grid-row: 2; }
+  .card:has(.numpad-grid) > .number-display-box { grid-column: 2; grid-row: 3; align-self: start; }
+  .card:has(.numpad-grid) > .numpad-grid        { grid-column: 1; grid-row: 1 / 4; margin-bottom: 0; }
+  .card:has(.numpad-grid) > .btn-primary        { grid-column: 1; grid-row: 4; }
+
+  /* The numpad takes the board's arithmetic: cells at the element target,
+     separated by the desktop gap. */
+  .card:has(.numpad-grid) > .numpad-grid {
+    gap: var(--hc-desktop-gap);
+    align-content: start;
+  }
+  .card:has(.numpad-grid) .num-btn {
+    min-block-size: var(--hc-key-block);
+  }
+
+  /* desktop-target-min. min-* and not width/height so a control already larger
+     than the target keeps the size the mockup gave it. */
+  #btnAudioToggle {
+    min-inline-size: var(--hc-desktop-target-min);
+    min-block-size: var(--hc-desktop-target-min);
+  }
+  .card:has(.numpad-grid) > .btn-primary {
+    min-block-size: var(--hc-desktop-target-min);
+  }
+}

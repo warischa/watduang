@@ -161,3 +161,95 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ============================================================================
+   gh#181 -- desktop layout at >=1100px. Reuses the sizing decisions gh#180 made
+   on wire-snip-panic; see docs/agents/desktop-sizing-decisions.md. One media
+   block only: this project has exactly two breakpoints, 639 and 1099, and this
+   is the 1099 one -- do not add a third.
+   Every value below is this route's own arithmetic under the tracer's RULE. The
+   tracer's own pixel numbers are not copied except for the two it fixed outright.
+
+   Text-width estimate used by the rail rule, stated once: at the label's own
+   font-size, a Thai advancing glyph ~0.55em, a Latin letter ~0.5em, a space
+   ~0.28em, an emoji ~1.15em. Thai combining marks (vowels above/below, tone
+   marks) advance 0, so they are not counted.
+   ========================================================================= */
+@media (min-width: 1100px) {
+  .app-wrapper {
+    /* Fixed by the tracer, copied as values. */
+    --cn-desktop-target-min: 56px;
+    --cn-desktop-gap: 28px;
+
+    /* element target. RULE: take the element's phone render, roughly double it,
+       floor around 100px. The repeated element here is .key-btn in .keypad-grid:
+       phone render is 12px + 12px padding + a 1.25rem line at ~1.2 => ~48px.
+       48 x 2 = 96, floored to 100. */
+    --cn-key-inline: 100px;
+
+    /* board-max-inline. RULE: the game's own grid arithmetic. The widest row in
+       the board column is .stepper-row -- six step buttons at the desktop target
+       with the desktop gap between them:
+         6 x 56px + 5 x 28px = 336 + 140 = 476px
+       plus the .card's own 16px padding each side and its 1px border each side:
+         476 + 32 + 2 = 510px
+       The keypad fits inside that: 3 x 100px + 2 x 28px = 356px. */
+    --cn-board-max-inline: 510px;
+
+    /* rail-inline. RULE: wide enough for the longest shipped Thai control label
+       on this route to sit on one line. That label is the lock button's, on .btn
+       at 1.1rem = 17.6px:
+         emoji 1.15 + space 0.28 + 8 advancing Thai x 0.55 (4.40)
+         + space 0.28 + 12 Latin x 0.5 (6.00) + inner space 0.28 = 12.39em
+         12.39 x 17.6 = 218px, + .btn's 20px inline padding each side = 258px
+       rounded up to a multiple of 4. */
+    --cn-rail-inline: 260px;
+
+    /* The measured defect: style.css caps this wrapper at 520px, so at a 1440px
+       window the game fills 520/1440 = 36.1% -- the 36% gh#181 recorded on
+       2026-08-31. Removing the cap is what takes the root to the full window. */
+    max-width: none;
+  }
+
+  /* Two columns, board + rail, centred as a pair inside the now-full-width root
+     -- the same shape the tracer gave wire-snip-panic. Scoped to the play screen
+     by id AND by .active: .screen is display:none until main.js activates it, and
+     a bare rule here would make a hidden screen visible. */
+  #screenSelection.active {
+    display: grid;
+    grid-template-columns: minmax(0, var(--cn-board-max-inline)) var(--cn-rail-inline);
+    grid-template-rows: auto 1fr;
+    justify-content: center;
+    align-content: start;
+    column-gap: var(--cn-desktop-gap);
+    row-gap: var(--cn-desktop-gap);
+  }
+  /* Rail: who is playing. Board: the range and the thing they act on. */
+  #screenSelection.active > .player-strip  { grid-column: 2; grid-row: 1; margin-bottom: 0; }
+  #screenSelection.active > .player-banner { grid-column: 2; grid-row: 2; align-self: start; }
+  #screenSelection.active > .range-hero    { grid-column: 1; grid-row: 1; }
+  #screenSelection.active > .card          { grid-column: 1; grid-row: 2; }
+
+  /* The keypad is the board's grid, so it takes the board's arithmetic: cells at
+     the element target, cells separated by the desktop gap. Its own 320px cap in
+     style.css is a phone cap and would hold the desktop grid at 320px. */
+  #screenSelection.active .keypad-grid {
+    max-width: none;
+    grid-template-columns: repeat(3, var(--cn-key-inline));
+    gap: var(--cn-desktop-gap);
+    justify-content: center;
+  }
+  #screenSelection.active .key-btn {
+    min-block-size: var(--cn-key-inline);
+  }
+
+  /* desktop-target-min on the controls, and desktop-gap between them. min-* so a
+     control already larger than the target keeps the size the mockup gave it. */
+  #screenSelection.active .step-btn,
+  #screenSelection.active .tab-btn {
+    min-block-size: var(--cn-desktop-target-min);
+  }
+  #screenSelection.active .stepper-row {
+    gap: var(--cn-desktop-gap);
+  }
+}

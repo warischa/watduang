@@ -98,6 +98,25 @@
   .modal-window { animation-duration: 0.12s; }
 }
 
+/* gh#194: the player chip strip collapsed to its own 10px+10px padding at 320x568, showing a sliver of
+   a chip with 10 players. No measurement was needed to find the cause and none is written below.
+   the lifted stylesheet gives `.screen` `flex-direction:column; height:100%` while `.screen.active` supplies the
+   `display:flex` that actually creates the flex formatting context, so on the visible screen the strip is a
+   flex item with the default `flex: 0 1 auto` -- shrinkable. What normally stops a flex item shrinking
+   past its content is the automatic minimum size (`min-height:auto`), and that applies ONLY while the
+   item's computed overflow in the block axis is `visible`. The lifted rule sets `overflow-x: auto`
+   on `.player-strip-container` itself, and CSS Overflow 3 computes the other axis to `auto` whenever one axis is not
+   visible -- so the strip's automatic minimum is 0 and the flex algorithm empties it first when the
+   game screen runs out of height. Content box 0 + 20px padding is exactly the 20px reported.
+   `flex-shrink: 0` is the whole fix, and it is the idiom the mockup already uses on the chip itself
+   (the `.strip-player-chip { flex-shrink: 0 }` rule in the lifted stylesheet). The strip is then sized by its `auto`
+   basis, i.e. by the tallest chip, so a 46px chip and a 60px chip are both fully visible and neither
+   font, padding, nor the `scale(1.05)` on `.active-turn` can outgrow a number written here -- because
+   there is no number written here. Overflow past the screen keeps scrolling: `.screen` is overflow-y:auto. */
+.player-strip-container {
+  flex-shrink: 0;
+}
+
 /* Off-screen but readable: the round-start live region (#zt-live) carries no visual duty, and
    display:none / visibility:hidden would take it out of the accessibility tree entirely. */
 .zt-visually-hidden {
@@ -107,4 +126,92 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* ============================================================================
+   gh#181 -- desktop layout at >=1100px. Reuses the sizing decisions gh#180 made
+   on wire-snip-panic; see docs/agents/desktop-sizing-decisions.md. One media
+   block only: this project has exactly two breakpoints, 639 and 1099, and this
+   is the 1099 one -- do not add a third.
+   Every value below is this route's own arithmetic under the tracer's RULE.
+
+   Text-width estimate used by the rail rule, stated once: at the label's own
+   font-size, a Thai advancing glyph ~0.55em, a Latin letter ~0.5em, a space
+   ~0.28em, an emoji ~1.15em. Thai combining marks advance 0 and are not counted.
+
+   One token is reused by analogy rather than literally, and it is named here
+   because gh#181 asks for that: board-max-inline's rule is "the game's own grid
+   arithmetic", and this route has no grid. Its board column is one circular
+   trigger inside one stage box, so the arithmetic below is that box's, not a
+   grid's. Everything else is the tracer's rule applied unchanged.
+   ========================================================================= */
+@media (min-width: 1100px) {
+  #app-container {
+    /* Fixed by the tracer, copied as values. */
+    --zt-desktop-target-min: 56px;
+    --zt-desktop-gap: 28px;
+
+    /* element target. RULE: phone render, roughly doubled, floored around 100px.
+       The element is .big-trigger-btn, 140px square on a phone: 140 x 2 = 280,
+       already well over the 100px floor. */
+    --zt-trigger-inline: 280px;
+
+    /* board-max-inline, by the stage's own arithmetic (see the note above):
+         trigger 280px + .stopwatch-stage padding 16px each side
+         + its 2px border each side = 280 + 32 + 4 = 316px
+       rounded up to a multiple of 4. track-inline is the same number, because
+       the tracer defined track-inline as the board cap for that route. */
+    --zt-board-max-inline: 320px;
+
+    /* rail-inline. RULE: wide enough for the longest shipped Thai control label
+       on this route to sit on one line. That is the setup button's label, on
+       .btn-secondary at 0.95rem = 15.2px:
+         emoji 1.15 + space 0.28 + 8 advancing Thai x 0.55 (4.40)
+         + space 0.28 + ampersand 0.5 + space 0.28
+         + 7 advancing Thai x 0.55 (3.85) = 10.74em
+         10.74 x 15.2 = 163px, + .btn-secondary's 20px inline padding each side
+         = 203px, rounded up to a multiple of 4. */
+    --zt-rail-inline: 204px;
+
+    /* The measured defect: style.css caps this container at 480px, so at a 1440px
+       window the game fills 480/1440 = 33.3% -- the 33% gh#181 recorded on
+       2026-08-31. Removing the cap is what takes the root to the full window. */
+    max-width: none;
+  }
+
+  /* Two columns, board + rail, centred as a pair inside the now-full-width root.
+     Scoped by id AND .active on purpose: .screen is display:none until main.js
+     activates it, and a bare id rule here would reveal a hidden screen. */
+  #screen-game.active {
+    display: grid;
+    grid-template-columns: minmax(0, var(--zt-board-max-inline)) var(--zt-rail-inline);
+    grid-template-rows: auto auto 1fr;
+    justify-content: center;
+    align-content: start;
+    column-gap: var(--zt-desktop-gap);
+    row-gap: var(--zt-desktop-gap);
+  }
+  /* Rail: round state and who is still alive. Board: the clock and the button. */
+  #screen-game.active > .tier-banner           { grid-column: 2; grid-row: 1; }
+  #screen-game.active > .active-player-card    { grid-column: 2; grid-row: 2; }
+  #screen-game.active > .player-strip-container{ grid-column: 2; grid-row: 3; align-self: start; }
+  #screen-game.active > .stopwatch-stage       { grid-column: 1; grid-row: 1 / 3; }
+  #screen-game.active > .action-button-area    { grid-column: 1; grid-row: 3; }
+
+  #screen-game.active .big-trigger-btn {
+    inline-size: var(--zt-trigger-inline);
+    block-size: var(--zt-trigger-inline);
+  }
+  #screen-game.active .action-button-area {
+    gap: var(--zt-desktop-gap);
+  }
+
+  /* desktop-target-min. min-* and not width/height so a control already larger
+     than the target keeps the size the mockup gave it. */
+  #btn-audio-toggle,
+  #btn-open-rules,
+  #btn-home-menu {
+    min-inline-size: var(--zt-desktop-target-min);
+    min-block-size: var(--zt-desktop-target-min);
+  }
 }

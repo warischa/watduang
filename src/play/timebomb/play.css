@@ -75,6 +75,12 @@ body {
   flex-direction: column;
   justify-content: center;
   padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+  /* gh#182 — a flex item's automatic minimum size is its content, so this column could never give
+     back a pixel and the play screen pushed the document past the viewport. Zero here lets the
+     bound below actually reach the one child that can yield (the canvas). No effect while the page
+     is unbound: with no negative free space nothing shrinks, which is why the setup screen, whose
+     #app carries no height bound, lays out exactly as before. */
+  min-block-size: 0;
 }
 
 /* ---- setup screen ---------------------------------------------------------------------------- */
@@ -303,6 +309,29 @@ body {
      on a phone rather than being upscaled from CSS pixels. */
   block-size: min(46vh, 320px);
   margin-block-end: 12px;
+  /* gh#182 — the cap above is a RESERVATION, not a fit: at 320x568 it takes 261px of a 568px screen
+     and the ticking screen's own column (holder, fuse, pass button, footnote) needs more than the
+     rest, so the page scrolled. This floor replaces the automatic content-based minimum, which is
+     what pinned the box at its preferred size, and makes the canvas the one item that absorbs the
+     deficit under the bound on #app below. A floor rather than 0 on purpose: past it the page
+     scrolls again and the fit probe reds, where a canvas free to collapse would go on quietly
+     shrinking the drawn bomb with no gate able to see it. The renderer re-reads this box every
+     frame (src/play/timebomb/bomb-canvas.ts resize(), called from the raf loop) and derives its
+     radius from min(width, height), so a shorter box is drawn correctly, not stretched. */
+  min-block-size: 120px;
+}
+
+/* gh#182 — the play screens must not scroll (owner criterion, ruled 2026-08-31); the setup screen
+   may, and does when a full roster is listed. #app declares min-block-size:100dvh, so the column
+   only ever grew: with nothing bounding it, no descendant had negative free space to shrink into.
+   Binding the height turns the deficit into flex shrink, which the two rules above route into the
+   canvas. Scoped by the stage being on screen so the bound exists ONLY on the engine's own screens
+   -- #tb-stage carries `hidden` for the whole of setup -- because .tb-main centres its column, and a
+   roster of ten under a bound would overflow that centring in BOTH directions, putting the first
+   rows above scroll position zero where nothing can reach them. */
+#app:has(#tb-stage:not([hidden])) {
+  block-size: 100vh;
+  block-size: 100dvh;
 }
 
 .tb-canvas[hidden] {
@@ -406,4 +435,99 @@ body {
   line-height: 1.6;
   max-inline-size: 30ch;
   color: var(--tb-muted);
+}
+
+/* ================================================================================================
+   gh#183 — DESKTOP FILL. Appended as one block; no rule above this line is modified or reordered.
+   One `@media (min-width: 1100px)` block, the single desktop breakpoint gh#180 fixed. This project's
+   other two breakpoints are 639 and 1099; no third is invented here.
+
+   This route has no style.css / overrides.css pair -- nothing here is an extractor lift, as the file
+   header above says -- so the desktop block lives at the end of this file rather than in a sibling.
+
+   THE DEFECT ON THIS ROUTE IS INVERTED, and the arithmetic is what shows it. `.tb-canvas` is
+   `inline-size: 100%` of `.tb-main`, and neither `.tb-main` nor `#app` caps its width -- so at a
+   1440px window the drawn play surface is roughly 1408px wide. Its height is NOT free: the shipped
+   `block-size: min(46vh, 320px)` takes the 320px arm on any window up to 1391px tall. And
+   `paint()` in bomb-canvas.ts sizes the bomb as
+     radius = min(width * 0.30, height * 0.30) * scale * 1.25
+   -- bound by the SHORTER axis. So every one of those 1088 extra pixels of width buys exactly zero
+   bomb: the desktop render is the phone's 96px-radius bomb floating in an empty 1408px field. The
+   text columns have the ordinary version of the problem: `.tb-setup` and `.stage-screen` are capped
+   at 420px = 29.2% of 1440.
+
+   TOKENS ARE PER-ROUTE LOCALS on `#app`, named `--tb-*`, matching this file's existing prefix.
+
+   ARITHMETIC, from gh#180's rules:
+
+   --tb-desktop-target-min: 56px   fixed by gh#180.
+   --tb-desktop-gap:        28px   fixed by gh#180.
+   --tb-canvas-block:      640px   RULE: element target = the phone render roughly doubled. The bomb's
+                                   bounding axis on a phone is the 320px absolute arm of the shipped
+                                   min(); 320 x 2 = 640px. ONLY the absolute arm is raised -- the 46vh
+                                   term is left exactly as shipped, because 46vh IS this route's
+                                   vertical budget and a browser is what owns whether a taller field
+                                   still leaves room for the stage text below it. At a 900px-tall
+                                   window the min() therefore still resolves to 46vh = 414px, and the
+                                   640px arm only binds above 1391px of height.
+   --tb-board-max-inline:  560px   RULE: the game's own drawing arithmetic. Past the shorter axis, extra
+                                   inline size is ground rather than bomb, so the field is sized as a
+                                   4:3 frame around a bomb bound by its height: at the 900px reference
+                                   the effective block is 414px, and 414 x 4/3 = 552px, rounded to
+                                   560px. The surplus over the block is exactly the floor the shadow
+                                   ellipse in `paint()` spreads across (shadowSpread = radius * 1.15,
+                                   centred on width / 2).
+
+   NO RAIL TOKEN. gh#180's `rail-inline` sizes a control rail beside a board. `.tb-main` is a single
+   flex column with the canvas and `#tb-stage` stacked inside it; splitting them into a board and a
+   rail would restructure a play surface, which is not a sizing decision and is not what this ticket
+   licenses.
+
+   THIS CANVAS FOLLOWS ITS ELEMENT BOX, so capping it in CSS is safe: `resize()` in bomb-canvas.ts
+   reads `canvas.getBoundingClientRect()` and sizes the backing store from `rect.width * dpr`. No
+   window-derived width is involved anywhere in that file. What that file does NOT do is watch the
+   element -- `resize()` runs at init and from a `window` resize listener only, with no
+   ResizeObserver. That is enough here and only here: the box below changes size solely with the
+   viewport, so crossing 1100px IS a resize event and the new box is measured on the same tick the
+   query applies. A future change that resizes this canvas from script would need the observer.
+
+   FALSIFIABLE AT 1440x900: `.tb-canvas` measures 560 x 414 (today 1408 x 320), the bomb's radius
+   grows by exactly 414 / 320 = 1.29x, and `.tb-setup` and `.stage-screen` measure 560px (38.9%, up
+   from 420px / 29.2%). Any of those being wrong falsifies this block.
+
+   NOTE FOR THE FIT PROBE OWNER: this is the one route in this batch where the measured width fill
+   goes DOWN, because a full-bleed canvas is being given a cap. That is the fix, not a regression. */
+@media (min-width: 1100px) {
+  #app {
+    --tb-desktop-target-min: 56px;
+    --tb-desktop-gap: 28px;
+    --tb-canvas-block: 640px;
+    --tb-board-max-inline: 560px;
+  }
+
+  .tb-canvas {
+    inline-size: min(100%, var(--tb-board-max-inline));
+    block-size: min(46vh, var(--tb-canvas-block));
+    margin-inline: auto;
+  }
+
+  .tb-setup,
+  .stage-screen {
+    max-inline-size: var(--tb-board-max-inline);
+    gap: var(--tb-desktop-gap);
+  }
+
+  /* gh#180's fixed 56px desktop target floor. min-block-size only raises. */
+  .game-btn,
+  .tb-secondary-btn,
+  .tb-danger-btn {
+    min-block-size: var(--tb-desktop-target-min);
+  }
+
+  /* `.tb-step` is a 48px circle (`border-radius: 50%`), so it takes the floor on BOTH axes -- a
+     min-block-size alone would stretch it into an ellipse. */
+  .tb-step {
+    inline-size: var(--tb-desktop-target-min);
+    block-size: var(--tb-desktop-target-min);
+  }
 }

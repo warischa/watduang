@@ -93,8 +93,13 @@ const classifyBurst = (log, armDelayMs) => {
 // The leg's exit code, as a function so selftest() can pin it: a VOID that survived its retry is
 // fail-closed, exactly like a FAIL. Relaxing a post-retry VOID to a non-blocking outcome (green
 // deploy plus the ::warning::) is an owner decision on gh#190, not this file's to take.
-const legExitCode = ({ fails, voids, skips, checked }) =>
-  (fails > 0 || voids > 0 || checked === 0 || skips + voids === checked ? 1 : 0);
+// gh#193 re-read of the skip rule: `checked` no longer counts an exempted route, so the old
+// `skips + voids === checked` clause is gone -- an all-skipped walk now reds through `checked === 0`,
+// and it is the COUNT, not the exit code, that stopped lying. Whether a single skip among ten
+// exercised routes should red is the same owner call as the VOID relax above; it stays non-blocking
+// here because the finder is load-dependent (see the verdict block) and a flaky red gates nothing.
+const legExitCode = ({ fails, voids, checked }) =>
+  (fails > 0 || voids > 0 || checked === 0 ? 1 : 0);
 
 // Runs on EVERY invocation, not only behind the flag: this file is driven by a shell wrapper, so it
 // sits outside gate-selftest-coverage-check.mjs's audited set and a flag-only selftest here would be
@@ -133,9 +138,10 @@ function selftest() {
   // The same burst without that contact IS void.
   assert.strictEqual(classifyBurst([{ kind: 'up', t: 0, ti: 0, disabled: true }, { kind: 'down', t: 500, ti: 500, disabled: false }], 400).isVoid, true);
   // A VOID that survived the retry blocks the leg, like a FAIL; a SKIP alone does not.
-  assert.strictEqual(legExitCode({ fails: 0, voids: 1, skips: 0, checked: 11 }), 1);
-  assert.strictEqual(legExitCode({ fails: 0, voids: 0, skips: 1, checked: 11 }), 0);
-  assert.strictEqual(legExitCode({ fails: 0, voids: 0, skips: 11, checked: 11 }), 1);
+  assert.strictEqual(legExitCode({ fails: 0, voids: 1, checked: 11 }), 1);
+  assert.strictEqual(legExitCode({ fails: 0, voids: 0, checked: 10 }), 0, 'one route exempted out of eleven still leaves ten really checked');
+  // gh#193: every route exempted means `checked` is 0, and a walk that exercised nothing is a red.
+  assert.strictEqual(legExitCode({ fails: 0, voids: 0, checked: 0 }), 1);
 }
 selftest();
 if (ARGV.includes('--selftest')) { console.log('play-exit-probe --selftest: burst classifier calibrated (clean, late-handled, late-input, no-input-clock, slow-neighbour-vs-defect, post-retry VOID blocks)'); process.exit(0); }
@@ -143,9 +149,18 @@ if (ARGV.includes('--selftest')) { console.log('play-exit-probe --selftest: burs
 // Calibration knobs are for a hand-driven run only: a CI leg that ran with a stall injected, or with
 // the burst spaced wider than the arm window, would report a verdict about the harness and not about
 // the site. TAG is 'ci' exactly when scripts/ci-probes.sh invoked this file.
-if (TAG === 'ci' && (STALL_MS !== 0 || BURST_GAP_MS !== 80)) {
-  throw new Error(`refusing to run the CI leg with calibration knobs set (PROBE_STALL_MS=${STALL_MS}, PROBE_BURST_GAP_MS=${BURST_GAP_MS}) -- both exist to drive this probe's own classifier to a known outcome by hand, and a CI verdict measured through them is about the harness, not the site`);
+// gh#193 — third knob, same rule. PROBE_OUT_FIXTURE=<path.json> loads a recorded `out` and runs the
+// verdict block below on it with no browser at all. It exists because the bookkeeping down there
+// (which routes the summary counts vs which ones were exempted from the burst) is pure arithmetic
+// that used to be reachable only by driving Chrome, i.e. only by not testing it. Refused under the
+// CI tag with the other two: a lane1 verdict computed from a file on disk is not a verdict.
+const FIXTURE = process.env.PROBE_OUT_FIXTURE;
+if (TAG === 'ci' && (STALL_MS !== 0 || BURST_GAP_MS !== 80 || FIXTURE)) {
+  throw new Error(`refusing to run the CI leg with calibration knobs set (PROBE_STALL_MS=${STALL_MS}, PROBE_BURST_GAP_MS=${BURST_GAP_MS}, PROBE_OUT_FIXTURE=${FIXTURE ?? ''}) -- all three exist to drive this probe's own classifier and verdict to a known outcome by hand, and a CI verdict measured through them is about the harness, not the site`);
 }
+const out = FIXTURE ? JSON.parse(await (await import('node:fs/promises')).readFile(FIXTURE, 'utf8')) : {};
+// ponytail: the walk below is guarded, not re-indented -- the diff that matters is this one line.
+if (!FIXTURE) {
 
 const api = async (p, m = 'GET') => (await fetch(`http://127.0.0.1:${PORT}${p}`, { method: m })).json();
 const target = await api('/json/new?about:blank', 'PUT');
@@ -244,7 +259,6 @@ const XSTATE = `
            innerWidth, reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
            scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth };`;
 
-const out = {};
 for (const g of ROUTES) {
   const url = `${BASE}/game/${g}/play/`;
   const res = { route: g };
@@ -340,6 +354,7 @@ for (const g of ROUTES) {
 await fetch(`http://127.0.0.1:${PORT}/json/close/${target.id}`);
 ws.close();
 console.log(JSON.stringify(out, null, 2));
+}
 
 // --- verdict ------------------------------------------------------------------------------------
 // Every measurement above used to be thrown away by a bare process.exit(0). ADR-0050 ruling 3 promises
@@ -362,10 +377,17 @@ const gapNote = (r) => r.burst?.maxGap == null
   ? 'no contact timings captured, so this red names no cause'
   : `largest pointerup->pointerdown gap: handled ${r.burst.maxGap}ms, input ${r.burst.maxInputGap == null ? 'NOT CAPTURED -- a slow dispatch cannot be told from a gate defect here' : r.burst.maxInputGap + 'ms'} vs ARM_DELAY_MS ${ARM_DELAY_MS} (over it: ${r.burst.gapsOverArmDelay} handled, ${r.burst.inputGapsOverArmDelay} input; handled gaps ${r.burst.gaps.join(', ')}; input gaps ${r.burst.inputGaps.join(', ')})`;
 const fails = [], skips = [], voids = [];
+// gh#193 — the skipped routes BY NAME, because `checked` used to be `Object.keys(out).length` and a
+// route could sit in both sets at once: short-stick skipped on four consecutive runs while the summary
+// reported "11 route(s) checked". A count that includes a route nothing exercised is not coverage.
+const exempt = new Set();
 for (const [g, r] of Object.entries(out)) {
   if (!r.idle?.present) { fails.push(`${g}: no #play-exit on the play page at all`); continue; }
   if (r.m1_pathname !== '/') fails.push(`${g}: M1 -- an idle deliberate tap on the X did not leave the round (pathname ${r.m1_pathname})`);
-  if (!r.transitionTrigger) { skips.push(`${g} burst: no transition trigger found, so nothing disarmed the X`); continue; }
+  // The reason is the FINDER's, never the route's: play-exit-guard-probe measured a trigger on
+  // short-stick after this file reported none, so this line records an unexercised route, not an
+  // unexercisable one. It stays a skip only because the miss is load-dependent; it is named below.
+  if (!r.transitionTrigger) { exempt.add(g); skips.push(`${g} burst: no transition trigger found (a finder miss, not a property of the route) -- nothing disarmed the X, so this route is EXEMPT from the checked count, not covered by it`); continue; }
   // The harm first, liveness second: with the guard broken the burst navigates home, which also wipes
   // the in-page contact counter -- so a liveness-first order reports "measured nothing" for a run that
   // in fact measured the exact regression this leg exists to catch (observed, calibration run).
@@ -382,7 +404,9 @@ for (const [g, r] of Object.entries(out)) {
   else if (!(r.burst?.contacts?.onBtnWhileDisabled > 0)) fails.push(`${g}: the burst put ${r.burst?.contacts?.onBtnWhileDisabled ?? 'no'} contact(s) on a DISABLED X -- a no-exit result here rests on nothing -- ${gapNote(r)}`);
   if (r.m3_pathname !== '/') fails.push(`${g}: M3 -- after the arm delay a deliberate tap no longer exits (pathname ${r.m3_pathname})`);
 }
-const checked = Object.keys(out).length;
+// Disjoint by construction: a route is counted or it is exempt, never both.
+const exemptIds = [...exempt].sort();
+const checked = Object.keys(out).filter((g) => !exempt.has(g)).length;
 for (const f of fails) console.log(`  FAIL ${f}`);
 for (const s of skips) console.log(`  SKIP ${s}`);
 // VOID is its own outcome, printed and annotated through the ::warning:: channel ci-probes.sh already
@@ -394,5 +418,6 @@ for (const v of voids) {
   console.log(`  VOID ${v}`);
   console.warn(`::warning::play-exit ${v}`);
 }
-console.log(`play-exit: ${checked} route(s) checked, ${fails.length} failed, ${voids.length} burst leg(s) VOID after a retry, ${skips.length} burst leg(s) not exercisable`);
-process.exit(legExitCode({ fails: fails.length, voids: voids.length, skips: skips.length, checked }));
+// Only `tail -n 3` of this reaches the CI log, so the exempted routes are named IN the summary line.
+console.log(`play-exit: ${checked} of ${Object.keys(out).length} route(s) fully checked, ${fails.length} failed, ${voids.length} burst leg(s) VOID after a retry, ${exemptIds.length} route(s) EXEMPT from the checked count (burst leg never exercised): ${exemptIds.join(', ') || 'none'}`);
+process.exit(legExitCode({ fails: fails.length, voids: voids.length, checked }));

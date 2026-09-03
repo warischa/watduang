@@ -140,3 +140,142 @@
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
+
+/* ============================================================================
+   DESKTOP LAYER - gh#180. THE TRACER: gh#181 and gh#183 copy these decisions.
+   The rule for each token, and why the value is what it is, lives in
+   docs/agents/desktop-sizing-decisions.md. Change a value here and change it
+   there in the same edit, or the nine routes that copy it drift.
+
+   Breakpoint: 1100px. This repo has exactly two (639 / 1099) and 1100 is the
+   upper one's open side, already used by src/pages/tool/team.astro and
+   src/pages/tool/draw.astro. No third breakpoint is introduced.
+
+   NOT a max-width bump. Below, the frame goes full-bleed AND the game screen
+   becomes board + rail, because a 520px column stretched to 1440px is the
+   "stretched phone" the ticket exists to avoid.
+   ============================================================================ */
+@media (min-width: 1100px) {
+  /* Tokens on the mockup root, so a route with no desktop layer inherits
+     nothing and is unaffected. Values are per-route by RULE, not by copy:
+     --wsp-desktop-board-max-inline is derived from this game's own board. */
+  #app {
+    /* The centred content track for the single-column screens (menu, setup).
+       Same number as the board cap so the two screens line up on refresh. */
+    --wsp-desktop-track-inline: 726px;
+    /* 6 wire columns x 120px target + 4px bay padding + 2px bay border = 726px.
+       120px is the desktop pointer-target size: the phone-width column already
+       renders these at ~77px, so a desktop target below ~100px would be a
+       DOWNGRADE in apparent size relative to the frame. Derive this per route
+       from (element count x target size), never copy 726 across. */
+    --wsp-desktop-board-max-inline: 726px;
+    /* The HUD/turn rail. 420px holds the widest shipped turn-banner label on
+       one line at the desktop button size. */
+    --wsp-desktop-rail-inline: 420px;
+    --wsp-desktop-gap: 28px;
+    /* Desktop pointer target floor. Above the 44px touch floor, which stays
+       declared unconditionally above so a touch laptop keeps it. */
+    --wsp-desktop-target-min: 56px;
+
+    /* The frame fills the window. This is the whole of the "fill" half:
+       max-width:520px in style.css is what pins it to 36% of 1440px, and
+       max-height:960px never binds at 900px but would in a taller window. */
+    max-inline-size: none;
+    max-block-size: none;
+  }
+
+  /* The shell's controls are DELIBERATELY not moved. PlayExit renders them
+     fixed to the viewport's top-left; at 520px wide they sat in dead
+     background 460px from the game, and the same coordinates now land on the
+     game's own top-left chrome band, because the frame reaches them. That band
+     is the padding-block-start reserve declared at the top of this file - one
+     expression, correct at every width, so there is nothing width-specific to
+     add here. Other routes: reuse the reserve, do not restyle PlayExit. */
+
+  /* Single-column screens keep a readable measure and centre in the frame.
+     Not applied to #screen-game: that screen gets the two-column treatment. */
+  #screen-menu,
+  #screen-setup {
+    inline-size: 100%;
+    max-inline-size: var(--wsp-desktop-track-inline);
+    margin-inline: auto;
+  }
+
+  /* Board left, HUD rail right. `.active` is load-bearing: `.screen{display:none}`
+     is (0,1,0), and an id-only selector here would outrank it and render the
+     game screen on top of the menu. */
+  #screen-game.active {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--wsp-desktop-rail-inline);
+    grid-template-rows: auto auto 1fr;
+    column-gap: var(--wsp-desktop-gap);
+    row-gap: 12px;
+    padding: 24px 28px;
+  }
+
+  .bomb-chassis {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+
+  /* The chassis spans its whole column - a wide machine - but its readouts and
+     the wire bay stay on the 726px track, so the wires do not stretch. The wire
+     SVG is built with preserveAspectRatio="none" by renderWiresBay() in
+     main.js, so an uncapped bay would
+     thin each wire vertically and fatten it horizontally at the same time. */
+  .bomb-lcd,
+  .timer-bar-wrap,
+  .wires-bay {
+    max-inline-size: var(--wsp-desktop-board-max-inline);
+    margin-inline: auto;
+  }
+
+  .hud-player-strip {
+    grid-column: 2;
+    grid-row: 1;
+    /* The rail has vertical room the phone strip never had, so badges wrap
+       instead of hiding behind a horizontal scroll with no visible scrollbar
+       (`scrollbar-width: none` in style.css). */
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .hud-status-bar {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  /* Bottom of the rail: the primary action keeps the same relative position it
+     holds at the bottom of the phone layout. */
+  .turn-action-banner {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: end;
+  }
+
+  /* Proportions, not just position. Type sized for a 520px column reads as a
+     phone screenshot when the frame is 1440px. */
+  .game-logo {
+    font-size: 48px;
+  }
+
+  .brand-title {
+    font-size: 20px;
+  }
+
+  .btn-primary {
+    padding: 20px;
+    font-size: 18px;
+  }
+
+  .header-btn,
+  .btn-small,
+  .player-remove-btn {
+    min-block-size: var(--wsp-desktop-target-min);
+  }
+
+  .header-btn {
+    min-inline-size: var(--wsp-desktop-target-min);
+    font-size: 15px;
+  }
+}

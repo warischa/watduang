@@ -41,3 +41,51 @@
   min-inline-size: 44px;
   min-block-size: 44px;
 }
+
+/* ============================================================================
+   gh#181 -- desktop layout at >=1100px. Reuses the sizing decisions gh#180 made
+   on wire-snip-panic; see docs/agents/desktop-sizing-decisions.md. One media
+   block only: this project has exactly two breakpoints, 639 and 1099, and this
+   is the 1099 one -- do not add a third.
+
+   PARTIAL REUSE, and the reason is named on purpose (gh#181 asks for this).
+   Reused here: the root-fills-the-window rule, desktop-target-min, desktop-gap.
+   NOT expressible on this route: rail-inline, board-max-inline, track-inline and
+   the element-target rule. All four assume a board built from repeated elements
+   with a grid arithmetic and a separable status rail. This route has neither:
+   the play surface is a single <canvas> that main.js sizes from its parent's
+   bounding rect and letterboxes a fixed 1000-unit world into (WORLD_WIDTH in
+   main.js, with the scale and offsetX it derives), and the turn/timer/wind chips
+   are absolutely positioned OVER that canvas by design -- moving them into a
+   rail would be a different game screen, not a wider one. So the canvas takes
+   the whole width and only the control floors and the gap come from the tokens.
+   ========================================================================= */
+@media (min-width: 1100px) {
+  #app-container {
+    /* Fixed tokens, copied as VALUES from the tracer because the tracer fixed them. */
+    --cf-desktop-target-min: 56px;
+    --cf-desktop-gap: 28px;
+
+    /* The measured defect: style.css caps this at 900px, so at a 1440px window the
+       game fills 900/1440 = 62.5% -- the 63% gh#181 recorded on 2026-08-31.
+       Removing the cap is what takes it to 100%. The canvas follows because it is
+       sized from this element's descendant rect, not from a constant. */
+    max-width: none;
+  }
+
+  /* desktop-target-min. min-* and not width/height, matching the 44px floor block
+     above: it raises what is under the floor and leaves anything already larger
+     where the mockup put it. */
+  #btn-sound-toggle,
+  #btn-angle-dec,
+  #btn-angle-inc {
+    min-inline-size: var(--cf-desktop-target-min);
+    min-block-size: var(--cf-desktop-target-min);
+  }
+
+  /* desktop-gap between the two control rows and inside the aim group. */
+  .controls-dashboard,
+  .angle-adjust-group {
+    gap: var(--cf-desktop-gap);
+  }
+}
