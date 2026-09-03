@@ -104,7 +104,7 @@
 
 <script>
   // Bundled by Astro, never inline (ADR-0005 + `script-src 'self'`).
-  import { ARM_DELAY_MS } from '../games/_arm-gate';
+  import { ARM_DELAY_MS, inputClockGate } from '../games/_arm-gate';
   import { loadRoster } from './roster';
   // The edit control's whole per-game story lives there: it reloads the play route with a flag, and
   // each roster-bridge.ts answers that flag by prefilling the mockup's OWN setup and not starting it.
@@ -138,8 +138,17 @@
     // finger. pointercancel is counted like pointerup so a contact leaving the viewport cannot
     // leak the counter high and disarm the X forever.
     let active = 0;
+    // gh#190 — the second, independent guard. The timer below keeps owning the visible `disabled`
+    // attribute; this decides, from the browser's own dispatch stamp, whether a contact belongs to
+    // the quiet window at all. It exists because the two are not the same question: a contact the
+    // browser stamped 235.5ms after a transition tap was handled 638ms later, with the timer already
+    // expired and the X live, and the round left the play route. `_arm-gate.ts` carries the rule.
+    // A `disarm()` called with no event (load, bfcache restore) anchors to nothing, which reads as
+    // open and leaves the timer in sole charge — the behaviour this control always had.
+    const stamps = inputClockGate();
 
-    const disarm = (): void => {
+    const disarm = (ev?: Event): void => {
+      if (ev) stamps.hold(ev); else stamps.anchor();
       for (const c of controls) c.el.disabled = true;
       clearTimeout(timer);
       if (active === 0) {
@@ -170,11 +179,14 @@
       (ev) => {
         active += 1;
         const target = hit(ev);
-        if (target && !target.el.disabled) {
+        // Three conditions, not two: the control must be armed AND this contact must have been
+        // DISPATCHED after the window closed. Without the third one a contact from inside the window
+        // that the main thread only got to afterwards reads as a deliberate press.
+        if (target && !target.el.disabled && stamps.isOpen(ev)) {
           pressed = target;
           return;
         }
-        disarm();
+        disarm(ev);
       },
       true,
     );
@@ -217,16 +229,16 @@
         }
         // Every release restarts the quiet window (scheduling only once no contact remains), so a
         // window that expired under a held finger cannot leave the X armed the instant the hold ends.
-        disarm();
+        disarm(ev);
       },
       true,
     );
     document.addEventListener(
       'pointercancel',
-      () => {
+      (ev) => {
         active = Math.max(0, active - 1);
         pressed = undefined;
-        disarm();
+        disarm(ev);
       },
       true,
     );

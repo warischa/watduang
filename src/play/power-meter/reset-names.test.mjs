@@ -102,3 +102,82 @@ test('no numbered default remains in main.js', () => {
   assert.deepEqual(numbered, [], `numbered default(s) left in main.js: ${JSON.stringify(numbered)}`);
   assert.match(source, /import \{[^}]*mascotNames[^}]*\} from '\.\.\/_mascots\.ts'/);
 });
+
+// gh#175 box: "All three open with animal names, and a search for the numbered default returns
+// nothing a player can see" — the test above already covers main.js; markup.html is a second surface
+// a player reads (the reset confirm's own copy, static help text) and gets the same absence check.
+test('gh#175 box: no numbered default remains in markup.html', () => {
+  const markup = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
+  const numbered = markup
+    .split('\n')
+    .map((line, i) => [i + 1, line])
+    .filter(([, line]) => /ผู้เล่น\s*(\$\{|\d)/.test(line));
+  assert.deepEqual(numbered, [], `numbered default(s) left in markup.html: ${JSON.stringify(numbered)}`);
+});
+
+// gh#175 box: "Removing a player does not re-number or rename the players who remain" and "Renaming
+// still persists as it does today". This route's only way to remove a player is the count grid — there
+// is no per-row delete — so a count decrease IS the removal path this box tests. goToSetupNames rebuilds
+// game.players from game.playerCount, reusing each surviving seat's typed name by its POSITIONAL id
+// (`player_${i+1}`); sliced as exactly that core loop, real bytes, with the DOM/sound calls either side
+// of it left out because they play no part in the invariant (goToSetupNames() also calls renderUI() and
+// soundSynth.playClick() in main.js; neither touches game.players).
+const rebuildStart = 'const currentMap = new Map((game.players || []).map(p => [p.id, p.name]));';
+const rebuildEnd = 'game.state = GameState.SETUP_NAMES;';
+const rebuildStartAt = source.indexOf(rebuildStart);
+assert.notEqual(rebuildStartAt, -1, 'goToSetupNames no longer rebuilds game.players this way — this test measures nothing');
+const rebuildEndAt = source.indexOf(rebuildEnd, rebuildStartAt);
+assert.notEqual(rebuildEndAt, -1, 'goToSetupNames no longer sets GameState.SETUP_NAMES after the rebuild');
+const rebuildBody = source.slice(rebuildStartAt, rebuildEndAt);
+
+const rebuildPlayers = new Function(
+  'game',
+  'defaultName',
+  'PLAYER_AVATARS',
+  'PLAYER_COLORS',
+  `${rebuildBody}\nreturn game.players;`,
+);
+
+const AVATARS = ['🦊', '🐼', '🐯', '🦁', '🐸', '🐨', '🐰', '🦄', '🐙', '🐺'];
+const COLORS = ['#00f2fe', '#10b981', '#f59e0b', '#ff2a5f', '#a855f7'];
+const defaultNameFn = (i) => mascotNames(i + 1)[i];
+
+test('gh#175 box: removing a player does not re-number or rename the players who remain', () => {
+  const game = {
+    playerCount: 3,
+    players: [
+      { id: 'player_1', name: 'พี่โต้ง', avatar: AVATARS[0], color: COLORS[0] },
+      { id: 'player_2', name: 'ชิบะ', avatar: AVATARS[1], color: COLORS[1] },
+      { id: 'player_3', name: 'น้องหมวย', avatar: AVATARS[2], color: COLORS[2] },
+      { id: 'player_4', name: 'ฟร็อกกี้', avatar: AVATARS[3], color: COLORS[3] },
+      { id: 'player_5', name: 'Bank', avatar: AVATARS[4], color: COLORS[4] },
+    ],
+  };
+  const after = rebuildPlayers(game, defaultNameFn, AVATARS, COLORS);
+  assert.equal(after.length, 3, 'the count did not shrink to what was asked');
+  assert.deepEqual(
+    after.map((p) => p.name),
+    ['พี่โต้ง', 'ชิบะ', 'น้องหมวย'],
+    'a surviving player was renamed or shifted after another player was removed',
+  );
+});
+
+test('gh#175 box: renaming still persists as it does today (grow keeps every existing rename)', () => {
+  const game = {
+    playerCount: 5,
+    players: [
+      { id: 'player_1', name: 'พี่โต้ง', avatar: AVATARS[0], color: COLORS[0] },
+      { id: 'player_2', name: 'ชิบะ', avatar: AVATARS[1], color: COLORS[1] },
+      { id: 'player_3', name: 'น้องหมวย', avatar: AVATARS[2], color: COLORS[2] },
+    ],
+  };
+  const after = rebuildPlayers(game, defaultNameFn, AVATARS, COLORS);
+  assert.equal(after.length, 5);
+  assert.deepEqual(
+    after.slice(0, 3).map((p) => p.name),
+    ['พี่โต้ง', 'ชิบะ', 'น้องหมวย'],
+    'a typed name did not persist across a player-count change',
+  );
+  // The two new seats get the shared cast's default, not a renumbered version of an existing name.
+  assert.deepEqual(after.slice(3).map((p) => p.name), [defaultNameFn(3), defaultNameFn(4)]);
+});

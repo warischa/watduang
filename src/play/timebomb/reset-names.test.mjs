@@ -124,3 +124,80 @@ test('the confirm copy still names the loss and what survives', () => {
   assert.match(markup, /↺ รีเซ็ตเป็นชื่อสัตว์/);
   assert.match(markup, /เก็บชื่อเดิมไว้/);
 });
+
+// gh#177 box: "their visible cast is unchanged when nobody presses reset — this ticket must not alter
+// what a player sees on open". Proved as a set claim rather than a spot check: resetNames( appears
+// exactly twice in the whole file -- its own declaration and the one call site the test above already
+// showed sits inside resetConfirmEl's click handler. There being no third occurrence is what rules out
+// a call on the module's own load path (or any other path a player reaches without pressing reset).
+test('gh#177 box: resetNames has exactly one call site, and it is the confirm click', () => {
+  const occurrences = source.split('resetNames(').length - 1;
+  assert.equal(occurrences, 2, `resetNames( appears ${occurrences} time(s) — expected exactly 2 (the declaration and the one call inside the confirm handler)`);
+});
+
+// gh#177 box: "renaming still persists as it does today, on all four". load()/save() are this route's
+// whole persistence layer -- no shared roster, ADR-0053's deliberate exception (see the comment on
+// STORE_KEY above). Sliced the same way resetNames is: real bytes, TS annotations stripped and
+// asserted first so a rewrite of either function's shape fails loudly instead of quietly evaluating
+// nothing.
+const loadSliced = sliceFn('load');
+assert.match(loadSliced, /^function load\(\): void \{/);
+assert.match(loadSliced, / as Partial<Saved>/);
+const loadBody = loadSliced.replace('function load(): void {', 'function load() {').replace(' as Partial<Saved>', '');
+
+const saveSliced = sliceFn('save');
+assert.match(saveSliced, /^function save\(\): void \{/);
+assert.match(saveSliced, / satisfies Saved/);
+const saveBody = saveSliced.replace('function save(): void {', 'function save() {').replace(' satisfies Saved', '');
+
+const storeKeyMatch = source.match(/const STORE_KEY = '([^']+)';/);
+assert.ok(storeKeyMatch, 'STORE_KEY is gone from main.ts — this test measures nothing');
+const STORE_KEY = storeKeyMatch[1];
+const nameMaxMatch = source.match(/const NAME_MAX = (\d+);/);
+assert.ok(nameMaxMatch, 'NAME_MAX is gone from main.ts — this test measures nothing');
+const NAME_MAX = Number(nameMaxMatch[1]);
+
+const applySave = new Function(
+  'STORE_KEY',
+  'localStorage',
+  'seedCount',
+  'seedNames',
+  `let count = seedCount; let names = seedNames; ${saveBody}\nsave();`,
+);
+const applyLoad = new Function(
+  'MASCOTS',
+  'MAX_PLAYERS',
+  'MIN_PLAYERS',
+  'NAME_MAX',
+  'STORE_KEY',
+  'localStorage',
+  'seedCount',
+  'seedNames',
+  `let count = seedCount; let names = seedNames; ${loadBody}\nload();\nreturn { count, names };`,
+);
+
+test('gh#177 box: a typed name persists across a save/load round trip', () => {
+  const store = new Map();
+  const fakeLocalStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, v),
+  };
+  const typed = MASCOTS.map((m) => m.name);
+  typed[0] = 'พี่โต้ง';
+  applySave(STORE_KEY, fakeLocalStorage, 6, typed);
+
+  // A fresh load, on names that start off the typed value — a load() that does nothing would leave
+  // this exactly as it starts, which is why the seed is deliberately NOT the saved shape already.
+  const reloaded = applyLoad(
+    MASCOTS,
+    MASCOTS.length,
+    2,
+    NAME_MAX,
+    STORE_KEY,
+    fakeLocalStorage,
+    6,
+    MASCOTS.map((m) => m.name),
+  );
+  assert.equal(reloaded.count, 6);
+  assert.equal(reloaded.names[0], 'พี่โต้ง', 'a typed name did not survive the save/load round trip');
+});

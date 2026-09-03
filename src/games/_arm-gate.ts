@@ -26,6 +26,72 @@
  *  ever observed stuck behind it; a cap is the thing that would let a ghost through. */
 export const ARM_DELAY_MS = 400;
 
+/** gh#190. Two clocks reach every gate in this repo and only one of them can answer "was this contact
+ *  inside the window". `setTimeout` fires when the main thread got round to it; `event.timeStamp` is
+ *  stamped by the browser when the input was DISPATCHED. A long transition task queues the arm timer
+ *  AND the next contact behind itself, so the timer can expire before a contact the finger made
+ *  235.5ms after the transition is ever handled — measured on the cursed-number play route with the
+ *  control already ENABLED and the round genuinely left.
+ *
+ *  So the timer is no longer the only guard. It keeps owning the visible `disabled` attribute (the
+ *  control must LOOK inert and stay keyboard-inert, and removing it would leave a keyboard user with
+ *  a never-focusable control), and this second, always-on comparison decides whether a contact was
+ *  dispatched inside the window. Two independent guards, neither waiting on the other.
+ *
+ *  Stamp-to-stamp ONLY. Never compared against performance.now() or Date.now() and never used to
+ *  derive a timer delay: both of those read when the handler RAN, which is the clock this defect is
+ *  made of. Shared by all four gates on the site so the rule has one implementation.
+ *
+ *  ponytail: a closure over one number, no class and no options bag. `anchor(undefined)` means "no
+ *  input reference", which reads as OPEN and leaves the timer in sole charge — byte-for-byte the
+ *  behaviour every caller had before this existed. */
+export function inputClockGate() {
+  let openAt: number | undefined;
+  const anchor = (stamp?: number): void => {
+    openAt = stamp === undefined ? undefined : stamp + ARM_DELAY_MS;
+  };
+  return {
+    anchor,
+    /** Restart the window from this event's own dispatch stamp. */
+    hold: (ev: { timeStamp: number }): void => anchor(ev.timeStamp),
+    /** Was this event dispatched at or after the end of the window? */
+    isOpen: (ev: { timeStamp: number }): boolean => openAt === undefined || ev.timeStamp >= openAt,
+  };
+}
+
+/** The dispatch stamp of the last pointerdown the page saw. armAfterQuiet is called from inside a
+ *  render that a tap triggered, and that event is long gone by the time the gate is built, so this is
+ *  the only input-clock reference the FIRST window of a gate has. Capture phase on document, so a game
+ *  that stops propagation inside its own root cannot hide a contact from it.
+ *
+ *  BOTH ends of the press are recorded, and the later one wins. A press has a duration: the render
+ *  that builds the gate runs on the RELEASE (a click), while the contact that opened the press was
+ *  stamped `d` milliseconds earlier. Anchoring to the pointerdown alone therefore ends the window `d`
+ *  short of the timer it is supposed to shadow, and a ghost stamped in that gap reads as outside the
+ *  window and inside the timer at the same time — with the timer arming first under a stall, that
+ *  ghost activates. 120ms of press is an ordinary tap, not a hold. PlayExit.astro already anchors on
+ *  pointerup as well as pointerdown; this makes the shared seed agree with it.
+ *
+ *  Guarded on `document` because the node tests import this module with no DOM at all. Stated ceiling:
+ *  a gate built with no pointer contact behind it (a keyboard or programmatic render) anchors to a
+ *  stale stamp or to none, reads as open, and is governed by its timer exactly as before.
+ *
+ *  That ceiling is a description, NOT a safety proof, and an earlier wording overreached by claiming
+ *  such a case "has no ghost contact to refuse". A render fired by a SHORT timer after a real tap
+ *  anchors to that tap, so the stamp window can close before the timer does and a ghost delivered
+ *  after a long enough stall is accepted — dice-loser arms its revealed next-button one roll-length
+ *  after the roll tap under reduced motion, which is the shape to measure against. Inferred from
+ *  source, never measured; recorded here so the next reader tests it rather than trusting this line. */
+let lastPointerStamp: number | undefined;
+if (typeof document !== 'undefined') {
+  const note = (ev: Event): void => {
+    if (lastPointerStamp === undefined || ev.timeStamp > lastPointerStamp) lastPointerStamp = ev.timeStamp;
+  };
+  document.addEventListener('pointerdown', note, true);
+  document.addEventListener('pointerup', note, true);
+}
+export const lastInputStamp = (): number | undefined => lastPointerStamp;
+
 /** Renders `controls` inert — natively `disabled`, so they look inert as well as behave inert —
  *  until `stage` has been quiet for ARM_DELAY_MS. Any pointerdown inside the stage restarts the
  *  window, so the gate fails closed: a ghost tap costs one deliberate re-tap, never a stolen action.
@@ -65,13 +131,27 @@ function armAfterQuiet(
   // `!gateDisabled.has` is what makes it a read of INTENT rather than of state: a control this module
   // disabled and never re-enabled is residue, never an instruction.
   const ownedDisabled = controls.filter((control) => control.disabled && !gateDisabled.has(control));
-  for (const control of controls) {
-    if (!control.disabled) gateDisabled.add(control);
-    control.disabled = true;
-  }
+  // Extracted because the window can now be re-entered AFTER the timer armed the set: a contact the
+  // browser stamped inside the window but delivered late has to put the controls back, and it has to
+  // do it through the same gateDisabled bookkeeping or the second arm would hand back a control the
+  // caller had disabled for its own reason.
+  const disableAll = (): void => {
+    for (const control of controls) {
+      if (!control.disabled) gateDisabled.add(control);
+      control.disabled = true;
+    }
+  };
+  disableAll();
+
+  // gh#190. The window this gate opens is anchored to the tap that caused the render, not to the
+  // moment this function ran — see lastInputStamp above.
+  const stamps = inputClockGate();
+  stamps.anchor(lastInputStamp());
+
+  let armed = false;
 
   const arm = (): void => {
-    stage.removeEventListener('pointerdown', restart);
+    armed = true;
     for (const control of controls) {
       if (ownedDisabled.includes(control)) continue;
       control.disabled = false;
@@ -82,7 +162,28 @@ function armAfterQuiet(
     // undefined for every caller that has no such control.
     onArm?.();
   };
-  const restart = (): void => {
+  // The listener is NOT detached when the timer arms any more, and that removal is the whole defect:
+  // a ghost contact queued behind a long task arrives after `arm` ran, meets nothing, and activates
+  // the control it lands on. It stays attached until a contact the INPUT clock puts outside the
+  // window arrives — that one is the deliberate tap, and it is also the only moment we can prove the
+  // window is really over. Until then an in-window contact re-disables the set and reschedules, so
+  // `arm` (and with it `onArm`) can run twice on a ghost; every onArm on the site is idempotent by
+  // construction — the only one, pinocchio-luck's validateCount, recomputes `disabled` from the
+  // roster rather than toggling it.
+  //
+  // `ev` is optional because the route tests dispatch a bare pointerdown with no event object, and
+  // because the construction call below has none: no stamp means the timer alone decides, unchanged.
+  const restart = (ev?: { timeStamp: number }): void => {
+    // Before the timer has armed anything, this is byte-for-byte the old gate: every contact restarts
+    // the window, whatever it is stamped. The stamp only gets a vote AFTER the controls went live,
+    // which is the only situation the old gate got wrong.
+    if (armed && ev && stamps.isOpen(ev)) {
+      stage.removeEventListener('pointerdown', restart);
+      return;
+    }
+    if (ev) stamps.hold(ev);
+    if (armed) disableAll();
+    armed = false;
     clearTimeout(timer);
     timer = setTimeout(arm, ARM_DELAY_MS);
   };

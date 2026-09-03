@@ -98,3 +98,41 @@ test('RED CALIBRATION: the fixture starts off-cast, so a no-op reset would fail'
   assert.notDeepEqual(game.players.map((p) => p.name), animalNames(4));
   assert.notDeepEqual(game.players.map((p) => p.rawName), ['', '', '', '']);
 });
+
+// gh#177 box: "their visible cast is unchanged when nobody presses reset — this ticket must not alter
+// what a player sees on open". Proved as a set claim rather than a spot check: resetPlayerNames(
+// appears exactly twice in the whole file -- its own declaration and one call site, which the next
+// test shows sits inside confirmResetNamesBtn's click handler. There being no third occurrence is what
+// rules out a call on the route's own init/render path (or any other path a player reaches without
+// pressing reset).
+test('gh#177 box: resetPlayerNames has exactly one call site, and it is the confirm click', () => {
+  const occurrences = source.split('resetPlayerNames(').length - 1;
+  assert.equal(occurrences, 2, `resetPlayerNames( appears ${occurrences} time(s) — expected exactly 2 (the declaration and the one call inside the confirm handler)`);
+});
+
+// The wiring the pure slice above cannot see: the confirm calls the wipe and redraws the list. Without
+// this box the count above would be satisfied by a call anywhere at all, including a load path.
+test('the confirm handler calls the wipe and redraws', () => {
+  const handler = source.match(/getElementById\('confirmResetNamesBtn'\)\.addEventListener\('click',[\s\S]*?\n {8}\}\);/);
+  assert.ok(handler, 'the reset confirm handler is no longer recognisable — this test measures nothing');
+  assert.match(handler[0], /this\.resetPlayerNames\(\)/);
+  assert.match(handler[0], /this\.renderMascotsList\(\)/);
+});
+
+// gh#177 box: "renaming still persists as it does today, on all four". This route has no localStorage
+// of its own (grep confirms it — the model IS the persistence layer for the session, same as short
+// game state anywhere else in this file). updatePlayerName is the input handler's own write path;
+// setPlayerCount is what a player can trigger next without touching reset, and it must not be what
+// silently discards a typed name.
+test('gh#177 box: a typed name persists across a player-count change, same as today', () => {
+  const game = new CursedNumberGameModel(MASCOTS);
+  game.setPlayerCount(4);
+  game.updatePlayerName(1, 'พี่โต้ง');
+  assert.equal(game.players[1].name, 'พี่โต้ง');
+
+  // No reset pressed -- only a count change, which every player can reach from the setup screen.
+  game.setPlayerCount(6);
+  game.setPlayerCount(4);
+  assert.equal(game.players[1].name, 'พี่โต้ง', 'a typed name did not persist across a player-count change');
+  assert.equal(game.players[1].rawName, 'พี่โต้ง', 'the typed value itself was lost, not just its display');
+});

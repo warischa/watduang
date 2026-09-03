@@ -78,3 +78,116 @@ test('no numbered default remains in main.js', () => {
   assert.deepEqual(numbered, [], `numbered default(s) left in main.js: ${JSON.stringify(numbered)}`);
   assert.match(source, /import \{[^}]*mascotNames[^}]*\} from '\.\.\/_mascots\.ts'/);
 });
+
+// gh#175 box: "All three open with animal names, and a search for the numbered default returns
+// nothing a player can see" — the test above already covers main.js; markup.html is a second surface
+// a player reads (the reset confirm's own copy, the player-tag labels) and gets the same absence
+// check. The player-tag `#${i + 1}` seat labels are a position marker, not a name, so they are outside
+// what this box means and are excluded on purpose.
+test('gh#175 box: no numbered default remains in markup.html', () => {
+  const markup = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
+  const numbered = markup
+    .split('\n')
+    .map((line, i) => [i + 1, line])
+    .filter(([, line]) => /ผู้เล่น\s*(\$\{|\d)/.test(line));
+  assert.deepEqual(numbered, [], `numbered default(s) left in markup.html: ${JSON.stringify(numbered)}`);
+});
+
+// gh#175 boxes: "Removing a player does not re-number or rename the players who remain" and "Renaming
+// still persists as it does today". This route holds its setup roster as DOM input values -- there is
+// no game.players array before Start -- so renderSetupPlayerInputs IS the removal/persistence path: it
+// reads every current input's .value, clears the container, and rebuilds one row per seat, carrying
+// existingNames[i] forward by POSITION. Sliced as real bytes (escapeHtml + renderSetupPlayerInputs, in
+// the order main.js declares them) and driven with a minimal DOM stand-in -- a fake input list read
+// back out of the generated markup by its own `value="..."` attribute, the same thing a real browser
+// would hand back on the next read. No jsdom: the collaborators here touch nothing DOM cannot be
+// modelled as (createElement, one container, plain objects).
+function sliceFunction(name) {
+  const decl = `function ${name}(`;
+  const start = source.indexOf(decl);
+  assert.notEqual(start, -1, `main.js no longer declares ${name} — this test is measuring nothing`);
+  const open = source.indexOf('{', start);
+  let depth = 0;
+  for (let i = open; i < source.length; i += 1) {
+    if (source[i] === '{') depth += 1;
+    else if (source[i] === '}') {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, i + 1);
+    }
+  }
+  throw new Error(`unbalanced braces while slicing ${name}`);
+}
+
+const escapeHtmlBody = sliceFunction('escapeHtml');
+const renderBody = sliceFunction('renderSetupPlayerInputs');
+// defaultName is the arrow renderSetupPlayerInputs closes over for the placeholder — sliced too, so
+// the placeholder this file sees is the same one-liner main.js declares, not a re-typed stand-in.
+const defaultNameDecl = 'const defaultName = ';
+const defaultNameDeclAt = source.indexOf(defaultNameDecl);
+assert.notEqual(defaultNameDeclAt, -1, 'main.js no longer declares defaultName — this test is measuring nothing');
+const defaultNameSemiAt = source.indexOf(';', defaultNameDeclAt);
+const defaultNameBody = source.slice(defaultNameDeclAt, defaultNameSemiAt + 1);
+
+/** A fake DOM good for exactly this function: one container that remembers what it was last asked to
+ *  render, read back by parsing the `value="..."` attribute out of the innerHTML string the real
+ *  function writes -- the same round trip a browser does when it parses an attribute into an initial
+ *  property value. */
+function makeContainer(initialValues) {
+  const initialInputs = initialValues.map((v) => ({ value: v }));
+  let rows = [];
+  return {
+    querySelectorAll: (sel) => (sel === '.player-name-input' ? initialInputs : []),
+    set innerHTML(_v) {
+      rows = [];
+    },
+    get innerHTML() {
+      return '';
+    },
+    appendChild(row) {
+      const m = /value="([^"]*)"/.exec(row.innerHTML);
+      rows.push({ value: m ? m[1] : '' });
+    },
+    get rows() {
+      return rows;
+    },
+  };
+}
+
+const runRender = new Function(
+  'document',
+  'DOM',
+  'setupPlayerCount',
+  'mascotNames',
+  `${defaultNameBody}\n${escapeHtmlBody}\n${renderBody}\nrenderSetupPlayerInputs();`,
+);
+
+/** Drives the real function once and returns the rendered rows' `.value`s in seat order. */
+function render(existingValues, count) {
+  const container = makeContainer(existingValues);
+  const document_ = { createElement: () => ({ className: '', innerHTML: '' }) };
+  const DOM = {
+    displayPlayerCount: { textContent: '' },
+    labelPlayerCount: { textContent: '' },
+    playerNamesContainer: container,
+  };
+  runRender(document_, DOM, count, mascotNames);
+  return container.rows.map((r) => r.value);
+}
+
+test('gh#175 box: removing a player does not re-number or rename the players who remain', () => {
+  const values = render(['พี่โต้ง', '', 'ชิบะ', 'น้องหมวย', 'Bank'], 3);
+  assert.deepEqual(
+    values,
+    ['พี่โต้ง', '', 'ชิบะ'],
+    'a surviving seat was renamed or shifted after later seats were removed',
+  );
+});
+
+test('gh#175 box: renaming still persists as it does today (grow keeps every existing rename)', () => {
+  const values = render(['พี่โต้ง', 'ชิบะ'], 4);
+  assert.equal(values[0], 'พี่โต้ง', 'a typed name did not persist across a player-count change');
+  assert.equal(values[1], 'ชิบะ', 'a typed name did not persist across a player-count change');
+  // The two new seats are untyped -- an empty value, not a renumbered copy of an existing name.
+  assert.equal(values[2], '');
+  assert.equal(values[3], '');
+});

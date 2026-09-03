@@ -133,6 +133,47 @@ test('only the confirm button runs the wipe, and the cancel branch does not', ()
   assert.doesNotMatch(triggerHandler, /resetPlayerCast/, 'reset must be confirmed before it runs');
 });
 
+// gh#177 box: "their visible cast is unchanged when nobody presses reset — this ticket must not alter
+// what a player sees on open". Proved as a set claim rather than a spot check: resetPlayerCast(
+// appears exactly twice in the whole file -- its own declaration and the one call site the test above
+// already showed sits inside btn-confirm-reset-cast's click handler, and NOT inside the trigger, the
+// cancel branch, or the constructor's own loadStorage()/renderPlayerRoster() startup path.
+test('gh#177 box: resetPlayerCast has exactly one call site, and it is the confirm click', () => {
+  const occurrences = source.split('resetPlayerCast(').length - 1;
+  assert.equal(occurrences, 2, `resetPlayerCast( appears ${occurrences} time(s) — expected exactly 2 (the declaration and the one call inside the confirm handler)`);
+});
+
+// gh#177 box: "renaming still persists as it does today, on all four". saveStorage/loadStorage are
+// this route's whole persistence layer. Sliced the same way resetPlayerCast is above: real bytes, a
+// fake localStorage, no DOM.
+const saveMethod = sliceMethod('saveStorage');
+const loadMethod = sliceMethod('loadStorage');
+const applySave = new Function(
+  'localStorage',
+  'state',
+  `const host = { state, localStorage, ${saveMethod} }; host.saveStorage(); return localStorage;`,
+);
+const applyLoad = new Function(
+  'localStorage',
+  'state',
+  `const host = { state, localStorage, ${loadMethod} }; host.loadStorage(); return host.state;`,
+);
+
+test('gh#177 box: a typed name persists across a save/load round trip', () => {
+  const store = new Map();
+  const fakeLocalStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, v),
+  };
+  const typed = { players: [...typedRoster(), { id: 4, name: 'ฟร็อกกี้', avatar: '🐰', score: 0 }], penaltyMode: 'none' };
+  applySave(fakeLocalStorage, typed);
+
+  // A fresh load, into state that starts off the typed values — a loadStorage that does nothing would
+  // leave this exactly as it starts, which is why the fixture is deliberately NOT the saved shape.
+  const reloaded = applyLoad(fakeLocalStorage, { players: [{ id: 1, name: 'SHOULD NOT SURVIVE', avatar: '❓', score: 0 }], penaltyMode: 'none' });
+  assert.equal(reloaded.players[0].name, 'พี่โต้ง', 'a typed name did not survive the save/load round trip');
+});
+
 // The three ids this route's markup owes main.js. A dialog whose confirm button is missing throws on
 // addEventListener at startup and takes the whole route down, so the markup half is pinned too.
 test('markup.html carries the confirm dialog the handlers bind to', () => {

@@ -117,6 +117,9 @@ const defaultsHint = MASCOTS.slice(0, 3).map((m) => `${m.emoji} ${m.name}`).join
   // ADR-0016 owns the number and the premise under it, and _arm-gate is already imported across this
   // seam in the other direction (timebomb imports this folder's audio and wake-lock modules).
   import { ARM_DELAY_MS } from '../games/_arm-gate';
+  // Its own line, not folded into the one above: player-setup.test.mjs pins that import BYTE for byte
+  // as the proof this window's length is the shared constant and not a local copy that can drift.
+  import { inputClockGate, lastInputStamp } from '../games/_arm-gate';
 
   const root = document.getElementById('player-setup') as HTMLElement;
   const min = Number(root.dataset.min);
@@ -280,20 +283,36 @@ const defaultsHint = MASCOTS.slice(0, 3).map((m) => `${m.emoji} ${m.name}`).join
     // every guard in this file now reads one bit, and the way to keep it that way is not to add another.
     if (gameId === undefined) {
       let timer: ReturnType<typeof setTimeout>;
+      // gh#190 — two independent guards, because the timer alone answers the wrong question. `expired`
+      // is the wall clock's answer (the window's duration has run out) and `stamps` is the browser's
+      // (this contact was DISPATCHED at or after the window closed). The listeners come off only when
+      // both agree: detaching on the timer alone left a contact dispatched inside the window, but
+      // delivered after a long main-thread task, meeting no listener at all — which is exactly the
+      // ghost navigation this window exists to swallow, measured on a play route as a round that left.
+      // The anchor is the last pointerdown the page saw, which IS the tap that started the round: this
+      // branch runs inside that tap's click handler and the event object is not in scope here.
+      let expired = false;
+      const stamps = inputClockGate();
+      stamps.anchor(lastInputStamp());
       const release = (): void => {
         clearTimeout(timer);
         document.removeEventListener('click', swallow, true);
         document.removeEventListener('pointerdown', swallow, true);
       };
+      // Records that the window elapsed; it no longer releases on its own.
+      const expire = (): void => { expired = true; };
       const swallow = (e: Event): void => {
+        if (expired && stamps.isOpen(e)) { release(); return; }
         e.preventDefault();
         e.stopPropagation();
+        expired = false;
+        stamps.hold(e);
         clearTimeout(timer);
-        timer = setTimeout(release, ARM_DELAY_MS);
+        timer = setTimeout(expire, ARM_DELAY_MS);
       };
       document.addEventListener('click', swallow, true);
       document.addEventListener('pointerdown', swallow, true);
-      timer = setTimeout(release, ARM_DELAY_MS);
+      timer = setTimeout(expire, ARM_DELAY_MS);
     }
   }
 

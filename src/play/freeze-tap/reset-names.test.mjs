@@ -128,3 +128,48 @@ test('the confirm copy still names the loss and what survives', () => {
   assert.match(markup, /เก็บชื่อเดิมไว้/);
   assert.match(source, /↺ รีเซ็ตเป็นชื่อสัตว์/);
 });
+
+// gh#177 box: "their visible cast is unchanged when nobody presses reset — this ticket must not alter
+// what a player sees on open". Proved as a set claim rather than a spot check: resetPlayerNames(
+// appears exactly twice in the whole file -- its own declaration and the one call site the test above
+// already showed sits inside confirmResetNamesBtn's click handler. There being no third occurrence is
+// what rules out a call on the engine's own init/render path (or any other path a player reaches
+// without pressing reset).
+test('gh#177 box: resetPlayerNames has exactly one call site, and it is the confirm click', () => {
+  const occurrences = source.split('resetPlayerNames(').length - 1;
+  assert.equal(occurrences, 2, `resetPlayerNames( appears ${occurrences} time(s) — expected exactly 2 (the declaration and the one call inside the confirm handler)`);
+});
+
+// gh#177 box: "renaming still persists as it does today, on all four". updatePlayerName is the input
+// handler's own save path -- it writes the typed name AND calls savePlayers() in the same breath, so
+// the round trip through loadSavedPlayers() is what the input handler leans on to survive a reload.
+// Sliced the same way resetPlayerNames is above: real bytes, no DOM.
+const updateMethod = sliceFrom('updatePlayerName(index, name) {', '{', '}');
+const saveMethod = sliceFrom('savePlayers() {', '{', '}');
+const loadMethod = sliceFrom('loadSavedPlayers() {', '{', '}');
+
+const runRename = new Function(
+  'seed',
+  'localStorage',
+  `${castDecl};
+   const engine = {
+     players: seed,
+     ${updateMethod},
+     ${saveMethod},
+     ${loadMethod}
+   };
+   engine.updatePlayerName(0, 'พี่โต้ง');
+   return { players: engine.players, loaded: engine.loadSavedPlayers() };`,
+);
+
+test('gh#177 box: a typed name persists across a save/load round trip', () => {
+  const store = new Map();
+  const fakeLocalStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, v),
+  };
+  const before = ['a', 'b', 'c', 'd'].map((name, i) => ({ id: `p_${i + 1}`, name, emoji: '🦊', color: '#000', defaultName: name }));
+  const { loaded } = runRename(before, fakeLocalStorage);
+  assert.ok(loaded, 'loadSavedPlayers() returned nothing — the save never reached localStorage');
+  assert.equal(loaded[0].name, 'พี่โต้ง', 'a typed name did not survive the save/load round trip');
+});
