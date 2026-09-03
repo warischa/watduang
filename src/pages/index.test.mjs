@@ -41,6 +41,13 @@ const pageBody = pageSrc
 // markup after the tag the second replace() removes.
 assert.match(pageBody, /<PageChrome>/, 'positive control: the frontmatter/<Base> strip blanked the template');
 
+// The frontmatter with its full-line comments removed — the page MODEL, nothing that merely talks
+// about it. gh#192 (i) counts how many times the page renders one manifest field, and a count taken
+// over prose would red on the next comment that names the field. Same vacuous-green risk as above,
+// same shape of positive control: `const intents` is the last model this slice must still hold.
+const pageModel = (pageSrc.match(/^---[\s\S]*?^---$/m) ?? [''])[0].replace(/^[ \t]*\/\/.*$/gm, '');
+assert.match(pageModel, /const intents/, 'positive control: the frontmatter slice or the comment strip blanked the model');
+
 const manifestCopy = [
   ...games.map((g) => g.names.th),
   ...games.map((g) => g.tagline),
@@ -87,17 +94,30 @@ test('the home page reads game names and taglines from the games manifest', () =
 });
 
 // gh#75 moved the manifest read one step up: the page builds a `groups` model in its frontmatter and
-// the markup renders `{card.title}` / `{card.desc}` / `{card.pill}` for all three groups at once.
-// The invariant is unchanged and is now pinned at BOTH ends — the frontmatter field must be fed by
-// the manifest expression, and the markup must render that field by interpolation. Pinning only the
-// markup would pass on a page whose model retyped the string; pinning only the model would pass on a
-// page that never rendered it.
-test('the home page reads tool names and descriptions from the tools manifest', () => {
+// the markup renders `{card.title}` / `{card.desc}` / `{card.pill}` for every group at once. The
+// both-ends shape is unchanged and is what this test still holds — the frontmatter field must be fed
+// by the manifest expression, and the markup must render that field by interpolation. Pinning only
+// the markup would pass on a page whose model retyped the string; pinning only the model would pass
+// on a page that never rendered it.
+//
+// gh#192 (i), owner ruling 2026-09-03: the tools group LIST is dropped and the tools PANEL stays, so
+// the page renders the tools hub heading once instead of twice. That retires the half of the gh#75
+// acceptance that demanded a per-tool card model — keeping `title: tool.name` asserted here is
+// exactly what would have kept the duplicate heading on the page. What replaces it is the same
+// invariant read off the panel model, plus a count that fails if a second render comes back.
+test('the tools hub copy renders once, from the manifest, through the panel model', () => {
   assert.match(pageSrc, /from '\.\.\/tools\/manifest'/, 'must import the tools manifest, not a copy of it');
-  assert.match(pageSrc, /title:\s*tool\.name\b/, 'the card model must take its title from the manifest tool name');
-  assert.match(pageSrc, /desc:\s*tool\.desc\b/, 'the card model must take its body from the manifest tool description');
-  assert.match(pageBody, /\{card\.title\}/, 'a card must render the title by interpolation');
-  assert.match(pageBody, /\{card\.desc\}/, 'a card must render the description by interpolation');
+  assert.doesNotMatch(pageModel, /title:\s*tool\.name\b/, 'gh#192 (i): the per-tool card model is gone with the tools group list');
+  assert.doesNotMatch(pageModel, /desc:\s*tool\.desc\b/, 'gh#192 (i): the per-tool card model is gone with the tools group list');
+  assert.equal(
+    (pageModel.match(/toolsGroup\.heading\b/g) ?? []).length,
+    1,
+    'gh#192 (i): the tools hub heading must be rendered exactly once — two renders is the duplicate h2 this closes',
+  );
+  assert.match(pageModel, /title:\s*toolsGroup\.heading\b/, 'the panel model must take its title from the manifest tools heading');
+  assert.match(pageModel, /desc:\s*toolsGroup\.body\b/, 'the panel model must take its body from the manifest tools body');
+  assert.match(pageBody, /\{card\.title\}/, 'a panel must render the title by interpolation');
+  assert.match(pageBody, /\{card\.desc\}/, 'a panel must render the description by interpolation');
 });
 
 // gh#159 / ADR-0052 — the popular row is data. Which games and in what order is one manifest edit;
@@ -132,6 +152,23 @@ test('category labels render through the manifest, never as page literals', () =
   assert.match(pageBody, /\{card\.pill\}/, 'a game pill must render that field by interpolation');
   assert.doesNotMatch(pageBody, />\s*ดูดวง\s*</, 'the literal label must not sit in markup as bare copy');
   assert.doesNotMatch(pageBody, />\s*สุ่มคนโดน\s*</, 'the literal label must not sit in markup as bare copy');
+});
+
+// gh#192 (a), the rule half — owner ruling 2026-09-03. ADR-0040, restated in CLAUDE.md: a shared
+// roster and a phone passed around the group are true of the party category alone, never of the
+// whole site. Three page-owned strings stated them site-wide, in two how-to steps and the last FAQ
+// answer. They were removed rather than reworded, because replacement copy is the owner's and that
+// half of (a) stays parked.
+//
+// This is a REGRESSION PIN on the strings that were removed, not an enforcement of the rule. It does
+// NOT cover: the player-count range form (scripts/party-size-claim-check.mjs owns that half), any new
+// phrasing of the same claim, or any surface other than this page. The phone-passing and roster
+// halves stay reviewer-owned until #94/#95/#96 land (ADR-0019). pageBody excludes the <Base> tag, so
+// the page title and meta description are out of this scan on purpose — gh#192 (g) still owns them.
+test('no site-level roster or phone-passing claim is left in the home page how-to and FAQ', () => {
+  const claims = ['ใส่ชื่อคนในวง', 'จำชื่อวงเดิม', 'ส่งมือถือวนกัน'];
+  const left = claims.filter((claim) => pageBody.includes(claim));
+  assert.deepEqual(left, [], 'a party-category fact stated as a site-level one (ADR-0040) — remove it, do not reword it');
 });
 
 // gh#125: the two "the field stays removed" bans are gone. A field with no reader is dead schema, not

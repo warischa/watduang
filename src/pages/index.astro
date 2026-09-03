@@ -14,7 +14,7 @@ import Card from '../components/landing/Card.astro';
 import type { Props as CardProps } from '../components/landing/Card.astro';
 import { categories } from '../games/categories';
 import { popularGames, popularGroup } from '../games/manifest';
-import { tools, toolsGroup } from '../tools/manifest';
+import { toolsGroup } from '../tools/manifest';
 import type { Category, GameModule } from '../games/types';
 
 // The canvas's per-card bob phase, in canvas order — the stagger is a design value, not i % 3.
@@ -37,13 +37,19 @@ const gameCard = (game: GameModule): CardProps => ({
 });
 
 // gh#75 — the page presents GROUPS, never one flat games list headed by a claim about the whole
-// catalogue (the heading ADR-0041 left owing). Two groups render: the promoted row and the tools
-// group. The per-category groups that used to sit between them are gone — the intent panels below
-// carry each category to its own hub instead, which is where a full listing belongs. The tools
-// group comes from the tools manifest and links to the tools hub, never to a /c/<slug>/ URL —
-// tools are not a category (ADR-0032). Every string a group shows is manifest-held (ADR-0034),
-// including its when-to-use line. A further group is one more entry in this array and nothing
-// above it moves: the H1 and the lead name no group, no content type and no count.
+// catalogue (the heading ADR-0041 left owing). One group renders today: the promoted row. The
+// per-category groups that used to sit between it and the tools group are gone — the intent panels
+// below carry each category to its own hub instead, which is where a full listing belongs. Every
+// string a group shows is manifest-held (ADR-0034), including its when-to-use line. A further group
+// is one more entry in this array and nothing above it moves: the H1 and the lead name no group, no
+// content type and no count.
+// gh#192 (i), owner ruling 2026-09-03 — the tools group LIST is gone from this array and the tools
+// PANEL below stays. Both rendered the same tools hub heading, which put one h2 on the page twice;
+// the panel is the one that survives, because a whole-panel link to a hub is what the other panels
+// are too. The four per-tool cards are not replaced here — the tools hub IS the full listing and
+// the panel links straight to it. This file still reads the tools manifest, for that panel, and
+// that link still goes to the tools hub and never to a /c/<slug>/ URL: tools are not a category
+// (ADR-0032).
 // gh#159 / ADR-0052 — the promoted row is the FIRST group and is data like the rest: its games and
 // their order are the manifest's (popularGames), its heading is the manifest's (ADR-0034), and the
 // page names none of them. It has no "see all" destination — there is no popularity hub — so its
@@ -59,22 +65,6 @@ const groups = [
     id: 'popular',
     cols: 3 as const,
     cards: popularGames.map(gameCard),
-  },
-  {
-    heading: toolsGroup.heading,
-    body: toolsGroup.body,
-    href: toolsGroup.href,
-    id: 'group-tools',
-    cols: 4 as const,
-    cards: tools.map((tool): CardProps => ({
-      kind: 'tool',
-      href: tool.href,
-      pill: null as string | null,
-      title: tool.name,
-      desc: tool.desc,
-      accentVar: toolsGroup.accentVar,
-      bob: '',
-    })),
   },
 ];
 
@@ -185,14 +175,9 @@ const intents: CardProps[] = [
             addressed a first-time player, which is not what a popular row says.
 
             One section per group, same markup for all of them: a group is data, not a hand-written
-            block, so a fourth one renders here with no edit to this file and none to the hero.
-            Ad slot 2 of 4 — the in-content unit the canvas marks between the games and the tools —
-            keeps its place by rendering before the last group. 90px reserved. */}
+            block, so a fourth one renders here with no edit to this file and none to the hero. */}
         {groups.map((group, index) => (
           <>
-            {index === groups.length - 1 && (
-              <div class="ad-slot ad-inline" aria-hidden="true">ช่องโฆษณา</div>
-            )}
             <Section id={group.id} heading={group.heading} body={group.body} href={group.href} linkLabel="ดูทั้งหมด →">
               <div class="card-grid" data-cols={group.cols}>
                 {group.cards.map((card) => (
@@ -227,6 +212,14 @@ const intents: CardProps[] = [
           </>
         ))}
 
+        {/* Ad slot 2 of 4 — the in-content unit the canvas marks between the card grids and the
+            how-to. It used to render inside the loop above, before the last group, which was the
+            same position while a second group existed; with the tools list dropped (gh#192 (i))
+            that condition would have pulled it above the first section instead. It is a fixed
+            in-content slot, not a per-group one, so it sits here and a further group cannot move
+            it. 90px reserved. */}
+        <div class="ad-slot ad-inline" aria-hidden="true">ช่องโฆษณา</div>
+
         <section class="howto">
           <h2>เล่นยังไง</h2>
           <div class="howto-grid">
@@ -235,16 +228,12 @@ const intents: CardProps[] = [
               <h3>เลือกเกม</h3>
               <p>เปิดจากหน้านี้ได้เลย ไม่ต้องโหลดอะไรก่อน</p>
             </div>
-            <div class="step">
-              <span class="step-num">2</span>
-              <h3>ใส่ชื่อคนในวง</h3>
-              <p>พิมพ์ครั้งเดียว เกมอื่นจำชื่อวงเดิมให้</p>
-            </div>
-            <div class="step">
-              <span class="step-num">3</span>
-              <h3>ส่งมือถือวนกัน</h3>
-              <p>จอบอกเองว่าถึงตาใคร และต้องทำอะไรต่อ</p>
-            </div>
+            <!-- gh#192 (a) / ADR-0040, owner ruling 2026-09-03: steps 2 and 3 stood here and stated
+                 a shared roster carried between games, and a phone passed around the group, as
+                 facts of the whole site. Both hold for the party category alone. Deleted rather
+                 than rewritten, the same call gh#89 made on the hero and on a FAQ answer:
+                 replacement wording is the owner's, and the remaining half of gh#192 (a) is where
+                 it gets written. The page reads thinner until then, and that was accepted. -->
           </div>
         </section>
 
@@ -266,10 +255,11 @@ const intents: CardProps[] = [
               <h3>เสียเงินไหม</h3>
               <p>ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p>
             </div>
-            <div class="faq-item">
-              <h3>เปิดบนคอมได้ไหม</h3>
-              <p>เปิดดูได้ แต่ตัวเกมออกแบบมาให้ส่งมือถือวนกัน เล่นบนมือถือจะเข้าทางที่สุด</p>
-            </div>
+            <!-- gh#192 (a) / ADR-0040, owner ruling 2026-09-03: the answer that stood here told a
+                 site-level question about desktop that the phone gets passed around. That is the
+                 party category's fact, not the site's, and this page owns the string, so it is not
+                 covered by the exception that lets a game module's own copy travel with it.
+                 Removed whole rather than reworded; the replacement is the owner's to write. -->
           </div>
         </section>
       </div>
