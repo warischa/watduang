@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { stripComments, stripAstro, astroTemplateFixture, legacyTextualStrip, globTemplateFixture } from './strip-comments.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -32,15 +33,23 @@ const CLAIM = /\d+\s*(?:-|–|—|ถึง|to)\s*\d+\s*(?:คน|players)/g;
 // agreed to. Spans newlines on purpose — a manifest's `description:` key and its value sit on
 // different lines.
 const EXEMPT_META = /\b(?:title|description)\s*[:=]\s*(['"`])(?:\\.|(?!\1)[\s\S])*?\1/g;
-// ponytail: DISCLOSED CEILING, gh#186 / ADR-0056 — these three enumerate "text that is a JS, CSS or
-// HTML comment". That set is owned by the language grammars and by whoever writes the next surface,
-// not by this repo, so it does not converge and the `[^:]` arm (which only keeps `https://` from
-// blanking its line) is not an approximation of it. Two rungs open: a `/*` inside a string literal
-// pairs with the next real `*/` and blanks every live line between them, and a `//` inside a quoted
-// value that is not preceded by `:` blanks the rest of its line. A CLAIM in that span stops existing
-// and this gate greens a surface it did not read — the direction that matters, since the whole point
-// is catching a player-count claim made outside the party category.
-// Trigger to close it: conserve on the hazard this repo owns — run CLAIM over the RAW text as well,
+// The JS/TS comment arms are gone (gh#191, owner decision: one shared stripper, imported everywhere).
+// They were two regexes enumerating "text that is a JS comment" — a set owned by the language spec,
+// never by this repo (ADR-0031), which is why the `[^:]` arm keeping `https://` from blanking its line
+// was a patch and not an approximation. Both rungs it left open are closed by the parser-backed
+// scripts/strip-comments.mjs: a `/*` inside a string literal no longer pairs with the next real `*/`
+// and blanks every live line between them, and a `//` inside a quoted value is no longer an opener. A
+// CLAIM in either span used to stop existing, greening a surface this gate did not read — the
+// direction that matters, since the whole point is catching a player-count claim made outside the
+// party category.
+//
+// ponytail: DISCLOSED CEILING — `<!-- … -->` stays textual. It is HTML grammar; the TypeScript parser
+// does not own it and the shared stripper does not touch it. It runs FIRST, before the shared strip,
+// so a `//` or `/*` inside an HTML comment cannot blank the `-->` and let the span run to the next one
+// in the file. Second residue, same shape as accent-single-source-check's: an .astro `<style>` block is
+// CSS routed to the JS stripper, so a scheme URL there would blank the rest of its line — zero
+// instances today (`url(` appears nowhere in src/, this site ships no images by content rule).
+// Trigger to close either: conserve on the hazard this repo owns — run CLAIM over the RAW text as well,
 // and if a match is present raw and absent after blanking, abort before printing rather than pass,
 // the way accent-single-source-check's conservationFailures does. NOT free, and that is why it is not
 // done here: measured on the tree this was written against, a raw-vs-blanked CLAIM diff over the 81
@@ -48,7 +57,7 @@ const EXEMPT_META = /\b(?:title|description)\s*[:=]\s*(['"`])(?:\\.|(?!\1)[\s\S]
 // genuine HTML comment in src/pages/index.astro citing the gh#89 / ADR-0040 ruling by quoting the
 // claim it forbids. So a conservation abort here would need a use-vs-mention exemption first, which
 // is a second unowned set. The accent gate has no such case, which is why it could take the abort.
-const COMMENTS = [/\/\*[\s\S]*?\*\//g, /(^|[^:])\/\/[^\n]*/g, /<!--[\s\S]*?-->/g];
+const COMMENTS = [/<!--[\s\S]*?-->/g];
 
 /** Replace every match with same-shape blanks, so reported line numbers stay true to the file. */
 const blank = (text, re) => text.replace(re, (m) => m.replace(/[^\n]/g, ' '));
@@ -92,7 +101,9 @@ function classify(surface) {
 function violations(surface, verdict) {
   if (verdict.permitted === 'whole') return [];
   let text = surface.text;
-  for (const re of COMMENTS) text = blank(text, re);
+  for (const re of COMMENTS) text = blank(text, re); // HTML comments first — see the COMMENTS block
+  // then every real comment, through the shared stripper, routed to the grammar that owns the file
+  text = surface.relPath.endsWith('.astro') ? stripAstro(text) : stripComments(text);
   text = blank(text, EXEMPT_META);
   const found = [];
   for (const m of text.matchAll(CLAIM)) {
@@ -140,6 +151,31 @@ function selftest() {
   const rangeFound = violations(categoriesSurface, verdict);
   assert.equal(rangeFound.length, 1, "the party block's own claim must be permitted; only the quiz block's identical claim must be flagged");
   console.log(`PASS permitted-range: party block's own claim is silent, the quiz block's identical claim is still flagged (line ${rangeFound[0].line})`);
+
+  // gh#191 fixture: a forbidden claim sitting after a glob string and a multi-line template. Under the
+  // textual stripper this file used to carry, the glob's phantom `/*` paired with the real `*/` below
+  // and blanked the claim — the gate greened a surface it never read. The legacy regex is run on the
+  // same input and asserted to lose it, so this leg cannot be green by never reaching the hazard.
+  const globSurface = {
+    relPath: 'src/pages/index.astro',
+    text: globTemplateFixture("const copy = 'เล่นได้ 2-10 คน';"),
+  };
+  assert.ok(!legacyTextualStrip(globSurface.text).includes('2-10 คน'), 'POSITIVE CONTROL: the legacy regex must lose the claim on this fixture, or flagging it proves nothing');
+  const globFound = violations(globSurface, classify(globSurface));
+  assert.equal(globFound.length, 1, 'gh#191: a claim after a glob and a multi-line template must still be flagged exactly once');
+  assert.equal(globFound[0].text, '2-10 คน', 'gh#191: and the flagged text must be the claim itself');
+  console.log('PASS gh#191 fixture: a claim hidden behind a glob and a multi-line template is lost by the legacy regex and still flagged by the shared stripper');
+
+  // gh#191 REVIEW FIX: template position. The claim sits after a bare `://` in HTML text, where the
+  // TypeScript parser finds no quoted span, so the unrouted stripper blanked the rest of the line and
+  // this gate went quiet on a player-count claim outside the party category. That stripper is run on
+  // the same input as the positive control.
+  const templateSurface = { relPath: 'src/pages/index.astro', text: astroTemplateFixture('เล่นได้ 2-10 คน') };
+  assert.ok(!stripComments(templateSurface.text).includes('2-10 คน'), 'POSITIVE CONTROL: the unrouted stripper must lose the template-position claim, or this leg proves nothing');
+  const templateFound = violations(templateSurface, classify(templateSurface));
+  assert.equal(templateFound.length, 1, 'gh#191 review fix: a claim in .astro template position must be flagged exactly once — the frontmatter and script copies of it are real comments and must not count');
+  assert.equal(templateFound[0].text, '2-10 คน', 'gh#191 review fix: and the flagged text must be the claim itself');
+  console.log('PASS gh#191 review fix: a claim in .astro template position is flagged, its frontmatter and script-body comment twins are not, where the unrouted stripper lost all three');
 }
 
 if (process.argv.includes('--selftest')) {

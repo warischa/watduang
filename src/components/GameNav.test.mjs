@@ -74,3 +74,45 @@ test('gh#94: the group-carrying หมวด yields only its own games', () => {
   assert.ok(carried.every((g) => g.category === 'party'));
   assert.ok(games.some((g) => !categories[g.category].carriesGroup), 'fixture needs a non-carrying หมวด');
 });
+
+// gh#111 box 3 — a fortune page's nav lists BOTH categories, and the owner ruled on 2026-08-27 that
+// no union word exists for them ("Copy should refer to each category by name instead of inventing a
+// term"). So a wide list may carry no single heading: each group is labelled with its own category's
+// manifest name, and the mixed list is never introduced by a word meaning game (ADR-0040). Pinned at
+// the source-text level for the same reason the tests above are — .astro is not node-importable.
+test('gh#111 box 3: a mixed nav labels each หมวด by its own name', () => {
+  const navBody = stripComments(navSrc);
+  // positive control: the filter line the whole file scans must survive the strip (gh#130).
+  assert.match(navBody, /g\.category === category/, 'positive control: stripComments blanked the manifest filter');
+  assert.match(navBody, /\bmeta\.label\b/, 'GameNav must label a wide list per group from CategoryMeta.label');
+
+  const layoutBody = stripComments(layoutSrc);
+  const tag = layoutBody.match(/<GameNav\b[\s\S]*?\/>/);
+  assert.ok(tag, 'positive control: GameLayout still renders <GameNav ... />');
+  const arm = tag[0].match(/heading=\{\s*carriesGroup\s*\?[^:]*:\s*([^}]*)\}/);
+  assert.ok(arm, 'GameLayout must still choose the nav heading from carriesGroup');
+  assert.ok(
+    !arm[1].includes('เกม'),
+    `the heading over a non-carrying (mixed) list must not claim เกม, got: ${arm[1].trim()}`,
+  );
+  // The owner rejected every name proposed for the mixed list (2026-09-03): the wide arm passes no
+  // heading at all, so the nav gets no aria-label and the per-group <h3>s are what name the lists.
+  // Stricter than "no game word": ANY expression here is a name synthesised for the mixed list, which
+  // is what was rejected. `undefined` is the only value that leaves the naming to the group headings.
+  assert.equal(arm[1].trim(), 'undefined', `the wide nav must be given no name, got: ${arm[1].trim()}`);
+});
+
+// gh#111 box 2, kept alive under box 3's change. Box 2 made `heading` impossible to omit so no caller
+// could inherit a false default. Box 3 needs the wide caller to omit it, so the prop stopped being
+// type-required — and a prop type never stopped an .astro caller at runtime anyway. The guarantee now
+// rests on ONE runtime throw, which is what this test pins: delete the throw and this goes red.
+test('gh#111 box 2: a narrowed list cannot render without an explicit heading', () => {
+  const body = stripComments(navSrc);
+  // positive control: the filter line must survive the strip, or every scan below is vacuous (gh#130).
+  assert.match(body, /g\.category === category/, 'positive control: stripComments blanked the manifest filter');
+  assert.match(
+    body,
+    /if \(Boolean\(category\) !== Boolean\(heading\)\)\s*\{[\s\S]{0,400}?throw new Error\(/,
+    'GameNav must throw when `heading` and `category` do not travel together — box 2 has no other enforcement left',
+  );
+});

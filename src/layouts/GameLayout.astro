@@ -140,11 +140,16 @@ const howToJsonLd = {
        list of stylesheets: Astro bundles <style is:global>, a bare `import './x.css'`, and a <style> block
        here all page-globally, so that set belongs to the bundler, not to this comment. The moment <main>
        gets a width or font, move this inside it (that is what tool pages already do). */}
+  {/* gh#111 — heading and category move together, and GameNav throws if they ever split. The wide arm
+       passes neither: that nav mixes both categories, and every name proposed for the mix was rejected
+       (owner, 2026-09-03), so it is named by GameNav's per-category <h3>s and carries no aria-label at
+       all. An EMPTY aria-label was the alternative and is worse — it is a name that computed to
+       nothing, and it would suppress the <h3>s instead of deferring to them. */}
   <GameNav
     navClass="game-next"
     excludeId={game.id}
     category={carriesGroup ? game.category : undefined}
-    heading={carriesGroup ? 'เล่นเกมต่อด้วยวงเดิม' : 'เล่นเกมต่อ'}
+    heading={carriesGroup ? 'เล่นเกมต่อด้วยวงเดิม' : undefined}
   />
 
   <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />

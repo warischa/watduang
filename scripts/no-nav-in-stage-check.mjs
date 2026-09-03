@@ -62,7 +62,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import { stripComments as stripJsComments } from './strip-comments.mjs';
+import { stripComments as stripJsComments, stripAstro } from './strip-comments.mjs';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -199,14 +199,11 @@ const blank = (m) => m.replace(/[^\n]/g, ' ');
  *  selftest() that feeds the exact desync fixture through the 'js' kind: it returned ZERO violations
  *  against the pre-fix script and reds now.
  *
- *  ponytail: DISCLOSED CEILING — an .astro file is fed to this too (STAGE_FILE), and its template
- *  body is HTML, not TypeScript. The parser is error-tolerant, so it degrades to fewer literal spans
- *  rather than throwing, which is the same direction the old walk failed in. Measured before shipping
- *  gh#191: over all 22 src/games/*.ts modules plus GameLayout.astro, the shared stripper's output is
- *  byte-identical to the walk it replaced, so the migration changed nothing on this tree — it changed
- *  what a future quote-bearing literal costs. The layout's own desync path stays guarded by the
- *  exactly-one #stage count in findStageViolations(): a strip that loses the stage div reads
- *  `found 0` and fails, it does not pass quietly. */
+ *  Only fed .ts game modules (kind 'js'). STAGE_FILE (an .astro file) is routed through stripAstro()
+ *  instead — see findStageViolations() — because its template body is HTML, a grammar this
+ *  TypeScript-parser-backed function does not own; a bare `://` in template text gave the old routing
+ *  no quoted-value span to protect and blanked the rest of that line, which could hide a SECOND
+ *  `<div id="stage">` planted behind it and undercount `found 2` to `found 1`. Pinned in selftest(). */
 const stripComments = (text) => stripJsComments(text);
 
 const TYPE_DECL_RE = /^(?:export\s+)?(?:declare\s+)?(?:interface\s+\w+|type\s+\w+[^\n=]*=)[^{;\n]*\{/gm;
@@ -344,7 +341,7 @@ const STAGE_OPEN_RE = /<div\b[^>]*\bid="stage"[^>]*>/g;
 // snippet in the message quotes real source. That also means the emptiness verdict is identical
 // whichever text it slices (all-spaces is not '' either); raw is used only so the message is legible.
 function findStageViolations(rawText) {
-  const text = stripComments(rawText);
+  const text = stripAstro(rawText);
   const opens = text.match(STAGE_OPEN_RE) || [];
   if (opens.length !== 1) {
     return [
@@ -739,17 +736,38 @@ function selftest() {
   );
   console.log(`PASS shared stripper, closed fail-open: ${desyncHits.length} hit(s) at line 3 on an <a href> that the deleted character walk blanked out of the scan entirely`);
 
-  // The same walk is fed STAGE_FILE, whose template body is HTML rather than TypeScript. Nothing
+  // STAGE_FILE is routed through stripAstro(), not the TypeScript-only stripComments(). Nothing else
   // pins that grammar — the exactly-one-#stage count in findStageViolations() is what makes a strip
   // that loses the layout read as `found 0` and fail. Asserted here so the reason stays attached:
   // the real layout must still present exactly one stage div AFTER stripping.
   const stageText = fs.readFileSync(path.join(repoRoot, STAGE_FILE), 'utf8');
   assert.equal(
-    (stripComments(stageText).match(/<div id="stage"/g) || []).length, 1,
-    `${STAGE_FILE}: the strip must leave exactly one <div id="stage"> standing — if this reds, the ` +
-      'parser lost the layout and every offset findStageViolations() reports is suspect',
+    (stripAstro(stageText).match(/<div id="stage"/g) || []).length, 1,
+    `${STAGE_FILE}: the strip must leave exactly one <div id="stage"> standing — if this reds, ` +
+      'stripAstro() lost the layout and every offset findStageViolations() reports is suspect',
   );
-  console.log(`PASS shared stripper on ${STAGE_FILE}: exactly one <div id="stage"> survives the strip (.astro template bodies are HTML, a grammar the shared module does not own — this count is the guard)`);
+  console.log(`PASS shared astro stripper on ${STAGE_FILE}: exactly one <div id="stage"> survives the strip`);
+
+  // --- gh#193 (routing STAGE_FILE to stripAstro): the .astro TEMPLATE-position fail-open findStage
+  // Violations() used to carry. GameLayout.astro's template body is HTML, which the TypeScript-only
+  // stripComments() does not own — a bare `://` there reads as a line comment and blanks the rest of
+  // its line, including a SECOND <div id="stage"> planted on that same line. That would silently hold
+  // `opens.length` at 1 and pass a tree that must fail the exactly-one rule with `found 2`. stripAstro()
+  // routes template text by grammar instead of by TypeScript's string/comment rules, so the planted
+  // second stage div stays visible. Positive control: the pre-fix stripComments() really does lose it
+  // on this input, so this case reaches the hazard rather than merely describing it (ADR-0030). ---
+  const secondStageHiddenBehindUrl = `${stageGood}\n<p>… https://example.com/rules ${stageDiv('')}</p>`;
+  assert.equal(
+    (stripComments(secondStageHiddenBehindUrl).match(STAGE_OPEN_RE) || []).length, 1,
+    'POSITIVE CONTROL FAILED — the unrouted stripComments() must lose the second stage div planted ' +
+      'behind a bare `://` on the same line, or this fixture never reaches the hazard stripAstro() closes',
+  );
+  assert.match(
+    findStageViolations(secondStageHiddenBehindUrl)[0], /found 2\b/,
+    'a second #stage div planted after a bare `://` in .astro template text must still be caught as ' +
+      'found 2, not silently passed as found 1',
+  );
+  console.log('PASS gh#193: a second #stage div planted after a bare `://` in .astro template text is still caught (stripAstro routes template text by grammar; the unrouted stripComments() loses it behind the URL)');
 }
 
 // ---------------------------------------------------------------------------

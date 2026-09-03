@@ -167,6 +167,13 @@ export const FITS_ROWS = new Set([
   'how-close-is-near 1440x900',
   'timebomb 390x844',
   'timebomb 1440x900',
+  // Added 2026-09-03: moved from KNOWN_OVERFLOW. 0px on the CI runner (gh run 33740125366) AND on
+  // three consecutive dev-machine runs against a real dist/ — both machines agree, per the
+  // file-header licence. Numbers: docs/verification/182-dev-recheck.md (the run logs were written
+  // to a *.log path that .gitignore drops, so the committed md IS the artifact).
+  'short-stick 390x844',
+  'short-stick 1440x900',
+  'timebomb 320x568',
 ]);
 /**
  * Row -> why it is allowed to overflow. Recorded 2026-09-02 from three consecutive full runs; the
@@ -194,9 +201,6 @@ export const KNOWN_OVERFLOW = new Map([
   ['power-meter 390x844', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
   ['power-meter 1440x900', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
   ['short-stick 320x568', 'gh#182 open: 191px on press 0 - 191px to scroll on documentElement'],
-  ['short-stick 390x844', 'gh#182 open: 73px on press 0 - 73px to scroll on documentElement'],
-  ['short-stick 1440x900', 'gh#182 open: 81px on press 0 - 81px to scroll on documentElement'],
-  ['timebomb 320x568', 'gh#182 open: 119px on press 2 - 119px to scroll on documentElement'],
   // Moved from FITS_ROWS 2026-09-02: same self-scroller bound as freeze-tap above.
   ['wire-snip-panic 320x568', 'gh#182 open: 111px on press 0 - 111px to scroll on div#screen-game.screen.active'],
   ['zero-trigger 320x568', 'gh#182 open: 131px on press 0 - 131px to scroll on section#screen-game.screen.active. RE-RECORDED UPWARD from 96px, measured this run on this Mac: gh#194 deliberately gives the player strip its real height (flex-shrink:0 in overrides.css), and that height is added to a screen that was already over. The growth is the fix, not a regression — a chip row nobody can see is not a saving. Promotion to FITS_ROWS is not owed here; this row still overflows by design until the 320px play screen is redesigned'],

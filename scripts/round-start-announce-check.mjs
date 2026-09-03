@@ -94,6 +94,7 @@ import { fileURLToPath } from 'node:url';
 // owns the code). Importing it is side-effect-free: js-motion-guard-check.mjs runs its main() behind
 // an isEntryPoint() guard, pinned by a spawn leg in its own selftest.
 import { matchesInCode } from './js-motion-guard-check.mjs';
+import { stripComments, stripAstro, legacyTextualStrip, globTemplateFixture } from './strip-comments.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const PRIMITIVE_FILE = 'src/games/_round-start.ts';
@@ -101,35 +102,28 @@ const LISTENER_FILE = 'src/shell/LeaveConfirm.astro';
 const EVENT_NAME = 'watduang:round-started';
 
 // ---------------------------------------------------------------------------
-// Pure: text -> text with comments removed. Same convention as scripts/checkpoint-writer-check.mjs —
-// `//` and bare `/* */` count as comments only at the START of a line. A mid-line strip has already
-// shipped a fail-open bug in three other gates in this repo; do not repeat it. The direction that
-// matters here is that a commented-out announcement must not satisfy rule (c), and the header prose
-// above (which names both the function and the event) must not satisfy anything at all.
+// Comment stripping is the SHARED parser-backed one (scripts/strip-comments.mjs, gh#191, owner
+// decision: one stripper, imported everywhere). It replaces a two-regex textual version that counted
+// `//` and bare `/* */` as comments only at the START of a line — a narrowing taken because a mid-line
+// textual strip had already shipped a fail-open bug in three other gates here, and which then needed
+// its own patch (see hasRealCall below) because a trailing `// announceRoundStarted()` survived it.
+// The shared stripper needs neither: the TypeScript parser decides where quoted values start and end,
+// so a `//` inside 'https://…' is not an opener and a real trailing comment is blanked. The direction
+// that matters is unchanged — a commented-out announcement must not satisfy rule (c), and the header
+// prose above (which names both the function and the event) must satisfy nothing at all.
 // ---------------------------------------------------------------------------
-function stripComments(text) {
-  return text
-    .replace(/^[ \t]*\/\*[\s\S]*?\*\//gm, '') // block comments — LINE-START ONLY
-    .replace(/^[ \t]*\/\/.*$/gm, ''); // line comments — LINE-START ONLY
-}
 
 const IMPORT_RE = /import\s*\{[^}]*\bannounceRoundStarted\b[^}]*\}\s*from\s*['"]\.\/_round-start(?:\.ts)?['"]/;
 const CALL_RE = /\bannounceRoundStarted\s*\(/;
 
-// gh#121 gate-bypass fix: `stripComments` only removes LINE-START comments (by design — see the block
-// above), so `realCall(); // announceRoundStarted()` survives it and still matches CALL_RE against the
-// whole line. Scoped to the CALL check only, not to `stripComments` itself: widening stripComments to
-// eat mid-line text is the exact mistake its own comment warns against (a mid-line strip already shipped
-// a fail-open bug in three other gates here), and rules (a)/(b)/(d)/(e)/(f) never asked for that risk.
-// Per line, only the text before the first `//` counts as code for THIS check.
+// gh#121 gate-bypass fix: `realCall(); // announceRoundStarted()` must not satisfy the call rule. This
+// used to need a per-line patch here — truncate each line at its first `//` — because stripComments
+// removed LINE-START comments only. That patch had the mirror-image hole (a line holding
+// `const u = 'http://x'; announceRoundStarted();` truncated at the URL and lost the real call, a
+// fail-CLOSED miss of a real announcement). The shared stripper blanks the trailing comment and leaves
+// the URL alone, so the rule is now just CALL_RE over stripped code. Pinned both ways in selftest (c).
 function hasRealCall(source) {
-  return stripComments(source)
-    .split('\n')
-    .some((line) => {
-      const slashIdx = line.indexOf('//');
-      const codePart = slashIdx === -1 ? line : line.slice(0, slashIdx);
-      return CALL_RE.test(codePart);
-    });
+  return CALL_RE.test(stripComments(source));
 }
 // A checkpoint write whose argument is not `null` — that is a MID-ROUND save. `saveCheckpoint(null)`
 // is the opposite (a round ending, clearing the slot) and must not count. Whitespace class includes
@@ -352,7 +346,9 @@ export function analyze(modules, listenerSource, playRoutes = []) {
   }
 
   // (f)
-  const listener = stripComments(listenerSource ?? '');
+  // LISTENER_FILE is .astro: HTML with TypeScript islands, and TypeScript owns only the islands.
+  // stripAstro()'s header records the template-position fail-open that routing by grammar closes.
+  const listener = stripAstro(listenerSource ?? '');
   const importsConstant =
     /import\s*\{[^}]*\bROUND_STARTED_EVENT\b[^}]*\}\s*from\s*['"][^'"]*_round-start(?:\.ts)?['"]/.test(listener);
   const listensOnConstant = /addEventListener\(\s*ROUND_STARTED_EVENT\b/.test(listener);
@@ -480,6 +476,25 @@ function selftest() {
     '(c) a mid-line trailing comment must not satisfy the call rule',
   );
   console.log('PASS (c) known-bad: a real call deleted but only mentioned in a same-line trailing comment does not satisfy the rule (gh#121 mid-line-comment bypass)');
+
+  // --- (c) the OTHER direction the gh#121 per-line patch got wrong, and gh#191's fixture. A REAL call
+  // sharing its line with a URL must still count (the patch truncated at the `//` and lost it), and a
+  // real call sitting after a glob and a multi-line template must still count (the legacy regex blanks
+  // it). Both are known-good shapes: zero violations. The legacy stripper is run on the same input and
+  // asserted to lose the call, so neither leg can be green by never reaching the hazard.
+  const urlSameLine = goodSet();
+  urlSameLine[0].source = urlSameLine[0].source.replace(
+    '  announceRoundStarted();',
+    "  const doc = 'https://watduang.com/rules'; announceRoundStarted(); void doc;",
+  );
+  assert.ok(!legacyTextualStrip(urlSameLine[0].source).includes('announceRoundStarted()'), '(c) POSITIVE CONTROL: the legacy regex must lose the call behind the URL');
+  assert.deepEqual(analyze(urlSameLine, goodListener), [], '(c) a real call sharing its line with a https:// URL must still satisfy the rule');
+
+  const globCall = goodSet();
+  globCall[0].source = globCall[0].source.replace('  announceRoundStarted();', globTemplateFixture('  announceRoundStarted();'));
+  assert.ok(!legacyTextualStrip(globCall[0].source).includes('announceRoundStarted()'), '(c) POSITIVE CONTROL: the legacy regex must lose the call inside the glob/closer span');
+  assert.deepEqual(analyze(globCall, goodListener), [], '(c) gh#191 fixture: a real call after a glob and a multi-line template must still satisfy the rule');
+  console.log('PASS (c) known-good, both fail-CLOSED shapes: a real call behind a https:// URL and one inside the gh#191 glob/template span both still count, where the legacy stripper loses each');
 
   // --- (d) known-bad: the realistic wrong declaration — a solo page copies the round-less `false`
   // while keeping a mid-round checkpoint. Nothing is missing from the source; the ANSWER is wrong.

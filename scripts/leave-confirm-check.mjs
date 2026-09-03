@@ -34,7 +34,7 @@ import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { stripComments as stripJsComments } from './strip-comments.mjs';
+import { stripComments as stripJsComments, stripAstro } from './strip-comments.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const CSS_FILE = path.join(repoRoot, 'src/styles/tokens.css');
@@ -136,10 +136,18 @@ function splitSelectorList(sel) {
 //     a mount call, a data-stable-exit attribute), and the alternative — keeping the `{\/\*…\*\/}`
 //     regex in front — is the same textual pairing this migration removes.
 //
-// Astro is not TypeScript: a template body is HTML, and the parser is error-tolerant rather than
-// correct on it. It degrades to fewer literal spans, which is the direction the old regexes failed in
-// already, so this is strictly better here and not a guarantee.
-const stripComments = (text) => stripJsComments(text);
+// Astro is not TypeScript: a template body is HTML, and the TypeScript-parser-backed stripJsComments()
+// is error-tolerant rather than correct on it — a bare `://` in template text or an unquoted attribute
+// value gives it no quoted-value span to protect, and it blanks the rest of that line, hazard included
+// (findLineCommentOpeners()'s rungs 1b/2 below are exactly this). Real .astro FILE reads (a `---`
+// frontmatter fence or a `<script>` body — every real file this gate reads carries at least one) are
+// routed through stripAstro() instead, which strips by grammar rather than by TypeScript's string
+// rules and so does not have that ceiling. Bare code/markup FRAGMENTS below with neither marker are
+// this file's own synthetic unit fixtures standing in for a <script> BODY, not a whole .astro file —
+// they keep going through stripJsComments(), which is the correct grammar for JS/TS content and is
+// exactly what every one of those fixtures already assumed. Pinned in selftest() (gh#193).
+const looksLikeAstroFile = (text) => /^---\r?\n/.test(text) || text.includes('<script');
+const stripComments = (text) => (looksLikeAstroFile(text) ? stripAstro(text) : stripJsComments(text));
 
 /** Every comment opener that stripComments() above would act on textually — one per line, the first
  *  one, because that regex blanks from it and nothing after it is ever re-read. Two kinds:
@@ -1354,6 +1362,35 @@ function selftestPerPageMount() {
     '(f) an import with no mount must be flagged',
   );
   console.log('PASS (f) known-bad fixtures (no owner · two owners · imported but never rendered) are each flagged');
+
+  // --- gh#193 (routing to stripAstro): the .astro TEMPLATE-position fail-open, one grammar over from
+  // gh#191. A second .astro file declaring <dialog id="leave-confirm"> hidden behind a bare `://` on
+  // the SAME LINE as template text would let the TypeScript-only stripJsComments() blank the rest of
+  // that line — the dialog tag included — undercounting owners.length back to 1 and silently passing
+  // what must be "found 2" (duplicate ids collide, showModal() raises whichever the parser kept). The
+  // shape-routed stripComments() above sends this real-.astro-shaped text (it carries a `---`
+  // frontmatter fence) through stripAstro() instead, which has no such ceiling. ---
+  const hiddenSecondOwner = fixtureTree('<LeaveConfirm gameId={game.id} />');
+  const hiddenOwnerFile = '---\nconst x = 1;\n---\n<p>… https://example.com/rules <dialog id="leave-confirm"></dialog></p>';
+  hiddenSecondOwner.set('src/shell/PlayerSetup.astro', hiddenOwnerFile);
+  // POSITIVE CONTROL: the unrouted, TypeScript-only stripper really does lose the second declaration on
+  // this input, so this fixture reaches the hazard rather than merely describing it (ADR-0030).
+  assert.ok(
+    !/<dialog\s+id="leave-confirm"/.test(stripJsComments(hiddenOwnerFile)),
+    'POSITIVE CONTROL FAILED — the unrouted TypeScript-only stripper must lose the second ' +
+      '<dialog id="leave-confirm"> behind the bare `://`, or this fixture never reaches the hazard stripAstro() closes',
+  );
+  assert.ok(
+    checkPerPageMount(FIXTURE_GAMES, hiddenSecondOwner).some((v) => v.includes('found 2')),
+    '(f) a second <dialog id="leave-confirm"> hidden behind a bare `://` in .astro template text must still be caught as found 2, not silently passed',
+  );
+  // Remove the hazard: back to a single owner, which must read clean again.
+  assert.deepEqual(
+    checkPerPageMount(FIXTURE_GAMES, fixtureTree('<LeaveConfirm gameId={game.id} />')),
+    [],
+    '(f) removing the planted second owner must return to clean',
+  );
+  console.log('PASS gh#193: a second <dialog id="leave-confirm"> planted after a bare `://` in .astro template text is caught as found 2 (red), and removing it returns to clean (green) — stripAstro routes real .astro-shaped text by grammar; the unrouted stripJsComments() loses the dialog behind the URL');
 
   // ADR-0019: the rule is per-game, so an empty manifest would satisfy it vacuously.
   assert.ok(

@@ -66,6 +66,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { stripComments as stripJsComments, stripAstro as stripAstroComments, legacyTextualStrip, globTemplateFixture } from './strip-comments.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const SRC = path.join(repoRoot, 'src');
@@ -94,23 +95,51 @@ const OBJ_RE = /\{[^{}]*\}/g;
 // tell use from mention, and this repo's comments discuss the gh#74/gh#85 defect by name
 // (var(--accent-fortune), --accent-party — properties that deliberately do not exist) and cite token
 // hexes in prose. Scanning prose made three comments look like three divergences on the first real run.
-// Blanked: /* … */, <!-- … -->, and `//` to end of line — the last only where `//` is not preceded by
-// `:`, so a `https://` URL does not blank the rest of its line. Offsets and line counts are preserved.
+// Blanked: every JS/TS comment, plus <!-- … -->. Offsets and line counts are preserved, so a line
+// number reported off stripped text is still the line number in the file.
 //
-// THIS STRIPPER IS TEXTUAL AND IT FAILS OPEN, AND NO AMOUNT OF REGEX MAKES IT NOT (gh#186, ADR-0056).
-// It is trying to enumerate "text that is a JS/CSS/HTML comment". That set belongs to the language
-// grammars and to whoever writes the next file — not to this repo — so it cannot converge: a `/*` inside
-// a string literal (`'src/*'`, a glob, a regex source) pairs with the next real `*/` ANYWHERE LATER and
-// every live line between them is blanked. A canonical accent hex in that span stops existing, CLASS V
-// never sees the file, and the gate prints its success line. Both shapes were observed greening.
-// The answer is NOT another marker rule. It is the conservation check below, keyed on a set this repo
-// really does own.
+// THE JS/CSS HALF IS NO LONGER TEXTUAL (gh#191, owner decision: one shared stripper, imported).
+// It used to be three regexes trying to enumerate "text that is a JS/CSS/HTML comment", a set owned by
+// the language grammars and by whoever writes the next file, never by this repo (gh#186, ADR-0056,
+// ADR-0031) — so it could not converge: a `/*` inside a string literal (`'src/*'`, a glob, a regex
+// source) paired with the next real `*/` ANYWHERE LATER and every live line between them was blanked.
+// A canonical accent hex in that span stopped existing, CLASS V never saw the file, and the gate
+// printed its success line. Both shapes were observed greening. scripts/strip-comments.mjs delegates
+// the hard half to the TypeScript parser, which DOES own that grammar, so those two shapes are closed
+// and pinned in selftest() with the legacy regex run beside them as the positive control.
+//
+// THE OTHER TWO GRAMMARS ARE NOT JS, AND THE SHARED STRIPPER DOES NOT CLAIM THEM. This gate scans
+// .ts, .astro, .mjs AND .css, so it needs a grammar decision the other converted gates do not:
+//   .css  — CSS block comments only. `//` is NOT a comment in CSS: `background: url(https://x)` is a
+//           declaration, and the TypeScript parser sees no string literal in raw CSS to protect it, so
+//           routing a stylesheet through the JS stripper would blank the rest of that line. Measured,
+//           not assumed: the first run after this conversion reds selftest's own url() pin. Not
+//           blanking a stray `//` in CSS fails SAFE (prose reads as code, the gate goes red, a human
+//           looks), which is the direction to be wrong in.
+//   HTML  — `<!-- ... -->` is HTML grammar; the TypeScript parser does not own it either. It runs
+//           FIRST on purpose: a `//` or `/*` inside an HTML comment would otherwise be blanked by the
+//           shared stripper, taking the `-->` with it, and the phantom span would run to the next
+//           `-->` in the file.
+// ponytail: DISCLOSED CEILING — an .astro file's `<style>` block is CSS inside a file routed to the JS
+// arm, so a scheme URL there (`url(https://…)`, an unquoted `@import`) would blank the rest of its
+// line. Zero instances today: `url(` appears nowhere in src/ (this site ships no images by content
+// rule) and no .css file carries a `//`. Trigger to close it: the first `url(` or `//` written inside
+// an .astro `<style>`; the upgrade path is to split the file the way scripts/live-region-height-check
+// already does (template vs style bodies) and route each half to its own grammar.
+// The conservation check below is what keeps the whole residue honest — it is keyed on a set this repo
+// really does own, and it aborts rather than print a verdict for a file whose evidence went missing.
 const blank = (m) => m.replace(/[^\n]/g, ' ');
-export const stripComments = (text) =>
-  text
-    .replace(/\/\*[\s\S]*?\*\//g, blank)
-    .replace(/<!--[\s\S]*?-->/g, blank)
-    .replace(/(^|[^:\w])\/\/[^\n]*/g, (m, pre) => pre + blank(m.slice(pre.length)));
+export const stripComments = (text, rel = '') => {
+  if (rel.endsWith('.css')) return text.replace(/\/\*[\s\S]*?\*\//g, blank);
+  // The HTML pre-pass runs on .astro ONLY. EXT is .ts/.astro/.mjs/.css, so .astro is the only kind
+  // that can carry an HTML comment -- and running the pre-pass on .ts/.mjs is not merely useless,
+  // it is the desync this gate's own conversion exists to close: a file holding an HTML comment
+  // opener in one string literal and its closer in another gets everything between them blanked,
+  // erasing live code and handing an unbalanced string to the parser. src/shell/player-setup.test.mjs
+  // holds exactly that pair today. Found by adversarial review, round 2.
+  if (rel.endsWith('.astro')) return stripAstroComments(text.replace(/<!--[\s\S]*?-->/g, blank));
+  return stripJsComments(text);
+};
 
 /**
  * CONSERVATION — the gate asserts it actually audited the file, gh#186 / ADR-0056.
@@ -138,7 +167,7 @@ export function conservationFailures(files, canonicalHexes) {
   const out = [];
   for (const { rel, text } of files) {
     const raw = text.toLowerCase();
-    const stripped = stripComments(text).toLowerCase();
+    const stripped = stripComments(text, rel).toLowerCase();
     const lost = canonicalHexes.filter((h) => raw.includes(h) && !stripped.includes(h));
     if (lost.length) {
       out.push(
@@ -192,7 +221,7 @@ export function audit(files, { accents, byHex }, registry) {
   let mentions = 0;
 
   for (const { rel, text: raw } of files) {
-    const text = stripComments(raw);
+    const text = stripComments(raw, rel);
     const hexes = new Set([...text.matchAll(HEX_RE)].map((m) => m[0].toLowerCase()));
 
     // CLASS V
@@ -322,11 +351,20 @@ function selftest() {
   // --- USE vs MENTION. The comments in this repo name the historical undefined accents on purpose;
   // treating prose as code produced three divergences on this gate's first real run. Both directions
   // are pinned: the same token is inert in a comment and live one line down in code. ---
-  const mentionOnly = { rel: 'prose.astro', text: '// emitting var(--accent-fortune), which nothing defines\n/* --accent-nope: #123456 */\n<!-- var(--accent-ghost) -->\n' };
+  // Each comment form sits where that form is REALLY a comment in an .astro file: `//` and `/* */`
+  // inside the frontmatter fence, `<!-- -->` in template position. Written bare in template position
+  // a `//` is rendered TEXT, not a comment, and this gate is right to read it as content — that is the
+  // grammar routing stripAstro() added, and a fixture pretending otherwise pins a shape the tree has not
+  // got. The `<!-- -->` line is the one that must stay in template position: it is HTML's comment, and
+  // the arm of this gate's own stripper that handles it is the one the shared stripper does not own.
+  const mentionOnly = {
+    rel: 'prose.astro',
+    text: '---\n// emitting var(--accent-fortune), which nothing defines\n/* --accent-nope: #123456 */\n---\n<!-- var(--accent-ghost) -->\n',
+  };
   assert.deepEqual(audit([palette, pills, mentionOnly], parsed, registry).errors, [], 'an --accent-* name that appears only inside //, /* */ or <!-- --> prose must trip nothing');
   const mentionAndUse = { rel: 'prose.astro', text: `${mentionOnly.text}a{color:var(--accent-ghost)}\n` };
   assert.match(audit([palette, pills, mentionAndUse], parsed, registry).errors.join('\n'), /--accent-ghost/, 'positive control: the same name in real code, one line below the prose, IS flagged');
-  assert.match(stripComments('a{color:url(https://x/y)}b{--accent-gold:1}'), /--accent-gold/, 'a `//` inside a URL must not blank the rest of the line');
+  assert.match(stripComments('a{color:url(https://x/y)}b{--accent-gold:1}', 'x.css'), /--accent-gold/, 'a `//` inside a URL must not blank the rest of the line');
   console.log('PASS use vs mention: --accent-* inside //, /* */ and <!-- --> prose is inert, the same name in code is flagged, and a https:// URL does not blank its line');
 
   // --- ANTI-VOID: the queries returning nothing must NOT read as a pass. ---
@@ -343,24 +381,43 @@ function selftest() {
   // as the pre-fix behaviour it replaces, so a later "simplification" of the stripper cannot restore it. ---
   const canonical = [...new Set(parsed.accents.values())];
   const inBlockComment = { rel: 'hazard.css', text: '.x{\n/* the hero fill is\n   #ffd27f today */\n  color: red;\n}\n' };
-  // The stripper's OTHER direction: `/*` inside a string literal pairs with the next real `*/` further
-  // down the file, so the live line between them — hex and all — is blanked. Nothing in the text is a
-  // comment; the regex only thinks so.
-  const inStringGlob = { rel: 'hazard.ts', text: "const glob = 'src/*';\nexport const HERO = '#ffd27f';\n/* note */\n" };
-  for (const hz of [inBlockComment, inStringGlob]) {
+  for (const hz of [inBlockComment]) {
     assert.ok(hz.text.toLowerCase().includes('#ffd27f'), `${hz.rel}: the fixture must really carry the canonical hex, or this pin proves nothing`);
-    assert.ok(!stripComments(hz.text).toLowerCase().includes('#ffd27f'), `${hz.rel}: positive control — stripComments() must really lose the hex here, else the pin below is unfailable by construction`);
+    assert.ok(!stripComments(hz.text, hz.rel).toLowerCase().includes('#ffd27f'), `${hz.rel}: positive control — stripComments() must really lose the hex here, else the pin below is unfailable by construction`);
     assert.deepEqual(audit([palette, pills, hz], parsed, registry).errors, [], `${hz.rel}: pre-fix behaviour, pinned: audit() alone reports ZERO divergences on a file whose accent evidence it never saw — that green is the gh#186 defect`);
     assert.equal(conservationFailures([hz], canonical).length, 1, `${hz.rel}: the conservation check must refuse the run — a hex present in raw and gone after stripping means the gate did not audit this file`);
     assert.match(conservationFailures([hz], canonical)[0], /#ffd27f.*gone after comment-stripping/, 'the refusal must name the hex it lost, not just say something went wrong');
   }
-  console.log('PASS conservation red, both shapes: a canonical hex lost to a cross-line /* */ AND to a string-borne `/*` each refuse the run, where audit() alone printed a green');
+  console.log('PASS conservation red: a canonical hex lost to a cross-line /* */ refuses the run, where audit() alone printed a green');
+
+  // The string-borne `/*` used to sit in the loop above as a SECOND conservation-red shape: a glob in a
+  // string literal paired with the next real `*/` further down the file and the live line between them —
+  // hex and all — was blanked, and the pin recorded that as behaviour. gh#191 removed the cause rather
+  // than the symptom, so it belongs in the OTHER direction now: the hex must survive, and the legacy
+  // regex is run on the same input and asserted to lose it, so this leg cannot green by never reaching
+  // the hazard. This is the gh#191 DoD fixture — glob plus multi-line template, one file.
+  const globFixture = { rel: 'fixture.ts', text: globTemplateFixture("export const HERO = '#ffd27f';") };
+  assert.ok(
+    !legacyTextualStrip(globFixture.text).toLowerCase().includes('#ffd27f'),
+    'POSITIVE CONTROL: the legacy textual stripper must lose the hex to the glob/closer desync, or greening it proves nothing',
+  );
+  assert.ok(stripComments(globFixture.text, globFixture.rel).toLowerCase().includes('#ffd27f'), 'gh#191: the hex after a glob and a multi-line template must survive stripping');
+  assert.deepEqual(conservationFailures([globFixture], canonical), [], 'gh#191: nothing is lost, so the conservation check must not refuse the run');
+  // …and the survival is observable in the VERDICT, not just in the stripper: the fixture becomes a
+  // one-hex value copy, which is the CLASS V red this gate exists to print. Under the legacy regex the
+  // hex was gone, so the same file produced no CLASS V entry at all — a green over an unaudited file.
+  assert.match(
+    audit([pills, globFixture], parsed, registry).errors.join('\n'),
+    /fixture\.ts: copies accent values but is missing/,
+    'gh#191: the surviving hex must reach CLASS V and red as an incomplete value copy',
+  );
+  console.log('PASS gh#191 fixture: a hex after a glob and a multi-line template survives the shared stripper, conserves, and reaches CLASS V — where the legacy regex lost it');
 
   // The other direction — the check must not fire on ordinary text, or it is a gate nobody can keep green.
   assert.deepEqual(conservationFailures([palette, pills, mentionOnly], canonical), [], 'a full value copy, registry-matching pills, and comments that mention --accent-* names but no canonical hex must all conserve');
   const urlLine = { rel: 'url.css', text: '/* docs: https://example.test/x */\n.hero{color:#ffd27f;border-color:#f89880;outline-color:#7fd8e8}\n' };
   assert.deepEqual(conservationFailures([urlLine], canonical), [], 'a `//` inside a https:// URL must not blank the hexes on the lines after it');
-  assert.match(stripComments(urlLine.text), /#ffd27f/, 'same input from the stripper side: the URL line is not treated as a line comment');
+  assert.match(stripComments(urlLine.text, urlLine.rel), /#ffd27f/, 'same input from the stripper side: the URL line is not treated as a line comment');
   console.log('PASS conservation green: clean files, prose that mentions --accent-* names, and a https:// URL beside real hexes all conserve — the check is not simply always-red');
 
   assert.ok(!successLine(good.counts).includes('undefined,'), 'the success line must not interpolate an undefined count');
@@ -373,8 +430,8 @@ function main() {
   if (process.argv.includes('--selftest')) return selftest();
 
   const tokensPath = path.join(repoRoot, TOKENS_REL);
-  const read = (rel) => stripComments(fs.readFileSync(path.join(repoRoot, rel), 'utf8'));
-  const parsed = parseTokens(stripComments(fs.readFileSync(tokensPath, 'utf8')));
+  const read = (rel) => stripComments(fs.readFileSync(path.join(repoRoot, rel), 'utf8'), rel);
+  const parsed = parseTokens(stripComments(fs.readFileSync(tokensPath, 'utf8'), TOKENS_REL));
   const registry = parseRegistry(read('src/games/categories.ts'), read('src/tools/manifest.ts'));
   // VERBATIM LIFTS. ADR-0048 exempts a ported game from ADR-0033's design canvas, and these files ARE
   // the port: scripts/extract-mockup.mjs writes them byte-for-byte out of a standalone mockup that

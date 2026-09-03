@@ -33,6 +33,7 @@ import path from 'node:path';
 import os from 'node:os';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { stripComments, stripAstro, astroTemplateFixture, legacyTextualStrip, GLOB_TEMPLATE_FIXTURE } from './strip-comments.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
@@ -46,35 +47,19 @@ const SELECTOR_FILE = 'src/shell/LeaveConfirm.astro';
 const SELECTOR_LITERAL = 'a[href]:not([data-stable-exit])';
 
 // ---------------------------------------------------------------------------
-// Pure: text -> text with comments removed. Ordered so multi-line forms are stripped before
-// line comments (so nothing left inside a block/brace comment can be mis-read as a line comment).
-// This codebase's own idiom (checked in PlayerSetup.astro and GameLayout.astro) uses only
-// brace comments ({/* ... */}) in .astro templates and // line comments in script bodies; a
-// generic /* ... */ is stripped too, at zero cost, in case a .ts file ever uses one.
-// ---------------------------------------------------------------------------
-function stripComments(text) {
-  return text
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, '') // Astro/JSX brace comments
-    .replace(/^[ \t]*\/\*[\s\S]*?\*\//gm, '') // generic block comments — LINE-START ONLY, same reason as below
-    .replace(/^[ \t]*\/\/.*$/gm, ''); // line comments — LINE-START ONLY, see the note below
-}
-
-// ponytail: the line-comment rule is deliberately narrow — `//` counts as a comment only at the
-// start of a line. A mid-line `//` is far more often a URL than a comment: 'https://schema.org'
-// sits in src/layouts/GameLayout.astro, a file this gate scans. Blanking from there to end of line
-// let a stray data-stable-exit hide behind a URL on the same line, and the gate went green — a
-// fail-OPEN, measured, not theorised. Tracking quote state instead was rejected: an unpaired
-// apostrophe in prose ("don't") would open a string that never closes and swallow live markup,
-// trading this hole for a worse one.
-// The same narrowing applies to bare `/* */`: a mid-line `/*` is a glob or a path far more often
-// than a comment. src/pages/game/[id].astro holds '../../games/*.ts', also in this gate's scan set.
-// It is benign only because that file has no later `*/` to close the phantom block — add one and the
-// span between them blanks, taking any marker with it. Verified across the scanned files: no real
-// comment here uses a mid-line `/* */`; the two mid-line hits are that glob and a `src/*` inside a
-// line comment. `{/* */}` stays allowed anywhere, being an unambiguous Astro construct.
-// Ceiling: a trailing `// ...` comment that MENTIONS data-stable-exit now trips the gate. That is
-// a false positive, it fails SAFE (red, a human looks), and no such comment exists today. The
-// upgrade path if this stops holding is the TypeScript parser scripts/thai-comments.mjs uses.
+// Comment stripping is the SHARED parser-backed one (scripts/strip-comments.mjs, gh#191, owner
+// decision: one stripper, imported everywhere). It replaces the three-regex textual version this file
+// used to carry, which narrowed `//` and bare `/* */` to LINE-START ONLY to dodge two hazards it could
+// not otherwise survive: 'https://schema.org' really sits in src/layouts/GameLayout.astro, and
+// '../../games/*.ts' really sits in src/pages/game/[id].astro — both files this gate scans, and both
+// shapes let a stray data-stable-exit hide behind them. That narrowing was itself a hole (a real
+// trailing comment mentioning the attribute reds the gate) and it enumerated a set this repo does not
+// own (ADR-0031). The shared stripper asks the TypeScript parser where quoted values start and end, so
+// a comment opener inside a string is not an opener and a real trailing comment is still blanked.
+// `{/* ... */}` Astro brace comments need no separate rule: the inner block comment is what the
+// parser sees, and blanking it leaves the braces, which match nothing this gate looks for.
+// Both hazards stay pinned in selftest() below, and the gh#191 fixture pins the glob/closer desync
+// with the legacy regex run beside it as the positive control.
 
 // The attribute name is also a legitimate substring of the guard's own selector literal
 // ([data-stable-exit], inside a[href]:not([data-stable-exit])) — that is a reference to the
@@ -88,11 +73,15 @@ const ATTR_USE_RE_G = /(?<!\[)data-stable-exit(?!\])/g; // same shape, global �
 // and outside the guard's own [data-stable-exit] selector reference, in any file other than
 // the one allowed location.
 // ---------------------------------------------------------------------------
+// Routed to the grammar that owns the file: an .astro file is HTML with TypeScript islands in it, and
+// TypeScript owns only the islands. See stripAstro()'s header for the fail-open this closes.
+const strip = (text, relPath) => (relPath.endsWith('.astro') ? stripAstro(text) : stripComments(text));
+
 function findAttributeViolations(files) {
   const hits = [];
   for (const { relPath, text } of files) {
     if (relPath === ALLOWED_ATTR_FILE) continue;
-    if (ATTR_USE_RE.test(stripComments(text))) hits.push(relPath);
+    if (ATTR_USE_RE.test(strip(text, relPath))) hits.push(relPath);
   }
   return hits;
 }
@@ -102,13 +91,13 @@ function findAttributeViolations(files) {
 // so the answer is a count of live attributes. Anything but 1 fails: 0 means the exemption silently
 // vanished, 2+ means the closed marker set grew without a decision.
 function countAttributeUses(text) {
-  return (stripComments(text).match(ATTR_USE_RE_G) || []).length;
+  return (strip(text, ALLOWED_ATTR_FILE).match(ATTR_USE_RE_G) || []).length;
 }
 
 // Pure: does the guard file still carry the exact exemption selector? Comment-stripped, or the old
 // selector left behind in a `// was: ...` line would satisfy this while the live one is weakened.
 function selectorPresent(text) {
-  return stripComments(text).includes(SELECTOR_LITERAL);
+  return strip(text, SELECTOR_FILE).includes(SELECTOR_LITERAL);
 }
 
 // ---------------------------------------------------------------------------
@@ -151,9 +140,15 @@ function selftest() {
       '     so it is exempted from the leave-confirm guard. */}',
       '<p><a href="/" data-stable-exit>กลับหน้าแรก</a></p>',
     ].join('\n'));
+    // Wrapped in <script>, which is where the real src/shell/LeaveConfirm.astro carries this code.
+    // The wrapper is load-bearing, not decoration: an .astro file is routed by grammar now, and a `//`
+    // in TEMPLATE position is rendered text rather than a comment (see stripAstro). A fixture that
+    // writes bare TypeScript into an .astro file exercises a shape the tree does not contain.
     write(good, SELECTOR_FILE, [
+      '<script>',
       '  // Only data-stable-exit (GameLayout\'s back-to-home link) opts out.',
       "  const link = (e.target as Element).closest?.('a[href]:not([data-stable-exit])') as HTMLAnchorElement | null;",
+      '</script>',
     ].join('\n'));
     write(good, 'src/games/timebomb.ts', [
       '{/* mentions data-stable-exit only in a brace comment, no real attribute here */}',
@@ -199,6 +194,36 @@ function selftest() {
         'a marker between a mid-line /* glob and a later */ must still be seen',
       );
       console.log('PASS a data-stable-exit inside a phantom /* ... */ span is still caught');
+
+      // gh#191 shared fixture: glob + multi-line template in one file, with the legacy textual
+      // stripper run beside it as the positive control. Its MARKER literal IS this gate's attribute,
+      // so a stripper that desyncs on it makes the marker stop existing and this gate green.
+      write(urlHole, 'src/pages/fixture.astro', GLOB_TEMPLATE_FIXTURE);
+      assert.ok(
+        !legacyTextualStrip(GLOB_TEMPLATE_FIXTURE).includes('data-stable-exit'),
+        'POSITIVE CONTROL: the legacy regex must lose the marker on this fixture, or greening it proves nothing',
+      );
+      assert.ok(
+        findAttributeViolations(walkSrcFiles(urlHole)).includes('src/pages/fixture.astro'),
+        'the gh#191 fixture marker must be seen through the shared parser-backed stripper',
+      );
+      console.log('PASS gh#191 fixture: a marker after a glob and a multi-line template is lost by the legacy regex and seen by the shared stripper');
+
+      // gh#191 REVIEW FIX: the same proof one grammar over, in .astro TEMPLATE position — the position
+      // the pure-TypeScript fixture above provably cannot reach. A bare `://` in HTML text gave the
+      // TypeScript parser no quoted span to protect, so the whole rest of the line was blanked and this
+      // gate reported clean over a live marker. stripComments() is run on the same input as the positive
+      // control, so this leg cannot be green by never reaching the hazard.
+      write(urlHole, 'src/pages/template.astro', astroTemplateFixture('data-stable-exit'));
+      assert.ok(
+        !stripComments(astroTemplateFixture('data-stable-exit')).includes('data-stable-exit'),
+        'POSITIVE CONTROL: the unrouted stripper must lose the template-position marker, or this leg proves nothing',
+      );
+      assert.ok(
+        findAttributeViolations(walkSrcFiles(urlHole)).includes('src/pages/template.astro'),
+        'a marker in .astro template position, after a bare `://`, must still be seen',
+      );
+      console.log('PASS gh#191 review fix: a marker in .astro template position survives grammar routing, where the unrouted stripper blanked its line');
     } finally {
       fs.rmSync(urlHole, { recursive: true, force: true });
     }
@@ -220,8 +245,10 @@ function selftest() {
     // The old selector survives as a comment while the live one is weakened — before comments were
     // stripped, that alone kept selectorPresent() true and the gate green.
     write(bad, SELECTOR_FILE, [
+      '<script>',
       "  // was: closest?.('a[href]:not([data-stable-exit])')",
       "  const link = (e.target as Element).closest?.('a[href]') as HTMLAnchorElement | null;",
+      '</script>',
     ].join('\n'));
 
     const badFiles = walkSrcFiles(bad);

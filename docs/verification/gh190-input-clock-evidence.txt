@@ -1,0 +1,319 @@
+# gh#190 verdict evidence — 2026-09-03T11:07:06Z
+
+Reading stated BEFORE looking: input gaps <400ms + round exited => gate defect. input gaps >400ms => dispatch race (VOID is correct cure).
+
+## Stalled run (PROBE_STALL_MS=700, ROUTES_ONLY=cursed-number, EXIT=1)
+{
+  "cursed-number": {
+    "route": "cursed-number",
+    "idle": {
+      "present": true,
+      "disabled": false,
+      "rect": {
+        "x": 6,
+        "y": 6,
+        "w": 44,
+        "h": 44
+      },
+      "opacity": "1",
+      "zIndex": "300",
+      "position": "fixed",
+      "insideGameRoot": false,
+      "anchorsInGameRoot": 0,
+      "allTop": true,
+      "coversInteractive": 0,
+      "under": [
+        "DIV#app"
+      ],
+      "innerWidth": 320,
+      "reducedMotion": false,
+      "scrollWidth": 320,
+      "clientWidth": 320
+    },
+    "m1_pathname": "/",
+    "transitionTrigger": {
+      "label": "🎮 เริ่มประลองความเสี่ยง",
+      "x": 160,
+      "y": 505,
+      "inViewport": true
+    },
+    "transitioned": null,
+    "postTransition": {
+      "present": false
+    },
+    "burst": {
+      "pathname": "/",
+      "disabledAfterBurst": null,
+      "contacts": null,
+      "armDelayMs": 400,
+      "timeline": [
+        {
+          "kind": "down",
+          "t": 1788433542546.7,
+          "ti": 1788433542546.3,
+          "pointerType": "mouse",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "t": 1788433542547.7,
+          "ti": 1788433542547.5,
+          "pointerType": "mouse",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "t": 1788433543421,
+          "ti": 1788433542783,
+          "pointerType": "touch",
+          "disabled": false
+        },
+        {
+          "kind": "up",
+          "t": 1788433543454.6,
+          "ti": 1788433543421.8,
+          "pointerType": "touch",
+          "disabled": false
+        }
+      ],
+      "stallMs": 700,
+      "burstGapMs": 80,
+      "downs": [
+        {
+          "inputGap": 235.5,
+          "disabled": false
+        }
+      ],
+      "defectContacts": [
+        {
+          "inputGap": 235.5,
+          "disabled": false
+        }
+      ],
+      "gaps": [
+        873.3
+      ],
+      "maxGap": 873.3,
+      "gapsOverArmDelay": 1,
+      "inputGaps": [
+        235.5
+      ],
+      "maxInputGap": 235.5,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "attempts": 1
+    },
+    "armedBeforeDeliberate": null,
+    "m3_pathname": "/"
+  }
+}
+  FAIL cursed-number: 1 burst contact(s) dispatched INSIDE the arm window were handled with the X ENABLED (input gaps 235.5ms vs ARM_DELAY_MS 400; pathname /) -- largest pointerup->pointerdown gap: handled 873.3ms, input 235.5ms vs ARM_DELAY_MS 400 (over it: 1 handled, 0 input; handled gaps 873.3; input gaps 235.5)
+play-exit: 1 of 1 route(s) fully checked, 1 failed, 0 burst leg(s) VOID after a retry, 0 route(s) EXEMPT from the checked count (burst leg never exercised): none
+
+## Control run (no stall knob, same dist/, EXIT=0)
+{
+  "cursed-number": {
+    "route": "cursed-number",
+    "idle": {
+      "present": true,
+      "disabled": false,
+      "rect": {
+        "x": 6,
+        "y": 6,
+        "w": 44,
+        "h": 44
+      },
+      "opacity": "1",
+      "zIndex": "300",
+      "position": "fixed",
+      "insideGameRoot": false,
+      "anchorsInGameRoot": 0,
+      "allTop": true,
+      "coversInteractive": 0,
+      "under": [
+        "DIV#app"
+      ],
+      "innerWidth": 320,
+      "reducedMotion": false,
+      "scrollWidth": 320,
+      "clientWidth": 320
+    },
+    "m1_pathname": "/",
+    "transitionTrigger": {
+      "label": "🎮 เริ่มประลองความเสี่ยง",
+      "x": 160,
+      "y": 505,
+      "inViewport": true
+    },
+    "transitioned": true,
+    "postTransition": {
+      "present": true,
+      "disabled": true,
+      "rect": {
+        "x": 6,
+        "y": 6,
+        "w": 44,
+        "h": 44
+      },
+      "opacity": "0.55",
+      "zIndex": "300",
+      "position": "fixed",
+      "insideGameRoot": false,
+      "anchorsInGameRoot": 0,
+      "allTop": true,
+      "coversInteractive": 0,
+      "under": [
+        "DIV#app"
+      ],
+      "innerWidth": 320,
+      "reducedMotion": false,
+      "scrollWidth": 320,
+      "clientWidth": 320
+    },
+    "burst": {
+      "pathname": "/game/cursed-number/play/",
+      "disabledAfterBurst": true,
+      "contacts": {
+        "total": 6,
+        "onBtnWhileDisabled": 5
+      },
+      "armDelayMs": 400,
+      "timeline": [
+        {
+          "kind": "down",
+          "t": 1788433600291.3,
+          "ti": 1788433600290.9,
+          "pointerType": "mouse",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "t": 1788433600292.3,
+          "ti": 1788433600292.1,
+          "pointerType": "mouse",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "t": 1788433600401.6,
+          "ti": 1788433600382.5,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "t": 1788433600435.3,
+          "ti": 1788433600402.1,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "t": 1788433600535.5,
+          "ti": 1788433600516.8,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "t": 1788433600568.6,
+          "ti": 1788433600535.7,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "t": 1788433600668.7,
+          "ti": 1788433600650.1,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "t": 1788433600701.9,
+          "ti": 1788433600668.9,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "t": 1788433600802,
+          "ti": 1788433600783.7,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "t": 1788433600835.4,
+          "ti": 1788433600802.5,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "t": 1788433600935,
+          "ti": 1788433600916.6,
+          "pointerType": "touch",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "t": 1788433600968.6,
+          "ti": 1788433600935.4,
+          "pointerType": "touch",
+          "disabled": true
+        }
+      ],
+      "stallMs": 0,
+      "burstGapMs": 80,
+      "downs": [
+        {
+          "inputGap": 90.4,
+          "disabled": true
+        },
+        {
+          "inputGap": 114.7,
+          "disabled": true
+        },
+        {
+          "inputGap": 114.4,
+          "disabled": true
+        },
+        {
+          "inputGap": 114.8,
+          "disabled": true
+        },
+        {
+          "inputGap": 114.1,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        109.3,
+        100.2,
+        100.1,
+        100.1,
+        99.6
+      ],
+      "maxGap": 109.3,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        90.4,
+        114.7,
+        114.4,
+        114.8,
+        114.1
+      ],
+      "maxInputGap": 114.8,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "attempts": 1
+    },
+    "armedBeforeDeliberate": false,
+    "m3_pathname": "/"
+  }
+}
+play-exit: 1 of 1 route(s) fully checked, 0 failed, 0 burst leg(s) VOID after a retry, 0 route(s) EXEMPT from the checked count (burst leg never exercised): none

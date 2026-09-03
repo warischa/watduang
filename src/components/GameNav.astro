@@ -1,5 +1,6 @@
 ---
 import { games } from '../games/manifest';
+import { categories } from '../games/categories';
 import type { Category } from '../games/types';
 
 interface Props {
@@ -10,27 +11,63 @@ interface Props {
    *  fourth category needs no edit in this file. */
   category?: Category;
   excludeId?: string;
-  /** Required on purpose, with no default. The heading is a CLAIM about what happens next, and the
-   *  claim differs per caller: a category that carries the group onward promises the same group
-   *  continues, and one that does not must not. A default would be silently inherited by the next
-   *  caller and would be false wherever the group does not carry on, which is the trap gh#111 names.
-   *  Making it required means tsc, not a comment, is what stops that. */
-  heading: string;
+  /** MANDATORY WITH A CATEGORY, FORBIDDEN WITHOUT ONE — the guard below enforces both, and it is a
+   *  runtime throw rather than a prop type because a type does not stop an .astro caller.
+   *  The heading is a CLAIM about what happens next, and the claim differs per caller: a category that
+   *  carries the group onward promises the same group continues, and one that does not must not. A
+   *  default would be silently inherited by the next caller and would be false wherever the group does
+   *  not carry on, which is the trap gh#111 box 2 closed — omitting this prop must never become a way
+   *  to get an unlabelled narrowed nav back.
+   *  A wide list takes none: it mixes both categories, and the owner rejected every single name
+   *  proposed for that mix (2026-09-03, after refusing a union word on 2026-08-27). It is named by its
+   *  per-group <h3>s instead, so there is nothing left for this prop to say there. */
+  heading?: string;
 }
 
 const { navClass, category, excludeId, heading } = Astro.props as Props;
 
+// gh#111 boxes 2 and 3, one condition: the heading and the narrowing travel together. Loud on both
+// sides on purpose — the first is box 2's guarantee (a narrowed nav can never render unlabelled), and
+// the second stops a caller from reintroducing a single name over the mixed list, which is the exact
+// thing the owner refused. An Astro component throwing fails the build, so CI is where this lands.
+if (Boolean(category) !== Boolean(heading)) {
+  throw new Error(
+    'GameNav: `heading` is required with `category` and forbidden without it (gh#111) — ' +
+      `got category=${JSON.stringify(category)}, heading=${JSON.stringify(heading)}`,
+  );
+}
+
 const shown = games.filter((g) => (!category || g.category === category) && g.id !== excludeId);
+
+// gh#111 box 3. A wide list (no `category`) mixes the two categories, and the owner ruled on
+// 2026-08-27 that there is no union word for them: copy names each category instead of inventing a
+// term. So a wide list gets no single visible heading — one labelled group per category, each label
+// being that category's own manifest name, which is what stops a fortune page from being introduced
+// by a word meaning game (ADR-0040). A narrowed list is one group carrying the caller's own heading,
+// so every existing caller renders byte-identically to before.
+// Read off `categories` rather than written here: a fourth category needs no edit in this file, which
+// is gh#94's acceptance criterion 5 (GameNav.test.mjs pins it).
+const groups = category
+  ? [{ label: heading, items: shown }]
+  : Object.entries(categories)
+      .map(([slug, meta]) => ({ label: meta.label, items: shown.filter((g) => g.category === slug) }))
+      .filter((group) => group.items.length > 0);
 ---
 
 <nav class={navClass} aria-label={heading}>
-  <h3>{heading}</h3>
   {/* gh#149 — `playRoute ?? /game/<id>/`, the same fallback src/pages/index.astro and
       src/pages/c/[category].astro already use. A game with a play route has no landing page left to
       link (ADR-0050 ruling 2), so spelling the landing URL here would put a 301 in the crawlable
       chrome ADR-0014 relies on. WHICH games are listed is unchanged and is not this ticket's to
-      change (ADR-0043, gh#111) — only where each link points. */}
-  <ul>{shown.map((g) => <li><a href={g.playRoute ?? `/game/${g.id}/`}>{g.names.th}</a></li>)}</ul>
+      change (ADR-0043, gh#111) — only where each link points. Every group stays inside this one
+      <nav>: scripts/crawl-check-gamenav.mjs scopes its sibling count to the FIRST nav block, so
+      splitting the groups across sibling <nav>s would hide half the links from that gate. */}
+  {groups.map((group) => (
+    <Fragment>
+      <h3>{group.label}</h3>
+      <ul>{group.items.map((g) => <li><a href={g.playRoute ?? `/game/${g.id}/`}>{g.names.th}</a></li>)}</ul>
+    </Fragment>
+  ))}
 </nav>
 
 <style>
@@ -49,6 +86,11 @@ const shown = games.filter((g) => (!category || g.category === category) && g.id
     margin-block: 0 var(--space-md);
     font-family: var(--font-display);
     color: var(--color-text);
+  }
+
+  /* Only a wide list has a second group; a narrowed one renders a single h3 and never matches this. */
+  ul + h3 {
+    margin-block-start: var(--space-lg);
   }
 
   ul {
