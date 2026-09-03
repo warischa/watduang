@@ -34,6 +34,7 @@ import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { stripComments as stripJsComments } from './strip-comments.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const CSS_FILE = path.join(repoRoot, 'src/styles/tokens.css');
@@ -120,17 +121,25 @@ function splitSelectorList(sel) {
   return out.map((s) => s.trim()).filter(Boolean);
 }
 
-// Astro/JSX brace comments first, then block, then line — same order (and same reason) as
-// scripts/stable-exit-markers-check.mjs's: nothing left inside a multi-line form may be re-read as a
-// line comment. Each comment is replaced by spaces rather than deleted, so offsets and line numbers
-// are unchanged and a match's position still points at the real source line.
-const blank = (m) => m.replace(/[^\n]/g, ' ');
-function stripComments(text) {
-  return text
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, blank)
-    .replace(/\/\*[\s\S]*?\*\//g, blank)
-    .replace(/\/\/[^\n]*/g, blank);
-}
+// The shared parser-backed stripper (scripts/strip-comments.mjs, gh#191), replacing three textual
+// regexes of this file's own. Each comment is replaced by spaces rather than deleted, so offsets and
+// line numbers are unchanged and a match's position still points at the real source line.
+//
+// WHAT CHANGED ON THIS TREE, measured over every .astro file under src/ before shipping (this gate
+// feeds ALL of them to the strip, via astroFiles, not just ASTRO_FILE):
+//   - src/pages/game/[id].astro — 81 lines. The `/*` inside the glob string '../../games/*.ts' paired
+//     with the next real block-comment closer and blanked everything between them. That is a live
+//     instance of ADR-0019's hole class inside this gate's own scan set, and it is now gone.
+//   - src/layouts/GameLayout.astro — the `//` in 'https://schema.org' no longer blanks its line.
+//   - Four files where a `{/* … */}` brace comment now leaves its `{` and `}` standing while the
+//     comment body is blanked. The braces are inert to every pattern this file matches (a dialog tag,
+//     a mount call, a data-stable-exit attribute), and the alternative — keeping the `{\/\*…\*\/}`
+//     regex in front — is the same textual pairing this migration removes.
+//
+// Astro is not TypeScript: a template body is HTML, and the parser is error-tolerant rather than
+// correct on it. It degrades to fewer literal spans, which is the direction the old regexes failed in
+// already, so this is strictly better here and not a guarantee.
+const stripComments = (text) => stripJsComments(text);
 
 /** Every comment opener that stripComments() above would act on textually — one per line, the first
  *  one, because that regex blanks from it and nothing after it is ever re-read. Two kinds:
@@ -238,6 +247,7 @@ function findLineCommentOpeners(text) {
   // Template-literal state, and ONLY that, survives a newline among the STRING forms. `'` and `"` are
   // reset at every line start — see the header: that is a deliberate fail-OPEN trade against prose
   // apostrophes, not a language guarantee, and it is what leaves the multi-line HTML attribute rung open.
+  let lineStart = 0; // absolute offset of the current line, so a report can be read against the strip
   const stack = []; // 'tpl' = inside a template literal · a number = brace depth inside a ${ } hole
   let html = false; // inside an <!-- --> comment, which also spans lines and which stripComments() does NOT blank
   // Block-comment state is walked here rather than pre-blanked textually. A textual pre-pass could not
@@ -246,6 +256,8 @@ function findLineCommentOpeners(text) {
   // already-corrupted text. Walking it means an in-string `/*` is REPORTED (kind '/*') instead.
   let block = false;
   for (const [i, line] of src.split('\n').entries()) {
+    const thisLineStart = lineStart;
+    lineStart += line.length + 1; // +1 for the '\n' the split consumed; blanking preserves offsets
     let quote = null;
     let kind = null;
     let c = 0;
@@ -293,7 +305,7 @@ function findLineCommentOpeners(text) {
     // it is ever re-read. A real comment opener also ends the walk for this line: quotes and backticks
     // inside comment prose are not code and must not move the state. `kind === '/*'` is only ever set
     // in a string/HTML-comment context, so it is always a hazard, never an ordinary block comment.
-    if (kind) found.push({ line: i + 1, kind, inString: kind === '/*' || html || quote !== null || stack.at(-1) === 'tpl', text: line.trim() });
+    if (kind) found.push({ line: i + 1, offset: thisLineStart + c, kind, inString: kind === '/*' || html || quote !== null || stack.at(-1) === 'tpl', text: line.trim() });
   }
   return found;
 }
@@ -1034,6 +1046,14 @@ function selftest() {
   });
   console.log('PASS (a) known-bad fixture (display on bare #clear-choice) is flagged');
 
+  // The exact textual stripper gh#191 deleted from this file, kept ONLY as the positive control for
+  // the flipped cases below: each fixture is asserted to be one this implementation GOT WRONG, so a
+  // fixture that no longer reaches the hazard cannot pass as proof the shared stripper fixed it.
+  const LEGACY_TEXTUAL_STRIP = (t) => {
+    const sp = (m) => m.replace(/[^\n]/g, ' ');
+    return t.replace(/\{\/\*[\s\S]*?\*\/\}/g, sp).replace(/\/\*[\s\S]*?\*\//g, sp).replace(/\/\/[^\n]*/g, sp);
+  };
+
   // --- stripComments() precondition (see findLineCommentOpeners' header): no `//` inside a quoted
   // value in the file this script feeds that stripper. The pinned set is ASTRO_FILE alone — the set
   // stripComments() is actually called on. CSS_FILE is deliberately EXCLUDED: checkTokensCss() runs
@@ -1119,12 +1139,20 @@ function selftest() {
     assert.equal(hits.length, 1, 'a `/*` inside a quoted value must be reported as an in-string opener');
     assert.equal(hits[0].kind, '/*', 'the reported opener must be the block-comment kind');
     assert.equal(hits[0].line, 1, 'the report must point at the line carrying the in-string `/*`');
+    // POSITIVE CONTROL: the deleted textual stripper blanked the live (d) selector on line 2, so this
+    // fixture reaches the hazard rather than describing it (ADR-0030).
     assert.ok(
-      !stripComments(text).includes('data-stable-exit'),
-      'fixture must actually reach the hazard: stripComments() has to blank the live (d) selector on line 2',
+      !LEGACY_TEXTUAL_STRIP(text).includes('data-stable-exit'),
+      'POSITIVE CONTROL FAILED: the deleted textual stripper must blank the live (d) selector on line 2',
     );
+    // gh#191: the shared stripper does not, so condition (d) still reads the line the report names.
+    assert.ok(
+      stripComments(text).includes('data-stable-exit'),
+      'the shared stripper must leave the live (d) selector standing — a `/*` inside a quoted value is not an opener',
+    );
+    assert.equal(stripComments(text)[hits[0].offset], '/', 'the in-string `/*` itself must survive the strip');
   });
-  console.log('PASS block-comment opener, firing direction: a `/*` inside a quoted value is reported (kind /*), and stripComments() is measured blanking the live line below it');
+  console.log('PASS block-comment opener, firing direction: a `/*` inside a quoted value is still reported (kind /*), the deleted stripper is measured blanking the live line below it, and the shared one is measured keeping it');
 
   // Calibration, OTHER direction: the block-comment forms this file and PlayerSetup.astro really
   // write must stay silent, or walking block state instead of pre-blanking traded a fail-open for a
@@ -1140,39 +1168,60 @@ function selftest() {
   }
   console.log('PASS block-comment opener, other direction: single-line, multi-line, Astro-brace and mixed block comments all stay clean');
 
-  // -- DISCLOSED CEILING, measured. These two rungs are OPEN BY DESIGN (see findLineCommentOpeners'
-  // header). The assertions pin the WRONG-BUT-KNOWN behaviour on purpose: if a later change closes
-  // either rung, these fail and the header's disclosure has to be rewritten in the same commit
-  // rather than quietly becoming false — which is exactly how the previous "loud, not silent"
-  // sentence survived being measurably wrong.
-  for (const [label, lines, hitLine] of [
+  // -- DISCLOSED CEILING, measured per rung, PARTLY defused by gh#191. All three rungs are still open
+  // in the DETECTOR: it reads each as ordinary code, and the assertions pin that wrong-but-known
+  // behaviour on purpose so a later change cannot quietly make the header false. What gh#191 changed
+  // is the CONSEQUENCE, and only for one of them — so each rung now carries its own measured verdict
+  // (`stripKeepsIt`) rather than one flattened sentence:
+  //   - rung 1a (a lone backtick inside a REGEX literal) is DEFUSED: the parser knows that backtick is
+  //     regex content, so the template below it is a template and the live href survives the strip.
+  //   - rung 1b (a lone backtick in HTML TEXT) and rung 2 (a multi-line HTML attribute value) are
+  //     STILL OPEN, and they are the shared stripper's honest ceiling: both are HTML shapes in a .astro
+  //     file, a grammar the TypeScript parser does not own. It reads the stray backtick as a template
+  //     opener and the attribute body as code, blanks from the `//` on the hit line, and the live
+  //     data-stable-exit href on it disappears from conditions (c)/(d)/(e) — silently.
+  // The bound on both open rungs is unchanged and is NOT the stripper: these files are two authored
+  // islands no contributor flow adds to. Closing them needs an Astro-aware parse of the template body,
+  // not another rung in a hand-written walk.
+  for (const [label, lines, hitLine, stripKeepsIt] of [
     [
-      'rung 1: a lone backtick in a regex literal flips template parity, so the NEXT real template reads as CODE',
+      'rung 1a: a lone backtick in a regex literal flips template parity, so the NEXT real template reads as CODE',
       ['const re = /`/;', 'const html = `', '  ratio //3 <a data-stable-exit href="/games/">x</a>', '`;'],
       3,
+      true, // DEFUSED by gh#191: the parser knows a backtick inside a regex literal is not a template opener
     ],
     [
-      'rung 1: same flip from a lone backtick in HTML text',
+      'rung 1b: same flip from a lone backtick in HTML text',
       ['<p>press ` then go</p>', 'const html = `', '  ratio //3 <a data-stable-exit href="/games/">x</a>', '`;'],
       3,
+      false, // STILL OPEN: HTML text is not TypeScript, and the parser reads the stray backtick as a template opener
     ],
     [
-      'rung 2: a multi-line HTML attribute value — the `\'`/`"` per-line reset cannot follow it',
+      'rung 2: a multi-line HTML attribute value — no per-line reset, and no parser owns it either',
       ['<a title="see', '//games ..." data-stable-exit href="/games/">x</a>'],
       2,
+      false, // STILL OPEN: the attribute body is HTML, read as code by a TypeScript parser
     ],
   ]) {
     withTempFixture('PlayerSetup.astro', lines.join('\n'), (text) => {
       const hit = findLineCommentOpeners(text).find((o) => o.line === hitLine);
       assert.ok(hit, `${label}: no opener reported on line ${hitLine} at all`);
-      assert.equal(hit.inString, false, `${label}: DISCLOSED — the pin reads this line as ordinary code and stays GREEN`);
+      assert.equal(hit.inString, false, `${label}: DISCLOSED — the detector reads this line as ordinary code and stays GREEN`);
       assert.ok(
-        !stripComments(text).split('\n')[hitLine - 1].includes('data-stable-exit'),
-        `${label}: DISCLOSED — stripComments() blanks the live data-stable-exit href behind that green`,
+        !LEGACY_TEXTUAL_STRIP(text).split('\n')[hitLine - 1].includes('data-stable-exit'),
+        `${label}: POSITIVE CONTROL FAILED — the deleted textual stripper must blank the live href on this line, or the rung is not the hazard it is cited as`,
+      );
+      assert.equal(
+        stripComments(text).split('\n')[hitLine - 1].includes('data-stable-exit'), stripKeepsIt,
+        stripKeepsIt
+          ? `${label}: DEFUSED — the shared stripper must keep the live data-stable-exit href on that line`
+          : `${label}: DISCLOSED, STILL OPEN — the shared stripper blanks the live data-stable-exit href here too, ` +
+            'because this rung is an HTML shape in a .astro file and the TypeScript parser does not own that grammar. ' +
+            'If this ever reds, the rung closed and the ceiling paragraph above must be rewritten in the same commit',
       );
     });
   }
-  console.log('PASS disclosed ceiling, measured: rung 1 (parity flip, both backtick sources) and rung 2 (multi-line HTML attribute) each read inString:false while stripComments() blanks live code — silent, not loud');
+  console.log('PASS disclosed ceiling, measured per rung: all three still read inString:false and the deleted textual stripper blanked the live href on each — the shared stripper keeps it for rung 1a (regex literal) and still blanks it for rung 1b and rung 2, which are HTML shapes in a .astro file');
 
   // The pin itself, over the REAL files. Every file (c)/(d)/(e) read is walked, not just one: since
   // gh#106 the stripper is fed TWO authored islands, and pinning only one of them would leave the
@@ -1181,16 +1230,18 @@ function selftest() {
   // (docs/adr/0019).
   for (const rel of ASTRO_FILES) {
     const openers = findLineCommentOpeners(fs.readFileSync(path.join(repoRoot, rel), 'utf8'));
+    const stripped = stripComments(fs.readFileSync(path.join(repoRoot, rel), 'utf8'));
     for (const o of openers) {
-      assert.ok(
-        !o.inString,
-        `${rel}:${o.line}: this \`${o.kind}\` sits inside a quoted value, not in a comment. ` +
+      if (!o.inString) continue; // an ordinary comment: it SHOULD be blanked, and is
+      assert.equal(
+        stripped[o.offset], '/',
+        `${rel}:${o.line}: this \`${o.kind}\` sits inside a quoted value, not in a comment, and the ` +
+          'shared stripper (scripts/strip-comments.mjs) BLANKED it anyway. ' +
           (o.kind === '/*'
-            ? 'stripComments() blanks from it to the next textual block-comment terminator, which may be many lines down, so every live line in between '
-            : 'stripComments() blanks from it to END OF LINE, so every live character after it on that line ') +
+            ? 'That means it blanked from here to the next block-comment terminator, which may be many lines down, so every live line in between '
+            : 'That means it blanked from here to END OF LINE, so every live character after it on that line ') +
           'is invisible to conditions (c)/(d)/(e) — this gate may now be going green on code it never ' +
-          `read. Move the value onto its own line away from the guards, or take the upgrade path in ` +
-          `findLineCommentOpeners' header and give stripComments() a real string-state walk. Line: ${o.text}`,
+          `read. Fix the stripper, not this file. Line: ${o.text}`,
       );
     }
     assert.ok(
@@ -1198,7 +1249,7 @@ function selftest() {
       `found zero \`//\` openers in ${rel} — the detector reported nothing, which is not the ` +
         'same as none existing (docs/adr/0019). Check findLineCommentOpeners() before trusting this pin.',
     );
-    console.log(`PASS stripComments precondition: ${openers.length} \`//\` opener(s) in ${rel}, none inside a quoted value (tokens.css excluded — stripComments() is never run on it)`);
+    console.log(`PASS shared stripper pin: ${openers.length} comment opener(s) in ${rel}, and every one sitting inside a quoted value survived the strip (tokens.css excluded — stripComments() is never run on it)`);
   }
 
   selftestPerPageMount();

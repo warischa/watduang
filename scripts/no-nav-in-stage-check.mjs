@@ -62,6 +62,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import { stripComments as stripJsComments } from './strip-comments.mjs';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -175,138 +176,38 @@ const PATTERNS = [
 // alias, so that shape is live in this tree today, not hypothetical).
 const blank = (m) => m.replace(/[^\n]/g, ' ');
 
-/** Blanks `//` and `/* *\/` comments, walking the text with STRING STATE rather than replacing on a
- *  bare /\/\/[^\n]* \/ regex.
+/** Blanks `//` and `/* *\/` comments through the shared parser-backed stripper
+ *  (scripts/strip-comments.mjs, gh#191), which replaced a character walk this file carried with its
+ *  own quote/backtick state.
  *
- *  Why the walk, and why blanking here cannot hide a hazard on the same line: the naive regex reads
- *  the `//` inside `'https://games/'` as a comment opener and blanks the REST OF THAT LINE with it —
- *  so `const u = 'https://games/'; link.setAttribute('href', u);` would scan clean while building a
- *  real anchor. That is ADR-0019's recorded hole class (the `'https://schema.org'` one). Skipping
- *  string literals means a comment opener is only ever recognised where the JS parser would recognise
- *  one, so the blanked span is exactly a comment and everything else on the line still scans. Strings
- *  themselves are never blanked — an `<a href>` lives in a template literal, which is precisely where
- *  this gate must keep looking.
+ *  Why a stripper at all, and why blanking cannot hide a hazard on the same line: a naive
+ *  /\/\/[^\n]* \/ regex reads the `//` inside `'https://games/'` as a comment opener and blanks the
+ *  REST OF THAT LINE with it — so `const u = 'https://games/'; link.setAttribute('href', u);` would
+ *  scan clean while building a real anchor. That is ADR-0019's recorded hole class (the
+ *  `'https://schema.org'` one). A comment opener is only recognised where the TypeScript parser says
+ *  no string, template chunk or regex literal is open, so the blanked span is exactly a comment and
+ *  everything else on the line still scans. Strings themselves are never blanked — an `<a href>`
+ *  lives in a template literal, which is precisely where this gate must keep looking.
  *
- *  ponytail: a regex literal containing an unbalanced quote (`/['"]/`) would desync the string state.
- *  The walk enters string mode at that quote and resumes MID-STRING, where a `/*` sitting inside a
- *  string literal opens a false block comment and blanks live code up to the next `*\/`. That is
- *  fail-OPEN: a real anchor can be blanked out of the scan. Not fixed here, because telling a literal
- *  from division needs the previous significant token. The precondition is PINNED instead —
- *  findRegexLiterals() below, plus the selftest case that runs it over the scanned game modules.
- *  A quote-bearing literal landing there reds CI, and whoever it stops reads this paragraph. That pin
- *  deliberately EXCLUDES STAGE_FILE, which this walk is also fed: markup reads as a regex literal to
- *  that detector, so pinning the layout would red CI on valid HTML. The layout is covered instead by
- *  the exactly-one #stage count. findStageViolations() also slices `inner` out of rawText, not out of
- *  the stripped text, so the empty-pin's CONTENT check cannot be fooled by a desync at all — only the
- *  tag offsets come from stripped text, and a desync that moves them reads as `found 0` and fails.
- *  The literal COUNT is deliberately not written down here — the selftest prints it, so it cannot
- *  rot. Upgrade path when that day comes: skip regex literals in this walk too — but NOT by wiring
- *  findRegexLiterals() in as it stands. Measured, not assumed: that detector reads the `</a></p>` of
- *  GameLayout.astro's ADR-0014 chrome link as a regex literal, so reusing it here would make this walk
- *  skip live markup in the one file gh#68 widened this gate to reach — converging would open the hole
- *  it was meant to close. Teach the detector to stop at markup FIRST, then reuse it here. */
-function stripComments(text) {
-  const out = [...text];
-  let i = 0;
-  const blankTo = (end) => { for (let k = i; k < end; k++) if (out[k] !== '\n') out[k] = ' '; };
-  while (i < text.length) {
-    const c = text[i];
-    const two = text.slice(i, i + 2);
-    if (two === '//') {
-      const nl = text.indexOf('\n', i);
-      const end = nl === -1 ? text.length : nl;
-      blankTo(end);
-      i = end;
-    } else if (two === '/*') {
-      const close = text.indexOf('*/', i + 2);
-      const end = close === -1 ? text.length : close + 2;
-      blankTo(end);
-      i = end;
-    } else if (c === '"' || c === "'" || c === '`') {
-      i++;
-      while (i < text.length && text[i] !== c) i += text[i] === '\\' ? 2 : 1;
-      i++;
-    } else {
-      i++;
-    }
-  }
-  return out.join('');
-}
-
-// Expression-position keywords: they read as word characters, so the "ends an expression" test in
-// findRegexLiterals() would call `return /re/` a division without them.
-const EXPR_KEYWORD_RE = /\b(?:return|typeof|instanceof|in|of|new|delete|void|throw|do|else|case|yield|await)$/;
-
-/** Every regex literal in `text`, by the classic previous-significant-token heuristic: a `/` opens a
- *  literal unless the token before it can END an expression (a word char, `)`, `]`, or a string —
- *  with the keyword exceptions above, which read as word chars but are expression position).
- *  Exists only to pin stripComments()'s precondition; see that function's header for the hazard.
+ *  WHAT THE MIGRATION CLOSED, stated because a green here used to mean less than it does: the walk
+ *  this replaced desynchronised on a regex literal containing an unbalanced quote (`/['"]/`) — it
+ *  entered string mode at that quote and resumed MID-STRING, where a `/*` inside an ordinary string
+ *  opened a false block comment and blanked live code up to the next `*\/`. Fail-OPEN: a real anchor
+ *  could be blanked out of the scan. The parser owns that distinction now, so the precondition pin
+ *  that guarded it (findRegexLiterals(), a previous-significant-token heuristic that also misread
+ *  `</a></p>` in markup as a literal) is gone with it. The end-to-end proof is the known-bad case in
+ *  selftest() that feeds the exact desync fixture through the 'js' kind: it returned ZERO violations
+ *  against the pre-fix script and reds now.
  *
- *  Why sharing the same comment/string walk is not circular: ONLY a quote-bearing regex literal can
- *  desync that walk, so the walk is still in sync when it reaches the FIRST one. Finding that first
- *  one is all the pin needs — whatever the walk reports after it is already the failure being pinned.
- *
- *  ponytail: DISCLOSED CEILING — what this does NOT cover, stated so a green is not over-read: a literal in statement position
- *  after `)` or `]` (`if (x) /re/.test(y)`) reads as division and is MISSED, and so is one spanning a
- *  newline. Neither shape exists in the pinned set today and neither is an idiom this codebase writes;
- *  a miss costs the pin, not the gate itself. Over-approximating is the deliberate direction — a false
- *  hit reds CI and gets read by a human, a miss is silent. Both directions are pinned by selftest.
- *  Trigger to widen: either shape landing in a scanned module. Widening means giving the token test a
- *  statement-vs-expression distinction — the same work the stripComments() upgrade path needs, so do
- *  both in one go rather than growing this heuristic on its own. */
-function findRegexLiterals(text) {
-  const found = [];
-  let sig = ''; // significant text so far: comments dropped, each string collapsed to one word char
-  let i = 0;
-  while (i < text.length) {
-    const two = text.slice(i, i + 2);
-    if (two === '//') {
-      const nl = text.indexOf('\n', i);
-      i = nl === -1 ? text.length : nl;
-      continue;
-    }
-    if (two === '/*') {
-      const close = text.indexOf('*/', i + 2);
-      i = close === -1 ? text.length : close + 2;
-      continue;
-    }
-    const c = text[i];
-    if (c === '"' || c === "'" || c === '`') {
-      i++;
-      while (i < text.length && text[i] !== c) i += text[i] === '\\' ? 2 : 1;
-      i++;
-      sig += 'x'; // a string is a VALUE: the next `/` after it is division, never a literal
-      continue;
-    }
-    if (c === '/') {
-      const tail = sig.replace(/\s+$/, '');
-      const endsExpression = /[\w$)\]]$/.test(tail) && !EXPR_KEYWORD_RE.test(tail);
-      if (!endsExpression) {
-        let j = i + 1;
-        let inClass = false;
-        while (j < text.length && text[j] !== '\n') {
-          const d = text[j];
-          if (d === '\\') { j += 2; continue; }
-          if (d === '[') inClass = true;
-          else if (d === ']') inClass = false;
-          else if (d === '/' && !inClass) break;
-          j++;
-        }
-        if (text[j] === '/') {
-          found.push(text.slice(i, j + 1));
-          i = j + 1;
-          sig += 'x';
-          continue;
-        }
-      }
-    }
-    sig += c;
-    i++;
-  }
-  return found;
-}
-
-const carriesQuote = (literal) => /['"`]/.test(literal);
+ *  ponytail: DISCLOSED CEILING — an .astro file is fed to this too (STAGE_FILE), and its template
+ *  body is HTML, not TypeScript. The parser is error-tolerant, so it degrades to fewer literal spans
+ *  rather than throwing, which is the same direction the old walk failed in. Measured before shipping
+ *  gh#191: over all 22 src/games/*.ts modules plus GameLayout.astro, the shared stripper's output is
+ *  byte-identical to the walk it replaced, so the migration changed nothing on this tree — it changed
+ *  what a future quote-bearing literal costs. The layout's own desync path stays guarded by the
+ *  exactly-one #stage count in findStageViolations(): a strip that loses the stage div reads
+ *  `found 0` and fails, it does not pass quietly. */
+const stripComments = (text) => stripJsComments(text);
 
 const TYPE_DECL_RE = /^(?:export\s+)?(?:declare\s+)?(?:interface\s+\w+|type\s+\w+[^\n=]*=)[^{;\n]*\{/gm;
 
@@ -340,6 +241,13 @@ function stripTypeSpace(text) {
   }
   return out;
 }
+
+// findRegexLiterals()/carriesQuote() lived here until gh#191. They existed only to pin the character
+// walk's precondition — "no quote-bearing regex literal in any file this walk is fed" — and the walk
+// they guarded is gone. The heuristic was also wrong on markup by construction (it read `</a></p>` as
+// a literal), which is why STAGE_FILE had to be excluded from its own pin. Nothing replaced them:
+// the parser makes the precondition unstateable, and the desync fixture is now a known-bad case in
+// selftest() instead of a precondition on the tree.
 
 /** Blanks `<!-- … -->` comments, the .html analogue of stripComments(). Length-preserving, same as
  *  every other strip here, so offsets and line numbers are unchanged.
@@ -783,78 +691,65 @@ function selftest() {
     fs.rmSync(overrideNoteTmpDir, { recursive: true, force: true });
   }
 
-  // --- stripComments() precondition (see that function's header): NO regex literal in ANY file this
-  // script feeds that walk may carry a quote. A quote-bearing literal desyncs the string state, and
-  // the desync can blank live code out of the scan — fail-OPEN, the class ADR-0019 exists for. The
-  // pinned set is the set main() actually reads: the scanned game modules PLUS STAGE_FILE, because
-  // findStageViolations() calls stripComments() too — the hazard belongs to the walk, not to one of
-  // its callers. src/games is resolved from repoRoot, NOT from gamesDir, so GAMES_DIR_OVERRIDE
-  // cannot narrow what this pin covers. ---
-
-  // Calibration, FIRING direction: the detector must actually find a quote-bearing literal in each
-  // position this codebase could write one. Without this the pin below is a guard that cannot fail.
-  for (const [label, fixture] of [
-    ['character class', "const RE = /['\"]/;"],
-    ['plain literal', "const RE = /it's/;"],
-    ['after an arrow', "const f = (s) => /\"/.test(s);"],
-    ['after return', "function f() { return /'/; }"],
-  ]) {
-    const hits = findRegexLiterals(fixture).filter(carriesQuote);
-    assert.equal(hits.length, 1, `${label}: a quote-bearing regex literal must be found, else the pin below cannot fail`);
-  }
-  console.log('PASS regex-literal detector, firing direction: a quote-bearing literal is found in a character class, a plain literal, after `=>` and after `return`');
-
-  // Calibration, OTHER direction: the shapes that look like a quote-bearing literal but are not.
-  // Any of these red here would make the pin a false alarm on a tree that is fine.
-  for (const [label, fixture] of [
-    ['division by an identifier', 'const half = total / count;'],
-    ['division after a call', 'const r = size() / 2;'],
-    ['a URL inside a string', "const u = 'https://watduang.com/games/';"],
-    ['a line comment holding slashes and quotes', "// see `!../../games/_*.ts` — the game's own glob"],
-    ['a block comment holding slashes and quotes', "/* a path /x/y/ and an apostrophe don't */"],
-    ['a quote-free literal', "const t = raw.replace(/\\s+/g, ' ');"],
-  ]) {
-    assert.deepEqual(findRegexLiterals(fixture).filter(carriesQuote), [], `${label}: must not read as a quote-bearing regex literal`);
-  }
-  console.log('PASS regex-literal detector, other direction: division, a URL in a string, slashes and apostrophes inside comments, and a quote-free literal are all clean');
-
-  // The pin itself, over the REAL tree. Scope is the .ts game modules ONLY — NOT STAGE_FILE, even
-  // though findStageViolations() feeds that file to the same walk. Measured, not assumed: this
-  // detector reads the `</a></p>` in markup as a regex literal (asserted just below), and across the
-  // 14 .astro files in src/ that shape produced 9 pseudo-literals. All 9 are quote-free today by
-  // luck, not by design: any `class="x"` landing between two `</` sequences makes one quote-bearing
-  // and reds CI on valid HTML. The layout's own desync path is guarded instead by the exactly-one
-  // #stage count above — a walk that loses the stage div reads `found 0` and fails, it does not pass
-  // quietly. Add STAGE_FILE back here only after teaching this detector to skip markup.
-  assert.ok(
-    findRegexLiterals('<p>ping</a></p>').length > 0,
-    'markup must still read as a pseudo-literal here — if it stops, re-examine whether STAGE_FILE belongs back in the pinned set',
-  );
-
-  // Two things must hold, and the second is the positive control: a detector returning nothing looks
-  // exactly like a clean tree (docs/adr/0019).
-  const pinnedGames = listTargetFiles(path.join(repoRoot, 'src/games'));
-  assert.ok(pinnedGames.length > 0, 'the pin must resolve the real src/games/ modules, never an empty directory');
-  let literalCount = 0;
-  for (const name of pinnedGames) {
-    for (const literal of findRegexLiterals(fs.readFileSync(path.join(repoRoot, 'src/games', name), 'utf8'))) {
-      literalCount++;
-      assert.ok(
-        !carriesQuote(literal),
-        `src/games/${name}: the regex literal ${literal} carries a quote character. It desyncs the ` +
-          'string walk in stripComments(), and that desync can blank live code out of this scan, so a ' +
-          'hazard would go unreported. Either rewrite the quote as an escape (\\x27 / \\x22), or take ' +
-          'the upgrade path in the stripComments() header and teach that walk to skip regex literals.',
-      );
+  // --- gh#191: the fail-OPEN the shared stripper closed, proven end to end through findViolations()
+  // rather than through a precondition on the tree. The fixture is the SAME text the play-script
+  // known-bad above uses, fed through the 'js' kind — the kind that strips. Measured against the
+  // pre-fix script, this exact text returned ZERO violations here while carrying a live <a href>: the
+  // quote-bearing regex literal desynced the character walk's string state, the `/*` inside an
+  // ordinary string then read as a block-comment opener, and everything up to the `*/` — including
+  // the anchor — was blanked out of the scan. It must red now, and it must red AT THE ANCHOR'S LINE,
+  // because a hit on the wrong line would mean the offsets moved. ---
+  const desyncFixture = [
+    "const esc = raw.replace(/'/g, '&#039;');",
+    "const open = '/*';",
+    'const planted = `<a href="/">go</a>`;',
+    "const close = '*/';",
+  ].join('\n');
+  // POSITIVE CONTROL: the deleted character walk really did blank the anchor away on this input, so
+  // the case reaches the hazard instead of merely describing it (ADR-0030).
+  const legacyWalkStrip = (text) => {
+    const out = [...text];
+    let i = 0;
+    const blankTo = (end) => { for (let k = i; k < end; k++) if (out[k] !== '\n') out[k] = ' '; };
+    while (i < text.length) {
+      const c = text[i];
+      const two = text.slice(i, i + 2);
+      if (two === '//') { const nl = text.indexOf('\n', i); const end = nl === -1 ? text.length : nl; blankTo(end); i = end; }
+      else if (two === '/*') { const close = text.indexOf('*/', i + 2); const end = close === -1 ? text.length : close + 2; blankTo(end); i = end; }
+      else if (c === '"' || c === "'" || c === '`') { i++; while (i < text.length && text[i] !== c) i += text[i] === '\\' ? 2 : 1; i++; }
+      else i++;
     }
-  }
+    return out.join('');
+  };
   assert.ok(
-    literalCount > 0,
-    'found zero regex literals across the pinned modules — the detector reported nothing, which is not ' +
-      'the same as no quote-bearing literal existing (docs/adr/0019). Check findRegexLiterals() before ' +
-      'trusting this pin.',
+    !legacyWalkStrip(desyncFixture).includes('<a href'),
+    'POSITIVE CONTROL FAILED: the character walk gh#191 deleted must blank this anchor away, or this ' +
+      'fixture never reached the desync and proves nothing about the migration',
   );
-  console.log(`PASS stripComments precondition: ${literalCount} regex literal(s) across ${pinnedGames.length} pinned module(s) in src/games/, none carrying a quote (STAGE_FILE excluded — markup reads as a literal here)`);
+  assert.ok(
+    stripComments(desyncFixture).includes('<a href'),
+    'the shared stripper must leave the anchor in the scan: the regex literal is a literal, and the ' +
+      '`/*` inside a string is not a comment opener',
+  );
+  const desyncHits = findViolations(desyncFixture, 'js');
+  assert.ok(
+    desyncHits.some((v) => v.line === 3),
+    'a live <a href> must be flagged through the stripping kind even when a quote-bearing regex ' +
+      'literal and a string holding /* precede it — this is the case that scanned clean before gh#191',
+  );
+  console.log(`PASS shared stripper, closed fail-open: ${desyncHits.length} hit(s) at line 3 on an <a href> that the deleted character walk blanked out of the scan entirely`);
+
+  // The same walk is fed STAGE_FILE, whose template body is HTML rather than TypeScript. Nothing
+  // pins that grammar — the exactly-one-#stage count in findStageViolations() is what makes a strip
+  // that loses the layout read as `found 0` and fail. Asserted here so the reason stays attached:
+  // the real layout must still present exactly one stage div AFTER stripping.
+  const stageText = fs.readFileSync(path.join(repoRoot, STAGE_FILE), 'utf8');
+  assert.equal(
+    (stripComments(stageText).match(/<div id="stage"/g) || []).length, 1,
+    `${STAGE_FILE}: the strip must leave exactly one <div id="stage"> standing — if this reds, the ` +
+      'parser lost the layout and every offset findStageViolations() reports is suspect',
+  );
+  console.log(`PASS shared stripper on ${STAGE_FILE}: exactly one <div id="stage"> survives the strip (.astro template bodies are HTML, a grammar the shared module does not own — this count is the guard)`);
 }
 
 // ---------------------------------------------------------------------------

@@ -61,6 +61,7 @@ import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { stripComments as stripJsComments, JS } from './strip-comments.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
@@ -151,32 +152,26 @@ export function findRepoRootWalkers(text) {
   return walkers;
 }
 
-// Blanks comments so the literal test below reads live code only. PER LINE, WITH NO OPENER/CLOSER
-// PAIRING ANYWHERE — that absence is the whole point, so do not reintroduce a `/*[\s\S]*?*/` regex
-// here (gh#172). The old version paired every slash-star with the next star-slash across newlines,
-// and a glob written in prose (`src/games/*.ts`) is an unbalanced comment OPENER: in
-// checkpoint-writer-check.mjs, 22 such openers against 3 real closers blanked most of the file, so a
-// live exclusion sitting anywhere below the first glob was erased before it could be seen and the
-// gate reported a guarded file as unguarded. Cross-line pairing is what made prose able to blind the
-// gate to code; classifying each line on its own removes that channel rather than patching it.
+// Comments are blanked so the literal test below reads live code only, through the shared
+// parser-backed stripper (scripts/strip-comments.mjs, gh#191) rather than a per-line regex of this
+// gate's own. gh#172 is why the regex it replaces had NO opener/closer pairing at all: a glob written
+// in prose (`src/games/*.ts`) is an unbalanced comment OPENER, and in checkpoint-writer-check.mjs 22
+// such openers against 3 real closers blanked most of the file, so a live exclusion below the first
+// glob was erased and the gate reported a guarded file as unguarded. The shared stripper closes that
+// channel at its source instead of avoiding it: a `*` inside a `//` comment is comment text, and a
+// `/*` inside a string or a regex literal is not an opener, because the TypeScript parser — the owner
+// of that grammar — is what says where each literal begins and ends. Both shapes are fixtures in
+// selftest() below (glob-comment-walk, string-literal-slashstar, regex-literal-slashstar), so this
+// migration is calibrated by the same inputs that pinned the regex.
 //
-// A line is a comment if it OPENS as one; otherwise it is code, truncated at its first `//`.
-//
-// CEILING, disclosed, two directions:
-//   - OVER-strips (safe here — it can only make this gate flag MORE): a `//` inside a string blanks
-//     the rest of that line, so `['https://x', '.claude/worktrees']` on ONE line reads as empty. Put
-//     the exclusion on its own line, which the house idiom already does.
-//   - UNDER-strips (the unsafe direction, and the price of dropping pairing): a block comment whose
-//     continuation lines start with neither `*` nor `//` is read as code, so a mention of the
-//     exclusion inside such a comment would satisfy this gate. Measured on the real tree before
-//     shipping: zero `.claude/worktrees` mentions sit in that position anywhere under scripts/. If
-//     that ever changes the fix is a real parser, not another regex.
-function stripComments(text) {
-  return text
-    .split('\n')
-    .map((line) => (/^[ \t]*(\/\/|\/\*|\*)/.test(line) ? '' : line.split('//')[0]))
-    .join('\n');
-}
+// Two ceilings the per-line version disclosed are now CLOSED, and the change of behaviour is stated
+// rather than assumed: it no longer OVER-strips a `//` inside a string (a one-line
+// `['https://x', '.claude/worktrees']` used to read as empty and now reads as the exclusion it is —
+// strictly fewer false flags), and it no longer UNDER-strips a block comment whose continuation lines
+// start with neither `*` nor `//`. Blanking, not deleting: nothing here reads offsets — the only
+// consumer is a boolean regex — but blanking is what every other caller of the shared module needs,
+// and a stripper with two return shapes is the bug this ticket removed.
+const stripComments = (text) => stripJsComments(text, JS); // scripts/ is .mjs — JS grammar, never TS
 
 // The exclusion literal must appear in live code, not merely be mentioned in a comment (a TODO
 // noting the hazard is not a fix for it) — comments are stripped before the literal test.
