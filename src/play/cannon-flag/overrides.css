@@ -88,4 +88,17 @@
   .angle-adjust-group {
     gap: var(--cf-desktop-gap);
   }
+
+}
+
+/* Ungated from the >=1100px breakpoint (was gh#184 desktop-only): clearance for the shell's fixed
+   exit X (src/shell/PlayExit.astro), which sits at 6,6 44x44 on every viewport, not just desktop.
+   `.brand-title` overlapped the X at 1440x900 (952px^2, left 14/top 11.5-39.5) and, per-character
+   Range measurement, the X covers the title's leading glyphs at 320x568 too ("🎯 ยิ" of "ยิงธง").
+   Moving the X itself was considered and rejected for this route: `#btn-sound-toggle` (in
+   `.nav-tools`) sits at the X's mirrored top-right position at all three widths, so a mirrored
+   X would disable a live control instead of covering text — a strictly worse outcome. 60px clears
+   the X's right edge (50px) with 10px to spare at every width. */
+.brand-title {
+  margin-inline-start: 60px;
 }

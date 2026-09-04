@@ -83,3 +83,36 @@
    clipped by `#app`'s overflow. Reduced motion never reaches this code (`addTrauma` is a no-op
    there), so this costs that path nothing. */
 #stageFrame { width: min(calc(100% - 14px), 780px); }
+
+/* gh#184 desktop pass: clearance for the shell's fixed controls (src/shell/PlayExit.astro) — the
+   exit X at 6,6 44x44 AND the edit-players pill at 6,56 74x44, on every viewport. Unlike the other
+   three routes this milestone fixed, `.brand`'s own height varies with the mockup's `clamp()`
+   font-size on its h1 (style.css `.brand h1{font-size:clamp(1.12rem,5vw,1.48rem)}`), so its bottom
+   edge lands inside the pill's own 56-100px band on some widths (measured 71.6px at 390x844) and
+   only in the X's 6-50px band on others (measured 56px at 320x568) — the vertical extent is not
+   stable enough to clear one control and trust the other stays clear. Reserving past the WIDER
+   control (the pill's right edge, ~81px) for the full row height is what stays correct regardless of
+   which band the title's own height happens to fall into. Measured at 1440x900 with a real 2-name
+   roster: `.brand` rendered at left 16, right 191.9 — 90px of margin leaves the row's remaining
+   content (`#stageFrame`, the round-tag, the sound toggle) exactly where it was, since 1440px has
+   room to spare; below this route's own 360px header-tightening media query there is none, so the
+   fix stayed scoped to this route's >=1100px breakpoint (gh#180) in the first pass.
+
+   Widened here to >=361px, NOT to every width: at 320 the overlap lands only on the decorative
+   `aria-hidden` `.brand-mark` — the real `<h1>` is already clear with no margin at all — while
+   applying the margin there collides with this file's own `@media (max-width: 360px) { .brand h1 {
+   min-width: 0; overflow: hidden; text-overflow: ellipsis } }` rule: measured, it shrinks the h1's
+   clientWidth from 43px (own content) to well under its 95px scrollWidth and the title TRUNCATES
+   with an ellipsis, a regression this route did not have before (confirmed scrollWidth 95 ==
+   clientWidth 95 pre-fix). 361px is the exact complement of that rule's own 360px boundary, so the
+   two never combine. At 390 (past the 360px rule, where the milestone's real defect lives) two real
+   title characters ("พิ" of "พิน็อคคิอวย") go under `#play-edit-players` with no margin — moving the
+   X/pill to the top-right was considered and rejected for this route: `#soundBtn` sits at the X's
+   mirrored top-right position at all three widths, so a mirrored X would disable a live control
+   instead of covering text, a strictly worse outcome. 90px clears the pill's wider ~81px right edge
+   at every width from 361px up. */
+@media (min-width: 361px) {
+  .brand {
+    margin-inline-start: 90px;
+  }
+}

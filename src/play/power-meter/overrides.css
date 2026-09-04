@@ -112,4 +112,17 @@
     width: var(--pm-desktop-target-min);
     height: var(--pm-desktop-target-min);
   }
+
+}
+
+/* Ungated from the >=1100px breakpoint (was gh#184 desktop-only): clearance for the shell's fixed
+   exit X (src/shell/PlayExit.astro), 6,6 44x44 on every viewport, not just desktop. `.top-nav
+   .brand-title` overlapped the X at 1440x900 (898px^2, left 16/top 14.28-40.7) and, per-character
+   Range measurement, the X covers the title's leading glyphs at 320x568 too ("⚡ วั" of
+   "วัดพลัง (1.5x)"). Moving the X itself was considered and rejected for this route:
+   `#btn-help-modal` (in `.nav-controls`) sits at the X's mirrored top-right position at all three
+   widths, so a mirrored X would disable a live control instead of covering text — a strictly worse
+   outcome. 60px clears the X's right edge (50px) with 10px to spare at every width. */
+.brand-title {
+  margin-inline-start: 60px;
 }

@@ -128,4 +128,20 @@
   .btn-danger {
     min-block-size: var(--ft-desktop-target-min);
   }
+
+}
+
+/* Ungated from the >=1100px breakpoint (was gh#184 desktop-only): clearance for the shell's fixed
+   exit X (src/shell/PlayExit.astro), 6,6 44x44 on every viewport, not just desktop. `.header-left
+   .brand-title` overlapped the X at 1440x900 (952px^2, left 16/top 20-48) and, per-character Range
+   measurement, the X covers the title's leading glyphs at 320x568 too ("💥 มื" of "มือลั่น!").
+   Moving the X itself was considered and rejected for this route: `#resetAppBtn` (the last icon in
+   `.header-right`, sound/test-runner/reset) sits at the X's mirrored top-right position at all three
+   widths, so a mirrored X would disable a live control instead of covering text — a strictly worse
+   outcome. 60px clears the X's right edge (50px) with 10px to spare at every width; `.header-right`
+   was already measured tight at 320/390 for the desktop-only version of this rule, so the
+   scrollWidth-vs-clientWidth check below is what confirms it still holds now that the margin is live
+   there too. */
+.header-left .brand-title {
+  margin-inline-start: 60px;
 }
