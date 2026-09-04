@@ -57,8 +57,17 @@ document is the only check that runs on every push**, and it must pin the captur
 sibling component stops propagation during capture and a bubble-phase seed would go blind exactly
 inside the window that matters.
 
-A route the probe cannot walk is scored EXEMPT and still counted in its headline, so one route is
-unmeasured behind every green here (gh#199).
+A route the probe cannot walk is scored EXEMPT. **An earlier draft of this ADR said such a route is
+still counted in the headline. That was false** and is corrected here: the probe subtracts exempt
+routes from `checked` and names them in the summary line, which gh#193 shipped. The count does not
+lie.
+
+What remains true is narrower and still matters: `short-stick` was EXEMPT in both legs of the
+before/after pair, so it is **unmeasured** for this defect in either direction, and no green in the
+Evidence section below covers it. Whether an unwalkable route should red the run is reserved to the
+owner — the probe records the reason in its own source — and gh#199 carries the ruling and the
+measurement of why the route could not be walked. Read that ticket rather than inferring a cause
+from this paragraph.
 
 ## Evidence
 
