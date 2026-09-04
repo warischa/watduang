@@ -71,6 +71,11 @@ record no longer what was written.
 
 Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md` · src-edit rules: `docs/agents/src-edit-rules.md` · porting a game from a mockup: `docs/agents/porting-a-mockup-game.md`
 
+⚠ Before writing a BRIEF for an agent — never hand it a source path with a line number. A brief's
+citations are content, not context: the agent copies them into the comments it writes and reds
+`added-lineno-citation-check`. Name the durable symbol instead — full rule and the incident:
+`docs/agents/src-edit-rules.md`
+
 ⚠ Before adding ANY binary — image, font, 3D model — **or generating an OG image** — read `docs/agents/assets.md` first: `public/` ships verbatim to the live site, so a file dropped there goes public with nothing referencing it, and Thai text rendered the wrong way shatters into dotted circles while the script exits 0.
 
 ⚠ Proving anything in a browser (320px · reduced-motion · refresh-and-resume) → `docs/agents/browser-verification.md` first — `--window-size` does not reflow the layout, and a screenshot of it will lie to you

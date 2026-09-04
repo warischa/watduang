@@ -101,3 +101,29 @@ field and makes `[1, 1]` legal.
 `scripts/party-size-claim-check.mjs` enforces the range-form half over the enumerated surface list.
 It does **not** cover the phone-passing or shared-roster halves — its green earns no coverage there
 (ADR-0019). Those stay reviewer-owned until #94, #95 and #96 land the mechanism split.
+
+## A citation in a brief becomes a line in the source
+
+`scripts/added-lineno-citation-check.mjs` bans a source reference that names a line by number, and its
+own header explains why that form rots. This section covers the half upstream of the gate: where the
+bad citation comes from in the first place.
+
+An orchestrator put an anchor — a source path, a colon, a line number — into a delegation brief, as
+context, to show the agent the exact sentence its change had to match. The agent copied that anchor
+into two comments in the files it edited. The gate red on both. Nobody chose to write a rotting
+citation; the brief supplied one and the agent treated it as material worth repeating.
+
+**A brief's citations are content, not context.** Whatever you hand an agent, it may hand back in a
+comment, a commit message or a ticket — and a line number is the sharpest-looking identifier in the
+brief, so it is the one that gets reused.
+
+So write briefs the way this gate wants source written. Name the durable symbol: an element id, an
+exported function, a heading, a quoted string. Where the position genuinely matters, say it in words
+the agent cannot paste as a token — "the reset dialog block in short-stick's markup" — rather than a
+coordinate. If an agent needs to read a range, phrase it as an instruction to look, never as an
+identifier to carry.
+
+Note this section deliberately contains no example of the banned form. A checker cannot tell use from
+mention, so a document explaining a pattern gate is the easiest way to trip it — that has happened
+here twice.
+
