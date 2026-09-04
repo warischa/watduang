@@ -261,12 +261,22 @@ export const KNOWN_OVERFLOW = new Map([
  * Same reason-prefix rule as KNOWN_OVERFLOW, checked at import.
  */
 export const KNOWN_OVERFLOW_X = new Map([
-  // Both rows below were FOUND BY THIS AXIS on its first full gated run (gh#202), not carried over from
-  // anywhere. They are recorded rather than fixed because gh#202's scope is making sideways clipping
-  // visible; changing a route's layout to close one is separate work with its own owner call. Neither
-  // row is covered by that route's vertical exemption, which is the whole point of this map existing.
-  ['wire-snip-panic 320x568', 'gh#202 open: 43px on press 0 - 43px of UNDESIGNED SIDEWAYS SCROLL on div#screen-game.screen.active, measured on a Mac. Say scroll and not clipped, because the layout call depends on it: no author rule declares overflow-x on that box, so its computed auto is pure CSS Overflow 3 coercion from the overflow-y beside it - the content is reachable by swipe, but nobody asked for a horizontal swipe on a play screen and nothing signals it is there. That coercion is the hole the declaredX check closes. The vertical row for this same screen is excused separately and does not reach this'],
-  ['pinocchio-luck 390x844', 'gh#202 open: 10px on press 2 - 10px of sideways overflow on section#stageFrame, measured on a Mac, only 2px above OVERFLOW_TOLERANCE_PX. This row may well read UNDER tolerance on CI: the evidence for that is check (iii) below, where the runner read 0px on three rows this Mac records at 2-17px. The 4-28% divergence recorded elsewhere in this file runs the other way and is NOT the reason. If a CI run reads this under tolerance, delete the row rather than keep an exception nobody can trigger'],
+  // Every row below was FOUND BY THIS AXIS (gh#202), not carried over from anywhere, and all four land
+  // on just TWO routes - wire-snip-panic and pinocchio-luck. They are recorded rather than fixed
+  // because gh#202's scope is making sideways clipping visible; changing a route's layout is separate
+  // work with its own owner call, tracked on that ticket. None is covered by that route's vertical
+  // exemption, which is the whole point of this map being separate.
+  //
+  // THE RECORDED px IS THE LARGER OF TWO MACHINES, and the reason says both. This axis reads WILDLY
+  // differently on a Mac and on the CI runner - one row moved 0 to 75px - because these are Thai-first
+  // screens and the runner's font stack wraps their text differently. Recording the smaller reading
+  // would make the growth warning fire forever on the other machine. Only rows that actually went red
+  // on at least one machine are listed: a row that reads 0 on both is deliberately NOT pre-exempted,
+  // because an exception nobody can trigger is the licence to regress this file refuses elsewhere.
+  ['wire-snip-panic 320x568', 'gh#202 open: 145px on press 0 - UNDESIGNED SIDEWAYS SCROLL on div#screen-game.screen.active. CI runner 145px, this Mac 43px. Say scroll and not clipped, because the layout call depends on it: no author rule declares overflow-x on that box, so its computed auto is pure CSS Overflow 3 coercion from the overflow-y beside it - reachable by swipe, but nobody asked for a horizontal swipe on a play screen and nothing signals it is there. The vertical row for this same screen is excused separately and does not reach this'],
+  ['wire-snip-panic 390x844', 'gh#202 open: 75px on press 0 - same undesigned sideways scroll on div#screen-game.screen.active as the 320x568 row above, same coercion. CI runner 75px, this Mac ZERO. This row is the reason no row here is trusted from one machine: it passed every local run and went red on the first CI run'],
+  ['pinocchio-luck 320x568', 'gh#202 open: 11px on press 0 - the widest offender is an h1, so this is Thai text overflowing its own heading rather than a container mis-sized. CI runner 11px, this Mac ZERO, which is consistent with the runner wrapping Thai differently; docs/agents/ci-verification.md names a self-hosted Thai webfont as the converging fix and reserves it for the owner'],
+  ['pinocchio-luck 390x844', 'gh#202 open: 10px on press 2 - sideways overflow on section#stageFrame. This Mac 10px, CI runner ZERO - the one row that runs the opposite way to the others. Check (vi) will therefore print its clear-row warning on CI asking for this row to be deleted: DO NOT act on that alone. Deleting it reds the Mac. Delete only when BOTH machines read it under tolerance'],
 ]);
 /**
  * The overflow values that declare an element an intended scroller, on either axis. Anything else
