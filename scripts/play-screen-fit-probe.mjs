@@ -4,7 +4,7 @@
 //
 // THE INVARIANT, one sentence: on every play route, at every viewport, the walk reaches at least one
 // screen that is NOT the screen a fresh device opens on, and every screen it reaches there is
-// measured for vertical scroll and horizontal width-fill.
+// measured for vertical scroll, horizontal clipping (gh#202) and horizontal width-fill.
 //
 // WHY THE WALK IS THE HARD PART, and how it is proved rather than assumed. The ways a walk can
 // silently stay on setup are owned by 11 separate mockup state machines; enumerating them never
@@ -51,7 +51,29 @@
 //                       pins html and body, so on this site clipping is the NORMAL form of "does not
 //                       fit" and scrolling is the exception. A probe that read documentElement's
 //                       scroll alone reported a planted 2400px screen as fitting perfectly.
-//   overflowPx          max of the two — the "does not fit" number, and the only one gated.
+//   overflowPx          max of the two above — the VERTICAL "does not fit" number, gated against
+//                       FITS_ROWS / KNOWN_OVERFLOW.
+//   overflowXPx         gh#202: the largest HORIZONTAL overflow (scrollWidth - clientWidth) on a box
+//                       whose sideways spill is UNREACHABLE. IT IS A GATE OF ITS OWN, deliberately NOT
+//                       folded into overflowPx, and it carries its own exemption map (KNOWN_OVERFLOW_X).
+//                       Folding it in was tried and rejected in review: rowKey is route+viewport with no
+//                       axis in it, so a KNOWN_OVERFLOW row granted for a VERTICAL reason would silently
+//                       absorb a brand-new sideways clip on the same route and viewport. An exemption
+//                       recorded about scrolling must not license clipping.
+//                       Its partition is the VERTICAL one, mirrored, and countsAsHorizontalOverflow is
+//                       the single expression of it: visible spill is skipped (it lands in an ancestor
+//                       and is counted THERE), hidden/clip counts (unreachable), auto/scroll is exempt
+//                       only when the author DECLARED the horizontal axis and the box is under 0.6 of
+//                       the viewport HEIGHT. Height, not width, and that is deliberate: the bound asks
+//                       "is this box a screen, or a strip inside one", and a roster chip strip is 0.88
+//                       to 0.93 of the viewport WIDE while only 0.05 to 0.10 of it TALL. Bounding on
+//                       width would red all five real chip strips, every one of which declares a
+//                       genuine overflow-x. Screen-ness is what the vertical rule measures too.
+//                       The declared-vs-computed distinction is not pedantry: per
+//                       CSS Overflow 3 a computed overflow-x of visible becomes auto as soon as the
+//                       OTHER axis is not visible/clip, so every box carrying overflow-y:auto reports
+//                       computed overflow-x:auto and would have exempted itself without its author ever
+//                       asking for a horizontal scroller. The lifted route stylesheets are full of them.
 //   widthFillPct        (rightmost ink - leftmost ink) / innerWidth, over the VISIBLE INK inside the
 //                       mockup root: leaf elements with text, plus canvas/img/svg/button/input. Boxes
 //                       are not ink — a full-bleed background div would read 100% on a page whose
@@ -61,8 +83,10 @@
 //                       peg every route at ~100% and measure nothing.
 //
 // WIRED as two ci-probes legs (scripts/ci-probes.sh lane3): the walk leg and its BREAK_WALK control.
-//   node scripts/play-screen-fit-probe.mjs               -> exit non-zero if any route x viewport
-//                                                           never left its fresh screen
+//   node scripts/play-screen-fit-probe.mjs               -> exit non-zero if any route x viewport never
+//                                                           left its fresh screen, is unclassified or in
+//                                                           both vertical sets, regressed past FITS_ROWS,
+//                                                           or clips SIDEWAYS outside KNOWN_OVERFLOW_X
 //   BREAK_WALK=1 node scripts/play-screen-fit-probe.mjs  -> control: no seeding AND no presses, so the
 //                                                           walk stands still on the fresh screen.
 //                                                           Exit 0 ONLY if EVERY route x viewport
@@ -223,6 +247,79 @@ export const KNOWN_OVERFLOW = new Map([
   ['wire-snip-panic 320x568', 'gh#182 open: 111px on press 0 - 111px to scroll on div#screen-game.screen.active'],
   ['zero-trigger 320x568', 'gh#182 open: 131px on press 0 - 131px to scroll on section#screen-game.screen.active. RE-RECORDED UPWARD from 96px, measured this run on this Mac: gh#194 deliberately gives the player strip its real height (flex-shrink:0 in overrides.css), and that height is added to a screen that was already over. The growth is the fix, not a regression — a chip row nobody can see is not a saving. Promotion to FITS_ROWS is not owed here; this row still overflows by design until the 320px play screen is redesigned'],
 ]);
+/**
+ * gh#202 — the HORIZONTAL exemption map, and the reason it is a separate map rather than a column in
+ * KNOWN_OVERFLOW above. rowKey is route plus viewport and carries no axis, so one shared map means one
+ * exemption covers both axes: a row excused for 689px of vertical scrolling would silently absorb a
+ * brand-new sideways clip on the same screen. Splitting the map is what keeps "this screen is allowed
+ * to scroll" from ever meaning "this screen is allowed to cut content off sideways".
+ *
+ * THE SHAPE IS INVERTED FROM KNOWN_OVERFLOW's, on purpose and on evidence: measured across a full
+ * 11-route walk, the horizontal axis reads ZERO on almost every row, so the honest default is GATED and
+ * the exceptions are the short list. There is therefore no UNCLASSIFIED third state to police here — a
+ * new route, a new viewport or a new screen is gated the moment it appears, without anyone pinning it.
+ * Same reason-prefix rule as KNOWN_OVERFLOW, checked at import.
+ */
+export const KNOWN_OVERFLOW_X = new Map([
+  // Both rows below were FOUND BY THIS AXIS on its first full gated run (gh#202), not carried over from
+  // anywhere. They are recorded rather than fixed because gh#202's scope is making sideways clipping
+  // visible; changing a route's layout to close one is separate work with its own owner call. Neither
+  // row is covered by that route's vertical exemption, which is the whole point of this map existing.
+  ['wire-snip-panic 320x568', 'gh#202 open: 43px on press 0 - 43px of UNDESIGNED SIDEWAYS SCROLL on div#screen-game.screen.active, measured on a Mac. Say scroll and not clipped, because the layout call depends on it: no author rule declares overflow-x on that box, so its computed auto is pure CSS Overflow 3 coercion from the overflow-y beside it - the content is reachable by swipe, but nobody asked for a horizontal swipe on a play screen and nothing signals it is there. That coercion is the hole the declaredX check closes. The vertical row for this same screen is excused separately and does not reach this'],
+  ['pinocchio-luck 390x844', 'gh#202 open: 10px on press 2 - 10px of sideways overflow on section#stageFrame, measured on a Mac, only 2px above OVERFLOW_TOLERANCE_PX. This row may well read UNDER tolerance on CI: the evidence for that is check (iii) below, where the runner read 0px on three rows this Mac records at 2-17px. The 4-28% divergence recorded elsewhere in this file runs the other way and is NOT the reason. If a CI run reads this under tolerance, delete the row rather than keep an exception nobody can trigger'],
+]);
+/**
+ * The overflow values that declare an element an intended scroller, on either axis. Anything else
+ * (visible, hidden, clip, and any value a future CSS revision adds) is NOT a scroller declaration.
+ * Kept as data, and exported, so scripts/play-screen-fit-probe.test.mjs can pin the partition without
+ * driving a browser: it is closed, so both axes fail SAFE when the set of possible values grows.
+ */
+export const DECLARED_SCROLLER = ['auto', 'scroll'];
+/**
+ * A box that fills this fraction of the viewport is a SCREEN, not a widget, and its scroll is the
+ * page's. Shared by both axes so the bound the owner ruling put on the vertical self-scroller rule is
+ * the same bound the horizontal one gets, rather than the horizontal one having none.
+ */
+const SCREEN_FRACTION = 0.6;
+
+/**
+ * gh#202 — THE HORIZONTAL CLASSIFICATION, and the only place it is expressed. Injected verbatim into
+ * MEASURE (it runs in the browser) and exported so scripts/play-screen-fit-probe.test.mjs can drive
+ * every branch of it with no browser at all — which is what makes the horizontal axis able to fail a
+ * unit test rather than only a full walk.
+ *
+ * It mirrors the vertical partition below, case for case, and the mirroring is the point:
+ *   visible      — SKIPPED. Its spill lands in an ancestor and is counted there, exactly as the
+ *                  vertical axis stopped counting visible-overflow boxes. Decorative overhang that
+ *                  nothing clips is not unreachable content.
+ *   hidden, clip — COUNTS. The content is cut off sideways and the player cannot reach it.
+ *   auto, scroll — EXEMPT, but only against two independent conditions:
+ *                  (a) the author actually DECLARED the horizontal axis (declaredX). Computed
+ *                      overflow-x is worthless on its own here: CSS Overflow 3 turns a visible
+ *                      overflow-x into auto whenever overflow-y is not visible/clip, so a box carrying
+ *                      nothing but overflow-y:auto reports auto on X and would exempt itself.
+ *                  (b) the box is not a SCREEN in disguise — the same bound the vertical axis puts on a
+ *                      self-scroller, and deliberately the same EXPRESSION rather than the same axis
+ *                      letter: clientHeight against SCREEN_FRACTION of innerHeight.
+ *   the two roots — COUNT unconditionally, as they do vertically: html and body sliding sideways IS
+ *                  the page not fitting.
+ *
+ * WHY THE BOUND IS MEASURED ON HEIGHT AND NOT ON WIDTH, which is the version review would expect. The
+ * bound exists to catch a box that is really the SCREEN wearing a scroller's declaration, and screen-ness
+ * is what the vertical rule already measures: a page-sized container is viewport-TALL. Mirroring the
+ * letter instead of the meaning was tried and MEASURED WRONG here: every play route's roster chip strip
+ * (wire-snip-panic .hud-player-strip, zero-trigger .player-strip-container, short-stick .player-strip)
+ * is 88-93% of the viewport WIDE and 5-10% of it TALL, each carrying a real author-written
+ * overflow-x:auto, and a width bound reported all five as unreachable content when a swipe reaches every
+ * chip. A full-width, one-row-tall horizontal scroller is the normal shape of this widget; a full-HEIGHT
+ * one is a page container, and that is the one this bound refuses to exempt.
+ */
+export function countsAsHorizontalOverflow({ isRoot, overflowX, declaredX, clientHeight, innerHeight }) {
+  if (isRoot) return true;
+  if (overflowX === 'hidden' || overflowX === 'clip') return true;
+  if (!DECLARED_SCROLLER.includes(overflowX)) return false; // visible: counted in the ancestor instead
+  return !(declaredX && clientHeight < SCREEN_FRACTION * innerHeight);
+}
 /** A pinned row may drift by this much without reading as a regression — under a line of text. */
 const OVERFLOW_TOLERANCE_PX = 8;
 /** Sub-pixel slack: a scrollHeight and a clientHeight can disagree in the last fraction of a device px. */
@@ -233,9 +330,11 @@ const EPS = 1;
 // (a rewrite that drops the number, a typo in the ruling-date format) throws at import time instead of
 // silently making check (iv) unable to find a number to compare against.
 const KNOWN_OVERFLOW_PREFIX = /^(owner ruling \d{4}-\d{2}-\d{2}|gh#\d+ open): (\d+)px /;
-for (const [key, reason] of KNOWN_OVERFLOW) {
-  if (!KNOWN_OVERFLOW_PREFIX.test(reason)) {
-    throw new Error(`KNOWN_OVERFLOW["${key}"] does not start with "<owner ruling YYYY-MM-DD|gh#N open>: <N>px ": "${reason}"`);
+for (const [which, map] of [['KNOWN_OVERFLOW', KNOWN_OVERFLOW], ['KNOWN_OVERFLOW_X', KNOWN_OVERFLOW_X]]) {
+  for (const [key, reason] of map) {
+    if (!KNOWN_OVERFLOW_PREFIX.test(reason)) {
+      throw new Error(`${which}["${key}"] does not start with "<owner ruling YYYY-MM-DD|gh#N open>: <N>px ": "${reason}"`);
+    }
   }
 }
 /**
@@ -309,18 +408,88 @@ const MEASURE = `
   let scrollFrom = scrollPx ? 'documentElement' : null;
   let clippedPx = 0;
   let clipFrom = null;
+  let overflowXPx = 0;
+  let overflowXFrom = null;
+  // The ONE list of computed overflow values that declare an element an intended scroller, shared by
+  // both axes so there is a single idiom rather than two.
+  const DECLARED_SCROLLER = ${JSON.stringify(DECLARED_SCROLLER)};
+  const SCREEN_FRACTION = ${SCREEN_FRACTION};
+  // gh#202 — the horizontal classifier, injected from the module scope so the browser and the unit test
+  // run the SAME expression. Editing it in one place is the only way to edit it.
+  ${countsAsHorizontalOverflow.toString()}
+  // gh#202 — WHICH SELECTORS DECLARE THE HORIZONTAL AXIS. Collected once per measurement from this
+  // page's own stylesheets, because a computed overflow-x cannot answer the question: CSS Overflow 3
+  // computes a visible overflow-x to auto whenever overflow-y is not visible or clip, so every box in
+  // the lifted route stylesheets that carries overflow-y:auto reports auto on X without its author
+  // having declared a horizontal scroller at all. Reading the CASCADE INPUT instead of its output is
+  // the only signal that separates the two. Cheap because the list is a handful of selectors: the
+  // per-element cost is matches() against those, not a rule walk.
+  // The overflow SHORTHAND sets both longhands, so a rule carrying it exposes overflow-x here and is
+  // correctly treated as a horizontal declaration; a rule carrying overflow-y ALONE exposes nothing
+  // and is correctly not. But EXPOSING a value is not DECLARING a scroller: overflow:hidden and
+  // overflow:visible expose overflow-x too, and treating any exposed value as a declaration handed the
+  // exemption to selectors whose author asked for the opposite. Only DECLARED_SCROLLER values declare.
+  const declaresScroller = (v) => DECLARED_SCROLLER.includes((v || '').trim());
+  // A CONDITIONAL GROUP declares nothing unless its condition holds AT THIS VIEWPORT. Walking into one
+  // unconditionally let a desktop-only rule declare a horizontal scroller on the 320px screen, i.e. the
+  // one signal this whole exemption path rests on failing OPEN. Non-conditional nesting (a nested style
+  // rule, @layer) carries no condition and is still walked.
+  // ponytail: a container query is read through CSS.supports here, which is not its grammar. Every
+  // failure of this predicate is a REFUSAL to recurse, so an unevaluable condition ends GATED (a loud
+  // red naming the box), never exempt. Evaluate it properly if a route ever ships one.
+  const groupApplies = (rule) => {
+    try {
+      if (rule.media) return matchMedia(rule.media.mediaText).matches;
+      if (typeof rule.conditionText === 'string') return CSS.supports(rule.conditionText);
+    } catch (err) { return false; }
+    return true;
+  };
+  const xDeclSelectors = [];
+  for (const sheet of document.styleSheets) {
+    let top; try { top = sheet.cssRules; } catch (err) { continue; } // a cross-origin sheet is not ours to read
+    const walk = (list) => {
+      for (const rule of list) {
+        if (rule.style && rule.selectorText && declaresScroller(rule.style.getPropertyValue('overflow-x'))) xDeclSelectors.push(rule.selectorText);
+        if (rule.cssRules && groupApplies(rule)) walk(rule.cssRules); // @media / @supports / nested
+      }
+    };
+    walk(top);
+  }
+  const declaresX = (e) => {
+    if (e.style && declaresScroller(e.style.getPropertyValue('overflow-x'))) return true;
+    for (const sel of xDeclSelectors) { try { if (e.matches(sel)) return true; } catch (err) { /* an unmatchable selector declares nothing about e */ } }
+    return false;
+  };
   const desc = (e) => (e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') +
     (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\\s+/).join('.') : '')).slice(0, 60);
   for (const e of [de, document.body, ...document.querySelectorAll('body *')]) {
     if (!e || (e !== de && e !== document.body && !visible(e))) continue;
-    const over = e.scrollHeight - e.clientHeight;
-    if (over <= ${EPS}) continue;
     // A one-pixel clip box is the screen-reader visually-hidden pattern, not a scroll surface, and it
     // overflows by the height of whatever the announcer last said. MEASURED (gh#179): every route but
     // dice-loser reported a constant 20-23px of "clipped" content that was only #cf-live / #sr-announcer
     // and friends — a plausible number, on every route, describing nothing a player can see.
     if (e.clientHeight <= 1 || e.clientWidth <= 1) continue;
-    const oy = getComputedStyle(e).overflowY;
+    const cs = getComputedStyle(e);
+    const isRoot = e === de || e === document.body;
+    // gh#202 — THE HORIZONTAL AXIS, classified by the module's countsAsHorizontalOverflow (injected
+    // above), which mirrors the vertical partition below case for case. The declaredX argument is read
+    // from the stylesheets, not from the computed value, for the CSS Overflow 3 reason stated there.
+    // WHAT THIS CHECK DOES NOT COVER: this repo does not own what a mockup declares. Each route's
+    // style.css is written byte-for-byte from the mockup by scripts/extract-mockup.mjs, so an
+    // overflow-x:auto a mockup author genuinely wrote on a small play widget (freeze-tap's .preset-pills
+    // is a real one) makes that element exempt here, and a screen clipping inside it would green
+    // silently. The horizontal fit of content INSIDE a declared, sub-screen-width scroller is not
+    // measured at all.
+    const overX = e.scrollWidth - e.clientWidth;
+    if (overX > ${EPS} && overX > overflowXPx && countsAsHorizontalOverflow({
+      isRoot, overflowX: cs.overflowX, declaredX: declaresX(e), clientHeight: e.clientHeight, innerHeight,
+    })) {
+      overflowXPx = overX;
+      overflowXFrom = desc(e);
+    }
+    const over = e.scrollHeight - e.clientHeight;
+    if (over <= ${EPS}) continue;
+    const oy = cs.overflowY;
     if (oy === 'hidden' || oy === 'clip') {
       if (over > clippedPx) { clippedPx = over; clipFrom = desc(e); }
       continue;
@@ -336,15 +505,14 @@ const MEASURE = `
     // it. Counting it here invented 9px on a range input and 71px on a box inside a designed scroller
     // (measured 2026-09-02), so only the two roots and a bounded self-scroller below reach the line
     // below.
-    const isRoot = e === de || e === document.body;
-    const isScroller = oy === 'auto' || oy === 'scroll';
+    const isScroller = DECLARED_SCROLLER.includes(oy);
     // ponytail: 0.6 x viewport is a heuristic ceiling; a log or roster column sits well under it, a
     // screen container sits at or above it. Raise to a per-route declaration only if a real widget
     // crosses it. Failure direction: a box AT or ABOVE the line fails LOUD (its spill reads as page
     // overflow, an UNCLASSIFIED or regressed row names it); a screen container UNDER the line would
     // fail SILENT (its spill hidden as a designed scroller) — measured 2026-09-02, no route has one:
     // every .screen / main / #view-root is height:100%.
-    const fillsViewport = isScroller && e.clientHeight >= 0.6 * innerHeight;
+    const fillsViewport = isScroller && e.clientHeight >= SCREEN_FRACTION * innerHeight;
     if (!isRoot && !fillsViewport) continue;
     if (over > scrollPx) { scrollPx = over; scrollFrom = desc(e); }
   }
@@ -367,9 +535,12 @@ const MEASURE = `
   const span = n ? Math.min(right, innerWidth) - Math.max(left, 0) : 0;
   return {
     ok: true, innerWidth, innerHeight,
-    docScrollPx, scrollPx, clippedPx, overflowPx: Math.max(scrollPx, clippedPx),
+    docScrollPx, scrollPx, clippedPx, overflowXPx,
+    // VERTICAL ONLY. overflowXPx is deliberately absent: it is gated separately against
+    // KNOWN_OVERFLOW_X, because the exemptions in KNOWN_OVERFLOW are about scrolling.
+    overflowPx: Math.max(scrollPx, clippedPx),
     // Named so a KNOWN_OVERFLOW reason can say WHICH box overflows instead of only by how much.
-    scrollFrom, clipFrom,
+    scrollFrom, clipFrom, overflowXFrom,
     inkCount: n,
     inkLeft: n ? left : null, inkRight: n ? right : null,
     widthFillPct: n ? Math.round((span / innerWidth) * 1000) / 10 : 0,
@@ -481,10 +652,41 @@ export default async function (session) {
 const worstOf = (r) => r.screens.slice().sort((a, b) => b.overflowPx - a.overflowPx || a.widthFillPct - b.widthFillPct)[0];
 export const rowKey = (r) => `${r.route} ${r.vp}`;
 
+/**
+ * gh#202 — the row's worst HORIZONTAL screen, chosen independently of worstOf. Deliberately not
+ * worstOf(r).overflowXPx: worstOf ranks by the vertical number, so on a row whose tallest screen is not
+ * its widest, reading X off it would report 0px sideways while another screen of the same row cut
+ * content off. The two axes rank their screens separately or one hides the other.
+ */
+const worstXOf = (r) => (r.screens || []).reduce(
+  (worst, s) => ((s.overflowXPx ?? 0) > (worst.overflowXPx ?? 0) ? s : worst),
+  { overflowXPx: 0, press: null, overflowXFrom: null },
+);
+
+/**
+ * gh#202 — THE HORIZONTAL GATE, over a run's rows. Every row is gated by default and the exemption map
+ * is the short list, which is why there is no UNCLASSIFIED case here: a route or viewport nobody pinned
+ * is gated, not ignored.
+ *
+ * What it asserts is PRESENCE vs ABSENCE within OVERFLOW_TOLERANCE_PX, never a recorded pixel. That is
+ * forced by this file's own header: the CI runner measured six rows 4-28% above this Mac's numbers with
+ * no code change between the runs, so a px recorded here is one machine's. Zero-or-not survives both.
+ *
+ * Exported so scripts/play-screen-fit-probe.test.mjs can replay a SAVED run's rows through the real
+ * gate with no browser — which is what makes the horizontal axis's BEHAVIOUR (not just its table) able
+ * to fail a unit test.
+ */
+export const sidewaysOffenders = (rows) => rows
+  .map((r) => ({ r, key: rowKey(r), x: worstXOf(r) }))
+  .filter((o) => (o.x.overflowXPx ?? 0) > OVERFLOW_TOLERANCE_PX && !KNOWN_OVERFLOW_X.has(o.key));
+
 const fmt = (r) => {
   if (!r.screens.length) return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} NEVER LEFT THE FRESH SCREEN`;
   const w = worstOf(r);
-  return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} scrolls ${(w.scrollPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(Math.round(w.scrollPx)).padStart(5)}px  clipped ${String(Math.round(w.clippedPx)).padStart(5)}px  width-fill ${String(w.widthFillPct).padStart(5)}%  (${r.screens.length} screen(s), worst at press ${w.press}, ${w.inkCount} ink)${FITS_ROWS.has(rowKey(r)) ? ' [pinned fits]' : ''}`;
+  // The sideways number is the row's own worst horizontal screen, not the worst VERTICAL screen's
+  // horizontal number — otherwise the printed table would disagree with the gate that reads it.
+  const x = worstXOf(r);
+  return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} scrolls ${(w.scrollPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(Math.round(w.scrollPx)).padStart(5)}px  clipped ${String(Math.round(w.clippedPx)).padStart(5)}px  sideways ${String(Math.round(x.overflowXPx ?? 0)).padStart(5)}px${x.overflowXFrom ? ' by ' + x.overflowXFrom : ''}  width-fill ${String(w.widthFillPct).padStart(5)}%  (${r.screens.length} screen(s), worst at press ${w.press}, ${w.inkCount} ink)${FITS_ROWS.has(rowKey(r)) ? ' [pinned fits]' : ''}${KNOWN_OVERFLOW_X.has(rowKey(r)) ? ' [sideways excepted]' : ''}`;
 };
 
 function main() {
@@ -569,9 +771,9 @@ function main() {
     console.error(`::error::"${k}" is in BOTH FITS_ROWS and KNOWN_OVERFLOW — a row cannot both fit and be an accepted overflow, and whichever set is wrong is asserting nothing.`);
   }
   // (ii) Stale pins, both sets: a key nobody produced asserts nothing, whichever set it sits in.
-  const stalePins = narrowed ? [] : [...FITS_ROWS, ...KNOWN_OVERFLOW.keys()].filter((k) => !keys.has(k));
+  const stalePins = narrowed ? [] : [...FITS_ROWS, ...KNOWN_OVERFLOW.keys(), ...KNOWN_OVERFLOW_X.keys()].filter((k) => !keys.has(k));
   for (const k of stalePins) {
-    const which = FITS_ROWS.has(k) ? 'FITS_ROWS' : 'KNOWN_OVERFLOW';
+    const which = FITS_ROWS.has(k) ? 'FITS_ROWS' : (KNOWN_OVERFLOW.has(k) ? 'KNOWN_OVERFLOW' : 'KNOWN_OVERFLOW_X');
     console.error(`::error::${which} pins "${k}", which this run never produced — the pin is stale (a route left the manifest, or a viewport changed), so it is asserting nothing.`);
   }
   // (iii) An exception that no longer overflows. The trigger is ZERO overflow, not
@@ -593,7 +795,15 @@ function main() {
     .map((r) => ({ r, w: worstOf(r) }))
     .filter((x) => x.w.overflowPx > OVERFLOW_TOLERANCE_PX);
   for (const x of regressions) {
-    console.error(`::error::${x.r.url} at ${x.r.vp} no longer fits: ${Math.round(x.w.scrollPx)}px to scroll and ${Math.round(x.w.clippedPx)}px clipped away on a play screen (press ${x.w.press}). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.`);
+    console.error(`::error::${x.r.url} at ${x.r.vp} no longer fits VERTICALLY: ${Math.round(x.w.scrollPx)}px to scroll and ${Math.round(x.w.clippedPx)}px clipped away on a play screen (press ${x.w.press}). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.`);
+  }
+  // (v) gh#202, THE HORIZONTAL GATE, and it is a gate of its own rather than a term inside (iii)/(iv).
+  // Every row is gated; KNOWN_OVERFLOW_X is the only exemption, and it is separate from KNOWN_OVERFLOW
+  // so a row excused for vertical scrolling cannot absorb a new sideways clip. Presence vs absence
+  // within the tolerance is asserted, never a recorded px — see sidewaysOffenders.
+  const sideways = sidewaysOffenders(out.rows);
+  for (const o of sideways) {
+    console.error(`::error::${o.r.url} at ${o.r.vp} clips SIDEWAYS: ${Math.round(o.x.overflowXPx)}px of content is unreachable horizontally${o.x.overflowXFrom ? ` (widest offender ${o.x.overflowXFrom})` : ''} on a play screen (press ${o.x.press}). The horizontal axis is gated on every row by default and this one is not in KNOWN_OVERFLOW_X. A vertical exemption in KNOWN_OVERFLOW does not cover this: fix the layout, or record the row in KNOWN_OVERFLOW_X with a reason starting "owner ruling <date>:" or "gh#202 open:".`);
   }
   // (iv) A KNOWN_OVERFLOW row that grew past the px its reason was recorded at. REPORTED, not gated:
   // the same CI run measured six of these rows 4-28% ABOVE this Mac's numbers (power-meter 76 -> 268),
@@ -609,7 +819,27 @@ function main() {
   for (const x of knownRegressions) {
     console.warn(`::warning::${x.r.url} at ${x.r.vp} measured ${Math.round(x.w.overflowPx)}px against a recorded ${x.recorded}px (press ${x.w.press}). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.`);
   }
-  if (unclassified.length || inBoth.length || stalePins.length || regressions.length) process.exit(1);
+  // (vi) gh#202 — THE HORIZONTAL ANALOGUES OF (iii) AND (iv), and without them KNOWN_OVERFLOW_X is
+  // write-only. A passing leg's log is discarded by standalone() in scripts/ci-probes.sh except for
+  // lines carrying the warning marker, so the table line for an excepted row never reaches CI: an
+  // exempted row could grow from 43px to 400px, or drop to nothing, and the run would stay green AND
+  // silent. That is the whole risk of having exempted anything. WARNINGS, not gates, for the same
+  // reason (iii) and (iv) are: a recorded px is what ONE machine measured (the 4-28% divergence above).
+  // The under-tolerance trigger is OVERFLOW_TOLERANCE_PX and not zero, unlike (iii)'s: this axis has no
+  // FITS_ROWS to promote into, so the action a cleared row asks for is DELETING the exception, and the
+  // gate itself treats anything within the tolerance as not overflowing. Zero would never fire on a row
+  // recorded a couple of px above the line, which is exactly the row most likely to have cleared.
+  const exceptedX = out.rows
+    .filter((r) => KNOWN_OVERFLOW_X.has(rowKey(r)))
+    .map((r) => ({ r, x: worstXOf(r), reason: KNOWN_OVERFLOW_X.get(rowKey(r)) }))
+    .map((e) => ({ ...e, px: e.x.overflowXPx ?? 0, recorded: recordedPx(e.reason) }));
+  for (const e of exceptedX.filter((e) => e.px <= OVERFLOW_TOLERANCE_PX)) {
+    console.warn(`::warning::${e.r.url} at ${e.r.vp} measured ${Math.round(e.px)}px SIDEWAYS, within the ${OVERFLOW_TOLERANCE_PX}px tolerance, against KNOWN_OVERFLOW_X "${e.reason}" — this row no longer clips sideways here. If that holds on the CI runner too, delete the row: an exception nobody can trigger is a licence to regress.`);
+  }
+  for (const e of exceptedX.filter((e) => e.px > e.recorded + OVERFLOW_TOLERANCE_PX)) {
+    console.warn(`::warning::${e.r.url} at ${e.r.vp} measured ${Math.round(e.px)}px SIDEWAYS against a recorded ${e.recorded}px${e.x.overflowXFrom ? ` (widest offender ${e.x.overflowXFrom})` : ''} at press ${e.x.press}. Same machine as the recording? Then the sideways clip GREW past what was excused — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.`);
+  }
+  if (unclassified.length || inBoth.length || stalePins.length || regressions.length || sideways.length) process.exit(1);
 
   const measured = out.rows.reduce((n, r) => n + r.screens.length, 0);
   // Every number here comes from the expression that describes it: the asserted count is the rows
@@ -617,7 +847,7 @@ function main() {
   // print as coverage it does not have.
   const asserted = out.rows.filter((r) => FITS_ROWS.has(rowKey(r))).length;
   const excepted = out.rows.filter((r) => KNOWN_OVERFLOW.has(rowKey(r))).length;
-  console.log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${out.routesWalked} route(s) x ${out.viewports} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets.`);
+  console.log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${out.routesWalked} route(s) x ${out.viewports} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all ${out.rows.length} row(s) are asserted to clip no more than ${OVERFLOW_TOLERANCE_PX}px horizontally except the ${out.rows.filter((r) => KNOWN_OVERFLOW_X.has(rowKey(r))).length} in KNOWN_OVERFLOW_X.`);
   for (const r of out.rows) console.log('  ' + fmt(r));
 }
 

@@ -349,8 +349,8 @@ for (const g of ROUTES) {
     // causes that used to be indistinguishable, and collapsing them is what let a route the probe
     // could not walk score EXEMPT inside a green run:
     //   buttonsInRoot > 0 -> the route HAS pressable things and this measurement did not resolve one.
-    //                        That is a finder miss (load-dependent, see the verdict block) -> retry,
-    //                        then UNMEASURED and RED. Never subtracted from coverage silently.
+    //                        That is a finder miss (see the verdict block for the measured cause) ->
+    //                        retry, then UNMEASURED and RED. Never subtracted from coverage silently.
     //   buttonsInRoot === 0 -> the built page's game root contains no <button> at all. That is a
     //                        structural property of the route, re-derived from the artifact on every
     //                        run, so it self-clears the moment the route grows a button. This is the
@@ -420,13 +420,23 @@ for (const g of ROUTES) {
     Object.assign(res.burst, classifyBurst(contactLog, ARM_DELAY_MS));
     res.burst.attempts = attempt;
     await shot(`${SHOT}/playexit-${TAG}-${g}-burst.png`);
-    // gh#199 — a finder miss now retries on the same terms a VOID burst does, and for the same
-    // reason: short-stick's trigger is found or missed depending on machine load (measured), so a
-    // one-off miss must cost one route walk, not a red. `=== 0` and not `!buttonsInRoot`: an absent
+    // gh#199 — a finder miss retries on the same terms a VOID burst does. The retry's original
+    // justification -- that a finder miss varies with how busy the host's CPU happens to be -- was
+    // false. The cause actually measured was persisted `watduang:roster` local storage surviving
+    // between scenarios inside one run, which left the page auto-advanced past its own entry point
+    // so the finder resolved nothing. That cause is now CURED in this same file: `nav` clears local
+    // storage before every navigate, added in the same commit as this retry. So a finder miss today
+    // has no measured benign cause, and whether this retry-then-SKIP branch should stay, or a miss
+    // should simply be RED, is an open question this comment does not answer. The "ten runs, zero
+    // variance" figure behind the storage measurement has no artifact under docs/verification -- it
+    // is recorded only in session prose, not as a committed measurement in this repo.
+    // `=== 0` and not `!buttonsInRoot`: an absent
     // triggerScan (the finder expression threw) must NOT satisfy this and end the loop early.
     const triggerResolved = !!res.transitionTrigger || res.triggerScan?.buttonsInRoot === 0;
-    // One flake retry per candidate, for the two causes that were always flaky: a burst the runner
-    // could not deliver, and a finder that resolved nothing. Same terms as before the advance existed.
+    // One flake retry per candidate: a burst the runner could not deliver, and a finder that resolved
+    // nothing. The finder side no longer has a measured benign cause (see the comment on
+    // triggerResolved above) -- kept on the same terms pending a decision on whether it should still
+    // retry or go straight to RED.
     if ((res.burst.isVoid || !triggerResolved) && retries < 1) { retries++; continue; }
     if (res.burst.isVoid || !triggerResolved) break;
 
@@ -476,9 +486,13 @@ console.log(JSON.stringify(out, null, 2));
 // only thing in CI that measures it -- so it judges itself here.
 // A scenario that was NOT exercisable is a SKIP with its reason, never a pass: the burst only means
 // something after a real transition disarmed the X, and a route whose transition trigger was not found
-// was never disarmed at all (measured: short-stick's trigger is found or missed depending on machine
-// load, so gating its burst unconditionally would pin a flaky red). All-skipped is a RED -- so is an
-// empty route set, which the throw at the top of this file already refuses.
+// was never disarmed at all. What was measured as the cause -- persisted `watduang:roster` local
+// storage surviving between scenarios inside one run, not variance in the host's CPU -- is now CURED
+// in this same file (`nav` clears local storage before every navigate, added in the same commit as
+// this retry), so treating a finder miss as a flaky SKIP rather than an outright RED is no longer
+// backed by a live cause; whether it should still SKIP or become RED is open, see the comment on
+// triggerResolved. All-skipped is a RED -- so is an empty route set, which the throw at the top of
+// this file already refuses.
 // Carried into every burst-side message on purpose: only `tail -n 3` of this file's output reaches the
 // CI log, so the number that decides the cause has to be IN the failure line. A gap above
 // ARM_DELAY_MS means the X had armed before that contact -- a slow runner, not a broken guard; every
