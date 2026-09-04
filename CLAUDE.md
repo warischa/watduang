@@ -36,7 +36,7 @@ keep building; the batch's ONE src push to main still gets ONE ask, with the evi
 defer: gate re-records, REFUTE findings, verification — a red blocks everyone.
 
 **The SH batch is PRE-AUTHORIZED (owner ruling 2026-08-29) — do it, don't ask.** At session save,
-in one pass, no per-item questions: (1) docs commits + one docs push to main (ADR-0049 b);
+in one pass, no per-item questions: (1) docs commits stack locally, NO push at save — they ride the next src push (ADR-0049, amended 2026-09-04);
 (2) tracker writes for work VERIFIED DONE this session — close with an evidence comment, add the
 gh#141 row per shipped game, one read-back to confirm; (3) cleanup — integrated agent worktrees
 removed, budget sweep, memory/handoff writes. Condition that keeps the grant valid: every gate
