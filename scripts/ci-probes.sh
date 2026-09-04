@@ -137,6 +137,7 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   out="$OUT_DIR/$label.json"
   err="$OUT_DIR/$label.err"
   echo "probe: $label ($file)"
+  leg_t0=$(date +%s)
   # Both env var names on purpose: the 7 probes disagree (BASE vs PROBE_BASE) and exporting both is
   # cheaper and safer than a per-probe table that goes stale when one probe is edited.
   env BASE="$SITE" PROBE_BASE="$SITE" CDP_PORT="$cdp" "$@" \
@@ -155,8 +156,15 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   msg=$(node scripts/ci-probes-verdict.mjs "$label" "$out" "$rc" "$err" 2>&1)
   vrc=$?
   set -e
+  # gh#202 follow-up: per-leg wall time, machine-readable. Rebalancing lanes by eye does not work --
+  # the only per-lane figure anyone had was measured on one Mac on one day, and a rebalance proposed
+  # from leg COUNTS was wrong twice over (lane1's two legs each walk every route, and the fit pair
+  # must stay together or its control sees a different browser). Grep LEG_SECONDS out of a CI run
+  # before moving anything.
+  leg_el=$(( $(date +%s) - leg_t0 ))
+  echo "LEG_SECONDS $LANE $label $leg_el"
   if [ "$vrc" -eq 0 ]; then
-    echo "  PASS  $label"
+    echo "  PASS  $label (${leg_el}s)"
     echo "$label" >> "$OUT_DIR/$LANE.pass"
   else
     echo "::error::probe FAIL: ${label} -- ${msg}"
@@ -176,6 +184,7 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
 standalone() { # label, command...
   label="$1"; shift
   echo "probe: $label (standalone)"
+  leg_t0=$(date +%s)
   ( "$@" ) > "$OUT_DIR/$label.log" 2>&1 &
   pid=$!
   ( sleep "$LEG_TIMEOUT"; kill -9 "$pid" 2> /dev/null ) &
@@ -185,14 +194,20 @@ standalone() { # label, command...
   rc=$?
   set -e
   { kill "$watchdog" && wait "$watchdog"; } 2> /dev/null || true
+  leg_el=$(( $(date +%s) - leg_t0 ))
+  echo "LEG_SECONDS $LANE $label $leg_el"
   if [ "$rc" -eq 0 ]; then
-    echo "  PASS  $label"
+    echo "  PASS  $label (${leg_el}s)"
     # A green leg's log is otherwise swallowed; surface its warnings as job annotations (gh#182: the
     # fit probe reports px drift on KNOWN_OVERFLOW rows this way and never reds on it).
     grep '^::warning::' "$OUT_DIR/$label.log" || true
     echo "$label" >> "$OUT_DIR/$LANE.pass"
   else
-    echo "::error::probe FAIL: ${label} -- exit ${rc}: $(tail -n 3 "$OUT_DIR/$label.log" | tr '\n' ' ')"
+    # ERRORS FIRST, then the tail. gh#202 lost an hour to this line: a tail of 3 on a failing fit
+    # probe returned three ::warning:: lines and NO ::error::, so the CI log said the leg failed and
+    # showed nothing that could have caused it -- the real reason was only in the uploaded artifact.
+    # A failing leg's error lines are the one thing that must never need a download to read.
+    echo "::error::probe FAIL: ${label} -- exit ${rc}: $(grep -h '^::error::' "$OUT_DIR/$label.log" 2>/dev/null | head -n 5 | tr '\n' ' ')$(tail -n 3 "$OUT_DIR/$label.log" | tr '\n' ' ')"
     echo "$label" >> "$OUT_DIR/$LANE.fail"
   fi
 }
