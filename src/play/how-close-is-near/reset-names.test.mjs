@@ -103,16 +103,26 @@ test('the confirm handler drives the wipe over the name fields', () => {
   assert.ok(handler, 'the reset confirm handler is no longer recognisable -- this test measures nothing');
   assert.match(handler[0], /resetNameInputs\(card\.querySelectorAll\('\.player-text-input'\)\)/);
   assert.match(handler[0], /closeResetNamesModal\(\)/);
+  // gh#175 box 3. What makes the confirm's `จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่` true rather
+  // than merely written: neither the losing rule nor the seat count is reachable from this handler.
+  assert.doesNotMatch(handler[0], /loseCondition/);
+  assert.doesNotMatch(handler[0], /playerCount/);
 });
 
 // The confirm's copy names every loss it causes, per docs/agents/src-edit-rules.md. Pinned as text
 // because it is the only part of this feature a player reads, and a well-meaning edit that drops the
 // irreversibility clause is invisible to every other check in this directory. It lives in main.js
 // here, not markup.html: this modal is built by script.
+//
+// gh#175 box 3: this route DOES have a rule the player sets -- renderLoseConditionScreen writes
+// game.loseCondition from two selectable cards, and #btnBackToNames returns to this very screen, so
+// a player can reach the reset modal with that rule already chosen. The confirm therefore names the
+// rule alongside the count, matching short-stick's #reset-names-dialog. The owner's 2026-09-03 licence
+// to vary the body clause covers a route with NO settable rule; this one is not that route.
 test('the confirm copy still names the loss and what survives', () => {
   assert.match(
     source,
-    /ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่/,
+    /ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่/,
   );
   // The trigger and the two answers, verbatim from the gh#174 pattern.
   assert.match(source, /↺ รีเซ็ตเป็นชื่อสัตว์/);

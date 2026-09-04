@@ -38,13 +38,21 @@ export interface CategoryMeta {
 // Record<Category, ...> on purpose: keyed by the hand-written union in types.ts, not derived from
 // these keys, so a key missing here or added only here is a compile error before it is a validator
 // error. That parity is what lets the validator below treat these keys as the runtime truth.
+// gh#201: fortune pages are not "เกม" (owner decision — the word for what a visitor receives is
+// "คำทำนาย", never a synonym). `label`, `hubHeading`, `hubBody` and `intro` below must never call
+// this category a game; only `seo.description` below is exempt by a separate standing decision.
+// ponytail: no automated gate covers the digit-free half of this claim (a "เกม" claim with no
+// player-count number in it) — ADR-0019 rule 1 rejects that gate here: the likely regression is a
+// synonym for "game" that never uses the literal word "เกม" at all, which is on the wrong side of
+// any string-match ceiling, same reasoning as gh#44's rejected widening. Reviewer-owned until the
+// class is small enough to enumerate.
 export const categories: Record<Category, CategoryMeta> = {
   fortune: {
     label: 'ดูดวง',
     whenToUse: 'อยากรู้ว่าวันนี้ดวงเป็นยังไง หรือคู่ไหนเข้ากัน',
     hubHeading: 'ดูดวง ทำนายโชคชะตา',
-    hubBody: 'ไม่มีใครแพ้ ไม่มีใครโดน จั่วได้แล้วอ่านให้วงฟัง เหมาะกับวงที่เพิ่งเจอกัน',
-    intro: 'รวมเกมดูดวงเล่นฟรีบนมือถือเครื่องเดียว เสี่ยงเซียมซี เปิดดวงประจำวัน หรือวัดว่าคู่ไหนเข้ากัน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
+    hubBody: 'ไม่มีใครแพ้ ไม่มีใครโดน กดดูดวงของตัวเองได้ทันที อยากรู้เมื่อไหร่ก็เปิดดูได้เลย',
+    intro: 'รวมคำทำนายดูดวงฟรีบนมือถือเครื่องเดียว เสี่ยงเซียมซี เปิดดวงประจำวัน หรือวัดว่าคู่ไหนเข้ากัน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
     accent: 'gold',
     carriesGroup: false,
     seo: {

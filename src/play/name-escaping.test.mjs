@@ -196,6 +196,13 @@ test('short-stick: setup inputs, draw strip and history escape roster names', ()
     // renderDraw re-arms the ghost-tap gate on every turn handover (ADR-0017). Stubbed like every
     // other collaborator here: this test measures escaping, and armAllButtons writes no markup.
     armAllButtons: () => {},
+    // gh#184 ends this strip render with the shared `+N` seat counter from ../_strip-overflow.ts.
+    // Stubbed like every other collaborator that crosses a module boundary here, and benign for a
+    // reason that was checked rather than assumed: the module's ONLY text write is
+    // `counter.textContent = "+" + hidden`, a number it computes from client rects. It never
+    // receives a roster value, so it cannot be an escape sink. That digits-only claim is pinned by
+    // ./strip-overflow-counter.test.mjs, which drives the real module over a hostile chip name.
+    mountStripOverflowCounter: () => {},
     calculateOdds: () => ({ remaining: 2, text: '50%', isCritical: false, isWarning: false }),
   }, ['escapeHtml']);
 
@@ -390,6 +397,12 @@ function wireSnipHarness() {
       // reason as the short-stick harness: this test measures escaping, and armAllButtons writes no
       // markup. Without the stub the sliced renders throw before the assertions run.
       armAllButtons: () => {},
+      // gh#184 ends renderHUDPlayerStrip with the shared `+N` seat counter from
+      // ../_strip-overflow.ts. Stubbed for the same reason as in the short-stick harness above: it
+      // crosses a module boundary, and its ONLY text write is `counter.textContent = "+" + hidden`,
+      // a number computed from client rects and never a roster value — so it is not an escape sink.
+      // ./strip-overflow-counter.test.mjs holds the digits-only assertion that licenses this stub.
+      mountStripOverflowCounter: () => {},
     }, ['escapeHtml']);
   return { api, document };
 }

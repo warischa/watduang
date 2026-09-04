@@ -10,6 +10,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // shows while empty, the fallback for a field left blank, and the seat that + adds. resetCastNames is
 // the reset control's wipe: it keeps the count and discards whatever the players typed.
 import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
+// gh#184: the inert `+N` seat counter for the scrolling player strip. Behaviour is shared; the look
+// lives in this route's overrides.css.
+import { mountStripOverflowCounter } from '../_strip-overflow.ts';
 
     (() => {
       'use strict';
@@ -578,6 +581,9 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
           chip.innerHTML = `<span>${AVATARS[idx % AVATARS.length]}</span> <span>${escapeHtml(p)}</span>`;
           strip.appendChild(chip);
         });
+        // After the chips, always: the rebuild above wipes the counter with everything else, and N is
+        // measured from the chips that are now in the DOM.
+        mountStripOverflowCounter(strip);
 
         // Render Straws in Cup
         const grid = $('stick-grid');

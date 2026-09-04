@@ -26,15 +26,20 @@ the floor. `CLASSIFY_ONLY=1` prints the partition and executes nothing.
 
 **What a local green does and does not prove.** It proves every step classified runnable ran and
 passed, in the workflow's own order, single-line and `run: |` block alike. It proves nothing about
-the not-runnable set, which the script names each run with the marker that caught it: a body holding
-`${{`, or writing `$GITHUB_OUTPUT`. Today that is `Decide whether the browser probes can add
-anything` and `Fetch SWA deployment token`, plus the `npm ci` deliberate skip. For those, read the
-run's per-step conclusions below — never this script's exit code.
+the not-runnable set, which the script names each run with the marker that caught it. Three rules can
+catch a step, and they are checked in this order: a DENY (see below), then a body holding `${{`, then
+a body writing `$GITHUB_OUTPUT`. Today that is `Decide whether the browser probes can add anything`,
+caught by `${{`, and `Fetch SWA deployment token`, caught by `[DENY cloud CLI: az]` — plus the
+`npm ci` deliberate skip. For those, read the run's per-step conclusions below — never this script's
+exit code.
 
-**Why the `$GITHUB_OUTPUT` half of that rule is load-bearing.** `Fetch SWA deployment token` carries
-`${{` only in its `if:`; its run body is expression-free and shells out to `az staticwebapp secrets
-list` against the production resource group. A partition keyed on `${{` alone would classify a
-production token fetch as safe to run locally and then run it.
+**What the `$GITHUB_OUTPUT` half of that rule catches today: nothing.** Both current NORUN steps are
+caught by an earlier rule. `Fetch SWA deployment token` is caught by DENY — its body runs
+`az staticwebapp secrets list` against the production resource group, emits `::add-mask::`, and
+carries credential-shaped text. It does also write `$GITHUB_OUTPUT`, so it would be caught twice
+over, but DENY is what the banner prints. `Decide whether the browser probes can add anything` is
+caught by `${{`. So `$GITHUB_OUTPUT` is a backstop with no instance today, and the SWA token step is
+not evidence that this half of the rule is load-bearing — DENY is what protects that step.
 
 **Two guards this repo owns, checked before every marker rule.** `${{` and `$GITHUB_OUTPUT` are
 GitHub's vocabulary, so the set they enumerate is not one this repo controls and an ordinary

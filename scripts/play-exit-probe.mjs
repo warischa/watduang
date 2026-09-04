@@ -13,6 +13,9 @@ const ARGV = process.argv.slice(2);
 const [PORT = '9222', SHOT = '/tmp', TAG = 'normal'] = ARGV.filter((a) => !a.startsWith('--'));
 const STALL_MS = Number(process.env.PROBE_STALL_MS ?? 0);
 const BURST_GAP_MS = Number(process.env.PROBE_BURST_GAP_MS ?? 80);
+// How many times the M2 finder may fall through to the next candidate in its own ranking before it
+// gives the route the verdict its first candidate earned. Measured: one route needs one advance.
+const MAX_CAND_ADVANCE = 3;
 const { writeFile } = await import('node:fs/promises');
 const BASE = process.env.BASE ?? 'http://localhost:5051';
 
@@ -95,11 +98,19 @@ const classifyBurst = (log, armDelayMs) => {
 // deploy plus the ::warning::) is an owner decision on gh#190, not this file's to take.
 // gh#193 re-read of the skip rule: `checked` no longer counts an exempted route, so the old
 // `skips + voids === checked` clause is gone -- an all-skipped walk now reds through `checked === 0`,
-// and it is the COUNT, not the exit code, that stopped lying. Whether a single skip among ten
-// exercised routes should red is the same owner call as the VOID relax above; it stays non-blocking
-// here because the finder is load-dependent (see the verdict block) and a flaky red gates nothing.
-const legExitCode = ({ fails, voids, checked }) =>
-  (fails > 0 || voids > 0 || checked === 0 ? 1 : 0);
+// and it is the COUNT, not the exit code, that stopped lying.
+// gh#199 goes further and OVERTURNS the gh#193 position that a lone skip is non-blocking. Making the
+// count honest still left a route the probe could not walk sitting quietly inside a green run, which
+// is the same lie one layer out. A skip now splits in two (see the finder at M2):
+//   UNMEASURED -- the route has buttons and the finder resolved none of them, even after the retry.
+//                 A failed MEASUREMENT. It BLOCKS, exactly like a FAIL or a post-retry VOID.
+//   EXEMPT     -- the route's game root contains no <button> at all, re-measured this run. A real
+//                 property of the route, so it is outside `checked` and does not block.
+// This is a tightening, not a relaxation: every input that exited 1 before still exits 1, and the
+// set that exits 0 shrank. The flaky-red worry that kept skips non-blocking is answered by the retry
+// plus the split, not by widening the gate.
+const legExitCode = ({ fails, voids, unmeasured, checked }) =>
+  (fails > 0 || voids > 0 || unmeasured > 0 || checked === 0 ? 1 : 0);
 
 // Runs on EVERY invocation, not only behind the flag: this file is driven by a shell wrapper, so it
 // sits outside gate-selftest-coverage-check.mjs's audited set and a flag-only selftest here would be
@@ -137,14 +148,21 @@ function selftest() {
   assert.strictEqual(mixed.isVoid, false, 'a burst carrying an in-window contact handled ENABLED is a defect, never void');
   // The same burst without that contact IS void.
   assert.strictEqual(classifyBurst([{ kind: 'up', t: 0, ti: 0, disabled: true }, { kind: 'down', t: 500, ti: 500, disabled: false }], 400).isVoid, true);
-  // A VOID that survived the retry blocks the leg, like a FAIL; a SKIP alone does not.
-  assert.strictEqual(legExitCode({ fails: 0, voids: 1, checked: 11 }), 1);
-  assert.strictEqual(legExitCode({ fails: 0, voids: 0, checked: 10 }), 0, 'one route exempted out of eleven still leaves ten really checked');
+  // A VOID that survived the retry blocks the leg, like a FAIL.
+  assert.strictEqual(legExitCode({ fails: 0, voids: 1, unmeasured: 0, checked: 11 }), 1);
+  // gh#199 TIGHTENS this case -- read the message it replaced before assuming a check was relaxed.
+  // gh#193 asserted exactly this shape exits 0 ("one route exempted out of eleven still leaves ten
+  // really checked"). That was the hole: an UNMEASURED route -- one the finder could not resolve a
+  // trigger on -- reached this call as a plain uncounted route and rode a green out of CI. The
+  // exempt-vs-unmeasured split is now a separate argument, and only the structurally-empty kind may
+  // sit outside `checked` without blocking.
+  assert.strictEqual(legExitCode({ fails: 0, voids: 0, unmeasured: 1, checked: 10 }), 1, 'gh#199: a route the probe could not walk BLOCKS -- this input exited 0 before, and that was the defect');
+  assert.strictEqual(legExitCode({ fails: 0, voids: 0, unmeasured: 0, checked: 10 }), 0, 'a route whose game root really has no button is exempt and does not block the ten that were walked');
   // gh#193: every route exempted means `checked` is 0, and a walk that exercised nothing is a red.
-  assert.strictEqual(legExitCode({ fails: 0, voids: 0, checked: 0 }), 1);
+  assert.strictEqual(legExitCode({ fails: 0, voids: 0, unmeasured: 0, checked: 0 }), 1);
 }
 selftest();
-if (ARGV.includes('--selftest')) { console.log('play-exit-probe --selftest: burst classifier calibrated (clean, late-handled, late-input, no-input-clock, slow-neighbour-vs-defect, post-retry VOID blocks)'); process.exit(0); }
+if (ARGV.includes('--selftest')) { console.log('play-exit-probe --selftest: burst classifier calibrated (clean, late-handled, late-input, no-input-clock, slow-neighbour-vs-defect, post-retry VOID blocks, UNMEASURED blocks while a zero-button EXEMPT does not)'); process.exit(0); }
 
 // Calibration knobs are for a hand-driven run only: a CI leg that ran with a stall injected, or with
 // the burst spaced wider than the arm window, would report a verdict about the harness and not about
@@ -185,7 +203,23 @@ const evaluate = async (body) => {
   if (r?.exceptionDetails) return { error: r.exceptionDetails.exception?.description ?? r.exceptionDetails.text };
   return { value: r?.result?.value ?? null };
 };
-const nav = async (url) => { const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); };
+// Every navigation starts from a DECLARED state -- a first-time device -- never from whatever the
+// route walked before it happened to leave behind. Measured: the routes share one origin and write
+// `watduang:roster` / `watduang:group` through src/shell/roster.ts, and short-stick's roster-bridge.ts
+// then drives #btn-start-setup on load because that mockup opens on a marketing hero rather than on
+// its setup screen. So by the time the walk reaches it, the page has auto-advanced into an in-progress
+// draw round: 27 buttons in the game root and not one of them satisfying the finder at M2 (wider than
+// 60px, taller than 30px, outside the header, with an offsetParent) -> a permanent UNMEASURED red.
+// A fresh --user-data-dir does NOT fix this and was measured not to: the writes come from THIS run.
+// The clear goes here, in the one place every navigation already goes through, and not into a
+// per-route map of post-roster entry points -- six mockups own their own markup, so that map would
+// grow with every route and would still be wrong the next time one changes.
+// local_storage only: nothing crosses routes in sessionStorage (the setup-edit flag is consumed on
+// read, and the contact log is rewritten by INSTRUMENT after every nav).
+// COVERAGE GAP, named rather than hidden: a returning player who already has a saved roster is a real
+// state, and this walk no longer visits it -- every route below is now measured as a first-time device
+// only. Nothing here covers the returning-player entry point of any route.
+const nav = async (url) => { await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'local_storage' }); const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); };
 const touch = async (x, y) => {
   await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
   await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
@@ -281,8 +315,29 @@ for (const g of ROUTES) {
   // the arm window measured nothing, and this block is self-contained (it re-navigates, re-instruments
   // and re-transitions), so one retry costs one route walk and clears a one-off latency spike. A burst
   // still VOID after the retry is fail-closed in the verdict below -- see legExitCode.
-  let cx = 0, cy = 0;
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  // Which candidate from the finder's ranking this pass drives. NOT a route name and not a per-route
+  // map: the ranking is re-derived from the artifact every run, and the cursor only ever moves because
+  // THIS run measured the previous candidate to be unusable (see the advance condition at the bottom
+  // of the loop). Measured on a declared first-time device: pinocchio-luck's two candidates have
+  // IDENTICAL area (13824 each), so `cands[0]` is decided by DOM order alone, and the one DOM order
+  // hands over first opens a confirm modal whose overlay sits on top of the X -- the burst then lands
+  // on the overlay and measures nothing about the X. An area sort cannot break that tie; only the
+  // outcome can.
+  // Three budgets, deliberately NOT one shared counter. A shared one spends the flake retry on the
+  // candidate advance: attempt 1 VOID, attempt 2 advances, attempt 3 VOID on the new candidate and the
+  // loop is out of passes -- a post-retry VOID red on a burst that got no retry on that candidate at
+  // all. `retries` is therefore reset on every advance, so the rule is one flake retry PER CANDIDATE.
+  //   retries  <= 1                 one re-walk of the SAME candidate for a VOID burst or a finder
+  //                                 miss, which is the gh#190/gh#199 behaviour, unchanged.
+  //   advances <= MAX_CAND_ADVANCE  moves to the NEXT candidate in the finder's ranking. Capped rather
+  //                                 than run to cands.length: how-close-is-near ranks ten, and walking
+  //                                 all ten would turn one bad heuristic into a ten-minute leg.
+  //   attempt  <  HARD_CAP          arithmetic backstop so no future edit to either rule can spin.
+  let cx = 0, cy = 0, candIdx = 0, advances = 0, retries = 0;
+  const HARD_CAP = 2 * (1 + MAX_CAND_ADVANCE);
+  let attempt = 0;
+  while (attempt < HARD_CAP) {
+    attempt++;
     await nav(url);
     await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 1, mobile: true });
     await sleep(800);
@@ -290,25 +345,52 @@ for (const g of ROUTES) {
     const rect = (await evaluate(XSTATE)).value.rect;
     // Drive the transition through the game's own trigger: the largest visible button inside the game
     // root that is not a header icon button.
-    const startBtn = (await evaluate(`
+    // gh#199 — the finder now reports its DENOMINATOR, not just its answer. A null trigger has two
+    // causes that used to be indistinguishable, and collapsing them is what let a route the probe
+    // could not walk score EXEMPT inside a green run:
+    //   buttonsInRoot > 0 -> the route HAS pressable things and this measurement did not resolve one.
+    //                        That is a finder miss (load-dependent, see the verdict block) -> retry,
+    //                        then UNMEASURED and RED. Never subtracted from coverage silently.
+    //   buttonsInRoot === 0 -> the built page's game root contains no <button> at all. That is a
+    //                        structural property of the route, re-derived from the artifact on every
+    //                        run, so it self-clears the moment the route grows a button. This is the
+    //                        only exemption, and its reason is this measured count.
+    // A throwing expression (root null, as how-close-is-near's #appRoot once was) yields no value at
+    // all -> triggerScan null -> UNMEASURED, not exempt. Fail-closed: the one shape that buys an
+    // exemption is a number this run actually read off the page.
+    const scan = (await evaluate(`
       // #appRoot is how-close-is-near's game root. Measured: without it, root was null there, the
       // expression threw, and the route reported "no transition trigger" forever -- a permanent skip
       // that looked exactly like a route with nothing to press.
       const root = document.querySelector('#app, #app-container, #appRoot');
-      const cands = [...root.querySelectorAll('button')].filter((b) => {
+      const all = [...root.querySelectorAll('button')];
+      // Evidence, not a gate: how many site keys this route actually loaded with. A finder miss and a
+      // route that auto-advanced past its own entry point look identical in the rejected list alone, and
+      // number is what tells them apart. Read after load, so a route that writes its own draft on boot
+      // legitimately reports >0 -- which is why nothing is judged on it.
+      const storageKeysAtLoad = (() => { try { return localStorage.length; } catch { return null; } })();
+      const cands = all.filter((b) => {
         const r = b.getBoundingClientRect();
         return r.width > 60 && r.height > 30 && r.top >= 0 && !b.closest('header') && getComputedStyle(b).visibility !== 'hidden' && b.offsetParent !== null;
       }).sort((a, z) => z.getBoundingClientRect().width * z.getBoundingClientRect().height - a.getBoundingClientRect().width * a.getBoundingClientRect().height);
-      const b = cands[0];
-      if (!b) return null;
+      const b = cands[${candIdx}];
+      if (!b) return { buttonsInRoot: all.length, storageKeysAtLoad, candidateCount: cands.length, candIdx: ${candIdx}, trigger: null,
+        // Why each candidate was rejected -- an UNMEASURED red that names no cause is a red nobody
+        // can act on, and only tail -n 3 of this file reaches the CI log.
+        rejected: all.slice(0, 6).map((x) => { const r = x.getBoundingClientRect();
+          return { label: (x.textContent || '').trim().slice(0, 16), w: Math.round(r.width), h: Math.round(r.height), top: Math.round(r.top),
+                   inHeader: !!x.closest('header'), hidden: getComputedStyle(x).visibility === 'hidden' || x.offsetParent === null }; }) };
       b.scrollIntoView({ block: 'center' });
       await new Promise((r) => setTimeout(r, 200));
       const r = b.getBoundingClientRect();
       window.__sig = () => root.innerText.length + '|' + (document.querySelector('.game-screen.active, .screen.active')?.id ?? '') + '|' + root.innerHTML.length;
       window.__sigBefore = window.__sig();
-      return { label: (b.textContent || '').trim().slice(0, 24), x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2),
-               inViewport: r.top > 0 && r.bottom < innerHeight };`)).value;
+      return { buttonsInRoot: all.length, storageKeysAtLoad, candidateCount: cands.length, candIdx: ${candIdx}, rejected: [], trigger: {
+        label: (b.textContent || '').trim().slice(0, 24), x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2),
+        inViewport: r.top > 0 && r.bottom < innerHeight } };`)).value;
+    const startBtn = scan?.trigger ?? null;
     res.transitionTrigger = startBtn;
+    res.triggerScan = scan ? { buttonsInRoot: scan.buttonsInRoot, storageKeysAtLoad: scan.storageKeysAtLoad ?? null, candidateCount: scan.candidateCount ?? 0, candIdx: scan.candIdx ?? 0, rejected: scan.rejected ?? [] } : null;
     // The burst is the CONTINUATION of the transition tap — no pause in between. A pause longer than
     // ARM_DELAY_MS is by definition not a burst any more: the control has armed, and a contact then is
     // the deliberate tap the ticket wants to work (milestone 3).
@@ -338,7 +420,39 @@ for (const g of ROUTES) {
     Object.assign(res.burst, classifyBurst(contactLog, ARM_DELAY_MS));
     res.burst.attempts = attempt;
     await shot(`${SHOT}/playexit-${TAG}-${g}-burst.png`);
-    if (!res.burst.isVoid) break;
+    // gh#199 — a finder miss now retries on the same terms a VOID burst does, and for the same
+    // reason: short-stick's trigger is found or missed depending on machine load (measured), so a
+    // one-off miss must cost one route walk, not a red. `=== 0` and not `!buttonsInRoot`: an absent
+    // triggerScan (the finder expression threw) must NOT satisfy this and end the loop early.
+    const triggerResolved = !!res.transitionTrigger || res.triggerScan?.buttonsInRoot === 0;
+    // One flake retry per candidate, for the two causes that were always flaky: a burst the runner
+    // could not deliver, and a finder that resolved nothing. Same terms as before the advance existed.
+    if ((res.burst.isVoid || !triggerResolved) && retries < 1) { retries++; continue; }
+    if (res.burst.isVoid || !triggerResolved) break;
+
+    // What this pass has to have produced for the route to be scored on it. BOTH halves are required:
+    //   transitioned   the screen really changed. Without it the burst measured an idle screen, and
+    //                  src/shell/PlayExit.astro disarms the X on ANY document pointerdown -- so an
+    //                  inert control (a sound toggle, a rules tab) leaves the burst landing on a
+    //                  DISABLED X and every check below passing, with the precondition this whole leg
+    //                  exists for never having happened. Judging the burst alone would make "walk off
+    //                  the real start button onto whatever greens" the designed outcome of the advance.
+    //   measuredTheX   contacts really reached the X. pinocchio-luck's first-ranked candidate (tied on
+    //                  area with the real start, so DOM order picks it) opens a confirm modal whose
+    //                  overlay swallows the whole burst -- transitioned is true and the X was never
+    //                  touched, which is exactly as unusable and for the opposite reason.
+    const usable = res.transitioned === true && res.burst.contacts?.onBtnWhileDisabled > 0;
+    const moreCandidates = candIdx + 1 < (res.triggerScan?.candidateCount ?? 0);
+    // Guarded on REACHABILITY, not on a `!==` that is true whenever the value is absent. `send`
+    // resolves a CDP protocol error as a plain null (see evaluate), so `pathname !== '/'` reads TRUE
+    // for an evaluate that landed mid-navigation -- i.e. for the burst that DID leave the round, the
+    // one outcome that must never be retried away. Both of these must be positively present.
+    const stillInRound = res.burst.pathname === `/game/${g}/play/`;
+    const contactsRead = typeof res.burst.contacts?.onBtnWhileDisabled === 'number';
+    if (!usable && stillInRound && contactsRead && moreCandidates && advances < MAX_CAND_ADVANCE) {
+      candIdx++; advances++; retries = 0; continue;
+    }
+    break;
   }
 
   // --- M3: after the arm delay, one deliberate tap exits (also the positive control for M2:
@@ -376,18 +490,52 @@ console.log(JSON.stringify(out, null, 2));
 const gapNote = (r) => r.burst?.maxGap == null
   ? 'no contact timings captured, so this red names no cause'
   : `largest pointerup->pointerdown gap: handled ${r.burst.maxGap}ms, input ${r.burst.maxInputGap == null ? 'NOT CAPTURED -- a slow dispatch cannot be told from a gate defect here' : r.burst.maxInputGap + 'ms'} vs ARM_DELAY_MS ${ARM_DELAY_MS} (over it: ${r.burst.gapsOverArmDelay} handled, ${r.burst.inputGapsOverArmDelay} input; handled gaps ${r.burst.gaps.join(', ')}; input gaps ${r.burst.inputGaps.join(', ')})`;
-const fails = [], skips = [], voids = [];
+const fails = [], skips = [], voids = [], unmeasured = [];
 // gh#193 — the skipped routes BY NAME, because `checked` used to be `Object.keys(out).length` and a
 // route could sit in both sets at once: short-stick skipped on four consecutive runs while the summary
 // reported "11 route(s) checked". A count that includes a route nothing exercised is not coverage.
 const exempt = new Set();
+const unmeasuredSet = new Set();
 for (const [g, r] of Object.entries(out)) {
   if (!r.idle?.present) { fails.push(`${g}: no #play-exit on the play page at all`); continue; }
   if (r.m1_pathname !== '/') fails.push(`${g}: M1 -- an idle deliberate tap on the X did not leave the round (pathname ${r.m1_pathname})`);
-  // The reason is the FINDER's, never the route's: play-exit-guard-probe measured a trigger on
-  // short-stick after this file reported none, so this line records an unexercised route, not an
-  // unexercisable one. It stays a skip only because the miss is load-dependent; it is named below.
-  if (!r.transitionTrigger) { exempt.add(g); skips.push(`${g} burst: no transition trigger found (a finder miss, not a property of the route) -- nothing disarmed the X, so this route is EXEMPT from the checked count, not covered by it`); continue; }
+  // gh#199 — the fork the whole ticket is about. gh#193 sent BOTH halves of this down the skip path,
+  // where an unexercised route was subtracted from the count and the run stayed green; the message
+  // it printed already admitted it was recording "a finder miss, not a property of the route" and
+  // exempted it anyway. play-exit-guard-probe measured a trigger on short-stick after this file
+  // reported none -- that is the proof the miss is the FINDER's, and a finder miss is a measurement
+  // that did not happen, not coverage.
+  // The discriminator is the button count the finder read off the game root THIS run (see M2), never
+  // a per-route allowlist: an allowlist here would be owned by nobody, would grow with every new
+  // route the finder trips on, and would keep exempting a route long after it grew a trigger.
+  if (!r.transitionTrigger) {
+    if (r.triggerScan?.buttonsInRoot === 0) {
+      exempt.add(g);
+      skips.push(`${g} burst: the game root contains no <button> at all (measured this run), so there is no transition to drive -- EXEMPT from the checked count, not covered by it`);
+    } else {
+      unmeasuredSet.add(g);
+      const scan = r.triggerScan;
+      const why = scan
+        ? `${scan.buttonsInRoot} button(s) in the game root, none resolvable as a trigger, ${scan.storageKeysAtLoad ?? '?'} site storage key(s) present at load [${(scan.rejected ?? []).map((b) => `${b.label || '?'} ${b.w}x${b.h}@${b.top}${b.inHeader ? ' header' : ''}${b.hidden ? ' hidden' : ''}`).join('; ') || 'no detail captured'}]`
+        : 'the finder expression returned nothing at all (it threw, or the game root selector matched no element)';
+      unmeasured.push(`${g} burst: UNMEASURED after ${r.burst?.attempts ?? '?'} attempt(s) -- ${why}. Nothing disarmed the X, so the burst leg never ran on this route; this is a failed MEASUREMENT and it blocks, it is NOT an exemption`);
+    }
+    continue;
+  }
+  // The precondition, judged and no longer merely recorded. `transitioned` was written on every walk
+  // since gh#144 and read by nothing, which left the burst leg able to pass on a screen that never
+  // changed: src/shell/PlayExit.astro disarms the X on ANY document pointerdown, so pressing an inert
+  // control (a sound toggle, a rules tab) disables the X just as a real round transition does, the
+  // burst lands on a disabled X, and every check below goes green with the arm-gate behaviour this leg
+  // exists to measure never having been exercised. UNMEASURED and RED, for the same reason a finder
+  // miss is: the measurement did not happen. It is NOT a FAIL -- nothing about the site was shown to
+  // be broken, only that the probe could not set up its own precondition.
+  if (r.transitioned !== true) {
+    unmeasuredSet.add(g);
+    const t = r.transitionTrigger;
+    unmeasured.push(`${g} burst: UNMEASURED after ${r.burst?.attempts ?? '?'} attempt(s) -- the trigger the finder drove ("${t?.label ?? '?'}", candidate ${(r.triggerScan?.candIdx ?? 0) + 1} of ${r.triggerScan?.candidateCount ?? '?'}) left the screen unchanged (transitioned=${r.transitioned}), so no round transition ever disarmed the X and the burst measured an idle screen; this is a failed MEASUREMENT and it blocks`);
+    continue;
+  }
   // The harm first, liveness second: with the guard broken the burst navigates home, which also wipes
   // the in-page contact counter -- so a liveness-first order reports "measured nothing" for a run that
   // in fact measured the exact regression this leg exists to catch (observed, calibration run).
@@ -404,10 +552,16 @@ for (const [g, r] of Object.entries(out)) {
   else if (!(r.burst?.contacts?.onBtnWhileDisabled > 0)) fails.push(`${g}: the burst put ${r.burst?.contacts?.onBtnWhileDisabled ?? 'no'} contact(s) on a DISABLED X -- a no-exit result here rests on nothing -- ${gapNote(r)}`);
   if (r.m3_pathname !== '/') fails.push(`${g}: M3 -- after the arm delay a deliberate tap no longer exits (pathname ${r.m3_pathname})`);
 }
-// Disjoint by construction: a route is counted or it is exempt, never both.
+// Disjoint by construction: the two sets are filled in mutually exclusive branches of one `if`, and
+// `checked` subtracts both -- a route is fully walked, or exempt, or unmeasured, never two of them.
 const exemptIds = [...exempt].sort();
-const checked = Object.keys(out).filter((g) => !exempt.has(g)).length;
+const unmeasuredIds = [...unmeasuredSet].sort();
+const checked = Object.keys(out).filter((g) => !exempt.has(g) && !unmeasuredSet.has(g)).length;
 for (const f of fails) console.log(`  FAIL ${f}`);
+for (const u of unmeasured) {
+  console.log(`  UNMEASURED ${u}`);
+  console.warn(`::warning::play-exit ${u}`);
+}
 for (const s of skips) console.log(`  SKIP ${s}`);
 // VOID is its own outcome, printed and annotated through the ::warning:: channel ci-probes.sh already
 // greps out of a standalone leg -- but it is NOT a pass: scripts/ci-probes.sh judges this leg on its
@@ -418,6 +572,18 @@ for (const v of voids) {
   console.log(`  VOID ${v}`);
   console.warn(`::warning::play-exit ${v}`);
 }
-// Only `tail -n 3` of this reaches the CI log, so the exempted routes are named IN the summary line.
-console.log(`play-exit: ${checked} of ${Object.keys(out).length} route(s) fully checked, ${fails.length} failed, ${voids.length} burst leg(s) VOID after a retry, ${exemptIds.length} route(s) EXEMPT from the checked count (burst leg never exercised): ${exemptIds.join(', ') || 'none'}`);
-process.exit(legExitCode({ fails: fails.length, voids: voids.length, checked }));
+// Only `tail -n 3` of this reaches the CI log, so both unwalked sets are named IN the summary line.
+// Every number here, and what it counts:
+//   checked                  routes in `out` that are neither exempt nor unmeasured -- every leg,
+//                            burst included, really ran. This is the ONLY number that means coverage.
+//   Object.keys(out).length  routes this walk produced a record for (the whole route set on a full
+//                            run; under PROBE_OUT_FIXTURE, the fixture's route set).
+//   fails.length             FAIL messages, NOT routes -- one route can emit several (M1 and M3 both).
+//   voids.length             routes whose burst was still undeliverable after its retry.
+//   unmeasuredIds.length     routes the finder could not resolve a trigger on after its retry. RED.
+//   exemptIds.length         routes whose game root measured zero buttons this run. Not coverage,
+//                            not a red.
+// checked + exemptIds.length + unmeasuredIds.length === Object.keys(out).length, minus routes that
+// failed out on the first line of the loop (no #play-exit at all) -- those are already FAILs.
+console.log(`play-exit: ${checked} of ${Object.keys(out).length} route(s) fully checked, ${fails.length} failure(s), ${voids.length} burst leg(s) VOID after a retry, ${unmeasuredIds.length} route(s) UNMEASURED (finder resolved no trigger -- RED): ${unmeasuredIds.join(', ') || 'none'}, ${exemptIds.length} route(s) EXEMPT from the checked count (no button in the game root): ${exemptIds.join(', ') || 'none'}`);
+process.exit(legExitCode({ fails: fails.length, voids: voids.length, unmeasured: unmeasuredIds.length, checked }));

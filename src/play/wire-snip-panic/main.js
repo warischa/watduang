@@ -19,6 +19,9 @@
 // control's wipe (owner ruling 2026-08-31, decided in gh#174 and copied here unchanged).
 import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
+// gh#184: the inert `+N` seat counter for the scrolling player strip. Behaviour is shared; the look
+// lives in this route's overrides.css.
+import { mountStripOverflowCounter } from '../_strip-overflow.ts';
 // ADR-0017, the ghost-tap gate. This route reveals controls on SEVEN paths, not one, and
 // scripts/arm-gate-coverage-check.mjs can only see that the import exists and is called somewhere --
 // it counts per directory, never per reveal. ./arm-reveal-paths.test.mjs pins the set instead.
@@ -748,8 +751,17 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         strip.appendChild(badge);
       });
 
+      // Before the auto-centre, so the number is right even if the smooth scroll never starts (a
+      // reduced-motion or already-centred case fires no scroll event). The passive scroll listener the
+      // mount installs then keeps it right for every frame of the scroll that does happen.
+      mountStripOverflowCounter(strip);
+
       const activeBadge = strip.querySelector('.current');
       if (activeBadge) {
+        // Known and accepted (gh#184): this scrolls the strip without the player touching it, so the
+        // `+N` here changes between turns on its own. The count is true at every moment it shows; no
+        // machinery is added to hold it still. At maximum scroll -- the last seat active, pinned to
+        // the trailing edge -- N is 0 and the band is invisible, so it never covers the active badge.
         activeBadge.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
       }
     }

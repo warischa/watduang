@@ -131,6 +131,10 @@ const BASELINE_BASENAMES = [
   // importer, so Rollup inlines the helper back into short-stick.js and no separate chunk ships.
   // Adding it back here would pin a chunk the bundler has no reason to emit.
   '_round-start.js',
+  // gh#184 — the shared `+N` seat counter for a scrolling player strip. Three play routes import it
+  // (short-stick, wire-snip-panic, zero-trigger), so Rollup emits it as its own chunk rather than
+  // inlining it into any one of them.
+  '_strip-overflow.js',
   'cannon-flag.js',
   'daily-fortune.js',
   // gh#139 ports 1-3, in the owner's recorded ship order.
@@ -220,6 +224,19 @@ const BASELINE_BASENAMES = [
 // A residual of 281 bytes against a 55280-byte growth is 0.5%, and no existing game module or
 // shell file changed in this batch. The one src edit outside the two new ports was two rewritten
 // comments in src/play/timebomb/main.ts, which do not survive minification.
+// Re-baselined 2026-09-04 (gh#184), SET leg only — BASELINE_TOTAL_BYTES is deliberately UNCHANGED.
+// What fired: the set gained exactly one basename, _strip-overflow.js, and lost none. That is the
+// shared `+N` seat counter arriving as its own chunk because three play routes import it; the gate
+// went red for exactly the reason the header says it should, and the one-line set edit above is the
+// intended fix.
+// What did NOT fire: the BYTES leg. The gate's own run this session reports 413736 total reachable
+// bytes against the pinned 397772 — inside the +/-5% band, so it passed and the number is not a
+// measurement of this ticket. The counter chunk itself is 613 bytes on disk; the rest of that delta
+// belongs to the other work in the same batch, which this change did not measure. Re-pinning a
+// number whose growth cannot be attributed is the one thing the header forbids, so it is left alone
+// for whoever ships the change that actually moves it. The band is NOT widened and no leg is
+// relaxed; the gate is now closer to its upper bound than it was, and the next byte-moving change
+// is expected to red on it and re-pin with attribution.
 const BASELINE_TOTAL_BYTES = 397772;
 const BAND = 0.05; // +/-5%
 

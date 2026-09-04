@@ -173,3 +173,38 @@
 .view {
   min-height: 0;
 }
+
+/* gh#184 -- the inert `+N` seat counter at the trailing edge of the player strip. Behaviour is in
+   ../_strip-overflow.ts; only the look is here. Two things are load-bearing:
+   (1) NO block size, and no block padding. The band is a flex item with the default `align-self:
+       stretch`, so it PAINTS the full height of the strip's content box while CONTRIBUTING only one
+       11px line to it -- far under a chip's 13px text plus its 6px block padding and border. The
+       strip's height therefore stays exactly what the tallest chip makes it, which is the whole point
+       on a route already recorded over budget at 320x568.
+   (2) It is not a control and must not become one: no pointer events, no hover or focus state, no tap
+       target. A control here would owe 44px that this strip does not have. */
+.strip-more {
+  position: sticky;
+  inset-inline-end: 0;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding-inline: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  background: var(--bg);
+  pointer-events: none;
+}
+
+/* The dissolve: the chip the band sits on top of fades out under it instead of ending mid-glyph. */
+.strip-more::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 100%;
+  inline-size: 24px;
+  background: linear-gradient(to left, var(--bg), rgba(250, 247, 242, 0));
+}

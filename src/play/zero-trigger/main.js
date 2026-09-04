@@ -4,6 +4,9 @@
 //
 // The .ts extension is spelled out in full, the way cursed-number/main.js does it.
 import { MASCOTS } from '../_mascots.ts';
+// gh#184: the inert `+N` seat counter for the scrolling player strip. Behaviour is shared; the look
+// lives in this route's overrides.css.
+import { mountStripOverflowCounter } from '../_strip-overflow.ts';
 
 // Ghost-tap gate (ADR-0014 / ADR-0016 / ADR-0017): every panel a transition reveals re-arms, because
 // the second contact of a double-tap aimed at the screen that just went away must not activate the
@@ -963,6 +966,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           `;
           strip.appendChild(chip);
         });
+        // After the chips, always: the rebuild above wipes the counter with everything else, and N is
+        // measured from the chips that are now in the DOM.
+        mountStripOverflowCounter(strip);
       }
 
       getDisplayPlaceholder(tier) {

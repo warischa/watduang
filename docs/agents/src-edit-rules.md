@@ -54,6 +54,13 @@ Owner decision, gh#89. The claim is any statement of a **player-count range** �
 `เล่นได้ 2-10 คน`, and the range shape is the claim, not that exact wording. Its companion claims are
 phone-passing and the shared roster; ADR-0039 and ADR-0040 bind all three to the same หมวด.
 
+**This three-claim list does NOT cover "calling a non-game page a เกม" (gh#201).** That is a fourth,
+separate claim — a page can call itself a game with no player-count number, no phone-passing verb and
+no roster mention in the same sentence, so none of the three checks above see it. `categories.ts`
+carries an inline note at its fortune-block definition site recording why no automated gate was added
+for that claim (ADR-0019 rule 1); this list is not where that note lives, and widening it here would be
+the wrong fix for the wrong claim.
+
 The rule is stated as the set of surfaces where the claim is **permitted**. Everything not on the
 list is forbidden. A banned-string list was rejected because it has no finishing condition: the next
 author phrases the range a new way and the check goes blind. The permitted set is one this repo owns
@@ -78,10 +85,15 @@ Forbidden, by not being on the list: the home page's own chrome and FAQ, the ด
 every เครื่องมือ page and the เครื่องมือ manifest, the shared layouts, and the shell.
 
 **Outside the rule entirely:** a page's `<title>` and `<meta name="description">` — so `seo.title`
-and `seo.description` in both manifests, and the `title` / `description` props passed to `Base`. A
-separate owner decision the same day keeps their current wording. The rule governs what a reader sees
-on the page, not what Google is told. A check that flagged them would enforce a rule nobody agreed
-to.
+and `seo.description` in both manifests, and the `title` / `description` props passed to `Base`. The
+rule governs what a reader sees on the page, not what Google is told; a check that flagged them on
+that basis would enforce a rule nobody agreed to. That exemption is about who enforces the claim, not
+about the wording being frozen: owner ruling 2026-09-04 (gh#192 (g)) overturns the earlier "keeps
+their current wording" line for the `description` prop passed to `Base` in `src/pages/index.astro` —
+its party-size clause ("2-10 คน ส่งเครื่องวนกันในวง") was deleted outright, with no replacement claim,
+because that prop is home-page metadata and the party-size claim is true only of the สุ่มคนโดน หมวด.
+`seo.description` in the fortune category block of `categories.ts` is a separate, still-standing
+owner decision and keeps its own party-size wording.
 
 `players: [min, max]` is mechanism, not a claim, and is untouched by this rule; ADR-0040 keeps the
 field and makes `[1, 1]` legal.

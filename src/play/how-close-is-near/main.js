@@ -627,6 +627,12 @@ import { mascotNames } from '../_mascots.ts';
       resetModal.setAttribute('role', 'dialog');
       resetModal.setAttribute('aria-modal', 'true');
       resetModal.setAttribute('aria-labelledby', 'resetNamesTitle');
+      // gh#175 box 3. The body clause below names the losing RULE as well as the seat count, and is
+      // the same sentence as short-stick's #reset-names-dialog. The owner's 2026-09-03 licence to omit the
+      // rule clause covers a route with no settable rule; this is not one. renderLoseConditionScreen
+      // writes game.loseCondition from two selectable cards, and its #btnBackToNames returns to this
+      // very screen, so a player can open this modal with the rule already chosen. Neither the rule
+      // nor the count is reachable from the confirm handler, so the promise is true, not decorative.
       resetModal.innerHTML = `
         <div class="modal-card">
           <div class="modal-header">
@@ -634,7 +640,7 @@ import { mascotNames } from '../_mascots.ts';
             <button id="btnCloseResetNames" class="icon-btn" style="width: 36px; height: 36px;">✕</button>
           </div>
           <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">
-            ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่
+            ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
           </p>
           <div style="display: flex; gap: 10px;">
             <button id="btnCancelResetNames" class="btn-secondary" style="flex:1;">เก็บชื่อเดิมไว้</button>

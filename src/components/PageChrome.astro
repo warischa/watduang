@@ -145,7 +145,7 @@ const SITE_LINKS: SiteLink[] = [
   }
 
   .chrome-footer-inner {
-    min-height: 124px;
+    min-height: 147px;
     font-size: 14px;
     gap: 28px;
   }
@@ -164,6 +164,23 @@ const SITE_LINKS: SiteLink[] = [
   }
 
   .chrome-footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: rgba(255, 253, 247, 0.8);
+  }
+
+  .chrome-footer-links a:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-offset);
+    /* Colour only, deliberately overriding the shared token on this one surface. Measured: the
+       token resolves to a 3px solid rgb(26, 26, 26) ring, and this bar is dark, so the ring paints
+       and is still not findable — a screenshot of a focused link shows no ring at all. Before this
+       block existed these links fell back to the UA outline, which browsers render two-tone so it
+       survives any background; a solid near-black ring is a step DOWN from that on a dark bar, so
+       leaving it at the default would have been a regression this file introduced rather than one
+       it inherited. currentColor tracks the link colour above (a near-white cream), so the ring
+       stays visible if that colour is ever retuned, and no new token is invented. */
+    outline-color: currentColor;
   }
 </style>
