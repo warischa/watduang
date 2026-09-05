@@ -304,7 +304,7 @@ function renderResult(name: string, now: Date): void {
   stage.appendChild(actions);
 
   // The tap that revealed this screen swaps it in under the same finger, so a ghost second contact
-  // would land on "ดูดวงคนต่อไป" and skip straight past the fortune nobody read yet. No outbound
+  // would land on "ดูดวงชื่ออื่น" and skip straight past the fortune nobody read yet. No outbound
   // link here — #stage holds no navigation target in any game (ADR-0014); the page's crawlable
   // link is static chrome in src/layouts/GameLayout.astro, above #stage where no re-render can move it.
   cleanup.push(armAllButtons(stage));
@@ -344,7 +344,7 @@ const game: GameModule = {
   // One person, one answer, no rounds (ADR-0040) — there is nothing to lose by navigating away, and
   // that is why the leave-confirm must stay silent here. Never announce a round from this file.
   startsRound: false,
-  keywords: ['ดวงวันนี้', 'วัดดวงวันนี้', 'ดูดวงรายวัน', 'คำทำนายวันนี้', 'เกมเล่นบนเครื่องเดียว'],
+  keywords: ['ดวงวันนี้', 'วัดดวงวันนี้', 'ดูดวงรายวัน', 'คำทำนายวันนี้', 'ดูดวงบนเครื่องเดียว'],
   tagline: 'ใส่ชื่อแล้วรู้ดวงวันนี้ทันที วันนี้กดกี่ครั้งก็ดวงเดิม',
   seo: {
     title: 'ดวงวันนี้ — ใส่ชื่อดูคำทำนายประจำวัน เล่นฟรีบนเครื่องเดียว',

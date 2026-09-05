@@ -112,7 +112,12 @@ function routeSources(dir, id) {
 export function testFileState(dir, id) {
   const abs = path.join(dir, id, REQUIRED_TEST);
   if (!fs.existsSync(abs)) return 'missing';
-  return /\bassert\.\w+\(/.test(fs.readFileSync(abs, 'utf8')) ? 'ok' : 'vacuous';
+  // Line comments are blanked first: a file whose only assert.* sits behind // is a test that cannot
+  // fail, and node --test passes it vacuously -- the exact shape this state exists to catch. Bound:
+  // an assert inside a /* block comment */ still reads as live. That is narrower than the reported
+  // defect and a wider stripper desyncs on the // inside a regex or a URL, so it is left alone.
+  const live = fs.readFileSync(abs, 'utf8').replace(/^\s*\/\/.*$/gm, '');
+  return /\bassert\.\w+\(/.test(live) ? 'ok' : 'vacuous';
 }
 
 /** The whole audit, pure over its inputs so the selftest drives it on a fixture tree. */
@@ -207,8 +212,15 @@ function selftest() {
   assert.equal(buildsPerSeatRow("const i = document.createElement('input');"), true);
   assert.equal(buildsPerSeatRow('<div class="player-avatar">X</div>'), false);
 
+  // Leg 8 -- MUST-RED: a test whose only assert is commented out is a test that cannot fail, and
+  // node --test passes it. Leg 3 covers "no assert at all"; this covers "an assert that never runs",
+  // which the raw regex read as coverage. Found by adversarial review of this gate, 2026-09-05.
+  mkRoute('commented', { test: "import assert from 'node:assert/strict';\n// assert.equal(1, 1);\n" });
+  r = audit({ dir: tmp, declared: ['commented'], onDisk: ['commented'] });
+  assert.match(r.violations[0], /contains no assert\.\* call/, 'a commented-out assert is not coverage');
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('setup-badge-icon-coverage-check selftest: 7 legs pass (5 of them must-red)');
+  console.log('setup-badge-icon-coverage-check selftest: 8 legs pass (6 of them must-red)');
 }
 
 if (process.argv.includes('--selftest')) {

@@ -802,6 +802,10 @@ const SEED = `
  * retyped, so adding or renaming a viewport cannot leave this pointing at one the walk never visits.
  */
 const DESKTOP_W = Math.max(...VIEWPORTS.map((v) => v.w));
+// Derived, never retyped. A hand-written "1440x900" here matches no row the moment VIEWPORTS changes
+// its desktop height, and compositionGaps would then filter an EMPTY set and report zero gaps -- the
+// completeness gate would go green by construction rather than by coverage.
+const DESKTOP_VP = `${DESKTOP_W}x${VIEWPORTS.find((v) => v.w === DESKTOP_W).h}`;
 const EVIDENCE_DIR = path.join(repoRoot, 'docs/verification/evidence/203');
 
 /**
@@ -973,7 +977,7 @@ export const sidewaysOffenders = (rows) => rows
  * Exported so scripts/play-screen-fit-probe.test.mjs can red it with no browser.
  */
 export const compositionGaps = (rows) => {
-  const desktop = rows.filter((r) => r.vp === `${DESKTOP_W}x900`);
+  const desktop = rows.filter((r) => r.vp === DESKTOP_VP);
   return desktop.filter((r) => !r.composition).map((r) => r.route).sort();
 };
 
@@ -1046,10 +1050,10 @@ function main() {
   // instead of only on the one whose table someone reads.
   const gaps = compositionGaps(out.rows);
   for (const id of gaps) {
-    console.error(`::error::/game/${id}/play/ at ${DESKTOP_W}x900 produced NO composition row (gh#203). The leg walked this route and read no resolved-CSS composition from it, which in the table below is indistinguishable from a route nobody asked about. Values in that row are reported and never gated; its PRESENCE is.`);
+    console.error(`::error::/game/${id}/play/ at ${DESKTOP_VP} produced NO composition row (gh#203). The leg walked this route and read no resolved-CSS composition from it, which in the table below is indistinguishable from a route nobody asked about. Values in that row are reported and never gated; its PRESENCE is.`);
   }
   if (gaps.length) process.exit(1);
-  for (const r of out.rows.filter((r) => r.vp === `${DESKTOP_W}x900`)) console.log('::notice::' + fmtComposition(r));
+  for (const r of out.rows.filter((r) => r.vp === DESKTOP_VP)) console.log('::notice::' + fmtComposition(r));
 
   // The ids this run really produced rows for, read back off the rows rather than off playRoutes(): the
   // union check downstream is asking what was WALKED, and re-printing the request would answer a
