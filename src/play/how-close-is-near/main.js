@@ -641,7 +641,7 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
         <div class="modal-card">
           <div class="modal-header">
             <h3 id="resetNamesTitle">รีเซ็ตเป็นชื่อสัตว์?</h3>
-            <button id="btnCloseResetNames" class="icon-btn" style="width: 36px; height: 36px;">✕</button>
+            <button id="btnCloseResetNames" class="icon-btn" style="width: 36px; height: 36px;" aria-label="ปิด">✕</button>
           </div>
           <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">
             ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
@@ -838,7 +838,7 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
           <button class="num-btn" data-key="9">9</button>
           <button class="num-btn fn-btn" data-key="clear">ล้าง</button>
           <button class="num-btn" data-key="0">0</button>
-          <button class="num-btn fn-btn" data-key="backspace">⌫</button>
+          <button class="num-btn fn-btn" data-key="backspace" aria-label="ลบตัวเลขตัวสุดท้าย">⌫</button>
         </div>
 
         <button id="btnSubmitNumber" class="btn-primary">ล็อกคำตอบนี้ 🔒</button>

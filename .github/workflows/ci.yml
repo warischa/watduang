@@ -147,6 +147,13 @@ jobs:
       - name: Every render function gates its buttons (static check)
         run: node scripts/arm-gate-coverage-check.mjs --selftest && node scripts/arm-gate-coverage-check.mjs
 
+      # gh#211: nine play routes ship icon-only controls and nothing had ever inspected an accessible
+      # name. zero-trigger announced "Audio Toggle" in English over a correct Thai title. The route
+      # set is read from the src/play directory listing, so a new route is checked without anyone
+      # adding it to a list here.
+      - name: Icon-only play-route controls carry a Thai accessible name (gh#211)
+        run: node scripts/play-icon-label-check.mjs --selftest && node scripts/play-icon-label-check.mjs
+
       - name: Stable-exit marker set stays closed (static check)
         run: node scripts/stable-exit-markers-check.mjs --selftest && node scripts/stable-exit-markers-check.mjs
 

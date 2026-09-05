@@ -663,7 +663,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         row.innerHTML = `
           <div class="player-avatar">${avatar}</div>
           <input type="text" class="player-input" value="${escapeHtml(name)}" data-idx="${idx}" maxlength="15">
-          ${game.players.length > 2 ? `<button class="player-remove-btn" data-idx="${idx}" title="ลบผู้เล่น">✕</button>` : ''}
+          ${game.players.length > 2 ? `<button class="player-remove-btn" data-idx="${idx}" title="ลบผู้เล่น" aria-label="ลบผู้เล่น">✕</button>` : ''}
         `;
         container.appendChild(row);
       });

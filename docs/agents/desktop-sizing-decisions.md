@@ -15,6 +15,11 @@ extractor output — `scripts/extract-mockup.mjs` rewrites it byte-for-byte from
 desktop rule written there disappears on the next extraction. `overrides.css` is imported after
 `style.css` in each `play.astro`, so equal-specificity rules there win.
 
+`markup.html` and `main.js` are extractor-owned for the same reason — this file used to be the only
+place that said it, and only about `style.css`. The full rule, and the one attribute that now
+survives an extraction, is in `docs/agents/src-edit-rules.md` under "Which files under
+`src/play/<route>/` the extractor owns".
+
 Do **not** restyle `src/shell/PlayExit.astro`. It is shared page chrome for all eleven routes; a
 per-route desktop tweak to it is a change to the other ten.
 

@@ -516,7 +516,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
           row.innerHTML = `
             <div class="player-avatar-badge">${AVATARS[i % AVATARS.length]}</div>
             <input class="input player-input" maxlength="15" value="${escapeHtml(name)}" placeholder="${escapeHtml(defaultName(i))}" data-index="${i}">
-            <button class="icon-btn remove-p-btn" type="button" data-index="${i}" ${game.players.length <= 2 ? 'disabled' : ''}>✕</button>
+            <button class="icon-btn remove-p-btn" type="button" data-index="${i}" ${game.players.length <= 2 ? 'disabled' : ''} aria-label="ลบผู้เล่น">✕</button>
           `;
           list.appendChild(row);
         });

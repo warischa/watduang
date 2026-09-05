@@ -1012,9 +1012,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           <div class="player-count-bar">
             <span style="font-weight: 700;">จำนวนผู้เล่น</span>
             <div class="count-control">
-              <button id="decPlayerBtn" class="count-btn">−</button>
+              <button id="decPlayerBtn" class="count-btn" aria-label="ลดจำนวนผู้เล่น">−</button>
               <span class="count-display">${engine.playerCount}</span>
-              <button id="incPlayerBtn" class="count-btn">+</button>
+              <button id="incPlayerBtn" class="count-btn" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
             </div>
           </div>
 
