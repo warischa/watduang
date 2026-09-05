@@ -51,7 +51,7 @@ const pageCode = pageSrc
 assert.match(pageCode, /var\(--page-accent\)/, 'positive control: the comment strip blanked the style block');
 
 const manifestCopy = [
-  ...Object.values(categories).flatMap((meta) => [meta.label, meta.whenToUse, meta.intro]),
+  ...Object.values(categories).flatMap((meta) => [meta.label, meta.whenToUse, meta.intro, meta.listHeading]),
   ...allGames.flatMap((game) => [game.names.th, game.tagline]),
 ];
 
@@ -73,6 +73,7 @@ test('the page renders label, whenToUse, intro and taglines by interpolation', (
   assert.match(pageSrc, /\{meta\.label\}/, 'the H1 must render label by interpolation');
   assert.match(pageSrc, /\{meta\.whenToUse\}/, 'the lead line must render whenToUse by interpolation');
   assert.match(pageSrc, /\{meta\.intro\}/, 'the intro card must render intro by interpolation');
+  assert.match(pageSrc, /\{meta\.listHeading\}/, 'the games-list heading must render listHeading by interpolation');
   assert.match(pageSrc, /\{game\.names\.th\}/, 'a card title must render names.th by interpolation');
   assert.match(pageSrc, /\{game\.tagline\}/, 'a card body must render the tagline by interpolation');
 });
@@ -88,8 +89,8 @@ test('the accent resolves from the manifest accent NAME, never the slug, never a
   assert.doesNotMatch(pageSrc, /category\s*(?:===?|!==?)\s*['"]/, 'no conditional branches on the category to pick a colour');
 });
 
-test('the pills, section labels, card call to action and breadcrumb are page copy', () => {
-  const pageCopy = ['ไม่ต้องโหลดแอป', 'ไม่ต้องสมัคร', 'มือถือเครื่องเดียว', 'เกมในหมวดนี้', 'ไปที่อื่นต่อ', 'เล่นเลย', 'หน้าแรก'];
+test('the pills, cross-link section label, card call to action and breadcrumb are page copy', () => {
+  const pageCopy = ['ไม่ต้องโหลดแอป', 'ไม่ต้องสมัคร', 'มือถือเครื่องเดียว', 'ไปที่อื่นต่อ', 'เล่นเลย', 'หน้าแรก'];
   for (const piece of pageCopy) {
     assert.ok(pageSrc.includes(piece), `the page copy piece must sit on the page as a literal: ${piece}`);
   }
@@ -104,6 +105,12 @@ test('cross-link cards paint the sibling manifest accent and the tools group acc
   assert.ok(pageSrc.includes('--cross-accent: var(--accent-${link.accent})'), 'each category cross-card must resolve the sibling manifest accent NAME');
   assert.ok(pageSrc.includes('var(${toolsGroup.accentVar})'), 'the tools cross-card must resolve the tools group accent var');
   assert.ok(pageSrc.includes('{link.label}'), 'the cross-card label must render the sibling manifest label');
+});
+
+test('the games-list heading is per-category copy, not one literal shared by both pages', () => {
+  assert.notEqual(categories.fortune.listHeading, categories.party.listHeading, 'fortune and party must not share one heading');
+  assert.doesNotMatch(categories.fortune.listHeading, /เกม/, 'gh#104 box 5: the fortune heading must not call its pages เกม');
+  assert.equal(categories.party.listHeading, 'เกมในหมวดนี้', 'party keeps the wording it renders today, byte-identical');
 });
 
 // gh#125: the PageChrome import/render pin is gone. It asserted that the page's SOURCE names the

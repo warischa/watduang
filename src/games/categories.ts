@@ -23,6 +23,11 @@ export interface CategoryMeta {
   hubBody: string;
   /** Thai intro copy paragraph for the listing page */
   intro: string;
+  /** Thai heading for the games-list section on this category's own /c/<slug>/ page. Per-category
+   *  because the two categories are not the same kind of thing (ADR-0040): party's games genuinely
+   *  are games, fortune's are not (gh#104 box 5 / gh#201 — see the standing decision above the
+   *  `categories` export). */
+  listHeading: string;
   /** Accent NAME, not a colour value — the page/token layer resolves it to real colours */
   accent: string;
   /** Does a group of players carry on from one game in this category into the next? gh#94: only
@@ -49,15 +54,16 @@ export interface CategoryMeta {
 export const categories: Record<Category, CategoryMeta> = {
   fortune: {
     label: 'ดูดวง',
-    whenToUse: 'อยากรู้ว่าวันนี้ดวงเป็นยังไง หรือคู่ไหนเข้ากัน',
+    whenToUse: 'อยากรู้ว่าวันนี้ดวงเป็นยังไง',
     hubHeading: 'ดูดวง ทำนายโชคชะตา',
     hubBody: 'ไม่มีใครแพ้ ไม่มีใครโดน กดดูดวงของตัวเองได้ทันที อยากรู้เมื่อไหร่ก็เปิดดูได้เลย',
-    intro: 'รวมคำทำนายดูดวงฟรีบนมือถือเครื่องเดียว เสี่ยงเซียมซี เปิดดวงประจำวัน หรือวัดว่าคู่ไหนเข้ากัน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
+    intro: 'รวมคำทำนายดูดวงฟรีบนมือถือเครื่องเดียว เสี่ยงเซียมซี หรือเปิดดวงประจำวัน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
+    listHeading: 'คำทำนายในหมวดนี้',
     accent: 'gold',
     carriesGroup: false,
     seo: {
-      title: 'ดูดวงออนไลน์ฟรี — เซียมซี ดวงวันนี้ ดวงความรัก | วัดดวง',
-      description: 'รวมเกมดูดวงเล่นฟรีบนมือถือ เสี่ยงเซียมซี เปิดดวงวันนี้ วัดดวงความรัก เล่นได้ทันทีไม่ต้องโหลดแอป',
+      title: 'ดูดวงออนไลน์ฟรี — เซียมซี ดวงวันนี้ | วัดดวง',
+      description: 'รวมคำทำนายดูดวงฟรีบนมือถือ เสี่ยงเซียมซี เปิดดวงวันนี้ ดูได้ทันทีไม่ต้องโหลดแอป',
     },
   },
   party: {
@@ -66,6 +72,7 @@ export const categories: Record<Category, CategoryMeta> = {
     hubHeading: 'เกมวัดดวง สุ่มคนโดน',
     hubBody: 'จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลงกันเองว่าคนโดนต้องทำอะไร',
     intro: 'รวมเกมสุ่มคนโดนสำหรับวงเพื่อน จับไม้สั้น ระเบิดเวลา หรือสุ่มคนโดนแบบตรง ๆ ตัดสินว่าใครจ่าย ใครเริ่ม ใครโดน ด้วยมือถือเครื่องเดียว',
+    listHeading: 'เกมในหมวดนี้',
     accent: 'punch',
     carriesGroup: true,
     seo: {

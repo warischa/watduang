@@ -183,7 +183,7 @@ function renderAsk(hint?: string): void {
   // behaves in block flow) — the result screen is the one that opts into .stage-screen.
   stage.className = '';
 
-  stage.appendChild(el('p', 'ส่งมือถือให้เจ้าตัวพิมพ์ชื่อเอง แล้วกดดูดวงวันนี้'));
+  stage.appendChild(el('p', 'พิมพ์ชื่อแล้วกดดูดวงวันนี้ ชื่อเดิมวันเดิมได้ดวงเดิมเสมอ'));
 
   // A real <form> so Enter on the keyboard submits — no keydown handler needed.
   const form = el('form', undefined, 'margin:0.5rem 0');
@@ -213,7 +213,7 @@ function renderAsk(hint?: string): void {
   const names = [...new Set(gameCtx?.session.players ?? [])];
   const chipEls: HTMLButtonElement[] = [];
   if (names.length > 0) {
-    stage.appendChild(el('p', 'หรือแตะชื่อในวงได้เลย'));
+    stage.appendChild(el('p', 'หรือแตะชื่อที่เคยพิมพ์ไว้ได้เลย'));
     const chips = el('div', undefined, CHIPS_STYLE);
     for (const name of names) {
       const chip = el('button', name);
@@ -273,7 +273,7 @@ function renderResult(name: string, now: Date): void {
 
   stage.appendChild(card);
 
-  const foot = el('p', 'อ่านคำทำนายของตัวเองให้วงฟัง');
+  const foot = el('p', 'ดวงของวันนี้ เฉพาะชื่อนี้เท่านั้น');
   foot.className = 'df-foot';
   stage.appendChild(foot);
 
@@ -283,7 +283,7 @@ function renderResult(name: string, now: Date): void {
   const actions = document.createElement('div');
   actions.className = 'df-actions';
 
-  const another = el('button', 'ดูดวงคนต่อไป');
+  const another = el('button', 'ดูดวงชื่ออื่น');
   another.id = 'df-again';
   another.type = 'button';
   another.className = 'game-btn game-btn-primary';
@@ -344,16 +344,16 @@ const game: GameModule = {
   // One person, one answer, no rounds (ADR-0040) — there is nothing to lose by navigating away, and
   // that is why the leave-confirm must stay silent here. Never announce a round from this file.
   startsRound: false,
-  keywords: ['ดวงวันนี้', 'วัดดวงวันนี้', 'ดูดวงรายวัน', 'คำทำนายวันนี้', 'เกมส่งมือถือ', 'เกมเล่นบนเครื่องเดียว'],
+  keywords: ['ดวงวันนี้', 'วัดดวงวันนี้', 'ดูดวงรายวัน', 'คำทำนายวันนี้', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'ใส่ชื่อแล้วรู้ดวงวันนี้ทันที วันนี้กดกี่ครั้งก็ดวงเดิม',
   seo: {
     title: 'ดวงวันนี้ — ใส่ชื่อดูคำทำนายประจำวัน เล่นฟรีบนเครื่องเดียว',
     description:
-      'ส่งมือถือวนให้ทุกคนพิมพ์ชื่อตัวเอง แล้วดูคำทำนายดวงวันนี้ของแต่ละคน ชื่อเดิมในวันเดิมได้คำทำนายเดิมเสมอ พรุ่งนี้ค่อยเปลี่ยนใหม่ เล่นได้ 2-10 คน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
+      'พิมพ์ชื่อแล้วดูคำทำนายดวงวันนี้ของชื่อนั้น ชื่อเดิมในวันเดิมได้คำทำนายเดิมเสมอ พรุ่งนี้ค่อยเปลี่ยนใหม่ ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
     steps: [
-      'ส่งมือถือให้คนแรก พิมพ์ชื่อตัวเองลงไป',
-      'กด "ดูดวงวันนี้" แล้วอ่านคำทำนายของตัวเองให้วงฟัง',
-      'กด "ดูดวงคนต่อไป" แล้วส่งมือถือให้คนถัดไปพิมพ์ชื่อบ้าง',
+      'พิมพ์ชื่อของตัวเองลงไป',
+      'กด "ดูดวงวันนี้" แล้วอ่านคำทำนายที่ได้',
+      'อยากดูชื่ออื่นอีก กด "ดูดวงชื่ออื่น" แล้วพิมพ์ชื่อใหม่',
       'วันนี้กดซ้ำกี่ครั้งก็ได้คำทำนายเดิม พรุ่งนี้กลับมาดูใหม่ได้ดวงใหม่',
     ],
   },

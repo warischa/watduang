@@ -6,9 +6,10 @@
 // artboard names, and no sideways scroll at 320/390.
 //
 // Copy provenance, exactly as the artboard headers state it. FROM THE MANIFEST, byte-exact: the H1
-// is categories label, the lead line is whenToUse, the intro card is intro, every card body is that
-// game's own tagline, and the Base metadata is the category seo. PAGE COPY, with no manifest field
-// behind it: the three pills, the two section labels, the card call to action, and the breadcrumb.
+// is categories label, the lead line is whenToUse, the intro card is intro, the games-list heading
+// is listHeading (per-category, ADR-0034 — gh#104 box 5), every card body is that game's own
+// tagline, and the Base metadata is the category seo. PAGE COPY, with no manifest field behind it:
+// the three pills, the cross-link section label, the card call to action, and the breadcrumb.
 //
 // The accent paints without a per-page colour value anywhere: meta.accent holds the NAME ('gold' /
 // 'punch'), and --page-accent resolves it through var(--accent-<name>) — never the slug (which
@@ -84,7 +85,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
     <div class="body-grid">
       <div class="col">
         <section>
-          <h2 class="kicker">เกมในหมวดนี้</h2>
+          <h2 class="kicker">{meta.listHeading}</h2>
           <div class="cards-grid">
             {games.map((game) => (
               <a class="game-card" href={game.playRoute ?? `/game/${game.id}/`}>
