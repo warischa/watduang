@@ -18,7 +18,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // gh#175 / ADR-0054: the names screen opens on the shared animal cast, never on a column of numbers.
 // Both places a numbered default could show -- the fallback for a blank field and the placeholder a
 // player never typed over -- read from here through defaultName below.
-import { mascotNames } from '../_mascots.ts';
+import { mascotEmoji, mascotNames } from '../_mascots.ts';
 
     /**
      * Procedural Web Audio Synthesizer
@@ -576,8 +576,12 @@ import { mascotNames } from '../_mascots.ts';
       for (let i = 0; i < game.playerCount; i++) {
         const row = document.createElement('div');
         row.className = 'player-input-row';
+        // gh#140's animal icon in the badge, not a seat number: the shared shell panel already
+        // renders the icon, and this route builds its own setup screen so it never got it. Marked
+        // aria-hidden because it pictures the animal the placeholder beside it already names -- the
+        // row's POSITION is a separate channel and is deliberately not sourced from the cast.
         row.innerHTML = `
-          <div class="player-badge">${i + 1}</div>
+          <div class="player-badge" aria-hidden="true">${mascotEmoji(i)}</div>
           <input type="text" class="player-text-input" placeholder="${defaultName(i)}" maxlength="20" data-index="${i}">
         `;
         list.appendChild(row);

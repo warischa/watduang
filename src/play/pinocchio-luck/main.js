@@ -20,7 +20,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // default name on this route -- the placeholder a blank seat shows -- comes from mascotNames.
 // resetCastNames is the reset control's wipe: it keeps the seat count and discards whatever a player
 // typed.
-import { mascotNames, resetCastNames } from '../_mascots.ts';
+import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
 
 (()=>{'use strict';
 const panel=document.querySelector('#panel'),roundTag=document.querySelector('#roundTag'),announcer=document.querySelector('#announcer'),app=document.querySelector('#app'),stageFrame=document.querySelector('#stageFrame');
@@ -74,6 +74,9 @@ function setSetupCount(value){
 // cursed-number and power-meter already do once their placeholders carry a mascot name too.
 const defaultName=(i)=>mascotNames(i+1)[i];
 
+// gh#140: this route builds its own setup screen, so the shared shell panel's animal icon never
+// reached its roster rows -- they opened with a seat number. mascotEmoji is the one lookup for that
+// badge; see its declaration in _mascots.ts for why the wrap has a single definition.
 function setupMarkup(){
   return `<div class="view">
     <p class="kicker">เกมปาร์ตี้เครื่องเดียว · 2–10 คน</p>
@@ -94,7 +97,9 @@ function setupMarkup(){
     <div class="names">
       ${Array.from({length:setupCount},(_,i)=>`
         <label class="name-field">
-          <span>${i+1}</span>
+          <!-- gh#140 - the seat's animal, not its number. aria-hidden: it pictures the animal the
+               placeholder already names, and POSITION is the aria-label's job beside it. -->
+          <span aria-hidden="true">${mascotEmoji(i)}</span>
           <input class="name-input" maxlength="28" autocomplete="off" value="${esc(setupNames[i]||'')}" placeholder="${esc(defaultName(i))}" aria-label="ชื่อผู้เล่น ${i+1}">
         </label>
       `).join('')}

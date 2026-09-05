@@ -56,7 +56,7 @@ import { FakeElement, makeDocument } from '../games/_fake-dom.mjs';
 // broke when the cast moved to _mascots.ts and the losing rule moved to turn-rules.ts, and a stale
 // `PLAYER_AVATARS` stub kept it green until CI ran the suite. Node >=22.18 strips the TS types,
 // which package.json's check-node-version already requires.
-import { MASCOTS } from './_mascots.ts';
+import { MASCOTS, mascotEmoji } from './_mascots.ts';
 import { loserOf } from './wire-snip-panic/turn-rules.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -314,6 +314,9 @@ function cannonFlagHarness(standings) {
     // factory cannot import. Benign by design — the attacker-controlled channel here is the typed
     // name this route re-reads off its own live inputs, not the placeholder beside it.
     defaultName: (i) => `P${i + 1}`,
+    // gh#140: the row badge's animal icon. The real lookup, not a stub -- it takes an index and
+    // returns a cast constant, so it carries no attacker-controlled channel for this file to model.
+    mascotEmoji,
   }, ['escapeHtml']);
   return { api, DOM };
 }
