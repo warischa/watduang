@@ -82,7 +82,9 @@
 //                       descendants are excluded for the same reason: a fixed corner control would
 //                       peg every route at ~100% and measure nothing.
 //
-// WIRED as two ci-probes legs (scripts/ci-probes.sh lane3): the walk leg and its BREAK_WALK control.
+// WIRED as a walk leg and its BREAK_WALK control, SHARDED by route across the ci-probes lanes (see
+// FIT_SHARD below): a shard's clean leg and its control always share a lane, because a different lane is
+// a different Chrome and the control would stop being one-variable.
 //   node scripts/play-screen-fit-probe.mjs               -> exit non-zero if any route x viewport never
 //                                                           left its fresh screen, is unclassified or in
 //                                                           both vertical sets, regressed past FITS_ROWS,
@@ -94,6 +96,22 @@
 //   NO_SEED=1 NO_PRESS=1 node scripts/...                -> the same stranding under the NORMAL
 //                                                           verdict: the loud red, naming every route.
 //   ROUTES_ONLY=a,b                                      -> narrow a hand-run debug pass. Never in CI.
+//   FIT_SHARD=i FIT_SHARDS=n                             -> CI ONLY, and it is NOT a narrowing: the walk
+//                                                           is split across n legs that between them walk
+//                                                           every route, so each leg still gates every row
+//                                                           it produces. Setting it together with
+//                                                           ROUTES_ONLY throws — one is a debug subset and
+//                                                           the other is a partition, and a run cannot be
+//                                                           both. Coverage is correct BY CONSTRUCTION here
+//                                                           and enforced anyway: every success path prints
+//                                                           a FIT_SHARD_WALKED line naming the ids it
+//                                                           walked, and ci-probes.sh reds unless the clean
+//                                                           legs' union and the control legs' union each
+//                                                           equal the manifest exactly. A shard that was
+//                                                           killed, never scheduled, or deleted from the
+//                                                           lane list writes no line and the union comes up
+//                                                           short — which is the one failure a per-leg exit
+//                                                           code cannot see.
 // It also default-exports a driver.mjs probe. Serve an ALREADY-BUILT dist/ on BASE and start Chrome
 // on CDP_PORT first; this leg must never build.
 //
@@ -123,7 +141,7 @@ import { games } from '../src/games/manifest.ts';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const DIST = path.join(repoRoot, 'dist');
-// Own ports, deliberately not any other script's: ci-probes.sh holds 4344/9344-9348, control-floor
+// Own ports, deliberately not any other script's: ci-probes.sh holds 4344/9344-9350 (9349-9350 are the fit shard lanes), control-floor
 // holds 4580/9580, play-exit holds 5051, and 4321/9222 is the runbook's manual pair. Probing a
 // foreign server or attaching to someone else's Chrome is how a green gets reported for other bytes.
 const BASE = process.env.BASE || process.env.PROBE_BASE || 'http://localhost:4592';
@@ -365,10 +383,49 @@ export const playRoutes = () => {
   // scripts/play-exit-probe.mjs carries. It is never set in ci-probes.sh, and a narrowed run says so
   // on stdout so a shortened table can never be read as the whole set.
   const only = process.env.ROUTES_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
-  const ids = games.filter((g) => g.playRoute).map((g) => g.id).sort()
+  // FIT_SHARD/FIT_SHARDS is the OTHER knob and it is the opposite kind of thing: a partition, not a
+  // subset. Each shard walks a full-strength gate over the rows it produces, and the shards between them
+  // produce every row. Refusing the combination is not tidiness — ROUTES_ONLY prints "this is a debug
+  // run, not a gate", and a run that is both a debug subset and a member of a partition would report one
+  // shard's coverage under the other's verdict.
+  const shardRaw = process.env.FIT_SHARD?.trim();
+  const sharded = Boolean(shardRaw);
+  if (sharded && only?.length) {
+    throw new Error('ROUTES_ONLY and FIT_SHARD are both set — one narrows a debug run and the other partitions a gated one. Pick one.');
+  }
+  let ids = games.filter((g) => g.playRoute).map((g) => g.id).sort()
     .filter((id) => !only?.length || only.includes(id));
+  if (sharded) {
+    const i = Number(shardRaw);
+    const n = Number(process.env.FIT_SHARDS?.trim());
+    if (!Number.isInteger(n) || n < 1) throw new Error(`FIT_SHARDS must be an integer >= 1, got "${process.env.FIT_SHARDS}"`);
+    if (!Number.isInteger(i) || i < 0 || i >= n) throw new Error(`FIT_SHARD must be an integer in 0..${n - 1}, got "${shardRaw}"`);
+    // A STRIDE over the sorted ids, never a contiguous block. The per-route cost of this walk is not
+    // uniform — it is the mockup's own clock — so contiguous blocks would pack the neighbours the sort
+    // happens to put together into one lane, and the lanes would finish at different times for a reason
+    // nobody chose. Stride interleaves them.
+    ids = ids.filter((_, idx) => idx % n === i);
+  }
   if (!ids.length) throw new Error('no play routes derived from the manifest — refusing to report a vacuous pass');
   return ids;
+};
+
+/**
+ * The shard this process is walking, as [index, count]; [0, 1] when unsharded, so a hand run prints the
+ * same line shape a CI leg does. Read from the environment rather than passed around, for the same reason
+ * playRoutes() reads ROUTES_ONLY there: one expression owns the knob.
+ */
+const shardOf = () => [Number(process.env.FIT_SHARD?.trim() || 0), Number(process.env.FIT_SHARDS?.trim() || 1)];
+/**
+ * The line scripts/ci-probes.sh's union check reads. It is printed on the SUCCESS path only, by both the
+ * clean leg and the control leg, and it names the ids this process actually walked rather than the ones it
+ * was asked for — a leg that died, was never scheduled, or was deleted from the lane list prints nothing,
+ * and the union it belongs to comes up short. Which is exactly the failure EXPECTED_LEGS cannot see: that
+ * number is human-maintained and blind to a route added to the manifest and to no shard.
+ */
+const shardWalkedLine = (routes) => {
+  const [i, n] = shardOf();
+  return `FIT_SHARD_WALKED ${BREAK_WALK ? 'control' : 'clean'} ${i}/${n} routes=${routes.join(',')}`;
 };
 
 const NAMES = ['QQAAX', 'QQBBY', 'QQCCZ'];
@@ -740,9 +797,17 @@ function main() {
 
   const expectedRows = playRoutes().length * VIEWPORTS.length;
   if (out.rows.length !== expectedRows) {
-    console.error(`::error::${out.rows.length} route/viewport row(s), expected ${expectedRows} (every play route in src/games/manifest.ts x ${VIEWPORTS.length} viewports) — a route that never loaded reads exactly like a clean one.`);
+    // Re-based on THIS leg's route list, which is the shard's when FIT_SHARD is set: a leg can only
+    // assert what it walked. That every shard together covers the manifest is asserted by ci-probes.sh
+    // over the FIT_SHARD_WALKED lines, not here.
+    console.error(`::error::${out.rows.length} route/viewport row(s), expected ${expectedRows} (${playRoutes().length} play route(s) this leg walks x ${VIEWPORTS.length} viewports) — a route that never loaded reads exactly like a clean one.`);
     process.exit(1);
   }
+
+  // The ids this run really produced rows for, read back off the rows rather than off playRoutes(): the
+  // union check downstream is asking what was WALKED, and re-printing the request would answer a
+  // different question.
+  const walked = [...new Set(out.rows.map((r) => r.route))].sort();
 
   const stuck = out.rows.filter((r) => !r.screens.length);
   if (BREAK_WALK) {
@@ -755,6 +820,7 @@ function main() {
       }
     }
     if (stuck.length !== out.rows.length) process.exit(1);
+    console.log(shardWalkedLine(walked));
     console.log(`OK control: all ${out.rows.length} route/viewport row(s) stayed on the fresh screen with both the seeding and the presses disabled — so the walk invariant CAN fail, and the screen signature is stable across the ${PRESS_CAP} press intervals the clean leg spends walking (a signature that drifted on its own would report "it left setup" about a walk that never moved).`);
     return;
   }
@@ -765,7 +831,6 @@ function main() {
   if (stuck.length) process.exit(1);
 
   // The inverted guard. Only the rows recorded as scroll-free are asserted; the rest are reported.
-  const keys = new Set(out.rows.map(rowKey));
   // A narrowed run cannot judge the pins it never walked, and must not be read as if it had.
   const narrowed = Boolean(process.env.ROUTES_ONLY?.trim());
   if (narrowed) console.log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${out.routesWalked} of ${games.filter((g) => g.playRoute).length} play route(s). This is a debug run, not a gate.`);
@@ -780,12 +845,12 @@ function main() {
   for (const k of inBoth) {
     console.error(`::error::"${k}" is in BOTH FITS_ROWS and KNOWN_OVERFLOW — a row cannot both fit and be an accepted overflow, and whichever set is wrong is asserting nothing.`);
   }
-  // (ii) Stale pins, both sets: a key nobody produced asserts nothing, whichever set it sits in.
-  const stalePins = narrowed ? [] : [...FITS_ROWS, ...KNOWN_OVERFLOW.keys(), ...KNOWN_OVERFLOW_X.keys()].filter((k) => !keys.has(k));
-  for (const k of stalePins) {
-    const which = FITS_ROWS.has(k) ? 'FITS_ROWS' : (KNOWN_OVERFLOW.has(k) ? 'KNOWN_OVERFLOW' : 'KNOWN_OVERFLOW_X');
-    console.error(`::error::${which} pins "${k}", which this run never produced — the pin is stale (a route left the manifest, or a viewport changed), so it is asserting nothing.`);
-  }
+  // (ii) STALE PINS LIVE IN scripts/play-screen-fit-probe.test.mjs NOW, and this is the only check that
+  // moved. It is the one statement here about the WHOLE row set rather than about a row — "no set pins a
+  // key nobody produces" cannot be decided by a leg that walks a third of the routes, and it was already
+  // dead under a narrowed run for exactly that reason. It needs no measurement and no browser: the full
+  // manifest x VIEWPORTS keyset is derivable from this module's own exports, which is where the test
+  // computes it. Every other check below is per-row and stays here, where the rows are.
   // (iii) An exception that no longer overflows. The trigger is ZERO overflow, not
   // OVERFLOW_TOLERANCE_PX: FITS_ROWS admits 0px rows only, so a tolerance-based trigger would red
   // the 4-6px rows into a set that is not allowed to hold them, and no edit could clear it.
@@ -849,7 +914,9 @@ function main() {
   for (const e of exceptedX.filter((e) => e.px > e.recorded + OVERFLOW_TOLERANCE_PX)) {
     console.warn(`::warning::${e.r.url} at ${e.r.vp} measured ${Math.round(e.px)}px SIDEWAYS against a recorded ${e.recorded}px${e.x.overflowXFrom ? ` (widest offender ${e.x.overflowXFrom})` : ''} at press ${e.x.press}. Same machine as the recording? Then the sideways clip GREW past what was excused — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.`);
   }
-  if (unclassified.length || inBoth.length || stalePins.length || regressions.length || sideways.length) process.exit(1);
+  if (unclassified.length || inBoth.length || regressions.length || sideways.length) process.exit(1);
+
+  console.log(shardWalkedLine(walked));
 
   const measured = out.rows.reduce((n, r) => n + r.screens.length, 0);
   // Every number here comes from the expression that describes it: the asserted count is the rows
@@ -858,7 +925,10 @@ function main() {
   const asserted = out.rows.filter((r) => FITS_ROWS.has(rowKey(r))).length;
   const excepted = out.rows.filter((r) => KNOWN_OVERFLOW.has(rowKey(r))).length;
   console.log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${out.routesWalked} route(s) x ${out.viewports} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all ${out.rows.length} row(s) are asserted to clip no more than ${OVERFLOW_TOLERANCE_PX}px horizontally except the ${out.rows.filter((r) => KNOWN_OVERFLOW_X.has(rowKey(r))).length} in KNOWN_OVERFLOW_X.`);
-  for (const r of out.rows) console.log('  ' + fmt(r));
+  // ::notice:: so it survives a PASS: standalone() in ci-probes.sh discards a green leg's log, and this
+  // table carries "worst at press", which the FIT_SHARDS comment names as the signal to drop a shard.
+  // A rollback trigger that only exists in an uploaded artifact is a rollback trigger nobody reads.
+  for (const r of out.rows) console.log('::notice::' + fmt(r));
 }
 
 // Entry point only — driver.mjs imports this module for its default export, and that must not fire

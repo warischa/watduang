@@ -37,9 +37,15 @@ import {
   sidewaysOffenders,
 } from './play-screen-fit-probe.mjs';
 
-// A narrowed run judges pins it never walked. playRoutes() reads this at call time, so clearing it
-// after the (hoisted) import is enough, and it keeps a hand-run `ROUTES_ONLY=x node --test ...` honest.
+// A narrowed OR SHARDED run judges pins it never walked, and the stale-pin check below is now the only
+// place that check runs at all — the browser leg dropped it when its walk was split across shards, since
+// a leg holding a third of the routes cannot tell a stale pin from one of the other shards'. So the full
+// keyset has to be full here. playRoutes() reads all three knobs at call time, so clearing them after the
+// (hoisted) import is enough, and it keeps a hand-run `ROUTES_ONLY=x node --test ...` or a stray
+// FIT_SHARD left in the environment from debugging honest.
 delete process.env.ROUTES_ONLY;
+delete process.env.FIT_SHARD;
+delete process.env.FIT_SHARDS;
 
 // ponytail: `${w}x${h}` repeats the vp string built by the `const row = {...}` literal inside this
 // module's default-exported walker, rather than exporting a formatter for one caller. It fails
@@ -70,10 +76,13 @@ test('every route x viewport row is classified by exactly one set (probe check i
   assert.deepEqual(inBoth, [], `in BOTH FITS_ROWS and KNOWN_OVERFLOW: ${inBoth.join(' | ')}`);
 });
 
-test('no pin is stale — every pinned key is a row the walk produces (probe check ii)', () => {
+test('no pin is stale — every pinned key is a row the walk produces (probe check ii, and its only home)', () => {
   const rows = new Set(allRows());
-  // All THREE pinned sets, matching the probe's own check (ii) — which already covers KNOWN_OVERFLOW_X.
-  // Enumerating two of three here is how the cheap half and the browser leg drift apart.
+  // All THREE pinned sets. THIS IS NO LONGER A CHEAP MIRROR of a browser-leg check: the browser leg
+  // walks one shard of the routes and deleted its own copy, so a pin left behind by a route leaving the
+  // manifest reds HERE or nowhere. The keyset is the whole manifest x VIEWPORTS, derived from the
+  // module's exports with the shard knobs cleared above, because a stale pin is a statement about the
+  // row set and no single shard holds it.
   const stale = [...FITS_ROWS, ...KNOWN_OVERFLOW.keys(), ...KNOWN_OVERFLOW_X.keys()].filter((k) => !rows.has(k));
   assert.deepEqual(stale, [], `pinned but never produced: ${stale.join(' | ')}`);
 });

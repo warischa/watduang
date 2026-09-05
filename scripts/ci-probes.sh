@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # The 7 CI-worthy browser probes (docs/verification/probe-triage-2026-08-26.md, "What's actually
-# trustworthy right now"), run in FOUR PARALLEL LANES against the ALREADY-BUILT dist/ -- this script
+# trustworthy right now"), run in PARALLEL LANES (four, plus one per play-screen-fit shard after the
+# first -- see FIT_SHARDS) against the ALREADY-BUILT dist/ -- this script
 # never runs a build. It is meant to be called as a late step in ci.yml's single `build` job, after
 # the Build step, because a probe that measures a freshly regenerated dist/ is not measuring the
 # bytes that get deployed (the standing no-post-Build-rebuild invariant in .github/workflows/ci.yml).
@@ -13,8 +14,11 @@
 # each other's browser", two drivers sharing one CDP port silently measure each other's state. The
 # static server is shared on purpose: that hazard lives in the browser, not in `serve`.
 #
-# Exit: 0 only if every probe leg passes AND exactly EXPECTED_LEGS legs report. Any failing leg
-# prints `::error::probe FAIL: <label>` with a reason, and the final lines list every failed label.
+# Exit: 0 only if every probe leg passes AND exactly EXPECTED_LEGS legs report AND the play-screen-fit
+# shards between them walked every play route, on the clean side and on the control side separately. Any
+# failing leg prints `::error::probe FAIL: <label>` with a reason, and the final lines list every failed
+# label. The three conditions are independent on purpose: a leg's exit code cannot see a shard that was
+# never scheduled, and EXPECTED_LEGS cannot see a route that no shard owns.
 #
 # DELIBERATELY NOT WIRED, not an oversight: ad-slot-grid-probe.mjs and adslot-wheel-delay-probe.mjs are
 # both fixed and calibrated, and both stay MANUAL per their own STATUS reasoning -- ad-slot-grid measures
@@ -40,6 +44,19 @@ CDP_B="${PROBE_CDP_REDUCED_PORT:-9345}"
 CDP_2="${PROBE_CDP_PORT_2:-9346}"
 CDP_3="${PROBE_CDP_PORT_3:-9347}"
 CDP_4="${PROBE_CDP_PORT_4:-9348}"
+# --- the play-screen-fit shard count, and THE ONE LINE TO EDIT if this ever needs backing out ------
+# The fit walk is split across FIT_SHARDS legs by route (a stride over the manifest ids, in
+# scripts/play-screen-fit-probe.mjs's playRoutes). Shard 0 rides lane3; every other shard gets a lane and
+# a Chrome of its own from FIT_LANE_CDPS below, so lowering this number is a one-line change here (plus
+# re-pinning EXPECTED_LEGS, which is pinned and never counted, by 2 legs per shard).
+# WHY IT COULD NEED LOWERING, stated because it is the real risk of this split and not a hypothetical:
+# each shard adds a Chrome to a 4-vCPU runner, and this probe measures a SELF-TIMED screen — roughly 57%
+# of the control leg's wall time is timer waits rather than CPU, which is what makes the extra Chromes
+# affordable, but a runner under CPU pressure delivers those timers late. If a real CI run shows a fit row
+# flipping to NEVER LEFT THE FRESH SCREEN, or a row changing which press is its worst screen, the answer
+# is FEWER SHARDS, not more Chromes: the rows are the measurement and the lane packing is not.
+FIT_SHARDS=3
+FIT_LANE_CDPS="${PROBE_CDP_FIT_PORTS:-9349 9350}"
 # driver.mjs's nav() waits on Page.loadEventFired with NO timeout -- a URL that never fires load hangs
 # forever, and in CI that burns the whole job budget instead of failing. Per-leg watchdog below.
 # ponytail: one flat timeout for every leg; narrow-overflow is the long one (22 screens — 5 games at
@@ -49,13 +66,31 @@ LEG_TIMEOUT="${PROBE_TIMEOUT:-600}"
 OUT_DIR="${PROBE_OUT_DIR:-$(mktemp -d /tmp/ci-probes.XXXXXX)}"
 SITE="http://localhost:${PORT}"
 mkdir -p "$OUT_DIR"
+# The ports actually taken: one per fit shard BEYOND shard 0, which rides lane3's Chrome. Derived, so
+# lowering FIT_SHARDS also stops the port being bound and the Chrome being launched -- an unused Chrome
+# would still be competing for the runner's CPU with the legs that matter.
+FIT_ACTIVE_CDPS=""
+n_fit=1
+for cdp in $FIT_LANE_CDPS; do
+  if [ "$n_fit" -lt "$FIT_SHARDS" ]; then FIT_ACTIVE_CDPS="$FIT_ACTIVE_CDPS $cdp"; n_fit=$((n_fit + 1)); fi
+done
+if [ "$n_fit" -ne "$FIT_SHARDS" ]; then
+  echo "::error::FIT_SHARDS=${FIT_SHARDS} needs $((FIT_SHARDS - 1)) port(s) in FIT_LANE_CDPS but only got: ${FIT_LANE_CDPS}. Add a port or lower FIT_SHARDS -- a shard with no lane would silently not run."
+  exit 1
+fi
 # Pinned, not counted from what ran: a lane is a background subshell, and a lane that dies mid-run
 # (errexit, an OOM-killed Chrome) would otherwise read as FEWER GREENS and still exit 0 -- the exact
-# silent-skip shape docs/agents/ci-verification.md exists to kill. 20 = the probe/standalone
-# invocations in the lanes below (grep -cE '^  (probe|standalone) ' agrees); re-record this number
-# in the same commit that adds or removes a leg.
+# silent-skip shape docs/agents/ci-verification.md exists to kill. Re-record this number in the same
+# commit that adds or removes a leg. It is no longer one grep: fit_pair is written once and CALLED once
+# per shard, so the count is the 18 probe/standalone lines outside fit_pair plus 2 x FIT_SHARDS
+# (grep -cE '^  (probe|standalone) ' returns 20 -- the two lines inside fit_pair, counted once each).
 # gh#179, 18 -> 20: play-screen-fit and its play-screen-fit-control joined lane3.
-EXPECTED_LEGS=20
+# 20 -> 24: the fit pair became FIT_SHARDS pairs (2 legs per shard, labels suffixed with the shard index)
+# so the walk could be split across lanes. This number is a HUMAN-MAINTAINED pin and is blind to the one
+# failure the split introduces -- a route added to the manifest and to no shard keeps the leg count at 24
+# while going unwalked -- so it is NOT what proves coverage. The FIT_SHARD_WALKED union check in the
+# aggregate block below is.
+EXPECTED_LEGS=24
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -63,12 +98,12 @@ if [ ! -f dist/index.html ]; then
   exit 1
 fi
 
-for p in "$PORT" "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4" "$CDP_B"; do
+for p in "$PORT" "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4" "$CDP_B" $FIT_ACTIVE_CDPS; do
   # A port already LISTENing before this script starts belongs to some other process -- probing it
   # would report a green for someone else's (possibly stale) dist/ or browser profile.
   if (exec 3<>"/dev/tcp/localhost/${p}") 2>/dev/null; then
     exec 3>&- 3<&-
-    echo "::error::Port ${p} is already in use before this script started -- refusing to probe a foreign server/browser. Set PROBE_PORT / PROBE_CDP_PORT / PROBE_CDP_PORT_2..4 / PROBE_CDP_REDUCED_PORT."
+    echo "::error::Port ${p} is already in use before this script started -- refusing to probe a foreign server/browser. Set PROBE_PORT / PROBE_CDP_PORT / PROBE_CDP_PORT_2..4 / PROBE_CDP_REDUCED_PORT / PROBE_CDP_FIT_PORTS."
     exit 1
   fi
 done
@@ -94,7 +129,7 @@ fi
 # only from lane four, so it is never shared either.
 npx serve@14 dist/ -l "$PORT" > "$OUT_DIR/serve.log" 2>&1 &
 KILL_PIDS="$!"
-for cdp in "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4"; do
+for cdp in "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4" $FIT_ACTIVE_CDPS; do
   "$CHROME" --headless --disable-gpu --no-sandbox --remote-debugging-port="$cdp" \
     --user-data-dir="$OUT_DIR/prof-$cdp" > /dev/null 2>&1 &
   KILL_PIDS="$KILL_PIDS $!"
@@ -115,7 +150,7 @@ wait_ready() { # url, label
   exit 1
 }
 wait_ready "${SITE}/" "server on ${PORT}"
-for cdp in "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4"; do
+for cdp in "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4" $FIT_ACTIVE_CDPS; do
   wait_ready "http://127.0.0.1:${cdp}/json/version" "Chrome on ${cdp}"
 done
 wait_ready "http://127.0.0.1:${CDP_B}/json/version" "Chrome B (reduced motion) on ${CDP_B}"
@@ -200,7 +235,7 @@ standalone() { # label, command...
     echo "  PASS  $label (${leg_el}s)"
     # A green leg's log is otherwise swallowed; surface its warnings as job annotations (gh#182: the
     # fit probe reports px drift on KNOWN_OVERFLOW rows this way and never reds on it).
-    grep '^::warning::' "$OUT_DIR/$label.log" || true
+    grep -E '^::(warning|notice)::' "$OUT_DIR/$label.log" || true
     echo "$label" >> "$OUT_DIR/$LANE.pass"
   else
     # ERRORS FIRST, then the tail. gh#202 lost an hour to this line: a tail of 3 on a failing fit
@@ -214,9 +249,10 @@ standalone() { # label, command...
 
 # --- the lanes -----------------------------------------------------------------------------------
 # Packed from the per-leg times measured on the 2026-08-29 sequential CI run, so the lanes finish
-# together instead of one dragging: lane1 199s · lane2 186s · lane3 167s · lane4 163s. THAT PACKING IS
-# NO LONGER BALANCED as of gh#179: lane3 took the play-screen-fit pair (~704s measured locally) and is
-# now the critical lane on its own. Re-pack from a real CI run's per-leg times, not from these.  A probe and
+# together instead of one dragging: lane1 199s · lane2 186s · lane3 167s · lane4 163s. THAT PACKING WENT
+# OUT OF BALANCE at gh#179, when lane3 took the play-screen-fit pair (~704s measured locally) and became
+# the critical lane on its own; the pair is now split by ROUTE across FIT_SHARDS lanes, which cuts that
+# walk to roughly one third. Re-pack from a real CI run's per-leg times, not from these.  A probe and
 # its positive control always share a lane -- the control exists to calibrate that probe's detector
 # in the same environment, and splitting the pair would let them see different browsers.
 #
@@ -284,12 +320,25 @@ lane3() {
   # FITS_ROWS regression pin; the scroll and width-fill numbers it prints are a REPORT that
   # gh#180/#181/#182/#183 act on, deliberately not a threshold. Its control leg makes the walk stand
   # still and requires every row to report it never left setup.
-  # MEASURED on this machine, 2026-08-31: 324s clean + 380s control = 704s, so this pair makes
-  # lane3 the critical lane (it was 167s). That is under LEG_TIMEOUT but not by much on a slower
-  # runner — if these legs start getting killed at 600s, drop PRESS_CAP in the probe rather than
-  # splitting the pair, which would let the control see a different browser.
-  standalone play-screen-fit         env BASE="$SITE" CDP_PORT="$CDP_3" node scripts/play-screen-fit-probe.mjs
-  standalone play-screen-fit-control env BASE="$SITE" CDP_PORT="$CDP_3" BREAK_WALK=1 node scripts/play-screen-fit-probe.mjs
+  # MEASURED on this machine, 2026-08-31: 324s clean + 380s control = 704s for the WHOLE walk, which
+  # made lane3 the critical lane on its own (it was 167s). It is now split by route across FIT_SHARDS
+  # lanes; lane3 keeps its five short legs plus shard 0, and fit_lane below carries the rest.
+  fit_pair 0 "$CDP_3"
+}
+# One shard's two legs, ALWAYS ADJACENT AND ALWAYS ON ONE CDP PORT. The pair is what may never be split:
+# the control exists to show this probe's own detector failing in the same browser the clean leg used, and
+# a second Chrome is a second environment, so a control run there calibrates nothing. Splitting by ROUTE
+# is a different cut and is safe -- each shard is a complete clean-vs-control pair over the routes it owns.
+fit_pair() { # shard-index, cdp-port
+  standalone "play-screen-fit-$1"         env BASE="$SITE" CDP_PORT="$2" FIT_SHARD="$1" FIT_SHARDS="$FIT_SHARDS" node scripts/play-screen-fit-probe.mjs
+  standalone "play-screen-fit-control-$1" env BASE="$SITE" CDP_PORT="$2" FIT_SHARD="$1" FIT_SHARDS="$FIT_SHARDS" BREAK_WALK=1 node scripts/play-screen-fit-probe.mjs
+}
+# A lane that is nothing but one shard's pair. Generic rather than lane5()/lane6() so FIT_SHARDS stays the
+# only number: a shard with no lane function would simply not run, and this file must not have a way to
+# lose a shard quietly.
+fit_lane() { # shard-index, cdp-port, lane-name
+  LANE="$3"
+  fit_pair "$1" "$2"
 }
 lane4() {
   LANE=lane4
@@ -302,17 +351,33 @@ lane4() {
   standalone control-floor-control     env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_FLOOR=1 node scripts/control-floor-probe.mjs
 }
 
-echo "ci-probes: 4 lanes launched -- per-lane output prints when each lane's log is collected below"
+N_LANES=$((4 + FIT_SHARDS - 1))
+# The union check below harvests FIT_SHARD_WALKED lines by globbing this directory. OUT_DIR is a fresh
+# mktemp on CI but is REUSED whenever PROBE_OUT_DIR is set, which is how it is run locally -- and a
+# leftover play-screen-fit-2.log from an earlier run would satisfy the union for a shard that no longer
+# runs at all. That is exactly the "deleted from the lane list" case the union exists to catch, so the
+# stale file has to go before the lanes start rather than being reasoned about afterwards.
+rm -f "$OUT_DIR"/play-screen-fit*.log
+
+echo "ci-probes: ${N_LANES} lanes launched -- per-lane output prints when each lane's log is collected below"
 LANE_PIDS=""
 lane1 > "$OUT_DIR/lane1.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
 lane2 > "$OUT_DIR/lane2.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
 lane3 > "$OUT_DIR/lane3.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
 lane4 > "$OUT_DIR/lane4.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
+# One lane per fit shard after shard 0, numbered on from lane4 so the lane?.pass/lane?.fail glob and the
+# per-lane log dump below keep working without a second naming scheme.
+fit_shard=1
+for cdp in $FIT_ACTIVE_CDPS; do
+  ln="lane$((4 + fit_shard))"
+  fit_lane "$fit_shard" "$cdp" "$ln" > "$OUT_DIR/$ln.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
+  fit_shard=$((fit_shard + 1))
+done
 set +e
 for p in $LANE_PIDS; do wait "$p"; done
 set -e
 
-for n in 1 2 3 4; do
+for n in $(seq 1 "$N_LANES"); do
   echo "--- lane$n ---"
   cat "$OUT_DIR/lane$n.log" 2>/dev/null || echo "(lane$n produced no log)"
 done
@@ -329,6 +394,36 @@ if [ -n "$FAIL_LABELS" ]; then
   echo "ci-probes: output kept in ${OUT_DIR}"
   exit 1
 fi
+# --- fit-shard COVERAGE, and why EXPECTED_LEGS is not it -----------------------------------------
+# Splitting the fit walk across lanes buys wall clock and costs the one thing a single leg had for free:
+# nobody had to ask whether every route was walked. So it is asked here, and it is asked of the RUN rather
+# than of this file's own leg list. Each fit leg prints one FIT_SHARD_WALKED line on its success path
+# naming the ids it really produced rows for; the clean legs' union and the control legs' union must EACH
+# equal the manifest exactly. A shard that was killed, never scheduled, deleted from the lane list, or
+# handed a stride that skips an id writes no line for those ids and the union comes up short.
+# THIS IS NOT WHAT EXPECTED_LEGS CHECKS. That number is human-maintained and counts invocations: a route
+# added to the manifest and to no shard leaves it at 24 and green. The manifest is read here from the
+# probe's own playRoutes with every narrowing knob unset, so the expected set cannot be a stale literal.
+FIT_EXPECT="$OUT_DIR/fit-manifest.ids"
+env -u FIT_SHARD -u FIT_SHARDS -u ROUTES_ONLY node --input-type=module \
+  -e 'import { playRoutes } from "./scripts/play-screen-fit-probe.mjs"; console.log(playRoutes().join("\n"));' \
+  | sort > "$FIT_EXPECT"
+if [ ! -s "$FIT_EXPECT" ]; then
+  # An empty expected set would make every union match. A comparison that cannot fail is not a check.
+  echo "::error::ci-probes: could not derive the play-route list from scripts/play-screen-fit-probe.mjs -- refusing to compare the fit shards against an empty set."
+  exit 1
+fi
+for leg in clean control; do
+  got="$OUT_DIR/fit-walked-$leg.ids"
+  grep -h "^FIT_SHARD_WALKED $leg " "$OUT_DIR"/play-screen-fit*.log 2>/dev/null \
+    | sed 's/^.*routes=//' | tr ',' '\n' | grep . | sort -u > "$got"
+  if ! cmp -s "$FIT_EXPECT" "$got"; then
+    echo "::error::ci-probes: the ${leg} play-screen-fit shards did not between them walk every play route. MISSING: $(comm -23 "$FIT_EXPECT" "$got" | tr '\n' ' ')UNEXPECTED: $(comm -13 "$FIT_EXPECT" "$got" | tr '\n' ' ')-- a shard reported no FIT_SHARD_WALKED line, so it never ran or never passed. Logs in ${OUT_DIR}"
+    exit 1
+  fi
+done
+echo "ci-probes: play-screen-fit shards walked every play route on both the clean and the control side ($(grep -c . "$FIT_EXPECT") route(s), FIT_SHARDS=${FIT_SHARDS})"
+
 if [ "$LEGS" -ne "$EXPECTED_LEGS" ]; then
   # Fewer (or more) legs than pinned means a lane died before finishing its list, or a leg wrote no
   # verdict -- a green with missing legs is a silent skip, and this repo treats those as red.
