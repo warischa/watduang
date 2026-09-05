@@ -44,7 +44,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-// The nine routes sharing the plain trigger id pattern differ only in the exact id string main.js/
+// The ten routes sharing the plain trigger id pattern differ only in the exact id string main.js/
 // markup.html happens to use; power-meter's trigger carries no id at all, only data-act. zero-trigger
 // keeps its own wider copy, because its confirm names avatars as well as names. No entry here for a
 // route the manifest ships is a red naming that route, not a vacuous pass over the rest.
@@ -54,6 +54,7 @@ const RESET_TRIGGER = {
   'dice-loser': { attr: 'id="dl-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'freeze-tap': { attr: 'id="resetNamesBtn"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'how-close-is-near': { attr: 'id="btnResetNames"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  'one-bomb': { attr: 'id="ob-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'pinocchio-luck': { attr: 'id="reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'power-meter': { attr: 'data-act="openResetNamesModal"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'short-stick': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },

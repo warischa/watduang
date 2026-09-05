@@ -22,6 +22,8 @@ import cursedNumber from './cursed-number.ts';
 import wireSnipPanic from './wire-snip-panic.ts';
 // Port 6, gh#163.
 import zeroTrigger from './zero-trigger.ts';
+// Port 7 of the seven the owner ordered in gh#139.
+import oneBomb from './one-bomb.ts';
 // love-match is deliberately NOT registered: the page is delisted until gh#101 rebuilds it (the solo
 // mount hands it an empty roster, so every visitor hit "need 2+ people"). src/games/love-match.ts,
 // its test, and its stylesheet stay on disk on purpose — gh#101 rebuilds from them.
@@ -44,6 +46,7 @@ export const games: GameModule[] = [
   cursedNumber,
   wireSnipPanic,
   zeroTrigger,
+  oneBomb,
 ];
 
 export const byId = (id: string): GameModule | undefined =>

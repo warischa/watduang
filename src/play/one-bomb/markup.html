@@ -1,0 +1,132 @@
+<div id="app">
+  <canvas id="gameCanvas" aria-label="One Bomb 3D Game Stage"></canvas>
+
+  <!-- Gameplay In-Game HUD -->
+  <div class="hud hidden" id="hud">
+    <div class="topSection">
+      <div class="topBar">
+        <div class="leftTools">
+          <button class="btnBase iconBtn" id="homeBtn" title="หน้าหลัก" aria-label="หน้าหลัก">🏠</button>
+          <button class="btnBase iconBtn" id="audioToggleBtn" title="เปิด/ปิดเสียง" aria-label="เปิด/ปิดเสียง">🔊</button>
+        </div>
+        <div class="playerStrip" id="playerStrip"></div>
+        <div class="rightTools">
+          <button class="btnBase secondaryBtn" id="newRoundBtn">↻ เริ่มรอบใหม่</button>
+          <button class="btnBase iconBtn" id="settingsBtn" title="ตั้งค่า" aria-label="ตั้งค่า">⚙️</button>
+        </div>
+      </div>
+
+      <!-- Turn & Odds at Top, keeping Board 100% clear -->
+      <div class="statusTopRow">
+        <div class="turnBanner" id="turnBanner">
+          <span id="turnAvatarEmoji"></span> ตาของ <strong id="turnPlayerName"></strong>
+        </div>
+        <div class="tensionPill">
+          <span>💣 โอกาสระเบิด:</span>
+          <div class="tensionMeter"><div class="tensionFill" id="tensionFill"></div></div>
+          <strong id="tensionLabel">1 ใน 25 (4.0%)</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center is 100% empty and unobstructed for board gameplay -->
+
+    <div class="bottomBar">
+      <div class="roundBadge">
+        <small>รอบที่</small>
+        <strong id="roundLabel">1 / 10</strong>
+      </div>
+      <div class="tileLegend">
+        <span class="safe"><i class="dot safe"></i> ช่องปลอดภัย</span>
+        <span class="hidden"><i class="dot hidden"></i> หินปริศนา</span>
+        <span class="bomb"><i class="dot bomb"></i> ระเบิด</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Menu Screen -->
+  <div class="menuOverlay" id="menuOverlay">
+    <div class="menuBox">
+      <div class="logoArea">
+        <div class="gameTitle">ONE <span class="bombWord">B💣MB</span> 3D</div>
+        <div class="gameSubtitle">เกมปาร์ตี้ดวลเสี่ยงระเบิดสุดน่ารัก</div>
+      </div>
+
+      <div class="glassPanel setupCard">
+        <div class="setupInfo">
+          <strong>จำนวนผู้เล่น</strong>
+          <small id="boardDimensionDesc">กระดาน 5 × 5 · แผ่นหิน 25 แผ่น</small>
+        </div>
+        <div class="stepper">
+          <button class="stepBtn" id="playerMinus" type="button" aria-label="ลดจำนวนผู้เล่น">−</button>
+          <div class="playerVal" id="playerCountVal">2</div>
+          <button class="stepBtn" id="playerPlus" type="button" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
+        </div>
+      </div>
+
+      <div class="menuBtnCol">
+        <button class="btnBase primaryBtn" id="startPlayBtn" type="button">🚀 เริ่มเกมเลย!</button>
+        <button class="btnBase secondaryBtn" id="howToPlayBtn" type="button">📖 วิธีเล่น</button>
+        <button class="btnBase secondaryBtn" id="menuSettingsBtn" type="button">⚙️ ตั้งค่าเกม</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- How to Play Dialog -->
+  <div class="modalOverlay" id="howModal">
+    <div class="glassPanel modalBox">
+      <button class="closeModal" data-close="howModal" type="button" aria-label="ปิด">×</button>
+      <h2>วิธีเล่นเกม</h2>
+      <p>รวมก๊วนเพื่อน 2 ถึง 10 คนมาสนุกกับเหล่าน้องๆ มาสคอตตัวกลมสุดน่ารัก! ใต้แผ่นหินปริศนามี <strong>ระเบิดซ่อนอยู่เพียง 1 ลูกเท่านั้น</strong></p>
+      <ol>
+        <li>ผู้เล่นผลัดกันแตะเลือกเปิดแผ่นหินปริศนาทีละ 1 ช่องตามลำดับ</li>
+        <li><strong>ถ้าเปิดเจอช่องปลอดภัย</strong>: จะได้รับผลึกคริสตัลเปล่งประกาย พร้อมเสียงเชียร์จากน้องมาสคอต!</li>
+        <li><strong>ถ้าใครเปิดเจอระเบิด</strong>: ตัวละครจะถูกแรงระเบิดลอยละลิ่วขึ้นฟ้า และแพ้ในรอบนั้นทันที!</li>
+        <li>ผู้เล่นที่รอดชีวิตทุกคนจะได้รับคนละ 1 แต้ม เล่นจนครบ 10 รอบ ใครสะสมแต้มชนะได้มากที่สุดคือแชมเปี้ยน!</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Settings Dialog -->
+  <div class="modalOverlay" id="settingsModal">
+    <div class="glassPanel modalBox">
+      <button class="closeModal" data-close="settingsModal" type="button" aria-label="ปิด">×</button>
+      <h2>ตั้งค่าเกม</h2>
+      <div class="settingRow">
+        <div>
+          <strong>เสียงเอฟเฟกต์และดนตรี</strong>
+          <div style="font-size:12px;color:#8fa7bf;margin-top:2px">เสียงคริสตัล ระเบิด คลิก และเสียงเต้นของหัวใจ</div>
+        </div>
+        <button class="toggleSwitch on" id="soundToggle" type="button" aria-label="เปิด/ปิดเสียง"><div class="knob"></div></button>
+      </div>
+      <div class="settingRow">
+        <div>
+          <strong>การเคลื่อนไหวและการสั่นของหน้าจอ</strong>
+          <div style="font-size:12px;color:#8fa7bf;margin-top:2px">แอนิเมชันเด้งดุ๊กดิ๊ก แรงสั่นสะเทือน และมุมกล้อง 3D</div>
+        </div>
+        <button class="toggleSwitch on" id="motionToggle" type="button" aria-label="เปิด/ปิดการเคลื่อนไหว"><div class="knob"></div></button>
+      </div>
+      <div class="settingRow">
+        <div>
+          <strong>เอฟเฟกต์ละอองประกาย (Particles)</strong>
+          <div style="font-size:12px;color:#8fa7bf;margin-top:2px">ประกายไฟ ละอองเวทมนตร์ ควันระเบิด และเปเปอร์ชูต</div>
+        </div>
+        <button class="toggleSwitch on" id="particleToggle" type="button" aria-label="เปิด/ปิดเอฟเฟกต์ละอองประกาย"><div class="knob"></div></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Round / Match Result Card -->
+  <div class="glassPanel resultCard" id="resultCard">
+    <div class="resultEmoji" id="resultEmoji">💥</div>
+    <h2 class="resultTitle" id="resultTitle"></h2>
+    <p class="resultDesc" id="resultDesc"></p>
+    <div class="resultBtns">
+      <button class="btnBase primaryBtn" id="nextRoundBtn" type="button">รอบต่อไป ➔</button>
+      <button class="btnBase secondaryBtn" id="menuResultBtn" type="button">กลับหน้าหลัก</button>
+    </div>
+  </div>
+
+  <!-- In-game Notification Toast -->
+  <div class="toast" id="toast">ช่องนี้เปิดไปแล้ว!</div>
+</div>

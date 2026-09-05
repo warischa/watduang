@@ -235,6 +235,10 @@ export const FITS_ROWS = new Set([
   'short-stick 390x844',
   'short-stick 1440x900',
   'timebomb 320x568',
+  // Added 2026-09-06: one-bomb, the twelfth play route. 0px on three consecutive dev-machine runs
+  // against a real dist/ served on 4733 with CDP on 4744.
+  'one-bomb 390x844',
+  'one-bomb 1440x900',
 ]);
 /**
  * Row -> why it is allowed to overflow. Recorded 2026-09-02 from three consecutive full runs; the
@@ -286,6 +290,34 @@ export const KNOWN_OVERFLOW = new Map([
   // Moved from FITS_ROWS 2026-09-02: same self-scroller bound as freeze-tap above.
   ['wire-snip-panic 320x568', 'gh#182 open: 111px on press 0 - 111px to scroll on div#screen-game.screen.active'],
   ['zero-trigger 320x568', 'gh#182 open: 131px on press 0 - 131px to scroll on section#screen-game.screen.active. RE-RECORDED UPWARD from 96px, measured this run on this Mac: gh#194 deliberately gives the player strip its real height (flex-shrink:0 in overrides.css), and that height is added to a screen that was already over. The growth is the fix, not a regression — a chip row nobody can see is not a saving. Promotion to FITS_ROWS is not owed here; this row still overflows by design until the 320px play screen is redesigned'],
+  // Added 2026-09-06: one-bomb, the twelfth play route. Never ruled on, so gh#182 open is the only
+  // class available. RE-RECORDED the same day from 23px on press 2, measured on this Mac against a
+  // real dist/: 75px on press 1, identical on three consecutive runs. Only 2px of the difference is
+  // owed to the gh#79 tap floor this route grew in overrides.css — the same build with that block
+  // removed measured 73px on press 1 here, so the 23px was somebody else's machine, or another
+  // screen, and it was never this one's number.
+  // RE-MEASURED 2026-09-06 after the route grew its no-3D DOM board, on three consecutive runs on
+  // this Mac against a real dist/: still 75px, and the NUMBER IS DELIBERATELY UNCHANGED because it
+  // did not move. What moved is the screen behind it — press 1 used to land on a dead unsupported
+  // notice and now lands on a live board — so the row was re-derived rather than carried over.
+  // ATTRIBUTION, measured this time rather than inherited: the board contributes ZERO. The scrolling
+  // box inside it reads 0px of overflow at every seat count, and removing the menu overlay from
+  // layout takes div#app's overflow to 0px on the board screen. All 75px belong to the menu card,
+  // which is 573px tall in a 568px viewport and stays in layout behind the board because
+  // `.menuOverlay.hidden` hides it with visibility, not display. A candidate note in that card was
+  // dropped for the same reason: it added 58px and was itself clipped off the bottom, unread.
+  // RE-MEASURED 2026-09-06 after the menu overlay was made a self-scroller, three consecutive runs on
+  // this Mac against a real dist/: 97px, identical on all three, and the CLIPPED column went 75 -> 0.
+  // The 75px was never a smaller version of this number, so it was re-derived rather than adjusted.
+  // It was 75px of card the phone could not reach at all, measured with the probe's own seed of three
+  // names; what is recorded now is the card's OWN scroll distance, and it varies with the roster the
+  // way the card does - 45px at two names, 97px at three, 142px at four and above, all measured at
+  // 320x568. The two numbers are not comparable and no arithmetic between them means anything: they
+  // are different boxes measured under different alignment, which is why the row reads HIGHER after a
+  // fix that made the screen usable. Why it stays in this map: the probe counts a
+  // self-scroller that fills the viewport as a screen, and this one is `inset: 0`, so the invariant is
+  // still not satisfied even though nothing is unreachable any more.
+  ['one-bomb 320x568', 'gh#182 open: 97px on the worst screen (press 0 in the probe run) - 97px to scroll on div#menuOverlay.menuOverlay, 0px clipped'],
 ]);
 /**
  * gh#202 — the HORIZONTAL exemption map, and the reason it is a separate map rather than a column in

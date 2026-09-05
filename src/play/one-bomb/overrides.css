@@ -1,0 +1,239 @@
+/* Site-side adjustments for the one-bomb play route. Loaded AFTER style.css so it wins on equal
+   specificity. Nothing here belongs in the lifted files: those stay reproducible from the mockup.
+
+   Everything below styles the name entry src/play/one-bomb/main.ts injects into the mockup's own
+   menu, which the mockup itself has no rules for. The colours are read off the neighbouring lifted
+   rules rather than invented, so the block reads as part of the same card. */
+
+/* The engine paints each seat card from its own cast colour, written from script as an inline
+   `--pColor`. A custom property with no declaration anywhere resolves to nothing, so the rule using
+   it is dead until that write lands — and dead for good if a future edit drops the write. This is the
+   declaration that makes it resolvable, in the token the rest of the strip already reads. */
+#playerStrip {
+  --pColor: #3d5b7d;
+}
+
+/* gh#170's announcement channel: read by assistive tech, never painted. Not `display: none` and not
+   `visibility: hidden` — either one takes the region out of the accessibility tree, which is the one
+   thing it exists to be in. */
+.ob-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ADR-0051's no-3D board. It replaces the dead canvas in the same box the canvas occupied, so the
+   HUD keeps sitting over it exactly as it sat over the 3D stage. #app is `overflow: hidden`, so the
+   scroll has to live HERE: a nine-row board of 44px stones is taller than a 320x568 screen minus the
+   two HUD bars, and a board whose bottom rows are unreachable is not a playable round. */
+.ob-board-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 104px 10px 78px;
+  overflow: auto;
+}
+
+/* display:none rather than opacity or visibility: while the menu is up the stones must be out of the
+   accessibility tree and out of the hit test entirely, not merely invisible under an overlay. */
+.ob-board-wrap.ob-away {
+  display: none;
+}
+
+.ob-board {
+  /* Declared here, not only written from script: a custom property with no declaration resolves to
+     nothing and would leave the grid with one column until the first render lands. */
+  --ob-cols: 5;
+  display: grid;
+  grid-template-columns: repeat(var(--ob-cols), minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  /* Load-bearing, and measured: the board is a flex item, a flex item's automatic minimum is its
+     min-content width, and a nine-column grid of 44px stones reports 396px of min-content. Without
+     this the board refused to shrink to a 320px screen and scrolled sideways instead — which is the
+     one axis this repo gates at zero for every route. */
+  min-width: 0;
+  max-width: 520px;
+  margin: auto;
+}
+
+/* gh#79's 44px floor, applied to the height only, and the three declarations it took to get there.
+   All three were measured in a real browser at 320x568 with the GPU disabled, because none of them
+   is visible in the source: the first version of this rule drew every stone in a nine-column row
+   44px wide on a 33.5px pitch -- nine tap targets overlapping their neighbours, with the row's last
+   stone 4px off-screen -- while reporting a perfectly ordinary 44px height.
+
+   `min-width: 0` because `aspect-ratio` transfers the height floor through the ratio into the
+   automatic minimum WIDTH, so a 44px floor on one axis silently became a 44px floor on both.
+   `width: 100%` because that alone did not move it either: with a ratio set and both axes left to
+   stretch, the ratio decides the width, so the floored height stayed the input. A definite width
+   makes the column the input and the ratio the output, which is the direction a board wants.
+
+   What the three buy: the stone is square wherever the column is wider than 44px, and below that it
+   keeps the 44px height and narrows to its column. Nine columns on a 320px screen is 30px of width
+   -- narrower than the floor, and deliberately so, because the alternative is a board that scrolls
+   sideways, and sideways is the axis this repo gates at zero on every route. */
+.ob-tile {
+  min-height: 44px;
+  aspect-ratio: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #3d5b7d, #24374e);
+  color: #eaf2fa;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ob-tile.is-open {
+  background: rgba(46, 213, 115, 0.24);
+  border-color: rgba(46, 213, 115, 0.55);
+}
+
+.ob-tile.is-bomb {
+  background: rgba(235, 77, 75, 0.38);
+  border-color: rgba(235, 77, 75, 0.75);
+}
+
+/* The arm gate's 400ms window, and the only thing it may look like: dimmed, never gone. A stone that
+   disappears while the window is open moves the whole grid under the finger. */
+.ob-tile:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+
+/* The menu card is taller than a 320x568 screen and #app clips, so the card's own buttons went off
+   the bottom of the phone: measured at 320x568, two saved names cut 20px off #menuSettingsBtn, three
+   put it off-screen entirely, and four or more cut 9px off #startPlayBtn — the button that starts the
+   game. The overlay is the box that has to scroll: it is `inset: 0` and #app above it is
+   `overflow: hidden`, so nothing outside it can.
+
+   `safe center` and not plain `center`: the lifted rule centres the card with `place-items: center`,
+   and a centred item taller than its box overflows BOTH ends, which puts the top of the card above
+   scrollTop 0 where no scroll can reach it. `safe` keeps the centring while the card fits and falls
+   back to start-alignment exactly when it does not. */
+.menuOverlay {
+  overflow-y: auto;
+  align-items: safe center;
+  /* Not cosmetic, and it is the scroll rule above that makes it load-bearing: a computed overflow-y
+     of `auto` turns the other axis's `visible` into `auto` too (CSS Overflow 3), so the moment this
+     box scrolls, anything spilling sideways stops painting over the padding and becomes REAL
+     unreachable content. The lifted card is `min(480px, 92vw)` = 294.4px inside the lifted 20px
+     padding's 280px content box, so it spilled by 14px and the fit probe read that as a sideways
+     clip. 10px gives the card its own width back with room to spare and the margin only grows with
+     the viewport: the card needs 0.92vw and this box offers vw - 20. */
+  padding-inline: 10px;
+}
+
+.ob-players {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 34vh;
+  overflow-y: auto;
+}
+
+.ob-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ob-player-seat {
+  flex: 0 0 auto;
+  width: 34px;
+  font-size: 22px;
+  line-height: 1;
+  text-align: center;
+}
+
+/* 44px, not the 38px the mockup's stepper uses: a text field is a typing target and the tap floor
+   applies to it the same as to a button. */
+.ob-player-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2effa;
+  font: inherit;
+  font-weight: 800;
+}
+
+.ob-reset {
+  width: 100%;
+  min-height: 44px;
+}
+
+.ob-reset-dialog {
+  width: min(360px, 88vw);
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  background: #152230;
+  color: #e2effa;
+  text-align: center;
+}
+
+.ob-reset-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.ob-reset-dialog p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #94adcb;
+}
+
+.ob-reset-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.ob-reset-btns button {
+  flex: 1 1 0;
+  min-height: 44px;
+}
+
+/* gh#79's 44px tap floor. The mockup sizes its own controls from padding and font size alone and
+   sets no minimum anywhere, so every one of them resolved a floor of `auto` and eight rendered under
+   44px: the two steppers at 38px, the HUD's round button at 40px, and the menu's two secondary
+   buttons at 43px. A floor rather than a fixed height, so a longer Thai label still grows the box. */
+.btnBase,
+.stepBtn {
+  min-height: 44px;
+}
+
+/* The steppers are square icons: a 44px-tall box 38px wide is still not a 44px target. */
+.stepBtn {
+  min-width: 44px;
+}
+
+/* The HUD's own hide state scales the whole bar to 0.98, and a rect is measured AFTER transform — so
+   its 44px icon buttons measured 43.12px while the menu was open, and no floor set on them could
+   have reached 44 without making them oversized once the bar is shown again. The fade is what hides
+   the bar; the 2% zoom only shrank the tap targets under it. */
+.hud.hidden {
+  transform: none;
+}

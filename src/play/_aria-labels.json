@@ -39,6 +39,12 @@
     "#btnCloseResetNames": "ปิด",
     "[data-key=\"backspace\"]": "ลบตัวเลขตัวสุดท้าย"
   },
+  "one-bomb": {
+    "#soundToggle": "เปิด/ปิดเสียง",
+    "#motionToggle": "เปิด/ปิดการเคลื่อนไหว",
+    "#particleToggle": "เปิด/ปิดเอฟเฟกต์ละอองประกาย",
+    ".closeModal": "ปิด"
+  },
   "short-stick": {
     "#btn-fewer-sticks": "ลดจำนวนไม้",
     "#btn-more-sticks": "เพิ่มจำนวนไม้",

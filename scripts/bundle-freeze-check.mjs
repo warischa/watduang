@@ -158,6 +158,10 @@ const BASELINE_BASENAMES = [
   // set gained only the two game-module basenames below.
   'wire-snip-panic.js',
   'zero-trigger.js',
+  // Port 7, the twelfth play route. Its own play.astro script folds into the shared basename above,
+  // so this game-module chunk is the only thing the SET leg can see of it; the BYTES leg below is
+  // what actually measured the route arriving.
+  'one-bomb.js',
   'draw.astro_astro_type_script_index_0_lang.js',
   'freeze-tap.js',
   'love-match.js',
@@ -237,7 +241,29 @@ const BASELINE_BASENAMES = [
 // for whoever ships the change that actually moves it. The band is NOT widened and no leg is
 // relaxed; the gate is now closer to its upper bound than it was, and the next byte-moving change
 // is expected to red on it and re-pin with attribution.
-const BASELINE_TOTAL_BYTES = 397772;
+// Re-baselined 2026-09-06, BOTH legs, for the twelfth play route (one-bomb). The owner approved this
+// growth in advance for three games (gh#206) on the condition that each game re-pins to ITS OWN
+// measured total in its own change, and that the +/-5% band is never widened. Neither is widened
+// here and no leg is relaxed.
+// What fired and why: the SET leg on one-bomb.js, the PAIR leg on the two entry chunks the new page
+// loads, and the BYTES leg because 457225 is far outside the band around 397772.
+// Where the bytes went. The route ships two files — its game module chunk, and the entry chunk its
+// own play.astro builds (the lifted WebGL engine, this route's name entry and its DOM board, all
+// minified). Subtract those two from the total and what is left lands 533 bytes above the 413736 the
+// 2026-09-04 note above recorded for the tree before this route: the manifest and the game page's
+// import.meta.glob map each gaining a one-bomb entry. The whole delta is therefore attributed, which
+// is what the header requires before re-pinning.
+// THE TWO CHUNK SIZES ARE DELIBERATELY NOT WRITTEN HERE, and that is this note's own correction. The
+// version that shipped with the route quoted them, and the same tree now builds a play.astro chunk
+// 6443 bytes larger: the route's DOM board, plus the modal-close arm gate that came with it. Both are
+// JS, which is the only thing this total counts — the same work's CSS lands in a stylesheet asset and
+// is invisible here. It stayed green through all of that only because the drift sat inside the band,
+// which the header says is not the standard for a re-baseline.
+// Re-derive the split instead, against the dist/ in front of you:
+//   node -e "const f=require('fs'),p=require('path');const h=f.readFileSync('dist/game/one-bomb/play/index.html','utf8');for(const m of h.matchAll(/src=\"([^\"]+)\"/g))console.log(m[1],f.statSync(p.join('dist',m[1].slice(1))).size);"
+//   ls -l dist/_astro/one-bomb.*.js
+// Measured on the build this constant was pinned from, 2026-09-06.
+const BASELINE_TOTAL_BYTES = 464658;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
@@ -282,6 +308,8 @@ const BASELINE_PAGE_ENTRIES = [
   'game/wire-snip-panic/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/zero-trigger/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
   'game/zero-trigger/play/index.html play.astro_astro_type_script_index_0_lang.js',
+  'game/one-bomb/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/one-bomb/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'tool/draw/index.html ToolNameEntry.astro_astro_type_script_index_0_lang.js',
   'tool/draw/index.html draw.astro_astro_type_script_index_0_lang.js',
   'tool/number/index.html number.astro_astro_type_script_index_0_lang.js',
