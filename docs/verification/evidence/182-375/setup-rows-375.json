@@ -1,0 +1,3332 @@
+{
+  "results": [
+    {
+      "route": "cannon-flag",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 323,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-name-input"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "route": "cursed-number",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "mascot-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 311,
+              "rectLeft": 108,
+              "outOfViewport": false,
+              "rowHeight": 56,
+              "rowTag": "DIV.mascot-row"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "route": "dice-loser",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "dl-player-name",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 348,
+              "rectLeft": 65,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.dl-player-name"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": []
+        }
+      }
+    },
+    {
+      "route": "freeze-tap",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "roster-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 320,
+              "rectLeft": 88,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.roster-input"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "route": "how-close-is-near",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-text-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 315,
+              "rectLeft": 100,
+              "outOfViewport": false,
+              "rowHeight": 34,
+              "rowTag": "INPUT.player-text-input"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "route": "pinocchio-luck",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 339,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 46,
+              "rowTag": "LABEL.name-field"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "route": "power-meter",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 319,
+              "rectLeft": 102,
+              "outOfViewport": false,
+              "rowHeight": 54,
+              "rowTag": "DIV.name-row"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "route": "short-stick",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "input player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 287,
+              "rectLeft": 90,
+              "outOfViewport": false,
+              "rowHeight": 44,
+              "rowTag": "INPUT.input"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "route": "timebomb",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": []
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": []
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": []
+        }
+      }
+    },
+    {
+      "route": "wire-snip-panic",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 277,
+              "rectLeft": 82,
+              "outOfViewport": false,
+              "rowHeight": 16,
+              "rowTag": "INPUT.player-input"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "route": "zero-trigger",
+      "variants": {
+        "short": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            }
+          ]
+        },
+        "longest": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": [
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            },
+            {
+              "tag": "INPUT",
+              "cls": "player-name-input",
+              "clipped": false,
+              "wrapped": null,
+              "rectRight": 299,
+              "rectLeft": 93,
+              "outOfViewport": false,
+              "rowHeight": 40,
+              "rowTag": "INPUT.player-name-input"
+            }
+          ]
+        },
+        "fifteen": {
+          "innerWidthAfterNav": 375,
+          "innerWidthAfterReapply": 375,
+          "elements": []
+        }
+      }
+    }
+  ]
+}

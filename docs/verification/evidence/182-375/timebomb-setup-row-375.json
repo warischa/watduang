@@ -1,0 +1,236 @@
+{
+  "route": "timebomb",
+  "variants": {
+    "short": {
+      "innerWidthAfterNav": 375,
+      "innerWidthAfterReapply": 375,
+      "needle": "หมู",
+      "elements": [
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "หมู",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        }
+      ]
+    },
+    "longest": {
+      "innerWidthAfterNav": 375,
+      "innerWidthAfterReapply": 375,
+      "needle": "ลูกเจี๊ยบ",
+      "elements": [
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบ",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        }
+      ]
+    },
+    "fifteen": {
+      "innerWidthAfterNav": 375,
+      "innerWidthAfterReapply": 375,
+      "needle": "ลูกเจี๊ยบแฮม",
+      "elements": [
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        },
+        {
+          "value": "ลูกเจี๊ยบแฮม",
+          "clipped": false,
+          "rectRight": 346,
+          "rectLeft": 64,
+          "outOfViewport": false
+        }
+      ]
+    }
+  }
+}

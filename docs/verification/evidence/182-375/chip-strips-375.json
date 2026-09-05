@@ -1,0 +1,1384 @@
+{
+  "results": [
+    {
+      "route": "short-stick",
+      "variant": "short",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#draw-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 16,
+            "right": 359,
+            "width": 343
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 16,
+              "chipRight": 82
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 90,
+              "chipRight": 156
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 164,
+              "chipRight": 230
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 238,
+              "chipRight": 303
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 311,
+              "chipRight": 377
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 385,
+              "chipRight": 451
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 459,
+              "chipRight": 524
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 532,
+              "chipRight": 598
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 606,
+              "chipRight": 671
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 679,
+              "chipRight": 745
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "short-stick",
+      "variant": "longest",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#draw-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 16,
+            "right": 359,
+            "width": 343
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 16,
+              "chipRight": 110
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 118,
+              "chipRight": 209
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 217,
+              "chipRight": 308
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 316,
+              "chipRight": 407
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 415,
+              "chipRight": 507
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 515,
+              "chipRight": 606
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 614,
+              "chipRight": 705
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 713,
+              "chipRight": 804
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 812,
+              "chipRight": 903
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 911,
+              "chipRight": 1002
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "short-stick",
+      "variant": "fifteen",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#draw-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 16,
+            "right": 359,
+            "width": 343
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 16,
+              "chipRight": 112
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 120,
+              "chipRight": 216
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 224,
+              "chipRight": 320
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 328,
+              "chipRight": 424
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 432,
+              "chipRight": 528
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 536,
+              "chipRight": 632
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 640,
+              "chipRight": 736
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 744,
+              "chipRight": 840
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 848,
+              "chipRight": 944
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": true,
+              "chipLeft": 952,
+              "chipRight": 1048
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "wire-snip-panic",
+      "variant": "short",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#hud-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 14,
+            "right": 361,
+            "width": 347
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 14,
+              "chipRight": 112
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 119,
+              "chipRight": 213
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 221,
+              "chipRight": 316
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 324,
+              "chipRight": 418
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 426,
+              "chipRight": 521
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 529,
+              "chipRight": 623
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 631,
+              "chipRight": 726
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 734,
+              "chipRight": 828
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 836,
+              "chipRight": 931
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 939,
+              "chipRight": 1033
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "wire-snip-panic",
+      "variant": "longest",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#hud-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 14,
+            "right": 361,
+            "width": 347
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 14,
+              "chipRight": 137
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 143,
+              "chipRight": 262
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 270,
+              "chipRight": 389
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 397,
+              "chipRight": 516
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 524,
+              "chipRight": 643
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 651,
+              "chipRight": 770
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 778,
+              "chipRight": 897
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 905,
+              "chipRight": 1024
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 1032,
+              "chipRight": 1151
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 1159,
+              "chipRight": 1278
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "wire-snip-panic",
+      "variant": "fifteen",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#hud-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 14,
+            "right": 361,
+            "width": 347
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 13,
+              "chipRight": 147
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 152,
+              "chipRight": 280
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 288,
+              "chipRight": 416
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 424,
+              "chipRight": 552
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 560,
+              "chipRight": 688
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 696,
+              "chipRight": 824
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 832,
+              "chipRight": 960
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 968,
+              "chipRight": 1096
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 1104,
+              "chipRight": 1232
+            },
+            {
+              "text": "(0★)",
+              "nameClipped": false,
+              "chipLeft": 1240,
+              "chipRight": 1368
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "zero-trigger",
+      "variant": "short",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#game-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 20,
+            "right": 355,
+            "width": 335
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 30,
+              "chipRight": 98
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 104,
+              "chipRight": 168
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 176,
+              "chipRight": 241
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 249,
+              "chipRight": 313
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 321,
+              "chipRight": 385
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 393,
+              "chipRight": 457
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 465,
+              "chipRight": 530
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 538,
+              "chipRight": 602
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 610,
+              "chipRight": 674
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 682,
+              "chipRight": 746
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "zero-trigger",
+      "variant": "longest",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#game-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 20,
+            "right": 355,
+            "width": 335
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 30,
+              "chipRight": 125
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 130,
+              "chipRight": 221
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 229,
+              "chipRight": 319
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 327,
+              "chipRight": 417
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 425,
+              "chipRight": 515
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 523,
+              "chipRight": 614
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 622,
+              "chipRight": 712
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 720,
+              "chipRight": 810
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 818,
+              "chipRight": 909
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 917,
+              "chipRight": 1007
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "zero-trigger",
+      "variant": "fifteen",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#game-player-strip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 20,
+            "right": 355,
+            "width": 335
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 30,
+              "chipRight": 130
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 136,
+              "chipRight": 232
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 240,
+              "chipRight": 336
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 344,
+              "chipRight": 440
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 448,
+              "chipRight": 544
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 552,
+              "chipRight": 648
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 656,
+              "chipRight": 752
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 760,
+              "chipRight": 856
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 864,
+              "chipRight": 960
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮม",
+              "nameClipped": true,
+              "chipLeft": 968,
+              "chipRight": 1064
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "cursed-number",
+      "variant": "short",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#handoffPlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 0,
+            "right": 0,
+            "width": 0
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            }
+          ]
+        },
+        {
+          "sel": "#selectionPlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 0,
+            "right": 0,
+            "width": 0
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            }
+          ]
+        },
+        {
+          "sel": "#safePlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 26,
+            "right": 349,
+            "width": 323
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 35,
+              "chipRight": 105
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 113,
+              "chipRight": 184
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 192,
+              "chipRight": 262
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 270,
+              "chipRight": 340
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 33,
+              "chipRight": 107
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 113,
+              "chipRight": 184
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 192,
+              "chipRight": 262
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 270,
+              "chipRight": 340
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 113,
+              "chipRight": 184
+            },
+            {
+              "text": "หมู",
+              "nameClipped": false,
+              "chipLeft": 192,
+              "chipRight": 262
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "cursed-number",
+      "variant": "longest",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#handoffPlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 0,
+            "right": 0,
+            "width": 0
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            }
+          ]
+        },
+        {
+          "sel": "#selectionPlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 0,
+            "right": 0,
+            "width": 0
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            }
+          ]
+        },
+        {
+          "sel": "#safePlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 26,
+            "right": 349,
+            "width": 323
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 32,
+              "chipRight": 130
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 138,
+              "chipRight": 236
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 242,
+              "chipRight": 346
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 32,
+              "chipRight": 130
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 138,
+              "chipRight": 237
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 245,
+              "chipRight": 343
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 32,
+              "chipRight": 130
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 138,
+              "chipRight": 237
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 245,
+              "chipRight": 343
+            },
+            {
+              "text": "ลูกเจี๊ยบ",
+              "nameClipped": false,
+              "chipLeft": 138,
+              "chipRight": 237
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "cursed-number",
+      "variant": "fifteen",
+      "innerWidth": 375,
+      "strips": [
+        {
+          "sel": "#handoffPlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 0,
+            "right": 0,
+            "width": 0
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            }
+          ]
+        },
+        {
+          "sel": "#selectionPlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 0,
+            "right": 0,
+            "width": 0
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 0,
+              "chipRight": 0
+            }
+          ]
+        },
+        {
+          "sel": "#safePlayerStrip",
+          "containerFound": true,
+          "containerRect": {
+            "left": 26,
+            "right": 349,
+            "width": 323
+          },
+          "chipCount": 10,
+          "chips": [
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 39,
+              "chipRight": 184
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 192,
+              "chipRight": 336
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 39,
+              "chipRight": 184
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 192,
+              "chipRight": 336
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 39,
+              "chipRight": 184
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 192,
+              "chipRight": 336
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 35,
+              "chipRight": 188
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 192,
+              "chipRight": 336
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 39,
+              "chipRight": 184
+            },
+            {
+              "text": "ลูกเจี๊ยบแฮมสเต",
+              "nameClipped": false,
+              "chipLeft": 192,
+              "chipRight": 336
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
