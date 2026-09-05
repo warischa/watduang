@@ -65,7 +65,7 @@ jobs:
           fi
 
       - name: npm ci
-        run: npm ci
+        run: npm ci --no-audit
 
       # FIRST gate on purpose, and cheap: a static read of package.json plus this file. It answers
       # "can any gate below this line even fail?" — including "is every gate wired into BOTH
