@@ -8,7 +8,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // default name on this route -- the seat built when count is chosen, the placeholder an empty field
 // shows, and the fallback for a name left blank at match start -- comes from here. resetCastNames is
 // the reset control's wipe: it keeps the seat count and discards whatever a player typed.
-import { mascotNames, resetCastNames } from '../_mascots.ts';
+import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 
     /* ==========================================================================
        1. PURE LOGIC & DETERMINISTIC TIEBREAK ENGINE (2 DECIMAL PLACES)
@@ -454,16 +454,26 @@ import { mascotNames, resetCastNames } from '../_mascots.ts';
       FINAL_LOSER: 'FINAL_LOSER'
     });
 
-    const PLAYER_AVATARS = ['🦊', '🐼', '🐯', '🦁', '🐸', '🐨', '🐰', '🦄', '🐙', '🐺'];
+    const PLAYER_AVATARS = MASCOTS.map((m) => m.emoji);
     const PLAYER_COLORS = [
       '#00f2fe', '#10b981', '#f59e0b', '#ff2a5f', '#a855f7',
       '#38bdf8', '#34d399', '#fbbf24', '#f43f5e', '#c084fc'
     ];
 
     // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
-    // exactly one definition, in _mascots.ts, and none here. PLAYER_AVATARS/PLAYER_COLORS are left
-    // as this route's own lists -- unlike short-stick's badge, nothing here claimed they had to match
-    // the cast row for row, so they are out of scope for gh#175.
+    // exactly one definition, in _mascots.ts, and none here.
+    //
+    // PLAYER_AVATARS is now derived from that same cast rather than listed here, so seat N shows the
+    // cast's emoji for seat N in this game exactly as it does in every other one -- ADR-0054 ruling 2,
+    // the order is fixed and identical in every party game. It used to be this route's own list, and
+    // the earlier note here reasoned that nothing had claimed it must match the cast row for row. That
+    // reasoning is retired: gh#152 does claim it, in the box asking that names and icons have exactly
+    // one definition, and while a second list existed this route rendered a fox beside the cast's
+    // first default name, whose own cast emoji is a cat.
+    //
+    // PLAYER_COLORS stays this route's own list on purpose. The cast carries no colour at all -- its
+    // header records that ADR-0054 wants colour to enter through a stylesheet token, not a JS array --
+    // so there is no shared definition here to converge on, and folding colour in would invent one.
     const defaultName = (i) => mascotNames(i + 1)[i];
 
     const game = {

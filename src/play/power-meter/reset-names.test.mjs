@@ -19,7 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 // The real cast, imported rather than re-listed here — a stand-in would test this file's idea of the
 // reset instead of the one that ships.
-import { mascotNames, resetCastNames } from '../_mascots.ts';
+import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 
 const source = fs.readFileSync(path.join(import.meta.dirname, 'main.js'), 'utf8');
 
@@ -138,7 +138,7 @@ const rebuildPlayers = new Function(
   `${rebuildBody}\nreturn game.players;`,
 );
 
-const AVATARS = ['🦊', '🐼', '🐯', '🦁', '🐸', '🐨', '🐰', '🦄', '🐙', '🐺'];
+const AVATARS = MASCOTS.map((m) => m.emoji);
 const COLORS = ['#00f2fe', '#10b981', '#f59e0b', '#ff2a5f', '#a855f7'];
 const defaultNameFn = (i) => mascotNames(i + 1)[i];
 

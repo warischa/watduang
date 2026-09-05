@@ -347,3 +347,58 @@ test('no play route ships a numbered player default in its markup', async () => 
   assert.deepEqual(hits, [], `numbered player default(s) shipped in markup:\n  ${hits.join('\n  ')}`);
   console.log(`markup numbered-default scan: ${routes.length} play route(s) derived from the manifest`);
 });
+
+// gh#152 box 1 -- "the animal names and icons are defined in exactly one file, and a command shows
+// only one definition exists". The row-for-row test at the top of this file pins the ONE copy we
+// knowingly keep (freeze-tap's inline MASCOT_PLAYERS). This test closes the other half: no play route
+// may declare a fresh bare-emoji list of its own. power-meter shipped one for months -- a ten-emoji
+// PLAYER_AVATARS that diverged from the cast, so seat 1 rendered a fox beside a default name whose
+// cast emoji is a cat. It now derives from MASCOTS, and this test is what stops the next one landing.
+//
+// WHY THE SET IS INVERTED. The ways to write an icon list are unbounded and we do not own that set,
+// so the guard marks nothing as allowed and requires the count to be zero. There is deliberately no
+// exemption list here: freeze-tap does not need one, because its cast is an array of OBJECTS carrying
+// an emoji field, not an array of bare emoji, so this scan does not see it at all.
+//
+// WHAT THIS DOES NOT SEE, stated so a green is not read as more than it is: an icon list written as
+// objects (freeze-tap's shape) is invisible here and is covered instead by the row-for-row test
+// above; a list built by calling a helper is invisible to any source scan; and a two-element array is
+// the smallest thing that trips this, so a single stray emoji constant is allowed on purpose.
+//
+// CALIBRATED BOTH WAYS before it was committed: restoring power-meter's old literal flags it, and the
+// penalty-preset arrays in short-stick and zero-trigger -- sentences that happen to contain an emoji
+// -- are NOT flagged, which is the false positive an earlier draft of this scan produced.
+test('no play route declares its own bare-emoji icon list', async () => {
+  const repoRoot = path.join(here, '..', '..');
+  const { games } = await import(pathToFileURL(path.join(repoRoot, 'src/games/manifest.ts')).href);
+  const routes = games.filter((g) => g.playRoute).map((g) => g.id).sort();
+  assert.ok(routes.length > 0,
+    'no play routes derived from src/games/manifest.ts -- refusing to report a vacuous pass on an empty work set');
+
+  // An element that is essentially just an emoji: a quoted string holding one or two pictographic
+  // characters and nothing else. The optional trailing character is U+FE0F, VARIATION SELECTOR-16,
+  // written as an escape and named by codepoint rather than pasted as a glyph -- it is invisible in a
+  // diff, and any whitespace or encoding sweep of this file would silently eat a literal one.
+  const ICONISH = /^['"]\s*(?:\p{Extended_Pictographic}\uFE0F?){1,2}\s*['"]$/u;
+  const DECL = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*\[([^\]]*)\]/gs;
+
+  const hits = [];
+  let scanned = 0;
+  for (const id of routes) {
+    const dir = path.join(here, id);
+    const file = ['main.js', 'main.ts'].map((n) => path.join(dir, n)).find((p) => fs.existsSync(p));
+    assert.ok(file, `no main module in src/play/${id} -- the manifest ships a play route with nothing to scan here`);
+    scanned += 1;
+    const source = fs.readFileSync(file, 'utf8');
+    for (const m of source.matchAll(DECL)) {
+      const items = m[2].split(',').map((s) => s.trim()).filter(Boolean);
+      const iconish = items.filter((s) => ICONISH.test(s)).length;
+      if (iconish >= 2 && iconish === items.length) {
+        hits.push(`${id}/${path.basename(file)}: ${m[1]} (${items.length} entries) -- import from _mascots.ts instead`);
+      }
+    }
+  }
+  assert.equal(scanned, routes.length, 'a route was skipped -- this scan must cover every route the manifest ships');
+  assert.deepEqual(hits, [], `play route(s) declaring their own icon list:\n  ${hits.join('\n  ')}`);
+  console.log(`icon-list scan: ${scanned} play route(s) derived from the manifest, 0 own icon lists`);
+});
