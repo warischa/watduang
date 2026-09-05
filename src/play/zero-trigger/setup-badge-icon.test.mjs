@@ -6,10 +6,11 @@
 // check would red on. Equality with the cast is immune to it.
 //
 // It runs the REAL bytes on the REAL seats. The badge value on this route comes from state, not from
-// a call inside the row builder, so three pieces of main.js are sliced and driven together: the two
-// opening seats' own array literal out of the engine's initial state, addNewPlayer for every seat past
-// them, and renderPlayerRoster for the markup. Nothing about the seat-to-glyph mapping is
-// re-implemented here, so a change to either half fails this file.
+// a call inside the row builder, so four pieces of main.js are sliced and driven together: the route's
+// own AVATAR_LIST declaration, the two opening seats' array literal out of the engine's initial state,
+// addNewPlayer for every seat past them, and renderPlayerRoster for the markup. The cast is sliced
+// rather than re-derived here on purpose -- a test that builds the list itself never exercises the
+// route's declaration, and reverting that declaration to seat numbers would leave this file green.
 //
 // A seat's avatar is deliberately PLAYER-EDITABLE on this route (the badge is a button that opens an
 // avatar picker). What is pinned here is the DEFAULT a seat opens with, which is the thing gh#140
@@ -45,10 +46,17 @@ function sliceOpeningSeats() {
   throw new Error('unbalanced brackets while slicing the opening roster');
 }
 
-const AVATAR_LIST = MASCOTS.map((m) => m.emoji);
+/** A one-statement declaration, taken to its semicolon -- the route's own cast derivation. */
+function sliceStatement(decl) {
+  const at = source.indexOf(decl);
+  assert.notEqual(at, -1, `main.js no longer declares ${decl.trim()} — this test is measuring nothing`);
+  return source.slice(at, source.indexOf(';', at) + 1);
+}
+
 const factory = new Function(
-  'document', 'AVATAR_LIST', 'defaultPlayerName', 'escapeHtml', 'armAllButtons',
-  `return {
+  'document', 'MASCOTS', 'defaultPlayerName', 'escapeHtml', 'armAllButtons',
+  `${sliceStatement('const AVATAR_LIST = ')}
+   return {
      openingSeats: () => (${sliceOpeningSeats()}),
      addNewPlayer: function ${slice('addNewPlayer()')},
      renderPlayerRoster: function ${slice('renderPlayerRoster()')},
@@ -59,7 +67,7 @@ const factory = new Function(
 function render(count) {
   const { document, el } = makeDocumentStub();
   const container = el('player-roster-container');
-  const parts = factory(document, AVATAR_LIST, (i) => MASCOTS[i].name, (s) => String(s), () => {});
+  const parts = factory(document, MASCOTS, (i) => MASCOTS[i].name, (s) => String(s), () => {});
   const engine = {
     state: { players: parts.openingSeats(), penaltyMode: 'preset' },
     synth: { playClick() {} },
