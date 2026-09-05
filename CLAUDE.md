@@ -29,6 +29,10 @@ Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 
 ⚠ Before running a build · **deleting or renaming a page** · driving two headless probes at once · or putting a choice to the site owner → read `docs/runbook.md` first · verifying anything the way CI does, or reading CI's own verdict → `docs/agents/ci-verification.md` (a local green predicts CI only via `scripts/run-workflow-gates.sh`, never a hand-picked subset of gates; it also carries the per-step endpoint) · **before writing any verification command** → `docs/agents/shell-traps.md`, the six ways a probe reports a number that is not true.
 
+⚠ **A brief's Premise cites the ticket's LAST comment, never a handoff's summary of it.** Six briefs in one session (2026-09-05) carried a premise this tracker had already reversed: gh#104 was briefed as not owner-reserved while its label had been moved to `ready-for-human` for exactly that reason, and a twice-recorded owner exemption in `scripts/party-size-claim-check.mjs` was briefed as a "gate hole" to narrow — a worker's `REFUSED` was the only thing that stopped it. A gate green on an apparent violation is a carve-out until its own comment says otherwise; read that comment and the ticket's last word BEFORE the brief. Same session, the opposite error: the refusal then over-read the freeze onto files the same doc's next sentence explicitly unfroze, so read the sentence after the one that proves you wrong.
+
+⚠ **A text grep cannot answer a question about a runtime value.** `grep -c playRoute src/games/manifest.ts` returns 0 while importing that module and filtering on `playRoute` returns all eleven route ids — the field is declared in each game module and composed at import time. Claims about a property, an export, or a resolved config get EXECUTED, never searched for by name; a zero from one file's text is not evidence a runtime property is absent. On 2026-09-05 that zero was published as a refutation of a correct design and written into a brief telling the worker to distrust it.
+
 ## Batch boundaries
 
 Deploy once per work batch, never per feature: approved work stacks as local commits while agents
