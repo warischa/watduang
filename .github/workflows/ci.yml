@@ -154,6 +154,13 @@ jobs:
       - name: Icon-only play-route controls carry a Thai accessible name (gh#211)
         run: node scripts/play-icon-label-check.mjs --selftest && node scripts/play-icon-label-check.mjs
 
+      # gh#209: four play routes rendered a seat number where the animal icon belongs, and the owner
+      # found it on the live site. This gate only asks whether every route OWES a setup-badge-icon
+      # test; the per-route tests are what red on a badge reverted to a number. Route set is derived
+      # from the manifest and the src/play listing, so a new route is covered without editing a list.
+      - name: Every play route owes a setup-badge-icon test (gh#209)
+        run: node scripts/setup-badge-icon-coverage-check.mjs --selftest && node scripts/setup-badge-icon-coverage-check.mjs
+
       - name: Stable-exit marker set stays closed (static check)
         run: node scripts/stable-exit-markers-check.mjs --selftest && node scripts/stable-exit-markers-check.mjs
 
