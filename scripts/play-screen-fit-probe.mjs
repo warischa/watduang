@@ -807,6 +807,7 @@ const DESKTOP_W = Math.max(...VIEWPORTS.map((v) => v.w));
 // completeness gate would go green by construction rather than by coverage.
 const DESKTOP_VP = `${DESKTOP_W}x${VIEWPORTS.find((v) => v.w === DESKTOP_W).h}`;
 const EVIDENCE_DIR = path.join(repoRoot, 'docs/verification/evidence/203');
+const WRITE_SHOTS = process.env.COMPOSITION_SHOTS === '1' || !process.env.CI;
 
 /**
  * gh#203 — read the composition row and, on a walking leg, put a screenshot of the SAME moment beside
@@ -833,8 +834,15 @@ async function capture(session, id, row, label, press) {
   // Only a leg that actually walks writes evidence. Under BREAK_WALK/NO_PRESS every route stands on
   // its fresh screen, and letting the control leg write would overwrite the named game-screen images
   // with setup images carrying the same filenames.
-  if (!NO_PRESS) {
-    shot = path.join(EVIDENCE_DIR, `${id}-${DESKTOP_W}x900-${label}.png`);
+  //
+  // And only OFF CI. The images are gitignored and this file's own doc calls them "a convenience for
+  // whoever still has the working tree" -- CI has no working tree afterwards, so on the runner they
+  // are pure cost. That cost is not free: the lanes run in parallel, and on run 33964448528 every leg
+  // on the box got slower while play-exit's burst dispatch blew its 400ms arm window. Nothing is
+  // gated on a screenshot; compositionGaps gates on the ROW being present. COMPOSITION_SHOTS=1
+  // forces them back on anywhere.
+  if (!NO_PRESS && WRITE_SHOTS) {
+    shot = path.join(EVIDENCE_DIR, `${id}-${DESKTOP_VP}-${label}.png`);
     fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
     await session.screenshot(shot);
   }
