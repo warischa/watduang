@@ -13,6 +13,7 @@
 //   e.g. node scripts/extract-mockup.mjs ~/claude/mockup-games/cannon-flag cannon-flag
 import fs from 'node:fs';
 import path from 'node:path';
+import { applyLabels } from './play-aria-labels.mjs';
 
 const [, , srcDir, id] = process.argv;
 if (!srcDir || !id) {
@@ -66,9 +67,22 @@ const stripLifted = (body) =>
     .replace(/<script(?![^>]*\ssrc=)[^>]*>[\s\S]*?<\/script>/g, '')
     .replace(/<style[^>]*>[\s\S]*?<\/style>/g, '');
 
+// Thai accessible names are re-applied to every file this script writes, from
+// src/play/_aria-labels.json — a file this script does NOT own. Without this, an aria-label typed
+// into markup.html or main.js is destroyed by the next extraction, which is exactly how ZERO_TRIGGER
+// shipped English names for three controls whose Thai titles were already correct: the mockup itself
+// carries the English, so re-extracting kept restoring it. This is the one place the output is not
+// byte-identical to the mockup body, and the deviation is bounded to adding or replacing one
+// attribute on a button the table names. It cannot reach a visible string, so the header's reason for
+// byte-preservation — a script cannot paraphrase the copy — still holds. scripts/play-icon-label-check.mjs
+// reds if a route ends up with an unnamed icon-only control either way.
+let labelled = 0;
 const write = (name, content) => {
   const p = path.join(outDir, name);
-  fs.writeFileSync(p, content.replace(/^\n+/, '').replace(/\s+$/, '') + '\n', 'utf8');
+  const cleaned = content.replace(/^\n+/, '').replace(/\s+$/, '') + '\n';
+  const { text, changed } = applyLabels(cleaned, id);
+  labelled += changed;
+  fs.writeFileSync(p, text, 'utf8');
   return `${p} ${fs.statSync(p).size}B`;
 };
 
@@ -82,6 +96,7 @@ console.log(`extract-mockup: ${id}`);
 for (const line of out) console.log(`  ${line}`);
 console.log(`  title: ${titleMatch ? titleMatch[1].trim() : '(none)'}`);
 console.log(`  <style> blocks: ${styles.length} · inline <script> blocks: ${scripts.length} · external resources: 0`);
+console.log(`  Thai aria-labels re-applied from src/play/_aria-labels.json: ${labelled}`);
 if (inlineHandlers.length) {
   console.log(`  INLINE HANDLERS TO REWRITE BY HAND: ${inlineHandlers.length} (${[...new Set(inlineHandlers)].join(', ')}) — CSP blocks every one`);
 } else {

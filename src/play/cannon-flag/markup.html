@@ -13,8 +13,8 @@
       </div>
       <div class="nav-tools">
         <div id="hud-match-seed" class="match-pill" title="เลขประจำด่าน">SEED: #8841</div>
-        <button id="btn-sound-toggle" class="icon-btn" title="เปิด/ปิดเสียง">🔊</button>
-        <button id="btn-open-tests" class="icon-btn" title="รันชุดทดสอบความถูกต้อง">🧪</button>
+        <button id="btn-sound-toggle" class="icon-btn" title="เปิด/ปิดเสียง" aria-label="เปิด/ปิดเสียง">🔊</button>
+        <button id="btn-open-tests" class="icon-btn" title="รันชุดทดสอบความถูกต้อง" aria-label="รันชุดทดสอบความถูกต้อง">🧪</button>
       </div>
     </header>
 
@@ -151,12 +151,12 @@
         <div class="controls-dashboard">
           <div class="control-row-aim">
             <div class="angle-adjust-group">
-              <button id="btn-angle-dec" class="angle-btn" title="ลดมุม 1°">-</button>
+              <button id="btn-angle-dec" class="angle-btn" title="ลดมุม 1°" aria-label="ลดมุม 1 องศา">-</button>
               <div class="angle-slider-wrapper">
                 <input id="slider-angle" class="angle-slider" type="range" min="5" max="85" step="0.5" value="45">
                 <div class="angle-lcd">มุม: <span id="display-angle-val">45.0</span>°</div>
               </div>
-              <button id="btn-angle-inc" class="angle-btn" title="เพิ่มมุม 1°">+</button>
+              <button id="btn-angle-inc" class="angle-btn" title="เพิ่มมุม 1°" aria-label="เพิ่มมุม 1 องศา">+</button>
             </div>
           </div>
 
@@ -218,7 +218,7 @@
       <div class="test-card">
         <div class="test-header">
           <div style="font-weight: 800; color: var(--accent-cyan);">🧪 การทดสอบระบบ (Automated Tests)</div>
-          <button id="btn-close-tests" class="icon-btn" style="width: 32px; height: 32px;">✕</button>
+          <button id="btn-close-tests" class="icon-btn" style="width: 32px; height: 32px;" aria-label="ปิด">✕</button>
         </div>
         <div id="test-output-list" class="test-body">
           <div>กำลังโหลดและรันชุดการทดสอบ...</div>

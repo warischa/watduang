@@ -741,7 +741,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
           row.innerHTML = `
             <button class="avatar-btn" data-index="${index}" title="เปลี่ยน Avatar">${player.avatar}</button>
             <input type="text" class="player-name-input" data-index="${index}" value="${escapeHtml(player.name)}" maxlength="12" placeholder="ชื่อผู้เล่น" />
-            ${this.state.players.length > 2 ? `<button class="remove-player-btn" data-index="${index}" title="ลบผู้เล่น">✕</button>` : '<div></div>'}
+            ${this.state.players.length > 2 ? `<button class="remove-player-btn" data-index="${index}" title="ลบผู้เล่น" aria-label="ลบผู้เล่น">✕</button>` : '<div></div>'}
           `;
 
           // Event listeners

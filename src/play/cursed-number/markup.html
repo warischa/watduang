@@ -40,11 +40,11 @@
           <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700;">จำนวนผู้เล่น (2 - 20 คน):</label>
         </div>
         <div class="player-count-row">
-          <button type="button" class="count-stepper-btn" id="countMinusBtn" title="ลดจำนวนผู้เล่น">-</button>
+          <button type="button" class="count-stepper-btn" id="countMinusBtn" title="ลดจำนวนผู้เล่น" aria-label="ลดจำนวนผู้เล่น">-</button>
           <div style="display:flex; gap:6px;" id="countPillsContainer">
             <!-- Dynamically populated count pills -->
           </div>
-          <button type="button" class="count-stepper-btn" id="countPlusBtn" title="เพิ่มจำนวนผู้เล่น">+</button>
+          <button type="button" class="count-stepper-btn" id="countPlusBtn" title="เพิ่มจำนวนผู้เล่น" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
         </div>
 
         <!-- Mascot Name Customization List -->
@@ -180,7 +180,7 @@
             <button class="key-btn" data-key="9">9</button>
             <button class="key-btn action-key" id="keypadClearBtn">C</button>
             <button class="key-btn" data-key="0">0</button>
-            <button class="key-btn action-key" id="keypadBackspaceBtn">⌫</button>
+            <button class="key-btn action-key" id="keypadBackspaceBtn" aria-label="ลบตัวเลขตัวสุดท้าย">⌫</button>
           </div>
         </div>
 
@@ -293,7 +293,7 @@
   <!-- MODAL: HOW TO PLAY -->
   <div class="modal-backdrop" id="rulesModal">
     <div class="modal-card" style="position:relative;">
-      <button class="modal-close-btn" id="closeRulesBtn">&times;</button>
+      <button class="modal-close-btn" id="closeRulesBtn" aria-label="ปิด">&times;</button>
       <h3 style="font-size:1.3rem; margin-bottom:16px; color:#fff; display:flex; align-items:center; gap:8px;">
         📖 กติกาการเล่น เลขอาถรรพ์
       </h3>
@@ -326,7 +326,7 @@
        is the 400ms gate armAllButtons installs on this card when it is revealed. -->
   <div class="modal-backdrop" id="resetNamesModal">
     <div class="modal-card" style="position:relative;">
-      <button class="modal-close-btn" id="closeResetNamesBtn">&times;</button>
+      <button class="modal-close-btn" id="closeResetNamesBtn" aria-label="ปิด">&times;</button>
       <h3 style="font-size:1.3rem; margin-bottom:16px; color:#fff;">รีเซ็ตเป็นชื่อสัตว์?</h3>
       <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px; line-height:1.6;">
         ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่

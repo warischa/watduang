@@ -4,6 +4,36 @@ Moved out of `docs/runbook.md` at the seam `CLAUDE.md`'s "Agent skills" section 
 (ADR-0012). The runbook keeps
 build/probe payload; this file keeps the rules a `src/**` edit must obey.
 
+## Which files under `src/play/<route>/` the extractor owns
+
+`scripts/extract-mockup.mjs` writes **three** basenames per route and rewrites each one from the
+mockup on the next extraction: `markup.html`, `style.css`, `main.js`. Anything you type into any of
+those three is undone by the next run. `docs/agents/desktop-sizing-decisions.md` recorded this for
+`style.css` alone under its "Where the rules go" heading; the same is true of the other two, and
+gh#211 is where that got written down after a fix was aimed at `markup.html`.
+
+Everything else in a route folder is hand-authored and safe: `overrides.css`, `roster-bridge.ts`, the
+`*.test.mjs` files, and the `play.css` / `main.ts` pair the two non-lifted routes use instead. Check
+per route — routes differ in which files they have.
+
+**Two things measured on 2026-09-05 that change how you should read "extractor-owned":**
+
+- **No lifted route's `markup.html` is byte-identical to a fresh extraction any more.** Every one has
+  drifted. `how-close-is-near` carries a hand-added `#hc-live` announcement channel from gh#170 that
+  its mockup does not have, so a re-extraction today would silently delete a shipped accessibility
+  feature. Re-extracting an existing route is a destructive act, not a refresh.
+- **The mockups are not version-controlled.** `~/claude/mockup-games` is not a git repository, lives
+  on one machine, and has no directory for `short-stick`. "Fix it upstream in the mockup" is the right
+  instinct for an external resource the extractor refuses outright, but it is not a durable home for
+  anything this repo has to be able to prove.
+
+**The one thing that survives an extraction today is a Thai accessible name**, because
+`src/play/_aria-labels.json` is a file the extractor does not own and the extractor re-applies it to
+everything it writes (gh#211). That is the pattern to copy if a second class of attribute ever needs
+the same protection: put the value in a file outside the three basenames and have the extractor
+re-apply it — do not add a fourth hand-maintained copy inside a generated file.
+`scripts/play-icon-label-check.mjs` reds either way, so a lost label cannot ship quietly.
+
 ## The clear-round confirm — approved copy, and why it focuses cancel
 
 ADR-0008 is the decision; these are the operational details it relies on. Owner-approved (#25), and the

@@ -1,0 +1,63 @@
+{
+  "_readme": [
+    "Thai accessible names for icon-only play-route controls, keyed route -> selector -> label.",
+    "THIS FILE IS THE HOME. markup.html, style.css and main.js under src/play/<route>/ are all",
+    "rewritten byte-for-byte by scripts/extract-mockup.mjs from the mockup, so a label typed into any",
+    "of them is undone by the next extraction. The extractor re-applies this table to its own output,",
+    "which is what makes a label survive. Run `node scripts/play-aria-labels.mjs --apply` to push the",
+    "table into the route files; scripts/play-icon-label-check.mjs judges the files, never this table.",
+    "Selector grammar is three forms, tried most-specific first: '#id', then '[attr=\"value\"]', then",
+    "'.class' against one token of the class attribute. The class and attribute forms are what address",
+    "a control the route renders once per player, which by definition cannot carry a unique id. Reach",
+    "for the narrowest key that works: a class shared with a second button is how a wrong Thai label",
+    "gets applied silently, and the gate only asks whether a name is Thai, not whether it is right.",
+    "Labels are Thai because a player reads them (CLAUDE.md, Write English / Ship Thai)."
+  ],
+  "cannon-flag": {
+    "#btn-sound-toggle": "เปิด/ปิดเสียง",
+    "#btn-open-tests": "รันชุดทดสอบความถูกต้อง",
+    "#btn-angle-dec": "ลดมุม 1 องศา",
+    "#btn-angle-inc": "เพิ่มมุม 1 องศา",
+    "#btn-close-tests": "ปิด"
+  },
+  "cursed-number": {
+    "#countMinusBtn": "ลดจำนวนผู้เล่น",
+    "#countPlusBtn": "เพิ่มจำนวนผู้เล่น",
+    "#keypadBackspaceBtn": "ลบตัวเลขตัวสุดท้าย",
+    "#closeRulesBtn": "ปิด",
+    "#closeResetNamesBtn": "ปิด"
+  },
+  "freeze-tap": {
+    "#soundToggleBtn": "เปิด/ปิดเสียง",
+    "#closeTestModalBtn": "ปิด",
+    "#closeResetNamesModalBtn": "ปิด",
+    "#decPlayerBtn": "ลดจำนวนผู้เล่น",
+    "#incPlayerBtn": "เพิ่มจำนวนผู้เล่น"
+  },
+  "how-close-is-near": {
+    "#btnCloseTestModal": "ปิด",
+    "#btnCloseResetNames": "ปิด",
+    "[data-key=\"backspace\"]": "ลบตัวเลขตัวสุดท้าย"
+  },
+  "short-stick": {
+    "#btn-fewer-sticks": "ลดจำนวนไม้",
+    "#btn-more-sticks": "เพิ่มจำนวนไม้",
+    "#btn-fewer-shorts": "ลดจำนวนไม้สั้น",
+    "#btn-more-shorts": "เพิ่มจำนวนไม้สั้น",
+    "#btn-close-rules": "ปิด",
+    "#btn-close-leave": "ปิด",
+    "#btn-close-reset-names": "ปิด",
+    ".remove-p-btn": "ลบผู้เล่น"
+  },
+  "wire-snip-panic": {
+    "#btn-sound-toggle": "เปิด/ปิดเสียง",
+    "#btn-rules": "กติกาการเล่น",
+    ".player-remove-btn": "ลบผู้เล่น"
+  },
+  "zero-trigger": {
+    "#btn-audio-toggle": "เปิด/ปิดเสียง",
+    "#btn-open-rules": "กติกาการเล่น",
+    "#btn-home-menu": "กลับหน้าแรก",
+    ".remove-player-btn": "ลบผู้เล่น"
+  }
+}
