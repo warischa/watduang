@@ -19,9 +19,11 @@
 //
 // NOT COVERED, and it stays with the browser leg: every measured number, and the measuring itself.
 // Whether a FITS_ROWS row still measures 0px, whether a KNOWN_OVERFLOW row grew past its recorded px,
-// OVERFLOW_TOLERANCE_PX, the walk leaving the setup screen, and whether the browser-side element scan
-// hands the classifier the right arguments. A green here means the bookkeeping is consistent and the
-// classification rules do what they say, never that a screen fits.
+// the walk leaving the setup screen, and whether the browser-side element scan
+// hands the classifier the right arguments. OVERFLOW_TOLERANCE_PX is half-covered: its VALUE is pinned
+// below because the gh#182 ruling forbids widening it, while comparing a measured px against it stays
+// with the browser leg. A green here means the bookkeeping is consistent and the classification rules
+// do what they say, never that a screen fits.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -29,7 +31,10 @@ import {
   FITS_ROWS,
   KNOWN_OVERFLOW,
   KNOWN_OVERFLOW_X,
+  OVERFLOW_TOLERANCE_PX,
+  UNCLASSIFIED_ADVICE,
   VIEWPORTS,
+  assertRecordedReasons,
   compositionGaps,
   countsAsHorizontalOverflow,
   playRoutes,
@@ -238,4 +243,132 @@ test('the composition gate is scoped to the desktop viewport and passes a comple
     { route, vp: NARROW_VP },
     { route, vp: DESKTOP_VP, composition: A_READING },
   ])), []);
+});
+
+// gh#182 — THE THIRD REASON CLASS, driven as behaviour. assertRecordedReasons is the exact expression
+// the module runs over both maps at import, so calling it here with throwaway maps is what proves the
+// gate can still REJECT. A map-shaped fixture is used rather than the shipped maps because the shipped
+// ones are already valid: a check that has only ever seen valid input has never been shown to fail.
+const REASON_CASES = [
+  // [what it is, key, reason, must be accepted]
+  ['an owner ruling carries its date and its px', 'a 320x568', 'owner ruling 2026-09-01: 689px on press 1 - accepted', true],
+  ['an open ticket row is recorded, not blessed', 'a 320x568', 'gh#182 open: 187px on press 1 - 187px to scroll', true],
+  // THE RED LEG THAT MATTERS MOST: no prefix at all is the "suppressed failure" shape.
+  ['a bare number is not a reason', 'a 320x568', '2px on press 1 - clipped by div.gauge', false],
+  ['an invented prefix is not one of the three', 'a 320x568', 'looks fine to me: 2px on press 1', false],
+  ['a malformed ruling date is rejected', 'a 320x568', 'owner ruling 2026-9-1: 689px on press 1', false],
+  ['a not-a-defect row with no date is rejected', 'a 320x568', 'not a defect: 2px on press 1 - mechanism: half-leading', false],
+  ['a not-a-defect row with a malformed px capture is rejected', 'a 320x568', 'not a defect 2026-09-04: 2 px on press 1 - mechanism: half-leading', false],
+  // The class asserts there is NO defect, so it must name what produced the pixels. Without this a
+  // reader cannot tell the assertion from an unargued dismissal.
+  ['a not-a-defect row that names no mechanism is rejected', 'a 320x568', 'not a defect 2026-09-04: 2px on press 1 - it is fine', false],
+];
+test('the reason gate accepts exactly the three recorded classes and reds on everything else (gh#182)', () => {
+  for (const [what, key, reason, accepted] of REASON_CASES) {
+    // Every fixture map is viewport-complete for route "a", so only the reason under test can decide
+    // the verdict — the invariance rule below is proved separately.
+    const map = new Map(VIEWPORTS.map((vp) => [`a ${vp.w}x${vp.h}`, reason]));
+    map.set(key, reason);
+    if (accepted) {
+      assert.doesNotThrow(() => assertRecordedReasons('FIXTURE', map), `${what}: "${reason}"`);
+    } else {
+      assert.throws(() => assertRecordedReasons('FIXTURE', map), `${what} was ACCEPTED: "${reason}"`);
+    }
+  }
+  assert.ok(REASON_CASES.some(([, , , a]) => a === true), 'no case expects acceptance — a gate that rejects everything would pass');
+  assert.ok(REASON_CASES.some(([, , , a]) => a === false), 'no case expects rejection — a gate that accepts everything would pass');
+});
+
+// The shape a licensed not-a-defect row has to have: a mechanism clause AND the ruling that proved it.
+// Built here once so every fixture below varies exactly one part of it.
+const LICENSED = 'not a defect 2026-09-04: 2px on press 1 - mechanism: font half-leading inside a 14px gauge, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04';
+const fixtureMap = (reason) => new Map(VIEWPORTS.map((vp) => [`a ${vp.w}x${vp.h}`, reason]));
+
+test('a not-a-defect claim must hold at EVERY viewport, as the consistency check on its cited ruling (gh#182)', () => {
+  const MECHANISM = LICENSED;
+  const complete = fixtureMap(MECHANISM);
+  assert.doesNotThrow(() => assertRecordedReasons('FIXTURE', complete));
+  // Invariance is a CONSISTENCY check on the mechanism the cited ruling named, not the licence itself:
+  // a row whose number moves with the viewport is not the row the ruling looked at. (What invariance
+  // cannot rule out is a FIXED-SIZE defect, which reads identically at every width — the ruling
+  // citation, tested below, is what excludes that case.)
+  const varies = new Map(complete);
+  varies.set(`a ${VIEWPORTS[0].w}x${VIEWPORTS[0].h}`, MECHANISM.replace('2px', '77px'));
+  assert.throws(() => assertRecordedReasons('FIXTURE', varies), 'a not-a-defect row that changes with the viewport was accepted');
+  // And the claim must cover every viewport, not just the one that happens to be convenient.
+  const partial = new Map(complete);
+  partial.set(`a ${VIEWPORTS[0].w}x${VIEWPORTS[0].h}`, 'gh#182 open: 2px on press 1 - clipped by div.gauge');
+  assert.throws(() => assertRecordedReasons('FIXTURE', partial), 'a not-a-defect claim on a route not recorded that way at every viewport was accepted');
+});
+
+// gh#182 — WHAT THE MECHANISM CLAUSE HAS TO BE, driven as behaviour. A substring test for
+// "mechanism: " is a lint, not a gate: it accepts the word inside a longer one and it accepts an empty
+// tail, so a row could satisfy it while naming nothing. Each case below varies ONLY the mechanism
+// clause of an otherwise licensed reason, so the verdict cannot come from anywhere else.
+const MECHANISM_CASES = [
+  // [what it is, the clause as it appears in the reason, must be accepted]
+  ['a named mechanism is what the class claims to rest on', 'mechanism: font half-leading inside a 14px gauge', true],
+  ['the word inside a longer word names nothing', 'biomechanism: x', false],
+  ['an empty tail is the substring lint passing on nothing', 'mechanism: ', false],
+  ['a one-word non-answer is not a mechanism', 'mechanism: unknown', false],
+];
+test('a not-a-defect row must NAME a mechanism, not merely contain the substring (gh#182)', () => {
+  for (const [what, clause, accepted] of MECHANISM_CASES) {
+    const reason = `not a defect 2026-09-04: 2px on press 1 - ${clause}. Proved by the gh#182 owner ruling of 2026-09-04`;
+    const map = fixtureMap(reason);
+    if (accepted) assert.doesNotThrow(() => assertRecordedReasons('FIXTURE', map), `${what}: "${reason}"`);
+    else assert.throws(() => assertRecordedReasons('FIXTURE', map), `${what} was ACCEPTED: "${reason}"`);
+  }
+});
+
+// gh#182 — THE LICENCE, and the defect this test exists to refuse. Invariance across the viewports is
+// NOT a proof that a row is not a defect: a fixed-size defect (a fixed-height overflow:hidden card whose
+// text wraps identically at all three widths) clips the SAME px everywhere and would walk through an
+// invariance-only gate. What licenses the class is the owner ruling that measured and attributed the
+// pixels, so the reason has to cite it in a shape the gate can capture.
+test('a not-a-defect row must cite the owner ruling that licenses it, invariance alone is not a proof (gh#182)', () => {
+  const unlicensed = 'not a defect 2026-09-04: 40px on press 0 - mechanism: a fixed-height card clipping its own text, invariant at all three viewports';
+  // Perfect invariance, a real mechanism clause, and no ruling behind it. This is exactly the shape a
+  // fixed-size layout defect would take, and it must not be recordable as "no fix is owed".
+  assert.throws(() => assertRecordedReasons('FIXTURE', fixtureMap(unlicensed)),
+    'a not-a-defect row with no cited owner ruling was accepted — invariance was treated as the licence');
+  assert.doesNotThrow(() => assertRecordedReasons('FIXTURE', fixtureMap(`${unlicensed}. Proved by the gh#182 owner ruling of 2026-09-04`)));
+  // A near-miss must not pass either: prose that mentions a ruling without naming the ticket and the
+  // date is not a citation the gate can check.
+  assert.throws(() => assertRecordedReasons('FIXTURE', fixtureMap(`${unlicensed}. The owner ruled on this`)),
+    'a vague nod to a ruling was accepted as a citation');
+  // The shipped rows carry it, so the gate is load-bearing on real data and not only on fixtures.
+  for (const [key, reason] of KNOWN_OVERFLOW) {
+    if (!reason.startsWith('not a defect ')) continue;
+    assert.match(reason, /Proved by the gh#\d+ owner ruling of \d{4}-\d{2}-\d{2}/, `${key} cites no ruling`);
+  }
+});
+
+// gh#182 — the advice an UNCLASSIFIED row prints. It is the only instruction a person meeting a fresh
+// red ever reads, so it has to be true about all three classes: two are open to a fresh row, and the
+// third is not, because nothing can cite an owner ruling that has not happened yet. A message listing
+// only two prefixes and saying nothing about the third reads as an omission a reader may "fix" by
+// guessing.
+test('the UNCLASSIFIED advice is true about all three reason classes (gh#182)', () => {
+  assert.match(UNCLASSIFIED_ADVICE, /"owner ruling <date>:"/);
+  assert.match(UNCLASSIFIED_ADVICE, /"gh#182 open:"/);
+  // The third class is named AND refused in the same breath. Asserting only that the string mentions it
+  // would pass on a message that invited a fresh row into it.
+  assert.match(UNCLASSIFIED_ADVICE, /"not a defect <date>:"/);
+  assert.match(UNCLASSIFIED_ADVICE, /never|not available/);
+});
+
+test('the two rows gh#182 proved are not defects are recorded in that class at every viewport (gh#182)', () => {
+  for (const route of ['cannon-flag', 'power-meter']) {
+    for (const vp of VIEWPORTS) {
+      const key = `${route} ${vp.w}x${vp.h}`;
+      const reason = KNOWN_OVERFLOW.get(key);
+      assert.ok(reason, `${key} left KNOWN_OVERFLOW`);
+      assert.match(reason, /^not a defect \d{4}-\d{2}-\d{2}: /, `${key} still reads "${reason.slice(0, 24)}..."`);
+      assert.match(reason, /mechanism: /, `${key} names no mechanism`);
+    }
+  }
+  // The tolerance is what a not-a-defect row must never be used to dodge, so it is pinned by value here
+  // rather than left to the browser leg that cannot run in this file.
+  assert.equal(OVERFLOW_TOLERANCE_PX, 8, 'OVERFLOW_TOLERANCE_PX moved — the gh#182 ruling forbids widening it');
 });

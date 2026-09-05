@@ -199,9 +199,12 @@ const PRESS_CAP = 6;
 //                    map for FITS_ROWS; the probe PRINTS a row that measured 0px here (rule iii) but
 //                    cannot red on it — one machine's 0 is another machine's 17px (inferred: fonts). It grows
 //                    only with a reason line that names an owner decision — every value starts with
-//                    'owner ruling <date>:' (the site owner accepted this screen as it is) or
-//                    'gh#182 open:' (nobody has ruled yet; the row is recorded, not blessed). A bare
-//                    number with no prefix is not a reason and must not be added.
+//                    'owner ruling <date>:' (the site owner accepted this screen as it is),
+//                    'gh#182 open:' (nobody has ruled yet; the row is recorded, not blessed), or
+//                    'not a defect <date>:' (the pixels were measured and attributed to a mechanism
+//                    that is not a layout fault, so no fix is owed — the opposite claim to an owner
+//                    ruling, and gated harder for it). A bare number with no prefix is not a reason
+//                    and must not be added.
 // RECORDED FROM REAL RUNS, never derived by reading CSS. Both sets were re-recorded 2026-09-02 from
 // three consecutive full runs against a real dist/, under the self-scroller measurement rule above:
 // the rows below fit; every other row in this map overflows.
@@ -239,11 +242,14 @@ export const FITS_ROWS = new Set([
  * a fix is expected to leave behind. cursed-number is the only row carrying an owner ruling, and that ruling
  * names ONE viewport: its 390 and 1440 rows are 'gh#182 open', because whether the exception is the
  * route or only the 320 screen has not been ruled on.
+ * cannon-flag and power-meter are the 'not a defect' rows, moved out of 'gh#182 open' on 2026-09-04:
+ * their numbers were attributed to a font metric and to a containing block, and each reads the SAME
+ * px at all three viewports, which is the evidence the class is gated on.
  */
 export const KNOWN_OVERFLOW = new Map([
-  ['cannon-flag 320x568', 'gh#182 open: 2px on press 1 - 2px clipped by div.power-gauge-container'],
-  ['cannon-flag 390x844', 'gh#182 open: 2px on press 1 - 2px clipped by div.power-gauge-container'],
-  ['cannon-flag 1440x900', 'gh#182 open: 2px on press 1 - 2px clipped by div.power-gauge-container'],
+  ['cannon-flag 320x568', 'not a defect 2026-09-04: 2px on press 1 - 2px clipped by div.power-gauge-container; mechanism: font half-leading inside a 14px gauge, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
+  ['cannon-flag 390x844', 'not a defect 2026-09-04: 2px on press 1 - 2px clipped by div.power-gauge-container; mechanism: font half-leading inside a 14px gauge, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
+  ['cannon-flag 1440x900', 'not a defect 2026-09-04: 2px on press 1 - 2px clipped by div.power-gauge-container; mechanism: font half-leading inside a 14px gauge, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
   ['cursed-number 320x568', 'owner ruling 2026-09-01: 689px on press 1 - 689px to scroll on documentElement (accepted exception at 320x568, worst screen 2.21 viewports, removable blocks 252px vs 689px)'],
   ['cursed-number 390x844', 'gh#182 open: 317px on press 1 - 317px to scroll on documentElement'],
   ['cursed-number 1440x900', 'gh#182 open: 157px on press 1 - 157px to scroll on documentElement'],
@@ -273,9 +279,9 @@ export const KNOWN_OVERFLOW = new Map([
   ['pinocchio-luck 320x568', 'gh#182 open: 136px on press 1 - 136px to scroll on documentElement, 4px clipped by div.css-mouth; measured 107-136px across 15 runs (13x107, 1x116, 1x120, 1x136) plus 107px on a 16th run 2026-09-03, a self-timed screen per the press-timing note in the file header. This row measures press 1, NOT the results screen: gh#195 measured that one separately at 244px document scroll with nothing clipping and the last control reachable, and the comment above records why this walk cannot reach it and what guards it instead'],
   ['pinocchio-luck 390x844', 'gh#182 open: 14px on press 1 - 14px to scroll on documentElement, 4px clipped by div.css-mouth'],
   ['pinocchio-luck 1440x900', 'gh#182 open: 17px on press 2 - 17px to scroll on documentElement, 4px clipped by div.css-mouth'],
-  ['power-meter 320x568', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
-  ['power-meter 390x844', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
-  ['power-meter 1440x900', 'gh#182 open: 76px on press 0 - 76px clipped by div#app-container'],
+  ['power-meter 320x568', 'not a defect 2026-09-04: 76px on press 0 - 76px clipped by div#app-container; mechanism: a parked toast resting below a containing block created by will-change, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
+  ['power-meter 390x844', 'not a defect 2026-09-04: 76px on press 0 - 76px clipped by div#app-container; mechanism: a parked toast resting below a containing block created by will-change, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
+  ['power-meter 1440x900', 'not a defect 2026-09-04: 76px on press 0 - 76px clipped by div#app-container; mechanism: a parked toast resting below a containing block created by will-change, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
   ['short-stick 320x568', 'gh#182 open: 191px on press 0 - 191px to scroll on documentElement'],
   // Moved from FITS_ROWS 2026-09-02: same self-scroller bound as freeze-tap above.
   ['wire-snip-panic 320x568', 'gh#182 open: 111px on press 0 - 111px to scroll on div#screen-game.screen.active'],
@@ -365,7 +371,7 @@ export function countsAsHorizontalOverflow({ isRoot, overflowX, declaredX, clien
   return !(declaredX && clientHeight < SCREEN_FRACTION * innerHeight);
 }
 /** A pinned row may drift by this much without reading as a regression — under a line of text. */
-const OVERFLOW_TOLERANCE_PX = 8;
+export const OVERFLOW_TOLERANCE_PX = 8;
 /** Sub-pixel slack: a scrollHeight and a clientHeight can disagree in the last fraction of a device px. */
 const EPS = 1;
 
@@ -373,13 +379,86 @@ const EPS = 1;
 // its recorded px, so check (iv) below can parse it back out. A reason that drifts from this shape
 // (a rewrite that drops the number, a typo in the ruling-date format) throws at import time instead of
 // silently making check (iv) unable to find a number to compare against.
-const KNOWN_OVERFLOW_PREFIX = /^(owner ruling \d{4}-\d{2}-\d{2}|gh#\d+ open): (\d+)px /;
-for (const [which, map] of [['KNOWN_OVERFLOW', KNOWN_OVERFLOW], ['KNOWN_OVERFLOW_X', KNOWN_OVERFLOW_X]]) {
+// THREE CLASSES, and the third is not a softer version of the second. 'owner ruling <date>' ACCEPTS a
+// defect: the screen is wrong and the owner has decided to ship it anyway. 'not a defect <date>' makes
+// the opposite claim — the pixels were measured and attributed, and there is nothing to fix. Being the
+// stronger claim it carries the stricter gate, enforced below and not left to prose, in THREE parts:
+//   * the reason NAMES the mechanism that produced the pixels — a real clause, not the substring. The
+//     word has to stand on its own (a 'biomechanism:' passes a substring test and names nothing) and
+//     carry a tail long enough to be an attribution rather than a shrug ('mechanism: unknown' is the
+//     shape that has to be refused).
+//   * the reason CITES THE OWNER RULING that licensed it, ticket and date, in the shape
+//     NOT_A_DEFECT_LICENCE captures. THIS, and not the invariance, is what makes the class safe: the
+//     pixels were measured and attributed by a named human decision, which is a thing a fresh red
+//     cannot manufacture for itself.
+//   * the SAME number is recorded at every viewport.
+// WHAT INVARIANCE DOES AND DOES NOT RULE OUT, stated so no later reader inherits the stronger claim
+// this comment used to make. It rules out a VIEWPORT-DEPENDENT defect, which is most of this map: a
+// layout that breaks because the screen is narrow reads a different number at 320 than at 1440, so a
+// row whose number moves is not the row the cited ruling looked at. It does NOT rule out a FIXED-SIZE
+// defect: a fixed-height overflow:hidden card holding text that wraps identically at all three widths
+// clips the same N px everywhere and is perfectly invariant while being an ordinary layout fault. So
+// invariance is a CONSISTENCY CHECK on the cited ruling, never the proof on its own.
+// The class never widens OVERFLOW_TOLERANCE_PX, and a row in it is still a row the probe measures
+// against its recorded px like any other.
+const KNOWN_OVERFLOW_PREFIX = /^(owner ruling \d{4}-\d{2}-\d{2}|gh#\d+ open|not a defect \d{4}-\d{2}-\d{2}): (\d+)px /;
+const NOT_A_DEFECT = /^not a defect \d{4}-\d{2}-\d{2}: /;
+// \b is what refuses 'biomechanism:', and the 12-character floor over a clause that runs to the next
+// comma or full stop is what refuses an empty tail and a one-word non-answer. The floor is a crude
+// lower bound on "an attribution was written here" and nothing more — no wording can be gated, and this
+// does not try to.
+const MECHANISM_CLAUSE = /\bmechanism: [^,.]{12,}/;
+// The licence, captured rather than trusted as prose: which ticket ruled, and on what date.
+const NOT_A_DEFECT_LICENCE = /\bProved by the (gh#\d+) owner ruling of (\d{4}-\d{2}-\d{2})\b/;
+/**
+ * What a person meeting an UNCLASSIFIED row is told to do. Held here, beside the classes it describes,
+ * and exported so scripts/play-screen-fit-probe.test.mjs can assert it stays true about all three of
+ * them — the advice went stale once already by listing two classes after a third had shipped, and an
+ * omission in the only instruction a fresh red prints reads as an invitation to guess.
+ * The third class is named and REFUSED in the same sentence deliberately: it is the one class a fresh
+ * row can never open in, because its licence is an owner ruling that has already measured and
+ * attributed those pixels, and no such ruling exists for a row nobody has looked at yet.
+ */
+export const UNCLASSIFIED_ADVICE = 'Measure the row, then either pin it as fitting (0px) or record it in KNOWN_OVERFLOW with a reason starting "owner ruling <date>:" (the owner accepted this screen as it is) or "gh#182 open:" (nobody has ruled yet). The third class, "not a defect <date>:", is never available to a fresh row: it requires an owner ruling that already measured and attributed these pixels, cited in the reason, and a row nobody has ruled on has none. Do not leave the row out of both sets.';
+/**
+ * Throws on any reason string that is not one of the three recorded classes, and on any not-a-defect
+ * claim that does not carry its evidence. Exported because a gate that has only ever seen the shipped
+ * (valid) maps has never been shown to REJECT: scripts/play-screen-fit-probe.test.mjs drives it with
+ * throwaway maps to prove both directions without a browser.
+ */
+export function assertRecordedReasons(which, map) {
+  // Every prefix is checked BEFORE any not-a-defect rule, because the invariance rule reads a sibling
+  // row's number: a malformed sibling met mid-pass would otherwise fail on the unparsable string and
+  // report a null dereference instead of naming the row that is actually wrong.
   for (const [key, reason] of map) {
     if (!KNOWN_OVERFLOW_PREFIX.test(reason)) {
-      throw new Error(`${which}["${key}"] does not start with "<owner ruling YYYY-MM-DD|gh#N open>: <N>px ": "${reason}"`);
+      throw new Error(`${which}["${key}"] does not start with "<owner ruling YYYY-MM-DD|gh#N open|not a defect YYYY-MM-DD>: <N>px ": "${reason}"`);
     }
   }
+  for (const [key, reason] of map) {
+    if (!NOT_A_DEFECT.test(reason)) continue;
+    if (!MECHANISM_CLAUSE.test(reason)) {
+      throw new Error(`${which}["${key}"] claims "not a defect" but names no mechanism — the reason needs a standalone "mechanism: " clause naming what produced the pixels, not the substring: "${reason}"`);
+    }
+    // The LICENCE, checked before the invariance below, because invariance is only a consistency check
+    // ON the cited ruling: a row with no ruling behind it has nothing for the numbers to be consistent
+    // with, and reporting a viewport mismatch there would name the wrong defect.
+    if (!NOT_A_DEFECT_LICENCE.test(reason)) {
+      throw new Error(`${which}["${key}"] claims "not a defect" but cites no owner ruling — the class rests on a named human decision that measured and attributed the pixels, not on the number being viewport-invariant (a fixed-size defect is invariant too). Add "Proved by the gh#N owner ruling of YYYY-MM-DD": "${reason}"`);
+    }
+    const route = key.slice(0, key.lastIndexOf(' '));
+    const px = KNOWN_OVERFLOW_PREFIX.exec(reason)[2];
+    for (const vp of VIEWPORTS) {
+      const sibling = map.get(`${route} ${vp.w}x${vp.h}`);
+      const siblingPx = sibling && NOT_A_DEFECT.test(sibling) ? KNOWN_OVERFLOW_PREFIX.exec(sibling)[2] : null;
+      if (siblingPx !== px) {
+        throw new Error(`${which}["${key}"] claims "not a defect" at ${px}px, but "${route} ${vp.w}x${vp.h}" reads ${siblingPx === null ? 'another class or nothing' : `${siblingPx}px`} — the claim rests on the number being viewport-invariant, so it must hold at every viewport or it is a defect after all`);
+      }
+    }
+  }
+}
+for (const [which, map] of [['KNOWN_OVERFLOW', KNOWN_OVERFLOW], ['KNOWN_OVERFLOW_X', KNOWN_OVERFLOW_X]]) {
+  assertRecordedReasons(which, map);
 }
 /**
  * The px a KNOWN_OVERFLOW reason was recorded at — used by check (iv) to catch a regression past it.
@@ -1098,7 +1177,7 @@ function main() {
   // printed into the report with nothing asserting anything about it.
   const unclassified = out.rows.map(rowKey).filter((k) => !FITS_ROWS.has(k) && !KNOWN_OVERFLOW.has(k));
   for (const k of unclassified) {
-    console.error(`::error::"${k}" is UNCLASSIFIED — this run produced it and neither FITS_ROWS nor KNOWN_OVERFLOW holds it. Measure the row, then either pin it as fitting (0px) or record it in KNOWN_OVERFLOW with a reason starting "owner ruling <date>:" or "gh#182 open:". Do not leave it out of both.`);
+    console.error(`::error::"${k}" is UNCLASSIFIED — this run produced it and neither FITS_ROWS nor KNOWN_OVERFLOW holds it. ${UNCLASSIFIED_ADVICE}`);
   }
   const inBoth = out.rows.map(rowKey).filter((k) => FITS_ROWS.has(k) && KNOWN_OVERFLOW.has(k));
   for (const k of inBoth) {
