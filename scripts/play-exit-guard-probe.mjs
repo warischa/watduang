@@ -14,7 +14,10 @@ const BASE = process.env.BASE ?? 'http://localhost:5052';
 // probe that silently skips a route reads exactly like a probe that passed it. Same dynamic-import
 // idiom as landing-claims-check.mjs. Set ROUTES_ONLY=a,b to narrow it while debugging one route.
 const { fileURLToPath } = await import('node:url');
-const { games } = await import(`${fileURLToPath(new URL('..', import.meta.url))}src/games/manifest.ts`);
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const { games } = await import(`${ROOT}src/games/manifest.ts`);
+// Imported, never retyped: scenario 4 judges its burst against the SAME constant the guard consumes.
+const { ARM_DELAY_MS } = await import(`${ROOT}src/games/_arm-gate.ts`);
 const only = process.env.ROUTES_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
 const ROUTES_ALL = games
   .filter((g) => g.playRoute)
@@ -28,7 +31,111 @@ const ROUTE_ONLY_CANNON = ['cannon-flag']; // scenarios 2 and 3 (cannon-flag is 
 // required leg genuinely missing on demand without editing the expected value. Same idiom as the
 // BREAK_GUARD control legs in ci-probes.sh. Never set in CI.
 const DROP_ROUTE = process.env.DROP_ROUTE;
+// ponytail: calibration hook for scenario 4's burst classifier below. Emulation.setCPUThrottlingRate
+// slows the renderer by this factor, which is the only way to reproduce a CI runner's long transition
+// task on a laptop that does not have one -- and therefore the only way to drive the classifier to its
+// VOID outcome on demand. Never set in CI: a leg run under a throttle reports on the harness, not the
+// site. Same idiom as DROP_ROUTE above and the BREAK_GUARD control legs in ci-probes.sh.
+const CPU_THROTTLE = Number(process.env.PROBE_CPU_THROTTLE ?? 1);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// --- burst classifier (pure) ---------------------------------------------------------------------
+// Ported from scripts/play-exit-probe.mjs, which already answers the question scenario 4 below could
+// not ask. Every contact carries TWO clocks. `t` is when the page's listener RAN; `ti` is the event's
+// own timeStamp, which the browser stamps when the input was DISPATCHED (ADR-0059, and the clock
+// src/games/_arm-gate.ts itself reads). A long main-thread task -- a heavy round transition, or any
+// task at all on a loaded CI runner -- queues the arm timer AND the next contact behind itself, and
+// both CDP calls that drive a contact resolve only after the renderer handles them. So the burst's
+// cadence is timed from the end of that block, and the contacts go out further apart than the 80ms
+// they were driven at.
+// The burst is therefore classified on INPUT gaps only. An input gap over ARM_DELAY_MS means the
+// runner could not deliver a burst AT ALL -- the control was legitimately armed by the time the
+// contact was dispatched, and the guard opening is correct behaviour, not a defect. That measurement
+// is VOID: never a pass, never a defect report. Every input gap under it and the round still left is
+// a real gate defect and stays a FAIL.
+// Fail-closed: without input timestamps nothing can be classified, so the old bare path check stands.
+// ponytail: a COPY of the sibling's classifier, not a shared module -- the sibling runs its whole walk
+// at module top level, so it cannot be imported, and extracting it would edit a currently-green CI leg
+// for a refactor nothing here needs. The fact that would change this: a third caller, or the two
+// copies drifting.
+const gapsBy = (log, key) => {
+  const gaps = [];
+  let lastUp = null, missing = 0;
+  for (const e of log) {
+    const v = e[key];
+    if (typeof v !== 'number') { missing++; continue; }
+    if (e.kind === 'down' && lastUp !== null) gaps.push(Math.round((v - lastUp) * 10) / 10);
+    if (e.kind === 'up') lastUp = v;
+  }
+  return { gaps, missing };
+};
+const classifyBurst = (log, armDelayMs) => {
+  const handled = gapsBy(log, 't');
+  const input = gapsBy(log, 'ti');
+  const inputOver = input.gaps.filter((g) => g > armDelayMs);
+  const inputTimesMeasured = input.missing === 0 && input.gaps.length > 0 && input.gaps.length === handled.gaps.length;
+  // Per contact, not per burst. The defect this leg exists to catch is ONE `down` handled while the
+  // control was already ENABLED whose OWN input gap is inside the window. A burst-wide void test lets
+  // a neighbouring contact the runner sent late hide exactly that contact, so the grain is the
+  // contact: void is what is left when no single contact carries the defect.
+  const downs = [];
+  let lastUpTi = null;
+  for (const e of log) {
+    if (e.kind === 'down' && lastUpTi !== null && typeof e.ti === 'number') downs.push({ inputGap: Math.round((e.ti - lastUpTi) * 10) / 10, disabled: e.disabled });
+    if (e.kind === 'up' && typeof e.ti === 'number') lastUpTi = e.ti;
+  }
+  const defectContacts = downs.filter((d) => d.disabled === false && d.inputGap <= armDelayMs);
+  return {
+    downs,
+    defectContacts,
+    gaps: handled.gaps,
+    maxGap: handled.gaps.length ? Math.max(...handled.gaps) : null,
+    gapsOverArmDelay: handled.gaps.filter((g) => g > armDelayMs).length,
+    inputGaps: input.gaps,
+    maxInputGap: input.gaps.length ? Math.max(...input.gaps) : null,
+    inputGapsOverArmDelay: inputOver.length,
+    inputTimesMeasured,
+    isVoid: inputTimesMeasured && defectContacts.length === 0 && inputOver.length > 0,
+  };
+};
+
+// Runs on EVERY invocation, not behind a flag: this file is driven by a shell wrapper and sits outside
+// gate-selftest-coverage-check.mjs's audited set, so a flag-only selftest here would be a check nothing
+// ever executes. Pure arithmetic on six objects, so it costs nothing.
+const assert = (await import('node:assert')).default;
+{
+  // A burst delivered on time: both clocks agree, nothing is void.
+  const clean = classifyBurst([{ kind: 'up', t: 0, ti: 0 }, { kind: 'down', t: 80, ti: 80 }, { kind: 'up', t: 90, ti: 90 }, { kind: 'down', t: 170, ti: 170 }], 400);
+  assert.deepStrictEqual(clean.inputGaps, [80, 80]);
+  assert.strictEqual(clean.isVoid, false);
+  // The runner shape this leg went red on: handled 639ms after the previous release, dispatched 80ms
+  // after it. Late HANDLING is not a void measurement -- the burst was really delivered as a burst.
+  const stalled = classifyBurst([{ kind: 'up', t: 0, ti: 0 }, { kind: 'down', t: 639, ti: 80 }], 400);
+  assert.strictEqual(stalled.maxGap, 639);
+  assert.strictEqual(stalled.maxInputGap, 80);
+  assert.strictEqual(stalled.isVoid, false);
+  // The must-red: the input itself was late, so the burst never existed as a burst.
+  const slow = classifyBurst([{ kind: 'up', t: 0, ti: 0 }, { kind: 'down', t: 500, ti: 500 }], 400);
+  assert.strictEqual(slow.isVoid, true);
+  assert.strictEqual(slow.inputGapsOverArmDelay, 1);
+  // Fail-closed: a log with no input clock classifies nothing, so the bare path check keeps the verdict.
+  const blind = classifyBurst([{ kind: 'up', t: 0 }, { kind: 'down', t: 900 }], 400);
+  assert.strictEqual(blind.inputTimesMeasured, false);
+  assert.strictEqual(blind.isVoid, false);
+  // The boundary is exclusive, matching the count the messages print.
+  assert.strictEqual(classifyBurst([{ kind: 'up', t: 0, ti: 0 }, { kind: 'down', t: 0, ti: 400 }], 400).isVoid, false);
+  // A slow neighbour must NOT swallow a real exit: contact A dispatched 500ms late, contact B 60ms
+  // after it and handled with the X already ENABLED. B is the defect, and the burst is not void.
+  const mixed = classifyBurst([
+    { kind: 'up', t: 0, ti: 0, disabled: true }, { kind: 'down', t: 500, ti: 500, disabled: true },
+    { kind: 'up', t: 510, ti: 510, disabled: true }, { kind: 'down', t: 570, ti: 570, disabled: false },
+  ], 400);
+  assert.strictEqual(mixed.inputGapsOverArmDelay, 1);
+  assert.deepStrictEqual(mixed.defectContacts, [{ inputGap: 60, disabled: false }]);
+  assert.strictEqual(mixed.isVoid, false);
+  // The same burst without that contact IS void.
+  assert.strictEqual(classifyBurst([{ kind: 'up', t: 0, ti: 0, disabled: true }, { kind: 'down', t: 500, ti: 500, disabled: false }], 400).isVoid, true);
+}
 
 const api = async (p, m = 'GET') => (await fetch(`http://127.0.0.1:${PORT}${p}`, { method: m })).json();
 
@@ -291,12 +398,45 @@ for (const route of ROUTE_ONLY_CANNON) {
 }
 
 // --- Scenario 4: REGRESSION (5-tap burst after transition, then deliberate tap) ---
+//
+// Every contact is recorded with BOTH clocks so the classifier above can tell a guard that let a real
+// double-tap through from a runner that could not deliver a burst inside the arm window. Registered
+// AFTER the page's own capture listener on purpose: PlayExit.astro returns WITHOUT disarming when it
+// accepts a press, so a listener that runs after it reads `disabled === false` exactly on the contact
+// the guard let through -- which, paired with an input gap inside the window, IS the defect. A
+// listener registered first would instead read "has the timer expired", which is a different question
+// and reds on the case where the input clock correctly refused.
+// Written through sessionStorage on every contact, because the run that most needs these timings is
+// the run where the guard let a tap through: that navigates home mid-burst and takes the page's own
+// variables with it. Same origin, so the log is still readable from the page it landed on.
+const CONTACT_KEY = 'playexit-guard-probe-contacts';
+const BURST_INSTRUMENT = `
+  window.__pdlog = [];
+  sessionStorage.removeItem(${JSON.stringify(CONTACT_KEY)});
+  const mark = (ev, kind) => {
+    window.__pdlog.push({ kind, t: Math.round((performance.timeOrigin + performance.now()) * 10) / 10,
+                          ti: typeof ev.timeStamp === 'number' ? Math.round((performance.timeOrigin + ev.timeStamp) * 10) / 10 : null,
+                          disabled: document.getElementById('play-exit')?.disabled ?? null });
+    sessionStorage.setItem(${JSON.stringify(CONTACT_KEY)}, JSON.stringify(window.__pdlog));
+  };
+  document.addEventListener('pointerdown', (ev) => mark(ev, 'down'), true);
+  document.addEventListener('pointerup', (ev) => mark(ev, 'up'), true);
+  return true;`;
+
 out.s4 = {};
 for (const route of ROUTES_ALL) {
   if (route === DROP_ROUTE) continue;
+  // At most TWO attempts, the same budget the sibling probe spends. A burst one of whose contacts the
+  // runner could not dispatch inside the arm window measured nothing, and this block is self-contained
+  // (fresh tab, fresh navigation, fresh transition), so one retry costs one route walk and clears a
+  // one-off latency spike. A burst still VOID after the retry is NOT relaxed into a pass -- it is
+  // reported as UNMEASURED and it blocks, see the verdict.
+  for (let attempt = 1; attempt <= 2; attempt++) {
   const s = await openTab();
+  if (CPU_THROTTLE > 1) await s.send('Emulation.setCPUThrottlingRate', { rate: CPU_THROTTLE });
   const { rect } = await gotoIdleArmed(s, route);
   const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
+  await s.evaluate(BURST_INSTRUMENT);
   const startBtn = await findTransitionTrigger(s);
   if (startBtn) await s.mouseClick(startBtn.x, startBtn.y);
   // KNOWN CEILING, named so a later reader does not mistake this for coverage it has not earned:
@@ -314,6 +454,12 @@ for (const route of ROUTES_ALL) {
   for (let i = 0; i < 5; i++) { await sleep(80); await s.tap(cx, cy); }
   await sleep(150);
   const pathAfterBurst = await s.pathname();
+  // Read HERE, before the deliberate tap below: that tap is a separate gesture roughly 700ms after the
+  // burst's last release, so a log read after it carries an input gap that is over ARM_DELAY_MS by
+  // design and would classify every healthy route as VOID.
+  const contactLog = (await s.evaluate(`return JSON.parse(sessionStorage.getItem(${JSON.stringify(CONTACT_KEY)}) || '[]');`)).value ?? [];
+  const burst = classifyBurst(contactLog, ARM_DELAY_MS);
+  if (burst.isVoid && attempt < 2) { await s.close(); continue; }
   await sleep(600);
   const { before: overlayAtX, after: topBeforeDeliberate } = await clearOverlayAtX(s);
   const disabledBeforeDeliberate = await s.disabledState();
@@ -323,6 +469,8 @@ for (const route of ROUTES_ALL) {
   out.s4[route] = {
     transitionTriggered: !!startBtn, topBeforeBurst, pathAfterBurst,
     overlayAtX, topBeforeDeliberate, disabledBeforeDeliberate, pathAfterDeliberate,
+    attempts: attempt, armDelayMs: ARM_DELAY_MS, cpuThrottle: CPU_THROTTLE, timeline: contactLog,
+    ...burst,
     // "the burst did not exit" only means something if the burst was landing ON the X.
     passNoNav: !!startBtn && topBeforeBurst === 'play-exit' && pathAfterBurst !== '/',
     // Gated on the burst NOT having navigated. Measured on short-stick: the burst left the round, so
@@ -334,6 +482,8 @@ for (const route of ROUTES_ALL) {
   if (!out.s4[route].passNoNav) await s.shot(`${SHOT}/s4-${route}-burst-FAIL.png`);
   if (!out.s4[route].passDeliberateNav) await s.shot(`${SHOT}/s4-${route}-deliberate-FAIL.png`);
   await s.close();
+  break;
+  }
 }
 
 console.log(JSON.stringify(out, null, 2));
@@ -356,10 +506,29 @@ console.log(JSON.stringify(out, null, 2));
 // clock, and s4's burst is required because its old skip reason ("no transition trigger found") was
 // measured FALSE on short-stick: that is a finder bug, and a probe must not launder its own bugs into
 // a skip line. See findTransitionTrigger's header.
-const fails = [], skips = [];
-const judgedIds = new Set(), skippedIds = new Set();
+//
+// A THIRD outcome, ported from scripts/play-exit-probe.mjs: UNMEASURED. A burst whose own input gaps
+// outlived ARM_DELAY_MS was never delivered as a burst, so the round it left was left by a control the
+// browser's input clock had legitimately armed -- a fact about the runner, not about the site. Calling
+// that a FAIL names the wrong cause; calling it a pass hides a leg that never ran. It is neither, and
+// it is NOT a skip either: skips are for legs whose reason is read back from the page (s3's bfcache),
+// and the reconciliation below refuses a skip on a required leg. UNMEASURED blocks the exit code
+// exactly like a FAIL, so nothing here is widened -- relaxing a post-retry UNMEASURED to a non-blocking
+// outcome is an owner decision, the same one the sibling's header records as open.
+const fails = [], skips = [], unmeasured = [];
+const judgedIds = new Set(), skippedIds = new Set(), unmeasuredIds = new Set();
 const check = (id, pass, msg) => { judgedIds.add(id); if (!pass) fails.push(msg); };
 const skip = (id, reason) => { skippedIds.add(id); skips.push(`${id}: ${reason}`); };
+// Deliberately NOT added to judgedIds: a leg the runner could not measure is not coverage, and folding
+// it in would let the summary's judged count read as if it had been.
+const unmeasure = (id, msg) => { unmeasuredIds.add(id); unmeasured.push(msg); };
+// Carried into every burst-side message: only the tail of this file's output reaches the CI log, so
+// the numbers that decide the cause have to be IN the line. Both columns, always -- a handled gap over
+// the window with the input gaps under it is a runner that handled the burst late, not one that sent
+// it late, and only the second makes the measurement void.
+const gapNote = (r) => r.maxGap == null
+  ? 'no contact timings captured, so this line names no cause'
+  : `largest pointerup->pointerdown gap: handled ${r.maxGap}ms, input ${r.maxInputGap == null ? 'NOT CAPTURED -- a slow dispatch cannot be told from a gate defect here' : r.maxInputGap + 'ms'} vs ARM_DELAY_MS ${ARM_DELAY_MS} (over it: ${r.gapsOverArmDelay} handled, ${r.inputGapsOverArmDelay} input; handled gaps ${(r.gaps ?? []).join(', ')}; input gaps ${(r.inputGaps ?? []).join(', ')})`;
 for (const [g, r] of Object.entries(out.s1)) {
   check(`s1/${g}`, r.pass, `s1/${g}: a press that STARTED while the X was disabled still left the round (pathname ${r.pathAfter}, contacts on X ${JSON.stringify(r.contactsOnX)}, disabled before press ${r.disabledBeforePress})`);
 }
@@ -372,6 +541,18 @@ for (const [g, r] of Object.entries(out.s3)) {
   else check(`s3/${g}`, r.pass, `s3/${g}: after a bfcache restore the X no longer exits (pathname ${r.pathAfterTap})`);
 }
 for (const [g, r] of Object.entries(out.s4)) {
+  // The defect check outranks VOID, and both outrank the burst-wide path check: ONE contact dispatched
+  // inside the window and handled with the X already ENABLED is the regression this leg exists for,
+  // whatever its neighbours did, and a slow neighbour must not void it away.
+  const dc = r.defectContacts ?? [];
+  if (!dc.length && r.isVoid) {
+    // Both legs, not just the burst. The deliberate leg's own precondition is a burst that stayed in
+    // the round, and after a void burst nothing established it -- scoring it FAIL would report the
+    // runner's latency as a dead exit control.
+    unmeasure(`s4/${g}/burst`, `s4/${g}: UNMEASURED after ${r.attempts} attempt(s) -- the runner could not DISPATCH the burst inside the arm window, so the X was legitimately armed by the time these contacts were sent and the round leaving is correct behaviour, not a guard defect (pathname after burst ${r.pathAfterBurst}) -- ${gapNote(r)}`);
+    unmeasure(`s4/${g}/deliberate`, `s4/${g}: UNMEASURED -- its precondition is a burst that stayed in the round, and this run's burst was never delivered as a burst`);
+    continue;
+  }
   check(`s4/${g}/deliberate`, r.passDeliberateNav, r.pathAfterBurst === '/'
     ? `s4/${g}: the burst had already left the round, so this leg tapped the HOME page and its '/' === '/' means nothing`
     : r.topBeforeDeliberate !== 'play-exit'
@@ -380,11 +561,15 @@ for (const [g, r] of Object.entries(out.s4)) {
   // No skip here any more, and that is the point. Every play route has a control big enough to press;
   // "no transition trigger found" was never a property of a route, only of the finder above, and a
   // skip whose stated reason can be false reads as coverage while measuring nothing.
+  if (dc.length) {
+    check(`s4/${g}/burst`, false, `s4/${g}: ${dc.length} burst contact(s) DISPATCHED inside the arm window were handled with the X ENABLED (input gaps ${dc.map((d) => d.inputGap).join(', ')}ms vs ARM_DELAY_MS ${ARM_DELAY_MS}; pathname after burst ${r.pathAfterBurst}) -- ${gapNote(r)}`);
+    continue;
+  }
   check(`s4/${g}/burst`, r.passNoNav, !r.transitionTriggered
     ? `s4/${g}: findTransitionTrigger found nothing to press on this route, so no transition disarmed the X and this burst measured nothing -- fix the finder, do not skip the leg`
     : r.topBeforeBurst !== 'play-exit'
       ? `s4/${g}: ${r.topBeforeBurst} was on top of the X at (${X_HIT},${X_HIT}) when the burst started, so "the burst did not exit" measured that overlay, not the guard`
-      : `s4/${g}: the 5-tap burst after a transition LEFT THE ROUND (pathname ${r.pathAfterBurst})`);
+      : `s4/${g}: the 5-tap burst after a transition LEFT THE ROUND (pathname ${r.pathAfterBurst}) -- ${gapNote(r)}`);
 }
 
 // --- coverage reconciliation ---
@@ -399,19 +584,29 @@ const OPTIONAL_LEGS = ROUTE_ONLY_CANNON.map((r) => `s3/${r}`);
 const EXPECTED = new Set([...REQUIRED_LEGS, ...OPTIONAL_LEGS]);
 if (!REQUIRED_LEGS.length) fails.push('coverage: the required leg set is empty -- this walk would report a vacuous pass');
 for (const id of REQUIRED_LEGS) {
-  if (judgedIds.has(id)) continue;
+  // UNMEASURED counts as REACHING the verdict, not as coverage: the leg is accounted for here and it
+  // still blocks below through its own list. Only a leg that vanished, or that tried to buy itself a
+  // skip, is a coverage failure.
+  if (judgedIds.has(id) || unmeasuredIds.has(id)) continue;
   fails.push(`coverage: required leg ${id} was not judged (${skippedIds.has(id) ? 'reported as a skip, which this leg is not allowed to do' : 'never reached the verdict at all'})`);
 }
 for (const id of OPTIONAL_LEGS) {
   if (judgedIds.has(id) || skippedIds.has(id)) continue;
   fails.push(`coverage: leg ${id} was neither judged nor skipped -- it vanished from the walk without a reason`);
 }
-for (const id of [...judgedIds, ...skippedIds]) {
+for (const id of [...judgedIds, ...skippedIds, ...unmeasuredIds]) {
   if (!EXPECTED.has(id)) fails.push(`coverage: leg ${id} is not in this walk's expected set -- the leg id scheme drifted from the reconciliation above`);
 }
 
 for (const f of fails) console.log(`  FAIL ${f}`);
+// Two channels, because the wrapper that runs this leg swallows a passing leg's stdout except for its
+// annotation lines: an UNMEASURED that only reached stdout would be invisible on the very runner whose
+// latency produced it.
+for (const u of unmeasured) {
+  console.log(`  UNMEASURED ${u}`);
+  console.warn(`::warning::play-exit-guard ${u}`);
+}
 for (const s of skips) console.log(`  SKIP ${s}`);
 const req = REQUIRED_LEGS.filter((id) => judgedIds.has(id)).length;
-console.log(`play-exit-guard: ${ROUTES_ALL.length} route(s) checked, ${judgedIds.size} scenario leg(s) judged (${req}/${REQUIRED_LEGS.length} required, ${judgedIds.size - req}/${OPTIONAL_LEGS.length} optional), ${fails.length} failed, ${skips.length} not exercisable`);
-process.exit(fails.length > 0 ? 1 : 0);
+console.log(`play-exit-guard: ${ROUTES_ALL.length} route(s) checked, ${judgedIds.size} scenario leg(s) judged (${req}/${REQUIRED_LEGS.length} required, ${judgedIds.size - req}/${OPTIONAL_LEGS.length} optional), ${fails.length} failed, ${unmeasured.length} UNMEASURED (runner could not dispatch the burst inside the arm window -- blocks, like a failure), ${skips.length} not exercisable`);
+process.exit(fails.length > 0 || unmeasured.length > 0 ? 1 : 0);
