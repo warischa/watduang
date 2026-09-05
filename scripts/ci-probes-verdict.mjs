@@ -174,6 +174,24 @@ const V = {
     }
     return null;
   },
+  // gh#184. The counter's unit test proves the arithmetic of N and that each route hands its strip to
+  // the shared mount, and says in its own header that it proves nothing about the RENDERED band. This
+  // pair is the rendered half: no chip's tail may end in hard, unfaded text against the pill.
+  // 9 = 3 routes with a player strip x 3 viewports. Pinned rather than counted from the output,
+  // because a run that visited fewer combos and found nothing wrong looks exactly like a clean one.
+  'strip-chip-visibility': () => {
+    if (out.control !== false) return `clean leg ran with CONTROL set (control=${JSON.stringify(out.control)}) -- it measured the mutant, not the shipped page`;
+    if (typeof out.seededName !== 'string' || !out.seededName) return `no roster name was seeded (seededName=${JSON.stringify(out.seededName)}) -- short chips may not overflow at all, so a clean result measures nothing`;
+    if (out.checked !== 9) return `checked ${out.checked} combo(s), expected 9 (3 strip routes x 3 viewports) -- the clean leg did not cover what the control covers`;
+    if (out.bad !== 0) return `clipped chip with no visible signal on ${out.bad} row(s): ${JSON.stringify(out.badRows)}`;
+    return null;
+  },
+  'strip-chip-visibility-control': () => {
+    if (out.control !== true) return `control leg ran without CONTROL (control=${JSON.stringify(out.control)}) -- it measured the shipped band, not the hidden one`;
+    if (out.checked !== 9) return `checked ${out.checked} combo(s), expected 9 -- the control did not cover what the clean leg covers`;
+    if (!(out.bad > 0)) return `positive control stayed GREEN on all ${out.checked} combo(s) with the band force-hidden -- the clipped-chip detector is inert, so its clean leg proves nothing`;
+    return null;
+  },
   'leave-confirm-control': () => {
     const s = out.summary;
     if (!s) return 'control leg produced no summary -- it never exercised the detector';

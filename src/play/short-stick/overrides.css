@@ -199,12 +199,17 @@
   pointer-events: none;
 }
 
-/* The dissolve: the chip the band sits on top of fades out under it instead of ending mid-glyph. */
+/* The dissolve: the chip the band sits on top of fades out under it instead of ending mid-glyph.
+   inline-size measured in a real browser against the ten-seat worst case (longest _mascots.ts name,
+   every viewport this route ships at) -- the widest naked reach seen was ~54px at 320px wide, so 56px
+   (this route's own worst case rounded up to a multiple of 4) is what the gradient needs to reach;
+   24px left an un-covered tail on the cut chip. Width only -- absolute positioning means this never
+   adds height to the strip or the row. */
 .strip-more::before {
   content: '';
   position: absolute;
   inset-block: 0;
   inset-inline-end: 100%;
-  inline-size: 24px;
+  inline-size: 56px;
   background: linear-gradient(to left, var(--bg), rgba(250, 247, 242, 0));
 }
