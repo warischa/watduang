@@ -30,6 +30,7 @@ import {
   KNOWN_OVERFLOW,
   KNOWN_OVERFLOW_X,
   VIEWPORTS,
+  compositionGaps,
   countsAsHorizontalOverflow,
   playRoutes,
   rowKey,
@@ -204,4 +205,37 @@ test('every recorded exception reason parses back to its recorded px, on both ax
   // Positive control: the parser must be able to REJECT. Without this, a regex loosened to match
   // anything would leave every assertion above green while parsing nothing.
   assert.throws(() => recordedPx('2px on press 1 - no prefix'), 'recordedPx accepted a reason with no recorded-px prefix');
+});
+
+// gh#203 - THE COMPOSITION ROW'S ONE GATE, driven as behaviour rather than described. compositionGaps
+// is the exact expression the probe's own completeness check runs, so this test reds if that check
+// stops being able to see a missing reading. The row's VALUES (frameCap, tracks, unitRanges,
+// unitSpanFrac) are deliberately unasserted here and everywhere: the owner ruled on 2026-09-04 that
+// this ticket family needs a different number or a per-route verdict rather than a threshold, and a
+// test pinning one of them would be that threshold under another name.
+const DESKTOP_VP = `${Math.max(...VIEWPORTS.map((v) => v.w))}x900`;
+const NARROW_VP = `${Math.min(...VIEWPORTS.map((v) => v.w))}x568`;
+const A_READING = { ok: true, tracks: 2, unitRanges: 2, unitSpanFrac: 0.97, label: 'first-game-screen' };
+
+test('the composition gate names a desktop route that produced no reading (gh#203 behaviour)', () => {
+  assert.deepEqual(compositionGaps([
+    { route: 'has-one', vp: DESKTOP_VP, composition: A_READING },
+    { route: 'read-nothing', vp: DESKTOP_VP, composition: null },
+    { route: 'absent-key', vp: DESKTOP_VP },
+  ]), ['absent-key', 'read-nothing'],
+  'a desktop row carrying no composition reading is the failure a per-row exit code cannot see: in the table it is indistinguishable from a route nobody asked about');
+});
+
+test('the composition gate is scoped to the desktop viewport and passes a complete run', () => {
+  // The narrow viewports are never asked for a reading, so their absence must not red - a gate that
+  // demanded one there would be unpassable by construction and no edit could ever clear it.
+  assert.deepEqual(compositionGaps([
+    { route: 'a', vp: NARROW_VP },
+    { route: 'a', vp: DESKTOP_VP, composition: A_READING },
+  ]), []);
+  // The shape a real full walk produces, built from the manifest rather than from a typed route list.
+  assert.deepEqual(compositionGaps(playRoutes().flatMap((route) => [
+    { route, vp: NARROW_VP },
+    { route, vp: DESKTOP_VP, composition: A_READING },
+  ])), []);
 });

@@ -117,12 +117,28 @@
 //
 // WHAT ITS GREEN DOES NOT MEAN — the blind spots, stated so nobody reads more into a pass:
 //   * IT FIXES NOTHING AND SETS NO LAYOUT THRESHOLD. widthFillPct is REPORTED only, and an
-//     overflowing row's recorded px is the number ONE machine measured — the CI runner and a Mac
-//     disagree by 4-28% on the same commit (inferred: fonts — the runner installs none and the play
-//     routes name none), so growth and "fixed" on a KNOWN_OVERFLOW row are
+//     overflowing row's recorded px is the number ONE machine measured (inferred: fonts — the runner
+//     installs none and the play routes name none), so growth and "fixed" on a KNOWN_OVERFLOW row are
 //     PRINTED, never gated. gh#179 is the measurement; gh#180/#181/#182/#183 own the layout. What a
 //     layout commit must do: move the fixed row from KNOWN_OVERFLOW to FITS_ROWS in that same commit,
 //     because FITS is the one px claim (0, within 8px) both machines agree on and it IS gated.
+//     THE TWO AXES DIVERGE BY DIFFERENT ORDERS, and the corrected numbers are the ones each set
+//     records rather than one figure quoted for both. VERTICALLY the recorded rows sit 4-28% apart on
+//     the same commit. HORIZONTALLY the divergence is far larger and its own reasons say so: one
+//     KNOWN_OVERFLOW_X row reads 145px on the CI runner against 43px here — a factor of 3.4, not a
+//     percentage — and another moves between 0px and 75px, which is not a magnitude at all but a
+//     change of VERDICT, since zero and non-zero are exactly what the sideways gate asserts. Any
+//     future acceptance criterion over either axis's px therefore needs a different number, or a
+//     per-route owner verdict, and not a threshold (owner ruling 2026-09-04).
+//   * THE SMALL-BOX SKIP BLINDS THE HORIZONTAL AXIS, and the rationale written beside it is a
+//     VERTICAL one. The scan drops any element with clientHeight <= 1 || clientWidth <= 1 because a
+//     screen-reader-only box is 1px tall and its vertical spill is not a fit defect. On the SIDEWAYS
+//     axis that same skip is a real blind spot with no rationale behind it: a box 1px tall and 3000px
+//     wide, clipped, is dropped before countsAsHorizontalOverflow ever sees it, and so is any element
+//     collapsed to zero width by its own clip. The skip is kept because the vertical reason for it
+//     still holds and no route has shown such a box, not because the horizontal case was checked.
+//   * THE COMPOSITION ROW (below, gh#203) IS REPORTED AND NOT GATED EITHER, on its values. Only its
+//     COMPLETENESS is gated — that every route the leg walked produced one at the desktop viewport.
 //   * It proves the measured screen is not the FRESH screen. It does not prove it is the round's main
 //     screen: a pass-device or handoff screen satisfies the invariant, and on a route whose first
 //     press lands there the reported numbers may be that screen's.
@@ -614,6 +630,146 @@ const MEASURE = `
   };
 `;
 
+// gh#203 — THE COMPOSITION ROW, at the desktop viewport only. A SECOND, FONT-INDEPENDENT reading of
+// the same question widthFillPct asks, built because widthFillPct cannot answer it: its extents are
+// GLYPH extents, this repo has a recorded CI-versus-Mac disagreement on the very same commit, and the
+// site owner ruled on 2026-09-04 that a criterion in this ticket family needs a different number or a
+// per-route verdict rather than a threshold over that one. So nothing below reads text, and nothing
+// below is gated on its value.
+//
+// WHAT IT READS INSTEAD: the repo's OWN RESOLVED CSS and the layout boxes that CSS produced.
+//   frameCap      the computed inline-size cap on the mockup root. 'none' means the route released
+//                 the phone column (structural rule 1 in docs/agents/desktop-sizing-decisions.md);
+//                 a px value means the frame is still a column of that width. Computed, not authored:
+//                 a media block that never matched would still be greppable in the stylesheet.
+//   tracks        the resolved grid-template-columns TRACK COUNT on the active screen. ONE track
+//                 versus TWO OR MORE is the distinction gh#203 is actually about, and a track count
+//                 is an integer that no font can move. 0 is reported when the value is 'none', i.e.
+//                 the screen is not a grid at all — which is a different fact from a one-track grid.
+//   unitSpanFrac  the merged x-span of the active screen's composition UNITS over the frame's width.
+//   unitRanges    how many NON-OVERLAPPING x-ranges those units fall into. 2+ is side-by-side.
+//
+// THE THREE FILTERS THAT MAKE A UNIT, and each one is a false-green this reading would otherwise ship:
+//   IN FLOW, OR OUT OF FLOW AND CARRYING TEXT. The box to exclude is the painted LAYER — a particle
+//     canvas at inset:0, a theatre curtain, a flash overlay. It covers the whole window while
+//     composing nothing, and counting it pegs unitSpanFrac at 1.0 on a route whose real surface is a
+//     narrow centred column, which is precisely the finding this row exists to produce. But "out of
+//     flow" alone is the WRONG test for it, and cannon-flag is the route that proves so: its screens
+//     are position:absolute stacked on each other with only the active one visible, so an in-flow-only
+//     filter read that route as having ZERO composition units — a void reading, not a verdict.
+//     TEXT is what separates the two: a screen holds copy and labelled controls, a decoration layer is
+//     media-only or empty. WHAT THAT DOES NOT COVER: a visible out-of-flow overlay that DOES carry
+//     text — a full-window toast or a modal backdrop with a label — counts as a unit and would widen
+//     the span. It is a real box the player is looking at, so counting it is defensible, but the row
+//     would then describe the overlay's composition and not the screen's.
+//   INK SOMEWHERE INSIDE, but the SPAN comes from the unit's own layout box. Ink presence is a
+//     STRUCTURAL filter (does this subtree render anything at all) and is the only place text is
+//     consulted; no measured number here is derived from a glyph extent. A background-only wrapper
+//     holds no ink and is not a unit.
+//   BIGGER THAN MIN_UNIT_PX ON BOTH AXES. The screen-reader visually-hidden pattern is a 1px box, and
+//     one of those in flow would otherwise contribute a stray range of its own.
+//
+// THE ACTIVE SCREEN IS FOUND BY DESCENT, carrying no per-route selector — the same constraint the
+// walk above is built under. From the frame, while there is EXACTLY ONE unit, descend into it. That
+// walks a sole-wrapper chain (a panel wrap into its panel, a main into the one container that is not
+// display:none) without knowing any of their names, and stops at the innermost element that actually
+// holds more than one thing. Where it stops is REPORTED as screenDesc, so the row says what it read.
+const MIN_UNIT_PX = 8;
+const COMPOSITION = `
+  ${HELPERS}
+  const root = document.querySelector(ROOT_SEL);
+  if (!root) return { ok: false, why: 'no mockup root' };
+  const MEDIA = new Set(['CANVAS', 'IMG', 'SVG', 'VIDEO', 'INPUT', 'BUTTON', 'TEXTAREA', 'SELECT']);
+  const inFlow = (e) => {
+    const p = getComputedStyle(e).position;
+    return p === 'static' || p === 'relative' || p === 'sticky';
+  };
+  const textIn = (e) => {
+    if (!e.children.length) return Boolean((e.textContent || '').trim());
+    for (const d of e.querySelectorAll('*')) {
+      if (!visible(d) || d.closest('header')) continue;
+      if (!d.children.length && (d.textContent || '').trim()) return true;
+    }
+    return false;
+  };
+  const inkIn = (e) => {
+    if (MEDIA.has(e.tagName)) return true;
+    if (textIn(e)) return true;
+    for (const d of e.querySelectorAll('*')) {
+      if (visible(d) && !d.closest('header') && MEDIA.has(d.tagName)) return true;
+    }
+    return false;
+  };
+  const unitsOf = (e) => [...e.children].filter((c) => {
+    if (c.tagName === 'HEADER' || c.closest('header') || !visible(c) || !inkIn(c)) return false;
+    if (!inFlow(c) && !textIn(c)) return false;
+    const r = c.getBoundingClientRect();
+    return r.width > ${MIN_UNIT_PX} && r.height > ${MIN_UNIT_PX};
+  });
+  // Descend past every sole wrapper. Used TWICE, and the second use is the one that matters: a
+  // full-width flex wrapper holding one narrow centred child is a BOUNDING box, not a content box,
+  // and measuring it reports a span of 1.0 for a surface that occupies a third of the frame. So each
+  // unit is collapsed onto its own innermost multi-unit descendant before its x-extent is read.
+  const deepest = (e) => {
+    let at = e;
+    for (let depth = 0; depth < 16; depth += 1) {
+      const kids = unitsOf(at);
+      if (kids.length !== 1) return at;
+      at = kids[0];
+    }
+    return at;
+  };
+  const screen = deepest(root);
+  const units = unitsOf(screen).map(deepest);
+  const desc = (e) => e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\\s+/).join('.') : '');
+  const scs = getComputedStyle(screen);
+  const rcs = getComputedStyle(root);
+  const cols = scs.gridTemplateColumns;
+  const frameW = root.getBoundingClientRect().width;
+  // Merged with a 1px join: two boxes that merely touch are one column, and a sub-pixel rounding
+  // artefact must not invent a second range.
+  const iv = units.map((u) => {
+    const r = u.getBoundingClientRect();
+    return [Math.max(r.left, 0), Math.min(r.right, innerWidth)];
+  }).filter((p) => p[1] - p[0] > ${MIN_UNIT_PX}).sort((a, b) => a[0] - b[0]);
+  const merged = [];
+  for (const [a, b] of iv) {
+    const last = merged[merged.length - 1];
+    if (last && a <= last[1] + 1) last[1] = Math.max(last[1], b);
+    else merged.push([a, b]);
+  }
+  const covered = merged.reduce((s, [a, b]) => s + (b - a), 0);
+  return {
+    ok: true, innerWidth, frameW: Math.round(frameW),
+    frameDesc: desc(root),
+    // maxInlineSize is the logical property the desktop layer authors; maxWidth is reported beside it
+    // because a Chrome that does not expose the logical name would otherwise report undefined and
+    // read exactly like an uncapped frame.
+    frameCap: rcs.maxInlineSize || rcs.maxWidth,
+    frameMaxWidth: rcs.maxWidth,
+    screenDesc: desc(screen),
+    screenDisplay: scs.display,
+    gridTemplateColumns: cols,
+    // COUNTED ONLY ON A REAL GRID. getComputedStyle returns USED track sizes (a plain px list) for a
+    // grid container, which is what makes a whitespace split a correct count; on a non-grid it returns
+    // the SPECIFIED value, where 'minmax(0, 1fr)' would split into two tokens and report a two-column
+    // layout that does not exist. A non-grid screen has no track count, and 0 says so.
+    tracks: (scs.display === 'grid' || scs.display === 'inline-grid') && cols && cols !== 'none'
+      ? cols.trim().split(/\\s+/).length : 0,
+    unitCount: units.length,
+    // The units BY NAME and by their own x-extent. Without this the row states a range count with
+    // nothing behind it, and the one thing that makes a composition reading arguable is being able to
+    // see which boxes it counted.
+    unitDescs: units.map((u) => {
+      const r = u.getBoundingClientRect();
+      return desc(u) + ' [' + Math.round(r.left) + '-' + Math.round(r.right) + ']';
+    }),
+    unitRanges: merged.length,
+    unitSpanFrac: frameW > 0 ? Math.round((covered / frameW) * 1000) / 1000 : 0,
+    sideBySide: merged.length >= 2,
+  };
+`;
+
 // The transition trigger, lifted from scripts/control-floor-probe.mjs's CLICK_PLAY_TRANSITION (same
 // roots, same size floor, same header exclusion), with one addition: SKIP, so the caller can step
 // past a candidate whose press changed nothing. That is the whole dice-loser fix, and it needs no
@@ -640,6 +796,49 @@ const SEED = `
   localStorage.setItem('watduang:group', ${JSON.stringify(JSON.stringify(NAMES))});
   return true;
 `;
+
+/**
+ * gh#203 — the desktop viewport the composition row is taken at, resolved from VIEWPORTS rather than
+ * retyped, so adding or renaming a viewport cannot leave this pointing at one the walk never visits.
+ */
+const DESKTOP_W = Math.max(...VIEWPORTS.map((v) => v.w));
+const EVIDENCE_DIR = path.join(repoRoot, 'docs/verification/evidence/203');
+
+/**
+ * gh#203 — read the composition row and, on a walking leg, put a screenshot of the SAME moment beside
+ * it. The label is part of the filename and part of the row: a screenshot of an unnamed screen cannot
+ * be reproduced, because "the play screen" is not a thing these routes have exactly one of.
+ *
+ * innerWidth is re-asserted here rather than trusted from the row's earlier check. The walk presses
+ * the mockup's own controls between the two reads, and browser-verification.md trap 1 is that a read
+ * taken at a width the page never reflowed to is VOID, not wrong — so a composition row is only
+ * emitted at a proven 1440.
+ */
+async function capture(session, id, row, label, press) {
+  const w = await session.evaluate('return innerWidth;');
+  if (w.value !== DESKTOP_W) {
+    row.error = `composition read at innerWidth ${w.value}, asked for ${DESKTOP_W} — the page never reflowed, so this read is void (docs/agents/browser-verification.md trap 1)`;
+    return null;
+  }
+  const c = await session.evaluate(COMPOSITION);
+  if (c.error || !c.value?.ok) {
+    row.error = `composition read failed: ${c.error ?? c.value?.why}`;
+    return null;
+  }
+  let shot = null;
+  // Only a leg that actually walks writes evidence. Under BREAK_WALK/NO_PRESS every route stands on
+  // its fresh screen, and letting the control leg write would overwrite the named game-screen images
+  // with setup images carrying the same filenames.
+  if (!NO_PRESS) {
+    shot = path.join(EVIDENCE_DIR, `${id}-${DESKTOP_W}x900-${label}.png`);
+    fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
+    await session.screenshot(shot);
+  }
+  return {
+    ...c.value, label, press,
+    screenshot: shot ? path.relative(repoRoot, shot) : null,
+  };
+}
 
 async function load(session, url, vp, seeded) {
   await session.nav(url);
@@ -690,6 +889,13 @@ export default async function (session) {
           const m = await session.evaluate(MEASURE);
           if (m.error || !m.value?.ok) { row.error = `measure failed: ${m.error ?? m.value?.why}`; break; }
           row.screens.push({ press, ...m.value });
+          // gh#203 — the composition row, taken on the FIRST screen that is not the fresh one, which
+          // is the screen the label calls first-game-screen. Not the worst and not the last: the two
+          // ranking rules above both pick by a px number, and a composition reading chosen by a px
+          // number would inherit exactly the machine dependence it exists to avoid.
+          if (vp.w === DESKTOP_W && !row.composition) {
+            row.composition = await capture(session, id, row, 'first-game-screen', press);
+          }
         }
         if (press === PRESS_CAP) break;
         const before = sig.value.sig;
@@ -709,6 +915,12 @@ export default async function (session) {
         // A press that changed nothing means this candidate is not a transition (a scoring-mode card,
         // a toggle). Step to the next-largest rather than pressing it again forever.
         skip = after.value?.sig === before ? skip + 1 : 0;
+      }
+      // gh#203 — a route whose walk never left setup still owes a composition row, labelled for the
+      // screen it really is. Otherwise the completeness check below could only ever red on a route
+      // that errored, and a stranded route would read as one nobody asked about.
+      if (vp.w === DESKTOP_W && !row.composition && !row.error) {
+        row.composition = await capture(session, id, row, 'setup', null);
       }
     }
   }
@@ -746,6 +958,30 @@ const worstXOf = (r) => (r.screens || []).reduce(
 export const sidewaysOffenders = (rows) => rows
   .map((r) => ({ r, key: rowKey(r), x: worstXOf(r) }))
   .filter((o) => (o.x.overflowXPx ?? 0) > OVERFLOW_TOLERANCE_PX && !KNOWN_OVERFLOW_X.has(o.key));
+
+/**
+ * gh#203 — THE ONLY THING THE COMPOSITION ROW GATES: completeness. Not frameCap, not tracks, not
+ * unitSpanFrac, not unitRanges — those are REPORTED, per the owner ruling of 2026-09-04 that this
+ * ticket family's acceptance needs a different number or a per-route verdict rather than a threshold.
+ *
+ * The shape is the union-of-walked-ids idea scripts/ci-probes.sh already applies to the fit shards,
+ * pulled inside one leg: the ids this leg WALKED at the desktop viewport, minus the ids that produced
+ * a composition row there. A route that loaded, walked, and then read nothing is the one failure a
+ * per-row exit code cannot see, because a missing reading and a route nobody asked about look
+ * identical in the table.
+ *
+ * Exported so scripts/play-screen-fit-probe.test.mjs can red it with no browser.
+ */
+export const compositionGaps = (rows) => {
+  const desktop = rows.filter((r) => r.vp === `${DESKTOP_W}x900`);
+  return desktop.filter((r) => !r.composition).map((r) => r.route).sort();
+};
+
+const fmtComposition = (r) => {
+  const c = r.composition;
+  if (!c) return `${r.route.padEnd(18)} NO COMPOSITION ROW`;
+  return `${r.route.padEnd(18)} frame ${c.frameDesc} cap ${String(c.frameCap).padStart(7)}  screen ${c.screenDesc}  [${c.label}${c.press === null ? '' : ' press ' + c.press}]  display ${c.screenDisplay}  tracks ${c.tracks} (${c.gridTemplateColumns})  units ${c.unitCount} {${(c.unitDescs || []).join(' | ')}} in ${c.unitRanges} x-range(s)  span ${c.unitSpanFrac} of ${c.frameW}px frame  side-by-side ${c.sideBySide ? 'YES' : 'no'}${c.screenshot ? '  ' + c.screenshot : ''}`;
+};
 
 const fmt = (r) => {
   if (!r.screens.length) return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} NEVER LEFT THE FRESH SCREEN`;
@@ -803,6 +1039,17 @@ function main() {
     console.error(`::error::${out.rows.length} route/viewport row(s), expected ${expectedRows} (${playRoutes().length} play route(s) this leg walks x ${VIEWPORTS.length} viewports) — a route that never loaded reads exactly like a clean one.`);
     process.exit(1);
   }
+
+  // gh#203 — composition ROW COMPLETENESS, before either leg's verdict, because it is a statement
+  // about readings and not about the walk: the control leg produces composition rows too (labelled
+  // setup, and writing no screenshot), so a reading that silently stopped happening reds on both legs
+  // instead of only on the one whose table someone reads.
+  const gaps = compositionGaps(out.rows);
+  for (const id of gaps) {
+    console.error(`::error::/game/${id}/play/ at ${DESKTOP_W}x900 produced NO composition row (gh#203). The leg walked this route and read no resolved-CSS composition from it, which in the table below is indistinguishable from a route nobody asked about. Values in that row are reported and never gated; its PRESENCE is.`);
+  }
+  if (gaps.length) process.exit(1);
+  for (const r of out.rows.filter((r) => r.vp === `${DESKTOP_W}x900`)) console.log('::notice::' + fmtComposition(r));
 
   // The ids this run really produced rows for, read back off the rows rather than off playRoutes(): the
   // union check downstream is asking what was WALKED, and re-printing the request would answer a
