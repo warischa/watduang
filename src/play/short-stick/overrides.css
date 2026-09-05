@@ -199,17 +199,47 @@
   pointer-events: none;
 }
 
+/* gh#210 -- the chip's inline size is CAPPED, and the cap is a px length THIS REPO owns.
+   Why that matters more than the number: `.strip-chip` was `flex: 0 0 auto` with no maximum, so a
+   chip was as wide as the rendering machine's Thai font made of a player-typed name, and the naked
+   sliver a clipped chip can show is bounded by nothing else. Any check on that sliver would have been
+   a check on a font -- the same class of number KNOWN_OVERFLOW_X records this repo reading as 75px on
+   the runner and 0px on a dev Mac at one commit. A content-driven unit rebuilds the trap exactly:
+   `ch` IS a font metric, and `em` on the chip's own text scales with whatever the font does. px does
+   not, so past this cap the font can only decide how much of the name fits, never how wide the chip is.
+   A name longer than the cap ellipsises on the name span (the flex item that holds it), so it
+   truncates at a word's edge with a visible marker rather than being sliced through a glyph.
+   The value: measured here at 96px because the ten-seat worst case (the longest _mascots.ts name) fits
+   in 94px on this machine -- so today's cast is untouched and the cap binds the pathological
+   player-typed name, which is the only unbounded input. */
+#draw-player-strip {
+  --strip-chip-cap: 96px;
+}
+#draw-player-strip .strip-chip {
+  max-inline-size: var(--strip-chip-cap);
+}
+#draw-player-strip .strip-chip > span:first-child {
+  flex: 0 0 auto;
+}
+#draw-player-strip .strip-chip > span:last-child {
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* The dissolve: the chip the band sits on top of fades out under it instead of ending mid-glyph.
-   inline-size measured in a real browser against the ten-seat worst case (longest _mascots.ts name,
-   every viewport this route ships at) -- the widest naked reach seen was ~54px at 320px wide, so 56px
-   (this route's own worst case rounded up to a multiple of 4) is what the gradient needs to reach;
-   24px left an un-covered tail on the cut chip. Width only -- absolute positioning means this never
-   adds height to the strip or the row. */
+   inline-size is THE CAP, not a separately measured width, and that is the whole point -- the two
+   cannot drift, because a chip is at most one cap wide and the gradient reaches one cap in front of
+   the pill. The pill's own width (its 20px inline padding alone, before any digit) is pure headroom
+   on top, which is why this does not need to be tuned to the last pixel and why nothing here has to
+   be re-measured when a font changes. Width only -- absolute positioning means this never adds
+   height to the strip or the row. */
 .strip-more::before {
   content: '';
   position: absolute;
   inset-block: 0;
   inset-inline-end: 100%;
-  inline-size: 56px;
+  inline-size: var(--strip-chip-cap);
   background: linear-gradient(to left, var(--bg), rgba(250, 247, 242, 0));
 }

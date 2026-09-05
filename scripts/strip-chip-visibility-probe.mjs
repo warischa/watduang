@@ -21,8 +21,15 @@
 // vs. STRIP geometry, never chip vs. its own content box. No route currently nests a scroller inside a
 // chip; if one ever does, this check is blind to it and a chip-level scrollWidth/clientWidth probe
 // would need to be added alongside this one, not folded into it.
+// Imported, not assumed: the route-staleness block below reads the filesystem at module scope, and
+// `fs` was an undeclared global there. `node -e` and the REPL expose builtin modules as globals, so
+// an import smoke test written that way returns OK while `node driver.mjs <this file>` throws
+// ReferenceError before a single page loads -- which is why this file could not have run as a leg.
+import fs from 'node:fs';
+
 const BASE = process.env.BASE || 'http://localhost:4321';
 const CONTROL = !!process.env.CONTROL;
+const BREAK_REACH = !!process.env.BREAK_REACH;
 const SHOT_DIR = process.env.SHOT_DIR || null;
 // `ONLY=<route>:<width>` restricts the walk to one route+viewport -- used to demonstrate the
 // mutant/restore red-green pair on a single combo without the run time or noise of all six.
@@ -128,6 +135,92 @@ const MEASURE_INITIAL = (stripId) => `
   };
 `;
 
+// The adversarial scroll walk, and why the boot position alone was not a measurement.
+//
+// A chip is only ever "naked" by the width of the sliver between its own left edge and the band's
+// reach -- so the reading depends entirely on WHERE the strip happens to be scrolled. At first paint
+// the chips sit at multiples of (chip width + gap), and whether the boundary chip lands barely-clipped
+// (worst case, a full chip's width of sliver) or almost-fully-clipped (best case, nothing) is decided
+// by arithmetic nobody chose. Measured while wiring this: with the chip cap removed and a 15-character
+// name -- the longest the roster input accepts -- the boot position reported nakedCutCount 0 on all
+// nine combinations, and so did a chip widened past the band's reach. A detector that answers 0 to
+// the defect it exists to catch is not a detector, it is the scroll offset's opinion.
+//
+// So each chip's OWN barely-clipped position is visited: scrollLeft placed so that chip's right edge
+// sits 1px past the strip's, which is the worst case for that chip by construction rather than by
+// luck. The row's nakedCutCount is the worst reading over those positions and the boot one, which
+// makes it a property of the layout instead of a property of where the strip stopped.
+//
+// The 1px inset is deliberate: a chip placed EXACTLY on the edge is the sub-pixel boundary
+// docs/agents/browser-verification.md's trap 6 is about, and the counter's own 0.5px edge tolerance
+// would classify it as not hidden at all.
+const MEASURE_WORST_SCROLL = (stripId) => `
+  const strip = document.getElementById(${JSON.stringify(stripId)});
+  const counter = strip.querySelector('.strip-more');
+  const kids = () => [...strip.children].filter((c) => c !== counter);
+  const maxScroll = strip.scrollWidth - strip.clientWidth;
+  // From measured rects and the CURRENT scrollLeft, never from offsetLeft/clientWidth: offsetLeft is
+  // relative to the nearest positioned ancestor, which for a static strip is the page, and clientWidth
+  // is the padding box while the check below reads the border box. Both errors move the target off the
+  // one position that matters, and each of them reads as a clean walk. This form places the chip's
+  // right edge 1px past the very edge the naked-cut test uses.
+  const stripRight = () => strip.getBoundingClientRect().right;
+  const positions = [...new Set(kids()
+    // MINUS one, not plus: raising scrollLeft moves content toward the leading edge, so the offset
+    // that puts a chip's right edge one pixel PAST the strip's is the gap minus a pixel. With the sign
+    // flipped the chip lands one pixel INSIDE instead, is not clipped at all, and the row reports a
+    // clean zero for a position that was never visited -- which is what it did on the first run here.
+    .map((c) => Math.round(strip.scrollLeft + (c.getBoundingClientRect().right - stripRight()) - 1))
+    .filter((p) => p > 0 && p <= maxScroll))];
+  const readAt = () => {
+    const edge = strip.getBoundingClientRect().right;
+    const hidden = kids().filter((c) => c.getBoundingClientRect().right > edge + 0.5);
+    const cs = getComputedStyle(counter);
+    const cRect = counter.getBoundingClientRect();
+    const bandVisible = cs.visibility !== 'hidden' && cs.display !== 'none' && cs.opacity !== '0'
+      && cRect.width > 0.5 && cRect.height > 0.5;
+    const reach = cRect.left - (parseFloat(getComputedStyle(counter, '::before').width) || 0);
+    const naked = bandVisible ? hidden.filter((c) => c.getBoundingClientRect().left < reach - 0.5) : hidden;
+    return {
+      bandVisible,
+      n: hidden.length,
+      naked: naked.length,
+      worstPx: naked.length
+        ? Math.max(...naked.map((c) => reach - c.getBoundingClientRect().left))
+        : 0,
+    };
+  };
+  let worstNaked = 0;
+  let worstPx = 0;
+  let worstAt = null;
+  for (const p of positions) {
+    strip.scrollLeft = p;
+    await new Promise((r) => setTimeout(r, 40));
+    let m = readAt();
+    // The band is shown and hidden by the module's own passive scroll listener, so a position read
+    // before that listener ran can report the band hidden while chips really are clipped -- which
+    // would be a false red, not a false green. One re-read settles it; a second would be the harness
+    // arguing with itself.
+    if (!m.bandVisible && m.n > 0) {
+      await new Promise((r) => setTimeout(r, 120));
+      m = readAt();
+    }
+    if (m.naked > worstNaked || (m.naked === worstNaked && m.worstPx > worstPx)) {
+      worstNaked = m.naked;
+      worstPx = m.worstPx;
+      worstAt = p;
+    }
+  }
+  strip.scrollLeft = 0;
+  await new Promise((r) => setTimeout(r, 60));
+  return {
+    scrollPositionsWalked: positions.length,
+    nakedAtWorstScroll: worstNaked,
+    nakedWorstPx: +worstPx.toFixed(2),
+    worstScrollLeft: worstAt,
+  };
+`;
+
 const MEASURE_SWIPE = (stripId) => `
   const strip = document.getElementById(${JSON.stringify(stripId)});
   const counter = strip.querySelector('.strip-more');
@@ -186,6 +279,20 @@ export default async function (session) {
           document.head.appendChild(s);
           return true;`);
       }
+      // A SECOND, NARROWER mutant, hand-run and deliberately not a wired leg. CONTROL hides the band
+      // outright, which makes every clipped chip naked by definition and therefore says nothing about
+      // the geometry -- whether the reach really covers a chip. BREAK_REACH leaves the band painted and
+      // takes away only the gradient's own inline size, which is the exact drift the shipped CSS makes
+      // impossible by sizing the gradient FROM the chip cap. Run it to re-establish that the
+      // naked-cut arithmetic can still see an uncovered sliver; a green here means the reach check has
+      // gone inert even though the visibility check has not.
+      if (BREAK_REACH) {
+        await session.evaluate(`
+          const s = document.createElement('style');
+          s.textContent = '.strip-more::before { inline-size: 0 !important; }';
+          document.head.appendChild(s);
+          return true;`);
+      }
 
       await session.evaluate(`
         document.getElementById(${JSON.stringify(stripId)}).scrollIntoView({ block: 'center' });
@@ -198,13 +305,18 @@ export default async function (session) {
         await session.screenshot(`${SHOT_DIR}/${id}-${w}x${h}${CONTROL ? '-control' : ''}.png`);
       }
 
+      // Between the two, so the walk starts from the boot position it just read and leaves the strip
+      // back at 0 before the swipe measures the trailing end.
+      const worst = await session.evaluate(MEASURE_WORST_SCROLL(stripId));
+      if (worst.error) throw new Error(`${id} ${w}x${h}: worst-scroll evaluate failed: ${worst.error}`);
+
       const swipe = await session.evaluate(MEASURE_SWIPE(stripId));
       if (swipe.error) throw new Error(`${id} ${w}x${h}: swipe evaluate failed: ${swipe.error}`);
       if (SHOT_DIR) {
         await session.screenshot(`${SHOT_DIR}/${id}-${w}x${h}${CONTROL ? '-control' : ''}-swiped.png`);
       }
 
-      results.push({ id, w, h, ...initial.value, ...swipe.value });
+      results.push({ id, w, h, ...initial.value, ...worst.value, ...swipe.value });
     }
   }
 
@@ -219,18 +331,23 @@ export default async function (session) {
       r.missing ||
       (r.n > 0 && !r.bandVisible) ||
       r.nakedCutCount > 0 ||
+      r.nakedAtWorstScroll > 0 ||
+      // Liveness for the walk, and only where a walk was owed: a row with chips off the trailing edge
+      // and zero positions visited reported its 0 without measuring anything. A row with nothing
+      // hidden (the desktop rail, where the strip wraps) legitimately has no barely-clipped position.
+      (r.n > 0 && !(r.scrollPositionsWalked > 0)) ||
       !r.lastSeatFullyVisible ||
       !(r.lastSeatName || '').includes(name),
   );
 
-  const out = { control: CONTROL, seededName: name, checked: results.length, bad: bad.length, results, badRows: bad };
+  const out = { control: CONTROL, breakReach: BREAK_REACH, seededName: name, checked: results.length, bad: bad.length, results, badRows: bad };
   // Throwing is the point on a NORMAL run: driver.mjs turns a throw into a non-zero exit, so a clipped
   // chip is a red leg rather than a line of JSON nobody reads. On the CONTROL run it is the opposite --
   // the run must reach here and REPORT what it found, because a non-zero exit is equally what a
   // watchdog kill, a dead Chrome or a page that never loaded looks like. The control's verdict is the
   // JSON below, judged in scripts/ci-probes-verdict.mjs, so a detector that was never exercised cannot
   // pass by exiting quietly. Same shape as narrow-overflow-probe.mjs, deliberately.
-  if (bad.length > 0 && !CONTROL) {
+  if (bad.length > 0 && !CONTROL && !BREAK_REACH) {
     throw new Error(`clipped chip with no visible signal on ${bad.length} row(s): ${JSON.stringify(bad)}`);
   }
   return out;

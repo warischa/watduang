@@ -82,15 +82,17 @@ fi
 # (errexit, an OOM-killed Chrome) would otherwise read as FEWER GREENS and still exit 0 -- the exact
 # silent-skip shape docs/agents/ci-verification.md exists to kill. Re-record this number in the same
 # commit that adds or removes a leg. It is no longer one grep: fit_pair is written once and CALLED once
-# per shard, so the count is the 18 probe/standalone lines outside fit_pair plus 2 x FIT_SHARDS
-# (grep -cE '^  (probe|standalone) ' returns 20 -- the two lines inside fit_pair, counted once each).
+# per shard, so the count is the 20 probe/standalone lines outside fit_pair plus 2 x FIT_SHARDS
+# (grep -cE '^  (probe|standalone) ' returns 22 -- the two lines inside fit_pair, counted once each).
 # gh#179, 18 -> 20: play-screen-fit and its play-screen-fit-control joined lane3.
 # 20 -> 24: the fit pair became FIT_SHARDS pairs (2 legs per shard, labels suffixed with the shard index)
 # so the walk could be split across lanes. This number is a HUMAN-MAINTAINED pin and is blind to the one
 # failure the split introduces -- a route added to the manifest and to no shard keeps the leg count at 24
 # while going unwalked -- so it is NOT what proves coverage. The FIT_SHARD_WALKED union check in the
 # aggregate block below is.
-EXPECTED_LEGS=24
+# gh#210, 24 -> 26: strip-chip-visibility and its control joined lane2, the lane that already owns
+# narrow-overflow -- same subject (what a phone-width screen cuts off) and the same clean/control shape.
+EXPECTED_LEGS=26
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -294,18 +296,17 @@ lane2() {
   probe narrow-overflow-control  narrow-overflow-probe.mjs          "$CDP_2" BREAK_GUARD=1 LONG_TOKEN=Wolfeschlegelsteinhausenbergerdorffvoralternwarengewissenhaftschaferswes
   probe ad-reflow                ad-reflow-first-list-load-probe.mjs "$CDP_2"
   probe ad-reflow-control        ad-reflow-first-list-load-probe.mjs "$CDP_2" BREAK_GUARD=1
-  # gh#184's rendered half is NOT wired here yet, and the reason is the whole point.
-  # scripts/strip-chip-visibility-probe.mjs exists, is calibrated, and its clean/control predicates are
-  # already written in ci-probes-verdict.mjs -- but its "naked cut" test demands the gradient cover the
-  # ENTIRE visible sliver of a clipped chip, and a chip's width is Thai font metrics on whatever machine
-  # is rendering. The reaches it green-lights were measured on one Mac. That is precisely the gh#202
-  # trap, where a row read 0px locally and 75px on the runner, and the repo's own rule from it is to
-  # diff a CI artifact against a local run before gating any measured number. Wiring it now would gate a
-  # number two machines have not been shown to agree on.
-  # What it needs first: .strip-chip has no max width (flex: 0 0 auto), so the sliver is unbounded and
-  # belongs to a set we do not own. Cap the chip, then size the fade to the cap, and both sides are ours
-  # -- see the follow-up ticket. Until then this runs by hand, and the shipped guard for the band is the
-  # counter's unit test plus each route's own behavioural test.
+  # gh#210 -- gh#184's rendered half, and it is here rather than deferred because what it measures
+  # changed owner. The deferral this replaces was right at the time: the naked-cut test asks whether the
+  # band covers a clipped chip's visible sliver, the sliver was as wide as the chip, and the chip was as
+  # wide as the rendering machine's Thai font made of a name. Gating that would have gated a font.
+  # Each route's overrides.css now caps the chip in px and sizes the fade FROM that cap, so the sliver
+  # can never exceed a length this repo authored and the two cannot drift -- there is no second number
+  # to change. Nine combinations (3 strip routes x 3 viewports), and the row's reading is taken at each
+  # chip's own barely-clipped scroll offset rather than wherever the strip happened to stop, because the
+  # boot offset answered 0 to a chip deliberately widened past the band's reach.
+  probe strip-chip-visibility          strip-chip-visibility-probe.mjs    "$CDP_2"
+  probe strip-chip-visibility-control  strip-chip-visibility-probe.mjs    "$CDP_2" CONTROL=1
 }
 lane3() {
   LANE=lane3

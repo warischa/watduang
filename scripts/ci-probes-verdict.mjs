@@ -181,6 +181,11 @@ const V = {
   // because a run that visited fewer combos and found nothing wrong looks exactly like a clean one.
   'strip-chip-visibility': () => {
     if (out.control !== false) return `clean leg ran with CONTROL set (control=${JSON.stringify(out.control)}) -- it measured the mutant, not the shipped page`;
+    // The probe carries a SECOND mutant (BREAK_REACH, which zeroes the gradient's inline size) for
+    // calibrating the reach arithmetic by hand. It is not a leg here, and an env var leaking into
+    // this one would turn a red into a pass: BREAK_REACH suppresses the throw, so the clean leg would
+    // exit 0 while reporting bad rows. Read it rather than trust the lane's environment.
+    if (out.breakReach !== false) return `clean leg ran with BREAK_REACH set (breakReach=${JSON.stringify(out.breakReach)}) -- the gradient was zeroed and the throw suppressed, so exit 0 means nothing`;
     if (typeof out.seededName !== 'string' || !out.seededName) return `no roster name was seeded (seededName=${JSON.stringify(out.seededName)}) -- short chips may not overflow at all, so a clean result measures nothing`;
     if (out.checked !== 9) return `checked ${out.checked} combo(s), expected 9 (3 strip routes x 3 viewports) -- the clean leg did not cover what the control covers`;
     if (out.bad !== 0) return `clipped chip with no visible signal on ${out.bad} row(s): ${JSON.stringify(out.badRows)}`;
@@ -188,6 +193,7 @@ const V = {
   },
   'strip-chip-visibility-control': () => {
     if (out.control !== true) return `control leg ran without CONTROL (control=${JSON.stringify(out.control)}) -- it measured the shipped band, not the hidden one`;
+    if (out.breakReach !== false) return `control leg also ran with BREAK_REACH (breakReach=${JSON.stringify(out.breakReach)}) -- two mutants at once calibrate neither`;
     if (out.checked !== 9) return `checked ${out.checked} combo(s), expected 9 -- the control did not cover what the clean leg covers`;
     if (!(out.bad > 0)) return `positive control stayed GREEN on all ${out.checked} combo(s) with the band force-hidden -- the clipped-chip detector is inert, so its clean leg proves nothing`;
     return null;
