@@ -355,15 +355,27 @@ test('no play route ships a numbered player default in its markup', async () => 
 // PLAYER_AVATARS that diverged from the cast, so seat 1 rendered a fox beside a default name whose
 // cast emoji is a cat. It now derives from MASCOTS, and this test is what stops the next one landing.
 //
-// WHY THE SET IS INVERTED. The ways to write an icon list are unbounded and we do not own that set,
-// so the guard marks nothing as allowed and requires the count to be zero. There is deliberately no
-// exemption list here: freeze-tap does not need one, because its cast is an array of OBJECTS carrying
-// an emoji field, not an array of bare emoji, so this scan does not see it at all.
+// THIS IS A HINT, NOT A BOUND, and an earlier version of this comment claimed otherwise. It said the
+// only invisible shapes were objects, helper-built lists and single constants. That sentence was
+// false, and it was written by the same session that wrote the scan -- which is exactly how a guard
+// comes to be trusted for more than it does.
 //
-// WHAT THIS DOES NOT SEE, stated so a green is not read as more than it is: an icon list written as
-// objects (freeze-tap's shape) is invisible here and is covered instead by the row-for-row test
-// above; a list built by calling a helper is invisible to any source scan; and a two-element array is
-// the smallest thing that trips this, so a single stray emoji constant is allowed on purpose.
+// WHAT IT ACTUALLY CATCHES: one shape -- `const NAME = ['X', 'Y', ...]` where every element is a
+// quoted string holding one or two pictographic characters and nothing else, in a route's OWN main
+// module. That is the shape power-meter shipped, and it is the shape a copy-paste most often takes.
+//
+// WHAT IT MISSES, none of it hypothetical: a trailing line comment inside the array; template-literal
+// items; skin-tone modifiers (U+1F3FB..U+1F3FF are NOT Extended_Pictographic, so a toned emoji fails
+// the element test); ZWJ sequences, flags and keycaps; a single non-emoji sentinel mixed into the
+// list; the list written as an object property (`avatars: [...]`), which is power-meter's own `const
+// game = {` shape; a bare reassignment; nested arrays; and any sibling module in the route directory,
+// since only `main.js`/`main.ts` is read. freeze-tap's deliberate cast is invisible for the same
+// reason -- it is objects, not bare emoji -- which is convenient here but is NOT a designed exemption.
+//
+// SO WHAT ACTUALLY BOUNDS THIS. The set is JS syntax times Unicode, and we own neither. The guard that
+// converges is the BEHAVIOURAL one: each route's own setup-badge test asserts the rendered badge equals
+// the cast's emoji for that seat, and the row-for-row test above pins freeze-tap. Those fail on a wrong
+// icon however the list was written. This scan only shortens the distance to the diagnosis.
 //
 // CALIBRATED BOTH WAYS before it was committed: restoring power-meter's old literal flags it, and the
 // penalty-preset arrays in short-stick and zero-trigger -- sentences that happen to contain an emoji
@@ -382,6 +394,29 @@ test('no play route declares its own bare-emoji icon list', async () => {
   const ICONISH = /^['"]\s*(?:\p{Extended_Pictographic}\uFE0F?){1,2}\s*['"]$/u;
   const DECL = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*\[([^\]]*)\]/gs;
 
+  /** Names of the declarations in `source` that look like a hand-written icon list. */
+  const iconListDecls = (source) => {
+    const found = [];
+    for (const m of source.matchAll(DECL)) {
+      const items = m[2].split(',').map((s) => s.trim()).filter(Boolean);
+      const iconish = items.filter((s) => ICONISH.test(s)).length;
+      if (iconish >= 2 && iconish === items.length) found.push({ name: m[1], count: items.length });
+    }
+    return found;
+  };
+
+  // CALIBRATION, run every time rather than claimed once in a commit message. A scan whose regex has
+  // been edited into uselessness returns an empty list, and an empty list is exactly what a clean tree
+  // returns -- the two are indistinguishable from the outside. These two fixtures go through the SAME
+  // iconListDecls the routes go through, so an edit that stops the detector firing fails here first.
+  // Emoji are written as codepoint escapes: pasted glyphs are what a whitespace or encoding sweep eats.
+  const FIXTURE_BAD = "const AVATARS = ['\u{1F98A}', '\u{1F43C}', '\u{1F42F}'];";
+  const FIXTURE_GOOD = "const PRESETS = ['\u{1F3A4} sing the chorus', '\u{1F9CB} buy a round'];";
+  assert.equal(iconListDecls(FIXTURE_BAD).length, 1,
+    'the icon-list detector no longer fires on a plain three-emoji list -- it is inert, and its green below means nothing');
+  assert.equal(iconListDecls(FIXTURE_GOOD).length, 0,
+    'the icon-list detector fires on sentences that merely contain an emoji -- it would red the penalty-preset arrays, which are not icon lists');
+
   const hits = [];
   let scanned = 0;
   for (const id of routes) {
@@ -390,12 +425,8 @@ test('no play route declares its own bare-emoji icon list', async () => {
     assert.ok(file, `no main module in src/play/${id} -- the manifest ships a play route with nothing to scan here`);
     scanned += 1;
     const source = fs.readFileSync(file, 'utf8');
-    for (const m of source.matchAll(DECL)) {
-      const items = m[2].split(',').map((s) => s.trim()).filter(Boolean);
-      const iconish = items.filter((s) => ICONISH.test(s)).length;
-      if (iconish >= 2 && iconish === items.length) {
-        hits.push(`${id}/${path.basename(file)}: ${m[1]} (${items.length} entries) -- import from _mascots.ts instead`);
-      }
+    for (const d of iconListDecls(source)) {
+      hits.push(`${id}/${path.basename(file)}: ${d.name} (${d.count} entries) -- import from _mascots.ts instead`);
     }
   }
   assert.equal(scanned, routes.length, 'a route was skipped -- this scan must cover every route the manifest ships');

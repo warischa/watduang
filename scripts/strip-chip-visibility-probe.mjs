@@ -28,11 +28,35 @@ const SHOT_DIR = process.env.SHOT_DIR || null;
 // mutant/restore red-green pair on a single combo without the run time or noise of all six.
 const ONLY = process.env.ONLY || null;
 
+// The routes with a scrolling player strip. This is a HAND LIST, and a hand list of an open set goes
+// stale the moment a fourth route mounts the counter -- silently, because an uncovered route produces
+// no row and no row produces no finding. The assertion below turns that silence into a red: the number
+// of routes here must equal the number of modules that actually call the shared mount.
 const ALL_ROUTES = [
   { id: 'short-stick', stripId: 'draw-player-strip' },
   { id: 'wire-snip-panic', stripId: 'hud-player-strip' },
   { id: 'zero-trigger', stripId: 'game-player-strip' },
 ];
+{
+  const playDir = new URL('../src/play/', import.meta.url);
+  const callers = fs
+    .readdirSync(playDir, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .filter((e) =>
+      ['main.js', 'main.ts'].some((n) => {
+        const f = new URL(`${e.name}/${n}`, playDir);
+        return fs.existsSync(f) && fs.readFileSync(f, 'utf8').includes('mountStripOverflowCounter');
+      }),
+    )
+    .map((e) => e.name)
+    .sort();
+  const listed = ALL_ROUTES.map((r) => r.id).sort();
+  if (callers.join(',') !== listed.join(',')) {
+    throw new Error(
+      `this probe's route list is stale: it covers [${listed.join(', ')}] but [${callers.join(', ')}] mount the shared strip counter -- an uncovered route is measured by nothing and reports no finding`,
+    );
+  }
+}
 const ALL_VIEWPORTS = [
   [320, 568],
   [390, 844],
@@ -184,8 +208,19 @@ export default async function (session) {
     }
   }
 
+  // `seededName` only proves the longest name was COMPUTED, never that it reached the page. If the
+  // roster handoff changes key or shape the page boots on its short numbered defaults, which may not
+  // overflow far enough to exercise the reaches this probe is here to check -- and the control would
+  // still redden on those short names, so the pair would stay green while measuring the wrong roster.
+  // Requiring the seeded name to appear in the rendered chip closes that: `includes` rather than
+  // equality because a chip's text carries the seat's emoji alongside the name.
   const bad = results.filter(
-    (r) => r.missing || (r.n > 0 && !r.bandVisible) || r.nakedCutCount > 0 || !r.lastSeatFullyVisible,
+    (r) =>
+      r.missing ||
+      (r.n > 0 && !r.bandVisible) ||
+      r.nakedCutCount > 0 ||
+      !r.lastSeatFullyVisible ||
+      !(r.lastSeatName || '').includes(name),
   );
 
   const out = { control: CONTROL, seededName: name, checked: results.length, bad: bad.length, results, badRows: bad };

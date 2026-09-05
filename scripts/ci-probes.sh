@@ -55,7 +55,7 @@ mkdir -p "$OUT_DIR"
 # invocations in the lanes below (grep -cE '^  (probe|standalone) ' agrees); re-record this number
 # in the same commit that adds or removes a leg.
 # gh#179, 18 -> 20: play-screen-fit and its play-screen-fit-control joined lane3.
-EXPECTED_LEGS=22
+EXPECTED_LEGS=20
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -258,15 +258,18 @@ lane2() {
   probe narrow-overflow-control  narrow-overflow-probe.mjs          "$CDP_2" BREAK_GUARD=1 LONG_TOKEN=Wolfeschlegelsteinhausenbergerdorffvoralternwarengewissenhaftschaferswes
   probe ad-reflow                ad-reflow-first-list-load-probe.mjs "$CDP_2"
   probe ad-reflow-control        ad-reflow-first-list-load-probe.mjs "$CDP_2" BREAK_GUARD=1
-  # gh#184's other half. The counter's unit test proves the ARITHMETIC of N and that each route hands
-  # its strip to the shared mount; it says in its own header that it proves nothing about the RENDERED
-  # band. This pair is what checks the thing a player actually sees: that no chip's tail ends in hard,
-  # unfaded text against the pill. It needs driver.mjs rather than the plain `probe` helper because it
-  # drives one tab across several routes and viewports.
-  # PLACED IN LANE2 because lane2 is the shortest lane and lane3 is the critical path -- the owner
-  # deferred rebalancing the lanes, so this must not be added to the lane that decides the run's length.
-  probe strip-chip-visibility         strip-chip-visibility-probe.mjs "$CDP_2"
-  probe strip-chip-visibility-control strip-chip-visibility-probe.mjs "$CDP_2" CONTROL=1
+  # gh#184's rendered half is NOT wired here yet, and the reason is the whole point.
+  # scripts/strip-chip-visibility-probe.mjs exists, is calibrated, and its clean/control predicates are
+  # already written in ci-probes-verdict.mjs -- but its "naked cut" test demands the gradient cover the
+  # ENTIRE visible sliver of a clipped chip, and a chip's width is Thai font metrics on whatever machine
+  # is rendering. The reaches it green-lights were measured on one Mac. That is precisely the gh#202
+  # trap, where a row read 0px locally and 75px on the runner, and the repo's own rule from it is to
+  # diff a CI artifact against a local run before gating any measured number. Wiring it now would gate a
+  # number two machines have not been shown to agree on.
+  # What it needs first: .strip-chip has no max width (flex: 0 0 auto), so the sliver is unbounded and
+  # belongs to a set we do not own. Cap the chip, then size the fade to the cap, and both sides are ours
+  # -- see the follow-up ticket. Until then this runs by hand, and the shipped guard for the band is the
+  # counter's unit test plus each route's own behavioural test.
 }
 lane3() {
   LANE=lane3
