@@ -14,7 +14,7 @@
 // own stdout.
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -51,10 +51,10 @@ const noButtons = (id) => ({ ...clean(id), transitionTrigger: null, triggerScan:
 const run = (out) => {
   const path = join(DIR, `out-${Math.random().toString(36).slice(2)}.json`);
   writeFileSync(path, JSON.stringify(out));
-  let stdout, code = 0;
-  try {
-    stdout = execFileSync(process.execPath, [PROBE], { env: { ...process.env, PROBE_OUT_FIXTURE: path }, encoding: 'utf8' });
-  } catch (e) { stdout = e.stdout ?? ''; code = e.status; }
+  // Both streams, because the CI wrapper redirects a leg's stderr into the same log it filters, so a
+  // line that only ever reaches stdout is not the same claim as a line CI keeps.
+  const p = spawnSync(process.execPath, [PROBE], { env: { ...process.env, PROBE_OUT_FIXTURE: path }, encoding: 'utf8' });
+  const stdout = p.stdout ?? '', stderr = p.stderr ?? '', code = p.status;
   const summary = stdout.split('\n').find((l) => l.startsWith('play-exit: '));
   assert.ok(summary, `no summary line in probe output:\n${stdout}`);
   const m = /play-exit: (\d+) of (\d+) route/.exec(summary);
@@ -65,7 +65,10 @@ const run = (out) => {
     return named === 'none' ? [] : named.split(',').map((s) => s.trim()).filter(Boolean);
   };
   return {
-    code, stdout, summary, checked,
+    code, stdout, stderr, summary, checked,
+    // The exact filter a PASSING leg's log is put through by the CI wrapper: everything else in that
+    // log is discarded on a green run. Anything asserted off this list is a line CI really shows.
+    ciKept: [...`${stdout}\n${stderr}`.matchAll(/^::(warning|notice)::.*$/gm)].map((m) => m[0]),
     // EXEMPT is the last segment of the line; UNMEASURED is bounded by the segment that follows it.
     exempt: ids(/EXEMPT[^:]*: (.*)$/),
     unmeasuredNamed: ids(/UNMEASURED[^:]*: (.*?), \d+ route\(s\) EXEMPT/),
@@ -189,4 +192,33 @@ test('every route exempted is a red, not a green zero', () => {
   assert.strictEqual(r.checked, 0);
   assert.deepStrictEqual(r.exempt, ['alpha', 'gamma']);
   assert.strictEqual(r.code, 1, 'a walk that exercised no route at all must not exit 0');
+});
+
+// The margin has to be readable on a GREEN run. The five input gaps were printed only on a VOID, so
+// a run that passed recorded no band at all and "the burst still lands well inside the arm window"
+// was an assumption nothing had measured -- which is how a leg drifted to within 15% of ARM_DELAY_MS
+// across many greens before the first void. Distinct gap values here, so a band printed off a
+// constant, or off the wrong route's record, cannot go green.
+test('a passing burst prints its own input gaps, not only a void one', () => {
+  const base = clean('beta');
+  const banded = { ...base, burst: { ...base.burst, gaps: [81.5, 92, 83, 84], inputGaps: [81.5, 92, 83, 84], maxGap: 92, maxInputGap: 92 } };
+  const r = run({ alpha: clean('alpha'), beta: banded });
+  assert.strictEqual(r.code, 0, 'the fixture must really pass, or this band is a red line and proves nothing about a green run');
+  assert.match(r.stdout, /^ {2}GAPS beta: .*input gaps 81\.5, 92, 83, 84/m,
+    'a green run records no gap band, so its margin against ARM_DELAY_MS is unmeasurable');
+});
+
+// Printing the band is not publishing it. A passing leg's log is swallowed whole except for the
+// annotation lines, so a band on plain stdout measures the margin only for whoever runs the probe by
+// hand -- and the runner whose drift this exists to catch is the CI one. Asserted against the same
+// filter the wrapper applies, so this stays true only while the band survives a green leg.
+test('a passing burst publishes its band through the channel a green CI leg keeps', () => {
+  const base = clean('beta');
+  const banded = { ...base, burst: { ...base.burst, gaps: [81.5, 92, 83, 84], inputGaps: [81.5, 92, 83, 84], maxGap: 92, maxInputGap: 92 } };
+  const r = run({ alpha: clean('alpha'), beta: banded });
+  assert.strictEqual(r.code, 0, 'the fixture must really pass, or this proves nothing about a green leg');
+  assert.ok(r.ciKept.some((l) => /GAPS beta: .*input gaps 81\.5, 92, 83, 84/.test(l)),
+    `the band never reaches a green CI leg's log; annotation lines it does keep:\n${r.ciKept.join('\n') || '(none)'}`);
+  assert.ok(r.ciKept.some((l) => /GAPS alpha: /.test(l)),
+    'only one route published a band -- the band must be per walked route, not per interesting route');
 });

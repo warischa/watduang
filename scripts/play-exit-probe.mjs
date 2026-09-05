@@ -220,10 +220,18 @@ const evaluate = async (body) => {
 // state, and this walk no longer visits it -- every route below is now measured as a first-time device
 // only. Nothing here covers the returning-player entry point of any route.
 const nav = async (url) => { await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'local_storage' }); const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); };
-const touch = async (x, y) => {
-  await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
-  await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-};
+// Both halves of the contact go on the wire together and only the PAIR is awaited. Awaiting the
+// touchStart ack before writing the touchEnd put a CDP round trip INSIDE every contact, and a second
+// one between contacts in the burst loop below -- so the gap the burst was measured at was the 80ms
+// it was driven at plus the harness's own latency, which on a loaded runner is most of the number.
+// Serialization is not what makes the input real: the browser stamps every contact with its own input
+// clock when it injects it (ADR-0059), and that is the clock the classifier reads. The pair is still
+// ordered -- CDP handles one session's messages in the order they arrive -- and still awaited before
+// anything reads the page, so a caller that taps and then asserts on the result is unchanged.
+const touch = (x, y) => Promise.all([
+  send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] }),
+  send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }),
+]);
 // The transition trigger is driven with a MOUSE press/release, not a touch: cannon-flag dispatches
 // no compat click for synthetic touch (measured), so its own start button never fires under touch and
 // the "after a round transition" precondition would be void there. The X burst below is real touch.
@@ -400,7 +408,16 @@ for (const g of ROUTES) {
     // the CI runner's long transition task reproduced on a machine that does not have one. The five
     // touches below are still dispatched on time; the page cannot handle any of them until it ends.
     if (STALL_MS > 0) await evaluate(`setTimeout(() => { const end = performance.now() + ${STALL_MS}; while (performance.now() < end); }, 0); return true;`);
-    for (let i = 0; i < 5; i++) { await sleep(BURST_GAP_MS); await touch(cx, cy); }
+    // The spacing between contacts is the Node timer alone -- BURST_GAP_MS, unchanged. The
+    // acknowledgements are collected and awaited after the burst, never between its contacts: waiting
+    // for them in here added a round trip per contact to the very interval the classifier compares
+    // against ARM_DELAY_MS, so the burst was measured wider than it was driven and a slow runner
+    // voided the leg on the harness's latency rather than on the site's. Nothing is dropped: the
+    // whole burst is settled before the page is read, and the classifier is unchanged -- gaps are
+    // only ever compared as OVER the window, so contacts landing closer together sit deeper inside it.
+    const acks = [];
+    for (let i = 0; i < 5; i++) { await sleep(BURST_GAP_MS); acks.push(touch(cx, cy)); }
+    await Promise.all(acks);
     await sleep(150);
     // Only means something if the screen actually changed. Also: what does the X cover NOW?
     res.transitioned = (await evaluate('return window.__sig ? window.__sig() !== window.__sigBefore : null;')).value;
@@ -504,7 +521,7 @@ console.log(JSON.stringify(out, null, 2));
 const gapNote = (r) => r.burst?.maxGap == null
   ? 'no contact timings captured, so this red names no cause'
   : `largest pointerup->pointerdown gap: handled ${r.burst.maxGap}ms, input ${r.burst.maxInputGap == null ? 'NOT CAPTURED -- a slow dispatch cannot be told from a gate defect here' : r.burst.maxInputGap + 'ms'} vs ARM_DELAY_MS ${ARM_DELAY_MS} (over it: ${r.burst.gapsOverArmDelay} handled, ${r.burst.inputGapsOverArmDelay} input; handled gaps ${r.burst.gaps.join(', ')}; input gaps ${r.burst.inputGaps.join(', ')})`;
-const fails = [], skips = [], voids = [], unmeasured = [];
+const fails = [], skips = [], voids = [], unmeasured = [], bands = [];
 // gh#193 — the skipped routes BY NAME, because `checked` used to be `Object.keys(out).length` and a
 // route could sit in both sets at once: short-stick skipped on four consecutive runs while the summary
 // reported "11 route(s) checked". A count that includes a route nothing exercised is not coverage.
@@ -559,6 +576,11 @@ for (const [g, r] of Object.entries(out)) {
   // where no contact carries the defect and the burst was still not delivered as a burst -- neither
   // the harm check nor the liveness check below is reading what it thinks it is then. Judged on the
   // INPUT clock alone -- see classifyBurst.
+  // Every walked route prints its band, green or red -- not only the ones that went VOID. A leg whose
+  // gaps are recorded only when they already blew the window cannot show how much room the passing
+  // runs had, so a drift toward ARM_DELAY_MS is invisible until the first void. Same shape as the
+  // failure lines, so both are read the same way.
+  bands.push(`${g}: ${gapNote(r)}`);
   const dc = r.burst?.defectContacts ?? [];
   if (dc.length) fails.push(`${g}: ${dc.length} burst contact(s) dispatched INSIDE the arm window were handled with the X ENABLED (input gaps ${dc.map((d) => d.inputGap).join(', ')}ms vs ARM_DELAY_MS ${ARM_DELAY_MS}; pathname ${r.burst?.pathname}) -- ${gapNote(r)}`);
   else if (r.burst?.isVoid) { voids.push(`${g} burst: runner too slow to dispatch the burst inside the arm window (${r.burst.attempts} attempt(s)) -- ${gapNote(r)}`); }
@@ -571,6 +593,15 @@ for (const [g, r] of Object.entries(out)) {
 const exemptIds = [...exempt].sort();
 const unmeasuredIds = [...unmeasuredSet].sort();
 const checked = Object.keys(out).filter((g) => !exempt.has(g) && !unmeasuredSet.has(g)).length;
+// Two channels, same as UNMEASURED and VOID below: the indented line is what a hand-run reads, and
+// the annotation is the only half that survives a GREEN leg -- the CI wrapper swallows a passing
+// leg's log except for its ::warning::/::notice:: lines. A band printed on plain stdout alone would
+// measure the margin for whoever ran the probe by hand and stay invisible on the very runner whose
+// drift toward ARM_DELAY_MS it exists to catch. ::notice:: because a band is not a defect.
+for (const b of bands) {
+  console.log(`  GAPS ${b}`);
+  console.warn(`::notice::play-exit GAPS ${b}`);
+}
 for (const f of fails) console.log(`  FAIL ${f}`);
 for (const u of unmeasured) {
   console.log(`  UNMEASURED ${u}`);
