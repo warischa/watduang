@@ -20,23 +20,30 @@ recorded 11px in `KNOWN_OVERFLOW_X` — grew past what was excused on the same m
 not fixed (out of scope).
 
 **Exemption-reason audit (gh#182 box 1's reworded criterion: an exemption needs a recorded OWNER
-RULING, not just a recorded number):** of the 17 `KNOWN_OVERFLOW`/`KNOWN_OVERFLOW_X` rows at
-320x568/390x844, exactly **1** (`cursed-number 320x568`) carries an `owner ruling` reason, **12**
-are `gh#182 open:` — recorded but not ruled on — and the remaining **4** are `gh#202 open:`, which
-belong to that ticket's sideways-clip map and are not box 1's to close. Per the reworded box-1
-criterion those 12 are not yet legitimate exemptions.
-
-**Corrected 2026-09-05.** This paragraph previously read "the other **16** are `gh#182 open:`", which
-mixed two scopes and was true of neither: 16 is the count across ALL THREE viewports the maps carry
-(`320x568`, `390x844` and `1440x900` — 21 rows in total), while 17 is the count at the two phone
-viewports this box is scoped to. Re-derive either number with, for the phone scope:
+RULING, not just a recorded number).** This section no longer states the count, because it has gone
+stale twice. **Run the command; do not read a number here.** For the two phone viewports box 1 is
+scoped to:
 
 ```
 grep -cE "^  \['[a-z-]+ (320x568|390x844)'.*gh#182 open:" scripts/play-screen-fit-probe.mjs
 ```
 
-and drop the viewport alternation from that pattern for the all-viewport count. The wrong figure had
-already propagated into a session handoff and into two agent briefs before anyone re-ran the grep.
+Drop the viewport alternation for the all-viewport count. The shape of the finding — which is what
+this file is actually evidence for, and which no commit has changed — is that `cursed-number
+320x568` is the ONLY row carrying an `owner ruling` reason, that the `gh#202 open:` rows belong to
+that ticket's sideways-clip map and are not box 1's to close, and that a row reading only
+`gh#182 open:` is a recorded number rather than a legitimate exemption.
+
+**Why the number is gone rather than updated — it has now been wrong twice, for two different
+reasons.** First, on 2026-09-05, it read "the other **16** are `gh#182 open:`", mixing two scopes and
+being true of neither: 16 counts all three viewports (21 rows in total) while the phone scope this
+box owns held 17 rows. That was corrected to **12**. Then, later the same day, commit `b4ea5e5`
+moved six rows (`cannon-flag` and `power-meter`, each at all three viewports) out of `gh#182 open:`
+into the new `not a defect <date>` class, and **12 became 8 without this file being touched**. A
+count written beside the command that computes it will always lose that race: the map is edited by
+commits that have no reason to look here. The first wrong figure had already propagated into a
+session handoff and two agent briefs before anyone re-ran the grep; the second was caught by an
+audit that re-ran the command instead of quoting the file.
 
 ## Surface enumeration — derived, not assumed
 
