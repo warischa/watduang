@@ -10,7 +10,7 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // empty row, and the fallback setupMatch applies when a player left a field blank -- read from here.
 // resetCastNames is the reset control's wipe: it keeps the roster's length and discards whatever the
 // players typed.
-import { mascotNames, resetCastNames } from '../_mascots.ts';
+import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
 
     /**
      * CANNON FLAG (route id: cannon-flag) - ZERO EXTERNAL ASSET GAME ENGINE
@@ -1442,8 +1442,12 @@ import { mascotNames, resetCastNames } from '../_mascots.ts';
       for (let i = 0; i < setupPlayerCount; i++) {
         const row = document.createElement('div');
         row.className = 'player-name-row';
+        // gh#140's animal icon in the badge, not a seat number: the shared shell panel already
+        // renders the icon, and this route builds its own setup screen so it never got it. Marked
+        // aria-hidden because it pictures the animal the placeholder beside it already names -- the
+        // row's POSITION is a separate channel and is deliberately not sourced from the cast.
         row.innerHTML = `
-          <span class="player-tag">#${i + 1}</span>
+          <span class="player-tag" aria-hidden="true">${mascotEmoji(i)}</span>
           <input type="text" class="player-name-input" placeholder="${escapeHtml(defaultName(i))}" maxlength="20" value="${escapeHtml(existingNames[i] || '')}">
         `;
         DOM.playerNamesContainer.appendChild(row);

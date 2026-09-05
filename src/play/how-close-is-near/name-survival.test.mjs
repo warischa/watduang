@@ -33,7 +33,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { FakeElement, makeDocument } from '../../games/_fake-dom.mjs';
 // The real cast. A stand-in would test this file's idea of the seat defaults instead of the shipped one.
-import { mascotNames } from '../_mascots.ts';
+import { mascotEmoji, mascotNames } from '../_mascots.ts';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
 const source = fs.readFileSync(MAIN, 'utf8');
@@ -115,6 +115,8 @@ function mountScreen({ playerCount = 3 } = {}) {
     container,
     game,
     defaultName: (i) => mascotNames(i + 1)[i],
+    // gh#140: the row badge's animal icon. Supplied so the sliced renderer's identifier resolves.
+    mascotEmoji,
     sound: { playClick() {} },
     armAllButtons: (root) => armed.push(root),
     // Reset has its own file. Supplied so the confirm handler's identifier resolves; never called here.

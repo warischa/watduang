@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 // The real cast, imported rather than re-listed here — a stand-in would test this file's idea of the
 // reset instead of the one that ships.
-import { mascotNames, resetCastNames } from '../_mascots.ts';
+import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
 
 const source = fs.readFileSync(path.join(import.meta.dirname, 'main.js'), 'utf8');
 
@@ -81,9 +81,11 @@ test('no numbered default remains in main.js', () => {
 
 // gh#175 box: "All three open with animal names, and a search for the numbered default returns
 // nothing a player can see" — the test above already covers main.js; markup.html is a second surface
-// a player reads (the reset confirm's own copy, the player-tag labels) and gets the same absence
-// check. The player-tag `#${i + 1}` seat labels are a position marker, not a name, so they are outside
-// what this box means and are excluded on purpose.
+// a player reads (the reset confirm's own copy) and gets the same absence check.
+//
+// The player-tag seat labels this note used to exclude are gone: gh#140 replaced that badge's seat
+// number with the seat's mascot emoji, so there is no longer a numbered marker on this screen for the
+// box to be scoped around. What the badge holds now is pinned by setup-badge-icon.test.mjs.
 test('gh#175 box: no numbered default remains in markup.html', () => {
   const markup = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
   const numbered = markup
@@ -158,6 +160,7 @@ const runRender = new Function(
   'DOM',
   'setupPlayerCount',
   'mascotNames',
+  'mascotEmoji',
   `${defaultNameBody}\n${escapeHtmlBody}\n${renderBody}\nrenderSetupPlayerInputs();`,
 );
 
@@ -170,7 +173,7 @@ function render(existingValues, count) {
     labelPlayerCount: { textContent: '' },
     playerNamesContainer: container,
   };
-  runRender(document_, DOM, count, mascotNames);
+  runRender(document_, DOM, count, mascotNames, mascotEmoji);
   return container.rows.map((r) => r.value);
 }
 

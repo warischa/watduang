@@ -45,6 +45,20 @@ export function mascotNames(count: number): string[] {
   return Array.from({ length: n }, (_, i) => MASCOTS[i % MASCOTS.length].name);
 }
 
+/** One seat's mascot icon -- the visible identity badge a setup row renders beside the name field.
+ *
+ *  It exists because gh#140's icon reached the shared shell panel and stopped there: the routes that
+ *  build their OWN setup screen render their own row, and those rows opened with a seat NUMBER. The
+ *  wrap past the end of the list has one definition, here, for the same reason mascotNames does --
+ *  a route writing `MASCOTS[i % MASCOTS.length]` itself is the second copy this file exists to stop.
+ *
+ *  Position is a separate channel and is NOT this: a row's aria-label stays numbered on purpose, and
+ *  is not sourced from here. See the comment on that line in whichever route you are reading. */
+export function mascotEmoji(index: number): string {
+  const i = Math.max(0, Math.floor(index));
+  return MASCOTS[i % MASCOTS.length].emoji;
+}
+
 /** Puts an existing cast back to defaults, keeping the player count and DISCARDING every name the
  *  players typed (owner ruling 2026-08-31: reset restores the animal names, keeps the group, wipes
  *  typed names behind a confirm -- the confirm is the caller's, this is the wipe).

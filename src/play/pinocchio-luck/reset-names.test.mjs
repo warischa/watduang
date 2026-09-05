@@ -81,5 +81,12 @@ test('RED CALIBRATION: the fixture starts off-cast, so a no-op reset would fail'
 // has to still be there.
 test('no numbered placeholder default remains in main.js', () => {
   assert.doesNotMatch(source, /placeholder="ผู้เล่น \$\{/, 'a numbered placeholder default remains');
-  assert.match(source, /import \{ mascotNames, resetCastNames \} from '\.\.\/_mascots\.ts';/);
+  // Matched per NAME rather than as one literal import line: gh#140 added mascotEmoji to the same
+  // import, and pinning the line's exact text made this red on a change it does not care about.
+  const castImport = source.match(/import \{([^}]*)\} from '\.\.\/_mascots\.ts';/);
+  assert.ok(castImport, 'main.js no longer imports the shared cast — this test is measuring nothing');
+  const imported = castImport[1].split(',').map((n) => n.trim());
+  for (const name of ['mascotNames', 'resetCastNames']) {
+    assert.ok(imported.includes(name), `main.js no longer imports ${name} from the shared cast`);
+  }
 });

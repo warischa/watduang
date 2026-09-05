@@ -24,7 +24,7 @@ import { loadGroup, loadRoster, saveGroup } from '../../shell/roster';
 import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
 // gh#175 / ADR-0054: the party opens on the shared animal cast, never on a numbered placeholder.
 // resetCastNames is the reset control's wipe -- it reads only the array's length and keeps the count.
-import { mascotNames, resetCastNames } from '../_mascots.ts';
+import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
 
 const MIN_PLAYERS = game.players[0];
 const MAX_PLAYERS = game.players[1];
@@ -194,7 +194,9 @@ function renderRows(): void {
 
     const badge = document.createElement('span');
     badge.className = 'dl-player-seat';
-    badge.textContent = String(i + 1);
+    // gh#140's animal icon, not a seat number. The shared shell panel already renders it; this route
+    // builds its own setup screen and so never got it, which is the whole gap this line closes.
+    badge.textContent = mascotEmoji(i);
     badge.setAttribute('aria-hidden', 'true');
 
     // A native text input brings focus, caret, keyboard and the length cap for free — maxLength as an
