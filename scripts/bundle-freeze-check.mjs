@@ -135,9 +135,31 @@ const BASELINE_BASENAMES = [
   // (short-stick, wire-snip-panic, zero-trigger), so Rollup emits it as its own chunk rather than
   // inlining it into any one of them.
   '_strip-overflow.js',
-  // gh#205, eighth port: the route's own chunk. The TOTAL leg is deliberately left pinned at the
-  // pre-route number -- this route is +17,469 B (3.76%), inside the band, and re-pinning a total
-  // that is not red is how gh#206's 16,373 B of drift disappeared.
+  // gh#205, eighth port: the route's own chunk. The TOTAL leg is left pinned at the pre-route
+  // number, and whether to re-pin is an open decision carried on gh#205 and gh#206.
+  // CORRECTION 2026-09-06 to the note this replaces, which said this route is "+17,469 B (3.76%)"
+  // and gave as its reason that "re-pinning a total that is not red is how gh#206's 16,373 B of
+  // drift disappeared". Both halves are wrong, and an adversarial review caught them before the
+  // commit reached main.
+  //   The figure is the delta against BASELINE_TOTAL_BYTES, NOT against the tree this route landed
+  //   on. A worktree built at 0ea7a3a measures a pre-route total that already sits above the
+  //   baseline, so part of that figure is drift predating this route and nothing to do with it.
+  //   The reason is wrong too: the one-bomb re-baseline below already absorbed gh#206's drift into
+  //   this constant, so leaving the pin here does not keep that number answerable. It cannot; it
+  //   is already inside the constant.
+  // What IS true, measured on two builds: the route's own delta is fully attributed -- its module
+  // chunk, the play entry chunk that only game/bangkok-drift/play/index.html loads, and a small
+  // residual which is the manifest and the game page's import.meta.glob map each gaining an entry,
+  // the same shape one-bomb's residual had. Attribution is exactly what the header requires before
+  // a re-pin, so the header does not forbid one here. The pin is unchanged because nobody has
+  // decided, not because the rule blocks it -- and the cost of not deciding is headroom.
+  // NO BYTE FIGURES ARE WRITTEN HERE, for the reason the one-bomb note below gives about its own
+  // quoted sizes. Re-derive against the dist/ in front of you, and build the pre-route tree if you
+  // need the split rather than the total:
+  //   node scripts/bundle-freeze-check.mjs
+  //   git worktree add --detach /tmp/pre-route 0ea7a3a
+  //   ln -s "$PWD/node_modules" /tmp/pre-route/node_modules
+  //   (cd /tmp/pre-route && npm run build && node scripts/bundle-freeze-check.mjs)
   'bangkok-drift.js',
   'cannon-flag.js',
   'daily-fortune.js',
