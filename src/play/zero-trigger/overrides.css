@@ -163,15 +163,64 @@
        the tracer defined track-inline as the board cap for that route. */
     --zt-board-max-inline: 320px;
 
-    /* rail-inline. RULE: wide enough for the longest shipped Thai control label
-       on this route to sit on one line. That is the setup button's label, on
-       .btn-secondary at 0.95rem = 15.2px:
-         emoji 1.15 + space 0.28 + 8 advancing Thai x 0.55 (4.40)
-         + space 0.28 + ampersand 0.5 + space 0.28
-         + 7 advancing Thai x 0.55 (3.85) = 10.74em
-         10.74 x 15.2 = 163px, + .btn-secondary's 20px inline padding each side
-         = 203px, rounded up to a multiple of 4. */
-    --zt-rail-inline: 204px;
+    /* rail-inline. RULE: wide enough for the rail's own widest element, in the
+       widest STATE that element ever reaches. gh#181, owner ruling 2026-09-06.
+
+       Why the old 204px was wrong, stated precisely, because the obvious reading
+       is the wrong one: the sizing doc's rail rule names "the route's longest
+       shipped Thai control label", and 204 followed that literally and correctly.
+       The defect is that on this route the longest control label belongs to a
+       .btn-secondary on #screen-menu, which is not in this rail -- so a faithful
+       application of the rule produced a number that sizes nothing the rail holds.
+       The doc's rule is an analogy to be re-derived per route, not a formula.
+
+       Replaced by measurement. Every candidate was driven at a real reflowed
+       1440x900 and read off the picture, never computed:
+
+         204   two roster chips cut, counter +2, forbidden-label on 2 lines
+         296   tier-banner WRAPS -- worse than the defect being fixed
+         300-308   one chip still cut, counter +1
+         312-336   chips and label clean at TIER 1 ... and all seven WRAP at tier 3
+         340 / 348 still wrap at tier 3
+         356   first clean multiple of 4 at tier 3
+         364 / 372 / 380  also clean
+         380   adopted -- the LARGEST tested-clean, not the smallest   <- adopted
+
+       THE TRAP, and the reason this comment is long: this number was measured
+       wrong twice, the same way both times, by photographing one state and
+       calling it the widest. First 312, from a sweep that only ever saw tier 1 --
+       the badge grows from "Tier 1 . Speed 0.0s" to the CRITICAL wording at
+       0.000s, and every candidate from 312 to 348 wraps once it does. Then 356,
+       from a re-sweep that reached tier 3 and round 11 but never saw the CYCLE
+       counter go two-digit: advanceTurn increments cycleCount on every full pass
+       and only startNextRound resets it, so a tier-3 round can render two
+       two-digit numbers at once after a run of survivals. That is roughly one
+       round in seven, and it is about 7px wider than anything photographed.
+
+       So the rule here is NOT "smallest that clears it". The rail sits in about
+       1060px of available width and uses 728 of it, so narrowness buys nothing,
+       while the failure mode of being 7px short is the exact wrap this token
+       exists to prevent. 380 is the widest value proven clean at tier 3, and the
+       margin is deliberate slack, not precision.
+
+       That slack also has to absorb a platform the sweep could not see. Every
+       measurement here is macOS -- SF with a Thonburi fallback. Windows renders
+       this stack as Segoe UI with Leelawadee UI, Android as Roboto with Noto Sans
+       Thai, and Thai fallback faces do not share advance widths. A number tuned
+       to the last pixel on one machine is not a measurement of the others.
+
+       Binding element: .tier-banner in its widest state. .active-player-card is
+       second. .player-strip-container is overflow-x:auto and scrolls by design --
+       at a 10-name roster it scrolls at every candidate while the banner and card
+       stay clean, so the strip sets no floor here; the chip-cut column above is
+       what it looks like below ~312, not a constraint up here.
+
+       Honest limits: the measured wrap boundary is somewhere in (348, 356]; no
+       value between was tested, and no capture exists with both counters
+       two-digit. Tier-3 rows used a 2-player roster (the minimum, for
+       deterministic timing); the chip columns come from the 3-name and 10-name
+       sweeps. Multiple of 4 per this file's own convention, as above. */
+    --zt-rail-inline: 380px;
 
     /* The measured defect: style.css caps this container at 480px, so at a 1440px
        window the game fills 480/1440 = 33.3% -- the 33% gh#181 recorded on
