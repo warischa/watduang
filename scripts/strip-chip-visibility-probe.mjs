@@ -5,9 +5,10 @@
 // drives the three routes that mount the shared counter (short-stick, wire-snip-panic, zero-trigger)
 // at real phone viewports with a real DOM.
 //
-// Roster: ten seats, all holding the LONGEST name in src/play/_mascots.ts (by codepoint count, read
-// at run time so a future roster edit is picked up rather than a name typed into this file going
-// stale) -- the worst case for chip width, not today's shortest-name lucky pass.
+// Roster: ten seats, all holding the LONGEST name in src/play/_mascots.ts (by grapheme-cluster
+// count, read at run time so a future roster edit is picked up rather than a name typed into this
+// file going stale), rendered with its own emoji in front -- the same "emoji name" shape
+// src/shell/player-select.ts's defaultPlayers() builds, not a bare name narrower than a real seat.
 //
 // Usage: BASE=http://localhost:4321 CDP_PORT=9222 node scripts/driver.mjs scripts/strip-chip-visibility-probe.mjs
 // CONTROL=1 injects a mutant stylesheet that force-hides the band (`.strip-more{visibility:hidden}`)
@@ -74,17 +75,35 @@ const VIEWPORTS = ONLY
   ? ALL_VIEWPORTS.filter(([w]) => String(w) === ONLY.split(':')[1])
   : ALL_VIEWPORTS;
 
-async function longestMascotName() {
+async function mascotEntries() {
   const fs = await import('node:fs/promises');
   const path = await import('node:path');
   const src = await fs.readFile(
     path.join(import.meta.dirname, '..', 'src', 'play', '_mascots.ts'),
     'utf8',
   );
-  const names = [...src.matchAll(/name: '([^']+)'/g)].map((m) => m[1]);
-  if (names.length === 0) throw new Error('no mascot names found -- _mascots.ts shape changed');
-  // First occurrence at the max length, computed here rather than typed by hand.
-  return names.reduce((a, b) => ([...b].length > [...a].length ? b : a));
+  const entries = [...src.matchAll(/emoji: '([^']+)', name: '([^']+)'/g)].map((m) => ({
+    emoji: m[1],
+    name: m[2],
+  }));
+  if (entries.length === 0) throw new Error('no mascot entries found -- _mascots.ts shape changed');
+  return entries;
+}
+
+async function longestMascotName() {
+  const entries = await mascotEntries();
+  const seg = new Intl.Segmenter('th', { granularity: 'grapheme' });
+  // Grapheme-cluster count, not code-point length. Thai combining vowels and tone marks stack onto
+  // the preceding base consonant with zero advance width, so code-point length overstates a name's
+  // visual width: two names can share a code-point length and still differ in clusters, and the one
+  // with more clusters is the wider of the two -- which is why first-max-by-code-point picked a
+  // narrower name than the cast contains. No winning name and no count is written here on purpose:
+  // the roster owns that set, this function computes it live, and a name or a number pinned in a
+  // comment rots on the next roster edit. This is still a proxy, never a measurement: only a
+  // real render (see play-screen-fit-probe.mjs's own header) measures pixel width; grapheme-cluster
+  // count merely tracks it better than code-point count did.
+  const clusters = (s) => [...seg.segment(s)].length;
+  return entries.reduce((a, b) => (clusters(b.name) > clusters(a.name) ? b : a)).name;
 }
 
 // Split in two so a screenshot can be taken BETWEEN them: MEASURE_INITIAL reads the band at the
@@ -240,9 +259,75 @@ const MEASURE_SWIPE = (stripId) => `
   };
 `;
 
+// Reads the narrowest player-name input cap out of the shipped source of the routes below, so the
+// seed guard tracks those inputs instead of restating a number here that would rot the moment one of
+// them changed. It THROWS when it finds no cap at all, on purpose: a guard that silently finds
+// nothing is a guard that passes everything, and this one exists to stop a silent truncation.
+async function seedNameCapUtf16() {
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+  const caps = [];
+  for (const { id } of ROUTES) {
+    const found = [];
+    for (const base of ['main.js', 'main.ts']) {
+      const src = await fs
+        .readFile(path.join(import.meta.dirname, '..', 'src', 'play', id, base), 'utf8')
+        .catch(() => null);
+      if (!src) continue;
+      for (const m of src.matchAll(/<input\b[^>]*maxlength="(\d+)"[^>]*>/gi)) {
+        if (/name/i.test(m[0])) found.push(Number(m[1]));
+      }
+    }
+    // PER ROUTE, not over the union. A union-only check fails open for exactly the case that will
+    // happen: several routes in this repo already set the cap as a property assignment or an
+    // interpolated attribute, neither of which this text read can see. If a route here adopted that
+    // form, its own cap would vanish while the other routes kept the list non-empty, the minimum
+    // would come from a route that is not the narrowest, and a smaller real cap would truncate the
+    // seed and red as a clipped chip with no visible signal -- the misdiagnosis this guard exists to
+    // prevent. So a route contributing nothing is an error about THAT route.
+    if (!found.length) {
+      throw new Error(
+        `seed guard read no literal name-input maxlength for ${id}, so it cannot know that route's ` +
+          `cap. It must not fall back on the other routes' caps. Read the cap from that route's own ` +
+          `input, or widen this reader to the form that route now uses -- do not delete this check.`,
+      );
+    }
+    found.forEach((n) => caps.push(n));
+  }
+  // Reached only when ROUTES itself is empty, which would otherwise make Math.min return Infinity
+  // and wave every label through.
+  if (!caps.length) {
+    throw new Error('seed guard ran over an empty route set, so it proved nothing about any label.');
+  }
+  return Math.min(...caps);
+}
+
 export default async function (session) {
   const name = await longestMascotName();
-  const roster = JSON.stringify(Array.from({ length: 10 }, () => name));
+  // Production's default seat label is the emoji and the name TOGETHER, one space between --
+  // src/shell/player-select.ts's defaultPlayers() builds `${mascot.emoji} ${mascot.name}`. Seeding
+  // the bare name alone is a narrower seat than any real one, so the roster mirrors that shape.
+  const emoji = (await mascotEntries()).find((e) => e.name === name).emoji;
+  const label = `${emoji} ${name}`;
+  // ZERO-MARGIN GUARD, and the margin really is zero today. This label is exactly as long, in UTF-16
+  // units, as the shortest name input among the routes below, and that route's roster-bridge
+  // truncates with slice(0, maxLength). One more unit — a variation-selector emoji arriving in a
+  // future roster edit — silently shortens the seed on whichever route caps below it, and the rows
+  // for THAT route then red with "clipped chip with no visible signal": a false red carrying the
+  // wrong diagnosis, on the very roster-change path this probe advertises that it tracks. Rows on
+  // the wider-capped routes still pass, which is what makes such a failure read like a real defect
+  // on one route rather than a seeding problem. Fail loudly here instead, naming the real cause.
+  const cap = await seedNameCapUtf16();
+  if (label.length > cap) {
+    throw new Error(
+      `seed label ${JSON.stringify(label)} is ${label.length} UTF-16 units but the narrowest name ` +
+        `input this probe drives caps at ${cap}; on that route it would be truncated before render, ` +
+        `so that route's clipping rows would describe a shorter name than the one this probe claims ` +
+        `to seed, while the wider-capped routes' rows still passed. Widen that input deliberately or ` +
+        `pick the seed against the new cap — do not relax this guard.`,
+    );
+  }
+  const roster = JSON.stringify(Array.from({ length: 10 }, () => label));
   const results = [];
 
   for (const { id, stripId } of ROUTES) {

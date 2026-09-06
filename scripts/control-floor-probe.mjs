@@ -325,6 +325,16 @@ export function pageSet() {
 // zero-area rect is how an inactive mockup screen presents, and visibility:hidden is how a couple of
 // them present a dialog — neither is a tap target, and measuring them would report a wall of 0px
 // violations that no player can ever touch.
+//
+// gh#184 — THE ROSTER CHIP STRIP CONTRIBUTES ZERO CONTROLS TO SELECTOR('play'), AND THAT IS A VACUOUS
+// PASS, NOT COVERAGE. Every strip src/play/_strip-overflow.ts governs rebuilds with `innerHTML = ''`
+// and refills with `div` chips plus an `aria-hidden` counter div, which that module deliberately keeps
+// a non-control — so asking for `button` there measures NONE of them: the set this claim would be
+// asserted over is empty, and an empty set trivially satisfies a floor. Should a chip ever become a
+// `button`, only ONE axis would gate it: atLeastTap is the height claim and it is gated, while
+// atLeastTapWidth gates NOTHING — the width claim is computed, reported as a warning, and never
+// reaches the exit code (gh#214, above). So a promoted chip would be held to a height floor only,
+// and the width axis stays an open owner decision.
 const SELECTOR = (kind) => (kind === 'play' ? 'button' : '.game-btn');
 const measureExpr = (mutantProps, kind, deep = false) => `
   const els = [...document.querySelectorAll(${JSON.stringify(SELECTOR(kind))})];

@@ -137,6 +137,17 @@
 //     wide, clipped, is dropped before countsAsHorizontalOverflow ever sees it, and so is any element
 //     collapsed to zero width by its own clip. The skip is kept because the vertical reason for it
 //     still holds and no route has shown such a box, not because the horizontal case was checked.
+//   * THE SELF-SCROLLER EXEMPTION BLINDS ANYTHING CLIPPED INSIDE ANY BOX IT EXEMPTS.
+//     countsAsHorizontalOverflow exempts EVERY declared horizontal scroller occupying under
+//     SCREEN_FRACTION of the viewport height — see its own docblock BELOW for that measurement. That
+//     set is wider than the player chip strips: preset-pill rows and player-count rows on other
+//     routes are declared x-scrollers too. So anything clipped inside any exempt box — a chip, a
+//     pill, a control — is invisible to THIS probe.
+//     Not a defect to narrow here: a width bound on the exemption would red every real chip strip.
+//     WHAT COVERS PART OF IT: scripts/strip-chip-visibility-probe.mjs — but ONLY the routes that
+//     mount the shared overflow counter, which is what its own staleness assert pins. An exempt
+//     x-scroller on a route that mounts no counter is covered by NEITHER probe. Do not read this
+//     bullet as saying the blind spot is covered; read it as saying where the covered part stops.
 //   * THE COMPOSITION ROW (below, gh#203) IS REPORTED AND NOT GATED EITHER, on its values. Only its
 //     COMPLETENESS is gated — that every route the leg walked produced one at the desktop viewport.
 //   * It proves the measured screen is not the FRESH screen. It does not prove it is the round's main
