@@ -24,12 +24,34 @@
 // What tier 2's green does NOT cover, stated plainly because it is the honest ceiling of a static
 // check: it proves a route HAS a working escape helper and uses it in markup — not that it uses it at
 // EVERY sink. A route that escapes nine names and misses the tenth passes tier 2. Only a tier 1
-// harness catches that, and tier 1 is 4 of 11 routes today. Deciding which interpolations carry a
-// roster name cannot be done from source text without guessing: `${res.name}` in cannon-flag is a QA
-// test's own label and `${color.name}` in wire-snip-panic is a wire colour from a frozen table, so a
-// name-shaped predicate needs per-site exemptions — the same hand-list that rotted the first version
-// of this file. The lesson tier 2 does encode is the one that actually shipped the bug: wire-snip-panic
-// declared no escape helper at all.
+// harness catches that, and tier 1 is only the routes in the DEEP set below. Deciding which
+// interpolations carry a roster name cannot be done from source text without guessing: `${res.name}`
+// in cannon-flag is a QA test's own label and `${color.name}` in wire-snip-panic is a wire colour from
+// a frozen table, so a name-shaped predicate needs per-site exemptions — the same hand-list that
+// rotted the first version of this file. The lesson tier 2 does encode is the one that actually
+// shipped the bug: wire-snip-panic declared no escape helper at all.
+//
+// A second, wider ceiling on tier 2: SINK_WRITE only matches a sink write immediately followed by an
+// opening backtick (auditFile walks forward through whitespace and bails the moment the next
+// character is not `` ` ``). Markup composed away from its sink is therefore never measured — and it
+// arrives in TWO shapes, not one, which is the part that gets missed:
+//   * the sink is handed a call or a variable instead of a template, as in an innerHTML assigned the
+//     result of a build function. auditFile has nothing to read at the write site, so that sink
+//     contributes no holes at all.
+//   * the sink IS a scanned template, but the composed markup enters it through one opaque hole — a
+//     single interpolation holding pre-built rows. The hole is counted; what was built into it never
+//     is. The route can still class ESCAPED because a SIBLING hole in that same template calls the
+//     helper. This is the shape that reads as covered, and grepping for the first shape misses it.
+// NO ROUTE LIST IS WRITTEN HERE ON PURPOSE. A hand list rots exactly the way this file's own stale
+// tier-1 count did, and the set is bigger than the obvious members. Derive it instead: reuse
+// SINK_WRITE and scanTemplate over every module resolveModules returns, and treat an interpolation
+// whose name says it already holds markup as suspect until read.
+// Tier 1 DOES cover some routes in this shape, and the DEEP set below is the only honest statement of
+// which — do not assume a composing route is uncovered, and do not assume it is covered. A composing
+// route that is NOT in DEEP is still CLASSIFIED here, and can still class ESCAPED; what nothing in
+// this file covers is that route's composed markup. ADR-0061 is the reason a
+// reviewer must still read new play-route markup for name interpolation by hand — the gate does not
+// discharge that.
 //
 // It runs the REAL bytes. Each render function is sliced out of its main.js by source text and
 // evaluated (the same idiom as short-stick/fairness.test.mjs), because every main.js is a lifted
