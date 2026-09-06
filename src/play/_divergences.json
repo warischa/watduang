@@ -1,0 +1,113 @@
+{
+  "_readme": "Hand-added code in the three files scripts/extract-mockup.mjs OWNS (markup.html, style.css, main.js) that its mockup does not have. This registry is the RECORD half of gh#212, not the refusal half: what stops data loss is the extractor refusing to overwrite any file it already ships whose bytes would change, whether or not anybody wrote it down here. What this file adds is why a divergence is deliberate and who owns it (owner ruling 2026-09-05), and one power the file-level refusal does not have — a fragment listed here cannot be released by --force at all, only by editing this file, so releasing it is a reviewed diff. scripts/mockup-divergence-check.mjs also reds if a recorded fragment has already gone from the shipped tree. The mockups stay the original design record and are never edited to match. deliberate=false records a divergence nobody has ruled on yet and is NOT enforced. Enumerate the full drift, one line per mockup/route pair, with: node scripts/mockup-divergence-check.mjs --enumerate",
+  "zero-trigger": {
+    "markup.html": [
+      {
+        "fragment": "<p id=\"zt-live\" class=\"zt-visually-hidden\" role=\"status\" aria-live=\"polite\"></p>",
+        "deliberate": true,
+        "owner": "gh#170",
+        "why": "round-start announcement channel; the mockup has none, and losing it makes the turn handoff silent to a screen reader"
+      },
+      {
+        "fragment": "<div id=\"modal-reset-cast\" class=\"modal-backdrop\">",
+        "deliberate": true,
+        "owner": "gh#177",
+        "why": "the confirm that guards resetting names and animals; the mockup predates the control"
+      }
+    ]
+  },
+  "cannon-flag": {
+    "markup.html": [
+      {
+        "fragment": "<p id=\"cf-live\" class=\"cf-sr-only\" role=\"status\" aria-live=\"polite\"></p>",
+        "deliberate": true,
+        "owner": "gh#170",
+        "why": "round-start announcement channel; the mockup has none"
+      }
+    ]
+  },
+  "cursed-number": {
+    "markup.html": [
+      {
+        "fragment": "<p id=\"cn-live\" class=\"cn-visually-hidden\" role=\"status\" aria-live=\"polite\"></p>",
+        "deliberate": true,
+        "owner": "gh#170",
+        "why": "round-start announcement channel; the mockup has none"
+      },
+      {
+        "fragment": "<div class=\"modal-backdrop\" id=\"resetNamesModal\">",
+        "deliberate": true,
+        "owner": "gh#177",
+        "why": "the confirm that guards resetting typed names; the mockup predates the control"
+      }
+    ]
+  },
+  "freeze-tap": {
+    "markup.html": [
+      {
+        "fragment": "<p id=\"ftRoundLive\" class=\"ft-visually-hidden\" role=\"status\" aria-live=\"polite\"></p>",
+        "deliberate": true,
+        "owner": "gh#170",
+        "why": "round-start announcement channel; the mockup has none"
+      },
+      {
+        "fragment": "<div id=\"resetNamesModal\" class=\"modal-overlay\" style=\"display: none;\">",
+        "deliberate": true,
+        "owner": "gh#177",
+        "why": "the confirm that guards resetting typed names; the mockup predates the control"
+      }
+    ]
+  },
+  "how-close-is-near": {
+    "markup.html": [
+      {
+        "fragment": "<p id=\"hc-live\" class=\"hc-visually-hidden\" role=\"status\" aria-live=\"polite\"></p>",
+        "deliberate": true,
+        "owner": "gh#170",
+        "why": "the case gh#212 was filed on: an announcement channel with role=status and aria-live=polite that exists nowhere in the mockup, so a re-extraction removed a shipped accessibility feature with no gate going red"
+      }
+    ]
+  },
+  "one-bomb": {
+    "main.js": [
+      {
+        "fragment": "function escapeHtml(str) {",
+        "deliberate": true,
+        "owner": "gh#150",
+        "why": "the escape helper the mockup has no equivalent of — it interpolates a seat label into innerHTML raw. Player names are a set this site does not own (ADR-0026), so the guard sits where the markup is AUTHORED, and this declaration is that place; a re-extraction restores the raw sink and only name-escaping.test.mjs goes red, after the bytes are gone"
+      },
+      {
+        "fragment": "${escapeHtml(cfg.name)}",
+        "deliberate": true,
+        "owner": "gh#150",
+        "why": "the call site, recorded separately from the helper above because the two fail apart: a helper nothing calls is an escape sink in name only, and this is the route's one markup-by-string hole that carries a player-typed name"
+      }
+    ]
+  },
+  "power-meter": {
+    "markup.html": [
+      {
+        "fragment": "<div id=\"reset-names-modal\" class=\"modal-overlay\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"reset-names-title\">",
+        "deliberate": true,
+        "owner": "gh#175",
+        "why": "the confirm that guards resetting typed names; the mockup predates the control"
+      }
+    ]
+  },
+  "wire-snip-panic": {
+    "markup.html": [
+      {
+        "fragment": "<p id=\"wsp-live\" class=\"wsp-visually-hidden\" role=\"status\" aria-live=\"polite\"></p>",
+        "deliberate": true,
+        "owner": "gh#170",
+        "why": "round-start announcement channel; the mockup has none"
+      },
+      {
+        "fragment": "<div class=\"modal-backdrop\" id=\"modal-reset-names\">",
+        "deliberate": true,
+        "owner": "gh#176",
+        "why": "the confirm that guards resetting typed names; the mockup predates the control"
+      }
+    ]
+  }
+}
