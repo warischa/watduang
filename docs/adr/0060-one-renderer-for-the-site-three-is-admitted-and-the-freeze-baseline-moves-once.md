@@ -27,6 +27,19 @@ without its cost gets re-litigated by everyone who meets it later.
 **`three` is admitted, vendored, for เข้งับ. The bundle ceiling and the no-runtime-framework rule are
 re-ratified to allow exactly this and nothing more.**
 
+> **Correction, 2026-09-06 (later the same day): every derived figure below is computed off a base
+> that had already moved.** This ADR reads `BASELINE_TOTAL_BYTES` as 464,658; the constant in
+> `scripts/bundle-freeze-check.mjs` is **482,127**, re-pinned when บางกอกดริฟต์ landed. The two
+> measured inputs — `three` at 498,672 bytes and the game's own code at 68,850 — are unaffected;
+> everything expressed as a ratio or a total is not. Recomputed against the real constant:
+> `three` is **103.4%** of reachable JavaScript, not 107% · the route takes the total to
+> **1,049,649**, not 1,032,180 · that is a **117.7%** increase, not 122% · the ±5% band widens from
+> **±24,106 to ±52,482**, not ±23,233 to ±51,609.
+> **The decision and its consequence are unchanged** — one library still outweighs the rest of the
+> site, the band still roughly doubles, and the freeze still gets weaker at catching everything else.
+> Only the figures were wrong, and they are corrected here rather than in the prose below so the
+> record of what was actually accepted stays readable.
+
 What it costs, all measured 2026-09-06:
 
 - `three`, tree-shaken to exactly the 24 symbols this game uses: **498,672 bytes.**
