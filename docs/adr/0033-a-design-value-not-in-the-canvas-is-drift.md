@@ -67,3 +67,38 @@ changed in the canvas first and then in code is this ADR working, not an excepti
 If this holds, no future session should find a colour or size in `src/**` that is absent from
 `design/`. A single such find is evidence the extraction step is being skipped, not that the rule is
 wrong.
+
+## Prediction scored 2026-09-06 — minimally refuted, and this ADR's own reading of a single find applies
+
+Measured against the canvas, which is what the prediction is about: in governed CSS contexts —
+shell, home, category pages and tools, with `src/play/**` excluded per ADR-0050, comments stripped,
+`.ts` excluded after issue-reference false positives — **28 hex uses, 11 distinct, 10 of them present
+in `design/`, and exactly ONE absent**: `#e5e7eb` in `src/styles/tokens.css`. Sizes, radii and copy
+were not measured.
+
+So the prediction is refuted, but only just, and this ADR already says how to read that: a single
+such find is evidence the extraction step is being skipped, not that the rule is wrong. That reading
+stands. What it does not license is treating the rule as broken.
+
+**A separate fact, deliberately not folded into the score above, because it measures a different
+property.** The same survey counted 649 hex, px and rem literals across 76 files in the governed
+scope. That is a count of values written into code rather than read from a token — it says nothing
+about whether they match the canvas, and a value lifted from the canvas and pasted into a rule is
+hard-coded and still compliant. It is a tokenisation finding, not evidence about this prediction, and
+an earlier version of this section wrongly used it as the headline.
+
+Two facts found the same day bound what enforcement could even look like, and neither was known when
+this ADR was accepted:
+
+- **The canvas cannot answer for its own accent values.** All 33 `.dc.html` artboards carry
+  unresolved `{{...}}` placeholders, `{{accent}}` among them, and `canvas.json` is a page-title list
+  rather than an artboard registry — so it resolves nothing. A gate comparing code against the canvas
+  is undecidable for exactly the values gh#74 got wrong.
+- **Whole-canvas literal matching would pass almost anything.** 541 distinct colours across 33
+  artboards, three of them unshipped home directions, is a haystack, and ADR-0047 already forbids
+  that shape as PASS evidence.
+
+Not superseded here. The supersession trigger this ADR names is an owner act, and the decision now
+sits behind gh#192 (c): a palette answer that keeps the canvas authoritative leaves this ADR
+standing, and one that does not supersedes it by ruling. Recorded so the next session scores the
+prediction rather than re-running the survey.
