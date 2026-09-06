@@ -1,0 +1,46 @@
+/* gh#202 — the self-hosted Thai face. Separate from tokens.css on that file's own instruction
+   ("Design tokens only ... no other selectors go in here"); this declares a resource, not a token.
+   The family name it defines is consumed by --font-sans and --font-display in tokens.css.
+
+   FONT: Sarabun. Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun).
+   Licensed under the SIL Open Font License, Version 1.1. The full licence text ships beside the
+   files as public/fonts/sarabun-OFL.txt -- the OFL requires it to travel with the font, and
+   scripts/public-orphan-check.mjs requires every public/ file to be named from src/, which this
+   sentence does. "Sarabun" is a reserved font name under the OFL: a MODIFIED face may not ship
+   under it. Subsetting is not modification for that purpose, but re-drawing glyphs would be.
+
+   WHY TWO FORMATS, so nobody deletes the .ttf as redundant. Browsers take the woff2 -- it is less
+   than half the bytes. The .ttf exists for scripts/font-coverage-check.mjs, which parses the cmap
+   out of an sfnt table and REFUSES woff2, so a woff2-only ship would leave that gate unable to read
+   the very thing it exists to check. Both are listed in src below, which is also what keeps the
+   .ttf from reading as an orphan.
+
+   SUBSET: the WHOLE assigned Thai block (U+0E00-U+0E7F, 87 codepoints), plus basic Latin and the
+   punctuation the Thai copy actually uses. Deliberately NOT subset to the 63 codepoints the build
+   reaches today: that number is a snapshot, and a subset cut to it reds the coverage gate on the
+   next Thai word anyone writes. 24 extra glyphs buys a subset that cannot rot.
+
+   MEASURED 2026-09-06 with pyftsubset (fontTools 4.63.0), not estimated:
+     regular  woff2 16,172 B   ttf 38,080 B
+     bold     woff2 16,328 B   ttf 37,712 B
+   Source faces were 90,220 and 89,804 B unsubsetted. */
+
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('/fonts/sarabun-regular-subset.woff2') format('woff2'),
+    url('/fonts/sarabun-regular-subset.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    url('/fonts/sarabun-bold-subset.woff2') format('woff2'),
+    url('/fonts/sarabun-bold-subset.ttf') format('truetype');
+}

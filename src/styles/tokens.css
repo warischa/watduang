@@ -24,7 +24,14 @@
   --space-lg: 1.5rem;
   --space-xl: 2.5rem;
 
-  --font-sans: 'Noto Sans Thai', 'Sarabun', system-ui, -apple-system, sans-serif;
+  /* gh#202. Sarabun is SELF-HOSTED (see the @font-face block below), so it leads the stack now.
+     It used to sit second behind the system 'Noto Sans Thai', which would have made the hosted file
+     dead weight on every device that ships Noto -- the point of hosting a face is that the site
+     renders the same everywhere, and a face that only appears on devices lacking another one does
+     not buy that. --font-display keeps Mitr first: Mitr is not hosted, and reordering it would
+     change every heading for the devices that do have it, which is a look decision and not this
+     ticket's. Sarabun already sat last in that stack, so hosting it makes that fallback real. */
+  --font-sans: 'Sarabun', 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
   --font-display: 'Mitr', 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
 
   --radius-sm: 4px;
