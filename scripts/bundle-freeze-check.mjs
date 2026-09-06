@@ -135,8 +135,10 @@ const BASELINE_BASENAMES = [
   // (short-stick, wire-snip-panic, zero-trigger), so Rollup emits it as its own chunk rather than
   // inlining it into any one of them.
   '_strip-overflow.js',
-  // gh#205, eighth port: the route's own chunk. The TOTAL leg is left pinned at the pre-route
-  // number, and whether to re-pin is an open decision carried on gh#205 and gh#206.
+  // gh#205, eighth port: the route's own chunk. The TOTAL leg WAS left pinned at the ONE-BOMB
+  // tree's number -- not, as an earlier draft of this line said, at the pre-route number, which is
+  // a different and larger figure for the reason the re-baseline note by the constant now gives.
+  // The site owner resolved that on 2026-09-06 and it is re-pinned there.
   // CORRECTION 2026-09-06 to the note this replaces, which said this route is "+17,469 B (3.76%)"
   // and gave as its reason that "re-pinning a total that is not red is how gh#206's 16,373 B of
   // drift disappeared". Both halves are wrong, and an adversarial review caught them before the
@@ -151,8 +153,8 @@ const BASELINE_BASENAMES = [
   // chunk, the play entry chunk that only game/bangkok-drift/play/index.html loads, and a small
   // residual which is the manifest and the game page's import.meta.glob map each gaining an entry,
   // the same shape one-bomb's residual had. Attribution is exactly what the header requires before
-  // a re-pin, so the header does not forbid one here. The pin is unchanged because nobody has
-  // decided, not because the rule blocks it -- and the cost of not deciding is headroom.
+  // a re-pin, so the header never forbade one here -- what was missing was a decision, not evidence.
+  // The owner made that decision on 2026-09-06; the re-baseline note above the constant records it.
   // NO BYTE FIGURES ARE WRITTEN HERE, for the reason the one-bomb note below gives about its own
   // quoted sizes. Re-derive against the dist/ in front of you, and build the pre-route tree if you
   // need the split rather than the total:
@@ -289,7 +291,48 @@ const BASELINE_BASENAMES = [
 //   node -e "const f=require('fs'),p=require('path');const h=f.readFileSync('dist/game/one-bomb/play/index.html','utf8');for(const m of h.matchAll(/src=\"([^\"]+)\"/g))console.log(m[1],f.statSync(p.join('dist',m[1].slice(1))).size);"
 //   ls -l dist/_astro/one-bomb.*.js
 // Measured on the build this constant was pinned from, 2026-09-06.
-const BASELINE_TOTAL_BYTES = 464658;
+//
+// Re-baselined 2026-09-06, TOTAL leg only, 464658 -> 482127 (+17469, +3.76%). The set legs are
+// untouched -- bangkok-drift's basename was pinned when the route landed, so only the byte number
+// moves here.
+// PRECEDENTED, NOT UNUSUAL, and an earlier draft of this note got that wrong. The BYTES leg was NOT
+// red when this was re-pinned; +3.76% sits inside the band. The gh#149 note above re-pins inside the
+// band too (-1.3%), and the gh#161 note re-pins a net +80 B and then -7 B. The header says a
+// re-baseline is the INTENDED signal when the gate goes red; it nowhere says a green forbids one, and
+// this file's convention has always been to re-pin deliberately rather than let a known number drift
+// toward the bound.
+// WHY IT MATTERED HERE. Headroom before this re-pin was 5763.9 B, which is 1.24% of the baseline. A
+// single shared-shell edit LARGER THAN THAT would have reddened the BYTES leg -- not an edit of any
+// size, which an earlier draft of this note claimed and which is false -- and that red would have
+// been attributed to whatever change happened to be carrying it rather than to the backlog of
+// absorbed growth that caused it. That misattribution is the failure gh#206 was opened about.
+// ATTRIBUTED, NOT ASSUMED, which is what the header requires before any re-pin. The +17469 has TWO
+// parts, and both are named here. An earlier draft attributed only the first and still wrote "nothing
+// is left over" -- which is precisely the move gh#206 exists to stop, re-shipped in miniature with
+// prose asserting the opposite. An adversarial review caught it; the session that wrote it did not.
+//   the route      the gap between this tree and a throwaway worktree built at 0ea7a3a. It splits
+//                  into bangkok-drift's own module chunk, the play entry chunk that only
+//                  game/bangkok-drift/play/index.html loads, and a small manifest-and-glob-map
+//                  residual of the same shape one-bomb's had.
+//   gh#215         the WebGL context-loss fix, which landed in 87e2f81 BEFORE this route and grew
+//                  one-bomb's play entry chunk. `git diff --name-only 16e425f..0ea7a3a -- src/`
+//                  lists three files, and the other two are a .json and a .css, neither of which
+//                  this gate counts -- so src/play/one-bomb/main.ts is the only bundled change in
+//                  that range. The pre-route tree therefore already measured ABOVE the 464658 pin,
+//                  and this re-pin absorbs that carry as well as the route.
+// Nothing is left over once both parts are counted. No byte figures for the split are written here,
+// for the same reason the one-bomb note above gives about its own quoted sizes; the re-derivation
+// commands are in the bangkok-drift note.
+// AUTHORITY, and the departure is stated rather than glossed. The owner's condition recorded on
+// gh#206 is that each game re-pins to ITS OWN measured total IN ITS OWN CHANGE. This re-pin is not
+// that: it is a separate change two commits after the route, and it also absorbs gh#215's carry. The
+// departure was made knowingly -- the route's own change had already shipped with the pin left alone
+// on a rationale that turned out to be false, and the alternative was to leave the drift
+// unattributed for longer. The owner was shown these numbers on 2026-09-06 and decided. An agent did
+// not make this call: re-pinning moves a threshold that guards production.
+// Measured by `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session,
+// and the number here is that command's output rather than a figure carried over from a brief.
+const BASELINE_TOTAL_BYTES = 482127;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
