@@ -108,9 +108,10 @@ function listTargetFiles(dir) {
 // boundary is what makes a flat ban safe — the one crawlable exit link ADR-0014 mandates lives in
 // page chrome (src/shell/PlayExit.astro, src/pages/game/<id>/play.astro), OUTSIDE src/play/ by
 // construction, so nothing in this region is allowed to be an anchor and no allow-list is needed.
-// Inverted deliberately: the safe set is empty today (zero real anchors across all 11 routes,
+// Inverted deliberately: the safe set is empty today (zero real anchors across every play route,
 // measured), and the hazardous set grows with every port, so "ban all" converges and "allow these"
-// would not.
+// would not. No route count is written here on purpose -- a number in a comment has no gate, and the
+// one that used to sit in this sentence went stale by two routes without anything noticing.
 const playDir = path.join(repoRoot, 'src/play');
 const PLAY_EXTS = new Set(['.html', '.js', '.ts']);
 
@@ -816,8 +817,10 @@ async function main() {
 
   // gh#167: the play-route region. Not affected by GAMES_DIR_OVERRIDE — that flag narrows the game
   // glob only, so this region is scanned on every run. Empty is a failure for the same reason the
-  // game set is: 11 route directories exist today, and a derivation that suddenly matches none is a
-  // gate scanning nothing, not a repo with no play routes (docs/adr/0019).
+  // game set is: play route directories DO exist on disk, so a derivation that suddenly matches none
+  // is a gate scanning nothing, not a repo with no play routes (docs/adr/0019). Count them from disk
+  // if you need the number; it is deliberately not written here, because the count that used to be
+  // was wrong by two routes and nothing failed.
   const PLAY_FILES = listPlayFiles(playDir);
   if (PLAY_FILES.length === 0) {
     console.error(`no-nav-in-stage-check: matched zero files under ${playDir} — the play-route set must never be empty (docs/adr/0019).`);

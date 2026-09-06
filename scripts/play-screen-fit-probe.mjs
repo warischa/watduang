@@ -7,7 +7,7 @@
 // measured for vertical scroll, horizontal clipping (gh#202) and horizontal width-fill.
 //
 // WHY THE WALK IS THE HARD PART, and how it is proved rather than assumed. The ways a walk can
-// silently stay on setup are owned by 11 separate mockup state machines; enumerating them never
+// silently stay on setup are owned by one separate mockup state machine per route; enumerating them never
 // converges, and a fitting setup screen reported as a fitting play screen is exactly the false green
 // this file exists to refuse. So the proof is DIFFERENTIAL and repo-owned, not per-route:
 //   1. Load the route with storage wiped. That is, by construction, the screen a first-time device
@@ -168,7 +168,9 @@ const CDP_PORT = process.env.CDP_PORT || '9592';
 // SEEDING alone does not strand the walk — 2 of 2 routes tried (cannon-flag, timebomb) still pressed
 // through the mockup's own setup UI and reached a play screen, so a seed-only control comes back GREEN
 // and calibrates nothing. Disabling the PRESSES alone does not strand it either: with a roster seeded,
-// 9 of 11 routes auto-start and are already off the fresh screen at press 0. Only both together.
+// 9 of 11 routes auto-started and were already off the fresh screen at press 0 -- a reading taken when
+// the set was 11 routes, and NOT re-run since; it is left as the dated measurement it is rather than
+// renumbered to a ratio nobody has measured. Only both together.
 // NO_SEED and NO_PRESS are exposed separately so the same stranding can be watched failing under the
 // NORMAL verdict — "the guard reds when the walk stays on setup" and "the guard's control passes" are
 // different claims and one run cannot show both.
@@ -338,8 +340,8 @@ export const KNOWN_OVERFLOW = new Map([
  * brand-new sideways clip on the same screen. Splitting the map is what keeps "this screen is allowed
  * to scroll" from ever meaning "this screen is allowed to cut content off sideways".
  *
- * THE SHAPE IS INVERTED FROM KNOWN_OVERFLOW's, on purpose and on evidence: measured across a full
- * 11-route walk, the horizontal axis reads ZERO on almost every row, so the honest default is GATED and
+ * THE SHAPE IS INVERTED FROM KNOWN_OVERFLOW's, on purpose and on evidence: measured across a full walk
+ * back when the set was 11 routes, the horizontal axis read ZERO on almost every row, so the honest default is GATED and
  * the exceptions are the short list. There is therefore no UNCLASSIFIED third state to police here — a
  * new route, a new viewport or a new screen is gated the moment it appears, without anyone pinning it.
  * Same reason-prefix rule as KNOWN_OVERFLOW, checked at import.

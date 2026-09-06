@@ -193,7 +193,7 @@ const EPS = 0.05;
 // oversight. It stays an exact equality because the landing set is two solo pages whose controls are
 // built by shell code that changes rarely, so drift there really is the signal described above. The
 // play routes get a DIFFERENT guard (PLAY_MIN_CONTROLS_PER_PAGE) for a reason worth stating: an exact
-// total across 11 mockups would be co-owned by every mockup edit, would be stale the day it was
+// total across every mockup would be co-owned by every mockup edit, would be stale the day it was
 // recorded, and a pin that reds on unrelated work gets re-recorded to make the run pass — which is
 // precisely the failure this comment block spends 60 lines warning against. Fail-closed there means
 // "every play page rendered at least one control", i.e. the vacuity this file exists to refuse.
@@ -229,7 +229,7 @@ const NAMES = ['เอ', 'บี', 'ซี'];
 // power-meter, how-close-is-near, cursed-number, zero-trigger — non-round resolved floors like
 // 48.3065px, i.e. their own `!important` winning on specificity); inline, it leaves none.
 //
-// Each property earns its place, because `min-height` is only one of the ways 11 mockups size a
+// Each property earns its place, because `min-height` is only one of the ways the mockups size a
 // control: `height` (every #play-exit is a fixed 44x44 box), `padding` and `font-size` and
 // `line-height` (text-sized controls), `aspect-ratio` (square icon buttons), and `align-self` (a flex
 // item stretched to its tallest sibling — how-close-is-near's count-chip row, which no property
@@ -321,7 +321,7 @@ export function pageSet() {
 // gh#170 — a landing keeps the exact `.game-btn` set it always measured (CONTROL_COUNT still means
 // what it meant); a play route measures every VISIBLE <button> in the document. Visibility is decided
 // on the rendered box, not on offsetParent: #play-exit is position:fixed and offsetParent is null for
-// a fixed element, so an offsetParent test would drop the one control shared by all 11 routes. A
+// a fixed element, so an offsetParent test would drop the one control every play route shares. A
 // zero-area rect is how an inactive mockup screen presents, and visibility:hidden is how a couple of
 // them present a dialog — neither is a tap target, and measuring them would report a wall of 0px
 // violations that no player can ever touch.

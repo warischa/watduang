@@ -45,7 +45,7 @@ const REQUIRED_TEST = 'setup-badge-icon.test.mjs';
 
 // Exemptions: explicit, each naming WHY and what ends it. Checked first as "is this the provably-safe
 // few", then negated -- an unlisted route defaults to GUARDED. EMPTY TODAY, and that is a measured
-// fact, not an aspiration: all 11 declared routes build a per-seat setup row with an emoji badge
+// fact, not an aspiration: every declared route builds a per-seat setup row with an emoji badge
 // (every one of them creates a name text input from its own row builder), so no route can currently
 // hold an exemption that survives buildsPerSeatRow below. A route with no setup roster row of its own
 // -- one that takes its whole roster from the shared shell panel and renders no per-seat row -- is
