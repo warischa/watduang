@@ -6,6 +6,13 @@
 // (a) resolves a computed min-height greater than zero, (b) has a getBoundingClientRect().height that
 // is never below that resolved value, and (c) has a rect height never below the 44px tap minimum.
 //
+// gh#214 — THERE IS NOW A FOURTH READING, (d), AND IT IS NOT PART OF THAT SENTENCE. The rect WIDTH is
+// compared against the same 44px minimum and every control under it is printed as a ::warning::; the
+// exit code is untouched. The tap minimum always had two axes and this file asserted one, so a control
+// could render at the minimum height and a third of the minimum width and pass. Why it reports rather
+// than gates is an owner ruling of 2026-09-06 recorded at the claim itself; what a reader needs here
+// is that a green from this leg still says NOTHING about width.
+//
 // GATE THE RELATIONSHIP, NOT THE PIXELS. Claims (a) and (b) carry NO height literal: the floor is read
 // out of the rendered CSSOM and the rect is compared against whatever the page itself resolved. A
 // rendered-height literal would belong to the visitor's OS and font (ADR-0044), and would flap on a
@@ -275,6 +282,17 @@ export function claimsFor(c) {
     hasFloor: !c.floorOwned || floor > 0,
     atLeastFloor: !c.floorOwned || c.rectHeight >= floor - EPS,
     atLeastTap: c.rectHeight >= MIN_TAP_PX - EPS,
+    // gh#214 — THE FOURTH CLAIM IS REPORTED, NEVER GATED, and that is an owner ruling of 2026-09-06
+    // rather than a softening. The tap minimum is a property of a thumb and has always had two axes;
+    // this file asserted one of them, so a control could render at the minimum height and a third of
+    // the minimum width and pass. Measuring it is free — rectWidth was already in the payload. What
+    // is NOT free is gating it: the narrowest controls on this site are the cells of a nine-column
+    // board, and nine tap minimums side by side are wider than the 320px viewport this walk measures
+    // at, before any gap. So a width red would be permanent, would block every push, and would be
+    // demanding a geometry the product has deliberately not ruled on yet. main() prints these as
+    // ::warning:: annotations and the exit code never moves; the gating expression names its three
+    // claims one by one, so this key cannot join them by accident.
+    atLeastTapWidth: c.rectWidth >= MIN_TAP_PX - EPS,
   };
 }
 
@@ -345,8 +363,19 @@ const measureExpr = (mutantProps, kind, deep = false) => `
       floorOwned: ${JSON.stringify(kind !== 'play')} && b.classList.contains('game-btn'),
       minHeight: cs.minHeight,
       floorPx: Number.parseFloat(cs.minHeight),
+      // BOTH RECT NUMBERS ARE READ AFTER TRANSFORMS, deliberately, and that is the only reading the
+      // width report can use: getBoundingClientRect returns the border box as it lands on the glass,
+      // so a scaled or clipped ancestor is included. That is the box the thumb has to hit, and it is
+      // already what claim (b) exists to catch. The untransformed offsetWidth would answer a question
+      // about a stylesheet instead of about a tap target, and would report a control as reachable
+      // that no player can reach.
       rectHeight: r.height,
       rectWidth: r.width,
+      // The two axes are independent only where this resolves to 'auto'. A control declaring an
+      // aspect-ratio derives one dimension from the other, so a floor applied to the axis this repo
+      // gates on moves onto the axis it does not. Carried per control so the width report can name
+      // every place that is true rather than assert it is nowhere.
+      aspectRatio: cs.aspectRatio,
       disabled: !!b.disabled,
       hidden: r.width === 0 || r.height === 0 || cs.visibility === 'hidden',
     };
@@ -654,6 +683,48 @@ function main() {
     console.log(`OK control: every claim red on every control it applies to, across ${out.pagesWalked} game page(s) / ${controlsMeasured} control(s) at ${out.width}px (mutants applied inline with the important flag and reverted in the same evaluate; no file changed). This total is NOT comparable with the normal run's: the mutant settle holds ~${MUTANT_SETTLE_MS * 2}ms per screen and these games advance on their own clock, so screen 2 lands later in the round.`);
     return;
   }
+
+  // gh#214 — THE WIDTH AXIS, REPORTED. This block prints and never exits: it runs BEFORE the height
+  // verdict below so its findings survive a run that reds on height, and it prints its denominator
+  // even when it finds nothing, because "no warnings" and "this axis was not measured" are the same
+  // bytes otherwise. ::warning:: is the annotation ci-probes.sh surfaces from a PASSING leg's log
+  // (the same channel scripts/play-screen-fit-probe.mjs reports its px drift on); ::error:: is
+  // reserved for the lines that come with a non-zero exit.
+  const narrow = [];
+  const ratioBound = [];
+  for (const s of out.screens) {
+    // The ordinal is carried because a mockup names its controls by CLASS when they have no id, and
+    // a row of identical icon buttons then reports four byte-identical warning lines that read like
+    // one line printed four times. It is the index in this screen's measured order, which is DOM
+    // order — enough to tell four findings from one, and it is not a selector.
+    s.controls.forEach((c, i) => {
+      const nth = `${c.name} [${i + 1} of ${s.controls.length} measured on this screen]`;
+      if (!claimsFor(c).atLeastTapWidth) narrow.push({ s, c, nth });
+      if (c.aspectRatio && c.aspectRatio !== 'auto') ratioBound.push(`${c.name} on ${s.url} screen ${s.screen} (${c.aspectRatio})`);
+    });
+  }
+  for (const { s, c, nth } of narrow) {
+    const ratio = c.aspectRatio && c.aspectRatio !== 'auto' ? ` · it declares aspect-ratio ${c.aspectRatio}, so its two axes are NOT independent and a height floor is already setting this width` : '';
+    console.log(
+      `::warning::${nth} (${c.variant}) on ${s.url} screen ${s.screen} at ${WIDTH}px renders ${c.rectWidth}px WIDE, under the ${MIN_TAP_PX}px tap minimum this repo gates on for height (it is ${c.rectHeight}px tall, so the height claim passes it)${ratio}. REPORTED, NOT GATED, per the 2026-09-06 ruling on gh#214 — the minimum for a dense board cell is a product decision that has not been made.`,
+    );
+  }
+  // The denominator is the same set the height claims are asserted over, and it is enumerable only by
+  // execution: every control in it is created at runtime by a game module or a lifted mockup, so no
+  // grep of the built HTML can list it. The partition key is route x screen, at one viewport.
+  console.log(
+    `WIDTH AXIS (report only, exit code unaffected): ${narrow.length} of ${controlsMeasured} rendered control(s) are under ${MIN_TAP_PX}px wide at ${out.width}px. ` +
+      `The set is every control this walk measured — a landing page contributes its rendered .game-btn set, a play route every VISIBLE <button> — over ${out.pagesWalked} route(s) x up to 2 screens each, at ${out.width}px only. ` +
+      `Screens past the second, the 390px viewport, and controls behind a screen this walk cannot reach are OUTSIDE it, so a zero here is not a claim that the site has no narrow controls.`,
+  );
+  // Named rather than assumed absent: where a control declares an aspect-ratio the two axes are one
+  // axis, and any floor placed on the gated one silently sets the ungated one. A reader deciding what
+  // the width minimum should be needs to know which controls cannot be given it independently.
+  console.log(
+    ratioBound.length
+      ? `  axes NOT independent (aspect-ratio resolves to something other than auto) on ${ratioBound.length} of ${controlsMeasured} control(s): ${[...new Set(ratioBound)].join(' · ')}`
+      : `  axes independent on all ${controlsMeasured} measured control(s): none of them resolves an aspect-ratio, so a floor on one axis moves nothing onto the other.`,
+  );
 
   const violations = [];
   for (const s of out.screens) {
