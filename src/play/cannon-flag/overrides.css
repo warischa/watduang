@@ -102,3 +102,64 @@
 .brand-title {
   margin-inline-start: 60px;
 }
+
+/* Second clearance for the same fixed chrome -- measured, not assumed, and NOT gated on width.
+   The shell's edit-players pill (`#play-edit-players` in src/shell/PlayExit.astro) is `position: fixed`
+   directly under the exit X, so it occupies the same box on every viewport: left 6, top 56, 74.27x44,
+   bottom edge 100. This route's floating HUD row starts at the same corner, and the row's first chip
+   -- the one carrying the current-player label, `#hud-player-name` and `#hud-shot-badge` -- had its
+   top at 62. Driven headless with a seeded roster, past `#btn-ready-to-aim` onto the gameplay board:
+   the pill covered that chip's first line completely at every one of six viewports from 320x420 to
+   1440x900 (9 of 9 inset sample points inside the label box returned the pill from elementFromPoint),
+   leaving only the name and the shot line readable. The intersection is 2670.26px^2 and IDENTICAL at
+   320x568, 390x844 and 1440x900, because the pill is fixed-positioned with no breakpoint. So this is
+   not a desktop defect and it does not belong inside the >=1100px block above.
+
+   Why PlayExit's own placement note did not catch it: that component picked the top-left corner
+   because the row under the header "is empty on all three mockups". True of the header, false of
+   this route -- here that row is the HUD floating over the canvas, not empty page chrome.
+
+   Moving this route's element and never the shell's, same as `.brand-title` above. The whole row
+   moves, not just the colliding chip: `.game-hud-top` is `align-items: flex-start`, so shifting one
+   chip alone would leave the three visibly unaligned -- and measurement killed the chip-only variant
+   anyway, see below. A margin rather than `top` so the clearance stays additive if the mockup
+   extractor ever rewrites that offset.
+
+   WHY 38px AND WHY GATED ON HEIGHT. A first attempt shipped 48px unconditionally and was backed out:
+   pushing the row down eats canvas, and on a short viewport the letterboxed world rises to meet it,
+   so the chips land on the cannon, a tree or the flag. Driven headless, 10 random rounds per
+   viewport, chip rects against world geometry reproduced from this route's own `generateEnvironment`
+   and `worldToScreen` -- rounds with at least one chip-over-world hit:
+
+     viewport    pre-fix   row+48    row+38 (shipped)
+     320x420       1/10     10/10     not applied (gated out)
+     320x470       0/10      5/10     not applied (gated out)
+     390x480       0/10      0/10     not applied (gated out)
+     320x568       0/10      0/10     0/10
+     390x844       0/10      0/10     0/10
+     1440x900      0/10      0/10     0/10
+
+   38px is the exact minimum that clears the pill: the row sits 10px below `#canvas-container`, whose
+   own top measured 52 at every width, so 52 + 10 + 38 = 100, flush with the pill's bottom edge and
+   not under it. It is also the largest push this route can afford at the shortest height where the
+   rule applies -- from `generateEnvironment`'s own bounds (terrain 190 + 65 + 40 + 25, tree 120) the
+   tallest drawable geometry is world-y 440, which at 320x568 lands 40.7px below the chip band, so
+   48px was over that line and 38px is not. `.brand-title` leaves 10px of slack; there is no room for
+   slack here and the flush edge is the trade.
+
+   The height gate is a THIRD breakpoint and that is deliberate, not an oversight of the note in the
+   block above: that note enumerates this project's two WIDTH breakpoints for the desktop sizing
+   work, and this is a height, on a different axis, gating a collision fix rather than a layout.
+   Below 568 tall -- in-app browsers, roughly 320x420 to 390x480 -- the pill keeps covering the
+   label, exactly as it does today. That is accepted, not overlooked: the label is a static caption
+   and the name and shot count stay readable, whereas covering the cannon or a tree is a gameplay
+   harm. There is no room to fix it there; at 320 wide the three chips already span 290 of 300
+   available pixels, so an inline shift overflows.
+
+   Costs no tap surface: this route binds its press handlers to `#btn-fire-cannon` only, so the sky
+   the chips now cover was never interactive. */
+@media (min-height: 568px) {
+  .game-hud-top {
+    margin-block-start: 38px;
+  }
+}
