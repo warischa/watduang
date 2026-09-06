@@ -11,7 +11,7 @@ Resume must read it as the primary state source. This file holds only the stable
 
 ## Stack
 
-Astro + TypeScript · **no runtime framework** (vanilla TS in islands) · plain CSS + custom properties · Azure Static Web Apps (Standard) · GitHub Actions · Cloudflare Web Analytics
+Astro + TypeScript · **no runtime framework** (vanilla TS in islands; one vendored 3D library, `three`, and no second one — ADR-0060) · plain CSS + custom properties · Azure Static Web Apps (Standard) · GitHub Actions · Cloudflare Web Analytics
 
 **1 game = 1 file + 1 manifest line → 1 static URL** via `getStaticPaths()` · path routing only, **no hash routes** — SEO is this site's business model, not a feature.
 
