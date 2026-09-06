@@ -572,9 +572,15 @@ const ENTITY = {
   "'": /&#0?39;|&#x27;|&apos;/,
 };
 
-function auditRoute(id) {
-  const file = ['main.js', 'main.ts'].map((f) => path.join(here, id, f)).find((f) => fs.existsSync(f));
-  if (!file) return { id, verdict: `no src/play/${id}/main.{js,ts} — the manifest ships a play route with no module here` };
+/** Every module a route contributes, not just the first one found: `main.js` is the mockup
+ *  extract-mockup.mjs owns and overwrites, `main.ts` is where hand-added, repo-side code lives (see
+ *  one-bomb's name-entry module). A route can ship either or both — a first-match `.find()` here
+ *  silently drops a route's own hand-written module from every check below it. */
+function resolveModules(id) {
+  return ['main.js', 'main.ts'].map((f) => path.join(here, id, f)).filter((f) => fs.existsSync(f));
+}
+
+function auditFile(file) {
   const src = fs.readFileSync(file, 'utf8');
   const rel = path.relative(repoRoot, file);
 
@@ -597,11 +603,11 @@ function auditRoute(id) {
   // safety it documents. Stripping only comments that START a line can never eat code — a `//` inside
   // a URL or a regex is mid-line — so this cannot hide a real sink.
   const codeOnly = src.replace(/^\s*\/\/.*$/gm, '');
-  if (!holes.length && !SINK_TOKEN.test(codeOnly)) return { id, klass: 'NO_HTML_SINK' };
+  if (!holes.length && !SINK_TOKEN.test(codeOnly)) return { klass: 'NO_HTML_SINK' };
   if (!holes.length) {
     // An HTML sink exists but nothing interpolates into it — no name can reach markup through a
     // template here. Still not NO_HTML_SINK: say so rather than silently widening that class.
-    return { id, klass: 'NO_INTERPOLATED_SINK' };
+    return { klass: 'NO_INTERPOLATED_SINK' };
   }
 
   // The charset is derived from the contexts this route actually builds, not assumed: `&<>` always,
@@ -623,13 +629,26 @@ function auditRoute(id) {
     return body !== null && required.every((ch) => ENTITY[ch].test(body));
   });
   if (!helpers.length) {
-    return { id, verdict: `${rel}: builds markup by string but declares no escape helper covering ${required.join(' ')} — a roster name reaching any of its ${holes.length} sink interpolation(s) is injected raw` };
+    return { verdict: `${rel}: builds markup by string but declares no escape helper covering ${required.join(' ')} — a roster name reaching any of its ${holes.length} sink interpolation(s) is injected raw` };
   }
   const used = helpers.filter((h) => holes.some((hole) => new RegExp(`\\b${h}\\s*\\(`).test(hole.expr)));
   if (!used.length) {
-    return { id, verdict: `${rel}: declares escape helper(s) ${helpers.join(', ')} but never calls one inside a markup template — an unused helper escapes nothing` };
+    return { verdict: `${rel}: declares escape helper(s) ${helpers.join(', ')} but never calls one inside a markup template — an unused helper escapes nothing` };
   }
-  return { id, klass: `ESCAPED(${used.join(',')}${singleQuoted ? " incl '" : ''})` };
+  return { klass: `ESCAPED(${used.join(',')}${singleQuoted ? " incl '" : ''})` };
+}
+
+/** Caller of auditFile, iterating every module resolveModules found for the route: a route is clean
+ *  only when EVERY one of its modules is, and the first module with a verdict names the route bad —
+ *  a single-module route (today, every route but one-bomb) gets exactly the same result as before
+ *  this function existed, because the loop below runs once. */
+function auditRoute(id) {
+  const files = resolveModules(id);
+  if (!files.length) return { id, verdict: `no src/play/${id}/main.{js,ts} — the manifest ships a play route with no module here` };
+  const perFile = files.map(auditFile);
+  const bad = perFile.find((r) => r.verdict);
+  if (bad) return { id, verdict: bad.verdict };
+  return { id, klass: perFile.length === 1 ? perFile[0].klass : perFile.map((r) => r.klass).join(' + ') };
 }
 
 test('coverage: every play route in the manifest is either injection-tested or provably escaping', async () => {
