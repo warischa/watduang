@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # The 7 CI-worthy browser probes (docs/verification/probe-triage-2026-08-26.md, "What's actually
-# trustworthy right now"), run in PARALLEL LANES (four, plus one per play-screen-fit shard after the
-# first -- see FIT_SHARDS) against the ALREADY-BUILT dist/ -- this script
+# trustworthy right now"), run in PARALLEL LANES against the ALREADY-BUILT dist/ IN TWO PHASES: the
+# four packed lanes first, then one lane per play-screen-fit shard (see FIT_SHARDS) once lane1 and
+# lane3 have joined -- see "the barrier" below for why the phases exist. This script
 # never runs a build. It is meant to be called as a late step in ci.yml's single `build` job, after
 # the Build step, because a probe that measures a freshly regenerated dist/ is not measuring the
 # bytes that get deployed (the standing no-post-Build-rebuild invariant in .github/workflows/ci.yml).
@@ -46,15 +47,27 @@ CDP_3="${PROBE_CDP_PORT_3:-9347}"
 CDP_4="${PROBE_CDP_PORT_4:-9348}"
 # --- the play-screen-fit shard count, and THE ONE LINE TO EDIT if this ever needs backing out ------
 # The fit walk is split across FIT_SHARDS legs by route (a stride over the manifest ids, in
-# scripts/play-screen-fit-probe.mjs's playRoutes). Shard 0 rides lane3; every other shard gets a lane and
-# a Chrome of its own from FIT_LANE_CDPS below, so lowering this number is a one-line change here (plus
-# re-pinning EXPECTED_LEGS, which is pinned and never counted, by 2 legs per shard).
+# scripts/play-screen-fit-probe.mjs's playRoutes). Every shard is a lane of its own in phase two: shard 0
+# borrows lane3's Chrome, which has finished its own legs by then, and every other shard gets a Chrome of
+# its own from FIT_LANE_CDPS below -- so lowering this number is a one-line change here (plus re-pinning
+# EXPECTED_LEGS, which is pinned and never counted, by 2 legs per shard).
 # WHY IT COULD NEED LOWERING, stated because it is the real risk of this split and not a hypothetical:
 # each shard adds a Chrome to a 4-vCPU runner, and this probe measures a SELF-TIMED screen — roughly 57%
 # of the control leg's wall time is timer waits rather than CPU, which is what makes the extra Chromes
 # affordable, but a runner under CPU pressure delivers those timers late. If a real CI run shows a fit row
 # flipping to NEVER LEFT THE FRESH SCREEN, or a row changing which press is its worst screen, the answer
 # is FEWER SHARDS, not more Chromes: the rows are the measurement and the lane packing is not.
+# 2026-09-06, owner ruling "reduce probe concurrency": that pressure arrived, but on the OTHER side of the
+# runner. A twelfth play route landed and two consecutive runs reported UNMEASURED legs -- the runner could
+# not deliver a synthetic touch burst inside lane1's arm window, and one of the two casualties was a route
+# the new game never touched. The lever taken was NOT a lower shard count. Comparing the last green run of
+# 2026-09-05 with the first red one (the per-leg figures are the LEG_SECONDS lines of each run's log),
+# lane1's two legs are the long pole for phase one while the fit shards are the long pole overall,
+# so the two never have to overlap at all: the barrier below runs them in sequence. Peak busy lanes during
+# the arm window drops from six to four, and phase two then has the machine to itself, which is exactly why
+# FIT_SHARDS stays at 3 -- with nothing left to contend with, fewer shards would only lengthen phase two
+# and buy no headroom for the legs that needed it. Lower it only if a FIT ROW misreads, per the paragraph
+# above; the arm window is no longer a reason to.
 FIT_SHARDS=3
 FIT_LANE_CDPS="${PROBE_CDP_FIT_PORTS:-9349 9350}"
 # driver.mjs's nav() waits on Page.loadEventFired with NO timeout -- a URL that never fires load hangs
@@ -323,8 +336,8 @@ lane3() {
   # still and requires every row to report it never left setup.
   # MEASURED on this machine, 2026-08-31: 324s clean + 380s control = 704s for the WHOLE walk, which
   # made lane3 the critical lane on its own (it was 167s). It is now split by route across FIT_SHARDS
-  # lanes; lane3 keeps its five short legs plus shard 0, and fit_lane below carries the rest.
-  fit_pair 0 "$CDP_3"
+  # lanes, all of which run in phase two -- lane3 itself keeps only the five short legs above, and its
+  # Chrome is handed to shard 0 after the barrier joins this lane.
 }
 # One shard's two legs, ALWAYS ADJACENT AND ALWAYS ON ONE CDP PORT. The pair is what may never be split:
 # the control exists to show this probe's own detector failing in the same browser the clean leg used, and
@@ -352,7 +365,7 @@ lane4() {
   standalone control-floor-control     env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_FLOOR=1 node scripts/control-floor-probe.mjs
 }
 
-N_LANES=$((4 + FIT_SHARDS - 1))
+N_LANES=$((4 + FIT_SHARDS))
 # The union check below harvests FIT_SHARD_WALKED lines by globbing this directory. OUT_DIR is a fresh
 # mktemp on CI but is REUSED whenever PROBE_OUT_DIR is set, which is how it is run locally -- and a
 # leftover play-screen-fit-2.log from an earlier run would satisfy the union for a shard that no longer
@@ -360,17 +373,39 @@ N_LANES=$((4 + FIT_SHARDS - 1))
 # stale file has to go before the lanes start rather than being reasoned about afterwards.
 rm -f "$OUT_DIR"/play-screen-fit*.log
 
-echo "ci-probes: ${N_LANES} lanes launched -- per-lane output prints when each lane's log is collected below"
+# --- phase one: the four packed lanes ---------------------------------------------------------
+echo "ci-probes: phase one -- 4 lanes launched; the ${FIT_SHARDS} fit lane(s) follow once lane1 and lane3 have joined"
+PHASE_T0=$(date +%s)
 LANE_PIDS=""
-lane1 > "$OUT_DIR/lane1.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
+lane1 > "$OUT_DIR/lane1.log" 2>&1 & LANE1_PID=$!; LANE_PIDS="$LANE_PIDS $!"
 lane2 > "$OUT_DIR/lane2.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
-lane3 > "$OUT_DIR/lane3.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
+lane3 > "$OUT_DIR/lane3.log" 2>&1 & LANE3_PID=$!; LANE_PIDS="$LANE_PIDS $!"
 lane4 > "$OUT_DIR/lane4.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
-# One lane per fit shard after shard 0, numbered on from lane4 so the lane?.pass/lane?.fail glob and the
-# per-lane log dump below keep working without a second naming scheme.
-fit_shard=1
-for cdp in $FIT_ACTIVE_CDPS; do
-  ln="lane$((4 + fit_shard))"
+# --- the barrier ---------------------------------------------------------------------------------
+# The fit shards do not start until lane1 has finished. lane1's two legs dispatch synthetic touch bursts
+# and judge whether each one landed inside a short arm window; when the runner cannot deliver a burst in
+# time the leg reports UNMEASURED, which blocks like a failure, and that is what a machine short of CPU
+# does to those legs rather than any defect in a route. The fit shards are the heaviest thing this script
+# schedules, so keeping them off the runner for the length of lane1 is the whole point of the two phases.
+# lane3 is joined too, and not because it is slow: shard 0 drives lane3's Chrome, and starting it while
+# lane3 still had a leg running would put two drivers on one CDP port -- the header's "two headless probes
+# attach to each other's browser" hazard. lane3's own legs are short, so in the normal case this waits on
+# lane1 alone; the join matters exactly when a lane3 leg hangs to LEG_TIMEOUT.
+# Neither wait may kill this script: the lane subshells run under errexit and a failing leg makes one exit
+# non-zero, which without `set +e` would end the run before the aggregate block below prints any verdict.
+# A failed lane1 still releases the barrier -- the fit shards run and are judged, and lane1's failure is
+# reported by the aggregate, never by legs that silently never ran.
+set +e
+wait "$LANE1_PID"
+wait "$LANE3_PID"
+set -e
+echo "ci-probes: phase two -- fit lanes released after $(( $(date +%s) - PHASE_T0 ))s (lane1 and lane3 joined)"
+# One lane per fit shard, numbered on from lane4 so the lane?.pass/lane?.fail glob and the per-lane log
+# dump below keep working without a second naming scheme. Shard 0 takes lane3's now-idle Chrome; the rest
+# take the Chromes bound for them in FIT_ACTIVE_CDPS, so the port list is still one per shard past shard 0.
+fit_shard=0
+for cdp in "$CDP_3" $FIT_ACTIVE_CDPS; do
+  ln="lane$((5 + fit_shard))"
   fit_lane "$fit_shard" "$cdp" "$ln" > "$OUT_DIR/$ln.log" 2>&1 & LANE_PIDS="$LANE_PIDS $!"
   fit_shard=$((fit_shard + 1))
 done
