@@ -162,6 +162,28 @@ test('ADR-0057: the backdrop close is gated at the PRESS, and the board behind i
   );
 });
 
+test('gh#215: the WebGL-loss halt panel is armed at the moment it is inserted', () => {
+  // The SECOND reveal main.ts owns, and the last test in this file cannot see it: that one pins
+  // receivers of `.hidden = false` / `.showModal()`, and this panel arrives through
+  // insertAdjacentHTML, which matches neither. Left to that test alone the panel would ship with no
+  // arming call and the file would stay green.
+  //
+  // Why it needs arming at all (ADR-0057, ADR-0059): the context can be lost with a finger already
+  // down on the canvas, so the panel is a reveal under that finger and its one button would take the
+  // release of a tap aimed at a stone. armAllButtons reads the browser's own input timestamp; a
+  // hand-rolled setTimeout would anchor to handler time and is not the same window.
+  const from = main.indexOf('function haltOnContextLoss');
+  assert.notEqual(from, -1, 'main.ts no longer declares haltOnContextLoss — this test is measuring nothing');
+  const next = main.indexOf('\nfunction ', from + 1);
+  const body = main.slice(from, next === -1 ? main.length : next);
+  assert.match(
+    body,
+    /insertAdjacentHTML\('beforeend'[\s\S]{0,300}armAllButtons\(/,
+    'the halt panel is inserted without arming it: the loss can land mid-tap on the canvas, and the ' +
+      "release of that tap then falls on the panel's restart button",
+  );
+});
+
 test("the route's own reveals — the reset confirm — are armed at their call sites", () => {
   // main.ts reveals exactly one thing of its own: the reset-names confirm dialog. It is not one of
   // the engine's screens and no observer covers it, so it arms itself on open, and the screen behind
