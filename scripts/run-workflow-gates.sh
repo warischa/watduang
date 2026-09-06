@@ -248,14 +248,17 @@ while IFS="$(printf '\t')" read -r idx class marker sname; do
   # `bash -e <file>` mirrors what a GitHub `run:` step gets, and keeps every multi-line body out of
   # `bash -c` (this repo bans a heredoc nested in `bash -c`). Exit code read straight off the
   # command, never through a pipe — a pipe reports the LAST stage's status.
+  t0=$SECONDS
   if bash -e "$body" > "$step_log" 2>&1; then
+    dur=$((SECONDS - t0))
     executed=$((executed + 1))
-    echo "PASS  $sname" | tee -a "$LOG"
+    echo "PASS  $sname  (${dur}s)" | tee -a "$LOG"
   else
     rc=$?
+    dur=$((SECONDS - t0))
     executed=$((executed + 1))
     fails=$((fails + 1))
-    echo "FAIL($rc)  $sname" | tee -a "$LOG"
+    echo "FAIL($rc)  $sname  (${dur}s)" | tee -a "$LOG"
     { echo "----- last 25 lines -----"; tail -25 "$step_log"; echo "----- end -----"; } >> "$LOG"
     tail -25 "$step_log"
   fi
