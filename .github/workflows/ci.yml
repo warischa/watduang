@@ -154,6 +154,15 @@ jobs:
       - name: Icon-only play-route controls carry a Thai accessible name (gh#211)
         run: node scripts/play-icon-label-check.mjs --selftest && node scripts/play-icon-label-check.mjs
 
+      # gh#212, owner ruling 2026-09-05: the mockups stay an original design record and src/play/ is
+      # the source of truth, so a re-extraction that would delete a deliberate divergence must fail
+      # loudly rather than succeed quietly. The set this enumerates is src/play/_divergences.json --
+      # a file this repo owns, so it converges. It deliberately does NOT diff against the mockups:
+      # those live outside this repo, are absent on a runner, and a gate over them would red on
+      # ordinary work. That half is --enumerate, a machine-local audit, and is not run here.
+      - name: Re-extraction cannot silently delete a recorded divergence (gh#212)
+        run: node scripts/mockup-divergence-check.mjs --selftest && node scripts/mockup-divergence-check.mjs
+
       # gh#209: four play routes rendered a seat number where the animal icon belongs, and the owner
       # found it on the live site. This gate only asks whether every route OWES a setup-badge-icon
       # test; the per-route tests are what red on a badge reverted to a number. Route set is derived
@@ -287,6 +296,16 @@ jobs:
       - name: Shared JS bundle set and size frozen (gh#129)
         run: node scripts/bundle-freeze-check.mjs --selftest && node scripts/bundle-freeze-check.mjs
 
+      # gh#202, owner ruling 2026-09-05: the Thai webfont self-hosts as a SUBSET, and a subset rots
+      # silently -- a missing Thai glyph renders as a dotted circle, it does not throw. This reads
+      # dist/ (a repo-owned superset of what a player can see; classifying "user-facing" strings in
+      # src/ would need a parser and would green on the glyph it missed) and never rebuilds.
+      # It SKIPs while no font is self-hosted, and becomes live by itself the moment one appears.
+      # Player names stay uncovered by construction: they are attacker-owned and no subset can
+      # enumerate arbitrary typed Unicode -- the per-glyph CSS fallback stack renders those.
+      - name: Thai subset covers every reachable codepoint (gh#202)
+        run: node scripts/font-coverage-check.mjs --selftest && node scripts/font-coverage-check.mjs
+
       # Dangling CSS custom-property gate, gh#85: every built page must reference only custom
       # properties something on THAT SAME page defines. Per-page, not a dist/-wide union — most CSS
       # is inlined into each HTML and the rest ships as per-page linked files under dist/_astro/
@@ -404,6 +423,19 @@ jobs:
           PROBE_OUT_DIR: ${{ runner.temp }}/ci-probes
         run: npm run ci-probes
 
+      # ADR-0051 pixel readback. Every other browser lane runs --disable-gpu, so getContext(webgl)
+      # is null there and a readback assertion would be green by construction; this lane forces a
+      # software rasteriser instead. Three-way on purpose: 0 drew, 1 blank, 2 UNMEASURED. Exit 2
+      # reds the step deliberately -- this lane exists only to measure, so a runner that cannot
+      # give a live context is an instrument change to surface, not a pass to inherit. That is the
+      # play-exit guard rule. Softening it to `|| [ $? -eq 2 ]` recreates the two-way probe it
+      # replaces. Shares the probe-scope gate above so it is skipped whenever the probes are.
+      - name: WebGL play surfaces actually draw (ADR-0051 pixel readback)
+        if: steps.probe-scope.outputs.run == 'true'
+        env:
+          WEBGL_PROBE_OUT_DIR: ${{ runner.temp }}/ci-probes/webgl-pixels
+        run: bash scripts/webgl-pixels-lane.sh
+
       # Every measurement the probes make lives in that directory, and until now only `tail -n 3` of
       # each leg's log reached this workflow's log -- which is why a red on run 33491962091 (attempt 1
       # red, attempt 2 green, same SHA and same runner image) could not be attributed to anything.
@@ -420,6 +452,7 @@ jobs:
           path: |
             ${{ runner.temp }}/ci-probes
             !${{ runner.temp }}/ci-probes/prof-*
+            !${{ runner.temp }}/ci-probes/*/prof-*
           if-no-files-found: warn
 
       # Deploy authenticates with Entra ID workload identity federation (OIDC) — this repo stores
