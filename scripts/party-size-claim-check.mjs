@@ -28,11 +28,23 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 // not the site's party-size promise.
 const CLAIM = /\d+\s*(?:-|–|—|ถึง|to)\s*\d+\s*(?:คน|players)/g;
 
-// Outside the rule entirely, by a separate owner decision the same day: a page's <title> and
-// <meta name="description">. Blanked before detection so the gate cannot enforce a rule nobody
-// agreed to. Spans newlines on purpose — a manifest's `description:` key and its value sit on
-// different lines.
-const EXEMPT_META = /\b(?:title|description)\s*[:=]\s*(['"`])(?:\\.|(?!\1)[\s\S])*?\1/g;
+// Outside the rule entirely, by a separate owner decision: a page's <title>. Blanked before
+// detection so the gate cannot enforce a rule nobody agreed to. Spans newlines on purpose — a
+// manifest's `title:` key and its value sit on different lines.
+//
+// `description` lost this exemption by owner ruling 2026-09-06 (gh#192 (g) edit three) — it used
+// to be blanked here too, which made a range claim inside `seo.description` or a `description` prop
+// invisible to CLAIM rather than tolerated by it. It is no longer blanked, so such a claim is now
+// visible like any other body text.
+//
+// The fortune block's `seo.description` in `categories.ts` needs no special case here, and it is
+// worth saying why precisely, because the gh#192 comment recording the ruling got this wrong and the
+// error was nearly copied into two more files. That field DOES carry a standing owner exemption —
+// but it is gh#201's, about which Thai noun names what a fortune page gives a visitor, not about
+// party size at all. Checked across every historical value of that line: it has never carried a
+// player-count claim of any form. It holds no digits, so CLAIM cannot match it with or without the
+// exemption above. Nothing to carve out.
+const EXEMPT_META = /\btitle\s*[:=]\s*(['"`])(?:\\.|(?!\1)[\s\S])*?\1/g;
 // The JS/TS comment arms are gone (gh#191, owner decision: one shared stripper, imported everywhere).
 // They were two regexes enumerating "text that is a JS comment" — a set owned by the language spec,
 // never by this repo (ADR-0031), which is why the `[^:]` arm keeping `https://` from blanking its line
@@ -176,6 +188,19 @@ function selftest() {
   assert.equal(templateFound.length, 1, 'gh#191 review fix: a claim in .astro template position must be flagged exactly once — the frontmatter and script copies of it are real comments and must not count');
   assert.equal(templateFound[0].text, '2-10 คน', 'gh#191 review fix: and the flagged text must be the claim itself');
   console.log('PASS gh#191 review fix: a claim in .astro template position is flagged, its frontmatter and script-body comment twins are not, where the unrouted stripper lost all three');
+
+  // gh#192 (g) edit three, owner ruling 2026-09-06: EXEMPT_META stops blanking `description` spans;
+  // `title` keeps its exemption. A permitted:'none' surface carrying a range claim in BOTH a
+  // `description="..."` attribute and a `title="..."` attribute must flag the description one and
+  // stay silent on the title one.
+  const metaSurface = {
+    relPath: 'src/pages/index.astro',
+    text: 'title="เล่นได้ 2-10 คน" description="เล่นได้ 2-10 คน"',
+  };
+  const metaFound = violations(metaSurface, classify(metaSurface));
+  assert.equal(metaFound.length, 1, 'gh#192 (g): a range claim inside description="..." must be flagged exactly once, the identical claim inside title="..." must stay silent');
+  assert.equal(metaFound[0].text, '2-10 คน', 'gh#192 (g): the flagged text must be the claim itself');
+  console.log('PASS gh#192 (g): description="..." range claim is flagged, its title="..." twin stays exempt');
 }
 
 if (process.argv.includes('--selftest')) {

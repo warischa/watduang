@@ -114,16 +114,26 @@ Permitted surfaces, the whole list:
 Forbidden, by not being on the list: the home page's own chrome and FAQ, the ดูดวง blocks and pages,
 every เครื่องมือ page and the เครื่องมือ manifest, the shared layouts, and the shell.
 
-**Outside the rule entirely:** a page's `<title>` and `<meta name="description">` — so `seo.title`
-and `seo.description` in both manifests, and the `title` / `description` props passed to `Base`. The
-rule governs what a reader sees on the page, not what Google is told; a check that flagged them on
-that basis would enforce a rule nobody agreed to. That exemption is about who enforces the claim, not
-about the wording being frozen: owner ruling 2026-09-04 (gh#192 (g)) overturns the earlier "keeps
-their current wording" line for the `description` prop passed to `Base` in `src/pages/index.astro` —
-its party-size clause ("2-10 คน ส่งเครื่องวนกันในวง") was deleted outright, with no replacement claim,
-because that prop is home-page metadata and the party-size claim is true only of the สุ่มคนโดน หมวด.
-`seo.description` in the fortune category block of `categories.ts` is a separate, still-standing
-owner decision and keeps its own party-size wording.
+**Outside the rule entirely:** a page's `<title>` — so `seo.title` in both manifests and the `title`
+prop passed to `Base`. The rule governs what a reader sees on the page, not what Google is told for
+that field; `scripts/party-size-claim-check.mjs`'s `EXEMPT_META` blanks `title` spans before the
+`CLAIM` regex runs, so a range claim there is invisible to the gate, not merely tolerated by it.
+
+**`<meta name="description">` is no longer outside the rule.** Owner ruling 2026-09-04 (gh#192 (g))
+deleted the party-size clause from the `description` prop passed to `Base` in `src/pages/index.astro`,
+with no replacement claim, because that prop is home-page metadata and the party-size claim is true
+only of the สุ่มคนโดน หมวด. Owner ruling 2026-09-06 (gh#192) then closed the gap that left it: the gate
+stopped blanking `description` spans, so a range claim reintroduced into `seo.description` or a
+`description` prop is now visible to it like any other body text.
+
+⚠ **The fortune block's `seo.description` is not a party-size carve-out, and the ticket says it is.**
+The gh#192 comment recording the 2026-09-06 ruling states that this field "keeps its own party-size
+wording". It does not, and never did — checked across every historical value of that line in
+`categories.ts`. The standing owner exemption on that field is gh#201's, about the word "เกม", a
+different rule entirely. It holds no digits, so `CLAIM` cannot match it either way and no gate needs
+to special-case it. Recorded here because the false sentence was on its way into two more files
+before an adversarial review caught it: a carve-out nobody needs is still a carve-out somebody will
+later defend.
 
 `players: [min, max]` is mechanism, not a claim, and is untouched by this rule; ADR-0040 keeps the
 field and makes `[1, 1]` legal.
