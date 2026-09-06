@@ -135,6 +135,10 @@ const BASELINE_BASENAMES = [
   // (short-stick, wire-snip-panic, zero-trigger), so Rollup emits it as its own chunk rather than
   // inlining it into any one of them.
   '_strip-overflow.js',
+  // gh#205, eighth port: the route's own chunk. The TOTAL leg is deliberately left pinned at the
+  // pre-route number -- this route is +17,469 B (3.76%), inside the band, and re-pinning a total
+  // that is not red is how gh#206's 16,373 B of drift disappeared.
+  'bangkok-drift.js',
   'cannon-flag.js',
   'daily-fortune.js',
   // gh#139 ports 1-3, in the owner's recorded ship order.
@@ -282,6 +286,8 @@ const BAND = 0.05; // +/-5%
 // RE-BASELINE, like the other two constants, is the intended signal and a deliberate edit: a new
 // game adds its own pairs here.
 const BASELINE_PAGE_ENTRIES = [
+  'game/bangkok-drift/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/bangkok-drift/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/cannon-flag/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
   'game/cannon-flag/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/cursed-number/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',

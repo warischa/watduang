@@ -1,0 +1,85 @@
+/* Site-side adjustments for the "บางกอกดริฟต์" lift. Loaded AFTER style.css, which is what lets these
+   rules win on equal specificity. Nothing here may be typed into the three extractor-owned files —
+   that is what keeps a re-extraction reproducible (docs/agents/src-edit-rules.md).
+
+   Two groups only: the seat row the shared cast needs (a badge beside each name field), and the
+   reset confirm's own styling. Both belong to code this repo added to the lift, so their rules are
+   this repo's to own; the mockup's own look is left exactly as extracted. */
+
+/* --- the seat row: animal badge, then the name field (gh#209) --- */
+.roster-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.roster-badge {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 1.2rem;
+  /* Decoration beside a field that already carries the seat's own accessible name. */
+  user-select: none;
+}
+.roster-row .roster-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The reset trigger is a full-width secondary control under the seat list, not a `.btn` in the
+   screen's own column flow, so it needs the width the screen's other buttons get for free. */
+#bd-reset-names {
+  width: 100%;
+  margin-top: 12px;
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+/* --- the reset confirm --- */
+.bd-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(4, 8, 16, 0.78);
+}
+.bd-modal-backdrop.active {
+  display: flex;
+}
+.bd-modal-box {
+  width: 100%;
+  max-width: 380px;
+  padding: 20px;
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  text-align: center;
+}
+.bd-modal-title {
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+}
+.bd-modal-box p {
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.bd-modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+/* gh#79: 44px is the tap floor, and these two sit side by side where the screen's own `.btn` width
+   rule does not apply. */
+.bd-modal-actions .btn {
+  flex: 1 1 0;
+  min-height: 48px;
+  font-size: 1rem;
+}

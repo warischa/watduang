@@ -1,0 +1,69 @@
+<!-- id="app" is hand-added to this lift and recorded in src/play/_divergences.json: the shared
+     scripts/play-screen-fit-probe.mjs finds a route's play surface by #app / #app-container /
+     #appRoot, and a root it cannot find is a route the fit walk cannot measure at all. -->
+<main id="app">
+  <section id="screen-setup" class="screen active">
+    <h1>บางกอกดริฟต์</h1>
+    <p class="muted">ผลัดกันขับคนละตา ทุกคนได้สนามเดียวกัน<br />ชนก้อนหิน ชนกรวย หรือหลุดถนนคือจบตา<br />หนองน้ำทำรถลื่น เปลือกกล้วยเตะรถออกข้าง แต่ยังไม่จบตา<br />ไปได้ไกลสุดชนะ สั้นสุดโดน</p>
+    <div class="card">
+      <p class="muted">จำนวนผู้เล่น (2–10 คน)</p>
+      <div class="count-control">
+        <button id="decPlayerBtn" class="count-btn" type="button" aria-label="ลดจำนวนผู้เล่น">−</button>
+        <span class="count-display">4</span>
+        <button id="incPlayerBtn" class="count-btn" type="button" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
+      </div>
+      <div id="roster" class="roster"></div>
+      <!-- gh#178 / ADR-0054: the reset-to-cast trigger every play route's setup screen owes. Hand
+           added to this lift, recorded in src/play/_divergences.json. -->
+      <button id="bd-reset-names" class="btn btn-secondary" type="button">↺ รีเซ็ตเป็นชื่อสัตว์</button>
+    </div>
+    <button id="startGameBtn" class="btn" type="button">เริ่มแข่ง</button>
+  </section>
+
+  <!-- The reset confirm. Hand added with the trigger above; its styling lives in overrides.css, so
+       the lifted style.css stays a verbatim lift. -->
+  <div class="bd-modal-backdrop" id="bd-modal-reset-names">
+    <div class="bd-modal-box" role="dialog" aria-modal="true" aria-labelledby="bd-reset-title">
+      <h2 class="bd-modal-title" id="bd-reset-title">↺ รีเซ็ตเป็นชื่อสัตว์?</h2>
+      <p>ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่</p>
+      <div class="bd-modal-actions">
+        <button class="btn btn-secondary" id="bd-cancel-reset-names" type="button">เก็บชื่อเดิมไว้</button>
+        <button class="btn" id="bd-confirm-reset-names" type="button">รีเซ็ตเป็นชื่อสัตว์</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="screen-turn" class="screen">
+    <p id="turn-count" class="muted"></p>
+    <h2>ส่งมือถือให้</h2>
+    <p id="turn-name" class="big"></p>
+    <p class="muted">แตะครึ่งจอซ้ายเพื่อเลี้ยวซ้าย ครึ่งจอขวาเพื่อเลี้ยวขวา<br />รถเร่งเองและเร็วขึ้นเรื่อยๆ หลบสิ่งกีดขวางให้ได้นานที่สุด</p>
+    <button id="readyBtn" class="btn" type="button">พร้อม ออกตัว!</button>
+  </section>
+
+  <section id="screen-drive" class="screen">
+    <div id="stage">
+      <canvas id="road" role="img" aria-label="ถนนมุมมองจากหลังรถแข่งสีแดง มีเส้นขอบฟ้าเมืองกรุงเทพอยู่ไกลๆ และมีก้อนหิน กรวย หนองน้ำ กับเปลือกกล้วยกีดขวางอยู่ข้างหน้า"></canvas>
+      <div class="hud"><span id="hud-name"></span><span id="hud-dist">0 ม.</span><span id="hud-speed"></span></div>
+      <div id="overlay" class="overlay"></div>
+      <div class="steer-hint"><span>◀ แตะซ้าย</span><span>แตะขวา ▶</span></div>
+    </div>
+  </section>
+
+  <section id="screen-result" class="screen">
+    <h2 id="result-why"></h2>
+    <p id="result-name" class="muted"></p>
+    <p id="result-dist" class="big"></p>
+    <button id="nextBtn" class="btn" type="button" aria-label="ไปต่อ"></button>
+  </section>
+
+  <section id="screen-final" class="screen">
+    <h2>ผลรอบนี้</h2>
+    <ol id="rank" class="rank"></ol>
+    <p id="final-loser" class="big loser-line"></p>
+    <button id="replayBtn" class="btn" type="button">เล่นอีกรอบ (สนามใหม่)</button>
+    <button id="editBtn" class="btn btn-secondary" type="button">แก้ผู้เล่น</button>
+  </section>
+
+  <p id="live" class="sr-only" aria-live="polite"></p>
+</main>

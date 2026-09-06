@@ -1,5 +1,71 @@
 {
   "_readme": "Hand-added code in the three files scripts/extract-mockup.mjs OWNS (markup.html, style.css, main.js) that its mockup does not have. This registry is the RECORD half of gh#212, not the refusal half: what stops data loss is the extractor refusing to overwrite any file it already ships whose bytes would change, whether or not anybody wrote it down here. What this file adds is why a divergence is deliberate and who owns it (owner ruling 2026-09-05), and one power the file-level refusal does not have — a fragment listed here cannot be released by --force at all, only by editing this file, so releasing it is a reviewed diff. scripts/mockup-divergence-check.mjs also reds if a recorded fragment has already gone from the shipped tree. The mockups stay the original design record and are never edited to match. deliberate=false records a divergence nobody has ruled on yet and is NOT enforced. Enumerate the full drift, one line per mockup/route pair, with: node scripts/mockup-divergence-check.mjs --enumerate",
+  "bangkok-drift": {
+    "markup.html": [
+      {
+        "fragment": "<main id=\"app\">",
+        "deliberate": true,
+        "owner": "gh#179",
+        "why": "the shared play-screen-fit walk finds a route's play surface by #app / #app-container / #appRoot; the mockup's root carries no id, and a root the walk cannot find is a route it cannot measure at all"
+      },
+      {
+        "fragment": "<button id=\"bd-reset-names\" class=\"btn btn-secondary\" type=\"button\">",
+        "deliberate": true,
+        "owner": "gh#178",
+        "why": "the reset-to-cast trigger every play route's setup screen owes; the mockup predates the control and src/play/reset-control-pin.test.mjs pins this element"
+      },
+      {
+        "fragment": "<div class=\"bd-modal-backdrop\" id=\"bd-modal-reset-names\">",
+        "deliberate": true,
+        "owner": "gh#178",
+        "why": "the confirm that guards the reset above; losing it would leave the trigger destroying typed names with no question asked"
+      }
+    ],
+    "main.js": [
+      {
+        "fragment": "import { armAllButtons } from '../../games/_arm-gate.ts';",
+        "deliberate": true,
+        "owner": "ADR-0057",
+        "why": "the ghost-tap gate every reveal path on this route runs through; the mockup has no arm gate at all"
+      },
+      {
+        "fragment": "import { MASCOTS, mascotEmoji } from '../_mascots.ts';",
+        "deliberate": true,
+        "owner": "gh#209",
+        "why": "the shared cast: the seat badge and the reset both read it, and the mockup ships neither"
+      },
+      {
+        "fragment": "badge.textContent = mascotEmoji(i);",
+        "deliberate": true,
+        "owner": "gh#209",
+        "why": "the setup row's animal badge; the mockup's row is a bare name field and src/play/bangkok-drift/setup-badge-icon.test.mjs pins this value"
+      },
+      {
+        "fragment": "if (revealed) armAllButtons(revealed);",
+        "deliberate": true,
+        "owner": "ADR-0017",
+        "why": "show() is the one seam every screen change passes through, so this is every reveal path the route has; src/play/bangkok-drift/arm-reveal-paths.test.mjs drives all five"
+      },
+      {
+        "fragment": "function closeResetNames() {",
+        "deliberate": true,
+        "owner": "gh#187",
+        "why": "closing the confirm is itself a reveal, so it re-arms the setup screen behind it; the mockup has no confirm and no close path"
+      },
+      {
+        "fragment": "$('nextBtn').setAttribute('aria-label', nextLabel);",
+        "deliberate": true,
+        "owner": "gh#211",
+        "why": "the button is empty in markup, so it carries a generic accessible name from src/play/_aria-labels.json; this keeps that name equal to the text the player can read once the round fills it"
+      },
+      {
+        "fragment": "return canvas ? canvas.getContext('2d') : null;",
+        "deliberate": true,
+        "owner": "ADR-0051",
+        "why": "a play route never blanks the page: the mockup calls getContext unguarded at module top level, which aborts the whole module on a device out of 2D contexts"
+      }
+    ]
+  },
   "zero-trigger": {
     "markup.html": [
       {

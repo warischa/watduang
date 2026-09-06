@@ -13,6 +13,9 @@
     "gets applied silently, and the gate only asks whether a name is Thai, not whether it is right.",
     "Labels are Thai because a player reads them (CLAUDE.md, Write English / Ship Thai)."
   ],
+  "bangkok-drift": {
+    "#nextBtn": "ไปต่อ"
+  },
   "cannon-flag": {
     "#btn-sound-toggle": "เปิด/ปิดเสียง",
     "#btn-open-tests": "รันชุดทดสอบความถูกต้อง",

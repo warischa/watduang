@@ -49,6 +49,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // keeps its own wider copy, because its confirm names avatars as well as names. No entry here for a
 // route the manifest ships is a red naming that route, not a vacuous pass over the rest.
 const RESET_TRIGGER = {
+  'bangkok-drift': { attr: 'id="bd-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'cannon-flag': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'cursed-number': { attr: 'id="resetNamesBtn"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'dice-loser': { attr: 'id="dl-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },

@@ -238,6 +238,18 @@ export const FITS_ROWS = new Set([
   // Added 2026-09-06: one-bomb, the twelfth play route. 0px on three consecutive dev-machine runs
   // against a real dist/ served on 4733 with CDP on 4744.
   'one-bomb 390x844',
+  // Added 2026-09-06: bangkok-drift, the thirteenth play route. 0px scroll and 0px clipped at all
+  // THREE viewports on three consecutive dev-machine runs against a real dist/ served on 4555 with
+  // CDP on 9555. Attributed: its screens are fixed-position panels that own their own overflow-y, so
+  // the walk's screens end at the viewport instead of pushing the document.
+  // SCOPE, because 0px here is not "nothing scrolls on this route": the walk seeds three names, and a
+  // hand-driven ten-seat setup on the same build scrolled 483px INSIDE the setup panel at 320x568
+  // (239px at 375x812), with the last field and the start control both reachable. That scrolling is
+  // the panel's own, which is exactly what this probe's self-scroller rule excludes, and no walk here
+  // reaches ten seats — so these rows are a true reading of what is walked, not of every roster size.
+  'bangkok-drift 320x568',
+  'bangkok-drift 390x844',
+  'bangkok-drift 1440x900',
   'one-bomb 1440x900',
 ]);
 /**
