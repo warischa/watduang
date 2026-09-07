@@ -50,3 +50,11 @@ The refresh is a ritual with an owner and a cadence, written down. A refresh wit
 ## The fact that would reopen this
 
 Traffic large enough that the difference between "opened" and "finished" changes which game you would build next. At that point the counter endpoint becomes worth its four costs, and it should be designed with abuse protection from the first line rather than added afterwards.
+
+## Premise re-scored 2026-09-07 — still holds, and it had gone unpropagated
+
+This ADR's first Context fact ("there is no measurement of any kind today") was re-checked by command a week on and is **confirmed**: `dig watduang.com A` returns `NXDOMAIN`, so gh#9 is still open, and a search of `src/` and the built `dist/` for `cloudflareinsights`, `static.cloudflareinsights` and `beacon.min.js` returns nothing — no beacon ships. Every downstream conclusion here stands unchanged.
+
+What did NOT hold is the propagation. This ADR noted that `CLAUDE.md` listed the provider in its stack while nothing was running, and that sentence stayed true for a week: the auto-loaded doc went on stating it as shipped, and gh#160's box 5 ("`CLAUDE.md` no longer claims analytics that is not running") sat unmet the whole time even though the evidence for it was already written down here. `CLAUDE.md` was corrected in `7dbaa32`.
+
+Worth keeping as a pattern rather than a one-off: an ADR recording that an auto-loaded doc is wrong does not fix the auto-loaded doc, and nothing re-reads the ADR to notice. When an ADR's Context says a durable doc carries a false claim, the same change should correct that doc or open the row that will.
