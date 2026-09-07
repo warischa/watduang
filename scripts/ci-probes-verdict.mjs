@@ -28,6 +28,47 @@ if (rc !== 0) bad(`driver exited ${rc}${rc === 137 ? ' (killed by this script\'s
 let out;
 try { out = JSON.parse(read(outFile)); } catch { bad(`output was not JSON${label.endsWith('-control') ? ' -- the control leg produced no measurement' : ''}: ${tail()}`); }
 
+// gh#210: a searchable summary line, printed for both the pass and the fail path (ci-probes.sh's
+// probe() extracts this marker line out of stdout unconditionally, so it survives a green run --
+// see that file's header comment on the PASS branch for why a line only ever printed on FAIL is
+// worthless here). checked/bad come straight off the leg's own JSON, never re-derived, so this can
+// never read differently from the predicate below it. Scoped to this probe pair on purpose: the
+// "smallest width slack" concept only exists in strip-chip-visibility-probe.mjs's output.
+if (label.startsWith('strip-chip-visibility')) {
+  const slack = typeof out.minSlackPx === 'number' && Number.isFinite(out.minSlackPx)
+    ? `${out.minSlackPx.toFixed(2)}px`
+    : 'n/a';
+  console.log(`SUMMARY_FIELDS checked=${out.checked} bad=${out.bad} minSlack=${slack}`);
+}
+
+// gh#210: the summary line must not contradict itself, and this guard exists because the first
+// version of it did. `bad` counts naked cuts, and a naked cut is a hidden chip whose left edge sits
+// LEFT of the band's coverage -- so its slack is negative by construction. Failures alongside
+// NON-NEGATIVE slack therefore means the two numbers were measured against different edges.
+//
+// That was not hypothetical. The slack arithmetic read `reach` from the counter's rect even when the
+// band was force-hidden, and `visibility: hidden` PRESERVES geometry, so `reach` stayed a real
+// coordinate inside the strip while every off-edge chip sat to the right of it. The control leg would
+// have shipped a POSITIVE `minSlack` next to its failures on every CI run -- healthy margin reported
+// at the same moment as the failures, on the one leg whose entire job is to fail. The exit code was
+// correct throughout, which is why only the line itself could disclose it.
+//
+// The fixed line, measured on a green local suite run 2026-09-07:
+//   LEG_SUMMARY lane2 strip-chip-visibility          checked=9 bad=0 minSlack=33.59px
+//   LEG_SUMMARY lane2 strip-chip-visibility-control  checked=9 bad=8 minSlack=n/a
+// `bad=8` rather than 9 is correct and not a partial run: one of the nine combos has no hidden chip,
+// so with the band gone there is nothing there to be a naked cut.
+//
+// Absent slack is coherent (the band is gone, so there is no coverage to have margin against).
+// Positive slack next to a failure is not. This is checked at the verdict layer on purpose: it holds
+// wherever the arithmetic moves to, and unlike the browser-side template it has a test harness.
+const slackContradictsBad = () => {
+  if (!(out.bad > 0)) return null;
+  if (typeof out.minSlackPx !== 'number' || !Number.isFinite(out.minSlackPx)) return null;
+  if (out.minSlackPx < 0) return null;
+  return `summary line contradicts itself: bad=${out.bad} with minSlack=${out.minSlackPx.toFixed(2)}px -- a naked cut has negative slack by construction, so a non-negative minimum reported alongside failures means the chip edges and the coverage edge were measured against different references`;
+};
+
 const V = {
   'narrow-overflow': () => {
     // gh#149: 4 tools x 3 rosters = 12 screens, down from 22. The games half of this probe is retired
@@ -188,6 +229,8 @@ const V = {
     if (out.breakReach !== false) return `clean leg ran with BREAK_REACH set (breakReach=${JSON.stringify(out.breakReach)}) -- the gradient was zeroed and the throw suppressed, so exit 0 means nothing`;
     if (typeof out.seededName !== 'string' || !out.seededName) return `no roster name was seeded (seededName=${JSON.stringify(out.seededName)}) -- short chips may not overflow at all, so a clean result measures nothing`;
     if (out.checked !== 9) return `checked ${out.checked} combo(s), expected 9 (3 strip routes x 3 viewports) -- the clean leg did not cover what the control covers`;
+    const incoherent = slackContradictsBad();
+    if (incoherent) return incoherent;
     if (out.bad !== 0) return `clipped chip with no visible signal on ${out.bad} row(s): ${JSON.stringify(out.badRows)}`;
     return null;
   },
@@ -196,6 +239,8 @@ const V = {
     if (out.breakReach !== false) return `control leg also ran with BREAK_REACH (breakReach=${JSON.stringify(out.breakReach)}) -- two mutants at once calibrate neither`;
     if (out.checked !== 9) return `checked ${out.checked} combo(s), expected 9 -- the control did not cover what the clean leg covers`;
     if (!(out.bad > 0)) return `positive control stayed GREEN on all ${out.checked} combo(s) with the band force-hidden -- the clipped-chip detector is inert, so its clean leg proves nothing`;
+    const incoherent = slackContradictsBad();
+    if (incoherent) return incoherent;
     return null;
   },
   'leave-confirm-control': () => {

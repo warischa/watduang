@@ -206,6 +206,18 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   msg=$(node scripts/ci-probes-verdict.mjs "$label" "$out" "$rc" "$err" 2>&1)
   vrc=$?
   set -e
+  # gh#210: a verdict predicate may print one `SUMMARY_FIELDS ...` marker line ahead of its reason --
+  # pull it out here, unconditionally, into its own LEG_SUMMARY line (same shape as LEG_SECONDS below,
+  # so it is grep-able the same way). This must NOT sit inside the PASS/FAIL branch below: the earlier
+  # shape only echoed $msg on FAIL, so a summary printed by the verdict script vanished exactly on the
+  # green runs everyone reads. Stripping the marker into `reason` (rather than assuming it prints
+  # first or last) also keeps the ::error:: annotation below single-line for every label -- a raw
+  # newline embedded in that annotation is not this file's problem to solve twice.
+  summary_fields=$(printf '%s\n' "$msg" | grep '^SUMMARY_FIELDS ' | sed 's/^SUMMARY_FIELDS //' || true)
+  reason=$(printf '%s\n' "$msg" | grep -v '^SUMMARY_FIELDS ' || true)
+  if [ -n "$summary_fields" ]; then
+    echo "LEG_SUMMARY $LANE $label $summary_fields"
+  fi
   # gh#202 follow-up: per-leg wall time, machine-readable. Rebalancing lanes by eye does not work --
   # the only per-lane figure anyone had was measured on one Mac on one day, and a rebalance proposed
   # from leg COUNTS was wrong twice over (lane1's two legs each walk every route, and the fit pair
@@ -217,7 +229,7 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
     echo "  PASS  $label (${leg_el}s)"
     echo "$label" >> "$OUT_DIR/$LANE.pass"
   else
-    echo "::error::probe FAIL: ${label} -- ${msg}"
+    echo "::error::probe FAIL: ${label} -- ${reason}"
     echo "$label" >> "$OUT_DIR/$LANE.fail"
   fi
 }

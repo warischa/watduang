@@ -200,6 +200,30 @@ const MEASURE_WORST_SCROLL = (stripId) => `
       && cRect.width > 0.5 && cRect.height > 0.5;
     const reach = cRect.left - (parseFloat(getComputedStyle(counter, '::before').width) || 0);
     const naked = bandVisible ? hidden.filter((c) => c.getBoundingClientRect().left < reach - 0.5) : hidden;
+    // Slack (gh#210): how much margin the tightest hidden chip had before it would have become a
+    // naked cut -- chipLeft - reach, over ALL hidden chips and not only the naked ones, so a clean
+    // row still reports a real number instead of leaving this undefined on exactly the green runs
+    // anyone reads. Negative means past the coverage edge. It is NOT an iff with "naked": that test
+    // applies a further half-pixel tolerance, so a value in (-0.5, 0) is negative here and still not
+    // a naked cut.
+    //
+    // NULL when the band is not visible, and that case is the load-bearing one. The control leg hides
+    // the band with visibility, which PRESERVES its geometry, so "reach" stays a real coordinate
+    // inside the strip while every off-edge chip sits to the right of it -- positive slack on all of
+    // them, at the same time as "naked" counts all of them -- a summary line reporting failures and
+    // healthy margin at once, on the one leg whose whole job is to fail. Slack is defined against the
+    // band's coverage, so with no band there is no margin to report and the honest value is absent,
+    // not positive.
+    //
+    // Measured on a green local suite run, 2026-09-07: the control leg reads checked=9 bad=8
+    // minSlack=n/a. Eight and not nine because one of the nine combos has no hidden chip at all, so
+    // there is nothing there to call a naked cut -- the same reason its slack is null and it is left
+    // out of the minimum below.
+    //
+    // No backticks in this comment on purpose: it lives inside a template literal, and one closes it.
+    const slack = bandVisible && hidden.length
+      ? Math.min(...hidden.map((c) => c.getBoundingClientRect().left - reach))
+      : null;
     return {
       bandVisible,
       n: hidden.length,
@@ -207,11 +231,13 @@ const MEASURE_WORST_SCROLL = (stripId) => `
       worstPx: naked.length
         ? Math.max(...naked.map((c) => reach - c.getBoundingClientRect().left))
         : 0,
+      slack,
     };
   };
   let worstNaked = 0;
   let worstPx = 0;
   let worstAt = null;
+  let worstSlackPx = null; // the tightest (smallest) slack seen at any visited position
   for (const p of positions) {
     strip.scrollLeft = p;
     await new Promise((r) => setTimeout(r, 40));
@@ -229,6 +255,9 @@ const MEASURE_WORST_SCROLL = (stripId) => `
       worstPx = m.worstPx;
       worstAt = p;
     }
+    if (m.slack !== null && (worstSlackPx === null || m.slack < worstSlackPx)) {
+      worstSlackPx = m.slack;
+    }
   }
   strip.scrollLeft = 0;
   await new Promise((r) => setTimeout(r, 60));
@@ -237,6 +266,7 @@ const MEASURE_WORST_SCROLL = (stripId) => `
     nakedAtWorstScroll: worstNaked,
     nakedWorstPx: +worstPx.toFixed(2),
     worstScrollLeft: worstAt,
+    worstSlackPx: worstSlackPx === null ? null : +worstSlackPx.toFixed(2),
   };
 `;
 
@@ -333,10 +363,15 @@ export default async function (session) {
   for (const { id, stripId } of ROUTES) {
     const url = `${BASE}/game/${id}/play/`;
 
-    // Fresh reload PER VIEWPORT, not once per route: the shared counter has no ResizeObserver (by
-    // design, see _strip-overflow.ts's own header), so reusing one page load across two setWidth()
-    // calls would read the FIRST viewport's frozen band value at the SECOND viewport -- a harness
-    // bug, not a product one. A real player also always meets this screen via a fresh load.
+    // Fresh reload PER VIEWPORT, not once per route: a real player always meets this screen via a
+    // fresh load, and what this probe measures is the band's rendered geometry AT each width, not its
+    // behaviour ACROSS a width change.
+    //
+    // Do not read that as "a resize is not a real sequence" -- an earlier version of this comment
+    // came close to saying so, and a rotation is exactly a width change with no reload. The resize
+    // path has its own owner: the shared counter re-arms from a ResizeObserver over the boxes it
+    // measures (gh#219). Proving THAT needs a setWidth with no nav, which is deliberately not what
+    // happens here. So this probe's green does not cover rotation; it never performs one.
     for (const [w, h] of VIEWPORTS) {
       await session.setWidth(w, h);
       await session.nav(url);
@@ -425,7 +460,12 @@ export default async function (session) {
       !(r.lastSeatName || '').includes(name),
   );
 
-  const out = { control: CONTROL, breakReach: BREAK_REACH, seededName: name, checked: results.length, bad: bad.length, results, badRows: bad };
+  // gh#210: the smallest width slack across every row that had a hidden chip to measure -- rows with
+  // nothing hidden (e.g. the 1440px rail, which wraps instead of clipping) report a null slack and
+  // are excluded here rather than pulling the minimum toward a value that measured nothing.
+  const slacks = results.map((r) => r.worstSlackPx).filter((v) => typeof v === 'number');
+  const minSlackPx = slacks.length ? Math.min(...slacks) : null;
+  const out = { control: CONTROL, breakReach: BREAK_REACH, seededName: name, checked: results.length, bad: bad.length, minSlackPx, results, badRows: bad };
   // Throwing is the point on a NORMAL run: driver.mjs turns a throw into a non-zero exit, so a clipped
   // chip is a red leg rather than a line of JSON nobody reads. On the CONTROL run it is the opposite --
   // the run must reach here and REPORT what it found, because a non-zero exit is equally what a
