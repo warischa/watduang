@@ -103,6 +103,97 @@ test('the counter writes digits only, even when every chip carries a hostile nam
   assert.equal(counter.textContent, '+7');
 });
 
+// issue #219: N must also recompute when a box the counter MEASURES changes width — not only on a
+// render and a scroll. The trap this case is written against, and the reason a viewport-resize probe
+// is useless here: every render calls mount(), and mount() recomputes, so a probe that resizes and
+// then reads the number passes on the broken module. The width below therefore changes with no
+// render and no scroll, and the assertion directly under the change requires the number to still be
+// STALE — after which the observer callback, alone, has to be what fixes it.
+
+/** Node has no ResizeObserver. Records every instance the module constructs and every box it observes. */
+const installResizeObserverStub = (t) => {
+  const instances = [];
+  class Stub {
+    constructor(callback) {
+      this.callback = callback;
+      this.observed = [];
+      instances.push(this);
+    }
+    observe(box) { this.observed.push(box); }
+    disconnect() { this.observed = []; }
+  }
+  const had = 'ResizeObserver' in globalThis;
+  const previous = globalThis.ResizeObserver;
+  globalThis.ResizeObserver = Stub;
+  // Removed again on the way out: the stub is global, and leaving it installed would silently give
+  // every later test in this file an observer it was not written to have.
+  t.after(() => {
+    if (had) globalThis.ResizeObserver = previous;
+    else delete globalThis.ResizeObserver;
+  });
+  return instances;
+};
+
+const measuredStrip = (doc) => {
+  const strip = doc.createElement('div');
+  strip.dataset = {};
+  strip.getBoundingClientRect = () => ({ right: 320 });
+  return strip;
+};
+
+/** Chips whose right edge is a mutable field, so "this box got wider" is one assignment. */
+const measuredChips = (doc, rights) =>
+  rights.map((right) => {
+    const chip = doc.createElement('span');
+    chip.right = right;
+    chip.getBoundingClientRect = () => ({ right: chip.right });
+    return chip;
+  });
+
+test('a measured box getting wider recomputes N with no render and no scroll', (t) => {
+  const instances = installResizeObserverStub(t);
+  const doc = makeDocument();
+  const strip = measuredStrip(doc);
+  const chips = measuredChips(doc, TEN_SEATS);
+  for (const chip of chips) strip.appendChild(chip);
+
+  mountStripOverflowCounter(strip);
+  const counter = strip.querySelector(`.${STRIP_COUNTER_CLASS}`);
+  assert.equal(counter.textContent, '+7');
+
+  // One chip's right edge crosses the strip's edge. Nothing else happens: no mount, no scroll event.
+  chips[2].right = 400;
+  assert.equal(counter.textContent, '+7',
+    'the width change updated the counter by itself — this case is measuring nothing');
+
+  assert.equal(instances.length, 1,
+    'mount observed nothing — a box changing width leaves N stale');
+  instances[0].callback();
+  assert.equal(counter.textContent, '+8', 'the observer fired and N did not recompute');
+});
+
+test('a re-rendered strip is re-observed by the same one observer, and the counter never is', (t) => {
+  const instances = installResizeObserverStub(t);
+  const doc = makeDocument();
+  const strip = measuredStrip(doc);
+  const stale = measuredChips(doc, TEN_SEATS);
+  for (const chip of stale) strip.appendChild(chip);
+  mountStripOverflowCounter(strip);
+
+  // What all three of these routes do every turn: wipe the strip and build a NEW chip set.
+  strip.innerHTML = '';
+  const current = measuredChips(doc, TEN_SEATS);
+  for (const chip of current) strip.appendChild(chip);
+  mountStripOverflowCounter(strip);
+
+  assert.equal(instances.length, 1, 'a second observer exists — one leaks per render, N callbacks per turn');
+  assert.deepEqual(instances[0].observed, [strip, ...current],
+    'the observed set is not the strip plus exactly its current chips');
+  const counter = strip.querySelector(`.${STRIP_COUNTER_CLASS}`);
+  assert.ok(!instances[0].observed.includes(counter),
+    'the counter is observed — the callback writes it, so that is a feedback loop');
+});
+
 // The three routes with a horizontally scrolling strip, listed by hand and not globbed: a glob would
 // silently shrink to the routes that happen to match and report a green over an empty set.
 // cursed-number is absent on purpose — its strip wraps instead of scrolling, so it has no trailing
