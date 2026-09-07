@@ -29,8 +29,14 @@ npx serve dist/ -l 4321 &
   --user-data-dir=/tmp/cdp-prof &
 ```
 
-Tear both down when finished (`pkill -f "serve dist"`, `pkill -f remote-debugging-port=9222`) and
-confirm with `lsof -ti:4321,9222` that both ports are actually free.
+⚠ **Never `--disable-gpu` on a WebGL route.** With no context `one-bomb` drops `#gameCanvas` for
+ADR-0051's no-3D board and `pinocchio-luck` renders its fallback puppet: the probe measures a screen no
+player sees, and passes. Both were measured that way on 2026-09-07. Use `--headless=new --use-gl=angle
+--use-angle=swiftshader --enable-unsafe-swiftshader`, then assert a live context IN the page — an
+absent fallback notice is not proof, it can be hidden for other reasons.
+
+Tear both down **by the pids you started** (`pkill -f` on a shared prefix has killed another session's
+suite here) and confirm with `lsof -ti:4321,9222` that both ports are free.
 
 ## `cdp.mjs` usage
 
