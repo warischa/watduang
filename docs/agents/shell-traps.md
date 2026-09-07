@@ -18,6 +18,14 @@ error — a calibrated gate FIRES on both the good case and the bad case · `EXI
   empty value, not an error.
 - `$?` **after a pipe** is the exit code of the last command in the pipe (e.g. `tail`), not the one
   you meant to check — `cmd | tail` then reading `$?` is always 0.
+- **No pipe needed for the same trap.** A command LIST reports its last element too, so
+  `bash scripts/run-workflow-gates.sh; echo done` and `... ; tail -20 log` both report `echo`/`tail`'s
+  status — and that is the number a background-task notification hands back as "exit code". Hit three
+  times in one session (2026-09-07) by someone who knew the rule, because appending a convenience
+  `tail` is a reflex. The fix is structural: record the code on the line right after the command
+  (`rc=$?; echo "SUITE_RC=$rc" >> log`) and grep that, or end the wrapper with `exit "$rc"` so the
+  reported status is honest by construction. Never quote a wrapped run's verdict from the harness's
+  own exit code without saying which recorded line you read.
 
 `node --test <dir>` also breaks on node 22 (it reads the dir as a module path) — `ci.yml` quotes a
 glob for exactly this reason.
