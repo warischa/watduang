@@ -89,6 +89,44 @@
     gap: var(--cf-desktop-gap);
   }
 
+  /* Proportions, not just position (gh#181 box 3). Type sized for a 900px column reads as a phone
+     screenshot once the frame fills 1440px. Each raise below is this route's own equivalent of the
+     sizing doc's four items -- nothing invented, and the rail-inline/board-max-inline/track-inline
+     items stay out of scope per the note above this media block.
+     .setup-title is this route's hero title (the setup screen is the first thing a player sees,
+     there being no separate menu screen): style.css ships 1.4rem (22.4px). */
+  .setup-title {
+    font-size: 32px;
+  }
+
+  /* Header brand title, style.css 1.1rem (17.6px). */
+  .brand-title {
+    font-size: 24px;
+  }
+
+  /* Header buttons -- the standard's item 2. Both of this route's header controls carry `.icon-btn`,
+     which style.css ships at 1.1rem (17.6px), so 20px raises both of them.
+
+     The selector is the two ids and NOT bare `.icon-btn`: that class also reaches
+     `#btn-close-tests` inside the tests modal, which is not header chrome.
+
+     `#btn-angle-dec` and `#btn-angle-inc` are deliberately NOT in this rule, even though they ARE
+     in the target-min floor above. They carry `.angle-btn`, which style.css ships at 1.3rem
+     (20.8px), so 20px would SHRINK them -- and they live in `.controls-dashboard` on the play
+     surface, not in the header, so the header item does not name them. The tap floor above still
+     covers them, because a 44px touch floor applies to every touch control wherever it sits. The
+     two rules share a subject only by coincidence, and copying this selector between them is what
+     produced a reduction dressed as a raise. */
+  #btn-sound-toggle,
+  #btn-open-tests {
+    font-size: 20px;
+  }
+
+  /* Primary button, style.css `padding: 14px 20px` / `font-size: 1.08rem` (17.28px). */
+  .btn-primary {
+    padding: 18px 24px;
+    font-size: 19px;
+  }
 }
 
 /* Ungated from the >=1100px breakpoint (was gh#184 desktop-only): clearance for the shell's fixed

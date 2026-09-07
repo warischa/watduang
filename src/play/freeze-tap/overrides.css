@@ -84,6 +84,13 @@
    second column for a rail to occupy -- so that rule has no subject here and inventing one would be
    a structural change to a play surface, not a sizing decision.
 
+   NO TRACK TOKEN (gh#181 box 4). The standard's `--<r>-desktop-track-inline` is the centred measure
+   for single-column screens (menu, setup), RULE: set equal to the board cap. This route already puts
+   every one of its five screen containers -- setup, rule-reveal, pass, result, leaderboard -- on the
+   same `--ft-board-max-inline` below, so there is no second, narrower measure left to give a second
+   name to; a `--ft-desktop-track-inline` set equal to the same cap would just be the board token
+   twice, so it is left undeclared.
+
    THE PARTICLE CANVAS IS UNAFFECTED, checked before widening anything. `#particleCanvas` is
    `position: absolute; inset: 0` inside `#app`, which is `width: 100vw` -- so its CSS box is already
    the whole window at any width. Its backing store is sized from `window.innerWidth` in
@@ -127,6 +134,38 @@
   .btn-secondary,
   .btn-danger {
     min-block-size: var(--ft-desktop-target-min);
+  }
+
+  /* gh#181 box 3 -- proportions revised, not merely widened. This route has no separate hero/logo
+     title (style.css's `.brand-title` in the header is the only title-sized text; the five screen
+     containers above have no bigger standalone logo of their own), so that item of the standard's
+     minimum set has no subject here and is skipped rather than invented.
+     `.brand-title` and `.icon-btn` are the header brand title / header buttons pair: raised by the
+     same ~1.33x / ~1.15x this scheme used elsewhere, applied to THIS route's own mobile values
+     (18.4px, 14.4px) rather than copied. */
+  .brand-title {
+    font-size: 24px;
+  }
+
+  .icon-btn {
+    font-size: 17px;
+  }
+
+  /* Primary button: this route's `.btn-primary` DOES carry a mobile padding (16px 24px) and font-size
+     (18.4px), unlike power-meter's -- so both halves of the standard's item have a real antecedent
+     to raise here. Block padding raised ~1.25x (16px -> 20px, the same ratio as the standard's
+     16px -> 20px); inline padding (24px) is untouched, the standard only names the block value.
+     Font-size raised ~1.125x (18.4px -> 21px), the same ratio as the standard's 16px -> 18px.
+
+     WHAT THIS RULE DOES NOT REACH, and it is most of this route's primary buttons: main.js writes
+     `startGameBtn`, `playerReadyBtn` and `nextTurnBtn` with inline `style` font-size and padding,
+     and an inline style beats a stylesheet rule at any specificity. So this raise actually lands
+     only on `ruleReadyBtn` and `viewFinalResultsBtn`. Raising the other three means editing the
+     markup strings main.js writes, which is a main.js change rather than a CSS one and is
+     deliberately not done here. Read this rule as partial on this route, not as complete. */
+  .btn-primary {
+    padding: 20px 24px;
+    font-size: 21px;
   }
 
 }

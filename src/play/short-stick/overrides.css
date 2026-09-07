@@ -228,6 +228,31 @@
   text-overflow: ellipsis;
 }
 
+/* gh#181 box 3 / box 4 -- this route has NO `@media (min-width: 1100px)` desktop sizing block, and
+   none is added here. gh#181's per-route verdict of 2026-09-06 -- recorded by an agent session under
+   the owner's 2026-09-06 ruling that delegated that verdict, so an agent's call and not the owner's
+   own -- read this route as reads-as-designed WITHOUT one: "this mockup was authored for desktop,
+   so the phone-column harm the
+   scheme exists to undo has no purchase. The site's own control floors render the sticks larger than
+   the mockup's desktop size." In other words the mobile-vs-desktop stretch gh#180/181's whole scheme
+   exists to fix never happens here, because the mockup itself was drawn for a wide screen; the touch
+   floors this file already adds above (`.straw-unit`, `.straw-btn`, `.input`, `.chip`) are the only
+   sizing this route needed, at any width. That is why the reason lives here as prose and not as
+   a block: adding a `@media (min-width: 1100px)` layer would raise sizes that verdict already found
+   correct, which is the opposite of what box 3 asks for.
+
+   None of gh#180's five tracked tokens are declared, same reason for each:
+   `--ss-desktop-target-min` -- not declared; this route's touch-floor rules above already exceed the
+     mockup's own desktop control size, so a second, higher floor would grow past the verdict.
+   `--ss-desktop-gap` -- not declared; no grid/column layout here needs a shared gap value.
+   `--ss-desktop-rail-inline` -- not declared; the markup is a single centred column with no second
+     column for a rail to occupy.
+   `--ss-desktop-board-max-inline` -- not declared; the mockup's own desktop-authored widths are the
+     cap already, and the verdict above found them correct, so no wider or narrower cap is imposed.
+   `--ss-desktop-track-inline` -- not declared; with no desktop sizing block there is no second,
+     narrower single-column measure to give it -- there is only the one width the mockup already
+     draws at every size. */
+
 /* The dissolve: the chip the band sits on top of fades out under it instead of ending mid-glyph.
    inline-size is THE CAP, not a separately measured width, and that is the whole point -- the two
    cannot drift, because a chip is at most one cap wide and the gradient reaches one cap in front of

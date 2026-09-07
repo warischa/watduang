@@ -116,3 +116,28 @@
     margin-inline-start: 90px;
   }
 }
+
+/* gh#181 box 3 / box 4 -- this route has NO `@media (min-width: 1100px)` desktop sizing block, and
+   the rule above is not it: it is gh#184's shell-clearance margin fix, widened from >=1100px down to
+   >=361px so it also covers the header overlap at narrower widths, which is a different fix for a
+   different problem (the header, not the frame).
+   Why the gh#180/181 sizing layer (tokens, frame-fill, board+rail grid, proportions) itself was never
+   built for this route: `#stageFrame { width: min(calc(100% - 14px), 780px) }` above already caps the
+   frame's own width at every viewport, not just past 1100px -- it was written for the camera-shake
+   margin fix, not for this scheme, but it happens to bound the desktop composition too. gh#181's
+   per-route verdict of 2026-09-06 -- recorded by an agent session under the owner's 2026-09-06
+   ruling that delegated that verdict, so an agent's call and not the owner's own -- read this route
+   as reads-as-designed on that existing cap:
+   "#stageFrame 780px with equal 330px margins, matching its declared cap; the populated #panel 688px
+   with equal margins, 74px clear of the fold, on the same axis as the pre-round screen." A dedicated
+   1100px block was therefore never built, not retired -- there was nothing left for it to fix.
+
+   None of gh#180's five tracked tokens are declared, same reason for each:
+   `--pl-desktop-target-min` -- not declared; no dedicated sizing layer exists to declare it on.
+   `--pl-desktop-gap` -- not declared; same reason.
+   `--pl-desktop-rail-inline` -- not declared; `#panel` is a single column with no second column for a
+     rail to occupy.
+   `--pl-desktop-board-max-inline` -- not declared; `#stageFrame`'s own width cap above already plays
+     that role and the verdict found it correct, so no separate token duplicates it.
+   `--pl-desktop-track-inline` -- not declared; with no sizing layer there is no second, narrower
+     single-column measure distinct from the frame cap to give it. */

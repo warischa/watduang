@@ -483,6 +483,13 @@ body {
    rail would restructure a play surface, which is not a sizing decision and is not what this ticket
    licenses.
 
+   --tb-desktop-track-inline: 560px   gh#181 box 4. RULE: the centred measure for the single-column
+                                   screens (menu, setup) is set equal to the board cap. `.tb-setup`
+                                   and `.stage-screen` are exactly those screens on this route -- the
+                                   board itself is `.tb-canvas` -- so the value is board-max-inline's
+                                   own 560px, named separately because the two tokens mean different
+                                   things even where they agree.
+
    THIS CANVAS FOLLOWS ITS ELEMENT BOX, so capping it in CSS is safe: `resize()` in bomb-canvas.ts
    reads `canvas.getBoundingClientRect()` and sizes the backing store from `rect.width * dpr`. No
    window-derived width is involved anywhere in that file. What that file does NOT do is watch the
@@ -503,6 +510,7 @@ body {
     --tb-desktop-gap: 28px;
     --tb-canvas-block: 640px;
     --tb-board-max-inline: 560px;
+    --tb-desktop-track-inline: 560px;
   }
 
   .tb-canvas {
@@ -513,7 +521,7 @@ body {
 
   .tb-setup,
   .stage-screen {
-    max-inline-size: var(--tb-board-max-inline);
+    max-inline-size: var(--tb-desktop-track-inline);
     gap: var(--tb-desktop-gap);
   }
 
@@ -529,5 +537,29 @@ body {
   .tb-step {
     inline-size: var(--tb-desktop-target-min);
     block-size: var(--tb-desktop-target-min);
+  }
+
+  /* Proportions, not just position (gh#181 box 3). Type sized for a 420px column reads as a phone
+     screenshot once the frame fills 1440px.
+     .tb-brand is this route's only title -- there is no separate menu screen, so the header brand
+     title and the route's hero title are the same h1; the phone rule earlier in this file ships `font-size: 20px`. Header
+     buttons: none -- `.tb-top` holds only this title, no icon controls. */
+  .tb-brand {
+    font-size: 28px;
+  }
+
+  /* Primary button. `.game-btn-primary` (the phone rule earlier in this file: `font-size: 21px`) is this route's real primary
+     action, sized with min-block-size rather than padding (the same shell-vocabulary pattern the
+     target-min rule above already follows), so there is no padding property on it to raise. */
+  .game-btn-primary {
+    font-size: 24px;
+  }
+
+  /* The padding raise instead applies to the reset-to-animal-names controls, this route's own
+     padded buttons: the phone rule earlier in this file ships `padding-inline: 14px` / `font-size: 16px`. */
+  .tb-secondary-btn,
+  .tb-danger-btn {
+    padding-inline: 18px;
+    font-size: 18px;
   }
 }

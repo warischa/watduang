@@ -159,8 +159,15 @@
     /* board-max-inline, by the stage's own arithmetic (see the note above):
          trigger 280px + .stopwatch-stage padding 16px each side
          + its 2px border each side = 280 + 32 + 4 = 316px
-       rounded up to a multiple of 4. track-inline is the same number, because
-       the tracer defined track-inline as the board cap for that route. */
+       rounded up to a multiple of 4.
+
+       track-inline is NOT DECLARED on this route, and this is the stated absence box 4 asks for
+       rather than a value left implied. The standard defines `--<r>-desktop-track-inline` as the
+       centred measure for the single-column screens, with the rule "set equal to the board cap".
+       On this route that number IS the board cap declared just below -- 320px -- so a second token
+       carrying the same value would be a duplicate with two places to drift apart. The cap is
+       consumed directly instead. The earlier sentence here reasoned the VALUE and never said the
+       token was absent, which read as an oversight rather than a decision. */
     --zt-board-max-inline: 320px;
 
     /* rail-inline. RULE: wide enough for the rail's own widest element, in the
@@ -262,6 +269,32 @@
   #btn-home-menu {
     min-inline-size: var(--zt-desktop-target-min);
     min-block-size: var(--zt-desktop-target-min);
+  }
+
+  /* Proportions, not just position (gh#181 box 3). Type sized for a 480px column reads as a phone
+     screenshot once the frame fills 1440px. Each raise below is this route's own equivalent of the
+     sizing doc's four items, on the menu screen only -- the rail's own type (.tier-banner,
+     .active-player-card, .player-strip-container) is explicitly out of scope, per gh#181, because
+     .zt-rail-inline has only ~7px of slack at current metrics and a larger glyph there can reopen a
+     wrap no gate in this repo detects.
+     Header brand title: not raised. .brand-title is `display: none` on this route already (see the
+     rule near the top of this file) -- there is no header title on screen to raise.
+     Header buttons: .icon-btn, the three controls the min-size rule above already targets;
+     style.css ships 1.1rem (17.6px) for their glyph. */
+  .icon-btn {
+    font-size: 20px;
+  }
+
+  /* Hero title, style.css `.hero-title` 2.2rem (35.2px). */
+  .hero-title {
+    font-size: 46px;
+  }
+
+  /* Primary button (menu screen's start control, not the rail), style.css `padding: 16px 24px` /
+     `font-size: 1.15rem` (18.4px). */
+  .btn-primary {
+    padding: 20px 28px;
+    font-size: 20px;
   }
 }
 

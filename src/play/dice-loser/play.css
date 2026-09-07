@@ -574,6 +574,13 @@ body {
    than size it. The three columns instead take ONE measure, the board's, so the game does not change
    width as it advances between setup and play.
 
+   --dl-desktop-track-inline: 662px   gh#181 box 4. RULE: the centred measure for the single-column
+                                   screens (menu, setup) is set equal to the board cap. `.dl-setup`
+                                   and `.dl-panel` are those screens; `.dl-play` is the screen that
+                                   actually holds the board (`.dl-dice`), so it stays on
+                                   board-max-inline directly. Same 662px either way, named separately
+                                   because the two tokens mean different things where they agree.
+
    NO CANVAS ON THIS ROUTE: the dice are DOM elements, so nothing here can desynchronise a backing
    store from its CSS box.
 
@@ -587,11 +594,15 @@ body {
     --dl-desktop-gap: 28px;
     --dl-die-inline: 184px;
     --dl-board-max-inline: 662px;
+    --dl-desktop-track-inline: 662px;
   }
 
   .dl-setup,
-  .dl-play,
   .dl-panel {
+    max-inline-size: var(--dl-desktop-track-inline);
+  }
+
+  .dl-play {
     max-inline-size: var(--dl-board-max-inline);
   }
 
@@ -609,5 +620,27 @@ body {
   .game-btn,
   .dl-reset-btn {
     min-block-size: var(--dl-desktop-target-min);
+  }
+
+  /* Proportions, not just position (gh#181 box 3). Type sized for a 420px column reads as a phone
+     screenshot once the frame fills 1440px.
+     .dl-brand is this route's only title -- there is no separate menu screen, so the header brand
+     title and the route's hero title are the same h1; the phone rule earlier in this file ships `font-size: 20px`. Header
+     buttons: none -- `.dl-top` holds only this title, no icon controls. */
+  .dl-brand {
+    font-size: 28px;
+  }
+
+  /* Primary button. `.game-btn-primary` (the phone rule earlier in this file: `font-size: 21px`) is this route's real primary
+     action, sized with min-block-size rather than padding (the same shell-vocabulary pattern the
+     target-min rule above already follows), so there is no padding property on it to raise. */
+  .game-btn-primary {
+    font-size: 24px;
+  }
+
+  /* The padding raise instead applies to `.dl-mode`, the setup screen's own padded control:
+     the phone rule earlier in this file ships `padding: 10px 14px`. */
+  .dl-mode {
+    padding: 14px 18px;
   }
 }
