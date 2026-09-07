@@ -1108,6 +1108,36 @@
   }
 
   // --- CAMERA & SCENE RENDER PIPELINE ---
+  // gh#212-recorded divergence. The HUD's top band -- tools, player strip, turn banner, odds pill --
+  // is taller than its bottom one, so centring the board in the whole viewport puts the board's top
+  // edge under the turn banner. How bad that is depends on the roster: BOARD_GRID_MAP grows the board
+  // with the player count while the vertical fit below adds a CONSTANT world margin, so a 9x9 board
+  // reaches higher up the screen than a 5x5 one. Measured at 1440x900: the board's topmost rendered
+  // row was 119 at five-by-five and 104 at nine-by-nine, against a banner bottom edge of 123.
+  //
+  // The bands are MEASURED, never assumed, because the banner wraps to three lines on a narrow screen
+  // and that changes the top band's height by tens of px. (An earlier version of this comment blamed
+  // the player strip: it is a single `overflow-x: auto` row, so its height does NOT move with the
+  // roster. The wrap is the variable.) But getBoundingClientRect forces layout and setupCamera runs
+  // every frame, so the reading is cached.
+  //
+  // ponytail: refreshed on resize and then every 30th camera setup, roughly twice a second, rather
+  // than hooked to each state transition that can change the strip. The ceiling is that a roster
+  // change can render with a band reading up to half a second stale, which shifts the board by a few
+  // px for that moment and then self-corrects. If that ever shows, the upgrade is to call
+  // measureHudBands from the round-start path instead of ageing it here.
+  let hudBandPx = { top: 0, bottom: 0 };
+  let hudBandAge = 0;
+  function measureHudBands() {
+    const topEl = document.querySelector('.topSection');
+    const bottomEl = document.querySelector('.bottomBar');
+    const viewportH = window.innerHeight;
+    hudBandPx = {
+      top: topEl ? topEl.getBoundingClientRect().bottom : 0,
+      bottom: bottomEl ? viewportH - bottomEl.getBoundingClientRect().top : 0,
+    };
+  }
+
   function setupCamera() {
     const B = game.boardMetrics || getBoardMetrics();
     const isPortrait = B.isPortrait;
@@ -1129,7 +1159,15 @@
       const distW = requiredW / (tanHalf * aspect);
       const distH = requiredH / tanHalf;
       const dist = Math.max(isPortrait ? 11.0 : 9.5, distW, distH);
-      const viewY = B.cy;
+
+      // Centre the board in the space the HUD actually leaves free, not in the whole viewport.
+      // Raising the look-at point in world Y moves the board DOWN on screen by the same amount, so
+      // half the band imbalance splits the free space evenly between top and bottom. worldPerPx
+      // converts at the board's own distance, which is why this keeps holding as `dist` grows with
+      // the board instead of needing a per-roster number.
+      if (hudBandAge++ % 30 === 0) measureHudBands();
+      const worldPerPx = (2 * dist * tanHalf) / Math.max(1, window.innerHeight);
+      const viewY = B.cy + (hudBandPx.top - hudBandPx.bottom) * 0.5 * worldPerPx;
 
       let shakeX = 0, shakeY = 0;
       if (game.camera.shake > 0.01 && game.motionEnabled) {
@@ -1292,6 +1330,9 @@
     canvas.width = Math.round(window.innerWidth * dpr);
     canvas.height = Math.round(window.innerHeight * dpr);
     game.boardMetrics = getBoardMetrics();
+    // A resize changes both bands and the viewport they are measured against, so re-read now rather
+    // than waiting for the ageing counter in setupCamera to come round.
+    measureHudBands();
   }
 
   // --- EVENT LISTENERS & SETUP ---

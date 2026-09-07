@@ -24,7 +24,15 @@ const RULES = {
   SPEED_MAX0: 38,        // m/s ceiling at t = 0
   SPEED_RAMP: 0.9,       // the ceiling grows by this many m/s every second
   ACCEL: 10,             // m/s^2
-  STEER: 1.8,            // half-widths per second at full input
+  STEER: 2.8,            // half-widths per second at full input. ponytail: feel-tuned like
+                         // CENTRIFUGAL below, not derived -- raised from 1.8 because the owner
+                         // reported turning was too slow (full-road crossing 1.11s -> 0.71s).
+                         // scripts/extract-mockup.mjs owns this file, but it would NOT quietly
+                         // overwrite this: its pre-write seam refuses any byte change to a file the
+                         // repo already ships, and the fragment recorded in src/play/_divergences.json
+                         // cannot be released by --force at all, only by editing that registry.
+                         // drift-rules.test.mjs pins the behaviour as the third check, so a value
+                         // that did come back would also fail a test rather than only a gate.
   CENTRIFUGAL: 0.25,     // ponytail: one scalar on v^2/R, tuned by feel in a browser, not derived
   // The obstacle table. ONE row per kind, so a fifth kind is a row here plus one sprite, never a
   // branch in the rules. `th` is the Thai name a result screen shows. `lethal` ends the turn on

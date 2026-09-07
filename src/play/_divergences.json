@@ -23,6 +23,12 @@
     ],
     "main.js": [
       {
+        "fragment": "STEER: 2.8,",
+        "deliberate": true,
+        "owner": "gh#204",
+        "why": "the owner reported turning was too slow and chose 2.8 half-widths per second over the mockup's 1.8, which halves a full-road crossing from 1.11s to 0.71s. A feel-tuned scalar like CENTRIFUGAL beside it, not derived, so the mockup will never agree with it. drift-rules.test.mjs also pins the behaviour, but only this entry survives a --force: the file layer can be forced past for one run and the fragment layer cannot"
+      },
+      {
         "fragment": "import { armAllButtons } from '../../games/_arm-gate.ts';",
         "deliberate": true,
         "owner": "ADR-0057",
@@ -147,6 +153,24 @@
         "deliberate": true,
         "owner": "gh#150",
         "why": "the call site, recorded separately from the helper above because the two fail apart: a helper nothing calls is an escape sink in name only, and this is the route's one markup-by-string hole that carries a player-typed name"
+      },
+      {
+        "fragment": "function measureHudBands() {",
+        "deliberate": true,
+        "owner": "gh#150",
+        "why": "the camera centres the board in the space the HUD leaves free instead of in the whole viewport. The mockup has no site HUD, so its camera centres on the viewport and the turn banner ends up sitting on the board's top edge — measured at 1440x900, the board's topmost rendered row was 119 on a five-by-five board and 104 on a nine-by-nine against a banner bottom of 123, so the bigger the roster the worse it is. Recorded rather than left to the file-level refusal because this is a behaviour decision with a reason, and because the fix cannot live in overrides.css: #gameCanvas is the full-viewport backdrop, so offsetting it exposes bare page background"
+      },
+      {
+        "fragment": "const viewY = B.cy + (hudBandPx.top - hudBandPx.bottom) * 0.5 * worldPerPx;",
+        "deliberate": true,
+        "owner": "gh#150",
+        "why": "the bias itself, recorded apart from the helper above because the two fail apart: the helper alone measures bands nothing reads, and this line alone reads a cache that is still at its {top: 0, bottom: 0} initialiser, which is a zero bias rather than a crash. That silence is exactly why all three lines are pinned separately"
+      },
+      {
+        "fragment": "hudBandAge++",
+        "deliberate": true,
+        "owner": "gh#150",
+        "why": "the CONNECTOR, and the one an adversarial review caught missing. The helper and the bias line above are both silent halves: a re-extraction that kept them and dropped the call that refreshes the cache would leave two recorded fragments present, this gate green, and the bias permanently zero — the board back under the banner with nothing red anywhere. That is the failure class gh#212 was filed on. Pinned on the counter name rather than the whole statement so changing the 30-frame interval does not red this entry for no reason"
       }
     ]
   },

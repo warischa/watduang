@@ -50,6 +50,34 @@ function run(track, steerAt, maxFrames, x0 = 0) {
   return { r: null, d, f: maxFrames };
 }
 
+// STEER is a feel-tuned scalar the owner raised from 1.8 to 2.8 because turning was too slow. It
+// lives in main.js, which scripts/extract-mockup.mjs owns and rewrites from the mockup. The gates
+// against losing it are the extractor's own pre-write refusal and the fragment recorded in
+// src/play/_divergences.json; this test is the third check, and the only one that fails on a WRONG
+// value rather than on a rewrite.
+//
+// BE HONEST ABOUT WHAT THE TWO ASSERTIONS ARE. They are one predicate in two units, not a constant
+// check plus an independent outcome check. On a zero-curve track with no obstacle, CENTRIFUGAL
+// contributes nothing and no slide starts, so 30 frames of full lock from x = -0.9 land at exactly
+// -0.9 + STEER/2 -- which makes `d.x >= 0.3` algebraically identical to `STEER >= 2.4`. The floor is
+// the load-bearing line; the travel assertion restates it in the units a reader can picture, and
+// would only diverge if the integration itself changed. An earlier version of this comment claimed
+// the travel line "measures the outcome rather than the constant". It does not, and saying so made
+// the test look better guarded than it is.
+//
+// The distance deliberately stops well short of OFFROAD_X. A first version drove the full road width
+// and went off the edge at frame 41, which reads as a game regression when it is only a badly chosen
+// budget. Note the ceiling that leaves: at STEER >= 4.0 the car clears OFFROAD_X inside 30 frames and
+// this test reds on "the turn ended" -- the same misread, from the other side. A raise past 4.0 needs
+// the budget re-derived, not the message re-read.
+test('STEER keeps the raise: full lock travels further than 1.8 could in the same frames', () => {
+  assert.ok(RULES.STEER >= 2.4, `STEER is ${RULES.STEER} -- the owner's raise was reverted`);
+  const steered = run(straight(400), () => 1, 30, -0.9);
+  assert.equal(steered.r, null, `the turn ended at frame ${steered.f} instead of just steering`);
+  assert.ok(steered.d.x >= 0.3,
+    `full lock reached only ${steered.d.x} half-widths in 30 frames -- steering is back to slow`);
+});
+
 test('same seed gives the same road including kinds, lanes and directions', () => {
   const a = JSON.stringify(buildTrack(7, 500));
   const b = JSON.stringify(buildTrack(7, 500));
