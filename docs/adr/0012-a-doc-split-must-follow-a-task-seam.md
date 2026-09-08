@@ -81,3 +81,25 @@ across the split so existing citations into them still resolve.
 The general form still holds — this second cut follows a task moment (drive vs judge), not a byte
 count. Any byte or headroom figure recorded above should be read as a snapshot at the time of the
 original decision, not a claim about the present tree.
+
+## Prediction outcome — 2026-09-08: CONFIRMED
+
+This ADR's own falsifier fired, and it fired the way it said it would. `browser-verification.md`
+reached its ceiling a third time with 133B of headroom, and the seam test this ADR prescribes — grep a
+candidate section's distinctive vocabulary against the drive-time region — returned no seam: only two
+sections were movable at all, and both had their vocabulary threaded through the drive path.
+Independently, the arithmetic ruled a split out before taste could be argued: moving both candidates
+out whole would still have floored the file above the target.
+
+So the consequent this ADR named in advance — that when no true seam is left, the honest answer is to
+declare a budget rather than split — was taken. Recorded in **ADR-0062**, which supplies the policy
+that `check-budgets.sh`'s override line only records.
+
+**This ADR is unamended by that outcome.** Its rule produced the result; the result is not an
+exception to it. What ADR-0062 adds is the reverse condition: if the traps ever stop being drive-time
+payload, a real seam re-opens and the budget should be withdrawn rather than raised again.
+
+One method correction worth carrying, since this ADR's own evidence was a vocabulary grep: two counts
+in ADR-0062's first draft came from a grep scoped to `.md` and `.mjs` and were written down as
+repo-wide totals. Both were wrong. Every count there now names the command that produced it, because
+the counting method is itself a claim.
