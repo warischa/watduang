@@ -47,6 +47,7 @@ const game: GameModule = {
   names: { th: 'มือลั่น', en: 'Freeze Tap' },
   category: 'party',
   players: [2, 10],
+  renderer: 'canvas2d',
   startsRound: true,
   keywords: [
     'มือลั่น',

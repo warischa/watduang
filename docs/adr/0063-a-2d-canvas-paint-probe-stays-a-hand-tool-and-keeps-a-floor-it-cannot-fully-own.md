@@ -1,6 +1,7 @@
 # ADR-0063: a 2D canvas paint probe stays a hand tool, and keeps a floor it cannot fully own
 
-- Status: accepted 2026-09-08, decided in-session (not an owner ruling; the class-scoping half is #224)
+- Status: accepted 2026-09-08 · **Decision 1 WITHDRAWN 2026-09-08** when #224's class-wide leg landed,
+  exactly as the closing section below said it would be. Decisions 2 and 3 stand unchanged.
 - Date: 2026-09-08
 - Tickets: gh#205, #224, ADR-0051, ADR-0056
 
@@ -12,7 +13,29 @@ lived only in a probe's header comment and a commit message. The recommendation 
 control in the same breath as adding it. That is the cost of leaving a decision uncited, and it is
 the whole reason this ADR is written rather than left in a commit body.
 
-## Decision 1 — the probe stays a hand tool. No CI leg.
+## Decision 1 — WITHDRAWN. The class-wide leg landed instead.
+
+**Withdrawn 2026-09-08, same day, by the trigger this ADR named for itself.** #224's owner ruling put
+the ink half in `scripts/ci-probes.sh` as a `canvas-ink` / `canvas-ink-control` pair whose route list
+is derived by importing the manifest and filtering it on a new `renderer` field, so the third ground
+below — that the right unit is the class — is what carried, and it carried by being built rather than
+by staying an argument. Grounds 1 and 2 are unaffected and remain accurate as history.
+
+What the leg does NOT take over, stated so nobody reads the withdrawal as wider than it is:
+
+- **The frame terms stay here.** `canvas-frames-probe.mjs` keeps decisions 2 and 3 below, and the leg
+  measures no frame rate at all. Its coverage floor is "more than zero painted pixels", not a
+  magnitude — the ownership-clean predicate decision 3 asked for, on the ink axis.
+- **Three routes' canvases are recorded as unreachable by a generic walk**, in `RECORDED_IDLE` in the
+  probe, each with the emitter and the trigger read out of the route's own source. A recorded route
+  still has to prove its render loop is alive, and the record is gated equal to the derived route list
+  in both directions, so a forgotten entry cannot produce a green.
+- **The per-route hand tools are retired as coverage, not deleted.** Two evidence READMEs cite their
+  paths as reproduce commands. Each carries a header line saying the class is now gated by the leg.
+
+The original text follows, kept because a withdrawal that deletes its own reasoning teaches nobody.
+
+## Decision 1 (withdrawn) — the probe stays a hand tool. No CI leg.
 
 `src/play/bangkok-drift/canvas-frames-probe.mjs` is not wired to an npm script, `ci-probes.sh`, or
 `ci.yml`, and it stays that way. Grounds, strongest first:
@@ -83,3 +106,9 @@ It does not make the probe a gate, and it does not make the floor portable.
 A 2D play route shipping visibly blank, or #224 landing a registry-driven class-wide ink leg. Either
 one folds the ink half into that leg and retires every per-route hand tool — at which point this ADR's
 first decision is withdrawn rather than amended.
+
+**That happened the same day** — the second of the two, and the withdrawal above is what it produced.
+The fact that would change what is left: an owner objection to `RECORDED_IDLE` on the ground that any
+recorded expectation is the hand-maintained list the #224 ruling rejected. The distinction relied on
+here is that the WALK list is derived and the record is gated against it in both directions, so a
+forgotten entry reds instead of going green — but that reading is the implementer's, not a ruling.

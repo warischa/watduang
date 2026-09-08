@@ -21,6 +21,8 @@
 //                                     is aborted with `reason` (default 'Failed') instead of reaching the
 //                                     network — for driving a REAL rejected dynamic import(), not a fake one
 //   session.failedRequests        -> array, appended live with every paused-then-failed request's url
+//   session.onNewDocument(src)   -> Page.addScriptToEvaluateOnNewDocument: runs `src` in every
+//                                     document loaded after this call, BEFORE the page's own script
 //   session.close()
 const [scriptPath] = process.argv.slice(2);
 const { pathToFileURL } = await import('node:url');
@@ -74,6 +76,13 @@ const session = {
   async failRequests(urlPattern, { reason = 'Failed' } = {}) {
     failReason = reason;
     await send('Fetch.enable', { patterns: [{ urlPattern }] });
+  },
+  // Install `src` into EVERY document this tab loads from now on, before any of the page's own
+  // script runs (gh#224). Needed by anything that must be in place BEFORE mount rather than after
+  // it: a paint recorder that would otherwise miss the first frame, and a control stub that would
+  // otherwise leave mount-time ink on the canvas and go green while measuring nothing.
+  async onNewDocument(src) {
+    await send('Page.addScriptToEvaluateOnNewDocument', { source: src });
   },
   async nav(url) {
     const p = new Promise((r) => { loadResolve = r; });

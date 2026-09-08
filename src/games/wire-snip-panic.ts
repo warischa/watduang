@@ -51,6 +51,7 @@ const game: GameModule = {
   names: { th: 'ตัดสายกู้ชีพ', en: 'Wire Snip Panic' },
   category: 'party',
   players: [MIN_PLAYERS, MAX_PLAYERS],
+  renderer: 'canvas2d',
   startsRound: true,
   keywords: [
     'ตัดสายกู้ชีพ',

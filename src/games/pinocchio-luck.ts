@@ -291,6 +291,7 @@ const game: GameModule = {
   names: { th: 'พิน็อคคิอวย', en: 'Pinocchio Luck' },
   category: 'party',
   players: [2, 10],
+  renderer: 'webgl',
   startsRound: true,
   keywords: [
     'พิน็อคคิอวย',

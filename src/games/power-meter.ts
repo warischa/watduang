@@ -49,6 +49,7 @@ const game: GameModule = {
   names: { th: 'วัดพลัง', en: 'Power Meter' },
   category: 'party',
   players: [2, 10],
+  renderer: 'canvas2d',
   startsRound: true,
   keywords: ['วัดพลัง', 'เกมส่งมือถือ', 'เกมปาร์ตี้', 'เกมกลุ่มเล่นฟรี', 'เกมเล่นบนเครื่องเดียว'],
   tagline: 'แตะหยุดเกจพลังคนละ 3 ครั้ง ใครคะแนนรวมน้อยที่สุดคนนั้นโดน',

@@ -61,6 +61,20 @@ export interface GameModule {
   names: { th: string; en: string };
   category: Category;
   players: [min: number, max: number];
+  /** Which drawing surface this game's play screen uses. Required, and required of every game,
+   *  because gh#224's leg derives its route list by filtering the manifest on this field at run time
+   *  (owner ruling 2026-09-08): a hand-maintained list is a list someone forgets, and a 2D route
+   *  missing from it would go untested while the leg stayed green.
+   *
+   *  Declaring it arms nothing — no runtime code branches on it. It exists so the set is DECLARED by
+   *  the module author rather than guessed from source, and so `tsc` reds a new module that never
+   *  answered. What enforces the consequence is scripts/renderer-declaration.test.mjs, which
+   *  reconciles the declaration against an independent read of the route's own source and reds in
+   *  BOTH directions — declared 'dom' while the code calls getContext('2d'), and declared 'canvas2d'
+   *  while nothing draws. Without that, the list converges and the field does not.
+   *
+   *  'dom' covers a game that renders elements and text only, which is every stage-rendered game. */
+  renderer: 'canvas2d' | 'webgl' | 'dom';
   /** Whether playing this game puts the page into a live round — state a player would lose by
    *  navigating away mid-round. Required, and required of every game, because gh#121's failure is a
    *  module that starts one and never says so: the shell's leave-confirm (LeaveConfirm.astro) then

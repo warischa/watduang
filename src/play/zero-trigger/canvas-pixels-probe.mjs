@@ -1,3 +1,9 @@
+// RETIRED AS COVERAGE 2026-09-08 (gh#224, ADR-0063 decision 1 withdrawn). What this file asks is now
+// asked of EVERY 2D play route on every CI run by the canvas-ink / canvas-ink-control pair in
+// scripts/ci-probes.sh, whose route list is derived from the manifest rather than hand-listed. Kept
+// on disk, not deleted: an evidence README cites this path as its reproduce command, and the
+// per-route detail here is finer than a class-wide leg can be. Do not wire it — reach for it by hand
+// when the leg reds on this route and you want to know which screen.
 // Does zero-trigger's play surface actually DRAW? (gh#163 box 5, ADR-0051.)
 //
 // Same class of question, same shape, as src/play/timebomb/canvas-pixels-probe.mjs: a canvas that

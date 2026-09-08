@@ -51,6 +51,7 @@ const game: GameModule = {
   names: { th: 'แตะหยุดเวลา', en: 'Zero Trigger' },
   category: 'party',
   players: [MIN_PLAYERS, MAX_PLAYERS],
+  renderer: 'canvas2d',
   startsRound: true,
   keywords: [
     'แตะหยุดเวลา',

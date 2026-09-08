@@ -123,6 +123,7 @@ const game: GameModule = {
   names: { th: 'ไกลแค่ไหนคือใกล้', en: 'How Close Is Near' },
   category: 'party',
   players: [2, 10],
+  renderer: 'canvas2d',
   startsRound: true,
   keywords: ['ไกลแค่ไหนคือใกล้', 'เกมทายเลข', 'เกมส่งมือถือ', 'เกมปาร์ตี้', 'เกมกลุ่มเล่นฟรี'],
   tagline: 'แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้ ตกลงกันก่อนเริ่ม',

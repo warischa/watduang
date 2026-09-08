@@ -344,6 +344,7 @@ const game: GameModule = {
   // Per-game count with the site-wide ceiling of 20 (ADR-0054 ruling 5). The mockup's own stepper
   // already ran 2-20 and the cast is exactly 20 animals long.
   players: [MIN_PLAYERS, MAX_PLAYERS],
+  renderer: 'canvas2d',
   startsRound: true,
   keywords: [
     'เลขอาถรรพ์',

@@ -477,6 +477,7 @@ const game: GameModule = {
   // gh#96 / ADR-0040 — the cross-binding makes [1, 1] the only shape a fortune page may declare, and
   // the round above is now shaped to match: one person, one draw, no roster read anywhere.
   players: [1, 1],
+  renderer: 'dom',
   // A [1, 1] page renders no #player-setup, so the shell has no bit to read: this module announces
   // the round itself via announceRoundStarted() (gh#121).
   startsRound: true,

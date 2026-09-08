@@ -113,6 +113,7 @@ const game: GameModule = {
   names: { th: 'เต๋าชี้คนแพ้', en: 'Dice Loser' },
   category: 'party',
   players: [2, 10],
+  renderer: 'dom',
   startsRound: true,
   keywords: [
     'เต๋าชี้คนแพ้',

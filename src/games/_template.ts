@@ -9,6 +9,12 @@ const game: GameModule = {
   names: { th: 'ชื่อไทย', en: 'English name' },
   category: 'party',
   players: [2, 10],
+  // gh#224 — which drawing surface this game's play screen actually uses. Declared by the module
+  // author, never guessed from source by a checker, for the same reason startsRound is: tsc reds a
+  // new module that never answered. It is what scripts/canvas-ink-probe.mjs filters the manifest on
+  // at run time, so a wrong answer here is a route that leg silently skips —
+  // scripts/renderer-declaration.test.mjs reconciles this against the code in both directions.
+  renderer: 'dom',
   // gh#121 — does playing this put the page into a live round, i.e. state a player loses by leaving
   // mid-round? Answer it honestly; it is not decoration. A [1, 1] page that declares true must call
   // announceRoundStarted from _round-start.ts at every entry into a round (a fresh start AND a

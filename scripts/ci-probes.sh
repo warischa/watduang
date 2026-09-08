@@ -95,8 +95,8 @@ fi
 # (errexit, an OOM-killed Chrome) would otherwise read as FEWER GREENS and still exit 0 -- the exact
 # silent-skip shape docs/agents/ci-verification.md exists to kill. Re-record this number in the same
 # commit that adds or removes a leg. It is no longer one grep: fit_pair is written once and CALLED once
-# per shard, so the count is the 20 probe/standalone lines outside fit_pair plus 2 x FIT_SHARDS
-# (grep -cE '^  (probe|standalone) ' returns 22 -- the two lines inside fit_pair, counted once each).
+# per shard, so the count is the 22 probe/standalone lines outside fit_pair plus 2 x FIT_SHARDS
+# (grep -cE '^  (probe|standalone) ' returns 24 -- the two lines inside fit_pair, counted once each).
 # gh#179, 18 -> 20: play-screen-fit and its play-screen-fit-control joined lane3.
 # 20 -> 24: the fit pair became FIT_SHARDS pairs (2 legs per shard, labels suffixed with the shard index)
 # so the walk could be split across lanes. This number is a HUMAN-MAINTAINED pin and is blind to the one
@@ -105,7 +105,18 @@ fi
 # aggregate block below is.
 # gh#210, 24 -> 26: strip-chip-visibility and its control joined lane2, the lane that already owns
 # narrow-overflow -- same subject (what a phone-width screen cuts off) and the same clean/control shape.
-EXPECTED_LEGS=26
+# gh#224, 26 -> 28: canvas-ink and its control joined lane3. It is a PAIR and not a single leg for a
+# structural reason, not a preference: probes driven by this script sit outside the gate meta-audit,
+# so the control leg IS this leg's calibration -- there is nothing else that could show its detector
+# going red. The count is now the 22 probe/standalone lines outside fit_pair, plus 2 x FIT_SHARDS.
+# CORRECTED after an adversarial review of the batch that added this pair: "the control leg IS this
+# leg's calibration" is true for the 7 derived routes that DRAW, and false for the 3 in RECORDED_IDLE.
+# Those report UNMEASURED on both legs, so a route whose paint emitter dies while its render loop
+# keeps clearing stays green on the clean leg AND the control leg -- the control calibrates the
+# detector on the routes it can drive, not on the set. That gap is ADR-0063's own named flip-fact and
+# is reserved for the owner (gh#224); it is written here so the pair is not read as covering more
+# than it does.
+EXPECTED_LEGS=28
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -340,6 +351,17 @@ lane3() {
   probe leave-confirm             leave-confirm-probe.mjs             "$CDP_3"
   probe leave-confirm-control     leave-confirm-probe.mjs             "$CDP_3" BREAK_GUARD=1
   probe category-pop              category-pop-probe.mjs              "$CDP_3"
+  # gh#224 — the class-wide 2D-ink pair. Standalone: it aggregates its own per-route verdict and exits
+  # non-zero, like control-floor and the fit pair, so it needs no predicate in ci-probes-verdict.mjs.
+  # Its route list is DERIVED from the manifest at run time (owner ruling 2026-09-08) rather than
+  # listed here, so a 2D route added tomorrow is walked by this leg without editing this file.
+  # WHY lane3: it is the shortest phase-one lane, and this pair must stay in phase one -- phase two is
+  # deliberately left to the fit shards alone. The pair's own sampler runs a getImageData every 150ms
+  # inside the page, which is real CPU beside lane1's arm-window legs; if a future run shows lane1
+  # reporting UNMEASURED, this pair is a suspect worth checking against LEG_SECONDS before the fit
+  # shards are. Measured on this Mac, n=1: ~85s clean, ~85s control, 10 routes each.
+  standalone canvas-ink         env BASE="$SITE" CDP_PORT="$CDP_3" node scripts/driver.mjs scripts/canvas-ink-probe.mjs
+  standalone canvas-ink-control env BASE="$SITE" CDP_PORT="$CDP_3" INK_STUB=1 node scripts/driver.mjs scripts/canvas-ink-probe.mjs
   # gh#179 — the first leg that walks a play route PAST its setup screen. Standalone: it aggregates
   # its own per-row verdict and exits non-zero, like control-floor, so it needs no predicate in
   # ci-probes-verdict.mjs. What it GATES is the walk (a route whose walk stayed on setup) plus the

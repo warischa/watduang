@@ -48,6 +48,7 @@ const game: GameModule = {
   names: { th: 'ยิงธง', en: 'Cannon Flag' },
   category: 'party',
   players: [2, 10],
+  renderer: 'canvas2d',
   startsRound: true,
   keywords: [
     'ยิงธง',

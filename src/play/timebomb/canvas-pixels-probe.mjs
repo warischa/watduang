@@ -1,3 +1,9 @@
+// RETIRED AS COVERAGE 2026-09-08 (gh#224, ADR-0063 decision 1 withdrawn). What this file asks is now
+// asked of EVERY 2D play route on every CI run by the canvas-ink / canvas-ink-control pair in
+// scripts/ci-probes.sh, whose route list is derived from the manifest rather than hand-listed. Kept
+// on disk, not deleted: an evidence README cites this path as its reproduce command, and the
+// per-route detail here is finer than a class-wide leg can be. Do not wire it — reach for it by hand
+// when the leg reds on this route and you want to know which screen.
 // Does the play surface actually DRAW? (gh#145, owner direction 2026-08-30.)
 //
 // A canvas that renders nothing looks identical to a working one from every other gate: tsc passes,

@@ -49,6 +49,7 @@ const game: GameModule = {
   names: { th: 'บางกอกดริฟต์', en: 'Bangkok Drift' },
   category: 'party',
   players: [MIN_PLAYERS, MAX_PLAYERS],
+  renderer: 'canvas2d',
   startsRound: true,
   keywords: [
     'บางกอกดริฟต์',

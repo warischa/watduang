@@ -341,6 +341,7 @@ const game: GameModule = {
   // party-facing screens this module still renders are the gap ADR-0040 names until the redesign
   // ticket replaces its content; the shape is legal and mounts without a start event today.
   players: [1, 1],
+  renderer: 'dom',
   // One person, one answer, no rounds (ADR-0040) — there is nothing to lose by navigating away, and
   // that is why the leave-confirm must stay silent here. Never announce a round from this file.
   startsRound: false,

@@ -1,3 +1,8 @@
+// PARTLY RETIRED 2026-09-08 (gh#224, ADR-0063 decision 1 withdrawn). The INK half of this file is now
+// covered for every 2D play route by the canvas-ink pair in scripts/ci-probes.sh. The FRAME half is
+// NOT, and deliberately so: a frame count in a fixed window is browser- and machine-owned (ADR-0056),
+// which is why the leg measures no frame rate at all. ADR-0063 decisions 2 and 3 still govern this
+// file and it stays a hand tool.
 // Does the "บางกอกดริฟต์" road actually DRAW, and does it still draw a frame at a time under
 // `(prefers-reduced-motion: reduce)`? (ADR-0051.)
 //

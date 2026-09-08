@@ -53,6 +53,7 @@ const game: GameModule = {
   names: { th: 'กับระเบิด', en: 'One Bomb' },
   category: 'party',
   players: [MIN_PLAYERS, MAX_PLAYERS],
+  renderer: 'webgl',
   startsRound: true,
   keywords: [
     'กับระเบิด',
