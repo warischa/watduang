@@ -15,6 +15,11 @@ import {
 // empties #screenContainer and repopulates it, so one call at the end of render() gates every
 // freshly rendered control on every screen -- there is no second path that reveals a button.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
+// wrong value costs the player one tap needs neither a migration nor a collision guard.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 // gh#175 / ADR-0054: the names screen opens on the shared animal cast, never on a column of numbers.
 // Both places a numbered default could show -- the fallback for a blank field and the placeholder a
 // player never typed over -- read from here through defaultName below.
@@ -27,7 +32,17 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
     class SoundSynth {
       constructor() {
         this.ctx = null;
-        this.enabled = true;
+      }
+
+      // An accessor pair, deliberately still named `enabled`: toggle() below and every
+      // `if (!this.enabled) return` keep working unchanged, and there is no field to initialise --
+      // an initialising write would un-mute the device on every load.
+      get enabled() {
+        return !isMuted();
+      }
+
+      set enabled(on) {
+        setMuted(!on);
       }
 
       init() {
@@ -1103,8 +1118,11 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
         .replace(/'/g, '&#039;');
     }
 
-    // Audio Toggle Handler
+    // Audio Toggle Handler. The label and title are synced first, before the handler is attached:
+    // the mute state is the device's and may already be on when this route loads.
     const audioBtn = document.getElementById('btnAudioToggle');
+    audioBtn.textContent = sound.enabled ? '🔊' : '🔇';
+    audioBtn.title = sound.enabled ? 'ปิดเสียง' : 'เปิดเสียง';
     audioBtn.onclick = () => {
       const enabled = sound.toggle();
       audioBtn.textContent = enabled ? '🔊' : '🔇';

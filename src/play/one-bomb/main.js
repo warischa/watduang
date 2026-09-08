@@ -1,3 +1,9 @@
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
+// wrong value costs the player one tap needs neither a migration nor a collision guard.
+import { isMuted, setMuted } from '../../shell/audio.ts';
+
 (() => {
   'use strict';
 
@@ -5,8 +11,19 @@
   class SoundSynth {
     constructor() {
       this.ctx = null;
-      this.enabled = true;
       this.init();
+    }
+
+    // An accessor pair, deliberately still named `enabled`: both controls on this route flip it --
+    // the header button and the settings switch -- and every `if (!this.enabled || !this.ctx)`
+    // below reads it. There is no field to initialise: an initialising write would un-mute the
+    // device on every load.
+    get enabled() {
+      return !isMuted();
+    }
+
+    set enabled(on) {
+      setMuted(!on);
     }
     init() {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1368,7 +1385,11 @@
   document.getElementById('nextRoundBtn').addEventListener('click', advanceRound);
   document.getElementById('menuResultBtn').addEventListener('click', openMenu);
 
+  // BOTH controls are synced before either listener: the header button's glyph and the settings
+  // switch's `on` class describe the same device-wide state, which may already be muted here.
   const audioBtn = document.getElementById('audioToggleBtn');
+  audioBtn.textContent = sounds.enabled ? '🔊' : '🔇';
+  document.getElementById('soundToggle').classList.toggle('on', sounds.enabled);
   audioBtn.addEventListener('click', () => {
     sounds.enabled = !sounds.enabled;
     audioBtn.textContent = sounds.enabled ? '🔊' : '🔇';

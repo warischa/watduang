@@ -14,6 +14,11 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
 // panel -- the roster re-renders on every add/remove tap, and gating there would disable the very
 // button the player is tapping twice on purpose (the per-control ceiling _arm-gate.ts records).
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
+// wrong value costs the player one tap needs neither a migration nor a collision guard.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 
     /**
      * PROCEDURAL WEB AUDIO SYNTHESIZER
@@ -22,11 +27,21 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
     class SoundSynth {
       constructor() {
         this.ctx = null;
-        this.enabled = true;
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) {
           this.ctx = new AudioCtx();
         }
+      }
+
+      // An accessor pair, deliberately still named `enabled`: toggleAudio() writes it and every
+      // `if (!this.enabled || !this.ctx) return` reads it, and there is no field to initialise --
+      // an initialising write would un-mute the device on every load.
+      get enabled() {
+        return !isMuted();
+      }
+
+      set enabled(on) {
+        setMuted(!on);
       }
 
       resume() {
@@ -575,7 +590,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         // Audio resume on first pointer
         window.addEventListener('pointerdown', () => this.synth.resume(), { once: true });
 
-        // Nav buttons
+        // Nav buttons. The audio glyph is synced before its listener: the mute state is the
+        // device's and may already be on when this route loads.
+        document.getElementById('btn-audio-toggle').textContent = this.synth.enabled ? '🔊' : '🔇';
         document.getElementById('btn-audio-toggle').addEventListener('click', (e) => {
           const enabled = this.synth.toggleAudio();
           e.target.textContent = enabled ? '🔊' : '🔇';

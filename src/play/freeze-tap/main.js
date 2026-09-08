@@ -2,6 +2,11 @@
 // because an import declaration is only legal at module top level; play.astro already loads this
 // file as a module, so nothing about how it ships changes.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
+// wrong value costs the player one tap needs neither a migration nor a collision guard.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 
 (() => {
   'use strict';
@@ -12,8 +17,18 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
   class SoundSynth {
     constructor() {
       this.ctx = null;
-      this.enabled = true;
       this.initOnFirstTouch();
+    }
+
+    // An accessor pair, deliberately still named `enabled`: toggle() below and every
+    // `if (!this.enabled || !this.ctx) return` keep working unchanged, and there is no field to
+    // initialise -- an initialising write would un-mute the device on every load.
+    get enabled() {
+      return !isMuted();
+    }
+
+    set enabled(on) {
+      setMuted(!on);
     }
 
     initOnFirstTouch() {
@@ -1391,6 +1406,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
      7. GLOBAL NAV BUTTON HANDLERS
      ========================================================================== */
   const soundToggleBtn = document.getElementById('soundToggleBtn');
+  // Synced before the listener: the mute state is the device's and may already be on when this
+  // route loads, so the markup's speaker glyph is only a guess.
+  soundToggleBtn.textContent = sound.enabled ? '🔊' : '🔇';
   soundToggleBtn.addEventListener('click', () => {
     const isEnabled = sound.toggle();
     soundToggleBtn.textContent = isEnabled ? '🔊' : '🔇';

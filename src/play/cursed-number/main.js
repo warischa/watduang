@@ -45,6 +45,11 @@ import { MASCOTS } from '../_mascots.ts';
 // does not appear here ships ungated, and scripts/arm-gate-coverage-check.mjs CANNOT catch that --
 // it asks whether the route imports and calls armAllButtons at all, not whether every reveal does.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
+// wrong value costs the player one tap needs neither a migration nor a collision guard.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 
 
     /**
@@ -54,7 +59,17 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
     class SoundSynth {
       constructor() {
         this.ctx = null;
-        this.enabled = true;
+      }
+
+      // An accessor pair, deliberately still named `enabled`: every `if (!this.enabled) return`
+      // below and the toggle's flip keep working unchanged, and there is no field to initialise --
+      // an initialising write would un-mute the device on every load.
+      get enabled() {
+        return !isMuted();
+      }
+
+      set enabled(on) {
+        setMuted(!on);
       }
 
       init() {
@@ -401,7 +416,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
       }
 
       bindEvents() {
-        // Top actions
+        // Top actions. The label is synced first, before any listener: the mute state is the
+        // device's and may already be on when this route loads, so the markup's 🔊 is only a guess.
+        document.getElementById('soundToggleBtn').textContent = this.sound.enabled ? '🔊' : '🔇';
         document.getElementById('soundToggleBtn').addEventListener('click', () => {
           this.sound.enabled = !this.sound.enabled;
           document.getElementById('soundToggleBtn').textContent = this.sound.enabled ? '🔊' : '🔇';

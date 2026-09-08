@@ -4,6 +4,13 @@
 // change, so arming once at init would gate nothing past the first screen.
 // The .ts extension is spelled out in full, the way src/play/zero-trigger/main.js does it.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. This replaced a per-route 'powermeter_audio' key, and the old value is deliberately
+// NOT migrated: ADR-0064 records that a preference whose wrong value costs the player one tap needs
+// neither a migration nor a collision guard. A device that had this route muted comes back audible
+// and the player re-mutes in one tap.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 // gh#175 / ADR-0054: the party opens on the shared animal cast, never on a column of numbers. Every
 // default name on this route -- the seat built when count is chosen, the placeholder an empty field
 // shows, and the fallback for a name left blank at match start -- comes from here. resetCastNames is
@@ -93,10 +100,20 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
     class WebAudioSoundSynth {
       constructor() {
         this.ctx = null;
-        this.enabled = localStorage.getItem('powermeter_audio') !== 'disabled';
         this.activeHumOsc = null;
         this.activeHumGain = null;
         this.activeFilter = null;
+      }
+
+      // An accessor pair, deliberately still named `enabled`: toggleAudio() below writes it, every
+      // `if (!this.enabled) return` reads it, and there is no field to initialise -- an initialising
+      // write would un-mute the device on every load.
+      get enabled() {
+        return !isMuted();
+      }
+
+      set enabled(on) {
+        setMuted(!on);
       }
 
       initContext() {
@@ -113,7 +130,6 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 
       toggleAudio() {
         this.enabled = !this.enabled;
-        localStorage.setItem('powermeter_audio', this.enabled ? 'enabled' : 'disabled');
         if (this.enabled) {
           this.initContext();
           this.playClick(600);

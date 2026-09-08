@@ -16,6 +16,13 @@ import {
 // away must not land on the control that replaced it. On this route that control is an ANSWER — the
 // tap that decides whether a player's nose grows — so the gate is not cosmetic here.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. This replaced a per-route 'pinocchio-sound' key, and the old value is deliberately
+// NOT migrated: ADR-0064 records that a preference whose wrong value costs the player one tap needs
+// neither a migration nor a collision guard. A device that had this route muted comes back audible
+// and the player re-mutes in one tap.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 // gh#179 / ADR-0054: setup opens on the shared animal cast, never on a numbered placeholder. The one
 // default name on this route -- the placeholder a blank seat shows -- comes from mascotNames.
 // resetCastNames is the reset control's wipe: it keeps the seat count and discards whatever a player
@@ -417,8 +424,12 @@ function render(){
 class SoundSynth{
   constructor(){
     this.ctx=null;
-    this.enabled=localStorageSafe('pinocchio-sound')!=='off';
   }
+  // An accessor pair, deliberately still named `enabled`: ensure() and syncSound() below read it,
+  // toggleSound() writes it, and there is no field to initialise -- an initialising write would
+  // un-mute the device on every load.
+  get enabled(){return !isMuted()}
+  set enabled(on){setMuted(!on)}
   ensure(){
     if(!this.enabled)return null;
     const C=window.AudioContext||window.webkitAudioContext;
@@ -461,13 +472,6 @@ class SoundSynth{
   }
 }
 
-function localStorageSafe(key,value){
-  try{
-    if(value!==undefined)localStorage.setItem(key,value);
-    return localStorage.getItem(key);
-  }catch{return null}
-}
-
 const sounds=new SoundSynth(),soundBtn=document.querySelector('#soundBtn');
 function syncSound(){
   soundBtn.setAttribute('aria-pressed',String(sounds.enabled));
@@ -476,7 +480,6 @@ function syncSound(){
 }
 function toggleSound(){
   sounds.enabled=!sounds.enabled;
-  localStorageSafe('pinocchio-sound',sounds.enabled?'on':'off');
   if(sounds.enabled)sounds.click();
   syncSound();
 }

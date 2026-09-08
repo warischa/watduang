@@ -20,6 +20,8 @@
 // own animal labels. Closing THAT needs a hook in a file scripts/extract-mockup.mjs owns.
 import { MAX_PLAYERS, MIN_PLAYERS } from '../../games/one-bomb.ts';
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the site-wide mute preference, which this route's fallback path also reads and writes.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 import { loadGroup, loadRoster } from '../../shell/roster';
 import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
 // gh#175 / ADR-0054: the party opens on the shared animal cast, never on a numbered placeholder.
@@ -628,18 +630,32 @@ function installNoWebglRound(): void {
     });
   }
 
-  // The three settings switches carry no behaviour on this path — there is no camera to shake, no
-  // particle system to feed, and the synth died with the engine. They still flip, so a player is not
-  // left tapping a control that looks broken, and so applyReducedMotion's click on #motionToggle is
-  // still a real state change rather than a no-op on a dead switch.
-  for (const id of ['soundToggle', 'motionToggle', 'particleToggle']) {
+  // The motion and particle switches carry no behaviour on this path — there is no camera to shake
+  // and no particle system to feed. They still flip, so a player is not left tapping a control that
+  // looks broken, and so applyReducedMotion's click on #motionToggle is still a real state change
+  // rather than a no-op on a dead switch.
+  for (const id of ['motionToggle', 'particleToggle']) {
     $(id)?.addEventListener('click', () => $(id)?.classList.toggle('on'));
   }
+
+  // gh#227: the SOUND switch is different, and no longer decorative. The synth died with the engine,
+  // so nothing on THIS path makes a noise — but the state the control describes is the device's, not
+  // this route's, so it reads and writes the shared preference in src/shell/audio.ts. Otherwise a
+  // player who mutes here finds the next route still audible. Both controls are painted from the
+  // stored state before either listener attaches, because the device may already be muted.
+  // No migration off any older per-route value: ADR-0064.
   const audio = $('audioToggleBtn');
-  audio?.addEventListener('click', () => {
-    const on = $('soundToggle')?.classList.toggle('on') ?? false;
-    audio.textContent = on ? '🔊' : '🔇';
-  });
+  const paintSound = (): void => {
+    $('soundToggle')?.classList.toggle('on', !isMuted());
+    if (audio) audio.textContent = isMuted() ? '🔇' : '🔊';
+  };
+  paintSound();
+  for (const el of [$('soundToggle'), audio]) {
+    el?.addEventListener('click', () => {
+      setMuted(!isMuted());
+      paintSound();
+    });
+  }
 
   setPlayerCount(currentCount());
 }

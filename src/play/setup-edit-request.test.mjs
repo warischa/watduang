@@ -203,6 +203,9 @@ function loadMainRoute(route, sessionStorage) {
     if (spec.endsWith('shell/session')) return { loadSession: () => ({ played: [], markPlayed: () => {} }) };
     if (spec.endsWith('_setup-bridge')) return seam;
     if (spec.includes('_arm-gate')) return { armAllButtons: () => {} };
+    // gh#227: a route's sound control reads and writes the site-wide mute preference. Stubbed to
+    // "not muted", the default a fresh device has, because nothing this test drives is about sound.
+    if (spec.includes('shell/audio')) return { isMuted: () => false, setMuted: () => {} };
     if (spec.includes('_mascots')) return {
       MASCOTS,
       mascotNames: (n) => MASCOTS.slice(0, n).map((m) => m.name),

@@ -5,6 +5,11 @@
 // NOT armed inside renderSetup: the +/- stick and add-player buttons re-render themselves on every
 // tap, and gating those is the per-control exception _arm-gate.ts warns about.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
+// wrong value costs the player one tap needs neither a migration nor a collision guard.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 // gh#174 / ADR-0054: the party opens on the shared animal cast, never on a column of numbers. Every
 // default name on this route comes from here -- the state array it boots with, the placeholder a row
 // shows while empty, the fallback for a field left blank, and the seat that + adds. resetCastNames is
@@ -23,7 +28,17 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
       class SoundSynth {
         constructor() {
           this.ctx = null;
-          this.enabled = true;
+        }
+
+        // An accessor pair, deliberately still named `enabled`: the toggle's flip writes it and
+        // every `if (!this.enabled) return` reads it, and there is no field to initialise -- an
+        // initialising write would un-mute the device on every load.
+        get enabled() {
+          return !isMuted();
+        }
+
+        set enabled(on) {
+          setMuted(!on);
         }
 
         init() {
@@ -856,7 +871,9 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (setupView) armAllButtons(setupView);
       });
 
-      // Audio Toggle
+      // Audio Toggle. Synced before the listener: the mute state is the device's and may already
+      // be on when this route loads, so the markup's speaker glyph is only a guess.
+      $('audio-toggle').textContent = sounds.enabled ? '🔊' : '🔇';
       $('audio-toggle').addEventListener('click', () => {
         sounds.enabled = !sounds.enabled;
         $('audio-toggle').textContent = sounds.enabled ? '🔊' : '🔇';

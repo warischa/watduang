@@ -26,6 +26,11 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
 // scripts/arm-gate-coverage-check.mjs can only see that the import exists and is called somewhere --
 // it counts per directory, never per reveal. ./arm-reveal-paths.test.mjs pins the set instead.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
+// wrong value costs the player one tap needs neither a migration nor a collision guard.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 
     /**
      * Wire Snip Panic -- the Thai title this route ships lives in markup.html and the game module, not
@@ -38,7 +43,17 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
     class GameSoundSynth {
       constructor() {
         this.ctx = null;
-        this.enabled = true;
+      }
+
+      // An accessor pair, deliberately still named `enabled`: the header toggle, the M shortcut and
+      // every `if (!this.enabled) return` all go through it unchanged, and there is no field to
+      // initialise -- an initialising write would un-mute the device on every load.
+      get enabled() {
+        return !isMuted();
+      }
+
+      set enabled(on) {
+        setMuted(!on);
       }
 
       init() {
@@ -1193,6 +1208,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
         showScreen('screen-menu');
       });
 
+      // Synced before the listener: the mute state is the device's and may already be on when
+      // this route loads, so the markup's speaker glyph is only a guess.
+      document.getElementById('sound-icon').textContent = soundSynth.enabled ? '🔊' : '🔇';
       document.getElementById('btn-sound-toggle').addEventListener('click', () => {
         soundSynth.enabled = !soundSynth.enabled;
         document.getElementById('sound-icon').textContent = soundSynth.enabled ? '🔊' : '🔇';

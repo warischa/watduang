@@ -5,6 +5,11 @@
 // where the same player taps twice on purpose.
 // The .ts extension is spelled out in full, the way src/play/zero-trigger/main.js does it.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
+// of its own -- muting here mutes every other route, and reopening this one shows what the device
+// actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
+// wrong value costs the player one tap needs neither a migration nor a collision guard.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 // gh#175 / ADR-0054: the setup screen opens on the shared animal cast, never on a column of numbers.
 // Both numbered-default sites on this route -- the placeholder renderSetupPlayerInputs shows on an
 // empty row, and the fallback setupMatch applies when a player left a field blank -- read from here.
@@ -45,9 +50,20 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
     class SoundSynthesizer {
       constructor() {
         this.ctx = null;
-        this.enabled = true;
         this.chargeOsc = null;
         this.chargeGain = null;
+      }
+
+      // An accessor pair, deliberately still named `enabled`: every `if (!this.enabled) return` in
+      // the methods below and the toggle's `sound.enabled = !sound.enabled` keep working unchanged,
+      // and there is no field to initialise -- an initialising write would un-mute the device on
+      // every load, which is the opposite of remembering the preference.
+      get enabled() {
+        return !isMuted();
+      }
+
+      set enabled(on) {
+        setMuted(!on);
       }
 
       init() {
@@ -1911,6 +1927,9 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
       // ---------------------------------------------------------
       // SOUND & TOOLS TOGGLE
       // ---------------------------------------------------------
+      // The label is synced HERE, before the listener, not left at the markup's 🔊: the state is the
+      // device's and may already be muted when this route loads.
+      DOM.btnSoundToggle.textContent = sound.enabled ? '🔊' : '🔇';
       DOM.btnSoundToggle.addEventListener('click', () => {
         sound.enabled = !sound.enabled;
         DOM.btnSoundToggle.textContent = sound.enabled ? '🔊' : '🔇';
