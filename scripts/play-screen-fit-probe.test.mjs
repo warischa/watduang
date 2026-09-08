@@ -170,16 +170,13 @@ const REPLAYED_ROWS = [
     { press: 0, overflowPx: 76, overflowXPx: 0, overflowXFrom: null },
     { press: 2, overflowPx: 4, overflowXPx: 300, overflowXFrom: 'div#hidden-by-worstOf' },
   ] },
-  // Real, measured, and silent for the OTHER reason — the one this fixture exists to pin. The shipped
-  // classifier COUNTS this box: div#screen-game.screen.active computes overflow-x:auto purely as the
-  // CSS Overflow 3 coercion from the overflow-y beside it, no author rule declares the horizontal axis,
-  // and it is taller than the screen bound, so all three exemption conditions miss. The px below is what
-  // a narrowed walk of this route measured against a served dist/. The row is silent because
-  // KNOWN_OVERFLOW_X holds it, NOT because the classifier clears it — and the loop at the end of this
-  // test is what asserts that. An earlier revision pinned 0px here with a chip-strip explanation; that
-  // number came from the classifier as it stood before declaredX existed, so the fixture could not have
-  // failed for the reason its own comment gave.
-  { route: 'wire-snip-panic', vp: '320x568', screens: [{ press: 0, overflowPx: 111, overflowXPx: 43, overflowXFrom: 'div#screen-game.screen.active' }] },
+  // Real, measured, and silent for the OTHER reason — the one this fixture exists to pin: a row can be
+  // a genuine sideways clip and still not be flagged, because KNOWN_OVERFLOW_X holds it, NOT because
+  // the classifier clears it — the loop at the end of this test is what asserts that. wire-snip-panic
+  // 320x568/390x844 carried this fixture until gh#226 fixed the underlying cause and deleted both rows
+  // from KNOWN_OVERFLOW_X (see that map's history); pinocchio-luck 390x844 is still open, so it is the
+  // current example of an exempted-not-cleared row.
+  { route: 'pinocchio-luck', vp: '390x844', screens: [{ press: 2, overflowPx: 0, overflowXPx: 10, overflowXFrom: 'section#stageFrame' }] },
   // Drift room, not an admission rule: 8px is OVERFLOW_TOLERANCE_PX and must not red.
   { route: 'dice-loser', vp: '320x568', screens: [{ press: 1, overflowPx: 0, overflowXPx: 8, overflowXFrom: 'div#within-tolerance' }] },
 ];

@@ -799,7 +799,16 @@
       border: 1px solid var(--border);
       color: var(--muted);
       margin-top: 4px;
-      white-space: nowrap;
+      /* gh#226: nowrap forced each of the 6 label's Thai text onto one line, so a wire-column's
+         min-content width was the label's full-line width (up to 65px measured on this Mac). At
+         320/390px, 6 columns of that width don't fit and .wires-bay (flex:1 each, space-around)
+         pushed the last column off #screen-game's right edge -- reachable only via the sideways
+         swipe gh#202 found, not by any control this repo's 44px gate tracks (wire-column is a div,
+         not a button). Letting the label wrap moves its second word to a new line instead of
+         forcing the column wider; nothing shrinks (font-size/padding untouched) and nothing is
+         removed. */
+      white-space: normal;
+      text-align: center;
     }
 
     /* Pass Device / Action Banner */

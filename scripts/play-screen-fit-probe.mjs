@@ -370,8 +370,16 @@ export const KNOWN_OVERFLOW_X = new Map([
   // would make the growth warning fire forever on the other machine. Only rows that actually went red
   // on at least one machine are listed: a row that reads 0 on both is deliberately NOT pre-exempted,
   // because an exception nobody can trigger is the licence to regress this file refuses elsewhere.
-  ['wire-snip-panic 320x568', 'gh#202 open: 145px on press 0 - UNDESIGNED SIDEWAYS SCROLL on div#screen-game.screen.active. CI runner 145px, this Mac 43px. Say scroll and not clipped, because the layout call depends on it: no author rule declares overflow-x on that box, so its computed auto is pure CSS Overflow 3 coercion from the overflow-y beside it - reachable by swipe, but nobody asked for a horizontal swipe on a play screen and nothing signals it is there. The vertical row for this same screen is excused separately and does not reach this'],
-  ['wire-snip-panic 390x844', 'gh#202 open: 75px on press 0 - same undesigned sideways scroll on div#screen-game.screen.active as the 320x568 row above, same coercion. CI runner 75px, this Mac ZERO. This row is the reason no row here is trusted from one machine: it passed every local run and went red on the first CI run'],
+  // wire-snip-panic 320x568/390x844 rows REMOVED gh#226: root cause was `.wire-label-tag`'s
+  // `white-space: nowrap` forcing each of the 6 wire-columns' min-content width to the label's
+  // full-line width (up to 65px on this Mac) -- 6 of those don't fit in .wires-bay at 320/390px, so
+  // the last column got pushed past #screen-game's right edge, exposed only by the overflow-y/auto
+  // coercion gh#202 found. Fix: the label may now wrap (src/play/wire-snip-panic/style.css), so its
+  // min-content width no longer exceeds an equal 1/6 share of the bay. Measured on this Mac after the
+  // fix: 320x568 0px (was 43px), 390x844 0px (unchanged, was already 0 here). CI's larger 145px/75px
+  // reading is unverified from this machine but the mechanism removed (a nowrap label forcing a
+  // column wider than its share) is font-stack-independent -- the fix does not depend on which font
+  // measured wider.
   ['pinocchio-luck 320x568', 'gh#202 open: 11px on press 0 - the widest offender is an h1, so this is Thai text overflowing its own heading rather than a container mis-sized. CI runner 11px, this Mac ZERO, which is consistent with the runner wrapping Thai differently; docs/agents/ci-verification.md names a self-hosted Thai webfont as the converging fix and reserves it for the owner'],
   ['pinocchio-luck 390x844', 'gh#202 open: 10px on press 2 - sideways overflow on section#stageFrame. This Mac 10px, CI runner ZERO - the one row that runs the opposite way to the others. Check (vi) will therefore print its clear-row warning on CI asking for this row to be deleted: DO NOT act on that alone. Deleting it reds the Mac. Delete only when BOTH machines read it under tolerance'],
 ]);
