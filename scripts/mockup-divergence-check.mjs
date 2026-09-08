@@ -43,8 +43,10 @@
 //   - Only the three extractor-owned basenames can be protected here; everything else in a route
 //     folder is hand-authored and no extraction threatens it (docs/agents/src-edit-rules.md).
 //   - --enumerate needs the mockups. They are outside this repo and unversioned, so enumeration is a
-//     machine-local audit, never a CI gate: on a machine without them it reports zero pairs, and that
-//     is why the enforced set is the registry rather than the diff.
+//     machine-local audit, never a CI gate, and that is why the enforced set is the registry rather
+//     than the diff. On a machine without them it does NOT report zero pairs — it says NOTHING
+//     MEASURED and exits ROOT_UNREADABLE (gh#223), because "no drift found" and "never looked" are
+//     different answers and only one of them is evidence.
 //
 //   node scripts/mockup-divergence-check.mjs             -> every recorded divergence still ships
 //   node scripts/mockup-divergence-check.mjs --selftest  -> calibration on a throwaway fixture
@@ -67,6 +69,15 @@ export const EXTRACTED_FILES = ['markup.html', 'style.css', 'main.js'];
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const PLAY_DIR = path.join(repoRoot, 'src', 'play');
 const REGISTRY = path.join(PLAY_DIR, '_divergences.json');
+
+// --enumerate's exit code is otherwise a COUNT of ambiguous directories, so a run that could not
+// look at the root at all needs a value a count will not produce (gh#223). Without it an absent root
+// exited 0 and read exactly like a root that was measured and found clean, which is the silent-success
+// class gh#221 fixed one layer up.
+// ponytail: a sentinel sharing an exit space with a count. A root holding 77 ambiguous mockup
+// directories would collide, and only the printed line would separate the two. Upgrade path: return
+// { code, reason } from enumerate() and let the CLI branch map it to an exit code.
+const ROOT_UNREADABLE = 77;
 
 export function loadRegistry(file = REGISTRY) {
   if (!fs.existsSync(file)) return {};
@@ -184,17 +195,30 @@ async function enumerate(mockupsRoot) {
   );
   const registry = loadRegistry();
 
-  if (!fs.existsSync(mockupsRoot)) {
-    console.log(`mockup-divergence enumerate: ${mockupsRoot} not present — 0 pairs, nothing measured`);
-    return 0;
-  }
   // Every entry readdirSync returns — real directory, symlink, or plain file — lands in exactly one
   // of {candidate for pairing, excluded-with-reason}, so the bucket counts always sum to the
   // UNFILTERED entry count. Counting only entries the isDirectory() predicate already kept would make
   // the sum circular: nothing that predicate drops could ever fail it. A symlink to a directory is
   // resolved by following it; a symlink whose target is gone, or is not a directory, is excluded with
   // a reason instead of silently vanishing.
-  const rawEntries = fs.readdirSync(mockupsRoot, { withFileTypes: true });
+  //
+  // One try/catch replaces an existsSync guard: readdirSync throws ENOENT for an absent root and
+  // EACCES for an unreadable one, so both reach the same outcome with no window between the check and
+  // the read. A caller that measured nothing is told so in words AND in an exit code — never by the
+  // silence that a clean run also produces.
+  // ponytail: no --selftest leg for the EACCES half. Building one means chmod 000, which does not
+  // block a process running as root, so the leg would pass for the wrong reason on some machines.
+  // The ENOENT leg pins the branch; the catch is shared, so EACCES reaches the same two lines.
+  let rawEntries;
+  try {
+    rawEntries = fs.readdirSync(mockupsRoot, { withFileTypes: true });
+  } catch (err) {
+    console.log(
+      `mockup-divergence enumerate: NOTHING MEASURED — ${mockupsRoot} is absent or unreadable (${err.code}). ` +
+        'This is not a clean run: no pair was compared, so nothing here says anything about drift.',
+    );
+    return ROOT_UNREADABLE;
+  }
   const totalEntries = rawEntries.length;
 
   const dirCandidates = [];
@@ -229,8 +253,10 @@ async function enumerate(mockupsRoot) {
     } else {
       excluded.push(`${name} — ${reason}`);
       // Mockup-shaped (holds at least one .html) but unresolvable is the one case widening cannot fix
-      // for free — an ambiguous directory needs a human to pick, not a guess. That is what makes
-      // --enumerate able to return non-zero: everything else here is disclosed, not silently dropped.
+      // for free — an ambiguous directory needs a human to pick, not a guess. It is the only
+      // PER-ENTRY path to a non-zero --enumerate exit: everything else here is disclosed, not
+      // silently dropped. The other non-zero exit is whole-run — ROOT_UNREADABLE, when there was no
+      // root to walk (gh#223).
       if (entries.some((e) => e.endsWith('.html'))) unmeasured += 1;
     }
   }
@@ -308,8 +334,9 @@ async function selftest() {
 
   // Pin 1: the index-file classification the --enumerate widening rests on, over the four shapes a
   // mockup directory actually takes (dynamic import to avoid the cycle noted at EXTRACTED_FILES above).
-  // The ambiguous shape matters more than the other three: it is the ONLY path to a non-zero
-  // --enumerate exit, so an assertion over it is the pin for that whole branch.
+  // The ambiguous shape matters more than the other three: it is the only PER-ENTRY path to a
+  // non-zero --enumerate exit, so an assertion over it is the pin for that whole branch. The
+  // whole-run path, an unreadable root, is pinned separately below (gh#223).
   const { resolveIndexFile } = await import('./extract-mockup.mjs');
   assert.equal(resolveIndexFile(['index.html', 'style.css']).file, 'index.html', 'exact index.html must win');
   assert.equal(
@@ -348,7 +375,7 @@ async function selftest() {
   assert.ok(!out.includes('excluded: suffixed —'), `a resolvable suffixed directory must never appear on an excluded: line, got:\n${out}`);
   const entryCount = fs.readdirSync(enumRoot, { withFileTypes: true }).length;
   assert.ok(out.includes(`sum ${entryCount} of ${entryCount} entr`), `the bucket counts must reconcile against the unfiltered entry count, got:\n${out}`);
-  assert.equal(run.status, 1, 'the ambiguous directory is the only path to a non-zero exit, and it must take it');
+  assert.equal(run.status, 1, 'the ambiguous directory is the only per-entry path to a non-zero exit, and it must take it');
   fs.rmSync(enumRoot, { recursive: true, force: true });
 
   // Pin 3: a symlink to a directory resolves like a directory, and a dangling symlink lands in a
@@ -370,7 +397,41 @@ async function selftest() {
   );
   fs.rmSync(symRoot, { recursive: true, force: true });
 
-  console.log('mockup-divergence-check --selftest: ok (present -> green, deleted -> red naming the owner, --force releases the file layer only, index-file widening classifies all 4 shapes including ambiguous, --enumerate reconciles against the unfiltered entry count, resolves a symlinked directory, and names a dangling one)');
+  // Pin 4 (gh#223): "never looked" and "looked and found nothing" must be different answers. Both
+  // produce zero pairs and a single line of output, so before this the only thing separating them was
+  // a reader's assumption -- and both exited 0.
+  //
+  // The two legs discriminate BY CONSTRUCTION: they differ in exactly one variable, whether the root
+  // exists, and the last assertion compares their exit codes directly. Collapse the fix and that
+  // assertion reds. The empty-root leg is also the must-green half -- if a present-but-empty root ever
+  // starts exiting non-zero, this pin stops telling the two apart and says so here rather than
+  // passing quietly.
+  const absentRoot = path.join(os.tmpdir(), `enumerate-absent-selftest-${process.pid}-no-such-dir`);
+  assert.ok(!fs.existsSync(absentRoot), 'the absent-root fixture must genuinely not exist, or this pin measures nothing');
+  const absentRun = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--enumerate', absentRoot], { encoding: 'utf8' });
+  assert.equal(
+    absentRun.status,
+    ROOT_UNREADABLE,
+    `an absent root must exit ROOT_UNREADABLE, not 0 -- exiting 0 is the gh#221 silent-success class, got ${absentRun.status}:\n${absentRun.stdout}`,
+  );
+  assert.match(absentRun.stdout, /NOTHING MEASURED/, 'an absent root must say so in words, not only in an exit code');
+
+  const emptyRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'enumerate-empty-selftest-'));
+  const emptyRun = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--enumerate', emptyRoot], { encoding: 'utf8' });
+  assert.equal(
+    emptyRun.status,
+    0,
+    `a present but empty root IS a successful empty measurement and must exit 0, got ${emptyRun.status}:\n${emptyRun.stdout}`,
+  );
+  assert.doesNotMatch(emptyRun.stdout, /NOTHING MEASURED/, 'a real empty measurement must not borrow the absent-root wording');
+  assert.notEqual(
+    absentRun.status,
+    emptyRun.status,
+    'an absent root and an empty one must be distinguishable by exit code alone, not only by their text',
+  );
+  fs.rmSync(emptyRoot, { recursive: true, force: true });
+
+  console.log('mockup-divergence-check --selftest: ok (present -> green, deleted -> red naming the owner, --force releases the file layer only, index-file widening classifies all 4 shapes including ambiguous, --enumerate reconciles against the unfiltered entry count, resolves a symlinked directory, names a dangling one, and separates an absent root from an empty one by exit code)');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
