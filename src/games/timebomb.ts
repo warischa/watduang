@@ -5,7 +5,10 @@
 // The .ts extension in the import path is required for `node --test` (Node does not guess
 // extensions) — Vite/tsc accept both.
 import type { GameContext, GameModule } from './types.ts';
-import { boom, tick, unlockAudio } from '../shell/audio.ts';
+// isMuted is read at each call site below rather than once at arm(): the toggle lives in this
+// route's page chrome (src/play/timebomb/markup.html) and stays reachable for the whole round, so a
+// player muting mid-round must go quiet on the NEXT tick, not on the next round.
+import { boom, isMuted, tick, unlockAudio } from '../shell/audio.ts';
 import { requestWakeLock, type WakeLockHandle } from '../shell/wake-lock.ts';
 import { armAllButtons } from './_arm-gate.ts';
 import { el } from './_el.ts';
@@ -324,7 +327,10 @@ function frame(): void {
     const urgency = urgencyAt(now, startedAt, deadline);
     if (now >= nextTickAt) {
       nextTickAt = now + tickIntervalMs(urgency); // set from the current time, never accumulated
-      if (audioCtx) tick(audioCtx, urgency);
+      // gh#165 ruling 2/3: muted skips the CALL, it does not play a silent tone. nextTickAt above is
+      // advanced either way, so un-muting mid-round rejoins the existing cadence instead of firing a
+      // backlog of ticks the round already passed.
+      if (audioCtx && !isMuted()) tick(audioCtx, urgency);
     }
     // The fuse bar shows that the round is LIVE, not how much of it is left (gh#151). Its width is
     // shimmerAt(now) — a fixed cycle of the wall clock — so it is identical at the same moment
@@ -350,7 +356,10 @@ function detonate(): void {
     cancelAnimationFrame(rafId);
     rafId = 0;
   }
-  if (audioCtx) boom(audioCtx);
+  // gh#165 ruling 4: "sound off" means silent, so the detonation goes with the tick. The vibration
+  // below is NOT audio and is deliberately left alone — it is the only remaining channel telling a
+  // player holding a muted phone that the round ended.
+  if (audioCtx && !isMuted()) boom(audioCtx);
   navigator.vibrate?.([300, 120, 300]); // iOS has no Vibration API — feature-detect it, never sniff UA
   gameCtx?.session.markPlayed('timebomb');
   releaseWake();
@@ -415,6 +424,7 @@ const game: GameModule = {
   names: { th: 'ระเบิดเวลา', en: 'Time Bomb' },
   category: 'party',
   players: [2, 10],
+  renderer: 'canvas2d',
   // A party page: the setup panel starts the round, so the shell reads its `hidden` bit and no
   // announcement is needed here (gh#121).
   startsRound: true,

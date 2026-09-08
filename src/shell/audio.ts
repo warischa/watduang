@@ -1,5 +1,46 @@
 // Purely synthesized sound — OscillatorNode + GainNode only, no audio files, no dependency
 
+/** The site-wide "sound off" flag (gh#165, owner rulings 2026-09-08 #2 and #3).
+ *
+ *  A NEW named constant, deliberately its own storage slot rather than a field on anything that
+ *  already exists: not the checkpoint (ADR-0010's one-slot-one-writer reasoning, enforced by
+ *  scripts/checkpoint-writer-check.mjs) and not the roster (ADR-0053 keeps the roster as the
+ *  identity channel). Muting is a property of the DEVICE, not of a round or of a group, so it
+ *  shares neither of their lifetimes: clearing a checkpoint must not un-mute a phone.
+ *
+ *  Home is this file because this file IS the site's sound. gh#227 rewires the other routes' own
+ *  toggles onto these three exports; nothing else should spell the key.
+ *
+ *  DEFAULT: absent key -> not muted -> sound ON. That default is the comparison below and nothing
+ *  else — there is no initialising write anywhere, so a fresh device cannot start silent, and this
+ *  is what keeps the 2026-08-30 ruling that timebomb's tick is KEPT. */
+export const MUTED_KEY = 'watduang:muted';
+
+/** ponytail: localStorage in a try/catch, not a feature-detect. Private mode throws on ACCESS, not
+ *  on lookup, and this runs in Node under the engine's tests where there is no storage at all.
+ *  Both paths fall back to "not muted", which is the tested default rather than a silent guess. */
+export function isMuted(): boolean {
+  try {
+    return localStorage.getItem(MUTED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function setMuted(muted: boolean): void {
+  try {
+    if (muted) localStorage.setItem(MUTED_KEY, '1');
+    else localStorage.removeItem(MUTED_KEY);
+  } catch {
+    // STATED CEILING, not a silent one: where storage is denied the preference cannot be persisted
+    // AND cannot be applied — isMuted() above has nothing to read back, so it returns the default
+    // and the round stays audible. The toggle is inert on such a device rather than half-working.
+    // An in-memory fallback would fix that and is deliberately not built: it would make the flag
+    // route-local exactly where the ruling says site-wide, and it is unreachable in every browser
+    // this site ships to except private mode with storage blocked outright.
+  }
+}
+
 export function unlockAudio(): AudioContext | null {
   const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!Ctor) return null;

@@ -196,3 +196,52 @@ test('begin() really is one-way — no control reverses the screen swap', () => 
   assert.doesNotMatch(source, /setupEl\.hidden\s*=\s*false/, 'a control now un-hides #tb-setup');
   assert.doesNotMatch(source, /stageEl\.hidden\s*=\s*true/, 'a control now re-hides #tb-stage');
 });
+
+// gh#165. The sound toggle is the third control on this route and the first one that lives OUTSIDE
+// both #tb-setup and #tb-stage — it sits in the page header so it survives begin(), which is the
+// whole point of it (a player mutes mid-round, with the phone already going round). That placement
+// puts it outside every arming call this file had: armAllButtons(setupEl) walks #tb-setup's
+// descendants and the header is not one of them.
+//
+// Two reveals reach it, and they are the same two ADR-0017 and ADR-0057 name:
+//   1. FIRST PAINT. The header is visible from load with no reveal write of its own, so the
+//      double-tap aimed at the game card that navigated here can land its second contact on the
+//      toggle. Same case as #tb-setup, different receiver.
+//   2. THE RESET DIALOG CLOSING. A modal <dialog> covers the viewport, header included; dismissing
+//      it uncovers the toggle whose arm window expired at load. ADR-0057: the close IS the reveal.
+//      Muting is not destructive, but "the gate is only for destructive controls" is not the rule
+//      and is exactly how the cancel branch went unnoticed in gh#187.
+// The block is SLICED before matching, and that is the whole point of this test rather than a
+// style choice. Matching `/if \(muteEl && topEl\) \{[\s\S]*?armAllButtons\(topEl/` over the whole
+// source reads as a pin on this block and is not one: `[\s\S]*?` is lazy but unbounded, so with the
+// arm deleted from THIS block the span simply runs 4033 chars forward and matches the call inside
+// closeResetDialog instead. Measured — the mutant that removes `armAllButtons(topEl);` from the
+// block below left that regex green. So the first-paint arm would have been pinned by nothing while
+// the close-path line existed, which is the ungated-reveal-behind-a-green class the per-route test
+// exists to close. Slice first, match second, exactly as the closeResetDialog test below does.
+test('gh#165: the sound toggle is armed at first paint, not just at a reveal', () => {
+  const at = source.indexOf('if (muteEl && topEl) {');
+  assert.ok(at > -1, 'the first-paint arm block is gone — this test measures nothing');
+  const end = source.indexOf('\n}', at);
+  assert.ok(end > at, 'the first-paint arm block has no top-level close — this test measures nothing');
+  const block = source.slice(at, end);
+  assert.match(
+    block,
+    /armAllButtons\(topEl\)/,
+    'the sound toggle sits in the page header with no reveal write of its own, so it needs an ' +
+      'unconditional armAllButtons call over its own region — armAllButtons(setupEl) does not ' +
+      'reach it, the header is not inside #tb-setup.',
+  );
+});
+
+test('gh#165: closing the reset confirm re-arms the header the dialog covered', () => {
+  const at = source.indexOf('const closeResetDialog');
+  assert.ok(at > -1, 'closeResetDialog is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('};', at));
+  assert.match(
+    body,
+    /if \(topEl\) armAllButtons\(topEl\);/,
+    'closeResetDialog re-arms #tb-setup but not the header: a double-tap on cancel or confirm puts ' +
+      'the second contact on the sound toggle, whose own arm window expired at page load.',
+  );
+});

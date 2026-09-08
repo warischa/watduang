@@ -14,6 +14,10 @@
 import game from '../../games/timebomb.ts';
 import type { GameContext, GameSession } from '../../games/types.ts';
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// gh#165. The site-wide muted flag lives with the synth that obeys it (src/shell/audio.ts), so this
+// route reads and writes it and spells the storage key nowhere. gh#227 points the other routes'
+// existing toggles at these same two functions.
+import { isMuted, setMuted } from '../../shell/audio.ts';
 import { loadRoster } from '../../shell/roster';
 import { loadSession } from '../../shell/session';
 import { takeSetupEditRequest } from '../_setup-bridge';
@@ -94,6 +98,8 @@ const resetEl = document.getElementById('tb-reset-names') as HTMLButtonElement |
 const resetDialogEl = document.getElementById('tb-reset-dialog') as HTMLDialogElement | null;
 const resetCancelEl = document.getElementById('tb-reset-cancel') as HTMLButtonElement | null;
 const resetConfirmEl = document.getElementById('tb-reset-confirm') as HTMLButtonElement | null;
+const topEl = document.getElementById('tb-top');
+const muteEl = document.getElementById('tb-mute') as HTMLButtonElement | null;
 
 /** The names the round actually plays with: the first `count` seats, with a blanked field falling back
  *  to its mascot default so the engine can never be handed an empty label. */
@@ -241,6 +247,28 @@ if (setupEl && beginEl) {
   armAllButtons(setupEl, steppers());
   beginEl.addEventListener('click', begin);
 }
+/** gh#165. The toggle's face, re-read from the stored flag rather than from a local boolean: the flag
+ *  is site-wide (src/shell/audio.ts), so another tab or an earlier round may already have set it and
+ *  a remembered value here would be a second, drifting copy of the truth. No aria-pressed and no
+ *  label rewrite — naming these controls is gh#211 and is deliberately not absorbed here. */
+function renderMute(): void {
+  if (!muteEl) return;
+  muteEl.textContent = isMuted() ? '🔇' : '🔊';
+}
+
+if (muteEl && topEl) {
+  renderMute();
+  muteEl.addEventListener('click', () => {
+    setMuted(!isMuted());
+    renderMute();
+  });
+  // ADR-0017, and the case that is easy to miss because nothing is revealed by a script here: the
+  // header is on screen from the first paint, so the double-tap aimed at the game card that
+  // navigated to this route lands its second contact on a live control. armAllButtons(setupEl)
+  // below does not reach it — the header is not inside #tb-setup — so the toggle needs its own
+  // region armed. Pinned by arm-reveal-paths.test.mjs.
+  armAllButtons(topEl);
+}
 decEl?.addEventListener('click', () => setCount(count - 1));
 incEl?.addEventListener('click', () => setCount(count + 1));
 
@@ -281,6 +309,11 @@ if (resetEl && resetDialogEl && resetCancelEl && resetConfirmEl) {
   const closeResetDialog = (): void => {
     resetDialogEl.close();
     if (setupEl) armAllButtons(setupEl, steppers());
+    // gh#165, ADR-0057. A modal <dialog> covers the viewport, header included, so the same close
+    // that uncovers #tb-begin uncovers the sound toggle — and its own arm window expired at page
+    // load. Not destructive, and gated anyway: "only destructive controls need the gate" is not the
+    // rule, and believing it is how gh#187's cancel branch shipped.
+    if (topEl) armAllButtons(topEl);
   };
   resetCancelEl.addEventListener('click', closeResetDialog);
   resetConfirmEl.addEventListener('click', () => {

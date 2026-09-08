@@ -59,6 +59,35 @@ body {
      the title out from under it at 320px, where the two would otherwise overlap. */
   padding: 8px 56px;
   border-block-end: 1px solid var(--tb-edge);
+  /* gh#165 — the containing block for the sound toggle below. */
+  position: relative;
+}
+
+/* gh#165. Out of flow ON PURPOSE: .tb-top is the one row whose height the play screen cannot afford
+   to grow (scripts/play-screen-fit-probe.mjs pins this route at 320x568 and only ever records MORE
+   overflow). In flow, a 44px control inside a 56px box with 8px block padding would push the row to
+   60px; absolutely positioned it contributes nothing, and 44 < 56 means it also cannot outgrow the
+   row it sits in. The inline-end gutter it lands in is the 56px .tb-top already pads away for
+   symmetry with the shared X exit, so no text moves either. */
+.tb-mute {
+  position: absolute;
+  inset-inline-end: 6px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  inline-size: 44px;
+  block-size: 44px;
+  border: 1px solid var(--tb-edge);
+  border-radius: 50%;
+  background: var(--tb-panel);
+  color: var(--tb-ink);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tb-mute:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .tb-brand {

@@ -9,8 +9,28 @@
      chrome (PlayExit.astro) and the play-route probes both resolve the game root as `#app,
      #app-container`, so a third id would make every one of those checks silently void on this route. -->
 <div id="app">
-  <header class="tb-top">
+  <!-- id="tb-top": the sound toggle below is armed over this element (ADR-0017), and main.ts needs a
+       handle for it. The class stays the styling hook, as everywhere else in this file. -->
+  <header class="tb-top" id="tb-top">
     <h1 class="tb-brand">ระเบิดเวลา</h1>
+    <!-- gh#165, owner rulings 2026-09-08. The site-wide sound toggle. It is HERE, in the page header,
+         and not in #tb-setup or #tb-stage, for three reasons that all have to hold at once:
+           * the engine calls replaceChildren() on #tb-stage at every screen change, so a control
+             placed there is destroyed by the next render (the same reason the canvas and the reset
+             confirm sit outside it);
+           * begin() hides #tb-setup one-way, and a mute a player can only reach BEFORE the round
+             starts is not the control this ticket is about — the phone is already going round when
+             someone wants it quiet;
+           * it costs no height. The header is a flex row with min-block-size 56px, and its
+             `padding: 8px 56px` already reserves a 56px gutter on the inline-end side purely for
+             symmetry with the shared X exit fixed at the top-LEFT. The button is absolutely
+             positioned into that reserved gutter, so it is out of flow: it adds nothing to .tb-main's
+             column at 320px, which is what scripts/play-screen-fit-probe.mjs measures on this route.
+         The state it writes is site-wide (MUTED_KEY in src/shell/audio.ts), and since gh#227 shipped
+         in this same batch every other route's toggle reads and writes that same value, so muting
+         here is reflected everywhere rather than only obeyed everywhere. See ADR-0064 for why one
+         key with many writers is safe where the checkpoint slot was not. -->
+    <button id="tb-mute" class="tb-mute" type="button" aria-label="เปิดหรือปิดเสียง">🔊</button>
   </header>
 
   <main class="tb-main">

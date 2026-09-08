@@ -503,3 +503,168 @@ test('gh#151: shimmer is deadline-free in reduced mode too', () => {
     assert.equal(shimmerAt(500, reduced), shimmerAt(500 + SHIMMER_PERIOD_MS, reduced));
   }
 });
+
+// ---- gh#165: the site-wide mute (owner rulings 2026-09-08). Muting silences the tick AND the boom.
+//
+// BOTH LEGS ARE MANDATORY, and the unmuted one is the load-bearing half: a silence-only assertion
+// also passes on an engine that never ticks at all, which is exactly the state every other test in
+// this file runs in (the shared fake `window` above carries no AudioContext, so unlockAudio()
+// returns null and the tick path is dead). So each leg below installs a real fake AudioContext and
+// removes it again — the tones it records are the observable, not a spy on the import.
+//
+// WHY A FAKE AudioContext AND NOT A MODULE MOCK: `t.mock.module` needs
+// --experimental-test-module-mocks, which would change the command every executor runs this file
+// with. Faking the platform object instead keeps `node --test <file>` the whole harness, and it
+// proves more: the tone only exists if the engine called tick()/boom() AND audio.ts built an
+// oscillator from it, so a mute implemented at either end is measured here.
+//
+// ponytail: tones are attributed to a phase by the STEP that produced them (one frame inside the
+// fuse -> tick; one frame past the deadline -> boom), not by reading frequencies back. Stated
+// ceiling: this counts oscillators, so it cannot tell one tick from two — nothing here claims a
+// tick RATE, only that the channel is live or silent.
+class FakeOscillator {
+  constructor() {
+    this.frequency = { value: 0 };
+    this.onended = null;
+  }
+  connect() {}
+  disconnect() {}
+  start() {}
+  stop() {}
+}
+class FakeGain {
+  constructor() {
+    const ramp = { setValueAtTime() {}, exponentialRampToValueAtTime() {}, value: 0 };
+    this.gain = ramp;
+  }
+  connect() {}
+  disconnect() {}
+}
+function withFakeAudio(muted, body) {
+  const tones = [];
+  class FakeAudioContext {
+    constructor() {
+      this.state = 'running';
+      this.currentTime = 0;
+      this.destination = {};
+    }
+    createOscillator() {
+      const osc = new FakeOscillator();
+      tones.push(osc);
+      return osc;
+    }
+    createGain() {
+      return new FakeGain();
+    }
+    // teardown() calls audioCtx?.close().catch(...) — it must be a real promise or dispose throws.
+    close() {
+      return Promise.resolve();
+    }
+  }
+  const store = new Map();
+  // The key is spelled OUT, not imported from audio.ts: a fixture built from the same constant the
+  // code under test reads cannot fail on a rename, and a rename of a shipped storage key is a
+  // migration, not a refactor. The imported MUTED_KEY is pinned separately, in the defaults test.
+  if (muted) store.set('watduang:muted', '1');
+  window.AudioContext = FakeAudioContext;
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, String(v)),
+    removeItem: (k) => store.delete(k),
+  };
+  try {
+    return body(tones);
+  } finally {
+    delete window.AudioContext;
+    delete globalThis.localStorage;
+  }
+}
+
+/** One full round: mount, deliberate start, one frame inside the fuse, one frame past the deadline.
+ *  Returns the oscillator count after each of the two sound-producing steps. */
+function playRound(t, muted) {
+  return withFakeAudio(muted, (tones) => {
+    const realDateNow = Date.now;
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const stage = fakeDocument.createElement('div');
+    try {
+      let fakeNow = 1_700_000_000_000;
+      Date.now = () => fakeNow;
+
+      game.mount(stage, makeCtx(['เอ', 'บี', 'ซี']));
+      t.mock.timers.tick(ARM_WINDOW_MS + 1);
+      byId(stage, 'tb-start').click(); // arm(): unlockAudio() + nextTickAt = now
+      assert.ok(pendingFrame, 'setup: arm() did not schedule a frame');
+
+      fakeNow += 1_000; // well inside FUSE_MIN_MS, so this frame ticks and does not detonate
+      pendingFrame();
+      const afterTick = tones.length;
+      assert.ok(byId(stage, 'tb-pass'), 'setup: the round is not on the ticking screen');
+
+      fakeNow += FUSE_MAX_MS + 1;
+      pendingFrame();
+      const afterBoom = tones.length;
+      assert.ok(byId(stage, 'tb-again'), 'setup: the round never reached the boom screen');
+
+      game.dispose();
+      return { ticks: afterTick, booms: afterBoom - afterTick };
+    } finally {
+      Date.now = realDateNow;
+      pendingFrame = null;
+    }
+  });
+}
+
+test('gh#165: with sound ON the round really does tick and boom', (t) => {
+  const { ticks, booms } = playRound(t, false);
+  assert.ok(ticks > 0, 'the unmuted round produced no tick — the muted leg below would then measure nothing');
+  assert.ok(booms > 0, 'the unmuted round produced no boom — the muted leg below would then measure nothing');
+});
+
+test('gh#165: muted silences the tick and the boom alike', (t) => {
+  const { ticks, booms } = playRound(t, true);
+  assert.equal(ticks, 0, 'a muted round still scheduled a tick');
+  assert.equal(booms, 0, 'a muted round still played the boom — ruling 4 says "sound off" means silent');
+});
+
+// Ruling 3, asserted against the INITIALISATION EXPRESSION and not against a comment: with storage
+// empty there is no key, so isMuted() is false and a fresh device starts audible. Also pins that
+// nothing writes a default on import — a module that initialised the key would make the "absent"
+// case unreachable and this assertion vacuous.
+test('gh#165: a fresh device defaults to sound ON', async () => {
+  const { isMuted, setMuted, MUTED_KEY } = await import('../shell/audio.ts');
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, String(v)),
+    removeItem: (k) => store.delete(k),
+  };
+  try {
+    assert.equal(store.size, 0, 'importing the module wrote to storage — the empty-storage case is now unreachable');
+    assert.equal(isMuted(), false, 'empty storage must read as sound ON (ruling 3)');
+    setMuted(true);
+    assert.equal(isMuted(), true, 'the control cannot mute');
+    assert.equal(store.get(MUTED_KEY), '1', 'the mute rode a slot other than its own named key');
+    setMuted(false);
+    assert.equal(isMuted(), false, 'the control cannot un-mute');
+  } finally {
+    delete globalThis.localStorage;
+  }
+});
+
+// Storage is not guaranteed: private mode throws on ACCESS. The whole site's sound must not die with
+// it, so the fallback is the same default as an empty store.
+test('gh#165: a throwing localStorage reads as sound ON, not as a crash', async () => {
+  const { isMuted, setMuted } = await import('../shell/audio.ts');
+  globalThis.localStorage = {
+    getItem() { throw new Error('SecurityError'); },
+    setItem() { throw new Error('SecurityError'); },
+    removeItem() { throw new Error('SecurityError'); },
+  };
+  try {
+    assert.equal(isMuted(), false);
+    assert.doesNotThrow(() => setMuted(true));
+  } finally {
+    delete globalThis.localStorage;
+  }
+});
