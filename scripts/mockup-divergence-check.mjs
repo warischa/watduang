@@ -55,6 +55,7 @@ import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 // The three basenames scripts/extract-mockup.mjs rewrites on every run. They live HERE, and the
 // extractor imports them, because the dependency has to point one way: the extractor loads this
@@ -173,7 +174,7 @@ function matchRoute(freshMarkup, shippedMarkup) {
 }
 
 async function enumerate(mockupsRoot) {
-  const { extractFiles, readMockup } = await import('./extract-mockup.mjs');
+  const { extractFiles, readMockup, resolveIndexFile } = await import('./extract-mockup.mjs');
   const routes = fs
     .readdirSync(PLAY_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory() && fs.existsSync(path.join(PLAY_DIR, d.name, 'markup.html')))
@@ -187,10 +188,52 @@ async function enumerate(mockupsRoot) {
     console.log(`mockup-divergence enumerate: ${mockupsRoot} not present — 0 pairs, nothing measured`);
     return 0;
   }
-  const dirs = fs
-    .readdirSync(mockupsRoot, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && fs.existsSync(path.join(mockupsRoot, d.name, 'index.html')))
-    .map((d) => d.name);
+  // Every entry readdirSync returns — real directory, symlink, or plain file — lands in exactly one
+  // of {candidate for pairing, excluded-with-reason}, so the bucket counts always sum to the
+  // UNFILTERED entry count. Counting only entries the isDirectory() predicate already kept would make
+  // the sum circular: nothing that predicate drops could ever fail it. A symlink to a directory is
+  // resolved by following it; a symlink whose target is gone, or is not a directory, is excluded with
+  // a reason instead of silently vanishing.
+  const rawEntries = fs.readdirSync(mockupsRoot, { withFileTypes: true });
+  const totalEntries = rawEntries.length;
+
+  const dirCandidates = [];
+  const excluded = [];
+  for (const entry of rawEntries) {
+    if (entry.isDirectory()) {
+      dirCandidates.push(entry.name);
+      continue;
+    }
+    if (entry.isSymbolicLink()) {
+      let target;
+      try {
+        target = fs.statSync(path.join(mockupsRoot, entry.name));
+      } catch {
+        excluded.push(`${entry.name} — dangling symlink`);
+        continue;
+      }
+      if (target.isDirectory()) dirCandidates.push(entry.name);
+      else excluded.push(`${entry.name} — symlink to a non-directory, not a mockup directory`);
+      continue;
+    }
+    excluded.push(`${entry.name} — not a directory`);
+  }
+
+  const dirs = [];
+  let unmeasured = 0;
+  for (const name of dirCandidates) {
+    const entries = fs.readdirSync(path.join(mockupsRoot, name));
+    const { file, reason } = resolveIndexFile(entries);
+    if (file) {
+      dirs.push(name);
+    } else {
+      excluded.push(`${name} — ${reason}`);
+      // Mockup-shaped (holds at least one .html) but unresolvable is the one case widening cannot fix
+      // for free — an ambiguous directory needs a human to pick, not a guess. That is what makes
+      // --enumerate able to return non-zero: everything else here is disclosed, not silently dropped.
+      if (entries.some((e) => e.endsWith('.html'))) unmeasured += 1;
+    }
+  }
 
   const pairs = [];
   const unpaired = [];
@@ -219,8 +262,9 @@ async function enumerate(mockupsRoot) {
     pairs.push({ id, dir, destructive, lost, recorded: Object.values(registry[id] ?? {}).flat().length });
   }
 
-  console.log(`mockup-divergence enumerate: ${dirs.length} mockup dir(s), ${routes.length} play route(s) with a markup.html`);
-  console.log(`  paired: ${pairs.length} · of those, would lose bytes on re-extraction: ${pairs.filter((p) => p.destructive.length).length}`);
+  console.log(`mockup-divergence enumerate: ${totalEntries} entr(y/ies) under ${mockupsRoot}, ${routes.length} play route(s) with a markup.html`);
+  console.log(`  paired: ${pairs.length} · unpaired: ${unpaired.length} · excluded: ${excluded.length} · sum ${pairs.length + unpaired.length + excluded.length} of ${totalEntries} entr(y/ies)`);
+  console.log(`  of those paired, would lose bytes on re-extraction: ${pairs.filter((p) => p.destructive.length).length}`);
   // One `pair:` line per member, whether it diverges or not, so a caller can drive the real extractor
   // once per pair and get an exit code for each. A gate over a SET is calibrated per member.
   for (const p of pairs) {
@@ -228,10 +272,11 @@ async function enumerate(mockupsRoot) {
     console.log(`  pair: ${p.dir} -> ${p.id} · ${verdict} · recorded divergences: ${p.recorded}${p.lost.length ? ` · would DELETE ${p.lost.length} recorded (${p.lost.join('; ')})` : ''}`);
   }
   for (const u of unpaired) console.log(`  unpaired, not measured — ${u}`);
-  return 0;
+  for (const e of excluded) console.log(`  excluded: ${e}`);
+  return unmeasured;
 }
 
-function selftest() {
+async function selftest() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'divergence-selftest-'));
   const registry = {
     r: { 'markup.html': [{ fragment: '<p id="live"></p>', deliberate: true, owner: 'gh#0', why: 'a live region' }] },
@@ -260,12 +305,85 @@ function selftest() {
   assert.equal(registryProblems(registry).length, 0);
 
   fs.rmSync(dir, { recursive: true, force: true });
-  console.log('mockup-divergence-check --selftest: ok (present -> green, deleted -> red naming the owner, --force releases the file layer only)');
+
+  // Pin 1: the index-file classification the --enumerate widening rests on, over the four shapes a
+  // mockup directory actually takes (dynamic import to avoid the cycle noted at EXTRACTED_FILES above).
+  // The ambiguous shape matters more than the other three: it is the ONLY path to a non-zero
+  // --enumerate exit, so an assertion over it is the pin for that whole branch.
+  const { resolveIndexFile } = await import('./extract-mockup.mjs');
+  assert.equal(resolveIndexFile(['index.html', 'style.css']).file, 'index.html', 'exact index.html must win');
+  assert.equal(
+    resolveIndexFile(['opendesign_x_index.html']).file,
+    'opendesign_x_index.html',
+    'the sole suffixed .html file must resolve',
+  );
+  assert.equal(resolveIndexFile(['INDEX.md']).file, null, 'zero .html files must resolve to nothing');
+  assert.equal(resolveIndexFile(['a.html', 'b.html']).file, null, 'two .html files must resolve to nothing — ambiguous');
+  assert.match(
+    resolveIndexFile(['a.html', 'b.html']).reason,
+    /ambiguous/,
+    'the ambiguous reason must say why, since it drives the only non-zero --enumerate exit',
+  );
+
+  // Pin 2: the wire, not just the pure function. Spawn the real CLI over a fixture with all four
+  // shapes — exact, sole-suffixed, no-html, and ambiguous (two .html files) — and assert stdout
+  // discloses each exclusion by name, never names the resolvable suffixed directory as excluded, the
+  // bucket counts reconcile, and the ambiguous directory alone drives a non-zero process exit.
+  const enumRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'enumerate-selftest-'));
+  const miniHtml = '<html><body><style>a{}</style><script>1;</script></body></html>';
+  fs.mkdirSync(path.join(enumRoot, 'exact'));
+  fs.writeFileSync(path.join(enumRoot, 'exact', 'index.html'), miniHtml);
+  fs.mkdirSync(path.join(enumRoot, 'suffixed'));
+  fs.writeFileSync(path.join(enumRoot, 'suffixed', 'opendesign_x_index.html'), miniHtml);
+  fs.mkdirSync(path.join(enumRoot, 'no-html'));
+  fs.writeFileSync(path.join(enumRoot, 'no-html', 'INDEX.md'), 'not html');
+  fs.mkdirSync(path.join(enumRoot, 'ambiguous'));
+  fs.writeFileSync(path.join(enumRoot, 'ambiguous', 'a.html'), miniHtml);
+  fs.writeFileSync(path.join(enumRoot, 'ambiguous', 'b.html'), miniHtml);
+
+  const run = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--enumerate', enumRoot], { encoding: 'utf8' });
+  const out = run.stdout;
+  assert.ok(out.includes('excluded: no-html —'), `stdout must name the excluded directory with its reason, got:\n${out}`);
+  assert.ok(out.includes('excluded: ambiguous —'), `stdout must name the ambiguous directory as excluded, got:\n${out}`);
+  assert.ok(!out.includes('excluded: suffixed —'), `a resolvable suffixed directory must never appear on an excluded: line, got:\n${out}`);
+  const entryCount = fs.readdirSync(enumRoot, { withFileTypes: true }).length;
+  assert.ok(out.includes(`sum ${entryCount} of ${entryCount} entr`), `the bucket counts must reconcile against the unfiltered entry count, got:\n${out}`);
+  assert.equal(run.status, 1, 'the ambiguous directory is the only path to a non-zero exit, and it must take it');
+  fs.rmSync(enumRoot, { recursive: true, force: true });
+
+  // Pin 3: a symlink to a directory resolves like a directory, and a dangling symlink lands in a
+  // named excluded bucket instead of vanishing from the count. The reconciling sum is taken against
+  // readdirSync's UNFILTERED result, never against the isDirectory() predicate that builds the
+  // candidate list — that identity is what made the sum circular in the first place.
+  const symRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'enumerate-symlink-selftest-'));
+  fs.mkdirSync(path.join(symRoot, 'real'));
+  fs.writeFileSync(path.join(symRoot, 'real', 'index.html'), miniHtml);
+  fs.symlinkSync(path.join(symRoot, 'real'), path.join(symRoot, 'linked-dir'));
+  fs.symlinkSync(path.join(symRoot, 'does-not-exist'), path.join(symRoot, 'dangling'));
+  const symRun = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--enumerate', symRoot], { encoding: 'utf8' });
+  const symOut = symRun.stdout;
+  assert.ok(symOut.includes('excluded: dangling — dangling symlink'), `a dangling symlink must land in a named bucket, got:\n${symOut}`);
+  const symEntryCount = fs.readdirSync(symRoot, { withFileTypes: true }).length;
+  assert.ok(
+    symOut.includes(`sum ${symEntryCount} of ${symEntryCount} entr`),
+    `a symlinked mockup directory must not silently vanish from the reconciling sum, got:\n${symOut}`,
+  );
+  fs.rmSync(symRoot, { recursive: true, force: true });
+
+  console.log('mockup-divergence-check --selftest: ok (present -> green, deleted -> red naming the owner, --force releases the file layer only, index-file widening classifies all 4 shapes including ambiguous, --enumerate reconciles against the unfiltered entry count, resolves a symlinked directory, and names a dangling one)');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   if (process.argv.includes('--selftest')) {
-    selftest();
+    // .then rather than `await`: same top-level-await hazard as --enumerate below, since selftest now
+    // spawns this same CLI's --enumerate as its second pin.
+    selftest().then(
+      () => process.exit(0),
+      (err) => {
+        console.error(err);
+        process.exit(1);
+      },
+    );
   } else if (process.argv.includes('--enumerate')) {
     const arg = process.argv[process.argv.indexOf('--enumerate') + 1];
     const root = (arg && !arg.startsWith('--') ? arg : '~/claude/mockup-games').replace(/^~/, os.homedir());

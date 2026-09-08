@@ -108,8 +108,25 @@ export function extractFiles(html, id) {
   };
 }
 
+/**
+ * Which file in a mockup directory is its index, without guessing at an owner's naming habit: exact
+ * `index.html` wins; else the SOLE `*.html` file present, because sole is the only property of a
+ * directory that makes a guess unambiguous; else there is no index, and `reason` says why not. Pure
+ * over a directory listing (not a path), so this is assertable with no disk I/O.
+ */
+export function resolveIndexFile(entries) {
+  if (entries.includes('index.html')) return { file: 'index.html', reason: null };
+  const htmlFiles = entries.filter((e) => e.endsWith('.html'));
+  if (htmlFiles.length === 1) return { file: htmlFiles[0], reason: null };
+  if (htmlFiles.length === 0) return { file: null, reason: 'no index.html and no other .html file' };
+  return { file: null, reason: `no index.html and ${htmlFiles.length} .html files, ambiguous` };
+}
+
 export function readMockup(srcDir) {
-  return fs.readFileSync(path.join(srcDir.replace(/^~/, process.env.HOME ?? '~'), 'index.html'), 'utf8');
+  const dir = srcDir.replace(/^~/, process.env.HOME ?? '~');
+  const { file, reason } = resolveIndexFile(fs.readdirSync(dir));
+  if (!file) throw new Error(`${dir}: ${reason}`);
+  return fs.readFileSync(path.join(dir, file), 'utf8');
 }
 
 async function main(argv) {
@@ -136,7 +153,7 @@ async function main(argv) {
   try {
     extracted = extractFiles(readMockup(srcDir), id);
   } catch (err) {
-    console.error(`::error::${srcDir}/index.html: ${err.message}`);
+    console.error(`::error::${srcDir}: ${err.message}`);
     return 1;
   }
   const { files, meta } = extracted;
