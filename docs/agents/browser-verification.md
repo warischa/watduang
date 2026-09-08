@@ -198,3 +198,10 @@ missed a 6/9 tap collision on a sibling tool page (#61). Drive the control a pla
 
 If a check could not be run, say so. Never infer the result from markup — that inference is the
 thing this tooling exists to replace.
+
+## Budget
+
+budgets: file=14KB
+
+Declared by ADR-0062: every remaining section here is drive-time payload, both pointer stubs are
+spent, and no permitted cut reaches 11KB. Re-measure with `check-budgets.sh` before trusting it.
