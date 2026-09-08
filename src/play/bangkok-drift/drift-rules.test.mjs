@@ -78,6 +78,49 @@ test('STEER keeps the raise: full lock travels further than 1.8 could in the sam
     `full lock reached only ${steered.d.x} half-widths in 30 frames -- steering is back to slow`);
 });
 
+// REDUCED_DT is why the reduced-motion probe leg shares the unreduced frame floor: reduced motion
+// slows the simulation rather than freezing it, so the same floor applies. If the factor changed
+// silently, that leg's reasoning would be wrong and its green would still be green (gh#225).
+//
+// BE HONEST ABOUT WHAT THESE TWO ASSERTIONS ARE, the way the STEER comment above is. They are one
+// predicate in two units, not a constant check plus an independent outcome check. On a zero-curve
+// track with no obstacle, CENTRIFUGAL contributes nothing and no slide starts, so N frames of full
+// lock land at exactly N * STEER * dt -- which makes the travel ratio algebraically identical to the
+// factor itself. The second assertion earns its place only by being non-circular: the expected 0.7 is
+// a LITERAL while the dt fed in comes from RULES.REDUCED_DT, so raising the constant moves the
+// measured ratio away from a fixed number. Computing the expected ratio from RULES.REDUCED_DT would
+// have made it unfailable.
+//
+// WHAT NEITHER ASSERTION COVERS: the frame loop at the call site, which passes dt * RULES.REDUCED_DT.
+// That line is outside the @logic-start block this file slices, so no test here can see it. A
+// re-extraction that kept this constant and restored a literal at the wire would leave the constant
+// dead and both assertions below still green. The registry fragment in src/play/_divergences.json is
+// the only guard on that half, which is why it records the call site as well as this constant.
+test('REDUCED_DT: reduced motion slows the drive by the recorded factor, it does not freeze it', () => {
+  assert.equal(RULES.REDUCED_DT, 0.7, `REDUCED_DT is ${RULES.REDUCED_DT} -- the reduced-motion probe leg reasons about 0.7`);
+  assert.ok(RULES.REDUCED_DT > 0, 'a zero factor would freeze the road, which is the thing reduced motion must NOT do');
+
+  const full = run(straight(400), () => 1, 30, -0.9);
+  const reducedRun = (() => {
+    const d = newDrive();
+    d.x = -0.9;
+    for (let f = 0; f < 30; f++) {
+      const r = stepDrive(d, straight(400), 1, DT * RULES.REDUCED_DT);
+      if (r) return { r, d, f };
+    }
+    return { r: null, d, f: 30 };
+  })();
+  assert.equal(full.r, null, `the unreduced control turn ended at frame ${full.f} instead of just steering`);
+  assert.equal(reducedRun.r, null, `the reduced turn ended at frame ${reducedRun.f} -- it should only be slower`);
+
+  const travelled = (from) => from.d.x - -0.9;
+  const ratio = travelled(reducedRun) / travelled(full);
+  assert.ok(
+    Math.abs(ratio - 0.7) < 1e-9,
+    `30 reduced frames covered ${ratio} of the unreduced distance, not 0.7 -- either REDUCED_DT moved or the integration did`,
+  );
+});
+
 test('same seed gives the same road including kinds, lanes and directions', () => {
   const a = JSON.stringify(buildTrack(7, 500));
   const b = JSON.stringify(buildTrack(7, 500));

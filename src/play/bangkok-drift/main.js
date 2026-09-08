@@ -34,6 +34,14 @@ const RULES = {
                          // drift-rules.test.mjs pins the behaviour as the third check, so a value
                          // that did come back would also fail a test rather than only a gate.
   CENTRIFUGAL: 0.25,     // ponytail: one scalar on v^2/R, tuned by feel in a browser, not derived
+  REDUCED_DT: 0.7,       // under prefers-reduced-motion the simulation is fed this fraction of dt, so
+                         // the road still draws every frame but moves slower. It lives in this table
+                         // rather than inline at the frame loop for one reason: drift-rules.test.mjs
+                         // can only see the @logic-start block, so a number outside it has no test
+                         // that fails on a WRONG value. Recorded in src/play/_divergences.json as two
+                         // fragments -- this line AND the call site -- because a re-extraction that
+                         // kept the constant and restored `dt * 0.7` at the wire would leave the
+                         // registry green with the constant dead (gh#225).
   // The obstacle table. ONE row per kind, so a fifth kind is a row here plus one sprite, never a
   // branch in the rules. `th` is the Thai name a result screen shows. `lethal` ends the turn on
   // contact. The control kinds carry the numbers that make their effect measurable: `kick` is an
@@ -293,7 +301,9 @@ function frame(now) {
   } else {
     if (goFlash > 0 && (goFlash -= dt) <= 0) $('overlay').textContent = '';
     // Reduced motion slows the simulation instead of hiding it: the road still draws every frame.
-    ended = stepDrive(drive, game.track, steer, reduceMotion.matches ? dt * 0.7 : dt);
+    // The factor is RULES.REDUCED_DT, not a literal here, so drift-rules.test.mjs can red on a wrong
+    // value; this call is the half no test in the slice can see, and the registry guards it (gh#225).
+    ended = stepDrive(drive, game.track, steer, reduceMotion.matches ? dt * RULES.REDUCED_DT : dt);
     // A control hazard changes the car without ending the turn, and a canvas says nothing about
     // that on its own -- announce it outside the stage, in the live region.
     if (!ended && drive.hits > announcedHits) {

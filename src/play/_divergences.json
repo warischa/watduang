@@ -29,6 +29,18 @@
         "why": "the owner reported turning was too slow and chose 2.8 half-widths per second over the mockup's 1.8, which halves a full-road crossing from 1.11s to 0.71s. A feel-tuned scalar like CENTRIFUGAL beside it, not derived, so the mockup will never agree with it. drift-rules.test.mjs also pins the behaviour, but only this entry survives a --force: the file layer can be forced past for one run and the fragment layer cannot"
       },
       {
+        "fragment": "REDUCED_DT: 0.7,",
+        "deliberate": true,
+        "owner": "gh#225",
+        "why": "the reduced-motion dt factor, moved into the RULES table from a literal in the frame loop so drift-rules.test.mjs can red on a wrong value at all. This is the constant half of a pair: on its own it can sit in the table unused"
+      },
+      {
+        "fragment": "reduceMotion.matches ? dt * RULES.REDUCED_DT : dt",
+        "deliberate": true,
+        "owner": "gh#225",
+        "why": "the connector, and the half no test can see: the frame loop is outside the @logic-start block drift-rules.test.mjs slices. A re-extraction that keeps REDUCED_DT in the table and restores a literal here leaves the constant dead with every assertion still green, which is why the call site is recorded and not only the constant"
+      },
+      {
         "fragment": "import { armAllButtons } from '../../games/_arm-gate.ts';",
         "deliberate": true,
         "owner": "ADR-0057",
