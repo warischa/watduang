@@ -25,6 +25,11 @@
 //   BD_NULL_CTX=1   the other half of ADR-0051: getContext('2d') returns null the way a device out of
 //                   contexts would, and the round must still be startable and finishable. This leg
 //                   reports on `playable`, because there are correctly no pixels.
+//   BD_STOP_LOOP=1  freezes requestAnimationFrame right after the countdown, so no new frame is ever
+//                   scheduled again; the ink already on the canvas is left untouched, not cleared or
+//                   repainted. The frame count must fall to (near) zero while coverage stays ABOVE the
+//                   ink floor -- proving the coverage term alone cannot tell a running loop from a
+//                   frozen one, which is exactly why `out.drawing` also checks frames.
 const [PORT = '9555', SHOT = ''] = process.argv.slice(2);
 const BASE = process.env.BASE ?? 'http://localhost:4555';
 
@@ -99,6 +104,7 @@ const url = `${BASE}/game/bangkok-drift/play/`;
 const reduced = process.env.BD_REDUCED === '1';
 const stubbed = process.env.BD_STUB_PAINT === '1';
 const nullCtx = process.env.BD_NULL_CTX === '1';
+const stopLoop = process.env.BD_STOP_LOOP === '1';
 
 // All three have to be in place BEFORE the page runs: main.js reads the motion query and takes its
 // context at module evaluation, and a paint stub applied after the first frame would measure a
@@ -149,7 +155,7 @@ await p;
 await send('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 2, mobile: true });
 await sleep(600);
 
-const out = { url, reducedRequested: reduced, paintStubbed: stubbed, nullContext: nullCtx };
+const out = { url, reducedRequested: reduced, paintStubbed: stubbed, nullContext: nullCtx, loopStopped: stopLoop };
 // A fresh device has no roster, so this route opens on its own setup screen with the cast already in
 // the fields: pressing "เริ่มแข่ง" and then "พร้อม ออกตัว!" is the whole path into a drive.
 out.start = (await evaluate(CLICK_WHEN_ARMED('#startGameBtn'))).value;
@@ -157,6 +163,10 @@ await sleep(600);
 out.ready = (await evaluate(CLICK_WHEN_ARMED('#readyBtn'))).value;
 // Past the three-second countdown, so what is measured below is the drive loop and not the count-in.
 await sleep(3400);
+
+// Freeze AFTER the countdown, not before: the loop must have already painted at least one real
+// frame, so what the frame window below measures is a loop that stopped, not one that never started.
+if (stopLoop) await evaluate(`window.requestAnimationFrame = () => {};`);
 
 // THE FRAME COUNT. A fixed interval, read from the page's own clock at both ends so a slow round trip
 // cannot inflate the rate.

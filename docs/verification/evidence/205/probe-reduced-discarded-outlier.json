@@ -1,0 +1,46 @@
+{
+  "url": "http://localhost:4592/game/bangkok-drift/play/",
+  "reducedRequested": true,
+  "paintStubbed": false,
+  "nullContext": false,
+  "loopStopped": false,
+  "start": {
+    "clicked": true,
+    "selector": "#startGameBtn"
+  },
+  "ready": {
+    "clicked": true,
+    "selector": "#readyBtn"
+  },
+  "frames": {
+    "elapsedMs": 2001,
+    "frames": 81,
+    "paints": 162,
+    "fps": 40.5,
+    "screen": "screen-drive",
+    "metres": "37 ม."
+  },
+  "pixels": {
+    "present": true,
+    "context": "2d",
+    "backingStore": {
+      "w": 750,
+      "h": 1624
+    },
+    "cssBox": {
+      "w": 375,
+      "h": 812
+    },
+    "coverage": 1,
+    "distinctColours": 204,
+    "screen": "screen-drive",
+    "reducedMotion": true
+  },
+  "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/50a2040d-bf3b-4b69-8add-a4128e81f98e/scratchpad/reduced.png",
+  "floors": {
+    "frames": 30,
+    "coverage": 0.2,
+    "windowMs": 2000
+  },
+  "drawing": true
+}
