@@ -1,0 +1,194 @@
+<!doctype html>
+<html><head><meta charset="UTF-8"><title>webgl-ios-probe</title>
+<style>
+  body{font-family:-apple-system,sans-serif;font-size:28px;line-height:1.5;background:#000;color:#0f0;margin:0;padding:16px}
+  #out{white-space:pre-wrap;word-break:break-word}
+  iframe{position:absolute;left:0;top:340px;width:390px;height:844px;border:2px solid #333;opacity:0.001}
+  .FAIL{color:#f55}.UNMEASURED{color:#ff5}.PASS{color:#5f5}
+</style>
+</head>
+<body>
+<div id="out">BOOTING...</div>
+<iframe id="frame"></iframe>
+<script>
+const params = new URLSearchParams(location.search);
+const route = params.get('route') || 'one-bomb';
+const stub = params.get('stub') === '1'; // must-red calibration knob
+const out = document.getElementById('out');
+function print(text, cls){ out.textContent = text; out.className = cls || ''; }
+
+function classify({ contextLive, nonBlank }) {
+  if (contextLive !== true) return { verdict: 'UNMEASURED', reason: 'no live WebGL context on this runner' };
+  if (nonBlank === true) return { verdict: 'PASS', reason: 'live context, canvas region is non-uniform' };
+  if (nonBlank === false) return { verdict: 'FAIL', reason: 'live context, canvas region is uniform/blank' };
+  return { verdict: 'UNMEASURED', reason: 'live context, but the readback never happened' };
+}
+
+// Sample a GRID of points across the whole drawing buffer (never a centre line) and report how many
+// distinct quantised colours the grid saw -- the non-uniformity signal the brief asks for.
+async function readback(win, doc, stubDraw) {
+  const deadline = performance.now() + 6000;
+  let c = null, gl = null;
+  while (performance.now() < deadline && !gl) {
+    for (const el of doc.querySelectorAll('canvas')) {
+      const ctx = el.getContext('webgl') || el.getContext('experimental-webgl');
+      if (ctx) { c = el; gl = ctx; break; }
+    }
+    if (!gl) await new Promise(r => setTimeout(r, 100));
+  }
+  if (!gl) return { contextLive: false, nonBlank: null, canvases: doc.querySelectorAll('canvas').length };
+  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+  const result = {
+    contextLive: true,
+    renderer: dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
+    contextLost: gl.isContextLost(),
+    backingStore: { w: c.width, h: c.height },
+    drawingBuffer: { w: gl.drawingBufferWidth, h: gl.drawingBufferHeight },
+    stubbed: !!stubDraw,
+  };
+  if (result.contextLost) { result.nonBlank = null; result.readbackNote = 'context lost'; return result; }
+  if (stubDraw) {
+    const proto = Object.getPrototypeOf(gl);
+    for (const name of ['drawArrays', 'drawElements']) if (proto[name]) proto[name] = function () {};
+    await new Promise(r => win.requestAnimationFrame(() => win.requestAnimationFrame(r)));
+  }
+  // rAF-timed readback -- an ordinary-task readPixels reads zeros forever (repo's own load-bearing
+  // timing note). Read 3 frames, keep the one with the most distinct colours.
+  const frames = await new Promise((resolve) => {
+    const acc = [];
+    const bail = setTimeout(() => resolve(acc), 4000);
+    const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
+    const step = () => {
+      let frame = { w, h, gridColours: 0, coverage: 0 };
+      if (w > 0 && h > 0) {
+        const prev = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        const buf = new Uint8Array(w * h * 4);
+        gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, prev);
+        // Grid sample: 12x12 points across the WHOLE region, never a single centre line.
+        const seen = new Set();
+        let hitCount = 0;
+        const N = 12;
+        for (let gy = 0; gy < N; gy++) for (let gx = 0; gx < N; gx++) {
+          const px = Math.min(w - 1, Math.floor((gx + 0.5) * w / N));
+          const py = Math.min(h - 1, Math.floor((gy + 0.5) * h / N));
+          const i = (py * w + px) * 4;
+          const key = (buf[i] >> 4) * 4096 + (buf[i+1] >> 4) * 256 + (buf[i+2] >> 4) * 16 + (buf[i+3] >> 4);
+          seen.add(key);
+        }
+        // Full-buffer coverage vs modal colour (same measure the repo's own probe uses), so a
+        // grid that happens to land on one colour 12x12 times still gets a real coverage number.
+        const hist = new Map();
+        for (let i = 0; i < buf.length; i += 4) {
+          const k = (buf[i] >> 4) * 4096 + (buf[i+1] >> 4) * 256 + (buf[i+2] >> 4) * 16 + (buf[i+3] >> 4);
+          hist.set(k, (hist.get(k) || 0) + 1);
+        }
+        let modal = 0;
+        for (const v of hist.values()) if (v > modal) modal = v;
+        const total = w * h;
+        frame = { w, h, gridColours: seen.size, coverage: Number(((total - modal) / total).toFixed(4)) };
+      }
+      acc.push(frame);
+      if (acc.length >= 3) { clearTimeout(bail); resolve(acc); } else win.requestAnimationFrame(step);
+    };
+    win.requestAnimationFrame(step);
+  });
+  result.frames = frames;
+  if (frames.length === 0) { result.nonBlank = null; result.readbackNote = 'no animation frame fired within 4000ms'; return result; }
+  result.best = frames.reduce((a, b) => (b.gridColours > a.gridColours ? b : a));
+  // Non-uniform = grid saw >=2 distinct colours across its 144 sample points AND real coverage.
+  result.nonBlank = result.best.gridColours >= 2 && result.best.coverage > 0.02;
+  return result;
+}
+
+async function drivePinocchio(win, doc) {
+  // roster-bridge auto-presses [data-act="start"] on load once localStorage carries a roster/group
+  // (docs/agents playbook recipe) -- seed it, then reload the iframe so the bridge sees it at boot.
+  win.localStorage.setItem('watduang:roster', JSON.stringify(['Aa','Bb']));
+  win.localStorage.setItem('watduang:group', JSON.stringify(['Aa','Bb']));
+  await new Promise(r => setTimeout(r, 300));
+}
+
+async function driveOneBomb(win, doc) {
+  // No roster-bridge on this route -- press its own start button after the arm-gate window.
+  await new Promise(r => setTimeout(r, 900));
+  const btn = doc.getElementById('startPlayBtn');
+  if (btn) btn.click();
+  await new Promise(r => setTimeout(r, 900));
+}
+
+// Real round-started observable per route (confirmed against each route's own source, not
+// assumed): one-bomb's startGame() hides #menuOverlay and un-hides #hud; pinocchio-luck's start
+// changes #roundTag off its initial setup-tag text. Never trust the click landed -- gate on the
+// effect, same rule this repo's own playbook already has for #tb-start.
+function roundStarted(doc, routeId) {
+  if (routeId === 'one-bomb') {
+    const menu = doc.getElementById('menuOverlay');
+    const hud = doc.getElementById('hud');
+    return !!menu && !!hud && menu.classList.contains('hidden') && !hud.classList.contains('hidden');
+  }
+  if (routeId === 'pinocchio-luck') {
+    const tag = doc.getElementById('roundTag');
+    const noWebgl = doc.getElementById('app')?.classList.contains('no-webgl');
+    return !!tag && tag.textContent.trim() !== 'ตั้งวง' && !noWebgl;
+  }
+  return null; // no observable defined for this route -- do not guess
+}
+
+async function run() {
+  print('LOADING ' + route + ' ...');
+  const frame = document.getElementById('frame');
+  const path = '/game/' + route + '/play/';
+  const url = location.origin + path;
+  const loaded = new Promise(r => frame.addEventListener('load', r, { once: true }));
+  frame.src = path;
+  await loaded;
+  const win = frame.contentWindow, doc = frame.contentDocument;
+  if (route === 'pinocchio-luck') {
+    await drivePinocchio(win, doc);
+    // reload so roster-bridge seeds at boot, per the playbook recipe
+    const reloaded = new Promise(r => frame.addEventListener('load', r, { once: true }));
+    frame.src = path;
+    await reloaded;
+    await new Promise(r => setTimeout(r, 1200));
+  } else if (route === 'one-bomb') {
+    await driveOneBomb(frame.contentWindow, frame.contentDocument);
+  }
+  const started = roundStarted(frame.contentDocument, route);
+  const viewport = {
+    hostInnerWidth: window.innerWidth, hostInnerHeight: window.innerHeight,
+    iframeInnerWidth: win.innerWidth, iframeInnerHeight: win.innerHeight,
+    devicePixelRatio: win.devicePixelRatio,
+  };
+  const measured = await readback(frame.contentWindow, frame.contentDocument, stub);
+  let verdict = classify(measured);
+  // UNMEASURED never relaxes to PASS: a round that never observably started makes "after a round
+  // starts" unmeasured for that route, regardless of what the pixels looked like.
+  if (verdict.verdict === 'PASS' && started === false) {
+    verdict = { verdict: 'UNMEASURED', reason: 'canvas drew, but the round-started observable never flipped -- cannot attribute the draw to a started round' };
+  }
+  const record = { route, url, stub, viewport, roundStarted: started, ...measured, ...verdict };
+  window.__PROBE_RESULT__ = record;
+  try {
+    await fetch('http://localhost:9333/', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(record) });
+  } catch (e) { /* collector optional -- on-screen text is still the primary readout */ }
+  const lines = [
+    'ROUTE: ' + route,
+    'STUB(must-red): ' + stub,
+    'VERDICT: ' + verdict.verdict,
+    'reason: ' + verdict.reason,
+    'roundStarted: ' + started,
+    'contextLive: ' + measured.contextLive,
+    'contextLost: ' + measured.contextLost,
+    'renderer: ' + (measured.renderer || '(none)'),
+    'gridColours(best): ' + (measured.best ? measured.best.gridColours : 'n/a') + ' / 144 pts',
+    'coverage(best): ' + (measured.best ? measured.best.coverage : 'n/a'),
+    'drawingBuffer: ' + JSON.stringify(measured.drawingBuffer || {}),
+    'viewport: ' + JSON.stringify(viewport),
+  ];
+  print(lines.join('\n'), verdict.verdict);
+}
+run().catch(e => print('ERROR: ' + (e && e.message || e), 'FAIL'));
+</script>
+</body></html>

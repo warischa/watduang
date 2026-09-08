@@ -1,0 +1,168 @@
+{
+  "device": "iPhone 17 Simulator, iOS 26.5, UDID 721ACACC-7BC9-4079-B57E-974AEFB1BBB0",
+  "method": "same-origin iframe + .click() driver page (docs/agents/ios-webkit-verification.md Technique 3), navigated via xcrun simctl openurl, read out via xcrun simctl io screenshot; the page also POSTs its computed record to a throwaway localhost:9333 collector so the JSON is the page own value, never hand-transcribed off a screenshot; roundStarted is a real per-route DOM observable, not inferred from the click landing",
+  "rows": [
+    {
+      "route": "one-bomb",
+      "url": "http://localhost:4592/game/one-bomb/play/",
+      "stub": false,
+      "viewport": {
+        "hostInnerWidth": 980,
+        "hostInnerHeight": 1741,
+        "iframeInnerWidth": 390,
+        "iframeInnerHeight": 844,
+        "devicePixelRatio": 3
+      },
+      "roundStarted": true,
+      "contextLive": true,
+      "renderer": "Apple GPU",
+      "contextLost": false,
+      "backingStore": {
+        "w": 780,
+        "h": 1688
+      },
+      "drawingBuffer": {
+        "w": 780,
+        "h": 1688
+      },
+      "stubbed": false,
+      "frames": [
+        {
+          "w": 780,
+          "h": 1688,
+          "gridColours": 15,
+          "coverage": 0.4519
+        },
+        {
+          "w": 780,
+          "h": 1688,
+          "gridColours": 15,
+          "coverage": 0.4519
+        },
+        {
+          "w": 780,
+          "h": 1688,
+          "gridColours": 15,
+          "coverage": 0.4519
+        }
+      ],
+      "best": {
+        "w": 780,
+        "h": 1688,
+        "gridColours": 15,
+        "coverage": 0.4519
+      },
+      "nonBlank": true,
+      "verdict": "PASS",
+      "reason": "live context, canvas region is non-uniform"
+    },
+    {
+      "route": "pinocchio-luck",
+      "url": "http://localhost:4592/game/pinocchio-luck/play/",
+      "stub": false,
+      "viewport": {
+        "hostInnerWidth": 980,
+        "hostInnerHeight": 1741,
+        "iframeInnerWidth": 390,
+        "iframeInnerHeight": 844,
+        "devicePixelRatio": 3
+      },
+      "roundStarted": true,
+      "contextLive": true,
+      "renderer": "Apple GPU",
+      "contextLost": false,
+      "backingStore": {
+        "w": 752,
+        "h": 776
+      },
+      "drawingBuffer": {
+        "w": 752,
+        "h": 776
+      },
+      "stubbed": false,
+      "frames": [
+        {
+          "w": 752,
+          "h": 776,
+          "gridColours": 19,
+          "coverage": 0.2131
+        },
+        {
+          "w": 752,
+          "h": 776,
+          "gridColours": 19,
+          "coverage": 0.2131
+        },
+        {
+          "w": 752,
+          "h": 776,
+          "gridColours": 19,
+          "coverage": 0.2129
+        }
+      ],
+      "best": {
+        "w": 752,
+        "h": 776,
+        "gridColours": 19,
+        "coverage": 0.2131
+      },
+      "nonBlank": true,
+      "verdict": "PASS",
+      "reason": "live context, canvas region is non-uniform"
+    },
+    {
+      "route": "one-bomb",
+      "url": "http://localhost:4592/game/one-bomb/play/",
+      "stub": true,
+      "viewport": {
+        "hostInnerWidth": 980,
+        "hostInnerHeight": 1741,
+        "iframeInnerWidth": 390,
+        "iframeInnerHeight": 844,
+        "devicePixelRatio": 3
+      },
+      "roundStarted": true,
+      "contextLive": true,
+      "renderer": "Apple GPU",
+      "contextLost": false,
+      "backingStore": {
+        "w": 780,
+        "h": 1688
+      },
+      "drawingBuffer": {
+        "w": 780,
+        "h": 1688
+      },
+      "stubbed": true,
+      "frames": [
+        {
+          "w": 780,
+          "h": 1688,
+          "gridColours": 1,
+          "coverage": 0
+        },
+        {
+          "w": 780,
+          "h": 1688,
+          "gridColours": 1,
+          "coverage": 0
+        },
+        {
+          "w": 780,
+          "h": 1688,
+          "gridColours": 1,
+          "coverage": 0
+        }
+      ],
+      "best": {
+        "w": 780,
+        "h": 1688,
+        "gridColours": 1,
+        "coverage": 0
+      },
+      "nonBlank": false,
+      "verdict": "FAIL",
+      "reason": "live context, canvas region is uniform/blank"
+    }
+  ]
+}
