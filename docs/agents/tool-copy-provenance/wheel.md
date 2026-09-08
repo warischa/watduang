@@ -34,3 +34,15 @@ gh#112: thrown `Error` message surfaced to the player when the roster is too sma
 | String | Source |
 |---|---|
 | `` `วงล้อสุ่มต้องมีชื่ออย่างน้อย ${MIN_NAMES} คน (ตอนนี้มี ${names.length} คน)` `` (`pickName()` in `wheel.ts`) | **agent-authored** — no artboard/manifest field, flagged for owner override |
+
+## Layout deviations (ADR-0033)
+
+gh#112 box 3, resolved 2026-09-08 as a **recorded deviation**, not a canvas trace.
+
+| Value | Where | Verdict |
+|---|---|---|
+| `padding: 8px 14px` on `.wheel-mode-option` | `src/pages/tool/wheel.astro` | **deviation** — the pair appears in neither wheel artboard (`ToolWheel390`, `ToolWheelDesktop`, whose padding values are `18px 16px`, `14px 16px`, `12px 16px`, `12px 14px`, `3px 10px`, `24px 20px 22px 20px`, `20px`, `16px`), nor `design/canvas.json`. `tokens.css` holds `8px` and `14px`, but as `--radius-md` and `--text-sm` — a corner radius and a font size. Spending them as a padding pair would be a false trace, not a source, so they are not used. The one place `8px 14px` does appear in the canvas is `design/ToolNameEntry.dc.html`, a different artboard for a different element. |
+
+The mode toggle has no artboard of its own: both wheel artboards draw the disc and the result bar,
+not an A/B mode chip. The value is agent-authored and stays until the owner sets one — this row is
+the disclosure ADR-0033 asks for, and the class name appears nowhere under `docs/` otherwise.

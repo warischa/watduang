@@ -1,0 +1,542 @@
+{
+  "note": "gh#112 registry. Every Thai run reaching a player from the pinned set in scripts/tool-copy-registry-check.mjs is a verbatim key here. `source` is a closed vocabulary; `baseline` names the commit a row was grandfathered against (ADR-0025). `owner-supplied` is never written by a tool - only the owner claims it.",
+  "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae",
+  "rows": {
+    "กด": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "กรอกต่ำสุดและสูงสุดให้ครบเป็นตัวเลข": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "กลับหน้าแรก": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "กล่องฉลาก": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "กำลังหมุน": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ขอ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คน": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คน (ตอนนี้มี": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คน (ทีมนึงต้องมีอย่างน้อย 1 คน": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คน จับ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คน เป็น": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คนสุดท้าย": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คนเกินกระจายให้เห็นชัดว่าทีมไหนได้เพิ่ม": {
+      "source": "design/ToolTeamDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คนเดียวในวงล้อ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คนแล้ว": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คนไม่ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "คืนทุกชื่อเข้าวงล้อ": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ค่า": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ค่า (ตอนนี้กว้าง": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ค่า (ตอนนี้มี": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ค่าในรอบนี้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จับกี่คน": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จับครบทั้ง": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จับฉลาก": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จับฉลากออนไลน์ ใส่ชื่อลงกล่องแล้วเลือกว่าจะจับกี่คน กดจับได้ทันที ไม่ซ้ำคนเดิมในรอบเดียวกัน": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จับฉลากไม่ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จับต่อได้เรื่อยๆ คนที่จับไปแล้วจะไม่ถูกจับซ้ำ จนกว่าจะกด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จับได้": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จาก": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จำนวนทีม": {
+      "source": "design/ToolTeamDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จำนวนทีมต้องมีอย่างน้อย 1 ทีม": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จำนวนทีมต้องเป็นเลขจำนวนเต็มตั้งแต่ 1 ขึ้นไป": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "จำนวนที่จะจับต้องเป็นเลขจำนวนเต็มตั้งแต่ 1 ขึ้นไป": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ชื่อในกล่อง": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ชื่อในวง": {
+      "source": "design/ToolNameEntry.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ชื่อในสนาม": {
+      "source": "design/ToolTeamDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ช่วงตัวเลข": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ช่วงตัวเลขกว้างได้ไม่เกิน": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ช่วงตัวเลขต้องมีอย่างน้อย": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ช่วงตัวเลขผิด: ต่ำสุด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ช่องโฆษณา": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ซ้ำเพื่อสุ่มใหม่ด้วยจำนวนทีมเดิม": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ตั้งเลขต่ำสุดกับสูงสุดแล้วกดสุ่ม เลือกได้ว่าจะให้เลขซ้ำได้ หรือห้ามซ้ำในรอบเดียวกัน": {
+      "source": "src/tools/manifest.ts",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ตาม": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ต่ำสุด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ต้องจับฉลากอย่างน้อย 1 คน": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ต้องมีอย่างน้อย 2 ชื่อถึงจะหมุนได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ต้องไม่มากกว่าสูงสุด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ทีม": {
+      "source": "design/ToolTeamDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ทีมไม่ได้ เพราะมีคนแค่": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ผลขึ้นเป็นตัวหนังสือทันที": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ผลขึ้นเป็นตัวหนังสือทันที กดต่อได้เรื่อยๆ จนกว่าจะกด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ผลขึ้นเป็นรายชื่อแยกทีมทันที": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ผลยังไม่ออก": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "พร้อมแบ่ง": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "พิมพ์ชื่อ บรรทัดละ 1 ชื่อ": {
+      "source": "design/ToolNameEntry.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ยังจับไม่ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ยังหมุนไม่ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ยังอยู่ในกล่อง": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ยังแบ่งไม่ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "รวมเครื่องมือสุ่มเล่นฟรี วงล้อสุ่มชื่อ จับฉลาก แบ่งทีม สุ่มเลข ใช้ได้ทันทีบนมือถือ ไม่ต้องโหลดแอป": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "รีเฟรชหน้านี้แล้วเลือกชื่อใหม่": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ลดจำนวน หรือกด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "วงล้อ": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "วงล้อมีชื่อเดียว": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "วงล้อสุ่มชื่อ": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "วงล้อสุ่มชื่อออนไลน์ ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "วงล้อสุ่มต้องมีชื่ออย่างน้อย": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "วัดดวง": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "วิธีใช้": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "สุ่ม": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "สุ่มครบทุกเลขในช่วง": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "สุ่มเลข": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "สุ่มเลขในช่วงออนไลน์ ตั้งค่าต่ำสุด-สูงสุดแล้วกดสุ่ม เลือกได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้หรือไม่": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "สุ่มไม่ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "สูงสุด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "หนึ่งครั้งต่อหนึ่งคน ผลขึ้นเป็นตัวหนังสือว่าใครโดน": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "หมุน": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "หมุนค้างไว้ จนกว่าจะกด": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "หมุนแล้วช้าลงจนหยุดเอง": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "หมุนไม่ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "หยุด": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "อยากให้เลขที่ออกแล้วไม่ออกซ้ำ ให้ติ๊ก": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "อยากไล่ทีละคนจนครบวง ให้ติ๊ก": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ออกครบทั้ง": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ออกแล้ว": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "อีกครั้งเพื่อเฉลยคนสุดท้าย": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เครื่องมือ": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เครื่องมือกิจกรรมสันทนาการ": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เครื่องมือสุ่ม": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เครื่องมือสุ่มทั้งหมด": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เครื่องมือให้คำตอบทันที ไม่มีรอบ ไม่มีลำดับตา คนเดียวก็ใช้ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เปลี่ยนจำนวนทีมเมื่อไหร่ก็แบ่งใหม่ให้ทันทีโดยไม่ต้องพิมพ์ชื่อซ้ำ กด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เพื่อคืนทุกชื่อเข้ากล่อง": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เพื่อสุ่มต่อ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เพื่อเริ่มรอบใหม่": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เริ่มรอบใหม่": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เริ่มรอบใหม่เพื่อสุ่มต่อ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เลือกจำนวนที่จะจับ แล้วกด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เลือกโหมดได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้ไหม": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เล่นเกมต่อ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เหลือ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เหลือชื่อในกล่องแค่": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เหลือในกล่อง": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เหลือในกล่องแค่": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "เอาคนที่ออกแล้วออกจากวงล้อ": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "แบ่งทีม": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "แบ่งทีมต้องมีชื่ออย่างน้อย": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "แบ่งทีมออนไลน์ ใส่ชื่อแล้วเลือกจำนวนทีม สุ่มแบ่งให้ทันทีแบบยุติธรรม เปลี่ยนจำนวนทีมแล้วแบ่งใหม่ได้เรื่อยๆ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "แบ่งทีมไม่ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "แล้ว": {
+      "source": "design/canvas.json",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "แล้วค่อยเฉลยว่าใครโดน": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "แล้วหมุนต่อ": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใต้เครื่องมือ": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ค่าต่ำสุดและสูงสุดของช่วงที่จะสุ่ม": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่จำนวนทีมที่ต้องการ แล้วกด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อทั้งวง เลือกว่าจะจั่วกี่คน กดทีเดียวรู้ผล คนที่ออกแล้วไม่ออกซ้ำในรอบเดิม": {
+      "source": "src/tools/manifest.ts",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อลงกล่อง": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ": {
+      "source": "design/ToolDrawDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อลงวงล้อ": {
+      "source": "design/ToolNameEntry.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อลงสนาม": {
+      "source": "design/ToolNameEntry.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อลงสนาม เลือกจำนวนทีม แล้วสุ่มแบ่งให้ทันที": {
+      "source": "design/ToolTeamDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อแล้วบอกว่าอยากได้กี่ทีม แบ่งให้ทันที จำนวนคนแต่ละทีมต่างกันไม่เกินหนึ่งคน": {
+      "source": "src/tools/manifest.ts",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน": {
+      "source": "design/ToolWheelDesktop.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน": {
+      "source": "src/tools/manifest.ts",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ใส่ได้กี่คนก็ได้": {
+      "source": "design/ToolNameEntry.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ได้": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ได้คนเกิน": {
+      "source": "agent-authored-pending-owner-review",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง": {
+      "source": "design/HubNeutral.dc.html",
+      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    }
+  }
+}
