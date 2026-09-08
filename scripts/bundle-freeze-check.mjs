@@ -131,6 +131,16 @@ const BASELINE_BASENAMES = [
   // importer, so Rollup inlines the helper back into short-stick.js and no separate chunk ships.
   // Adding it back here would pin a chunk the bundler has no reason to emit.
   '_round-start.js',
+  // gh#227 — audio.js is BACK, and this entry is the exact inverse of the 2026-08-29 removal noted
+  // above. That removal was correct at the time: engine deletions had left timebomb the sole
+  // consumer of src/shell/audio.ts, so Rollup inlined it and no standalone chunk shipped. gh#227
+  // gave that module eleven consumers — every play route's sound control now reads and writes the
+  // one site-wide muted state through isMuted()/setMuted() — so the bundler emits it as a shared
+  // chunk again for the same reason it stopped. Nothing about the module grew into a new
+  // responsibility; a helper two routes shared became a helper eleven routes share.
+  // This is a SET-leg re-baseline only. No byte figure is written here, per the bangkok-drift note
+  // below: re-derive against the dist/ in front of you.
+  'audio.js',
   // gh#184 — the shared `+N` seat counter for a scrolling player strip. Three play routes import it
   // (short-stick, wire-snip-panic, zero-trigger), so Rollup emits it as its own chunk rather than
   // inlining it into any one of them.

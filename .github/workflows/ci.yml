@@ -160,8 +160,33 @@ jobs:
       # a file this repo owns, so it converges. It deliberately does NOT diff against the mockups:
       # those live outside this repo, are absent on a runner, and a gate over them would red on
       # ordinary work. That half is --enumerate, a machine-local audit, and is not run here.
-      - name: Re-extraction cannot silently delete a recorded divergence (gh#212)
+      - name: Re-extraction cannot silently delete a recorded divergence, or reintroduce a recorded absence (gh#212, gh#220)
         run: node scripts/mockup-divergence-check.mjs --selftest && node scripts/mockup-divergence-check.mjs
+
+      # gh#165: a phone passed around a group that starts ticking with no way to stop it is where a
+      # player force-quits. This gate asks only whether a route that PRODUCES sound declares a
+      # control — reachability is the route's own arm-reveal test, naming is gh#211, and whether the
+      # control writes site-wide or route-local state is gh#227. The predicate walks each route's
+      # static import closure, because timebomb's AudioContext is two imports away in shell/audio.ts
+      # and a direct-identifier match reads that route as silent.
+      - name: Every sound-producing play route declares a sound control (gh#165)
+        run: node scripts/sound-control-coverage-check.mjs --selftest && node scripts/sound-control-coverage-check.mjs
+
+      # gh#227: gh#165 made the muted state site-wide, which on its own left every other route's
+      # button reflecting only itself — mute from timebomb and ten controls still read "sound on".
+      # This gate asks whether each control reads and writes the one shared key, and it reds both
+      # ways: on a control persisting a route-local key, and on a route that has no control at all
+      # being mistaken for a compliant one.
+      - name: Every play-route sound control writes the site-wide mute (gh#227)
+        run: node scripts/play-sound-shared-state-check.mjs --selftest && node scripts/play-sound-shared-state-check.mjs
+
+      # gh#112: a Thai string an agent wrote and a Thai string the owner wrote are indistinguishable
+      # in the diff, in the build and in every test, so a self-disclosed deviation list was the only
+      # mechanism catching it — and a list that is representative rather than exhaustive defeats the
+      # guard it was meant to satisfy. This gate polices ADDITIONS against a pinned baseline commit
+      # (ADR-0025), so the tree passes on landing day and the unregistered set only shrinks.
+      - name: Tool copy runs registered (gh#112)
+        run: node scripts/tool-copy-registry-check.mjs --selftest && node scripts/tool-copy-registry-check.mjs
 
       # gh#209: four play routes rendered a seat number where the animal icon belongs, and the owner
       # found it on the live site. This gate only asks whether every route OWES a setup-badge-icon
