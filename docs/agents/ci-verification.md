@@ -157,3 +157,9 @@ on both. The converging fix is a self-hosted Thai webfont on play routes (owner 
 **Cheaper proof:** the probe's set checks (union = manifest x viewports, no stale key, reason prefix)
 are pure functions of two files — prove them with `node --test`, never with a browser walk; re-measure
 only when src or the measurement code changed.
+
+## The fast lane already exists — do not re-invent it, and do not hand-pick gates instead
+
+Routed from `CLAUDE.md` 2026-09-08 (ADR-0012 seam; that file keeps the heading as its trigger). One line, unwrapped, so the bytes are verbatim. 88% above is CI's clock, 542/577 below is this machine's — two scopes, not a conflict.
+
+`SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh` drops the two browser lanes and **always exits non-zero** (they count as not-executed), so a fast run can never be misread as a pass. CI decides the same thing by itself in `ci.yml`'s `probe-scope` step: on `main` probes always run because that run gates Deploy · no usable base commit → fail safe, run · diff touches `src/` or `public/` → run · otherwise skip. Use the fast lane while iterating; the full suite still runs once before a push. Two things that are NOT true: "the suite is slow" as a reason to cut scope — the runner now times every step, and FOUR local runs (n=4, this machine, not CI) put ~542s of the suite's ~577s in ONE step, the gh#122 browser probe — the 542s reproduced exactly all four times, next slowest step 7s — so a broad cut is aimed at the wrong thing; and a small diff is not a small blast radius — a one-line `--font-sans` edit changes text metrics on every page, which is exactly the shape a by-eye subset lets through.

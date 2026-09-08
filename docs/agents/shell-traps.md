@@ -117,11 +117,14 @@ whole section.
 - **Counting a term's MENTIONS counts prose about the data as data.** Reproduced on a registry whose
   `_readme` names the three file kinds it can hold: `grep -o` reported `style.css` once, so "one
   stylesheet entry exists". Parsing the object reported **zero** `style.css` keys — the single hit was
-  the sentence describing the format. Same family as the rule in `CLAUDE.md` that a text grep cannot
-  answer a question about a runtime value: if the subject is structure, parse it; a name's frequency
-  is not a count of anything.
+  the sentence describing the format. Same family as the runtime-value rule below: if the subject is
+  structure, parse it; a name's frequency is not a count of anything.
+- **A text grep cannot answer a question about a runtime value.** `grep -c playRoute src/games/manifest.ts` returns 0 while importing that module and filtering on `playRoute` returns all eleven route ids — the field is declared in each game module and composed at import time. Claims about a property, an export, or a resolved config get EXECUTED, never searched for by name; a zero from one file's text is not evidence a runtime property is absent. On 2026-09-05 that zero was published as a refutation of a correct design and written into a brief telling the worker to distrust it.
+  Routed out of `CLAUDE.md` on 2026-09-08 at the seam that file already names (ADR-0012) — `CLAUDE.md`
+  sends every "before writing a verification command" task here, and this is one. The prose above is
+  the routed text unchanged; `CLAUDE.md` keeps the first sentence as its one-line trigger.
 
-**The cheapest control for all five:** run the same instrument against an input whose answer you
+**The cheapest control for all six:** run the same instrument against an input whose answer you
 already know, in the direction that would expose the bug. The under-extraction above was caught only
 by running the extractor against the file at `HEAD` as a positive control, and the superset only by
 using a route whose block genuinely holds the properties. An instrument that has never disagreed with
