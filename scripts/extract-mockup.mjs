@@ -169,7 +169,7 @@ async function main(argv) {
       return [name, fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null];
     }),
   );
-  const { lost, destructive } = preWriteRefusal(registry, id, files, shipped, forcedBy);
+  const { lost, introduced, destructive } = preWriteRefusal(registry, id, files, shipped, forcedBy);
   if (lost.length) {
     console.error(`::error::extract-mockup: refusing to re-extract ${id} — ${lost.length} recorded divergence(s) would be deleted`);
     for (const { name, entry } of lost) {
@@ -177,6 +177,18 @@ async function main(argv) {
       console.error(`    why it is deliberate: ${entry.why}`);
     }
     console.error('  --force cannot release these. Re-apply the fragment by hand after extracting, or drop its entry from src/play/_divergences.json with a reason (gh#212).');
+    return 1;
+  }
+  // The mirror of the branch above, for a decision whose content is that something is NOT here
+  // (gh#220). Without this branch the registry could record such an entry and the extractor would
+  // write the forbidden text anyway, leaving only a post-hoc CI red on an already-overwritten file.
+  if (introduced.length) {
+    console.error(`::error::extract-mockup: refusing to re-extract ${id} — ${introduced.length} recorded absence(s) would be reintroduced`);
+    for (const { name, entry } of introduced) {
+      console.error(`  ${id}/${name} would get back (owner ${entry.owner}): ${entry.fragment}`);
+      console.error(`    why it is deliberately absent: ${entry.why}`);
+    }
+    console.error('  --force cannot release these either. Delete the text by hand after extracting, or drop its entry from src/play/_divergences.json with a reason (gh#220).');
     return 1;
   }
   if (destructive.length) {

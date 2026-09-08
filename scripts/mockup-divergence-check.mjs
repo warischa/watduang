@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Gate: a re-extraction may not silently delete hand-added code a human recorded as deliberate.
+// Gate: a re-extraction may not silently delete hand-added code a human recorded as deliberate, nor
+// silently put back something a human recorded as deliberately gone.
 //
 // THE DEFECT (gh#212, from gh#211). scripts/extract-mockup.mjs rewrites three basenames per route —
 // markup.html, style.css, main.js — from a mockup, and no lifted route's markup.html is byte-identical
@@ -20,7 +21,9 @@
 //      been hand-edited destroyed ~25 lines and reported success. A file that does not exist yet is
 //      created, not destroyed, so the first extraction of a new game is untouched by this layer.
 //
-//   2. THE FRAGMENT LAYER — lostFragments over the divergences recorded in src/play/_divergences.json,
+//   2. THE FRAGMENT LAYER — lostFragments and introducedFragments, which partition the divergences
+//      recorded in src/play/_divergences.json between the two directions a recorded decision can be
+//      violated in,
 //      a file this repo commits and a human maintains. That cost was named and accepted in the ruling.
 //      At the pre-write seam this layer is a strict SUBSET of layer 1 (losing a fragment implies the
 //      file changed), and it is not there to catch more — it is there to say WHY a divergence exists
@@ -40,6 +43,10 @@
 //   - A fragment is matched as a literal substring. A reformat that keeps the meaning reads as LOST
 //     (fails closed, costs a human one look) and a rewrite that keeps the substring while changing
 //     what it does around it reads as kept. Recording behaviour is a route test's job, not this file's.
+//   - An absence entry (absent: true, gh#220) is checked against the file that SHIPS. That the
+//     forbidden text is still in the mockup a re-extraction would pull it from is unverifiable from
+//     CI at all: the mockups are outside this repo. A green means nobody put the text back, never
+//     that the hazard the entry describes still exists.
 //   - Only the three extractor-owned basenames can be protected here; everything else in a route
 //     folder is hand-authored and no extraction threatens it (docs/agents/src-edit-rules.md).
 //   - --enumerate needs the mockups. They are outside this repo and unversioned, so enumeration is a
@@ -87,10 +94,36 @@ export function loadRegistry(file = REGISTRY) {
   return Object.fromEntries(Object.entries(raw).filter(([k]) => !k.startsWith('_')));
 }
 
-/** The recorded, deliberate divergences of one file that `text` does not contain. */
+/**
+ * The recorded, deliberate divergences of one file that `text` does not contain. `absent: true`
+ * entries are excluded and judged by introducedFragments instead — see the note there for why the
+ * two predicates have to partition rather than overlap.
+ */
 export function lostFragments(registry, id, fileName, text) {
   const entries = registry?.[id]?.[fileName] ?? [];
-  return entries.filter((e) => e.deliberate === true && !String(text).includes(e.fragment));
+  return entries.filter((e) => e.deliberate === true && e.absent !== true && !String(text).includes(e.fragment));
+}
+
+/**
+ * The recorded, deliberate ABSENCES of one file that `text` violates by containing them (gh#220).
+ *
+ * A decision whose content is that something is NOT in a shipped file has no fragment to assert as
+ * present, so it could not be registered at all — unprotected by construction. An `absent: true`
+ * entry inverts the predicate for that one entry, keeping the same required fields, the same literal
+ * substring match and the same audience, rather than adding a second mechanism with its own gate.
+ *
+ * The two predicates PARTITION the registry, and that is the load-bearing part: an absence entry is
+ * never judged by lostFragments (the clean tree is exactly the state it describes, so judging it
+ * there would red the tree the entry was written to protect), and a presence entry is never judged
+ * here (it is in the file on purpose, so every protected fragment would violate itself).
+ *
+ * What it cannot see is the mockup. The forbidden text is asserted absent from what SHIPS, which is
+ * in this repo; that it is present at the source a re-extraction would pull from is a claim about a
+ * directory outside version control, and no run of this gate checks it.
+ */
+export function introducedFragments(registry, id, fileName, text) {
+  const entries = registry?.[id]?.[fileName] ?? [];
+  return entries.filter((e) => e.deliberate === true && e.absent === true && String(text).includes(e.fragment));
 }
 
 /** Which of the extractor-owned files a fresh extraction would change. A missing file counts. */
@@ -114,13 +147,18 @@ export function destructiveWrites(fresh, shipped) {
  * `forcedBy` is an owner token from `--force <owner>`. It releases the file layer for one run and
  * NEVER the fragment layer — a recorded, deliberate divergence is released by editing the registry,
  * not by a flag. That asymmetry is the design: the flag is the escape hatch, the registry is the record.
+ * An absence entry inherits that property explicitly: `introduced` is computed without consulting
+ * `forcedBy` at all, exactly as `lost` is.
  */
 export function preWriteRefusal(registry, id, fresh, shipped, forcedBy = null) {
   const lost = EXTRACTED_FILES.flatMap((name) =>
     lostFragments(registry, id, name, fresh[name] ?? '').map((entry) => ({ name, entry })),
   );
+  const introduced = EXTRACTED_FILES.flatMap((name) =>
+    introducedFragments(registry, id, name, fresh[name] ?? '').map((entry) => ({ name, entry })),
+  );
   const destructive = forcedBy ? [] : destructiveWrites(fresh, shipped);
-  return { lost, destructive, refuses: lost.length > 0 || destructive.length > 0 };
+  return { lost, introduced, destructive, refuses: lost.length > 0 || introduced.length > 0 || destructive.length > 0 };
 }
 
 /**
@@ -140,6 +178,10 @@ export function registryProblems(registry) {
         if (!e.owner) problems.push(`${id}/${name}: an entry names no owner`);
         if (!e.why) problems.push(`${id}/${name}: an entry gives no reason`);
         if (typeof e.deliberate !== 'boolean') problems.push(`${id}/${name}: an entry does not say whether it is deliberate`);
+        // `absent` is optional and defaults to a presence entry, but a truthy non-boolean would read
+        // as an absence to a human and as a presence to `e.absent === true`, which is the shape that
+        // protects nothing while looking like protection.
+        if ('absent' in e && typeof e.absent !== 'boolean') problems.push(`${id}/${name}: an entry's "absent" is not a boolean, so it is neither kind`);
       }
     }
   }
@@ -159,6 +201,9 @@ export function auditTree(playDir, registry) {
       }
       for (const e of lostFragments(registry, id, name, text)) {
         violations.push(`${id}/${name}: the divergence owned by ${e.owner} is GONE from the shipped file — ${e.why}\n    expected to contain: ${e.fragment}`);
+      }
+      for (const e of introducedFragments(registry, id, name, text)) {
+        violations.push(`${id}/${name}: the absence owned by ${e.owner} is BACK in the shipped file — ${e.why}\n    must NOT contain: ${e.fragment}`);
       }
     }
   }
@@ -285,7 +330,8 @@ async function enumerate(mockupsRoot) {
     );
     const destructive = destructiveWrites(fresh, shipped);
     const lost = EXTRACTED_FILES.flatMap((name) => lostFragments(registry, id, name, fresh[name] ?? '').map((e) => `${name}: ${e.owner}`));
-    pairs.push({ id, dir, destructive, lost, recorded: Object.values(registry[id] ?? {}).flat().length });
+    const introduced = EXTRACTED_FILES.flatMap((name) => introducedFragments(registry, id, name, fresh[name] ?? '').map((e) => `${name}: ${e.owner}`));
+    pairs.push({ id, dir, destructive, lost, introduced, recorded: Object.values(registry[id] ?? {}).flat().length });
   }
 
   console.log(`mockup-divergence enumerate: ${totalEntries} entr(y/ies) under ${mockupsRoot}, ${routes.length} play route(s) with a markup.html`);
@@ -295,7 +341,7 @@ async function enumerate(mockupsRoot) {
   // once per pair and get an exit code for each. A gate over a SET is calibrated per member.
   for (const p of pairs) {
     const verdict = p.destructive.length ? `WOULD OVERWRITE ${p.destructive.join(',')}` : 'identical';
-    console.log(`  pair: ${p.dir} -> ${p.id} · ${verdict} · recorded divergences: ${p.recorded}${p.lost.length ? ` · would DELETE ${p.lost.length} recorded (${p.lost.join('; ')})` : ''}`);
+    console.log(`  pair: ${p.dir} -> ${p.id} · ${verdict} · recorded divergences: ${p.recorded}${p.lost.length ? ` · would DELETE ${p.lost.length} recorded (${p.lost.join('; ')})` : ''}${p.introduced.length ? ` · would REINTRODUCE ${p.introduced.length} forbidden (${p.introduced.join('; ')})` : ''}`);
   }
   for (const u of unpaired) console.log(`  unpaired, not measured — ${u}`);
   for (const e of excluded) console.log(`  excluded: ${e}`);
@@ -329,6 +375,29 @@ async function selftest() {
   // A registry that cannot fail is itself the failure.
   assert.equal(registryProblems({ r: { 'markup.html': [{ fragment: '', deliberate: true, owner: 'o', why: 'w' }] } }).length, 1);
   assert.equal(registryProblems(registry).length, 0);
+
+  // The absence kind (gh#220), calibrated in BOTH directions on the same fixture. The direction that
+  // matters is the second one: a presence entry reds when its fragment vanishes, so a build where the
+  // absence kind did nothing at all would still pass the green leg.
+  const absReg = {
+    r: { 'style.css': [{ fragment: 'min-height: 100dvh;', absent: true, deliberate: true, owner: 'gh#0', why: 'a floor removed on purpose' }] },
+  };
+  fs.mkdirSync(path.join(dir, 'r'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'r', 'style.css'), '.w {\n  padding: 0;\n}\n');
+  assert.deepEqual(auditTree(dir, absReg), [], 'a fragment that is absent as recorded must not be a violation');
+
+  fs.writeFileSync(path.join(dir, 'r', 'style.css'), '.w {\n  min-height: 100dvh;\n}\n');
+  const back = auditTree(dir, absReg);
+  assert.equal(back.length, 1, 'a reintroduced forbidden fragment must be exactly one violation');
+  assert.match(back[0], /must NOT contain/, 'the message must say which direction was violated');
+
+  // The escape hatch is asymmetric for absences too, and it is asserted rather than assumed.
+  const absFresh = { 'markup.html': 'a\n', 'style.css': '.w {\n  min-height: 100dvh;\n}\n', 'main.js': 'b\n' };
+  const absOnDisk = { 'markup.html': 'a\n', 'style.css': '.w {\n  padding: 0;\n}\n', 'main.js': 'b\n' };
+  assert.equal(preWriteRefusal(absReg, 'r', absOnDisk, absOnDisk).refuses, false, 'a recorded absence must not refuse a run that keeps it absent');
+  assert.equal(preWriteRefusal(absReg, 'r', absFresh, absOnDisk, 'gh#0').introduced.length, 1, '--force must NOT release a recorded absence');
+  assert.equal(preWriteRefusal(absReg, 'r', absFresh, absOnDisk, 'gh#0').refuses, true, 'a forced run that would reintroduce a forbidden fragment still refuses');
+  assert.equal(registryProblems({ r: { 'style.css': [{ fragment: 'x', absent: 'yes', deliberate: true, owner: 'o', why: 'w' }] } }).length, 1);
 
   fs.rmSync(dir, { recursive: true, force: true });
 
@@ -431,7 +500,7 @@ async function selftest() {
   );
   fs.rmSync(emptyRoot, { recursive: true, force: true });
 
-  console.log('mockup-divergence-check --selftest: ok (present -> green, deleted -> red naming the owner, --force releases the file layer only, index-file widening classifies all 4 shapes including ambiguous, --enumerate reconciles against the unfiltered entry count, resolves a symlinked directory, names a dangling one, and separates an absent root from an empty one by exit code)');
+  console.log('mockup-divergence-check --selftest: ok (present -> green, deleted -> red naming the owner, absent -> green, reintroduced -> red, --force releases the file layer only, index-file widening classifies all 4 shapes including ambiguous, --enumerate reconciles against the unfiltered entry count, resolves a symlinked directory, names a dangling one, and separates an absent root from an empty one by exit code)');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -459,10 +528,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     if (violations.length) {
       console.error(`::error::mockup-divergence-check: ${violations.length} recorded divergence problem(s)`);
       for (const v of violations) console.error(`  ${v}`);
-      console.error('  Each one is hand-added code gh#212 recorded as deliberate. Restore it, or remove its entry from src/play/_divergences.json with a reason.');
+      console.error('  Each one is a deliberate decision recorded in src/play/_divergences.json: restore what is GONE, delete what is BACK, or remove the entry with a reason.');
       process.exit(1);
     }
-    console.log(`mockup-divergence-check: ${recorded.length} recorded divergence(s) across ${Object.keys(registry).length} route(s), all present in the files that ship`);
+    const forbidden = recorded.filter((e) => e.absent === true);
+    console.log(
+      `mockup-divergence-check: ${recorded.length} recorded divergence(s) across ${Object.keys(registry).length} route(s) — ` +
+        `${recorded.length - forbidden.length} still present in the files that ship, ${forbidden.length} still absent from them`,
+    );
     console.log('  not covered here: unrecorded drift — that is the file layer\'s job and it runs inside extract-mockup.mjs, which has a mockup to compare against; also anything outside markup.html/style.css/main.js');
   }
 }
