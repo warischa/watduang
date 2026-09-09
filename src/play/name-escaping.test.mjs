@@ -542,6 +542,175 @@ test('zero-trigger: roster, active turn, live region, strip and defeat modal esc
   DEEP.add('zero-trigger');
 });
 
+/* ---- croc-bite ------------------------------------------------------------------------------- */
+
+// This route reaches tier 2 as NO_HTML_SINK, and that class is exactly why it needs a tier-1 harness:
+// tier 2 can only say the source performs no HTML-sink write, which is a statement about SPELLING. It
+// cannot say the sinks that DO carry a name are safe, and on this route there are six of them.
+//
+// The route's own escaping is STRUCTURAL rather than a helper: every sink was rebuilt with
+// createElement and textContent, so a name is never composed into markup at all. The engine's own
+// sanitizePlayerName escapes nothing (it trims and cuts to 16 characters, and 16 characters of markup
+// is still markup) — so the structure is the whole guarantee, and this is what proves it holds.
+//
+// The names are handed in on the PLAYER OBJECTS rather than typed through updatePlayerName, for one
+// reason: the 16-character cut would truncate HOSTILE, and a truncated payload measures the cut
+// instead of the escaping. An input where right and wrong agree measures nothing.
+function crocBiteHarness(players) {
+  const document = makeDoc();
+  // FakeElement models children, text and attributes -- not classes-as-a-list, not `style` as a live
+  // object, and not `append` with a mixed node/text list. All three are what these renders use.
+  // Augmented here rather than in _fake-dom.mjs so nothing else that shares that fake changes shape.
+  const augment = (el) => Object.assign(el, {
+    classList: { add() {}, remove() {}, toggle() {}, contains: () => false },
+    style: { setProperty() {}, width: '' },
+    append(...kids) { el.children.push(...kids); },
+  });
+  const rawById = document.getElementById;
+  document.getElementById = (id) => augment(rawById(id));
+  const rawCreate = document.createElement.bind(document);
+  document.createElement = (tag) => augment(rawCreate(tag));
+  // The engine appends bare text nodes between the pieces of a score row; FakeElement has no
+  // equivalent and needs none -- renderedText reads `textContent` off whatever is in `children`.
+  // `tagName` is not decoration: the fake's selector walker reads it off every node it passes, so a
+  // text node without one crashes querySelectorAll rather than being skipped.
+  document.createTextNode = (text) => ({ tagName: '#text', textContent: String(text), children: [], _attrs: {} });
+
+  const api = loadFrom('croc-bite', ['UIManager'], {
+    document,
+    // `const PHASES = Object.keys`-free object literal, read only by updateUI, which these sinks do
+    // not reach. A key-echoing proxy is the same object for every branch.
+    PHASES: new Proxy({}, { get: (_t, k) => k }),
+    // No real timer is ever created: showToast schedules the toast's own withdrawal, and a test that
+    // left an 800ms timer behind would outlive itself.
+    setTimeout: () => 0,
+    clearTimeout: () => {},
+  });
+
+  const el = (id) => document.getElementById(id);
+  const ctx = {
+    audio: { playHeartbeat() {} },
+    state: {
+      players,
+      getPlayerScore: () => 0,
+      getLiveBiteOdds: () => ({ fraction: '1', percent: 6.3, isCritical: false }),
+      getCurrentPlayer: () => players[0],
+    },
+    elSetupMascots: el('setup-mascots-list'),
+    elPlayerStrip: el('hud-player-strip'),
+    elTurnAvatar: el('turn-avatar'),
+    elTurnPlayerName: el('turn-player-name'),
+    elTurnBanner: el('hud-turn-banner'),
+    elTensionPill: el('hud-tension-pill'),
+    elTensionFill: el('tension-fill-bar'),
+    elTensionOddsText: el('tension-odds-text'),
+    elHudRoundLabel: el('hud-round-label'),
+    elAnnouncer: el('aria-announcer'),
+    elToast: el('hud-toast'),
+    elResultEmoji: el('result-emoji'),
+    elResultTitle: el('result-title'),
+    elResultDesc: el('result-desc'),
+    elResultScoreboard: el('result-scoreboard'),
+    elBtnResultNextText: el('btn-result-next-text'),
+  };
+  // The methods these renders call on themselves, bound so `this` inside each stays the same
+  // hand-built context. UIManager is never constructed: its constructor caches three dozen elements
+  // and binds every control on the page.
+  for (const method of ['renderPlayerStrip', 'updateTurnDisplay', 'showToast', 'announce']) {
+    ctx[method] = api.UIManager.prototype[method].bind(ctx);
+  }
+  return { api, ctx, document };
+}
+
+/** Some node under `root` holds the WHOLE hostile name as its own text.
+ *
+ *  This is the positive half of the claim, and it is what separates a raw sink from a broken
+ *  instrument. On a textContent sink the payload lands intact as text and this is true. On an
+ *  innerHTML sink the same write lands as parsed markup: the container's own text is empty and the
+ *  name is gone from the tree as a string -- measured by planting exactly that edit, where
+ *  assertNoInjection reported "the hostile name never rendered", which reads like a harness fault
+ *  rather than the injection it is. */
+function assertRenderedAsText(root, label) {
+  // `includes`, not equality: four of these sinks compose the name into a sentence the player reads
+  // ("ตาของ <name>"), so the name is a substring of the node's text and never the whole of it. What
+  // still discriminates is that the WHOLE payload survives in ONE node's own text — parsed markup
+  // splits it across nodes and leaves no single node holding it.
+  const holds = (node) => String(node.textContent ?? '').includes(HOSTILE) || (node.children || []).some(holds);
+  assert.ok(
+    holds(root),
+    `${label}: no node carries the player name as its own text — the name was written through a ` +
+      'markup sink and parsed away, which is the injection this file exists to catch',
+  );
+}
+
+test('croc-bite: setup rows, HUD strip, turn banner, toast, live region and scoreboard escape roster names', () => {
+  // Bounds the sink set this test can see: `name` is a getter, not a plain field, so any sink that
+  // reaches a roster name -- however aliased (`const n = p.name` defeats a source grep, never a live
+  // read) -- bumps this counter. Residual ceiling: a one-for-one swap (one sink deleted, one added)
+  // leaves the count unchanged; this bounds the READ COUNT of a set this test owns, not completeness
+  // of the sink inventory.
+  let reads = 0;
+  const hostile = (id) => ({
+    id,
+    emoji: '*',
+    sleeveColor: '#000',
+    rawName: HOSTILE,
+    get name() { reads += 1; return HOSTILE; },
+  });
+  const players = [hostile('player_0'), hostile('player_1')];
+  const { api, ctx, document } = crocBiteHarness(players);
+
+  // 1. Setup screen. The name reaches the field as a PROPERTY, never as an attribute in markup, so
+  // the assertion is the whole payload surviving intact in both places a row carries it -- a value
+  // composed into a tag would have been terminated at the payload's leading quote.
+  api.UIManager.prototype.renderMascotInputs.call(ctx);
+  const rows = document.getElementById('setup-mascots-list').children;
+  assert.equal(rows.length, players.length, 'croc-bite renderMascotInputs built no rows — this check is measuring nothing');
+  for (const row of rows) {
+    const input = row.children.find((c) => c.className === 'mascot-name-input');
+    assert.ok(input, 'croc-bite renderMascotInputs: the row no longer builds a name field');
+    assert.equal(input.value, HOSTILE, 'croc-bite renderMascotInputs: the typed name was altered or terminated in the field');
+    assert.equal(input.placeholder, HOSTILE, 'croc-bite renderMascotInputs: the name was altered or terminated in the placeholder');
+    assert.equal(input.children.length, 0, 'croc-bite renderMascotInputs: a name introduced child nodes into a field');
+  }
+  assert.equal(document.getElementById('setup-mascots-list').querySelectorAll('a').length, 0,
+    'croc-bite renderMascotInputs: a player name introduced an <a> element into the DOM');
+
+  // 2. HUD: the seat strip, the turn banner, the toast and the live region -- handleTurnTransition
+  // drives all four through the real methods.
+  api.UIManager.prototype.handleTurnTransition.call(ctx, hostile('player_0'), null);
+  assertRenderedAsText(document.getElementById('hud-player-strip'), 'croc-bite renderPlayerStrip');
+  assertNoInjection(document.getElementById('hud-player-strip'), 'croc-bite renderPlayerStrip');
+  assertRenderedAsText(document.getElementById('turn-player-name'), 'croc-bite updateTurnDisplay');
+  assertNoInjection(document.getElementById('turn-player-name'), 'croc-bite updateTurnDisplay');
+  assertRenderedAsText(document.getElementById('hud-toast'), 'croc-bite showToast');
+  assertNoInjection(document.getElementById('hud-toast'), 'croc-bite showToast');
+  assertRenderedAsText(document.getElementById('aria-announcer'), 'croc-bite announce');
+  assertNoInjection(document.getElementById('aria-announcer'), 'croc-bite announce');
+
+  // 3. The result card and its scoreboard, which is the reveal that lands under the finger.
+  api.UIManager.prototype.handleGameResult.call(ctx, {
+    loser: players[0],
+    currentRound: 1,
+    maxRounds: 5,
+    isMatchComplete: false,
+    matchWinner: null,
+    scores: players.map((player) => ({ player, score: 0 })),
+  });
+  assertRenderedAsText(document.getElementById('result-title'), 'croc-bite handleGameResult title');
+  assertNoInjection(document.getElementById('result-title'), 'croc-bite handleGameResult title');
+  assertRenderedAsText(document.getElementById('result-scoreboard'), 'croc-bite handleGameResult scoreboard');
+  assertNoInjection(document.getElementById('result-scoreboard'), 'croc-bite handleGameResult scoreboard');
+  assertNoInjection(document.getElementById('aria-announcer'), 'croc-bite handleGameResult announce');
+
+  // Every sink above read a roster name: 2 placeholders in renderMascotInputs, 2 in renderPlayerStrip
+  // (one per seat), 1 in updateTurnDisplay, 1 in the toast, 1 in the turn announcement, 1 for the
+  // loser's name in handleGameResult, and 2 more in the scoreboard rows -- 10 on today's source.
+  assert.equal(reads, 10, `croc-bite read player.name ${reads} time(s) — the sink set changed`);
+
+  DEEP.add('croc-bite');
+});
+
 /* ---- tier 2: every route the manifest ships --------------------------------------------------- */
 
 const repoRoot = path.join(here, '..', '..');

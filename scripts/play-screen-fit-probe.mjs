@@ -225,6 +225,25 @@ const PRESS_CAP = 6;
 // cannon-flag, because these games advance on their own clock and press 1 lands on a different screen
 // each time. It is a report, and a pin on it would flap forever.
 export const FITS_ROWS = new Set([
+  // Added 2026-09-09 (gh#213), the route's own landing change. All three rows measure ZERO on every
+  // axis — scrolls no, clipped 0px, sideways 0px — confirmed on three consecutive probe runs rather
+  // than one, because a single green here is a sample and this set GROWS ONLY.
+  //
+  // These rows did NOT arrive fitting, and the history is worth keeping because it explains a rule
+  // in src/play/croc-bite/overrides.css. The 320x568 row first measured 57px clipped. An A/B with
+  // only the gh#79 tap-floor block removed read 41px, so 16px came from raising the controls to 44px
+  // and 41px was already in the lifted layout. The cause was NOT the controls: `.setup-box` stays
+  // mounted with visibility:hidden rather than display:none once a round starts, so its height keeps
+  // feeding #app's scrollHeight while it is invisible. Closed by reclaiming vertical spacing in
+  // overrides.css — padding and gaps only, no content removed and no type shrunk below the site
+  // floor — which is why that file raises heights and tightens spacing in the same breakpoint.
+  //
+  // Pinned as fitting rather than recorded as overflow on purpose: gh#213's own definition of done
+  // refuses an overflow reason that is "merely `open`", and `gh#182 open:` is the only class this
+  // probe offers a row nobody has ruled on. Fitting was the outcome that needed no owner ruling.
+  'croc-bite 320x568',
+  'croc-bite 390x844',
+  'croc-bite 1440x900',
   'dice-loser 320x568',
   'dice-loser 390x844',
   'dice-loser 1440x900',

@@ -174,6 +174,12 @@ const BASELINE_BASENAMES = [
   //   (cd /tmp/pre-route && npm run build && node scripts/bundle-freeze-check.mjs)
   'bangkok-drift.js',
   'cannon-flag.js',
+  // gh#213, the fourteenth play route (counted from disk, not from prose). The route's own
+  // game-module chunk, and the ONLY thing this SET leg can see of it. Note what is deliberately
+  // absent: there is no `three` chunk here. The library has exactly one consumer, so Rollup inlines
+  // it into that page's own entry chunk rather than emitting a shared one — so the BYTES leg below
+  // is what actually measured the library arriving, and this leg would stay green if it vanished.
+  'croc-bite.js',
   'daily-fortune.js',
   // gh#139 ports 1-3, in the owner's recorded ship order.
   'dice-loser.js',
@@ -342,7 +348,73 @@ const BASELINE_BASENAMES = [
 // not make this call: re-pinning moves a threshold that guards production.
 // Measured by `node scripts/bundle-freeze-check.mjs` against a fresh `npm run build` this session,
 // and the number here is that command's output rather than a figure carried over from a brief.
-const BASELINE_TOTAL_BYTES = 482127;
+//
+// ---------------------------------------------------------------------------------------------
+// Re-pinned 2026-09-09 (gh#213), ALL THREE LEGS, for croc-bite — the first route on this site to
+// vendor a runtime 3D library (ADR-0060 admits `three` for this game by name).
+//
+// AUTHORITY, because re-pinning moves a threshold that guards production. The owner's 2026-09-06
+// ruling on gh#206 approved this growth ONCE for all three unbuilt games — #150, #204/#205 and
+// #213 — and that ticket records the only reading the ruling can bear: "one adjudication, not one
+// commit". Each game's own change re-pins BASELINE_TOTAL_BYTES to ITS OWN measured total citing
+// that ruling, and the band stays +/-5%. This commit is that change for #213, so it is the
+// compliant case, not the departure the bangkok-drift note above had to declare.
+//
+// The number below is `node scripts/bundle-freeze-check.mjs` output against a fresh build this
+// session. It is NOT ADR-0060's arithmetic: that ADR predicted 1,049,649 and the real build gives
+// 1,049,423, so its figure is 226 B out. That ADR already corrected itself once for computing off
+// a stale base, which is why its numbers are never the source here.
+//
+// These figures were RE-DERIVED THREE TIMES in one session, and the count is the point. The first
+// pass pinned 1,048,795 from a build. Then an ADR-0051 fallback fix added source lines and the true
+// total became 1,049,154. Then a shared setup write-back fix landed and it became 1,049,423. **On
+// both later builds this gate returned rc 0 — GREEN — while its own pinned figure had stopped
+// describing the tree**, because the band is +/-5% and roughly 105 KB wide. A green gate cannot
+// tell you its own numbers went stale. If you change source after reading this, re-measure; do not
+// trust the green, and do not trust these numbers without re-running the commands below.
+//
+// ATTRIBUTION. The delta against the old 482,127 pin is 567,296 B. Three parts were MEASURED
+// INDEPENDENTLY and one is a REMAINDER. That distinction is load-bearing: an adversarial review
+// caught an earlier version of this comment claiming "every part was measured", which made
+// "nothing left over" a tautology rather than a check.
+//   561,684   MEASURED. The play entry chunk that only game/croc-bite/play/index.html loads, read
+//             from that page's own HTML. This is where the 3D library lives — one consumer, so
+//             Rollup inlines it here instead of emitting a shared chunk. That is why the SET leg
+//             sees only croc-bite.js and would stay green if the library vanished.
+//     2,594   MEASURED. croc-bite.js, the route's own game-module chunk.
+//     2,597   MEASURED. Pre-existing carry already above the old pin before this route existed: a
+//             worktree at 63b3f2e — the commit before this work — builds to 484,724 B and PASSES
+//             the old pin's band, so the old pin was already 2,597 B low. gh#206's closing comment
+//             predicted this absorption would recur identically when this route landed; it is
+//             recorded rather than smeared into the route's figure, which is the failure that
+//             comment exists to stop.
+//       421   REMAINDER, and NOT this route's alone — this is the part an earlier draft got wrong.
+//             It is the manifest-and-glob residual PLUS the growth that the shared
+//             `saveOnSetupComplete` write-back fix spread across the other routes' chunks: that fix
+//             threaded a page-ceiling parameter through thirteen callers, so it grows chunks this
+//             route does not own. Bounded, not separated: the same remainder measured 127 B on the
+//             build immediately before that fix, so roughly 294 B of the 421 belongs to the shared
+//             fix and not to croc-bite. Separating them exactly would need a third worktree build
+//             carrying the shared fix without the route, which was not done.
+//   561,684 + 2,594 + 2,597 + 421 = 567,296 = 1,049,423 - 482,127. Reproduce the split with:
+//     git worktree add --detach <dir> 63b3f2e
+//     (cd <dir> && npm ci && npm run build && node scripts/bundle-freeze-check.mjs)
+//
+// WHERE THE NUMBER WAS TAKEN, because the machine is part of the claim. Every figure above comes
+// from a LOCAL build on one developer machine, not from a CI run. gh#206 carries a DoD line asking
+// for the pin to be a figure CI printed rather than a local build; that line was never accepted,
+// and both earlier re-pins were local too, so this one is consistent with them rather than with
+// that line. It is reproducible because package-lock.json is tracked and CI installs with
+// `npm ci --no-audit`, which is also why the library is pinned bare at 0.170.0 with no caret — a
+// range would let CI resolve a different tree and measure a different number. If CI's own
+// bundle-freeze step ever disagrees with the figure above, believe CI and re-pin from its output.
+//
+// WHAT THIS RE-PIN DOES NOT BUY, stated because the band is a ratio. A percentage band around a
+// larger pin is a wider ABSOLUTE tolerance: a regression of roughly 30 KB on any 2D route was red
+// before this move and is green after it. ADR-0060 accepted that weakening and proposed no
+// mitigation, so it is a known, ratified cost of vendoring the library — confirm it if you see it,
+// do not file it as a defect.
+const BASELINE_TOTAL_BYTES = 1049423;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
@@ -365,6 +437,8 @@ const BASELINE_PAGE_ENTRIES = [
   'game/bangkok-drift/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/cannon-flag/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
   'game/cannon-flag/play/index.html play.astro_astro_type_script_index_0_lang.js',
+  'game/croc-bite/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/croc-bite/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/cursed-number/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
   'game/cursed-number/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/daily-fortune/index.html LeaveConfirm.astro_astro_type_script_index_0_lang.js',
