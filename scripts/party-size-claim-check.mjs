@@ -20,13 +20,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { CLAIM } from './party-size-claim.mjs';
 import { stripComments, stripAstro, astroTemplateFixture, legacyTextualStrip, globTemplateFixture } from './strip-comments.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-// The claim: a player-count RANGE. Not any number of people — "อย่างน้อย 2 คน" is a guard message,
-// not the site's party-size promise.
-const CLAIM = /\d+\s*(?:-|–|—|ถึง|to)\s*\d+\s*(?:คน|players)/g;
+// The claim itself — a player-count RANGE — now lives in scripts/party-size-claim.mjs so the OG
+// card gate applies the identical shape. Nothing about the rule, the exemptions, or the surface set
+// moved with it.
 
 // Outside the rule entirely, by a separate owner decision: a page's <title>. Blanked before
 // detection so the gate cannot enforce a rule nobody agreed to. Spans newlines on purpose — a

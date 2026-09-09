@@ -263,6 +263,15 @@ jobs:
       - name: Party-size claim confined to its permitted surfaces (gh#89)
         run: node scripts/party-size-claim-check.mjs --selftest && node scripts/party-size-claim-check.mjs
 
+      # gh#104 — an OG card is a rendered artifact of source copy and nothing watched the join: a
+      # tagline moved and the card kept the old sentence, live with every other gate green. This gate NEVER
+      # renders (no librsvg and no Thai font on a runner) — it compares the lines stamped in
+      # scripts/og-cards.lock.json against the lines recomputed from current source, and the PNG's
+      # sha256 against the stamped one. Reads source text and public/og bytes only, so it belongs
+      # here with the other pre-build gates. --selftest first, same reason as the gates above.
+      - name: OG cards fresh against their source, and no player-count claim off the party category (gh#104)
+        run: node scripts/og-card-check.mjs --selftest && node scripts/og-card-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob.
       # A glob that matches NOTHING is not an error: node prints "# tests 0" and exits 0. So a rename
       # (.test.mjs -> .test.ts) or a move out of src/ would leave this step green with every test

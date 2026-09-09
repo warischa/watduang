@@ -16,9 +16,11 @@
 //
 // exit 0 doesn't mean the text is correct — open the image and look at it every time before shipping
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { SITE, cardLines } from './og-card-text.mjs';
 
 const FONT = 'Noto Sans Thai';
 const BG = '#141625';
@@ -44,17 +46,8 @@ if (!fonts.error && !(fonts.stdout ?? '').includes(FONT)) {
 }
 
 // Same import style as scripts/validate-games.mjs — manifest.ts is written with the full .ts extension, no resolve hook needed
-// Site-level cards (home page · game listing · 404) aren't games so they aren't in the manifest — made into an
-// entry shaped just like a game, so the measure/wrap/render code below never has to know this case exists
-const SITE = {
-  id: 'site',
-  names: { th: 'วัดดวง' },
-  // The player-count line below already starts with '\u0E40\u0E25\u0E48\u0E19\u0E1F\u0E23\u0E35' ("play free"), so this field must
-  // never repeat it. Escaped, not Thai script: the #36 gate counts any Thai character in a comment.
-  tagline: 'เกมกลุ่มบนมือถือเครื่องเดียว ส่งวนกันทั้งวง',
-  players: [2, 10],
-};
-
+// SITE and the line computation moved to scripts/og-card-text.mjs so scripts/og-card-check.mjs can
+// recompute a card's text without a renderer — CI has neither librsvg nor a Thai font.
 const { games } = await import(path.join(root, 'src/games/manifest.ts'));
 const game = id === SITE.id ? SITE : games.find((g) => g.id === id);
 if (!game) {
@@ -62,11 +55,11 @@ if (!game) {
   process.exit(1);
 }
 
-// The card's tagline comes only from the tagline field — never silently fall back to seo.title/seo.description
-// (both were tried: title gives a tagline missing "who loses" · description runs long into 4 small lines
-//  and duplicates the player-count line) A card that quietly weakens is the same kind of failure as Thai text breaking with no error
-const tagline = typeof game.tagline === 'string' ? game.tagline.trim() : '';
-if (!tagline) {
+let lines;
+try {
+  lines = cardLines(game);
+} catch (e) {
+  console.error(`  (cardLines threw: ${e.message})`);
   console.error(`make-og: เกม "${id}" ไม่มี tagline — เติม field tagline ใน src/games/${id}.ts ก่อน (ดูรูปแบบใน src/games/_template.ts)`);
   process.exit(1);
 }
@@ -107,8 +100,9 @@ const fit = (texts, startSize, minSize, maxWidth, maxLines) => {
 };
 
 const COL = 690; // x 90 -> 780 is the range that doesn't hit the circle mark on the right
-const title = fit([game.names.th], 122, 60, COL, 1);
-const sub = fit([tagline, `เล่นฟรี ${game.players[0]}-${game.players[1]} คน ไม่ต้องโหลดแอป`], 44, 28, COL, 3);
+const title = fit([lines[0]], 122, 60, COL, 1);
+const subLines = lines.slice(1);
+const sub = fit(subLines, 44, 28, COL, 3);
 const subTop = 398 - ((sub.lines.length - 1) * 68) / 2; // keep the tagline block centered at the same spot regardless of line count
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -172,4 +166,13 @@ if (png.subarray(1, 4).toString() !== 'PNG' || w !== 1200 || h !== 630) {
   console.error(`make-og: ไฟล์ที่ได้ไม่ใช่ PNG 1200x630 (อ่านได้ ${w}x${h}) — อย่าใช้`);
   process.exit(1);
 }
+// Stamp the lock the gate reads: the logical lines this render was made from, and the bytes it
+// produced. scripts/og-card-check.mjs recomputes the lines from source and compares — that is how a
+// card whose copy changed without a regeneration is caught with no renderer in the loop.
+const lockPath = path.join(root, 'scripts/og-cards.lock.json');
+const lock = existsSync(lockPath) ? JSON.parse(readFileSync(lockPath, 'utf8')) : {};
+lock[id] = { lines, sha256: createHash('sha256').update(png).digest('hex') };
+const sorted = Object.fromEntries(Object.keys(lock).sort().map((k) => [k, lock[k]]));
+writeFileSync(lockPath, `${JSON.stringify(sorted, null, 2)}\n`);
+
 console.log(`make-og: public/og/${id}.png ${w}x${h} — เปิดดูด้วยตาก่อนใช้จริง รูปพังแบบเงียบๆ ได้`);
