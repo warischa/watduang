@@ -108,7 +108,7 @@ function resize(target: number, names: string[]): void {
 }
 
 function seedFromRoster(): void {
-  saveOnSetupComplete(START, NAME_INPUT);
+  saveOnSetupComplete(START, NAME_INPUT, MAX_PLAYERS);
   // The chrome's edit control reloads with this flag set. Same seeding, one difference: the setup
   // screen is left ON SCREEN, prefilled, instead of being started — that IS the edit screen.
   const editing = takeSetupEditRequest();

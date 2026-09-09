@@ -889,7 +889,7 @@ function mount(): void {
 
   // The roster write-back, shared with every other route: whatever is in the fields when the player
   // starts the match becomes the device's group.
-  saveOnSetupComplete('#startPlayBtn', '.ob-player-name');
+  saveOnSetupComplete('#startPlayBtn', '.ob-player-name', MAX_PLAYERS);
 
   armSetup();
 }

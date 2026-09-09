@@ -43,8 +43,13 @@ function playingNames(): string[] {
   return loadRoster().names();
 }
 
+// The widest seat count this setup can SHOW, which is the mockup's own counter clamp (btn-inc-players
+// stops at twenty) and not the manifest's declared range: the write-back may only speak for the seats
+// that were on screen, and every seat up to this one can be.
+const MAX_PLAYERS = 20;
+
 function seedFromRoster(): void {
-  saveOnSetupComplete(START, NAME_INPUT);
+  saveOnSetupComplete(START, NAME_INPUT, MAX_PLAYERS);
   // The chrome's edit control reloads with this flag set. Same seeding, one difference: the setup is
   // left ON SCREEN, prefilled, instead of being started — that IS the edit screen, so there is no
   // second setup UI to build or keep in sync with the mockup's own.

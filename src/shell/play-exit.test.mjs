@@ -211,7 +211,11 @@ test('every roster bridge persists what its setup finishes with, and does not st
     // the edit flow different from the seeded flow (setup is left on screen, not started).
     // The persisted control's constant is named per route (START on most, NAMES_DONE where the
     // setup finishes on a names step), so the shape is pinned, not one route's vocabulary.
-    assert.match(bridge, /saveOnSetupComplete\(\s*[A-Z][A-Z_0-9]*,\s*NAME_INPUT\s*\)/, `${id} does not persist its setup`);
+    // The THIRD argument is the page's own seat ceiling, and it is pinned as a named constant rather
+    // than left optional: the write-back cannot know how many seats the page showed, and without it a
+    // route whose maximum is under the saved group's size trims that group out of every other game
+    // permanently. A bare literal reds here too, so the number stays next to the reason it holds.
+    assert.match(bridge, /saveOnSetupComplete\(\s*[A-Z][A-Z_0-9]*,\s*NAME_INPUT,\s*[A-Z][A-Z_0-9]*\s*\)/, `${id} does not persist its setup with the page's seat ceiling`);
     assert.match(bridge, /takeSetupEditRequest\(\)/, `${id} ignores the edit request`);
     // The guard's effect at the start-click site, not the identifier: a `const editing = ...`
     // declaration, or a guard that bails somewhere else, must not satisfy this.

@@ -43,8 +43,12 @@ function playingNames(): string[] {
   return loadRoster().names();
 }
 
+// The widest seat count this setup can SHOW: main.js rejects a count field outside its own bounds, so
+// ten is every seat that can be rendered here. The write-back may only speak for those.
+const MAX_PLAYERS = 10;
+
 function seedFromRoster(): void {
-  saveOnSetupComplete(START, NAME_INPUT);
+  saveOnSetupComplete(START, NAME_INPUT, MAX_PLAYERS);
   // The chrome's edit control reloads with this flag set. Same seeding, one difference: the setup
   // screen is left ON SCREEN, prefilled, instead of being started — that IS the edit screen.
   const editing = takeSetupEditRequest();
@@ -55,9 +59,9 @@ function seedFromRoster(): void {
 
   const count = document.querySelector<HTMLInputElement>('#count');
   if (!count) return;
-  // The field's own bounds, read off the DOM rather than restating 2-10 a second time: main.js
-  // rejects anything outside them, so a seed past the cap would silently do nothing.
-  const target = Math.min(names.length, 10);
+  // Inside the field's own bounds, which is what the ceiling above records: main.js rejects anything
+  // outside them, so a seed past the cap would silently do nothing.
+  const target = Math.min(names.length, MAX_PLAYERS);
   count.value = String(target);
   // `change`, not `input`: main.js validates on input but only RESIZES the roster on change, and the
   // name fields this function is about to fill do not exist until that resize re-renders them.

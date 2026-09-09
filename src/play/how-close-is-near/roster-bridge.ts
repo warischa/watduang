@@ -44,8 +44,14 @@ function playingNames(): string[] {
   return loadRoster().names();
 }
 
+// The widest seat count this setup can SHOW: the count grid is built by a loop that stops at ten, and
+// the write-back may only speak for the seats that were on screen. Not read off the chips like
+// `target` below is, because the write-back registers before the grid is queried — and before the
+// under-two bail, which it must, or a first-time device that types its names here persists nothing.
+const MAX_PLAYERS = 10;
+
 function seedFromRoster(): void {
-  saveOnSetupComplete(NAMES_DONE, NAME_INPUT);
+  saveOnSetupComplete(NAMES_DONE, NAME_INPUT, MAX_PLAYERS);
   // The chrome's edit control reloads with this flag set. Same seeding, one difference: the names
   // screen is left ON SCREEN, prefilled, instead of being advanced past — that IS the edit screen.
   const editing = takeSetupEditRequest();
@@ -54,8 +60,8 @@ function seedFromRoster(): void {
   // screen is exactly the right thing to show. Bail and leave it alone.
   if (names.length < 2) return;
 
-  // The mockup renders one chip per supported size and nothing outside that range, so read the range
-  // off the chips it actually drew instead of hardcoding 2-10 a second time. They carry no data
+  // The mockup renders one chip per supported size and nothing outside that range, so `target` reads the range
+  // off the chips it actually drew, so a grid that renders short seeds short. They carry no data
   // attribute, so position is the key: the grid is built by a `for (i = 2; i <= 10)` loop, in order.
   const chips = [...document.querySelectorAll<HTMLButtonElement>('#countGrid .count-chip')];
   if (chips.length === 0) return;

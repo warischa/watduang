@@ -4,7 +4,7 @@
 //
 // Per-game selectors stay in each roster-bridge.ts — those genuinely differ (three mockups, three
 // setup DOMs) and are passed in here.
-import { loadRoster, saveGroup } from '../shell/roster';
+import { loadGroup, loadRoster, saveGroup } from '../shell/roster';
 // Same visible-character predicate the roster read uses, so a name that would be dropped on read is
 // never written into the group either (a group entry with no roster match is filtered by loadGroup,
 // which would silently shrink the group below 2 and fall back to the whole roster).
@@ -61,7 +61,13 @@ export function takeSetupEditRequest(): boolean {
  *  default label for an empty field, and writing that placeholder into the shared roster would put it
  *  in front of every future game. A player who leaves a field blank keeps that seat for the round and
  *  simply does not persist it. */
-export function saveOnSetupComplete(startSelector: string, inputSelector: string): void {
+export function saveOnSetupComplete(startSelector: string, inputSelector: string, maxPlayers: number): void {
+  // Registration time, not write time: a route that forgets its ceiling must fall over on the first
+  // load rather than quietly losing names on a start press hours later. There is no default on
+  // purpose — an absent maximum means "no ceiling", which IS the permanent-trim bug below.
+  if (!Number.isInteger(maxPlayers) || maxPlayers < 2) {
+    throw new RangeError(`saveOnSetupComplete needs this page's maxPlayers (an integer >= 2), got ${String(maxPlayers)}`);
+  }
   let lastSaved = '';
 
   const persist = (): void => {
@@ -87,7 +93,22 @@ export function saveOnSetupComplete(startSelector: string, inputSelector: string
       for (const name of names) await roster.add(name);
       // AFTER the adds land: loadGroup() filters the group by the roster, so a group saved before its
       // names are in the roster reads back empty.
-      saveGroup(names);
+      // The seats this page can show are the only ones it may speak for. A route whose maximum is
+      // under the saved group's size seats a PREFIX of that group, so writing the fields back on
+      // their own would delete the rest of the group from every other game — no human action, no
+      // warning, the first time an eight-person group opens a route with fewer seats than they have.
+      // NOT first reachable with croc-bite, which an earlier version of this comment claimed and
+      // ADR-0065 in the same change contradicts: cursed-number seats twenty and declares [2, 20],
+      // so a twelve-name group started there and then opened on any ten-seat route was already being
+      // trimmed. This fix is the first time anything stopped it. So what goes back is this page's
+      // names plus the
+      // saved names at and beyond its ceiling. That is not "never shrink": where the ceiling covers
+      // the whole saved group the tail is empty, and deleting two of eight really does leave six.
+      // Re-read here rather than captured above, so the tail is the group as it stands after the
+      // roster adds — and a name the player retyped into a seat is dropped from the tail, because
+      // saveGroup stores raw and a duplicated entry is one the group has no way to shed.
+      const tail = loadGroup().slice(maxPlayers).filter((name) => !names.includes(name));
+      saveGroup([...names, ...tail]);
     })();
   };
 

@@ -445,7 +445,7 @@ setCondition(condition);
 // The write-back that makes whatever this setup finishes with the group the NEXT game inherits, and
 // the chrome's edit-players pill. This route opens on its setup screen either way, so taking the flag
 // only clears it.
-saveOnSetupComplete('#dl-begin', '.dl-player-name');
+saveOnSetupComplete('#dl-begin', '.dl-player-name', MAX_PLAYERS);
 takeSetupEditRequest();
 show(setupEl);
 

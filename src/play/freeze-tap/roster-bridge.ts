@@ -41,8 +41,13 @@ function playingNames(): string[] {
   return loadRoster().names();
 }
 
+// The widest seat count this setup can SHOW, which is the engine's own clamp (setPlayerCount stops at
+// twenty) and not the manifest's declared range: the write-back may only speak for the seats that
+// were on screen, and every seat up to this one can be.
+const MAX_PLAYERS = 20;
+
 function seedFromRoster(): void {
-  saveOnSetupComplete(START, NAME_INPUT);
+  saveOnSetupComplete(START, NAME_INPUT, MAX_PLAYERS);
   // The chrome's edit control reloads with this flag set. Same seeding, one difference: the setup is
   // left ON SCREEN, prefilled, instead of being started — that IS the edit screen.
   const editing = takeSetupEditRequest();
@@ -53,7 +58,7 @@ function seedFromRoster(): void {
 
   // The mockup clamps player count to 2-20 (FreezeTapEngine.setPlayerCount); target inside that range
   // rather than forcing a number it refused.
-  const target = Math.min(names.length, 20);
+  const target = Math.min(names.length, MAX_PLAYERS);
 
   // decPlayerBtn/incPlayerBtn and .count-display are torn down and rebuilt on every count change
   // (renderSetupScreen() replaces mainContent.innerHTML wholesale), so each iteration re-queries the
