@@ -8,6 +8,12 @@
 // unsupported branch and there is no drawing surface to read at all. A two-way probe on such a lane
 // reports a pass while measuring nothing.
 //
+// The readback resolves BOTH WebGL context families a route's engine might claim -- plain 'webgl' (the
+// two routes shipped today) and 'webgl2' (needed the day a route's renderer requests it only, e.g. an
+// engine built on `three`). A canvas locks to whichever type it is handed first and returns null for
+// every other type after that, so the two families cannot share one getContext call; resolveGLContext
+// tries 'webgl' first and 'webgl2' last, which keeps today's routes resolving exactly as before.
+//
 //   UNMEASURED  no live WebGL context on this runner  -> exit 2. Not a pass and not a failure.
 //   PASS        a live context, and the canvas drew   -> exit 0.
 //   FAIL        a live context, and the canvas is blank -> exit 1.
@@ -91,6 +97,22 @@ export function webglRoutes(playDir) {
     .sort();
 }
 
+// ---- context-type resolution ---------------------------------------------------------------------
+// A canvas locks to the first context type it is ever handed and refuses every other type after that
+// (measured against a live headless Chrome running this lane's own flags): calling getContext('webgl2')
+// then getContext('webgl') on the SAME canvas returns null for the second call, and the reverse order
+// nulls the reverse call. That made the readback below blind to any route whose engine claims webgl2 --
+// it asked for 'webgl' and 'experimental-webgl' only, both of which come back null on a webgl2 canvas,
+// so a route drawing correctly through webgl2 was reported UNMEASURED. 'webgl2' is appended as a third
+// attempt rather than reordered to the front: the two shipped routes both claim plain 'webgl', so the
+// first branch still resolves them exactly as it did before this was added, and only a webgl2 canvas
+// ever reaches the new branch.
+// Stringified into READBACK below so the exact function that runs in the browser is the one pinned by
+// scripts/webgl-pixels-probe.test.mjs against mock canvases -- no separate copy to drift out of sync.
+export function resolveGLContext(canvas) {
+  return canvas.getContext('webgl') || canvas.getContext('experimental-webgl') || canvas.getContext('webgl2');
+}
+
 // ---- the readback -------------------------------------------------------------------------------
 // Read INSIDE an animation-frame callback, and that is the single most likely way this probe could
 // lie. Neither engine asks for preserveDrawingBuffer, so the drawing buffer is cleared once the
@@ -112,12 +134,13 @@ export function webglRoutes(playDir) {
 // sizes the element from innerWidth before its first frame, so the default 300 would mean this probe
 // got there first. Name the engine's canvas explicitly when a route ships a second one.
 const READBACK = (stubDraw) => `
+  const resolveGLContext = ${resolveGLContext.toString()};
   const canvases = [...document.querySelectorAll('canvas')];
   let c = null, gl = null;
   const deadline = performance.now() + 6000;
   while (performance.now() < deadline && !gl) {
     for (const el of canvases.length ? canvases : [...document.querySelectorAll('canvas')]) {
-      const ctx = el.getContext('webgl') || el.getContext('experimental-webgl');
+      const ctx = resolveGLContext(el);
       if (ctx) { c = el; gl = ctx; break; }
     }
     if (!gl) await new Promise((r) => setTimeout(r, 100));

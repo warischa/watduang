@@ -8,7 +8,54 @@
 //   node --test 'scripts/webgl-pixels-probe.test.mjs'
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classify, exitCodeFor, aggregate } from './webgl-pixels-probe.mjs';
+import { classify, exitCodeFor, aggregate, resolveGLContext } from './webgl-pixels-probe.mjs';
+
+// A mock canvas modelling the ONE browser behaviour this resolution logic depends on: a canvas locks
+// to the first context type it is ever handed and returns null for every other type after that
+// (measured against a live headless Chrome running the lane's own flags -- see webgl-pixels-probe.mjs).
+// 'webgl' and 'experimental-webgl' are the same family: a canvas that locked to one answers the other.
+function mockCanvas(lockedType = null) {
+  let locked = lockedType === 'experimental-webgl' ? 'webgl' : lockedType;
+  return {
+    getContext(type) {
+      const family = type === 'experimental-webgl' ? 'webgl' : type;
+      if (locked === null) { locked = family; return { family }; }
+      return family === locked ? { family } : null;
+    },
+  };
+}
+// The readback's ORIGINAL resolution, before webgl2 was added -- kept here only to prove leg 1 red.
+const originalResolve = (canvas) => canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+test('calibration leg 1 (red before the fix): a webgl2 canvas was invisible to the original resolution', () => {
+  const canvas = mockCanvas('webgl2');
+  assert.equal(originalResolve(canvas), null);
+  // Which is exactly what fed contextLive: false into classify, and classify calls that UNMEASURED.
+  assert.equal(classify({ contextLive: !!originalResolve(canvas), nonBlank: null }).verdict, 'UNMEASURED');
+});
+
+test('calibration leg 2 (green after the fix): resolveGLContext finds the same webgl2 canvas', () => {
+  const canvas = mockCanvas('webgl2');
+  const ctx = resolveGLContext(canvas);
+  assert.notEqual(ctx, null);
+  assert.equal(classify({ contextLive: !!ctx, nonBlank: null }).verdict, 'UNMEASURED'); // no frame read yet
+  assert.equal(classify({ contextLive: !!ctx, nonBlank: true }).verdict, 'PASS'); // once a frame is read
+});
+
+test('calibration leg 3: a plain webgl canvas resolves the same before and after the fix', () => {
+  for (const lockedType of ['webgl', 'experimental-webgl']) {
+    const before = mockCanvas(lockedType);
+    const after = mockCanvas(lockedType);
+    assert.notEqual(originalResolve(before), null);
+    assert.notEqual(resolveGLContext(after), null);
+  }
+});
+
+test('calibration leg 4 (must-red unmoved): a canvas with no context at all still resolves to null', () => {
+  const canvas = { getContext: () => null }; // no context of any type, ever
+  assert.equal(resolveGLContext(canvas), null);
+  assert.equal(classify({ contextLive: !!resolveGLContext(canvas), nonBlank: null }).verdict, 'UNMEASURED');
+});
 
 test('no live context is UNMEASURED, never a pass and never a failure', () => {
   assert.equal(classify({ contextLive: false, nonBlank: null }).verdict, 'UNMEASURED');
