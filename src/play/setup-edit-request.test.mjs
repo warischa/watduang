@@ -51,11 +51,6 @@ const BOOTS_ON = {
   // These two open on the COUNT step, which is step one of their own setup, not a menu.
   'how-close-is-near': { nav: null },
   'power-meter': { nav: null },
-  // Boots straight onto #screen-setup: markup.html ships it without the `hidden` its two sibling
-  // screens carry, and the engine's own boot renders the seat fields into it. So there is nothing to
-  // click to reach setup, and what is pinned for this route is that the bridge navigates nowhere on
-  // an under-two roster -- an edit that made it auto-start would red here.
-  'croc-bite': { nav: null },
 };
 
 const EDIT_KEY = 'watduang:edit-players';

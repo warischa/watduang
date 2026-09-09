@@ -26,7 +26,6 @@ import zeroTrigger from './zero-trigger.ts';
 import oneBomb from './one-bomb.ts';
 // The eighth port, jumped ahead of the rest of the queue by owner ruling 2026-09-06.
 import bangkokDrift from './bangkok-drift.ts';
-import crocBite from './croc-bite.ts';
 // love-match is deliberately NOT registered: the page is delisted until gh#101 rebuilds it (the solo
 // mount hands it an empty roster, so every visitor hit "need 2+ people"). src/games/love-match.ts,
 // its test, and its stylesheet stay on disk on purpose — gh#101 rebuilds from them.
@@ -51,7 +50,6 @@ export const games: GameModule[] = [
   zeroTrigger,
   oneBomb,
   bangkokDrift,
-  crocBite,
 ];
 
 export const byId = (id: string): GameModule | undefined =>
