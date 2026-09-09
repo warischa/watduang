@@ -126,3 +126,37 @@ only when src or the measurement code changed.
 Routed from `CLAUDE.md` 2026-09-08 (ADR-0012 seam; that file keeps the heading as its trigger). One line, unwrapped, so the bytes are verbatim. 88% above is CI's clock, 542/577 below is this machine's — two scopes, not a conflict.
 
 `SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh` drops the two browser lanes and **always exits non-zero** (they count as not-executed), so a fast run can never be misread as a pass. CI decides the same thing by itself in `ci.yml`'s `probe-scope` step: on `main` probes always run because that run gates Deploy · no usable base commit → fail safe, run · diff touches `src/` or `public/` → run · otherwise skip. Use the fast lane while iterating; the full suite still runs once before a push. Two things that are NOT true: "the suite is slow" as a reason to cut scope — the runner now times every step, and FOUR local runs (n=4, this machine, not CI) put ~542s of the suite's ~577s in ONE step, the gh#122 browser probe — the 542s reproduced exactly all four times, next slowest step 7s — so a broad cut is aimed at the wrong thing; and a small diff is not a small blast radius — a one-line `--font-sans` edit changes text metrics on every page, which is exactly the shape a by-eye subset lets through.
+
+## A local browser green can be blind to the path CI actually tests (2026-09-09, gh#213)
+
+**Two different Chrome launches, two different answers, and the fast one is the one you reach for.**
+The probe lanes here do not all launch Chrome the same way. `scripts/webgl-pixels-lane.sh` uses
+`--use-angle=swiftshader --enable-unsafe-swiftshader`, which **grants a working WebGL2 context**.
+`scripts/ci-probes.sh`'s other lanes use `--disable-gpu`, which grants **no context of either type**.
+A route that renders through a 3D library takes a completely different code path under those two, so a
+green from the swiftshader lane says nothing about the no-context path — and the no-context path is
+the one ADR-0051 exists to protect, on the audience CLAUDE.md calls core rather than edge.
+
+That is how a route shipped with its ADR-0051 fallback never once exercised in a real browser: every
+local run had picked the swiftshader flags, and the route's own no-3D test asserts that path against a
+fake DOM, so it was green for a reason unrelated to whether the path works. **State which flags you
+used whenever you report a browser measurement**, and if the claim is about a missing context, confirm
+in-page that `getContext` actually returns null before concluding anything.
+
+## The probe's own dispatch latency sits inside the number it gates (2026-09-09, gh#122)
+
+**A working route can read UNMEASURED because the runner is slow, and it reproduces.** CI's runner has
+2 vCPU and runs five Chrome instances plus `serve` at once. The `play-exit` probe drives a burst that
+must land inside the arm window; on that hardware the burst arrived **704 ms** after being driven at
+**80 ms**. By then the exit control had legitimately armed and enabled, so the out-of-window burst hit
+it, navigated to the site root, and destroyed the JS context holding the probe's own signal variables.
+The post-burst read came back null, which the probe reports as "the trigger left the screen unchanged"
+— when the screen had in fact already changed.
+
+**Two traps in reading that.** First, the message names the route, so it reads like a route defect;
+the discriminating evidence is in the run artifact's timeline, via `gh run download`, where the
+disabled flags before and after the burst show the transition did happen. Second, an identical second
+failure does **not** refute a slow-harness explanation — a reliably under-resourced runner fails the
+same way every time, so "it failed twice identically" is what this cause predicts, not evidence
+against it. Before blaming a route, reproduce under the lane's literal flags and check whether the
+burst landed in the window at all.
