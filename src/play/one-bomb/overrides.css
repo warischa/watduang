@@ -69,6 +69,22 @@
   margin: auto;
 }
 
+/* gh#214 — the per-row wrapper renderBoard builds so that a cell role has a row to sit in, and the
+   one declaration that keeps it free. `display: contents` takes the wrapper out of layout entirely,
+   so every stone stays a direct grid ITEM of .ob-board and the pitch, the column count and the rect
+   a thumb hits are the ones measured before the wrappers existed. Anything else here — a grid, a
+   flex row, even a block — would make the ROW the grid item and re-layout the whole board, which is
+   exactly the restyle this ticket's DoD forbids.
+
+   Stated ceiling, because it is a real one: a `display: contents` element has historically been
+   dropped from the accessibility tree by some browsers, and where that happens the row is invisible
+   to a screen reader and the grid announces its cells without them. The width exemption does not
+   depend on it — that reads the cell's own role attribute off the DOM — so the failure mode is
+   degraded announcement, never a gate that lies. */
+.ob-board-row {
+  display: contents;
+}
+
 /* gh#79's 44px floor, applied to the height only, and the three declarations it took to get there.
    All three were measured in a real browser at 320x568 with the GPU disabled, because none of them
    is visible in the source: the first version of this rule drew every stone in a nine-column row
