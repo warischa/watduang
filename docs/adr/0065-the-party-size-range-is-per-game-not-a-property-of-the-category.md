@@ -1,6 +1,12 @@
 # ADR-0065 — the party-size range is per game, not a property of the หมวด
 
-Date: 2026-09-09 · Status: **proposed — awaiting owner acceptance** · Owner decision requested
+Date: 2026-09-09 · Status: **conditionally accepted 2026-09-10 — NOT in force until
+[gh#230](https://github.com/warischa/watduang/issues/230) closes** · Owner decision
+
+The owner was offered plain acceptance and chose the conditional option instead: this ADR does not take
+effect until the declared-versus-seatable gap it names below has a gate, or a recorded reason why one
+cannot be built. gh#230 owns that, and **closing gh#230 flips this line to accepted.** Until then
+`freeze-tap` and `cannon-flag` remain shipped counter-examples to the discipline this ADR assumes.
 
 Narrows [ADR-0040](0040-games-exist-in-one-category-only.md), which completed
 [ADR-0039](0039-the-shared-roster-belongs-to-one-category-not-to-the-site.md). Leaves
