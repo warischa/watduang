@@ -380,17 +380,22 @@ function main() {
     return 1;
   }
   const orphans = [...keys].filter((k) => !seen.has(k)).length;
-  // gh#112's point was that agent-authored Thai and owner-authored Thai are indistinguishable in the
-  // diff, in the build and in every test. `source` is the field that tells them apart, so the count
-  // of rows still awaiting an owner read belongs in the LINE CI PRINTS, not only in the JSON: a green
-  // here means "every run has a row", and without this number that green reads as "every run has been
-  // reviewed". An agent adding Thai copy satisfies this gate by adding a pending row, which is the
-  // design — but it should be visible in the output that it did.
-  // rows is an OBJECT keyed by the verbatim Thai run, not an array — Object.values, not .filter on
-  // the container. Written down because the first draft of this line assumed an array and threw.
-  const pending = Object.values(registry.rows ?? {}).filter((r) => r.source === 'agent-authored-pending-owner-review').length;
+  // The pending count is deliberately NOT printed, per the owner ruling of 2026-09-10 on gh#229.
+  // It used to be, and the argument for printing it is still sound on its own terms: gh#112's point
+  // was that agent-authored and owner-authored Thai are indistinguishable in the diff, in the build
+  // and in every test, so `source` is the field that tells them apart and a bare green here reads as
+  // "every run has been reviewed" when it only means "every run has a row".
+  // What settled it the other way: 79 of 134 rows carried agent-authored-pending-owner-review, the
+  // owner accepted that as a resting state rather than a backlog, and a number nobody is going to
+  // act on becomes a permanent unread warning that trains readers to skim this line. The ticket's
+  // own DoD asked for this decision explicitly rather than leaving the print to habit.
+  // The signal is not deleted, only unprinted — `source` still lives on every row, the closed
+  // vocabulary above still forces a new row to declare one, and the count is one command away:
+  //   node -e "const r=require('./scripts/tool-copy-registry.json');console.log(Object.values(r.rows).filter(x=>x.source==='agent-authored-pending-owner-review').length)"
+  // Re-adding it to this line needs a ruling that supersedes gh#229's, not a judgement that the
+  // number looks useful again.
   console.log(
-    `tool-copy-registry-check: ${runCount} Thai run occurrence(s), ${seen.size} distinct, all present in ${REGISTRY_REL} (baseline ${registry.baseline}); ${orphans} orphan key(s) — the set only shrinks, ADR-0025. ${pending} row(s) still carry source=agent-authored-pending-owner-review and are UNREVIEWED copy, not approved copy. NOT COVERED: Thai outside the pinned set, including site-wide chrome.`,
+    `tool-copy-registry-check: ${runCount} Thai run occurrence(s), ${seen.size} distinct, all present in ${REGISTRY_REL} (baseline ${registry.baseline}); ${orphans} orphan key(s) — the set only shrinks, ADR-0025. Rows carrying source=agent-authored-pending-owner-review are an accepted resting state and their count is not reported here (gh#229). NOT COVERED: Thai outside the pinned set, including site-wide chrome.`,
   );
   return 0;
 }
