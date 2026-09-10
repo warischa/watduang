@@ -13,6 +13,42 @@
 // than gates is an owner ruling of 2026-09-06 recorded at the claim itself; what a reader needs here
 // is that a green from this leg still says NOTHING about width.
 //
+// gh#214 — THE EXEMPTION CLASS FOR A GAME BOARD'S CELLS, and the ONE new thing that gates. Ruling
+// 2026-09-10 exempts a board's cells from the 44px minimum, keyed on the ARIA ROLE THE CELL DECLARES
+// IN THE DOM. So this file holds no list of routes and no list of selectors: it asks each measured
+// control what role it declares and exempts the ones that say `gridcell`. Three things follow, and
+// each is a decision rather than an implementation detail:
+//
+//   1. THE EXEMPTION IS WIDTH-ONLY. The height axis keeps its existing gating behaviour on every
+//      control including a board cell, so claim (c) is untouched by any role. Waiving the axis this
+//      repo has always gated would be retiring a live gate under cover of a new one.
+//   2. NOTHING ORDINARY IS EXEMPTED. The width claim still gates NOTHING for a non-cell control, and
+//      the 2026-09-06 ruling that declined to fix short-stick's four 27.2px icon controls stands —
+//      they are still reported here, every run, exactly as before.
+//   3. AN EXEMPTION THAT MATCHES NOTHING IS THE FAILURE MODE, not a green. A role-keyed exemption
+//      greens on the empty set if no cell ever declares the role, and that reads identically to a
+//      gate that checked and passed. So src/play/_board-roles.json declares which route HAS a board
+//      — a judgement only a human can make, since no detector separates a 12-key numpad from a
+//      25-stone board — and this file FAILS when a declared route yields no exempt control. That
+//      registry is read for that one leg only. It never decides whether a control is exempt.
+//
+// WHAT THE EXEMPTION CANNOT SEE, disclosed rather than implied: (i) it reads the control's OWN role
+// attribute, so a board that authors `gridcell` onto a wrapper element around its cell is invisible
+// to it — the upgrade is a closest() call here and a second line in the registry; (ii) the walk only
+// ever measures `button` elements on a play route, so a cell that is a div is outside the set on both
+// axes — wire-snip-panic's `.wire-column` is exactly that, and it is neither measured nor exempted
+// here by anything; (iii) the exempt set is whatever the walk reaches, and this walk goes two screens
+// deep at one viewport with no roster seeded, so a board that only exists at a nine-seat roster is
+// not in it. one-bomb's board IS reached, on screen 2, at its two-seat default — and WHICH LANE THE
+// BROWSER IS IN decides that, which is the one thing this leg has already been wrong about. The first
+// version of this exemption reded CI at 0 exempt while every local run found the cells: the board was
+// then drawn only where there was no WebGL context, and CI's Chrome has a live one by its own in-page
+// read. gh#150 made the DOM grid the play surface on both lanes, so the cells are now reachable
+// either way. A run of this leg therefore has to say which lane measured it: verified here at 25
+// exempt under `--use-angle=swiftshader --enable-unsafe-swiftshader` (context live, the lane CI takes)
+// AND under `--disable-gpu` (no context on a Mac). A green from one lane predicts nothing about the
+// other.
+//
 // GATE THE RELATIONSHIP, NOT THE PIXELS. Claims (a) and (b) carry NO height literal: the floor is read
 // out of the rendered CSSOM and the rect is compared against whatever the page itself resolved. A
 // rendered-height literal would belong to the visitor's OS and font (ADR-0044), and would flap on a
@@ -124,6 +160,36 @@ const BREAK_FLOOR = Boolean(process.env.BREAK_FLOOR);
 
 /** The one-sided accessibility spec constant this repo already gates on (gh#79). Not a measurement. */
 export const MIN_TAP_PX = 44;
+
+/**
+ * The ARIA role a game board's cell declares, and the whole of what the width exemption keys on
+ * (gh#214, ruling 2026-09-10). A role, not a class, not a route: the ruling rejected a list because a
+ * list needs editing every time a board ships, and this is a property the element carries.
+ */
+export const EXEMPT_CELL_ROLE = 'gridcell';
+
+/**
+ * Is this measured control a game board's cell, and therefore outside the 44px WIDTH reference?
+ *
+ * Read off the rendered DOM and nothing else. Deliberately NOT a claim inside claimsFor(): that
+ * function is a pure geometry classifier and still answers that a 29.8px cell is under the minimum,
+ * which is the honest answer. The exemption belongs at the one place that consumes the answer, so
+ * that (a) the height claim can never inherit it, and (b) a reader can see in one expression that
+ * nothing but a declared role widens the exempt set.
+ */
+export const widthExempt = (c) => c.role === EXEMPT_CELL_ROLE;
+
+/**
+ * Which play routes have a GAME BOARD, per src/play/_board-roles.json — read for the anti-vacuity
+ * leg and for nothing else. The registry authors the semantics (which grid is a board, and what role
+ * its cells carry); the exemption above authors nothing and asks the DOM. Keeping those two apart is
+ * what lets this gate hold no list while the judgement it needs still comes from a human.
+ */
+export function boardRoutes() {
+  const raw = JSON.parse(fs.readFileSync(path.join(repoRoot, 'src', 'play', '_board-roles.json'), 'utf8'));
+  delete raw._readme;
+  return Object.entries(raw).map(([id, entry]) => ({ id, ...entry }));
+}
 /** Subpixel tolerance — a rect and a resolved floor can disagree in the last fraction of a device px. */
 const EPS = 0.05;
 
@@ -381,6 +447,11 @@ const measureExpr = (mutantProps, kind, deep = false) => `
       // that no player can reach.
       rectHeight: r.height,
       rectWidth: r.width,
+      // gh#214 — the control's OWN declared role, read off the live DOM at measure time. This is the
+      // whole input to the width exemption: no route name, no class list and no registry reaches
+      // that decision. getAttribute rather than any computed or implicit role, because what the
+      // ruling keys on is what the element DECLARES; an implicit role would exempt every button.
+      role: b.getAttribute('role'),
       // The two axes are independent only where this resolves to 'auto'. A control declaring an
       // aspect-ratio derives one dimension from the other, so a floor applied to the axis this repo
       // gates on moves onto the axis it does not. Carried per control so the width report can name
@@ -702,6 +773,7 @@ function main() {
   // reserved for the lines that come with a non-zero exit.
   const narrow = [];
   const ratioBound = [];
+  const exempt = [];
   for (const s of out.screens) {
     // The ordinal is carried because a mockup names its controls by CLASS when they have no id, and
     // a row of identical icon buttons then reports four byte-identical warning lines that read like
@@ -709,7 +781,12 @@ function main() {
     // order — enough to tell four findings from one, and it is not a selector.
     s.controls.forEach((c, i) => {
       const nth = `${c.name} [${i + 1} of ${s.controls.length} measured on this screen]`;
-      if (!claimsFor(c).atLeastTapWidth) narrow.push({ s, c, nth });
+      // gh#214 — the exempt set is counted FIRST and independently of whether the cell is narrow, so
+      // the number below answers "how many controls did the exemption cover" rather than "how many
+      // did it silence". A board whose cells all clear 44px is still an exemption that matched, and
+      // it is the only thing separating a live exemption from one that greens on nothing.
+      if (widthExempt(c)) exempt.push({ s, c, under: !claimsFor(c).atLeastTapWidth });
+      else if (!claimsFor(c).atLeastTapWidth) narrow.push({ s, c, nth });
       if (c.aspectRatio && c.aspectRatio !== 'auto') ratioBound.push(`${c.name} on ${s.url} screen ${s.screen} (${c.aspectRatio})`);
     });
   }
@@ -723,7 +800,14 @@ function main() {
   // execution: every control in it is created at runtime by a game module or a lifted mockup, so no
   // grep of the built HTML can list it. The partition key is route x screen, at one viewport.
   console.log(
-    `WIDTH AXIS (report only, exit code unaffected): ${narrow.length} of ${controlsMeasured} rendered control(s) are under ${MIN_TAP_PX}px wide at ${out.width}px. ` +
+    `WIDTH AXIS (report only, exit code unaffected): ${narrow.length} of ${controlsMeasured} rendered control(s) are under ${MIN_TAP_PX}px wide at ${out.width}px, ` +
+      `MEASURED against that reference: ${controlsMeasured - exempt.length}. EXEMPTED as game-board cells declaring role="${EXEMPT_CELL_ROLE}": ${exempt.length}, ` +
+      // The third number, and it is the one that keeps the first two honest. Without it the run says
+      // "N under the reference" while an exempt cell under the reference is counted in neither
+      // total — and the dense board this ticket was filed about is exactly that case: 81 cells at
+      // 29.77px, on a screen this walk does not reach today. Printed so the exemption's cost is a
+      // number rather than an absence.
+      `of which ${exempt.filter((e) => e.under).length} are themselves under ${MIN_TAP_PX}px wide and covered by the exemption rather than reported. ` +
       `The set is every control this walk measured — a landing page contributes its rendered .game-btn set, a play route every VISIBLE <button> — over ${out.pagesWalked} route(s) x up to 2 screens each, at ${out.width}px only. ` +
       `Screens past the second, the 390px viewport, and controls behind a screen this walk cannot reach are OUTSIDE it, so a zero here is not a claim that the site has no narrow controls.`,
   );
@@ -734,6 +818,33 @@ function main() {
     ratioBound.length
       ? `  axes NOT independent (aspect-ratio resolves to something other than auto) on ${ratioBound.length} of ${controlsMeasured} control(s): ${[...new Set(ratioBound)].join(' · ')}`
       : `  axes independent on all ${controlsMeasured} measured control(s): none of them resolves an aspect-ratio, so a floor on one axis moves nothing onto the other.`,
+  );
+
+  // gh#214 — THE ANTI-VACUITY LEG, and the one thing the exemption class added that GATES. The trap
+  // the 2026-09-10 ruling named itself: an exemption keyed on a role greens on the empty set if no
+  // cell ever declares the role, and that prints the same as a gate that checked and passed. So every
+  // route src/play/_board-roles.json declares a board for must yield at least one exempt control in
+  // THIS walk, matching both the class it declares and the role it declares. The registry reaches
+  // nothing else — it cannot exempt a control, and it cannot excuse one.
+  //
+  // Why the class is asserted as well as the role: the role alone would stay green if the cells were
+  // renamed and something else on the route picked up the role. Both fields of the registry entry are
+  // load-bearing this way, which is what stops the file rotting into decoration.
+  const boardless = boardRoutes()
+    .map((b) => ({
+      ...b,
+      hits: exempt.filter((e) => e.s.page === b.id && String(e.c.name).split(/\s+/).includes(b.cell)).length,
+    }))
+    .filter((b) => b.hits === 0);
+  for (const b of boardless) {
+    console.error(
+      `::error::/game/${b.id}/play/ is declared a game board in src/play/_board-roles.json, and this walk measured ZERO control(s) matching .${b.cell} with role="${b.cellRole}" — so the width exemption covered nothing on the one route it is owed on. An exemption that has never matched anything has not been proven to match, and this leg exists because that failure prints exactly like a pass (gh#214, the trap named by the 2026-09-10 ruling). Either the role stopped being authored where the board is built, the cell class was renamed, or the walk stopped reaching the board screen. Do not answer it by deleting the registry entry.`,
+    );
+  }
+  if (boardless.length) process.exit(1);
+  console.log(
+    `  board-cell exemption: ${boardRoutes().length} route(s) declared in src/play/_board-roles.json, ${exempt.length} exempt control(s) matched across ${new Set(exempt.map((e) => e.s.page)).size} of them` +
+      `${exempt.length ? ` (${[...new Set(exempt.map((e) => `${e.s.page} ${exempt.filter((x) => x.s.page === e.s.page).length}x .${String(e.c.name).split(/\s+/)[0]} at ${e.c.rectWidth}x${e.c.rectHeight}px`))].join(' · ')})` : ''}.`,
   );
 
   const violations = [];
