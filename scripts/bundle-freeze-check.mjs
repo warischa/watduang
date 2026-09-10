@@ -418,7 +418,13 @@ const BASELINE_BASENAMES = [
 // before this move and is green after it. ADR-0060 accepted that weakening and proposed no
 // mitigation, so it is a known, ratified cost of vendoring the library — confirm it if you see it,
 // do not file it as a defect.
-const BASELINE_TOTAL_BYTES = 1049676;
+// Re-pinned once more in the same batch: croc-bite measured 1049676 on a tree that did not yet carry
+// gh#214's re-land, which then added 196 bytes (board roles, the roles registry and the probe's
+// exemption payload). Measured from a fresh build of the integrated tree this session, not carried
+// over. The pin is re-stated rather than left inside the band on purpose: this gate's own history has
+// twice shown a pin going green while it had stopped describing the tree, which is the failure the
+// number exists to prevent. BAND is untouched and no headroom is reserved for unbuilt work.
+const BASELINE_TOTAL_BYTES = 1049872;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
