@@ -135,21 +135,21 @@ The probe lanes here do not all launch Chrome the same way. `scripts/webgl-pixel
 `scripts/ci-probes.sh`'s other lanes use `--disable-gpu`, which grants **no context of either type —
 on a Mac**. That qualifier was added 2026-09-10; without it the sentence is false about CI.
 
-**CI's own lane is live, by signature, and the mechanism is NOT identified.** Measured:
-`one-bomb`'s fit line from a CI run (100% / 35 ink / 2 screens at 1440) reproduces locally under
-swiftshader and not under `--disable-gpu` (93.8% / 26 ink / 4 screens). So the runner's lane has a
-context. WHY is unknown and must not be asserted — ANGLE/SwiftShader on the runner image, llvmpipe,
-and a Chrome-version gate on what `--disable-gpu` disables are all candidates, none measured.
-`scripts/canvas-ink-probe.mjs` now prints the in-page read as a `::notice::` and into
-its artifact, so the next run settles it.
+**CI's own lane is live, by signature, and the mechanism is NOT identified.** Recorded 2026-09-10 on
+a pre-change build: `one-bomb`'s CI fit line matched a local swiftshader run and not a local
+`--disable-gpu` one. WHY is unknown and must not be asserted — ANGLE/SwiftShader on the runner image,
+llvmpipe, and a Chrome-version gate on what `--disable-gpu` disables are all candidates, none
+measured. That signature stopped discriminating the day `one-bomb` began drawing its DOM board in
+both lanes, so `scripts/canvas-ink-probe.mjs` now prints the in-page read as a `::notice::` and into
+its artifact. That read is the only instrument left.
 
 A 3D route takes a different code path under those two, so a swiftshader green says nothing about the
 no-context path — the one ADR-0051 protects, on the audience CLAUDE.md calls core rather than edge —
 and a Mac `--disable-gpu` green says nothing about the path CI takes. That is how a route shipped
 with its ADR-0051 fallback never once exercised in a real browser: every local run picked the
-swiftshader flags, and the route's own no-3D test asserts that path against a fake DOM. **State which
-flags you used whenever you report a browser measurement**, and confirm in-page that `getContext`
-returns null before concluding anything. A flag name is not a context state; only the read is.
+swiftshader flags, and its own no-3D test asserts that path against a fake DOM. **State which flags
+you used whenever you report a browser measurement**, and confirm in-page that `getContext` returns
+null. A flag name is not a context state; only the read is.
 
 ## The probe's own dispatch latency sits inside the number it gates (2026-09-09, gh#122)
 

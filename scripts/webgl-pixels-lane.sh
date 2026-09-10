@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 # The one lane that can produce a PASS or a FAIL from scripts/webgl-pixels-probe.mjs.
 #
-# Every other browser lane in this repo launches Chrome with --disable-gpu, so getContext('webgl')
-# returns null on every one of them and the only honest verdict there is UNMEASURED. This lane asks
-# for the software rasteriser instead, which is what a runner with no GPU can still give: a live
-# WebGL context, rendered on the CPU.
+# Every other browser lane in this repo launches Chrome with --disable-gpu. ON A MAC that returns
+# null from getContext('webgl') on every one of them, and the only honest verdict there is
+# UNMEASURED. That qualifier was added 2026-09-10 and it matters: on the CI runner the same flag
+# leaves a 3D route's canvas LIVE, established by signature and not by a read, and WHY is explicitly
+# not known -- ANGLE/SwiftShader on the runner image, llvmpipe and a Chrome-version gate are all
+# candidates and none was measured. scripts/canvas-ink-probe.mjs now takes the in-page read on its
+# own lane so the next run answers it from the runner. Do not restate the flag as a context state.
+# This lane asks for the software rasteriser explicitly instead, which is what a runner with no GPU
+# can still give: a live WebGL context, rendered on the CPU.
 #
 # TWO LEGS, ONE INVOCATION, ONE SERVER AND ONE CHROME. The clean leg reads the shipped surfaces; the
 # stub-control leg re-runs the SAME probe with STUB_DRAW=1, which no-ops the draw calls while leaving

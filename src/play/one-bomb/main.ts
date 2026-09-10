@@ -639,6 +639,13 @@ const ENGINE_LEAF_CONTROLS = [
  *  eleven nodes with eleven equivalent ones and severs nothing. One path, not two — a lane-dependent
  *  branch here would be a branch every browser claim then has to cover twice. */
 function severEngineLeafControls(): void {
+  // ADR-0046, and this is the LAST MOMENT it can be honoured. The engine's motion state is private
+  // and reachable only through the click handler on its own switch, which the loop below is about to
+  // drop — so a reduced-motion player would otherwise keep the idle mascot bounce and the camera
+  // shake running behind the grid on every device with a GPU. applyReducedMotion is reused as
+  // written rather than reimplemented; it clicks the switch only while it is still on, so the call
+  // mount makes later finds nothing left to do and the no-3D lane is still covered by that one.
+  applyReducedMotion();
   for (const id of ENGINE_LEAF_CONTROLS) {
     const control = $<HTMLButtonElement>(id);
     if (!control) continue;
@@ -656,18 +663,29 @@ function installNoWebglRound(): void {
   // That sentence stops being true here, and it lives in a file extract-mockup.mjs overwrites, so it
   // is replaced from this side rather than edited there.
   $('webglUnsupportedNotice')?.remove();
-  app.insertAdjacentHTML('afterbegin', BOARD_HTML);
 
+  // ONCE, and the guard is load-bearing rather than defensive. This function is called twice in one
+  // session now: at mount, and again by the halt panel's restart. Every other wiring below is either
+  // idempotent or re-binds a control the halt just replaced, but the board is neither — a second
+  // insert put a SECOND wrapper in the box, both at inset 0 and the same z-index, with the stale one
+  // painting on top of the live one. Measured on the build that shipped without this guard: after
+  // one loss and one restart the page held 2 wrappers and 50 stones, the player saw the dead board,
+  // and taps mutated the invisible one.
+  //
   // NO REPLACEMENT NOTICE, and that is a measured decision rather than an omission. A line in the
   // menu card explaining the missing 3D cost 58px of a 568px screen and was itself clipped off the
   // bottom of that card, so the one screen it was written for could not read it. A board that plays
   // is the explanation; ADR-0051 asks for a usable page, not an apology on it.
-
-  $('ob-board')?.addEventListener('click', (ev) => {
-    const tile = (ev.target as Element | null)?.closest<HTMLButtonElement>('.ob-tile');
-    const idx = tile?.dataset.idx;
-    if (idx !== undefined) openTile(Number.parseInt(idx, 10));
-  });
+  if (!$('ob-board')) {
+    app.insertAdjacentHTML('afterbegin', BOARD_HTML);
+    // Inside the guard with the insert: this listener is delegated to the host, which renderBoard
+    // refills rather than replaces, so a second registration would open two stones per tap.
+    $('ob-board')?.addEventListener('click', (ev) => {
+      const tile = (ev.target as Element | null)?.closest<HTMLButtonElement>('.ob-tile');
+      const idx = tile?.dataset.idx;
+      if (idx !== undefined) openTile(Number.parseInt(idx, 10));
+    });
+  }
 
   $('playerMinus')?.addEventListener('click', () => setPlayerCount(currentCount() - 1));
   $('playerPlus')?.addEventListener('click', () => setPlayerCount(currentCount() + 1));
