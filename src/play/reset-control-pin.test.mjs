@@ -51,6 +51,10 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const RESET_TRIGGER = {
   'bangkok-drift': { attr: 'id="bd-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'cannon-flag': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  // markup.html belongs to the lifted engine on this route, so the trigger is injected by main.ts --
+  // which is why the file loop below reads all three files and not just the markup. The attribute
+  // still sits in a real opening tag in a template string, which is what findTriggerElement needs.
+  'croc-bite': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'cursed-number': { attr: 'id="resetNamesBtn"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'dice-loser': { attr: 'id="dl-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'freeze-tap': { attr: 'id="resetNamesBtn"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },

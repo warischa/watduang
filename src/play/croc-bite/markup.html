@@ -1,0 +1,207 @@
+<div id="app">
+  <div id="canvas-container"></div>
+  <div id="ui-root">
+    <div id="game-ui-container">
+      <!-- ARIA live region: the round's state read aloud, never painted (ADR-0051). -->
+      <div id="aria-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+      <!-- ========================================== -->
+      <!-- SETUP / MAIN MENU SCREEN                   -->
+      <!-- ========================================== -->
+      <div id="screen-setup" class="setup-overlay" role="region" aria-label="หน้าหลักและตั้งค่าเกม">
+        <div class="setup-box">
+          <div class="game-title-group">
+            <h1 class="main-title">เข้<span class="goldWord">งับ!</span> 🐊</h1>
+            <div class="game-tagline">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</div>
+          </div>
+
+          <div class="glassPanel setup-card">
+            <!-- Seat count. Written out literally, not built from a .map(): this file is static
+                 scaffold, and a generated pill list has no markup for a scanner to read. -->
+            <div class="setup-row">
+              <div class="stepper-label">
+                <strong>แก๊งสัตว์ปาร์ตี้</strong>
+                <small id="setup-teeth-desc">ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8)</small>
+              </div>
+              <div class="player-count-pills">
+                <button type="button" class="count-pill" data-count="2">2</button>
+                <button type="button" class="count-pill" data-count="3">3</button>
+                <button type="button" class="count-pill active" data-count="4">4</button>
+                <button type="button" class="count-pill" data-count="5">5</button>
+                <button type="button" class="count-pill" data-count="6">6</button>
+              </div>
+            </div>
+
+            <!-- Filled by renderMascotInputs, one row per seat. -->
+            <div class="names-scroll" id="setup-mascots-list"></div>
+          </div>
+
+          <div class="menu-buttons-col">
+            <button id="btn-start-game" class="btnBase primaryBtn" type="button">
+              <span>🎮 เริ่มประลองความเสี่ยง!</span>
+            </button>
+            <div style="display:flex;gap:8px;width:100%">
+              <button id="btn-how-to-play" class="btnBase secondaryBtn" type="button" style="flex:1">
+                <span>📖 วิธีเล่น</span>
+              </button>
+              <button id="btn-open-settings" class="btnBase secondaryBtn" type="button" style="flex:1">
+                <span>⚙️ ตั้งค่า</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- IN-GAME HUD                                -->
+      <!-- ========================================== -->
+      <div id="screen-hud" class="hud-container hidden" role="region" aria-label="แถบสถานะในเกม">
+        <div class="hud-top-section">
+          <div class="hud-top-bar">
+            <div class="hud-tools-left">
+              <button id="btn-hud-home" class="btnBase iconBtn" type="button" title="กลับหน้าหลัก" aria-label="กลับหน้าหลัก">🏠</button>
+              <button id="btn-hud-sound" class="btnBase iconBtn" type="button" title="เปิด/ปิดเสียง" aria-label="เปิด/ปิดเสียง">🔊</button>
+            </div>
+
+            <div class="round-badge">
+              <small>รอบที่</small>
+              <strong id="hud-round-label">1 / 5</strong>
+            </div>
+
+            <div class="hud-tools-right">
+              <button id="btn-hud-restart" class="btnBase secondaryBtn" type="button" title="เริ่มรอบใหม่">↻ รอบใหม่</button>
+              <button id="btn-hud-settings" class="btnBase iconBtn" type="button" title="ตั้งค่า" aria-label="ตั้งค่า">⚙️</button>
+            </div>
+          </div>
+
+          <!-- Filled by renderPlayerStrip. -->
+          <div class="player-strip" id="hud-player-strip"></div>
+
+          <div class="status-top-row">
+            <div class="turn-banner" id="hud-turn-banner">
+              <span id="turn-avatar">🐱</span>
+              <span>ตาของ <strong id="turn-player-name">แมวส้ม</strong></span>
+            </div>
+
+            <div class="tension-pill" id="hud-tension-pill">
+              <span>💣 ความเสี่ยงโดนงับ:</span>
+              <div class="tension-meter">
+                <div class="tension-fill" id="tension-fill-bar"></div>
+              </div>
+              <strong id="tension-odds-text">1 ใน 16 (6.3%)</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-bottom-bar">
+          <div class="teeth-legend">
+            <span><i class="dot safe"></i> ฟันปลอดภัย</span>
+            <span><i class="dot hidden"></i> ฟันปริศนา</span>
+            <span><i class="dot danger"></i> ฟันเข้งับ</span>
+          </div>
+        </div>
+
+        <div id="hud-toast" class="toast-msg"></div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- HOW TO PLAY MODAL                          -->
+      <!-- ========================================== -->
+      <div id="modal-how" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="how-title">
+        <div class="glassPanel modal-box">
+          <button class="close-modal-btn" id="btn-close-how" type="button" aria-label="ปิด">×</button>
+          <h2 id="how-title">📖 กติกาการเล่น “เข้งับ!”</h2>
+          <p>รวมแก๊งเพื่อน 2 ถึง 6 คน ผลัดกันจิ้มฟันจระเข้ 3D ทีละ 1 ซี่ โดยในปากมี <strong>ฟันซี่ลับ 1 ซี่</strong> ที่พร้อมจะงับมือคุณ!</p>
+          <ol>
+            <li><strong>ฟันปลอดภัย:</strong> ฟันจะหัก, จม, หรือหลุดลงน้ำอย่างสนุกสนาน พร้อมส่งตาต่อไปให้เพื่อน</li>
+            <li><strong>ฟันเข้งับ:</strong> จระเข้จะงับมือทันที! คนที่โดนงับจะแพ้ในรอบนั้น</li>
+            <li><strong>ระบบสะสมแต้ม:</strong> ผู้เล่นทุกคนที่รอดชีวิตจะได้ <strong>+1 แต้ม</strong> แข่งขันกันครบ 5 รอบเพื่อหาแชมป์ปาร์ตี้!</li>
+            <li><strong>มาตรวัดความเสี่ยง:</strong> ยิ่งจิ้มฟันออกไปมาก โอกาสโดนงับจะยิ่งพุ่งสูงขึ้นแบบเรียลไทม์!</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- SETTINGS MODAL                             -->
+      <!-- ========================================== -->
+      <div id="modal-settings" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="glassPanel modal-box">
+          <button class="close-modal-btn" id="btn-close-settings" type="button" aria-label="ปิด">×</button>
+          <h2 id="settings-title">⚙️ ตั้งค่าเกม</h2>
+
+          <div class="setting-row">
+            <div>
+              <strong>เสียงเอฟเฟกต์ & ดนตรีบรรยากาศ</strong>
+              <div style="font-size:12px;color:#8fa7bf;margin-top:2px">เสียงดนตรีฟัน, หัวใจเต้นตึกตัก, เสียงงับตูม</div>
+            </div>
+            <button class="toggle-switch on" id="toggle-audio" type="button" aria-label="เปิด/ปิดเสียง"><div class="knob"></div></button>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <strong>แรงสั่นสะเทือน & การสั่นหน้าจอ</strong>
+              <div style="font-size:12px;color:#8fa7bf;margin-top:2px">แรงกระแทกเวลางับและการเคลื่อนไหวแบบ 3D</div>
+            </div>
+            <button class="toggle-switch on" id="toggle-shake" type="button" aria-label="เปิด/ปิดการเคลื่อนไหว"><div class="knob"></div></button>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <strong>เอฟเฟกต์ประกายดาว & ละอองน้ำตา</strong>
+              <div style="font-size:12px;color:#8fa7bf;margin-top:2px">ประกายดาว, ละอองน้ำตา และเอฟเฟกต์การชน</div>
+            </div>
+            <button class="toggle-switch on" id="toggle-particles" type="button" aria-label="เปิด/ปิดเอฟเฟกต์ละอองประกาย"><div class="knob"></div></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- RESET CONFIRMATION MODAL                   -->
+      <!-- ========================================== -->
+      <div id="modal-reset" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-title">
+        <div class="glassPanel modal-box" style="text-align:center">
+          <h2 id="reset-title" style="justify-content:center">ต้องการเริ่มใหม่หรือไม่?</h2>
+          <p style="margin-bottom:18px">รอบปัจจุบันจะสิ้นสุดลงและสุ่มผู้เล่นเริ่มต้นใหม่ทันที</p>
+          <div style="display:flex;gap:10px;justify-content:center">
+            <button id="btn-reset-cancel" class="btnBase secondaryBtn" type="button" style="flex:1">เล่นต่อ</button>
+            <button id="btn-reset-confirm" class="btnBase dangerBtn" type="button" style="flex:1">เริ่มใหม่</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- ROUND & MATCH RESULT SCREEN                -->
+      <!-- ========================================== -->
+      <div id="screen-result" class="ui-screen hidden" role="region" aria-label="ผลการแข่งขัน">
+        <div class="glassPanel result-card-box">
+          <div class="result-emoji" id="result-emoji">💥</div>
+          <h2 class="result-title" id="result-title">แมวส้ม โดนเข้งับ!</h2>
+          <p class="result-desc" id="result-desc">งั่มมมม! ฟันสะอาดแล้ว ผู้รอดชีวิตทุกคนได้ +1 แต้ม!</p>
+
+          <!-- Filled by handleGameResult. -->
+          <div class="scoreboard-table" id="result-scoreboard"></div>
+
+          <div class="result-actions-row">
+            <button id="btn-result-next" class="btnBase primaryBtn" type="button">
+              <span id="btn-result-next-text">รอบถัดไป ➔</span>
+            </button>
+            <button id="btn-result-menu" class="btnBase secondaryBtn" type="button">
+              <span>หน้าหลัก</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- The no-3D panel ADR-0051 requires: the page stays readable when a WebGL context is
+           unavailable. Its id is the one scripts/webgl-pixels-probe.mjs reads. No reload control:
+           an inline handler cannot execute under this site's CSP (ADR-0005), and a navigation or
+           reload trigger has no place inside a play surface. -->
+      <div id="webglUnsupportedNotice" class="ui-screen hidden" role="alert">
+        <div class="glassPanel modal-box" style="text-align:center">
+          <h2>⚠️ ไม่สามารถเปิด 3D ได้</h2>
+          <p>เบราว์เซอร์ไม่รองรับ WebGL กรุณาลองใช้ Chrome, Safari หรือ Edge เวอร์ชันล่าสุด</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
