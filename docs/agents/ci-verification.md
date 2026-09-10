@@ -132,16 +132,24 @@ Routed from `CLAUDE.md` 2026-09-08 (ADR-0012 seam; that file keeps the heading a
 **Two different Chrome launches, two different answers, and the fast one is the one you reach for.**
 The probe lanes here do not all launch Chrome the same way. `scripts/webgl-pixels-lane.sh` uses
 `--use-angle=swiftshader --enable-unsafe-swiftshader`, which **grants a working WebGL2 context**.
-`scripts/ci-probes.sh`'s other lanes use `--disable-gpu`, which grants **no context of either type**.
-A route that renders through a 3D library takes a completely different code path under those two, so a
-green from the swiftshader lane says nothing about the no-context path — and the no-context path is
-the one ADR-0051 exists to protect, on the audience CLAUDE.md calls core rather than edge.
+`scripts/ci-probes.sh`'s other lanes use `--disable-gpu`, which grants **no context of either type —
+on a Mac**. That qualifier was added 2026-09-10; without it the sentence is false about CI.
 
-That is how a route shipped with its ADR-0051 fallback never once exercised in a real browser: every
-local run had picked the swiftshader flags, and the route's own no-3D test asserts that path against a
-fake DOM, so it was green for a reason unrelated to whether the path works. **State which flags you
-used whenever you report a browser measurement**, and if the claim is about a missing context, confirm
-in-page that `getContext` actually returns null before concluding anything.
+**CI's own lane is live, by signature, and the mechanism is NOT identified.** Measured:
+`one-bomb`'s fit line from a CI run (100% / 35 ink / 2 screens at 1440) reproduces locally under
+swiftshader and not under `--disable-gpu` (93.8% / 26 ink / 4 screens). So the runner's lane has a
+context. WHY is unknown and must not be asserted — ANGLE/SwiftShader on the runner image, llvmpipe,
+and a Chrome-version gate on what `--disable-gpu` disables are all candidates, none measured.
+`scripts/canvas-ink-probe.mjs` now prints the in-page read as a `::notice::` and into
+its artifact, so the next run settles it.
+
+A 3D route takes a different code path under those two, so a swiftshader green says nothing about the
+no-context path — the one ADR-0051 protects, on the audience CLAUDE.md calls core rather than edge —
+and a Mac `--disable-gpu` green says nothing about the path CI takes. That is how a route shipped
+with its ADR-0051 fallback never once exercised in a real browser: every local run picked the
+swiftshader flags, and the route's own no-3D test asserts that path against a fake DOM. **State which
+flags you used whenever you report a browser measurement**, and confirm in-page that `getContext`
+returns null before concluding anything. A flag name is not a context state; only the read is.
 
 ## The probe's own dispatch latency sits inside the number it gates (2026-09-09, gh#122)
 

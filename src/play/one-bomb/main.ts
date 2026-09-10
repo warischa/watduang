@@ -300,23 +300,36 @@ function applyReducedMotion(): void {
 // ---- the no-3D board ---------------------------------------------------------------------------
 
 /** ADR-0051: a route that uses WebGL ships a path that keeps the page usable when the context is
- *  unavailable. This is that path, and the condition it exists for is not a rare device — every
- *  browser probe this repo runs launches Chrome with the GPU disabled, so `getContext('webgl')`
- *  returns null, the lifted engine takes its unsupported-notice branch, and its ENTIRE body is below
- *  that early return: the state machine, the stepper wiring, every screen transition. Nothing on the
- *  route moves, which is why the exit probe could find no control that transitions the screen.
+ *  unavailable. This is that path, and with no context the lifted engine takes its
+ *  unsupported-notice branch and its ENTIRE body sits below that early return: the state machine,
+ *  the stepper wiring, every screen transition. Nothing on the route moves, which is why the exit
+ *  probe could find no control that transitions the screen.
  *
- *  So the round is run from here instead, on a real DOM grid of real <button> stones. Same seat
- *  range, same board shapes, same ten rounds, same rule — one bomb, everyone who is not holding the
- *  phone when it goes off scores. The engine's own HUD nodes are REUSED rather than rebuilt: the
- *  turn banner, the round badge, the odds pill, the player strip, the result card and the toast all
- *  ship in markup.html and are painted from here.
+ *  WHERE `getContext('webgl')` REALLY RETURNS NULL, corrected after being measured rather than
+ *  assumed. This comment used to claim every browser probe this repo runs launches Chrome with the
+ *  GPU disabled, so the context is always absent. That is true of `--disable-gpu` ON A MAC only.
+ *  On the CI runner the same flag leaves this route's canvas LIVE — established by signature, not
+ *  by a direct read: CI's own fit line for this route matches a local `--use-angle=swiftshader`
+ *  run and not a local `--disable-gpu` one. WHY the runner has a context is explicitly NOT known —
+ *  ANGLE or SwiftShader on the runner image, llvmpipe, and a Chrome-version gate are all
+ *  candidates and none has been measured. `scripts/canvas-ink-probe.mjs` now prints the in-page
+ *  read from the runner itself so the next CI run settles it from evidence.
  *
- *  SCOPE, narrower than it looks and not a preference. This runs only when the engine died. With a
- *  live context the engine owns the round from inside a closure that exports nothing and whose board
- *  geometry is private, so a grid taking taps there would be a second state machine writing the same
- *  HUD nodes as the first, with no way to agree with it. Making the grid primary in BOTH modes needs
- *  a hook in main.js, and that file is owned by scripts/extract-mockup.mjs.
+ *  So the round is run from here, on a real DOM grid of real <button> stones. Same seat range, same
+ *  board shapes, same ten rounds, same rule — one bomb, everyone who is not holding the phone when
+ *  it goes off scores. The engine's own HUD nodes are REUSED rather than rebuilt: the turn banner,
+ *  the round badge, the odds pill, the player strip, the result card and the toast all ship in
+ *  markup.html and are painted from here.
+ *
+ *  SCOPE: BOTH LANES, by owner ruling 2026-09-10, and that reverses what this comment used to say.
+ *  The grid was fallback-only, so on any device with a context the route shipped a canvas as its
+ *  play surface and ZERO cells. Making the grid primary while the engine also ran would put two
+ *  state machines on one HUD, so the engine's input is severed instead: `#gameCanvas` is
+ *  `pointer-events: none` in overrides.css and severEngineLeafControls below replaces its leaf
+ *  controls at mount. The engine ends up parked in its MENU state, and the owner was shown and
+ *  accepted the cost — a device with a GPU gets no 3D stone board and no engine audio, only the DOM
+ *  grid over a 3D backdrop of environment, idle mascots and embers. That is the ruled outcome, not
+ *  a defect. The alternative needed a hook in main.js, which scripts/extract-mockup.mjs owns.
  *
  *  ponytail: the reveals here are the engine's own class writes, so the observer above arms them
  *  with no second mechanism. Only the board is armed explicitly, because it is not one of the five
@@ -578,12 +591,61 @@ function backToMenu(): void {
   $('menuOverlay')?.classList.remove('hidden');
 }
 
-/** True when the lifted engine bailed out, i.e. there is no 3D context on this device. Read off the
- *  engine's OWN signal rather than by asking the canvas a second time: a second getContext call on a
- *  canvas the engine already took would answer about a different element, and this notice is emitted
- *  on exactly the branch that leaves the route dead. */
-function engineIsDead(): boolean {
-  return $('webglUnsupportedNotice') !== null;
+/** The engine's leaf controls: every id main.js binds a listener to that is not a container. At
+ *  MODULE scope so both callers below read one list, and so the drift pin in
+ *  webgl-context-loss.test.mjs — which parses this declaration out of the file — measures the list
+ *  the common path actually uses.
+ *
+ *  DUPLICATED, ONCE, INSIDE haltOnContextLoss, and that is a constraint rather than a choice. That
+ *  test executes the halt function's own bytes through `new Function` over a stub, with a fixed
+ *  parameter list; an identifier declared out here is not in that scope, so hoisting the halt's copy
+ *  would turn every behavioural leg of that file into a ReferenceError. The two copies are held
+ *  together by execution, not by eye: the same test drives the halt with THIS list and asserts every
+ *  id in it is dead afterwards, so the halt's copy cannot be a subset of this one. */
+const ENGINE_LEAF_CONTROLS = [
+  'homeBtn',
+  'newRoundBtn',
+  'nextRoundBtn',
+  'menuResultBtn',
+  'startPlayBtn',
+  'playerMinus',
+  'playerPlus',
+  'soundToggle',
+  'motionToggle',
+  'particleToggle',
+  'audioToggleBtn',
+];
+
+/** Owner ruling 2026-09-10: the DOM round is installed in BOTH lanes, so the engine must stop
+ *  receiving taps even when it is alive. Its whole input surface is the canvas (severed in
+ *  overrides.css) plus listeners bound directly to the ids above, so replacing those nodes drops
+ *  every one of them. `removeEventListener` is not available: main.js binds anonymous functions
+ *  inside a sealed IIFE.
+ *
+ *  WHAT SURVIVES A DEEP CLONE, enumerated rather than hoped for, because this repo has already
+ *  shipped dead controls to it. Attributes all survive — id, class, type, title, the Thai accessible
+ *  name, `data-*` — and so do children, which is why the emoji glyph on each icon button is still
+ *  there. Listeners do not, which is the point. `disabled` survives too, because it is a reflected
+ *  attribute, and that is the one piece that must not: an arm window open at this moment would have
+ *  the gate's own re-enable land on the detached original and hand every later arm a control it
+ *  reads as caller-disabled. So it is cleared explicitly. Nothing else is copied: focus is not, and
+ *  the engine sets no expando property on any of these nodes (it exposes nothing at all).
+ *
+ *  The stepper's bounds are the one `disabled` state this route OWNS rather than inherits, and they
+ *  are re-asserted by installNoWebglRound's closing setPlayerCount call, which runs right after
+ *  this. Read back off the display, so no second copy of the count is introduced.
+ *
+ *  Idempotent on the no-3D lane: the engine bailed before binding anything there, so this replaces
+ *  eleven nodes with eleven equivalent ones and severs nothing. One path, not two — a lane-dependent
+ *  branch here would be a branch every browser claim then has to cover twice. */
+function severEngineLeafControls(): void {
+  for (const id of ENGINE_LEAF_CONTROLS) {
+    const control = $<HTMLButtonElement>(id);
+    if (!control) continue;
+    const clone = control.cloneNode(true) as HTMLButtonElement;
+    clone.disabled = false;
+    control.replaceWith(clone);
+  }
 }
 
 /** Everything the engine would have wired at the end of its own IIFE, plus the board. */
@@ -811,10 +873,15 @@ function mount(): void {
 
   load();
   const seeded = seedFromRoster();
-  // BEFORE the stepper is driven, and that order is load-bearing: with no 3D context the engine
-  // never reached its own listeners, so on that path this call is what makes #playerPlus move the
-  // count at all — and the seeding loop below reads the count back after every click.
-  if (engineIsDead()) installNoWebglRound();
+  // UNCONDITIONAL, per the owner ruling 2026-09-10: the DOM round is the play surface in both
+  // lanes, so the install no longer asks whether the engine died. Severing comes FIRST — install
+  // binds this file's listeners to these same nodes, and severing after it would clone them away.
+  //
+  // Both calls sit BEFORE the stepper is driven, and that order is load-bearing: the engine's own
+  // stepper listeners are gone by now, so this install is what makes #playerPlus move the count at
+  // all — and the seeding loop below reads the count back after every click.
+  severEngineLeafControls();
+  installNoWebglRound();
   // gh#215. Optional chaining is load-bearing, not defensive habit: on the no-3D path above the
   // engine has already removed the canvas, and the listener must simply not attach there — a route
   // with no context to lose cannot lose one. `once` because there is no second loss to handle; the

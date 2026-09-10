@@ -31,8 +31,26 @@
   border: 0;
 }
 
-/* ADR-0051's no-3D board. It replaces the dead canvas in the same box the canvas occupied, so the
-   HUD keeps sitting over it exactly as it sat over the 3D stage. #app is `overflow: hidden`, so the
+/* Half of the input severing the owner ruled on 2026-09-10, the other half being
+   severEngineLeafControls in main.ts. The DOM board is now the play surface on every device, so the
+   lifted engine must not receive taps even where its context is live — and every tile listener it
+   owns sits on this one element (`pointermove`, `pointerleave`, `pointerdown`), which it raycasts
+   against its own private board geometry.
+
+   `pointer-events` and not `display: none` or a removal: the canvas keeps DRAWING. What a player on
+   a GPU sees behind the grid is the engine parked in its menu state — environment, two idle mascots,
+   embers — and that backdrop is the accepted cost of the ruling, not an accident. Removing the
+   element would also take away the `webglcontextlost` listener the halt path attaches to it.
+
+   Nothing else needs a z-index change: .ob-board-wrap below is z-index 1 against this element's
+   `auto`, so the grid already paints and hit-tests above it. */
+#gameCanvas {
+  pointer-events: none;
+}
+
+/* ADR-0051's no-3D board. On the no-3D lane it replaces the dead canvas in the same box the canvas
+   occupied; on a live context it sits over the canvas in that same box. Either way the HUD keeps
+   sitting over it exactly as it sat over the 3D stage. #app is `overflow: hidden`, so the
    scroll has to live HERE: a nine-row board of 44px stones is taller than a 320x568 screen minus the
    two HUD bars, and a board whose bottom rows are unreachable is not a playable round. */
 .ob-board-wrap {

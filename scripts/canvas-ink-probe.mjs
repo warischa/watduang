@@ -305,9 +305,30 @@ export default async function (session) {
   await session.onNewDocument(recorder(stubbed));
 
   const rows = [];
+  let contextRead = null;
   for (const id of ids) {
     const url = `${BASE}${games.find((g) => g.id === id).playRoute}`;
     await session.nav(url);
+    // DIAGNOSTIC, printed once per run and gating nothing. Every artifact in this repo asserted the
+    // probe fleet has no WebGL context anywhere, on the strength of the `--disable-gpu` flag this
+    // lane launches with. That holds on a Mac and does not hold on the CI runner, where the same
+    // flag leaves a 3D route's canvas live -- established only by comparing a fit line's signature,
+    // because nobody had ever taken the read from inside the runner's own browser. This is that
+    // read. A FRESH canvas per context name: once an element has handed out one context type, asking
+    // it for another returns null, so reusing one canvas would report a false absence.
+    if (contextRead === null) {
+      const read = await session.evaluate(`
+        const out = [];
+        for (const name of ['webgl2', 'webgl', 'experimental-webgl', '2d']) {
+          const c = document.createElement('canvas');
+          let ctx = null;
+          try { ctx = c.getContext(name); } catch (e) { out.push(name + '=throw'); continue; }
+          out.push(name + '=' + (ctx ? 'live' : 'null'));
+        }
+        return out.join(' ');`);
+      contextRead = read.value ?? `unreadable: ${read.error ?? 'no value'}`;
+      console.log(`::notice::IN_PAGE_CONTEXT ${contextRead} -- this lane's own read, not inferred from its Chrome flags`);
+    }
     await session.setWidth(VP.w, VP.h);
     await session.wipe(); // on-origin, per docs/agents/browser-verification.md trap 4
     await session.evaluate(SEED);
@@ -352,6 +373,9 @@ export default async function (session) {
   for (const complaint of bad) console.error(`::error::${complaint}`);
   const out = {
     base: BASE, stubbed, noPress, full,
+    // Carried into the artifact as well as the log: a `::notice::` is easy to lose in a lane dump,
+    // and this line is the whole point of the read.
+    inPageContext: contextRead,
     derivedCount: derivedIds.length, walked: rows.length,
     recordedIdle: [...RECORDED_IDLE.keys()],
     rows,
