@@ -11,7 +11,7 @@ Resume must read it as the primary state source. This file holds only the stable
 
 ## Stack
 
-Astro + TypeScript · **no runtime framework** (vanilla TS in islands; ADR-0060 admits `three` and no second 3D library — but it is NOT vendored yet: 0 imports, not installed, the 2 WebGL routes hand-write shaders) · plain CSS + custom properties · Azure Static Web Apps (Standard) · GitHub Actions · Cloudflare Web Analytics **(chosen, NOT wired — gh#160)**
+Astro + TypeScript · **no runtime framework** (vanilla TS in islands; ADR-0060 admits `three` and no second 3D library — it IS installed now, pinned bare at `0.170.0`; the WebGL routes that predate it hand-write their shaders. Count importers from disk, never from this line) · plain CSS + custom properties · Azure Static Web Apps (Standard) · GitHub Actions · Cloudflare Web Analytics **(chosen, NOT wired — gh#160)**
 
 **1 game = 1 file + 1 manifest line → 1 static URL** via `getStaticPaths()` · path routing only, **no hash routes** — SEO is this site's business model, not a feature.
 
