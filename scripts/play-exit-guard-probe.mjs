@@ -99,11 +99,23 @@ const classifyBurst = (log, armDelayMs) => {
   };
 };
 
+// gh#231 — did this pass stay on the route it was measuring? Asked POSITIVELY, because the two legs
+// below used to ask `pathAfterBurst !== '/'` and a CDP evaluate that lands mid-navigation resolves as
+// a plain null here: `null !== '/'` is TRUE, so the burst that really did leave the round scored its
+// no-nav leg as a PASS. That is the one outcome that must never read green, and the same shape the
+// sibling probe's header records for its own pathname guard.
+const inRound = (path, route) => path === `/game/${route}/play/`;
+
 // Runs on EVERY invocation, not behind a flag: this file is driven by a shell wrapper and sits outside
 // gate-selftest-coverage-check.mjs's audited set, so a flag-only selftest here would be a check nothing
 // ever executes. Pure arithmetic on six objects, so it costs nothing.
 const assert = (await import('node:assert')).default;
 {
+  // The absent-value leg first: this is the input the old expression scored as a pass.
+  assert.strictEqual(inRound(null, 'freeze-tap'), false, 'a pathname that did not come back is not evidence the burst stayed in the round');
+  assert.strictEqual(inRound('/', 'freeze-tap'), false);
+  assert.strictEqual(inRound('/game/freeze-tap/play/', 'freeze-tap'), true);
+  assert.strictEqual(inRound('/game/freeze-tap/play/', 'timebomb'), false, 'the check is per route, not "some play route"');
   // A burst delivered on time: both clocks agree, nothing is void.
   const clean = classifyBurst([{ kind: 'up', t: 0, ti: 0 }, { kind: 'down', t: 80, ti: 80 }, { kind: 'up', t: 90, ti: 90 }, { kind: 'down', t: 170, ti: 170 }], 400);
   assert.deepStrictEqual(clean.inputGaps, [80, 80]);
@@ -163,19 +175,27 @@ async function openTab() {
   };
   const nav = async (url) => { const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); };
   const setup320 = async () => { await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 1, mobile: true }); };
-  const tap = async (x, y) => {
-    await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 0 }] });
-    await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  };
+  // gh#231 — both halves go on the wire together and only the PAIR is awaited. Awaiting the touchStart
+  // ack put a CDP round trip inside every contact, and Chrome acks an input dispatch once the RENDERER
+  // has handled it (measured: a 700ms blocking pointerup handler makes the release ack take 701ms), so
+  // on a contended runner the harness's own latency landed inside the interval the classifier compares
+  // against ARM_DELAY_MS. Ordering is unchanged -- CDP handles one session's messages in order -- and
+  // every existing caller still awaits the settled pair before reading the page.
+  const tap = (x, y) => Promise.all([
+    send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 0 }] }),
+    send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }),
+  ]);
   const touchDown = async (x, y, tid) => send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: tid }] });
   // Multi-touch add: pass the FULL current set of active points; CDP diffs against the previous call
   // to know which point is new (documented behaviour; also how Puppeteer's multi-touch Touchscreen works).
   const touchAddPoint = async (existing, x, y, tid) => send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [...existing, { x, y, id: tid }] });
   const touchRemovePoint = async (remaining) => send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: remaining });
   const touchReleaseAll = async () => send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  const mouseClick = async (x, y) => {
-    for (const type of ['mousePressed', 'mouseReleased']) await send('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: 1 });
-  };
+  // Same rule as `tap` above, and this is the one the CI failure was made of: the awaited mouseReleased
+  // ack put the whole transition handler between the release and the first burst contact.
+  const mouseClick = (x, y) => Promise.all(['mousePressed', 'mouseReleased'].map(
+    (type) => send('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: 1 }),
+  ));
   const shot = async (path) => { const s = await send('Page.captureScreenshot', { format: 'png' }); await writeFile(path, Buffer.from(s.result.data, 'base64')); };
   const pathname = async () => (await evaluate('return location.pathname;')).value;
   const disabledState = async () => (await evaluate("return document.getElementById('play-exit')?.disabled ?? null;")).value;
@@ -416,6 +436,12 @@ const BURST_INSTRUMENT = `
   const mark = (ev, kind) => {
     window.__pdlog.push({ kind, t: Math.round((performance.timeOrigin + performance.now()) * 10) / 10,
                           ti: typeof ev.timeStamp === 'number' ? Math.round((performance.timeOrigin + ev.timeStamp) * 10) / 10 : null,
+                          // gh#231 — who is on top at the X's hit point, observed PER CONTACT from
+                          // inside the page. It replaces one awaited round trip that sat between the
+                          // transition tap and the burst, and it retires that read's named ceiling:
+                          // a single pre-burst sample could not see an overlay that opened mid-burst,
+                          // which is exactly what short-stick's reveal dialog does.
+                          top: (() => { const e = document.elementFromPoint(${X_HIT}, ${X_HIT}); return e ? (e.id || e.className || e.tagName) : 'NONE'; })(),
                           disabled: document.getElementById('play-exit')?.disabled ?? null });
     sessionStorage.setItem(${JSON.stringify(CONTACT_KEY)}, JSON.stringify(window.__pdlog));
   };
@@ -438,20 +464,20 @@ for (const route of ROUTES_ALL) {
   const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
   await s.evaluate(BURST_INSTRUMENT);
   const startBtn = await findTransitionTrigger(s);
-  if (startBtn) await s.mouseClick(startBtn.x, startBtn.y);
-  // KNOWN CEILING, named so a later reader does not mistake this for coverage it has not earned:
-  // topBeforeBurst is read ONCE, here, before the burst. The burst spans roughly 400-600ms, and
-  // short-stick's #short-reveal-dialog opens about 750ms after the straw click (two chained timers in
-  // src/play/short-stick/main.js). On a runner slower than this laptop, later taps in the burst can
-  // land on that dialog while this single pre-read still says the X was on top, so passNoNav would
-  // credit a full five-tap burst on the X when it was not one.
-  // Why this is a measurement ceiling and not a hole in the verdict: a tap on the dialog, or on its
-  // own close button, routes to the result view and never navigates, so the burst leg cannot go green
-  // for the wrong reason -- it can only be weaker than it reads. Tightening it means sampling the top
-  // element per tap, which costs a CDP round trip inside the burst and would change the very timing
-  // the burst is trying to reproduce. Left deliberately.
-  const topBeforeBurst = await topAtX(s);
-  for (let i = 0; i < 5; i++) { await sleep(80); await s.tap(cx, cy); }
+  // gh#231 — the transition tap and the burst are ONE dispatch stream: nothing between the release and
+  // the first contact is awaited, because everything that was (the release's own ack, and a topAtX
+  // evaluate that Chrome cannot answer until the renderer is free) put the transition's handling time
+  // inside the interval the classifier compares against ARM_DELAY_MS. Measured on this machine with a
+  // 700ms blocking handler: awaited shape first input gap 781.8ms, this shape 79.8ms, one variable.
+  // Who was on top at the X is now observed per contact by BURST_INSTRUMENT instead, which needs no
+  // round trip and sees an overlay that opens DURING the burst -- see `top` there.
+  const acks = [];
+  if (startBtn) acks.push(s.mouseClick(startBtn.x, startBtn.y));
+  // Send time per contact, in the same epoch-millisecond frame the page stamps in, so the runner's own
+  // dispatch latency is RECORDED rather than inferred from its consequences.
+  const sentAt = [];
+  for (let i = 0; i < 5; i++) { await sleep(80); sentAt.push(Date.now()); acks.push(s.tap(cx, cy)); }
+  await Promise.all(acks);
   await sleep(150);
   const pathAfterBurst = await s.pathname();
   // Read HERE, before the deliberate tap below: that tap is a separate gesture roughly 700ms after the
@@ -459,6 +485,16 @@ for (const route of ROUTES_ALL) {
   // design and would classify every healthy route as VOID.
   const contactLog = (await s.evaluate(`return JSON.parse(sessionStorage.getItem(${JSON.stringify(CONTACT_KEY)}) || '[]');`)).value ?? [];
   const burst = classifyBurst(contactLog, ARM_DELAY_MS);
+  // The burst's own contacts: the transition tap's press is the first `down` in the log and is dropped.
+  const burstDowns = contactLog.filter((e) => e.kind === 'down' && typeof e.ti === 'number').slice(1);
+  // What the FIRST burst contact itself saw at the X's hit point, in place of the pre-burst read. A
+  // pass whose log holds no burst contact at all says so rather than inheriting a stale 'play-exit'.
+  const topBeforeBurst = burstDowns[0]?.top ?? 'NO CONTACT OBSERVED';
+  // Evidence, not a gate: the per-contact tops, which is what the retired pre-read could not see.
+  const topsDuringBurst = burstDowns.map((e) => e.top ?? null);
+  // Send-to-stamp per contact, null rather than guessed if the log and the send list disagree -- a lag
+  // computed off a mispaired contact is a number about nothing.
+  const dispatchLags = burstDowns.length === sentAt.length ? burstDowns.map((e, i) => Math.round(e.ti - sentAt[i])) : null;
   if (burst.isVoid && attempt < 2) { await s.close(); continue; }
   await sleep(600);
   const { before: overlayAtX, after: topBeforeDeliberate } = await clearOverlayAtX(s);
@@ -467,17 +503,22 @@ for (const route of ROUTES_ALL) {
   await sleep(900);
   const pathAfterDeliberate = await s.pathname();
   out.s4[route] = {
-    transitionTriggered: !!startBtn, topBeforeBurst, pathAfterBurst,
+    transitionTriggered: !!startBtn, topBeforeBurst, topsDuringBurst, pathAfterBurst,
+    // gh#231 — recorded once, positively, and read by both legs below.
+    stillInRound: inRound(pathAfterBurst, route), dispatchLags,
+    maxDispatchLagMs: dispatchLags?.length ? Math.max(...dispatchLags) : null,
     overlayAtX, topBeforeDeliberate, disabledBeforeDeliberate, pathAfterDeliberate,
     attempts: attempt, armDelayMs: ARM_DELAY_MS, cpuThrottle: CPU_THROTTLE, timeline: contactLog,
     ...burst,
-    // "the burst did not exit" only means something if the burst was landing ON the X.
-    passNoNav: !!startBtn && topBeforeBurst === 'play-exit' && pathAfterBurst !== '/',
+    // "the burst did not exit" only means something if the burst was landing ON the X -- and only if
+    // this pass is still ON the route it measured. `!== '/'` was ALSO true for a pathname that never
+    // came back, which scored a burst that left the round as a pass; see inRound at the top.
+    passNoNav: !!startBtn && topBeforeBurst === 'play-exit' && inRound(pathAfterBurst, route),
     // Gated on the burst NOT having navigated. Measured on short-stick: the burst left the round, so
     // this tap landed on the home page and asserted '/' === '/' -- a leg that passes by measuring the
     // wrong page is worse than a missing leg. A burst that already exited fails BOTH legs, which is
     // correct: nothing here observed a deliberate tap on a play route.
-    passDeliberateNav: pathAfterBurst !== '/' && topBeforeDeliberate === 'play-exit' && pathAfterDeliberate === '/',
+    passDeliberateNav: inRound(pathAfterBurst, route) && topBeforeDeliberate === 'play-exit' && pathAfterDeliberate === '/',
   };
   if (!out.s4[route].passNoNav) await s.shot(`${SHOT}/s4-${route}-burst-FAIL.png`);
   if (!out.s4[route].passDeliberateNav) await s.shot(`${SHOT}/s4-${route}-deliberate-FAIL.png`);
@@ -528,7 +569,10 @@ const unmeasure = (id, msg) => { unmeasuredIds.add(id); unmeasured.push(msg); };
 // it late, and only the second makes the measurement void.
 const gapNote = (r) => r.maxGap == null
   ? 'no contact timings captured, so this line names no cause'
-  : `largest pointerup->pointerdown gap: handled ${r.maxGap}ms, input ${r.maxInputGap == null ? 'NOT CAPTURED -- a slow dispatch cannot be told from a gate defect here' : r.maxInputGap + 'ms'} vs ARM_DELAY_MS ${ARM_DELAY_MS} (over it: ${r.gapsOverArmDelay} handled, ${r.inputGapsOverArmDelay} input; handled gaps ${(r.gaps ?? []).join(', ')}; input gaps ${(r.inputGaps ?? []).join(', ')})`;
+  : `largest pointerup->pointerdown gap: handled ${r.maxGap}ms, input ${r.maxInputGap == null ? 'NOT CAPTURED -- a slow dispatch cannot be told from a gate defect here' : r.maxInputGap + 'ms'} vs ARM_DELAY_MS ${ARM_DELAY_MS} (over it: ${r.gapsOverArmDelay} handled, ${r.inputGapsOverArmDelay} input; handled gaps ${(r.gaps ?? []).join(', ')}; input gaps ${(r.inputGaps ?? []).join(', ')}${
+      // gh#231 — the runner's own send-to-stamp latency, published with the gaps. A gap is a difference
+      // between two stamps and cannot say whether the runner was late; this is the number that can.
+      r.dispatchLags == null ? '; dispatch lag NOT PAIRED (the log holds a different number of burst contacts than were sent -- see the pathname)' : `; dispatch lag ${r.dispatchLags.join(', ')}ms`}; top at the X per contact ${(r.topsDuringBurst ?? []).join(', ') || 'none observed'})`;
 for (const [g, r] of Object.entries(out.s1)) {
   check(`s1/${g}`, r.pass, `s1/${g}: a press that STARTED while the X was disabled still left the round (pathname ${r.pathAfter}, contacts on X ${JSON.stringify(r.contactsOnX)}, disabled before press ${r.disabledBeforePress})`);
 }
@@ -553,8 +597,8 @@ for (const [g, r] of Object.entries(out.s4)) {
     unmeasure(`s4/${g}/deliberate`, `s4/${g}: UNMEASURED -- its precondition is a burst that stayed in the round, and this run's burst was never delivered as a burst`);
     continue;
   }
-  check(`s4/${g}/deliberate`, r.passDeliberateNav, r.pathAfterBurst === '/'
-    ? `s4/${g}: the burst had already left the round, so this leg tapped the HOME page and its '/' === '/' means nothing`
+  check(`s4/${g}/deliberate`, r.passDeliberateNav, !r.stillInRound
+    ? `s4/${g}: the burst did not leave this pass on the play route (pathname after burst ${r.pathAfterBurst ?? 'unreadable -- the read did not come back, which is not evidence it stayed'}), so this leg tapped whatever page it landed on and its '/' === '/' means nothing`
     : r.topBeforeDeliberate !== 'play-exit'
       ? `s4/${g}: ${r.topBeforeDeliberate} was on top of the X at (${X_HIT},${X_HIT}) and closing every open <dialog> did not clear it, so this tap could not reach the control it claims to test`
       : `s4/${g}: a deliberate tap after the burst did not exit (pathname ${r.pathAfterDeliberate}, X disabled before the tap: ${r.disabledBeforeDeliberate})`);

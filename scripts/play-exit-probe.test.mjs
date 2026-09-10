@@ -222,3 +222,51 @@ test('a passing burst publishes its band through the channel a green CI leg keep
   assert.ok(r.ciKept.some((l) => /GAPS alpha: /.test(l)),
     'only one route published a band -- the band must be per walked route, not per interesting route');
 });
+
+// gh#231. The conflation this ticket names. A burst that LEFT THE ROUND destroys the JS context
+// holding `window.__sig`, so the post-burst read comes back null -- and a null transition record used
+// to be judged before anything looked at where the page had landed. Two opposite outcomes reported
+// through one null: "the trigger did nothing" and "the trigger worked and took the apparatus with it".
+// The fixture is the shape CI measured: the round transitioned, the burst's first contact was
+// dispatched outside the arm window, the legitimately armed X took it, and the walk landed on '/'.
+const navAway = (id, burst = {}) => ({
+  ...clean(id),
+  // What the post-burst read really returns once the context is gone.
+  transitioned: null, sigPresent: false,
+  burst: { ...clean(id).burst, pathname: '/', contacts: null, attempts: 2, ...burst },
+});
+
+// The severe half, and the reason this is not cosmetic: the defect check sits BEHIND the transition
+// gate, so the exact regression this leg exists to catch -- a contact dispatched inside the window
+// handled with the X enabled -- was being reported as a failed measurement of an idle screen.
+test('a burst that navigated with an in-window contact is a FAIL, not an unchanged screen', () => {
+  const r = run({ alpha: clean('alpha'), beta: navAway('beta', { defectContacts: [{ inputGap: 60, disabled: false }] }) });
+  assert.deepStrictEqual(r.unmeasured, [], 'a navigation was reported as a failed measurement');
+  assert.doesNotMatch(r.stdout, /left the screen unchanged/, 'the probe called a navigation an unchanged screen');
+  assert.match(r.stdout, /FAIL beta: 1 burst contact\(s\) dispatched INSIDE the arm window/);
+  assert.strictEqual(r.code, 1);
+});
+
+// The CI shape. Not a FAIL: no contact carries the defect, and the burst was not delivered as a burst,
+// so the round was left by a control the browser's input clock had legitimately armed. VOID, and the
+// line has to say a navigation happened -- PROBE_BURST_GAP_MS is documented as the must-red for this
+// rule and could not reach it while the transition gate answered first.
+test('a burst the runner dispatched late is VOID naming the navigation, not UNMEASURED-unchanged', () => {
+  const r = run({ alpha: clean('alpha'), beta: navAway('beta', { isVoid: true, gaps: [500], inputGaps: [500], maxGap: 500, maxInputGap: 500, gapsOverArmDelay: 1, inputGapsOverArmDelay: 1 }) });
+  assert.deepStrictEqual(r.unmeasured, [], 'a navigation was reported as a failed measurement of an idle screen');
+  assert.doesNotMatch(r.stdout, /left the screen unchanged/);
+  assert.match(r.stdout, /^ {2}VOID beta burst: .*NAVIGATED/m, 'the VOID line does not say the burst left the round');
+  assert.strictEqual(r.code, 1, 'a post-retry VOID blocks, exactly as before');
+});
+
+// Fail-closed on the third case: the post-burst read itself did not come back (a CDP evaluate that
+// landed mid-navigation resolves as a plain null here). Nothing was measured and nothing is known
+// about where the page is -- still UNMEASURED and still red, but it must not claim the screen was
+// unchanged, because that is the one thing this evidence cannot say.
+test('a post-burst read that did not come back is UNMEASURED without claiming an unchanged screen', () => {
+  const r = run({ alpha: clean('alpha'), beta: { ...clean('beta'), transitioned: null, sigPresent: null, burst: { ...clean('beta').burst, pathname: null } } });
+  assert.deepStrictEqual(r.unmeasured, ['beta']);
+  assert.doesNotMatch(r.stdout, /left the screen unchanged/);
+  assert.match(r.stdout, /UNMEASURED beta .*did not come back/);
+  assert.strictEqual(r.code, 1);
+});

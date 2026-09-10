@@ -235,11 +235,16 @@ const touch = (x, y) => Promise.all([
 // The transition trigger is driven with a MOUSE press/release, not a touch: cannon-flag dispatches
 // no compat click for synthetic touch (measured), so its own start button never fires under touch and
 // the "after a round transition" precondition would be void there. The X burst below is real touch.
-const mouseClick = async (x, y) => {
-  for (const type of ['mousePressed', 'mouseReleased']) {
-    await send('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: 1 });
-  }
-};
+// gh#231 — both halves go on the wire together and only the PAIR is awaited, for the same reason the
+// touch pair above does, and this one is what the CI failure was made of. Awaiting the mouseReleased
+// ack put the whole transition INSIDE the interval the classifier gates on: Chrome acks an input
+// dispatch once the renderer has handled it, so on a 2-vCPU runner the ack came back ~620ms after the
+// release was stamped, the first burst contact was not even SENT until then, and the exit control had
+// legitimately armed by the time it landed. The harness's own latency was sitting inside the number
+// it gates on. Ordering is unchanged -- CDP handles one session's messages in the order they arrive.
+const mouseClick = (x, y) => Promise.all(['mousePressed', 'mouseReleased'].map(
+  (type) => send('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: 1 }),
+));
 const shot = async (path) => { const s = await send('Page.captureScreenshot', { format: 'png' }); await writeFile(path, Buffer.from(s.result.data, 'base64')); };
 
 // Page-side instrumentation: count contacts that reach the document while the X is disabled. If this
@@ -403,11 +408,19 @@ for (const g of ROUTES) {
     // ARM_DELAY_MS is by definition not a burst any more: the control has armed, and a contact then is
     // the deliberate tap the ticket wants to work (milestone 3).
     cx = rect.x + rect.w / 2; cy = rect.y + rect.h / 2;
-    if (startBtn) await mouseClick(startBtn.x, startBtn.y);
+    // gh#231 — the transition tap and the burst are ONE dispatch stream now: its acknowledgements are
+    // collected with the burst's and awaited after it, never between the release and the first
+    // contact. See mouseClick above for the ack that used to sit in there and what it cost on CI.
+    const acks = [];
+    if (startBtn) acks.push(mouseClick(startBtn.x, startBtn.y));
     // Calibration only (PROBE_STALL_MS): a synchronous busy loop scheduled for the next task, which is
     // the CI runner's long transition task reproduced on a machine that does not have one. The five
     // touches below are still dispatched on time; the page cannot handle any of them until it ends.
-    if (STALL_MS > 0) await evaluate(`setTimeout(() => { const end = performance.now() + ${STALL_MS}; while (performance.now() < end); }, 0); return true;`);
+    // Queued on the same stream as the contacts, not awaited: an awaited round trip here is the very
+    // thing gh#231 removed above. The knob's shape is unchanged and was re-measured after that change
+    // -- the busy loop blocks the page from HANDLING the burst while every contact keeps its honest
+    // dispatch stamp, which is the input-vs-handled pair the classifier is calibrated on.
+    if (STALL_MS > 0) acks.push(evaluate(`setTimeout(() => { const end = performance.now() + ${STALL_MS}; while (performance.now() < end); }, 0); return true;`));
     // The spacing between contacts is the Node timer alone -- BURST_GAP_MS, unchanged. The
     // acknowledgements are collected and awaited after the burst, never between its contacts: waiting
     // for them in here added a round trip per contact to the very interval the classifier compares
@@ -415,15 +428,29 @@ for (const g of ROUTES) {
     // voided the leg on the harness's latency rather than on the site's. Nothing is dropped: the
     // whole burst is settled before the page is read, and the classifier is unchanged -- gaps are
     // only ever compared as OVER the window, so contacts landing closer together sit deeper inside it.
-    const acks = [];
-    for (let i = 0; i < 5; i++) { await sleep(BURST_GAP_MS); acks.push(touch(cx, cy)); }
+    // When each contact was handed to the wire, in the same epoch-millisecond frame the page stamps
+    // with (`performance.timeOrigin + event.timeStamp`). gh#231: the burst's real dispatch latency was
+    // never recorded, so a runner that delivered a contact 624ms after it was sent was indistinguishable
+    // from one that delivered it on time, and the leg could only report the CONSEQUENCE.
+    const sentAt = [];
+    for (let i = 0; i < 5; i++) { await sleep(BURST_GAP_MS); sentAt.push(Date.now()); acks.push(touch(cx, cy)); }
     await Promise.all(acks);
     await sleep(150);
-    // Only means something if the screen actually changed. Also: what does the X cover NOW?
-    res.transitioned = (await evaluate('return window.__sig ? window.__sig() !== window.__sigBefore : null;')).value;
+    // gh#231 — ONE read, so the facts that used to be inferred from a single null are recorded
+    // together and cannot disagree about which page they describe. `sigPresent` is the POSITIVE
+    // evidence that separates the two opposite outcomes this probe reported through that one null:
+    // the signature helper the finder installed above is missing from the page exactly when the burst
+    // navigated and destroyed the JS context holding it -- which is not an unchanged screen, it is the
+    // measuring apparatus having been carried off. A read that throws or lands mid-navigation yields
+    // no value at all, so all three stay null and the verdict claims nothing about the screen.
+    const post = (await evaluate(`return { sigPresent: typeof window.__sig === 'function',
+      changed: typeof window.__sig === 'function' ? window.__sig() !== window.__sigBefore : null,
+      pathname: location.pathname };`)).value;
+    res.sigPresent = post ? post.sigPresent : null;
+    res.transitioned = post ? post.changed : null;
     res.postTransition = (await evaluate(XSTATE)).value;
     res.burst = {
-      pathname: (await evaluate('return location.pathname;')).value,
+      pathname: post ? post.pathname : null,
       disabledAfterBurst: (await evaluate("return document.getElementById('play-exit')?.disabled ?? null;")).value,
       contacts: (await evaluate('return window.__pd;')).value,
     };
@@ -435,6 +462,16 @@ for (const g of ROUTES) {
     res.burst.stallMs = STALL_MS;
     res.burst.burstGapMs = BURST_GAP_MS;
     Object.assign(res.burst, classifyBurst(contactLog, ARM_DELAY_MS));
+    // The real dispatch latency of this burst, per contact: how long after Node handed a contact to
+    // the wire the browser stamped it. Paired by ORDER over the burst's own `down` entries (the
+    // transition tap's own down is the first entry in the log and is dropped), and reported as null
+    // rather than guessed if the two counts disagree -- a lag computed off a mispaired contact is a
+    // number about nothing. Published in the band below so the margin is readable on a GREEN run,
+    // which is the only kind of run the contended runner produces until the day it goes red.
+    const burstDowns = contactLog.filter((e) => e.kind === 'down' && typeof e.ti === 'number').slice(1);
+    res.burst.dispatchLags = burstDowns.length === sentAt.length
+      ? burstDowns.map((e, i) => Math.round(e.ti - sentAt[i])) : null;
+    res.burst.maxDispatchLagMs = res.burst.dispatchLags?.length ? Math.max(...res.burst.dispatchLags) : null;
     res.burst.attempts = attempt;
     await shot(`${SHOT}/playexit-${TAG}-${g}-burst.png`);
     // gh#199 — a finder miss retries on the same terms a VOID burst does. The retry's original
@@ -520,7 +557,11 @@ console.log(JSON.stringify(out, null, 2));
 // spent two CI runs naming the wrong cause.
 const gapNote = (r) => r.burst?.maxGap == null
   ? 'no contact timings captured, so this red names no cause'
-  : `largest pointerup->pointerdown gap: handled ${r.burst.maxGap}ms, input ${r.burst.maxInputGap == null ? 'NOT CAPTURED -- a slow dispatch cannot be told from a gate defect here' : r.burst.maxInputGap + 'ms'} vs ARM_DELAY_MS ${ARM_DELAY_MS} (over it: ${r.burst.gapsOverArmDelay} handled, ${r.burst.inputGapsOverArmDelay} input; handled gaps ${r.burst.gaps.join(', ')}; input gaps ${r.burst.inputGaps.join(', ')})`;
+  : `largest pointerup->pointerdown gap: handled ${r.burst.maxGap}ms, input ${r.burst.maxInputGap == null ? 'NOT CAPTURED -- a slow dispatch cannot be told from a gate defect here' : r.burst.maxInputGap + 'ms'} vs ARM_DELAY_MS ${ARM_DELAY_MS} (over it: ${r.burst.gapsOverArmDelay} handled, ${r.burst.inputGapsOverArmDelay} input; handled gaps ${r.burst.gaps.join(', ')}; input gaps ${r.burst.inputGaps.join(', ')}${
+      // gh#231 — the runner's own dispatch latency, published with the gaps rather than inferred from
+      // them. A gap is a difference between two stamps and cannot say whether the runner was late;
+      // this is send-to-stamp per contact, and it is the number that named the CI cause.
+      r.burst.dispatchLags == null ? '; dispatch lag NOT PAIRED (the log holds a different number of burst contacts than were sent -- see the pathname)' : `; dispatch lag ${r.burst.dispatchLags.join(', ')}ms`})`;
 const fails = [], skips = [], voids = [], unmeasured = [], bands = [];
 // gh#193 — the skipped routes BY NAME, because `checked` used to be `Object.keys(out).length` and a
 // route could sit in both sets at once: short-stick skipped on four consecutive runs while the summary
@@ -561,12 +602,36 @@ for (const [g, r] of Object.entries(out)) {
   // exists to measure never having been exercised. UNMEASURED and RED, for the same reason a finder
   // miss is: the measurement did not happen. It is NOT a FAIL -- nothing about the site was shown to
   // be broken, only that the probe could not set up its own precondition.
-  if (r.transitioned !== true) {
+  // gh#231 — WHERE THE PAGE ENDED UP, read positively, before anything judges the transition record.
+  // A burst that leaves the round destroys the JS context holding `window.__sig`, so the post-burst
+  // read comes back null -- and judging that null as "the trigger left the screen unchanged" reports
+  // the exact opposite of what happened. It did so in FRONT of the defect check below, which means a
+  // real regression (a contact dispatched inside the window, handled with the X enabled, round left)
+  // was being reported as a failed measurement of an idle screen. Measured on CI, gh#213.
+  // Positive evidence on both sides, never a `!==` that is also true when the value is absent:
+  // `inRound` is the pathname this walk started on, and `sigPresent === false` is the probe's own
+  // helper missing from a page that had it -- which is destruction, not silence.
+  const inRound = r.burst?.pathname === `/game/${g}/play/`;
+  const leftTheRound = r.sigPresent === false || (r.burst?.pathname != null && !inRound);
+  if (r.transitioned !== true && !leftTheRound) {
     unmeasuredSet.add(g);
     const t = r.transitionTrigger;
-    unmeasured.push(`${g} burst: UNMEASURED after ${r.burst?.attempts ?? '?'} attempt(s) -- the trigger the finder drove ("${t?.label ?? '?'}", candidate ${(r.triggerScan?.candIdx ?? 0) + 1} of ${r.triggerScan?.candidateCount ?? '?'}) left the screen unchanged (transitioned=${r.transitioned}), so no round transition ever disarmed the X and the burst measured an idle screen; this is a failed MEASUREMENT and it blocks`);
+    // Two failed measurements, told apart by whether the post-burst read came back at all. Neither
+    // may borrow the other's sentence: an unreadable read is not evidence of an unchanged screen, and
+    // that is the one claim this branch used to make on every input it could not explain.
+    unmeasured.push(r.burst?.pathname == null
+      ? `${g} burst: UNMEASURED after ${r.burst?.attempts ?? '?'} attempt(s) -- the post-burst read did not come back (pathname and transition record both unreadable, sigPresent=${r.sigPresent}), so this pass knows neither what the screen did nor where the page is; this is a failed MEASUREMENT and it blocks`
+      : `${g} burst: UNMEASURED after ${r.burst?.attempts ?? '?'} attempt(s) -- the trigger the finder drove ("${t?.label ?? '?'}", candidate ${(r.triggerScan?.candIdx ?? 0) + 1} of ${r.triggerScan?.candidateCount ?? '?'}) left the screen unchanged (transitioned=${r.transitioned}), so no round transition ever disarmed the X and the burst measured an idle screen; this is a failed MEASUREMENT and it blocks`);
     continue;
   }
+  // Carried into every burst-side message on a pass that navigated, because the transition record is
+  // then genuinely unknown and a line that omits that reads as if the precondition had been checked.
+  // The M3 leg is not judged on such a pass either: its own precondition is a burst that STAYED in
+  // the round, and after the burst left it that tap was aimed at the home page. Nothing hides behind
+  // this -- every route reaching here with leftTheRound goes on to a FAIL or a VOID below.
+  const navNote = leftTheRound
+    ? ` -- the burst NAVIGATED off the play route (pathname ${r.burst?.pathname ?? 'unreadable'}, sigPresent ${r.sigPresent}), which destroyed the JS context holding this probe's signal variables: the transition record reads ${r.transitioned} because the apparatus was carried off, NOT because the screen was unchanged, and the M3 deliberate-tap leg is not judged on this pass`
+    : '';
   // The harm first, liveness second: with the guard broken the burst navigates home, which also wipes
   // the in-page contact counter -- so a liveness-first order reports "measured nothing" for a run that
   // in fact measured the exact regression this leg exists to catch (observed, calibration run).
@@ -582,11 +647,14 @@ for (const [g, r] of Object.entries(out)) {
   // failure lines, so both are read the same way.
   bands.push(`${g}: ${gapNote(r)}`);
   const dc = r.burst?.defectContacts ?? [];
-  if (dc.length) fails.push(`${g}: ${dc.length} burst contact(s) dispatched INSIDE the arm window were handled with the X ENABLED (input gaps ${dc.map((d) => d.inputGap).join(', ')}ms vs ARM_DELAY_MS ${ARM_DELAY_MS}; pathname ${r.burst?.pathname}) -- ${gapNote(r)}`);
-  else if (r.burst?.isVoid) { voids.push(`${g} burst: runner too slow to dispatch the burst inside the arm window (${r.burst.attempts} attempt(s)) -- ${gapNote(r)}`); }
-  else if (r.burst?.pathname === '/') fails.push(`${g}: the 5-tap burst continuing a transition tap LEFT THE ROUND (pathname ${r.burst.pathname}) -- ${gapNote(r)}`);
+  if (dc.length) fails.push(`${g}: ${dc.length} burst contact(s) dispatched INSIDE the arm window were handled with the X ENABLED (input gaps ${dc.map((d) => d.inputGap).join(', ')}ms vs ARM_DELAY_MS ${ARM_DELAY_MS}; pathname ${r.burst?.pathname}) -- ${gapNote(r)}${navNote}`);
+  else if (r.burst?.isVoid) { voids.push(`${g} burst: runner too slow to dispatch the burst inside the arm window (${r.burst.attempts} attempt(s)) -- ${gapNote(r)}${navNote}`); }
+  else if (leftTheRound) fails.push(`${g}: the 5-tap burst continuing a transition tap LEFT THE ROUND (pathname ${r.burst?.pathname ?? 'unreadable'}) -- ${gapNote(r)}${navNote}`);
   else if (!(r.burst?.contacts?.onBtnWhileDisabled > 0)) fails.push(`${g}: the burst put ${r.burst?.contacts?.onBtnWhileDisabled ?? 'no'} contact(s) on a DISABLED X -- a no-exit result here rests on nothing -- ${gapNote(r)}`);
-  if (r.m3_pathname !== '/') fails.push(`${g}: M3 -- after the arm delay a deliberate tap no longer exits (pathname ${r.m3_pathname})`);
+  // Judged only on a pass whose burst stayed in the round -- see navNote. A '/' read after the burst
+  // already left the round is the home page answering '/' === '/', which is a leg passing by
+  // measuring the wrong page.
+  if (!leftTheRound && r.m3_pathname !== '/') fails.push(`${g}: M3 -- after the arm delay a deliberate tap no longer exits (pathname ${r.m3_pathname})`);
 }
 // Disjoint by construction: the two sets are filled in mutually exclusive branches of one `if`, and
 // `checked` subtracts both -- a route is fully walked, or exempt, or unmeasured, never two of them.
