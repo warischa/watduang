@@ -46,7 +46,12 @@ const game: GameModule = {
   id: 'freeze-tap',
   names: { th: 'มือลั่น', en: 'Freeze Tap' },
   category: 'party',
-  players: [2, 10],
+  // Twenty, not ten: this route's engine clamps to twenty seats and its own in-file test asserts it.
+  // Owner ruling 2026-09-10 on gh#230 raised the declaration to match the engine rather than lowering
+  // the clamp, because the setup panel admits players using this number and lowering it would have
+  // turned away seats the game can really seat. scripts/seat-cap-check.mjs is what keeps the two
+  // agreeing from here on. The seo copy below states the same range and moves with it.
+  players: [2, 20],
   renderer: 'canvas2d',
   startsRound: true,
   keywords: [
@@ -61,9 +66,9 @@ const game: GameModule = {
   seo: {
     title: 'มือลั่น — เกมวัดปฏิกิริยาส่งมือถือ เล่นฟรีบนเครื่องเดียว',
     description:
-      'ส่งมือถือวนกันทีละคน รอสัญญาณจริงแล้วแตะให้ไวที่สุด แตะก่อนสัญญาณคือมือลั่นแพ้ทันที ใครช้าสุดในวงคนนั้นโดน เล่นได้ 2-10 คน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
+      'ส่งมือถือวนกันทีละคน รอสัญญาณจริงแล้วแตะให้ไวที่สุด แตะก่อนสัญญาณคือมือลั่นแพ้ทันที ใครช้าสุดในวงคนนั้นโดน เล่นได้ 2-20 คน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
     steps: [
-      'เลือกจำนวนคนเล่นในวง 2-10 คน',
+      'เลือกจำนวนคนเล่นในวง 2-20 คน',
       'ส่งมือถือวนทีละคน กดพร้อมแล้วก่อนเริ่มตาของตัวเอง',
       'จะมีสัญญาณหลอกโผล่มาก่อน แตะก่อนสัญญาณจริง = มือลั่น แพ้ทันที',
       'ครบทุกคนแล้วดูผล ใครช้าสุดคนนั้นโดน เท่ากันให้ดวลตัดสินอีกรอบ',

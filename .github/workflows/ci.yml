@@ -272,6 +272,15 @@ jobs:
       - name: OG cards fresh against their source, and no player-count claim off the party category (gh#104)
         run: node scripts/og-card-check.mjs --selftest && node scripts/og-card-check.mjs
 
+      # gh#230 — ADR-0065: a manifest declares a player range and an engine enforces a seat ceiling,
+      # and nothing compared the two, so two shipped games declared ten while seating twenty. This
+      # gate slices each route's own seat surface out of its engine and RUNS it, because a question
+      # about what an engine does cannot be answered by searching its text. It imports the manifest
+      # and reads src/play source only — no dist/ — so it belongs here with the other pre-build
+      # gates. --selftest first, same reason as the gates above.
+      - name: A declared player range agrees with the seats its engine accepts (gh#230)
+        run: node scripts/seat-cap-check.mjs --selftest && node scripts/seat-cap-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob.
       # A glob that matches NOTHING is not an error: node prints "# tests 0" and exits 0. So a rename
       # (.test.mjs -> .test.ts) or a move out of src/ would leave this step green with every test

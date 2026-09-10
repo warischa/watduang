@@ -47,7 +47,12 @@ const game: GameModule = {
   id: 'cannon-flag',
   names: { th: 'ยิงธง', en: 'Cannon Flag' },
   category: 'party',
-  players: [2, 10],
+  // Twenty, not ten: this route's setup stepper increments until the count reaches twenty, which is
+  // the ceiling driving that control to saturation measures. Owner ruling 2026-09-10 on gh#230 raised
+  // the declaration to match the engine rather than lowering the ceiling, because the setup panel
+  // admits players using this number. Unlike its sibling route this engine has no clamp function and
+  // no self-test of its own, so scripts/seat-cap-check.mjs is the only thing pinning the pair.
+  players: [2, 20],
   renderer: 'canvas2d',
   startsRound: true,
   keywords: [
@@ -62,9 +67,9 @@ const game: GameModule = {
   seo: {
     title: 'ยิงธง — เกมปืนใหญ่ประลองความแม่นยำ เล่นฟรีบนเครื่องเดียว',
     description:
-      'ผลัดกันส่งมือถือยิงปืนใหญ่ 2 นัดติดต่อกัน ปรับมุม กะแรงลม ชาร์จพลังให้ลงใกล้ฐานธงที่สุด ใครทำผลงานแย่สุดในวงคนนั้นโดน เล่นได้ 2-10 คน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
+      'ผลัดกันส่งมือถือยิงปืนใหญ่ 2 นัดติดต่อกัน ปรับมุม กะแรงลม ชาร์จพลังให้ลงใกล้ฐานธงที่สุด ใครทำผลงานแย่สุดในวงคนนั้นโดน เล่นได้ 2-20 คน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
     steps: [
-      'เลือกจำนวนคนเล่นในวง 2-10 คน',
+      'เลือกจำนวนคนเล่นในวง 2-20 คน',
       'ส่งมือถือวนทีละคน แต่ละคนจะได้ยิง 2 นัดติดต่อกัน',
       'ปรับมุม ชาร์จพลัง และกะแรงลมเพื่อยิงให้ใกล้ฐานธงที่สุด',
       'วัดผลจากนัดที่ใกล้ฐานธงที่สุด ใครห่างสุดคนนั้นโดน เสมอกันดวล Sudden Death',

@@ -1,12 +1,26 @@
 # ADR-0065 — the party-size range is per game, not a property of the หมวด
 
-Date: 2026-09-09 · Status: **conditionally accepted 2026-09-10 — NOT in force until
-[gh#230](https://github.com/warischa/watduang/issues/230) closes** · Owner decision
+Date: 2026-09-09 · Status: **accepted** — the condition below was met by
+[gh#230](https://github.com/warischa/watduang/issues/230) · Owner decision
 
-The owner was offered plain acceptance and chose the conditional option instead: this ADR does not take
-effect until the declared-versus-seatable gap it names below has a gate, or a recorded reason why one
-cannot be built. gh#230 owns that, and **closing gh#230 flips this line to accepted.** Until then
-`freeze-tap` and `cannon-flag` remain shipped counter-examples to the discipline this ADR assumes.
+The owner was offered plain acceptance and chose the conditional option instead: this ADR did not take
+effect until the declared-versus-seatable gap it names below had a gate, or a recorded reason why one
+could not be built. gh#230 owned that and closed it, which is what flips this line to accepted.
+
+**What closed it.** `scripts/seat-cap-check.mjs` compares every party game's declared maximum against
+the seats its own engine accepts, and it produces that number rather than storing it: the route's seat
+surface is sliced out of its engine and RUN — a clamp called with an absurd count, a stepper driven
+until the count stops rising. A second, independent text reader cross-checks every route it can read,
+and the two disagreeing is itself a failure. A route no reader can locate is a failure, not a skip, and
+the route set is enumerated from the manifest at runtime, so a new party game with no locator reds on
+the day it lands. That last property is what makes it a gate rather than the list of constants gh#230
+ruled out.
+
+**The two counter-examples are resolved.** Owner ruling 2026-09-10 on gh#230: `freeze-tap` and
+`cannon-flag` now declare `[2, 20]`, matching the twenty their engines really seat. The declaration was
+raised rather than the clamp lowered, because the setup panel admits players using the declared maximum
+and lowering it would have turned away seats those games can genuinely fill. Both games' own seo copy
+and both OG cards moved with the number.
 
 Narrows [ADR-0040](0040-games-exist-in-one-category-only.md), which completed
 [ADR-0039](0039-the-shared-roster-belongs-to-one-category-not-to-the-site.md). Leaves
@@ -82,7 +96,8 @@ A reader can no longer learn a game's party size from its หมวด. Wherever
 read `players` or restate that one game's range, and two games in the same หมวด may now disagree —
 which is the point, and also the new way to be wrong.
 
-**No gate compares a declared range against what a game's engine can actually seat.** จระเข้งับ will
+**No gate compares a declared range against what a game's engine can actually seat** — true when this
+was written, closed by gh#230; see the Status note above. จระเข้งับ will
 declare `[2, 6]` while its own clamps enforce six, and nothing checks that those two agree. That hole
 existed before this ADR — the convention hid it, because a wrong maximum and the conventional one were
 the same number. It is named here rather than left to be discovered: it is a real gap, it is owed a
@@ -117,9 +132,12 @@ unowned gap above is exactly why that one would ship in silence.
 
 ## What this does NOT cover
 
-- **The gate for declared-versus-seatable range.** Named above, owed, and unowned. It is not created
-  by this ADR because it needs a way to read a seat clamp out of an engine, which is a set this repo
-  does not yet own.
+- ~~**The gate for declared-versus-seatable range.**~~ **Closed by gh#230**, after this ADR was
+  written. It does need a way to read a seat clamp out of an engine, and that set is still one this
+  repo does not own — so `scripts/seat-cap-check.mjs` does not try to be complete over it. It reads
+  what it can read and treats a route it cannot read as a failure, which is how an unowned set is
+  made safe here rather than enumerated. Its own header states the three ceilings it keeps, including
+  that the MINIMUM is out of its scope and stays with `scripts/validate-games.mjs`.
 - **Whether จระเข้งับ should have been stretched to ten.** The owner decided that on 2026-09-09. This
   ADR records what the decision implies for every other game, not the merits of that one.
 - **ADR-0007's invariant.** A party-size guard still enumerates the full party wherever a party
