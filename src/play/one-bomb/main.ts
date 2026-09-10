@@ -341,18 +341,9 @@ const TOTAL_ROUNDS = 10;
 
 // The board's own scaffold. Static, no interpolation and no control: every stone is built by
 // renderBoard with createElement, for the reason the file header gives.
-//
-// gh#214 — role="grid" RATHER THAN role="group", and it is authored here on purpose. The tap-floor
-// gate exempts a board's cells from the 44px WIDTH minimum, and the 2026-09-10 ruling keys that
-// exemption on the ARIA role the cell declares in the DOM rather than on any list of routes or
-// selectors. A cell role is only valid inside a row inside a grid, so the container has to say grid
-// or renderBoard's cells are exempt by an attribute that means nothing. src/play/_board-roles.json
-// records which route has a board and why, and carries the two player-facing costs the owner
-// accepted with the ruling. This file is where the role can LIVE: markup.html, style.css and main.js
-// are rewritten byte-for-byte from the mockup by scripts/extract-mockup.mjs, and main.ts is not.
 const BOARD_HTML = `
 <div class="ob-board-wrap ob-away" id="ob-board-wrap">
-  <div class="ob-board" id="ob-board" role="grid" aria-label="กระดานแผ่นหิน"></div>
+  <div class="ob-board" id="ob-board" role="group" aria-label="กระดานแผ่นหิน"></div>
 </div>`;
 
 const round = {
@@ -468,31 +459,15 @@ function renderBoard(): void {
   if (!host) return;
   host.style.setProperty('--ob-cols', String(round.cols));
   host.replaceChildren();
-  let rowEl: HTMLElement | null = null;
   for (let i = 0; i < round.rows * round.cols; i += 1) {
-    // gh#214 — ONE WRAPPER PER GRID ROW, and it is semantics, not layout. A cell role is only valid
-    // inside a row inside a grid, so a cell role stamped onto stones parented straight to the grid
-    // would be an attribute the exemption reads and no assistive technology can use. The wrapper
-    // carries `display: contents` (overrides.css), which keeps every stone a direct grid ITEM of
-    // .ob-board: the pitch, the column count and the rect a thumb hits are all unchanged, measured.
-    if (i % round.cols === 0) {
-      rowEl = document.createElement('div');
-      rowEl.className = 'ob-board-row';
-      rowEl.setAttribute('role', 'row');
-      host.appendChild(rowEl);
-    }
     const tile = document.createElement('button');
     tile.type = 'button';
     tile.className = 'ob-tile';
-    // The role the tap-floor gate's width exemption is keyed on (gh#214, ruling 2026-09-10), and the
-    // only place it is written. src/play/_board-roles.json says which route this is owed on; the gate
-    // reads it back off the rendered page and keys off no list of its own.
-    tile.setAttribute('role', 'gridcell');
     tile.dataset.idx = String(i);
     // POSITIONAL, like the setup rows': this names the stone, not the player. Who opened it is
     // written onto the label at the moment it is opened.
     tile.setAttribute('aria-label', `แผ่นหินที่ ${i + 1}`);
-    (rowEl ?? host).appendChild(tile);
+    host.appendChild(tile);
   }
   disarmBoard?.();
   disarmBoard = armAllButtons(host);
@@ -535,11 +510,7 @@ function finishRound(loser: number): void {
 
 function openTile(index: number): void {
   if (!round.accepting || index < 0) return;
-  // BY SELECTOR, not by child index: the stones are parented to a per-row wrapper (renderBoard, for
-  // the cell role's sake), so `children[index]` would return the row that holds five of them and the
-  // wrong stone would open. querySelectorAll is in DOM order, which is the order the indices were
-  // handed out in.
-  const tile = $('ob-board')?.querySelectorAll<HTMLButtonElement>('.ob-tile')[index];
+  const tile = $('ob-board')?.children[index] as HTMLButtonElement | undefined;
   if (!tile) return;
   if (round.opened.has(index)) {
     showToast('ช่องนี้เปิดไปแล้ว!');

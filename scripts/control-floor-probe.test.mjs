@@ -13,7 +13,7 @@
 // together would still pass three of these.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { claimsFor, EXEMPT_CELL_ROLE, MIN_TAP_PX, widthExempt } from './control-floor-probe.mjs';
+import { claimsFor, MIN_TAP_PX } from './control-floor-probe.mjs';
 
 // A landing .game-btn that clears everything: it owns a floor, resolves one, and both rendered
 // dimensions clear the tap minimum with room to spare.
@@ -57,29 +57,4 @@ test('the width claim carries the same subpixel tolerance as the height claim', 
   // hundredth under the minimum is a rounding artefact, not a finding worth reporting.
   assert.equal(claimsFor(c({ rectWidth: MIN_TAP_PX - 0.01 })).atLeastTapWidth, true);
   assert.equal(claimsFor(c({ rectWidth: MIN_TAP_PX - 1 })).atLeastTapWidth, false);
-});
-
-// gh#214 — THE EXEMPTION CLASS, and the two things it must NOT do. The 2026-09-10 ruling exempts a
-// game board's cells from the 44px rule, keyed on the ARIA role the cell declares in the DOM. Pinned
-// here rather than only in the browser walk because the predicate is pure, and because both of its
-// failure modes are silent: an exemption that also waived the HEIGHT claim would quietly retire the
-// one axis this repo has always gated, and an exemption that matched on anything other than the role
-// would waive the ordinary narrow controls the owner declined to fix.
-test('a board cell declaring the exempt role is exempt from the width claim only', () => {
-  const cell = { floorOwned: false, floorPx: NaN, rectHeight: 44, rectWidth: 29.8, role: EXEMPT_CELL_ROLE };
-  assert.equal(widthExempt(cell), true);
-  // The classifier itself stays pure geometry: it still says the cell is under the width minimum.
-  // The exemption lives at the one place that consumes that answer, so nothing here is softened.
-  assert.equal(claimsFor(cell).atLeastTapWidth, false);
-  // The height axis keeps its existing gating behaviour, exempt role or not.
-  assert.equal(claimsFor({ ...cell, rectHeight: 30 }).atLeastTap, false);
-});
-
-test('an ordinary narrow control is not exempt, whatever else it declares', () => {
-  // short-stick's .icon-btn.remove-p-btn, measured 27.203125 x 44 in this session's walk — the
-  // control the owner declined to fix. It must stay in the reported set: the exemption may never
-  // grow to cover it.
-  assert.equal(widthExempt({ floorOwned: false, rectHeight: 44, rectWidth: 27.203125, role: null }), false);
-  assert.equal(widthExempt({ floorOwned: false, rectHeight: 44, rectWidth: 27.203125, role: 'button' }), false);
-  assert.equal(widthExempt({ floorOwned: false, rectHeight: 44, rectWidth: 27.203125, role: 'grid' }), false);
 });
