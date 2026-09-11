@@ -169,16 +169,36 @@ const WALKS = {
   // only two pages left that renders its own buttons INSIDE #stage: every other game runs full screen
   // at its own playRoute and has no /game/<id>/ page at all, so there is nothing there to tap-
   // transition and nothing for this probe to measure. Walked solo, which is what ADR-0040 made this
-  // page: no roster panel, the module mounts itself on load, and #ss-start -> #ss-draw -> #ss-again is
-  // the complete cycle a real solo player has. That is a longer walk than pick-loser's two taps, so
-  // claim 0 is now sampled on 3 screens here instead of 2.
+  // page: no roster panel, the module mounts itself on load, and the four screens below are the
+  // complete cycle a real solo player has. That is a longer walk than pick-loser's two taps, so
+  // claim 0 is sampled on more screens here than on daily-fortune.
+  // gh#97/gh#98 rewrote this game from one draw screen into intent -> shake -> stick -> slip, and the
+  // old #ss-start -> #ss-draw walk stopped resolving any control at all: every tap read missing and
+  // the leg failed closed rather than reporting a green it had not earned. The walk below follows the
+  // product, which is the only direction this dependency runs. The tie-away branch of the slip screen
+  // is deliberately not walked -- keep and tie render the same end state, so walking both would sample
+  // the same screen twice.
   siamsi: {
     solo: true,
-    minTransitions: 3,
+    minTransitions: 5,
     body: `
-      taps.push(await tap('#ss-start -> turn', document.getElementById('ss-start')));
-      taps.push(await tap('#ss-draw -> drawn', document.getElementById('ss-draw')));
-      taps.push(await tap('#ss-again -> idle', document.getElementById('ss-again')));
+      taps.push(await tap('#ss-intent-done -> shake', document.getElementById('ss-intent-done')));
+      // The shake screen's control is a press-and-hold feeding an accumulator, not a click: a stick
+      // is released only after the charge reaches its target, so el.click() here would be a silent
+      // no-op that still grows the tap array. Hence a custom trigger, and a POLL for the screen the
+      // release renders rather than a fixed sleep -- a hold that never releases has to come back as
+      // an unchanged screen, not be papered over by sleeping long enough.
+      const hold = document.getElementById('ss-hold');
+      taps.push(await transition('#ss-hold -> stick', hold, async () => {
+        hold.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+        const deadline = Date.now() + 5000;
+        while (Date.now() < deadline && !document.getElementById('ss-open-slip')) await sleep(60);
+        hold.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+        await sleep(150);
+      }));
+      taps.push(await tap('#ss-open-slip -> slip', document.getElementById('ss-open-slip')));
+      taps.push(await tap('#ss-keep -> done', document.getElementById('ss-keep')));
+      taps.push(await tap('#ss-again -> intent', document.getElementById('ss-again')));
       return taps;`,
   },
   // gh#149 — the 'short-stick' and timebomb walks were deleted with their landing pages (ADR-0050

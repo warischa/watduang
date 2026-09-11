@@ -147,6 +147,7 @@ import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { games } from '../src/games/manifest.ts';
+import { locationReadFailure } from './cdp-evaluate-result.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const DIST = path.join(repoRoot, 'dist');
@@ -263,7 +264,20 @@ const EPS = 0.05;
 // recorded, and a pin that reds on unrelated work gets re-recorded to make the run pass — which is
 // precisely the failure this comment block spends 60 lines warning against. Fail-closed there means
 // "every play page rendered at least one control", i.e. the vacuity this file exists to refuse.
-export const CONTROL_COUNT = 3;
+// 2026-09-11, 3 -> 4: both surviving landings were rewritten (siamsi under gh#97/gh#98; the
+// daily-fortune rewrite's ticket is not cited here because this file could not establish it), and
+// the re-record needs BOTH
+// halves of what a red 4 meant, because they cancelled into one number. (1) THE NEW CONTROL is
+// daily-fortune's #df-go on screen 1: the rewrite gave the ask screen's submit the shell's
+// game-btn/game-btn-primary classes, where the old markup left it unclassed. It is a control that
+// SHOULD render and now sits under the floor this leg gates — the page goes 0+1 to 1+1. (2) THE
+// OTHER +1 WAS NOT REAL and is gone again: siamsi's chip row made the screen-2 trigger click a chip,
+// so its 1+1 was #ss-intent-done counted on both rows. Fixing the trigger (see CLICK_FIRST_ENABLED)
+// restores a real second screen, and siamsi is 1+1 again as it was — #ss-intent-done on the first
+// screen, #ss-hold on the second. RE-MEASURED on the current dist/, both before and after the
+// trigger fix: the pre-fix 4 was siamsi #ss-intent-done twice plus df-go and #df-again; the 4
+// recorded here is four distinct controls, one per screen.
+export const CONTROL_COUNT = 4;
 /**
  * A play route that renders zero measurable controls did not mount — the mockup markup is inert HTML
  * until main.js runs, so a broken bundle leaves a page that loads, paints, and measures nothing. That
@@ -480,11 +494,18 @@ const WAIT_FOR_CONTROLS = (kind) => `
 
 // The one action every game's screen-1 control shares: the first enabled button in #stage. Waits out
 // the 400ms arm gate (src/games/_arm-gate.ts) plus margin before giving up.
+// The .game-btn preference is not cosmetic and was MEASURED, not assumed: siamsi's first screen now
+// renders its subject chips (plain buttons that toggle a class and re-render nothing) ahead of its
+// primary control, so "first enabled button" clicked a chip, #stage never changed, and screen 2
+// silently re-measured screen 1 — the same control tallied twice under two screen numbers. A shell
+// .game-btn is the control that actually advances a landing screen; the bare-button fallback stays
+// for a screen that has none, where re-measuring is still better than measuring nothing.
 const CLICK_FIRST_ENABLED = `
   const deadline = Date.now() + 1500;
   let btn = null;
   while (Date.now() < deadline) {
-    btn = document.querySelector('#stage button:not([disabled])');
+    btn = document.querySelector('#stage .game-btn:not([disabled])')
+      || document.querySelector('#stage button:not([disabled])');
     if (btn) break;
     await new Promise((r) => setTimeout(r, 50));
   }
@@ -614,10 +635,11 @@ export default async function (session) {
     // A trigger that navigated instead of transitioning would have us measuring another page's
     // controls under this page's name. Cheap to rule out, and silent if it ever happens.
     const here = await session.evaluate('return location.pathname;');
-    if (here.value && !here.value.startsWith(page.url)) {
+    const unreadable = locationReadFailure(here);
+    if (unreadable || !here.value.startsWith(page.url)) {
       screens.push({
         page: page.id, url: page.url, kind: page.kind, screen: 2, controls: [],
-        error: `the screen-2 trigger (${click.value.label}) navigated to ${here.value} instead of transitioning in place — screen 2 would have measured another page`,
+        error: `the screen-2 trigger (${click.value.label}) ${unreadable ?? `navigated to ${here.value} instead of transitioning in place`} — screen 2 would have measured another page`,
       });
       continue;
     }
