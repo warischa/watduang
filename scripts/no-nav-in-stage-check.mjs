@@ -108,6 +108,10 @@ function listTargetFiles(dir) {
 // boundary is what makes a flat ban safe — the one crawlable exit link ADR-0014 mandates lives in
 // page chrome (src/shell/PlayExit.astro, src/pages/game/<id>/play.astro), OUTSIDE src/play/ by
 // construction, so nothing in this region is allowed to be an anchor and no allow-list is needed.
+// That link is the clipped anchor in PlayExit.astro, and it is PRESENCE, which this gate cannot see:
+// a forbid-only scan is green over a play page that lost its link entirely, which is exactly what
+// shipped after ADR-0050 deleted the landings. scripts/play-crawl-link-check.mjs owns that half,
+// counting anchors in the built play pages; neither gate substitutes for the other.
 // Inverted deliberately: the safe set is empty today (zero real anchors across every play route,
 // measured), and the hazardous set grows with every port, so "ban all" converges and "allow these"
 // would not. No route count is written here on purpose -- a number in a comment has no gate, and the

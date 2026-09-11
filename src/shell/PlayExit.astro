@@ -9,9 +9,19 @@
 //      exactly the "the guard is itself a live tap surface when idle" failure this ticket names.
 //   2. ADR-0014 keeps navigation targets out of the game surface. This sits OUTSIDE the mockup root
 //      (#app / #app-container) in DOM order and out of flow (position: fixed), so no runtime height
-//      change inside the game can pull it under a finger. A crawlable link is not lost by making it
-//      a button: the landing page /game/<id>/ is the crawl surface for each game, and it is the page
-//      that links here.
+//      change inside the game can pull it under a finger.
+//
+// The crawlable link is the clipped anchor below, NOT the X. ADR-0050 deleted the party landing
+// pages and accepted that deletion on the condition that the landing's job — how-to-play and the one
+// outbound link — moves onto the play route, so "the landing page is the crawl surface" (what this
+// comment used to say) stopped being true and every play page shipped with zero anchors. The anchor
+// is static markup, never emitted by script, and it is clipped rather than hidden: display:none or
+// visibility:hidden would take it out of the accessibility tree, and an anchor a crawler or a screen
+// reader cannot reach is the same dead end as no anchor. It carries no `data-stable-exit` — that
+// marker is a closed set of one link in GameLayout.astro (scripts/stable-exit-markers-check.mjs) and
+// this is not that link. `pointer-events: none` is why it is not the tap hazard a visible corner
+// anchor would be — no contact can reach it in EITHER state, including the focus style that grows it
+// over the X — so the arm gate below has nothing to guard here.
 //
 // Not a leave-confirm. LeaveConfirm.astro is mounted by GameLayout only; play routes have never used
 // it, and the ticket's guard is the arm delay, not a dialog. A dialog here would add a second tap
@@ -24,12 +34,46 @@
 // drives a list of controls; each control differs only in what its activation does.
 ---
 
+<a id="play-crawl-home" href="/">กลับหน้าแรก</a>
 <button id="play-exit" type="button" aria-label="ออกจากเกม" disabled>✕</button>
 <!-- Hidden until the script confirms this device knows two or more names: with no saved group the
      mockup already opens on its own setup screen, so the control would offer what is on screen. -->
 <button id="play-edit-players" type="button" disabled hidden>แก้ผู้เล่น</button>
 
 <style>
+  /* The same clip the play routes already use for their live regions (1px box, clip-path, no
+     display/visibility change), so the link stays in the served HTML and in the accessibility tree
+     while covering no pixel a finger can reach. */
+  #play-crawl-home {
+    position: fixed;
+    top: 0;
+    left: 0;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    /* Unconditional, in both states: the focus style below grows this link over the X's corner,
+       which is exactly where a tap burst lands, and it has no arm gate of its own. With no pointer
+       events it can never BE that tap surface, while Enter on a focused link still navigates and
+       both a crawler and the accessibility tree read it unchanged. */
+    pointer-events: none;
+  }
+
+  /* A keyboard user who tabs to it gets a real, readable link instead of an invisible focus stop.
+     Keyboard focus only (:focus-visible), so a pointer can never surface it over the game. */
+  #play-crawl-home:focus-visible {
+    inline-size: auto;
+    block-size: auto;
+    z-index: 301;
+    padding: 8px 14px;
+    clip-path: none;
+    border-radius: 0 0 12px 0;
+    background: #000;
+    color: #fff;
+    font-size: 14px;
+  }
+
   /* Fixed, so nothing the game re-renders can move it. z-index 300 clears every layer the three
      mockups declare (highest measured in src/play/**: 200) — the exit stays reachable even over a
      game's own modal. Top-left: the mockups all put their icon buttons at the top RIGHT, so this

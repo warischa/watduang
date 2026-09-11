@@ -411,6 +411,14 @@ jobs:
       - name: crawl-check GameNav (dist artifact)
         run: node scripts/crawl-check-gamenav.mjs
 
+      # ADR-0050 moved the deleted landing's outbound link onto the play route; it was never
+      # delivered, and every forbid-only gate around it was green over the absence. Presence gate,
+      # dist artifact, set derived from the manifest's playRoute games. --selftest DOES run here:
+      # it calibrates on temp fixtures only, builds nothing and mutates no tracked file, so the
+      # artifact the gates above checked is still the one Smoke test and Deploy below use.
+      - name: play pages carry the one crawlable link (dist artifact)
+        run: node scripts/play-crawl-link-check.mjs --selftest && node scripts/play-crawl-link-check.mjs
+
       - name: Smoke test (portability — dist/ must serve standalone, no Azure runtime)
         run: npm run smoke-dist
 
