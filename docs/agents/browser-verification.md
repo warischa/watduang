@@ -29,11 +29,18 @@ npx serve dist/ -l 4321 &
   --user-data-dir=/tmp/cdp-prof &
 ```
 
-⚠ **Never `--disable-gpu` on a WebGL route.** With no context `one-bomb` drops `#gameCanvas` for
-ADR-0051's no-3D board and `pinocchio-luck` renders its fallback puppet: the probe measures a screen no
-player sees, and passes. Both were measured that way on 2026-09-07. Use `--headless=new --use-gl=angle
---use-angle=swiftshader --enable-unsafe-swiftshader`, then assert a live context IN the page — an
-absent fallback notice is not proof, it can be hidden for other reasons.
+⚠ **Never `--disable-gpu` on a WebGL route — locally.** On a Mac that flag leaves no context, so
+`one-bomb` drops `#gameCanvas` for ADR-0051's no-3D board and `pinocchio-luck` renders its fallback
+puppet: the probe measures a screen no player sees, and passes. Both were measured that way on
+2026-09-07. Use `--headless=new --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader`,
+then assert a live context IN the page — an absent fallback notice is not proof, it can be hidden for
+other reasons.
+
+**The flag does not decide the lane; only an in-page read does.** On the CI runner the same
+`--disable-gpu` leaves the context LIVE — measured in-page on run 34458877355
+(`IN_PAGE_CONTEXT webgl2=live webgl=live experimental-webgl=live 2d=live`), mechanism not identified.
+So "which code path did I just test" is answered by reading the context inside the page, never by the
+flags you passed.
 
 Tear both down **by the pids you started** (`pkill -f` on a shared prefix has killed another session's
 suite here) and confirm with `lsof -ti:4321,9222` that both ports are free.

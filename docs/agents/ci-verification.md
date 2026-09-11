@@ -103,23 +103,9 @@ read-a-verdict pass covered above.
 
 ## A pixel the fit probe records is one machine's number
 
-`scripts/play-screen-fit-probe.mjs` records overflow px per route x viewport. On 2026-09-02 the CI
-runner measured every non-zero row 4-28% above this Mac's numbers on the same commit (power-meter
-76 -> 268 clipped) and read 0px on three rows the Mac records at 2-17px — the workflow installs no
-font, so Thai text wraps under a fallback face (inferred). Zero held on both machines.
-
-**Do:** gate only what both machines agree on — a row is classified, no key is stale, a `FITS_ROWS`
-row stays within `OVERFLOW_TOLERANCE_PX` of zero. Growth or a 0px reading on a `KNOWN_OVERFLOW` row
-prints a `::warning::`, which `scripts/ci-probes.sh` surfaces on a green leg. Before pinning any
-new measured number, download the last `browser-probe-output-*` artifact and `diff` its rows
-against a local run first — two text files, no new run.
-
-**Don't:** widen `OVERFLOW_TOLERANCE_PX` to cover a machine difference; it hides the same regression
-on both. The converging fix is a self-hosted Thai webfont on play routes (owner decision).
-
-**Cheaper proof:** the probe's set checks (union = manifest x viewports, no stale key, reason prefix)
-are pure functions of two files — prove them with `node --test`, never with a browser walk; re-measure
-only when src or the measurement code changed.
+Moved to `docs/agents/ci-gate-calibration.md` (a further ADR-0012 task seam) — the CI-vs-Mac fit-probe
+measurement drift is a gate-calibration post-mortem, read when standing up or re-checking that gate,
+not on every routine verify.
 
 ## The fast lane already exists — do not re-invent it, and do not hand-pick gates instead
 
@@ -153,18 +139,6 @@ null. A flag name is not a context state; only the read is.
 
 ## The probe's own dispatch latency sits inside the number it gates (2026-09-09, gh#122)
 
-**A working route can read UNMEASURED because the runner is slow, and it reproduces.** CI's runner has
-2 vCPU and runs five Chrome instances plus `serve` at once. The `play-exit` probe drives a burst that
-must land inside the arm window; on that hardware the burst arrived **704 ms** after being driven at
-**80 ms**. By then the exit control had legitimately armed and enabled, so the out-of-window burst hit
-it, navigated to the site root, and destroyed the JS context holding the probe's own signal variables.
-The post-burst read came back null, which the probe reports as "the trigger left the screen unchanged"
-— when the screen had in fact already changed.
-
-**Two traps in reading that.** First, the message names the route, so it reads like a route defect;
-the discriminating evidence is in the run artifact's timeline, via `gh run download`, where the
-disabled flags before and after the burst show the transition did happen. Second, an identical second
-failure does **not** refute a slow-harness explanation — a reliably under-resourced runner fails the
-same way every time, so "it failed twice identically" is what this cause predicts, not evidence
-against it. Before blaming a route, reproduce under the lane's literal flags and check whether the
-burst landed in the window at all.
+Moved to `docs/agents/ci-gate-calibration.md` (a further ADR-0012 task seam) — the runner-latency
+post-mortem behind the `play-exit` probe's UNMEASURED reads is a gate-calibration incident, read when
+calibrating that probe's timing, not on every routine verify.
