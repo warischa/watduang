@@ -1,0 +1,2490 @@
+{
+  "how-close-is-near": {
+    "loads": [
+      {
+        "load": 1,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "transit-1",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnStartGame",
+              "primaryTop": 480.40625,
+              "primaryBottom": 532.40625,
+              "primaryHeight": 52,
+              "topPastFold": -87.59375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 603,
+                "pageScrollable": true
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -35.59375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 5
+                },
+                {
+                  "sel": "div.mode-selection-grid",
+                  "top": 239.03125,
+                  "bottom": 456.40625,
+                  "height": 217.375,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeNearest.mode-card.selected",
+                  "top": 239.03125,
+                  "bottom": 340.71875,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeFarthest.mode-card",
+                  "top": 354.71875,
+                  "bottom": 456.40625,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 257.03125,
+                  "bottom": 322.71875,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 372.71875,
+                  "bottom": 438.40625,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnStartGame.btn-primary",
+                  "top": 480.40625,
+                  "bottom": 532.40625,
+                  "height": 52,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "transit-2",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnAckSecrecy",
+              "primaryTop": 473.984375,
+              "primaryBottom": 525.984375,
+              "primaryHeight": 52,
+              "topPastFold": -94.015625,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -42.015625,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 179,
+                  "bottom": 532.984375,
+                  "height": 353.984375,
+                  "children": 3
+                },
+                {
+                  "sel": "div.secrecy-box",
+                  "top": 238,
+                  "bottom": 453.984375,
+                  "height": 215.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-desc",
+                  "top": 321,
+                  "bottom": 434.984375,
+                  "height": 113.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-title",
+                  "top": 257,
+                  "bottom": 313,
+                  "height": 56,
+                  "children": 0
+                },
+                {
+                  "sel": "button#btnAckSecrecy.btn-primary",
+                  "top": 473.984375,
+                  "bottom": 525.984375,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "ready-for-turn-gate",
+            "report": true,
+            "label": "#btnReadyForTurn (\"พร้อม...\" — per-turn pass/ready gate, GameState.TURN_INTRO)",
+            "why": "same shape as pinocchio-luck's #ready and freeze-tap's #playerReadyBtn: the recurring per-turn gate the incoming player presses before their own screen is revealed. Reported by the same precedent-based reasoning.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnReadyForTurn",
+              "primaryTop": 420.515625,
+              "primaryBottom": 472.515625,
+              "primaryHeight": 52,
+              "topPastFold": -147.484375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -95.484375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 232.484375,
+                  "bottom": 479.515625,
+                  "height": 247.03125,
+                  "children": 5
+                },
+                {
+                  "sel": "button#btnReadyForTurn.btn-primary",
+                  "top": 420.515625,
+                  "bottom": 472.515625,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnAudioToggle.icon-btn",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 0
+                },
+                {
+                  "sel": "div",
+                  "top": 321.484375,
+                  "bottom": 362.484375,
+                  "height": 41,
+                  "children": 0
+                },
+                {
+                  "sel": "h2.screen-title",
+                  "top": 273.484375,
+                  "bottom": 305.484375,
+                  "height": 32,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "submit-number",
+            "report": true,
+            "label": "#btnSubmitNumber (\"ล็อกคำตอบนี้ 🔒\" — commits the picked number, GameState.NUMBER_ENTRY)",
+            "why": "the actual gameplay decision for the turn, same reasoning as pinocchio-luck's .answer buttons: arguably the more consequential control since it is what turns a pick into a locked answer. Reported as a second candidate, not chosen over the gate.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnSubmitNumber",
+              "primaryTop": 497,
+              "primaryBottom": 549,
+              "primaryHeight": 52,
+              "topPastFold": -71,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -19,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 156,
+                  "bottom": 556,
+                  "height": 400,
+                  "children": 5
+                },
+                {
+                  "sel": "div.numpad-grid",
+                  "top": 283,
+                  "bottom": 487,
+                  "height": 204,
+                  "children": 12
+                },
+                {
+                  "sel": "div.number-display-box",
+                  "top": 197,
+                  "bottom": 273,
+                  "height": 76,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnSubmitNumber.btn-primary",
+                  "top": 497,
+                  "bottom": 549,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      },
+      {
+        "load": 2,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "transit-1",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnStartGame",
+              "primaryTop": 480.40625,
+              "primaryBottom": 532.40625,
+              "primaryHeight": 52,
+              "topPastFold": -87.59375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 603,
+                "pageScrollable": true
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -35.59375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 5
+                },
+                {
+                  "sel": "div.mode-selection-grid",
+                  "top": 239.03125,
+                  "bottom": 456.40625,
+                  "height": 217.375,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeNearest.mode-card.selected",
+                  "top": 239.03125,
+                  "bottom": 340.71875,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeFarthest.mode-card",
+                  "top": 354.71875,
+                  "bottom": 456.40625,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 257.03125,
+                  "bottom": 322.71875,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 372.71875,
+                  "bottom": 438.40625,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnStartGame.btn-primary",
+                  "top": 480.40625,
+                  "bottom": 532.40625,
+                  "height": 52,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "transit-2",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnAckSecrecy",
+              "primaryTop": 473.984375,
+              "primaryBottom": 525.984375,
+              "primaryHeight": 52,
+              "topPastFold": -94.015625,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -42.015625,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 179,
+                  "bottom": 532.984375,
+                  "height": 353.984375,
+                  "children": 3
+                },
+                {
+                  "sel": "div.secrecy-box",
+                  "top": 238,
+                  "bottom": 453.984375,
+                  "height": 215.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-desc",
+                  "top": 321,
+                  "bottom": 434.984375,
+                  "height": 113.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-title",
+                  "top": 257,
+                  "bottom": 313,
+                  "height": 56,
+                  "children": 0
+                },
+                {
+                  "sel": "button#btnAckSecrecy.btn-primary",
+                  "top": 473.984375,
+                  "bottom": 525.984375,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "ready-for-turn-gate",
+            "report": true,
+            "label": "#btnReadyForTurn (\"พร้อม...\" — per-turn pass/ready gate, GameState.TURN_INTRO)",
+            "why": "same shape as pinocchio-luck's #ready and freeze-tap's #playerReadyBtn: the recurring per-turn gate the incoming player presses before their own screen is revealed. Reported by the same precedent-based reasoning.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnReadyForTurn",
+              "primaryTop": 420.515625,
+              "primaryBottom": 472.515625,
+              "primaryHeight": 52,
+              "topPastFold": -147.484375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -95.484375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 232.484375,
+                  "bottom": 479.515625,
+                  "height": 247.03125,
+                  "children": 5
+                },
+                {
+                  "sel": "button#btnReadyForTurn.btn-primary",
+                  "top": 420.515625,
+                  "bottom": 472.515625,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnAudioToggle.icon-btn",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 0
+                },
+                {
+                  "sel": "div",
+                  "top": 321.484375,
+                  "bottom": 362.484375,
+                  "height": 41,
+                  "children": 0
+                },
+                {
+                  "sel": "h2.screen-title",
+                  "top": 273.484375,
+                  "bottom": 305.484375,
+                  "height": 32,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "submit-number",
+            "report": true,
+            "label": "#btnSubmitNumber (\"ล็อกคำตอบนี้ 🔒\" — commits the picked number, GameState.NUMBER_ENTRY)",
+            "why": "the actual gameplay decision for the turn, same reasoning as pinocchio-luck's .answer buttons: arguably the more consequential control since it is what turns a pick into a locked answer. Reported as a second candidate, not chosen over the gate.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnSubmitNumber",
+              "primaryTop": 497,
+              "primaryBottom": 549,
+              "primaryHeight": 52,
+              "topPastFold": -71,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -19,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 156,
+                  "bottom": 556,
+                  "height": 400,
+                  "children": 5
+                },
+                {
+                  "sel": "div.numpad-grid",
+                  "top": 283,
+                  "bottom": 487,
+                  "height": 204,
+                  "children": 12
+                },
+                {
+                  "sel": "div.number-display-box",
+                  "top": 197,
+                  "bottom": 273,
+                  "height": 76,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnSubmitNumber.btn-primary",
+                  "top": 497,
+                  "bottom": 549,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      },
+      {
+        "load": 3,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "transit-1",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnStartGame",
+              "primaryTop": 480.40625,
+              "primaryBottom": 532.40625,
+              "primaryHeight": 52,
+              "topPastFold": -87.59375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 603,
+                "pageScrollable": true
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -35.59375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 5
+                },
+                {
+                  "sel": "div.mode-selection-grid",
+                  "top": 239.03125,
+                  "bottom": 456.40625,
+                  "height": 217.375,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeNearest.mode-card.selected",
+                  "top": 239.03125,
+                  "bottom": 340.71875,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeFarthest.mode-card",
+                  "top": 354.71875,
+                  "bottom": 456.40625,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 257.03125,
+                  "bottom": 322.71875,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 372.71875,
+                  "bottom": 438.40625,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnStartGame.btn-primary",
+                  "top": 480.40625,
+                  "bottom": 532.40625,
+                  "height": 52,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "transit-2",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnAckSecrecy",
+              "primaryTop": 473.984375,
+              "primaryBottom": 525.984375,
+              "primaryHeight": 52,
+              "topPastFold": -94.015625,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -42.015625,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 179,
+                  "bottom": 532.984375,
+                  "height": 353.984375,
+                  "children": 3
+                },
+                {
+                  "sel": "div.secrecy-box",
+                  "top": 238,
+                  "bottom": 453.984375,
+                  "height": 215.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-desc",
+                  "top": 321,
+                  "bottom": 434.984375,
+                  "height": 113.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-title",
+                  "top": 257,
+                  "bottom": 313,
+                  "height": 56,
+                  "children": 0
+                },
+                {
+                  "sel": "button#btnAckSecrecy.btn-primary",
+                  "top": 473.984375,
+                  "bottom": 525.984375,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "ready-for-turn-gate",
+            "report": true,
+            "label": "#btnReadyForTurn (\"พร้อม...\" — per-turn pass/ready gate, GameState.TURN_INTRO)",
+            "why": "same shape as pinocchio-luck's #ready and freeze-tap's #playerReadyBtn: the recurring per-turn gate the incoming player presses before their own screen is revealed. Reported by the same precedent-based reasoning.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnReadyForTurn",
+              "primaryTop": 420.515625,
+              "primaryBottom": 472.515625,
+              "primaryHeight": 52,
+              "topPastFold": -147.484375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -95.484375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 232.484375,
+                  "bottom": 479.515625,
+                  "height": 247.03125,
+                  "children": 5
+                },
+                {
+                  "sel": "button#btnReadyForTurn.btn-primary",
+                  "top": 420.515625,
+                  "bottom": 472.515625,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnAudioToggle.icon-btn",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 0
+                },
+                {
+                  "sel": "div",
+                  "top": 321.484375,
+                  "bottom": 362.484375,
+                  "height": 41,
+                  "children": 0
+                },
+                {
+                  "sel": "h2.screen-title",
+                  "top": 273.484375,
+                  "bottom": 305.484375,
+                  "height": 32,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "submit-number",
+            "report": true,
+            "label": "#btnSubmitNumber (\"ล็อกคำตอบนี้ 🔒\" — commits the picked number, GameState.NUMBER_ENTRY)",
+            "why": "the actual gameplay decision for the turn, same reasoning as pinocchio-luck's .answer buttons: arguably the more consequential control since it is what turns a pick into a locked answer. Reported as a second candidate, not chosen over the gate.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnSubmitNumber",
+              "primaryTop": 497,
+              "primaryBottom": 549,
+              "primaryHeight": 52,
+              "topPastFold": -71,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -19,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 156,
+                  "bottom": 556,
+                  "height": 400,
+                  "children": 5
+                },
+                {
+                  "sel": "div.numpad-grid",
+                  "top": 283,
+                  "bottom": 487,
+                  "height": 204,
+                  "children": 12
+                },
+                {
+                  "sel": "div.number-display-box",
+                  "top": 197,
+                  "bottom": 273,
+                  "height": 76,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnSubmitNumber.btn-primary",
+                  "top": 497,
+                  "bottom": 549,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      },
+      {
+        "load": 4,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "transit-1",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnStartGame",
+              "primaryTop": 480.40625,
+              "primaryBottom": 532.40625,
+              "primaryHeight": 52,
+              "topPastFold": -87.59375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 603,
+                "pageScrollable": true
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -35.59375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 5
+                },
+                {
+                  "sel": "div.mode-selection-grid",
+                  "top": 239.03125,
+                  "bottom": 456.40625,
+                  "height": 217.375,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeNearest.mode-card.selected",
+                  "top": 239.03125,
+                  "bottom": 340.71875,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeFarthest.mode-card",
+                  "top": 354.71875,
+                  "bottom": 456.40625,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 257.03125,
+                  "bottom": 322.71875,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 372.71875,
+                  "bottom": 438.40625,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnStartGame.btn-primary",
+                  "top": 480.40625,
+                  "bottom": 532.40625,
+                  "height": 52,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "transit-2",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnAckSecrecy",
+              "primaryTop": 473.984375,
+              "primaryBottom": 525.984375,
+              "primaryHeight": 52,
+              "topPastFold": -94.015625,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -42.015625,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 179,
+                  "bottom": 532.984375,
+                  "height": 353.984375,
+                  "children": 3
+                },
+                {
+                  "sel": "div.secrecy-box",
+                  "top": 238,
+                  "bottom": 453.984375,
+                  "height": 215.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-desc",
+                  "top": 321,
+                  "bottom": 434.984375,
+                  "height": 113.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-title",
+                  "top": 257,
+                  "bottom": 313,
+                  "height": 56,
+                  "children": 0
+                },
+                {
+                  "sel": "button#btnAckSecrecy.btn-primary",
+                  "top": 473.984375,
+                  "bottom": 525.984375,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "ready-for-turn-gate",
+            "report": true,
+            "label": "#btnReadyForTurn (\"พร้อม...\" — per-turn pass/ready gate, GameState.TURN_INTRO)",
+            "why": "same shape as pinocchio-luck's #ready and freeze-tap's #playerReadyBtn: the recurring per-turn gate the incoming player presses before their own screen is revealed. Reported by the same precedent-based reasoning.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnReadyForTurn",
+              "primaryTop": 420.515625,
+              "primaryBottom": 472.515625,
+              "primaryHeight": 52,
+              "topPastFold": -147.484375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -95.484375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 232.484375,
+                  "bottom": 479.515625,
+                  "height": 247.03125,
+                  "children": 5
+                },
+                {
+                  "sel": "button#btnReadyForTurn.btn-primary",
+                  "top": 420.515625,
+                  "bottom": 472.515625,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnAudioToggle.icon-btn",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 0
+                },
+                {
+                  "sel": "div",
+                  "top": 321.484375,
+                  "bottom": 362.484375,
+                  "height": 41,
+                  "children": 0
+                },
+                {
+                  "sel": "h2.screen-title",
+                  "top": 273.484375,
+                  "bottom": 305.484375,
+                  "height": 32,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "submit-number",
+            "report": true,
+            "label": "#btnSubmitNumber (\"ล็อกคำตอบนี้ 🔒\" — commits the picked number, GameState.NUMBER_ENTRY)",
+            "why": "the actual gameplay decision for the turn, same reasoning as pinocchio-luck's .answer buttons: arguably the more consequential control since it is what turns a pick into a locked answer. Reported as a second candidate, not chosen over the gate.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnSubmitNumber",
+              "primaryTop": 497,
+              "primaryBottom": 549,
+              "primaryHeight": 52,
+              "topPastFold": -71,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -19,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 156,
+                  "bottom": 556,
+                  "height": 400,
+                  "children": 5
+                },
+                {
+                  "sel": "div.numpad-grid",
+                  "top": 283,
+                  "bottom": 487,
+                  "height": 204,
+                  "children": 12
+                },
+                {
+                  "sel": "div.number-display-box",
+                  "top": 197,
+                  "bottom": 273,
+                  "height": 76,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnSubmitNumber.btn-primary",
+                  "top": 497,
+                  "bottom": 549,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      },
+      {
+        "load": 5,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "transit-1",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnStartGame",
+              "primaryTop": 480.40625,
+              "primaryBottom": 532.40625,
+              "primaryHeight": 52,
+              "topPastFold": -87.59375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 603,
+                "pageScrollable": true
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -35.59375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 5
+                },
+                {
+                  "sel": "div.mode-selection-grid",
+                  "top": 239.03125,
+                  "bottom": 456.40625,
+                  "height": 217.375,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeNearest.mode-card.selected",
+                  "top": 239.03125,
+                  "bottom": 340.71875,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeFarthest.mode-card",
+                  "top": 354.71875,
+                  "bottom": 456.40625,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 257.03125,
+                  "bottom": 322.71875,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 372.71875,
+                  "bottom": 438.40625,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnStartGame.btn-primary",
+                  "top": 480.40625,
+                  "bottom": 532.40625,
+                  "height": 52,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "transit-2",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnAckSecrecy",
+              "primaryTop": 473.984375,
+              "primaryBottom": 525.984375,
+              "primaryHeight": 52,
+              "topPastFold": -94.015625,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -42.015625,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 179,
+                  "bottom": 532.984375,
+                  "height": 353.984375,
+                  "children": 3
+                },
+                {
+                  "sel": "div.secrecy-box",
+                  "top": 238,
+                  "bottom": 453.984375,
+                  "height": 215.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-desc",
+                  "top": 321,
+                  "bottom": 434.984375,
+                  "height": 113.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-title",
+                  "top": 257,
+                  "bottom": 313,
+                  "height": 56,
+                  "children": 0
+                },
+                {
+                  "sel": "button#btnAckSecrecy.btn-primary",
+                  "top": 473.984375,
+                  "bottom": 525.984375,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "ready-for-turn-gate",
+            "report": true,
+            "label": "#btnReadyForTurn (\"พร้อม...\" — per-turn pass/ready gate, GameState.TURN_INTRO)",
+            "why": "same shape as pinocchio-luck's #ready and freeze-tap's #playerReadyBtn: the recurring per-turn gate the incoming player presses before their own screen is revealed. Reported by the same precedent-based reasoning.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnReadyForTurn",
+              "primaryTop": 420.515625,
+              "primaryBottom": 472.515625,
+              "primaryHeight": 52,
+              "topPastFold": -147.484375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -95.484375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 232.484375,
+                  "bottom": 479.515625,
+                  "height": 247.03125,
+                  "children": 5
+                },
+                {
+                  "sel": "button#btnReadyForTurn.btn-primary",
+                  "top": 420.515625,
+                  "bottom": 472.515625,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnAudioToggle.icon-btn",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 0
+                },
+                {
+                  "sel": "div",
+                  "top": 321.484375,
+                  "bottom": 362.484375,
+                  "height": 41,
+                  "children": 0
+                },
+                {
+                  "sel": "h2.screen-title",
+                  "top": 273.484375,
+                  "bottom": 305.484375,
+                  "height": 32,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "submit-number",
+            "report": true,
+            "label": "#btnSubmitNumber (\"ล็อกคำตอบนี้ 🔒\" — commits the picked number, GameState.NUMBER_ENTRY)",
+            "why": "the actual gameplay decision for the turn, same reasoning as pinocchio-luck's .answer buttons: arguably the more consequential control since it is what turns a pick into a locked answer. Reported as a second candidate, not chosen over the gate.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnSubmitNumber",
+              "primaryTop": 497,
+              "primaryBottom": 549,
+              "primaryHeight": 52,
+              "topPastFold": -71,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -19,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 156,
+                  "bottom": 556,
+                  "height": 400,
+                  "children": 5
+                },
+                {
+                  "sel": "div.numpad-grid",
+                  "top": 283,
+                  "bottom": 487,
+                  "height": 204,
+                  "children": 12
+                },
+                {
+                  "sel": "div.number-display-box",
+                  "top": 197,
+                  "bottom": 273,
+                  "height": 76,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnSubmitNumber.btn-primary",
+                  "top": 497,
+                  "bottom": 549,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      },
+      {
+        "load": 6,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "transit-1",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnStartGame",
+              "primaryTop": 480.40625,
+              "primaryBottom": 532.40625,
+              "primaryHeight": 52,
+              "topPastFold": -87.59375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 603,
+                "pageScrollable": true
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -35.59375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 150,
+                  "bottom": 597.40625,
+                  "height": 447.40625,
+                  "children": 5
+                },
+                {
+                  "sel": "div.mode-selection-grid",
+                  "top": 239.03125,
+                  "bottom": 456.40625,
+                  "height": 217.375,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeNearest.mode-card.selected",
+                  "top": 239.03125,
+                  "bottom": 340.71875,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div#modeFarthest.mode-card",
+                  "top": 354.71875,
+                  "bottom": 456.40625,
+                  "height": 101.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 257.03125,
+                  "bottom": 322.71875,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "div",
+                  "top": 372.71875,
+                  "bottom": 438.40625,
+                  "height": 65.6875,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnStartGame.btn-primary",
+                  "top": 480.40625,
+                  "bottom": 532.40625,
+                  "height": 52,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "transit-2",
+            "report": false,
+            "label": null,
+            "why": null,
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnAckSecrecy",
+              "primaryTop": 473.984375,
+              "primaryBottom": 525.984375,
+              "primaryHeight": 52,
+              "topPastFold": -94.015625,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -42.015625,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 179,
+                  "bottom": 532.984375,
+                  "height": 353.984375,
+                  "children": 3
+                },
+                {
+                  "sel": "div.secrecy-box",
+                  "top": 238,
+                  "bottom": 453.984375,
+                  "height": 215.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-desc",
+                  "top": 321,
+                  "bottom": 434.984375,
+                  "height": 113.984375,
+                  "children": 2
+                },
+                {
+                  "sel": "div.secrecy-title",
+                  "top": 257,
+                  "bottom": 313,
+                  "height": 56,
+                  "children": 0
+                },
+                {
+                  "sel": "button#btnAckSecrecy.btn-primary",
+                  "top": 473.984375,
+                  "bottom": 525.984375,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "ready-for-turn-gate",
+            "report": true,
+            "label": "#btnReadyForTurn (\"พร้อม...\" — per-turn pass/ready gate, GameState.TURN_INTRO)",
+            "why": "same shape as pinocchio-luck's #ready and freeze-tap's #playerReadyBtn: the recurring per-turn gate the incoming player presses before their own screen is revealed. Reported by the same precedent-based reasoning.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnReadyForTurn",
+              "primaryTop": 420.515625,
+              "primaryBottom": 472.515625,
+              "primaryHeight": 52,
+              "topPastFold": -147.484375,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -95.484375,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 232.484375,
+                  "bottom": 479.515625,
+                  "height": 247.03125,
+                  "children": 5
+                },
+                {
+                  "sel": "button#btnReadyForTurn.btn-primary",
+                  "top": 420.515625,
+                  "bottom": 472.515625,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "div.header-controls",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnAudioToggle.icon-btn",
+                  "top": 102,
+                  "bottom": 146,
+                  "height": 44,
+                  "children": 0
+                },
+                {
+                  "sel": "div",
+                  "top": 321.484375,
+                  "bottom": 362.484375,
+                  "height": 41,
+                  "children": 0
+                },
+                {
+                  "sel": "h2.screen-title",
+                  "top": 273.484375,
+                  "bottom": 305.484375,
+                  "height": 32,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          },
+          {
+            "name": "submit-number",
+            "report": true,
+            "label": "#btnSubmitNumber (\"ล็อกคำตอบนี้ 🔒\" — commits the picked number, GameState.NUMBER_ENTRY)",
+            "why": "the actual gameplay decision for the turn, same reasoning as pinocchio-luck's .answer buttons: arguably the more consequential control since it is what turns a pick into a locked answer. Reported as a second candidate, not chosen over the gate.",
+            "clickRes": {
+              "clicked": true
+            },
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btnSubmitNumber",
+              "primaryTop": 497,
+              "primaryBottom": 549,
+              "primaryHeight": 52,
+              "topPastFold": -71,
+              "visiblePx": 52,
+              "container": null,
+              "containerOverflowY": null,
+              "containerClientHeight": null,
+              "containerScrollHeight": null,
+              "foldEdge": null,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "visible",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": -19,
+              "tallestBoxes": [
+                {
+                  "sel": "main#screenContainer.screen-container",
+                  "top": 150,
+                  "bottom": 562,
+                  "height": 412,
+                  "children": 1
+                },
+                {
+                  "sel": "div.card",
+                  "top": 156,
+                  "bottom": 556,
+                  "height": 400,
+                  "children": 5
+                },
+                {
+                  "sel": "div.numpad-grid",
+                  "top": 283,
+                  "bottom": 487,
+                  "height": 204,
+                  "children": 12
+                },
+                {
+                  "sel": "div.number-display-box",
+                  "top": 197,
+                  "bottom": 273,
+                  "height": 76,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btnSubmitNumber.btn-primary",
+                  "top": 497,
+                  "bottom": 549,
+                  "height": 52,
+                  "children": 0
+                },
+                {
+                  "sel": "header.app-header",
+                  "top": 100,
+                  "bottom": 150,
+                  "height": 50,
+                  "children": 2
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                },
+                {
+                  "sel": "button.num-btn",
+                  "top": 283,
+                  "bottom": 331,
+                  "height": 48,
+                  "children": 0
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      }
+    ],
+    "calibrations": [
+      {
+        "step": "ready-for-turn-gate",
+        "blockSel": "main#screenContainer.screen-container",
+        "result": {
+          "before": {
+            "blockHeight": 412,
+            "primaryTop": 420.515625
+          },
+          "forced": {
+            "blockHeight": 2000,
+            "primaryTop": 1214.515625
+          },
+          "after": {
+            "blockHeight": 412,
+            "primaryTop": 420.515625
+          },
+          "moved": 794,
+          "returned": true
+        }
+      },
+      {
+        "step": "submit-number",
+        "blockSel": "main#screenContainer.screen-container",
+        "result": {
+          "before": {
+            "blockHeight": 412,
+            "primaryTop": 497
+          },
+          "forced": {
+            "blockHeight": 2000,
+            "primaryTop": 1291
+          },
+          "after": {
+            "blockHeight": 412,
+            "primaryTop": 497
+          },
+          "moved": 794,
+          "returned": true
+        }
+      }
+    ]
+  }
+}

@@ -154,3 +154,80 @@
     min-block-size: var(--hc-desktop-target-min);
   }
 }
+
+/* ============================================================================
+   gh#182, owner ruling 2026-09-10: on every play screen the primary control
+   must be above the fold at 320px.
+
+   Measured on a built dist/ at 320x568 (Emulation.setDeviceMetricsOverride,
+   real device metrics, not a resized window): on the number-entry screen the
+   commit control #btnSubmitNumber rendered top 617 / bottom 669 against a 568
+   fold -- ZERO visible pixels. The page itself scrolls there, so the control
+   was reachable but unseen, which is the case the ruling decides against.
+
+   After this tier, same instrument, n=6 loads with every load byte-identical:
+   top 497 / bottom 549, all 52px visible, and the number-entry screen stops
+   scrolling at all (scrollHeight 568 against a 568px client). Re-read with a
+   number actually typed in, not only the placeholder, because a floor under a
+   glyph reserves nothing once the glyph is the taller of the two: the readout
+   holds at the same height and the control does not move. At 390x844 the tier
+   does not bind -- measured, not assumed: the readout renders at its mockup
+   64px and the submit control sits at 691/743 exactly as before.
+
+   Every declaration here is spacing or the size of a DISPLAY glyph. No control
+   is shrunk: measured on the built page at this viewport, the numpad keys read
+   48px and the submit control 52px both before and after this tier, and both
+   stay gated by scripts/control-floor-probe.mjs. No Thai copy is cut,
+   reworded, or hidden -- the range hint, the turn pills and the button label
+   all still render, and the numpad still shows all twelve keys.
+
+   Scoped to max-height:600px, so only the 568px class of screen sees it and
+   390x844 keeps the mockup's own spacing. .card is shared with this route's
+   other screens, which get the same tighter spacing on a short screen; the
+   setup screen is allowed to scroll (owner criterion 2026-08-31) and does not
+   depend on any of these values.
+   ============================================================================ */
+@media (max-height: 600px) {
+  .app-header {
+    padding-block: 2px 4px;
+  }
+
+  .card {
+    padding-block: 6px;
+  }
+
+  .turn-status-bar {
+    margin-bottom: 6px;
+    padding-block: 2px;
+  }
+
+  .number-display-box {
+    padding-block: 6px;
+    margin-bottom: 10px;
+  }
+
+  /* The big read-out, not a control. Its own font-size is what sets the box
+     height once a digit is typed -- the 4rem min-height underneath it is not
+     the binding value there -- so both move together. */
+  .number-current-val {
+    font-size: 2.5rem;
+    min-height: 2.5rem;
+  }
+
+  .number-current-val.placeholder {
+    font-size: 1.8rem;
+  }
+
+  .number-range-hint {
+    margin-top: 2px;
+  }
+
+  .numpad-grid {
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  #appRoot {
+    padding-block-end: 6px;
+  }
+}

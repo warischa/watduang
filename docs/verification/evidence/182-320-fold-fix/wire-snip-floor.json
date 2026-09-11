@@ -1,0 +1,134 @@
+{
+  "before": {
+    "btn": {
+      "top": 578,
+      "bot": 654,
+      "h": 76
+    },
+    "chassis": {
+      "top": 289,
+      "bot": 529,
+      "h": 240
+    },
+    "bay": {
+      "top": 406,
+      "bot": 578.8,
+      "h": 172.8
+    },
+    "col": {
+      "top": 415,
+      "bot": 569.8,
+      "h": 154.8
+    },
+    "svg": {
+      "top": 437,
+      "bot": 505.8,
+      "h": 68.8
+    },
+    "label": {
+      "top": 527.8,
+      "bot": 565.8,
+      "h": 38
+    },
+    "lcd": {
+      "top": 303,
+      "bot": 386,
+      "h": 83
+    },
+    "banner": {
+      "top": 539,
+      "bot": 667,
+      "h": 128
+    },
+    "hitAtBtnTop": "div.wire-column.disabled",
+    "hitAt510": "div.wire-column.disabled"
+  },
+  "floor": {
+    "btn": {
+      "top": 477,
+      "bot": 553,
+      "h": 76
+    },
+    "chassis": {
+      "top": 259,
+      "bot": 436,
+      "h": 177
+    },
+    "bay": {
+      "top": 358,
+      "bot": 426,
+      "h": 68
+    },
+    "col": {
+      "top": 363,
+      "bot": 421,
+      "h": 58
+    },
+    "svg": {
+      "top": 375,
+      "bot": 375,
+      "h": 0
+    },
+    "label": {
+      "top": 387,
+      "bot": 425,
+      "h": 38
+    },
+    "lcd": {
+      "top": 269,
+      "bot": 344,
+      "h": 75
+    },
+    "banner": {
+      "top": 442,
+      "bot": 562,
+      "h": 120
+    },
+    "hitAtBtnTop": "button#btn-trigger-scan.btn-primary",
+    "hitAt510": "button#btn-trigger-scan.btn-primary"
+  },
+  "back": {
+    "btn": {
+      "top": 578,
+      "bot": 654,
+      "h": 76
+    },
+    "chassis": {
+      "top": 289,
+      "bot": 529,
+      "h": 240
+    },
+    "bay": {
+      "top": 406,
+      "bot": 578.8,
+      "h": 172.8
+    },
+    "col": {
+      "top": 415,
+      "bot": 569.8,
+      "h": 154.8
+    },
+    "svg": {
+      "top": 437,
+      "bot": 505.8,
+      "h": 68.8
+    },
+    "label": {
+      "top": 527.8,
+      "bot": 565.8,
+      "h": 38
+    },
+    "lcd": {
+      "top": 303,
+      "bot": 386,
+      "h": 83
+    },
+    "banner": {
+      "top": 539,
+      "bot": 667,
+      "h": 128
+    },
+    "hitAtBtnTop": "div.wire-column.disabled",
+    "hitAt510": "div.wire-column.disabled"
+  }
+}
