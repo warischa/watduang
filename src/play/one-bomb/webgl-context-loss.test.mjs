@@ -1,38 +1,35 @@
-// gh#215. What happens to this route when the browser takes the 3D context away mid-round.
+// gh#215, as the owner ruling of 2026-09-11 left it: what happens to this route when the browser
+// takes the 3D context away mid-round, and what must NOT happen.
 //
-// The failure this pins is not "the panel is missing" — it is that the engine SURVIVES the loss.
-// main.js drives its state machine from a requestAnimationFrame loop on accumulated time (a resolving
-// state settles at ~0.42s, a detonating one finishes at ~1.3s) and GL calls against a lost context do
-// not throw. So without severing, the engine keeps opening tiles and pushes its result card up
-// underneath the halt panel, with "รอบต่อไป" live under the player's finger.
+// The property this file exists to pin is the round SURVIVING the loss. gh#150 option A made the DOM
+// tile grid the play surface on both lanes and parked the engine in its menu state with its input
+// severed at mount, so a lost context now costs a BACKDROP. The halt this file used to pin took the
+// round down with it: its only way forward called startMatch, which zeroes every score and sends the
+// party back to round 1 to recover a 3D board nobody was playing on. The halt is retired; the tests
+// that pinned it are replaced by the ones that pin what replaced it.
 //
-// The severing therefore has to happen at LOSS time, and it has to be surgical: clone-replacing a
-// node drops its listeners, which is the point, but watchEngineReveals holds a MutationObserver on
-// #hud, #menuOverlay, #resultCard and the two modals and finishRound depends on it. A container
-// swapped for a clone kills that observer silently — nothing throws, the result card just stops being
-// armed. Both halves are asserted below and each reds on its own.
+// WHAT THE HALT SEVERED, AND WHY NONE OF IT IS OWED ANY MORE. Losing a context changes nothing about
+// the engine: GL calls against a lost context do not throw, main.js registers no `webglcontextlost`
+// of its own, and its state machine is in MENU with every leaf listener already cloned off at mount
+// by severEngineLeafControls. So the leaf severing and the stepper re-assert were a second copy of
+// what mount already did, and the HUD id rehoming defended against writes the engine makes exactly
+// the same way before and after a loss — writes that sit behind a round state it can no longer
+// enter. The halt defended against a delta that does not exist.
 //
-// ponytail: the real bytes of haltOnContextLoss, announceTurns, the route's `$` and the engine's own
-// updateUI, run over a small stub, rather than a browser walk. Stated ceilings: (1) the stub models
-// four DOM guarantees and nothing else — cloneNode() does not copy listeners, getElementById answers
-// out of a live id index, a textContent write is what a MutationObserver sees, and `style` is an
-// object. So this proves what main.ts DOES to those nodes, never that Chrome fires
-// `webglcontextlost` when this route loses a context, nor that a null dereference really ends the
-// engine's rAF loop, nor that any reader voices the live region; only a browser shows those.
-// (2) renderPlayerStrip is a spy in the behavioural leg — the strip is covered by the id set, which
-// is derived from that function's real source, not by a run of it. (3) It says nothing about whether
-// the arm window really disables anything; scripts/arm-gate-probe.mjs owns that.
+// ponytail: the real bytes of the route's loss handler and its `$`, resolved from the registration
+// rather than by name, run over a small stub. Stated ceilings: (1) the stub models four DOM
+// guarantees and nothing else — cloneNode() does not copy listeners, getElementById answers out of a
+// live id index, a textContent write is what a MutationObserver sees, and `style` is an object. So
+// this proves what main.ts DOES to those nodes, never that Chrome fires `webglcontextlost` when this
+// route loses a context. (2) It says nothing about whether the arm window really disables anything;
+// scripts/arm-gate-probe.mjs owns that.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { sliceBlock } from '../_dom-stub.mjs';
-// The real bounds, from the module the route itself imports them from: a retyped 2 and 10 here would
-// go on agreeing with a route that had moved.
-import { MAX_PLAYERS, MIN_PLAYERS } from '../../games/one-bomb.ts';
 
 const source = fs.readFileSync(path.join(import.meta.dirname, 'main.ts'), 'utf8');
-
 /** Takes the TypeScript off a slice, one token at a time, asserting that each one bit. A substitution
  *  that silently stripped nothing is how a slice reaches `new Function` still carrying a type and
  *  fails as a SyntaxError somewhere unrelated. */
@@ -42,30 +39,6 @@ const strip = (text, tokens, label) =>
     assert.notEqual(next, out, `${label} no longer contains ${from} — this substitution stripped nothing`);
     return next;
   }, text);
-
-const HEADER = 'function haltOnContextLoss(): void';
-const sliced = sliceBlock(source, HEADER);
-assert.ok(sliced, `main.ts no longer declares ${HEADER} — this test is measuring nothing`);
-// The TypeScript tokens in the slice. The body itself is untouched.
-const haltSource = strip(
-  sliced,
-  [
-    [HEADER, 'function haltOnContextLoss()'],
-    ['$<HTMLButtonElement>(id)', '$(id)'],
-    ['control.cloneNode(true) as HTMLButtonElement', 'control.cloneNode(true)'],
-  ],
-  HEADER,
-);
-
-const HALT_HTML = source.match(/const HALT_HTML = `([\s\S]*?)`;/)?.[1];
-assert.ok(HALT_HTML, 'HALT_HTML no longer parses out of main.ts');
-
-const announceSliced = sliceBlock(source, 'function announceTurns(): void');
-assert.ok(announceSliced, 'main.ts no longer declares announceTurns — the announcement tests are measuring nothing');
-// The only TypeScript in that slice is a pair of `: void` returns. The body itself is untouched.
-const announceSource = announceSliced.replaceAll('): void', ')');
-assert.notEqual(announceSource, announceSliced, 'announceTurns no longer carries the annotations this strips — it may carry others');
-assert.doesNotMatch(announceSource, /:\s*(void|string|HTMLElement)\b/, 'annotation left in the announceTurns slice: it will not parse');
 
 const installSource = sliceBlock(source, 'function installNoWebglRound(): void');
 assert.ok(installSource, 'main.ts no longer declares installNoWebglRound — the drift pin below is measuring nothing');
@@ -139,8 +112,8 @@ function makeStub(ids) {
   return { document, byId, removed };
 }
 
-/** A MutationObserver that sees exactly what the real one sees on these stubs: a textContent write to
- *  an observed node. announceTurns registers through this, unmodified. */
+/** A MutationObserver that sees exactly what the real one sees on these stubs: a textContent write
+ *  to an observed node. announceTurns registers through this, unmodified. */
 class StubObserver {
   constructor(callback) {
     this.callback = callback;
@@ -151,9 +124,9 @@ class StubObserver {
   }
 }
 
-// The route's own lookup helper, run as written rather than re-implemented here: whether it consults
-// the rehome map before the document IS the fix, so a hand-rolled copy would prove nothing. Three
-// substitutions, each of which must bite, take the TypeScript off it and nothing else.
+// The route's own lookup helper, run as written rather than re-implemented here: a hand-rolled copy
+// would prove nothing about the id every other slice below resolves through. Three substitutions,
+// each of which must bite, take the TypeScript off it and nothing else.
 const dollarTs = source.match(/const \$ = [\s\S]*?;$/m)?.[0];
 assert.ok(dollarTs, 'main.ts no longer declares the `$` lookup helper — every test below is measuring nothing');
 const dollarSource = ['<T extends HTMLElement>', '(id: string): T | null =>', ' as T | null'].reduce(
@@ -164,29 +137,6 @@ const dollarSource = ['<T extends HTMLElement>', '(id: string): T | null =>', ' 
   },
   dollarTs,
 );
-
-// The stepper, as its real bytes. setPlayerCount is the ONLY owner of a `disabled` write on this
-// route outside the shared arm gate, so it is also the only state the halt can wrongly drop when it
-// hands the severed clones back enabled — a stub of it would prove nothing about the bound. Sliced
-// with currentCount (which is where the count is read back from) and BOARD_GRID (which setPlayerCount
-// reads), each type strip asserted to bite the same way the `$` helper's are above.
-const STEPPER_BLOCKS = [
-  ['function currentCount(): number', [['(): number', '()']]],
-  [
-    'function setPlayerCount(next: number): void',
-    [
-      ['(next: number): void', '(next)'],
-      ["$<HTMLButtonElement>('playerMinus')", "$('playerMinus')"],
-      ["$<HTMLButtonElement>('playerPlus')", "$('playerPlus')"],
-    ],
-  ],
-  ['const BOARD_GRID: Record<number, readonly [number, number]> =', [[': Record<number, readonly [number, number]>', '']]],
-];
-const stepperSource = STEPPER_BLOCKS.map(([header, tokens]) => {
-  const block = sliceBlock(source, header);
-  assert.ok(block, `main.ts no longer declares ${header} — the stepper leg below is measuring nothing`);
-  return strip(block, tokens, header);
-}).join('\n');
 
 // Every id the ZOMBIE can still reach after the loss, derived from main.js rather than retyped: its
 // state machine runs on accumulated time off a requestAnimationFrame loop, so a loss during a
@@ -207,94 +157,211 @@ assert.ok(engineWrites.size > 0, 'no getElementById target parsed out of the eng
 const ENGINE_CONTAINERS = ['hud', 'menuOverlay', 'resultCard', 'howModal', 'settingsModal', 'ob-board-wrap'];
 const SEEDED = ['app', 'gameCanvas', 'ob-live', ...ENGINE_CONTAINERS];
 
-/** The engine's OWN updateUI, run as written over a minimal game state — the zombie's first DOM
- *  touch after the loss, and the one finishDetonation makes before it fills the result card.
- *
- *  Ceiling: renderPlayerStrip is a spy here rather than a second slice, so this leg says nothing
- *  about the strip; the strip's id is covered by the reachability test, which derives its set from
- *  that function's real source. */
-function makeEngineUpdateUI(document, player) {
-  const updateUiSource = sliceBlock(engineSource, 'function updateUI()');
-  assert.ok(updateUiSource, 'main.js no longer declares updateUI — the write this file blocks does not exist');
-  return new Function(
-    'document',
-    'game',
-    'MASCOT_CONFIG',
-    'GameState',
-    'sounds',
-    'renderPlayerStrip',
-    `${updateUiSource}; return updateUI;`,
-  )(
-    document,
-    { currentPlayer: player, round: 2, totalRounds: 5, rows: 5, cols: 5, revealed: new Set(), state: 'ROUND_OVER' },
-    [{ color: '#3d5b7d', name: 'มังกร', emoji: '🐉' }],
-    { TURN_WAIT: 'TURN_WAIT' },
-    { playHeartbeat() {} },
-    () => {},
-  );
-}
+// ---- the announcement channel those writes feed ------------------------------------------------
 
-/** Runs the real haltOnContextLoss over the stub, with every id it severs pre-wired to a click
- *  counter, and reports what the run did. */
-function runHalt(severed, code = haltSource) {
-  const stub = makeStub([...SEEDED, ...severed, ...engineWrites]);
-  const hudBefore = new Map([...engineWrites].map((id) => [id, stub.byId.get(id)]));
-  for (const id of severed) {
-    const node = stub.byId.get(id);
-    node.addEventListener('click', () => {
-      node.fired += 1;
-    });
-  }
-  // POSITIVE CONTROL, and it is not optional: "the click did nothing" is unreadable without a leg
-  // where the same click did something. Every control fires exactly once here, BEFORE the loss.
-  for (const id of severed) stub.byId.get(id).click();
-  const before = severed.map((id) => stub.byId.get(id).fired);
-  assert.deepEqual(
-    before,
-    severed.map(() => 1),
-    'the pre-loss control leg did not fire: this stub cannot dispatch a click, so the post-loss ' +
-      'assertion below would pass on a harness that severs nothing',
-  );
+// The live region is the only place a HUD write becomes something a player HEARS, and it is fed by
+// observation rather than by a call: paintHud (and, on a GPU, the engine) writes #turnPlayerName,
+// and announceTurns mirrors that write into #ob-live. It is pinned HERE because this is the file
+// that models what a MutationObserver sees on these stubs and derives the engine's write surface
+// above; it had no other pin, and until gh#215's halt was retired it was only ever exercised as a
+// thing the halt had to silence.
+const announceSliced = sliceBlock(source, 'function announceTurns(): void');
+assert.ok(announceSliced, 'main.ts no longer declares announceTurns — the announcement tests are measuring nothing');
+const announceSource = announceSliced.replaceAll('): void', ')');
+assert.notEqual(announceSource, announceSliced, 'announceTurns no longer carries the annotations this strips — it may carry others');
+assert.doesNotMatch(announceSource, /:\s*(void|string|HTMLElement)\b/, 'annotation left in the announceTurns slice: it will not parse');
 
-  const containersBefore = new Map(ENGINE_CONTAINERS.map((id) => [id, stub.byId.get(id)]));
-  const { runtime, armed, called } = makeRuntime(stub, code);
-  // announceTurns runs at mount, i.e. BEFORE the loss: it holds the nodes it found then, which is
-  // exactly why silencing it has to happen at the engine's end of the write and not at the observer.
-  runtime.announceTurns();
-  runtime.haltOnContextLoss();
-  return { stub, containersBefore, armed, called, hudBefore, $: runtime.$ };
-}
-
-/** main.ts's `$`, announceTurns and haltOnContextLoss, as written, sharing one document and one
- *  rehome map — the three have to be built together because the map is what joins them. */
-function makeRuntime(stub, code = haltSource) {
-  const armed = [];
-  const called = [];
-  const rehomed = new Map();
-  const runtime = new Function(
+/** Registers the real announceTurns over a stub, and hands back the nodes a HUD write lands on. */
+function runAnnounce(code = announceSource) {
+  const stub = makeStub(['ob-live', 'turnPlayerName', 'roundLabel', 'turnAvatarEmoji']);
+  // `rehomed` is dead on this build and the parameter still has to be here: the `$` above is sliced
+  // from main.ts, so against the build that still halted it reads that map. Without the parameter
+  // these legs die on a ReferenceError, which reds exactly like an assertion and proves nothing.
+  const announce = new Function(
     'document',
     'rehomed',
     'MutationObserver',
+    `${dollarSource}\n${code}\nreturn announceTurns;`,
+  )(stub.document, new Map(), StubObserver);
+  announce();
+  return stub;
+}
+
+test('a turn written to the HUD is announced, naming that player and no other', () => {
+  const stub = runAnnounce();
+  const live = stub.byId.get('ob-live');
+  // POSITIVE CONTROL: the round label alone must say nothing. Without this leg the assertions below
+  // could not tell an announcement from a region that had been written to at registration.
+  stub.byId.get('roundLabel').textContent = 'รอบที่ 3';
+  assert.equal(live.textContent, '', 'the region announced a round with nobody to announce it to');
+
+  stub.byId.get('turnPlayerName').textContent = 'มังกร';
+  assert.equal(
+    live.textContent,
+    'รอบที่ 3 ถึงตาของ มังกร แล้ว',
+    'the live region does not carry the turn. A player using a screen reader is told nothing about ' +
+      'whose turn it is, on a route whose whole round is a turn order',
+  );
+
+  // The turn moves. A region that keeps announcing the first player is worse than a silent one.
+  stub.byId.get('turnPlayerName').textContent = 'เสือ';
+  assert.equal(live.textContent, 'รอบที่ 3 ถึงตาของ เสือ แล้ว', 'the announcement did not follow the turn to the next player');
+});
+
+test('MUST-RED: the announcement assertions go green on a build that says nothing, and on one that reads the wrong node', () => {
+  // Both mutants are one substitution off the real source rather than code this file wrote.
+  const mute = announceSource.replace('live.textContent = line;', 'void line;');
+  assert.notEqual(mute, announceSource, 'the live-region write no longer reads as written — this mutant substituted nothing');
+  const muted = runAnnounce(mute);
+  muted.byId.get('turnPlayerName').textContent = 'มังกร';
+  assert.equal(muted.byId.get('ob-live').textContent, '', 'the assertion above cannot tell an announcing build from a mute one');
+
+  // The wrong player: the observer is pointed at the avatar glyph instead of the name, which is the
+  // shape a careless re-extraction of the HUD ids would take.
+  const wrong = announceSource.replace("const who = $('turnPlayerName');", "const who = $('turnAvatarEmoji');");
+  assert.notEqual(wrong, announceSource, 'the observed node no longer reads as written — this mutant substituted nothing');
+  const misread = runAnnounce(wrong);
+  misread.byId.get('turnPlayerName').textContent = 'มังกร';
+  assert.equal(
+    misread.byId.get('ob-live').textContent,
+    '',
+    'the assertion above cannot tell a build that announces the player from one that watches ' +
+      'another node entirely',
+  );
+});
+
+// ---- the loss handler, resolved from its own registration --------------------------------------
+
+// BY REGISTRATION, NOT BY NAME, and that is what makes the calibration honest: this file has to be
+// runnable against the build that still halted, so it reads whichever function main.ts hands the
+// event and measures that one. A name typed in here would have failed the old build as "measuring
+// nothing" instead of failing it on the assertions.
+const registration = source.match(/\$\('gameCanvas'\)\?\.addEventListener\('webglcontextlost',\s*([A-Za-z_$][\w$]*)/);
+assert.ok(
+  registration,
+  'the route no longer registers a webglcontextlost handler on #gameCanvas — the tests below are measuring nothing',
+);
+const handlerName = registration[1];
+const handlerSliced = sliceBlock(source, `function ${handlerName}(): void`);
+assert.ok(handlerSliced, `main.ts registers ${handlerName} for the loss but declares no such function`);
+
+// A non-asserting strip, unlike the one above, because the set of annotations differs between the
+// build being measured and the build that halted — followed by a check that nothing TypeScript
+// survived, so a slice that would fail as a SyntaxError fails as a readable assertion instead.
+const handlerSource = handlerSliced
+  .replace(`function ${handlerName}(): void`, `function ${handlerName}()`)
+  .replaceAll('$<HTMLButtonElement>(', '$(')
+  .replaceAll(' as HTMLButtonElement', '');
+assert.doesNotMatch(handlerSource, /: void\b|\bas [A-Z]|<HTML/, 'a TypeScript annotation survived the strip: the slice will not parse');
+
+// Supplied only so a build that still inserts a panel can insert it here. Empty against a build that
+// has none, which is the state the assertions below expect.
+const panelHtml = source.match(/const HALT_HTML = `([\s\S]*?)`;/)?.[1] ?? '';
+
+/** Runs the route's real loss handler over the stub and reports everything it did: what it called
+ *  into, what it put on the page, and what a tap on anything it put there then reached. */
+function runLoss(code = handlerSource) {
+  const stub = makeStub([...SEEDED, ...engineWrites, 'ob-board', 'playerCountVal']);
+  const present = new Set(stub.byId.keys());
+  const called = [];
+  const handler = new Function(
+    'document',
+    'rehomed',
     'HALT_HTML',
     'armAllButtons',
     'installNoWebglRound',
     'startMatch',
-    'MIN_PLAYERS',
-    'MAX_PLAYERS',
-    `${dollarSource}\n${stepperSource}\n${announceSource}\n${code}\nreturn { $, announceTurns, haltOnContextLoss };`,
+    'setPlayerCount',
+    'currentCount',
+    `${dollarSource}\n${code}\nreturn ${handlerName};`,
   )(
     stub.document,
-    rehomed,
-    StubObserver,
-    HALT_HTML,
-    (el) => armed.push(el.id),
+    new Map(),
+    panelHtml,
+    () => {},
     () => called.push('installNoWebglRound'),
     () => called.push('startMatch'),
-    MIN_PLAYERS,
-    MAX_PLAYERS,
+    () => called.push('setPlayerCount'),
+    () => 5,
   );
-  return { runtime, armed, called, rehomed };
+  handler();
+  // THE PRESS IS PART OF THE LOSS, and without it this measures the wrong moment: the build that
+  // halted did not reset the round when the context went away, it reset it on the one path it left
+  // the player. A panel whose only button costs the party its scores is a round lost at the loss.
+  const inserted = [...stub.byId.keys()].filter((id) => !present.has(id));
+  for (const id of inserted) stub.byId.get(id).click();
+  return { stub, called, inserted };
 }
+
+test('a lost context costs the 3D backdrop and nothing else: the round survives it', () => {
+  const { stub, called, inserted } = runLoss();
+  // THE ROUND FIRST, and the order is deliberate: this is the assertion the ruling is about, so it
+  // is the one that has to speak when a build reaches the round — including through a control the
+  // loss put under the player, which runLoss has already pressed by now.
+  assert.deepEqual(
+    called,
+    [],
+    'the loss path called into the round. startMatch zeroes every score and sends the party back to ' +
+      'round 1, which is the cost the owner retired on 2026-09-11: a dropped backdrop must not ' +
+      'discard the game being played in front of it',
+  );
+  assert.deepEqual(
+    inserted,
+    [],
+    'the loss put something on the page. Whatever it is, it stands between the party and a round ' +
+      'that is still playable on the DOM board — and if it is ever wanted again it is a reveal, ' +
+      'which ADR-0057 and ADR-0059 make an armed one',
+  );
+  for (const id of engineWrites) {
+    assert.ok(
+      stub.document.getElementById(id),
+      `#${id} stopped answering document.getElementById after the loss. The HUD it paints is the ` +
+        'round the party is still playing; severing its ids leaves them looking at a frozen banner',
+    );
+  }
+  assert.ok(stub.document.getElementById('ob-board'), 'the DOM board — the play surface on both lanes — did not survive the loss');
+  assert.ok(
+    stub.removed.includes('gameCanvas'),
+    'the canvas that stopped drawing is left on the page, still carrying its 3D-stage accessible ' +
+      'name. ADR-0051 asks the two lanes to end in the same shape, and the no-3D lane has no canvas',
+  );
+});
+
+test('MUST-RED: the assertions above go green on a loss that does reset the round', () => {
+  // Derived from the real handler by one substitution rather than written here: a green that has
+  // never seen this harness report a reset proves nothing about the harness.
+  const mutant = handlerSource.replace("$('gameCanvas')?.remove();", 'startMatch();');
+  assert.notEqual(mutant, handlerSource, 'the canvas line no longer reads as written — this mutant substituted nothing');
+  const { called } = runLoss(mutant);
+  assert.deepEqual(
+    called,
+    ['startMatch'],
+    'the harness cannot tell a loss that restarts the match from one that does not: the assertion ' +
+      'above would pass on both',
+  );
+});
+
+test('the loss is not contested, and no path out of it reaches the round', () => {
+  assert.doesNotMatch(
+    handlerSource,
+    /startMatch|startRound|advanceRound|round\./,
+    'the loss handler reaches the round state. Same players, same turn order, same scores, same ' +
+      'bomb: a lost backdrop changes none of them',
+  );
+  // preventDefault() is what asks the browser for a `webglcontextrestored`. The code that builds the
+  // GL programs ran once inside main.js's sealed IIFE, in a file scripts/extract-mockup.mjs owns, so
+  // nothing on this side could act on that event — asking for it would leave the route waiting on a
+  // recovery that never arrives. The route listens for no restore either, which is the same answer.
+  assert.doesNotMatch(handlerSource, /preventDefault/, 'the handler asks for a context restore it has no way to act on');
+  // Matched on the REGISTRATION and not on the bare event name: the comment above the handler
+  // explains why no restore is asked for, and a name-shaped grep reads its own explanation as a
+  // violation.
+  assert.doesNotMatch(
+    source,
+    /addEventListener\('webglcontextrestored'/,
+    'the route listens for a restore nothing on this side can rebuild the GL programs for',
+  );
+});
 
 // ---- the sever list, derived rather than retyped ---------------------------------------------------
 
@@ -311,7 +378,7 @@ const referenced = [
 // to leave wired through a loss. A new entry here is a decision; a new entry NOWHERE fails the
 // equality below on the day a re-extraction adds a control.
 const NOT_SEVERED = new Map([
-  ['app', 'the route root — the halt panel is appended to it, so replacing it would throw the panel away'],
+  ['app', 'the route root — the board and the setup rows hang off it, so replacing it would throw the page away'],
   ['webglUnsupportedNotice', 'not a control — the engine\'s bail notice, which this path removes'],
   // Owner ruling 2026-09-10 retired the second half of this reason, which used to read "on the loss
   // path it does not exist yet": installNoWebglRound now runs at mount on BOTH lanes, so the board
@@ -336,9 +403,9 @@ test('the severed set is exactly installNoWebglRound\'s controls, minus a docume
     [...severList].sort(),
     referenced.filter((id) => !NOT_SEVERED.has(id)).sort(),
     'the sever list and the controls installNoWebglRound wires have drifted apart: a control the ' +
-      'engine still owns keeps answering taps after the context is lost, or a control the restart ' +
-      'never re-wires is severed for good. Add it to ENGINE_LEAF_CONTROLS, or to NOT_SEVERED with ' +
-      'the reason it survives a loss.',
+      'engine still owns keeps answering taps on a route it no longer draws, or a control this ' +
+      'file never re-wires is severed for good. Add it to ENGINE_LEAF_CONTROLS, or to NOT_SEVERED ' +
+      'with the reason it stays wired to the engine.',
   );
   assert.deepEqual(
     [...NOT_SEVERED.keys()].filter((id) => !referenced.includes(id)).sort(),
@@ -347,324 +414,13 @@ test('the severed set is exactly installNoWebglRound\'s controls, minus a docume
   );
 });
 
-test('after the loss every severed control is dead, and the canvas is gone', () => {
-  const { stub, $ } = runHalt(severList);
-  for (const id of severList) {
-    // Through the route's OWN lookup, because that is what the restart uses: #nextRoundBtn is also a
-    // node the halt rehomes, so the document no longer answers for it while `$` still does.
-    const now = $(id);
-    assert.ok(now, `${id} was removed rather than replaced — the restart re-wires it by id and would find nothing`);
-    now.click();
-    assert.equal(
-      now.fired,
-      0,
-      `${id} still answers a click after the context was lost: the engine's listener survived, so a ` +
-        'tap on it reaches a round that can no longer be drawn',
-    );
-  }
-  assert.ok(
-    stub.removed.includes('gameCanvas'),
-    'the canvas survives the loss: every pointer listener the engine opens a tile with sits on it, ' +
-      'so the tile input path is still live under the halt panel',
-  );
-});
+// ---- the MOUNT sever, which is now the only one ------------------------------------------------
 
-/** A loss that lands while controls are DISABLED, which is the state an open arm window puts them in.
- *  Three windows can be open when it happens — the HUD reveal at match start, a modal close, and the
- *  setup arm at page load — so a control disabled at loss time is an ordinary case, not a corner. */
-function haltWithDisabled(disabledIds, shownCount, code = haltSource) {
-  const stub = makeStub([...SEEDED, ...severList, ...engineWrites, 'playerCountVal', 'boardDimensionDesc']);
-  stub.byId.get('playerCountVal').textContent = String(shownCount);
-  for (const id of disabledIds) stub.byId.get(id).disabled = true;
-  // POSITIVE CONTROL: a control that was already enabled going in was never at risk, so both
-  // assertions below would read a node the severing could not have harmed.
-  for (const id of disabledIds) {
-    assert.equal(stub.byId.get(id).disabled, true, `${id} was not disabled before the loss — this leg proves nothing`);
-  }
-  const { runtime } = makeRuntime(stub, code);
-  runtime.haltOnContextLoss();
-  return { stub, $: runtime.$ };
-}
-
-test('a control severed inside an arm window comes back live, not stranded', () => {
-  // The stepper is excluded because its disabled state is OWNED (the next test), not gate residue.
-  const gated = severList.filter((id) => id !== 'playerMinus' && id !== 'playerPlus');
-  assert.ok(gated.length > 0, 'no gated control left to check — this test would pass vacuously');
-  const { $ } = haltWithDisabled(gated, 5);
-  for (const id of gated) {
-    assert.equal(
-      $(id).disabled,
-      false,
-      `#${id} was cloned while an arm window had it disabled and stayed that way: the gate's own ` +
-        're-enable lands on the detached original, and _arm-gate reads an already-disabled control it ' +
-        'does not own as caller intent — so the clone is handed back disabled on every later arm and ' +
-        'nothing in the session recovers it. The halt panel would open over a dead home button.',
-    );
-  }
-});
-
-test('the stepper parked at its bound is still parked after the halt', () => {
-  // #playerMinus is disabled here because the roster cannot go below MIN_PLAYERS — the route's own
-  // state, which has to survive. #playerPlus is disabled only as arm-gate residue at the same moment,
-  // and must not. Blanket-enabling every clone gets the second one right and the first one wrong.
-  const { $ } = haltWithDisabled(['playerMinus', 'playerPlus'], MIN_PLAYERS);
-  assert.equal(
-    $('playerMinus').disabled,
-    true,
-    'the halt handed back a live #playerMinus at MIN_PLAYERS: the whole halt window now offers a ' +
-      'stepper that can be pushed below the smallest roster the board has a grid for, and the bound ' +
-      'is not re-applied until the restart.',
-  );
-  assert.equal(
-    $('playerPlus').disabled,
-    false,
-    `#playerPlus is nowhere near MAX_PLAYERS (${MAX_PLAYERS}) and was disabled only by an open arm ` +
-      'window, so the halt stranded it exactly as it strands any other gated control',
-  );
-});
-
-test('MUST-RED: the bound assertion above goes green on a build that only enables the clones', () => {
-  // On the UNFIXED source #playerMinus arrived disabled because cloneNode copied the attribute, so
-  // that assertion passed for the wrong reason and had never fired. The mutant below is the fix that
-  // was proposed instead of this one — enable every clone, drop the re-assert — and it is derived from
-  // the real source by one substitution rather than written here.
-  const noReassert = haltSource.replace('setPlayerCount(currentCount());', 'void 0;');
-  assert.notEqual(noReassert, haltSource, 'the re-assert line no longer reads as written — this mutant substituted nothing');
-  const { $ } = haltWithDisabled(['playerMinus', 'playerPlus'], MIN_PLAYERS, noReassert);
-  assert.equal(
-    $('playerMinus').disabled,
-    false,
-    'the bound assertion cannot tell a build that re-asserts the stepper from one that just enables ' +
-      'every clone — it would pass on both, which is what it did before the re-assert existed',
-  );
-});
-
-test('the containers survive: watchEngineReveals keeps observing the nodes it attached to', () => {
-  const { $, containersBefore } = runHalt(severList);
-  for (const id of ENGINE_CONTAINERS) {
-    assert.equal(
-      $(id),
-      containersBefore.get(id),
-      `#${id} was replaced by a clone: watchEngineReveals' MutationObserver is attached to the ` +
-        'ORIGINAL node, so it goes on watching a node no longer in the document and finishRound ' +
-        'stops arming the result card. Nothing throws — it just silently stops gating.',
-    );
-  }
-});
-
-test('the panel goes in last, is armed, and its one button restarts the match', () => {
-  const { stub, armed, called } = runHalt(severList);
-  assert.deepEqual(armed, ['ob-halt'], 'the halt panel was not armed at insertion, or something else was');
-  assert.ok(stub.byId.get('ob-halt-restart'), 'the panel carries no restart button');
-  assert.deepEqual(called, [], 'the restart ran without anybody pressing the button — ADR-0008 forbids a silent discard');
-
-  stub.byId.get('ob-halt-restart').click();
-  assert.deepEqual(
-    called,
-    ['installNoWebglRound', 'startMatch'],
-    'the restart must rebuild the no-3D board BEFORE starting the match: startMatch un-hides ' +
-      '#ob-board-wrap, which does not exist until installNoWebglRound has run',
-  );
-  assert.ok(stub.removed.includes('ob-halt'), 'the panel stays up over the round it just started');
-});
-
-test('MUST-RED: the two assertions above go green on a build that severs nothing', () => {
-  // A green neither of these ever saw go red proves nothing about the harness. Both mutants are
-  // derived from the REAL source by one substitution each, so neither is a stand-in this file wrote.
-
-  // MUTANT ONE — the clone-replace becomes a no-op. Every engine listener survives the loss, which is
-  // exactly the zombie this whole file exists to stop.
-  const noSever = haltSource.replace('control.replaceWith(clone)', 'void clone');
-  assert.notEqual(noSever, haltSource, 'the clone-replace line no longer reads as written — this mutant substituted nothing');
-  const dead = runHalt(severList, noSever);
-  const survivors = severList.filter((id) => {
-    const node = dead.$(id);
-    node.click();
-    return node.fired > 1;
-  });
-  assert.deepEqual(survivors.sort(), [...severList].sort(), 'the sever assertion cannot tell a severing build from a non-severing one');
-
-  // MUTANT TWO — a container is put in the sever list. Nothing throws and no click misbehaves; the
-  // only observable is the node identity watchEngineReveals' observer is holding.
-  const clobbered = haltSource.replace("'homeBtn',", "'homeBtn', 'resultCard',");
-  assert.notEqual(clobbered, haltSource, 'the sever list no longer reads as written — this mutant substituted nothing');
-  const swapped = runHalt([...severList, 'resultCard'], clobbered);
-  assert.notEqual(
-    swapped.$('resultCard'),
-    swapped.containersBefore.get('resultCard'),
-    'the container assertion cannot see a container being clone-replaced',
-  );
-});
-
-test('the loss is not contested: no preventDefault, and one <button> with no <a href>', () => {
-  // preventDefault() is what asks the browser for a `webglcontextrestored`. The code that builds the
-  // GL programs ran once inside main.js's sealed IIFE, in a file scripts/extract-mockup.mjs owns, so
-  // nothing on this side could act on that event — asking for it would leave the route waiting on a
-  // recovery that never arrives.
-  assert.doesNotMatch(
-    haltSource,
-    /preventDefault/,
-    'the halt handler asks for a context restore it has no way to act on',
-  );
-  assert.doesNotMatch(HALT_HTML, /<a\b/, 'an anchor inside the play surface — a double-tap on the halt panel would leave the round');
-  assert.equal((HALT_HTML.match(/<button\b/g) ?? []).length, 1, 'the halt panel is one labelled button, per ADR-0008');
-});
-
-// ---- the HUD, which the severing above cannot reach --------------------------------------------
-
-test('after the loss no id the zombie writes still answers document.getElementById', () => {
-  const { stub, $, hudBefore } = runHalt(severList);
-  for (const id of engineWrites) {
-    assert.equal(
-      stub.document.getElementById(id),
-      null,
-      `#${id} still answers document.getElementById after the loss. That call is how the engine gets ` +
-        'every node it writes — updateUI, renderPlayerStrip and finishDetonation resolve their ' +
-        'targets at write time, not from a captured reference — so the dying round can still repaint ' +
-        'the live HUD over the round that replaced it.',
-    );
-    assert.ok(
-      $(id),
-      `the repo side lost #${id}: it is unreachable through the route's own lookup, so the fresh ` +
-        'round after the restart paints nothing there',
-    );
-    if (!severList.includes(id)) {
-      assert.equal(
-        $(id),
-        hudBefore.get(id),
-        `#${id} is a DIFFERENT node than the one that was there before the loss: announceTurns and ` +
-          'watchEngineReveals hold the original, so they would be observing a node nobody writes to',
-      );
-    }
-  }
-});
-
-test('the zombie cannot speak over the halt it caused', () => {
-  const stub = makeStub([...SEEDED, ...severList, ...engineWrites]);
-  const { runtime, called } = makeRuntime(stub);
-  runtime.announceTurns();
-  const live = stub.byId.get('ob-live');
-  const who = stub.byId.get('turnPlayerName');
-
-  // POSITIVE CONTROL: the same engine function, before the loss, really does reach the live region.
-  // Without this leg a silent post-loss run is indistinguishable from a harness that announces
-  // nothing at all.
-  makeEngineUpdateUI(stub.document, 1)();
-  const saidBeforeLoss = live.textContent;
-  assert.notEqual(saidBeforeLoss, '', 'the engine write never reached the live region: this harness cannot announce, so the silence below would be free');
-
-  runtime.haltOnContextLoss();
-  const bannerAtLoss = who.textContent;
-  // The zombie's next tick. A null dereference ends its rAF loop (the reschedule sits after
-  // update()); a defensive re-extraction would write to no node at all. The invariant holds either
-  // way, so the throw is caught rather than depended on.
-  try {
-    makeEngineUpdateUI(stub.document, 5)();
-  } catch {
-    /* see above */
-  }
-  // The live region FIRST: the banner write and the announcement fail together on an unprotected
-  // build, and whichever assertion runs first is the only one anybody reads. The assistive path is
-  // the one with no visual tell, so it is the one that gets to report.
-  assert.equal(
-    live.textContent,
-    saidBeforeLoss,
-    'the dying engine was announced: a screen-reader user is told it is a stale player\'s turn, on a ' +
-      'round the halt panel says is over',
-  );
-  assert.equal(who.textContent, bannerAtLoss, 'the dying engine repainted the banner over the halted round');
-
-});
-
-// ACROSS THE RESTART, which is where the residual actually bites: the panel is gone by then, so
-// nothing is covering the HUD and nothing is muting the live region. Its own test, not a tail on the
-// one above: a failure there would abort before these assertions ever ran, and a leg that cannot
-// report is a leg nobody calibrated.
-test('after the restart the zombie still cannot reach the round that replaced it', () => {
-  const stub = makeStub([...SEEDED, ...severList, ...engineWrites]);
-  const { runtime, called } = makeRuntime(stub);
-  runtime.announceTurns();
-  const live = stub.byId.get('ob-live');
-  const who = stub.byId.get('turnPlayerName');
-  runtime.haltOnContextLoss();
-  stub.byId.get('ob-halt-restart').click();
-  assert.deepEqual(called, ['installNoWebglRound', 'startMatch'], 'the restart did not run');
-  runtime.$('turnPlayerName').textContent = 'ผู้เล่น 3 (ยักษ์)';
-  assert.match(
-    live.textContent,
-    /ผู้เล่น 3/,
-    'the fresh round is not announced: the protection outlived the observer it was supposed to keep',
-  );
-  const saidAfterRestart = live.textContent;
-  try {
-    makeEngineUpdateUI(stub.document, 7)();
-  } catch {
-    /* the same two outcomes */
-  }
-  assert.equal(live.textContent, saidAfterRestart, 'the zombie reaches the live region of the round that replaced it');
-  assert.match(who.textContent, /ผู้เล่น 3/, 'the zombie repainted the banner of the round that replaced it');
-});
-
-test('the rehomed set is exactly what the engine can still write, derived from main.js', () => {
-  const declared = source
-    .match(/const ENGINE_HUD_WRITES = \[([\s\S]*?)\];/)?.[1]
-    ?.match(/'([\w-]+)'/g)
-    ?.map((quoted) => quoted.slice(1, -1));
-  assert.ok(declared?.length, 'ENGINE_HUD_WRITES no longer parses out of main.ts');
-  assert.deepEqual(
-    [...declared].sort(),
-    [...engineWrites].sort(),
-    'the rehomed set and the ids the engine can still write have drifted apart: a re-extraction that ' +
-      'adds a getElementById to updateUI, renderPlayerStrip or finishDetonation gives the zombie a ' +
-      'node the halt never took away from it.',
-  );
-
-  // The rehoming only holds while this file asks through `$`. One raw document lookup for a rehomed
-  // id reads the DOCUMENT, which after a loss no longer answers for it — a silently dead write.
-  // POSITIVE CONTROL on the same pattern, against a lookup main.ts really does make: without it a
-  // pattern that matches nothing would report no bypass forever.
-  assert.ok(
-    source.includes("document.getElementById('app')"),
-    'the bypass pattern matches nothing in main.ts — it could not see a bypass either',
-  );
-  assert.deepEqual(
-    [...engineWrites].filter((id) => source.includes(`document.getElementById('${id}')`)),
-    [],
-    'main.ts reaches a rehomed id through the document instead of `$`: after a loss that lookup finds ' +
-      'nothing and the write goes nowhere',
-  );
-});
-
-test('MUST-RED: the two assertions above go green on a build that rehomes nothing', () => {
-  const noRehome = haltSource.replace("node.removeAttribute('id')", 'void node');
-  assert.notEqual(noRehome, haltSource, 'the id strip no longer reads as written — this mutant substituted nothing');
-
-  const { stub } = runHalt(severList, noRehome);
-  const reachable = [...engineWrites].filter((id) => stub.document.getElementById(id) !== null);
-  assert.deepEqual(
-    reachable.sort(),
-    [...engineWrites].sort(),
-    'the reachability assertion cannot tell a build that strips the ids from one that leaves them',
-  );
-
-  const loud = makeStub([...SEEDED, ...severList, ...engineWrites]);
-  const { runtime } = makeRuntime(loud, noRehome);
-  runtime.announceTurns();
-  const live = loud.byId.get('ob-live');
-  makeEngineUpdateUI(loud.document, 1)();
-  const saidBeforeLoss = live.textContent;
-  runtime.haltOnContextLoss();
-  makeEngineUpdateUI(loud.document, 5)();
-  assert.notEqual(live.textContent, saidBeforeLoss, 'the announcement assertion cannot hear the zombie speaking');
-});
-
-// ---- the MOUNT sever, which the halt above only mirrors ----------------------------------------
-
-/** severEngineLeafControls runs on EVERY lane at mount, not only after a loss, and it makes the same
- *  `disabled` decision the halt's loop makes — clear it on the clone, because a deep clone carries a
- *  reflected attribute across and an arm window open at that moment would otherwise re-enable the
- *  detached original. The halt's copy of that decision is pinned above; the mount's copy had no pin
- *  at all, which left the more frequently executed of the two untested. */
+/** severEngineLeafControls runs on EVERY lane at mount, and the `disabled` decision inside it is the
+ *  load-bearing one: clear it on the clone, because a deep clone carries a reflected attribute
+ *  across and an arm window open at that moment would otherwise re-enable the detached original.
+ *  With the loss halt retired this is the only copy of that decision left, and it is the more
+ *  frequently executed one — it had no pin at all until gh#215. */
 const severFnSliced = sliceBlock(source, 'function severEngineLeafControls(): void');
 assert.ok(severFnSliced, 'main.ts no longer declares severEngineLeafControls — the mount pin below is measuring nothing');
 const severFnSource = strip(
@@ -689,8 +445,8 @@ function runMountSever(disabledIds, code = severFnSource) {
       node.fired += 1;
     });
   }
-  // POSITIVE CONTROL, same reason as the halt's: without a leg where the click did something, "the
-  // click did nothing" is unreadable.
+  // POSITIVE CONTROL: without a leg where the same click did something, "the click did nothing" is
+  // unreadable.
   for (const id of severList) stub.byId.get(id).click();
   assert.deepEqual(
     severList.map((id) => stub.byId.get(id).fired),

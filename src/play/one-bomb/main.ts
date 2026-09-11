@@ -63,28 +63,7 @@ const SETUP_HTML = `
 // menu is visibility:hidden during play and a live region inside it would be announced to nobody.
 const LIVE_HTML = '<p class="ob-live" id="ob-live" role="status" aria-live="polite"></p>';
 
-// gh#215: the panel that goes up when the 3D context is lost mid-round. role="alert" because it
-// arrives with no tap of the player's own behind it — the browser took the context away and the
-// board simply stopped being drawn.
-//
-// ADR-0008 is why the copy names the cost: a round is discarded here, and discarding one is
-// acceptable only behind a labelled button the player pressed on purpose AND knowing what it costs.
-// One button element and no anchor of any kind: this file is inside the play surface (ADR-0014).
-const HALT_HTML = `
-<div class="ob-halt" id="ob-halt" role="alert">
-  <div class="ob-halt-card glassPanel">
-    <p class="ob-halt-title">ภาพ 3 มิติหยุดทำงานกลางรอบ</p>
-    <p class="ob-halt-body">เครื่องหยุดวาดกระดานให้เกมกลางคัน รอบที่ค้างอยู่ไปต่อไม่ได้แล้ว ถ้ากดปุ่มข้างล่าง เกมจะเริ่มใหม่ตั้งแต่รอบที่ 1 และคะแนนของทุกคนจะถูกล้างเป็น 0 จำนวนผู้เล่นยังเท่าเดิม</p>
-    <button class="btnBase primaryBtn ob-halt-btn" id="ob-halt-restart" type="button">เริ่มรอบใหม่ (คะแนนเริ่มนับใหม่)</button>
-  </div>
-</div>`;
-
-/** Nodes this file has taken the `id` attribute off, kept under the id it used to answer to. Empty
- *  until a lost 3D context fills it; see haltOnContextLoss for why an id is a severable thing. */
-const rehomed = new Map<string, HTMLElement>();
-
-const $ = <T extends HTMLElement>(id: string): T | null =>
-  (rehomed.get(id) ?? document.getElementById(id)) as T | null;
+const $ = <T extends HTMLElement>(id: string): T | null => document.getElementById(id) as T | null;
 
 // ---- persistence -------------------------------------------------------------------------------
 
@@ -621,16 +600,12 @@ function backToMenu(): void {
 }
 
 /** The engine's leaf controls: every id main.js binds a listener to that is not a container. At
- *  MODULE scope so both callers below read one list, and so the drift pin in
- *  webgl-context-loss.test.mjs — which parses this declaration out of the file — measures the list
- *  the common path actually uses.
+ *  MODULE scope so the drift pin in webgl-context-loss.test.mjs — which parses this declaration out
+ *  of the file — measures the list the mount path actually uses.
  *
- *  DUPLICATED, ONCE, INSIDE haltOnContextLoss, and that is a constraint rather than a choice. That
- *  test executes the halt function's own bytes through `new Function` over a stub, with a fixed
- *  parameter list; an identifier declared out here is not in that scope, so hoisting the halt's copy
- *  would turn every behavioural leg of that file into a ReferenceError. The two copies are held
- *  together by execution, not by eye: the same test drives the halt with THIS list and asserts every
- *  id in it is dead afterwards, so the halt's copy cannot be a subset of this one. */
+ *  ONE COPY, since the loss halt that carried the second one was retired (owner ruling 2026-09-11).
+ *  The list is read by severEngineLeafControls at mount and pinned against installNoWebglRound's
+ *  own wiring by that test, so a control a re-extraction adds still has to land in both places. */
 const ENGINE_LEAF_CONTROLS = [
   'homeBtn',
   'newRoundBtn',
@@ -693,13 +668,11 @@ function installNoWebglRound(): void {
   // is replaced from this side rather than edited there.
   $('webglUnsupportedNotice')?.remove();
 
-  // ONCE, and the guard is load-bearing rather than defensive. This function is called twice in one
-  // session now: at mount, and again by the halt panel's restart. Every other wiring below is either
-  // idempotent or re-binds a control the halt just replaced, but the board is neither — a second
-  // insert put a SECOND wrapper in the box, both at inset 0 and the same z-index, with the stale one
-  // painting on top of the live one. Measured on the build that shipped without this guard: after
-  // one loss and one restart the page held 2 wrappers and 50 stones, the player saw the dead board,
-  // and taps mutated the invisible one.
+  // ONCE, and the guard is kept even though the second caller — the retired halt panel's restart —
+  // is gone. A second insert put a SECOND wrapper in the box, both at inset 0 and the same z-index,
+  // with the stale one painting on top of the live one: measured on the build that shipped without
+  // this guard, where after one loss and one restart the page held 2 wrappers and 50 stones, the
+  // player saw the dead board, and taps mutated the invisible one. One line against that.
   //
   // NO REPLACEMENT NOTICE, and that is a measured decision rather than an omission. A line in the
   // menu card explaining the missing 3D cost 58px of a 568px screen and was itself clipped off the
@@ -769,155 +742,35 @@ function installNoWebglRound(): void {
   setPlayerCount(currentCount());
 }
 
-/** gh#215. A WebGL context lost mid-round used to leave a blank canvas under a live HUD: the engine
- *  keeps running, so the banner still names whose turn it is on a board nobody can see.
+/** gh#215's halt, retired by the owner ruling of 2026-09-11. What is left is the smallest honest
+ *  answer to a lost context: drop the canvas that stopped drawing, and let the round carry on.
  *
- *  HALT, not resume, and not a silent restart. Resume is impossible — the engine's round state lives
- *  in a `game` object inside main.js's top-level IIFE with no export, no window assignment and no
- *  CustomEvent; the only projections that reach the DOM are the current player, the round number and
- *  a remaining-tile COUNT, so the revealed set and the bomb index cannot be recovered from this side.
- *  A silent restart is barred by ADR-0008. And preventDefault() is deliberately NOT called: the code
- *  that builds the GL programs ran once inside that sealed IIFE, so a `webglcontextrestored` this
- *  file cannot act on is worse than none.
+ *  WHY NOTHING ELSE IS OWED. The halt severed the engine's leaf controls, re-asserted the stepper
+ *  bound and took the ids off every HUD node the engine can still write, then put a panel up whose
+ *  one button called startMatch. Since gh#150 option A the DOM tile grid is the play surface on
+ *  BOTH lanes: severEngineLeafControls and installNoWebglRound run at mount, unconditionally, and
+ *  the engine is parked in its menu state with its canvas input severed in overrides.css. Losing a
+ *  context changes none of that — GL calls against a lost context do not throw and main.js has no
+ *  listener of its own for the event — so the severing was a second copy of what mount already did,
+ *  and the rehoming defended against writes that sit behind a round state the engine can no longer
+ *  enter. The panel's only way forward zeroed every score and sent the party back to round 1 to
+ *  recover a backdrop nobody was playing on. That cost is what the ruling retired.
  *
- *  THE ENGINE IS A ZOMBIE, NOT A CORPSE, and that is what shapes the order below. Its state machine
- *  runs off requestAnimationFrame and advances on accumulated time (a resolving state settles after
- *  ~0.42s, a detonating one finishes after ~1.3s), and GL calls against a lost context do not throw.
- *  So it keeps opening tiles and can still push its result card up UNDERNEATH this panel. Input is
- *  therefore severed at LOSS time, not when the restart button is pressed.
+ *  NO NOTICE, DELIBERATELY, and on two grounds already recorded in this file. installNoWebglRound
+ *  carries the measurement: a line explaining the missing 3D cost 58px of a 568px screen and was
+ *  clipped off the bottom of the card it lived in, so the one screen it was written for could not
+ *  read it. And a notice is a REVEAL — ADR-0057 and ADR-0059 would make it an armed region with a
+ *  close path to gate, which is a new surface added to a page that is still fully playable. The
+ *  board that goes on playing is the explanation; the backdrop simply stops being drawn.
  *
- *  STRICTER THAN THE ROUND NEEDS, RECORDED RATHER THAN NARROWED. Since the owner ruling of
- *  2026-09-10 the DOM grid is the play surface on both lanes and the engine is parked in its MENU
- *  state with its input severed at mount, so a lost context now takes down a 3D BACKDROP and not the
- *  round: the grid is DOM buttons and the HUD is painted from this file. Every premise above still
- *  reads true, but none of it is reachable — the zombie the rehoming defends against cannot leave
- *  MENU, and every HUD write in its tick sits behind a round state it can no longer enter, so
- *  nothing it still runs carries round state to the DOM. The leaf controls were cloned once at
- *  mount besides.
- *
- *  So the honest narrowing is not a smaller halt, it is NO halt (at most removing the dead canvas),
- *  which retires this function, HALT_HTML, the `rehomed` map and the lookup branch that reads it —
- *  a deletion of gh#215's mechanism, and one that needs a ruling rather than a follow-up. What that
- *  ruling should weigh, measured here rather than assumed: the panel's restart calls startMatch,
- *  which zeroes the scores and sends the round back to 1, so today a backgrounded tab that drops its
- *  context costs a party its whole game to recover a backdrop it was not playing on. That cost is
- *  the argument for retiring the halt; the argument against is that the halt is the only thing that
- *  makes the route survivable again if the 3D board is ever brought back (option B). */
-function haltOnContextLoss(): void {
-  // The canvas first: the engine's own no-3D bail path removes it too, and every pointer listener it
-  // uses to open a tile sits on that element, so removing it is what cuts the tile input path.
+ *  NO preventDefault(), unchanged: it is what asks the browser for a `webglcontextrestored`, and the
+ *  code that builds the GL programs ran once inside main.js's sealed IIFE. Nothing here could act on
+ *  that event, so the route neither asks for it nor listens for it. */
+function onContextLost(): void {
+  // The canvas is removed rather than left blank so the two lanes end in the same shape (ADR-0051):
+  // on the no-3D lane the engine removes it itself, and a canvas that no longer draws is a node
+  // still announcing itself as the 3D game stage.
   $('gameCanvas')?.remove();
-
-  // LEAF CONTROLS ONLY. Clone-replacing a node drops every listener on it, which is the point — but a
-  // CONTAINER cannot be replaced here: watchEngineReveals holds a MutationObserver on #hud,
-  // #menuOverlay, #resultCard and the two modals, and finishRound depends on that observer to arm the
-  // result card. Swapping one of those nodes would silently kill it.
-  //
-  // The list is the same set installNoWebglRound re-wires, which is what makes the restart below a
-  // full re-wiring rather than a half one; webgl-context-loss.test.mjs pins the two against each
-  // other so a re-extraction cannot make them drift.
-  //
-  // The three toggles and the audio button are in the set even though their handlers are idempotent
-  // class writes, and the reason is the RESTART, not the halt: main.js binds them with a bare
-  // `classList.toggle('on')`, so leaving them wired would have installNoWebglRound add a second bare
-  // toggle and every tap would flip twice — a switch that looks broken, and applyReducedMotion's
-  // click on #motionToggle would stop sticking. The modal openers and closers are left alone: those
-  // write `add('open')` / `remove('open')`, which really is idempotent when wired twice.
-  const ENGINE_LEAF_CONTROLS = [
-    'homeBtn',
-    'newRoundBtn',
-    'nextRoundBtn',
-    'menuResultBtn',
-    'startPlayBtn',
-    'playerMinus',
-    'playerPlus',
-    'soundToggle',
-    'motionToggle',
-    'particleToggle',
-    'audioToggleBtn',
-  ];
-  //
-  // A DEEP CLONE CARRIES `disabled` ACROSS, and that attribute is the one piece of the old node that
-  // must not survive. A loss can land while an arm window has these controls inert — the HUD reveal
-  // at match start, a modal close, the setup arm at page load — and the gate's own re-enable then
-  // fires at the detached original. _arm-gate.ts reads an already-disabled control it does not own as
-  // the caller's intent, so from the next arm onwards the clone is handed back disabled and nothing
-  // in the session gives it back. The halt panel would open above a dead restart route.
-  for (const id of ENGINE_LEAF_CONTROLS) {
-    const control = $<HTMLButtonElement>(id);
-    if (!control) continue;
-    const clone = control.cloneNode(true) as HTMLButtonElement;
-    clone.disabled = false;
-    control.replaceWith(clone);
-  }
-  // The one exception to that blanket enable, re-asserted rather than hand-listed: the stepper's
-  // bounds are this file's own state, not gate residue, and a clone born live at MIN_PLAYERS offers a
-  // roster the board has no grid for. installNoWebglRound re-applies them, but only when the player
-  // presses restart, which leaves the whole halt window wrong. Read back off the display, so no
-  // second copy of the count is introduced here.
-  setPlayerCount(currentCount());
-
-  // THE HUD IS NOT SEVERABLE THE WAY THOSE CONTROLS ARE, and the reason is where the engine's node
-  // references come from. Its listeners live ON the controls, so a clone drops them — but updateUI,
-  // renderPlayerStrip and finishDetonation hold no references at all: each one calls
-  // document.getElementById at WRITE time. Clone-replacing a HUD node would simply hand the zombie
-  // its clone on the next frame. What has to be severed is the ID.
-  //
-  // So the node is rehomed — kept under its old name in the map `$` reads first — and then loses the
-  // attribute. This file goes on finding it; the engine, which can only ask the document, finds
-  // nothing. Node identity is preserved, which is what lets the announcement be stopped at the SOURCE
-  // of the write instead of by disconnecting announceTurns' observer: that observer is attached to
-  // these exact nodes and the round started by the button below needs it back, still attached.
-  //
-  // Nothing here depends on what the engine does with the nothing it finds. A null dereference ends
-  // its rAF loop (the reschedule sits after update(), so the frame that throws is the last one), and a
-  // re-extraction that reads defensively would write to no node at all. The HUD is untouched either
-  // way, which is the point: the guarantee does not rest on a throw.
-  //
-  // AFTER the severing loop, deliberately: #nextRoundBtn is in both lists, and the node worth keeping
-  // is the clone that replaced it, not the one the engine still holds a listener on.
-  const ENGINE_HUD_WRITES = [
-    'turnBanner',
-    'turnPlayerName',
-    'turnAvatarEmoji',
-    'roundLabel',
-    'tensionLabel',
-    'tensionFill',
-    'playerStrip',
-    'resultEmoji',
-    'resultTitle',
-    'resultDesc',
-    'nextRoundBtn',
-    'resultCard',
-  ];
-  for (const id of ENGINE_HUD_WRITES) {
-    const node = $(id);
-    if (!node) continue;
-    rehomed.set(id, node);
-    node.removeAttribute('id');
-  }
-
-  const app = document.getElementById('app');
-  if (!app) return;
-  // LAST CHILD of #app, above the route's previous maximum z-index (the toast, at 30). Belt and
-  // braces since the rehoming above: the engine can no longer find the result card to reveal it, but
-  // a panel that sits under a card at 20 would be the wrong shape for a notice that must be read.
-  // Deliberately not a line inside the menu card: a notice there was measured at 58px and clipped off
-  // the bottom of a 568px screen.
-  app.insertAdjacentHTML('beforeend', HALT_HTML);
-  const panel = $('ob-halt');
-  // ADR-0057 and ADR-0059. The loss can land with a finger already down on the canvas, so this panel
-  // is a reveal under that finger and its button would otherwise take the release of a tap aimed at a
-  // stone. armAllButtons as-is: it anchors to the browser's own input timestamp.
-  if (panel) armAllButtons(panel);
-  $('ob-halt-restart')?.addEventListener('click', () => {
-    panel?.remove();
-    // The no-3D board, because there is still no 3D: this rebuilds the board and re-wires every
-    // control severed above. startMatch then resets the round number and the scores, and reads the
-    // player count back off the stepper's display, so the party carries over.
-    installNoWebglRound();
-    startMatch();
-  });
 }
 
 // ---- mount -------------------------------------------------------------------------------------
@@ -951,7 +804,7 @@ function mount(): void {
   // engine has already removed the canvas, and the listener must simply not attach there — a route
   // with no context to lose cannot lose one. `once` because there is no second loss to handle; the
   // canvas is gone by the end of the handler.
-  $('gameCanvas')?.addEventListener('webglcontextlost', haltOnContextLoss, { once: true });
+  $('gameCanvas')?.addEventListener('webglcontextlost', onContextLost, { once: true });
   // Driven through the mockup's OWN stepper rather than by writing the display: the engine keeps the
   // count inside its closure, so clicking is the only way to move both readings together. Bounded by
   // the seat range and by a no-progress guard, so a stepper that stops responding ends the loop

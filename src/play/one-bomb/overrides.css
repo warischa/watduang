@@ -40,7 +40,7 @@
    `pointer-events` and not `display: none` or a removal: the canvas keeps DRAWING. What a player on
    a GPU sees behind the grid is the engine parked in its menu state — environment, two idle mascots,
    embers — and that backdrop is the accepted cost of the ruling, not an accident. Removing the
-   element would also take away the `webglcontextlost` listener the halt path attaches to it.
+   element would also take away the `webglcontextlost` listener main.ts attaches to it.
 
    Nothing else needs a z-index change: .ob-board-wrap below is z-index 1 against this element's
    `auto`, so the grid already paints and hit-tests above it. */
@@ -273,49 +273,4 @@
    the bar; the 2% zoom only shrank the tap targets under it. */
 .hud.hidden {
   transform: none;
-}
-
-/* gh#215's WebGL-loss halt panel. z-index 40 clears the route's previous maximum of 30 (the toast),
-   and it has to: the engine keeps running on a lost context and can still push its result card up at
-   20, underneath a notice that has to stay readable. Full-bleed and opaque rather than a card in the
-   menu — the blank canvas behind it is exactly what must not show through. */
-.ob-halt {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: rgba(5, 12, 20, 0.94);
-}
-
-.ob-halt-card {
-  width: min(420px, 88vw);
-  padding: 26px 22px;
-  text-align: center;
-}
-
-.ob-halt-title {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-/* Selectable: this is the one screen a player may want to quote when reporting the fault, and the
-   route's reset sets `user-select: none` on everything. */
-.ob-halt-body {
-  font-size: 14px;
-  line-height: 1.6;
-  margin-bottom: 18px;
-  user-select: text;
-  -webkit-user-select: text;
-}
-
-/* Full width and the shared 44px floor, same as the menu's own primary button. */
-.ob-halt-btn {
-  width: 100%;
-  min-height: 44px;
-  padding: 12px 18px;
-  border-radius: 14px;
-  font-size: 15px;
 }

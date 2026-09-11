@@ -42,6 +42,19 @@ function readCode(name) {
 const engine = readCode('main.js');
 const main = readCode('main.ts');
 
+/** EVERY WAY THIS ROUTE MAKES SOMETHING APPEAR, read off its own source rather than off a general
+ *  list of DOM idioms — the two checks below share it so neither can be widened without the other.
+ *  What main.ts actually uses: `classList.add('show')` (the toast and the result card),
+ *  `classList.add('open')` (the two modals), `classList.remove('hidden')` (the HUD and the menu),
+ *  `classList.remove('ob-away')` (the board wrapper) and `showModal()` (the reset confirm).
+ *  `hidden = false` is carried because the sibling routes use it and a re-write here might.
+ *
+ *  Their opposites are deliberately absent: `add('hidden')`, `add('ob-away')` and `remove('show')`
+ *  are HIDES, and `add('active' | 'loser' | 'is-bomb' | 'is-open')` and `toggle('on')` restyle a
+ *  control that was already on screen. A hide puts nothing under a finger. */
+const REVEAL_IDIOM =
+  "hidden\\s*=\\s*false\\b|showModal\\(\\)|classList\\.add\\('(?:show|open)'\\)|classList\\.remove\\('(?:hidden|ob-away)'\\)";
+
 // A reveal in the lifted engine is one of two class writes, and which one depends on how the screen
 // spells "away": #hud and #menuOverlay carry `hidden` while they are gone, so REMOVING it reveals
 // them; #resultCard and the two modals carry `show`/`open` while they are present, so ADDING it
@@ -162,25 +175,26 @@ test('ADR-0057: the backdrop close is gated at the PRESS, and the board behind i
   );
 });
 
-test('gh#215: the WebGL-loss halt panel is armed at the moment it is inserted', () => {
-  // The SECOND reveal main.ts owns, and the last test in this file cannot see it: that one pins
-  // receivers of `.hidden = false` / `.showModal()`, and this panel arrives through
-  // insertAdjacentHTML, which matches neither. Left to that test alone the panel would ship with no
-  // arming call and the file would stay green.
+test('gh#215: the WebGL-loss path reveals nothing, which is the only reason it needs no arming', () => {
+  // The halt panel this used to pin was retired on 2026-09-11: a lost context now costs the 3D
+  // backdrop and the DOM round plays on. So the assertion inverts rather than disappears. The loss
+  // can land with a finger already down on the canvas, and anything the handler put under that
+  // finger would take the release of a tap aimed at a stone — a reveal, which ADR-0057 and ADR-0059
+  // make an armed region with every close path gated. While it reveals nothing there is nothing to
+  // arm, and the day it reveals again this test says so instead of shipping the hole.
   //
-  // Why it needs arming at all (ADR-0057, ADR-0059): the context can be lost with a finger already
-  // down on the canvas, so the panel is a reveal under that finger and its one button would take the
-  // release of a tap aimed at a stone. armAllButtons reads the browser's own input timestamp; a
-  // hand-rolled setTimeout would anchor to handler time and is not the same window.
-  const from = main.indexOf('function haltOnContextLoss');
-  assert.notEqual(from, -1, 'main.ts no longer declares haltOnContextLoss — this test is measuring nothing');
+  // Read off the REGISTRATION, so a renamed handler is still the one measured.
+  const registered = main.match(/addEventListener\('webglcontextlost',\s*([A-Za-z_$][\w$]*)/);
+  assert.ok(registered, 'main.ts no longer registers a webglcontextlost handler — this test is measuring nothing');
+  const from = main.indexOf(`function ${registered[1]}`);
+  assert.notEqual(from, -1, `main.ts registers ${registered[1]} for the loss but declares no such function`);
   const next = main.indexOf('\nfunction ', from + 1);
   const body = main.slice(from, next === -1 ? main.length : next);
-  assert.match(
+  assert.doesNotMatch(
     body,
-    /insertAdjacentHTML\('beforeend'[\s\S]{0,300}armAllButtons\(/,
-    'the halt panel is inserted without arming it: the loss can land mid-tap on the canvas, and the ' +
-      "release of that tap then falls on the panel's restart button",
+    new RegExp(`insertAdjacentHTML|${REVEAL_IDIOM}`),
+    'the loss path reveals something again. It is a reveal under a finger that may already be down ' +
+      'on the canvas: arm the region it puts up, and give its close path a case in this file',
   );
 });
 
@@ -217,13 +231,34 @@ test("the route's own reveals — the reset confirm — are armed at their call 
 
 test('every reveal receiver in one-bomb/main.ts is a known one', () => {
   // The same shape the other eleven routes use, kept so a reveal written into main.ts in some OTHER
-  // form than the observer — a `hidden = false`, a second showModal — cannot land unnoticed.
-  const REVEAL_RE = /([\w.?'"()\-]+?)\.(?:hidden\s*=\s*false\b|showModal\(\))/g;
+  // form than the observer — a `hidden = false`, a second showModal — cannot land unnoticed. Widened
+  // to the class-write idioms this route reveals with: those were the hole, because main.ts makes a
+  // screen appear that way far more often than it sets a property.
+  const REVEAL_RE = new RegExp(`([\\w.?'"()$\\-]+?)\\.(?:${REVEAL_IDIOM})`, 'g');
   const EXPECTED = new Map([
     [
       'dialog?',
       'the reset-names confirm, opened by its own trigger with no engine screen change to hang the ' +
         'arming on. Armed on the next line via armAllButtons(dialog).',
+    ],
+    // The five screens the observer owns. main.ts writes the same class the engine writes, so its
+    // own reveal raises the same rising edge and is armed by watchEngineReveals — the set equality
+    // at the top of this file is what keeps that true.
+    ["$('hud')?", 'a REVEAL_CONTAINERS screen: remove(hidden) raises the observer that arms it'],
+    ["$('menuOverlay')?", 'a REVEAL_CONTAINERS screen: remove(hidden) raises the observer that arms it'],
+    ["$('resultCard')?", 'a REVEAL_CONTAINERS screen: add(show) raises the observer that arms it'],
+    ["$('howModal')?", 'a REVEAL_CONTAINERS modal: add(open) raises the observer that arms it'],
+    ["$('settingsModal')?", 'a REVEAL_CONTAINERS modal: add(open) raises the observer that arms it'],
+    [
+      "$('ob-board-wrap')?",
+      'the board wrapper, un-hidden by startMatch. Not observer-armed and it does not need to be: ' +
+        'the stones inside it are rebuilt by renderBoard on the same call and armed there, which is ' +
+        'the arm the gh#170 close-path case already pins.',
+    ],
+    [
+      'toast',
+      'NOT a screen, and the same exemption NOT_A_SCREEN records for the engine\'s copy: it carries ' +
+        'no control, is never tapped, and takes itself away on a 900ms timer.',
     ],
   ]);
   const found = [...new Set([...main.matchAll(REVEAL_RE)].map((m) => m[1]))];
