@@ -77,3 +77,246 @@
 
 
 
+
+/* gh#97 — the four screens: "ตั้งจิต", "เขย่า", "ไม้ติ้วตก", "ใบเซียมซี". Every value below is read from
+   design/SiamsiIntent.dc.html, design/SiamsiShake.dc.html, design/SiamsiStick.dc.html and
+   design/SiamsiSlip.dc.html (ADR-0033). The canvas paints its panels on #fffdf7 and its rules in
+   #1a1a1a; those are the shell's warm-ground and strong-line tokens, so the tokens are what is
+   written here — a raw hex would be a second source for a colour this site already defines. */
+
+.sm-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.sm-subtitle {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* The asked-about group on "ตั้งจิต". One chip is on; it is read back as the first row of the slip. */
+.sm-intent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.sm-intent-label {
+  font-size: 13px;
+}
+
+.sm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.sm-chip {
+  font-family: inherit;
+  font-size: 14px;
+  color: inherit;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: var(--color-ground-warm);
+  cursor: pointer;
+}
+
+.sm-chip--on {
+  font-weight: 500;
+  background: var(--color-line-strong);
+  color: var(--color-ground-warm);
+}
+
+/* The landing panel on "ไม้ติ้วตก" is the barrel panel with its contents centred rather than stood on
+   the floor — the stick lies across the middle of it. */
+.sm-barrel--landed {
+  align-items: center;
+}
+
+/* The accumulated-shake meter. It exists because the release is no longer one kick: without it the
+   wait reads as a broken button. Its fill width is written from script — that write is the mechanic
+   and stays under reduced motion; the rattle and the fall below are what reduce switches off. */
+.sm-meter {
+  width: 100%;
+  height: 10px;
+  background: var(--color-ground-warm);
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sm-meter-fill {
+  width: 0;
+  height: 100%;
+  background: var(--color-line-strong);
+}
+
+/* The rattle: the sticks jitter inside the barrel while the shake accumulates. */
+.sm-sticks {
+  animation: sm-rattle 0.32s linear infinite;
+  transform-origin: 98px 110px;
+}
+
+@keyframes sm-rattle {
+  0% { transform: translateY(0) rotate(-0.8deg); }
+  50% { transform: translateY(-3px) rotate(0.8deg); }
+  100% { transform: translateY(0) rotate(-0.8deg); }
+}
+
+/* The fall: the "ติ้ว" drops into place on the landing screen. */
+.sm-fallen {
+  animation: sm-fall 0.45s ease-out 1;
+}
+
+@keyframes sm-fall {
+  0% { transform: translateY(-70px) rotate(-40deg); opacity: 0; }
+  100% { transform: translateY(0) rotate(-7deg); opacity: 1; }
+}
+
+/* ADR-0046 — reduce, not remove. A reader who asked for reduced motion still gets the meter, the
+   number and the slip; what they do not get is the rattle and the fall. The stick lands in its
+   final position immediately, which is exactly "skip the rattle and the fall and land on the
+   number". The meter's own width write is script-side and is deliberately untouched by this rule. */
+@media (prefers-reduced-motion: reduce) {
+  .sm-sticks,
+  .sm-fallen {
+    animation: none;
+  }
+}
+
+/* The "ติ้ว"'s number on the landing screen: Thai numerals large for the ritual, the Arabic number
+   under it so nobody has to decode it. */
+.sm-number {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.sm-number-thai {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 64px;
+  line-height: 1;
+}
+
+/* The slip: ONE paper panel holding everything, so a screenshot of it is the whole fortune.
+   Nothing outside this panel is part of the "คำทำนาย". */
+.sm-slip {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  padding: 20px 18px;
+  text-align: left;
+}
+
+.sm-slip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 2.5px dashed var(--color-line-strong);
+  padding-bottom: 12px;
+}
+
+.sm-slip-number {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 1;
+}
+
+/* Four grades only. The lowest reads as a warning and never as a verdict about someone's life. */
+.sm-grade {
+  font-size: 14px;
+  font-weight: 700;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  padding: 4px 14px;
+  background: var(--page-accent);
+}
+
+/* The "กลอน" — the part that makes this a "เซียมซี" and not a horoscope line. */
+.sm-verse {
+  margin: 16px 0 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 2;
+  text-align: center;
+}
+
+.sm-rows {
+  border-top: 2.5px dashed var(--color-line-strong);
+  margin-top: 18px;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sm-row {
+  display: flex;
+  gap: 10px;
+}
+
+.sm-row-bar {
+  width: 5px;
+  border-radius: 999px;
+  background: var(--color-line-strong);
+  opacity: 0.15;
+  flex-shrink: 0;
+}
+
+/* The row the reader asked about leads the slip and is the one that carries the accent bar. */
+.sm-row--asked .sm-row-bar {
+  background: #d6336c;
+  opacity: 1;
+}
+
+.sm-row-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.sm-row p {
+  margin: 2px 0 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* The closing thought. Every slip carries one, including the "ระวัง" ones — it is what keeps a bad
+   draw constructive instead of frightening. */
+.sm-closing {
+  margin: 16px 0 0 0;
+  padding-top: 14px;
+  border-top: 2.5px dashed var(--color-line-strong);
+  font-size: 13px;
+  line-height: 1.7;
+  opacity: 0.7;
+}
+
+/* The press-and-hold control. NOT a canvas value — the canvas paints a button and says nothing
+   about touch behaviour — so it is disclosed here rather than presented as a design lever, the same
+   way the perspective above is. A hold of a second and a half is long enough that a touch browser
+   reads finger drift as a pan and fires pointercancel, which stops the hold; on a device whose
+   iOS motion opt-in was refused that is the ONLY way to reach a "ติ้ว", so the gesture is claimed
+   here instead. Cannot be unit-tested: no fake DOM produces a browser's pan heuristic. */
+.sm-hold {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
