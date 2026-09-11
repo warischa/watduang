@@ -62,6 +62,35 @@ Two honest deviations from the recipe above, both worth copying:
   of going red was the intended `--selftest`. Confirm both exit codes locally before pushing — plain 0,
   selftest non-zero — or you have not isolated one variable.
 
+Third worked example — `play-crawl-link-check`, 2026-09-11, break run `34562916043` against a green
+`main` at `eca92a8`. The gate had been wired that same day, so its step had never been observed doing
+anything but pass — the `validate-games` situation exactly. One commit on a throwaway branch removed
+the single anchor line from `src/shell/PlayExit.astro` (`git diff --numstat` read `0 1`, one file).
+The jobs endpoint returned the shape a live gate should: **`play pages carry the one crawlable link
+(dist artifact)` failure** and the only one, every step before it success — including the sibling
+`crawl-check GameNav`, which proves the break was scoped — every step after it skipped by fail-fast,
+and `Deploy to Azure Static Web Apps` **skipped**, which is again the run-level proof that the deploy
+gate holds off a non-`main` branch. Branch deleted unmerged, local and remote; `main` never contained
+the break.
+
+**A fourth deviation, and this one is a trap rather than a shortcut: do not push two legs to the same
+branch.** `ci.yml`'s `concurrency` block sets `cancel-in-progress` for any ref that is not `main`
+(search for `cancel-in-progress`; it sits under the workflow's `concurrency` key). A restore leg
+pushed to the same branch therefore **cancels the break leg's run and
+destroys the verdict you spent the push to get** — the failure would read as "cancelled", not as the
+gate blocking. Use the one-commit form above whenever `main` is already green with the step wired,
+which is the normal case for a gate you have just added. If you genuinely need two legs, they need
+two branches.
+
+Also worth copying from that run: the deploy condition was read out of `ci.yml` **before** pushing,
+not assumed from the doc. A break that can reach production is a different kind of mistake from a
+break that cannot, and the check costs one grep. Read the whole condition — it is three terms, not
+one: `github.event_name == 'push'` **and** `github.ref == 'refs/heads/main'` **and**
+`env.HAS_DEPLOY_IDENTITY == 'true'`. Quoting only the `github.ref` term, as the first draft of this
+section did, would have let a reader conclude that a `pull_request` event on a main-named ref
+deploys. Find it by searching for the deploy step's name rather than by line number; the three steps
+that carry this condition move whenever the workflow grows.
+
 ## A pixel the fit probe records is one machine's number
 
 Moved from `docs/agents/ci-verification.md` (a further ADR-0012 task seam) — this is a dated
