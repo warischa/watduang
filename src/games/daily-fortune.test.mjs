@@ -1,15 +1,26 @@
 // node --test src/games/daily-fortune.test.mjs — no framework, no dependency
-// checks only the pure draw exported from daily-fortune.ts (no DOM needed).
-// The invariant under test is the one the game exists for (#33): the fortune is a pure function of
-// (normalized name, Bangkok date) — same pair same answer, new day new answer, whole pool reachable.
+// gh#99: the page is a one-press comedy fortune. The invariant the whole thing rests on is the
+// draw: three lines, one from each of three pools that never overlap ("eat", "money", "travel"),
+// each carrying a luck value, and a verdict that is the sum of those three and nothing else.
+// A wrong selector renders perfectly while being wrong, so the selector is checked against two
+// deliberately broken ones below — if those do not fail, this file proves nothing.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import game, { FORTUNES, bangkokDate, fortuneFor, hashPick, normalizeName } from './daily-fortune.ts';
+import game, {
+  POOLS,
+  drawFortune,
+  luckSum,
+  verdictFor,
+  bangkokDate,
+  thaiDayLabel,
+  hashPick,
+  normalizeName,
+} from './daily-fortune.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
 
-// ---- Minimal fake DOM for the #42 gate test below — lifted from short-stick.test.mjs's harness
-// (the reference DOM harness in this repo, no jsdom/happy-dom dependency) rather than inventing a second one.
+// ---- Minimal fake DOM — the harness this repo already uses (lifted from short-stick.test.mjs),
+// no jsdom/happy-dom dependency.
 class FakeElement {
   constructor(tagName) {
     this.tagName = tagName;
@@ -40,11 +51,12 @@ class FakeElement {
 const fakeDocument = { createElement: (tag) => new FakeElement(tag) };
 globalThis.document = fakeDocument;
 
-function makeCtx(players) {
+// The page asks for nobody, so the context carries an empty group on every mount.
+function makeCtx() {
   return {
     roster: { names: () => [], add() {} },
     session: {
-      players,
+      players: [],
       setPlayers() {},
       played: [],
       markPlayed() {},
@@ -55,307 +67,261 @@ function makeCtx(players) {
   };
 }
 
-// The reveal path builds nested cards, so the shallow stage.children lookups that served the ask
-// screen no longer reach the button or the name — walk recursively instead.
-function findByClass(node, cls) {
-  if (node.className === cls) return node;
-  for (const c of node.children || []) {
-    const hit = findByClass(c, cls);
-    if (hit) return hit;
-  }
-  return null;
+function collect(node, pred, out = []) {
+  if (pred(node)) out.push(node);
+  for (const c of node.children || []) collect(c, pred, out);
+  return out;
 }
-function findById(node, id) {
-  if (node.id === id) return node;
-  for (const c of node.children || []) {
-    const hit = findById(c, id);
-    if (hit) return hit;
-  }
-  return null;
-}
-function findByTag(node, tag) {
-  if (node.tagName && node.tagName.toUpperCase() === tag) return node;
-  for (const c of node.children || []) {
-    const hit = findByTag(c, tag);
-    if (hit) return hit;
-  }
-  return null;
+const byClass = (node, cls) => collect(node, (n) => n.className === cls);
+const findById = (node, id) => collect(node, (n) => n.id === id)[0] ?? null;
+const findByTag = (node, tag) => collect(node, (n) => (n.tagName || '').toUpperCase() === tag)[0] ?? null;
+
+// A fixed generator, so every result in this file is pass-always or fail-always: no Math.random
+// anywhere, and a failure reproduces on the next run.
+function lcg(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 2 ** 32;
+  };
 }
 
-// A fixed name space — no RNG anywhere in this file, so every result is pass-always or fail-always.
-const FIRST = ['ก้อง', 'ฟ้า', 'ตูน', 'แนน', 'บอส', 'มิ้น', 'เจ', 'ปอ', 'หมิว', 'ต้น', 'ใบเตย', 'ขวัญ',
-  'Bank', 'Ploy', 'Jane', 'Nice'];
-const LAST = ['', ' ใหญ่', ' เล็ก', ' น้อย', 'ๆ', '1', '2', '3', 'อร', 'ณี', 'ชัย', 'พร'];
-const NAMES = FIRST.flatMap((f) => LAST.map((l) => `${f}${l}`)); // 192 distinct names
-const DAYS = Array.from({ length: 60 }, (_, i) => `2026-${String(1 + (i % 12)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}`);
+const ALL_LINES = POOLS.flatMap((p) => p.lines);
+const poolIndexOf = (line) => POOLS.findIndex((p) => p.lines.some((l) => l.text === line.text));
 
-test('the pool itself: ~50 distinct lines, none blank', () => {
-  assert.ok(FORTUNES.length >= 48, `pool is ${FORTUNES.length} items`);
-  // A duplicate line keeps coverage looking full while two draws read identically to a player.
-  assert.equal(new Set(FORTUNES).size, FORTUNES.length, 'the pool contains a duplicate line');
-  for (const f of FORTUNES) assert.ok(f.trim().length > 0, 'blank fortune in the pool');
-});
-
-test('same name + same Bangkok day → the same fortune, every time it is asked', () => {
-  for (const name of NAMES) {
-    const first = fortuneFor(name, '2026-08-15');
-    // A negative index would return undefined, and undefined === undefined would pass this test.
-    assert.ok(FORTUNES.includes(first), `"${name}" drew something that is not in the pool: ${first}`);
-    for (let again = 0; again < 5; again++) {
-      assert.equal(fortuneFor(name, '2026-08-15'), first, `"${name}" changed on repeat draw ${again}`);
-    }
+// ---- The seam. This runs against the shipped selector AND against broken ones. ----
+function assertDrawInvariants(drawFn, draws) {
+  const rand = lcg(20260911);
+  for (let i = 0; i < draws; i++) {
+    const lines = drawFn(rand);
+    assert.equal(lines.length, POOLS.length, `draw ${i}: expected one line per pool`);
+    const pools = lines.map(poolIndexOf);
+    assert.ok(pools.every((p) => p >= 0), `draw ${i}: drew a line that belongs to no pool`);
+    assert.equal(new Set(pools).size, POOLS.length, `draw ${i}: two lines came from the same pool`);
+    assert.equal(new Set(lines.map((l) => l.text)).size, POOLS.length, `draw ${i}: a line repeated inside one draw`);
   }
-});
+}
 
-test('a new day deals a new fortune to nearly everyone', () => {
-  // Not 100% by construction: with a 50-item pool two consecutive days collide for roughly 1 name
-  // in 50 by chance, and asserting 100% would be asserting something false.
-  let changed = 0;
-  for (const name of NAMES) {
-    if (fortuneFor(name, '2026-08-15') !== fortuneFor(name, '2026-08-16')) changed++;
-  }
-  const fraction = changed / NAMES.length;
-  assert.ok(fraction >= 0.9, `only ${changed}/${NAMES.length} names changed fortune overnight (${fraction})`);
+test('one press draws one line per pool, never two from the same pool, never a repeat', () => {
+  assertDrawInvariants(drawFortune, 2000);
 
-  // And it is not just one lucky pair of days — every day must move most of the group.
-  for (let i = 1; i < DAYS.length; i++) {
-    const moved = NAMES.filter((n) => fortuneFor(n, DAYS[i - 1]) !== fortuneFor(n, DAYS[i])).length;
-    assert.ok(moved / NAMES.length >= 0.85, `${DAYS[i - 1]} → ${DAYS[i]}: only ${moved}/${NAMES.length} moved`);
-  }
-});
-
-test('every line in the pool is reachable — no fortune nobody can ever draw', () => {
+  // Every line is reachable, or a pool entry is dead weight nobody ever reads.
   const seen = new Set();
-  for (const name of NAMES) for (const day of DAYS) seen.add(fortuneFor(name, day));
-  assert.equal(seen.size, FORTUNES.length, `only ${seen.size}/${FORTUNES.length} lines are reachable`);
-
-  // Same claim one level down, against the raw picker: consecutive integer seeds must cover the pool.
-  const direct = new Set();
-  for (let i = 0; i < 5000; i++) direct.add(hashPick(`seed-${i}`, FORTUNES));
-  assert.equal(direct.size, FORTUNES.length, `hashPick reaches only ${direct.size}/${FORTUNES.length}`);
+  const rand = lcg(7);
+  for (let i = 0; i < 4000; i++) for (const line of drawFortune(rand)) seen.add(line.text);
+  assert.equal(seen.size, ALL_LINES.length, `only ${seen.size}/${ALL_LINES.length} lines are reachable`);
 });
 
-test('names normalise: surrounding and internal spaces, Latin case, Thai composition', () => {
-  const day = '2026-08-15';
-  const base = fortuneFor('ก้อง', day);
-  assert.equal(fortuneFor(' ก้อง ', day), base, 'padding changed the fortune');
-  assert.equal(fortuneFor('\tก้อง\n', day), base, 'tab/newline padding changed the fortune');
-  assert.equal(fortuneFor('ก้อง  ใหญ่', day), fortuneFor('ก้อง ใหญ่', day), 'double space changed the fortune');
-  // Latin case only — Thai has no case, so toLowerCase leaves it byte-identical.
-  assert.equal(fortuneFor('BANK', day), fortuneFor('bank', day), 'Latin case changed the fortune');
-  assert.equal(fortuneFor('Bank', day), fortuneFor('bank', day), 'Latin case changed the fortune');
-  // NFC folds the two spellings of an accented Latin name (measured: Thai has no canonical
-  // decomposition — '\u0E01\u0E49\u0E2D\u0E07', the fixture used above, is byte-identical under
-  // NFD, so NFC is a Latin-only guard here). Written as escapes, not Thai script, because the #36
-  // gate counts any Thai character in a comment; those codepoints are ko-kai, mai-tho, o-ang, ngo-ngu.
-  const nfd = 'José'.normalize('NFD');
-  assert.notEqual(nfd, 'José', 'this string has no decomposed form — pick another to test NFC with');
-  assert.equal(fortuneFor(nfd, day), fortuneFor('José', day), 'a decomposed spelling drew a different fortune');
-  // What deliberately does NOT normalise: two different people are two different names.
-  assert.equal(normalizeName(' ก้อง '), 'ก้อง');
-  assert.notEqual(normalizeName('ก้อง'), normalizeName('กอง'));
+test('calibration: the check above goes red on a selector that draws from one flat pool', () => {
+  // Mutant 1 — flat pool with replacement: can hand back the same line twice.
+  const flatWithRepeat = (rand) =>
+    Array.from({ length: POOLS.length }, () => ALL_LINES[Math.floor(rand() * ALL_LINES.length)]);
+  assert.throws(() => assertDrawInvariants(flatWithRepeat, 300), /repeated inside one draw|same pool/);
 
-  // Zero-width characters: `\s` does not match them, so trim/collapse alone leaves them in and a
-  // name pasted out of LINE or Facebook hashes differently from the identical-looking typed name.
-  for (const [label, zw] of [['ZWSP', '\u200B'], ['ZWNJ', '\u200C'], ['ZWJ', '\u200D'], ['BOM', '\uFEFF']]) {
-    assert.equal(normalizeName(`${zw}ก้อง${zw}`), 'ก้อง', `${label} survived normalisation`);
-    assert.equal(fortuneFor(`ก้อง${zw}`, day), base, `${label} changed the fortune`);
+  // Mutant 2 — flat pool WITHOUT replacement: three distinct lines, so a distinctness-only check
+  // stays green while two of them are about the same thing. This is the one that matters.
+  const flatDistinct = (rand) => {
+    const picked = [];
+    while (picked.length < POOLS.length) {
+      const line = ALL_LINES[Math.floor(rand() * ALL_LINES.length)];
+      if (!picked.some((l) => l.text === line.text)) picked.push(line);
+    }
+    return picked;
+  };
+  assert.throws(() => assertDrawInvariants(flatDistinct, 300), /same pool/);
+});
+
+test('the pools: disjoint, non-blank, and each one can swing the verdict both ways', () => {
+  assert.equal(POOLS.length, 3, 'the ticket specifies exactly three pools');
+  assert.deepEqual(POOLS.map((p) => p.key), ['eat', 'money', 'travel']);
+  for (const pool of POOLS) {
+    assert.ok(pool.lines.length >= 4, `pool ${pool.key} ships ${pool.lines.length} lines, the starter size is 4`);
+    assert.ok(pool.label.trim().length > 0, `pool ${pool.key} has no label`);
+    for (const line of pool.lines) {
+      assert.ok(line.text.trim().length > 0, `blank line in pool ${pool.key}`);
+      assert.ok([-1, 0, 1].includes(line.luck), `pool ${pool.key} carries luck ${line.luck}`);
+    }
+    // Without both signs in every pool the sum cannot reach -3 or +3, and the end bands are dead.
+    assert.ok(pool.lines.some((l) => l.luck === 1), `pool ${pool.key} has no +1 line`);
+    assert.ok(pool.lines.some((l) => l.luck === -1), `pool ${pool.key} has no -1 line`);
   }
-  // A name that is nothing but zero-width must not masquerade as a real one.
-  assert.equal(normalizeName('\u200B\uFEFF'), '');
-
-  // SARA AM: '\u0E33' is U+0E33 on a Thai keyboard, but NIKHAHIT + SARA AA (U+0E4D U+0E32) renders
-  // identically and comes out of some PDFs and older systems. NFC does not fold the two, so
-  // without an explicit rule the same-looking name draws a different fortune.
-  const amComposed = '\u0E19\u0E33';       // NO NU + SARA AM
-  const amDecomposed = '\u0E19\u0E4D\u0E32'; // NO NU + NIKHAHIT + SARA AA
-  assert.notEqual(amComposed, amDecomposed, 'these must differ as strings, or this proves nothing');
-  assert.equal(normalizeName(amDecomposed), amComposed, 'SARA AM spellings did not unify');
-  assert.equal(fortuneFor(amDecomposed, day), fortuneFor(amComposed, day), 'SARA AM changed the fortune');
+  const texts = ALL_LINES.map((l) => l.text);
+  assert.equal(new Set(texts).size, texts.length, 'the same line appears in two pools — they must never overlap');
 });
 
-test('the date is Bangkok\'s, not the device\'s and not UTC', () => {
-  // Injected instants — nothing here depends on when the suite runs.
-  const beforeMidnight = new Date('2026-08-15T16:59:59Z'); // 23:59:59 in Bangkok
-  const afterMidnight = new Date('2026-08-15T17:00:00Z'); // 00:00:00 the next day in Bangkok
-
-  assert.match(bangkokDate(beforeMidnight), /^\d{4}-\d{2}-\d{2}$/);
-  assert.equal(bangkokDate(beforeMidnight), '2026-08-15');
-  assert.equal(bangkokDate(afterMidnight), '2026-08-16', 'Bangkok midnight did not roll the day over');
-
-  // Machine-independent: at 17:00Z the UTC day is still the 15th. An implementation that sliced
-  // toISOString() (or ran off a UTC device clock) fails here on any machine, in any timezone.
-  assert.notEqual(bangkokDate(afterMidnight), afterMidnight.toISOString().slice(0, 10));
-
-  // And the fortune moves with the Bangkok day, not the UTC one.
-  assert.notEqual(
-    fortuneFor('ก้อง', bangkokDate(beforeMidnight)),
-    fortuneFor('ก้อง', bangkokDate(afterMidnight)),
-  );
+test('the verdict is the sum and nothing else: five bands, both ends included', () => {
+  const bands = [];
+  for (let sum = -3; sum <= 3; sum++) {
+    const v = verdictFor(sum);
+    assert.ok(typeof v === 'string' && v.trim().length > 0, `no verdict for sum ${sum}`);
+    if (!bands.includes(v)) bands.push(v);
+  }
+  assert.equal(bands.length, 5, `expected five verdict bands, got ${bands.length}`);
+  // The two ends are real, distinct bands and not a fallback.
+  assert.notEqual(verdictFor(-3), verdictFor(3));
+  assert.equal(verdictFor(-3), verdictFor(-2), 'the worst band covers -3 and -2');
+  assert.equal(verdictFor(3), verdictFor(2), 'the best band covers +3 and +2');
+  // Monotone: a better sum never returns a band that a worse sum already used.
+  for (let sum = -3; sum < 3; sum++) {
+    assert.ok(bands.indexOf(verdictFor(sum)) <= bands.indexOf(verdictFor(sum + 1)), `band order breaks at ${sum}`);
+  }
+  assert.equal(luckSum([{ luck: 1 }, { luck: 0 }, { luck: -1 }]), 0);
 });
 
-test('hashPick refuses an empty pool instead of returning undefined', () => {
-  assert.throws(() => hashPick('ก้อง|2026-08-15', []), /empty pool/);
+test('the Bangkok day is Bangkok\'s, not the device\'s, and the day label follows it across midnight', () => {
+  const before = new Date('2026-08-24T16:59:59Z'); // 23:59:59 in Bangkok
+  const after = new Date('2026-08-24T17:00:00Z'); // 00:00:00 the next Bangkok day
+  assert.equal(bangkokDate(before), '2026-08-24');
+  assert.equal(bangkokDate(after), '2026-08-25');
+  assert.notEqual(thaiDayLabel(bangkokDate(before)), thaiDayLabel(bangkokDate(after)),
+    'the displayed label did not move when the Bangkok day did');
+  // 2026-08-25 is a Tuesday: the label carries that weekday, the day number and the month.
+  assert.equal(thaiDayLabel('2026-08-25'), 'อ. 25 ส.ค.');
+  assert.equal(thaiDayLabel('2026-01-01'), 'พฤ. 1 ม.ค.');
 });
 
-// #42: the ghost-tap gate — a rapid double-tap on a game-page transition must not steal an action.
-test('#42: ghost-tap gate — "another" disables at reveal, roster chips stay live (documented exception)', (t) => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
+test('hashPick and normalizeName survive for love-match, which imports them from here', () => {
+  assert.equal(normalizeName('  Bank  Ploy '), 'bank ploy');
+  assert.throws(() => hashPick('seed', []), /empty pool/);
+  assert.equal(hashPick('seed', ['a', 'b', 'c']), hashPick('seed', ['a', 'b', 'c']));
+});
+
+// ---- The page ----
+
+test('the page never asks for a name and never asks who is playing', () => {
   const stage = fakeDocument.createElement('div');
-  const players = ['เอ', 'บี'];
-  game.mount(stage, makeCtx(players));
+  game.mount(stage, makeCtx());
+  assert.equal(findByTag(stage, 'INPUT'), null, 'an input renders on the idle screen');
+  assert.equal(findByTag(stage, 'FORM'), null, 'a form renders on the idle screen');
+  assert.equal(collect(stage, (n) => n.tagName === 'button').length, 1, 'the idle screen has exactly one control');
+  assert.equal(findByTag(stage, 'A'), null, 'an <a> renders inside #stage — ADR-0014');
+  assert.equal(game.players[0], 1);
+  assert.equal(game.players[1], 1);
+  game.dispose();
+});
 
-  // renderAsk: df-go is a real render-function button, so it is gated like everything else here.
-  const form = stage.children[1];
-  const go = form.children[1];
-  assert.equal(go.disabled, true, 'df-go must be disabled at mount — no exception applies to it');
+test('it says it is a joke above the draw button, where a horoscope searcher reads it first', () => {
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx());
+  const joke = byClass(stage, 'df-joke')[0];
+  assert.ok(joke, 'no joke line on the idle screen');
+  assert.ok(joke.textContent.includes('ขำๆ'), `the joke line does not say so: ${joke.textContent}`);
+  const order = collect(stage, () => true);
+  assert.ok(order.indexOf(joke) < order.indexOf(findById(stage, 'df-go')),
+    'the joke line renders after the draw button, so it is below the press');
+  // And the search result itself says it, before anyone reaches the page.
+  assert.ok(/ขำๆ|ไม่จริงจัง/.test(game.seo.description), 'the search snippet does not say this is a joke');
+  assert.ok(/ขำๆ|ไม่จริงจัง/.test(game.tagline), 'the tagline does not say this is a joke');
+  game.dispose();
+});
 
-  // renderAsk's roster chips are the documented exception: df-again → chip is the same finger tapping
-  // through the roster, so gating them would break real play. They must stay live from the first render,
-  // before any tick — that is what "exception" means, not "arms sooner than everything else".
-  const chipsRow = stage.children[3];
-  assert.equal(chipsRow.children.length, players.length, 'setup: one chip per roster name');
-  for (const chip of chipsRow.children) {
-    assert.equal(chip.disabled, false, `${chip.textContent} chip must stay live — the documented same-finger exception`);
+// The draw runs on Math.random, so the two end-of-range checks rig it: 0 takes the first line of
+// every pool, 0.999 takes the last. The pools are ordered +1 first and -1 last for exactly this.
+function drawWith(value, t) {
+  const stage = fakeDocument.createElement('div');
+  const realRandom = Math.random;
+  Math.random = () => value;
+  try {
+    game.mount(stage, makeCtx());
+    const go = findById(stage, 'df-go');
+    assert.equal(go.disabled, true, 'the draw control must be gated at mount — a ghost tap must not press it');
+    t.mock.timers.tick(ARM_DELAY_MS + 1);
+    go.click();
+  } finally {
+    Math.random = realRandom;
   }
+  return stage;
+}
 
-  chipsRow.children[0].click(); // reveals players[0]'s fortune, same as a real same-finger chip tap — and
-  // this must actually work at t0, or the "stays live" assertion above proves nothing
+function readLines(stage) {
+  return byClass(stage, 'df-line-text').map((p) => {
+    const line = ALL_LINES.find((l) => l.text === p.textContent);
+    assert.ok(line, `the page rendered "${p.textContent}", which is not a whole pool line`);
+    return line;
+  });
+}
 
+test('one press renders exactly three whole lines, one per pool, with the verdict their sum names', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = drawWith(0.42, t);
+  const lines = readLines(stage);
+  assert.equal(lines.length, 3, `the result screen shows ${lines.length} lines`);
+  assert.equal(new Set(lines.map(poolIndexOf)).size, 3, 'two rendered lines come from the same pool');
+
+  const verdict = byClass(stage, 'df-verdict')[0];
+  assert.ok(verdict, 'no verdict rendered');
+  assert.equal(verdict.textContent, verdictFor(luckSum(lines)),
+    'the verdict on the page is not the one the three rendered lines sum to');
+
+  // The pool label is shown per line, so the reader can see the three are about different things.
+  assert.deepEqual(byClass(stage, 'df-line-cat').map((s) => s.textContent), POOLS.map((p) => p.label));
+  assert.equal(findByTag(stage, 'A'), null, 'an <a> renders inside #stage — ADR-0014');
+
+  // The date on the page is the Bangkok day, not the device day.
+  const date = byClass(stage, 'df-date')[0];
+  assert.ok(date, 'no date on the result screen');
+  assert.equal(date.textContent, thaiDayLabel(bangkokDate(new Date())));
+  game.dispose();
+});
+
+test('both ends of the range: an all-lucky draw and an all-unlucky draw get the end verdicts', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const best = drawWith(0, t);
+  assert.equal(luckSum(readLines(best)), 3, 'the rigged draw did not reach +3 — reorder the pools');
+  assert.equal(byClass(best, 'df-verdict')[0].textContent, verdictFor(3));
+  game.dispose();
+
+  const worst = drawWith(0.999, t);
+  assert.equal(luckSum(readLines(worst)), -3, 'the rigged draw did not reach -3 — reorder the pools');
+  assert.equal(byClass(worst, 'df-verdict')[0].textContent, verdictFor(-3));
+  assert.notEqual(byClass(worst, 'df-verdict')[0].textContent, verdictFor(3));
+  game.dispose();
+});
+
+test('gh#42 ghost-tap gate: the redraw control is dead the instant the result screen appears', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = drawWith(0.31, t);
   const again = findById(stage, 'df-again');
-  assert.ok(again, 'df-again missing after reveal');
-  assert.equal(again.disabled, true,
-    'df-again must be disabled the instant the result screen renders — a ghost tap must not skip past the fortune nobody read yet');
+  assert.ok(again, 'no redraw control on the result screen');
+  assert.equal(again.disabled, true, 'the redraw control is live at reveal — a ghost tap skips the fortune nobody read');
 
-  // The revealed name now paints inside the fortune card's name row (design/GameDailyFortune.dc.html).
-  const nameEl = findByClass(stage, 'df-card-name');
-  assert.ok(nameEl, 'renderResult did not paint the card name row');
-  assert.equal(nameEl.textContent, players[0],
-    'the revealed name must be exactly what was tapped, unaffected by the gate arming');
-
-  // the ghost: a click before the window elapses must not fire — the result screen (fortune nobody
-  // read yet) must still be exactly what the chip tap produced, not what "another" would have shown.
+  const first = byClass(stage, 'df-line-text').map((p) => p.textContent);
   again.click();
-  assert.equal(findById(stage, 'df-again'), again,
-    'a disabled "another" fired anyway — the result screen was already gone');
-  assert.ok(!findById(stage, 'df-name'),
-    'a disabled "another" fired anyway — the ask screen reappeared before the window elapsed');
+  assert.deepEqual(byClass(stage, 'df-line-text').map((p) => p.textContent), first,
+    'a disabled redraw fired anyway — the screen changed under the reader');
 
-  // and one window later the same press really does move on to the next player
   t.mock.timers.tick(ARM_DELAY_MS + 1);
-  assert.equal(again.disabled, false, '"another" never armed');
+  assert.equal(again.disabled, false, 'the redraw control never armed');
   again.click();
-  assert.ok(findById(stage, 'df-name'),
-    '"another" did not return to the ask screen once armed');
-
+  assert.equal(byClass(stage, 'df-line-text').length, 3, 'the armed redraw did not produce a new draw');
   game.dispose();
 });
 
-// gh#96 / ADR-0040 — the proving page for the solo class. Mounted through the solo path the module
-// receives an empty group, and the ask screen must render alone: a solo page has no "วง" to chip.
-test('gh#96 solo mount: an empty group renders the ask screen alone, with no roster chips', (t) => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
-  const stage = fakeDocument.createElement('div');
-  game.mount(stage, makeCtx([]));
-
-  assert.ok(findById(stage, 'df-name'), 'a solo mount renders no name input');
-  const buttons = [];
-  (function walk(node) {
-    if (node.tagName === 'button') buttons.push(node);
-    (node.children || []).forEach(walk);
-  })(stage);
-  assert.equal(buttons.length, 1, 'an empty group must render no roster chips — the only button is the draw control');
-  assert.equal(buttons[0].id, 'df-go', 'the surviving button must be the draw control, not a leftover chip');
-
-  game.dispose();
-});
-
-// gh#80 — the approved result screen (design/GameDailyFortune.dc.html). The card is the hero motif:
-// its type is set large (19px / 1.75) and it owns its height, so the longest line in the pool must
-// render in full — never clipped, never scrolled. No anchor may enter #stage on any screen.
-test('the revealed fortune paints as the card text, whole and with no navigation target', () => {
-  const stage = fakeDocument.createElement('div');
-  game.mount(stage, makeCtx(['ก้อง']));
-
-  stage.children[3].children[0].click(); // roster chip reveals players[0]'s fortune (ungated by design)
-
-  const fortuneEl = findByClass(stage, 'df-fortune-text');
-  assert.ok(fortuneEl, 'no .df-fortune-text element painted after reveal');
-
-  // A truncation produces a substring that is no longer a member of the pool — the cheap
-  // "rendered in full" check that never depends on which line was drawn.
-  assert.ok(FORTUNES.includes(fortuneEl.textContent),
-    `rendered fortune "${fortuneEl.textContent}" is not a whole pool line — truncated or invented`);
-
-  assert.ok(!findByTag(stage, 'A'), 'an <a> renders inside #stage — ADR-0014');
-
-  game.dispose();
-});
-
-test('the longest fortune in the pool renders in full — the card grows, nothing clips', () => {
-  const longest = FORTUNES.reduce((a, b) => (b.length > a.length ? b : a), '');
-  const today = bangkokDate(new Date());
-  // Find a name that draws the longest line today — 5000 candidates cover a ~53-line pool many times
-  // over, so the search always lands (loud if it somehow does not).
-  let name = null;
-  for (let i = 0; i < 5000 && !name; i += 1) {
-    const candidate = `คนที่ ${i}`;
-    if (fortuneFor(candidate, today) === longest) name = candidate;
+// ADR-0033: the values below come from design/DuangTodayResult.dc.html, which is the approved
+// canvas for this redesign. A cramped line card is the failure this pins: the text must be able to
+// grow, and it must stay at the size the canvas sets.
+test('the line cards own their height and keep the canvas type size', () => {
+  const css = readFileSync(new URL('./../styles/games/daily-fortune.css', import.meta.url), 'utf8');
+  for (const cls of ['df-line', 'df-line-text', 'df-verdict-card', 'df-verdict']) {
+    const rule = new RegExp(`\\.${cls}(?![\\w-])\\s*\\{([^}]*)\\}`).exec(css);
+    assert.ok(rule, `.${cls} rule missing from daily-fortune.css`);
+    assert.ok(!/(?<![\w-])height\s*:/.test(rule[1]), `.${cls} declares a fixed height`);
+    assert.ok(!/(?<![\w-])overflow\s*:/.test(rule[1]), `.${cls} declares overflow (scroll/clip)`);
   }
-  assert.ok(name, 'no candidate draws the longest fortune today — widen the search');
 
-  const stage = fakeDocument.createElement('div');
-  game.mount(stage, makeCtx([name]));
-  stage.children[3].children[0].click(); // reveal
-
-  const fortuneEl = findByClass(stage, 'df-fortune-text');
-  assert.ok(fortuneEl, 'no .df-fortune-text element painted after reveal');
-  assert.equal(fortuneEl.textContent, longest,
-    `the longest fortune (${longest.length} chars) was truncated to ${fortuneEl.textContent.length}`);
-
-  game.dispose();
-});
-
-test('the card pins no fixed height and no scroll/clip overflow', () => {
-  const css = readFileSync(new URL('./../styles/games/daily-fortune.css', import.meta.url), 'utf8');
-  const card = /\.df-fortune-card\s*\{([^}]*)\}/.exec(css);
-  assert.ok(card, '.df-fortune-card rule missing from daily-fortune.css');
-  assert.ok(!/(?<![\w-])height\s*:/.test(card[1]), '.df-fortune-card declares a fixed height');
-  assert.ok(!/(?<![\w-])overflow\s*:/.test(card[1]), '.df-fortune-card declares overflow (scroll/clip)');
-
-  const text = /\.df-fortune-text\s*\{([^}]*)\}/.exec(css);
-  assert.ok(text, '.df-fortune-text rule missing from daily-fortune.css');
-  assert.ok(!/(?<![\w-])height\s*:/.test(text[1]), '.df-fortune-text declares a fixed height');
-  assert.ok(!/(?<![\w-])overflow\s*:/.test(text[1]), '.df-fortune-text declares overflow (scroll/clip)');
-});
-
-// gh#80: the fortune has to be readable aloud at arm's length, and nothing guarded that. The size
-// already matches design/GameDailyFortune.dc.html, which paints the fortune paragraph at 19px and
-// notes the type needs 16px+ to breathe -- so this pins the shipped value rather than changing it.
-// ADR-0033: the canvas is the source of a design value, so raising this floor means editing the
-// canvas first. No gate compares code to the canvas, which is why the floor lives here.
-test('the fortune text keeps the canvas size, so it stays readable at arm\'s length', () => {
-  const css = readFileSync(new URL('./../styles/games/daily-fortune.css', import.meta.url), 'utf8');
-  const text = /\.df-fortune-text\s*\{([^}]*)\}/.exec(css);
-  assert.ok(text, '.df-fortune-text rule missing from daily-fortune.css');
-
-  // Every .df-fortune-text block, not just the first: a later media query or a more specific rule
-  // could shrink the rendered text while a first-match check stayed green.
-  const blocks = [...css.matchAll(/\.df-fortune-text[^{}]*\{([^}]*)\}/g)].map((m) => m[1]);
-  assert.ok(blocks.length > 0, 'no .df-fortune-text rule found at all — the extractor matched nothing');
-
-  const sizes = blocks
-    .map((body) => /(?<![\w-])font-size\s*:\s*(\d+(?:\.\d+)?)(px|rem|em)/.exec(body))
-    .filter(Boolean);
-  assert.ok(sizes.length > 0, '.df-fortune-text declares no font-size, so it silently inherits the shell size');
-
-  for (const s of sizes) {
-    // px is the unit the canvas uses. A relative unit is not comparable here, so it fails loudly
-    // rather than passing on an assumed root size.
-    assert.equal(s[2], 'px', `.df-fortune-text uses ${s[2]}, which this floor cannot compare to the canvas px value`);
-    assert.ok(
-      Number(s[1]) >= 19,
-      `.df-fortune-text is ${s[1]}px, below the canvas value of 19px (design/GameDailyFortune.dc.html)`,
-    );
+  // Every block, not just the first: a later rule could shrink the rendered text while a
+  // first-match check stayed green.
+  const floors = { 'df-line-text': 15, 'df-verdict': 24 };
+  for (const [cls, floor] of Object.entries(floors)) {
+    const blocks = [...css.matchAll(new RegExp(`\\.${cls}(?![\\w-])[^{}]*\\{([^}]*)\\}`, 'g'))].map((m) => m[1]);
+    assert.ok(blocks.length > 0, `no .${cls} rule found at all — the extractor matched nothing`);
+    const sizes = blocks
+      .map((body) => /(?<![\w-])font-size\s*:\s*(\d+(?:\.\d+)?)(px|rem|em)/.exec(body))
+      .filter(Boolean);
+    assert.ok(sizes.length > 0, `.${cls} declares no font-size, so it silently inherits the shell size`);
+    for (const s of sizes) {
+      assert.equal(s[2], 'px', `.${cls} uses ${s[2]}, which this floor cannot compare to the canvas px value`);
+      assert.ok(Number(s[1]) >= floor, `.${cls} is ${s[1]}px, below the canvas value of ${floor}px`);
+    }
   }
 });

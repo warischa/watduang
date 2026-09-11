@@ -1,110 +1,153 @@
-/* gh#77-gh#81 — daily-fortune's own screen CSS. One stylesheet per game so five visual tickets never write
-   to the same file. Astro bundles a bare CSS import page-globally, so EVERY game page loads every one
-   of these: each selector here MUST carry the `df-` prefix, or it will restyle a sibling game.
+/* daily-fortune's own screen CSS. One stylesheet per game so visual tickets never write to the same
+   file. Astro bundles a bare CSS import page-globally, so EVERY game page loads every one of these:
+   each selector here MUST carry the `df-` prefix, or it will restyle a sibling game.
 
    The shared game-screen classes (.stage-screen, .game-btn, .game-btn-primary, .game-btn-secondary)
    are shell vocabulary, declared once in src/pages/game/[id].astro. Never redeclare or override them
    here — every game page loads them.
 
-   Every value in this file comes from design/GameDailyFortune.dc.html verbatim (ADR-0033). The stage ground is
-   var(--page-accent), which the shell resolves from the category manifest; the canvas's own per-game
-   accent hex is not a colour this site defines. */
+   gh#99 re-baselines this file from design/GameDailyFortune.dc.html (the per-name reading, deleted)
+   to design/DuangTodayIdle.dc.html and design/DuangTodayResult.dc.html, which are the approved
+   canvases for the one-press comedy fortune. Every value below is verbatim from those two (ADR-0033).
+   The stage ground is var(--page-accent), which the shell resolves from the category manifest. */
 
-/* hero motif — the fortune card. It owns its height on purpose: no fixed height, no overflow, so the
-   longest line in the pool (a 19px / 1.75 line of Thai) renders in full instead of clipping or scrolling. */
-.df-heading {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 26px;
+/* the date pill. The canvas puts it in the page header beside a back link; the link is shell chrome
+   and no anchor may enter the stage (ADR-0014), so the pill sits at the top of the stage instead. */
+.df-date-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 }
 
-.df-fortune-card {
+.df-date {
+  font-size: 13px;
+  font-weight: 500;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+/* idle screen — the winking sun says the page is a joke in the drawing, not only in the copy */
+.df-art {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 220px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  box-sizing: border-box;
+}
+
+.df-headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.df-joke {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: center;
+  max-width: 26ch;
+}
+
+/* result screen — the verdict is the punchline and the screenshot */
+.df-verdict-card {
   width: 100%;
   background: var(--color-ground-warm);
   border: 2.5px solid var(--color-line-strong);
   border-radius: 20px;
   box-shadow: 5px 5px 0 var(--color-line-strong);
-  padding: 24px 20px;
   box-sizing: border-box;
+  padding: 18px 18px 20px 18px;
+  text-align: center;
 }
 
-.df-card-name-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.df-verdict-label {
+  font-size: 13px;
 }
 
-.df-card-sun {
+.df-verdict {
+  margin: 6px 0 0 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.df-lines {
+  width: 100%;
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* each line card owns its height on purpose: no fixed height, no overflow, so the longest line in
+   the pool renders in full instead of clipping or scrolling */
+.df-line {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--color-line-strong);
+  box-sizing: border-box;
+  padding: 14px;
+}
+
+.df-line-cat {
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  padding: 3px 10px;
   flex-shrink: 0;
 }
 
-/* overflow-wrap restored deliberately: the inline NAME_STYLE this class replaced carried it, and the
-   roster lets a player type 24 characters with no space in them. Without it a long Latin name overruns
-   the card at 320px — Thai wraps on dictionary breaks, Latin does not. */
-.df-card-name {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 22px;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.df-card-rule {
-  height: 2.5px;
-  background: var(--color-line-strong);
-  opacity: 0.15;
-}
-
-.df-fortune-text {
+.df-line-text {
   margin: 0;
-  font-size: 19px;
-  line-height: 1.75;
+  font-size: 15px;
+  line-height: 1.7;
   text-wrap: pretty;
 }
 
-/* the shell's .stage-screen p centres every paragraph; the fortune is a paragraph the canvas sets
-   flush-left, so this descendant selector outranks it (0,2,0 vs 0,1,1) and matches the artboard. */
-.df-fortune-card .df-fortune-text {
+/* the shell's .stage-screen p centres every paragraph; the canvas sets these flush-left, so this
+   descendant selector outranks it (0,2,0 vs 0,1,1) */
+.df-line .df-line-text {
   text-align: start;
 }
 
-.df-foot {
+/* luck glyph: "~" is the reversal, "+" is luck, "-" is misfortune — the three values the verdict sums */
+.df-line-luck {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-display);
-  font-weight: 400;
   font-size: 15px;
+  flex-shrink: 0;
+  background: var(--color-ground-warm);
+}
+
+/* only the reversal glyph sits on the accent, the way the canvas paints it */
+.df-line-luck.df-luck-flip {
+  background: var(--page-accent);
+}
+
+.df-foot {
+  font-size: 13px;
   line-height: 1.6;
   text-align: center;
   max-width: 30ch;
-}
-
-/* the primary control + hint chip sit together at the canvas's 10px gap, not the shell's 22px */
-.df-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-}
-
-.df-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--color-ground-warm);
-  border: 2.5px solid var(--color-line-strong);
-  border-radius: 12px;
-  padding: 10px 14px;
-}
-
-.df-hint-clock {
-  display: flex;
-  flex-shrink: 0;
-}
-
-.df-hint-text {
-  font-size: 13px;
-  line-height: 1.5;
+  margin: 0;
 }
