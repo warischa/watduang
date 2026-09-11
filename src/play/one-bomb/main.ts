@@ -784,7 +784,25 @@ function installNoWebglRound(): void {
  *  runs off requestAnimationFrame and advances on accumulated time (a resolving state settles after
  *  ~0.42s, a detonating one finishes after ~1.3s), and GL calls against a lost context do not throw.
  *  So it keeps opening tiles and can still push its result card up UNDERNEATH this panel. Input is
- *  therefore severed at LOSS time, not when the restart button is pressed. */
+ *  therefore severed at LOSS time, not when the restart button is pressed.
+ *
+ *  STRICTER THAN THE ROUND NEEDS, RECORDED RATHER THAN NARROWED. Since the owner ruling of
+ *  2026-09-10 the DOM grid is the play surface on both lanes and the engine is parked in its MENU
+ *  state with its input severed at mount, so a lost context now takes down a 3D BACKDROP and not the
+ *  round: the grid is DOM buttons and the HUD is painted from this file. Every premise above still
+ *  reads true, but none of it is reachable — the zombie the rehoming defends against cannot leave
+ *  MENU, and every HUD write in its tick sits behind a round state it can no longer enter, so
+ *  nothing it still runs carries round state to the DOM. The leaf controls were cloned once at
+ *  mount besides.
+ *
+ *  So the honest narrowing is not a smaller halt, it is NO halt (at most removing the dead canvas),
+ *  which retires this function, HALT_HTML, the `rehomed` map and the lookup branch that reads it —
+ *  a deletion of gh#215's mechanism, and one that needs a ruling rather than a follow-up. What that
+ *  ruling should weigh, measured here rather than assumed: the panel's restart calls startMatch,
+ *  which zeroes the scores and sends the round back to 1, so today a backgrounded tab that drops its
+ *  context costs a party its whole game to recover a backdrop it was not playing on. That cost is
+ *  the argument for retiring the halt; the argument against is that the halt is the only thing that
+ *  makes the route survivable again if the 3D board is ever brought back (option B). */
 function haltOnContextLoss(): void {
   // The canvas first: the engine's own no-3D bail path removes it too, and every pointer listener it
   // uses to open a tile sits on that element, so removing it is what cuts the tile input path.

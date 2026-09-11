@@ -2,8 +2,10 @@
 //
 // WHY THERE ARE TWO. The lifted engine (main.js) holds BOARD_GRID_MAP inside a sealed IIFE that
 // exports nothing, and its whole body sits BELOW an early return taken when there is no WebGL
-// context — so on the one condition that matters here (every browser probe this repo runs launches
-// Chrome with the GPU disabled) that constant is not merely unreachable, it never evaluates. The
+// context — so on the one condition that matters here (a browser with no context, which is what
+// `--disable-gpu` gives on a Mac and NOT what CI's runner gives: measured in-page on the runner,
+// where every context type comes back live) that constant is not merely unreachable, it never
+// evaluates. The
 // no-3D board in main.ts therefore carries its own copy. Importing across the two is impossible and
 // patching the lift is forbidden: scripts/extract-mockup.mjs owns main.js and overwrites it.
 //

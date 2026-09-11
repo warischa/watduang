@@ -313,7 +313,10 @@ const referenced = [
 const NOT_SEVERED = new Map([
   ['app', 'the route root — the halt panel is appended to it, so replacing it would throw the panel away'],
   ['webglUnsupportedNotice', 'not a control — the engine\'s bail notice, which this path removes'],
-  ['ob-board', 'a CONTAINER, and installNoWebglRound rebuilds it whole; on the loss path it does not exist yet'],
+  // Owner ruling 2026-09-10 retired the second half of this reason, which used to read "on the loss
+  // path it does not exist yet": installNoWebglRound now runs at mount on BOTH lanes, so the board
+  // is on the page long before any loss.
+  ['ob-board', "a CONTAINER carrying only this file's delegated tap listener, which no loss can hand to the engine; installNoWebglRound's once-guard reuses it on restart rather than rebuilding it"],
   ['howModal', 'a modal container, only ever a target of a class write'],
   ['settingsModal', 'a modal container, only ever a target of a class write'],
   ['howToPlayBtn', "opens a modal with add('open') — genuinely idempotent when wired twice"],
@@ -653,4 +656,91 @@ test('MUST-RED: the two assertions above go green on a build that rehomes nothin
   runtime.haltOnContextLoss();
   makeEngineUpdateUI(loud.document, 5)();
   assert.notEqual(live.textContent, saidBeforeLoss, 'the announcement assertion cannot hear the zombie speaking');
+});
+
+// ---- the MOUNT sever, which the halt above only mirrors ----------------------------------------
+
+/** severEngineLeafControls runs on EVERY lane at mount, not only after a loss, and it makes the same
+ *  `disabled` decision the halt's loop makes — clear it on the clone, because a deep clone carries a
+ *  reflected attribute across and an arm window open at that moment would otherwise re-enable the
+ *  detached original. The halt's copy of that decision is pinned above; the mount's copy had no pin
+ *  at all, which left the more frequently executed of the two untested. */
+const severFnSliced = sliceBlock(source, 'function severEngineLeafControls(): void');
+assert.ok(severFnSliced, 'main.ts no longer declares severEngineLeafControls — the mount pin below is measuring nothing');
+const severFnSource = strip(
+  severFnSliced,
+  [
+    ['function severEngineLeafControls(): void', 'function severEngineLeafControls()'],
+    ['$<HTMLButtonElement>(id)', '$(id)'],
+    ['control.cloneNode(true) as HTMLButtonElement', 'control.cloneNode(true)'],
+  ],
+  'severEngineLeafControls',
+);
+
+/** Runs the real severEngineLeafControls over the stub with the named controls already inert, the
+ *  way an open arm window leaves them. applyReducedMotion is a no-op here: its own chain is pinned in
+ *  src/play/one-bomb/reduced-motion.test.mjs, and running it would only prove this stub has no
+ *  classList. */
+function runMountSever(disabledIds, code = severFnSource) {
+  const stub = makeStub([...SEEDED, ...severList]);
+  for (const id of severList) {
+    const node = stub.byId.get(id);
+    node.addEventListener('click', () => {
+      node.fired += 1;
+    });
+  }
+  // POSITIVE CONTROL, same reason as the halt's: without a leg where the click did something, "the
+  // click did nothing" is unreadable.
+  for (const id of severList) stub.byId.get(id).click();
+  assert.deepEqual(
+    severList.map((id) => stub.byId.get(id).fired),
+    severList.map(() => 1),
+    'the pre-sever control leg did not fire: this stub cannot dispatch a click, so the assertions ' +
+      'below would pass on a harness that severs nothing',
+  );
+  for (const id of disabledIds) stub.byId.get(id).disabled = true;
+  const rehomed = new Map();
+  const runtime = new Function(
+    'document',
+    'rehomed',
+    'ENGINE_LEAF_CONTROLS',
+    'applyReducedMotion',
+    `${dollarSource}\n${code}\nreturn { $, severEngineLeafControls };`,
+  )(stub.document, rehomed, severList, () => {});
+  runtime.severEngineLeafControls();
+  return { stub, $: runtime.$ };
+}
+
+test('the mount sever hands every control back live, whatever the arm gate left behind', () => {
+  const { $ } = runMountSever(severList);
+  for (const id of severList) {
+    assert.equal(
+      $(id).disabled,
+      false,
+      `#${id} was cloned at mount while an arm window had it disabled and stayed inert: the gate's ` +
+        're-enable lands on the detached original, _arm-gate reads the clone as caller-disabled from ' +
+        'then on, and the route boots with a control no later arm gives back. The stepper bound is ' +
+        're-applied right after this by installNoWebglRound.',
+    );
+  }
+  const survivors = severList.filter((id) => {
+    const node = $(id);
+    node.click();
+    return node.fired > 1;
+  });
+  assert.deepEqual(survivors, [], 'an engine listener survived the mount sever: the engine still answers taps on that control');
+});
+
+test('MUST-RED: the mount assertion above goes green on a build that keeps the cloned disabled state', () => {
+  // The mutant is the code as it would read if the clearing decision were dropped, derived from the
+  // real source by one substitution rather than written here.
+  const keepsDisabled = severFnSource.replace('clone.disabled = false;', 'void clone;');
+  assert.notEqual(keepsDisabled, severFnSource, 'the clearing line no longer reads as written — this mutant substituted nothing');
+  const { $ } = runMountSever(severList, keepsDisabled);
+  assert.deepEqual(
+    severList.filter((id) => $(id).disabled === false),
+    [],
+    'the mount assertion cannot tell a build that clears the cloned `disabled` from one that carries ' +
+      'it across — it would pass on both',
+  );
 });
