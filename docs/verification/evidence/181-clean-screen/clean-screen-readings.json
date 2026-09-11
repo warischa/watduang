@@ -1,0 +1,438 @@
+{
+  "dice-loser": [
+    {
+      "load": 1,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": null,
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "dl-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 662,
+        "screenHeight": 443,
+        "boardWidth": 662,
+        "boardHeight": 443,
+        "boardLeft": 389,
+        "boardRightMargin": 389,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 2,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": null,
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "dl-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 662,
+        "screenHeight": 443,
+        "boardWidth": 662,
+        "boardHeight": 443,
+        "boardLeft": 389,
+        "boardRightMargin": 389,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 3,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": null,
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "dl-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 662,
+        "screenHeight": 443,
+        "boardWidth": 662,
+        "boardHeight": 443,
+        "boardLeft": 389,
+        "boardRightMargin": 389,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 4,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": null,
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "dl-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 662,
+        "screenHeight": 443,
+        "boardWidth": 662,
+        "boardHeight": 443,
+        "boardLeft": 389,
+        "boardRightMargin": 389,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 5,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": null,
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "dl-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 662,
+        "screenHeight": 443,
+        "boardWidth": 662,
+        "boardHeight": 443,
+        "boardLeft": 389,
+        "boardRightMargin": 389,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 6,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": null,
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "dl-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 662,
+        "screenHeight": 443,
+        "boardWidth": 662,
+        "boardHeight": 443,
+        "boardLeft": 389,
+        "boardRightMargin": 389,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    }
+  ],
+  "timebomb": [
+    {
+      "load": 1,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": {
+        "clicked": true
+      },
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "tb-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 560,
+        "screenHeight": 312.1875,
+        "boardWidth": 560,
+        "boardHeight": 414,
+        "boardLeft": 440,
+        "boardRightMargin": 440,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 2,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": {
+        "clicked": true
+      },
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "tb-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 560,
+        "screenHeight": 312.1875,
+        "boardWidth": 560,
+        "boardHeight": 414,
+        "boardLeft": 440,
+        "boardRightMargin": 440,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 3,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": {
+        "clicked": true
+      },
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "tb-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 560,
+        "screenHeight": 312.1875,
+        "boardWidth": 560,
+        "boardHeight": 414,
+        "boardLeft": 440,
+        "boardRightMargin": 440,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 4,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": {
+        "clicked": true
+      },
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "tb-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 560,
+        "screenHeight": 312.1875,
+        "boardWidth": 560,
+        "boardHeight": 414,
+        "boardLeft": 440,
+        "boardRightMargin": 440,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 5,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": {
+        "clicked": true
+      },
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "tb-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 560,
+        "screenHeight": 312.1875,
+        "boardWidth": 560,
+        "boardHeight": 414,
+        "boardLeft": 440,
+        "boardRightMargin": 440,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    },
+    {
+      "load": 6,
+      "vpCheck": {
+        "innerWidth": 1440,
+        "innerHeight": 900
+      },
+      "clickRes": {
+        "clicked": true
+      },
+      "secondStepRes": {
+        "clicked": true
+      },
+      "read": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "dialogOpen": false,
+        "dialogPresentInDOM": true,
+        "allDialogIds": [
+          "tb-reset-dialog"
+        ],
+        "openDialogIds": [],
+        "ariaModalsVisible": [],
+        "shellDialogsOpen": [],
+        "screenPresent": true,
+        "screenVisible": true,
+        "screenHidden": false,
+        "screenWidth": 560,
+        "screenHeight": 312.1875,
+        "boardWidth": 560,
+        "boardHeight": 414,
+        "boardLeft": 440,
+        "boardRightMargin": 440,
+        "rootWidth": 1440,
+        "rootHeight": 900,
+        "beginStillVisible": false
+      }
+    }
+  ]
+}
