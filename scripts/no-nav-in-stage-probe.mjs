@@ -23,7 +23,13 @@
 //
 // Sampling: three points per tapped control (centre, top edge, bottom edge at centre-x). A real finger
 // taps anywhere inside the control, so centre-only sampling under-measures the hazard; the fix has to
-// hold for all three.
+// hold for all three. Every control is scrolled to the middle of the viewport before it is sampled,
+// the way a player scrolls down a long reading to reach its buttons: document.elementFromPoint is
+// viewport-relative, so a control sitting below the fold returns null at all three points and the walk
+// reports "no hit" for a screen it never tested. siamsi's slip screen is over twice a 900px viewport
+// tall at 320px wide with nothing clipping it, which puts its closing buttons within a few pixels of
+// a 900px fold — which side of that fold they land on is a font-metric difference between machines,
+// not a product fact.
 //
 // Calibrated by construction: run this against the code BEFORE the in-stage hub anchors are removed and
 // every game must report FAIL with an in-stage anchor hit. A green pre-fix run means the harness is
@@ -92,6 +98,10 @@ const HELPERS = `
     // as N transitions while the screen never changed. Wait the gate out, and record that we did.
     let wasDisabled = false;
     for (let i = 0; i < 20 && el.disabled; i++) { wasDisabled = true; await sleep(60); }
+    // Bring the control under the finger before reading its box: a player scrolls to what they tap,
+    // and the three sampled points are viewport coordinates that mean nothing below the fold.
+    el.scrollIntoView({ block: 'center' });
+    await sleep(120);
     const g = box(el);
     const pts = [[g.cx, g.cy], [g.cx, g.top + 2], [g.cx, g.bottom - 2]];
     // Every sampled point, not just the centre: the edge samples sit outside the centre row by
