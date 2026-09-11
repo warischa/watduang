@@ -11,6 +11,7 @@
 // real browser, and installing Playwright for that would triple this project's dependency list.
 const [url, scriptPath] = process.argv.slice(2);
 const { readFile, writeFile } = await import('node:fs/promises');
+const { evaluateResult } = await import('./cdp-evaluate-result.mjs');
 const expr = await readFile(scriptPath, 'utf8');
 
 const PORT = process.env.CDP_PORT || 9222;
@@ -39,14 +40,11 @@ const evaluate = (body) =>
     returnByValue: true,
   });
 const report = (res) => {
-  const r = res?.result;
-  if (!r) return console.log(JSON.stringify({ error: 'no result from Runtime.evaluate', raw: res }));
-  if (r.exceptionDetails) {
-    return console.log(JSON.stringify({
-      error: r.exceptionDetails.exception?.description ?? r.exceptionDetails.text,
-    }));
-  }
-  console.log(JSON.stringify(r.result?.value ?? null));
+  const { value, error } = evaluateResult(res);
+  // This branch already failed closed before the mapper was shared; it keeps the raw envelope,
+  // which on a debug CLI is the whole diagnostic when Chrome answers with no result at all.
+  if (error) return console.log(JSON.stringify(res?.result ? { error } : { error, raw: res }));
+  console.log(JSON.stringify(value));
 };
 
 await send('Page.enable');

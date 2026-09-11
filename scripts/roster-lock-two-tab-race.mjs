@@ -21,6 +21,7 @@
 // Requires: a built site being served at the given port (npm run build; npx serve dist/ -l <port>)
 // and headless Chrome already running with --remote-debugging-port=9222 (see scripts/cdp.mjs).
 // STATUS (gh#43): lock structure and roster-key ownership are now gated statically by scripts/roster-lock-structure-check.mjs. This harness stays manual because it needs both a fixed and an unfixed build to mean anything (see the note above) and CI has no unfixed arm.
+const { evaluateResult } = await import('./cdp-evaluate-result.mjs');
 const [portArg, mode, nArg, urlPath] = process.argv.slice(2);
 const PORT = Number(portArg);
 const N = Number(nArg);
@@ -81,9 +82,7 @@ async function openTab() {
         awaitPromise: true,
         returnByValue: true,
       });
-      const r = res?.result;
-      if (r?.exceptionDetails) return { error: r.exceptionDetails.exception?.description ?? r.exceptionDetails.text };
-      return { value: r?.result?.value ?? null };
+      return evaluateResult(res);
     },
     async close() {
       await fetch(`http://127.0.0.1:9222/json/close/${target.id}`);
@@ -130,6 +129,9 @@ for (let i = 0; i < N; i++) {
     const raw = localStorage.getItem('watduang:roster');
     return raw ? JSON.parse(raw) : [];
   `);
+  // A read that never answered would land here as an empty roster and be counted as a lost name --
+  // this harness exists to attribute losses to the lock, so a loss it cannot attribute stops the run.
+  if (read.error) throw new Error(`round ${i}: the roster read did not answer (${read.error}) -- refusing to count a loss this run cannot attribute`);
   const finalRoster = Array.isArray(read.value) ? read.value : [];
   const hasA = finalRoster.includes(nameA);
   const hasB = finalRoster.includes(nameB);

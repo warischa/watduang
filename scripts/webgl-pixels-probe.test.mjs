@@ -64,6 +64,23 @@ test('no live context is UNMEASURED, never a pass and never a failure', () => {
   assert.equal(classify({ contextLive: false, nonBlank: false }).verdict, 'UNMEASURED');
 });
 
+// A readback that never answered at all — the CDP evaluate came back with no result envelope,
+// which is what Chrome sends when a navigation destroys the execution context mid-read. The verdict
+// is the same void it always was; the REASON is the thing under test. Blaming the runner's GPU for
+// a destroyed context names a cause that is not there, and the next reader goes hunting a lane
+// difference instead of a race.
+test('an unanswered readback is UNMEASURED for its own reason, not for an absent GPU', () => {
+  const r = classify({ contextLive: null, nonBlank: null, readError: 'Cannot find context with specified id' });
+  assert.equal(r.verdict, 'UNMEASURED');
+  assert.match(r.reason, /Cannot find context with specified id/);
+  assert.doesNotMatch(r.reason, /no live WebGL context/, 'a failed read must not be reported as a measured absence');
+});
+
+test('the absent-GPU reason still belongs to a read that actually answered', () => {
+  // The existing reading this must not weaken: the page answered, and its answer was "no context".
+  assert.match(classify({ contextLive: false, nonBlank: null }).reason, /no live WebGL context/);
+});
+
 test('a live context that drew is PASS', () => {
   assert.equal(classify({ contextLive: true, nonBlank: true }).verdict, 'PASS');
 });

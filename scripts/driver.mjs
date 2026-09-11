@@ -6,7 +6,9 @@
 // <script.mjs> default-exports an async function(session) that gets:
 //   session.nav(url)              -> Page.navigate + wait for load, returns nothing
 //   session.setWidth(w,h)         -> Emulation.setDeviceMetricsOverride
-//   session.evaluate(exprString)  -> Runtime.evaluate, returns {value, error}
+//   session.evaluate(exprString)  -> Runtime.evaluate, returns {value} or {error} — a reply with no
+//                                     result envelope (destroyed context, detached target) is an
+//                                     {error}, never a null value: scripts/cdp-evaluate-result.mjs
 //   session.wipe()                -> localStorage.clear(); sessionStorage.clear()
 //   session.hold(x, y, ms)        -> touchstart, wait ms, touchend — for hold-to-charge controls that
 //                                     tap() cannot express (it releases immediately)
@@ -27,6 +29,7 @@
 const [scriptPath] = process.argv.slice(2);
 const { pathToFileURL } = await import('node:url');
 const { writeFile } = await import('node:fs/promises');
+const { evaluateResult } = await import('./cdp-evaluate-result.mjs');
 const mod = await import(pathToFileURL(scriptPath).href);
 
 const PORT = process.env.CDP_PORT || 9222;
@@ -117,11 +120,7 @@ const session = {
       awaitPromise: true,
       returnByValue: true,
     });
-    const r = res?.result;
-    if (r?.exceptionDetails) {
-      return { error: r.exceptionDetails.exception?.description ?? r.exceptionDetails.text };
-    }
-    return { value: r?.result?.value ?? null };
+    return evaluateResult(res);
   },
   async screenshot(path) {
     const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });

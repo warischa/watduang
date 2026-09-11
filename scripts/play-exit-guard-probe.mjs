@@ -8,6 +8,7 @@
 // 3's back/forward history).
 const [PORT = '9222', SHOT = '/tmp'] = process.argv.slice(2);
 const { writeFile } = await import('node:fs/promises');
+const { evaluateResult } = await import('./cdp-evaluate-result.mjs');
 const BASE = process.env.BASE ?? 'http://localhost:5052';
 // Scenarios 1 and 4 run against EVERY play route, derived rather than listed. This list had drifted
 // two routes behind the site (power-meter and short-stick both shipped without being added), and a
@@ -113,6 +114,9 @@ const assert = (await import('node:assert')).default;
 {
   // The absent-value leg first: this is the input the old expression scored as a pass.
   assert.strictEqual(inRound(null, 'freeze-tap'), false, 'a pathname that did not come back is not evidence the burst stayed in the round');
+  // The same absent value in its OTHER shape: an evaluate whose reply carried no result envelope
+  // now returns an error and no `value` key at all, so the read arrives here as undefined.
+  assert.strictEqual(inRound(undefined, 'freeze-tap'), false, 'a read that failed at the protocol level is not evidence either');
   assert.strictEqual(inRound('/', 'freeze-tap'), false);
   assert.strictEqual(inRound('/game/freeze-tap/play/', 'freeze-tap'), true);
   assert.strictEqual(inRound('/game/freeze-tap/play/', 'timebomb'), false, 'the check is per route, not "some play route"');
@@ -169,9 +173,7 @@ async function openTab() {
 
   const evaluate = async (body) => {
     const res = await send('Runtime.evaluate', { expression: `(async () => { ${body} })()`, awaitPromise: true, returnByValue: true });
-    const r = res?.result;
-    if (r?.exceptionDetails) return { error: r.exceptionDetails.exception?.description ?? r.exceptionDetails.text };
-    return { value: r?.result?.value ?? null };
+    return evaluateResult(res);
   };
   const nav = async (url) => { const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); };
   const setup320 = async () => { await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 1, mobile: true }); };
@@ -394,9 +396,18 @@ for (const route of ROUTE_ONLY_CANNON) {
   await sleep(1200);
   const bfState = await s.evaluate("return typeof window.__pageshowLog === 'undefined' ? 'reloaded' : JSON.stringify(window.__pageshowLog);");
   const pathAfterBack = await s.pathname();
-  const bfEngaged = bfState.value !== 'reloaded' && bfState.value !== null && bfState.value.includes('true');
-  const scenario = { landedOnHome, pathAfterBack, pageshowLog: bfState.value };
-  if (!bfEngaged) {
+  // A read that never answered is not a fact about bfcache. This file's own rule is that a skip's
+  // reason must have been read back FROM THE PAGE, so an unanswered evaluate takes the UNMEASURED
+  // bucket, which blocks the exit code — reporting it as "bfcache not engaged" would name a cause
+  // nothing measured.
+  const readFailed = bfState.error ?? null;
+  const bfEngaged = !readFailed && bfState.value !== 'reloaded' && bfState.value !== null && bfState.value.includes('true');
+  const scenario = { landedOnHome, pathAfterBack, pageshowLog: bfState.value ?? null };
+  if (readFailed) {
+    scenario.exercisable = false;
+    scenario.unmeasured = true;
+    scenario.reason = `the pageshow read did not answer (${readFailed}) -- no reason came back from the page, so this leg measured nothing`;
+  } else if (!bfEngaged) {
     scenario.exercisable = false;
     scenario.reason = bfState.value === 'reloaded' || bfState.value === null
       ? 'history.back() forced a fresh script execution (bfcache not engaged in this headless run) -- window.__pageshowLog did not survive'
@@ -581,7 +592,8 @@ for (const [g, r] of Object.entries(out.s2)) {
   check(`s2/${g}/control`, r.passControlNav, `s2/${g}: positive control -- a quiet deliberate tap did NOT exit (pathname ${r.pathAfterControl}), so this scenario's green measures a dead control`);
 }
 for (const [g, r] of Object.entries(out.s3)) {
-  if (!r.exercisable) skip(`s3/${g}`, r.reason);
+  if (r.unmeasured) unmeasure(`s3/${g}`, `s3/${g}: ${r.reason}`);
+  else if (!r.exercisable) skip(`s3/${g}`, r.reason);
   else check(`s3/${g}`, r.pass, `s3/${g}: after a bfcache restore the X no longer exits (pathname ${r.pathAfterTap})`);
 }
 for (const [g, r] of Object.entries(out.s4)) {
@@ -635,7 +647,9 @@ for (const id of REQUIRED_LEGS) {
   fails.push(`coverage: required leg ${id} was not judged (${skippedIds.has(id) ? 'reported as a skip, which this leg is not allowed to do' : 'never reached the verdict at all'})`);
 }
 for (const id of OPTIONAL_LEGS) {
-  if (judgedIds.has(id) || skippedIds.has(id)) continue;
+  // unmeasuredIds counts here too: that bucket already blocks the exit code on its own, and leaving
+  // it out made an unmeasured optional leg ALSO report as vanished, naming a cause it does not have.
+  if (judgedIds.has(id) || skippedIds.has(id) || unmeasuredIds.has(id)) continue;
   fails.push(`coverage: leg ${id} was neither judged nor skipped -- it vanished from the walk without a reason`);
 }
 for (const id of [...judgedIds, ...skippedIds, ...unmeasuredIds]) {
@@ -652,5 +666,5 @@ for (const u of unmeasured) {
 }
 for (const s of skips) console.log(`  SKIP ${s}`);
 const req = REQUIRED_LEGS.filter((id) => judgedIds.has(id)).length;
-console.log(`play-exit-guard: ${ROUTES_ALL.length} route(s) checked, ${judgedIds.size} scenario leg(s) judged (${req}/${REQUIRED_LEGS.length} required, ${judgedIds.size - req}/${OPTIONAL_LEGS.length} optional), ${fails.length} failed, ${unmeasured.length} UNMEASURED (runner could not dispatch the burst inside the arm window -- blocks, like a failure), ${skips.length} not exercisable`);
+console.log(`play-exit-guard: ${ROUTES_ALL.length} route(s) checked, ${judgedIds.size} scenario leg(s) judged (${req}/${REQUIRED_LEGS.length} required, ${judgedIds.size - req}/${OPTIONAL_LEGS.length} optional), ${fails.length} failed, ${unmeasured.length} UNMEASURED (blocks, like a failure -- each one names its own cause above), ${skips.length} not exercisable`);
 process.exit(fails.length > 0 || unmeasured.length > 0 ? 1 : 0);

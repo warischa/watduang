@@ -70,6 +70,7 @@
 // strands routes whose canvas is hidden at setup, which is how the "no visible canvas" UNMEASURED is
 // demonstrated rather than asserted).
 import { games } from '../src/games/manifest.ts';
+import { locationReadFailure } from './cdp-evaluate-result.mjs';
 
 /** The renderer values src/games/types.ts allows. Exported so the reconcile test pins the set here
  *  rather than retyping it -- a fourth renderer added to the type and not here would otherwise pass
@@ -345,7 +346,13 @@ export default async function (session) {
       if (!click.value?.found) break; // nothing left to press -- fewer screens, not an error
       await sleep(900);
       const here = await session.evaluate('return location.pathname;');
-      if (here.value && !url.endsWith(here.value)) {
+      // Fail the whole run rather than the row: with the location unknown, every later sample this
+      // route records could belong to another page, and a row that still reports DREW would be
+      // attributing another route's ink. judge() reads verdicts, not walkError, so only a throw is
+      // loud here.
+      const unreadable = locationReadFailure(here);
+      if (unreadable) throw new Error(`${id}: ${unreadable}`);
+      if (!url.endsWith(here.value)) {
         // The press left the route. Every later sample would belong to another page, so stop here
         // and keep what this route's own screens recorded.
         walkError = `a press navigated to ${here.value}`;

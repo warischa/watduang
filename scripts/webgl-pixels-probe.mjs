@@ -3,10 +3,16 @@
 //
 // THREE outcomes, and the third is the reason this file exists. A canvas that renders nothing is
 // indistinguishable from a working one from every other gate here: the build passes, the types pass,
-// the DOM gates pass, the layout probes pass. But every browser lane this repo runs today launches
-// Chrome with the GPU disabled, so getContext('webgl') returns null, the engine takes its
-// unsupported branch and there is no drawing surface to read at all. A two-way probe on such a lane
-// reports a pass while measuring nothing.
+// the DOM gates pass, the layout probes pass. On a lane where getContext('webgl') returns null the
+// engine takes its unsupported branch and there is no drawing surface to read at all, so a two-way
+// probe on that lane reports a pass while measuring nothing.
+//
+// This comment used to say every browser lane this repo runs launches Chrome with the GPU disabled
+// and therefore has no context. That is true of `--disable-gpu` ON A MAC only. On the CI runner the
+// same flag leaves the context LIVE, measured in-page on run 34458877355:
+// `IN_PAGE_CONTEXT webgl2=live webgl=live experimental-webgl=live 2d=live`. WHY the runner has one
+// is explicitly NOT known. So the lane a run took decides whether this probe measured anything --
+// assert a live context IN the page rather than inferring it from the flag names.
 //
 // The readback resolves BOTH WebGL context families a route's engine might claim -- plain 'webgl' (the
 // two routes shipped today) and 'webgl2' (needed the day a route's renderer requests it only, e.g. an
@@ -44,6 +50,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { evaluateResult } from './cdp-evaluate-result.mjs';
 
 // ---- the verdict classifier ---------------------------------------------------------------------
 // Pure, and pinned by scripts/webgl-pixels-probe.test.mjs without a browser: this mapping is the
@@ -53,7 +60,10 @@ import { dirname, join } from 'node:path';
  *  itself never happened -- a lost context, or no animation frame inside the deadline. That is a void
  *  reading on a live context, and a void reading takes the void verdict rather than being guessed
  *  either way. */
-export function classify({ contextLive, nonBlank = null }) {
+export function classify({ contextLive, nonBlank = null, readError = null }) {
+  if (readError) {
+    return { verdict: 'UNMEASURED', reason: `the readback never answered (${readError}) -- this says nothing about the runner's GPU` };
+  }
   if (contextLive !== true) {
     return { verdict: 'UNMEASURED', reason: 'no live WebGL context on this runner -- nothing to read back' };
   }
@@ -262,9 +272,7 @@ async function main() {
     const res = await send('Runtime.evaluate', {
       expression: `(async () => { ${body} })()`, awaitPromise: true, returnByValue: true,
     });
-    const r = res?.result;
-    if (r?.exceptionDetails) return { error: r.exceptionDetails.exception?.description ?? r.exceptionDetails.text };
-    return { value: r?.result?.value ?? null };
+    return evaluateResult(res);
   };
 
   const rows = [];
@@ -277,7 +285,11 @@ async function main() {
     await send('Page.navigate', { url });
     await p;
     const read = await evaluate(READBACK(stubDraw));
-    const measured = read.value ?? { contextLive: false, nonBlank: null, error: read.error ?? 'no value returned' };
+    // An evaluate that did not answer is not a measurement of anything, least of all of this
+    // runner's GPU: keep contextLive unset so classify reports the read as the cause.
+    const measured = read.error
+      ? { contextLive: null, nonBlank: null, readError: read.error }
+      : read.value ?? { contextLive: false, nonBlank: null, error: 'no value returned' };
     rows.push({ route, url, ...measured, ...classify(measured) });
   }
 

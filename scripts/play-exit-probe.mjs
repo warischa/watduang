@@ -17,6 +17,7 @@ const BURST_GAP_MS = Number(process.env.PROBE_BURST_GAP_MS ?? 80);
 // gives the route the verdict its first candidate earned. Measured: one route needs one advance.
 const MAX_CAND_ADVANCE = 3;
 const { writeFile } = await import('node:fs/promises');
+const { evaluateResult } = await import('./cdp-evaluate-result.mjs');
 const BASE = process.env.BASE ?? 'http://localhost:5051';
 
 // Derived, never listed. A hardcoded list silently drops every new port: short-stick shipped and was
@@ -199,9 +200,7 @@ await send('Runtime.enable');
 
 const evaluate = async (body) => {
   const res = await send('Runtime.evaluate', { expression: `(async () => { ${body} })()`, awaitPromise: true, returnByValue: true });
-  const r = res?.result;
-  if (r?.exceptionDetails) return { error: r.exceptionDetails.exception?.description ?? r.exceptionDetails.text };
-  return { value: r?.result?.value ?? null };
+  return evaluateResult(res);
 };
 // Every navigation starts from a DECLARED state -- a first-time device -- never from whatever the
 // route walked before it happened to leave behind. Measured: the routes share one origin and write
