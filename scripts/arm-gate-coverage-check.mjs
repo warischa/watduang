@@ -211,14 +211,49 @@ function findArmWiring(text) {
  *  GHOST: a recorded carve-out with no subject. gh#154 deleted a game and took its entry with it by
  *  hand; nothing made that mandatory, and a ghost entry is a standing licence for whatever file
  *  later takes that name. Pure and injectable so both directions calibrate without touching
- *  src/games. Deliberately keyed on the FILE, not on the function: whether the named function still
- *  exists inside a module that does exist is a question the extractor already answers on every run
- *  (the exception simply stops matching and the violation reappears); a module that is gone is the
- *  case nothing else can see. */
+ *  src/games.
+ *
+ *  CORRECTION, measured rather than carried forward: this used to claim that a function-level
+ *  disappearance (the file survives, the named render function inside it does not) needed no
+ *  separate leg, because "the exception simply stops matching and the violation reappears". That is
+ *  false — measured against a real rewrite of daily-fortune.ts that dropped renderAsk entirely: no
+ *  violation reappeared, because nothing was left in the file for either condition to flag, and the
+ *  gate stayed green over a recorded exception with no live subject. findVacuousExceptions() below is
+ *  the leg that covers exactly this case; this function keeps its original, narrower job — the whole
+ *  module is gone. */
 function findGhostExceptions(scannedFiles, ungated = UNGATED_EXCEPTIONS, exceptArg = EXCEPT_ARG_EXCEPTIONS) {
   const present = new Set(scannedFiles);
   return [...ungated, ...exceptArg.keys()]
     .filter((entry) => !present.has(entry.split('::')[0]))
+    .sort();
+}
+
+/** Every exception entry whose named FUNCTION is not among the render functions the extractor really
+ *  finds in its named file today — a VACUOUS entry: the module survives, but its subject line does
+ *  not, so the entry now suppresses nothing and reads as coverage it never earns. Driven by
+ *  extractRenderFunctions() over `read(file)`, the same extraction the real scan runs on the module —
+ *  "would the extractor ever consult this key" is the predicate that defines vacuous here, not a name
+ *  grep. A missing file reads as zero functions and is reported too, harmlessly overlapping
+ *  findGhostExceptions() (that leg runs first in main() and exits before this one is reached).
+ *  Injectable `dir`/`read` so the selftest calibrates on temp fixtures; main() drives it off the real
+ *  src/games/ tree. */
+function findVacuousExceptions(dir, ungated = UNGATED_EXCEPTIONS, exceptArg = EXCEPT_ARG_EXCEPTIONS, read = (abs) => fs.readFileSync(abs, 'utf8')) {
+  const namesByFile = new Map();
+  const namesIn = (file) => {
+    if (!namesByFile.has(file)) {
+      const abs = path.join(dir, file);
+      const names = fs.existsSync(abs)
+        ? new Set(extractRenderFunctions(read(abs)).map((fn) => fn.name))
+        : new Set();
+      namesByFile.set(file, names);
+    }
+    return namesByFile.get(file);
+  };
+  return [...ungated, ...exceptArg.keys()]
+    .filter((entry) => {
+      const [file, fn] = entry.split('::');
+      return !namesIn(file).has(fn);
+    })
     .sort();
 }
 
@@ -293,15 +328,13 @@ const UNGATED_EXCEPTIONS = new Set([
 // `except` list — mapped to the EXACT argument the owner decision covers, not to "any non-empty
 // argument". The decision exempts a named set; widening the argument is a new decision, so any other
 // argument in the same function fails the gate.
-const EXCEPT_ARG_EXCEPTIONS = new Map([
-  // src/games/daily-fortune.ts, the "Exception (owner's call, not a judgement call to re-litigate)"
-  // comment inside renderAsk — "the roster chips are exempt from the gate ... 'go' (df-go) is a
-  // different finger's action ... and stays gated like every other control here." The call it sits
-  // above is armAllButtons(stage, chipEls). The decision pins chipEls and gates df-go, so
-  // `[...chipEls, goBtn]` is NOT covered by it. Anchored to the symbols, not a line range: the range
-  // and call site this used to carry had both already rotted past the code they name.
-  ['daily-fortune.ts::renderAsk', 'chipEls'],
-]);
+// Removed 2026-09-11: the daily-fortune.ts::renderAsk entry (chipEls exempt, per the owner's
+// "Exception (owner's call, not a judgement call to re-litigate)" ruling). The ruling itself is not
+// reversed — its subject is gone. A gh#99 rewrite of daily-fortune.ts dropped renderAsk, and with it
+// every armAllButtons(stage, chipEls) call the exemption named; findVacuousExceptions() is what
+// caught the entry going subjectless instead of it rotting unnoticed. Currently empty: no module
+// under src/games/ calls armAllButtons with a non-empty except arg today.
+const EXCEPT_ARG_EXCEPTIONS = new Map([]);
 
 // ---------------------------------------------------------------------------
 // Pure: text -> render-function bodies. No file IO here, so the selftest can feed it strings.
@@ -733,29 +766,28 @@ function selftest() {
     assert.ok(widenedViolations[0].detail.includes('covers exactly'), 'the message must name the argument the decision actually covers');
     console.log(`PASS condition 2, pinned arg: ${widenedViolations[0].detail}`);
 
-    // --- Condition 2, against the REAL exception entry: daily-fortune.ts::renderAsk is exempt for
-    // exactly `chipEls` (the decision at daily-fortune.ts:223-228 gates df-go by name). The shipped
-    // call passes; the ghost-tap-on-go widening does not. ---
-    const dfGood = write('daily-fortune.ts', [
+    // --- Condition 2, against the REAL (production, default-param) exception map. EXCEPT_ARG_EXCEPTIONS
+    // is empty today: the entry this case used to prove (daily-fortune.ts::renderAsk, exempt for
+    // chipEls) was removed once renderAsk left the module it named (findVacuousExceptions() below is
+    // what caught it going subjectless). No module under src/games/ currently ships a non-empty except
+    // arg, so there is no live production entry to prove a POSITIVE suppression against — the mechanism
+    // itself (suppress the named arg, flag a wider one) stays proven generically by exceptCarveOut /
+    // widenedCarveOut above via an injected map. What this case still owes, against the REAL default
+    // map: a non-empty except arg — even one spelled exactly like the old exemption's subject — must be
+    // flagged, not silently grandfathered in by a stale key. findViolations() is called with NO
+    // override, so this reads the module-level EXCEPT_ARG_EXCEPTIONS default directly. ---
+    const dfNoLongerExempt = write('daily-fortune.ts', [
       "function renderAsk(): void {",
       "  stage.replaceChildren();",
-      "  const goBtn = el('button', 'ไป');",
+      "  const goBtn = el('button', 'x');",
       "  stage.appendChild(goBtn);",
       "  cleanup.push(armAllButtons(stage, chipEls));",
       "}",
     ].join('\n'));
-    assert.deepEqual(findViolations(dfGood, 'daily-fortune.ts'), [], 'the shipped armAllButtons(stage, chipEls) call must stay clean under the real exception');
-    const dfWidened = write('daily-fortune-widened.ts', [
-      "function renderAsk(): void {",
-      "  stage.replaceChildren();",
-      "  const goBtn = el('button', 'ไป');",
-      "  stage.appendChild(goBtn);",
-      "  cleanup.push(armAllButtons(stage, [...chipEls, goBtn]));",
-      "}",
-    ].join('\n'));
-    const dfWidenedViolations = findViolations(dfWidened, 'daily-fortune.ts');
-    assert.equal(dfWidenedViolations.length, 1, 'armAllButtons(stage, [...chipEls, goBtn]) must be flagged — df-go stays gated per the recorded decision');
-    console.log('PASS condition 2, real exception: chipEls passes, [...chipEls, goBtn] is flagged (df-go stays gated)');
+    const dfViolations = findViolations(dfNoLongerExempt, 'daily-fortune.ts');
+    assert.equal(dfViolations.length, 1, 'with EXCEPT_ARG_EXCEPTIONS empty, an except arg must be flagged under the real default map, not grandfathered in by its old key');
+    assert.equal(dfViolations[0].kind, 'unrecorded except arg');
+    console.log('PASS condition 2, real (production) map: EXCEPT_ARG_EXCEPTIONS is empty today, so armAllButtons(stage, chipEls) is flagged under the real default — no stale key silently exempts it');
 
     // --- Finding 1: a positive-presence check must not be satisfied by a COMMENT. Commenting out
     // the live armAllButtons call is the exact reproduction: before comments were stripped this
@@ -1204,6 +1236,43 @@ function selftest() {
   );
   console.log(`PASS ghost exceptions: both directions calibrated, and all ${UNGATED_EXCEPTIONS.size + EXCEPT_ARG_EXCEPTIONS.size} recorded entries name a module that is really in the scanned set`);
 
+  // --- Anti-vacuity, both directions: the module can survive while the named FUNCTION inside it
+  // does not — the ghost check above cannot see that shape (its key is the file), and it is exactly
+  // how daily-fortune.ts::renderAsk stayed green after gh#99's rewrite dropped renderAsk. Driven
+  // through a temp dir + the real extractor, never a name grep, per the same "fixture the gate writes
+  // itself proves nothing" rule the ghost check follows. ---
+  const vacuumDir = fs.mkdtempSync(path.join(os.tmpdir(), 'arm-gate-vacuity-'));
+  try {
+    fs.writeFileSync(path.join(vacuumDir, 'has-fn.ts'), 'function renderReal(): void {}\n');
+    assert.deepEqual(
+      findVacuousExceptions(vacuumDir, new Set(['has-fn.ts::renderReal']), new Map()),
+      [],
+      'a function that really exists in its named file must not be reported as vacuous',
+    );
+    assert.deepEqual(
+      findVacuousExceptions(vacuumDir, new Set(['has-fn.ts::renderGone']), new Map([['has-fn.ts::renderAlsoGone', 'x']])),
+      ['has-fn.ts::renderAlsoGone', 'has-fn.ts::renderGone'],
+      'an entry naming a function absent from its (existing) file must be reported from BOTH exception sets',
+    );
+    assert.deepEqual(
+      findVacuousExceptions(vacuumDir, new Set(['missing-file.ts::renderX']), new Map()),
+      ['missing-file.ts::renderX'],
+      'a missing file reads as zero functions, so its entries are reported too — harmless overlap with the ghost check, which runs first in main()',
+    );
+  } finally {
+    fs.rmSync(vacuumDir, { recursive: true, force: true });
+  }
+  // Over the real sets and the real scan set: every recorded exception's function must be really
+  // extracted from its named module today. The three live UNGATED_EXCEPTIONS subjects
+  // (short-stick.ts::renderPassing, timebomb.ts::renderTicking, timebomb.ts::renderBoom) are what this
+  // assertion actually exercises against production — EXCEPT_ARG_EXCEPTIONS is empty today (see the
+  // condition-2 case below), so it contributes no live subject here.
+  assert.deepEqual(
+    findVacuousExceptions(path.join(repoRoot, 'src/games')), [],
+    'a recorded exception in this file names a function that no longer exists in its (existing) module — delete the entry or restore the function',
+  );
+  console.log('PASS anti-vacuity: both directions calibrated on temp fixtures, and every recorded entry names a function really extracted from its real module today');
+
   // Reconciliation, both directions. Calibrated as a pure function because the hazard it guards —
   // a route directory the manifest does not declare — cannot be planted in src/play/ from here:
   // that tree belongs to another owner, and a gate whose calibration edits its own subject is not
@@ -1281,6 +1350,20 @@ async function main() {
       console.error(
         `arm-gate-coverage-check: ${ghosts.length} recorded exception(s) name a module that is not in the scanned set: ${ghosts.join(', ')}. ` +
           'A carve-out with no subject is a standing licence for whatever file later takes that name — delete the entry, or restore the module (docs/adr/0019).',
+      );
+      process.exit(1);
+    }
+
+    // The module can survive while the named function inside it does not — a VACUOUS entry, the
+    // shape the ghost check above cannot see. Measured on daily-fortune.ts::renderAsk (gh#99 rewrote
+    // the module and the function left with it): the ghost check stayed green because the file was
+    // still there, and nothing else in this gate ever reads the exception sets for their own subject.
+    const vacuous = findVacuousExceptions(gamesDir, UNGATED_EXCEPTIONS, EXCEPT_ARG_EXCEPTIONS);
+    if (vacuous.length) {
+      console.error(
+        `arm-gate-coverage-check: ${vacuous.length} recorded exception(s) name a function that does not exist in its file: ${vacuous.join(', ')}. ` +
+          'The module survives; its subject line does not — a recorded carve-out with no live subject suppresses nothing and reads as coverage it never earns. ' +
+          'Delete the entry (naming why the subject left), or restore the function (docs/adr/0019).',
       );
       process.exit(1);
     }
