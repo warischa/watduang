@@ -32,7 +32,11 @@ Its three jobs are reassigned to pages that can hold them honestly:
 **ADR-0014's invariant is retargeted, not weakened.** That ADR requires one static crawlable link in
 page chrome above `#stage`, exempt from the leave-confirm because it provably never moves under a
 finger. Every one of those properties is a property of *where the link sits*, not of *where it goes*.
-The link now points at `/` and reads กลับหน้าแรก, a string already in the tree. `data-stable-exit`,
+The link now points at `/` and reads กลับหน้าแรก, a string already in the tree. **Retargeted again
+2026-09-11 by [ADR-0066](0066-the-landing-stable-exit-points-at-its-category.md):** on a landing page
+it points at that game's own category and reads the category's label. That ADR applies the very
+sentence above rather than overturning it — the destination was never what this one turned on.
+`data-stable-exit`,
 its position as the first thing in `<main>`, and its exemption in `PlayerSetup.astro` are unchanged.
 
 **The top bar loses its fourth entry rather than gaining a new target.** `PageChrome.astro` already
