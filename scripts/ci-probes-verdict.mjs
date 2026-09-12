@@ -175,9 +175,22 @@ const V = {
     if (s.gamesWithUsableWalk !== 2) return `${s.gamesWithUsableWalk} game(s) had a usable walk, expected 2 -- the claims below rest on walks that did not happen`;
     const c0 = s.claim0_stageHasNoAnchor?.fail;
     const c1 = s.claim1_noNavTargetHitInStage?.fail;
-    if (!Array.isArray(c0) || !Array.isArray(c1)) return `claim 0/1 fail lists absent from the summary (${JSON.stringify([c0, c1])}) -- refusing to read a missing list as clean`;
+    // A walk whose sampled points sat outside the viewport scores INCONCLUSIVE, not FAIL, so its
+    // `fail` list is empty and reads exactly like a clean run. The probe already emits this
+    // list; reading it is what makes an unmeasurable run non-zero. Claim 2's own inconclusive list
+    // stays unread on purpose -- claim 2 is ungated for the reason above, and measurability is
+    // per-walk, so claim 1's list already covers every walk.
+    const c1u = s.claim1_noNavTargetHitInStage?.inconclusive;
+    if (!Array.isArray(c0) || !Array.isArray(c1) || !Array.isArray(c1u)) return `claim 0/1 fail or inconclusive lists absent from the summary (${JSON.stringify([c0, c1, c1u])}) -- refusing to read a missing list as clean`;
     if (c0.length) return `claim 0 (no <a href> inside #stage) FAILED on: ${c0.join(', ')} -- ADR-0014`;
     if (c1.length) return `claim 1 (no nav target hit inside #stage) FAILED on: ${c1.join(', ')} -- a double-tap on a transition lands on a link`;
+    if (c1u.length) return `claim 1 could not be measured on: ${c1u.join(', ')} -- the sampled points were outside the viewport, so a clean result there means nothing was tested`;
+    // Partition liveness, same form as the control leg's own claim 0 count: the probe buckets every
+    // walked game into exactly one of pass/fail/inconclusive by matching a state string, so a rename
+    // of that state empties all three lists at once and every check above reads clean. With fail and
+    // inconclusive already empty, the two usable walks must be the two entries in `pass`.
+    const c1p = s.claim1_noNavTargetHitInStage?.pass;
+    if (!Array.isArray(c1p) || c1p.length !== 2) return `claim 1 reported ${JSON.stringify(c1p)} as PASS, expected 2 games -- with no failures and nothing inconclusive, a short list means the verdicts stopped being bucketed, not that the pages are clean`;
     return null;
   },
   'no-nav-in-stage-control': () => {

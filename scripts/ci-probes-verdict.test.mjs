@@ -108,3 +108,38 @@ test('a control leg reporting failures AND non-negative slack is a red, not a pa
   assert.equal(genuine.status, 1, `expected a red: ${genuine.stdout}`);
   assert.doesNotMatch(genuine.stdout, /contradicts itself/, `negative slack is coherent: ${genuine.stdout}`);
 });
+
+// An unmeasurable walk (a tap whose sampled points sat outside the viewport) scores INCONCLUSIVE on
+// claim 1, which leaves the `fail` list empty -- indistinguishable from a clean run to a predicate
+// that only reads `fail`. The probe has emitted the `inconclusive` list all along; these pin that the
+// verdict now reads it, including the case where the key is gone (a rename must go red, not green).
+const noNavClean = (claim1) => ({
+  breakGuard: false,
+  gamesWithUsableWalk: 2,
+  claim0_stageHasNoAnchor: { pass: [], fail: [], inconclusive: [] },
+  claim1_noNavTargetHitInStage: { pass: ['love-match'], fail: [], inconclusive: [], ...claim1 },
+});
+
+test('no-nav-in-stage goes red when claim 1 could not measure a game', () => {
+  const res = runVerdict('no-nav-in-stage', noNavClean({ inconclusive: ['siamsi'] }));
+  assert.equal(res.status, 1, `an unmeasurable walk must not report clean: ${res.stdout}`);
+  assert.match(res.stdout, /siamsi/, `the verdict must name the unmeasured game: ${res.stdout}`);
+});
+
+test('no-nav-in-stage passes when claim 1 measured every game', () => {
+  const res = runVerdict('no-nav-in-stage', noNavClean({ pass: ['love-match', 'siamsi'] }));
+  assert.equal(res.status, 0, `a fully measured clean run must pass: ${res.stdout}`);
+});
+
+test('no-nav-in-stage goes red when claim 1 carries no inconclusive list at all', () => {
+  const res = runVerdict('no-nav-in-stage', noNavClean({}));
+  assert.equal(res.status, 1, `a missing list must not read as clean: ${res.stdout}`);
+});
+
+// Drift hardening, not a shape today's probe can emit: the lists are built by bucketing each game on
+// a state string, so renaming that state empties pass, fail and inconclusive together and every
+// list-based check above reads clean. The two usable walks have to be somewhere.
+test('no-nav-in-stage goes red when every claim 1 list is empty', () => {
+  const res = runVerdict('no-nav-in-stage', noNavClean({ pass: [] }));
+  assert.equal(res.status, 1, `two usable walks and no verdicts is a broken partition, not a pass: ${res.stdout}`);
+});

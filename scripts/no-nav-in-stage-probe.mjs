@@ -301,7 +301,10 @@ export default async function (session) {
     // outside the viewport — a control below the fold then hits nothing not because it's safe but
     // because it was never tested. Claim 0 is DOM-based (querySelectorAll) and immune to this, so it
     // stays scored on walkUsable alone. A tap out of viewport makes claims 1/2 unmeasured, not passing.
-    const coordinateHitsMeasurable = taps.every((t) => t.inViewport !== false);
+    // Positive set, not `!== false`: a tap that carries no inViewport field at all -- the short shape
+    // returned for a missing element -- is unmeasured, not measurable. Hardening of the same rule,
+    // not a new mechanism; nothing outside this probe writes inViewport, so the set converges.
+    const coordinateHitsMeasurable = taps.length > 0 && taps.every((t) => t.inViewport === true);
     // Hits are scored BEFORE measurability, and the order is the whole point. A positive hit is a
     // reproduction — some point in this walk really did land on a nav target — and no amount of
     // unmeasured coordinate elsewhere in the same walk can retract it. Testing measurability first
