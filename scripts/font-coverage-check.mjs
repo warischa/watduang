@@ -41,15 +41,28 @@
 // composed at runtime — an Intl formatter asked for `th-TH-u-nu-thai` digits, a string assembled
 // from parts none of which spell the result — is invisible to this and to any static scan.
 // ponytail: no runtime instrumentation for that; add a headless pass only if a real miss appears.
+//
+// CEILING: WOFF2 VALIDATION VS CMAP EXTRACTION. This gate's reader extracts and inspects the cmap
+// subtable to answer "which codepoints does this file's cmap map"; it explicitly does NOT answer
+// "is this a font a browser can load". It does not validate glyph tables, outline integrity,
+// transformed table completeness, or unreferenced table directories. A malformed face that parses
+// here fails visibly in the browser rather than silently in this gate. Validating full font
+// loader conformance reproducer-by-reproducer is owned by the browser and format specifications.
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const FONT_EXT = new Set(['.ttf', '.otf', '.ttc', '.woff', '.woff2']);
-const READABLE_EXT = new Set(['.ttf', '.otf']);
+const READABLE_EXT = new Set(['.ttf', '.otf', '.woff2']);
 export const IGNORABLE = new Set([0x00ad, 0x200b, 0x200c, 0x200d, 0x2060, 0xfeff]);
+
+export const EXPECTED_STEMS = ['sarabun-regular-subset', 'sarabun-bold-subset'];
+export const EXPECTED_FACES = new Set(
+  EXPECTED_STEMS.flatMap((s) => [`${s}.woff2`, `${s}.ttf`]),
+);
 
 export const isThai = (cp) => cp >= 0x0e00 && cp <= 0x0e7f;
 export const fmt = (cp) => `U+${cp.toString(16).toUpperCase().padStart(4, '0')}`;
@@ -60,6 +73,98 @@ export function missing(fontCodepoints, corpusCodepoints) {
   for (const cp of corpusCodepoints) if (!fontCodepoints.has(cp)) out.push(cp);
   return out.sort((a, b) => a - b);
 }
+
+// Per-face coverage: every readable face must cover required codepoints on its own.
+export function checkFaceCoverage(faces, requiredCodepoints) {
+  const failures = [];
+  for (const face of faces) {
+    const file = face.file ?? face[0];
+    const codepoints = face.codepoints ?? face[1];
+    const gaps = missing(codepoints, requiredCodepoints);
+    if (gaps.length > 0) {
+      failures.push({ file, gaps });
+    }
+  }
+  return failures;
+}
+
+// Inventory check: ensures all expected faces exist and flags any unapproved readable fonts.
+export function checkInventory(fontFiles, expectedStems = EXPECTED_STEMS) {
+  const expectedSet = new Set(expectedStems.flatMap((s) => [`${s}.woff2`, `${s}.ttf`]));
+  const presentBasenames = new Set(fontFiles.map((f) => path.basename(f)));
+  const missing = [];
+  const unexpected = [];
+
+  for (const stem of expectedStems) {
+    for (const ext of ['.woff2', '.ttf']) {
+      const name = `${stem}${ext}`;
+      if (!presentBasenames.has(name)) {
+        missing.push(name);
+      }
+    }
+  }
+
+  for (const file of fontFiles) {
+    const ext = path.extname(file).toLowerCase();
+    if (READABLE_EXT.has(ext)) {
+      const base = path.basename(file);
+      if (!expectedSet.has(base)) {
+        unexpected.push(file);
+      }
+    }
+  }
+
+  return { missing, unexpected };
+}
+
+// Pairs each .woff2 face with its matching .ttf sibling based on the expected inventory.
+export function pairFaces(faces, expectedStems = EXPECTED_STEMS) {
+  const byBasename = new Map();
+  for (const face of faces) {
+    const file = face.file ?? face[0];
+    const codepoints = face.codepoints ?? face[1];
+    byBasename.set(path.basename(file), { file, codepoints });
+  }
+  const pairs = [];
+  const unpaired = [];
+  for (const stem of expectedStems) {
+    const woff2Face = byBasename.get(`${stem}.woff2`);
+    const ttfFace = byBasename.get(`${stem}.ttf`);
+    if (woff2Face && ttfFace) {
+      pairs.push({
+        stem,
+        woff2File: woff2Face.file,
+        ttfFile: ttfFace.file,
+        woff2Codepoints: woff2Face.codepoints,
+        ttfCodepoints: ttfFace.codepoints,
+      });
+    } else {
+      unpaired.push(stem);
+    }
+  }
+  pairs.unpaired = unpaired;
+  return pairs;
+}
+
+// Asserts cmap identity across paired faces: reports codepoints present in one but absent in the other.
+export function checkPairIdentity(pairs) {
+  const failures = [];
+  for (const pair of pairs) {
+    const { woff2File, ttfFile, woff2Codepoints, ttfCodepoints } = pair;
+    const onlyInWoff2 = missing(ttfCodepoints, woff2Codepoints);
+    const onlyInTtf = missing(woff2Codepoints, ttfCodepoints);
+    if (onlyInWoff2.length > 0 || onlyInTtf.length > 0) {
+      failures.push({
+        woff2File,
+        ttfFile,
+        onlyInWoff2,
+        onlyInTtf,
+      });
+    }
+  }
+  return failures;
+}
+
 
 const toChar = (digits, radix) => {
   const cp = Number.parseInt(digits, radix);
@@ -168,6 +273,107 @@ function readFormat12(view, at, out) {
   }
 }
 
+function readUIntBase128(buf, offset) {
+  let accum = 0;
+  for (let i = 0; i < 5; i += 1) {
+    if (offset + i >= buf.length) throw new Error('truncated UIntBase128');
+    const b = buf[offset + i];
+    if (i === 0 && b === 0x80) throw new Error('leading zero in UIntBase128');
+    if (accum & 0xfe000000) throw new Error('overflow in UIntBase128');
+    accum = (accum << 7) | (b & 0x7f);
+    if ((b & 0x80) === 0) return { val: accum >>> 0, len: i + 1 };
+  }
+  throw new Error('UIntBase128 sequence exceeds 5 bytes');
+}
+
+const WOFF2_KNOWN_TAGS = [
+  'cmap', 'head', 'hhea', 'hmtx', 'maxp', 'name', 'OS/2', 'post',
+  'cvt ', 'fpgm', 'glyf', 'loca', 'prep', 'CFF ', 'VORG', 'EBDT',
+  'EBLC', 'gasp', 'hdmx', 'kern', 'LTSH', 'PCLT', 'VDMX', 'vhea',
+  'vmtx', 'BASE', 'GDEF', 'GPOS', 'GSUB', 'EBSC', 'JSTF', 'MATH',
+  'CBDT', 'CBLC', 'COLR', 'CPAL', 'SVG ', 'sbix', 'acnt', 'avar',
+  'bdat', 'bloc', 'bsln', 'cvar', 'fdsc', 'feat', 'fmtx', 'fvar',
+  'gvar', 'hsty', 'just', 'lcar', 'mort', 'morx', 'opbd', 'prop',
+  'trak', 'Zapf', 'Silf', 'Glat', 'Gloc', 'Feat', 'Sill',
+];
+
+// Disclosed ceiling: woff2Codepoints extracts the cmap table from the decompressed font stream.
+// It answers which codepoints the cmap subtable maps; it does not validate glyph tables,
+// outlines, or full browser font loader conformance. A malformed face that parses here
+// will fail visibly in the browser rather than silently in this gate.
+export function woff2Codepoints(buffer) {
+  if (buffer.byteLength < 48) throw new Error('not a font: file is too short to hold a woff2 header');
+  const sig = buffer.toString('ascii', 0, 4);
+  if (sig !== 'wOF2') throw new Error(`not a woff2 font: signature is ${sig}`);
+  const flavor = buffer.readUInt32BE(4);
+  if (flavor === 0x74746366) throw new Error('not a readable font: sfnt collection (ttc) is unsupported');
+  if (flavor !== 0x00010000 && flavor !== 0x4f54544f) {
+    throw new Error(`not a readable font: sfnt flavor 0x${flavor.toString(16)}`);
+  }
+  const numTables = buffer.readUInt16BE(12);
+  const totalCompressedSize = buffer.readUInt32BE(20);
+
+  let offset = 48;
+  const tables = [];
+  for (let i = 0; i < numTables; i += 1) {
+    if (offset >= buffer.byteLength) throw new Error('truncated table directory in woff2');
+    const flagByte = buffer[offset];
+    offset += 1;
+    const tagIdx = flagByte & 0x3f;
+    const transformVer = (flagByte >> 6) & 0x03;
+    let tag;
+    if (tagIdx === 63) {
+      if (offset + 4 > buffer.byteLength) throw new Error('truncated table directory tag in woff2');
+      tag = buffer.toString('ascii', offset, offset + 4);
+      offset += 4;
+    } else {
+      tag = WOFF2_KNOWN_TAGS[tagIdx];
+    }
+    const orig = readUIntBase128(buffer, offset);
+    offset += orig.len;
+    let transformLength = orig.val;
+    if ((tag === 'glyf' || tag === 'loca') ? transformVer !== 3 : transformVer !== 0) {
+      const trans = readUIntBase128(buffer, offset);
+      offset += trans.len;
+      transformLength = trans.val;
+    }
+    tables.push({ tag, origLength: orig.val, transformLength });
+  }
+
+  if (offset + totalCompressedSize > buffer.byteLength) {
+    throw new Error('truncated compressed data in woff2');
+  }
+  const compressed = buffer.slice(offset, offset + totalCompressedSize);
+  const decompressed = zlib.brotliDecompressSync(compressed);
+
+  let cmapOffset = -1;
+  let cmapLength = 0;
+  let streamOffset = 0;
+  for (const t of tables) {
+    if (t.tag === 'cmap') {
+      cmapOffset = streamOffset;
+      cmapLength = t.origLength;
+      break;
+    }
+    streamOffset += t.transformLength;
+  }
+  if (cmapOffset < 0) throw new Error('font has no cmap table: its coverage cannot be read');
+  if (cmapOffset + cmapLength > decompressed.length) {
+    throw new Error('cmap table exceeds decompressed font data');
+  }
+
+  const cmapBytes = decompressed.slice(cmapOffset, cmapOffset + cmapLength);
+  const sfnt = Buffer.alloc(28 + cmapBytes.length);
+  sfnt.writeUInt32BE(0x00010000, 0);
+  sfnt.writeUInt16BE(1, 4);
+  sfnt.write('cmap', 12, 'ascii');
+  sfnt.writeUInt32BE(0, 16);
+  sfnt.writeUInt32BE(28, 20);
+  sfnt.writeUInt32BE(cmapBytes.length, 24);
+  cmapBytes.copy(sfnt, 28);
+  return cmapCodepoints(sfnt);
+}
+
 function walk(dir, found = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
@@ -215,6 +421,57 @@ function selftest() {
   assert.ok(marks.ignorable.has(0x200b), 'a zero-width character is reported, not demanded');
   assert.equal(fmt(0x0e31), 'U+0E31');
   assert.throws(() => cmapCodepoints(Buffer.from('wOF2xxxxxxxx')), /not a readable font/, 'an unparseable font must throw, never read as empty coverage');
+  assert.throws(() => woff2Codepoints(Buffer.from('wOF2xxxxxxxx')), /short|truncated/i, 'an unparseable woff2 must throw');
+  const invMissing = checkInventory(['fonts/sarabun-regular-subset.ttf']);
+  assert.equal(invMissing.missing.length, 3);
+  assert.ok(invMissing.missing.includes('sarabun-regular-subset.woff2'));
+  const invUnexpected = checkInventory([
+    ...EXPECTED_STEMS.flatMap((s) => [`fonts/${s}.woff2`, `fonts/${s}.ttf`]),
+    'fonts/rogue.ttf',
+  ]);
+  assert.deepEqual(invUnexpected.missing, []);
+  assert.equal(invUnexpected.unexpected.length, 1);
+  assert.equal(invUnexpected.unexpected[0], 'fonts/rogue.ttf');
+  const customPairs = pairFaces([
+    { file: 'fonts/f.woff2', codepoints: new Set([0x0e01]) },
+    { file: 'fonts/f.ttf', codepoints: new Set([0x0e01]) },
+  ], ['f']);
+  assert.equal(customPairs.length, 1);
+  assert.equal(customPairs.unpaired.length, 0);
+  const unpaired = pairFaces([
+    { file: 'fonts/f.woff2', codepoints: new Set([0x0e01]) },
+  ], ['f']);
+  assert.equal(unpaired.length, 0);
+  assert.deepEqual(unpaired.unpaired, ['f']);
+  const pairOk = checkPairIdentity([
+    { woff2File: 'f.woff2', ttfFile: 'f.ttf', woff2Codepoints: new Set([0x0e01]), ttfCodepoints: new Set([0x0e01]) },
+  ]);
+  assert.deepEqual(pairOk, []);
+  const pairDiff = checkPairIdentity([
+    { woff2File: 'f.woff2', ttfFile: 'f.ttf', woff2Codepoints: new Set([0x0e01]), ttfCodepoints: new Set([0x0e01, 0x0e04]) },
+  ]);
+  assert.equal(pairDiff.length, 1);
+  assert.deepEqual(pairDiff[0].onlyInTtf, [0x0e04]);
+  const faceA = new Set([0x0e01, 0x0e02]);
+  const faceB = new Set([0x0e01]);
+  const req = new Set([0x0e01, 0x0e02]);
+  const pooled = new Set([...faceA, ...faceB]);
+  assert.deepEqual(missing(pooled, req), [], 'pooled faces would pass despite face B lacking a codepoint');
+  const faceFailures = checkFaceCoverage([
+    { file: 'fonts/face-a.ttf', codepoints: faceA },
+    { file: 'fonts/face-b.ttf', codepoints: faceB },
+  ], req);
+  assert.equal(faceFailures.length, 1, 'per-face check catches face B missing coverage');
+  assert.equal(faceFailures[0].file, 'fonts/face-b.ttf', 'failing face is named');
+  assert.deepEqual(faceFailures[0].gaps, [0x0e02], 'missing codepoint is identified');
+  assert.deepEqual(
+    checkFaceCoverage([
+      { file: 'fonts/face-a.ttf', codepoints: faceA },
+      { file: 'fonts/face-b.ttf', codepoints: faceA },
+    ], req),
+    [],
+    'all faces covering required codepoints pass',
+  );
   console.log('font-coverage-check --selftest ok');
 }
 
@@ -248,21 +505,60 @@ function main() {
   }
   const readable = corpus.fonts.filter((f) => READABLE_EXT.has(path.extname(f).toLowerCase()));
   if (readable.length === 0) {
-    console.error(`::error::this build ships ${corpus.fonts.length} font file(s) and this gate can read none of them (${corpus.fonts.map((f) => path.relative(distRoot, f)).join(', ')}). A compressed woff/woff2 and an sfnt collection cannot be parsed here, so the subset would ship UNCHECKED. Two honest ways out, and a twin is NOT one of them: (1) ship the uncompressed .ttf/.otf as the REAL, referenced face and accept its transfer size — then this gate reads the same bytes the browser downloads; (2) teach this gate to read woff2 (its body is brotli, which node ships, and cmap is not one of the two tables woff2 transforms) so it reads the shipped file directly. A side-by-side .ttf twin measures a file no player ever fetches: the moment the two are subset differently this gate goes green on coverage the page does not have, and an UNREFERENCED twin under public/ also reds scripts/public-orphan-check.mjs, whose green requires every shipped file's basename to appear as a bound token somewhere in src/.`);
+    console.error(`::error::this build ships ${corpus.fonts.length} font file(s) and this gate can read none of them (${corpus.fonts.map((f) => path.relative(distRoot, f)).join(', ')}). A compressed woff and an sfnt collection cannot be parsed here, so the subset would ship UNCHECKED. Two honest ways out, and a twin is NOT one of them: (1) ship the uncompressed .ttf/.otf as the REAL, referenced face and accept its transfer size — then this gate reads the same bytes the browser downloads; (2) teach this gate to read woff2 (its body is brotli, which node ships, and cmap is not one of the two tables woff2 transforms) so it reads the shipped file directly. A side-by-side .ttf twin measures a file no player ever fetches: the moment the two are subset differently this gate goes green on coverage the page does not have, and an UNREFERENCED twin under public/ also reds scripts/public-orphan-check.mjs, whose green requires every shipped file's basename to appear as a bound token somewhere in src/.`);
     process.exit(1);
   }
+
+  // The expected inventory is owned by the project, not derived from what happens to be on disk:
+  // a derived set cannot report that a member went missing, which is exactly how a renamed face
+  // stopped being paired and let the gate exit 0 on genuinely divergent faces.
+  //
+  // --expected exists only so fixture trees, whose faces are named for the case under test, can
+  // still exercise the coverage and identity logic. It is honoured ONLY alongside --dist, so it
+  // cannot reach the real run: CI invokes this gate with no arguments, takes EXPECTED_STEMS, and
+  // there is no argument it can be given that would weaken that. Passed without --dist it is a
+  // hard error rather than a silent fallback, because a flag that quietly does nothing is the kind
+  // of thing someone later "fixes" by making it work everywhere.
+  const expectedArg = argv.indexOf('--expected');
+  if (expectedArg >= 0 && distArg < 0) {
+    console.error('::error::--expected is a fixture-only flag and requires --dist; refusing to weaken the inventory of a real build');
+    process.exit(1);
+  }
+  const expectedStems = expectedArg >= 0
+    ? String(argv[expectedArg + 1] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+    : EXPECTED_STEMS;
+  if (expectedArg >= 0 && expectedStems.length === 0) {
+    console.error('::error::--expected was given no value');
+    process.exit(1);
+  }
+
+  const inventory = checkInventory(corpus.fonts, expectedStems);
+  if (inventory.missing.length > 0 || inventory.unexpected.length > 0) {
+    for (const name of inventory.missing) {
+      console.error(`::error::expected font file ${name} is missing from shipped fonts`);
+    }
+    for (const file of inventory.unexpected) {
+      const rel = path.relative(distRoot, file) || file;
+      console.error(`::error::shipped font file ${rel} matches no expected entry in font inventory`);
+    }
+    process.exit(1);
+  }
+  const faces = [];
   const font = new Set();
   const unsupported = new Set();
   for (const file of readable) {
     let cps;
     try {
-      cps = cmapCodepoints(fs.readFileSync(file));
+      const buf = fs.readFileSync(file);
+      const ext = path.extname(file).toLowerCase();
+      cps = ext === '.woff2' ? woff2Codepoints(buf) : cmapCodepoints(buf);
     } catch (err) {
       console.error(`::error::${path.relative(distRoot, file)}: ${err.message}`);
       process.exit(1);
     }
+    faces.push({ file, codepoints: cps });
     for (const cp of cps) font.add(cp);
-    for (const f of cps.unsupportedFormats) unsupported.add(f);
+    for (const f of cps.unsupportedFormats || []) unsupported.add(f);
   }
   console.log(`font: ${font.size} codepoint(s) mapped across ${readable.map((f) => path.relative(distRoot, f)).join(', ')}`);
   if (unsupported.size > 0) console.log(`coverage gap: cmap subtable format(s) ${[...unsupported].join(', ')} were not read`);
@@ -270,16 +566,43 @@ function main() {
   // @font-face listing a woff2 first and a .ttf as fallback references both, so the orphan gate is
   // green, the browser fetches the woff2, and everything below is measured on the .ttf. That is a
   // real reading of the wrong file, and it is invisible unless the unread ones are named.
-  // ponytail: printed, not red -- escalating would gate a font nobody has landed yet, and the
-  // ruling on whether an unread shipped face should FAIL belongs to whoever lands it.
+  // Owner ruling 2026-09-13: both .ttf and .woff2 are read, and cmap identity is asserted across
+  // paired faces. Any unread shipped face format remains disclosed below.
   const unread = corpus.fonts.filter((f) => !readable.includes(f)).map((f) => path.relative(distRoot, f));
   if (unread.length > 0) {
     console.log(`coverage gap: ${unread.length} shipped font file(s) were NOT read by this gate — ${unread.join(', ')}. If the browser loads one of those instead of what was read above, this run measured a file that is not the product.`);
   }
 
-  const gaps = missing(font, corpus.required);
-  if (gaps.length > 0) {
-    console.error(`::error::the shipped subset is missing ${gaps.length} Thai codepoint(s) this build's own text contains: ${gaps.map(fmt).join(' ')} — each renders as a dotted circle or a box with no error anywhere.`);
+  const pairs = pairFaces(faces, expectedStems);
+  if (pairs.unpaired && pairs.unpaired.length > 0) {
+    for (const stem of pairs.unpaired) {
+      console.error(`::error::expected font stem ${stem} could not be paired (.woff2 and .ttf required)`);
+    }
+    process.exit(1);
+  }
+  const pairFailures = checkPairIdentity(pairs);
+  if (pairFailures.length > 0) {
+    for (const { woff2File, ttfFile, onlyInWoff2, onlyInTtf } of pairFailures) {
+      const woff2Rel = path.relative(distRoot, woff2File) || woff2File;
+      const ttfRel = path.relative(distRoot, ttfFile) || ttfFile;
+      const parts = [];
+      if (onlyInTtf.length > 0) {
+        parts.push(`present in ${ttfRel} but missing from ${woff2Rel}: ${onlyInTtf.map(fmt).join(' ')}`);
+      }
+      if (onlyInWoff2.length > 0) {
+        parts.push(`present in ${woff2Rel} but missing from ${ttfRel}: ${onlyInWoff2.map(fmt).join(' ')}`);
+      }
+      console.error(`::error::paired faces ${woff2Rel} and ${ttfRel} map different codepoint sets — ${parts.join('; ')}`);
+    }
+    process.exit(1);
+  }
+
+  const failures = checkFaceCoverage(faces, corpus.required);
+  if (failures.length > 0) {
+    for (const { file, gaps } of failures) {
+      const rel = path.relative(distRoot, file) || file;
+      console.error(`::error::${rel} is missing ${gaps.length} Thai codepoint(s) this build's own text contains: ${gaps.map(fmt).join(' ')} — each renders as a dotted circle or a box with no error anywhere.`);
+    }
     process.exit(1);
   }
   console.log(`OK: all ${corpus.required.size} reachable Thai codepoint(s) are present in the shipped subset`);
