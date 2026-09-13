@@ -1,0 +1,437 @@
+{
+  "summary": {
+    "games": 2,
+    "breakGuard": false,
+    "gamesWithUsableWalk": 2,
+    "totalTransitions": 7,
+    "totalScreensWithStageAnchor": 0,
+    "totalInStageAnchorHits": 0,
+    "notCovered": {},
+    "claim0_stageHasNoAnchor": {
+      "pass": [
+        "daily-fortune",
+        "siamsi"
+      ],
+      "fail": []
+    },
+    "claim1_noNavTargetHitInStage": {
+      "pass": [],
+      "fail": [],
+      "inconclusive": [
+        "daily-fortune",
+        "siamsi"
+      ]
+    },
+    "claim2_hitNeverInGameNext": {
+      "pass": [],
+      "fail": [],
+      "inconclusive": [
+        "daily-fortune",
+        "siamsi"
+      ]
+    },
+    "perGame": {
+      "daily-fortune": {
+        "stageHasNoAnchor": "PASS",
+        "noNavTargetHitInStage": "INCONCLUSIVE",
+        "hitNeverInGameNext": "INCONCLUSIVE",
+        "walkUsable": true,
+        "coordinateHitsMeasurable": false,
+        "transitions": 2,
+        "screensWithStageAnchor": 0,
+        "inStageAnchorHits": 0,
+        "gameNextHits": 0,
+        "anyAnchorHits": 0,
+        "anchorHrefsHit": [],
+        "nearestStageAnchorGapsPx": []
+      },
+      "siamsi": {
+        "stageHasNoAnchor": "PASS",
+        "noNavTargetHitInStage": "INCONCLUSIVE",
+        "hitNeverInGameNext": "INCONCLUSIVE",
+        "walkUsable": true,
+        "coordinateHitsMeasurable": false,
+        "transitions": 5,
+        "screensWithStageAnchor": 0,
+        "inStageAnchorHits": 0,
+        "gameNextHits": 0,
+        "anyAnchorHits": 0,
+        "anchorHrefsHit": [],
+        "nearestStageAnchorGapsPx": []
+      }
+    }
+  },
+  "games": {
+    "daily-fortune": {
+      "beforeStart": {
+        "innerWidth": 320,
+        "innerHeight": 900,
+        "seededRosterLength": 8,
+        "sessionStorageLen": 0,
+        "stageChildren": 6,
+        "staticHubLinks": 1,
+        "setupPanelVisible": false
+      },
+      "rosterTicks": {
+        "solo": true,
+        "boxCount": 0,
+        "allChecked": null
+      },
+      "afterStart": {
+        "setupPanelVisible": false,
+        "stageChildren": 6,
+        "staticHubLinks": 1,
+        "innerWidth": 320
+      },
+      "walkError": null,
+      "walkUsable": true,
+      "transitions": 2,
+      "transitionsExpectedAtLeast": 2,
+      "screensWithStageAnchor": 0,
+      "inStageAnchorHits": 0,
+      "gameNextHits": 0,
+      "anyAnchorHits": 0,
+      "anchorHrefsHit": [],
+      "nearestStageAnchorGapsPx": [],
+      "coordinateHitsMeasurable": false,
+      "stageHasNoAnchor": "PASS",
+      "noNavTargetHitInStage": "INCONCLUSIVE",
+      "hitNeverInGameNext": "INCONCLUSIVE",
+      "taps": [
+        {
+          "label": "#df-go -> result",
+          "tappedTag": "BUTTON",
+          "tappedId": "df-go",
+          "inViewport": false,
+          "changed": true,
+          "wasDisabled": false,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#df-again -> ask",
+          "tappedTag": "BUTTON",
+          "tappedId": "df-again",
+          "inViewport": false,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        }
+      ]
+    },
+    "siamsi": {
+      "beforeStart": {
+        "innerWidth": 320,
+        "innerHeight": 900,
+        "seededRosterLength": 8,
+        "sessionStorageLen": 0,
+        "stageChildren": 5,
+        "staticHubLinks": 1,
+        "setupPanelVisible": false
+      },
+      "rosterTicks": {
+        "solo": true,
+        "boxCount": 0,
+        "allChecked": null
+      },
+      "afterStart": {
+        "setupPanelVisible": false,
+        "stageChildren": 5,
+        "staticHubLinks": 1,
+        "innerWidth": 320
+      },
+      "walkError": null,
+      "walkUsable": true,
+      "transitions": 5,
+      "transitionsExpectedAtLeast": 5,
+      "screensWithStageAnchor": 0,
+      "inStageAnchorHits": 0,
+      "gameNextHits": 0,
+      "anyAnchorHits": 0,
+      "anchorHrefsHit": [],
+      "nearestStageAnchorGapsPx": [],
+      "coordinateHitsMeasurable": false,
+      "stageHasNoAnchor": "PASS",
+      "noNavTargetHitInStage": "INCONCLUSIVE",
+      "hitNeverInGameNext": "INCONCLUSIVE",
+      "taps": [
+        {
+          "label": "#ss-intent-done -> shake",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-intent-done",
+          "inViewport": false,
+          "changed": true,
+          "wasDisabled": false,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#ss-hold -> stick",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-hold",
+          "inViewport": false,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#ss-open-slip -> slip",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-open-slip",
+          "inViewport": false,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#ss-keep -> done",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-keep",
+          "inViewport": false,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#ss-again -> intent",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-again",
+          "inViewport": false,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": -1,
+              "y": -1,
+              "tag": null,
+              "text": null,
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "consoleErrors": []
+}

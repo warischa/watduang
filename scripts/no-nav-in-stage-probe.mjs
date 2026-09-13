@@ -42,6 +42,10 @@
 // signal is "nothing found" and which has never found anything cannot be told from one that measured
 // nothing (docs/verification/probe-triage-2026-08-26.md).
 //
+// BREAK_VIEWPORT=1 forces the sampled tap coordinates outside the viewport immediately before the
+// measurability and hit checks while retaining real transitions, making the INCONCLUSIVE path
+// executable on demand.
+//
 // ponytail: COVERAGE CEILING — 2 walked pages (gh#149, down from 4), and the set is bounded by the
 // hazard's own precondition rather than by effort. This probe needs a tap that REPLACES #stage; only
 // two pages still have one. ADR-0040 (2026-08-25) made daily-fortune and siamsi solo pages ([1, 1]): no
@@ -76,6 +80,7 @@ const PLAYERS = [
 // the trigger, then re-reads those same viewport points on the screen that replaced it.
 const HELPERS = `
   const BREAK_GUARD = ${process.env.BREAK_GUARD ? 'true' : 'false'};
+  const BREAK_VIEWPORT = ${process.env.BREAK_VIEWPORT ? 'true' : 'false'};
   const stage = document.getElementById('stage');
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const box = (e) => { const r = e.getBoundingClientRect(); return { cx: r.left + r.width / 2, cy: r.top + r.height / 2, top: r.top, bottom: r.bottom }; };
@@ -103,7 +108,8 @@ const HELPERS = `
     el.scrollIntoView({ block: 'center' });
     await sleep(120);
     const g = box(el);
-    const pts = [[g.cx, g.cy], [g.cx, g.top + 2], [g.cx, g.bottom - 2]];
+    let pts = [[g.cx, g.cy], [g.cx, g.top + 2], [g.cx, g.bottom - 2]];
+    if (BREAK_VIEWPORT) pts = [[-1, -1], [-1, -1], [-1, -1]];
     // Every sampled point, not just the centre: the edge samples sit outside the centre row by
     // construction, so a centre-only test called a control measurable while two of its three points
     // were off-screen and silently returning null.
@@ -349,6 +355,12 @@ export default async function (session) {
       // Read by a CI verdict predicate, not decoration: a control leg is only satisfied when
       // breakGuard is true AND the walks reported the planted anchor. Split per claim, never averaged.
       breakGuard: !!process.env.BREAK_GUARD,
+      // Same reason as breakGuard above: a summary must say whether this run was deliberately
+      // made unmeasurable, or a reader cannot tell a forced INCONCLUSIVE from a real one. The
+      // switch takes exactly one spelling on purpose -- it earlier accepted two more aliases,
+      // which tripled the surface for setting it by accident on a gate whose whole effect is to
+      // stop the run measuring anything.
+      breakViewport: !!process.env.BREAK_VIEWPORT,
       gamesWithUsableWalk: ids.filter((i) => games[i].walkUsable).length,
       totalTransitions: ids.reduce((n, i) => n + games[i].transitions, 0),
       totalScreensWithStageAnchor: ids.reduce((n, i) => n + games[i].screensWithStageAnchor, 0),
