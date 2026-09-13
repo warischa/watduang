@@ -354,3 +354,68 @@
 
 /* Nothing is needed for the desktop rail above, where the strip wraps: with no trailing overflow the
    module measures 0 seats hidden and the band stays invisible on its own. */
+
+/* Deliberately NO overflow:hidden on #screen-game, and it must not be added back.
+
+   Measured at 320x568, n=3, both states in one run:
+     overflow:hidden  -> clientHeight 393, scrollHeight 456  (63px clipped)
+     overflow:visible -> clientHeight 492, scrollHeight 492  (nothing clipped)
+   So this container does not have overflow that hidden would tidy away: hidden CREATES the
+   overflow. This is a flex item, and a non-visible overflow resolves its automatic minimum size
+   to zero, which lets the box shrink from 492 to 393 and then hides the 99px difference.
+
+   What lands in that hidden region is the product: the primary control #btn-trigger-scan itself
+   (top 540, so 28px clears the fold; bottom 616, so it straddles it) and the turn-action banner
+   carrying the player name and the button label. Left visible, the box fits its own content and
+   the remainder is reached by scrolling the page.
+
+   The owner ruling that lets a partly visible control stand (2026-09-12) rests explicitly on this
+   route family having no clipping context, so the remainder is reachable rather than clipped.
+   Adding one would void the premise that ruling depends on. */
+
+/* gh#182 - Primary control #btn-trigger-scan fold clearance at 320x568.
+   At 320x568 on the play screen, #btn-trigger-scan top previously sat 10px past
+   the fold (578px vs 568px), reading 0 visible pixels.
+   Compact spacing under max-height: 600px lifts #btn-trigger-scan to 540px
+   (28px visible above the fold) and maintains all touch targets and wire art at
+   full size. An earlier draft of this comment also claimed the patch eliminates
+   chassis/bay overlap onto the turn banner; the saved measurements do not support
+   that and the claim is withdrawn rather than restated -- the fold clearance above
+   is what this patch is verified to do.
+   Scoped to max-height: 600px so 390x844 and desktop remain unchanged. */
+@media (max-height: 600px) {
+  #screen-game {
+    padding-block: 6px;
+    gap: 6px;
+  }
+
+  .hud-player-strip {
+    padding-block: 2px 4px;
+  }
+
+  .hud-status-bar {
+    padding-block: 4px;
+  }
+
+  .bomb-chassis {
+    padding: 8px;
+  }
+
+  .bomb-lcd {
+    padding-block: 4px;
+    margin-bottom: 4px;
+  }
+
+  .timer-bar-wrap {
+    margin-bottom: 4px;
+  }
+
+  .wires-bay {
+    padding-block: 4px;
+  }
+
+  .turn-action-banner {
+    padding-block: 8px;
+    gap: 6px;
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "zero-trigger": {
+    "loads": [
+      {
+        "load": 1,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 400
+        },
+        "steps": [
+          {
+            "name": "primary",
+            "report": true,
+            "label": "#btn-big-action",
+            "why": "the single round-action button on #screen-game; no pass/ready gate exists on this route (checked main.js: no interstitial screen between setup and #screen-game), so it is the only candidate.",
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 400,
+              "primarySel": "#btn-big-action",
+              "primaryTop": 451.59375,
+              "primaryBottom": 591.59375,
+              "primaryHeight": 140,
+              "topPastFold": 51.59375,
+              "visiblePx": 0,
+              "container": "section#screen-game",
+              "containerOverflowY": "auto",
+              "containerClientHeight": 280,
+              "containerScrollHeight": 579,
+              "foldEdge": 380,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "hidden",
+                "clientHeight": 400,
+                "scrollHeight": 400,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": 191.59375,
+              "tallestBoxes": [
+                {
+                  "sel": "section#screen-game.screen.active",
+                  "top": 100,
+                  "bottom": 380,
+                  "height": 280,
+                  "children": 5
+                },
+                {
+                  "sel": "div.action-button-area",
+                  "top": 423.59375,
+                  "bottom": 591.59375,
+                  "height": 168,
+                  "children": 2
+                },
+                {
+                  "sel": "button#btn-big-action.big-trigger-btn",
+                  "top": 451.59375,
+                  "bottom": 591.59375,
+                  "height": 140,
+                  "children": 2
+                },
+                {
+                  "sel": "div#stopwatch-stage-box.stopwatch-stage.glass-card",
+                  "top": 270,
+                  "bottom": 403.59375,
+                  "height": 133.59375,
+                  "children": 1
+                },
+                {
+                  "sel": "div#active-player-card.active-player-card.glass-card",
+                  "top": 176,
+                  "bottom": 260,
+                  "height": 84,
+                  "children": 2
+                },
+                {
+                  "sel": "div#lcd-timer-display.lcd-digital-timer",
+                  "top": 296,
+                  "bottom": 377.59375,
+                  "height": 81.59375,
+                  "children": 0
+                },
+                {
+                  "sel": "div.tier-banner.glass-card",
+                  "top": 104,
+                  "bottom": 166,
+                  "height": 62,
+                  "children": 2
+                },
+                {
+                  "sel": "header",
+                  "top": 44,
+                  "bottom": 100,
+                  "height": 56,
+                  "children": 2
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      }
+    ],
+    "calibrations": [
+      {
+        "blockSel": "section#screen-game.screen.active",
+        "result": {
+          "before": {
+            "blockHeight": 280,
+            "primaryTop": 451.59375
+          },
+          "forced": {
+            "blockHeight": 2000,
+            "primaryTop": 1517.65625
+          },
+          "after": {
+            "blockHeight": 280,
+            "primaryTop": 451.59375
+          },
+          "moved": 1066.0625,
+          "returned": true
+        }
+      }
+    ]
+  }
+}

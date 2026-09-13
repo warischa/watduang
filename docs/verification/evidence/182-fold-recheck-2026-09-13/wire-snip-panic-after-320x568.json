@@ -1,0 +1,348 @@
+{
+  "wire-snip-panic": {
+    "loads": [
+      {
+        "load": 1,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "primary",
+            "report": true,
+            "label": "#btn-trigger-scan",
+            "why": "established primary for this route (182-320-fold).",
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btn-trigger-scan",
+              "primaryTop": 540,
+              "primaryBottom": 616,
+              "primaryHeight": 76,
+              "topPastFold": -28,
+              "visiblePx": 28,
+              "container": "div#screen-game",
+              "containerOverflowY": "auto",
+              "containerClientHeight": 393,
+              "containerScrollHeight": 456,
+              "foldEdge": 568,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "hidden",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": 48,
+              "tallestBoxes": [
+                {
+                  "sel": "canvas#particle-canvas",
+                  "top": 0,
+                  "bottom": 568,
+                  "height": 568,
+                  "children": 0
+                },
+                {
+                  "sel": "div#flash-overlay",
+                  "top": 0,
+                  "bottom": 568,
+                  "height": 568,
+                  "children": 0
+                },
+                {
+                  "sel": "div#screen-game.screen.active",
+                  "top": 175,
+                  "bottom": 568,
+                  "height": 393,
+                  "children": 4
+                },
+                {
+                  "sel": "div#bomb-chassis.bomb-chassis",
+                  "top": 261,
+                  "bottom": 501,
+                  "height": 240,
+                  "children": 7
+                },
+                {
+                  "sel": "div#wires-bay.wires-bay",
+                  "top": 360,
+                  "bottom": 526.9375,
+                  "height": 166.9375,
+                  "children": 6
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      },
+      {
+        "load": 2,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "primary",
+            "report": true,
+            "label": "#btn-trigger-scan",
+            "why": "established primary for this route (182-320-fold).",
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btn-trigger-scan",
+              "primaryTop": 540,
+              "primaryBottom": 616,
+              "primaryHeight": 76,
+              "topPastFold": -28,
+              "visiblePx": 28,
+              "container": "div#screen-game",
+              "containerOverflowY": "auto",
+              "containerClientHeight": 393,
+              "containerScrollHeight": 456,
+              "foldEdge": 568,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "hidden",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": 48,
+              "tallestBoxes": [
+                {
+                  "sel": "canvas#particle-canvas",
+                  "top": 0,
+                  "bottom": 568,
+                  "height": 568,
+                  "children": 0
+                },
+                {
+                  "sel": "div#flash-overlay",
+                  "top": 0,
+                  "bottom": 568,
+                  "height": 568,
+                  "children": 0
+                },
+                {
+                  "sel": "div#screen-game.screen.active",
+                  "top": 175,
+                  "bottom": 568,
+                  "height": 393,
+                  "children": 4
+                },
+                {
+                  "sel": "div#bomb-chassis.bomb-chassis",
+                  "top": 261,
+                  "bottom": 501,
+                  "height": 240,
+                  "children": 7
+                },
+                {
+                  "sel": "div#wires-bay.wires-bay",
+                  "top": 360,
+                  "bottom": 526.9375,
+                  "height": 166.9375,
+                  "children": 6
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      },
+      {
+        "load": 3,
+        "vp": {
+          "innerWidth": 320,
+          "innerHeight": 568
+        },
+        "steps": [
+          {
+            "name": "primary",
+            "report": true,
+            "label": "#btn-trigger-scan",
+            "why": "established primary for this route (182-320-fold).",
+            "clickRes": null,
+            "measured": {
+              "ok": true,
+              "innerWidth": 320,
+              "innerHeight": 568,
+              "primarySel": "#btn-trigger-scan",
+              "primaryTop": 540,
+              "primaryBottom": 616,
+              "primaryHeight": 76,
+              "topPastFold": -28,
+              "visiblePx": 28,
+              "container": "div#screen-game",
+              "containerOverflowY": "auto",
+              "containerClientHeight": 393,
+              "containerScrollHeight": 456,
+              "foldEdge": 568,
+              "pageScrollInfo": {
+                "tag": "html",
+                "overflowY": "hidden",
+                "clientHeight": 568,
+                "scrollHeight": 568,
+                "pageScrollable": false
+              },
+              "screenPresent": true,
+              "screenVisible": true,
+              "screenHidden": false,
+              "allDialogIds": [],
+              "openDialogIds": [],
+              "ariaModalsVisible": [],
+              "shellDialogsOpen": [],
+              "bottomPastFold": 48,
+              "tallestBoxes": [
+                {
+                  "sel": "canvas#particle-canvas",
+                  "top": 0,
+                  "bottom": 568,
+                  "height": 568,
+                  "children": 0
+                },
+                {
+                  "sel": "div#flash-overlay",
+                  "top": 0,
+                  "bottom": 568,
+                  "height": 568,
+                  "children": 0
+                },
+                {
+                  "sel": "div#screen-game.screen.active",
+                  "top": 175,
+                  "bottom": 568,
+                  "height": 393,
+                  "children": 4
+                },
+                {
+                  "sel": "div#bomb-chassis.bomb-chassis",
+                  "top": 261,
+                  "bottom": 501,
+                  "height": 240,
+                  "children": 7
+                },
+                {
+                  "sel": "div#wires-bay.wires-bay",
+                  "top": 360,
+                  "bottom": 526.9375,
+                  "height": 166.9375,
+                  "children": 6
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                },
+                {
+                  "sel": "div.wire-column.disabled",
+                  "top": 365,
+                  "bottom": 521.9375,
+                  "height": 156.9375,
+                  "children": 4
+                }
+              ],
+              "firstItemReading": null,
+              "setReadings": null
+            }
+          }
+        ]
+      }
+    ],
+    "calibrations": [
+      {
+        "blockSel": "canvas#particle-canvas",
+        "result": {
+          "before": {
+            "blockHeight": 568,
+            "primaryTop": 540
+          },
+          "forced": {
+            "blockHeight": 2000,
+            "primaryTop": 540
+          },
+          "after": {
+            "blockHeight": 568,
+            "primaryTop": 540
+          },
+          "moved": 0,
+          "returned": true
+        }
+      }
+    ]
+  }
+}

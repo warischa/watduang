@@ -1,0 +1,1297 @@
+{
+  "loads": [
+    {
+      "load": 1,
+      "measured": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "primary": {
+          "sel": "#btn-trigger-scan",
+          "top": 540,
+          "bottom": 616,
+          "topPastFold": -28,
+          "visiblePx": 28
+        },
+        "container": {
+          "sel": "div#screen-game",
+          "clientHeight": 393,
+          "scrollHeight": 456,
+          "clientWidth": 320,
+          "scrollWidth": 320,
+          "overflowY": "hidden",
+          "overflowX": "hidden",
+          "rectTop": 175,
+          "visibleBottomEdge": 568
+        },
+        "overflowing": [
+          {
+            "tag": "div",
+            "id": "turn-action-banner",
+            "classList": [
+              "turn-action-banner"
+            ],
+            "rectBottom": 625,
+            "interactive": false,
+            "hasVisibleText": false,
+            "ownTextTrimmed": null
+          },
+          {
+            "tag": "button",
+            "id": "btn-trigger-scan",
+            "classList": [
+              "btn-primary"
+            ],
+            "rectBottom": 616,
+            "interactive": true,
+            "hasVisibleText": false,
+            "ownTextTrimmed": null
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "classList": [],
+            "rectBottom": 591,
+            "interactive": true,
+            "hasVisibleText": true,
+            "ownTextTrimmed": "⚡"
+          }
+        ]
+      }
+    },
+    {
+      "load": 2,
+      "measured": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "primary": {
+          "sel": "#btn-trigger-scan",
+          "top": 540,
+          "bottom": 616,
+          "topPastFold": -28,
+          "visiblePx": 28
+        },
+        "container": {
+          "sel": "div#screen-game",
+          "clientHeight": 393,
+          "scrollHeight": 456,
+          "clientWidth": 320,
+          "scrollWidth": 320,
+          "overflowY": "hidden",
+          "overflowX": "hidden",
+          "rectTop": 175,
+          "visibleBottomEdge": 568
+        },
+        "overflowing": [
+          {
+            "tag": "div",
+            "id": "turn-action-banner",
+            "classList": [
+              "turn-action-banner"
+            ],
+            "rectBottom": 625,
+            "interactive": false,
+            "hasVisibleText": false,
+            "ownTextTrimmed": null
+          },
+          {
+            "tag": "button",
+            "id": "btn-trigger-scan",
+            "classList": [
+              "btn-primary"
+            ],
+            "rectBottom": 616,
+            "interactive": true,
+            "hasVisibleText": false,
+            "ownTextTrimmed": null
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "classList": [],
+            "rectBottom": 591,
+            "interactive": true,
+            "hasVisibleText": true,
+            "ownTextTrimmed": "⚡"
+          }
+        ]
+      }
+    },
+    {
+      "load": 3,
+      "measured": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "primary": {
+          "sel": "#btn-trigger-scan",
+          "top": 540,
+          "bottom": 616,
+          "topPastFold": -28,
+          "visiblePx": 28
+        },
+        "container": {
+          "sel": "div#screen-game",
+          "clientHeight": 393,
+          "scrollHeight": 456,
+          "clientWidth": 320,
+          "scrollWidth": 320,
+          "overflowY": "hidden",
+          "overflowX": "hidden",
+          "rectTop": 175,
+          "visibleBottomEdge": 568
+        },
+        "overflowing": [
+          {
+            "tag": "div",
+            "id": "turn-action-banner",
+            "classList": [
+              "turn-action-banner"
+            ],
+            "rectBottom": 625,
+            "interactive": false,
+            "hasVisibleText": false,
+            "ownTextTrimmed": null
+          },
+          {
+            "tag": "button",
+            "id": "btn-trigger-scan",
+            "classList": [
+              "btn-primary"
+            ],
+            "rectBottom": 616,
+            "interactive": true,
+            "hasVisibleText": false,
+            "ownTextTrimmed": null
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "classList": [],
+            "rectBottom": 591,
+            "interactive": true,
+            "hasVisibleText": true,
+            "ownTextTrimmed": "⚡"
+          }
+        ]
+      }
+    }
+  ],
+  "toggle": {
+    "before": {
+      "overflowY": "hidden",
+      "scrollHeight": 456,
+      "clientHeight": 393
+    },
+    "forced": {
+      "overflowY": "visible",
+      "scrollHeight": 492,
+      "clientHeight": 492
+    },
+    "after": {
+      "overflowY": "hidden",
+      "scrollHeight": 456,
+      "clientHeight": 393
+    },
+    "scrollHeightChanged": true,
+    "returned": true
+  },
+  "calibration_320x200": {
+    "ok": true,
+    "innerWidth": 320,
+    "innerHeight": 200,
+    "primary": {
+      "sel": "#btn-trigger-scan",
+      "top": 533,
+      "bottom": 609,
+      "topPastFold": 333,
+      "visiblePx": 0
+    },
+    "container": {
+      "sel": "div#screen-game",
+      "clientHeight": 25,
+      "scrollHeight": 456,
+      "clientWidth": 320,
+      "scrollWidth": 320,
+      "overflowY": "hidden",
+      "overflowX": "hidden",
+      "rectTop": 175,
+      "visibleBottomEdge": 200
+    },
+    "overflowing": [
+      {
+        "tag": "div",
+        "id": "hud-player-strip",
+        "classList": [
+          "hud-player-strip"
+        ],
+        "rectBottom": 214,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "player-card-badge",
+          "current"
+        ],
+        "rectBottom": 210.67999267578125,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "span",
+        "id": null,
+        "classList": [],
+        "rectBottom": 203.39999389648438,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "🐱"
+      },
+      {
+        "tag": "span",
+        "id": null,
+        "classList": [],
+        "rectBottom": 200.8000030517578,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "QQAAX"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "player-card-badge"
+        ],
+        "rectBottom": 210,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "span",
+        "id": null,
+        "classList": [],
+        "rectBottom": 203,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "🐶"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "player-card-badge"
+        ],
+        "rectBottom": 210,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "span",
+        "id": null,
+        "classList": [],
+        "rectBottom": 203,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "🐰"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "strip-more"
+        ],
+        "rectBottom": 210,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "+1"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "hud-status-bar"
+        ],
+        "rectBottom": 248,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "hud-round-tag",
+        "classList": [
+          "round-tag"
+        ],
+        "rectBottom": 243,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "รอบที่ 1"
+      },
+      {
+        "tag": "div",
+        "id": "bomb-chassis",
+        "classList": [
+          "bomb-chassis"
+        ],
+        "rectBottom": 494,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "rivet",
+          "top-left"
+        ],
+        "rectBottom": 274,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "rivet",
+          "top-right"
+        ],
+        "rectBottom": 274,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "rivet",
+          "bottom-left"
+        ],
+        "rectBottom": 484,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "rivet",
+          "bottom-right"
+        ],
+        "rectBottom": 484,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "bomb-lcd"
+        ],
+        "rectBottom": 339,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [],
+        "rectBottom": 328,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "lcd-main-status",
+        "classList": [
+          "lcd-text-primary"
+        ],
+        "rectBottom": 294,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "พร้อมเริ่ม"
+      },
+      {
+        "tag": "div",
+        "id": "lcd-sub-status",
+        "classList": [
+          "lcd-text-secondary"
+        ],
+        "rectBottom": 328,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "ส่งให้ QQAAX (2 เส้น • 5.0วิ 🎯 [ปกติ])"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [],
+        "rectBottom": 333,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "lcd-timer-badge",
+        "classList": [
+          "lcd-timer-badge"
+        ],
+        "rectBottom": 317,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "⏳ 5.0วิ"
+      },
+      {
+        "tag": "div",
+        "id": "lcd-step-indicator",
+        "classList": [],
+        "rectBottom": 333,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "ขั้น 0/2"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "timer-bar-wrap"
+        ],
+        "rectBottom": 349,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "timer-bar-fill",
+        "classList": [
+          "timer-bar-fill"
+        ],
+        "rectBottom": 348,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": "wires-bay",
+        "classList": [
+          "wires-bay"
+        ],
+        "rectBottom": 519.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-column",
+          "disabled"
+        ],
+        "rectBottom": 514.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "top"
+        ],
+        "rectBottom": 380,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-top-0",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 374,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-svg-wrap"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "svg",
+        "id": null,
+        "classList": [
+          "wire-svg"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-shadow"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-main"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-core"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "bottom"
+        ],
+        "rectBottom": 468.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-bottom-0",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 462.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-label-tag"
+        ],
+        "rectBottom": 510.9375,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "#1 สีแดง"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-column",
+          "disabled"
+        ],
+        "rectBottom": 514.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "top"
+        ],
+        "rectBottom": 380,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-top-1",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 374,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-svg-wrap"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "svg",
+        "id": null,
+        "classList": [
+          "wire-svg"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-shadow"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-main"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-core"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "bottom"
+        ],
+        "rectBottom": 468.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-bottom-1",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 462.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-label-tag"
+        ],
+        "rectBottom": 510.9375,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "#2 สีฟ้า"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-column",
+          "disabled"
+        ],
+        "rectBottom": 514.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "top"
+        ],
+        "rectBottom": 380,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-top-2",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 374,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-svg-wrap"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "svg",
+        "id": null,
+        "classList": [
+          "wire-svg"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-shadow"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-main"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-core"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "bottom"
+        ],
+        "rectBottom": 468.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-bottom-2",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 462.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-label-tag"
+        ],
+        "rectBottom": 510.9375,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "#3 สีเหลือง"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-column",
+          "disabled"
+        ],
+        "rectBottom": 514.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "top"
+        ],
+        "rectBottom": 380,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-top-3",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 374,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-svg-wrap"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "svg",
+        "id": null,
+        "classList": [
+          "wire-svg"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-shadow"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-main"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-core"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "bottom"
+        ],
+        "rectBottom": 468.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-bottom-3",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 462.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-label-tag"
+        ],
+        "rectBottom": 510.9375,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "#4 สีเขียว"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-column",
+          "disabled"
+        ],
+        "rectBottom": 514.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "top"
+        ],
+        "rectBottom": 380,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-top-4",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 374,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-svg-wrap"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "svg",
+        "id": null,
+        "classList": [
+          "wire-svg"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-shadow"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-main"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-core"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "bottom"
+        ],
+        "rectBottom": 468.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-bottom-4",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 462.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-label-tag"
+        ],
+        "rectBottom": 510.9375,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "#5 สีม่วง"
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-column",
+          "disabled"
+        ],
+        "rectBottom": 514.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "top"
+        ],
+        "rectBottom": 380,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-top-5",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 374,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-svg-wrap"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "svg",
+        "id": null,
+        "classList": [
+          "wire-svg"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-shadow"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-main"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "path",
+        "id": null,
+        "classList": [
+          "wire-path-core"
+        ],
+        "rectBottom": 450.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-terminal",
+          "bottom"
+        ],
+        "rectBottom": 468.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "led-bottom-5",
+        "classList": [
+          "terminal-led"
+        ],
+        "rectBottom": 462.9375,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": ""
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classList": [
+          "wire-label-tag"
+        ],
+        "rectBottom": 510.9375,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "#6 สีส้ม"
+      },
+      {
+        "tag": "div",
+        "id": "turn-action-banner",
+        "classList": [
+          "turn-action-banner"
+        ],
+        "rectBottom": 618,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "div",
+        "id": "turn-instructions",
+        "classList": [
+          "turn-instructions"
+        ],
+        "rectBottom": 527,
+        "interactive": false,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "b",
+        "id": "current-turn-player-name",
+        "classList": [],
+        "rectBottom": 526,
+        "interactive": false,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "QQAAX"
+      },
+      {
+        "tag": "button",
+        "id": "btn-trigger-scan",
+        "classList": [
+          "btn-primary"
+        ],
+        "rectBottom": 609,
+        "interactive": true,
+        "hasVisibleText": false,
+        "ownTextTrimmed": null
+      },
+      {
+        "tag": "span",
+        "id": null,
+        "classList": [],
+        "rectBottom": 584,
+        "interactive": true,
+        "hasVisibleText": true,
+        "ownTextTrimmed": "⚡"
+      }
+    ]
+  }
+}

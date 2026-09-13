@@ -1,0 +1,13 @@
+{
+  "turn-action-banner": {
+    "textContent": "ถึงตาของ: QQAAX\n        \n        \n          ⚡ กดเพื่อเริ่มสแกนจำลำดับสายไฟ",
+    "hasClick": false
+  },
+  "btn-trigger-scan": {
+    "textContent": "⚡ กดเพื่อเริ่มสแกนจำลำดับสายไฟ",
+    "hasClick": false
+  },
+  "span-in-btn": {
+    "textContent": "⚡"
+  }
+}
