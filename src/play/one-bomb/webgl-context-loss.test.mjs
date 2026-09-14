@@ -22,7 +22,7 @@
 // live id index, a textContent write is what a MutationObserver sees, and `style` is an object. So
 // this proves what main.ts DOES to those nodes, never that Chrome fires `webglcontextlost` when this
 // route loses a context. (2) It says nothing about whether the arm window really disables anything;
-// scripts/arm-gate-probe.mjs owns that.
+// that runtime fact is deliberately unmeasured per owner ruling on issue #232.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

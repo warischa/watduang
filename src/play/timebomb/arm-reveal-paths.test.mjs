@@ -32,8 +32,8 @@
 // (1) an inline reveal is recorded under its whole receiver expression, so a receiver renamed later
 //     still surfaces as unexpected and still fails — it does not slip through, it just reads worse;
 // (2) this proves the CALL SITE exists next to the reveal, never that the 400ms window really
-//     disables anything in a browser. Only scripts/arm-gate-probe.mjs proves that, and this test
-//     claims nothing about it.
+//     disables anything in a browser — the runtime arm question is deliberately unmeasured
+//     (owner ruling on issue #232), and this test claims nothing about it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

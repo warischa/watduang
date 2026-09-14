@@ -15,8 +15,8 @@
 //     is recorded under the receiver text `document.getElementById('x')`, so it still shows up as an
 //     unexpected receiver and still fails -- it does not slip through, it just reads worse;
 // (2) this proves the CALL SITE exists next to the reveal, never that the 400ms window really
-//     disables anything. Only scripts/arm-gate-probe.mjs in a real browser proves that, and this
-//     test claims nothing about it.
+//     disables anything in a browser — the runtime arm question is deliberately unmeasured
+//     (owner ruling on issue #232), and this test claims nothing about it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

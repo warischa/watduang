@@ -19,8 +19,8 @@
 // ponytail: matched on source text, not on a parsed AST. Two stated ceilings, same as the other
 // eleven: (1) a receiver renamed later still surfaces as unexpected and still fails — it does not
 // slip through, it just reads worse; (2) this proves the observer and the call sites EXIST, never
-// that the 400ms window really disables anything in a browser. Only scripts/arm-gate-probe.mjs
-// proves that, and this test claims nothing about it.
+// that the 400ms window really disables anything in a browser — the runtime arm question is deliberately
+// unmeasured (owner ruling on issue #232), and this test claims nothing about it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

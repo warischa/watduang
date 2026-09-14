@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Static regression tripwire for ADR-0016 (docs/adr/0016-a-gate-that-classifies-nothing-converges.md)
 // and ADR-0017 (docs/adr/0017-two-sets-not-one-the-gate-covers-every-button.md): every button a
-// render function adds to #stage must be gated by armAllButtons. scripts/arm-gate-probe.mjs (real
-// touch over CDP, docs/adr/0018) is what actually proves the ghost tap is suppressed; that probe
-// never runs in CI. This script stands in per ADR-0018's rule — it is a cheap source scan, not the
-// proof, and it names what it cannot see.
+// render function adds to #stage must be gated by armAllButtons. The runtime half (whether a real
+// touch suppresses the ghost tap in a browser) is deliberately unmeasured per the owner ruling of
+// 2026-09-14 on issue #232. This script stands in per ADR-0018's rule — it is a cheap source scan, not
+// the proof, and it names what it cannot see.
 //
 // ADR-0017:44-45 claims the anti-rot property "a button added to any of these four games is gated
 // automatically by armAllButtons, with no list to remember" — but that only covers a new BUTTON
@@ -171,8 +171,8 @@ async function derivePlayRoutes() {
 // violation itself; here over-detection only widens the requirement.
 const PLAY_BUTTON_RE = /<button[\s>]|\bel\(\s*(['"])button\1|createElement\(\s*(['"])button\2/i;
 
-/** Does this script really WIRE the ghost-tap gate? Answered from the TypeScript parser's tree, not
- *  from a text match, and the distinction is the whole point:
+/** Does this script syntactically import and call the ghost-tap gate? Answered from the TypeScript
+ *  parser's tree, not from a text match, and the distinction is the whole point:
  *   - a `// armAllButtons(panel)` in a comment is not a CallExpression, so it cannot satisfy this;
  *   - an `'armAllButtons('` inside a string is not one either;
  *   - `import { armAllButtons } from '.../_arm-gate.ts'` with no call site — import-without-wiring —
@@ -181,10 +181,14 @@ const PLAY_BUTTON_RE = /<button[\s>]|\bel\(\s*(['"])button\1|createElement\(\s*(
  *  is no textual walk here to desync on a regex literal. assertParses() upstream makes an unreadable
  *  module a RED, never a skip, so "zero calls found" can never mean "the file did not parse".
  *
- *  ponytail: DISCLOSED CEILING — this answers "is the gate wired in this route at all", never "is
- *  every button armed". Which element each call receives, and whether the panel visible at first
- *  paint is one of them, is a runtime fact about the rendered DOM; no source scan reaches it. The
- *  success line says so, and scripts/arm-gate-probe.mjs is the instrument for it. */
+ *  ponytail: DISCLOSED CEILING — this detects only a syntactic import of the arm helper and a
+ *  syntactic call to it in the module's source. It does NOT prove the call executes, that it is reached
+ *  on the path that reveals the buttons, or which element it is passed — a no-op call, a call in dead
+ *  or unreachable code, or a call given the wrong element all read as covered. Never "is every button
+ *  armed" or "is the gate wired in reality". Which element each call receives, whether the panel
+ *  visible at first paint is one of them, and WHICH buttons each call actually reaches are runtime facts
+ *  about the rendered DOM; no source scan reaches them. The success line says so, and this runtime half
+ *  is deliberately unmeasured per owner ruling of 2026-09-14 on issue #232. */
 function findArmWiring(text) {
   let imported = false;
   let calls = 0;
@@ -1444,34 +1448,28 @@ async function main() {
   // pointing at nothing and the gate exited 0. findGhostExceptions() below is what makes the
   // sentence true — the property is now enforced, not asserted.
   //
-  // What the deletion cost is a DYNAMIC leg, not this one. scripts/arm-gate-probe.mjs's `pl-pick
+  // What the deletion cost is a DYNAMIC leg, not this one. The former probe's `pl-pick
   // exception` leg proved a specific shape in a real browser: a control that a PRECEDING gated
   // control's tap renders, itself deliberately left live at t0. That subject is gone and the leg is
   // not repointed. Note the narrower wording — the three entries below ARE ungated in-#stage buttons
   // that still ship, so "no ungated button is left" would be false; what is gone is the one whose
   // liveness a real touch was driven against.
   //
-  // gh#170 — the success line no longer NAMES scripts/arm-gate-probe.mjs as the thing that covers the
-  // browser-only property. That sentence was false in practice, and it is the specific defect this
-  // ticket exists to remediate: the probe is referenced nowhere in .github/workflows/, in
-  // scripts/ci-probes.sh, in scripts/run-workflow-gates.sh or in package.json (re-measure with
-  // `grep -rn arm-gate-probe .github/ scripts/ package.json`), so it runs in no gate and cannot red
-  // anything; and its own first line records that its short-stick and timebomb scenarios drive
-  // /game/<id>/ landing pages ADR-0050 ruling 2 deleted. A gate's green must not point at an
-  // instrument that is not running (docs/adr/0019). Wording to restore only once that probe both
-  // targets the play routes AND appears in a lane of scripts/ci-probes.sh with a BREAK_GUARD control
-  // leg beside it, the way no-nav-in-stage does.
+  // Issue #232 (2026-09-14 owner ruling) — the runtime arm question is deliberately unmeasured.
+  // The probe was deleted rather than wired into CI, as nothing invoked it. A gate's green must
+  // not point at an instrument that is not running or does not exist (docs/adr/0019).
   console.log(
     `arm-gate-coverage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}` +
-    ` · ${declared.length} play route(s), ${playFileCount} file(s), under ${playDir} each wire armAllButtons${playOverrideNote}` +
+    ` · ${declared.length} play route(s), ${playFileCount} file(s), under ${playDir} each syntactically import and call armAllButtons${playOverrideNote}` +
     ` · recorded exceptions: ${UNGATED_EXCEPTIONS.size} ungated (${[...UNGATED_EXCEPTIONS].join(', ')}),` +
     ` ${EXCEPT_ARG_EXCEPTIONS.size} pinned except-arg` +
-    ' · NOT covered here: WHICH buttons each armAllButtons call actually reaches, and whether a real' +
-    ' touch inside the 400ms window is suppressed in a browser. Both are runtime facts and NOTHING IN' +
-    ' CI MEASURES THEM TODAY — scripts/arm-gate-probe.mjs is the only instrument for them and it is' +
-    ' wired into no gate and still aimed at deleted /game/<id>/ landings (gh#170). Read this green as' +
-    ' "the gate is imported and called in every play route that builds a button", never as "no ghost' +
-    ' tap gets through".',
+    ' · NOT covered here: this source scan detects only a syntactic import and call — it cannot prove the' +
+    ' call executes, is reached on reveal, or which element it is passed (dead code, no-ops, or wrong elements' +
+    ' read as covered), nor WHICH buttons each call actually reaches, nor whether a real touch inside the 400ms' +
+    ' window is suppressed in a browser. Every one of those is a runtime fact and all are DELIBERATELY UNMEASURED — measured by' +
+    ' nothing per owner ruling of 2026-09-14 on issue #232, a decision rather than an oversight. Read this' +
+    ' green as "syntactic import and call exist in source", never as "buttons are armed" or "no ghost tap' +
+    ' gets through".',
   );
 }
 

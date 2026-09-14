@@ -26,8 +26,8 @@
 // swaps a node in its parent; a click walks `closest` up the tree; `disabled` swallows an activation;
 // and `style` is a plain object. Stated ceilings: this proves what main.ts DOES to those nodes,
 // never that Chrome fires `webglcontextlost` on this route, nor that cancelling the loop really stops
-// a rAF chain, nor that the arm window disables anything in a browser (scripts/arm-gate-probe.mjs
-// owns that last one). No real timer is ever created: the handoff timer is captured and run by hand.
+// a rAF chain, nor that the arm window disables anything in a browser (that runtime fact is
+// deliberately unmeasured per owner ruling on issue #232). No real timer is ever created: the handoff timer is captured and run by hand.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

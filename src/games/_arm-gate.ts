@@ -190,7 +190,8 @@ function armAfterQuiet(
 
   // scripts/arm-gate-coverage-check.mjs gates COVERAGE (every render function arms its buttons via
   // armAllButtons). The physical fact this restart leg rests on — a real touch on a `disabled`
-  // button still bubbles pointerdown to #stage — is proven only by the manual scripts/arm-gate-probe.mjs.
+  // button still bubbles pointerdown to #stage — is deliberately unmeasured at runtime per the
+  // site owner's ruling on issue #232.
   stage.addEventListener('pointerdown', restart);
   restart();
 

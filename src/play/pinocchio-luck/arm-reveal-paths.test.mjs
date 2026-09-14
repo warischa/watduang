@@ -22,7 +22,7 @@
 //     strip is load-bearing there. Only full-line comments go: a trailing `//` inside a template
 //     string would take real code with it, and nothing here needs that;
 // (2) the textual half proves the CALL SITE exists next to the reveal, never that the 400ms window
-//     really disables anything in a browser. Only scripts/arm-gate-probe.mjs proves that.
+//     really disables anything in a browser — that runtime fact is deliberately unmeasured (owner ruling on issue #232).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

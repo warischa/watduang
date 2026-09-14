@@ -25,8 +25,8 @@
 // ponytail: matched on source text for the SET, executed for the BEHAVIOUR. Three stated ceilings:
 // (1) a receiver renamed later still surfaces as unexpected and still fails — it does not slip
 // through, it just reads worse; (2) this proves the observer, the close-path listeners and the call
-// sites exist and fire, never that the 400ms window really disables anything in a browser — only
-// scripts/arm-gate-probe.mjs proves that, and this test claims nothing about it; (3) the arm window's
+// sites exist and fire, never that the 400ms window really disables anything in a browser (that runtime
+// fact is deliberately unmeasured per owner ruling on issue #232), and this test claims nothing about it; (3) the arm window's
 // CLOCK is ADR-0059's business and lives in _arm-gate.ts, not here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
