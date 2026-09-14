@@ -219,18 +219,40 @@ test('the gate greens on a superset, and skips loudly when nothing is self-hoste
   assert.match(none.out, /SKIP/);
 });
 
-test('a shipped font this gate could not open is NAMED, not passed over in silence', () => {
-  // A shipped font format the gate cannot parse (.woff or .ttc) must be disclosed as unread,
-  // never silently passed over.
+test('a shipped face the gate cannot open FAILS, naming the unread face', () => {
+  // Owner ruling 2026-09-14 on issue #237: a shipped font format the gate cannot parse
+  // (.woff or .ttc) must fail the gate rather than be disclosed and passed.
   const r = runOn({
     'index.html': PAGE,
     ...fullFontSet(),
     'fonts/subset.woff': Buffer.from('wOFF not a readable sfnt'),
   });
-  assert.equal(r.status, 0, 'one readable face covering the corpus still passes');
+  assert.equal(r.status, 1, 'a shipped face the gate cannot open must fail');
   assert.match(r.out, /coverage gap: 1 shipped font file\(s\) were NOT read/, 'the unread count is stated');
   assert.match(r.out, /subset\.woff/, 'the unread file is named');
+  assert.match(r.out, /Remove the unsupported face and update its references/, 'the repair path is stated');
   assert.doesNotMatch(r.out, /subset\.woff[^\n]*mapped/, 'the unread file is never counted as coverage');
+});
+
+test('the gate reports both unreadable faces and missing coverage in one run', () => {
+  // Precedent (scripts/ci-probes-verdict.mjs): independent failures are collected and reported
+  // together rather than short-circuited, so an unread face does not swallow coverage errors.
+  const missingOne = THAI_BLOCK.filter((c) => c !== 0x0e02);
+  const r = runOn({
+    'index.html': PAGE,
+    ...fullFontSet({
+      'fonts/sarabun-regular-subset.ttf': ttfWithCodepoints(missingOne),
+      'fonts/sarabun-regular-subset.woff2': woff2WithCodepoints(missingOne),
+      'fonts/sarabun-bold-subset.ttf': ttfWithCodepoints(missingOne),
+      'fonts/sarabun-bold-subset.woff2': woff2WithCodepoints(missingOne),
+    }),
+    'fonts/broken.woff': Buffer.from('wOFF not a readable sfnt'),
+  });
+  assert.equal(r.status, 1);
+  assert.match(r.out, /coverage gap: 1 shipped font file\(s\) were NOT read/);
+  assert.match(r.out, /broken\.woff/);
+  assert.match(r.out, /sarabun-regular-subset\.ttf is missing 1 Thai codepoint\(s\)/);
+  assert.match(r.out, /U\+0E02/);
 });
 
 test('with nothing readable the gate refuses to recommend a twin', () => {

@@ -566,11 +566,16 @@ function main() {
   // @font-face listing a woff2 first and a .ttf as fallback references both, so the orphan gate is
   // green, the browser fetches the woff2, and everything below is measured on the .ttf. That is a
   // real reading of the wrong file, and it is invisible unless the unread ones are named.
-  // Owner ruling 2026-09-13: both .ttf and .woff2 are read, and cmap identity is asserted across
-  // paired faces. Any unread shipped face format remains disclosed below.
+  let failed = false;
+  // Owner ruling 2026-09-14 on issue #237: any shipped face format this gate cannot read must
+  // FAIL the gate rather than be disclosed and passed.
+  // Independent failures are collected rather than short-circuited (following the precedent
+  // in scripts/ci-probes-verdict.mjs) so an unreadable face does not swallow per-face coverage
+  // errors when a build suffers from both defects.
   const unread = corpus.fonts.filter((f) => !readable.includes(f)).map((f) => path.relative(distRoot, f));
   if (unread.length > 0) {
-    console.log(`coverage gap: ${unread.length} shipped font file(s) were NOT read by this gate — ${unread.join(', ')}. If the browser loads one of those instead of what was read above, this run measured a file that is not the product.`);
+    console.error(`::error::coverage gap: ${unread.length} shipped font file(s) were NOT read by this gate — ${unread.join(', ')}. Remove the unsupported face and update its references, or replace it with a supported, readable subset; regenerate corrupt supported files and rerun this gate.`);
+    failed = true;
   }
 
   const pairs = pairFaces(faces, expectedStems);
@@ -578,7 +583,7 @@ function main() {
     for (const stem of pairs.unpaired) {
       console.error(`::error::expected font stem ${stem} could not be paired (.woff2 and .ttf required)`);
     }
-    process.exit(1);
+    failed = true;
   }
   const pairFailures = checkPairIdentity(pairs);
   if (pairFailures.length > 0) {
@@ -594,7 +599,7 @@ function main() {
       }
       console.error(`::error::paired faces ${woff2Rel} and ${ttfRel} map different codepoint sets — ${parts.join('; ')}`);
     }
-    process.exit(1);
+    failed = true;
   }
 
   const failures = checkFaceCoverage(faces, corpus.required);
@@ -603,8 +608,9 @@ function main() {
       const rel = path.relative(distRoot, file) || file;
       console.error(`::error::${rel} is missing ${gaps.length} Thai codepoint(s) this build's own text contains: ${gaps.map(fmt).join(' ')} — each renders as a dotted circle or a box with no error anywhere.`);
     }
-    process.exit(1);
+    failed = true;
   }
+  if (failed) process.exit(1);
   console.log(`OK: all ${corpus.required.size} reachable Thai codepoint(s) are present in the shipped subset`);
 }
 
