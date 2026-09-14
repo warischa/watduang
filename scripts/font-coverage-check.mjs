@@ -422,16 +422,22 @@ function selftest() {
   assert.equal(fmt(0x0e31), 'U+0E31');
   assert.throws(() => cmapCodepoints(Buffer.from('wOF2xxxxxxxx')), /not a readable font/, 'an unparseable font must throw, never read as empty coverage');
   assert.throws(() => woff2Codepoints(Buffer.from('wOF2xxxxxxxx')), /short|truncated/i, 'an unparseable woff2 must throw');
-  const invMissing = checkInventory(['fonts/sarabun-regular-subset.ttf']);
+  const fixtureStems = ['sarabun-regular-subset', 'sarabun-bold-subset'];
+  const invMissing = checkInventory(['fonts/sarabun-regular-subset.ttf'], fixtureStems);
   assert.equal(invMissing.missing.length, 3);
   assert.ok(invMissing.missing.includes('sarabun-regular-subset.woff2'));
   const invUnexpected = checkInventory([
-    ...EXPECTED_STEMS.flatMap((s) => [`fonts/${s}.woff2`, `fonts/${s}.ttf`]),
+    ...fixtureStems.flatMap((s) => [`fonts/${s}.woff2`, `fonts/${s}.ttf`]),
     'fonts/rogue.ttf',
-  ]);
+  ], fixtureStems);
   assert.deepEqual(invUnexpected.missing, []);
   assert.equal(invUnexpected.unexpected.length, 1);
   assert.equal(invUnexpected.unexpected[0], 'fonts/rogue.ttf');
+  const invEmpty = checkInventory([], []);
+  assert.deepEqual(invEmpty.missing, []);
+  assert.deepEqual(invEmpty.unexpected, []);
+  const invVanished = checkInventory([], fixtureStems);
+  assert.equal(invVanished.missing.length, 4);
   const customPairs = pairFaces([
     { file: 'fonts/f.woff2', codepoints: new Set([0x0e01]) },
     { file: 'fonts/f.ttf', codepoints: new Set([0x0e01]) },
@@ -499,16 +505,6 @@ function main() {
   }
   if (corpusOnly) return;
 
-  if (corpus.fonts.length === 0) {
-    console.log('SKIP: this build ships no self-hosted font, so there is no subset that can rot. Every glyph is the system fallback stack today. This gate becomes live by itself the moment a font file appears under dist/.');
-    return;
-  }
-  const readable = corpus.fonts.filter((f) => READABLE_EXT.has(path.extname(f).toLowerCase()));
-  if (readable.length === 0) {
-    console.error(`::error::this build ships ${corpus.fonts.length} font file(s) and this gate can read none of them (${corpus.fonts.map((f) => path.relative(distRoot, f)).join(', ')}). A compressed woff and an sfnt collection cannot be parsed here, so the subset would ship UNCHECKED. Two honest ways out, and a twin is NOT one of them: (1) ship the uncompressed .ttf/.otf as the REAL, referenced face and accept its transfer size — then this gate reads the same bytes the browser downloads; (2) teach this gate to read woff2 (its body is brotli, which node ships, and cmap is not one of the two tables woff2 transforms) so it reads the shipped file directly. A side-by-side .ttf twin measures a file no player ever fetches: the moment the two are subset differently this gate goes green on coverage the page does not have, and an UNREFERENCED twin under public/ also reds scripts/public-orphan-check.mjs, whose green requires every shipped file's basename to appear as a bound token somewhere in src/.`);
-    process.exit(1);
-  }
-
   // The expected inventory is owned by the project, not derived from what happens to be on disk:
   // a derived set cannot report that a member went missing, which is exactly how a renamed face
   // stopped being paired and let the gate exit 0 on genuinely divergent faces.
@@ -519,20 +515,56 @@ function main() {
   // there is no argument it can be given that would weaken that. Passed without --dist it is a
   // hard error rather than a silent fallback, because a flag that quietly does nothing is the kind
   // of thing someone later "fixes" by making it work everywhere.
+  // Repeated occurrences are refused rather than resolved by precedence. indexOf reads the FIRST
+  // one only, so a second declaration was silently unvalidated and unused — the shape where someone
+  // writes what they want, sees a green, and never learns their argument did nothing.
+  for (const flag of ['--expected', '--dist']) {
+    if (argv.filter((a) => a === flag).length > 1) {
+      console.error(`::error::${flag} was given more than once; refusing to guess which declaration is meant`);
+      process.exit(1);
+    }
+  }
   const expectedArg = argv.indexOf('--expected');
   if (expectedArg >= 0 && distArg < 0) {
     console.error('::error::--expected is a fixture-only flag and requires --dist; refusing to weaken the inventory of a real build');
     process.exit(1);
   }
-  const expectedStems = expectedArg >= 0
-    ? String(argv[expectedArg + 1] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
-    : EXPECTED_STEMS;
-  if (expectedArg >= 0 && expectedStems.length === 0) {
-    console.error('::error::--expected was given no value');
-    process.exit(1);
+  let expectedStems = EXPECTED_STEMS;
+  if (expectedArg >= 0) {
+    if (expectedArg + 1 >= argv.length || argv[expectedArg + 1].startsWith('--')) {
+      console.error('::error::--expected was given no value');
+      process.exit(1);
+    }
+    const val = argv[expectedArg + 1].trim();
+    if (val.toLowerCase() === 'none') {
+      console.error('::error::--expected was given no value');
+      process.exit(1);
+    }
+    expectedStems = val.split(',').map((s) => s.trim()).filter(Boolean);
+    if (expectedStems.length === 0) {
+      console.error('::error::--expected was given no value');
+      process.exit(1);
+    }
   }
 
   const inventory = checkInventory(corpus.fonts, expectedStems);
+
+  if (corpus.fonts.length === 0) {
+    if (expectedStems.length === 0) {
+      console.log('SKIP: this build ships no self-hosted font, so there is no subset that can rot. Every glyph is the system fallback stack today. This gate becomes live by itself the moment a font file appears under dist/.');
+      return;
+    }
+    for (const name of inventory.missing) {
+      console.error(`::error::expected font file ${name} is missing from shipped fonts`);
+    }
+    process.exit(1);
+  }
+  const readable = corpus.fonts.filter((f) => READABLE_EXT.has(path.extname(f).toLowerCase()));
+  if (readable.length === 0) {
+    console.error(`::error::this build ships ${corpus.fonts.length} font file(s) and this gate can read none of them (${corpus.fonts.map((f) => path.relative(distRoot, f)).join(', ')}). A compressed woff and an sfnt collection cannot be parsed here, so the subset would ship UNCHECKED. Two honest ways out, and a twin is NOT one of them: (1) ship the uncompressed .ttf/.otf as the REAL, referenced face and accept its transfer size — then this gate reads the same bytes the browser downloads; (2) teach this gate to read woff2 (its body is brotli, which node ships, and cmap is not one of the two tables woff2 transforms) so it reads the shipped file directly. A side-by-side .ttf twin measures a file no player ever fetches: the moment the two are subset differently this gate goes green on coverage the page does not have, and an UNREFERENCED twin under public/ also reds scripts/public-orphan-check.mjs, whose green requires every shipped file's basename to appear as a bound token somewhere in src/.`);
+    process.exit(1);
+  }
+
   if (inventory.missing.length > 0 || inventory.unexpected.length > 0) {
     for (const name of inventory.missing) {
       console.error(`::error::expected font file ${name} is missing from shipped fonts`);

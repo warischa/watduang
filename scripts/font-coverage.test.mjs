@@ -160,14 +160,14 @@ test('an unreadable font is refused, never read as empty coverage', () => {
 // End to end through the production path: the gate DISCOVERS the font by walking the build, so a
 // calibration that only ever hands it a font by hand leaves discovery unmeasured. Fixtures are
 // synthesized into a temp dir and removed; no font file is ever added to this repo.
-function runOn(files) {
+function runOn(files, extraArgs = []) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'font-coverage-'));
   for (const [name, body] of Object.entries(files)) {
     fs.mkdirSync(path.join(dir, path.dirname(name)), { recursive: true });
     fs.writeFileSync(path.join(dir, name), body);
   }
   const gate = fileURLToPath(new URL('./font-coverage-check.mjs', import.meta.url));
-  const run = spawnSync(process.execPath, [gate, '--dist', dir], { encoding: 'utf8' });
+  const run = spawnSync(process.execPath, [gate, '--dist', dir, ...extraArgs], { encoding: 'utf8' });
   fs.rmSync(dir, { recursive: true, force: true });
   return { status: run.status, out: `${run.stdout}${run.stderr}` };
 }
@@ -210,13 +210,115 @@ test('the gate reds when only a COMBINING mark is missing — the dotted-circle 
   assert.match(r.out, /U\+0E48/, 'a tone mark is demanded');
 });
 
-test('the gate greens on a superset, and skips loudly when nothing is self-hosted', () => {
+test('the gate greens on a superset covering all required codepoints', () => {
   const covered = runOn({ 'index.html': PAGE, ...fullFontSet() });
   assert.equal(covered.status, 0, 'a strict superset passes');
   assert.match(covered.out, /attacker-owned/i, 'the player-name boundary is stated on a passing run too');
-  const none = runOn({ 'index.html': PAGE });
-  assert.equal(none.status, 0, 'no self-hosted font means no subset that can rot');
-  assert.match(none.out, /SKIP/);
+});
+
+test('the gate reds when declared inventory has vanished from build, naming every missing expected face', () => {
+  // Negative control: Thai text is present, but declared inventory (default EXPECTED_STEMS)
+  // has vanished completely (no font files at all). Gate must fail rather than skip.
+  const r = runOn({ 'index.html': PAGE });
+  assert.equal(r.status, 1, 'vanished inventory must fail');
+  assert.doesNotMatch(r.out, /SKIP:/, 'vanished inventory must never skip');
+  assert.match(r.out, /expected font file sarabun-regular-subset\.woff2 is missing/);
+  assert.match(r.out, /expected font file sarabun-regular-subset\.ttf is missing/);
+  assert.match(r.out, /expected font file sarabun-bold-subset\.woff2 is missing/);
+  assert.match(r.out, /expected font file sarabun-bold-subset\.ttf is missing/);
+});
+
+// The one green a CLI flag is no longer allowed to assert, exercised through main() anyway. An
+// empty inventory is a SOURCE statement now, so the only honest way to reach main()'s SKIP branch
+// is to run a gate whose constant is empty. checkInventory([], []) does not reach that branch, so
+// asserting only at unit level would leave the legitimate green untested end to end — a gate whose
+// pass path nobody exercises is how a pass path stops working unnoticed.
+function runSourceDeclaredEmpty(files) {
+  const gate = fileURLToPath(new URL('./font-coverage-check.mjs', import.meta.url));
+  const src = fs.readFileSync(gate, 'utf8')
+    .replace(/^export const EXPECTED_STEMS = .*$/m, 'export const EXPECTED_STEMS = [];');
+  assert.match(src, /^export const EXPECTED_STEMS = \[\];$/m, 'the constant was actually emptied');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'font-coverage-empty-'));
+  for (const [name, body] of Object.entries(files)) {
+    fs.mkdirSync(path.join(dir, path.dirname(name)), { recursive: true });
+    fs.writeFileSync(path.join(dir, name), body);
+  }
+  const variant = path.join(path.dirname(gate), '.font-coverage-check.empty-inventory.test-variant.mjs');
+  fs.writeFileSync(variant, src);
+  try {
+    const run = spawnSync(process.execPath, [variant, '--dist', dir], { encoding: 'utf8' });
+    return { status: run.status, out: `${run.stdout}${run.stderr}` };
+  } finally {
+    fs.rmSync(variant, { force: true });
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test('a source-declared empty inventory reaches the SKIP branch and greens on a font-free build', () => {
+  const r = runSourceDeclaredEmpty({ 'index.html': PAGE });
+  assert.equal(r.status, 0, 'a build that legitimately self-hosts nothing must still pass');
+  assert.match(r.out, /SKIP: this build ships no self-hosted font/);
+});
+
+test('a source-declared empty inventory still reds when the build DOES ship a font', () => {
+  // The mirror of the case above, so the green is not just "this gate always passes now".
+  const r = runSourceDeclaredEmpty({
+    'index.html': PAGE,
+    'fonts/sarabun-regular-subset.ttf': ttfWithCodepoints(THAI_BLOCK),
+  });
+  assert.equal(r.status, 1, 'a shipped font under an empty declaration is unexpected');
+  assert.match(r.out, /matches no expected entry in font inventory/);
+});
+
+test('a repeated --expected or --dist is refused rather than resolved by precedence', () => {
+  // indexOf reads the FIRST occurrence only, so a second declaration was silently unvalidated and
+  // unused. Reproduced against the pre-change gate too, so this is a standing defect, not a
+  // regression — recorded here so it cannot come back quietly.
+  const stems = EXPECTED_STEMS.join(',');
+  const rTwice = runOn({ 'index.html': PAGE }, ['--expected', stems, '--expected', 'none']);
+  assert.equal(rTwice.status, 1, 'a second --expected must not be ignored');
+  assert.match(rTwice.out, /--expected was given more than once/);
+
+  const rTrailing = runOn({ 'index.html': PAGE }, ['--expected', stems, '--expected']);
+  assert.equal(rTrailing.status, 1, 'a trailing bare --expected must not be ignored');
+  assert.match(rTrailing.out, /--expected was given more than once/);
+});
+
+test('the gate reds when --expected is empty, none, or malformed, refusing CLI-asserted emptiness', () => {
+  // Regression control: CLI flags cannot declare an empty inventory. Empty, none,
+  // and values filtering to empty are hard errors rather than silent skips.
+  const rEmpty = runOn({ 'index.html': PAGE }, ['--expected', '']);
+  assert.equal(rEmpty.status, 1);
+  assert.match(rEmpty.out, /--expected was given no value/);
+
+  const rNone = runOn({ 'index.html': PAGE }, ['--expected', 'none']);
+  assert.equal(rNone.status, 1);
+  assert.match(rNone.out, /--expected was given no value/);
+
+  const rComma = runOn({ 'index.html': PAGE }, ['--expected', ',']);
+  assert.equal(rComma.status, 1);
+  assert.match(rComma.out, /--expected was given no value/);
+
+  const rWhitespace = runOn({ 'index.html': PAGE }, ['--expected', ' , ']);
+  assert.equal(rWhitespace.status, 1);
+  assert.match(rWhitespace.out, /--expected was given no value/);
+
+  const rBare = runOn({ 'index.html': PAGE }, ['--expected']);
+  assert.equal(rBare.status, 1);
+  assert.match(rBare.out, /--expected was given no value/);
+});
+
+test('checkInventory models legitimate font-free inventory at unit level', () => {
+  // The source-level invariant: an empty declared inventory with no shipped fonts
+  // produces zero missing and zero unexpected members.
+  const empty = checkInventory([], []);
+  assert.deepEqual(empty.missing, []);
+  assert.deepEqual(empty.unexpected, []);
+
+  // An unexpected font under an empty declared inventory is flagged.
+  const unexpected = checkInventory(['fonts/rogue.ttf'], []);
+  assert.deepEqual(unexpected.missing, []);
+  assert.deepEqual(unexpected.unexpected, ['fonts/rogue.ttf']);
 });
 
 test('a shipped face the gate cannot open FAILS, naming the unread face', () => {

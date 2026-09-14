@@ -441,7 +441,8 @@ function draw() {
     band(near, far, 1, alt ? '#3b4252' : '#363c4a');
     if (alt) band(near, far, 0.02, '#e5e7eb');
   }
-  // Distance fog: the far road and anything standing on it fade into the sky at the horizon.
+  // Distance fog: the far road fades into the sky at the horizon. This fill lands before the
+  // hazard sprites and the car, so those are painted over it and stay crisp at every distance.
   const fog = ctx.createLinearGradient(0, HZ, 0, HZ + H * 0.2);
   fog.addColorStop(0, 'rgba(39, 76, 122, 0.95)');
   fog.addColorStop(1, 'rgba(39, 76, 122, 0)');
