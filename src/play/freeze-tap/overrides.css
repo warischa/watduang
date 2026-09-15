@@ -221,11 +221,10 @@
    e.g. src/play/short-stick/overrides.css) scopes the padding cut to loads where the pass screen is
    the one actually mounted.
 
-   NOT CLOSED BY THIS BLOCK: freeze-tap's rule-reveal screen (press 0, button#ruleReadyBtn) has the
+   NOT CLOSED BY THIS BLOCK: freeze-tap's rule-reveal screen (press 0, button#ruleReadyBtn) had the
    same defect — 0 visible px at 320x568, pre-existing, unrelated to this change (confirmed by an A/B
-   against the unmodified overrides.css) — and is out of scope for this fix, which the brief named as
-   playerReadyBtn only. scripts/play-screen-fit-probe.mjs's freeze-tap 320x568 row is updated to that
-   screen's own number rather than moved to FITS_ROWS, because the route does not yet fit at 0px. */
+   against the unmodified overrides.css) — and was out of scope for this fix, which the brief named as
+   playerReadyBtn only. A separate block further below closes that screen. */
 @media (max-width: 639px) {
   main:has(.pass-player-card) {
     padding-block: 8px;
@@ -256,5 +255,54 @@
   #playerReadyBtn {
     padding: 16px 24px !important;
     font-size: 1.15rem !important;
+  }
+}
+
+/* ================================================================================================
+   gh#182 — rule-reveal screen (press 0), primary control below the fold at 320x568. Owner ruling
+   2026-09-15 closes the fold rule for this route; the pass-screen block above already fixed
+   #playerReadyBtn and explicitly left this screen open. Recorded baseline (both this block's own
+   repro and docs/verification/evidence/182-freeze-tap-fold-2026-09-15/rule-reveal-after-fix.json,
+   n=6, byte-identical every load): main#mainContent scrollHeight 591 vs clientHeight 499 (92px
+   overflow), button#ruleReadyBtn 0 visible px, rect.top 587.44 / rect.bottom 644.44.
+
+   SAME MECHANISM as the pass-screen block: reclaim padding/margin/gap already spent around this
+   screen's own content, scoped to <=639px only. #ruleReadyBtn carries no inline style from main.js
+   (only playerReadyBtn/startGameBtn/nextTurnBtn do, per the gh#183 note above), so its size still
+   comes from the shared `.btn-primary` rule at the top of this file and needs no !important here.
+
+   Selectors are scoped to `.rule-reveal-container` and its own children (`.rule-banner`,
+   `.rule-target-preview`, `.rule-instruction`) plus a `.rule-reveal-container .glass-card` /
+   `.rule-reveal-container .badge` descendant selector so the shared `.glass-card`/`.badge` classes
+   used by other screens on this route are untouched. `main:has(.rule-reveal-container)` mirrors the
+   pass-screen block's `:has()` scoping of the shared `main` padding. No text, image or control is
+   removed; `.rule-target-preview`'s 100x100 circle keeps its size, only its margin shrinks. */
+@media (max-width: 639px) {
+  main:has(.rule-reveal-container) {
+    padding-block: 8px;
+  }
+
+  .rule-reveal-container {
+    gap: 8px;
+  }
+
+  .rule-reveal-container .badge {
+    padding-block: 3px;
+  }
+
+  .rule-banner {
+    padding: 12px;
+  }
+
+  .rule-target-preview {
+    margin-block: 6px;
+  }
+
+  .rule-instruction {
+    margin-top: 4px;
+  }
+
+  .rule-reveal-container .glass-card {
+    padding: 10px;
   }
 }

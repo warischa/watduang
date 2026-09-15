@@ -251,6 +251,11 @@ export const FITS_ROWS = new Set([
   // overflow-y:auto box was being counted as page overflow).
   'freeze-tap 390x844',
   'freeze-tap 1440x900',
+  // Moved from KNOWN_OVERFLOW 2026-09-15, owner ruling 2026-09-15: the rule-reveal screen's own
+  // overrides.css block (press 0, button#ruleReadyBtn) reclaimed the padding/margin/gap the 92px
+  // overflow was spent on, the same lever the press-1 pass-screen block used. Confirmed 0px on three
+  // consecutive dev-machine runs against a real dist/ served on 4321 with CDP on 9222.
+  'freeze-tap 320x568',
   'wire-snip-panic 390x844',
   'wire-snip-panic 1440x900',
   'zero-trigger 390x844',
@@ -309,10 +314,9 @@ export const KNOWN_OVERFLOW = new Map([
   // route's two card states, docs/verification/evidence/182-freeze-tap-fold-2026-09-15/). The number
   // moved because a DIFFERENT screen is now the route's worst: press 0 (rule-reveal, ruleReadyBtn) was
   // already at 92px overflow / 0 visible px on the unmodified overrides.css (confirmed by A/B), just
-  // masked in the old 187px reading because press 1 was worse. Not fixed by this change — out of
-  // scope, a different screen and a different control — so this row stays open rather than moving to
-  // FITS_ROWS.
-  ['freeze-tap 320x568', 'gh#182 open: 92px on press 0 - 92px to scroll on main#mainContent'],
+  // masked in the old 187px reading because press 1 was worse. Not fixed by that change — out of
+  // scope there, a different screen and a different control. Closed 2026-09-15 by a second
+  // overrides.css block scoped to `.rule-reveal-container`; row moved to FITS_ROWS above.
   ['how-close-is-near 320x568', 'owner ruling 2026-09-15: 194px on press 4 - 194px to scroll on documentElement. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
   // gh#195, 2026-09-03: the NUMBER below does not move, and that is the recorded finding rather than
   // an omission. No layout changed on this route, and re-recording it at this run's 107px would only
