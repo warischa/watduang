@@ -361,7 +361,7 @@ export const KNOWN_OVERFLOW = new Map([
   // fix that made the screen usable. Why it stays in this map: the probe counts a
   // self-scroller that fills the viewport as a screen, and this one is `inset: 0`, so the invariant is
   // still not satisfied even though nothing is unreachable any more.
-  ['one-bomb 320x568', 'gh#182 open: 97px on the worst screen (press 0 in the probe run) - 97px to scroll on div#menuOverlay.menuOverlay, 0px clipped'],
+  ['one-bomb 320x568', 'owner ruling 2026-09-15: 97px on the worst screen (press 0 in the probe run) - 97px to scroll on div#menuOverlay.menuOverlay, 0px clipped. The owner accepted this screen as it is: the primary control button#startPlayBtn is fully visible at 54px (rect.bottom 532.11 of 568) and the 97px of scroll is consumed by the secondary buttons howToPlayBtn and menuSettingsBtn, measured n=3 at 320x568 in docs/verification/evidence/182-one-bomb-fold-2026-09-15/'],
 ]);
 /**
  * gh#202 — the HORIZONTAL exemption map, and the reason it is a separate map rather than a column in
