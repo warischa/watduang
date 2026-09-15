@@ -1,0 +1,26 @@
+{
+  "320x568": {
+    "found": true,
+    "innerWidth": 320,
+    "innerHeight": 568,
+    "height": 60,
+    "fontSize": "18.4px",
+    "padding": "16px 24px"
+  },
+  "390x844": {
+    "found": true,
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "height": 60,
+    "fontSize": "18.4px",
+    "padding": "16px 24px"
+  },
+  "1440x900": {
+    "found": true,
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "height": 70,
+    "fontSize": "21.6px",
+    "padding": "20px"
+  }
+}

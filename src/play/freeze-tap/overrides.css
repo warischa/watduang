@@ -184,3 +184,77 @@
 .header-left .brand-title {
   margin-inline-start: 60px;
 }
+
+/* ================================================================================================
+   gh#182 — pass-the-device screen, primary control below the fold at 320x568. Owner ruling
+   2026-09-15: button#playerReadyBtn must clear the fold on the press-1 pass screen. Recorded
+   baseline (docs/verification/evidence/182-320-fold/below-fold-primary-controls.md): the control
+   sat entirely below the viewport on every load, at two card states ("typical" 411px card, "worst"
+   438px card — the difference is how long that round's condition copy is).
+
+   SCOPED TO THE PHONE BREAKPOINT (max-width: 639px, this project's own phone/tablet split — the
+   other is 1099, both named in the gh#183 block above). At 1440x900 and 390x844 this route already
+   measured 0px overflow before this change (scripts/play-screen-fit-probe.mjs FITS_ROWS), and the
+   gh#183 block above documents that playerReadyBtn is deliberately NOT reached by the desktop
+   .btn-primary raise because main.js's inline style wins there too — an unscoped !important rule
+   here would have silently reached in and shrunk that same button's DESKTOP size, which nobody
+   asked for and nothing verified. Scoping to <=639px keeps this fix to the screen it was measured on.
+
+   MECHANISM for the button rule only: main.js writes playerReadyBtn's font-size and padding as an
+   INLINE style, which this file's own top note on .btn-primary already records as beating a
+   stylesheet rule "at any specificity" (that note does not itself carry an !important qualifier,
+   quoted as written). !important is used for that one selector for exactly that reason. Every other
+   selector below needs no !important: overrides.css loads after style.css
+   (src/pages/game/freeze-tap/play.astro) and wins on equal specificity there.
+
+   WHAT THIS DOES: reclaims vertical space already spent on padding, margin and flex gap around the
+   pass screen's own content. No text, image or control is removed, and no font is shrunk below the
+   route's own floor — playerReadyBtn's padding/font-size are restored to exactly the base
+   .btn-primary values this route's OTHER primary buttons (ruleReadyBtn, viewFinalResultsBtn) already
+   render unmodified at this same phone width; main.js's inline style was bumping this one button
+   ABOVE that shared baseline, and this undoes only that bump, only below 640px.
+
+   Selectors are scoped to the pass screen's own classes/ids (`.pass-container`, `.pass-player-card`,
+   `.pass-condition-box`, `.player-name-huge`, `#playerReadyBtn`) so nothing here touches the setup,
+   rule-reveal, result or leaderboard screens on this route. `main:has(.pass-player-card)` is the one
+   exception: `main#mainContent` is shared chrome, so :has() (already used elsewhere in this repo,
+   e.g. src/play/short-stick/overrides.css) scopes the padding cut to loads where the pass screen is
+   the one actually mounted.
+
+   NOT CLOSED BY THIS BLOCK: freeze-tap's rule-reveal screen (press 0, button#ruleReadyBtn) has the
+   same defect — 0 visible px at 320x568, pre-existing, unrelated to this change (confirmed by an A/B
+   against the unmodified overrides.css) — and is out of scope for this fix, which the brief named as
+   playerReadyBtn only. scripts/play-screen-fit-probe.mjs's freeze-tap 320x568 row is updated to that
+   screen's own number rather than moved to FITS_ROWS, because the route does not yet fit at 0px. */
+@media (max-width: 639px) {
+  main:has(.pass-player-card) {
+    padding-block: 8px;
+  }
+
+  .pass-container {
+    gap: 8px;
+  }
+
+  .pass-container > .badge {
+    padding-block: 3px;
+  }
+
+  .pass-player-card {
+    padding-block: 12px;
+  }
+
+  .player-name-huge {
+    margin-block: 2px;
+  }
+
+  .pass-condition-box {
+    margin-top: 4px;
+    padding-block: 8px;
+    gap: 3px;
+  }
+
+  #playerReadyBtn {
+    padding: 16px 24px !important;
+    font-size: 1.15rem !important;
+  }
+}

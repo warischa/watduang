@@ -304,7 +304,15 @@ export const KNOWN_OVERFLOW = new Map([
   // Moved from FITS_ROWS 2026-09-02: E1 bounded the self-scroller rule to boxes under 0.6x viewport
   // height, so a box that fills the screen (a scroll surface in name only) counts as page overflow
   // again. Measured under the bounded rule, not a regression in the page itself.
-  ['freeze-tap 320x568', 'gh#182 open: 187px on press 1 - 187px to scroll on main#mainContent'],
+  // Re-measured 2026-09-15 after the pass screen's own fix (src/play/freeze-tap/overrides.css):
+  // playerReadyBtn on press 1 now reads 0px overflow (confirmed n=12 dev-machine runs, both of the
+  // route's two card states, docs/verification/evidence/182-freeze-tap-fold-2026-09-15/). The number
+  // moved because a DIFFERENT screen is now the route's worst: press 0 (rule-reveal, ruleReadyBtn) was
+  // already at 92px overflow / 0 visible px on the unmodified overrides.css (confirmed by A/B), just
+  // masked in the old 187px reading because press 1 was worse. Not fixed by this change — out of
+  // scope, a different screen and a different control — so this row stays open rather than moving to
+  // FITS_ROWS.
+  ['freeze-tap 320x568', 'gh#182 open: 92px on press 0 - 92px to scroll on main#mainContent'],
   ['how-close-is-near 320x568', 'owner ruling 2026-09-15: 194px on press 4 - 194px to scroll on documentElement. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
   // gh#195, 2026-09-03: the NUMBER below does not move, and that is the recorded finding rather than
   // an omission. No layout changed on this route, and re-recording it at this run's 107px would only
