@@ -62,7 +62,7 @@ saying the ดูดวง copy **direction** was settled. Read alone, that lice
 strings. The ticket's own body says `Blocked by: the first-ten portrait ticket, and the owner's
 approval recorded there` — a chain running through gh#102 to owner-authored copy, which
 `CLAUDE.md` reserves to the owner outright. Direction settled is not authorship granted. Reading
-gh#101, gh#104, gh#106 and gh#109's last comments in full confirmed all four independently.
+gh#101, gh#104, gh#106 and gh#109's last comments in full confirmed all four independently. `gh#102` was then found carrying the same wrong label, only because the check was run across the whole family rather than on the one ticket named.
 
 **So: the label shortlists, the body's `Blocked by` and the last comment decide.** Read both before
 briefing, and read them whole — a `ready-for-agent` row whose blocker is owner work costs a dispatch
