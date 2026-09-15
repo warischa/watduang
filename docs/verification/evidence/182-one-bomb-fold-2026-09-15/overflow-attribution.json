@@ -1,0 +1,153 @@
+{
+  "base": "http://localhost:4391",
+  "viewport": "320x568",
+  "runs": [
+    {
+      "load": 1,
+      "error": null,
+      "ok": true,
+      "innerWidth": 320,
+      "innerHeight": 568,
+      "containerClientHeight": 568,
+      "containerScrollHeight": 665,
+      "containerPaddingBottom": "20px",
+      "containerPaddingTop": "20px",
+      "containerTop": 0,
+      "past": [
+        {
+          "sel": "div.menuBox",
+          "top": 15.408025741577148,
+          "bottom": 640.0017757415771,
+          "height": 624.59375,
+          "pastFold": 72.00177574157715
+        },
+        {
+          "sel": "div.menuBtnCol",
+          "top": 478.00177001953125,
+          "bottom": 640.0017700195312,
+          "height": 162,
+          "pastFold": 72.00177001953125
+        },
+        {
+          "sel": "button#menuSettingsBtn.btnBase.secondaryBtn",
+          "top": 596.0017700195312,
+          "bottom": 640.0017700195312,
+          "height": 44,
+          "pastFold": 72.00177001953125
+        },
+        {
+          "sel": "button#howToPlayBtn.btnBase.secondaryBtn",
+          "top": 542.0017700195312,
+          "bottom": 586.0017700195312,
+          "height": 44,
+          "pastFold": 18.00177001953125
+        }
+      ],
+      "maxBottomElement": {
+        "sel": "div.menuBox",
+        "top": 15.408025741577148,
+        "bottom": 640.0017757415771,
+        "height": 624.59375,
+        "pastFold": 72.00177574157715
+      }
+    },
+    {
+      "load": 2,
+      "error": null,
+      "ok": true,
+      "innerWidth": 320,
+      "innerHeight": 568,
+      "containerClientHeight": 568,
+      "containerScrollHeight": 665,
+      "containerPaddingBottom": "20px",
+      "containerPaddingTop": "20px",
+      "containerTop": 0,
+      "past": [
+        {
+          "sel": "div.menuBox",
+          "top": 15.520035743713379,
+          "bottom": 640.1137857437134,
+          "height": 624.59375,
+          "pastFold": 72.11378574371338
+        },
+        {
+          "sel": "div.menuBtnCol",
+          "top": 478.1138000488281,
+          "bottom": 640.11376953125,
+          "height": 161.99996948242188,
+          "pastFold": 72.11376953125
+        },
+        {
+          "sel": "button#menuSettingsBtn.btnBase.secondaryBtn",
+          "top": 596.11376953125,
+          "bottom": 640.11376953125,
+          "height": 44,
+          "pastFold": 72.11376953125
+        },
+        {
+          "sel": "button#howToPlayBtn.btnBase.secondaryBtn",
+          "top": 542.11376953125,
+          "bottom": 586.11376953125,
+          "height": 44,
+          "pastFold": 18.11376953125
+        }
+      ],
+      "maxBottomElement": {
+        "sel": "div.menuBox",
+        "top": 15.520035743713379,
+        "bottom": 640.1137857437134,
+        "height": 624.59375,
+        "pastFold": 72.11378574371338
+      }
+    },
+    {
+      "load": 3,
+      "error": null,
+      "ok": true,
+      "innerWidth": 320,
+      "innerHeight": 568,
+      "containerClientHeight": 568,
+      "containerScrollHeight": 665,
+      "containerPaddingBottom": "20px",
+      "containerPaddingTop": "20px",
+      "containerTop": 0,
+      "past": [
+        {
+          "sel": "div.menuBox",
+          "top": 15.520038604736328,
+          "bottom": 640.1137886047363,
+          "height": 624.59375,
+          "pastFold": 72.11378860473633
+        },
+        {
+          "sel": "div.menuBtnCol",
+          "top": 478.1138000488281,
+          "bottom": 640.11376953125,
+          "height": 161.99996948242188,
+          "pastFold": 72.11376953125
+        },
+        {
+          "sel": "button#menuSettingsBtn.btnBase.secondaryBtn",
+          "top": 596.11376953125,
+          "bottom": 640.11376953125,
+          "height": 44,
+          "pastFold": 72.11376953125
+        },
+        {
+          "sel": "button#howToPlayBtn.btnBase.secondaryBtn",
+          "top": 542.11376953125,
+          "bottom": 586.11376953125,
+          "height": 44,
+          "pastFold": 18.11376953125
+        }
+      ],
+      "maxBottomElement": {
+        "sel": "div.menuBox",
+        "top": 15.520038604736328,
+        "bottom": 640.1137886047363,
+        "height": 624.59375,
+        "pastFold": 72.11378860473633
+      }
+    }
+  ]
+}

@@ -30,7 +30,21 @@ directory reports both as heights; the escalation restated them as fold distance
 |---|---|---|---|---|---|---|---|
 | `freeze-tap` (typical, 4/6 loads) | `button#playerReadyBtn` | **99** | 613 | 712 | **45** | **144** | 0 |
 | `freeze-tap` (worst, 2/6 loads) | `button#playerReadyBtn` | **99** | 640 | 739 | **72** | **171** | 0 |
-| `wire-snip-panic` (all 3 loads) | `button#btn-trigger-scan` | **76** | 578 | 654 | **10** | **86** | 0 |
+| `wire-snip-panic` (all 3 loads) — **superseded, see below** | `button#btn-trigger-scan` | **76** | 578 | 654 | **10** | **86** | 0 |
+
+> **⚠ Supersession, added 2026-09-15: the `wire-snip-panic` row above is no longer the live state,
+> and this document is cited as a fold-rule reference, so read the row as history and not as a
+> current measurement.** The row records what was true on 2026-09-10. Commit `8db9bd2` (2026-09-13),
+> *"gh#182: wire-snip-panic's primary control clears the fold, without a clipping context"*, edited
+> `src/play/wire-snip-panic/overrides.css`. Re-measured live on 2026-09-15 under the same asserted
+> `innerWidth===320 && innerHeight===568` discipline, `button#btn-trigger-scan` reads **rect.top 540
+> / rect.bottom 616 / 28 visible px**, identical on all three loads (`n=3`, read back off
+> `182-one-bomb-fold-2026-09-15/fold-probe.json`, not off a summary) — it now clears the fold,
+> agreeing with that commit's own message. The `freeze-tap` rows were re-measured in the same pass and **still reproduce exactly**
+> (613/712/0 and 640/739/0), so this is a real change on one route, not instrument drift.
+> The 2026-09-10 numbers are deliberately left unaltered: rewriting them would falsify the record of
+> what was measured that day. Evidence for the re-measurement:
+> `docs/verification/evidence/182-one-bomb-fold-2026-09-15/`.
 
 So the defect the escalation describes is real — on both routes the primary control has **zero
 visible pixels** at 320x568 — but the two figures attached to it are not the fold distances. Stated

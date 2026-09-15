@@ -1,0 +1,2598 @@
+{
+  "base": "http://localhost:4390",
+  "viewport": "320x568",
+  "runs": [
+    {
+      "route": "freeze-tap",
+      "load": 1,
+      "presses": [
+        {
+          "rank": 0,
+          "label": "รับทราบ! เริ่มส่งเครื่อง ➔"
+        }
+      ],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": false,
+          "sigLen": 280
+        },
+        {
+          "press": 1,
+          "hasPrimary": true,
+          "sigLen": 245
+        }
+      ],
+      "pressIndex": 1,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "main#mainContent",
+          "top": 69,
+          "bottom": 568,
+          "height": 499,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 499,
+          "scrollHeight": 659,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#playerReadyBtn.btn-primary",
+          "top": 613,
+          "bottom": 712,
+          "height": 99,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 99,
+          "scrollHeight": 99,
+          "scrollTop": 0,
+          "topPastViewportBottom": 45,
+          "bottomPastViewportBottom": 144,
+          "visiblePxInViewport": 0,
+          "topPastContainerFold": 45,
+          "visiblePxInContainer": 0
+        },
+        "recordedBlock": {
+          "sel": "div.pass-player-card",
+          "top": 138,
+          "bottom": 549,
+          "height": 411,
+          "children": 3,
+          "overflowY": "visible",
+          "clientHeight": 409,
+          "scrollHeight": 409,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.pass-container",
+            "top": 85,
+            "bottom": 712,
+            "height": 627,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 627,
+            "scrollHeight": 627,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#shakeRoot",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#particleCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "main#mainContent",
+            "top": 69,
+            "bottom": 568,
+            "height": 499,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 499,
+            "scrollHeight": 659,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-player-card",
+            "top": 138,
+            "bottom": 549,
+            "height": 411,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 409,
+            "scrollHeight": 409,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-box",
+            "top": 274,
+            "bottom": 518,
+            "height": 244,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 240,
+            "scrollHeight": 240,
+            "scrollTop": 0
+          },
+          {
+            "sel": "button#playerReadyBtn.btn-primary",
+            "top": 613,
+            "bottom": 712,
+            "height": 99,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 99,
+            "scrollHeight": 99,
+            "scrollTop": 0
+          },
+          {
+            "sel": "header",
+            "top": 0,
+            "bottom": 69,
+            "height": 69,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 68,
+            "scrollHeight": 68,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.player-name-huge",
+            "top": 201,
+            "bottom": 256,
+            "height": 55,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 55,
+            "scrollHeight": 55,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-target-badge",
+            "top": 322,
+            "bottom": 376,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 50,
+            "scrollHeight": 50,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-prompt",
+            "top": 388,
+            "bottom": 442,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 54,
+            "scrollHeight": 54,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-warn",
+            "top": 450,
+            "bottom": 500,
+            "height": 50,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 48,
+            "scrollHeight": 48,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2202,
+          "containerScrollHeight": 2248
+        },
+        "after": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "moved": 1589,
+        "returned": true
+      }
+    },
+    {
+      "route": "freeze-tap",
+      "load": 2,
+      "presses": [
+        {
+          "rank": 0,
+          "label": "รับทราบ! เริ่มส่งเครื่อง ➔"
+        }
+      ],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": false,
+          "sigLen": 283
+        },
+        {
+          "press": 1,
+          "hasPrimary": true,
+          "sigLen": 246
+        }
+      ],
+      "pressIndex": 1,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "main#mainContent",
+          "top": 69,
+          "bottom": 568,
+          "height": 499,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 499,
+          "scrollHeight": 659,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#playerReadyBtn.btn-primary",
+          "top": 613,
+          "bottom": 712,
+          "height": 99,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 99,
+          "scrollHeight": 99,
+          "scrollTop": 0,
+          "topPastViewportBottom": 45,
+          "bottomPastViewportBottom": 144,
+          "visiblePxInViewport": 0,
+          "topPastContainerFold": 45,
+          "visiblePxInContainer": 0
+        },
+        "recordedBlock": {
+          "sel": "div.pass-player-card",
+          "top": 138,
+          "bottom": 549,
+          "height": 411,
+          "children": 3,
+          "overflowY": "visible",
+          "clientHeight": 409,
+          "scrollHeight": 409,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.pass-container",
+            "top": 85,
+            "bottom": 712,
+            "height": 627,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 627,
+            "scrollHeight": 627,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#shakeRoot",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#particleCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "main#mainContent",
+            "top": 69,
+            "bottom": 568,
+            "height": 499,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 499,
+            "scrollHeight": 659,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-player-card",
+            "top": 138,
+            "bottom": 549,
+            "height": 411,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 409,
+            "scrollHeight": 409,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-box",
+            "top": 274,
+            "bottom": 518,
+            "height": 244,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 240,
+            "scrollHeight": 240,
+            "scrollTop": 0
+          },
+          {
+            "sel": "button#playerReadyBtn.btn-primary",
+            "top": 613,
+            "bottom": 712,
+            "height": 99,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 99,
+            "scrollHeight": 99,
+            "scrollTop": 0
+          },
+          {
+            "sel": "header",
+            "top": 0,
+            "bottom": 69,
+            "height": 69,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 68,
+            "scrollHeight": 68,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.player-name-huge",
+            "top": 201,
+            "bottom": 256,
+            "height": 55,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 55,
+            "scrollHeight": 55,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-target-badge",
+            "top": 322,
+            "bottom": 376,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 50,
+            "scrollHeight": 50,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-prompt",
+            "top": 388,
+            "bottom": 442,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 54,
+            "scrollHeight": 54,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-warn",
+            "top": 450,
+            "bottom": 500,
+            "height": 50,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 48,
+            "scrollHeight": 48,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2202,
+          "containerScrollHeight": 2248
+        },
+        "after": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "moved": 1589,
+        "returned": true
+      }
+    },
+    {
+      "route": "freeze-tap",
+      "load": 3,
+      "presses": [
+        {
+          "rank": 0,
+          "label": "รับทราบ! เริ่มส่งเครื่อง ➔"
+        }
+      ],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": false,
+          "sigLen": 280
+        },
+        {
+          "press": 1,
+          "hasPrimary": true,
+          "sigLen": 245
+        }
+      ],
+      "pressIndex": 1,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "main#mainContent",
+          "top": 69,
+          "bottom": 568,
+          "height": 499,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 499,
+          "scrollHeight": 659,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#playerReadyBtn.btn-primary",
+          "top": 613,
+          "bottom": 712,
+          "height": 99,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 99,
+          "scrollHeight": 99,
+          "scrollTop": 0,
+          "topPastViewportBottom": 45,
+          "bottomPastViewportBottom": 144,
+          "visiblePxInViewport": 0,
+          "topPastContainerFold": 45,
+          "visiblePxInContainer": 0
+        },
+        "recordedBlock": {
+          "sel": "div.pass-player-card",
+          "top": 138,
+          "bottom": 549,
+          "height": 411,
+          "children": 3,
+          "overflowY": "visible",
+          "clientHeight": 409,
+          "scrollHeight": 409,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.pass-container",
+            "top": 85,
+            "bottom": 712,
+            "height": 627,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 627,
+            "scrollHeight": 627,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#shakeRoot",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#particleCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "main#mainContent",
+            "top": 69,
+            "bottom": 568,
+            "height": 499,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 499,
+            "scrollHeight": 659,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-player-card",
+            "top": 138,
+            "bottom": 549,
+            "height": 411,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 409,
+            "scrollHeight": 409,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-box",
+            "top": 274,
+            "bottom": 518,
+            "height": 244,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 240,
+            "scrollHeight": 240,
+            "scrollTop": 0
+          },
+          {
+            "sel": "button#playerReadyBtn.btn-primary",
+            "top": 613,
+            "bottom": 712,
+            "height": 99,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 99,
+            "scrollHeight": 99,
+            "scrollTop": 0
+          },
+          {
+            "sel": "header",
+            "top": 0,
+            "bottom": 69,
+            "height": 69,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 68,
+            "scrollHeight": 68,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.player-name-huge",
+            "top": 201,
+            "bottom": 256,
+            "height": 55,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 55,
+            "scrollHeight": 55,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-target-badge",
+            "top": 322,
+            "bottom": 376,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 50,
+            "scrollHeight": 50,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-prompt",
+            "top": 388,
+            "bottom": 442,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 54,
+            "scrollHeight": 54,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-warn",
+            "top": 450,
+            "bottom": 500,
+            "height": 50,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 48,
+            "scrollHeight": 48,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2202,
+          "containerScrollHeight": 2248
+        },
+        "after": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "moved": 1589,
+        "returned": true
+      }
+    },
+    {
+      "route": "freeze-tap",
+      "load": 4,
+      "presses": [
+        {
+          "rank": 0,
+          "label": "รับทราบ! เริ่มส่งเครื่อง ➔"
+        }
+      ],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": false,
+          "sigLen": 280
+        },
+        {
+          "press": 1,
+          "hasPrimary": true,
+          "sigLen": 245
+        }
+      ],
+      "pressIndex": 1,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "main#mainContent",
+          "top": 69,
+          "bottom": 568,
+          "height": 499,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 499,
+          "scrollHeight": 659,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#playerReadyBtn.btn-primary",
+          "top": 613,
+          "bottom": 712,
+          "height": 99,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 99,
+          "scrollHeight": 99,
+          "scrollTop": 0,
+          "topPastViewportBottom": 45,
+          "bottomPastViewportBottom": 144,
+          "visiblePxInViewport": 0,
+          "topPastContainerFold": 45,
+          "visiblePxInContainer": 0
+        },
+        "recordedBlock": {
+          "sel": "div.pass-player-card",
+          "top": 138,
+          "bottom": 549,
+          "height": 411,
+          "children": 3,
+          "overflowY": "visible",
+          "clientHeight": 409,
+          "scrollHeight": 409,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.pass-container",
+            "top": 85,
+            "bottom": 712,
+            "height": 627,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 627,
+            "scrollHeight": 627,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#shakeRoot",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#particleCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "main#mainContent",
+            "top": 69,
+            "bottom": 568,
+            "height": 499,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 499,
+            "scrollHeight": 659,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-player-card",
+            "top": 138,
+            "bottom": 549,
+            "height": 411,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 409,
+            "scrollHeight": 409,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-box",
+            "top": 274,
+            "bottom": 518,
+            "height": 244,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 240,
+            "scrollHeight": 240,
+            "scrollTop": 0
+          },
+          {
+            "sel": "button#playerReadyBtn.btn-primary",
+            "top": 613,
+            "bottom": 712,
+            "height": 99,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 99,
+            "scrollHeight": 99,
+            "scrollTop": 0
+          },
+          {
+            "sel": "header",
+            "top": 0,
+            "bottom": 69,
+            "height": 69,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 68,
+            "scrollHeight": 68,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.player-name-huge",
+            "top": 201,
+            "bottom": 256,
+            "height": 55,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 55,
+            "scrollHeight": 55,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-target-badge",
+            "top": 322,
+            "bottom": 376,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 50,
+            "scrollHeight": 50,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-prompt",
+            "top": 388,
+            "bottom": 442,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 54,
+            "scrollHeight": 54,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-warn",
+            "top": 450,
+            "bottom": 500,
+            "height": 50,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 48,
+            "scrollHeight": 48,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2202,
+          "containerScrollHeight": 2248
+        },
+        "after": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "moved": 1589,
+        "returned": true
+      }
+    },
+    {
+      "route": "freeze-tap",
+      "load": 5,
+      "presses": [
+        {
+          "rank": 0,
+          "label": "รับทราบ! เริ่มส่งเครื่อง ➔"
+        }
+      ],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": false,
+          "sigLen": 265
+        },
+        {
+          "press": 1,
+          "hasPrimary": true,
+          "sigLen": 237
+        }
+      ],
+      "pressIndex": 1,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "main#mainContent",
+          "top": 69,
+          "bottom": 568,
+          "height": 499,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 499,
+          "scrollHeight": 659,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#playerReadyBtn.btn-primary",
+          "top": 613,
+          "bottom": 712,
+          "height": 99,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 99,
+          "scrollHeight": 99,
+          "scrollTop": 0,
+          "topPastViewportBottom": 45,
+          "bottomPastViewportBottom": 144,
+          "visiblePxInViewport": 0,
+          "topPastContainerFold": 45,
+          "visiblePxInContainer": 0
+        },
+        "recordedBlock": {
+          "sel": "div.pass-player-card",
+          "top": 138,
+          "bottom": 549,
+          "height": 411,
+          "children": 3,
+          "overflowY": "visible",
+          "clientHeight": 409,
+          "scrollHeight": 409,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.pass-container",
+            "top": 85,
+            "bottom": 712,
+            "height": 627,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 627,
+            "scrollHeight": 627,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#shakeRoot",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#particleCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "main#mainContent",
+            "top": 69,
+            "bottom": 568,
+            "height": 499,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 499,
+            "scrollHeight": 659,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-player-card",
+            "top": 138,
+            "bottom": 549,
+            "height": 411,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 409,
+            "scrollHeight": 409,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-box",
+            "top": 274,
+            "bottom": 518,
+            "height": 244,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 240,
+            "scrollHeight": 240,
+            "scrollTop": 0
+          },
+          {
+            "sel": "button#playerReadyBtn.btn-primary",
+            "top": 613,
+            "bottom": 712,
+            "height": 99,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 99,
+            "scrollHeight": 99,
+            "scrollTop": 0
+          },
+          {
+            "sel": "header",
+            "top": 0,
+            "bottom": 69,
+            "height": 69,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 68,
+            "scrollHeight": 68,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.player-name-huge",
+            "top": 201,
+            "bottom": 256,
+            "height": 55,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 55,
+            "scrollHeight": 55,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-target-badge",
+            "top": 322,
+            "bottom": 376,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 50,
+            "scrollHeight": 50,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-prompt",
+            "top": 388,
+            "bottom": 442,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 54,
+            "scrollHeight": 54,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-warn",
+            "top": 450,
+            "bottom": 500,
+            "height": 50,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 48,
+            "scrollHeight": 48,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2202,
+          "containerScrollHeight": 2248
+        },
+        "after": {
+          "blockHeight": 411,
+          "primaryTop": 613,
+          "containerScrollHeight": 659
+        },
+        "moved": 1589,
+        "returned": true
+      }
+    },
+    {
+      "route": "freeze-tap",
+      "load": 6,
+      "presses": [
+        {
+          "rank": 0,
+          "label": "รับทราบ! เริ่มส่งเครื่อง ➔"
+        }
+      ],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": false,
+          "sigLen": 269
+        },
+        {
+          "press": 1,
+          "hasPrimary": true,
+          "sigLen": 239
+        }
+      ],
+      "pressIndex": 1,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "main#mainContent",
+          "top": 69,
+          "bottom": 568,
+          "height": 499,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 499,
+          "scrollHeight": 686,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#playerReadyBtn.btn-primary",
+          "top": 640,
+          "bottom": 739,
+          "height": 99,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 99,
+          "scrollHeight": 99,
+          "scrollTop": 0,
+          "topPastViewportBottom": 72,
+          "bottomPastViewportBottom": 171,
+          "visiblePxInViewport": 0,
+          "topPastContainerFold": 72,
+          "visiblePxInContainer": 0
+        },
+        "recordedBlock": {
+          "sel": "div.pass-player-card",
+          "top": 138,
+          "bottom": 576,
+          "height": 438,
+          "children": 3,
+          "overflowY": "visible",
+          "clientHeight": 436,
+          "scrollHeight": 436,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.pass-container",
+            "top": 85,
+            "bottom": 739,
+            "height": 654,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 654,
+            "scrollHeight": 654,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#shakeRoot",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#particleCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "main#mainContent",
+            "top": 69,
+            "bottom": 568,
+            "height": 499,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 499,
+            "scrollHeight": 686,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-player-card",
+            "top": 138,
+            "bottom": 576,
+            "height": 438,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 436,
+            "scrollHeight": 436,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-box",
+            "top": 274,
+            "bottom": 545,
+            "height": 271,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 267,
+            "scrollHeight": 267,
+            "scrollTop": 0
+          },
+          {
+            "sel": "button#playerReadyBtn.btn-primary",
+            "top": 640,
+            "bottom": 739,
+            "height": 99,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 99,
+            "scrollHeight": 99,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-prompt",
+            "top": 388,
+            "bottom": 469,
+            "height": 81,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 81,
+            "scrollHeight": 81,
+            "scrollTop": 0
+          },
+          {
+            "sel": "header",
+            "top": 0,
+            "bottom": 69,
+            "height": 69,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 68,
+            "scrollHeight": 68,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.player-name-huge",
+            "top": 201,
+            "bottom": 256,
+            "height": 55,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 55,
+            "scrollHeight": 55,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-target-badge",
+            "top": 322,
+            "bottom": 376,
+            "height": 54,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 50,
+            "scrollHeight": 50,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.pass-condition-warn",
+            "top": 477,
+            "bottom": 527,
+            "height": 50,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 48,
+            "scrollHeight": 48,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 438,
+          "primaryTop": 640,
+          "containerScrollHeight": 686
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2202,
+          "containerScrollHeight": 2248
+        },
+        "after": {
+          "blockHeight": 438,
+          "primaryTop": 640,
+          "containerScrollHeight": 686
+        },
+        "moved": 1562,
+        "returned": true
+      }
+    },
+    {
+      "route": "wire-snip-panic",
+      "load": 1,
+      "presses": [],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": true,
+          "sigLen": 220
+        }
+      ],
+      "pressIndex": 0,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "div#screen-game.screen.active",
+          "top": 175,
+          "bottom": 568,
+          "height": 393,
+          "children": 4,
+          "overflowY": "auto",
+          "clientHeight": 393,
+          "scrollHeight": 456,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#btn-trigger-scan.btn-primary",
+          "top": 540,
+          "bottom": 616,
+          "height": 76,
+          "children": 1,
+          "overflowY": "visible",
+          "clientHeight": 76,
+          "scrollHeight": 76,
+          "scrollTop": 0,
+          "topPastViewportBottom": -28,
+          "bottomPastViewportBottom": 48,
+          "visiblePxInViewport": 28,
+          "topPastContainerFold": -28,
+          "visiblePxInContainer": 28
+        },
+        "recordedBlock": {
+          "sel": "div#bomb-chassis.bomb-chassis",
+          "top": 261,
+          "bottom": 501,
+          "height": 240,
+          "children": 7,
+          "overflowY": "visible",
+          "clientHeight": 236,
+          "scrollHeight": 264,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "canvas#particle-canvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#flash-overlay",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#screen-game.screen.active",
+            "top": 175,
+            "bottom": 568,
+            "height": 393,
+            "children": 4,
+            "overflowY": "auto",
+            "clientHeight": 393,
+            "scrollHeight": 456,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#bomb-chassis.bomb-chassis",
+            "top": 261,
+            "bottom": 501,
+            "height": 240,
+            "children": 7,
+            "overflowY": "visible",
+            "clientHeight": 236,
+            "scrollHeight": 264,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#wires-bay.wires-bay",
+            "top": 360,
+            "bottom": 526.9375,
+            "height": 166.9375,
+            "children": 6,
+            "overflowY": "visible",
+            "clientHeight": 165,
+            "scrollHeight": 165,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#turn-action-banner.turn-action-banner",
+            "top": 507,
+            "bottom": 625,
+            "height": 118,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 240,
+          "primaryTop": 540,
+          "containerScrollHeight": 456
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2300,
+          "containerScrollHeight": 2216
+        },
+        "after": {
+          "blockHeight": 240,
+          "primaryTop": 540,
+          "containerScrollHeight": 456
+        },
+        "moved": 1760,
+        "returned": true
+      }
+    },
+    {
+      "route": "wire-snip-panic",
+      "load": 2,
+      "presses": [],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": true,
+          "sigLen": 220
+        }
+      ],
+      "pressIndex": 0,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "div#screen-game.screen.active",
+          "top": 175,
+          "bottom": 568,
+          "height": 393,
+          "children": 4,
+          "overflowY": "auto",
+          "clientHeight": 393,
+          "scrollHeight": 456,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#btn-trigger-scan.btn-primary",
+          "top": 540,
+          "bottom": 616,
+          "height": 76,
+          "children": 1,
+          "overflowY": "visible",
+          "clientHeight": 76,
+          "scrollHeight": 76,
+          "scrollTop": 0,
+          "topPastViewportBottom": -28,
+          "bottomPastViewportBottom": 48,
+          "visiblePxInViewport": 28,
+          "topPastContainerFold": -28,
+          "visiblePxInContainer": 28
+        },
+        "recordedBlock": {
+          "sel": "div#bomb-chassis.bomb-chassis",
+          "top": 261,
+          "bottom": 501,
+          "height": 240,
+          "children": 7,
+          "overflowY": "visible",
+          "clientHeight": 236,
+          "scrollHeight": 264,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "canvas#particle-canvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#flash-overlay",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#screen-game.screen.active",
+            "top": 175,
+            "bottom": 568,
+            "height": 393,
+            "children": 4,
+            "overflowY": "auto",
+            "clientHeight": 393,
+            "scrollHeight": 456,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#bomb-chassis.bomb-chassis",
+            "top": 261,
+            "bottom": 501,
+            "height": 240,
+            "children": 7,
+            "overflowY": "visible",
+            "clientHeight": 236,
+            "scrollHeight": 264,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#wires-bay.wires-bay",
+            "top": 360,
+            "bottom": 526.9375,
+            "height": 166.9375,
+            "children": 6,
+            "overflowY": "visible",
+            "clientHeight": 165,
+            "scrollHeight": 165,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#turn-action-banner.turn-action-banner",
+            "top": 507,
+            "bottom": 625,
+            "height": 118,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 240,
+          "primaryTop": 540,
+          "containerScrollHeight": 456
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2300,
+          "containerScrollHeight": 2216
+        },
+        "after": {
+          "blockHeight": 240,
+          "primaryTop": 540,
+          "containerScrollHeight": 456
+        },
+        "moved": 1760,
+        "returned": true
+      }
+    },
+    {
+      "route": "wire-snip-panic",
+      "load": 3,
+      "presses": [],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": true,
+          "sigLen": 220
+        }
+      ],
+      "pressIndex": 0,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "div#screen-game.screen.active",
+          "top": 175,
+          "bottom": 568,
+          "height": 393,
+          "children": 4,
+          "overflowY": "auto",
+          "clientHeight": 393,
+          "scrollHeight": 456,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#btn-trigger-scan.btn-primary",
+          "top": 540,
+          "bottom": 616,
+          "height": 76,
+          "children": 1,
+          "overflowY": "visible",
+          "clientHeight": 76,
+          "scrollHeight": 76,
+          "scrollTop": 0,
+          "topPastViewportBottom": -28,
+          "bottomPastViewportBottom": 48,
+          "visiblePxInViewport": 28,
+          "topPastContainerFold": -28,
+          "visiblePxInContainer": 28
+        },
+        "recordedBlock": {
+          "sel": "div#bomb-chassis.bomb-chassis",
+          "top": 261,
+          "bottom": 501,
+          "height": 240,
+          "children": 7,
+          "overflowY": "visible",
+          "clientHeight": 236,
+          "scrollHeight": 264,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "canvas#particle-canvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#flash-overlay",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#screen-game.screen.active",
+            "top": 175,
+            "bottom": 568,
+            "height": 393,
+            "children": 4,
+            "overflowY": "auto",
+            "clientHeight": 393,
+            "scrollHeight": 456,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#bomb-chassis.bomb-chassis",
+            "top": 261,
+            "bottom": 501,
+            "height": 240,
+            "children": 7,
+            "overflowY": "visible",
+            "clientHeight": 236,
+            "scrollHeight": 264,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#wires-bay.wires-bay",
+            "top": 360,
+            "bottom": 526.9375,
+            "height": 166.9375,
+            "children": 6,
+            "overflowY": "visible",
+            "clientHeight": 165,
+            "scrollHeight": 165,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.wire-column.disabled",
+            "top": 365,
+            "bottom": 521.9375,
+            "height": 156.9375,
+            "children": 4,
+            "overflowY": "visible",
+            "clientHeight": 157,
+            "scrollHeight": 157,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#turn-action-banner.turn-action-banner",
+            "top": 507,
+            "bottom": 625,
+            "height": 118,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 240,
+          "primaryTop": 540,
+          "containerScrollHeight": 456
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2300,
+          "containerScrollHeight": 2216
+        },
+        "after": {
+          "blockHeight": 240,
+          "primaryTop": 540,
+          "containerScrollHeight": 456
+        },
+        "moved": 1760,
+        "returned": true
+      }
+    },
+    {
+      "route": "one-bomb",
+      "load": 1,
+      "presses": [],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": true,
+          "sigLen": 279
+        }
+      ],
+      "pressIndex": 0,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "div#menuOverlay.menuOverlay",
+          "top": 0,
+          "bottom": 568,
+          "height": 568,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 568,
+          "scrollHeight": 665,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#startPlayBtn.btnBase.primaryBtn",
+          "top": 478.1136779785156,
+          "bottom": 532.1136474609375,
+          "height": 53.999969482421875,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 54,
+          "scrollHeight": 54,
+          "scrollTop": 0,
+          "topPastViewportBottom": -89.88632202148438,
+          "bottomPastViewportBottom": -35.8863525390625,
+          "visiblePxInViewport": 53.999969482421875,
+          "topPastContainerFold": -89.88632202148438,
+          "visiblePxInContainer": 53.999969482421875
+        },
+        "recordedBlock": {
+          "sel": "ul#ob-players.ob-players",
+          "top": 250.11367797851562,
+          "bottom": 398.1136779785156,
+          "height": 148,
+          "children": 3,
+          "overflowY": "auto",
+          "clientHeight": 148,
+          "scrollHeight": 148,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.menuBox",
+            "top": 15.51992416381836,
+            "bottom": 640.1136741638184,
+            "height": 624.59375,
+            "children": 6,
+            "overflowY": "visible",
+            "clientHeight": 625,
+            "scrollHeight": 625,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#gameCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#hud.hud.hidden",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#menuOverlay.menuOverlay",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 568,
+            "scrollHeight": 665,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.menuBtnCol",
+            "top": 478.1136779785156,
+            "bottom": 640.1136474609375,
+            "height": 161.99996948242188,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 162,
+            "scrollHeight": 162,
+            "scrollTop": 0
+          },
+          {
+            "sel": "ul#ob-players.ob-players",
+            "top": 250.11367797851562,
+            "bottom": 398.1136779785156,
+            "height": 148,
+            "children": 3,
+            "overflowY": "auto",
+            "clientHeight": 148,
+            "scrollHeight": 148,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.topSection",
+            "top": 10,
+            "bottom": 147,
+            "height": 137,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 137,
+            "scrollHeight": 137,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.logoArea",
+            "top": 15.51992416381836,
+            "bottom": 131.11367416381836,
+            "height": 115.59375,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.glassPanel.setupCard",
+            "top": 149.11367797851562,
+            "bottom": 232.11367797851562,
+            "height": 83,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 81,
+            "scrollHeight": 81,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.gameTitle",
+            "top": 15.51992416381836,
+            "bottom": 97.11367416381836,
+            "height": 81.59375,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 82,
+            "scrollHeight": 89,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.statusTopRow",
+            "top": 69,
+            "bottom": 147,
+            "height": 78,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 78,
+            "scrollHeight": 78,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#turnBanner.turnBanner",
+            "top": 69,
+            "bottom": 147,
+            "height": 78,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 76,
+            "scrollHeight": 76,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 148,
+          "primaryTop": 478.1136779785156,
+          "containerScrollHeight": 665
+        },
+        "forced": {
+          "blockHeight": 2000.0001220703125,
+          "primaryTop": 2330.11376953125,
+          "containerScrollHeight": 2517
+        },
+        "after": {
+          "blockHeight": 148,
+          "primaryTop": 478.1136779785156,
+          "containerScrollHeight": 665
+        },
+        "moved": 1852.0000915527344,
+        "returned": true
+      }
+    },
+    {
+      "route": "one-bomb",
+      "load": 2,
+      "presses": [],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": true,
+          "sigLen": 279
+        }
+      ],
+      "pressIndex": 0,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "div#menuOverlay.menuOverlay",
+          "top": 0,
+          "bottom": 568,
+          "height": 568,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 568,
+          "scrollHeight": 665,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#startPlayBtn.btnBase.primaryBtn",
+          "top": 478.1136474609375,
+          "bottom": 532.1136474609375,
+          "height": 54,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 54,
+          "scrollHeight": 54,
+          "scrollTop": 0,
+          "topPastViewportBottom": -89.8863525390625,
+          "bottomPastViewportBottom": -35.8863525390625,
+          "visiblePxInViewport": 54,
+          "topPastContainerFold": -89.8863525390625,
+          "visiblePxInContainer": 54
+        },
+        "recordedBlock": {
+          "sel": "ul#ob-players.ob-players",
+          "top": 250.11363220214844,
+          "bottom": 398.1136474609375,
+          "height": 148.00001525878906,
+          "children": 3,
+          "overflowY": "auto",
+          "clientHeight": 148,
+          "scrollHeight": 148,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.menuBox",
+            "top": 15.51988410949707,
+            "bottom": 640.1136341094971,
+            "height": 624.59375,
+            "children": 6,
+            "overflowY": "visible",
+            "clientHeight": 625,
+            "scrollHeight": 625,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#gameCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#hud.hud.hidden",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#menuOverlay.menuOverlay",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 568,
+            "scrollHeight": 665,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.menuBtnCol",
+            "top": 478.1136474609375,
+            "bottom": 640.1136474609375,
+            "height": 162,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 162,
+            "scrollHeight": 162,
+            "scrollTop": 0
+          },
+          {
+            "sel": "ul#ob-players.ob-players",
+            "top": 250.11363220214844,
+            "bottom": 398.1136474609375,
+            "height": 148.00001525878906,
+            "children": 3,
+            "overflowY": "auto",
+            "clientHeight": 148,
+            "scrollHeight": 148,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.topSection",
+            "top": 10,
+            "bottom": 147,
+            "height": 137,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 137,
+            "scrollHeight": 137,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.logoArea",
+            "top": 15.51988410949707,
+            "bottom": 131.11363410949707,
+            "height": 115.59375,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.glassPanel.setupCard",
+            "top": 149.11363220214844,
+            "bottom": 232.11363220214844,
+            "height": 83,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 81,
+            "scrollHeight": 81,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.gameTitle",
+            "top": 15.51988410949707,
+            "bottom": 97.11363410949707,
+            "height": 81.59375,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 82,
+            "scrollHeight": 89,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.statusTopRow",
+            "top": 69,
+            "bottom": 147,
+            "height": 78,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 78,
+            "scrollHeight": 78,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#turnBanner.turnBanner",
+            "top": 69,
+            "bottom": 147,
+            "height": 78,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 76,
+            "scrollHeight": 76,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 148.00001525878906,
+          "primaryTop": 478.1136474609375,
+          "containerScrollHeight": 665
+        },
+        "forced": {
+          "blockHeight": 1999.9998779296875,
+          "primaryTop": 2330.113525390625,
+          "containerScrollHeight": 2517
+        },
+        "after": {
+          "blockHeight": 148.00001525878906,
+          "primaryTop": 478.1136474609375,
+          "containerScrollHeight": 665
+        },
+        "moved": 1851.9998779296875,
+        "returned": true
+      }
+    },
+    {
+      "route": "one-bomb",
+      "load": 3,
+      "presses": [],
+      "error": null,
+      "screens": [
+        {
+          "press": 0,
+          "hasPrimary": true,
+          "sigLen": 279
+        }
+      ],
+      "pressIndex": 0,
+      "measure": {
+        "ok": true,
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "container": {
+          "sel": "div#menuOverlay.menuOverlay",
+          "top": 0,
+          "bottom": 568,
+          "height": 568,
+          "children": 1,
+          "overflowY": "auto",
+          "clientHeight": 568,
+          "scrollHeight": 665,
+          "scrollTop": 0
+        },
+        "foldEdge": 568,
+        "primary": {
+          "sel": "button#startPlayBtn.btnBase.primaryBtn",
+          "top": 478.11376953125,
+          "bottom": 532.11376953125,
+          "height": 54,
+          "children": 0,
+          "overflowY": "visible",
+          "clientHeight": 54,
+          "scrollHeight": 54,
+          "scrollTop": 0,
+          "topPastViewportBottom": -89.88623046875,
+          "bottomPastViewportBottom": -35.88623046875,
+          "visiblePxInViewport": 54,
+          "topPastContainerFold": -89.88623046875,
+          "visiblePxInContainer": 54
+        },
+        "recordedBlock": {
+          "sel": "ul#ob-players.ob-players",
+          "top": 250.11378479003906,
+          "bottom": 398.11376953125,
+          "height": 147.99998474121094,
+          "children": 3,
+          "overflowY": "auto",
+          "clientHeight": 148,
+          "scrollHeight": 148,
+          "scrollTop": 0
+        },
+        "tallest": [
+          {
+            "sel": "div.menuBox",
+            "top": 15.520029067993164,
+            "bottom": 640.1137790679932,
+            "height": 624.59375,
+            "children": 6,
+            "overflowY": "visible",
+            "clientHeight": 625,
+            "scrollHeight": 625,
+            "scrollTop": 0
+          },
+          {
+            "sel": "canvas#gameCanvas",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 0,
+            "overflowY": "clip",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#hud.hud.hidden",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 568,
+            "scrollHeight": 568,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#menuOverlay.menuOverlay",
+            "top": 0,
+            "bottom": 568,
+            "height": 568,
+            "children": 1,
+            "overflowY": "auto",
+            "clientHeight": 568,
+            "scrollHeight": 665,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.menuBtnCol",
+            "top": 478.11376953125,
+            "bottom": 640.11376953125,
+            "height": 162,
+            "children": 3,
+            "overflowY": "visible",
+            "clientHeight": 162,
+            "scrollHeight": 162,
+            "scrollTop": 0
+          },
+          {
+            "sel": "ul#ob-players.ob-players",
+            "top": 250.11378479003906,
+            "bottom": 398.11376953125,
+            "height": 147.99998474121094,
+            "children": 3,
+            "overflowY": "auto",
+            "clientHeight": 148,
+            "scrollHeight": 148,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.topSection",
+            "top": 10,
+            "bottom": 147,
+            "height": 137,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 137,
+            "scrollHeight": 137,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.logoArea",
+            "top": 15.520029067993164,
+            "bottom": 131.1137866973877,
+            "height": 115.59375762939453,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.glassPanel.setupCard",
+            "top": 149.11378479003906,
+            "bottom": 232.11378479003906,
+            "height": 83,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 81,
+            "scrollHeight": 81,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.gameTitle",
+            "top": 15.520029067993164,
+            "bottom": 97.11377906799316,
+            "height": 81.59375,
+            "children": 1,
+            "overflowY": "visible",
+            "clientHeight": 82,
+            "scrollHeight": 89,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div.statusTopRow",
+            "top": 69,
+            "bottom": 147,
+            "height": 78,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 78,
+            "scrollHeight": 78,
+            "scrollTop": 0
+          },
+          {
+            "sel": "div#turnBanner.turnBanner",
+            "top": 69,
+            "bottom": 147,
+            "height": 78,
+            "children": 2,
+            "overflowY": "visible",
+            "clientHeight": 76,
+            "scrollHeight": 76,
+            "scrollTop": 0
+          }
+        ]
+      },
+      "calibration": {
+        "before": {
+          "blockHeight": 147.99998474121094,
+          "primaryTop": 478.11376953125,
+          "containerScrollHeight": 665
+        },
+        "forced": {
+          "blockHeight": 2000,
+          "primaryTop": 2330.11376953125,
+          "containerScrollHeight": 2517
+        },
+        "after": {
+          "blockHeight": 147.99998474121094,
+          "primaryTop": 478.11376953125,
+          "containerScrollHeight": 665
+        },
+        "moved": 1852,
+        "returned": true
+      }
+    }
+  ]
+}
