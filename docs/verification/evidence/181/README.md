@@ -1,5 +1,11 @@
 # gh#181 box 7 — 1440x900 readings and per-route verdicts
 
+**STALE as of 2026-09-15 — see [`refresh-2026-09-15.md`](./refresh-2026-09-15.md).** The eight
+routes' sources moved since this pass captured its PNGs (2026-09-07); the refresh file has the
+current screenshots, captures and per-route verdicts and states plainly which parts of this file's
+own prose (frame selectors, board/rail tokens) it carries forward unchanged versus re-checks. Read
+that file for anything dated after 2026-09-08.
+
 Captured 2026-09-07 at commit `7f654f7`. `git rev-list --count d2e2dcc..HEAD -- src public` is 0, so
 `src` and `public` at that commit are what is deployed — these are readings of the live site.
 
