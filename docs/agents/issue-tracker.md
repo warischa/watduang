@@ -51,6 +51,24 @@ The bullet above says an unticked box proves nothing and to read `state` instead
 
 **Check the artifact instead.** Take the ticket's top acceptance criterion and resolve it against `src/` and `dist/` before writing any brief. Confirming all four randomizer tools existed — source files present, built into `dist/`, and in the sitemap — took 0.006s. Budget about a minute for a whole batch. Sitemap membership matters as much as the build on this site: a page that builds but is unlisted is shipped and unfindable, which is not "done".
 
+### A label answers the condition it was moved for, which is narrower than it reads
+
+`ready-for-agent` does not mean an agent can start. A label is moved to discharge **one** named
+condition, and the comment that moved it says which — every other blocker on the ticket survives the
+move untouched.
+
+Measured 2026-09-15: gh#103 carried `ready-for-agent`, and its last comment justified the move by
+saying the ดูดวง copy **direction** was settled. Read alone, that licenses an agent to write the Thai
+strings. The ticket's own body says `Blocked by: the first-ten portrait ticket, and the owner's
+approval recorded there` — a chain running through gh#102 to owner-authored copy, which
+`CLAUDE.md` reserves to the owner outright. Direction settled is not authorship granted. Reading
+gh#101, gh#104, gh#106 and gh#109's last comments in full confirmed all four independently.
+
+**So: the label shortlists, the body's `Blocked by` and the last comment decide.** Read both before
+briefing, and read them whole — a `ready-for-agent` row whose blocker is owner work costs a dispatch
+that returns nothing, and the same session's queue had 14 of 16 rows dead behind labels that did not
+say so.
+
 ### เลขใบ vs issue number
 
 A ticket title starts with **เลขใบ**, which is not the issue number — **เลขใบ + 1 = issue number**
