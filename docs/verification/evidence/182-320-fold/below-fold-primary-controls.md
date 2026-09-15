@@ -17,6 +17,25 @@ rows describe. `freeze-tap` is measured on the **press-1** pass screen (its pres
 primary control at all); `wire-snip-panic` on its **press-0** game screen. Both press indices agree
 with the recorded block budget.
 
+> ⚠ **Superseded 2026-09-15, on both halves of the paragraph above.**
+>
+> **The parenthetical is false.** `freeze-tap`'s press-0 rule-reveal screen does carry a primary
+> control: `main.js` writes `button#ruleReadyBtn` with this route’s own `.btn-primary` class.
+> Measured live at 320x568 under the same asserted `innerWidth===320 && innerHeight===568`
+> discipline, it reads **rect.top 587.44 / rect.bottom 644.44 / 0 visible px**, with the container
+> 92px past its own client height. That defect is pre-existing and was confirmed unrelated to the
+> same day’s pass-screen fix by an A/B against the unmodified stylesheet. It went unrecorded
+> because the fit probe walks to ONE screen per route by a largest-visible-button heuristic and kept
+> only the worse of the two — the pass screen’s 187px. A per-route row is not a per-route audit.
+>
+> **The `freeze-tap` rows in the table below are now history.** Commit `c6e75ca` (2026-09-15),
+> *“gh#182: freeze-tap pass screen’s primary control clears the fold at 320x568”*, edited
+> `src/play/freeze-tap/overrides.css`. Re-measured `n=12`, `button#playerReadyBtn` reads **60 visible
+> px on every load** with **0px** container overflow, in both card states.
+>
+> Nothing above is rewritten: altering it would falsify the record of what this pass believed it had
+> checked. Evidence: `docs/verification/evidence/182-freeze-tap-fold-2026-09-15/`.
+
 Every number below is read off the rendered box with `getBoundingClientRect`, never computed from CSS.
 
 ## 1. The recorded "99px and 76px below the fold" are the two buttons' HEIGHTS
