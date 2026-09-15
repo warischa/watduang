@@ -1,0 +1,295 @@
+{
+  "url": "http://127.0.0.1:4321/game/croc-bite/play/",
+  "runs": [
+    {
+      "run": 0,
+      "calib": {
+        "webgl2": false,
+        "webgl": false,
+        "appPresent": true,
+        "animationFrameId": null,
+        "phase": "SETUP"
+      },
+      "roundResetAt": 1374,
+      "contactAt": 1799.7999999970198,
+      "playerTurnAt": 2575.699999999255,
+      "contactOffsetFromRoundReset": 425.79999999701977,
+      "timerImpliedGap": 774.2000000029802,
+      "introContact": {
+        "toothId": "upper_0",
+        "phaseAtContact": "ROUND_INTRO",
+        "stateBefore": "unresolved"
+      },
+      "introAfter": {
+        "phaseImmediatelyAfter": "ROUND_INTRO",
+        "stateImmediatelyAfter": "unresolved"
+      },
+      "contactLandedInIntro": true,
+      "introPressWasDropped": true,
+      "postArmPressSucceeded": true,
+      "phaseLog": [
+        {
+          "t": 1373.699999999255,
+          "newPhase": "ROUND_INTRO"
+        },
+        {
+          "t": 2575.699999999255,
+          "newPhase": "PLAYER_TURN"
+        },
+        {
+          "t": 4733.39999999851,
+          "newPhase": "RESOLVING_SAFE"
+        },
+        {
+          "t": 4733.599999997765,
+          "newPhase": "TURN_TRANSITION"
+        },
+        {
+          "t": 5435.89999999851,
+          "newPhase": "PLAYER_TURN"
+        }
+      ]
+    },
+    {
+      "run": 1,
+      "calib": {
+        "webgl2": false,
+        "webgl": false,
+        "appPresent": true,
+        "animationFrameId": null,
+        "phase": "SETUP"
+      },
+      "roundResetAt": 1260.5999999977648,
+      "contactAt": 1692.2999999970198,
+      "playerTurnAt": 2462.5,
+      "contactOffsetFromRoundReset": 431.69999999925494,
+      "timerImpliedGap": 768.3000000007451,
+      "introContact": {
+        "toothId": "upper_0",
+        "phaseAtContact": "ROUND_INTRO",
+        "stateBefore": "unresolved"
+      },
+      "introAfter": {
+        "phaseImmediatelyAfter": "ROUND_INTRO",
+        "stateImmediatelyAfter": "unresolved"
+      },
+      "contactLandedInIntro": true,
+      "introPressWasDropped": true,
+      "postArmPressSucceeded": true,
+      "phaseLog": [
+        {
+          "t": 1260.5999999977648,
+          "newPhase": "ROUND_INTRO"
+        },
+        {
+          "t": 2462.5,
+          "newPhase": "PLAYER_TURN"
+        },
+        {
+          "t": 4626.79999999702,
+          "newPhase": "RESOLVING_SAFE"
+        },
+        {
+          "t": 4627.199999999255,
+          "newPhase": "TURN_TRANSITION"
+        },
+        {
+          "t": 5329.29999999702,
+          "newPhase": "PLAYER_TURN"
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "calib": {
+        "webgl2": false,
+        "webgl": false,
+        "appPresent": true,
+        "animationFrameId": null,
+        "phase": "SETUP"
+      },
+      "roundResetAt": 1248.300000000745,
+      "contactAt": 1679.300000000745,
+      "playerTurnAt": 2450,
+      "contactOffsetFromRoundReset": 431,
+      "timerImpliedGap": 769,
+      "introContact": {
+        "toothId": "upper_0",
+        "phaseAtContact": "ROUND_INTRO",
+        "stateBefore": "unresolved"
+      },
+      "introAfter": {
+        "phaseImmediatelyAfter": "ROUND_INTRO",
+        "stateImmediatelyAfter": "unresolved"
+      },
+      "contactLandedInIntro": true,
+      "introPressWasDropped": true,
+      "postArmPressSucceeded": true,
+      "phaseLog": [
+        {
+          "t": 1248.199999999255,
+          "newPhase": "ROUND_INTRO"
+        },
+        {
+          "t": 2450,
+          "newPhase": "PLAYER_TURN"
+        },
+        {
+          "t": 4616,
+          "newPhase": "RESOLVING_SAFE"
+        },
+        {
+          "t": 4616.199999999255,
+          "newPhase": "TURN_TRANSITION"
+        },
+        {
+          "t": 5318.199999999255,
+          "newPhase": "PLAYER_TURN"
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "calib": {
+        "webgl2": false,
+        "webgl": false,
+        "appPresent": true,
+        "animationFrameId": null,
+        "phase": "SETUP"
+      },
+      "roundResetAt": 1257.1000000014901,
+      "contactAt": 1688.8999999985099,
+      "playerTurnAt": 2459.699999999255,
+      "contactOffsetFromRoundReset": 431.79999999701977,
+      "timerImpliedGap": 768.2000000029802,
+      "introContact": {
+        "toothId": "upper_0",
+        "phaseAtContact": "ROUND_INTRO",
+        "stateBefore": "unresolved"
+      },
+      "introAfter": {
+        "phaseImmediatelyAfter": "ROUND_INTRO",
+        "stateImmediatelyAfter": "unresolved"
+      },
+      "contactLandedInIntro": true,
+      "introPressWasDropped": true,
+      "postArmPressSucceeded": true,
+      "phaseLog": [
+        {
+          "t": 1256.8999999985099,
+          "newPhase": "ROUND_INTRO"
+        },
+        {
+          "t": 2459.699999999255,
+          "newPhase": "PLAYER_TURN"
+        },
+        {
+          "t": 4622.699999999255,
+          "newPhase": "RESOLVING_SAFE"
+        },
+        {
+          "t": 4622.800000000745,
+          "newPhase": "TURN_TRANSITION"
+        },
+        {
+          "t": 5325.300000000745,
+          "newPhase": "PLAYER_TURN"
+        }
+      ]
+    },
+    {
+      "run": 4,
+      "calib": {
+        "webgl2": false,
+        "webgl": false,
+        "appPresent": true,
+        "animationFrameId": null,
+        "phase": "SETUP"
+      },
+      "roundResetAt": 1248.800000000745,
+      "contactAt": 1681.300000000745,
+      "playerTurnAt": 2451.39999999851,
+      "contactOffsetFromRoundReset": 432.5,
+      "timerImpliedGap": 767.5,
+      "introContact": {
+        "toothId": "upper_0",
+        "phaseAtContact": "ROUND_INTRO",
+        "stateBefore": "unresolved"
+      },
+      "introAfter": {
+        "phaseImmediatelyAfter": "ROUND_INTRO",
+        "stateImmediatelyAfter": "unresolved"
+      },
+      "contactLandedInIntro": true,
+      "introPressWasDropped": true,
+      "postArmPressSucceeded": true,
+      "phaseLog": [
+        {
+          "t": 1248.5,
+          "newPhase": "ROUND_INTRO"
+        },
+        {
+          "t": 2451.39999999851,
+          "newPhase": "PLAYER_TURN"
+        },
+        {
+          "t": 4612.300000000745,
+          "newPhase": "RESOLVING_SAFE"
+        },
+        {
+          "t": 4612.39999999851,
+          "newPhase": "TURN_TRANSITION"
+        },
+        {
+          "t": 5314.199999999255,
+          "newPhase": "PLAYER_TURN"
+        }
+      ]
+    },
+    {
+      "run": 5,
+      "calib": {
+        "webgl2": false,
+        "webgl": false,
+        "appPresent": true,
+        "animationFrameId": null,
+        "phase": "SETUP"
+      },
+      "roundResetAt": 1247.2999999970198,
+      "contactAt": 1680.699999999255,
+      "playerTurnAt": 2450.599999997765,
+      "contactOffsetFromRoundReset": 433.4000000022352,
+      "timerImpliedGap": 766.5999999977648,
+      "introContact": {
+        "toothId": "upper_0",
+        "phaseAtContact": "ROUND_INTRO",
+        "stateBefore": "unresolved"
+      },
+      "introAfter": {
+        "phaseImmediatelyAfter": "ROUND_INTRO",
+        "stateImmediatelyAfter": "unresolved"
+      },
+      "contactLandedInIntro": true,
+      "introPressWasDropped": true,
+      "postArmPressSucceeded": true,
+      "phaseLog": [
+        {
+          "t": 1247.199999999255,
+          "newPhase": "ROUND_INTRO"
+        },
+        {
+          "t": 2450.599999997765,
+          "newPhase": "PLAYER_TURN"
+        },
+        {
+          "t": 4614.099999997765,
+          "newPhase": "RESOLVING_LOSS"
+        },
+        {
+          "t": 4614.599999997765,
+          "newPhase": "RESULT"
+        }
+      ]
+    }
+  ]
+}

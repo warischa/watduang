@@ -1,0 +1,110 @@
+gh#235 -- external confirmation of the croc-bite deferred-arming account
+Instrument: scripts/croc-bite-first-handled-gap-probe.mjs, run via
+`node scripts/driver.mjs scripts/croc-bite-first-handled-gap-probe.mjs`.
+Server: npx serve dist/ (npm run build first). Chrome: --headless --disable-gpu --no-sandbox, no
+--use-gl / swiftshader flags -- the plain no-WebGL lane the account requires.
+
+WHY THE FIRST ATTEMPT'S CHECK WAS WEAK, AND WHAT REPLACED IT
+A first pass checked `measuredGap == 1200 - (contact - roundReset)`, where measuredGap was defined as
+`playerTurnAt - contactAt`. That check is tautological: `playerTurnAt` is `roundResetAt + 1200` by
+construction of the engine's own timer, REGARDLESS of what any press did, so the subtraction reads the
+same whether the press was handled or dropped. It proves the timer fires ~1200ms after roundReset,
+which was never in question -- it does not prove the press itself was ignored.
+
+Replaced with two independent, falsifiable checks per run:
+  (a) DROP CHECK -- the tooth pressed during ROUND_INTRO: state stays 'unresolved' immediately after
+      the click, phase stays 'ROUND_INTRO', and no 'RESOLVING_*' phaseChange is logged between the
+      contact and PLAYER_TURN beginning. If pressTooth had NOT returned null, at least one of these
+      would flip immediately.
+  (b) RE-ARM CHECK -- a press on the same board once PLAYER_TURN has begun DOES produce a
+      'RESOLVING_*' phaseChange. If the control were simply broken (not merely unarmed), this would
+      stay false.
+Both are read from a roundReset/phaseChange listener attached to window.__khengApp from outside the
+page (no shipped file under src/play/croc-bite/ was touched), plus a capturing (pre-handler) click
+listener on [data-tooth] recording the tooth's own state at contact time.
+
+PER-RUN RESULTS (n=6, all in the no-WebGL, no-3D-context lane):
+
+run  contactLandedInIntro  introPressWasDropped  postArmPressSucceeded  contactOffsetFromRoundReset  timerImpliedGap
+0    true                  true                  true                   425.8ms                      774.2ms
+1    true                  true                  true                   431.7ms                      768.3ms
+2    true                  true                  true                   431.0ms                      769.0ms
+3    true                  true                  true                   431.8ms                      768.2ms
+4    true                  true                  true                   432.5ms                      767.5ms
+5    true                  true                  true                   433.4ms                      766.6ms
+
+WebGL assertion: webgl2=false AND webgl=false on a throwaway canvas, AND
+window.__khengApp.animationFrameId===null (the engine's own fact that it took the no-3D branch) on
+every one of the 6 runs -- confirmed fresh each run (browser-verification.md trap 0: the launch flag
+does not decide the lane, an in-page read does).
+
+VERDICT: CONFIRMED. All 6 runs show the intro-window press producing zero observable effect
+(introPressWasDropped=true) and the same control succeeding once armed (postArmPressSucceeded=true).
+This is deferred ARMING, not deferred RENDER, exactly as the account states: GameState.pressTooth
+silently refuses outside PLAYER_TURN, and only the roundReset handler's 1200ms timer arms it.
+
+timerImpliedGap (1200 - contactOffsetFromRoundReset) is reported for context, NOT as proof by itself
+(see the tautology note above) -- it is one input into deciding whether the mechanism, once confirmed,
+also explains the SIZE of the originally recorded gaps.
+
+CAVEAT -- absolute numbers do not match the ticket's recorded spread, and this is reported rather than
+forced. The ticket's six CI runs (from play-exit-probe.mjs's M2 burst instrumentation) recorded first
+handled gaps of 960.1 / 1367.7 / 1434.7 / 1634.5 / 1976.1 / 980.7 ms (min 960.1, median 1401.2, max
+1976.1). This probe's contactOffsetFromRoundReset landed in a narrow ~426-433ms band every run
+(session.tap()'s own built-in 400ms settle before the next evaluate() reads back), giving
+timerImpliedGap 766.6-774.2ms -- below the recorded minimum. This probe intentionally does not
+reproduce play-exit-probe.mjs's own contact-dispatch mechanism (a click on the M2 transition trigger
+immediately followed, in the same CDP dispatch stream, by a 5-touch burst at the same coordinates,
+classified on `pointerdown`/`pointerup` listener-run time vs the event's own timeStamp) -- doing that
+precisely would mean instrumenting or forking a CI-critical, 900-line shared script, which was judged
+out of proportion for confirming a mechanism already established from source and already ruled on.
+So: the MECHANISM is confirmed by (a)/(b) above; the exact 960-1976ms SPREAD from CI is not
+independently reproduced by this probe, and that gap is left open rather than papered over.
+
+Also confirmed before building the measurement: session.evaluate() needs an explicit `return` --
+verified by reading back a trivial rect value (scripts/driver.mjs's own documented footgun) before
+this probe was written.
+
+CRITICAL FINDING, discovered after the CONFIRMED verdict above was drafted -- reported rather than
+smoothed over: play-exit-probe.mjs's own "handled gap" instrument does NOT touch a tooth button at
+all. Read from source (scripts/play-exit-probe.mjs's INSTRUMENT and XSTATE constants): the M2 burst's
+five contacts are dispatched at the rect of `document.getElementById('play-exit')` -- the always-
+present exit-confirmation ("leave the game") button fixed in the header -- via a `document`-level
+CAPTURING `pointerdown`/`pointerup` listener that timestamps its OWN run, generic across every route
+on the site. It has no reference to croc-bite's tooth board, `pressTooth`, or `PLAYER_TURN` at all.
+Checked directly this session: at the play-exit-probe.mjs M2 viewport (320x640), `#btn-start-game`
+(the SETUP screen's own start control, which stays mounted with visibility:hidden rather than
+display:none once the round begins) sits at a DIFFERENT screen position than any `[data-tooth]`
+button; but `#play-exit` is a fixed, always-visible header control the DOM board never displaces, so
+the burst does land on a real, live control throughout -- just not the one the source-reading account
+is about.
+
+This means: the deferred-arming mechanism this probe confirms above (pressTooth/ROUND_INTRO/
+beginPlayerTurn) is real, but it is NOT shown to be the cause of the recorded first-handled-gap
+numbers -- those come from a document-wide pointerdown/pointerup listener on an unrelated control,
+which only reads a large gap if the MAIN THREAD itself was busy when the input was queued (the
+listener is generic, not phase-gated). The account's own source reading explicitly ruled OUT a
+busy-main-thread explanation on the grounds that the 3D geometry work (Crocodile.setupTeeth/
+resetAll) is guarded off with no WebGL context -- but croc-bite's `renderBoard()` synchronously
+replaces 16 DOM nodes and installs the arm-gate (`armAllButtons`) on all of them at round start,
+UNGUARDED by the WebGL check, and was not considered as a main-thread-contention candidate.
+
+VERDICT, split and honest:
+  - Deferred arming (pressTooth silently refuses outside PLAYER_TURN; the roundReset handler's 1200ms
+    timer is what arms it): CONFIRMED to exist and behave exactly as described, independent of this
+    ticket's numbers (checks (a)/(b) above, n=6).
+  - Deferred arming as the CAUSE of the ticket's recorded 960.1-1976.1ms first-handled-gap spread:
+    NOT ESTABLISHED, and the mechanism connecting the two is now in question -- the CI probe's
+    contact never reaches `pressTooth` at all. This is the open item to hand back to the ticket: the
+    original "why is the main thread busy" question was answered "no" only for the 3D geometry path;
+    the DOM-board rebuild/arm-gate-install path at round start was never checked against it.
+
+A real bug found and fixed while building this: roster-bridge.ts auto-drives #btn-start-game at boot
+once a >=2-name roster is saved in localStorage, and the FIRST run's own start click saves that
+roster -- every later run in the same Chrome profile then auto-started before any listener could
+attach, reading as roundResetAt staying null forever. Fixed by landing on the origin, wiping storage,
+then reloading before every run (browser-verification.md: "a wipe issued from about:blank clears
+nothing").
+
+Nothing here is wired into any arm-gate decision (ADR-0059 stands: the gate reads the browser's own
+input stamp, never handler time).
