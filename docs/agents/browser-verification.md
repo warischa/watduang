@@ -125,6 +125,16 @@ Each of these passed a plausible-looking check while measuring nothing. Three mo
 fire only once you already have a capture in hand and are judging what it means — moved to
 [interpreting-browser-captures.md](./interpreting-browser-captures.md) to stay under the doc budget.
 
+**0. The lane's flags decide which branch ran — a source comment does not.** Before attributing a
+CI probe's number to a code path, check what that lane grants. Every browser lane in `ci.yml` runs
+`--disable-gpu` except the ADR-0051 pixel-readback step, which forces a software rasteriser on
+purpose; `canvas-ink-probe.mjs` records the same from the other side, that the probe fleet has no
+WebGL context anywhere. So a branch guarded on a 3D context is dead in every lane but that one,
+however fully the comment above it describes what it would do. 2026-09-15: a gh#235 finding was
+drafted headlined "the main thread is not busy", reasoning from a `roundReset` listener's comment,
+while the same listener's synchronous `setupTeeth`/`resetAll` would have been exactly that — the
+flag, not the comment, is what ruled it out, and it was checked only after the claim was written.
+
 **1. `--window-size` does not resize the layout.** `--dump-dom` renders at `innerWidth=500` no matter
 what you pass, in every headless mode. `--screenshot` produces a PNG of the requested width, but it
 is a **crop of a wider render** — the page never reflowed. Asserting the PNG width with `sips`
