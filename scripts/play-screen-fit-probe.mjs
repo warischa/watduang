@@ -162,6 +162,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { games } from '../src/games/manifest.ts';
@@ -1179,7 +1180,106 @@ const fmt = (r) => {
   return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} scrolls ${(w.scrollPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(Math.round(w.scrollPx)).padStart(5)}px  clipped ${String(Math.round(w.clippedPx)).padStart(5)}px  sideways ${String(Math.round(x.overflowXPx ?? 0)).padStart(5)}px${x.overflowXFrom ? ' by ' + x.overflowXFrom : ''}  width-fill ${String(w.widthFillPct).padStart(5)}%  (${r.screens.length} screen(s), worst at press ${w.press}, ${w.inkCount} ink)${FITS_ROWS.has(rowKey(r)) ? ' [pinned fits]' : ''}${KNOWN_OVERFLOW_X.has(rowKey(r)) ? ' [sideways excepted]' : ''}`;
 };
 
+/**
+ * gh#182 reporting — emits one line per measured screen in r.screens, carrying that screen's own
+ * measurements: its press label, overflowPx, scrollPx, clippedPx, overflowXPx, widthFillPct, and inkCount.
+ * Pure formatter function exported so tests can exercise the exact output production uses without a browser.
+ *
+ * Why every screen is reported: on freeze-tap, the press-0 rule-reveal screen was already at 92 px
+ * overflow on the unmodified stylesheet (confirmed by A/B), but was hidden under press 1's 187 px in the
+ * worstOf summary. The walk measured both; this formatter ensures every screen is visible in CI logs.
+ * Why these lines are not a gate: press index identifies an encounter, not a stable state, so rowKey
+ * stays route x viewport and does not pin non-deterministic press walk counts.
+ */
+export const fmtScreens = (r) => {
+  if (!r?.screens?.length) return [];
+  return r.screens.map((s) => {
+    const pressLabel = s.press !== null && s.press !== undefined ? `press ${s.press}` : 'press -';
+    const labelPart = s.label ? `${s.label} (${pressLabel})` : pressLabel;
+    const overPx = Math.round(s.overflowPx ?? Math.max(s.scrollPx ?? 0, s.clippedPx ?? 0));
+    const scrPx = Math.round(s.scrollPx ?? 0);
+    const clpPx = Math.round(s.clippedPx ?? 0);
+    const ovxPx = Math.round(s.overflowXPx ?? 0);
+    const wfill = s.widthFillPct ?? 0;
+    const ink = s.inkCount ?? 0;
+    return `  screen [${labelPart}]  overflow ${String(overPx).padStart(5)}px  scrolls ${(scrPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(scrPx).padStart(5)}px  clipped ${String(clpPx).padStart(5)}px  sideways ${String(ovxPx).padStart(5)}px${s.overflowXFrom ? ' by ' + s.overflowXFrom : ''}  width-fill ${String(wfill).padStart(5)}%  ink ${ink}`;
+  });
+};
+
+/**
+ * Emits the complete reporting lines for one row: the per-row summary produced by fmt(r),
+ * followed by one line per measured screen in r.screens produced by fmtScreens(r).
+ * Pure function exported so tests can exercise the exact emission logic main() performs without a browser.
+ */
+export const fmtRowReport = (r) => {
+  if (!r) return [];
+  return [fmt(r), ...fmtScreens(r)];
+};
+
+/**
+ * Emits every row's report through the `emit` sink, one call per line, and returns the number of
+ * lines emitted. main() passes console.log; a test passes a collector and can therefore OBSERVE the
+ * emission instead of reading main()'s source for it.
+ *
+ * Why the return count and the sink both exist: the first version of this reporting was guarded only
+ * by a regex over main()'s own source text, and on 2026-09-16 a mutation that kept the loop verbatim
+ * while discarding its body passed 18 of 18 tests. A source check cannot answer a question about a
+ * runtime value. The count is what a hollowed-out loop cannot fake.
+ */
+export const emitRowReports = (rows, emit) => {
+  let emitted = 0;
+  for (const r of rows || []) {
+    for (const line of fmtRowReport(r)) { emit('::notice::' + line); emitted++; }
+  }
+  return emitted;
+};
+
+/** Calibration for --selftest: validates fmtScreens and fmtRowReport over variable-cardinality fixtures without a browser. */
+export function selftest() {
+  const row = {
+    route: 'freeze-tap',
+    vp: '320x568',
+    screens: [
+      { press: 0, overflowPx: 17, scrollPx: 17, clippedPx: 0, overflowXPx: 0, widthFillPct: 95.0, inkCount: 10 },
+      { press: 1, overflowPx: 92, scrollPx: 92, clippedPx: 0, overflowXPx: 0, widthFillPct: 98.5, inkCount: 14 },
+      { press: 2, overflowPx: 187, scrollPx: 187, clippedPx: 0, overflowXPx: 0, widthFillPct: 99.1, inkCount: 22 },
+    ],
+  };
+  const lines = fmtScreens(row);
+  assert.equal(lines.length, 3, 'fmtScreens must emit one line per measured screen on a 3-screen row');
+  assert.match(lines[0], /press 0/, 'press 0 identity must be emitted');
+  assert.match(lines[0], /\b17px\b/, 'press 0 overflow (17px) must be reported');
+  assert.match(lines[1], /press 1/, 'press 1 identity must be emitted');
+  assert.match(lines[1], /\b92px\b/, 'press 1 overflow (92px) must be reported');
+  assert.match(lines[2], /press 2/, 'press 2 identity must be emitted');
+  assert.match(lines[2], /\b187px\b/, 'press 2 overflow (187px) must be reported');
+
+  const single = {
+    route: 'croc-bite',
+    vp: '320x568',
+    screens: [
+      { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 90.0, inkCount: 8 },
+    ],
+  };
+  const singleLines = fmtScreens(single);
+  assert.equal(singleLines.length, 1, 'fmtScreens must emit one line for a single-screen row');
+  assert.match(singleLines[0], /press 0/, 'single-screen identity must appear');
+  assert.match(singleLines[0], /\b0px\b/, 'single-screen measurement (0px) must appear');
+  assert.deepEqual(fmtScreens({ screens: [] }), [], 'an empty screen set yields no lines');
+
+  const reportLines = fmtRowReport(row);
+  assert.equal(reportLines.length, 4, 'fmtRowReport must emit summary plus all 3 screens');
+  assert.match(reportLines[0], /freeze-tap.*320x568/, 'first line must be the per-row summary');
+  assert.match(reportLines[1], /press 0.*17px/, 'screen 0 line must follow summary');
+  assert.match(reportLines[2], /press 1.*92px/, 'screen 1 line must follow');
+  assert.match(reportLines[3], /press 2.*187px/, 'screen 2 line must follow');
+
+  console.log('play-screen-fit-probe --selftest: per-screen formatter calibrated (every measured screen emitted)');
+}
+
 function main() {
+  if (process.argv.includes('--selftest')) return selftest();
+
   // Probes an existing build and must never make one: measuring a freshly regenerated dist/ is not
   // measuring the bytes that get deployed.
   if (!fs.existsSync(path.join(DIST, 'index.html'))) {
@@ -1348,6 +1448,13 @@ function main() {
   for (const e of exceptedX.filter((e) => e.px > e.recorded + OVERFLOW_TOLERANCE_PX)) {
     console.warn(`::warning::${e.r.url} at ${e.r.vp} measured ${Math.round(e.px)}px SIDEWAYS against a recorded ${e.recorded}px${e.x.overflowXFrom ? ` (widest offender ${e.x.overflowXFrom})` : ''} at press ${e.x.press}. Same machine as the recording? Then the sideways clip GREW past what was excused — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.`);
   }
+  // ::notice:: so it survives a PASS: standalone() in ci-probes.sh discards a green leg's log, and this
+  // table carries "worst at press", which the FIT_SHARDS comment names as the signal to drop a shard.
+  // A rollback trigger that only exists in an uploaded artifact is a rollback trigger nobody reads.
+  // gh#182 reporting: emit the per-row summary and every measured screen line before the verdict exit
+  // so a failing run retains the evidence in its log instead of discarding it on exit 1.
+  emitRowReports(out.rows, console.log);
+
   if (unclassified.length || inBoth.length || regressions.length || sideways.length) process.exit(1);
 
   console.log(shardWalkedLine(walked));
@@ -1359,10 +1466,6 @@ function main() {
   const asserted = out.rows.filter((r) => FITS_ROWS.has(rowKey(r))).length;
   const excepted = out.rows.filter((r) => KNOWN_OVERFLOW.has(rowKey(r))).length;
   console.log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${out.routesWalked} route(s) x ${out.viewports} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all ${out.rows.length} row(s) are asserted to clip no more than ${OVERFLOW_TOLERANCE_PX}px horizontally except the ${out.rows.filter((r) => KNOWN_OVERFLOW_X.has(rowKey(r))).length} in KNOWN_OVERFLOW_X.`);
-  // ::notice:: so it survives a PASS: standalone() in ci-probes.sh discards a green leg's log, and this
-  // table carries "worst at press", which the FIT_SHARDS comment names as the signal to drop a shard.
-  // A rollback trigger that only exists in an uploaded artifact is a rollback trigger nobody reads.
-  for (const r of out.rows) console.log('::notice::' + fmt(r));
 }
 
 // Entry point only — driver.mjs imports this module for its default export, and that must not fire

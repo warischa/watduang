@@ -24,6 +24,7 @@
 // below because the gh#182 ruling forbids widening it, while comparing a measured px against it stays
 // with the browser leg. A green here means the bookkeeping is consistent and the classification rules
 // do what they say, never that a screen fits.
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -37,6 +38,9 @@ import {
   assertRecordedReasons,
   compositionGaps,
   countsAsHorizontalOverflow,
+  fmtRowReport,
+  emitRowReports,
+  fmtScreens,
   playRoutes,
   rowKey,
   recordedPx,
@@ -368,4 +372,119 @@ test('the two rows gh#182 proved are not defects are recorded in that class at e
   // The tolerance is what a not-a-defect row must never be used to dodge, so it is pinned by value here
   // rather than left to the browser leg that cannot run in this file.
   assert.equal(OVERFLOW_TOLERANCE_PX, 8, 'OVERFLOW_TOLERANCE_PX moved — the gh#182 ruling forbids widening it');
+});
+
+// gh#182 reporting: every measured screen must be formatted, not only the worst one.
+// On freeze-tap, the press-0 rule-reveal screen measured 92px overflow on the unmodified stylesheet
+// (confirmed by A/B), but was hidden by press 1 measuring 187px because worstOf discarded press 0.
+// A worst-only formatter outputs only press 1's 187px; the pure per-screen formatter must emit all screens.
+// Variable cardinality: tested across multi-screen (>=3), single-screen, and empty fixtures so a mutant
+// that truncates (e.g. slice(-2)) cannot pass by accidental agreement with a two-screen fixture count.
+test('the per-screen formatter reports every measured screen with its identity and measurements (variable-cardinality)', () => {
+  const threeScreenRow = {
+    route: 'freeze-tap',
+    vp: '320x568',
+    screens: [
+      { press: 0, overflowPx: 17, scrollPx: 17, clippedPx: 0, overflowXPx: 0, widthFillPct: 95.0, inkCount: 10 },
+      { press: 1, overflowPx: 92, scrollPx: 92, clippedPx: 0, overflowXPx: 0, widthFillPct: 98.5, inkCount: 14 },
+      { press: 2, overflowPx: 187, scrollPx: 187, clippedPx: 0, overflowXPx: 0, widthFillPct: 99.1, inkCount: 22 },
+    ],
+  };
+  const lines = fmtScreens(threeScreenRow);
+  assert.equal(lines.length, 3, 'the formatter must emit one line per measured screen (3 screens)');
+  assert.match(lines[0], /press 0/, 'press 0 identity must appear in output');
+  assert.match(lines[0], /\b17px\b|\b17\b/, 'press 0 measurement (17 px) must appear in per-screen output');
+  assert.match(lines[1], /press 1/, 'press 1 identity must appear in output');
+  assert.match(lines[1], /\b92px\b|\b92\b/, 'press 1 measurement (92 px) must appear in per-screen output');
+  assert.match(lines[2], /press 2/, 'press 2 identity must appear in output');
+  assert.match(lines[2], /\b187px\b|\b187\b/, 'press 2 measurement (187 px) must appear in per-screen output');
+
+  const singleRow = {
+    route: 'croc-bite',
+    vp: '320x568',
+    screens: [
+      { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 90.0, inkCount: 8 },
+    ],
+  };
+  const singleLines = fmtScreens(singleRow);
+  assert.equal(singleLines.length, 1, 'the formatter must emit 1 line for a single-screen row');
+  assert.match(singleLines[0], /press 0/, 'single-screen identity must appear');
+  assert.match(singleLines[0], /\b0px\b|\b0\b/, 'single-screen measurement (0 px) must appear');
+
+  assert.deepEqual(fmtScreens({ screens: [] }), [], 'an empty screen set yields no lines');
+});
+
+test('fmtRowReport emits the row summary line followed by every screen line', () => {
+  const row = {
+    route: 'freeze-tap',
+    vp: '320x568',
+    screens: [
+      { press: 0, overflowPx: 17, scrollPx: 17, clippedPx: 0, overflowXPx: 0, widthFillPct: 95.0, inkCount: 10 },
+      { press: 1, overflowPx: 92, scrollPx: 92, clippedPx: 0, overflowXPx: 0, widthFillPct: 98.5, inkCount: 14 },
+      { press: 2, overflowPx: 187, scrollPx: 187, clippedPx: 0, overflowXPx: 0, widthFillPct: 99.1, inkCount: 22 },
+    ],
+  };
+  const lines = fmtRowReport(row);
+  assert.equal(lines.length, 4, 'must emit 1 summary line plus 3 per-screen lines');
+  assert.match(lines[0], /freeze-tap.*320x568/, 'line 0 must be the row summary');
+  assert.match(lines[1], /screen \[.*press 0\].*17px/, 'line 1 must be screen 0');
+  assert.match(lines[2], /screen \[.*press 1\].*92px/, 'line 2 must be screen 1');
+  assert.match(lines[3], /screen \[.*press 2\].*187px/, 'line 3 must be screen 2');
+});
+
+test('main does not delete or bypass the per-screen emission', () => {
+  const probeSrc = readFileSync(new URL('./play-screen-fit-probe.mjs', import.meta.url), 'utf8');
+  const mainIdx = probeSrc.indexOf('function main()');
+  assert.ok(mainIdx !== -1, 'main() must exist in play-screen-fit-probe.mjs');
+  const mainBody = probeSrc.slice(mainIdx);
+
+  // WIRING ONLY, paired with the behavioural test below, and KNOWN TO BE INCOMPLETE. What it can do
+  // is reject the spellings that were actually measured to defeat weaker versions of it on
+  // 2026-09-16: a loop kept verbatim with its body discarded (18 of 18 green against a bare source
+  // check), the call commented out (19 of 19 green until full-line comments were stripped), and the
+  // sink swapped for a no-op (19 of 19 green until console.log was required by name).
+  //
+  // WHAT IT CANNOT DO, measured and left open deliberately rather than papered over: a source check
+  // recognises spellings, not reachable calls. `if (false) emitRowReports(out.rows, console.log)`
+  // still satisfies every assertion here while a real run emits nothing, and no amount of extra
+  // comment stripping or pattern tightening closes that — only executing main() does, and main()
+  // spawns the browser driver as a subprocess, so executing it needs module mocking that this Node
+  // (v22, `mock.module` behind --experimental-test-module-mocks) cannot provide without putting an
+  // experimental flag on a CI-critical gate. Recorded on gh#182's follow-up rather than pretended away.
+  const mainCode = mainBody.replace(/^\s*\/\/.*$/gm, '');
+  assert.match(
+    mainCode,
+    /emitRowReports\s*\(\s*out\.rows\s*,\s*console\.log\s*\)/,
+    'main() must hand out.rows to emitRowReports with console.log as the sink',
+  );
+});
+
+test('emitRowReports actually emits every row and every screen through its sink', () => {
+  // The behavioural half of the pair above. A hollowed-out loop passes the regex and fails here.
+  const rows = [
+    { route: 'freeze-tap', vp: '320x568', screens: [
+      { press: 0, overflowPx: 17, scrollPx: 17, clippedPx: 0, overflowXPx: 0, widthFillPct: 97.0, inkCount: 9 },
+      { press: 1, overflowPx: 92, scrollPx: 92, clippedPx: 0, overflowXPx: 0, widthFillPct: 98.5, inkCount: 14 },
+      { press: 2, overflowPx: 187, scrollPx: 187, clippedPx: 0, overflowXPx: 0, widthFillPct: 99.1, inkCount: 22 },
+    ] },
+    { route: 'one-bomb', vp: '390x844', screens: [
+      { press: 0, overflowPx: 5, scrollPx: 5, clippedPx: 0, overflowXPx: 0, widthFillPct: 96.2, inkCount: 7 },
+    ] },
+  ];
+
+  const seen = [];
+  const emitted = emitRowReports(rows, (line) => seen.push(line));
+
+  // 2 summary lines + 3 screens + 1 screen. A count the emitter reports but does not perform is the
+  // exact failure this test exists for, so the returned count and the sink are cross-checked.
+  assert.equal(seen.length, 6, 'every row summary and every screen line must reach the sink');
+  assert.equal(emitted, seen.length, 'the reported count must equal what the sink actually received');
+  assert.ok(seen.every((l) => l.startsWith('::notice::')), 'every emitted line keeps the ::notice:: prefix');
+
+  // Each screen's own number must be present: dropping any one of them is the defect this reports on.
+  for (const px of ['17px', '92px', '187px', '5px']) {
+    assert.ok(seen.some((l) => l.includes(px)), `a measured screen at ${px} was never emitted`);
+  }
+
+  assert.equal(emitRowReports([], () => {}), 0, 'no rows emits nothing');
 });
