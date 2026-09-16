@@ -130,3 +130,27 @@ by running the extractor against the file at `HEAD` as a positive control, and t
 using a route whose block genuinely holds the properties. An instrument that has never disagreed with
 a known-good input has not been tested; it has just agreed with you.
 
+
+## The number is real and the NAME of it is wrong
+
+`play-exit-probe.mjs`'s "handled gap" is not a per-event delay. `gapsBy` records, for each `down`
+following an `up`, `v - lastUp` — the pointerup-to-pointerdown interval *between consecutive
+contacts* — computed twice: on handler-run time (*handled*) and on the browser's dispatch stamp
+(*input*). It gates on **input** only; a large handled gap is expected whenever a long task runs and
+is never a defect. On 2026-09-16 two agents were briefed on the wrong definition, after an earlier
+session had already built a probe against a different wrong reading of the same ticket. Read the
+function that produces the number and the line that prints it before writing down what it means.
+
+A superlative in a comment is a dated measurement even when it carries no date: the same file called
+cursed-number's transition "the heaviest on the site", true under gh#190 and overtaken by croc-bite
+six days later. Date the claim or drop the name — naming a successor recreates the trap.
+
+## A mutation proves a check only if the mutant could have been missed
+
+A fixture of cardinality N cannot tell "handle every item" from "handle the last N": a two-screen
+fixture asserting a line count failed `slice(-1)` but stayed green on `slice(-2)`, so the first
+mutation "passed" calibration while the check was still blind. Use three or more, assert per-item
+identity rather than a total, and pick a mutant that changes the cardinality relationship rather than
+one that only shrinks output. A static assertion over source text bounds no runtime behaviour at all —
+`if (false) f(...)` satisfies every regex naming `f` — so execute the code, or record the hole where
+the next reader meets it.
