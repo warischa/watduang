@@ -1,0 +1,141 @@
+NOTE ON READING THIS FILE: the ANSWER section immediately below was written under a wrong metric
+definition (handled gap misread as a stamp-to-listener delay). The CORRECTION section further down
+is authoritative and retracts part of this section's reading -- read that section's own note before
+trusting anything above it about harness vs. page.
+
+gh#235 M1 -- is croc-bite's first-handled-gap spread specific to croc-bite, or does it appear on
+other play routes too?
+
+METHOD (step 1 of the brief's order, answered at zero browser cost)
+scripts/ci-probes.sh's play-exit leg runs scripts/play-exit-probe.mjs, which (per its own header,
+confirmed unread-not-modified) already walks every play route derived from the manifest and emits one
+"play-exit GAPS <route>: ..." line per route per CI run. The ticket's six numbers came from six CI
+runs where croc-bite was present; those same six runs measured every other route in the same run.
+Pulled the full per-route lines from all six runs with `gh run view <id> --log`, grepping the probe's
+own literal label (no new run triggered, no source file touched):
+  34555085370, 34561792795, 34569418896, 34677955519, 34739212949, 34803799092
+Raw grep output: per-route-gaps.txt (90 lines, 14 routes x 6 runs + headers = 84 data lines + 6
+run-header lines). Parsed into per-route min/median/max: per-route-summary.txt.
+
+ANSWER: NOT croc-bite-only.
+  route              n   min      median   max (ms, first handled gap)
+  bangkok-drift       6   80.3     80.7     90.5
+  cannon-flag         6   85.9     87.4     96.3
+  cursed-number       6   84.3    101.7    108.7
+  dice-loser          6   81.0     86.0     92.1
+  freeze-tap          6   90.2     96.7    102.6
+  how-close-is-near   6   96.1    112.0    135.2
+  one-bomb            6  239.7    285.4    787.7
+  pinocchio-luck      6  125.1    176.8    210.3
+  power-meter         6  101.2    112.3    166.9
+  short-stick         6   90.2    111.6    122.4
+  timebomb            6   84.1     90.1     95.9
+  wire-snip-panic     6  100.5    108.8    126.3
+  zero-trigger        6   98.3    105.6    144.8
+  croc-bite           6  960.1   1401.2   1976.1
+
+Two clusters, not one outlier: a baseline of ~80-220ms (13 of 14 routes, every run) and a second,
+much larger tier that only two routes ever reach -- one-bomb (240-788ms) and croc-bite (960-1976ms).
+No route besides these two ever exceeds ~220ms in any of the 6 runs.
+
+So the spread is not specific to croc-bite's page in the sense of "only croc-bite ever shows an
+elevated handled gap" -- one-bomb shows the same shape at a smaller scale. SUPERSEDED BELOW: whether
+that points at the harness/runner or at page code is answered by the CORRECTION section, using
+dispatch lag and input gaps this section did not yet examine -- it points at page code, route-
+specific, not the harness. Read that section before drawing a harness-vs-page conclusion from this
+one.
+
+WEBGL ASSERTION -- confirmed fresh this session, not inferred from the CI comment alone
+scripts/ci-probes.sh launches the play-exit leg's Chrome ($CDP_1) with
+`--headless --disable-gpu --no-sandbox` (read directly from source this session, not just the
+ci.yml/ADR-0051 comment). play-exit-probe.mjs itself has no in-page WebGL read, so the CI log lines
+above carry no per-run in-page assertion. To confirm the flag actually produces the no-WebGL lane
+this ticket requires, launched a throwaway Chrome with the identical flags
+(--headless --disable-gpu --no-sandbox), served the existing dist/ build, and read
+`document.createElement('canvas').getContext('webgl'|'webgl2')` fresh on three routes:
+  croc-bite: webgl2=false webgl=false
+  one-bomb:  webgl2=false webgl=false
+  timebomb:  webgl2=false webgl=false
+(all three confirmed null/false on a freshly created canvas, matching the identical flag set the CI
+leg uses). No `src/**` file was touched; the throwaway driver script lived outside the repo
+(scratchpad) and no shipped probe was forked or instrumented.
+
+WHAT WOULD CHANGE THIS CONCLUSION
+If one-bomb's elevated gap turns out to trace to a probe/harness artefact specific to how one-bomb's
+own play-exit control renders (untested this session), that would narrow the second tier back down to
+"whatever croc-bite and one-bomb happen to share" rather than a harness-wide effect -- this session did
+not go further than establishing the per-route distribution and the WebGL lane, per the milestone's own
+stated order of work (stop once the question is answered).
+
+CORRECTION MID-SESSION -- the metric definition in the original brief was wrong (coordinator's own
+correction, verified against source before acting on it). scripts/play-exit-probe.mjs's own comment
+(the gh#190 block, read this session, file untouched) states plainly: every burst contact carries TWO
+clocks -- `t` (when the page's listener RAN) and `ti` (the event's own browser-stamped timeStamp,
+i.e. when it was DISPATCHED). "handled gap" = consecutive-contact pointerup->pointerdown interval on
+the FIRST clock; "input gap" = the same interval on the SECOND. The probe's own comment: a long
+main-thread task "queues the arm timer and the next contact behind itself, so a contact dispatched
+inside the arm window is handled after it: the handling gap blows past ARM_DELAY_MS while the input
+gap stays at the ~80ms the burst was driven at." The classifier (`classifyBurst`, read this session)
+gates ONLY on input gaps; a handled gap over ARM_DELAY_MS with input gaps under it is explicitly
+documented as "a runner that handled the burst late, not one that sent it late" -- non-diagnostic by
+design, not a gate defect.
+
+Re-pulled the full per-route lines (input gaps + the "over it: N handled, N input" counts) from the
+same six runs, no new run triggered: per-route-gaps-full.txt (raw) and
+per-route-summary-corrected.txt (parsed, n=6 per route):
+
+  route              n  handled min/med/max        input min/med/max     runs handled>ARM  runs input>ARM
+  bangkok-drift      6  80.3/80.7/90.5             80.4/80.7/82.2        0                 0
+  cannon-flag        6  85.9/87.4/96.3             80.5/81.2/81.6        0                 0
+  cursed-number      6  84.3/101.7/108.7           80.4/81.0/82.6        0                 0
+  dice-loser         6  81.0/86.0/92.1             80.9/83.9/85.6        0                 0
+  freeze-tap         6  90.2/96.7/102.6            80.9/81.9/82.5        0                 0
+  how-close-is-near  6  96.1/112.0/135.2           80.7/81.7/83.5        0                 0
+  one-bomb           6  239.7/285.4/787.7          81.2/84.0/92.4        1                 0
+  pinocchio-luck     6  125.1/176.8/210.3          81.3/82.6/84.0        0                 0
+  power-meter        6  101.2/112.3/166.9          80.7/81.7/82.7        0                 0
+  short-stick        6  90.2/111.6/122.4           80.2/81.3/82.7        0                 0
+  timebomb           6  84.1/90.1/95.9             80.8/81.3/82.0        0                 0
+  wire-snip-panic    6  100.5/108.8/126.3          81.6/82.9/83.3        0                 0
+  zero-trigger       6  98.3/105.6/144.8           81.1/81.8/85.6        0                 0
+  croc-bite          6  960.1/1401.2/1976.1        82.1/84.3/87.4        6                 0
+
+ANSWER TO THE COORDINATOR'S TWO QUESTIONS:
+(1) Input gaps on croc-bite: 82.1-87.4ms in every one of the 6 runs, never over ARM_DELAY_MS
+    (runs input>ARM = 0/6). No gate defect was ever recorded on croc-bite by this probe's own
+    classifier. inputGapsOverArmDelay stayed 0 every run.
+(2) The handled-gap spread is NOT croc-bite-only. one-bomb sits in a distinct middle tier
+    (240-788ms handled, crossing ARM_DELAY_MS in 1 of 6 runs) well above the ~80-220ms the other 12
+    routes (including cursed-number, the route the probe's own comment names as the site's heaviest
+    transition) stay within on every run. Input gaps stay ~80-92ms across ALL 14 routes in ALL 6
+    runs with zero crossings -- exactly the shape the probe's own source comment predicts for a
+    busy-main-thread-after-transition-tap effect that is expected to vary by route and is explicitly
+    treated as non-diagnostic, not a per-route anomaly requiring a cause of its own.
+
+Note: cursed-number itself does not show an elevated handled-gap tier in these 6 runs (84.3-108.7ms,
+same band as the 80-220ms baseline) despite the probe's comment naming its transition as the site's
+heaviest -- that comment may describe a different code path/condition than what these 6 runs happened
+to sample; not investigated further, out of scope for this milestone.
+
+THIS RETRACTS READING (a) IN THE ANSWER SECTION ABOVE (harness/runner-level cause). Dispatch lag --
+"the number that named the CI cause" per the probe's own gh#231 comment, read this session -- sits at
+0-8ms on croc-bite in all 6 runs (per-route-gaps-full.txt), and input gaps sit at a uniform ~80-92ms
+on every one of the 14 routes in every one of the 6 runs. Both together mean the runner delivered
+every burst on time, everywhere: nothing here is evidence of a harness/CI-runner-level cause. What
+varies by route is how long each route's OWN main thread stays busy after the transition tap, which
+is page-side and route-specific -- croc-bite pays by far the largest cost, one-bomb a smaller one, the
+other 12 routes near-none.
+
+The two routes' temporal shape also differs, arguing against a single shared mechanism: croc-bite's
+five handled gaps in every run are one large block then four nearly-zero (e.g. 1976.1, 0.3, 0.1, 0.1,
+0.1) -- one big cost, paid once, at the front. one-bomb's five handled gaps are scattered across the
+burst within a run (e.g. 260.5, 0.1, 139.6, 0.6, 163.5) -- several smaller costs paid at different
+points. Each route appears to be paying its own, differently-shaped, post-transition main-thread cost
+rather than both hitting one shared mechanism.
+
+BROWSER RUN COST -- one throwaway browser run was made before this correction arrived, to confirm the
+no-WebGL lane in-page (see WEBGL ASSERTION above): a fresh Chrome + serve on unique port/profile,
+torn down by the two pids started (no shipped file touched, no src/ edit). That run's cost stands
+independent of the metric-definition correction -- it answers a different question (WebGL context
+availability) that the brief's hard constraint still requires, and its result is unaffected by the
+handled-vs-input-gap distinction.

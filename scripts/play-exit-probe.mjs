@@ -42,8 +42,10 @@ if (!ROUTES.length) throw new Error('no play routes derived from the manifest â€
 // --- burst classifier (pure) ---------------------------------------------------------------------
 // gh#190. Every contact carries TWO clocks and only one of them can answer the question this leg
 // went red on. `t` is when the page's listener RAN; `ti` is the event's own timeStamp, which the
-// browser stamps when the input was DISPATCHED. A long main-thread task (cursed-number's transition
-// is the heaviest on the site) queues the arm timer and the next contact behind itself, so a contact
+// browser stamps when the input was DISPATCHED. A long main-thread task (when this was written on
+// 2026-09-03 the heaviest measured was cursed-number's transition; do not read that as current --
+// croc-bite shipped after it and measured an order of magnitude higher on 2026-09-16, and whichever
+// route is heaviest will keep moving) queues the arm timer and the next contact behind itself, so a contact
 // dispatched inside the arm window is handled after it: the handling gap blows past ARM_DELAY_MS
 // while the input gap stays at the ~80ms the burst was driven at.
 // So the burst is classified on INPUT gaps only. Any input gap over ARM_DELAY_MS means the runner

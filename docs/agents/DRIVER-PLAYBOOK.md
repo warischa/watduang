@@ -156,6 +156,43 @@ Check `ps aux | grep driver.mjs` (not the tool's own task-completion notificatio
 late) before deciding a run is stuck, and validate the file with `node -e 'require(path)'` plus an
 explicit load-count/`ok:true` check before writing any prose that says how many readings exist.
 
+## Reading CI's own probe output before driving a new browser run
+
+`gh run view <runId> --log` prints the whole step log; grep the probe's own emitted literal label
+(e.g. `play-exit GAPS <route>:`) across several run IDs to get a per-route, multi-run distribution at
+zero browser cost -- often the answer a milestone asks for is already in past CI logs, not a new
+measurement. `gh issue view <n> --json body,comments -q '.body, (.comments[].body)'` surfaces prior
+agents' own log-sweeps and named CI run IDs to start from, but treat the prose summary as a claim to
+re-derive from the raw grep, not as the evidence itself -- a summary can misdescribe what a metric
+actually is (confirmed gh#235: a brief described "handled gap" as a stamp-to-listener delay; the
+probe's own source comment, read directly, said it is the pointerup->pointerdown interval measured on
+two different clocks, and only one of the two is what the classifier gates on).
+
+## Confirming a no-WebGL lane without running a full probe
+
+A throwaway one-off `driver.mjs` script (kept outside the repo, in scratchpad) that does
+`document.createElement('canvas').getContext('webgl'|'webgl2')` and returns `{webgl2, webgl, href}`
+per route, run against dist/ served locally with the exact same Chrome flags CI's leg uses (grep the
+launching script for its own `$CHROME`/`"$CHROME"` invocation rather than assuming), is a cheap fresh
+confirmation that doesn't require running or forking the CI-critical probe itself.
+
+## A JS CPU profiler reports "(idle)" for real browser-process cost it cannot see
+
+`Profiler.start`/`Profiler.stop` (CDP) gives stack-attributed self-time, but only for time V8 spends
+executing JS -- a synchronous native call the JS thread blocks on (device negotiation inside
+`new AudioContext()` was the case) is invisible to it as anything OTHER than the calling JS frame's own
+self-time, and once that frame returns, everything after reads `(idle)` even while the real cost is
+still native. Confirmed gh#235: the ONLY non-idle self-time in a profiled transition tap was a route's
+own `init()` wrapping `new (AudioContext||webkitAudioContext)()`, called synchronously ahead of the
+round-start logic in the SAME click handler.
+
+**Audio-context construction is per BROWSER PROCESS, not per tab or per route.** A second `driver.mjs`
+target (`/json/new`) opened against the SAME already-running Chrome pays near-zero for the identical
+call a fresh Chrome process pays ~120-170ms for (confirmed both directions, gh#235). A "why does only
+route X show this on CI" question needs a FRESH Chrome process per measurement to mean anything --
+reusing one browser across routes/runs silently warms the audio backend for every route after the
+first and hides the effect for all of them.
+
 ## Per-milestone verify commands
 
 Moved to `docs/agents/driver-verify-commands.md` (2026-09-13) — this file is on a 12KB ceiling and

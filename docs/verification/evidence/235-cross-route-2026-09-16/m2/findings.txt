@@ -1,0 +1,91 @@
+gh#235 M2 -- attribute croc-bite's front-loaded main-thread block
+
+METHOD
+Chrome Profiler domain (Profiler.start/stop, JS CPU sampling, samplingInterval=100us), driven through
+a throwaway CDP script (cdp-trace-throwaway.mjs, this directory -- not under scripts/, not forked from
+any shipped probe, no src/ file touched). Chrome launched headless with the CI leg's own flags
+(--headless --disable-gpu --no-sandbox), read fresh from scripts/ci-probes.sh, not assumed. dist/
+served locally with npx serve. Each run: land on the route's play URL, wipe storage, reload, confirm
+in-page webgl2/webgl both false, dispatch a MOUSE press/release (matching play-exit-probe.mjs's own
+transition-tap method, not a touch) at the transition trigger's centre, profile from just before the
+press through +2-3s settle, then read back app state to confirm the round actually started.
+
+TRIGGER-KIND CHECK (source-read, no browser needed)
+croc-bite's `#btn-start-game` click handler: `this.audio.ensureContext(); this.audio.playClick();
+this.onStartGame()` -> `startNewMatch()` -> `state.startNewRound(false)`, which starts a real round
+(the state machine's roundReset cascade). cursed-number's `#startGameBtn` click handler:
+`this.handleStartGame()`, which calls `this.game.startNewGame()` before switching to the handoff
+screen -- also a real round start, not a screen-advance-only control. Both are the SAME kind of
+control (round-start), so the cross-route comparison is like-for-like on this axis; the size
+difference is not a trigger-kind artifact.
+
+MECHANISM FOUND
+In every croc-bite run, the ONLY function with non-trivial JS self-time in the profiled window is
+`init` on croc-bite's own audio wrapper class (bundled per-route chunk
+`play.astro_astro_type_script_index_0_lang.*.js`), reached as `ensureContext() -> init()`, called
+synchronously at the very top of the `#btn-start-game` click handler, BEFORE any round-start logic
+runs. Read directly from the built chunk (dist/, not a source guess): `init()` does
+`this.ctx = new (window.AudioContext||window.webkitAudioContext)()`, creates 3 GainNodes, and calls
+`this.startAmbience()`. This runs exactly ONCE per page load (`if (!this.initialized)` guard) --
+matching M1's per-run shape (one big cost, then near-zero on every later contact).
+
+This DIRECTLY REFUTES the brief's named lead. The 3D board rebuild/arm-gate install
+(`this.crocodile.setupTeeth()/.resetAll()`) is explicitly GUARDED OFF when `this.crocodile` is null
+(read from `setupLifecycleEvents()`'s `roundReset` handler: `if (this.crocodile) { ... }`), and in the
+no-WebGL lane `this.crocodile` is never constructed (GameScene's `createRenderer()` returns `null` from
+a `canvas.getContext('webgl2', ...)` call that fails FAST, at GameApp's constructor time -- page load,
+not the transition tap -- so this never contributes to the click-triggered block at all). The only
+per-tap work confirmed by armAllButtons and the DOM board rebuild (main.ts's `renderBoard`) never showed
+measurable self-time in any run.
+
+IMPORTANT COUNTER-FINDING: NOT CROC-BITE-SPECIFIC
+The identical mechanism (Web Audio `AudioContext` construction inside the transition trigger's own
+click handler, first call of a fresh page) is present in cursed-number too (`SoundSynth.init()`,
+`this.ctx = new AudioContextClass()`, called from `playClick()` inside `handleStartGame()`). Measured
+on an equally cold, freshly-launched Chrome process, cursed-number's `init` cost
+(901 hits, 118.2ms of a 2000ms capture) is statistically indistinguishable from croc-bite's
+(963 hits, 125.3ms of a 3000ms capture; n=2 cold-process croc-bite runs: 127.6ms, 125.3ms). So the
+mechanism this session identified is a browser-owned, per-PROCESS (not per-route), first-use cost --
+not something croc-bite's code does uniquely. What IS croc-bite's own code decision is calling
+`ensureContext()` synchronously and unconditionally ahead of `onStartGame()`, at exactly the trigger
+this ticket measures -- cursed-number's own equivalent call happens to sit at the same place in ITS
+handler, so on THIS evidence both routes are equally exposed to the mechanism; something in the CI
+environment (not reproduced on this machine) is choosing which route pays the full cost.
+
+WARM VS COLD BROWSER PROCESS (confirmed, n=3 croc-bite total)
+Re-using the SAME Chrome browser process for a second and third tab/run made the cost vanish (1 hit /
+~0.1ms, 3 hits / ~0.4ms) -- the audio backend only initialises once PER BROWSER PROCESS, not per tab
+or per route. A fresh browser process pays it again in full (n=2 cold measurements: 127.6ms, 125.3ms).
+This is consistent with (but does not by itself prove) a documented category of Chromium behaviour:
+first-time `AudioContext` construction can synchronously negotiate an audio output device, and that
+negotiation is markedly slower on a headless Linux CI runner with no real/functioning audio hardware
+than on this machine's real CoreAudio device.
+
+MAGNITUDE GAP -- NOT CLOSED
+Locally measured cold-process cost: ~120-170ms total non-idle JS time in the profiled window (of which
+~125-127ms is `init` itself), against every other sample in the window classified `(idle)` by the JS
+profiler. M1's CI numbers for croc-bite: handled gap 960.1/1401.2/1976.1 ms (min/median/max, n=6 CI
+runs). The mechanism and its ONE-TIME, front-loaded shape match; the MAGNITUDE does not: this session's
+local measurement accounts for roughly 6-13% of the CI median, not the bulk of the gap. The remaining
+~90% is not attributed to anything measured this session. Two untested candidates for closing that
+gap, in order of likelihood: (a) the SAME `new AudioContext()` call taking substantially longer against
+CI's actual audio backend (no local way to test this without CI shell access), (b) non-JS main-thread
+work (audio-service IPC wait, layout, paint) that a JS-only CPU sampler cannot see at all and that would
+need Chrome's Tracing domain, not attempted this run.
+
+n= AND ARTIFACT PATHS
+n=3 croc-bite profiled runs (1 warm-reused-tab run showing the full cost as first-in-process, 1
+explicit fresh-process cold run, 1 explicit warm-reused-tab run showing near-zero) + n=1 cursed-number
+cold-process run, all with in-page webgl2=false/webgl=false confirmed fresh (not asserted from the CI
+comment). Raw CDP profiles: docs/verification/evidence/235-cross-route-2026-09-16/m2/raw-profiles/
+(croc-bite-profile.json = cold/first-in-process, croc-bite-run2.json and croc-bite-run3.json = warm
+reused tab, croc-bite-cold1.json = explicit fresh-process rerun, cursed-number-cold1.json = baseline).
+Throwaway driver: docs/verification/evidence/235-cross-route-2026-09-16/m2/cdp-trace-throwaway.mjs.
+
+WHAT WOULD CHANGE THIS
+A CDP Tracing-domain capture (not just Profiler) over the same interval, on a machine or CI artifact
+where the full ~1.4-2s gap actually reproduces, showing whether the extra time is inside a browser-
+internal audio/IPC trace event (would confirm the AudioContext-negotiation theory) or inside
+layout/paint/style-recalc events unrelated to audio (would overturn it). Absent that, "AudioContext
+construction, CI-hardware-specific" is INFERRED from Chromium's documented behaviour and the local
+cold-vs-warm signature, not confirmed against the CI environment itself.
