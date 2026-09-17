@@ -42,6 +42,11 @@ isn't injected removes the guardrail.
 - **`done:` and `errors:` follow master's wording verbatim (checked 2026-08-29):** `done:` carries only
   what git cannot show — committed work is cited by SHA, never re-narrated. `errors:` is optional — own
   errors this session, one clause each, class not story — omit the line when there are none.
+- **a `next:` item resting on a chat ruling names where that ruling is recorded.** The tracker is the
+  source of truth, so a reader checks the ticket — and an owner ruling given in chat is not there.
+  On 2026-09-17 `next:` said "close gh#238 — owner answered close-after-push"; the ticket's own last
+  comment carried no such wording, and the close was put to the owner as though it did. Write the home
+  (`— ruling recorded here, not on the ticket`) so the next session cites it instead of the ticket.
 
 ## Budgets
 
