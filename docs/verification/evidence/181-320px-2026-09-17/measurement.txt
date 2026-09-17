@@ -1,0 +1,18 @@
+gh#181 box 2 — 320x568 width-fill measurement, cursed-number and zero-trigger
+Run: 2026-09-17, commit d1a7402, existing dist/ (not rebuilt).
+Tool: scripts/play-screen-fit-probe.mjs, ROUTES_ONLY=cursed-number,zero-trigger (debug run, not a gate).
+Ports: BASE=http://localhost:4611 (npx serve), CDP_PORT=9611 (Chrome --headless=new --user-data-dir=/tmp/cdp-prof-181box2).
+
+cursed-number  320x568  scrolls YES 689px  clipped 0px  sideways 0px  width-fill 75.6%  (worst of 7 screens, press 1)
+zero-trigger   320x568  scrolls YES 131px  clipped 0px  sideways 0px  width-fill   87%  (worst of 3 screens, press 0)
+
+Threshold: gh#181's own body records these two routes as 90% (cursed-number) and 94% (zero-trigger)
+at 320px when the ticket was written. The ticket defines no numeric pass/fail threshold beyond that
+prior figure — no "fills the width" percentage is stated as a bar in gh#181 or in this probe's own
+code (the probe's docblock states widthFillPct is REPORTED only, never gated; layout thresholds are
+owned by gh#180/181/182/183, not by this script). No threshold was invented for this report.
+
+Comparable to the ticket's own prior numbers: cursed-number 75.6% now vs 90% then (-14.4pt);
+zero-trigger 87% now vs 94% then (-7pt). Both are below the figures gh#181 recorded, and both also
+scroll vertically at this viewport (689px / 131px). Whether either number "fills the width" is an
+owner call — this report only measures.
