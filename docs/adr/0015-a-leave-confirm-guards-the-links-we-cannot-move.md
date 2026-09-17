@@ -144,3 +144,45 @@ Separately: if a predicate for "a round is running now" ever exists, the copy co
 actually at stake instead of only that the tap leaves the page. Today no such state exists anywhere on
 the site — siamsi is the sole checkpoint writer and its checkpoint is forward-only. The owner has
 accepted that ceiling rather than built the state, so this is a live limit, not an oversight.
+
+## Amendment 2026-09-17 — a panel-less page that starts a round now hosts the guard, by option 3
+
+Owner ruling, recorded against gh#106. This amends the Decision above; it does not supersede this ADR.
+
+gh#106 raised a hole in the Decision's own predicate: the guard is appended to PlayerSetup's island
+and is inert unless `#player-setup` exists, so a **panel-less page that starts a round** would ship
+unguarded. เซียมซี is that page — it starts a round with the คนที่ถือมือถือ fallback, which satisfies
+this ADR's own predicate, while rendering no panel. The ticket offered three ways out and reserved the
+choice for the owner: (1) เซียมซี's solo page stops starting rounds, (2) the tool-page carve-out is
+re-keyed on something เซียมซี matches, (3) the guard moves out of the panel island so a panel-less
+page can host it.
+
+**The ruling: the current state is option 3 by de facto, and this ADR is amended to say so.**
+
+gh#97 closed on 2026-09-12 and did **not** remove the solo round — the `startsRound` field in
+`src/games/siamsi.ts` still declares true — so option 1 did not happen by itself and was not chosen.
+What did happen, through the gh#121 work, is that the guard stopped depending on the panel. Measured
+on 2026-09-17:
+
+- `leave-confirm-check` exits 0: *16 of 16 manifest game page(s) proven to mount `#leave-confirm`*.
+- `round-start-announce-check` exits 0: *16 manifest module(s) declare startsRound; 1 panel-less
+  page(s) start a round and announce it [siamsi]*.
+- `src/shell/LeaveConfirm.astro` listens on the shared constant rather than on the panel's island.
+
+Both counts are **larger than the 15 of 15 recorded on gh#106 in its 2026-09-10 comment** — the tree
+gained a game in between. Read them from the checks, never from that comment.
+
+### The ceiling this amendment does not lift
+
+The `leave-confirm` probe's assertions B, C and D drive 3 of 6 game pages, and เซียมซี is one of the
+uncovered ones: the solo pages have no panel and an empty group, so there is no turn to pass and the
+probe cannot drive it. That is a genuine coverage hole, not a by-design exemption — the invariant
+applies to เซียมซี, it is simply asserted there by mounting rather than by driving. And
+`round-start-announce-check` still reports its own limit every run: it proves **presence of the
+channel, not that the channel is written on the round-start path**.
+
+### The fact that would change this
+
+If a panel-less page is ever added that starts a round and does **not** mount `#leave-confirm`,
+option 3 has stopped being true de facto and this amendment is void — the choice between re-keying the
+carve-out and making the mount structural would reopen. `leave-confirm-check` is what would catch it.
