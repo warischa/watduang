@@ -142,3 +142,14 @@ null. A flag name is not a context state; only the read is.
 Moved to `docs/agents/ci-gate-calibration.md` (a further ADR-0012 task seam) — the runner-latency
 post-mortem behind the `play-exit` probe's UNMEASURED reads is a gate-calibration incident, read when
 calibrating that probe's timing, not on every routine verify.
+
+## The suite measures the tree you ran it on — land every commit first (2026-09-17)
+
+Two full runs were paid in one session, ~10 minutes each, because the first ran at a commit and two
+docs commits landed after it. A gate green is a claim about ONE tree, so the second run bought nothing
+but a true evidence line at the real HEAD.
+
+Order the batch so the suite runs ONCE, after the last commit that will be pushed — the docs ones
+included. Running a hand-picked subset over the late commits is not a substitute: the rule above is
+that a local green predicts CI only through `scripts/run-workflow-gates.sh`, and a docs commit still
+moves `.md` bytes that `check-citations` and `added-lineno-citation-check` police.
