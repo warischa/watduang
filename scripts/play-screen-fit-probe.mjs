@@ -1277,9 +1277,28 @@ export function selftest() {
   console.log('play-screen-fit-probe --selftest: per-screen formatter calibrated (every measured screen emitted)');
 }
 
-function main() {
-  if (process.argv.includes('--selftest')) return selftest();
-
+/**
+ * Measurement-acquisition seam: runs the browser driver and parses its JSON output.
+ * Exported so tests can supply pre-recorded or fixture measurements without requiring
+ * a built dist/ or a running Chrome browser.
+ */
+export function acquireMeasurements() {
+  const fixtureJson = process.env.PROBE_OUT_JSON;
+  const fixturePath = process.env.PROBE_OUT_FIXTURE;
+  // The same rule scripts/play-exit-probe.mjs applies to its own calibration knobs. These two exist
+  // to drive main()'s reporting over a recorded `out` with no browser at all, and they are honoured
+  // only when this module is IMPORTED. A CLI run is the gate, and they would skip the dist check,
+  // the driver and the browser entirely — a gate verdict computed from an environment variable is a
+  // verdict about the harness, not about the site. Refuse rather than measure the wrong thing.
+  if (isEntryPoint() && (fixtureJson || fixturePath)) {
+    throw new Error(`refusing to run the gate with a measurement fixture set (PROBE_OUT_JSON=${fixtureJson ? `${fixtureJson.length} bytes` : ''}, PROBE_OUT_FIXTURE=${fixturePath ?? ''}) -- both exist to drive this probe's reporting to a known outcome by hand, and a CLI run measured through them would skip the build check, the driver and the browser entirely`);
+  }
+  if (fixtureJson) {
+    return JSON.parse(fixtureJson);
+  }
+  if (fixturePath) {
+    return JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+  }
   // Probes an existing build and must never make one: measuring a freshly regenerated dist/ is not
   // measuring the bytes that get deployed.
   if (!fs.existsSync(path.join(DIST, 'index.html'))) {
@@ -1306,13 +1325,23 @@ function main() {
   }
   const raw = fs.readFileSync(jsonPath, 'utf8');
   fs.rmSync(jsonPath, { force: true });
-  let out;
   try {
-    out = JSON.parse(raw);
+    return JSON.parse(raw);
   } catch {
     console.error(`::error::the browser leg produced no parseable JSON (${raw.length} bytes):\n${raw.slice(0, 500)}`);
     process.exit(1);
   }
+}
+
+export function main({
+  acquireMeasurements: acquire = acquireMeasurements,
+  emit = console.log,
+  log = console.log,
+} = {}) {
+  if (process.argv.includes('--selftest')) return selftest();
+
+  let out = acquire();
+  if (Array.isArray(out)) out = { rows: out };
 
   const broken = out.rows.filter((r) => r.error);
   for (const r of broken) console.error(`::error::${r.url} at ${r.vp} did not measure: ${r.error}`);
@@ -1336,7 +1365,7 @@ function main() {
     console.error(`::error::/game/${id}/play/ at ${DESKTOP_VP} produced NO composition row (gh#203). The leg walked this route and read no resolved-CSS composition from it, which in the table below is indistinguishable from a route nobody asked about. Values in that row are reported and never gated; its PRESENCE is.`);
   }
   if (gaps.length) process.exit(1);
-  for (const r of out.rows.filter((r) => r.vp === DESKTOP_VP)) console.log('::notice::' + fmtComposition(r));
+  for (const r of out.rows.filter((r) => r.vp === DESKTOP_VP)) log('::notice::' + fmtComposition(r));
 
   // The ids this run really produced rows for, read back off the rows rather than off playRoutes(): the
   // union check downstream is asking what was WALKED, and re-printing the request would answer a
@@ -1354,8 +1383,8 @@ function main() {
       }
     }
     if (stuck.length !== out.rows.length) process.exit(1);
-    console.log(shardWalkedLine(walked));
-    console.log(`OK control: all ${out.rows.length} route/viewport row(s) stayed on the fresh screen with both the seeding and the presses disabled — so the walk invariant CAN fail, and the screen signature is stable across the ${PRESS_CAP} press intervals the clean leg spends walking (a signature that drifted on its own would report "it left setup" about a walk that never moved).`);
+    log(shardWalkedLine(walked));
+    log(`OK control: all ${out.rows.length} route/viewport row(s) stayed on the fresh screen with both the seeding and the presses disabled — so the walk invariant CAN fail, and the screen signature is stable across the ${PRESS_CAP} press intervals the clean leg spends walking (a signature that drifted on its own would report "it left setup" about a walk that never moved).`);
     return;
   }
 
@@ -1367,7 +1396,7 @@ function main() {
   // The inverted guard. Only the rows recorded as scroll-free are asserted; the rest are reported.
   // A narrowed run cannot judge the pins it never walked, and must not be read as if it had.
   const narrowed = Boolean(process.env.ROUTES_ONLY?.trim());
-  if (narrowed) console.log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${out.routesWalked} of ${games.filter((g) => g.playRoute).length} play route(s). This is a debug run, not a gate.`);
+  if (narrowed) log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${out.routesWalked} of ${games.filter((g) => g.playRoute).length} play route(s). This is a debug run, not a gate.`);
   // (i) EVERY produced row lands in exactly one set. A row in neither is the state this check exists
   // to kill: before it, a new route or a screen that started overflowing was simply "not pinned" and
   // printed into the report with nothing asserting anything about it.
@@ -1453,11 +1482,11 @@ function main() {
   // A rollback trigger that only exists in an uploaded artifact is a rollback trigger nobody reads.
   // gh#182 reporting: emit the per-row summary and every measured screen line before the verdict exit
   // so a failing run retains the evidence in its log instead of discarding it on exit 1.
-  emitRowReports(out.rows, console.log);
+  emitRowReports(out.rows, emit);
 
   if (unclassified.length || inBoth.length || regressions.length || sideways.length) process.exit(1);
 
-  console.log(shardWalkedLine(walked));
+  log(shardWalkedLine(walked));
 
   const measured = out.rows.reduce((n, r) => n + r.screens.length, 0);
   // Every number here comes from the expression that describes it: the asserted count is the rows
@@ -1465,7 +1494,9 @@ function main() {
   // print as coverage it does not have.
   const asserted = out.rows.filter((r) => FITS_ROWS.has(rowKey(r))).length;
   const excepted = out.rows.filter((r) => KNOWN_OVERFLOW.has(rowKey(r))).length;
-  console.log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${out.routesWalked} route(s) x ${out.viewports} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all ${out.rows.length} row(s) are asserted to clip no more than ${OVERFLOW_TOLERANCE_PX}px horizontally except the ${out.rows.filter((r) => KNOWN_OVERFLOW_X.has(rowKey(r))).length} in KNOWN_OVERFLOW_X.`);
+  const routesCount = out.routesWalked ?? [...new Set(out.rows.map((r) => r.route))].length;
+  const vpsCount = out.viewports ?? [...new Set(out.rows.map((r) => r.vp))].length;
+  log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${routesCount} route(s) x ${vpsCount} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all ${out.rows.length} row(s) are asserted to clip no more than ${OVERFLOW_TOLERANCE_PX}px horizontally except the ${out.rows.filter((r) => KNOWN_OVERFLOW_X.has(rowKey(r))).length} in KNOWN_OVERFLOW_X.`);
 }
 
 // Entry point only — driver.mjs imports this module for its default export, and that must not fire

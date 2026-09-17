@@ -24,9 +24,11 @@
 // below because the gh#182 ruling forbids widening it, while comparing a measured px against it stays
 // with the browser leg. A green here means the bookkeeping is consistent and the classification rules
 // do what they say, never that a screen fits.
-import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import {
   DECLARED_SCROLLER,
   FITS_ROWS,
@@ -40,7 +42,9 @@ import {
   countsAsHorizontalOverflow,
   fmtRowReport,
   emitRowReports,
+  acquireMeasurements,
   fmtScreens,
+  main,
   playRoutes,
   rowKey,
   recordedPx,
@@ -432,30 +436,213 @@ test('fmtRowReport emits the row summary line followed by every screen line', ()
   assert.match(lines[3], /screen \[.*press 2\].*187px/, 'line 3 must be screen 2');
 });
 
-test('main does not delete or bypass the per-screen emission', () => {
-  const probeSrc = readFileSync(new URL('./play-screen-fit-probe.mjs', import.meta.url), 'utf8');
-  const mainIdx = probeSrc.indexOf('function main()');
-  assert.ok(mainIdx !== -1, 'main() must exist in play-screen-fit-probe.mjs');
-  const mainBody = probeSrc.slice(mainIdx);
+// Helper for full-coverage fixtures matching playRoutes() x VIEWPORTS (42 rows).
+const makeFixture42 = (overrides = {}) => {
+  const routes = playRoutes();
+  const rows = [];
+  for (const route of routes) {
+    for (const vpObj of VIEWPORTS) {
+      const vp = `${vpObj.w}x${vpObj.h}`;
+      const key = `${route} ${vp}`;
+      if (overrides[key]) {
+        rows.push(overrides[key]);
+        continue;
+      }
+      const isDesktop = vpObj.w === Math.max(...VIEWPORTS.map((v) => v.w));
+      const row = {
+        route,
+        url: `/game/${route}/play/`,
+        vp,
+        error: null,
+        screens: [
+          { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 90.0, inkCount: 10 },
+        ],
+      };
+      if (isDesktop) {
+        row.composition = {
+          ok: true,
+          frameDesc: '1440',
+          frameCap: 1440,
+          screenDesc: 'screen',
+          label: 'play',
+          press: 0,
+          screenDisplay: 'block',
+          tracks: 1,
+          gridTemplateColumns: '1fr',
+          unitCount: 1,
+          unitDescs: ['unit'],
+          unitRanges: 1,
+          unitSpanFrac: 1,
+          frameW: 1440,
+          sideBySide: false,
+        };
+      }
+      rows.push(row);
+    }
+  }
+  return rows;
+};
 
-  // WIRING ONLY, paired with the behavioural test below, and KNOWN TO BE INCOMPLETE. What it can do
-  // is reject the spellings that were actually measured to defeat weaker versions of it on
-  // 2026-09-16: a loop kept verbatim with its body discarded (18 of 18 green against a bare source
-  // check), the call commented out (19 of 19 green until full-line comments were stripped), and the
-  // sink swapped for a no-op (19 of 19 green until console.log was required by name).
+test('main does not delete or bypass the per-screen emission', () => {
+  // gh#238 — BEHAVIOURAL PROOF that production main() executes row emission in its production configuration.
+  // Drives main() with its default measurement-acquisition and default console.log sink,
+  // observing what actually reaches the production sink.
   //
-  // WHAT IT CANNOT DO, measured and left open deliberately rather than papered over: a source check
-  // recognises spellings, not reachable calls. `if (false) emitRowReports(out.rows, console.log)`
-  // still satisfies every assertion here while a real run emits nothing, and no amount of extra
-  // comment stripping or pattern tightening closes that — only executing main() does, and main()
-  // spawns the browser driver as a subprocess, so executing it needs module mocking that this Node
-  // (v22, `mock.module` behind --experimental-test-module-mocks) cannot provide without putting an
-  // experimental flag on a CI-critical gate. Recorded on gh#182's follow-up rather than pretended away.
-  const mainCode = mainBody.replace(/^\s*\/\/.*$/gm, '');
-  assert.match(
-    mainCode,
-    /emitRowReports\s*\(\s*out\.rows\s*,\s*console\.log\s*\)/,
-    'main() must hand out.rows to emitRowReports with console.log as the sink',
+  // Variable-cardinality fixture: 3 rows with distinguishable and unequal screen counts (1, 2, 3),
+  // with expected emissions specified independently rather than derived from fmtRowReport.
+  const threeSpecialRows = {
+    'croc-bite 320x568': {
+      route: 'croc-bite',
+      url: '/game/croc-bite/play/',
+      vp: '320x568',
+      error: null,
+      screens: [
+        { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 90.0, inkCount: 8 },
+      ],
+    },
+    'dice-loser 320x568': {
+      route: 'dice-loser',
+      url: '/game/dice-loser/play/',
+      vp: '320x568',
+      error: null,
+      screens: [
+        { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 88.0, inkCount: 12 },
+        { press: 1, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 94.0, inkCount: 16 },
+      ],
+    },
+    'freeze-tap 320x568': {
+      route: 'freeze-tap',
+      url: '/game/freeze-tap/play/',
+      vp: '320x568',
+      error: null,
+      screens: [
+        { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 85.0, inkCount: 10 },
+        { press: 1, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 92.0, inkCount: 15 },
+        { press: 2, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 97.0, inkCount: 20 },
+      ],
+    },
+  };
+
+  const EXPECTED_EMISSIONS = [
+    '::notice::croc-bite          320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  (1 screen(s), worst at press 0, 8 ink) [pinned fits]',
+    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  ink 8',
+    '::notice::dice-loser         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  (2 screen(s), worst at press 0, 12 ink) [pinned fits]',
+    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  ink 12',
+    '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    94%  ink 16',
+    '::notice::freeze-tap         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  (3 screen(s), worst at press 0, 10 ink) [pinned fits]',
+    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  ink 10',
+    '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 15',
+    '::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    97%  ink 20',
+  ];
+
+  const fixture42 = makeFixture42(threeSpecialRows);
+  process.env.PROBE_OUT_JSON = JSON.stringify({ rows: fixture42 });
+  const logged = [];
+  const origLog = console.log;
+  const origWarn = console.warn;
+  console.log = (...args) => logged.push(args.join(' '));
+  console.warn = () => {};
+  try {
+    main(); // production configuration: default acquireMeasurements, default console.log sink
+  } finally {
+    console.log = origLog;
+    console.warn = origWarn;
+    delete process.env.PROBE_OUT_JSON;
+  }
+
+  for (const expectedLine of EXPECTED_EMISSIONS) {
+    assert.ok(logged.includes(expectedLine), `expected report line missing from production sink: ${expectedLine}`);
+  }
+  const noticeLines = logged.filter((l) => l.startsWith('::notice::'));
+  assert.equal(noticeLines.length, 14 + 39 * 2 + 9, 'all 42 rows must have their reports emitted to production sink');
+
+  // The run above proves the DEFAULT sink is wired. It cannot prove the emission contract, because
+  // `logged` also carries composition and OK lines, so it can only be checked by sampling — and
+  // sampling plus a total is satisfied by mutations that corrupt identity (every row reported under
+  // one viewport), order (rows sorted), or multiplicity (a row repeated in place of its successor).
+  // All three were demonstrated against the sampling form of this assertion.
+  //
+  // So the contract is pinned on a SECOND run through an injected sink, which receives emission lines
+  // and nothing else, and is compared whole and in order. Acquisition stays the production function
+  // in both runs, so a mutation reachable only under injected acquisition still reds the run above.
+  process.env.PROBE_OUT_JSON = JSON.stringify({ rows: makeFixture42(threeSpecialRows) });
+  const emitted = [];
+  const quietWarn = console.warn;
+  console.warn = () => {};
+  try {
+    main({ emit: (line) => emitted.push(line), log: () => {} });
+  } finally {
+    console.warn = quietWarn;
+    delete process.env.PROBE_OUT_JSON;
+  }
+  // The expectation is built from the FIXTURE, never from the formatter under test: the fixture says
+  // which row/viewport pairs exist and in what order, and the emitted summary lines must spell out
+  // exactly that sequence. Parsing the actual output is fine; deriving the expected from it is not.
+  const summaries = emitted.filter((l) => !l.startsWith('::notice::  screen '));
+  const seenPairs = summaries.map((l) => {
+    const m = l.match(/^::notice::(\S+)\s+(\d+x\d+)\s/);
+    return m ? `${m[1]}|${m[2]}` : `UNPARSED ${l}`;
+  });
+  const expectedPairs = fixture42.map((r) => `${r.route}|${r.vp}`);
+  // Kills three mutants that sampling plus a total let through, each demonstrated against this diff:
+  // every row reported under one viewport (identity), rows sorted by viewport (order), and a row
+  // repeated in place of its successor (multiplicity).
+  assert.deepEqual(seenPairs, expectedPairs, 'every row must be summarised once, in the fixture order, under its own viewport');
+  for (const expectedLine of EXPECTED_EMISSIONS) {
+    assert.equal(emitted.filter((l) => l === expectedLine).length, 1, `emitted more than once or not at all: ${expectedLine}`);
+  }
+  // Counted off the fixture — one summary per row plus one line per screen — never off what a run
+  // happened to produce. A total copied from the code under test agrees with that code by definition.
+  const expectedEmissionCount = fixture42.length + fixture42.reduce((n, r) => n + r.screens.length, 0);
+  assert.equal(emitted.length, expectedEmissionCount, 'the injected sink must receive every emission and nothing else');
+});
+
+test('emission precedes process.exit(1) on a failing row', () => {
+  const failingRows = makeFixture42({
+    'croc-bite 320x568': {
+      route: 'croc-bite',
+      url: '/game/croc-bite/play/',
+      vp: '320x568',
+      error: null,
+      screens: [
+        { press: 0, overflowPx: 99, scrollPx: 99, clippedPx: 0, overflowXPx: 0, widthFillPct: 90.0, inkCount: 8 },
+      ],
+    },
+  });
+
+  const emitted = [];
+  let exitCode = null;
+  const origExit = process.exit;
+  const origErr = console.error;
+  const origWarn = console.warn;
+  console.error = () => {};
+  console.warn = () => {};
+  process.exit = (code) => {
+    exitCode = code;
+    throw new Error(`PROCESS_EXIT_${code}`);
+  };
+  try {
+    main({
+      acquireMeasurements: () => ({ rows: failingRows }),
+      emit: (line) => emitted.push(line),
+      log: () => {},
+    });
+  } catch (err) {
+    if (!err.message?.startsWith('PROCESS_EXIT_')) throw err;
+  } finally {
+    process.exit = origExit;
+    console.error = origErr;
+    console.warn = origWarn;
+  }
+
+  assert.equal(exitCode, 1, 'failing row must trip process.exit(1)');
+  assert.ok(
+    emitted.some((l) => l.includes('croc-bite') && l.includes('320x568')),
+    'failing row summary must be emitted before exit(1) is called',
+  );
+  assert.ok(
+    emitted.some((l) => l.includes('screen [press 0]') && l.includes('99px')),
+    'failing screen measurement must be emitted before exit(1) is called',
   );
 });
 
@@ -487,4 +674,73 @@ test('emitRowReports actually emits every row and every screen through its sink'
   }
 
   assert.equal(emitRowReports([], () => {}), 0, 'no rows emits nothing');
+});
+
+// gh#238 — the fixture knobs are honoured on IMPORT only, never on a CLI run.
+//
+// The behavioural emission test above needs main() to run in its production configuration (default
+// acquireMeasurements, default console.log sink) while still supplying rows without a browser, and
+// PROBE_OUT_JSON is how it does that. That same channel, left ungated, would let any CLI invocation
+// hand this deploy-gating probe an arbitrary verdict and skip the dist check, the driver and Chrome.
+//
+// scripts/play-exit-probe.mjs already answers this for its own calibration knobs by refusing the CI
+// leg outright. The same refusal is asserted here.
+//
+// BOTH channels are exercised separately. An earlier version of this test drove only PROBE_OUT_JSON,
+// and narrowing the guard to that one variable left it green while a path-only fixture still reached
+// parsing ahead of the build check — the named instance was covered and the set was not.
+//
+// There is deliberately NO "run it with the knobs unset" case. Asserting merely that the refusal is
+// absent is satisfied by a probe that exits 0 having measured nothing, and on a machine where dist/
+// exists such a run walks past the build guard and spawns the browser driver from a unit test.
+// Conditionality is proved below instead, in-process, where it costs nothing and risks nothing.
+test('a CLI run refuses a measurement fixture, through either channel', () => {
+  const probe = path.join(path.dirname(fileURLToPath(import.meta.url)), 'play-screen-fit-probe.mjs');
+  const REFUSAL = /refusing to run the gate with a measurement fixture set/;
+
+  for (const [channel, value] of [
+    ['PROBE_OUT_JSON', JSON.stringify({ rows: [] })],
+    // A path that does not exist: the guard must fire BEFORE anything tries to read it.
+    ['PROBE_OUT_FIXTURE', path.join(path.dirname(fileURLToPath(import.meta.url)), 'no-such-fixture.json')],
+  ]) {
+    const run = spawnSync(process.execPath, [probe], {
+      env: { ...process.env, PROBE_OUT_JSON: '', PROBE_OUT_FIXTURE: '', [channel]: value },
+      encoding: 'utf8',
+    });
+    assert.notEqual(run.status, 0, `a CLI run with ${channel} set must refuse, not report`);
+    assert.match(`${run.stderr}${run.stdout}`, REFUSAL, `${channel} must be refused by name, so a CI log says why the leg stopped`);
+  }
+});
+
+// The other half of the guard: it is keyed on being the ENTRY POINT, not on the knob alone. Under
+// import the knob must still work, or the emission test above could not drive production acquisition.
+// This is what stops the guard being "refuse always", which would pass the two assertions above.
+test('under import the same knob is honoured, so the refusal is conditional on being the entry point', () => {
+  const rows = [{ route: 'x', vp: '320x568', screens: [] }];
+  process.env.PROBE_OUT_JSON = JSON.stringify({ rows });
+  try {
+    assert.deepEqual(acquireMeasurements(), { rows }, 'an imported acquireMeasurements must honour the fixture, not refuse it');
+  } finally {
+    delete process.env.PROBE_OUT_JSON;
+  }
+});
+
+// The third thing the guard has to be: a CLI run with NO knob set must still not report success.
+// Without this, a probe mutated to `if (no knobs) process.exit(0)` — a gate that measures nothing and
+// says everything is fine — passes every other assertion in this file.
+//
+// Safe to spawn because scripts/driver.mjs CONNECTS to an already-running Chrome rather than starting
+// one: pointed at a port nothing listens on, it fails, and the probe exits non-zero at its own browser
+// guard. The port is pinned high and unused precisely so a Chrome another session left on the default
+// debugging port cannot make this test drive a real browser.
+test('a CLI run with no fixture still refuses to report success without measuring', () => {
+  const probe = path.join(path.dirname(fileURLToPath(import.meta.url)), 'play-screen-fit-probe.mjs');
+  const run = spawnSync(process.execPath, [probe], {
+    env: { ...process.env, PROBE_OUT_JSON: '', PROBE_OUT_FIXTURE: '', CDP_PORT: '49997', BASE: 'http://127.0.0.1:49996' },
+    encoding: 'utf8',
+  });
+  assert.notEqual(run.status, 0, 'with no measurements obtainable the gate must fail, never exit 0 having measured nothing');
+  // And it must fail for the RIGHT reason — an acquisition failure, not the fixture refusal, which
+  // would mean the guard had become unconditional.
+  assert.doesNotMatch(`${run.stderr}${run.stdout}`, /refusing to run the gate with a measurement fixture set/, 'no knob was set, so the fixture refusal must not be what stopped it');
 });
