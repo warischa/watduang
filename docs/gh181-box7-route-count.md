@@ -74,9 +74,11 @@ The ruling took all eight **and** said their numbers are not all trustworthy:
 annotates as having a reset dialog open. In scope; re-measure before redesign. This survives whichever
 way the count question is answered.
 
-## Every site that carries the count, enumerated
+## Every site that carried the count, enumerated
 
-By grep over the fetched title and body, not from memory. **"eight" appears zero times** in either.
+The state **before** the 2026-09-18 restatement, by grep over the fetched title and body rather than
+from memory: "four" appeared at the six sites below and **"eight" appeared zero times** in either. All
+six now say eight; the list is kept as the record of what had to be changed.
 
 In the ticket:
 
