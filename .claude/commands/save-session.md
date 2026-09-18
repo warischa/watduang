@@ -47,6 +47,15 @@ isn't injected removes the guardrail.
   On 2026-09-17 `next:` said "close gh#238 — owner answered close-after-push"; the ticket's own last
   comment carried no such wording, and the close was put to the owner as though it did. Write the home
   (`— ruling recorded here, not on the ticket`) so the next session cites it instead of the ticket.
+- **a `next:` item's premise names its source — a number, a limit, or a deliverable.** Same failure as
+  the bullet above, one step earlier: the premise itself is unsourced, so nobody can cheaply check it.
+  On 2026-09-18 a `next:` item asserted "the hook asks for under 140 lines"; no such rule exists
+  anywhere in `~/.claude`, the citable limit was already satisfied, and the popup built on it spent the
+  owner's decision on work that was not owed. The same round, three `next:` items asserted ticket
+  states their tickets had already retired, and one named a deliverable "held outside the repository"
+  that is on no disk here. So: a number cites the file or command it came from · a claim about a
+  ticket cites the comment DATE it rests on · a deliverable cites its path in the tree, and "held
+  outside the repository" is not a location.
 
 ## Budgets
 
