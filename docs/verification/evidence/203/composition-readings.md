@@ -88,3 +88,11 @@ deliberately writes no screenshot, so a control run cannot overwrite a walking r
 * **Whether a one-range route is defective is not answered here.** Two of them cap a single-column
   markup deliberately, with committed arithmetic and a declared reason for having no rail; the
   reading cannot tell that apart from a route nobody has looked at.
+* **The two dialog-open rows stay as read, and are not re-measured** (owner ruling 2026-09-18).
+  `docs/verification/evidence/181-clean-screen/` holds a clean-screen run for both routes, but it
+  read board width and margins rather than `span`, and says so itself, so it supplies no replacement
+  value for this column. Re-reading the span would not move a decision: this ticket closed on the
+  ruling that the narrow centred column is the intended composition, and its closing comment lists
+  both routes by name inside the group that ruling accepts. By the overlay bullet above, the dialog
+  can only have widened these two, so their clean spans sit lower still — further inside that group,
+  not outside it. That direction is inferred from how the filter is defined, not measured.
