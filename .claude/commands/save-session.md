@@ -32,6 +32,23 @@ isn't injected removes the guardrail.
   **this is not format drift**, it's the declared format — fall back to a manual sed move, then confirm 3 asserts
   (block landed in the archive verbatim · source has 0 copies left · archive has 1 copy)
 - roll is `SESSION-HANDOFF.md` → `docs/sessions-archive.md`, newest-first append-only · resume never reads the archive
+- **tag every `next:` by class, INSIDE the line** (master rule 2026-09-18; missed at this repo's first
+  save under it because this section did not carry it):
+  - `next: [ ] H: <task> — <why · what to hand back>` — **owner-only**: nothing an agent can advance.
+    Money, a real device, owner-reserved Thai copy, a third-party account. RH renders these as Human
+    tasks, never as plan rows, so an untagged owner-only item sends the next session hunting for an
+    agent slice that does not exist.
+  - `next: [ ] <task> — … · Blocked · ask: <question (a/b)>` — **agent work waiting on an owner
+    answer**; the answer rides the pick rather than a separate popup.
+  - untagged = agent work, ready now.
+  - `spent: queue` counts open **non-`H:`** items only — `H:` lines are not agent throughput.
+  Safe by construction: `scripts/added-lineno-citation-check.mjs` labels a line by `/^([a-z]+):/`, so
+  a tag sitting after `[ ]` never changes that line's verdict (probed 2026-09-18).
+- **cite a section as `§ "Quoted heading"`, never bare.** An entry is ONE long physical line, so an
+  unquoted `§` swallows the prose that follows it: `scripts/check-citations.mjs`'s unquoted-heading
+  matcher runs to end-of-line. 2026-09-18 a `done:` clause reading ``§ Budgets excludes `.scratch` ``
+  was read as a heading of that whole name, against a real heading of `## Budgets`, and the save
+  committed with a dead citation that had to be amended out.
 - **the `done:` · `dec:` · `next:` · `inflight:` labels are load-bearing outside this doc.**
   `scripts/added-lineno-citation-check.mjs` exempts `done:`/`dec:` as verbatim record and POLICES
   `next:`, which agents read and act on. It decides **per line**, matching the label at the start of a

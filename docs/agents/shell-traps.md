@@ -158,5 +158,5 @@ the next reader meets it.
 ## A gate joined to its commit by `;` never gates
 
 `check-citations.mjs; git commit` commits whatever the gate said — and `&&` is banned here for the
-opposite failure, which is why `;` gets reached for. Run the gate as its own call and READ it: it
-exits 0 while printing `1 dead citation(s)`, so its rc is not its verdict.
+opposite failure, which is why `;` gets reached for. Run the gate as its own call and take its rc off
+the bare command, never through a pipe — trap 1 above. Measured 2026-09-18: `rc=1`.
