@@ -90,14 +90,33 @@ Two of these are acceptance criteria, so this is not only prose drift. **Box num
 since 2026-09-05**: the "Box 7" that comment reserves for the owner is today's box 8, which is ticked.
 Today's box 7 is the per-route agent verdict under the 2026-09-06 delegation.
 
-## "Four" survived two touches after the ruling
+## "Four" survived every body edit made after the ruling
 
-Both **inferred** from the agent comments; the API exposes no body-edit history to confirm them.
+**Confirmed** from the body's own edit history, which the REST comment API does not expose but the
+GraphQL `userContentEdits` field does. Six edits, all by the `warischa` account:
 
-- **2026-09-10** — box 1's numeric threshold was struck, five days after the ruling, and "All four"
-  stayed in the same box.
-- **2026-09-18** — box 7 was reworded for its images clause and the count was left "exactly as
-  written", recorded as a deliberate deferral rather than an oversight.
+| edited at | note |
+|---|---|
+| 2026-08-31T09:06:40Z | before the ruling |
+| 2026-09-07T08:16:28Z | before the ruling |
+| 2026-09-16T09:43:26Z | **after** the ruling — "four" kept |
+| 2026-09-18T03:44:51Z | **after** the ruling — "four" kept |
+| 2026-09-18T03:47:35Z | **after** the ruling — "four" kept |
+| 2026-09-18T03:48:41Z | **after** the ruling — "four" kept |
+
+So "four" is not stale text nobody revisited. The body was edited four times after 2026-09-05 and kept
+it every time, and the 2026-09-18 pass recorded leaving it as a deliberate deferral rather than an
+oversight. That is the objection any restatement has to answer, and the reason this is the owner's call
+rather than a typo fix.
+
+**One date does not line up, and it is left unresolved rather than smoothed over.** The 2026-09-17
+comment says box 1's numeric threshold was struck on 2026-09-10, but there is **no body edit on
+2026-09-10** in the list above. Either that strike reached the body in the 2026-09-16 edit, or
+"2026-09-10" names the ruling's date rather than the edit's. The edit history cannot tell the two apart,
+so this file does not guess.
+
+Edit history still cannot say **who** decided: every edit is the one account the agent also writes
+through, which is the same ceiling the ruling itself carries.
 
 So "four" is not simply stale text nobody revisited. It has been read past twice since the ruling. That
 is the objection any restatement has to answer, and the reason this is the owner's call rather than a
@@ -107,8 +126,12 @@ typo fix.
 
 - **Eight** (what the record says) — sites 1–6 are restated, the table is either extended to the eight
   or relabelled as the 2026-08-31 reading it was, and § "Route set" in
-  `docs/verification/evidence/181/README.md` closes. Box 7's verdicts then need frame-screen artifacts
-  for the six routes outside the title.
+  `docs/verification/evidence/181/README.md` closes. **No new measurement is owed.** An earlier draft
+  of this file priced this branch as needing frame-screen artifacts for the six routes outside the
+  title; that was wrong. `docs/verification/evidence/181/frame-screen-readings.json` already carries all
+  eight at 1440x900, and all eight are already written up in
+  `docs/verification/evidence/181/README.md` § "Readings". Restating the count is a wording change with
+  the evidence already in the tree behind it.
 - **Four** — the 2026-09-05 ruling is reversed on the record, which needs saying explicitly rather than
   by leaving the wording alone. Box 1 keeps the defect above, and box 7 cannot close until
   `how-close-is-near` and `cursed-number` have frame-screen readings, which no instrument has produced.
