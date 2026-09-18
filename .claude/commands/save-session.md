@@ -38,9 +38,13 @@ isn't injected removes the guardrail.
     Money, a real device, owner-reserved Thai copy, a third-party account. RH renders these as Human
     tasks, never as plan rows, so an untagged owner-only item sends the next session hunting for an
     agent slice that does not exist.
-  - `next: [ ] <task> — … · Blocked · ask: <question (a/b)>` — **agent work waiting on an owner
-    answer**; the answer rides the pick rather than a separate popup.
+  - `next: [ ] <task> — … · Blocked · ask: <question (a/b) | owner edit>` — **agent work waiting on
+    the owner**, whether for an answer or for an edit; it rides the pick rather than a separate popup.
   - untagged = agent work, ready now.
+  - The two are told apart by **who acts LAST, not who acts next**: owner acts and that is the end of
+    it → `H:`; owner acts and an agent still executes afterwards → `Blocked · ask:`, including an owner
+    EDIT (ruling 2026-09-18). gh#102/gh#103 is the worked example — the owner edits ten cards, then the
+    agent makes portraits from them.
   - `spent: queue` counts open **non-`H:`** items only — `H:` lines are not agent throughput.
   Safe by construction: `scripts/added-lineno-citation-check.mjs` labels a line by `/^([a-z]+):/`, so
   a tag sitting after `[ ]` never changes that line's verdict (probed 2026-09-18).
