@@ -37,6 +37,21 @@ All ten are rendered, transparency-verified and reviewed by the agent; `status: 
 the agent looked at the PNG, per the image skill's own definition. **It does not mean owner approval.**
 gh#102 closes only when the ten are put to the owner and their answer is recorded.
 
+**What actually rendered these, since criterion 5 asks for the model.** Not the `api_call.model`
+field below — that is a transport-B field and the image skill states transport A ignores it entirely.
+These went through Codex's built-in `image_gen` tool, which reports no model id; the skill's own dated
+note infers ChatGPT Images 2.5. Codex's log records `"tool": "built-in image_gen"`, which is the
+accurate record. Treat the `api_call.model` field as registry scaffolding, not as a claim about what ran.
+
+**Transparency, measured rather than eyeballed.** Alpha means 0.53-0.62, all ten `srgba`. The residual
+1-25 alpha band (483-1349 px per file) was tested for what it actually is: dilating the solid mask by
+4px and counting band pixels outside it returns **0 on all ten**, so every residual pixel sits on the
+subject's own edge and none is stray background haze. Criterion 2's haze half is **confirmed**, not
+inferred — a look at 256px could not have decided this, because those pixels are invisible there
+whether they are edge or haze. Corners: nine files carry four fully transparent corners; `IMG_01_002`
+carries alpha 66 and 76 in its two bottom corners, which is its shoulder meeting the crop line after
+trim, not haze.
+
 Open against the set as a whole, for that decision:
 
 - **Hair reads near-identical across all ten** — dark brown wavy, same treatment. Ten people who look
