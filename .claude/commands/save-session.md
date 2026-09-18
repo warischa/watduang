@@ -91,6 +91,13 @@ cd "$(git rev-parse --show-toplevel)" && ! find . -name '*.md' \
 
 Silence = every doc inside its ceiling. Anything printed is a FAIL/WARN plus its heaviest sections — route it into `next:`.
 
+**Run that block verbatim; never hand-roll a `find`.** Its `-not -path` list is not noise, it IS the
+exempt column of the table above. A sweep written from scratch omits them and manufactures FAILs on
+files an owner ruling already exempted — 2026-09-18 an ad-hoc `find` excluding only `node_modules`,
+`.git` and `sessions-archive.md` reported 10 over-budget docs, all of them exempt, and the report went
+out as a defect chip before `docs/agents/issue-tracker.md` was checked. The documented block is silent
+on this repo.
+
 **The leading `!` is load-bearing — don't drop it.** `grep -v` exits 1 when it matches *nothing*, so the raw
 pipeline exits **1 when every doc is healthy and 0 when one is over budget** — exactly backwards for a `&&`
 chain, and this file's own gate is "exit 1 blocks a `&&` chain". `!` flips it back. `find -exec … \;` also
