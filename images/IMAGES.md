@@ -50,6 +50,18 @@ Open against the set as a whole, for that decision:
   no canvas: `docs/copy/nuea-khu.md` ships the portrait box empty and no เนื้อคู่ route exists under
   `src/pages/`. The proof was judged at 256px as a stand-in, which is an assumption, not the criterion.
 
+## The as-sent prompts live in a second file
+
+`prompt:` below is the prompt this registry **sent**. Codex wrapped each one with its own preamble
+(use case, asset type, reference policy) before calling the image tool, so for the nine batch entries
+the registry text is not byte-identical to what the model received. The as-sent text is recorded in
+[`portrait-generation-prompts.json`](./portrait-generation-prompts.json), written by Codex during the
+run, not by hand. Read both together for criterion 5.
+
+Two things that file says which are no longer true of the PNGs on disk: it reports "copied without
+pixel processing" and 1254x1254, both taken before the haze-clearing and trim pass here. It also logs
+`IMG_01_002` twice — Codex retried that one render.
+
 ## Rules this set is held to
 
 - **Nationality is never rendered.** `docs/copy/nuea-khu.md` states nationality is text and never
