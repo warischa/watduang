@@ -55,9 +55,12 @@ artifacts directly:
 | the measured eight | `cannon-flag`, `dice-loser`, `freeze-tap`, `pinocchio-luck`, `power-meter`, `short-stick`, `timebomb`, `zero-trigger` | `frame-screen-readings.json`, eight `route` keys |
 
 So `how-close-is-near` and `cursed-number` are in the title's four and were **never** measured by
-this instrument, and six of the eight are outside the title. Which set box 7 governs is the owner's
-call, and the draft below assumes eight per the 2026-09-05 ruling. If the answer is four, the
-readings file does not cover two of them and the box cannot close on it.
+this instrument, and six of the eight are outside the title.
+
+**The "2026-09-05 ruling" is cited here from `evidence/181/README.md`, an agent-written doc — it has
+not been read back from the owner's own comment.** So the draft below is written as eight on that
+unverified premise, and confirming the premise is part of the decision, not settled before it. If
+the answer is four, the readings file covers only two of them and box 7 cannot close on it.
 
 **Current**
 
