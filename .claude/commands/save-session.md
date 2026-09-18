@@ -77,6 +77,11 @@ isn't injected removes the guardrail.
   that is on no disk here. So: a number cites the file or command it came from · a claim about a
   ticket cites the comment DATE it rests on · a deliverable cites its path in the tree, and "held
   outside the repository" is not a location.
+- **a `next:` item asking for a MEASUREMENT names the decision that would consume it.** The premise can
+  be perfectly sourced and the item still dead, because a closed ticket already ruled on the band the
+  number would land in — 2026-09-18, a clean-span item whose consuming decision gh#203 had closed on
+  2026-09-05, accepting both named routes. No open decision waiting → the item is record-keeping and
+  says so; "re-measure X" reads as blocking work to every later session.
 
 ## Budgets
 
