@@ -6,7 +6,7 @@ and did not answer, kept here because its evidence is a table that does not fit 
 
 ## The question
 
-`evidence/181/README.md` § "Route set" has carried this since 2026-09-08, unanswered: *"the restated
+`docs/verification/evidence/181/README.md` § "Route set" has carried this since 2026-09-08, unanswered: *"the restated
 box 7 still says 'all four routes', carried over from the ticket's title. The 2026-09-05 ruling says
 eight. Eight were measured. The owner is asked to state 'eight' once."*
 
@@ -31,6 +31,6 @@ measured at 1440×900 by this instrument, while six of the measured eight are ou
 - **If the answer is four** — the readings cover only two of them, and box 7 cannot close until
   `how-close-is-near` and `cursed-number` are measured at 1440×900.
 
-**⚠ The "2026-09-05 ruling" is cited from `evidence/181/README.md`, an agent-written doc. It has not
+**⚠ The "2026-09-05 ruling" is cited from `docs/verification/evidence/181/README.md`, an agent-written doc. It has not
 been read back from the owner's own comment.** Confirming it is part of answering this, not settled
 before it.
