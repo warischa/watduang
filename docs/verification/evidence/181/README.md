@@ -35,8 +35,11 @@ The eight routes commit `d2e2dcc` touched, enumerated by
 `git show --stat --format= d2e2dcc | grep -oE 'src/play/[a-z-]+' | sort -u`, per the owner ruling of
 2026-09-05 that this ticket covers all eight routes the instrument measures.
 
-Note the wording gap: the restated box 7 still says "all four routes", carried over from the ticket's
-title. The 2026-09-05 ruling says eight. Eight were measured. The owner is asked to state "eight" once.
+The wording gap this section carried from 2026-09-08 is closed. The owner stated "eight" on
+2026-09-18, and the ticket was restated the same day at every site that carried the old count — its
+title, the § What to build opening, the § Do not re-decide sentence, box 1 and box 7 — with the
+2026-08-31 four-row table relabelled as the original reading rather than as the ticket's scope. The
+ruling itself is recorded in gh#181's own comment `5553308361`.
 
 ## Method
 

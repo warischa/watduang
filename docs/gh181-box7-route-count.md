@@ -1,8 +1,14 @@
-# gh#181 — which routes does the ticket govern? (answered: eight)
+# gh#181 — which routes does the ticket govern? (answered: eight, and applied)
 
-This file was drafted when the count looked like an open owner question. It is not. The ruling exists
-and has now been read back from the ticket itself. What is left is a wording repair the owner has to
-license, and the evidence for it is a table that does not fit in a `next:` line.
+**Closed 2026-09-18.** The count is eight. The owner confirmed it the same day, and the ticket was
+restated at every site that carried the old count — its title, the § What to build opening, the
+§ Do not re-decide sentence, box 1 and box 7 — with the 2026-08-31 four-row table relabelled as the
+original reading rather than as the ticket's scope. § "Route set" in
+`docs/verification/evidence/181/README.md` was closed in the same pass.
+
+This file stays for the two things the restatement does not carry: the two-instrument distinction that
+a naive reading of the count gets wrong, and the ruling's rider about `dice-loser` and `timebomb`,
+which is still outstanding work.
 
 ## The ruling, read back
 
@@ -106,8 +112,9 @@ GraphQL `userContentEdits` field does. Six edits, all by the `warischa` account:
 
 So "four" is not stale text nobody revisited. The body was edited four times after 2026-09-05 and kept
 it every time, and the 2026-09-18 pass recorded leaving it as a deliberate deferral rather than an
-oversight. That is the objection any restatement has to answer, and the reason this is the owner's call
-rather than a typo fix.
+oversight. That is the objection the restatement had to answer, and the reason this went to the owner
+rather than being treated as a typo fix — it was put to them with this history in front of it, and they
+chose to restate.
 
 **One date does not line up, and it is left unresolved rather than smoothed over.** The 2026-09-17
 comment says box 1's numeric threshold was struck on 2026-09-10, but there is **no body edit on
@@ -118,27 +125,24 @@ so this file does not guess.
 Edit history still cannot say **who** decided: every edit is the one account the agent also writes
 through, which is the same ceiling the ruling itself carries.
 
-So "four" is not simply stale text nobody revisited. It has been read past twice since the ruling. That
-is the objection any restatement has to answer, and the reason this is the owner's call rather than a
-typo fix.
+## What the restatement cost, measured after the fact
 
-## What each answer costs
+**No new measurement was owed, and an earlier draft of this file said otherwise.** It priced the eight
+branch as needing frame-screen artifacts for the six routes outside the title. That was wrong:
+`docs/verification/evidence/181/frame-screen-readings.json` already carries all eight at 1440x900, and
+all eight are already written up in `docs/verification/evidence/181/README.md` § "Readings". Left
+uncorrected, that false cost would have gone in front of the owner and biased the decision toward the
+branch the record does not support. Restating the count was a wording change with the evidence already
+in the tree behind it.
 
-- **Eight** (what the record says) — sites 1–6 are restated, the table is either extended to the eight
-  or relabelled as the 2026-08-31 reading it was, and § "Route set" in
-  `docs/verification/evidence/181/README.md` closes. **No new measurement is owed.** An earlier draft
-  of this file priced this branch as needing frame-screen artifacts for the six routes outside the
-  title; that was wrong. `docs/verification/evidence/181/frame-screen-readings.json` already carries all
-  eight at 1440x900, and all eight are already written up in
-  `docs/verification/evidence/181/README.md` § "Readings". Restating the count is a wording change with
-  the evidence already in the tree behind it.
-- **Four** — the 2026-09-05 ruling is reversed on the record, which needs saying explicitly rather than
-  by leaving the wording alone. Box 1 keeps the defect above, and box 7 cannot close until
-  `how-close-is-near` and `cursed-number` have frame-screen readings, which no instrument has produced.
+The alternative, for the record: stating "four" would have reversed the 2026-09-05 ruling, which would
+have needed saying explicitly rather than by leaving the wording alone, and would have left box 1 with
+the defect above.
 
-## What is the owner's
+## What is still outstanding, and it is not the count
 
-The wording. Restating an acceptance criterion against a ruling the ticket never states is not licensed
-by the read-back — the read-back only removes the uncertainty about what the ruling said. Box 8's tick
-stays the owner's own step either way; the 2026-09-06 delegation covers the agent verdict and does not
-stand in for it.
+- **The ruling's rider.** `dice-loser` and `timebomb` were read over an open reset dialog and their
+  spans are not trustworthy. They are in scope; re-measure on a clean screen before any redesign work
+  starts on them. This survived the restatement untouched and is the live item from this file.
+- **Box 8 stays the owner's own step.** The 2026-09-06 delegation covers the per-route agent verdict and
+  does not stand in for it. It is already ticked.
