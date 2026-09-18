@@ -154,3 +154,9 @@ identity rather than a total, and pick a mutant that changes the cardinality rel
 one that only shrinks output. A static assertion over source text bounds no runtime behaviour at all —
 `if (false) f(...)` satisfies every regex naming `f` — so execute the code, or record the hole where
 the next reader meets it.
+
+## A gate joined to its commit by `;` never gates
+
+`check-citations.mjs; git commit` commits whatever the gate said — and `&&` is banned here for the
+opposite failure, which is why `;` gets reached for. Run the gate as its own call and READ it: it
+exits 0 while printing `1 dead citation(s)`, so its rc is not its verdict.
