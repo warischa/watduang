@@ -90,7 +90,9 @@ isn't injected removes the guardrail.
 | `CLAUDE.md` whole file | **12KB** | auto-loaded every session |
 | `SESSION-HANDOFF.md` whole file | **8KB** | read on resume |
 | every other `.md` under `docs/` and `.claude/` | **12KB** | routed into an agent's context on demand |
-| `docs/sessions-archive.md` · `docs/verification/**` · `.scratch/**` | **exempt** | append-only evidence records, never routed as a doc — the gate would only force splits that buy nothing |
+| `docs/sessions-archive.md` · `docs/verification/**` · `.scratch/**` · `images/IMAGES.md` | **exempt** | append-only evidence records, never routed as a doc — the gate would only force splits that buy nothing |
+
+`images/IMAGES.md`: machine-read registry, its YAML blocks alone exceed 12KB (S2026-09-18#8).
 
 **Master owns those numbers — read them out of `check-budgets.sh`, never trust this table.** Master moved
 `SESSION-HANDOFF` 4→6→8KB on 2026-08-15; this table went on claiming 4KB "master's value" until 2026-08-16.
@@ -111,6 +113,7 @@ cd "$(git rev-parse --show-toplevel)" && ! find . -name '*.md' \
   -not -path './node_modules/*' -not -path './.git/*' -not -path './dist/*' \
   -not -path './.scratch/*' -not -path './docs/verification/*' \
   -not -path './.claude/worktrees/*' \
+  -not -path './images/IMAGES.md' \
   -not -name 'sessions-archive.md' \
   -exec ~/.claude/scripts/check-budgets.sh {} \; | grep -v '^PASS'
 ```
