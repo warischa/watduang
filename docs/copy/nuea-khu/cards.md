@@ -16,7 +16,7 @@ every card is a clear adult. No occupation, habit or mark involves alcohol, a br
 
 The portrait box ships empty; placeholder copy while it is empty is in the index.
 
-## ผู้ชาย
+## Male cards
 
 **M1** — ชาย · 29 · 172 ซม. · ผอมสูง · ไทย · ครูสอนดนตรี · มีรายได้ประจำ ไม่ถึงกับสบาย ·
 พูดน้อยแต่ยิ้มง่าย · ฮัมเพลงตอนคิดอะไรไม่ออก · แผลเป็นเล็กๆ ที่คิ้วซ้าย
@@ -33,7 +33,7 @@ The portrait box ships empty; placeholder copy while it is empty is in the index
 **M5** — ชาย · 31 · 170 ซม. · ผอม · ไทย · ขายต้นไม้ที่ตลาดนัด · พอใช้ · ช้าๆ แต่ไม่เคยลืมอะไร ·
 เรียกต้นไม้ทุกต้นด้วยชื่อ · รอยสักเส้นเล็กๆ รูปใบไม้ที่ข้อมือ
 
-## ผู้หญิง
+## Female cards
 
 **F1** — หญิง · 30 · 160 ซม. · ผอมบาง · ไทย · พยาบาลเวรกลางคืน · พอใช้ เพราะทำโอทีบ่อย ·
 ใจดีแบบไม่ต้องพูดเยอะ · กินของหวานตอนตีสอง · ไฝเล็กๆ กลางคาง

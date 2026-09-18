@@ -32,11 +32,15 @@ image itself is a separate spend governed by the assets doc.
 | ten character cards, five per gender | drafted below, unreviewed |
 | meeting-place pool, meeting-age rule | drafted below, unreviewed |
 
-**One assumption, marked because the spec does not settle it.** Screen 1 collects an age *band*, not
-an age, so at `50 ขึ้นไป` there is no number to draw above. That band's result line is therefore
-drafted in **relative** form (`อีกประมาณ N ปีจากนี้`), which is above the reader's own age by
-construction and needs no second question. The alternative — asking for an exact age — is a spec
-change and is not drafted. Owner's call; the mechanism is not designed here.
+**The open band's form is settled — owner ruling 2026-09-18.** Screen 1 collects an age *band*, not an
+age, so at `50 ขึ้นไป` there is no number to draw above. That band's result line therefore stays in
+**relative** form (`อีกประมาณ N ปีจากนี้`), which is above the reader's own age by construction and
+needs no second question. The alternative — asking for an exact age — was rejected: it adds a fourth
+question to a three-question screen.
+
+The consequence for criterion 2 is not closed by that ruling and belongs to its restatement: at this
+one band there is no number to assert, so the criterion has to say "above the reader's own age by
+construction" rather than name a threshold. Owner's wording, tracked as its own item.
 
 ## Manifest, SEO and share text
 
