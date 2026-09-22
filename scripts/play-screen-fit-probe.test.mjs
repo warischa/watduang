@@ -531,7 +531,10 @@ test('main does not delete or bypass the per-screen emission', () => {
     '::notice::dice-loser         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  (worst of 2 screen(s): press 0, 12 ink) [pinned fits]',
     '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  ink 12',
     '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    94%  ink 16',
-    '::notice::freeze-tap         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  (worst of 3 screen(s): press 0, 10 ink) [pinned fits]',
+    '::notice::freeze-tap         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  (worst of 3 screen(s): press 0, 10 ink)',
+    // No [pinned fits] suffix: freeze-tap 320x568 left FITS_ROWS for KNOWN_OVERFLOW under the
+    // owner ruling of 2026-09-22. The row is still asserted emitted with every screen -- only its
+    // classification changed, which is what this line now reflects.
     '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  ink 10',
     '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 15',
     '::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    97%  ink 20',

@@ -252,11 +252,6 @@ export const FITS_ROWS = new Set([
   // overflow-y:auto box was being counted as page overflow).
   'freeze-tap 390x844',
   'freeze-tap 1440x900',
-  // Moved from KNOWN_OVERFLOW 2026-09-15, owner ruling 2026-09-15: the rule-reveal screen's own
-  // overrides.css block (press 0, button#ruleReadyBtn) reclaimed the padding/margin/gap the 92px
-  // overflow was spent on, the same lever the press-1 pass-screen block used. Confirmed 0px on three
-  // consecutive dev-machine runs against a real dist/ served on 4321 with CDP on 9222.
-  'freeze-tap 320x568',
   'wire-snip-panic 390x844',
   'wire-snip-panic 1440x900',
   'zero-trigger 390x844',
@@ -343,6 +338,9 @@ export const KNOWN_OVERFLOW = new Map([
   ['power-meter 320x568', 'not a defect 2026-09-04: 76px on press 0 - 76px clipped by div#app-container; mechanism: a parked toast resting below a containing block created by will-change, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
   ['power-meter 390x844', 'not a defect 2026-09-04: 76px on press 0 - 76px clipped by div#app-container; mechanism: a parked toast resting below a containing block created by will-change, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
   ['power-meter 1440x900', 'not a defect 2026-09-04: 76px on press 0 - 76px clipped by div#app-container; mechanism: a parked toast resting below a containing block created by will-change, invariant at all three viewports. Proved by the gh#182 owner ruling of 2026-09-04, not a layout defect and no fix is owed'],
+  // Moved from FITS_ROWS 2026-09-22: the pin was set by an instrument that could not see the
+  // draw it was pinning. gh#182 reopened for this row; gh#239 carries the probe fix.
+  ['freeze-tap 320x568', 'owner ruling 2026-09-22: 12px on press 1 - 12px to scroll and 0px clipped on the pass screen. REPRODUCED on CI run 35687379298 attempts 1 and 2 of the same commit da75294, both reporting 12px at press 1 while presses 4, 5 and 6 read 0px. This row was in FITS_ROWS from an owner ruling 2026-09-15 whose evidence was 0px on three consecutive dev-machine runs; that instrument graded whichever of the nine TRIGGER_CONDITIONS an unseeded pick drew, and on a dev machine every draw reports the same numbers, so those three runs could not see the tall draw. gh#239 made the probe enumerate every draw and the tallest one overflows. UNLIKE the other 320x568 rulings here, this reason does NOT rest on the 2026-09-10 primary-control rule: the owner was offered that measurement first and chose to accept the 12px directly, so nobody has checked whether this screen has its primary control above the fold. Take that measurement before citing the 2026-09-10 rule for this row.'],
   ['short-stick 320x568', 'owner ruling 2026-09-15: 191px on press 0 - 191px to scroll on documentElement. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
   // Moved from FITS_ROWS 2026-09-02: same self-scroller bound as freeze-tap above.
   ['wire-snip-panic 320x568', 'owner ruling 2026-09-15: 111px on press 0 - 111px to scroll on div#screen-game.screen.active. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
