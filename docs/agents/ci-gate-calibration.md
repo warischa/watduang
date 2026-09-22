@@ -136,3 +136,19 @@ failure does **not** refute a slow-harness explanation — a reliably under-reso
 same way every time, so "it failed twice identically" is what this cause predicts, not evidence
 against it. Before blaming a route, reproduce under the lane's literal flags and check whether the
 burst landed in the window at all.
+
+## A new assertion must be run against the control leg built to produce its null case (2026-09-22, gh#239)
+
+The probe pairs in `scripts/ci-probes.sh` ship a `BREAK_*` control leg, and the control's whole job is
+to reach the state the clean leg must never be in. For the play-screen-fit pair that state is **zero
+screens measured** — `NO_SEED` and `NO_PRESS` strand the walk on the fresh screen deliberately.
+
+So any assertion added to the clean leg that reasons over *what the walk reached* is, on the control
+leg, being handed an empty set on purpose. A draw-enumeration assertion added on 2026-09-22 red on the
+control for exactly that reason, reporting "1 distinct screen sequence" against 9 forced draws, and it
+cost a full 839s suite run to find out.
+
+**So: after adding an assertion, run the control leg before the suite** — `BREAK_WALK=1` with
+`ROUTES_ONLY` scoped to the route you touched takes a couple of minutes against the suite's ~10.
+Either the assertion is inert on a calibration leg by construction, or it needs a guard naming why.
+A green clean leg says nothing about this; the control is the only leg that produces the null case.
