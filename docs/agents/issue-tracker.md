@@ -8,7 +8,7 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 
 The map is **issue #1** (`wayfinder:map`). All 10 labels exist. Dependencies use GitHub's native issue-dependency API.
 
-**Ticket number → issue number: add 1.** Ticket `07` is issue `#8`. The 2026-08-13 migration created tickets `01`–`11` as issues `#2`–`#12`; everything after that was filed on GitHub directly and has no ticket-number twin beyond the same +1 rule.
+The 2026-08-13 migration created tickets `01`–`11` as issues `#2`–`#12`; everything filed since went to GitHub directly with no ticket file of its own. The number rule itself is below.
 
 ⚠ **Never derive the next ticket number from `gh issue list`** — it shows open issues only, and PRs share the number space. On 2026-08-17 the open list topped out at `#29` while the real highest number was `#36`; a ticket prefix computed from that list would have been wrong by seven. Create the issue first, read the number GitHub actually assigned, then set the title from it — or query `--state all` across both issues and PRs.
 
@@ -27,8 +27,6 @@ decision.
 ### GitHub is the only copy
 
 The pre-migration markdown originals under `.scratch/free-game/` were deleted 2026-08-13 once GitHub was confirmed a superset. There is no local copy to fall back on — `gh issue view <n>` is the source of truth.
-
-`.scratch/free-game/research/` and `.scratch/free-game/prototypes/` are **not** duplicates — they are artifacts the issues link to. Keep them.
 
 ## Conventions
 
@@ -65,7 +63,7 @@ you need them. A recorded count rots silently and no one goes back to fix it.
 ### `.scratch/` — never gitignore the whole folder
 
 The issue and map copies under `.scratch/` were deleted once the migration to GitHub landed, but
-`.scratch/free-game/{research,prototypes}/` **still hold tracked files** — demand research,
+`.scratch/free-game/{research,prototypes}/` **still hold tracked files** the issues link to — demand research,
 ad-policy notes, legal notes, and the player-shell prototype.
 
 Gitignoring all of `.scratch/` would drop those files out of the repo silently, with nothing
