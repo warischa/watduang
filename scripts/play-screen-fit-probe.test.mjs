@@ -44,6 +44,10 @@ import {
   drawValues,
   fmtRowReport,
   emitRowReports,
+  fmtFold,
+  foldVisiblePx,
+  FOLD_SELECTORS,
+  FOLD_VP_W,
   acquireMeasurements,
   fmtScreens,
   main,
@@ -559,6 +563,11 @@ test('main does not delete or bypass the per-screen emission', () => {
     assert.ok(logged.includes(expectedLine), `expected report line missing from production sink: ${expectedLine}`);
   }
   const noticeLines = logged.filter((l) => l.startsWith('::notice::'));
+  // The count below holds ONLY while no fixture row carries a fold reading: fmtFold emits one extra
+  // ::notice:: per read screen. Asserted rather than assumed, so adding fold data to this fixture reds
+  // HERE, with a message saying why, instead of reding the count assertion under its unrelated name.
+  const anyFold = Object.values(fixture42).some((r) => (r.screens || []).some((sc) => 'foldVisiblePx' in sc));
+  assert.equal(anyFold, false, 'no fixture row may carry foldVisiblePx — the notice count below is derived without fold lines');
   assert.equal(noticeLines.length, 14 + 39 * 2 + 9, 'all 42 rows must have their reports emitted to production sink');
 
   // The run above proves the DEFAULT sink is wired. It cannot prove the emission contract, because
@@ -785,4 +794,62 @@ test('drawValues enumerates every index of the declared array, and its canary se
   // walk reds on. Proved here so the two assertions are known to cover opposite directions.
   const shortHits = new Set(vs.slice(0, N).map((v) => pick(v, N - 1)));
   assert.ok(shortHits.size < N, 'against a shorter array two midpoints must collide on one index');
+});
+
+// ---------------------------------------------------------------------------
+// gh#182 fold read — REPORT ONLY. These prove the arithmetic against the recorded
+// Mac baseline and prove the formatter stays silent on the shapes a control leg produces.
+// ---------------------------------------------------------------------------
+
+test('foldVisiblePx reproduces every value the Mac baseline recorded', () => {
+  // docs/verification/evidence/182-320-fold/below-fold-primary-controls.md, pre-fix rows
+  assert.equal(foldVisiblePx(613, 712, 568), 0, 'typical pre-fix load read 0 visible px');
+  assert.equal(foldVisiblePx(640, 739, 568), 0, 'worst pre-fix load read 0 visible px');
+  // docs/verification/evidence/182-freeze-tap-fold-2026-09-15, post-fix, n=12
+  assert.equal(foldVisiblePx(508, 568, 568), 60, 'post-fix load read the full 60px button');
+  // the wire-snip-panic re-measurement in the same family: a PARTIAL value, neither 0 nor full
+  assert.equal(foldVisiblePx(540, 616, 568), 28, 'a partly visible control reads its overlap');
+  // a control above the viewport top is clipped at 0, not negative
+  assert.equal(foldVisiblePx(-30, 20, 568), 20, 'overlap is clamped at the viewport top too');
+});
+
+test('fmtFold is silent on every shape a control leg can produce', () => {
+  assert.deepEqual(fmtFold({ screens: [] }), [], 'no screens measured yields no fold line');
+  assert.deepEqual(fmtFold({}), [], 'a row with no screens key yields no fold line');
+  assert.deepEqual(fmtFold(null), [], 'no row at all yields no fold line');
+  assert.deepEqual(
+    fmtFold({ screens: [{ press: 0, overflowPx: 12 }, { press: 1, overflowPx: 0 }] }),
+    [],
+    'screens without a fold reading yield no fold line — every route outside FOLD_SELECTORS',
+  );
+});
+
+test('fmtFold reports one line per read screen and names which side of the fold it is on', () => {
+  const lines = fmtFold({
+    screens: [
+      { press: 1, draw: 3, foldSel: '#playerReadyBtn', foldVisiblePx: 60, foldHeight: 60, foldTop: 508, foldBottom: 568 },
+      { press: 2, draw: 7, foldSel: '#playerReadyBtn', foldVisiblePx: 0, foldHeight: 99, foldTop: 640, foldBottom: 739 },
+      { press: 3, overflowPx: 0 },
+    ],
+  });
+  assert.equal(lines.length, 2, 'only screens carrying a reading are reported');
+  assert.ok(lines[0].includes('clears the fold'), 'a visible control is reported as clearing');
+  assert.ok(lines[0].includes('visible   60px of   60px'), 'the visible and total px both appear');
+  assert.ok(lines[1].includes('BELOW  the fold'), 'a zero-visible control is reported as below');
+  assert.ok(lines[1].includes('draw 7'), 'the forced draw is named, so a reading is traceable to its condition');
+});
+
+test('the fold read is scoped to the one open route and to the viewport its rule names', () => {
+  assert.deepEqual(Object.keys(FOLD_SELECTORS), ['freeze-tap'], 'scope is the route whose ruling is open');
+  assert.equal(FOLD_SELECTORS['freeze-tap'], '#playerReadyBtn', 'the selector the Mac baseline read, not a heuristic pick');
+  assert.equal(FOLD_VP_W, 320, 'the 2026-09-10 rule is a 320px rule');
+});
+
+test('emitRowReports adds fold lines only for rows that carry a reading', () => {
+  const without = [];
+  emitRowReports([{ route: 'x', vp: '320x568', screens: [{ press: 0, overflowPx: 0, widthFillPct: 90, inkCount: 3 }] }], (l) => without.push(l));
+  const with_ = [];
+  emitRowReports([{ route: 'x', vp: '320x568', screens: [{ press: 0, overflowPx: 0, widthFillPct: 90, inkCount: 3, foldSel: '#b', foldVisiblePx: 5, foldHeight: 44, foldTop: 500, foldBottom: 544 }] }], (l) => with_.push(l));
+  assert.equal(with_.length, without.length + 1, 'exactly one extra line, so no existing emission is displaced');
+  assert.ok(with_.some((l) => l.startsWith('::notice::  fold ')), 'the extra line is the fold line and carries the notice prefix');
 });

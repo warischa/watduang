@@ -994,6 +994,59 @@ const DRAW_KEY = 'watduang:__fit-draw';
 export const DRAW_COUNTS = { 'freeze-tap': 9 };
 
 /**
+ * gh#182 FOLD READ — REPORT ONLY, gated by nothing, asserted by nothing.
+ *
+ * The 2026-09-10 rule the KNOWN_OVERFLOW reasons cite makes the binding requirement that the PRIMARY
+ * CONTROL is reachable above the fold at 320px, not that the whole screen fits. Every 320x568 reason
+ * in this file rests on Mac readings; the runner renders Thai-heavy rows differently (see
+ * docs/agents/ci-gate-calibration.md "A pixel the fit probe records is one machine's number"), so
+ * whether those readings hold here has never been measured. This emits the number so it can be.
+ *
+ * WHY AN EXPLICIT SELECTOR rather than this file's own largest-visible-button heuristic: the figure
+ * this is compared against is the n=12 Mac baseline in
+ * docs/verification/evidence/182-freeze-tap-fold-2026-09-15, which read #playerReadyBtn by name. A
+ * heuristic pick is a DIFFERENT INSTRUMENT, and two instruments cannot answer whether one machine
+ * agrees with another. Scoped to the one route whose ruling is open; the sibling rows carry
+ * 2026-09-11 Mac measurements with the same runner-gap and widening was not asked for.
+ *
+ * WHICH DRAW THE READING BELONGS TO: the fold fields ride the screen record, and screen records merge
+ * WORST-PER-PRESS across the forced draws. So the surviving reading is the one from the screen the row
+ * itself reports. On a machine where the draws differ that is the TALL draw by construction, which is
+ * exactly the reading wanted; on a machine where every draw ties at 0px the winner is whichever came
+ * first and the draw label says which. Measured 2026-09-22 on this Mac: one line, draw index 0, 60px of
+ * 60px -- the tie case. The line always names its draw, so a reader can tell the two apart.
+ *
+ * INERT ON THE CONTROL LEG BY CONSTRUCTION: this adds no assertion. Under BREAK_WALK / NO_SEED /
+ * NO_PRESS the walk never leaves the fresh screen, so no screen is measured, so no fold line is
+ * emitted and nothing can grade the empty set. That is the 2026-09-22 lesson in
+ * docs/agents/ci-gate-calibration.md, which cost a full suite run.
+ */
+export const FOLD_SELECTORS = { 'freeze-tap': '#playerReadyBtn' };
+
+/** The fold rule is a 320px rule, so the read is taken at that width only. */
+export const FOLD_VP_W = 320;
+
+/**
+ * Visible height of a rect inside the viewport: the overlap of [top, bottom] with [0, innerHeight].
+ * Same arithmetic the Mac baseline reported as visiblePxInViewport, so the two numbers are comparable.
+ * Exported pure so the arithmetic is tested without a browser.
+ */
+export const foldVisiblePx = (top, bottom, innerHeight) =>
+  Math.max(0, Math.min(bottom, innerHeight) - Math.max(top, 0));
+
+/** In-page read for one selector. Absent element is reported, never thrown: the walk must not care. */
+export const FOLD_READ = (sel) => `
+  const el = document.querySelector(${JSON.stringify(sel)});
+  if (!el) return { found: false };
+  const r = el.getBoundingClientRect();
+  const cs = getComputedStyle(el);
+  if (!(r.width > 0 && r.height > 0) || cs.visibility === 'hidden' || cs.display === 'none') {
+    return { found: false, why: 'not rendered' };
+  }
+  return { found: true, top: r.top, bottom: r.bottom, height: r.height, innerHeight };
+`;
+
+/**
  * Installed once per session via Page.addScriptToEvaluateOnNewDocument, so it is in place before the
  * route's own module runs and therefore before the pick happens. Self-limiting: load() wipes
  * localStorage at the top of every walk, so a pass that forces nothing leaves the native generator
@@ -1150,6 +1203,19 @@ async function walkPass(session, id, url, vp, row, fresh, draw) {
       const m = await session.evaluate(MEASURE);
       if (m.error || !m.value?.ok) { row.error = `measure failed: ${m.error ?? m.value?.why}`; break; }
       measured.push({ press, draw, ...m.value });
+      const foldSel = vp.w === FOLD_VP_W ? FOLD_SELECTORS[id] : undefined;
+      if (foldSel) {
+        // Report-only; a failed read leaves the screen record without fold fields and emits nothing.
+        const f = await session.evaluate(FOLD_READ(foldSel));
+        if (!f.error && f.value?.found) {
+          const last = measured[measured.length - 1];
+          last.foldSel = foldSel;
+          last.foldTop = f.value.top;
+          last.foldBottom = f.value.bottom;
+          last.foldHeight = f.value.height;
+          last.foldVisiblePx = foldVisiblePx(f.value.top, f.value.bottom, f.value.innerHeight);
+        }
+      }
       // gh#203 — the composition row, taken on the FIRST screen that is not the fresh one, which
       // is the screen the label calls first-game-screen. Not the worst and not the last: the two
       // ranking rules above both pick by a px number, and a composition reading chosen by a px
@@ -1364,10 +1430,29 @@ export const fmtRowReport = (r) => {
  * while discarding its body passed 18 of 18 tests. A source check cannot answer a question about a
  * runtime value. The count is what a hollowed-out loop cannot fake.
  */
+/**
+ * gh#182 — one line per screen that carries a fold reading. A SEPARATE formatter on purpose: the row
+ * and screen lines above are asserted verbatim by this file's tests, and a fold figure spliced into
+ * them would have to change those assertions to say anything. Emits nothing when no screen was read,
+ * which is every screen on a control leg and every route without a FOLD_SELECTORS entry.
+ */
+export const fmtFold = (r) => {
+  if (!r?.screens?.length) return [];
+  return r.screens
+    .filter((s) => typeof s.foldVisiblePx === 'number')
+    .map((s) => {
+      const pressLabel = s.press !== null && s.press !== undefined ? `press ${s.press}` : 'press -';
+      const drawPart = s.draw !== null && s.draw !== undefined ? ` draw ${s.draw}` : '';
+      const clears = s.foldVisiblePx > 0 ? 'clears' : 'BELOW ';
+      return `  fold [${pressLabel}${drawPart}]  ${s.foldSel}  ${clears} the fold  visible ${String(Math.round(s.foldVisiblePx)).padStart(4)}px of ${String(Math.round(s.foldHeight ?? 0)).padStart(4)}px  top ${String(Math.round(s.foldTop ?? 0)).padStart(5)}  bottom ${String(Math.round(s.foldBottom ?? 0)).padStart(5)}`;
+    });
+};
+
 export const emitRowReports = (rows, emit) => {
   let emitted = 0;
   for (const r of rows || []) {
     for (const line of fmtRowReport(r)) { emit('::notice::' + line); emitted++; }
+    for (const line of fmtFold(r)) { emit('::notice::' + line); emitted++; }
   }
   return emitted;
 };
