@@ -91,3 +91,19 @@ likely outcome either way -- which is what let this sit until now.
   therefore pin the fitting one) versus measuring the worst draw versus changing the screen so its
   height does not depend on the draw. The first is the probe's problem, the third is the route's, and
   only the owner can say whether the tall screen is acceptable at 320px.
+
+## What happened after this file was written (2026-09-22)
+
+Nothing above is amended — it is the record of the investigation as it stood. This section is the
+forward pointer, so the finding is not reachable only from an evidence file nobody indexes.
+
+- **Filed as gh#239** (เลขใบ 238), which carries the cause and the 456/483 measurement. gh#182 stays
+  the owner of the "verify against the worst case" rule and of whether the tall screen is acceptable
+  at 320px.
+- **The owner chose "measure the worst draw"** (popup), accepting in advance that the probe gets
+  slower on this route and that the row reds immediately if the tall screen does not genuinely fit.
+  Seeding was declined for the reason named above: it pins whichever draw the seed yields.
+- **So the "no fix applied" bullet is now historical.** `scripts/play-screen-fit-probe.mjs` enumerates
+  the draws via `DRAW_COUNTS` and `drawValues`, forcing each one through an init-script override and
+  merging the worst measurement per press. `FITS_ROWS` and `OVERFLOW_TOLERANCE_PX` were not touched,
+  as this file said they must not be.

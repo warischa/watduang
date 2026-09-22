@@ -31,6 +31,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import {
   DECLARED_SCROLLER,
+  DRAW_COUNTS,
   FITS_ROWS,
   KNOWN_OVERFLOW,
   KNOWN_OVERFLOW_X,
@@ -40,6 +41,7 @@ import {
   assertRecordedReasons,
   compositionGaps,
   countsAsHorizontalOverflow,
+  drawValues,
   fmtRowReport,
   emitRowReports,
   acquireMeasurements,
@@ -524,12 +526,12 @@ test('main does not delete or bypass the per-screen emission', () => {
   };
 
   const EXPECTED_EMISSIONS = [
-    '::notice::croc-bite          320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  (1 screen(s), worst at press 0, 8 ink) [pinned fits]',
+    '::notice::croc-bite          320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  (worst of 1 screen(s): press 0, 8 ink) [pinned fits]',
     '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  ink 8',
-    '::notice::dice-loser         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  (2 screen(s), worst at press 0, 12 ink) [pinned fits]',
+    '::notice::dice-loser         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  (worst of 2 screen(s): press 0, 12 ink) [pinned fits]',
     '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  ink 12',
     '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    94%  ink 16',
-    '::notice::freeze-tap         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  (3 screen(s), worst at press 0, 10 ink) [pinned fits]',
+    '::notice::freeze-tap         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  (worst of 3 screen(s): press 0, 10 ink) [pinned fits]',
     '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  ink 10',
     '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 15',
     '::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    97%  ink 20',
@@ -743,4 +745,41 @@ test('a CLI run with no fixture still refuses to report success without measurin
   // And it must fail for the RIGHT reason — an acquisition failure, not the fixture refusal, which
   // would mean the guard had become unconditional.
   assert.doesNotMatch(`${run.stderr}${run.stdout}`, /refusing to run the gate with a measurement fixture set/, 'no knob was set, so the fixture refusal must not be what stopped it');
+});
+
+// gh#239 — the draw enumerator's ARITHMETIC, which is the whole growth detector and the one part of
+// it a browser is not needed to judge. The browser leg proves the override reaches the pick; this
+// proves that the values it forces cover the declared array and separate when the array grows.
+//
+// pick(v, len) is the expression the routes themselves run: Math.floor(Math.random() * len).
+test('drawValues enumerates every index of the declared array, and its canary separates on growth', () => {
+  const pick = (v, len) => Math.floor(v * len);
+  const N = DRAW_COUNTS['freeze-tap'];
+  assert.equal(N, 9, 'the case this detector was derived against');
+
+  const vs = drawValues(N);
+  assert.equal(vs.length, N + 1, 'N enumerating passes plus one growth canary');
+  assert.ok(vs.every((v) => v >= 0 && v < 1), 'every forced value has to be a legal Math.random() return');
+
+  // (i) COVERAGE: against an array of exactly N, the N midpoints hit indices 0..N-1 one each. A gap
+  // here would mean a draw the gate never measures while reporting a clean green.
+  const hit = vs.slice(0, N).map((v) => pick(v, N));
+  assert.deepEqual(hit, [...Array(N).keys()], 'the midpoints must enumerate every index exactly once');
+
+  // (ii) CANARY, ARRAY UNCHANGED: it must agree with the last enumerating pass, or every run reds on
+  // a growth that has not happened — a gate that cries wolf gets its count raised to silence it.
+  assert.equal(pick(vs[N], N), pick(vs[N - 1], N), 'against an unchanged array the canary repeats the last index');
+
+  // (iii) CANARY, ARRAY GROWN: this is the must-red. Add one condition and the pair has to separate,
+  // otherwise the declared count can drift under the gate while the assertion stays green.
+  assert.notEqual(pick(vs[N], N + 1), pick(vs[N - 1], N + 1), 'one extra element must split the canary from the last midpoint');
+  // And it has to keep separating as the array grows further, not just at N+1.
+  for (const grown of [N + 2, N + 3, N + 7]) {
+    assert.notEqual(pick(vs[N], grown), pick(vs[N - 1], grown), `an array of ${grown} must still split the pair`);
+  }
+
+  // (iv) SHORTER array: coverage collapses, which is what the distinct-fingerprint assertion in the
+  // walk reds on. Proved here so the two assertions are known to cover opposite directions.
+  const shortHits = new Set(vs.slice(0, N).map((v) => pick(v, N - 1)));
+  assert.ok(shortHits.size < N, 'against a shorter array two midpoints must collide on one index');
 });

@@ -973,6 +973,68 @@ const SEED = `
   return true;
 `;
 
+/** localStorage key the forced draw travels on. Read by DRAW_OVERRIDE before any page script runs. */
+const DRAW_KEY = 'watduang:__fit-draw';
+
+/**
+ * gh#239 — routes whose PLAY SCREEN picks its own text from an array, so one walk measures one draw
+ * and a green means a short string was drawn rather than that the screen fits. The count is the
+ * array's length, declared here because it lives in a module closure the probe cannot read.
+ *
+ * freeze-tap draws from TRIGGER_CONDITIONS in startNewRound(). Measured at a real emulated 320x568:
+ * seven prompts give a 456px pass screen, the two symbol prompts wrap to three lines and give 483px.
+ * A 27px swing with identical element counts, which is why two CI attempts on one SHA both reported
+ * the same ink while disagreeing about the fit.
+ *
+ * This is a declared count, not a per-route selector: the walk stays generic, and a wrong count reds
+ * rather than under-covering (see the two assertions in the route loop).
+ *
+ * Sibling routes were grepped when this landed: the other Math.random callers under src/play drive
+ * particles and physics, not the choice of text. That rules out this SHAPE, not every way a route
+ * could vary its own height.
+ */
+export const DRAW_COUNTS = { 'freeze-tap': 9 };
+
+/**
+ * Installed once per session via Page.addScriptToEvaluateOnNewDocument, so it is in place before the
+ * route's own module runs and therefore before the pick happens. Self-limiting: load() wipes
+ * localStorage at the top of every walk, so a pass that forces nothing leaves the native generator
+ * alone and cannot contaminate the route that follows.
+ *
+ * WHY NO CLEANUP OF THE KEY, which is the question a reader gets to next: the last pass does leave it
+ * set, and localStorage is per-ORIGIN, so it outlives this probe in a shared Chrome profile. It is
+ * inert anyway, and the reason is worth writing down rather than re-deriving. The key does nothing
+ * without this script registered, and the registration is per-TARGET -- driver.mjs opens a fresh
+ * target per run, so the override dies with the tab while the key does not. A later leg on the same
+ * origin (canvas-ink drives Math.random particles, so it would be a wrong number that runs clean)
+ * therefore reads a stale key with no override to act on it. Add a removeItem here only if driver.mjs
+ * ever starts REUSING a target, because that is the single fact this holds on.
+ */
+const DRAW_OVERRIDE = `
+  (() => {
+    const native = Math.random;
+    try {
+      const raw = localStorage.getItem(${JSON.stringify(DRAW_KEY)});
+      if (raw !== null) { const v = Number(raw); if (v >= 0 && v < 1) Math.random = () => v; return; }
+    } catch (e) {}
+    Math.random = native;
+  })();
+`;
+
+/**
+ * The values forced for a route declared with N draws, in pass order.
+ *
+ * Passes 0..N-1 are midpoints: Math.floor(((i + 0.5) / N) * N) === i exactly, so N passes enumerate
+ * every index of an array of length N. Fewer than N DISTINCT screens coming back means either the
+ * override never reached the pick or the array is SHORTER than declared -- both red.
+ *
+ * Pass N is the growth canary, and the pair is the whole detector. Against an array of length N,
+ * (N-1)/N and (N-0.5)/N both floor to index N-1, so the canary matches the last midpoint pass. Let
+ * the array grow to N+1 and they separate: (N-1)/N lands on N-1 while (N-0.5)/N lands on N. So a
+ * canary that does NOT match pass N-1 means TRIGGER_CONDITIONS grew past the count declared above.
+ */
+export const drawValues = (n) => [...Array(n).keys()].map((i) => (i + 0.5) / n).concat((n - 1) / n);
+
 /**
  * gh#203 — the desktop viewport the composition row is taken at, resolved from VIEWPORTS rather than
  * retyped, so adding or renaming a viewport cannot leave this pointing at one the walk never visits.
@@ -1028,18 +1090,111 @@ async function capture(session, id, row, label, press) {
   };
 }
 
-async function load(session, url, vp, seeded) {
+async function load(session, url, vp, seeded, draw = null) {
   await session.nav(url);
   await session.setWidth(vp.w, vp.h);
   await session.wipe(); // on-origin, per docs/agents/browser-verification.md trap 4
   if (seeded) await session.evaluate(SEED);
+  // gh#239 — written after the wipe and before the reload, so DRAW_OVERRIDE reads it on the document
+  // the walk actually measures. Left unset, the wipe alone restores the page's own generator.
+  if (draw !== null) await session.evaluate(`localStorage.setItem(${JSON.stringify(DRAW_KEY)}, ${JSON.stringify(String(draw))}); return true;`);
   await session.nav(url);
   await session.setWidth(vp.w, vp.h);
   await sleep(1200); // main.js is an external module; give it a beat to build the first screen
 }
 
 /** driver.mjs probe: every play route x every viewport, fresh signature then the seeded walk. */
+/**
+ * One seeded walk of one route at one viewport. Returns the screen signatures it reached, in order,
+ * which is the fingerprint the draw assertions compare -- reusing the signature the walk already
+ * takes rather than adding a reader for the drawn text.
+ *
+ * `draw` null leaves the page's own generator alone, which is every route but the ones in
+ * DRAW_COUNTS. Measurements merge into row.screens WORST-PER-PRESS, so an enumerated route reports
+ * the same number of screens as an unenumerated one and the row stays one row per route/viewport.
+ * Press index is not a stable state in general -- but across passes of the same route and viewport
+ * with nothing varied except the forced draw, it is the same walk pressing the same controls, which
+ * is exactly the comparison "measure the worst draw" asks for.
+ */
+async function walkPass(session, id, url, vp, row, fresh, draw) {
+  // NO_SEED skips the seeding, so the walk is left on the fresh screen and every screen it
+  // reaches must still carry the fresh signature. That is this probe's calibration, and it also
+  // proves the signature is stable over the same elapsed time rather than drifting on its own.
+  await load(session, url, vp, !NO_SEED, draw);
+  const sigs = [];
+  if (draw !== null) {
+    // The override has to be proved INSTALLED on the document just measured. Without this the whole
+    // enumeration can report a clean green while every pass drew freely, which is the failure this
+    // gate exists to remove rather than to reproduce more quietly.
+    const forced = await session.evaluate('return Math.random();');
+    if (forced.error || forced.value !== draw) {
+      row.error = `forced draw ${draw} but the page reported ${forced.error ?? forced.value} — the Math.random override is not installed on the document that was measured, so nothing here enumerates anything`;
+      return { sigs };
+    }
+  }
+  const widthOk = await session.evaluate('return innerWidth;');
+  if (widthOk.value !== vp.w) {
+    // browser-verification.md trap 1: a run measured at the wrong innerWidth is void, not wrong.
+    row.error = `measured at innerWidth ${widthOk.value}, asked for ${vp.w} — the page never reflowed, so this read is void (docs/agents/browser-verification.md trap 1)`;
+    return { sigs };
+  }
+
+  let skip = 0;
+  const seen = new Set([fresh.value.sig]);
+  const measured = [];
+  for (let press = 0; press <= PRESS_CAP; press += 1) {
+    const sig = await session.evaluate(SIGNATURE);
+    if (sig.error || !sig.value?.ok) { row.error = `signature unreadable: ${sig.error ?? sig.value?.why}`; break; }
+    const left = sig.value.sig !== fresh.value.sig;
+    if (left && !seen.has(sig.value.sig)) {
+      seen.add(sig.value.sig);
+      sigs.push(sig.value.sig);
+      const m = await session.evaluate(MEASURE);
+      if (m.error || !m.value?.ok) { row.error = `measure failed: ${m.error ?? m.value?.why}`; break; }
+      measured.push({ press, draw, ...m.value });
+      // gh#203 — the composition row, taken on the FIRST screen that is not the fresh one, which
+      // is the screen the label calls first-game-screen. Not the worst and not the last: the two
+      // ranking rules above both pick by a px number, and a composition reading chosen by a px
+      // number would inherit exactly the machine dependence it exists to avoid.
+      if (vp.w === DESKTOP_W && !row.composition) {
+        row.composition = await capture(session, id, row, 'first-game-screen', press);
+      }
+    }
+    if (press === PRESS_CAP) break;
+    const before = sig.value.sig;
+    // NO_PRESS still burns the same wall clock: the control has to prove the signature is stable
+    // over the walk's own elapsed time, not just that nothing was clicked.
+    if (NO_PRESS) { await sleep(700); continue; }
+    const click = await session.evaluate(clickTransition(skip));
+    if (click.error) { row.error = `press failed: ${click.error}`; break; }
+    if (!click.value?.found) break; // nothing left to press — not an error, just fewer screens
+    await sleep(700);
+    const here = await session.evaluate('return location.pathname;');
+    if (here.value && !here.value.startsWith(row.url)) {
+      row.error = `the press (${click.value.label}) navigated to ${here.value} instead of transitioning in place — every later screen would belong to another page`;
+      break;
+    }
+    const after = await session.evaluate(SIGNATURE);
+    // A press that changed nothing means this candidate is not a transition (a scoring-mode card,
+    // a toggle). Step to the next-largest rather than pressing it again forever.
+    skip = after.value?.sig === before ? skip + 1 : 0;
+  }
+
+  // Same ranking worstOf uses, so the screen this keeps is the screen the row's own summary and the
+  // gate would have picked. A different tie-break here would make the table disagree with the gate.
+  for (const s of measured) {
+    const at = row.screens.findIndex((k) => k.press === s.press);
+    if (at < 0) { row.screens.push(s); continue; }
+    const k = row.screens[at];
+    if (s.overflowPx > k.overflowPx || (s.overflowPx === k.overflowPx && s.widthFillPct < k.widthFillPct)) row.screens[at] = s;
+  }
+  return { sigs };
+}
+
 export default async function (session) {
+  // gh#239 — installed before the first navigation so it is in place ahead of every route's own
+  // module. Registered once per session on purpose: it is inert unless load() wrote a forced value.
+  await session.onNewDocument(DRAW_OVERRIDE);
   const routes = playRoutes();
   const rows = [];
   for (const id of routes) {
@@ -1055,54 +1210,39 @@ export default async function (session) {
       }
       row.freshSigLen = fresh.value.len;
 
-      // NO_SEED skips the seeding, so the walk is left on the fresh screen and every screen it
-      // reaches must still carry the fresh signature. That is this probe's calibration, and it also
-      // proves the signature is stable over the same elapsed time rather than drifting on its own.
-      await load(session, url, vp, !NO_SEED);
-      const widthOk = await session.evaluate('return innerWidth;');
-      if (widthOk.value !== vp.w) {
-        // browser-verification.md trap 1: a run measured at the wrong innerWidth is void, not wrong.
-        row.error = `measured at innerWidth ${widthOk.value}, asked for ${vp.w} — the page never reflowed, so this read is void (docs/agents/browser-verification.md trap 1)`;
-        continue;
+      // A CALIBRATION LEG ENUMERATES NOTHING. NO_SEED and NO_PRESS exist to strand the walk on the
+      // fresh screen -- that is the whole control -- so no pass reaches a play screen, every draw
+      // fingerprint comes back empty, and the distinctness assertion below would red on the control
+      // for doing exactly what it is there to do. Measured: the control leg reported "1 distinct
+      // screen sequence" against 9 forced draws before this line existed.
+      const draws = NO_SEED || NO_PRESS ? 1 : DRAW_COUNTS[id] ?? 1;
+      const values = draws === 1 ? [null] : drawValues(draws);
+      const fingerprints = [];
+      for (const draw of values) {
+        const pass = await walkPass(session, id, url, vp, row, fresh, draw);
+        if (row.error) break;
+        fingerprints.push(pass.sigs.join(' >> '));
       }
+      row.draws = draws;
 
-      let skip = 0;
-      const seen = new Set([fresh.value.sig]);
-      for (let press = 0; press <= PRESS_CAP; press += 1) {
-        const sig = await session.evaluate(SIGNATURE);
-        if (sig.error || !sig.value?.ok) { row.error = `signature unreadable: ${sig.error ?? sig.value?.why}`; break; }
-        const left = sig.value.sig !== fresh.value.sig;
-        if (left && !seen.has(sig.value.sig)) {
-          seen.add(sig.value.sig);
-          const m = await session.evaluate(MEASURE);
-          if (m.error || !m.value?.ok) { row.error = `measure failed: ${m.error ?? m.value?.why}`; break; }
-          row.screens.push({ press, ...m.value });
-          // gh#203 — the composition row, taken on the FIRST screen that is not the fresh one, which
-          // is the screen the label calls first-game-screen. Not the worst and not the last: the two
-          // ranking rules above both pick by a px number, and a composition reading chosen by a px
-          // number would inherit exactly the machine dependence it exists to avoid.
-          if (vp.w === DESKTOP_W && !row.composition) {
-            row.composition = await capture(session, id, row, 'first-game-screen', press);
-          }
+      // gh#239 — the two assertions that make the declared DRAW_COUNTS entry fail loudly instead of
+      // under-covering. Both read the pass fingerprints, which are the screen signatures the walk
+      // already takes; neither needs a second evaluator and neither can pass by construction.
+      // enumerated.some(Boolean) defers to the existing NEVER LEFT THE FRESH SCREEN reporting when a
+      // clean-leg walk reached nothing at all: that is a walk failure with its own diagnosis, and
+      // answering it here with "the override did not reach the pick" would be a wrong one. A walk
+      // that reached screens on SOME passes and not others still falls through to the count below.
+      if (!row.error && draws > 1 && fingerprints.slice(0, draws).some(Boolean)) {
+        const enumerated = fingerprints.slice(0, draws);
+        const distinct = new Set(enumerated).size;
+        if (distinct < draws) {
+          // Either the override never reached the pick -- in which case every pass drew freely and
+          // this gate is exactly as unsound as before while looking fixed -- or the array is shorter
+          // than declared and two midpoints collided on one index.
+          row.error = `forced ${draws} draw(s) but only ${distinct} distinct screen sequence(s) came back, so the enumeration did not cover ${draws} values. Either the Math.random override never reached the pick, or the array is shorter than the ${draws} declared in DRAW_COUNTS`;
+        } else if (fingerprints.length > draws && fingerprints[draws] !== enumerated[draws - 1]) {
+          row.error = `the growth canary drew a different screen from the last enumerated pass, so the array this route picks from is LONGER than the ${draws} declared in DRAW_COUNTS — raise the count (the draws past it were never measured)`;
         }
-        if (press === PRESS_CAP) break;
-        const before = sig.value.sig;
-        // NO_PRESS still burns the same wall clock: the control has to prove the signature is stable
-        // over the walk's own elapsed time, not just that nothing was clicked.
-        if (NO_PRESS) { await sleep(700); continue; }
-        const click = await session.evaluate(clickTransition(skip));
-        if (click.error) { row.error = `press failed: ${click.error}`; break; }
-        if (!click.value?.found) break; // nothing left to press — not an error, just fewer screens
-        await sleep(700);
-        const here = await session.evaluate('return location.pathname;');
-        if (here.value && !here.value.startsWith(row.url)) {
-          row.error = `the press (${click.value.label}) navigated to ${here.value} instead of transitioning in place — every later screen would belong to another page`;
-          break;
-        }
-        const after = await session.evaluate(SIGNATURE);
-        // A press that changed nothing means this candidate is not a transition (a scoring-mode card,
-        // a toggle). Step to the next-largest rather than pressing it again forever.
-        skip = after.value?.sig === before ? skip + 1 : 0;
       }
       // gh#203 — a route whose walk never left setup still owes a composition row, labelled for the
       // screen it really is. Otherwise the completeness check below could only ever red on a route
@@ -1177,7 +1317,7 @@ const fmt = (r) => {
   // The sideways number is the row's own worst horizontal screen, not the worst VERTICAL screen's
   // horizontal number — otherwise the printed table would disagree with the gate that reads it.
   const x = worstXOf(r);
-  return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} scrolls ${(w.scrollPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(Math.round(w.scrollPx)).padStart(5)}px  clipped ${String(Math.round(w.clippedPx)).padStart(5)}px  sideways ${String(Math.round(x.overflowXPx ?? 0)).padStart(5)}px${x.overflowXFrom ? ' by ' + x.overflowXFrom : ''}  width-fill ${String(w.widthFillPct).padStart(5)}%  (${r.screens.length} screen(s), worst at press ${w.press}, ${w.inkCount} ink)${FITS_ROWS.has(rowKey(r)) ? ' [pinned fits]' : ''}${KNOWN_OVERFLOW_X.has(rowKey(r)) ? ' [sideways excepted]' : ''}`;
+  return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} scrolls ${(w.scrollPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(Math.round(w.scrollPx)).padStart(5)}px  clipped ${String(Math.round(w.clippedPx)).padStart(5)}px  sideways ${String(Math.round(x.overflowXPx ?? 0)).padStart(5)}px${x.overflowXFrom ? ' by ' + x.overflowXFrom : ''}  width-fill ${String(w.widthFillPct).padStart(5)}%  (worst of ${r.screens.length} screen(s)${(r.draws ?? 1) > 1 ? ` x ${r.draws} draw(s)` : ''}: press ${w.press}, ${w.inkCount} ink)${FITS_ROWS.has(rowKey(r)) ? ' [pinned fits]' : ''}${KNOWN_OVERFLOW_X.has(rowKey(r)) ? ' [sideways excepted]' : ''}`;
 };
 
 /**
@@ -1478,7 +1618,10 @@ export function main({
     console.warn(`::warning::${e.r.url} at ${e.r.vp} measured ${Math.round(e.px)}px SIDEWAYS against a recorded ${e.recorded}px${e.x.overflowXFrom ? ` (widest offender ${e.x.overflowXFrom})` : ''} at press ${e.x.press}. Same machine as the recording? Then the sideways clip GREW past what was excused — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.`);
   }
   // ::notice:: so it survives a PASS: standalone() in ci-probes.sh discards a green leg's log, and this
-  // table carries "worst at press", which the FIT_SHARDS comment names as the signal to drop a shard.
+  // table carries the per-row "worst of" field, which the FIT_SHARDS comment names as the signal to
+  // drop a shard (gh#239 reworded it from "worst at press" so the press number can no longer read as
+  // the set of screens visited -- it names the worst-SCORING screen, and being read as the set cost
+  // one session a wrong diagnosis carried into an agent brief).
   // A rollback trigger that only exists in an uploaded artifact is a rollback trigger nobody reads.
   // gh#182 reporting: emit the per-row summary and every measured screen line before the verdict exit
   // so a failing run retains the evidence in its log instead of discarding it on exit 1.
