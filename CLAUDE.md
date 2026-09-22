@@ -84,6 +84,6 @@ citations are content, not context: the agent copies them into the comments it w
 
 ⚠ Before adding ANY binary — image, font, 3D model — **or generating an OG image** — read `docs/agents/assets.md` first: `public/` ships verbatim to the live site, so a file dropped there goes public with nothing referencing it, and Thai text rendered the wrong way shatters into dotted circles while the script exits 0.
 
-⚠ Proving anything in a browser (320px · reduced-motion · refresh-and-resume) → `docs/agents/browser-verification.md` first — `--window-size` does not reflow the layout, and a screenshot of it will lie to you. **Attributing a CI probe's number to a code path is the same trigger** — the lane's browser flags decide which branch runs, not the source comment sitting on it.
+⚠ Proving anything in a browser (320px · reduced-motion · refresh-and-resume) → `docs/agents/browser-verification.md` first — `--window-size` does not reflow the layout, and a screenshot of it will lie to you. **Attributing a CI probe's number to a code path is the same trigger** — the lane's browser flags decide which branch runs, not the source comment sitting on it. **And before writing that something was never measured, grep `docs/verification/evidence/` first** — measurements live there in dated per-ticket directories, a negative is the claim most in need of an enumerated search, and a false "nobody has checked" has already shipped into a gate's own reason string.
 
 Session saving (window · where each fact lives · what must never sit in this file): `.claude/commands/save-session.md`
