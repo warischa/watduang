@@ -32,3 +32,11 @@ gh#101, gh#104, gh#106 and gh#109's last comments in full confirmed all four ind
 briefing, and read them whole — a `ready-for-agent` row whose blocker is owner work costs a dispatch
 that returns nothing, and the same session's queue had 14 of 16 rows dead behind labels that did not
 say so.
+
+## A ticket that a queue line names as owner, overlap or blocker is a claim too
+
+Probe its state in the same batch as the ticket itself: `gh issue view N --json state,closedAt`. On
+2026-09-23 a `next:` line queued gh#104's deck rewrite as owner work "overlapping gh#97 gh#98 which
+already own เซียมซี's deck". Both had closed on 2026-09-12, having rebuilt that deck, and the
+rewrite the line described no longer existed. The resume brief repeated the line as a human task, and
+only a later state probe killed it.
