@@ -36,6 +36,7 @@ The pre-migration markdown originals under `.scratch/free-game/` were deleted 20
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
 - **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
 - **Close**: `gh issue close <number> --comment "..."`
+- **Read-back**: compare the posted body to its source with trailing newlines stripped on both sides. GitHub strips a body's trailing newlines and `--jq .body` appends one, so a byte `cmp` reports a difference that is not there (2026-09-23, twice).
 - **DoD boxes are never ticked**: an issue closes via a comment naming the evidence, and the checkboxes stay unticked as the record of what the DoD asked for.
   An unticked box is therefore not proof work is undone — read `state` from open/closed (#30/#31/#32: closed, 0/7, 0/5, 0/4 ticked).
 
