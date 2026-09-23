@@ -136,7 +136,9 @@ because the content rule is absolute and the portraits ticket would inherit the 
 the cards in it, so they live in the same-named subdirectory, which is the convention the tool-copy
 provenance doc established for a doc that outgrows its own budget. Same UNREVIEWED status, same
 ticket. The fixed-field list, the criterion-3 check and the no-weight / nationality-is-text rules are
-restated there.
+restated there. The remaining thirty (gh#103) are
+[`nuea-khu/cards-m6-m20.md`](nuea-khu/cards-m6-m20.md) and
+[`nuea-khu/cards-f6-f20.md`](nuea-khu/cards-f6-f20.md), equally UNREVIEWED.
 
 ## What an editor must not break
 
