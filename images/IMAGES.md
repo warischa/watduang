@@ -1,7 +1,7 @@
 ---
 title: "Master Image Prompt Registry — วัดดวง"
 target_model: "gpt-image-2"
-total_images: 40
+total_images: 50
 last_updated: 2026-09-23
 schema_version: "4.0"
 brand_block: |
@@ -92,6 +92,10 @@ pixel processing" and 1254x1254, both taken before the haze-clearing and trim pa
 ---
 
 # เนื้อคู่ portraits — first ten (gh#102)
+
+**Superseded in the deck by `IMG_01_041`-`IMG_01_050`** (owner ruling 2026-09-23, recorded in the gh#103
+section below). These files are kept: they are gh#102's accepted record and the references the thirty
+were rendered from.
 
 ```yaml
 - id: IMG_01_001
@@ -428,7 +432,7 @@ twenty-nine went through a session wrapper around the skill's own key lookup, en
 because the skill then took URL references only. The same day the skill gained Base64 local refs,
 `ref_flatten`, `style_preamble` / `shared_constraints` / `brand_block: false`, and `chroma_key.sh`; it was
 checked to compose byte-identical text for all thirty entries and pixel-identical flattened
-references for all six reference files, and the five re-renders went through the skill's own registry
+references for all six reference files, and every re-render and all ten of the re-rendered first ten went through its registry
 mode. So any of these renders again with:
 
     python3 ~/.claude/skills/qwen-image/scripts/qwen_image.py --registry images/IMAGES.md --id <id> --no-fallback
@@ -436,15 +440,31 @@ mode. So any of these renders again with:
 
 (`--no-fallback`, because a fallback to wan would change the model silently.) Raw renders are not kept.
 
-**Open against the thirty, for the owner's review:**
+**The first ten, re-rendered into this pipeline — owner ruling 2026-09-23.** Put the join above to
+the owner (popup); the owner chose to re-render the ten rather than accept it, reversing the
+2026-09-22 decline now that the join existed to weigh. They are **new ids, `IMG_01_041`-`IMG_01_050`,
+one per card M1-M5 and F1-F5 (`supersedes:` names the old id)**, not overwrites: `IMG_01_001`-`010`
+stay on disk as gh#102's record — its comments cite those files — and as the references the thirty
+were rendered from, so the thirty stay reproducible. The deck's forty are `IMG_01_011`-`IMG_01_050`.
+Their references come from the thirty, matched by gender and manner (`&warm_m`, `&serious_m`,
+`&warm_f`, `&serious_fn`). Hair is chosen per card to break the ten's sameness; it is not a card field
+and the owner can overrule any of it. Two cues changed because the key would erase green: M5's
+seedling is a blue-grey succulent, and F3's second eye is grey-blue, not grey-green.
 
-- **The thirty vary where the ten do not.** Hair ranges from white to grey bob to cropped to curly,
-  and the fifties cards (M8, M17, F11, F19) read their age, where the ten all read young. Each is
-  truer to its card, and each is a way a reviewer could separate the batches — box 3.
-- **Fully transparent 30.5%-44.9%** (the ten: 36.7%-46.5%); every file has alpha 0 in both top corners.
+**Open against the deck's forty (`IMG_01_011`-`IMG_01_050`), for the owner's review:**
+
+- **One pipeline now.** The join the owner weighed — the thirty varying in hair and reading their
+  ages where gh#102's ten did not — is what the re-render of the ten answers. Whether a reviewer can
+  still tell batches apart is box 3, and the owner's.
+- **References leak more than style.** Found in this run, each fixed by re-rendering on a different
+  trio: expression, a scar, freckles, gender, a whole outfit (M6's cook's jacket onto M2, F9's wrap
+  cardigan onto F4) and a gesture (a raised fist). The no-copied-marks line did not stop the freckles.
+- **Fully transparent 30.5%-44.9% across the forty** (gh#102's ten: 36.7%-46.5%); every file has alpha 0
+  in both top corners. Deck weight: 29,098,190 bytes for the forty files.
 - **Constraint misses kept, not fixed:** F15's small gold wings pin survived three renders; M19 wears a
-  blank name tag; M9's and M20's raised hands are fists. None carries text or a logo.
-- **Marks not legible** on M9, M10, M18, M20, F13 and F17 — per entry below.
+  blank name tag; M5's, M9's and M20's raised hands are fists. None carries text or a logo.
+- **Marks not legible** on M9, M10, M18, M20, F2, F13 and F17; occupation wardrobe-only on M2 and M4 —
+  per entry below.
 
 ```yaml
 - id: IMG_01_011
@@ -1291,4 +1311,283 @@ would erase it, which matters most for the ranger (F17), whose uniform would nor
   status: "approved"
   notes: "Re-rendered with the female trio: the first pass read as a man. Coveralls, rag and forearm grease read; cheekbone scar legible."
   output_path: "images/IMG_01_040.png"
+
+# --- the first ten, re-rendered into this pipeline (owner ruling 2026-09-23) -----------------
+- id: IMG_01_041
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card M1"
+  supersedes: "IMG_01_001"
+  api_call: *api
+  reference_images: &warm_m ["images/IMG_01_012.png", "images/IMG_01_019.png", "images/IMG_01_023.png"]
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a man of 29, tall and slim, a music teacher of modest steady means — quiet, but smiling
+    easily and openly, the look of someone humming while thinking.
+
+    Key details:
+      - chest-up, three-quarter turn, relaxed shoulders
+      - longish dark hair tucked behind the ears
+      - a small scar through the outer end of the left eyebrow, subtle but readable
+      - a plain soft-collar shirt in sky (#7fd8e8), a plain canvas instrument strap over one shoulder as the occupation cue, the instrument itself out of frame below the crop
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO instrument body in frame, NO printed music, NO notation.
+  status: "approved"
+  notes: "Agent-reviewed. Instrument strap and sky shirt read; smiling. Minor: the hair reads short and wavy rather than tucked behind the ears, and the eyebrow scar is faint."
+  output_path: "images/IMG_01_041.png"
+
+- id: IMG_01_042
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card M2"
+  supersedes: "IMG_01_002"
+  api_call: *api
+  reference_images: &serious_m2 ["images/IMG_01_015.png", "images/IMG_01_017.png", "images/IMG_01_020.png"]
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a man of 34, solidly built and broad, not lean, a dentist who owns his clinic and is
+    comfortable — so tidy he reads as faintly tense, posture a little too straight.
+
+    Key details:
+      - chest-up, three-quarter turn, squared shoulders, a closed polite smile
+      - short, neatly side-parted hair
+      - a single mole below the right eye
+      - a clean clinical tunic with a soft stand collar in warm paper cream (#fff8e8), as the occupation cue
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO dental tools, NO mask, NO gloves.
+  status: "approved"
+  notes: "Re-rendered on &serious_m2: the first pass copied M6's cook's jacket and striped towel from reference IMG_01_011. Mole legible. DEFECT: the clinical tunic reads as a plain shirt, so the occupation is wardrobe-only, as gh#102's render of this card was."
+  output_path: "images/IMG_01_042.png"
+
+- id: IMG_01_043
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card M3"
+  supersedes: "IMG_01_003"
+  api_call: *api
+  reference_images: *serious_m2
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a man of 27, short and muscular, a bicycle repairman with his own small shop, getting by —
+    direct and blunt, meeting the viewer's eye without softening it.
+
+    Key details:
+      - chest-up, three-quarter turn, right hand raised open near the chest, palm toward the viewer
+      - a close-cropped buzz cut
+      - a worn callus visible across the right palm
+      - sleeves rolled, a sturdy work apron over a plain tee in muted grey (#6b7280), as the occupation cue
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO bicycle, NO tools, NO grease on the face.
+  status: "approved"
+  notes: "Re-rendered on &serious_m2: the first pass raised a fist and hid the palm. Open palm with the callus legible; apron reads; buzz-cut sides."
+  output_path: "images/IMG_01_043.png"
+
+- id: IMG_01_044
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card M4"
+  supersedes: "IMG_01_004"
+  api_call: *api
+  reference_images: &serious_m ["images/IMG_01_011.png", "images/IMG_01_015.png", "images/IMG_01_017.png"]
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a man of 38, tall and lean, a corporate accountant on secure footing — visibly calmer and
+    more unhurried than people his age, an even, settled expression; the face reads late thirties.
+
+    Key details:
+      - chest-up, three-quarter turn, still and upright posture
+      - short dark hair with a single patch of grey above the forehead, clearly distinct from the rest
+      - a plain buttoned shirt in muted grey (#6b7280), collar neat
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO notebook, NO pen, NO glasses.
+  status: "approved"
+  notes: "Agent-reviewed. Grey patch legible; reads late thirties; calm. Occupation wardrobe-only, as gh#102's render of this card was."
+  output_path: "images/IMG_01_044.png"
+
+- id: IMG_01_045
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card M5"
+  supersedes: "IMG_01_005"
+  api_call: *api
+  reference_images: *serious_m
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a man of 31, thin, who sells plants at a weekend market and does modestly — unhurried and
+    slow-moving, with the steady look of someone who forgets nothing.
+
+    Key details:
+      - chest-up, three-quarter turn, one forearm raised across the chest, wrist visible
+      - shaggy, overgrown hair falling over the ears
+      - a small fine-line leaf tattoo on the inner wrist
+      - one small potted succulent with dusty blue-grey leaves and a pink bloom, cradled low at chest level as the occupation cue; a loose open shirt in warm gold (#ffd27f) over a plain tee
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO green leaves, NO market stall, NO shelving, NO plant larger than one hand.
+  status: "approved"
+  notes: "Agent-reviewed. Blue-grey succulent with a pink bloom reads as the cue and survived the key; wrist tattoo legible. DEFECT: the raised hand is a fist, and the hair is spiky rather than shaggy."
+  output_path: "images/IMG_01_045.png"
+
+- id: IMG_01_046
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card F1"
+  supersedes: "IMG_01_006"
+  api_call: *api
+  reference_images: &warm_f2 ["images/IMG_01_029.png", "images/IMG_01_032.png", "images/IMG_01_038.png"]
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a woman of 30, slight and slender, a night-shift nurse who gets by on overtime — kind in a
+    quiet way that does not need words, a little tired around the eyes.
+
+    Key details:
+      - chest-up, three-quarter turn, softened shoulders
+      - straight hair pulled back into a low ponytail
+      - a small mole at the centre of the chin
+      - a plain scrub top in sky (#7fd8e8) with a soft V neckline, as the occupation cue
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO stethoscope, NO medical equipment, NO ID badge.
+  status: "approved"
+  notes: "Re-rendered on &warm_f2: the first pass copied F6's freckles from reference IMG_01_026. Low ponytail, chin mole and scrubs read; gentle."
+  output_path: "images/IMG_01_046.png"
+
+- id: IMG_01_047
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card F2"
+  supersedes: "IMG_01_007"
+  api_call: *api
+  reference_images: *warm_f2
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a woman of 33, well-proportioned, who owns a small coffee shop and is comfortable enough —
+    mid-conversation, warm and animated, the face of someone who remembers every name.
+
+    Key details:
+      - chest-up, three-quarter turn, left hand raised lightly near the shoulder, back of the hand toward the viewer
+      - a short pixie cut
+      - a faint pale scar across the back of the left hand
+      - a work apron in coral (#f89880) over a plain shirt, as the occupation cue
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO cups, NO mugs, NO drinking vessels of any kind, NO coffee equipment.
+  status: "approved"
+  notes: "Re-rendered on &warm_f2: the first pass copied F6's freckles and raised a fist. Pixie cut and coral apron read; the hand is open. The back-of-hand scar is not legible."
+  output_path: "images/IMG_01_047.png"
+
+- id: IMG_01_048
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card F3"
+  supersedes: "IMG_01_008"
+  api_call: *api
+  reference_images: &serious_fn ["images/IMG_01_028.png", "images/IMG_01_030.png", "images/IMG_01_036.png"]
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a woman of 36, tall and slim, an architect on secure footing — sharp and ready to argue, but
+    with no edge of grudge in it; an amused, engaged expression.
+
+    Key details:
+      - chest-up, three-quarter turn, chin slightly raised, one eyebrow a touch higher
+      - sleek, straight shoulder-length hair
+      - eyes of two clearly different colours, one warm brown and one pale grey-blue
+      - a simple structured shirt in warm paper cream (#fff8e8), sleeves crisp
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO drawings, NO rulers, NO architectural models.
+  status: "approved"
+  notes: "Agent-reviewed. Sleek shoulder-length hair; the two eye colours are legible; structured shirt; sceptical, engaged look."
+  output_path: "images/IMG_01_048.png"
+
+- id: IMG_01_049
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card F4"
+  supersedes: "IMG_01_009"
+  api_call: *api
+  reference_images: *warm_f2
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a woman of 26, petite, a kindergarten teacher on a low income who is plainly untroubled by
+    it — loud, mid-laugh, the most openly cheerful face in the set.
+
+    Key details:
+      - chest-up, three-quarter turn, head tilted back a little in a real laugh
+      - a bouncy high ponytail
+      - one upper front tooth slightly overlapping its neighbour, visible in the open smile
+      - a simple blouse with a rounded collar in warm gold (#ffd27f), not a wrap and not a cardigan
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO children, NO classroom, NO toys.
+  status: "approved"
+  notes: "Re-rendered twice: the first pass copied F6's freckles; the second, on &warm_f2, copied F9's rose wrap cardigan and bun from IMG_01_029, so the blouse moved to warm gold. Laughing; the overlapping tooth is legible. Minor: a curly updo rather than a high ponytail."
+  output_path: "images/IMG_01_049.png"
+
+- id: IMG_01_050
+  deliverable: "01"
+  profile: "asset"
+  location: "docs/copy/nuea-khu/cards.md — card F5"
+  supersedes: "IMG_01_010"
+  api_call: *api
+  reference_images: *serious_fn
+  ref_flatten: *flat
+  brand_block: false
+  key_prep: *key
+  style_preamble: *pre
+  shared_constraints: *post
+  prompt: |
+    Subject: a woman of 41, full-figured, a freelance translator whose income is irregular but liveable —
+    quiet and self-contained, on the edge of saying something at length; the face reads early forties.
+
+    Key details:
+      - chest-up, three-quarter turn, composed and still
+      - shoulder-length hair with a full fringe, one lock of the fringe clearly refusing to sit with the rest
+      - a soft draped top in muted grey (#6b7280)
+      - warm ink (#1a1a1a) linework, flat shading
+
+    Constraints: NO books, NO paper, NO screens.
+  status: "approved"
+  notes: "Agent-reviewed. Full fringe, draped grey top, full figure; reads forties; composed. The unruly lock is not distinct."
+  output_path: "images/IMG_01_050.png"
 ```
