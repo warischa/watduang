@@ -55,11 +55,18 @@ green halo.
 2026-08-25 on the token-plan host with the prompt, size and seed held identical and only the model
 changed: `qwen-image-3.0-pro` returned `srgb`, three channels, alpha mean exactly 1 — no transparency,
 and no prompt wording moved it. `wan2.7-image-pro` returned `srgba` with a real cutout. The
-`qwen-image` skill makes qwen its primary and wan its fallback, which is backwards for anything that
-has to sit on a coloured ground: **pass `--model wan2.7-image-pro` explicitly.** Two more things that
+`qwen-image` skill makes qwen its primary and wan its fallback. Two more things that
 run came back with — the CLI path (`bl image generate`) defaults `--watermark` to *true*, and a render
-can carry a 1–5% alpha haze that the mean test above passes; `-channel A -threshold 10% +channel`
-clears it.
+can carry a 1–5% alpha haze that the mean test above passes.
+
+**Superseded 2026-09-23 (gh#103) — do not reach for wan for a cutout.** Given a transparent PNG as a
+style reference, `wan2.7-image-pro` returned `srgba` with a checkerboard *painted into the pixels*:
+0% transparent, and an alpha mean of 0.998 that the `< 1` test above passes. The path that produced
+the forty เนื้อคู่ portraits is qwen-image-3.0-pro on a flat green ground, keyed out — the `qwen-image`
+skill's "Transparent cutouts — chroma-key" section, its `~/.claude/skills/qwen-image/scripts/chroma_key.sh`, and the `images/IMAGES.md`
+gh#103 section. Grade a cutout by the fraction of fully transparent pixels, not the alpha mean. And do
+not clear haze with `-threshold`: gh#102 found the haze band larger than the true anti-aliasing band,
+so a threshold zeroes the haze and jags every edge (level-remap the alpha channel instead).
 
 **3. Content rules apply to every asset, generated or drawn.** No bottles, no cans, no branded
 glassware, anywhere — share cards and thumbnails included. That is the Thai Alcohol Act line from

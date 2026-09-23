@@ -439,6 +439,8 @@ mode. So any of these renders again with:
     ~/.claude/skills/qwen-image/scripts/chroma_key.sh images/<id>.png images/<id>.png
 
 (`--no-fallback`, because a fallback to wan would change the model silently.) Raw renders are not kept.
+`--validate` over this whole registry reports `IMG_01_001`-`010` invalid by design — their `1024x1024`
+size is gh#102's Codex format, not this API's; every gh#103 entry validates.
 
 **The first ten, re-rendered into this pipeline — owner ruling 2026-09-23.** Put the join above to
 the owner (popup); the owner chose to re-render the ten rather than accept it, reversing the
