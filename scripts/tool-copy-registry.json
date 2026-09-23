@@ -174,6 +174,9 @@
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
     },
+    "ด้านล่าง แล้วกด": {
+      "source": "agent-authored-pending-owner-review"
+    },
     "ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม": {
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
@@ -210,6 +213,9 @@
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
     },
+    "บรรทัดละ 1 ชื่อ แล้วกด": {
+      "source": "agent-authored-pending-owner-review"
+    },
     "ผลขึ้นเป็นตัวหนังสือทันที": {
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
@@ -234,6 +240,9 @@
       "source": "design/ToolNameEntry.dc.html",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
     },
+    "พิมพ์ชื่อในช่อง": {
+      "source": "agent-authored-pending-owner-review"
+    },
     "ยังจับไม่ได้": {
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
@@ -251,10 +260,6 @@
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
     },
     "รวมเครื่องมือสุ่มเล่นฟรี วงล้อสุ่มชื่อ จับฉลาก แบ่งทีม สุ่มเลข ใช้ได้ทันทีบนมือถือ ไม่ต้องโหลดแอป": {
-      "source": "agent-authored-pending-owner-review",
-      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
-    },
-    "รีเฟรชหน้านี้แล้วเลือกชื่อใหม่": {
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
     },
@@ -382,6 +387,9 @@
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
     },
+    "เพิ่มชื่อในช่อง": {
+      "source": "agent-authored-pending-owner-review"
+    },
     "เพื่อคืนทุกชื่อเข้ากล่อง": {
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
@@ -407,10 +415,6 @@
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
     },
     "เลือกจำนวนที่จะจับ แล้วกด": {
-      "source": "agent-authored-pending-owner-review",
-      "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
-    },
-    "เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด": {
       "source": "agent-authored-pending-owner-review",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
     },

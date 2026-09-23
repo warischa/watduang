@@ -1,12 +1,17 @@
-# Tool name-entry panel — the three strings gh#109 still owes (UNREVIEWED)
+# Tool name-entry panel — the three strings gh#109 owed (landed 2026-09-23)
 
-> **⚠ UNREVIEWED — agent-drafted candidate copy. Nothing here has owner sign-off.**
-> Candidates for boxes 1, 2 and 3 of [gh#109](https://github.com/warischa/watduang/issues/109), all drafted
-> 2026-09-23 (box 3 was added to the ticket that day). Owner ruling 2026-09-23 (popup, in the session that drafted this file): the 2026-09-16 ruling recorded on
+> **Landed by owner delegation, not owner review.** On 2026-09-23 the owner answered the sign-off
+> question in chat with "decide for me go". So the agent picked one candidate per box and landed all three:
+> box 1 candidate 2 in the five artboards, box 2 candidate 2 on the wheel page, box 3 candidate 2 on
+> the three tool pages. The wording itself is agent-authored and the owner has not read it. That is why
+> the new rows in `scripts/tool-copy-registry.json` carry `source: agent-authored-pending-owner-review`
+> and not `owner-supplied`. Candidates for boxes 1, 2 and 3 of
+> [gh#109](https://github.com/warischa/watduang/issues/109), all drafted 2026-09-23. Owner ruling
+> 2026-09-23 (popup): the 2026-09-16 ruling recorded on
 > [gh#101](https://github.com/warischa/watduang/issues/101) — an agent drafts Thai copy as candidates,
-> the owner edits them — now covers gh#109 too. That reverses the line in gh#109's 2026-08-28 comment,
-> "Both are Thai copy, so neither was invented by an agent". None of this may reach `src/**` or
-> `design/**` until the owner has edited it here and said so.
+> the owner edits them — covers gh#109 too, reversing the line in gh#109's 2026-08-28 comment, "Both
+> are Thai copy, so neither was invented by an agent". Why each pick won is recorded under
+> "Picks" at the end of this file.
 
 ## What the panel actually does
 
@@ -63,13 +68,15 @@ choose from. The candidates keep the head byte-exact and replace only the tail a
 Both reuse labels that already ship on that page (`ชื่อในวง`, `ใส่ชื่อลงวงล้อ`), so they name controls
 a reader can see.
 
-## Landing, once signed off — not part of this draft
+## Landing — done 2026-09-23
 
-- Box 2 edits the wheel page's inline script. `scripts/bundle-freeze-check.mjs` pins that script's
-  bundle, so the same commit needs the gate's re-baseline (gh#109's 2026-08-28 comment).
-- Box 1 (a) or (b) edits the five artboards listed above.
-- Box 3 edits one `<li>` of page markup on each of the three tool pages. Inferred, not measured:
-  that is markup, not the inline script `bundle-freeze-check` pins. Run the gate at landing anyway.
+- Box 2 edits the wheel page's inline script, which `scripts/bundle-freeze-check.mjs` pins. gh#109's
+  2026-08-28 comment expected a re-baseline. Measured at landing on 2026-09-23 after `npm run build`,
+  none was needed: the gate stayed green, because a copy edit changes neither a chunk basename nor a
+  page-entry pair, and the byte total stayed inside its band.
+- Box 1 took option (a) and edited the five artboards listed above.
+- Box 3 edits one `<li>` of page markup on each of the three tool pages. Both edits add Thai runs.
+  `scripts/tool-copy-registry-check.mjs` went red on them, as it should, and went green once they had rows.
 
 ## Box 3 — step 1 of `วิธีใช้` on the three tool pages
 
@@ -98,3 +105,15 @@ Candidate 1 mirrors the textarea's own placeholder, `พิมพ์ชื่อ
 restates the panel hint `ใส่ได้กี่คนก็ได้` and the persistence fact from "What the panel actually
 does". If box 1 keeps a footnote, candidate 3 says the same thing twice on one page. None of the
 candidates says where the panel sits, because only the wheel page's position is recorded (ADR-0033).
+
+## Picks — made by the agent under the owner's 2026-09-23 delegation
+
+- **Box 1: option (a), candidate 2**, in all five artboards, with the same line everywhere.
+  - Option (b) was out: the box asks that "the footnote copy exists in one of them", and (b) leaves it in neither.
+  - Candidate 3 was out for its privacy promise.
+  - Candidate 2 is the shortest of the three: 55 codepoints, against 43 on the old mobile line and 60 on the old desktop line.
+  - The desktop artboards' extra clause `ใช้ได้แค่หน้านี้` is dropped.
+  - The panel still ships no footnote. Whether it should is still a separate owner call.
+- **Box 2: candidate 2.** It names the panel by the heading the reader sees. Its `ด้านล่าง` is true on this page only: the wheel page's own comment places the panel below the disc, and draw and team keep it above.
+- **Box 3: candidate 2**, for all three pages. It uses the same shape as box 2 and carries no position word, because the panel's position differs between pages.
+
