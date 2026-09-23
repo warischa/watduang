@@ -424,8 +424,11 @@ How these differ from the rest of this registry, so the fields below are read co
   (`ref_flatten`), sent as Base64. `api_call` is sent verbatim, so here `api_call.model` IS what ran.
 - **`key_prep` is the post-processing** that turns the raw render into the cutout in `images/`; it is the
   skill's `scripts/chroma_key.sh`.
-- **`status: "approved"` means agent-reviewed, as for the ten. Owner sign-off on the thirty is PENDING**,
-  and so is box 3 of gh#103 — whether a reviewer can tell the batches apart — which is the owner's call.
+- **`status: "approved"` means agent-reviewed, as for the ten. The owner ACCEPTED all forty deck
+  portraits, `IMG_01_011`-`IMG_01_050`, on 2026-09-23 (popup), with the kept defects listed below
+  named in the option chosen.** That accepts the renders, not the card copy: all forty cards stay
+  `UNREVIEWED`, and an edit that moves a card's visual field still invalidates its portrait. Box 3 of
+  gh#103 — whether a reviewer can tell the batches apart — was not asked and stays the owner's.
 
 **How they were rendered, and how to re-render one.** The probe and the first pass of the
 twenty-nine went through a session wrapper around the skill's own key lookup, endpoint and download,
