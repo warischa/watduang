@@ -1,8 +1,8 @@
-# Tool name-entry panel — the two strings gh#109 still owes (UNREVIEWED)
+# Tool name-entry panel — the three strings gh#109 still owes (UNREVIEWED)
 
 > **⚠ UNREVIEWED — agent-drafted candidate copy. Nothing here has owner sign-off.**
-> Candidates for boxes 1 and 2 of [gh#109](https://github.com/warischa/watduang/issues/109), drafted
-> 2026-09-23. Owner ruling 2026-09-23 (popup, in the session that drafted this file): the 2026-09-16 ruling recorded on
+> Candidates for boxes 1, 2 and 3 of [gh#109](https://github.com/warischa/watduang/issues/109), all drafted
+> 2026-09-23 (box 3 was added to the ticket that day). Owner ruling 2026-09-23 (popup, in the session that drafted this file): the 2026-09-16 ruling recorded on
 > [gh#101](https://github.com/warischa/watduang/issues/101) — an agent drafts Thai copy as candidates,
 > the owner edits them — now covers gh#109 too. That reverses the line in gh#109's 2026-08-28 comment,
 > "Both are Thai copy, so neither was invented by an agent". None of this may reach `src/**` or
@@ -68,11 +68,33 @@ a reader can see.
 - Box 2 edits the wheel page's inline script. `scripts/bundle-freeze-check.mjs` pins that script's
   bundle, so the same commit needs the gate's re-baseline (gh#109's 2026-08-28 comment).
 - Box 1 (a) or (b) edits the five artboards listed above.
+- Box 3 edits one `<li>` of page markup on each of the three tool pages. Inferred, not measured:
+  that is markup, not the inline script `bundle-freeze-check` pins. Run the gate at landing anyway.
 
-## Found while drafting — outside gh#109's boxes
+## Box 3 — step 1 of `วิธีใช้` on the three tool pages
 
-Step 1 of `วิธีใช้` on `/tool/wheel/`, `/tool/draw/` and `/tool/team/` reads
-`เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป`. The panel has no group to pick from: it is a textarea
-only, and the tools keep no shared roster (ADR-0039). This is inferred from the panel's own header
-comment and the ADR, not walked in a browser. No candidate is drafted for it, because it sits outside
-the licence above.
+On 2026-09-23 the owner folded this into gh#109 by popup, and it became the ticket's third open box.
+Today, step 1 reads as follows on each page, with only the button label changing:
+
+> `เลือกชื่อจากกลุ่มเดิม หรือพิมพ์ชื่อใหม่เข้าไป แล้วกด "{CTA}"`
+
+There is no group to pick from. The panel is a textarea only, and the tools keep no shared roster
+(ADR-0039). Each page mounts the panel with its own heading and button label, and the candidates
+reuse both, so every word names something the reader can see:
+
+| page | panel heading `{HEADING}` | button `{CTA}` |
+|---|---|---|
+| `/tool/wheel/` | `ชื่อในวง` | `ใส่ชื่อลงวงล้อ` |
+| `/tool/draw/` | `ชื่อในกล่อง` | `ใส่ชื่อลงกล่อง` |
+| `/tool/team/` | `ชื่อในสนาม` | `ใส่ชื่อลงสนาม` |
+
+Candidates, one sentence for all three pages, with the slots filled per page from the table:
+
+1. `พิมพ์ชื่อลงในช่อง บรรทัดละ 1 ชื่อ แล้วกด "{CTA}"`
+2. `พิมพ์ชื่อในช่อง "{HEADING}" บรรทัดละ 1 ชื่อ แล้วกด "{CTA}"`
+3. `พิมพ์ชื่อลงในช่อง บรรทัดละ 1 ชื่อ ใส่กี่คนก็ได้ แล้วกด "{CTA}" — ชื่อที่ใส่ไว้ครั้งก่อนยังอยู่ในช่อง แก้หรือลบได้เลย`
+
+Candidate 1 mirrors the textarea's own placeholder, `พิมพ์ชื่อ บรรทัดละ 1 ชื่อ`. Candidate 3 also
+restates the panel hint `ใส่ได้กี่คนก็ได้` and the persistence fact from "What the panel actually
+does". If box 1 keeps a footnote, candidate 3 says the same thing twice on one page. None of the
+candidates says where the panel sits, because only the wheel page's position is recorded (ADR-0033).
