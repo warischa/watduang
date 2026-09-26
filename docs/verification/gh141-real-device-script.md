@@ -434,3 +434,18 @@ reads the same, and the first tap feels immediate.
 differs, or the first tap feels laggy.
 
 Record: device — OS version — PASS / FAIL — note.
+
+### เนื้อคู่ของคุณ — `/game/love-match/`
+
+**gh#141** — added 2026-09-26 when the page shipped (#101). This is a solo fortune page, so one person walks it; there is no phone to pass.
+
+> **เนื้อคู่ของคุณ** — rebuilt fortune page, shipped 2026-09-26 (#101). One reader answers three questions and opens one draw. Never touched by a real hand. Three things to walk: do the answer toggles and the open button take a real thumb tap without a second contact firing past the arm window, does the card portrait load and sit correctly on a real 320px-class screen, and do the ten labelled result lines read without horizontal scroll.
+
+1. Tap the three answers, then `เปิดดูเนื้อคู่`. Does each tap register once, and does a quick double-tap on the open button fail to skip past the result?
+2. On the result, does the portrait load and sit cleanly above the ten labelled lines on a narrow phone?
+3. Does the result page read with no horizontal scroll?
+
+**Pass:** each tap registers once, the portrait loads and sits cleanly, and nothing scrolls sideways.
+**Fail:** a tap doubles or is missed, the portrait is missing or clipped, or the page scrolls sideways.
+
+Record: device — OS version — PASS / FAIL — note.
