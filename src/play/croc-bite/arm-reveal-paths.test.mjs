@@ -34,6 +34,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { stripTypeScriptTypes } from 'node:module';
 import { sliceBlock } from '../_dom-stub.mjs';
+import { inputClockGate } from '../../games/_arm-gate.ts';
 
 const here = import.meta.dirname;
 
@@ -124,11 +125,11 @@ test('the one excluded reveal really carries no control, so excluding it is not 
 // ---- the observer, executed --------------------------------------------------------------------
 
 /** The source text between two markers, asserted present so a moved marker reds loudly. */
-function region(source, from, to) {
+function region(source, from, to, label = 'main.ts') {
   const start = source.indexOf(from);
-  assert.notEqual(start, -1, `main.ts no longer contains ${from} — this test is measuring nothing`);
+  assert.notEqual(start, -1, `${label} no longer contains ${from} — this test is measuring nothing`);
   const end = source.indexOf(to, start + from.length);
-  assert.notEqual(end, -1, `main.ts no longer contains ${to} after ${from}`);
+  assert.notEqual(end, -1, `${label} no longer contains ${to} after ${from}`);
   return source.slice(start, end);
 }
 
@@ -181,9 +182,9 @@ function loadGlue() {
   );
   // eslint-disable-next-line no-new-func -- executing main.ts's own text is the whole point.
   const api = new Function(
-    '$', 'armAllButtons', 'BOARD_ID', 'MutationObserver',
+    '$', 'armAllButtons', 'BOARD_ID', 'MutationObserver', 'armToothInput',
     `${code}\n;return { REVEAL_CONTAINERS, CLOSE_CONTROLS, watchEngineReveals, armWhatTheModalCovered, armBehindModal };`,
-  )((id) => $(id), (el) => armed.push(el.id), 'croc-fallback-board', FakeObserver);
+  )((id) => $(id), (el) => armed.push(el.id), 'croc-fallback-board', FakeObserver, () => armed.push('3d-tooth-input'));
   return { api, armed, observers, $ };
 }
 
@@ -253,6 +254,9 @@ test('ADR-0057: closing a modal arms the screen behind it and the no-3D board, n
   assert.ok(armed.includes('croc-fallback-board'),
     'the no-3D board was not armed: it is armed on rebuild and on nothing else, so every tooth a modal ' +
     'was covering is still enabled with its arm window long expired');
+  assert.ok(armed.includes('3d-tooth-input'),
+    'the 3D board was not armed: it has no <button> for the walk above, so closing a modal leaves the ' +
+    'canvas taking the second contact of the double-tap that closed it');
   assert.ok(!armed.includes('screen-setup'), 'a screen that is not on display was armed');
   for (const modal of api.REVEAL_CONTAINERS.filter((c) => c.modal)) {
     assert.ok(!armed.includes(modal.id),
@@ -374,4 +378,207 @@ test('every reveal receiver in main.ts is a known one', () => {
     'new reveal path(s) in main.ts: decide whether each one puts a <button> under the finger, arm the ' +
       'revealed element if it does, and record it here with the reason.',
   );
+});
+
+// ---- the 3D tooth input: a reveal disarms the canvas too ----------------------------------------
+//
+// Every gate above walks for <button>, and the 3D board has none: the engine's InputHandler takes a
+// tooth off a raycast on the container's own pointer events, gated only by the engine's input lock
+// and phase. Two closes leave both of those open at the instant the modal goes: the reset confirm's
+// cancel restores the turn synchronously inside its click, and the settings modal opened from the
+// HUD never leaves the turn at all. A closed overlay stops taking pointer events at once, so the
+// second contact of the double-tap that closed it lands on the canvas and presses a tooth.
+//
+// So this runs the WHOLE of main.ts over a fake page and plays those taps through the engine's real
+// InputHandler and GameState. The dispatcher models three things and nothing else: the document's
+// capture listeners run first and a stopped event goes no further, the canvas bubbles to its
+// container, and the shared gate's pointer-stamp recorder sees every press and release before any
+// route listener does (it is registered at import, ahead of all of them).
+//
+// ponytail: stated ceilings — whether the close button sits over a tooth is geometry, unmeasured
+// (the croc-bite runs under docs/verification/evidence target the play exit, not the board) and
+// deliberately not relied on (the gate classifies nothing); keyboard Enter/Space on the board
+// is not covered, because a key that closed a modal was delivered to the close button, not to the
+// board.
+
+const ENGINE_SRC = fs.readFileSync(path.join(here, 'main.js'), 'utf8');
+const PHASE_SRC = region(ENGINE_SRC, 'const PHASES = {', 'class GameState ', 'main.js');
+const RULES_SRC = region(ENGINE_SRC, 'const SAFE_ACTIONS = {', 'const PHASES = {', 'main.js');
+const STATE_SRC = sliceBlock(ENGINE_SRC, 'class GameState ');
+const INPUT_SRC = sliceBlock(ENGINE_SRC, 'class InputHandler ');
+assert.ok(STATE_SRC && INPUT_SRC, 'main.js no longer declares GameState or InputHandler — this test is measuring nothing');
+
+function bootRoute() {
+  const nodes = new Map();
+  const docListeners = [];
+  let lastStamp;
+
+  const node = (id) => {
+    if (!nodes.has(id)) {
+      const set = new Set();
+      const el = {
+        id,
+        listeners: {},
+        classList: { add: (c) => set.add(c), remove: (c) => set.delete(c), contains: (c) => set.has(c) },
+        addEventListener(type, fn) { (el.listeners[type] ??= []).push(fn); },
+        setAttribute() {},
+        insertAdjacentHTML() {},
+        // Real selector-list membership on ids, which is every selector the glue asks of a target.
+        closest: (sel) => (sel.split(',').map((s) => s.trim()).includes(`#${id}`) ? el : null),
+      };
+      nodes.set(id, el);
+    }
+    return nodes.get(id);
+  };
+  const container = node('canvas-container');
+  // closest answers the ancestor chain: the canvas is a child of the container. The no-3D board's
+  // buttons sit inside the same container (the fallback appends its board there), so a guard keyed on
+  // the container alone would claim them too.
+  const within = (chain) => (sel) => {
+    const wanted = sel.split(',').map((s) => s.trim());
+    return chain.find((c) => wanted.includes(c.sel))?.el ?? null;
+  };
+  const canvas = { listeners: {} };
+  canvas.closest = within([{ sel: '#canvas-container canvas', el: canvas }, { sel: '#canvas-container', el: container }]);
+  const boardTooth = { listeners: {} };
+  boardTooth.closest = within([{ sel: '[data-tooth]', el: boardTooth }, { sel: '#canvas-container', el: container }]);
+
+  const document = {
+    getElementById: node,
+    querySelector: () => null,
+    addEventListener(type, fn, capture) { docListeners.push({ type, fn, capture: capture === true }); },
+  };
+
+  // eslint-disable-next-line no-new-func -- executing main.js's own text is the whole point.
+  const GameState = new Function('localStorage', 'window', 'document',
+    `${RULES_SRC}${PHASE_SRC}${STATE_SRC}\n;return GameState;`,
+  )({ getItem: () => null, setItem() {} }, {}, {});
+  const state = new GameState();
+  state.setPlayerCount(4);
+
+  const app = {
+    animationFrameId: 1,
+    audio: { setMuted() {} },
+    state,
+    ui: { renderMascotInputs() {} },
+  };
+  const window = { __khengApp: app, addEventListener() {} };
+
+  // The glue itself, imports lifted into parameters. Real clock gate; the stamp source is the one
+  // thing the shared module cannot supply under node, so the dispatcher below plays its recorder.
+  const code = stripTypeScriptTypes(
+    fs.readFileSync(path.join(here, 'main.ts'), 'utf8').replace(/^import .*;$/gm, ''),
+    { mode: 'strip' },
+  );
+  // eslint-disable-next-line no-new-func -- executing main.ts's own text is the whole point.
+  new Function(
+    'window', 'document', 'MutationObserver', 'armAllButtons', 'inputClockGate', 'lastInputStamp',
+    'isMuted', 'setMuted', 'resetCastNames', code,
+  )(window, document, undefined, () => () => {}, inputClockGate, () => lastStamp,
+    () => false, () => {}, (players) => players.map(() => ''));
+
+  const selected = [];
+  // eslint-disable-next-line no-new-func -- executing main.js's own text is the whole point.
+  const InputHandler = new Function('BOARD_ARIA_LABEL', `${PHASE_SRC}${INPUT_SRC}\n;return InputHandler;`)('board');
+  // eslint-disable-next-line no-new -- the handler wires itself to the container in its constructor.
+  new InputHandler(
+    container,
+    { raycastTeeth: () => 'upper_1', getNormalizedPointer: () => ({ x: 0, y: 0 }) },
+    { getHitMeshes: () => [], lookTarget: { set() {} } },
+    state,
+    (id) => selected.push(id),
+  );
+
+  function dispatch(type, target, timeStamp, pointerId = 1) {
+    if (type === 'pointerdown' || type === 'pointerup') {
+      if (lastStamp === undefined || timeStamp > lastStamp) lastStamp = timeStamp;
+    }
+    let stopped = false;
+    const ev = {
+      type, target, timeStamp, pointerId, clientX: 100, clientY: 100,
+      preventDefault() {},
+      stopPropagation() { stopped = true; },
+      stopImmediatePropagation() { stopped = true; },
+    };
+    const run = (fns) => { for (const fn of fns) { if (stopped) return; fn(ev); } };
+    run(docListeners.filter((l) => l.type === type && l.capture).map((l) => l.fn));
+    run(target.listeners[type] ?? []);
+    if (target === canvas) run(container.listeners[type] ?? []);
+    run(docListeners.filter((l) => l.type === type && !l.capture).map((l) => l.fn));
+  }
+  const press = (target, down, up) => {
+    dispatch('pointerdown', target, down);
+    dispatch('pointerup', target, up);
+    dispatch('click', target, up);
+  };
+  return { state, node, canvas, boardTooth, press, dispatch, selected };
+}
+
+
+for (const scenario of [
+  {
+    name: 'cancelling the reset confirm, which hands the turn back inside its own click',
+    button: 'btn-reset-cancel',
+    before: (state) => state.requestRestart(),
+    onClick: (state) => state.cancelRestart(),
+  },
+  {
+    name: 'closing settings opened mid-turn, which never took the turn away',
+    button: 'btn-close-settings',
+    before: () => {},
+    onClick: () => {},
+  },
+]) {
+  test(`ADR-0057: ${scenario.name} does not let the second contact press a tooth`, () => {
+    const { state, node, canvas, press, selected } = bootRoute();
+    state.startNewRound(false);
+    state.beginPlayerTurn();
+    scenario.before(state);
+    // The engine's own close, registered at its boot and therefore ahead of the glue at target.
+    node(scenario.button).addEventListener('click', () => scenario.onClick(state));
+
+    press(node(scenario.button), 1000, 1080);
+    assert.equal(state.phase, 'PLAYER_TURN', 'the close did not leave the round on a live turn — the scenario is not the hazard');
+    assert.equal(state.isInputLocked, false, 'the engine input is locked after the close — the scenario is not the hazard');
+
+    // The second contact of the double-tap, 170ms after the release that closed the modal.
+    press(canvas, 1250, 1290);
+    assert.deepEqual(selected, [],
+      'the second contact of the double-tap that closed the modal pressed a tooth: the 3D board sits ' +
+        'outside every arm gate on this route');
+
+    // Positive control: a deliberate tap well after the window still presses a tooth, so the red
+    // above is the gate and not an instrument that can never see a selection.
+    press(canvas, 2000, 2060);
+    assert.deepEqual(selected, ['upper_1'], 'a deliberate tap after the window no longer presses a tooth');
+  });
+}
+
+test("the canvas guard leaves the no-3D board's own contacts alone", () => {
+  // The board carries its own armAllButtons gate, whose stall leg re-disables on a pointerdown the
+  // input clock puts inside the window. Swallowing that contact at the document would blind it, and
+  // a timer that armed early under a stall would then let the click through.
+  const { node, boardTooth, press } = bootRoute();
+  let seen = 0;
+  boardTooth.listeners.pointerdown = [() => { seen += 1; }];
+  press(node('btn-close-settings'), 1000, 1080);
+  press(boardTooth, 1250, 1290);
+  assert.equal(seen, 1, "a contact on the no-3D board was swallowed before the board's own gate saw it");
+});
+
+test('a release is swallowed only when its own press was, so the engine pointer latch never strands', () => {
+  // The engine keeps one active pointer and refuses every new press until that pointer's release
+  // arrives. A press the engine saw before the window opened must therefore get its release even
+  // inside the window; swallowing it would refuse every later touch, each of which has a new id.
+  const { state, node, canvas, press, dispatch, selected } = bootRoute();
+  state.startNewRound(false);
+  state.beginPlayerTurn();
+  dispatch('pointerdown', canvas, 900, 1);
+  press(node('btn-close-settings'), 1000, 1080);
+  dispatch('pointerup', canvas, 1100, 1);
+  const before = selected.length;
+  dispatch('pointerdown', canvas, 2000, 3);
+  dispatch('pointerup', canvas, 2060, 3);
+  assert.equal(selected.length, before + 1,
+    'a tap well after the window pressed nothing: the engine is still latched on a pointer whose release was swallowed');
 });

@@ -6,7 +6,7 @@
 // It reaches the engine through the one handle the engine publishes on `window`, and holds no copy of
 // any value the engine owns: the seat list, the phase, the round token and the tooth map are read at
 // use time. A second copy of the phase here would be a second state machine writing the same HUD.
-import { armAllButtons } from '../../games/_arm-gate.ts';
+import { armAllButtons, inputClockGate, lastInputStamp } from '../../games/_arm-gate.ts';
 // gh#227: the device's muted state, one slot for the whole site. This file is the only writer on this
 // route — the engine deliberately stores no sound preference of its own.
 import { isMuted, setMuted } from '../../shell/audio.ts';
@@ -144,7 +144,42 @@ function armWhatTheModalCovered(): void {
   // would otherwise leave every tooth behind it enabled with its window long expired.
   const board = $(BOARD_ID);
   if (board) armAllButtons(board);
+  armToothInput();
 }
+
+/** The 3D board, which no entry above can hold either: it has no <button> to disable. The engine's
+ *  input controller takes a tooth off a raycast on the canvas container's own pointer events, and two
+ *  closes leave its lock open at the instant the modal goes — the reset confirm's cancel hands the
+ *  turn back inside its click, and settings opened from the HUD never took the turn away. So the
+ *  same window every other control on this route gets is enforced on the canvas at the press, on the
+ *  input clock (ADR-0059), anchored to the later end of the press that closed the modal.
+ *
+ *  Stamp-only, with no timer: nothing here draws a disabled state, so there is nothing for a timer to
+ *  own. An in-window contact extends the window, as it does on every armed stage. */
+const toothWindow = inputClockGate();
+let heldPointer: number | undefined;
+
+function armToothInput(): void {
+  toothWindow.anchor(lastInputStamp());
+}
+
+/** Stops the press before the engine sees it. The release is stopped ONLY when its own press was:
+ *  a release swallowed after the engine saw the press would strand the engine's one-active-pointer
+ *  latch, and every later touch (a new pointer id each time) would then be refused for good. */
+const guardToothInput = (ev: PointerEvent): void => {
+  // The canvas, never the container: the no-3D board is appended inside the same container, and
+  // swallowing its contacts here would blind the in-window restart of the board's own gate.
+  if (!(ev.target as Element | null)?.closest?.('#canvas-container canvas')) return;
+  if (ev.type === 'pointerdown') {
+    heldPointer = toothWindow.isOpen(ev) ? undefined : ev.pointerId;
+    if (heldPointer === undefined) return;
+    toothWindow.hold(ev);
+  } else {
+    if (ev.pointerId !== heldPointer) return;
+    heldPointer = undefined;
+  }
+  ev.stopPropagation();
+};
 
 /** Every control that closes, cancels or confirms a modal on this route. */
 const CLOSE_CONTROLS =
@@ -393,6 +428,9 @@ function mount(): void {
   };
   document.addEventListener('pointerdown', armBehindModal, true);
   document.addEventListener('click', armBehindModal);
+  // Capture on document, so the 3D board's guard runs before the engine's listeners on the container.
+  document.addEventListener('pointerdown', guardToothInput, true);
+  document.addEventListener('pointerup', guardToothInput, true);
 
   // gh#215. The engine's canvas, not the container: `webglcontextlost` is dispatched at the canvas.
   // Optional chaining is load-bearing rather than defensive habit — with no context at all the engine
