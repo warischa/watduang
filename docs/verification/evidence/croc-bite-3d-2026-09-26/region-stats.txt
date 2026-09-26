@@ -1,0 +1,2 @@
+before chin skin: S=0.54 V=0.66 clip=0% | left paw: S=0.86 V=0.65 clip=0% | cavity gap: S=1.00 V=0.02 clip=0% | floor front: S=0.56 V=0.53 clip=0% | water right: S=0.82 V=0.70 clip=0% | lower tooth: S=0.08 V=0.75 clip=0%
+after chin skin: S=0.52 V=0.66 clip=0% | left paw: S=0.89 V=0.64 clip=0% | cavity gap: S=1.00 V=0.02 clip=0% | floor front: S=0.56 V=0.53 clip=0% | water right: S=0.82 V=0.70 clip=0% | lower tooth: S=0.01 V=0.91 clip=0%

@@ -1,0 +1,5 @@
+{
+  "note": "AFTER build, Chrome --force-device-scale-factor=3, no viewport override. Headless floors the narrow window at 500px wide, which is still under the 600px lite threshold.",
+  "lite": { "innerWidth": 500, "dpr": 3, "lite": true, "pixelRatio": 1.5 },
+  "desktop": { "innerWidth": 1280, "dpr": 3, "lite": false, "pixelRatio": 2 }
+}

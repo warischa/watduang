@@ -1,0 +1,55 @@
+{
+  "desktop": {
+    "start": "clicked",
+    "info": {
+      "hidden": false,
+      "innerWidth": 1280,
+      "innerHeight": 800,
+      "dpr": 1,
+      "coarse": false,
+      "lite": null,
+      "pixelRatio": 1,
+      "gpuDraws": 58,
+      "calls": 40,
+      "triangles": 39564,
+      "programs": 4,
+      "shadowMap": true,
+      "env": false,
+      "notice": false
+    },
+    "tooth": {
+      "x": 477.49758300107084,
+      "y": 529.9458376119793,
+      "phase": "PLAYER_TURN",
+      "n": 16
+    },
+    "phaseAfterTap": "TURN_TRANSITION"
+  },
+  "mobile": {
+    "start": "clicked",
+    "info": {
+      "hidden": false,
+      "innerWidth": 375,
+      "innerHeight": 812,
+      "dpr": 1,
+      "coarse": false,
+      "lite": null,
+      "pixelRatio": 1,
+      "gpuDraws": 60,
+      "calls": 42,
+      "triangles": 39940,
+      "programs": 4,
+      "shadowMap": true,
+      "env": false,
+      "notice": false
+    },
+    "tooth": {
+      "x": 86.2780652623562,
+      "y": 502.4435434713945,
+      "phase": "PLAYER_TURN",
+      "n": 16
+    },
+    "phaseAfterTap": "RESOLVING_SAFE"
+  },
+  "consoleErrors": []
+}

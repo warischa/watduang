@@ -8,6 +8,9 @@
  * Section order: rules, state, audio, scene, crocodile, hand, input, UI, boot.
  */
 import * as THREE from 'three';
+// A procedural room baked into the environment map at boot: reflections and fill light with no
+// downloaded file. Named import only, so the bundler keeps nothing else from the addons tree.
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 // The device's one shared muted state, the same module every other play route's synth reads (see
 // cannon-flag's SoundSynthesizer). This route's own main.ts still owns pushing it into
 // GameState.setAudioEnabled and the UI paint; this import only lets the audio manager's own gates
@@ -1098,6 +1101,36 @@ const audio = new AudioManager();
 const BOARD_ARIA_LABEL = 'กระดานเกมฟันจระเข้ ใช้ปุ่มลูกศรเพื่อเลือกฟัน และกด Space หรือ Enter เพื่อกดฟัน';
 
 /**
+ * A contact shadow: one flat quad under an object, textured with a soft radial gradient drawn on a
+ * 2D canvas. It replaces the shadow map, which rendered every caster a second time each frame.
+ * Every blob shares ONE texture and ONE material, so they cost one shader program between them.
+ * renderOrder 1 draws them after the translucent water, which would otherwise paint over them.
+ */
+let blobMaterial = null;
+function blobShadow(width, depth) {
+  if (!blobMaterial) {
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    g.addColorStop(0, 'rgba(8, 40, 30, 0.5)');
+    g.addColorStop(0.55, 'rgba(8, 40, 30, 0.22)');
+    g.addColorStop(1, 'rgba(8, 40, 30, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    blobMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false });
+  }
+  const blob = new THREE.Mesh(new THREE.PlaneGeometry(width, depth), blobMaterial);
+  blob.rotation.x = -Math.PI / 2;
+  blob.renderOrder = 1;
+  return blob;
+}
+
+/**
  * THREE.JS SCENE. Camera framing, lighting, the swamp environment, and camera shake.
  *
  * createRenderer requests the context and returns null when there is none, which makes the
@@ -1110,6 +1143,15 @@ class GameScene {
     this.width = this.container.clientWidth || window.innerWidth;
     this.height = this.container.clientHeight || window.innerHeight;
 
+    // Quality tier, decided ONCE here and never flipped: a phone (coarse pointer or narrow screen)
+    // gets a lower pixel-ratio cap, plain materials and no per-tooth contact shadows. Switching a
+    // material's class mid-round would compile a new shader program under the player's finger.
+    const coarse = typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(pointer: coarse)').matches
+      : false;
+    this.lite = coarse || this.width < 600;
+    this.maxDpr = this.lite ? 1.5 : 2;
+
     // Check WebGL Support
     this.renderer = this.createRenderer();
     if (!this.renderer) {
@@ -1121,6 +1163,8 @@ class GameScene {
     // Scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xdff9fb); // Soft pastel swamp sky
+    // Read by the crocodile when it builds its materials and contact shadows.
+    this.scene.userData.lite = this.lite;
 
     // Camera: Fixed close-up 3/4 view slightly above mouth
     this.baseCameraPos = new THREE.Vector3(0, 2.4, 3.4);
@@ -1165,9 +1209,9 @@ class GameScene {
       const renderer = new THREE.WebGLRenderer({ canvas, context: gl });
 
       renderer.setSize(this.width, this.height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); // DPR cap at 2
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      // DPR cap: 2 on desktop, 1.5 on the lite tier. No shadow map on either: contact shadows are
+      // blob quads (see blobShadow), which cost no second render of the scene.
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.maxDpr || 2));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.05;
 
@@ -1187,16 +1231,6 @@ class GameScene {
     // 2. Main Key Directional Light (Sunlight)
     const keyLight = new THREE.DirectionalLight(0xfffae6, 1.25);
     keyLight.position.set(3, 5, 4);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
-    keyLight.shadow.camera.near = 0.5;
-    keyLight.shadow.camera.far = 15;
-    keyLight.shadow.camera.left = -3;
-    keyLight.shadow.camera.right = 3;
-    keyLight.shadow.camera.top = 3;
-    keyLight.shadow.camera.bottom = -3;
-    keyLight.shadow.bias = -0.001;
     this.scene.add(keyLight);
 
     // 3. Fill Light (Soft Teal bounce from swamp)
@@ -1211,6 +1245,27 @@ class GameScene {
   }
 
   setupEnvironment() {
+    // Environment map, baked once from a procedural room: the glossy toy highlights on teeth and
+    // eyes come from here. The room and the generator are freed right after the bake.
+    // Deliberately NOT scene.environment: that applies one intensity to every material (and
+    // overrides each material's own), which lays a grey-white fill over the whole frame, washes the
+    // greens to pastel and lights up the mouth cavity. The crocodile assigns it per material instead.
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    const room = new RoomEnvironment();
+    this.scene.userData.envMap = pmrem.fromScene(room, 0.04).texture;
+    room.dispose();
+    pmrem.dispose();
+
+    // Contact shadows on the water, where the body and both paws dip into it.
+    const bodyBlob = blobShadow(3.6, 3.8);
+    bodyBlob.position.set(0, -0.27, -0.25);
+    this.scene.add(bodyBlob);
+    for (const x of [-1.82, 1.82]) {
+      const pawBlob = blobShadow(1.5, 1.2);
+      pawBlob.position.set(x, -0.27, 0.25);
+      this.scene.add(pawBlob);
+    }
+
     // Compact Stylized Swamp Water Bed
     const waterGeo = new THREE.CylinderGeometry(3.6, 3.6, 0.2, 32);
     const waterMat = new THREE.MeshStandardMaterial({
@@ -1222,7 +1277,6 @@ class GameScene {
     });
     this.waterMesh = new THREE.Mesh(waterGeo, waterMat);
     this.waterMesh.position.set(0, -0.38, 0);
-    this.waterMesh.receiveShadow = true;
     this.scene.add(this.waterMesh);
 
     // Two neat lily pads near paws
@@ -1278,7 +1332,7 @@ class GameScene {
     this.height = this.container.clientHeight || window.innerHeight;
     if (this.renderer) {
       this.renderer.setSize(this.width, this.height);
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.maxDpr));
     }
     this.updateCameraFraming();
   }
@@ -1362,6 +1416,7 @@ class GameScene {
 class Crocodile {
   constructor(scene) {
     this.scene = scene;
+    this.lite = !!scene.userData?.lite;
     this.root = new THREE.Group();
     this.root.name = 'CrocodileRoot';
     this.root.scale.set(1.15, 1.15, 1.15);
@@ -1423,17 +1478,29 @@ class Crocodile {
   }
 
   createMaterials() {
+    // Toy plastic: a clear lacquer coat over the base colour on desktop. The lite tier keeps the
+    // plain standard material, one shader program cheaper, and still reflects the environment.
+    // The environment map is per material, never scene-wide: strong on teeth and eyes for the gloss,
+    // a trace on skin so the greens keep their saturation, and none at all on the mouth interior
+    // (throat, gums, tongue), which must stay dark to give the open mouth its depth.
+    const envMap = this.scene.userData?.envMap ?? null;
+    const glossy = (params, coat, envMapIntensity) => {
+      const p = { ...params, envMap, envMapIntensity };
+      return this.lite
+        ? new THREE.MeshStandardMaterial(p)
+        : new THREE.MeshPhysicalMaterial({ ...p, clearcoat: coat, clearcoatRoughness: 0.08 });
+    };
     return {
-      crocSkin: new THREE.MeshStandardMaterial({
+      crocSkin: glossy({
         color: 0x27ae60, // Saturated playful green
         roughness: 0.38,
         metalness: 0.05,
-      }),
-      crocLight: new THREE.MeshStandardMaterial({
+      }, 0.35, 0), // no environment on the skin: any grey-white fill washes the greens to pastel
+      crocLight: glossy({
         color: 0x2ecc71, // Lighter snout ridge
         roughness: 0.35,
         metalness: 0.05,
-      }),
+      }, 0.35, 0),
       mouthThroat: new THREE.MeshStandardMaterial({
         color: 0x8b2626, // Deep recessed mouth throat
         roughness: 0.5,
@@ -1449,25 +1516,27 @@ class Crocodile {
         roughness: 0.35,
         metalness: 0.05,
       }),
-      tooth: new THREE.MeshStandardMaterial({
+      tooth: glossy({
         color: 0xffffff, // Glossy white toy teeth
         roughness: 0.12,
         metalness: 0.05,
-      }),
+      }, 1, 0.5),
       toothCracked: new THREE.MeshStandardMaterial({
         color: 0xdfe4ea,
         roughness: 0.5,
         metalness: 0.0,
       }),
-      sclera: new THREE.MeshStandardMaterial({
+      sclera: glossy({
         color: 0xfef9e7, // Yellowish toy sclera
         roughness: 0.15,
         metalness: 0.0,
-      }),
+      }, 1, 0.5),
       pupil: new THREE.MeshStandardMaterial({
         color: 0x111111, // Glossy dark pupil
         roughness: 0.1,
         metalness: 0.2,
+        envMap,
+        envMapIntensity: 0.6,
       }),
       pupilHighlight: new THREE.MeshBasicMaterial({
         color: 0xffffff,
@@ -1507,8 +1576,6 @@ class Crocodile {
     chinGeo.scale(1.0, 1.0, 1.35);
     const chinMesh = new THREE.Mesh(chinGeo, this.materials.crocSkin);
     chinMesh.position.set(0, -0.06, -0.2);
-    chinMesh.castShadow = true;
-    chinMesh.receiveShadow = true;
     this.baseGroup.add(chinMesh);
 
     // Front rounded chin bottom
@@ -1523,7 +1590,6 @@ class Crocodile {
     mouthFloorGeo.scale(0.96, 1.0, 1.3);
     const mouthFloor = new THREE.Mesh(mouthFloorGeo, this.materials.mouthThroat);
     mouthFloor.position.set(0, 0.18, -0.15);
-    mouthFloor.receiveShadow = true;
     this.baseGroup.add(mouthFloor);
 
     // Small neat tongue
@@ -1570,7 +1636,6 @@ class Crocodile {
     snoutGeo.scale(0.96, 1.0, 1.38);
     const snoutMesh = new THREE.Mesh(snoutGeo, this.materials.crocSkin);
     snoutMesh.position.set(0, 0.16, -0.15);
-    snoutMesh.castShadow = true;
     this.upperJaw.add(snoutMesh);
 
     // Top Dome of Snout
@@ -1717,9 +1782,16 @@ class Crocodile {
       toothGroup.position.set(posX, lowerY, posZ);
 
       const toothMesh = new THREE.Mesh(geo, this.materials.tooth);
-      toothMesh.castShadow = true;
-      toothMesh.receiveShadow = true;
       toothGroup.add(toothMesh);
+
+      // Contact shadow on the mouth floor, desktop tier only: one draw per tooth. It rides in the
+      // tooth's group, so it sinks and tilts with the tooth. Never a raycast target: the input path
+      // tests hitboxes only.
+      if (!this.lite) {
+        const blob = blobShadow(0.36, 0.36);
+        blob.position.set(-0.03, -0.075, -0.04);
+        toothGroup.add(blob);
+      }
 
       // Focus Ring
       const focusRing = new THREE.Mesh(focusRingGeo, this.materials.focusRing);
@@ -1773,7 +1845,6 @@ class Crocodile {
       toothGroup.rotation.x = Math.PI; // point down
 
       const toothMesh = new THREE.Mesh(geo, this.materials.tooth);
-      toothMesh.castShadow = true;
       toothGroup.add(toothMesh);
 
       const focusRing = new THREE.Mesh(focusRingGeo, this.materials.focusRing);
@@ -2191,7 +2262,6 @@ class PlayerHand {
     cuffGeo.rotateX(Math.PI * 0.4);
     this.cuffMesh = new THREE.Mesh(cuffGeo, this.sleeveMaterial);
     this.cuffMesh.position.set(0, -0.05, 0.25);
-    this.cuffMesh.castShadow = true;
     this.handModel.add(this.cuffMesh);
 
     // 2. Palm / Fist
@@ -2199,7 +2269,6 @@ class PlayerHand {
     palmGeo.scale(1.05, 0.85, 1.15);
     this.palmMesh = new THREE.Mesh(palmGeo, this.skinMaterial);
     this.palmMesh.position.set(0, 0.05, 0.05);
-    this.palmMesh.castShadow = true;
     this.handModel.add(this.palmMesh);
 
     // 3. Prominent Pointing Index Finger (Extends forward/downward to poke tooth)
@@ -2207,7 +2276,6 @@ class PlayerHand {
     fingerGeo.rotateX(Math.PI * 0.48);
     this.fingerMesh = new THREE.Mesh(fingerGeo, this.skinMaterial);
     this.fingerMesh.position.set(0, 0.1, -0.25);
-    this.fingerMesh.castShadow = true;
     this.handModel.add(this.fingerMesh);
 
     // Finger Tip Dome
