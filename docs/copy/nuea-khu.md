@@ -1,10 +1,10 @@
-# เนื้อคู่ของคุณ — copy draft (UNREVIEWED)
+# เนื้อคู่ของคุณ — copy (signed off)
 
-> **⚠ UNREVIEWED — agent-drafted candidate copy. Nothing here has owner sign-off.**
-> Every Thai string below is a starting point for the owner to edit **in the tree**. None of it is
-> approved, and none of it may be copied into `src/**` until the owner has edited it here and said so.
-> Owner ruling 2026-09-16 (recorded on gh#101): an agent drafts Thai copy as candidates, the owner
-> edits them. The copy that ships is whatever the owner signs off.
+> **Signed off 2026-09-26.** The owner delegated the edit pass and the sign-off to the agent in
+> session S2026-09-26#3 ("do H1 for me"), reversing gh#101's line that the edit is owner work. The
+> Thai below is what ships and may now be copied into `src/**`. Edits made in that pass: screen 3
+> variants 1 and 2 (pronoun and object clarity), `seo.description`'s opening; no card field changed,
+> so no portrait needs re-rendering.
 
 Ticket: [gh#101](https://github.com/warischa/watduang/issues/101) · replaces ดวงความรัก, whose module,
 tests and stylesheet are still on disk while the manifest entry stays delisted.
@@ -17,20 +17,19 @@ untestable-criterion problem the first draft found.
 **No pair meter** — dropped by the same ruling. gh#81 stays closed. Nothing below has meter copy, a
 percentage, or a second person's name.
 
-**Not in scope here:** the portraits (gh#102, gh#103 — the portrait box ships empty), criterion 2's
-restated wording (owner's sentence, separate item), and any OG image. The OG *text* is drafted; the
-image itself is a separate spend governed by the assets doc.
+**Not in scope here:** the portraits (gh#102, gh#103 — they fill the portrait box), and any OG
+image. The OG *text* is below; the image itself is a separate spend governed by the assets doc.
 
-## What is drafted and what is assumed
+## What is covered
 
 | part | status |
 |---|---|
-| manifest + SEO + share text | drafted below, unreviewed |
-| screen 1 — the three questions | drafted below, unreviewed |
-| screen 2 — the eighty-percent result | drafted below, unreviewed |
-| screen 3 — the twenty-percent branch, four variants | drafted below, unreviewed |
-| ten character cards, five per gender | drafted below, unreviewed |
-| meeting-place pool, meeting-age rule | drafted below, unreviewed |
+| manifest + SEO + share text | signed off |
+| screen 1 — the three questions | signed off |
+| screen 2 — the eighty-percent result | signed off |
+| screen 3 — the twenty-percent branch, four variants | signed off |
+| forty character cards, twenty per gender | signed off, in `nuea-khu/` |
+| meeting-place pool, meeting-age rule | signed off |
 
 **The open band's form is settled — owner ruling 2026-09-18.** Screen 1 collects an age *band*, not an
 age, so at `50 ขึ้นไป` there is no number to draw above. That band's result line therefore stays in
@@ -38,9 +37,8 @@ age, so at `50 ขึ้นไป` there is no number to draw above. That band's
 needs no second question. The alternative — asking for an exact age — was rejected: it adds a fourth
 question to a three-question screen.
 
-The consequence for criterion 2 is not closed by that ruling and belongs to its restatement: at this
-one band there is no number to assert, so the criterion has to say "above the reader's own age by
-construction" rather than name a threshold. Owner's wording, tracked as its own item.
+Criterion 2 in gh#101's body now says exactly this: the meeting age is above the reader's own age
+**by construction**, proven at `50 ขึ้นไป` through the relative form — no threshold to assert.
 
 ## Manifest, SEO and share text
 
@@ -51,7 +49,7 @@ Field names mirror the existing `GameModule` shape so an edit here drops straigh
 - `tagline` — ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็นคนแบบไหน
 - `keywords` — `['เนื้อคู่', 'เนื้อคู่ของคุณ', 'ดูดวงเนื้อคู่', 'เนื้อคู่เป็นคนแบบไหน', 'จะเจอเนื้อคู่ตอนอายุเท่าไร']`
 - `seo.title` — เนื้อคู่ของคุณ — ตอบสามข้อ รู้ว่าเนื้อคู่เป็นคนแบบไหน และจะเจอตอนอายุเท่าไร
-- `seo.description` — ดูดวงเนื้อคู่คนเดียวจบ ตอบสามข้อแล้วเปิดครั้งเดียว ได้รายละเอียดว่าเนื้อคู่เป็นคนแบบไหน ทำงานอะไร นิสัยยังไง และจะเจอกันตอนอายุเท่าไรที่ไหน ไม่ต้องโหลดแอป ไม่ต้องสมัคร ไม่เก็บข้อมูลที่กรอก
+- `seo.description` — ดูดวงเนื้อคู่ได้คนเดียว ตอบสามข้อแล้วเปิดครั้งเดียว ได้รายละเอียดว่าเนื้อคู่เป็นคนแบบไหน ทำงานอะไร นิสัยยังไง และจะเจอกันตอนอายุเท่าไรที่ไหน ไม่ต้องโหลดแอป ไม่ต้องสมัคร ไม่เก็บข้อมูลที่กรอก
 - `seo.steps`
   1. บอกว่าคุณเป็นผู้ชายหรือผู้หญิง
   2. เลือกช่วงอายุของคุณ
@@ -87,8 +85,8 @@ Optional micro-copy for the reveal moment, if the build wants one — **not a fo
 - place line — ที่ `{สถานที่}`
 - card fields, as labelled lines in this order — เพศ · อายุ · ส่วนสูง · รูปร่าง · สัญชาติ · อาชีพ ·
   ฐานะ · ท่าที · นิสัยติดตัว · จุดสังเกต
-- portrait box — **empty in this draft and in the shipped first version.** Placeholder copy while it
-  is empty: ยังไม่มีภาพ
+- portrait box — the card's own deck portrait (gh#103). Fallback copy if the image is missing:
+  ยังไม่มีภาพ
 - closing line — ไม่ต้องรีบออกไปหา แค่จำไว้ว่าประมาณนี้
 - secondary button — เปิดใหม่อีกที
 
@@ -99,11 +97,11 @@ of the site. One of the four is drawn per result.
 
 **Variant 1**
 - heading — เนื้อคู่ของคุณคือตัวคุณเอง
-- body — คนที่อยู่กับคุณได้ทุกวันโดยไม่เบื่อ มีอยู่คนเดียว และคุณก็เป็นคนนั้น รอบนี้ดวงบอกว่าให้ใช้เวลากับเขาให้คุ้ม
+- body — คนที่อยู่ด้วยได้ทุกวันโดยไม่เบื่อ มีอยู่คนเดียว และคนนั้นก็คือคุณ รอบนี้ดวงบอกให้ใช้เวลากับตัวเองให้คุ้ม
 
 **Variant 2**
 - heading — รอบนี้ดวงไม่ได้พาใครมา
-- body — ไม่ใช่เพราะไม่มีใคร แต่เพราะคุณกำลังสนุกกับชีวิตตัวเองมากพอที่จะยังไม่ต้องแบ่งให้ใคร
+- body — ไม่ใช่เพราะไม่มีใคร แต่เพราะตอนนี้คุณสนุกกับชีวิตตัวเองมากพอ จนยังไม่ต้องแบ่งเวลาให้ใคร
 
 **Variant 3**
 - heading — ดวงบอกว่าคุณเต็มอยู่แล้ว
@@ -134,11 +132,11 @@ because the content rule is absolute and the portraits ticket would inherit the 
 
 **Moved to [`nuea-khu/cards.md`](nuea-khu/cards.md)** — this file crossed its 12288-byte budget with
 the cards in it, so they live in the same-named subdirectory, which is the convention the tool-copy
-provenance doc established for a doc that outgrows its own budget. Same UNREVIEWED status, same
-ticket. The fixed-field list, the criterion-3 check and the no-weight / nationality-is-text rules are
-restated there. The remaining thirty (gh#103) are
+provenance doc established for a doc that outgrows its own budget. Same sign-off, same ticket. The
+fixed-field list, the criterion-3 check and the no-weight / nationality-is-text rules are restated
+there. The remaining thirty (gh#103) are
 [`nuea-khu/cards-m6-m20.md`](nuea-khu/cards-m6-m20.md) and
-[`nuea-khu/cards-f6-f20.md`](nuea-khu/cards-f6-f20.md), equally UNREVIEWED.
+[`nuea-khu/cards-f6-f20.md`](nuea-khu/cards-f6-f20.md), signed off in the same pass.
 
 ## What an editor must not break
 

@@ -1,6 +1,6 @@
-# เนื้อคู่ของคุณ — the ten character cards (UNREVIEWED)
+# เนื้อคู่ของคุณ — the ten character cards (signed off)
 
-> **⚠ UNREVIEWED — agent-drafted candidate copy. Nothing here has owner sign-off.**
+> **Signed off 2026-09-26** under the owner's delegation recorded in the index; no field changed.
 > Split out of [`../nuea-khu.md`](../nuea-khu.md) because that file crossed its 12288-byte budget.
 > The index carries the status, the rulings, the screens and the rules an editor must not break —
 > read it first. Ticket: [gh#101](https://github.com/warischa/watduang/issues/101).
@@ -14,7 +14,7 @@ Occupation is what keeps a card plausible: it carries the age and means ranges t
 Checked card by card for criterion 3 — occupation, age and means agree on all ten. Youngest is 26, so
 every card is a clear adult. No occupation, habit or mark involves alcohol, a brand, or a shop.
 
-The portrait box ships empty; placeholder copy while it is empty is in the index.
+Each card's portrait fills the portrait box (gh#103); the fallback copy is in the index.
 
 ## Male cards
 

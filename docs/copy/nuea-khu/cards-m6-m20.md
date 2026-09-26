@@ -1,6 +1,6 @@
-# เนื้อคู่ของคุณ — male cards M6–M20 (UNREVIEWED)
+# เนื้อคู่ของคุณ — male cards M6–M20 (signed off)
 
-> **⚠ UNREVIEWED — agent-drafted candidate copy. Nothing here has owner sign-off.**
+> **Signed off 2026-09-26** under the owner's delegation recorded in the index; no field changed.
 > Fifteen of the remaining thirty for [gh#103](https://github.com/warischa/watduang/issues/103),
 > drafted 2026-09-23 under the owner ruling in that ticket's comment `5788443062` — before the first
 > ten in [`cards.md`](cards.md) were signed off. The female fifteen are in
@@ -15,7 +15,9 @@ Checked card by card for criterion 1: occupation, age and means agree on all fif
 repeats one in `cards.md` or in the female file, and no mark repeats. Youngest is 25, so every card
 is a clear adult. No occupation, habit or mark involves alcohol, a brand, or a shop name.
 
-**Two departures from the first ten, flagged for the owner — each is one edit to reverse:**
+**Two departures from the first ten — both kept at sign-off 2026-09-26.** The older cards exist so
+readers in the two oldest bands are not always handed someone decades younger; nationality is text
+and decides no face, so the four non-Thai cards cost nothing and widen the set.
 
 - **Ages run to 54** (the first ten span 26–41). A reader in `40–49` or `50 ขึ้นไป` has a meeting
   age drawn at 50 or later, so without older cards every draw hands them someone decades younger.

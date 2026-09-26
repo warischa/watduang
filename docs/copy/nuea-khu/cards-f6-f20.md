@@ -1,6 +1,6 @@
-# เนื้อคู่ของคุณ — female cards F6–F20 (UNREVIEWED)
+# เนื้อคู่ของคุณ — female cards F6–F20 (signed off)
 
-> **⚠ UNREVIEWED — agent-drafted candidate copy. Nothing here has owner sign-off.**
+> **Signed off 2026-09-26** under the owner's delegation recorded in the index; no field changed.
 > Fifteen of the remaining thirty for [gh#103](https://github.com/warischa/watduang/issues/103),
 > drafted 2026-09-23 under the owner ruling in that ticket's comment `5788443062` — before the first
 > ten in [`cards.md`](cards.md) were signed off. The male fifteen, and the two departures from the
