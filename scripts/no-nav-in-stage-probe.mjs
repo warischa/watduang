@@ -46,19 +46,17 @@
 // measurability and hit checks while retaining real transitions, making the INCONCLUSIVE path
 // executable on demand.
 //
-// ponytail: COVERAGE CEILING — 2 walked pages (gh#149, down from 4), and the set is bounded by the
-// hazard's own precondition rather than by effort. This probe needs a tap that REPLACES #stage; only
-// two pages still have one. ADR-0040 (2026-08-25) made daily-fortune and siamsi solo pages ([1, 1]): no
+// ponytail: COVERAGE CEILING — 3 walked pages (gh#149 took it from 4 to 2; gh#101's love-match made it
+// 3), and the set is bounded by the hazard's own precondition rather than by effort. This probe needs a
+// tap that REPLACES #stage; only the three fortune pages have one. ADR-0040 (2026-08-25) made daily-fortune and siamsi solo pages ([1, 1]): no
 // PlayerSetup, no #start-round, and an EMPTY group (`soloSession.players = []`,
 // src/pages/game/[id].astro), so neither renders the roster chips the old walks tapped — both are
 // walked through their own solo screens instead. Every game registered since (cannon-flag, freeze-tap,
 // power-meter, dice-loser, how-close-is-near, pinocchio-luck) runs full screen at its `playRoute`, and
 // its /game/<id>/ landing renders prose with no button, so it has no in-#stage transition to walk.
-// A green here is therefore NOT site-wide: it is every page that can tap-transition #stage. (love-match was delisted pending its "เนื้อคู่" redesign, gh#101, and no longer resolves
-// at all — it carries no WALKS entry and no notCovered entry, the same way a deleted page carries
-// neither.) Static coverage of the same invariant lives in scripts/no-nav-in-stage-check.mjs, which
-// enumerates src/games/*.ts straight off disk rather than from the manifest — so it still grades the
-// delisted love-match module, which this walk no longer reaches. Wider there than here, not narrower.
+// A green here is therefore NOT site-wide: it is every page that can tap-transition #stage. Static
+// coverage of the same invariant lives in scripts/no-nav-in-stage-check.mjs, which enumerates
+// src/games/*.ts straight off disk rather than from the manifest. Wider there than here, not narrower.
 //
 // Run: node scripts/driver.mjs scripts/no-nav-in-stage-probe.mjs
 // (needs `npx serve dist/ -l 4321` and headless Chrome on CDP_PORT — see scripts/driver.mjs's header)
@@ -179,6 +177,22 @@ const WALKS = {
       if (input) { input.value = 'ทดสอบเอ'; input.dispatchEvent(new Event('input', { bubbles: true })); }
       taps.push(await tap('#df-go -> result', document.getElementById('df-go')));
       taps.push(await tap('#df-again -> ask', document.getElementById('df-again')));
+      return taps;`,
+  },
+  // gh#101 — the rebuilt solo page. Two answers are in-place toggles, not transitions (the row mutates,
+  // #stage is not replaced), so they are clicked once the arm window lets them and are not counted;
+  // the open control and the redo are the two taps that swap the whole stage under the finger.
+  'love-match': {
+    solo: true,
+    minTransitions: 2,
+    body: `
+      for (const id of ['lm-me-f', 'lm-band-0']) {
+        const b = document.getElementById(id);
+        for (let i = 0; i < 20 && b && b.disabled; i++) await sleep(60);
+        if (b) b.click();
+      }
+      taps.push(await tap('#lm-go -> reading', document.getElementById('lm-go')));
+      taps.push(await tap('#lm-again -> ask', document.getElementById('lm-again')));
       return taps;`,
   },
   // gh#153 — siamsi replaces pick-loser here. Since gh#149 it is, with daily-fortune above, one of the

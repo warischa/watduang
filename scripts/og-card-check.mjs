@@ -15,10 +15,10 @@
 //      not 'party' — gh#89 / ADR-0040: the player-count range is true of the party category, not
 //      of a fortune page and not of the site card.
 //
-// THE SET is enumerated FROM DISK (public/og/*.png), never from the manifest. The manifest has a
-// permanent hole: love-match is deliberately unregistered until gh#101 rebuilds the page, so a
-// manifest-driven walk would silently skip a card that is live in every share preview. A PNG with
-// neither a lock entry nor an explicit exemption is a failure, so the set cannot quietly shrink.
+// THE SET is enumerated FROM DISK (public/og/*.png), never from the manifest. A manifest-driven walk
+// skips any card whose game is unregistered but whose PNG still ships in every share preview —
+// love-match was exactly that while delisted, until gh#101 rebuilt it. A PNG with neither a lock entry
+// nor an explicit exemption is a failure, so the set cannot quietly shrink.
 //
 // NOT COVERED (ADR-0019): the pixels, and generator-code drift. This gate proves the text a card was
 // rendered FROM and that the bytes have not moved since — it cannot see that the Thai glyphs composed
@@ -39,15 +39,14 @@ const LOCK = path.join(repoRoot, 'scripts/og-cards.lock.json');
 
 // EXPLICIT exemptions, one line of reasoning and one owner each. Never derived from "absent from
 // the manifest" — that is how a carve-out becomes silent. Printed on every run, green or red.
-const EXEMPTIONS = {
-  'love-match': 'gh#101 owns it — the game is deliberately unregistered in the manifest until that ticket rebuilds the page, so no source entry exists to regenerate the card from',
-};
+// Empty today: love-match's carve-out retired when gh#101 registered the game and locked its card.
+const EXEMPTIONS = {};
 
 /** Every failure this gate can report, as data — so one run reports all of them, labelled. */
 export function verdict({ id, png, entry, source, exemption }) {
-  // An exemption holds only while nothing can answer for the card. The moment a source does --
-  // gh#101 registering love-match in the manifest is exactly that -- the carve-out has outlived the
-  // premise it was granted on, and must fail rather than keep skipping a card that is now checkable.
+  // An exemption holds only while nothing can answer for the card. The moment a source does (gh#101
+  // registering love-match was the first such case), the carve-out has outlived the premise it was
+  // granted on, and must fail rather than keep skipping a card that is now checkable.
   if (exemption) {
     if (!source) return [];
     return [{ id, kind: 'exemption-stale', detail: `${id} is exempt on the grounds that no source entry answers to that id, but one now does — delete the exemption in scripts/og-card-check.mjs and lock the card: node scripts/make-og.mjs ${id}` }];

@@ -2,7 +2,7 @@
 // Mostly checks the pure round helpers exported from short-stick.ts (no DOM needed).
 // The ghost-tap tests at the bottom use a hand-rolled fake `document`/`window` (no jsdom/happy-dom
 // in this repo) that implements only what short-stick.ts's el()/on() actually touch — see
-// timebomb.test.mjs and love-match.test.mjs for the same pattern.
+// timebomb.test.mjs for the same pattern.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import game, { startRound, draw } from './short-stick.ts';

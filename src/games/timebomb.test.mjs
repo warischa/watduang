@@ -2,7 +2,7 @@
 // Mostly checks the pure time numbers exported from timebomb.ts (no DOM needed).
 // The one DOM test near the bottom (ghost-tap-on-boom) uses a hand-rolled fake `document`/`window`/
 // `navigator` (no jsdom/happy-dom in this repo) that implements only what timebomb.ts's el()/on()/
-// frame() actually touch — see love-match.test.mjs's #36 tests for the same pattern.
+// frame() actually touch — see short-stick.test.mjs for the same pattern.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import game, { urgencyAt, pickDeadline, FUSE_MIN_MS, FUSE_MAX_MS, shimmerAt, SHIMMER_PERIOD_MS } from './timebomb.ts';

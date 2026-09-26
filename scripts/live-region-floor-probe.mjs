@@ -21,14 +21,10 @@
 // status line is covered the build after it lands. Today that resolves to the four /tool/ pages; the
 // enumeration is the set, and an empty enumeration is a failure, not a pass (ADR-0019).
 //
-// OUT OF SCOPE, named on purpose: the `min-height` floor in the love-match game module's header style
-// constant (the only min-height in any game module). This leg cannot see it, and does not claim to:
-// it is emitted by script INSIDE #stage, so it exists only after a roster is entered and a round is
-// started — no static page carries it, and reaching it needs the game's own interaction sequence.
-// Whether it is a defect at all is a separate question this leg does not answer (the comment above it
-// argues the reservation is a hard cap, bounded by the module's name-truncation helper, not a floor
-// over text of unbounded length). If that ever needs proving, it belongs in a game-flow probe that
-// drives the round, not here.
+// OUT OF SCOPE, named on purpose: a floor emitted by script INSIDE #stage after interaction. The one
+// such case this file used to name, a `min-height` in the old love-match module's header style
+// constant, left with gh#101's rebuild. Anything of that shape belongs in a game-flow probe that
+// drives the screens, not here.
 //
 // WHAT ITS GREEN DOES NOT MEAN. One width (320px, the hazard width), one browser, first paint of the
 // static page — so it does not see a floor that only appears after interaction, a region rendered

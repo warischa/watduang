@@ -93,6 +93,10 @@ export interface GameModule {
   /** A short one-line hook for the OG card — seo.title runs too long, seo.description longer still.
    *  Used by scripts/make-og.mjs · without this the card is left with just the game name */
   tagline: string;
+  /** Set only when the signed-off share-card line differs from the tagline (gh#101's copy gives
+   *  both). scripts/og-card-text.mjs stamps this one on the card when present, the tagline otherwise;
+   *  the tagline keeps its other jobs (the listing cards). */
+  ogTagline?: string;
   /** steps -> the "how to play" heading + HowTo JSON-LD */
   seo: { title: string; description: string; steps: string[] };
   /** Filename in public/og/, e.g. "timebomb.png" — must never show a bottle, can, or logo'd glass */

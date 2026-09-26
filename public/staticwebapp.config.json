@@ -6,11 +6,6 @@
       "statusCode": 301
     },
     {
-      "route": "/game/love-match",
-      "redirect": "/c/fortune/",
-      "statusCode": 301
-    },
-    {
       "route": "/game/pick-loser",
       "redirect": "/c/party/",
       "statusCode": 301

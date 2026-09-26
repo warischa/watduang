@@ -14,14 +14,13 @@
 //     happy, the bytes are valid CSS, and no test reads dist for orphan rules.
 //   REGISTERED BUT NOT IMPORTED — the mirror, and the reason this gate is a biconditional rather
 //     than a one-way orphan scan. Re-register a game without restoring its import and the page
-//     builds, mounts, and ships UNSTYLED. src/pages/game/[id].astro's own comment states the rule
-//     ("Re-add this import in the same change that puts the game back in the manifest, never before
-//     it") — this is the check that makes that sentence enforceable rather than advisory.
+//     builds, mounts, and ships UNSTYLED. gh#101 re-registered love-match and restored its import in
+//     the same change, which is the only order this gate accepts.
 //
 // NO ALLOWLIST, and none may be added — the domain does the work an allowlist would:
-//   - a sheet that is NEITHER registered nor imported PASSES. That is love-match today: delisted,
-//     import removed, sheet kept on disk on purpose so gh#101 rebuilds from it. The state is
-//     correct, so the gate must be silent about it, and it must go red the moment either half moves
+//   - a sheet that is NEITHER registered nor imported PASSES. That was love-match while delisted:
+//     import removed, sheet kept on disk on purpose so gh#101 could rebuild from it. The state was
+//     correct, so the gate had to be silent about it, and to go red the moment either half moved
 //     without the other.
 //   - a registered game with NO sheet on disk is outside the domain entirely (the loop is over
 //     sheets, not games). Most of the manifest is in that state today — the gh#139 ports and the
@@ -37,9 +36,9 @@
 // own import list would read the delisted game's comment as a registration.
 //
 // IMPORTS ARE READ OFF AN AST, NOT MATCHED IN TEXT, and that is load-bearing: a checker cannot tell
-// use from mention, and the live tree contains the exact mention that breaks a naive matcher — the
-// comment in src/pages/game/[id].astro names love-match.css in prose while explaining why it is
-// deliberately not imported. The first version of this gate blanked comments with regexes first, and
+// use from mention, and the live tree once contained the exact mention that breaks a naive matcher —
+// a comment in src/pages/game/[id].astro that named love-match.css in prose while explaining why it
+// was deliberately not imported (the selftest fixture keeps that shape). The first version of this gate blanked comments with regexes first, and
 // that is the defect this shape removes rather than patches: `/\/\*[\s\S]*?\*\//` is not string-aware,
 // so an unclosed `/*` inside a STRING literal blanked every line up to the next `*/` and swallowed
 // the real import statements in between. Reproduced at run level in the real tree, and the gate exited
@@ -336,7 +335,7 @@ async function selftest() {
   // the EMPTY set, not the absence of one particular sheet, so assert the class.
   //
   // Ceiling, so the next reader does not have to rediscover it: this still depends on [id].astro
-  // importing at least one per-game sheet, which it does today (siamsi, daily-fortune). If that page
+  // importing at least one per-game sheet, which it does today (siamsi, daily-fortune, love-match). If that page
   // ever legitimately imports none, MOVE this pin to a file that does — do not delete it. A selftest
   // with no live leg cannot tell a working scanner from one that matches nothing.
   assert.ok(liveImports.size > 0, `the scanner must find at least one real per-game sheet import in the live page — it found none, so every other leg here is measuring nothing. Sheets seen: ${JSON.stringify([...liveImports])}`);

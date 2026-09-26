@@ -424,7 +424,13 @@ const BASELINE_BASENAMES = [
 // over. The pin is re-stated rather than left inside the band on purpose: this gate's own history has
 // twice shown a pin going green while it had stopped describing the tree, which is the failure the
 // number exists to prevent. BAND is untouched and no headroom is reserved for unbuilt work.
-const BASELINE_TOTAL_BYTES = 1049872;
+// Re-pinned 2026-09-26 (gh#101, owner ruling in chat): 1049872 -> 1105063, +5.26%, which reds the
+// band. Two parts: 1092277 is the figure the S2026-09-26#2 save recorded after the croc-bite and
+// pinocchio-luck look commits (+42405, green inside the band, never pinned; not re-measured here),
+// so the love-match rebuild's +12786 is a difference against that record, almost all its forty
+// character cards in its own chunk, net of dead helpers removed from daily-fortune. Local build of
+// the integrated tree, same as the re-pins above.
+const BASELINE_TOTAL_BYTES = 1105063;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
@@ -453,6 +459,11 @@ const BASELINE_PAGE_ENTRIES = [
   'game/cursed-number/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/daily-fortune/index.html LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'game/daily-fortune/index.html _id_.astro_astro_type_script_index_0_lang.js',
+  // gh#101 — love-match's landing is back: the same two entry chunks as the other fortune pages, no
+  // new chunk. Its module chunk never left BASELINE_BASENAMES (the page glob kept importing it), so
+  // the byte pin is untouched by this pair.
+  'game/love-match/index.html LeaveConfirm.astro_astro_type_script_index_0_lang.js',
+  'game/love-match/index.html _id_.astro_astro_type_script_index_0_lang.js',
   'game/dice-loser/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
   'game/dice-loser/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/freeze-tap/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',

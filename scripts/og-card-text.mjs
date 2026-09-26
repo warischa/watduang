@@ -30,7 +30,11 @@ export function cardLines(game) {
   // The card's tagline comes only from the tagline field — never silently fall back to seo.title/seo.description
   // (both were tried: title gives a tagline missing "who loses" · description runs long into 4 small lines
   //  and duplicates the player-count line) A card that quietly weakens is the same kind of failure as Thai text breaking with no error
-  const tagline = typeof game.tagline === 'string' ? game.tagline.trim() : '';
+  // `ogTagline` is an explicit per-game override for the card line (see its field comment in
+  // src/games/types.ts), not a fallback: when present it is the whole answer, and when absent the
+  // tagline is — never seo.*.
+  const raw = typeof game.ogTagline === 'string' ? game.ogTagline : game.tagline;
+  const tagline = typeof raw === 'string' ? raw.trim() : '';
   if (!tagline) throw new Error(`og-card-text: no tagline on "${game.id}"`);
 
   // Only a party-category card states a player count. ADR-0040: the fortune category is one person

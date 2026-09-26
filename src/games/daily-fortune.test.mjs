@@ -14,8 +14,6 @@ import game, {
   verdictFor,
   bangkokDate,
   thaiDayLabel,
-  hashPick,
-  normalizeName,
 } from './daily-fortune.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
 
@@ -178,12 +176,6 @@ test('the Bangkok day is Bangkok\'s, not the device\'s, and the day label follow
   // 2026-08-25 is a Tuesday: the label carries that weekday, the day number and the month.
   assert.equal(thaiDayLabel('2026-08-25'), 'อ. 25 ส.ค.');
   assert.equal(thaiDayLabel('2026-01-01'), 'พฤ. 1 ม.ค.');
-});
-
-test('hashPick and normalizeName survive for love-match, which imports them from here', () => {
-  assert.equal(normalizeName('  Bank  Ploy '), 'bank ploy');
-  assert.throws(() => hashPick('seed', []), /empty pool/);
-  assert.equal(hashPick('seed', ['a', 'b', 'c']), hashPick('seed', ['a', 'b', 'c']));
 });
 
 // ---- The page ----

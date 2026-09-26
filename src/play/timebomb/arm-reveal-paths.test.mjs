@@ -11,7 +11,7 @@
 // (src/games/timebomb.ts) via game.mount(). Every screen inside #tb-stage is drawn by that engine,
 // which arms its own stage once at mount time, through the `armAllButtons(stage)` call in
 // `games/timebomb.ts`. That call is NOT covered by a unit test: `grep -n armAllButtons
-// src/games/*.test.mjs` returns one hit repo-wide and it is in `love-match.test.mjs`, so the only
+// src/games/*.test.mjs` finds it only in the gate's own test, `_arm-gate.test.mjs`, never in a game's, so the only
 // thing watching it is `scripts/arm-gate-coverage-check.mjs`, which asks whether a route calls
 // `armAllButtons` at all and never whether every reveal is covered. Recorded here rather than fixed
 // because the engine is out of this file's scope — so this file pins what is actually THIS

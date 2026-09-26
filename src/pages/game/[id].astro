@@ -8,11 +8,6 @@ import type { GameModule } from '../../games/types';
 // these load on all of them: every selector inside is prefixed per game. Shared game-screen
 // vocabulary stays in the is:global block at the bottom of this file and is never overridden there.
 //
-// love-match.css is deliberately NOT imported while gh#101 keeps the game delisted. The sheet stayed
-// on disk so the rebuild starts from it, but a bare import here is page-global, and that shipped
-// every one of its rules to every live game page with no page left to consume them. Re-add this
-// import in the same change that puts the game back in the manifest, never before it.
-//
 // gh#145 / gh#146 — timebomb.css and short-stick.css were retired: both games run at a play route
 // (below) whose own sheet lives under src/play/<id>/, and neither page this route builds could reach
 // the stage sheets. Only the dead stylesheets and their imports were removed.
@@ -30,13 +25,14 @@ import type { GameModule } from '../../games/types';
 // this comment said before, and it was false for half of them.
 import '../../styles/games/siamsi.css';
 import '../../styles/games/daily-fortune.css';
+import '../../styles/games/love-match.css';
 
 // gh#149 / ADR-0050 ruling 2 — a game that declares a playRoute runs full screen there, and its
 // landing page under /game/<id>/ is DELETED (301 to the play route, public/staticwebapp.config.json).
 // Keyed on playRoute, not on category, because that is the exact complement of what the cards link:
 // index.astro and c/[category].astro both render `game.playRoute ?? /game/<id>/`, so "this route
 // builds a page iff the game has no playRoute" is what keeps every card link resolvable, with no
-// second list to drift. Today that is the two fortune games (siamsi, daily-fortune); ADR-0050 ruling 7
+// second list to drift. Today that is the three fortune games (siamsi, daily-fortune, love-match); ADR-0050 ruling 7
 // keeps them page-shaped.
 export function getStaticPaths() {
   return games.filter((g) => !g.playRoute).map((game) => ({ params: { id: game.id }, props: { game } }));
@@ -276,11 +272,8 @@ const { game } = Astro.props as { game: GameModule };
     box-shadow: 5px 5px 0 rgba(26, 26, 26, 0.3);
   }
 
-  /* gh#154 — ZERO PRODUCERS TODAY. The party game deleted by that ticket was the only module that
-     built a .game-btn-secondary, so this rule and the 56px floor below it currently style nothing:
-     scripts/control-floor-probe.mjs prints "NOT MEASURED: zero .game-btn-secondary" on every run.
-     Kept as the shell's declared secondary-control style, which the next game with a secondary
-     control inherits — not because anything renders it now. */
+  /* The shell's declared secondary-control style. gh#154 deleted its only producer; gh#101's
+     love-match redo control ("เปิดใหม่อีกที") is the one producer today. */
   .game-btn-secondary {
     min-height: 56px;
     background: transparent;

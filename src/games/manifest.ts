@@ -27,9 +27,10 @@ import oneBomb from './one-bomb.ts';
 // The eighth port, jumped ahead of the rest of the queue by owner ruling 2026-09-06.
 import bangkokDrift from './bangkok-drift.ts';
 import crocBite from './croc-bite.ts';
-// love-match is deliberately NOT registered: the page is delisted until gh#101 rebuilds it (the solo
-// mount hands it an empty roster, so every visitor hit "need 2+ people"). src/games/love-match.ts,
-// its test, and its stylesheet stay on disk on purpose — gh#101 rebuilds from them.
+// gh#101 — love-match is back as the solo fortune page "Your Soulmate" at its old URL (ADR-0040: a
+// path segment is no promise to a reader). It was delisted 2026-08-28 while the old two-person page
+// dead-ended every solo visitor; the rebuilt module asks for nobody's name.
+import loveMatch from './love-match.ts';
 // pick-loser is GONE, not delisted (gh#154, owner decision 2026-08-30: too simple to be interesting).
 // The module, its test and its OG image are deleted; /game/pick-loser 301s to /c/party/ in
 // public/staticwebapp.config.json. Its one reusable part, pickLoser(), already lives in
@@ -52,6 +53,7 @@ export const games: GameModule[] = [
   oneBomb,
   bangkokDrift,
   crocBite,
+  loveMatch,
 ];
 
 export const byId = (id: string): GameModule | undefined =>

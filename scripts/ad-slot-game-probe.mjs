@@ -3,28 +3,25 @@
 // URL that only Azure resolves, via a 301 to the play route, and measures the wrong page. Re-point
 // it at /game/<id>/play/ (a different DOM) or delete it — do not read a run of it as evidence.
 // Measured 2026-08-31 against the built dist/, PAGE_CONFIG entry by entry: daily-fortune and siamsi
-// still have a landing; short-stick and timebomb have only a play route; love-match has no page of
-// either kind. So three of its five targets do not exist, and the staleness above is not a warning
-// about the future — it is the current state.
+// still have a landing; short-stick and timebomb have only a play route; love-match had no page of
+// either kind until gh#101 rebuilt it as a solo landing. So two of its five targets do not exist, and
+// the staleness above is not a warning about the future — it is the current state.
 //
 // gh#170, TWO THINGS SETTLED HERE so neither gets re-litigated from a false premise.
 //
-// (1) THIS FILE IS NOT BROKEN BY ITS IMPORT, and it is not to be deleted for that reason. gh#170's
-// survey proposed retiring it on the grounds that it imports a delisted module. Checked rather than
-// believed: src/games/love-match.ts is present, it exports HEADER_NAME_MAX, and importing it
-// resolves to 20. The module was delisted from the MANIFEST (so no page is built for it); the file
-// itself never went anywhere. The import is live.
+// (1) The love-match leg used to import HEADER_NAME_MAX from the old module and direct-mount its
+// chunk onto another page, because the delisted game had no page of its own. gh#101 replaced that
+// module (no names, no header) and gave it a landing again, so the leg is an ordinary solo page now.
 //
 // (2) NOTHING CLAIMS COVERAGE ON THIS PROBE'S BEHALF ANY MORE. scripts/control-floor-probe.mjs used
 // to close its "what its green does not mean" section by saying this probe "still reaches
 // love-match's code, by mounting the chunk directly rather than by visiting a page". Whatever that
 // sentence was worth when it was written, it was false by the time it was read: nothing in
 // .github/, scripts/ci-probes.sh, scripts/run-workflow-gates.sh or package.json invokes this file,
-// so it executes on no runner and covers nothing. That sentence has been struck there, and
-// love-match's HEADER_NAME_MAX path is now recorded as UNCOVERED rather than as covered by this.
+// so it executes on no runner and covers nothing. That sentence has been struck there.
 //
 // STILL NOT WIRED, and that is a decision, not an omission — see the STATUS block below. Wiring it
-// would also fail on its own terms today, given the three missing targets above. If it is ever
+// would also fail on its own terms today, given the two missing targets above. If it is ever
 // wanted in CI, the target list is what has to be fixed first, not the wiring.
 // Measures .ad-slot's top offset, its own height, and #stage's height, across a turn transition on
 // the 5 ads-bearing game pages (the .ad-slot element in GameLayout.astro, which sits in #how-to-play, a
@@ -67,8 +64,6 @@
 //
 // Every verdict below is a MEASURED BOUND with the platform named (see the return), never a universal
 // ("never reflows") — ADR-0044's own discipline.
-
-import { HEADER_NAME_MAX } from '../src/games/love-match.ts';
 
 const BASE = process.env.PROBE_BASE || process.env.BASE || 'http://localhost:4321';
 const WIDTHS = [320, 390];
@@ -177,84 +172,23 @@ async function fillDailyFortuneName(session) {
   `);
 }
 
-// love-match's shipped isSolo wiring handed game.mount() a hardcoded soloSession whose `players` was
-// ALWAYS [] (src/pages/game/[id].astro's soloSession literal) — never read from localStorage or
-// anywhere else. renderPick() in src/games/love-match.ts requires roster.length >= 2 or it renders a
-// static "need 2+ people" message and returns, with NO button in #stage at all. Every visitor saw only
-// that message, so the owner delisted the page until gh#101 rebuilds it: the module is off the
-// manifest and NO page is generated for it any more. The module itself still ships as a chunk (the
-// game page's import.meta.glob still matches src/games/*.ts), so the HEADER_STYLE code path below is
-// still real compiled code and still worth measuring — it just has no page of its own to be reached
-// from, and never did through the real UI.
-//
-// To measure the real code anyway, this loads the already-fetched compiled module chunk (the page's own
-// isSolo branch already dynamic-imports it on mount — found via performance.getEntriesByType, never a
-// hardcoded build hash) and calls its mount() directly with a synthetic ctx carrying real player names.
-// This bypasses the shell's session wiring on purpose; it does not touch src/**.
-const LOVE_MATCH_CHUNK_RE = /\/_astro\/love-match\.[A-Za-z0-9_-]+\.js(?:\?.*)?$/;
-// The game page's own module chunk, and the relative specifier it holds for love-match's chunk.
-const PAGE_CHUNK_RE = /\/_astro\/_id_\.astro_astro_type_script[^/]*\.js(?:\?.*)?$/;
-const LOVE_MATCH_REL_RE = /["'](\.\/love-match\.[A-Za-z0-9_-]+\.js)["']/;
-
-async function mountLoveMatchDirect(session, names) {
-  const res = await session.evaluate(`
-    const entries = performance.getEntriesByType('resource').map((e) => e.name);
-    let match = entries.find((u) => ${LOVE_MATCH_CHUNK_RE}.test(u));
-    if (!match) {
-      // No page imports love-match any more (delisted, gh#101), so nothing fetches its chunk. The host
-      // page's own module chunk still carries the glob's import("./love-match.<hash>.js") literal —
-      // read the hash off that instead of hardcoding a build hash, same principle as the branch above.
-      const pageChunk = entries.find((u) => ${PAGE_CHUNK_RE}.test(u));
-      if (!pageChunk) return { missing: true, reason: 'host page module chunk not found in performance entries' };
-      const src = await (await fetch(pageChunk)).text();
-      const rel = src.match(${LOVE_MATCH_REL_RE})?.[1];
-      if (!rel) return { missing: true, reason: 'love-match chunk not referenced by the host page module chunk' };
-      match = new URL(rel, pageChunk).href;
+// love-match's open control stays disabled until its questions are answered (the third pre-sets
+// from the first), so answer two once the arm window lets them.
+async function answerLoveMatch(session) {
+  await session.evaluate(`
+    for (const id of ['lm-me-f', 'lm-band-0']) {
+      const b = document.getElementById(id);
+      for (let i = 0; i < 20 && b && b.disabled; i++) await new Promise((r) => setTimeout(r, 60));
+      if (b) b.click();
     }
-    const mod = await import(match);
-    if (!mod.default || typeof mod.default.mount !== 'function') return { missing: true, reason: 'module has no default.mount' };
-    const stage = document.getElementById('stage');
-    if (!stage) return { missing: true, reason: '#stage not found' };
-    const ctx = {
-      roster: { names: () => [], add: async () => {} },
-      session: {
-        players: ${JSON.stringify(names)},
-        setPlayers() {}, played: [], markPlayed() {},
-        checkpoint: null, saveCheckpoint() {}, clear() {},
-      },
-    };
-    mod.default.dispose(); // no-op before a first mount, same as the real page's own first mount
-    mod.default.mount(stage, ctx);
-    return { missing: false };
+    return true;
   `);
-  if (res.error) return `mountLoveMatchDirect evaluate error: ${res.error}`;
-  if (res.value?.missing) return `mountLoveMatchDirect: ${res.value.reason}`;
-  return null;
-}
-
-// HOST_PAGE: love-match has no page of its own any more (see mountLoveMatchDirect's comment). Any
-// generated game page works as a host — it only has to be same-origin and load the game page's module
-// chunk, which is where the love-match chunk's hash is read from. daily-fortune is used because it is
-// the same [1, 1] solo shape love-match had, and calibrateLeg() below already hosts on it.
-const LOVE_MATCH_HOST = '/game/daily-fortune/';
-
-async function seedLoveMatch(session, width, names) {
-  const url = `${BASE}${LOVE_MATCH_HOST}`;
-  await session.nav(url);
-  await session.setWidth(width, 1600);
-  await session.wipe();
-  await session.nav(url);
-  await session.setWidth(width, 1600);
-  await sleep(700); // let the host page's own solo mount finish first, so its module chunk is loaded
-  return mountLoveMatchDirect(session, names);
 }
 
 // ---- Per-page config ----
 const PAGE_CONFIG = {
   'daily-fortune': { kind: 'solo', path: '/game/daily-fortune/', afterSeed: fillDailyFortuneName },
-  // Not a page: the love-match module direct-mounted onto LOVE_MATCH_HOST. Kept so gh#101's rebuild
-  // inherits the measurement; the 'page' label below names the module, not a URL.
-  'love-match': { kind: 'lovematch', names: ['เอ', 'บี'] },
+  'love-match': { kind: 'solo', path: '/game/love-match/', afterSeed: answerLoveMatch },
   'short-stick': { kind: 'party', path: '/game/short-stick/', names: ['เอ', 'บี', 'ซี'] },
   timebomb: { kind: 'party', path: '/game/timebomb/', names: ['เอ', 'บี', 'ซี'] },
   siamsi: { kind: 'solo', path: '/game/siamsi/' },
@@ -268,7 +202,7 @@ async function measurePageTransitions(session, page, width) {
   else if (cfg.kind === 'solo') {
     seedErr = await seedSolo(session, cfg.path, width);
     if (!seedErr && cfg.afterSeed) await cfg.afterSeed(session);
-  } else if (cfg.kind === 'lovematch') seedErr = await seedLoveMatch(session, width, cfg.names);
+  }
   if (seedErr) return { page, width, verdict: 'FAIL(unmeasurable)', reason: seedErr, transitions: [] };
 
   const transitions = [];
@@ -303,69 +237,6 @@ async function measurePageTransitions(session, page, width) {
     page, width, transitions, maxDeltaPx,
     verdict: transitions.length === 0 ? 'MEASURED(no-transition-reachable)' : transitions.every((t) => t.settled) ? 'MEASURED' : 'MEASURED(unsettled-read)',
   };
-}
-
-// ---- love-match's own question: does HEADER_STYLE in love-match.ts ever wrap past 2 lines? ----
-async function loveMatchHeaderCase(session, width, caseLabel, name, viaLocalStorage) {
-  const url = `${BASE}${LOVE_MATCH_HOST}`;
-  await session.nav(url);
-  await session.setWidth(width, 1600);
-  await session.wipe();
-  if (viaLocalStorage) {
-    // Literal brief instruction: an old, uncapped localStorage roster entry can outlive today's input
-    // maxlength. Written here so that state genuinely exists on disk — but per mountLoveMatchDirect's
-    // comment above, love-match's soloSession never read this key, and it has no page left to mount on
-    // at all. The direct-mount bypass below (same `name`, passed through the synthetic ctx) is
-    // what actually exercises headerNameFor() with it.
-    await session.evaluate(`localStorage.setItem('watduang:roster', ${JSON.stringify(JSON.stringify([name, 'คู่ทดสอบ']))}); return true;`);
-  }
-  await session.nav(url);
-  await session.setWidth(width, 1600);
-  await sleep(700);
-
-  const before = await settledMetrics(session);
-  const mountErr = await mountLoveMatchDirect(session, [name, 'คู่ทดสอบ']);
-  if (mountErr) return { case: caseLabel, nameLength: name.length, error: mountErr };
-
-  const res = await session.evaluate(`
-    await new Promise((r) => setTimeout(r, 500)); // clear the 400ms arm-gate before the tap below
-    const chip = document.querySelector('#stage button:not([disabled])');
-    if (!chip) return { missing: true, reason: 'no enabled chip after mount' };
-    chip.click(); // taps roster[0] — pick()'s first-tap branch rewrites headerEl.textContent in place
-    const header = document.querySelector('#stage p');
-    if (!header) return { missing: true, reason: 'no <p> header found in #stage' };
-    const cs = getComputedStyle(header);
-    const rect = header.getBoundingClientRect();
-    const lineHeightPx = parseFloat(cs.lineHeight);
-    const lines = Math.round(rect.height / lineHeightPx);
-    return { missing: false, headerText: header.textContent, headerHeightPx: rect.height, lineHeightPx, lines };
-  `);
-  const after = await settledMetrics(session);
-
-  if (res.error) return { case: caseLabel, nameLength: name.length, error: res.error };
-  if (res.value?.missing) return { case: caseLabel, nameLength: name.length, error: res.value.reason };
-
-  return {
-    case: caseLabel,
-    nameLength: name.length,
-    headerText: res.value.headerText,
-    lines: res.value.lines,
-    exceedsTwoLines: res.value.lines > 2,
-    adSlotDeltaPx: (before.value && after.value && !before.value.missing && !after.value.missing)
-      ? round(after.value.top - before.value.top)
-      : null,
-  };
-}
-
-async function runLoveMatchHeaderTest(session, width) {
-  const shortName = 'แนน';
-  const exactName = 'ก'.repeat(HEADER_NAME_MAX); // exactly HEADER_NAME_MAX chars — the boundary itself
-  const overName = 'ก'.repeat(HEADER_NAME_MAX + 20); // well past the cap, and via localStorage per the brief
-  return [
-    await loveMatchHeaderCase(session, width, 'a-short-name', shortName, false),
-    await loveMatchHeaderCase(session, width, 'b-exact-HEADER_NAME_MAX', exactName, false),
-    await loveMatchHeaderCase(session, width, 'c-over-HEADER_NAME_MAX-via-localStorage', overName, true),
-  ];
 }
 
 // ---- Calibration (--selftest / SELFTEST=1) ----
@@ -420,7 +291,7 @@ async function runSelftest(session) {
 export default async function (session) {
   if (process.env.SELFTEST) return runSelftest(session);
 
-  const results = { platform: null, pages: {}, loveMatchHeaderTest: null };
+  const results = { platform: null, pages: {} };
   const ua = await session.evaluate('return navigator.userAgent;');
   results.platform = ua.value;
 
@@ -430,7 +301,6 @@ export default async function (session) {
       results.pages[width][page] = await measurePageTransitions(session, page, width);
     }
   }
-  results.loveMatchHeaderTest = await runLoveMatchHeaderTest(session, 320);
   return results;
 }
 

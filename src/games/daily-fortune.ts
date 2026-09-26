@@ -6,7 +6,8 @@
 // about the same thing and the pools can never assemble a nonsense pair. Each line carries a luck
 // value of +1, 0 or -1; the verdict is the sum of the three and is never authored per combination.
 // What the per-name reading left behind: the Bangkok-day helper, which is what makes the word
-// "today" true on this page, and hashPick/normalizeName, which love-match imports from here.
+// "today" true on this page. (hashPick and normalizeName stayed here only for the old love-match
+// module; its gh#101 rebuild seeds nothing and asks for no name, so both went with it.)
 // No checkpoint by design: there is nothing mid-round to persist, so siamsi stays the sole
 // checkpoint writer (ADR-0010). The only session write here is markPlayed at the draw.
 // The .ts extension in the import path is required for `node --test` (Node does not guess
@@ -96,24 +97,6 @@ function luckGlyph(luck: Luck): string {
   return luck === 1 ? '+' : luck === -1 ? '-' : '~';
 }
 
-/** Kept because love-match.ts imports it from this module — the name entry it was written for is
- *  gone from this page. Trim + collapse internal whitespace, lowercase, NFC. */
-export function normalizeName(raw: string): string {
-  // Zero-width chars are stripped before trim: `\s` does not match them, so a name pasted from
-  // LINE or Facebook can carry an invisible U+200B and hash differently from the identical-looking
-  // typed name.
-  // SARA AM has two spellings that render identically and NFC does not fold: the single SARA AM (U+0E33)
-  // that Thai keyboards emit, and NIKHAHIT + SARA AA (U+0E4D U+0E32) that some PDFs and older
-  // systems emit.
-  return raw
-    .normalize('NFC')
-    .replace(/\u0E4D\u0E32/g, '\u0E33')
-    .replace(/[\u200B-\u200D\uFEFF]/g, '')
-    .trim()
-    .replace(/\s+/g, ' ')
-    .toLowerCase();
-}
-
 // Built once — an Intl formatter is expensive, and this one never varies.
 const BANGKOK_DAY = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Bangkok',
@@ -140,24 +123,6 @@ export function thaiDayLabel(bangkokDay: string): string {
   const [year, month, day] = bangkokDay.split('-').map(Number) as [number, number, number];
   const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
   return `${THAI_WEEKDAYS[weekday]} ${day} ${THAI_MONTHS[month - 1]}`;
-}
-
-/** Deterministic pick — same seed, same item, forever. FNV-1a over the seed's UTF-16 units plus an
- *  avalanche finalizer: FNV-1a alone mixes its low bits weakly, and `% pool.length` reads exactly
- *  those, which leaves pool entries unreachable. `>>> 0` before the modulo is load-bearing — a
- *  negative index returns undefined. Exported for row 7 (Love Match), the way short-stick imports
- *  pickLoser — one function, no layer. This page no longer uses it: nothing here is seeded. */
-export function hashPick<T>(seed: string, pool: readonly T[]): T {
-  if (pool.length === 0) throw new Error('hashPick: empty pool, nothing to draw from');
-  let h = 0x811c9dc5;
-  for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  h ^= h >>> 16;
-  h = Math.imul(h, 0x7feb352d);
-  h ^= h >>> 15;
-  return pool[(h >>> 0) % pool.length]!;
 }
 
 // ---- Current screen state (one game per page) ----

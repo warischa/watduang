@@ -1,474 +1,424 @@
-// Love Match — pick two people out of the group and read how their fortune sits together today.
-// The reading is a pure function of (sorted normalized pair, Asia/Bangkok date): tap again and it is
-// the same answer, swap who you tapped first and it is still the same answer, tomorrow it is a new
-// one. Sorting is what makes name-A+name-B and name-B+name-A one pair — without it the game answers differently
-// by tap order, and the first thing a group does is tap the other way round to check (#34).
-// Determinism also kills reroll-until-you-like-it, which matters more here than in #33: a group
-// WILL re-roll a bad compatibility score if the game lets them.
-// No checkpoint by design: state is a pure function of two names and the date, so there is nothing
-// mid-round to persist and siamsi stays the sole checkpoint writer (ADR-0010). The only session
-// write here is markPlayed at reveal.
+// Your Soulmate (gh#101) — one reader answers three questions and opens one draw. About eight times
+// in ten they meet someone, drawn from a deck of forty character cards; about twice in ten the
+// fortune is that they are their own. It replaced the two-person pair score that used to live in
+// this file, whose "need two or more names" guard dead-ended every visitor once ADR-0040 made the
+// fortune pages solo (the solo mount hands every module an empty group).
+// Every string a reader sees is the signed-off copy in docs/copy/nuea-khu.md and its nuea-khu/
+// card files, byte for byte; love-match.test.mjs compares the two, so an edit here that is not an
+// edit there goes red.
+// What the reader picks lives in this module's memory and nowhere else: no storage, no checkpoint,
+// no session write, no URL. So siamsi stays the sole checkpoint writer (ADR-0010), and nothing here
+// calls markPlayed either — the solo session would drop it, and there is nothing to remember.
 // The .ts extension in the import path is required for `node --test` (Node does not guess
 // extensions) — Vite/tsc accept it.
 import type { GameContext, GameModule } from './types.ts';
-import { el } from './_el.ts';
-// Exactly two functions, taken straight from the sibling game with no util file and no
-// abstraction layer FOR THEM — the same way short-stick.ts imports pickLoser from its sibling.
-// Two call sites do not justify a layer (#34). (el() is a different case: six byte-identical
-// copies did justify one, and it now lives in _el.ts.)
-import { hashPick, normalizeName } from './daily-fortune.ts';
 import { armAllButtons } from './_arm-gate.ts';
+import { el } from './_el.ts';
 
-// ---- The reading: pure and calculable, testable with no DOM (see love-match.test.mjs) ----
+// ---- The deck: pure data, testable with no DOM (see love-match.test.mjs) ----
+
+export type Gender = 'm' | 'f';
+
+export interface Card {
+  readonly id: string;
+  readonly gender: Gender;
+  readonly age: number;
+  readonly height: number;
+  readonly build: string;
+  readonly nationality: string;
+  readonly occupation: string;
+  readonly means: string;
+  readonly manner: string;
+  readonly habit: string;
+  readonly mark: string;
+  /** Basename under public/art/nuea-khu/. Spelled whole on purpose: scripts/public-orphan-check.mjs
+   *  finds a published file's referrer by its basename token, and a name assembled at runtime from
+   *  parts would ship every portrait as an orphan in that gate's eyes. */
+  readonly portrait: string;
+}
+
+// One string per card, fields in the copy's own order after gender (which the list carries):
+// age | height | build | nationality | occupation | means | manner | habit | mark | portrait.
+// Packed rather than written as objects because this chunk counts toward the bundle freeze and forty
+// cards of field names would cost more than the parse below. An empty nationality means the card
+// says "ไทย" — thirty-six of the forty do. Card ids are positional: the Nth male string is card MN.
+// Portraits map card to deck file through the gh#103 section of images/IMAGES.md.
+const MALE = [
+  '29|172|ผอมสูง||ครูสอนดนตรี|มีรายได้ประจำ ไม่ถึงกับสบาย|พูดน้อยแต่ยิ้มง่าย|ฮัมเพลงตอนคิดอะไรไม่ออก|แผลเป็นเล็กๆ ที่คิ้วซ้าย|IMG_01_041.webp',
+  '34|178|ท้วมสมส่วน||หมอฟัน มีคลินิกของตัวเอง|สบาย|เรียบร้อยจนดูเกร็ง|จัดของบนโต๊ะให้ตรงเสมอ|ไฝเม็ดเดียวใต้ตาขวา|IMG_01_042.webp',
+  '27|168|ล่ำ||ช่างซ่อมจักรยาน ร้านเล็กๆ ของตัวเอง|พอดีตัว|ตรงไปตรงมา ไม่อ้อมค้อม|ล้างมือสามรอบก่อนกินข้าว|รอยด้านที่ฝ่ามือขวา|IMG_01_043.webp',
+  '38|175|สูงโปร่ง||นักบัญชีบริษัท|มั่นคง|ใจเย็นกว่าคนวัยเดียวกัน|พกสมุดจดเล่มเล็กติดตัวตลอด|ผมหงอกกระจุกเดียวเหนือหน้าผาก|IMG_01_044.webp',
+  '31|170|ผอม||ขายต้นไม้ที่ตลาดนัด|พอใช้|ช้าๆ แต่ไม่เคยลืมอะไร|เรียกต้นไม้ทุกต้นด้วยชื่อ|รอยสักเส้นเล็กๆ รูปใบไม้ที่ข้อมือ|IMG_01_045.webp',
+  '44|174|ท้วม||พ่อครัว เปิดร้านข้าวแกงของตัวเอง|พอดีตัว|หน้าดุ แต่ใจอ่อน|ชิมอาหารร้านอื่นแล้วกลับมาทำเลียนแบบ|รอยไหม้จางๆ ที่หลังมือขวา|IMG_01_011.webp',
+  '26|178|ผอมสูง||โค้ชสอนว่ายน้ำเด็ก|พอใช้|ร่าเริง คุยกับทุกคนที่เจอ|นับจังหวะหายใจเวลาตื่นเต้น|แผลเป็นเส้นสั้นๆ ที่คาง|IMG_01_012.webp',
+  '52|170|สมส่วน||ช่างตัดผม เปิดร้านเล็กๆ ในซอยมายี่สิบปี|พอใช้|อารมณ์ดี เล่าเรื่องเก่งกว่าตัดผม|หวีผมตัวเองทุกครั้งที่เดินผ่านกระจก|ผมขาวทั้งหัว ตัดเรียบกริบ|IMG_01_013.webp',
+  '33|180|ล่ำสัน||ครูฝึกมวยไทย|รายได้ไม่แน่นอน ขึ้นกับจำนวนลูกศิษย์|สุภาพจนน่าแปลกใจสำหรับคนตัวใหญ่ขนาดนี้|ตื่นมาวิ่งตอนตีห้าทุกวัน|สันจมูกเบี้ยวเล็กน้อยจากการซ้อม|IMG_01_014.webp',
+  '41|172|ผอม|ญี่ปุ่น|ช่างซ่อมนาฬิกา|พอดีตัว|พูดช้า คิดก่อนพูดทุกคำ|ตั้งนาฬิกาทุกเรือนในบ้านให้ตรงกันทุกวันอาทิตย์|คิ้วหนาเป็นแนวตรงเกือบชนกัน|IMG_01_015.webp',
+  '29|169|สมส่วน||นักดับเพลิง|มีรายได้ประจำ พร้อมสวัสดิการ|กล้า แต่ไม่บ้าบิ่น|เช็กปลั๊กไฟทุกจุดก่อนออกจากบ้าน|แผลเป็นรูปจันทร์เสี้ยวที่ข้างคอ|IMG_01_016.webp',
+  '36|177|สูงโปร่ง||นักบินสายการบินในประเทศ|สบาย|มั่นใจ แต่ไม่อวด|เช็กพยากรณ์อากาศวันละหลายรอบแม้วันที่ไม่ได้บิน|ผมหงอกประปรายที่ขมับ|IMG_01_017.webp',
+  '47|171|ท้วม||ช่างไม้ รับทำเฟอร์นิเจอร์ตามสั่ง|พอใช้ งานเข้าไม่ขาด|พูดน้อย ทำมากกว่าพูด|เหน็บดินสอไว้หลังหูตลอดเวลา|หนวดเคราสั้นสีดอกเลา|IMG_01_018.webp',
+  '25|173|ผอม||นักวาดภาพประกอบอิสระ|รายได้ไม่แน่นอน บางเดือนดี บางเดือนแย่|ขี้อาย แต่พอคุยเรื่องที่ชอบแล้วตาเป็นประกาย|ซื้อสีเพิ่มทั้งที่ของเก่ายังไม่หมด|แว่นกรอบหนาที่ต้องดันขึ้นบ่อยๆ|IMG_01_019.webp',
+  '39|182|ล่ำ|ลาว|วิศวกรโยธา คุมงานก่อสร้าง|มั่นคง|จริงจัง แต่ขำง่ายเวลาคนอื่นเล่นมุก|มาถึงที่นัดก่อนเวลาสิบห้านาทีเสมอ|ลักยิ้มข้างเดียวที่แก้มขวา|IMG_01_020.webp',
+  '31|166|ตัวเล็ก||ช่างภาพงานแต่งงานอิสระ|รายได้ขึ้นลงตามฤดูแต่งงาน|ช่างสังเกต เห็นรายละเอียดที่คนอื่นมองข้าม|ถ่ายรูปท้องฟ้าทุกเย็น|ต่างหูห่วงเล็กๆ ข้างเดียวที่หูซ้าย|IMG_01_021.webp',
+  '54|168|สมส่วน||ชาวสวนผลไม้ มีสวนของตัวเอง|สบายแบบไม่หวือหวา|อบอุ่น ใจเย็น ชอบสอนคนอื่นโดยไม่รู้ตัว|แจกผลไม้ให้เพื่อนบ้านทุกครั้งที่เก็บได้|ตีนกาลึกชัดเวลายิ้ม|IMG_01_022.webp',
+  '28|175|สมส่วน||บุรุษไปรษณีย์|เงินเดือนไม่มาก แต่มั่นคง|ยิ้มทักทุกบ้านที่ผ่าน|จำชื่อหมาทุกตัวในเขตที่ส่งจดหมาย|หูกางชัด|IMG_01_023.webp',
+  '43|170|ท้วมสมส่วน||เภสัชกร มีร้านขายยาของตัวเอง|สบาย|ละเอียดรอบคอบ อธิบายเก่ง|จำวันหมดอายุของทุกอย่างในตู้เย็นได้|หน้าผากกว้างจากผมที่เริ่มถอยร่น|IMG_01_024.webp',
+  '35|179|ผอมสูง||สัตวแพทย์รักษาหมาแมว|มั่นคง|อ่อนโยนกับสัตว์ แต่เก้ๆ กังๆ กับคน|มีขนแมวติดเสื้อทุกวันแม้เพิ่งเปลี่ยนเสื้อ|รอยข่วนจางๆ หลายเส้นที่หลังมือซ้าย|IMG_01_025.webp',
+];
+const FEMALE = [
+  '30|160|ผอมบาง||พยาบาลเวรกลางคืน|พอใช้ เพราะทำโอทีบ่อย|ใจดีแบบไม่ต้องพูดเยอะ|กินของหวานตอนตีสอง|ไฝเล็กๆ กลางคาง|IMG_01_046.webp',
+  '33|165|สมส่วน||เจ้าของร้านกาแฟเล็กๆ|สบายพอตัว|คุยเก่ง จำชื่อคนได้แม่น|ชิมกาแฟก่อนเสิร์ฟทุกแก้วแม้จะรู้ว่าอร่อย|แผลเป็นบางๆ ที่หลังมือซ้าย|IMG_01_047.webp',
+  '36|168|สูงผอม||สถาปนิก|มั่นคง|เถียงเก่งแต่ไม่ถือโทษ|วาดเส้นเล่นบนขอบกระดาษเวลาฟังคนอื่นพูด|ตาสองข้างสีไม่เท่ากัน|IMG_01_048.webp',
+  '26|155|ตัวเล็ก||ครูอนุบาล|รายได้น้อยแต่ไม่เดือดร้อน|เสียงดังและหัวเราะง่าย|ร้องเพลงกล่อมตัวเองเวลาเครียด|ฟันหน้าซี่หนึ่งเกยเล็กน้อย|IMG_01_049.webp',
+  '41|163|ท้วม||นักแปลอิสระ|ไม่แน่นอนแต่พออยู่ได้|เงียบ แต่พอเริ่มพูดแล้วหยุดยาก|อ่านหนังสือทีละสามเล่มสลับกัน|ปอยผมหน้าม้าที่ไม่เคยอยู่ทรง|IMG_01_050.webp',
+  '28|162|สมส่วน||คนทำขนมปัง เปิดร้านเบเกอรี่เล็กๆ ของตัวเอง|พอดีตัว|อารมณ์ดีตั้งแต่เช้ามืด|ตื่นตีสามทุกวันแม้วันหยุด|กระเล็กๆ เต็มสันจมูก|IMG_01_026.webp',
+  '45|158|ท้วม||แม่ค้าผลไม้ในตลาดเช้า|พอใช้|ปากร้าย ใจดี|แถมของให้ลูกค้าประจำทุกครั้ง|ปานสีน้ำตาลอ่อนที่ข้างคอ|IMG_01_027.webp',
+  '32|170|สูงผอม||ทนายความ|สบาย|พูดตรง คม แต่ยุติธรรม|อ่านทุกอย่างจนถึงบรรทัดสุดท้าย แม้แต่ใบเสร็จ|ไฝเม็ดเล็กเหนือริมฝีปากซ้าย|IMG_01_028.webp',
+  '27|164|ผอมบาง||ครูสอนเต้นร่วมสมัย|รายได้น้อย แต่ได้ทำสิ่งที่รัก|อ่อนโยน เคลื่อนไหวเบาเหมือนไม่มีน้ำหนัก|ยืดเส้นทุกครั้งที่ต้องยืนรอ|ผมมวยสูงที่ไม่เคยมีใครเห็นปล่อยลงมา|IMG_01_029.webp',
+  '38|160|สมส่วน||ช่างตัดเสื้อ รับตัดเย็บที่บ้าน|พอดีตัว|เนี้ยบ ช่างติ แต่ติด้วยความหวังดี|มองตะเข็บเสื้อคนอื่นก่อนมองหน้า|ผมยาวถักเปียข้างเดียวพาดไหล่|IMG_01_030.webp',
+  '50|157|ท้วม||ครูใหญ่โรงเรียนประถม|มั่นคง|เข้มงวด แต่คนรักทั้งโรงเรียน|พกลูกอมไว้ในกระเป๋าเสื้อแจกเด็กเสมอ|ผมสั้นสีดอกเลาทรงบ๊อบ|IMG_01_031.webp',
+  '29|166|ล่ำ||นักกายภาพบำบัด|มีรายได้ประจำ|ร่าเริง ให้กำลังใจเก่ง|ไม่ยอมนอนถ้ายังเดินไม่ถึงหมื่นก้าว|ผมสั้นเกรียนแบบนักกีฬา|IMG_01_032.webp',
+  '35|163|สมส่วน|เวียดนาม|เจ้าของร้านดอกไม้|สบายพอตัวช่วงเทศกาล|ละเมียด ใจเย็น|เปลี่ยนดอกไม้ในแจกันที่บ้านทุกสามวัน|เจาะหูสามรูข้างเดียว|IMG_01_033.webp',
+  '42|168|สูงโปร่ง||วิศวกรซอฟต์แวร์|สบาย|พูดน้อย คิดเร็ว ตลกแบบหน้านิ่ง|ซื้อต้นไม้มาแล้วลืมรดน้ำ|หน้าม้าตรงเป๊ะเหมือนใช้ไม้บรรทัดตัด|IMG_01_034.webp',
+  '25|159|ตัวเล็ก||พนักงานต้อนรับบนเครื่องบิน|มีรายได้ประจำ บวกเบี้ยเลี้ยงเดินทาง|ยิ้มง่าย แต่เด็ดขาดเวลามีเรื่อง|จัดกระเป๋าเดินทางเสร็จภายในสิบนาทีเสมอ|ลักยิ้มสองข้าง|IMG_01_035.webp',
+  '47|165|สมส่วน||ช่างปั้นเซรามิก|ขายงานได้เป็นช่วงๆ พออยู่ได้|นิ่ง สุขุม พูดทีละคำ|เปิดวิทยุเพลงเก่าฟังทั้งวันตอนทำงาน|ริ้วรอยระหว่างคิ้วจากการขมวดคิ้วตอนตั้งใจ|IMG_01_036.webp',
+  '31|167|สมส่วน||เจ้าหน้าที่พิทักษ์ป่า|เงินเดือนไม่มาก แต่มั่นคง|กล้า ลุย ไม่บ่น|จดชื่อนกที่เห็นทุกเช้าลงสมุด|แผลเป็นเล็กๆ ที่ปลายจมูก|IMG_01_037.webp',
+  '39|161|ผอม||บรรณารักษ์ห้องสมุดประชาชน|มั่นคงแต่ไม่หวือหวา|เงียบ แต่ขำตัวเองบ่อย|ดมกลิ่นหนังสือทุกเล่มก่อนเปิดอ่าน|ผมหยิกฟูเป็นลอนแน่น|IMG_01_038.webp',
+  '53|160|ท้วม||เจ้าของร้านก๋วยเตี๋ยวที่ขายมาสามสิบปี|สบายพอตัว|ใจกว้าง ยิ้มทั้งตา|เรียกลูกค้าทุกคนว่าลูก|ผมขาวแซม มัดรวบต่ำที่ท้ายทอย|IMG_01_039.webp',
+  '34|169|สูงโปร่ง|มาเลเซีย|ช่างซ่อมรถยนต์ มีอู่ของตัวเอง|พอดีตัว|ใจร้อน แต่ขอโทษเป็น|ฟังเสียงรถที่ขับผ่านแล้วบอกได้ว่าเสียตรงไหน|แผลเป็นเส้นบางที่โหนกแก้มขวา|IMG_01_040.webp',
+];
+
+const toCard = (gender: Gender) => (packed: string, i: number): Card => {
+  const [age, height, build, nationality, occupation, means, manner, habit, mark, portrait] = packed.split('|') as [
+    string, string, string, string, string, string, string, string, string, string,
+  ];
+  return {
+    id: `${gender === 'm' ? 'M' : 'F'}${i + 1}`,
+    gender,
+    age: Number(age),
+    height: Number(height),
+    build,
+    nationality: nationality || 'ไทย',
+    occupation,
+    means,
+    manner,
+    habit,
+    mark,
+    portrait,
+  };
+};
+
+export const CARDS: readonly Card[] = [...MALE.map(toCard('m')), ...FEMALE.map(toCard('f'))];
+
+/** The card's labelled lines, in the copy's order. The values join with the copy's own separator
+ *  into exactly the line the card files hold — that is what the test compares. */
+export function cardRows(c: Card): [label: string, value: string][] {
+  return [
+    ['เพศ', c.gender === 'm' ? 'ชาย' : 'หญิง'],
+    ['อายุ', String(c.age)],
+    ['ส่วนสูง', `${c.height} ซม.`],
+    ['รูปร่าง', c.build],
+    ['สัญชาติ', c.nationality],
+    ['อาชีพ', c.occupation],
+    ['ฐานะ', c.means],
+    ['ท่าที', c.manner],
+    ['นิสัยติดตัว', c.habit],
+    ['จุดสังเกต', c.mark],
+  ];
+}
+
+// ---- The draw ----
 
 export interface Band {
-  /** Identifier only — never shown to a player, so it stays English like every other identifier. */
-  readonly id: string;
-  readonly min: number;
-  readonly max: number;
-  readonly lines: readonly string[];
+  readonly label: string;
+  /** Inclusive meeting-age range, always above the band's top. `null` only for the open band, which
+   *  has no top to be above and answers in years from now instead. */
+  readonly meet: readonly [number, number] | null;
 }
 
-/** Every line describes the fortune of the *pair*, never a verdict on one of the two people in the room,
- *  and never assumes the two are or should be together — friends, colleagues and relatives play this
- *  (#34). Per ADR-0011 a line may urge what horoscopes have always urged (patience, kindness, letting
- *  an argument go) but may not name a medical, financial or legal act.
- *  Bands tile 0..100 with no gap and no overlap: bandFor() must be total, because the test walks
- *  every score from 0 to 100 against its own copy of these boundaries. */
+/** The signed-off per-band table. Every closed range starts above its band's top, which is what
+ *  makes "never predicts the past" true by construction: the draw has no lower number to produce. */
 export const BANDS: readonly Band[] = [
-  {
-    id: 'far',
-    min: 0,
-    max: 24,
-    lines: [
-      'วันนี้ดวงคู่นี้ยังไม่เข้าจังหวะกัน พูดคนละเรื่องเดียวกันอยู่',
-      'จังหวะของสองคนนี้วันนี้สวนทางกัน คนหนึ่งจะเร็ว อีกคนจะช้า',
-      'วันนี้คลื่นไม่ตรงกัน คุยอะไรก็ต้องอธิบายกันสองรอบ',
-      'ดวงคู่นี้วันนี้เหมือนนัดกันคนละที่ ตั้งใจดีกันทั้งคู่แต่ยังไม่บรรจบ',
-      'วันนี้สองคนนี้อยู่คนละอารมณ์ ต่างคนต่างพักสักหน่อยแล้วค่อยว่ากัน',
-      'ดวงคู่นี้วันนี้แรงเยอะแต่ทิศไม่ตรง เรื่องเล็กๆ เถียงกันได้ยาวเลย',
-      'วันนี้ยังไม่ใช่วันของคู่นี้ พรุ่งนี้ฟ้าอาจจัดจังหวะใหม่ให้',
-    ],
-  },
-  {
-    id: 'slow',
-    min: 25,
-    max: 49,
-    lines: [
-      'ดวงคู่นี้ต้องออกแรงกันหน่อย แต่ออกแรงแล้วไปต่อได้',
-      'วันนี้สองคนนี้เริ่มจับจังหวะกันได้ ยังไม่ลงล็อกแต่ใกล้แล้ว',
-      'คู่นี้วันนี้เหมือนเพลงที่ยังจูนไม่เข้าคีย์ ฟังไปสักพักจะเข้าที่เอง',
-      'ดวงคู่นี้ดีตอนอยู่กันเงียบๆ พอมีคนอื่นมาร่วมวงจังหวะจะรวน',
-      'วันนี้คู่นี้ต้องใช้ความใจเย็นมากกว่าคำพูด อดใจไว้แล้วจะผ่านไปได้สวย',
-    ],
-  },
-  {
-    id: 'steady',
-    min: 50,
-    max: 69,
-    lines: [
-      'ดวงคู่นี้กลางๆ แบบสบายใจ ไม่หวือหวาแต่ก็ไม่มีอะไรให้กังวล',
-      'วันนี้สองคนนี้ไปด้วยกันได้เรื่อยๆ เหมือนเดินคุยกันไปไม่ต้องรีบ',
-      'คู่นี้พอดีกันแบบไม่ต้องพยายาม อยู่ด้วยกันแล้วเวลาผ่านไปเร็ว',
-      'ดวงคู่นี้วันนี้นิ่ง ใครเหนื่อยมาอีกคนจะรู้เองโดยไม่ต้องบอก',
-      'วันนี้คู่นี้เข้ากันได้ดีเวลามีงานต้องทำ แต่ต้องมีคนเริ่มก่อนสักคน',
-    ],
-  },
-  {
-    id: 'close',
-    min: 70,
-    max: 89,
-    lines: [
-      'ดวงคู่นี้เข้าขากันดีมาก คิดอะไรมักตรงกันโดยไม่ได้นัด',
-      'วันนี้สองคนนี้จังหวะตรงกันเป๊ะ พูดพร้อมกันได้หลายรอบเลย',
-      'คู่นี้เจอกันทีไรบรรยากาศดีขึ้นทุกที คนรอบข้างก็พลอยสบายใจไปด้วย',
-      'ดวงคู่นี้เสริมกันพอดี คนหนึ่งคิด อีกคนลงมือ',
-      'วันนี้คู่นี้คุยกันคำเดียวก็เข้าใจ ที่เหลือไม่ต้องอธิบาย',
-      'ดวงคู่นี้แรงดี วันนี้ชวนกันทำอะไรก็สำเร็จง่ายกว่าปกติ',
-      'สองคนนี้อยู่ด้วยกันแล้วเรื่องยากกลายเป็นเรื่องขำ',
-    ],
-  },
-  {
-    id: 'locked',
-    min: 90,
-    max: 100,
-    lines: [
-      'ดวงคู่นี้เต็มจังหวะ วันนี้ทำอะไรด้วยกันก็เข้าล็อกไปหมด',
-      'ฟ้าจัดจังหวะให้สองคนนี้มาเจอกันพอดีวันนี้ ชวนกันทำอะไรก็ราบรื่น',
-      'สองคนนี้คลื่นตรงกันแบบหาไม่ได้ง่ายๆ ทั้งวงต้องยกให้',
-      'ดวงคู่นี้ดีจนคนรอบตัวสังเกตเห็นเอง ไม่ต้องมีใครบอก',
-      'วันนี้คู่นี้คิดตรงกันจนน่าตกใจ ลองถามคำถามเดียวกันดูได้เลย',
-      'ดวงคู่นี้ส่งกันขึ้น อีกคนอยู่ตรงไหนอีกคนก็ทำได้ดีกว่าเดิม',
-      'วงนี้ต้องพึ่งคู่นี้ ใครมีเรื่องติดขัดวันนี้ให้สองคนนี้ช่วยกันคิด',
-    ],
-  },
+  { label: '18–24', meet: [25, 29] },
+  { label: '25–29', meet: [30, 34] },
+  { label: '30–34', meet: [35, 39] },
+  { label: '35–39', meet: [40, 44] },
+  { label: '40–49', meet: [50, 55] },
+  { label: '50 ขึ้นไป', meet: null },
 ];
 
-/** Score ranges with how many slots each one takes in the draw. Uneven on purpose (#34): a flat
- *  0..100 hands almost every group a mediocre middling percentage, which is the boring outcome, so
- *  the two ends carry more weight than the middle. The test measures the resulting distribution
- *  rather than trusting this table.
- *  0..5 and 100 are deliberately unproducible: 0% reads as a verdict on two real people in the room
- *  rather than on their timing, and 100% is an absolute this game has no business claiming. Both
- *  still resolve in bandFor() — the bands tile the full range, the draw just never lands there. */
-const WEIGHTS: readonly (readonly [from: number, to: number, slots: number])[] = [
-  [6, 24, 2],
-  [25, 49, 1],
-  [50, 69, 1],
-  [70, 89, 2],
-  [90, 99, 4],
+/** The open band's relative form, in years from now: above the reader's own age by construction. */
+export const OPEN_BAND_YEARS: readonly [number, number] = [2, 5];
+/** Owner ruling on gh#101 (2026-09-26): a card is drawn only from cards within this many years of
+ *  the drawn meeting age. Smallest pool it leaves is three per gender, near meeting ages 53 to 55. */
+export const AGE_WINDOW = 8;
+/** Same ruling: at the open band there is no meeting age, so the pool is the cards aged this or over
+ *  (three male, four female). Lowering it to 42 gives five per gender — offered, not taken. */
+export const OPEN_BAND_CARD_FLOOR = 45;
+/** About eight in ten meet someone. */
+export const MEET_ODDS = 0.8;
+
+export const PLACES: readonly string[] = [
+  'ร้านหนังสือมือสอง', 'คิวรอรถเมล์ตอนฝนตก', 'งานวิ่งการกุศล', 'ห้องสมุดประชาชน', 'ร้านซักผ้าหยอดเหรียญ',
+  'ตลาดนัดเช้าวันเสาร์', 'งานแต่งของเพื่อนคนเดียวกัน', 'คลาสเรียนทำอาหาร', 'ร้านตัดผม', 'สนามบินตอนไฟลต์ดีเลย์',
 ];
 
-/** Every score the draw can produce, one entry per slot — `hashPick` is uniform over entries, so
- *  repeating a score is what weights it. Exported so the test can assert against the scores that
- *  actually exist instead of against 0..100, most of which never occur. */
-export const SCORES: readonly number[] = WEIGHTS.flatMap(([from, to, slots]) =>
-  Array.from({ length: to - from + 1 }, (_, i) => from + i).flatMap(
-    (score) => Array.from({ length: slots }, () => score),
-  ),
-);
+export const SELF_VARIANTS: readonly { heading: string; body: string }[] = [
+  { heading: 'เนื้อคู่ของคุณคือตัวคุณเอง', body: 'คนที่อยู่ด้วยได้ทุกวันโดยไม่เบื่อ มีอยู่คนเดียว และคนนั้นก็คือคุณ รอบนี้ดวงบอกให้ใช้เวลากับตัวเองให้คุ้ม' },
+  { heading: 'รอบนี้ดวงไม่ได้พาใครมา', body: 'ไม่ใช่เพราะไม่มีใคร แต่เพราะตอนนี้คุณสนุกกับชีวิตตัวเองมากพอ จนยังไม่ต้องแบ่งเวลาให้ใคร' },
+  { heading: 'ดวงบอกว่าคุณเต็มอยู่แล้ว', body: 'บางคนต้องมีอีกคนมาเติมให้ครบ บางคนครบมาตั้งแต่แรก คุณอยู่ในกลุ่มหลัง' },
+  { heading: 'รอบนี้ยังไม่มีชื่อใคร', body: 'ไม่ได้แปลว่าขาด แปลว่าตอนนี้คุณไม่ต้องรอใครก่อนจะมีความสุข' },
+];
 
-/** The seed both outputs share. Two things are load-bearing here.
- *  1. Sorting, so tap order cannot change the reading.
- *  2. Sorting with `<=` — plain UTF-16 code-unit comparison. `localeCompare`/`Intl.Collator` would
- *     order Thai by ICU locale data that differs between runtimes and ICU builds, so two phones could
- *     seed the same pair in opposite orders and disagree. Code-unit order is arbitrary to a reader
- *     but identical on every device, which is the only property this needs.
- *  ponytail: `|` is a plain separator, so a name literally containing `|` could collide with another
- *  pair. Harmless — the collision's only effect is two pairs reading alike, which #34 already accepts
- *  as a known consequence of a small pool. Length-prefix the parts if that ever stops being true. */
-export function pairSeed(a: string, b: string, today: string): string {
-  const x = normalizeName(a);
-  const y = normalizeName(b);
-  const [lo, hi] = x <= y ? [x, y] : [y, x];
-  return `${lo}|${hi}|${today}`;
+/** The cards a draw may hand out: the wanted gender, within AGE_WINDOW of the meeting age, or at
+ *  the open band (no meeting age) the cards aged OPEN_BAND_CARD_FLOOR and over. */
+export function cardPool(band: number, want: Gender, meetAge?: number): Card[] {
+  return CARDS.filter(
+    (c) => c.gender === want && (BANDS[band]!.meet ? Math.abs(c.age - meetAge!) <= AGE_WINDOW : c.age >= OPEN_BAND_CARD_FLOOR),
+  );
 }
 
-/** Today's compatibility number for a pair. */
-export function scoreFor(a: string, b: string, today: string): number {
-  return hashPick(pairSeed(a, b, today), SCORES);
-}
+export type Reading =
+  | { kind: 'meet'; card: Card; place: string; age?: number; years?: number }
+  | { kind: 'self'; variant: number };
 
-export function bandFor(score: number): Band {
-  const band = BANDS.find((b) => score >= b.min && score <= b.max);
-  if (!band) throw new Error(`bandFor: score ${score} is outside 0..100`);
-  return band;
-}
+const pick = <T>(rand: () => number, list: readonly T[]): T => list[Math.floor(rand() * list.length)]!;
+const between = (rand: () => number, [lo, hi]: readonly [number, number]): number => lo + Math.floor(rand() * (hi - lo + 1));
 
-/** Today's line for a pair. The score chooses the band and the band owns the pool, so the number and
- *  the text physically cannot contradict each other — that is the whole reason this is one seed and
- *  not two hashes (#34): two hashes would print 95% next to a line about a difficult match.
- *  The `|line` suffix picks *within* the chosen pool. It is the same pair-seed, not a second
- *  independent hash: the band is already fixed by the score before this runs. The suffix exists
- *  because `hashPick` derives its index as `h % pool.length` from one `h` — reusing the bare seed
- *  would tie `h % SCORES.length` to `h % lines.length` whenever those lengths share a factor, and
- *  some lines in a band would become undrawable. That coupling would come back silently the next
- *  time someone adds a line; the suffix removes it for good, and the test checks reachability per
- *  band anyway. */
-export function lineFor(a: string, b: string, today: string): string {
-  const seed = pairSeed(a, b, today);
-  return hashPick(`${seed}|line`, bandFor(hashPick(seed, SCORES)).lines);
-}
-
-/** The meter arc's stroke-dashoffset for a score — the SVG's fixed 264 dasharray (2π·42, the canvas's
- *  r=42 ring) minus the fraction the score fills. Derived from the percentage, never hardcoded, so the
- *  arc a player reads is always the number the meter prints; 75% → 66, the canvas's own example. */
-export function arcDashOffset(percent: number): number {
-  return Math.round(264 * (1 - percent / 100));
+/** One draw. `rand` is injected so the tests never touch Math.random. */
+export function drawReading(band: number, want: Gender, rand: () => number = Math.random): Reading {
+  if (rand() >= MEET_ODDS) return { kind: 'self', variant: Math.floor(rand() * SELF_VARIANTS.length) };
+  const meet = BANDS[band]!.meet;
+  const age = meet ? between(rand, meet) : undefined;
+  const years = meet ? undefined : between(rand, OPEN_BAND_YEARS);
+  return { kind: 'meet', card: pick(rand, cardPool(band, want, age)), place: pick(rand, PLACES), age, years };
 }
 
 // ---- Current screen state (one game per page) ----
 
 let cleanup: Array<() => void> = [];
 let stageEl: HTMLElement | null = null;
-let gameCtx: GameContext | null = null;
-/** Roster index, not a name — two players in one group may share a name and are still two picks. */
-let firstIndex: number | null = null;
-// Chip nodes for the CURRENT pick screen, one per roster index — kept live across the two taps of a
-// pick so the first tap can mark a chip taken in place instead of rebuilding the row (#36: a rebuild
-// after tap 1 reflows every later chip under the player's finger, so tap 2 lands on the wrong person).
-let chipEls: HTMLButtonElement[] = [];
-let headerEl: HTMLParagraphElement | null = null;
-let backBtn: HTMLButtonElement | null = null;
+// The three answers. In memory only, and dropped on dispose — see the header.
+let me: Gender | null = null;
+let band: number | null = null;
+let want: Gender | null = null;
+// The wanted gender follows the opposite of the reader's own until the reader picks it themselves.
+let wantChosen = false;
 
-// ponytail: `cleanup` grows across pick↔result cycles instead of being drained per render, so the
-// removal closures pin detached nodes until dispose(). Bounded and released on every game switch —
-// a whole party night is ~100 cycles. Same trade as daily-fortune.ts; drain it per render only if a
-// profile says to.
+// ponytail: `cleanup` grows across ask-result cycles instead of being drained per render, so the
+// removal closures pin detached nodes until dispose(). Bounded and released on every game switch;
+// same trade as daily-fortune.ts.
 function on(target: EventTarget, type: string, handler: EventListener): void {
   target.addEventListener(type, handler);
   cleanup.push(() => target.removeEventListener(type, handler));
 }
 
 // ---- Screens ----
-// 320px: every size comes off the viewport, never a constant, and both the names and the line wrap
-// instead of pushing the stage sideways.
-const CHIPS_STYLE = 'display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin:0.75rem 0';
-// Reserves 2 lines' worth of height for the header paragraph regardless of which of its two possible
-// strings is showing (the initial prompt vs. the "pick <name>'s partner" string built in pick() below) —
-// in em, so it tracks whatever font-size the header actually renders at. Without this, swapping the text
-// in place could still change the paragraph's own height if the new string wraps differently, and shift
-// the chip row underneath it — the same bug on a new axis (#36). Rendered at 320px: both strings stay
-// one line for names up to ~18 Thai characters, so day to day this is headroom, not an active fix — it
-// stays because a longer name can still wrap the second string to 2 lines. headerNameFor() truncates any
-// name past HEADER_NAME_MAX before it reaches this string, so the built string can never wrap past 2
-// lines — the reservation is a hard cap, not a "usually" cover for the common case.
-const HEADER_STYLE = 'min-height:2.8em;line-height:1.4;margin:0 0 0.5rem';
-// A name past this length is truncated (with an ellipsis) before it goes into the header string — see
-// headerNameFor(). Player names are never length-capped at write time everywhere they could originate
-// (an old, uncapped localStorage entry can outlive today's input maxlength), so this is the actual
-// backstop for HEADER_STYLE's 2-line reservation, not the input's maxlength.
-export const HEADER_NAME_MAX = 20;
+// Styles live in src/styles/games/love-match.css under the `lm-` prefix. No outbound link is built
+// anywhere in this file: #stage holds no navigation target (ADR-0014); the page's crawlable link is
+// static chrome in src/layouts/GameLayout.astro, above the stage.
 
-/** Truncates a player name for use inside the header string built in pick() below, so that string can
- *  never wrap past HEADER_STYLE's 2-line reservation, regardless of how long the underlying name is. */
-function headerNameFor(name: string): string {
-  return name.length > HEADER_NAME_MAX ? `${name.slice(0, HEADER_NAME_MAX)}…` : name;
+/** One question: a label and a row of toggle buttons. Toggles rather than radios so the arm gate,
+ *  which walks buttons, covers them on every render the way it covers every other control. */
+function question(
+  stage: HTMLElement,
+  id: string,
+  label: string,
+  options: readonly string[],
+  keys: readonly (string | number)[],
+  selected: () => number | null,
+  choose: (i: number) => void,
+  sync: () => void,
+): () => void {
+  const labelEl = el('p', label);
+  labelEl.className = 'lm-q';
+  labelEl.id = `lm-q-${id}`;
+  const row = el('div');
+  row.className = 'lm-opts';
+  row.setAttribute('role', 'group');
+  row.setAttribute('aria-labelledby', labelEl.id);
+  const buttons = options.map((text, i) => {
+    const b = el('button', text);
+    b.type = 'button';
+    b.id = `lm-${id}-${keys[i]}`;
+    b.className = 'lm-choice';
+    on(b, 'click', () => {
+      choose(i);
+      sync();
+    });
+    row.appendChild(b);
+    return b;
+  });
+  const box = el('div');
+  box.className = 'lm-qbox';
+  box.appendChild(labelEl);
+  box.appendChild(row);
+  stage.appendChild(box);
+  return () => buttons.forEach((b, i) => b.setAttribute('aria-pressed', String(selected() === i)));
 }
-// The "taken" look for the first-picked chip. Previously unauthored — the dimming rode entirely on the
-// browser's default `:disabled` UA styling, and a real device (iOS Safari, not the headless Chrome that
-// captured docs/verification/evidence) is not guaranteed to render that the same way. Values chosen to
-// stay close to what Chrome's default already produced, since the owner approved that exact look.
-const TAKEN_CHIP_STYLE = 'opacity:0.5';
 
-// No hub link is built in this file any more — #stage must hold no navigation target (a tap-transition
-// would drop it under the finger that just tapped). The crawlable outbound link is static chrome in
-// src/layouts/GameLayout.astro.
+const GENDERS: readonly Gender[] = ['m', 'f'];
+const GENDER_OPTIONS = ['ผู้ชาย', 'ผู้หญิง'];
 
-// Builds the whole pick screen once per round (initial mount, or after the result screen's "again"
-// button calls this again to start a new pick) — every chip stays for both taps of a pick, per #36.
-// `firstIndex` is always null when this runs; the first tap updates the existing nodes in place (see
-// pick()) instead of calling this again.
-function renderPick(): void {
+function renderAsk(): void {
   const stage = stageEl;
   if (!stage) return;
   stage.replaceChildren();
-  // The pick screen sits in block flow (its chips and header are inline-styled); the result screen is
-  // the one that opts into .stage-screen. Explicit on every render so a round that came back from the
-  // result screen ("ดูคู่อื่น") lands in block flow instead of inheriting the class it left behind.
-  stage.className = '';
-  chipEls = [];
-  headerEl = null;
-  backBtn = null;
-
-  const roster = gameCtx?.session.players ?? [];
-  // The setup panel refuses to start below players[0], so this is a guard, not a normal path.
-  if (roster.length < 2) {
-    stage.appendChild(el('p', 'เกมนี้ต้องมีอย่างน้อย 2 คน ใส่ชื่อเพิ่มก่อนนะ'));
-    return;
-  }
-
-  headerEl = el('p', 'แตะเลือกคนแรก', HEADER_STYLE);
-  stage.appendChild(headerEl);
-
-  const chips = el('div', undefined, CHIPS_STYLE);
-  roster.forEach((name, index) => {
-    const chip = el('button', name);
-    chip.type = 'button';
-    on(chip, 'click', () => pick(index));
-    chipEls[index] = chip;
-    chips.appendChild(chip);
-  });
-  stage.appendChild(chips);
-
-  // Created once, hidden via the native `hidden` attribute rather than added/removed from the DOM —
-  // no CSS needed, and it keeps this screen's node set fixed for the same reason the chips are fixed.
-  const back = el('button', 'เลือกคนแรกใหม่');
-  back.id = 'lm-reset';
-  back.type = 'button';
-  back.hidden = true;
-  on(back, 'click', () => {
-    if (firstIndex !== null) {
-      const prev = chipEls[firstIndex];
-      prev.disabled = false;
-      prev.removeAttribute('aria-pressed');
-      prev.removeAttribute('style');
-    }
-    firstIndex = null;
-    if (headerEl) headerEl.textContent = 'แตะเลือกคนแรก';
-    back.hidden = true;
-  });
-  backBtn = back;
-  stage.appendChild(back);
-
-  // Every way into this screen (mount, and renderResult's "again" remount) swaps the stage under the
-  // finger that just tapped, so a ghost second contact could land on a chip or on "back". Unlike
-  // daily-fortune's roster chips, gating these is safe: a chip→chip tap here crosses no #stage swap —
-  // the first tap mutates the row in place (see pick() above) rather than re-rendering — so the
-  // 400ms window only ever delays the FIRST tap of a fresh pick, never a deliberate second one.
-  cleanup.push(armAllButtons(stage));
-}
-
-// ---- The result screen's inline art, drawn, never an image. Presentation attributes resolve var(),
-// exactly as pick-loser's burst does: #1a1a1a is var(--color-line-strong), #fffdf7 is
-// var(--color-ground-warm). #d6336c is the meter arc's own colour, NOT the accent, and stays a literal
-// (the brief: only the accent may not be one). The arc offset is computed, never hardcoded.
-const HEART_SVG =
-  '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="2" stroke-linejoin="round" aria-hidden="true">' +
-  '<path d="M12 20s-7-4.5-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5c0 5-7 9.5-7 9.5z"></path></svg>';
-
-/** The 250×250 meter SVG on the canvas's 0..100 viewBox: a warm ring outlined strong, plus the
- *  #d6336c progress arc whose stroke-dashoffset is arcDashOffset(score). The -90deg rotation is CSS
- *  (.lm-meter svg), not inline. */
-function meterSvg(offset: number): string {
-  return (
-    '<svg width="250" height="250" viewBox="0 0 100 100" aria-hidden="true">' +
-    '<circle cx="50" cy="50" r="42" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="5"></circle>' +
-    `<circle cx="50" cy="50" r="42" fill="none" stroke="#d6336c" stroke-width="5" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="${offset}"></circle>` +
-    '</svg>'
-  );
-}
-
-function renderResult(a: string, b: string, now: Date): void {
-  const stage = stageEl;
-  if (!stage) return;
-  stage.replaceChildren();
-  // The result screen opts into the shared shell layout (.stage-screen) so it spans the full width on
-  // the accent ground the play-area already paints — the same opt-in pick-loser and daily-fortune make.
   stage.className = 'stage-screen';
 
-  // One `now` for the whole screen — two `new Date()` calls could straddle Bangkok midnight and hash a
-  // day the reveal did not seal. The Bangkok day, never the device's (Thailand is UTC+7, no DST): two
-  // phones in different timezones must agree on the same pair near midnight. The screen no longer prints
-  // a date line (the canvas has none); the note under the button carries the "today" promise.
-  const today = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Bangkok',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(now);
-  const score = scoreFor(a, b, today);
-  const line = lineFor(a, b, today);
+  const title = el('p', 'เนื้อคู่ของคุณ');
+  title.className = 'lm-heading';
+  stage.appendChild(title);
+  stage.appendChild(el('p', 'ตอบสามข้อ แล้วเปิดดูครั้งเดียว'));
 
-  // The pair row: two structurally identical name tiles around a filled heart. The reading is about the
-  // PAIR, never a verdict on one person, so the two tiles are the same element with the same class — no
-  // first-name/second-name styling of any kind (the first AC). Direct children in canvas order.
-  const pair = document.createElement('div');
-  pair.className = 'lm-pair';
-  const tileA = el('div', a);
-  tileA.className = 'lm-name';
-  const tileB = el('div', b);
-  tileB.className = 'lm-name';
-  const heart = document.createElement('span');
-  heart.className = 'lm-heart';
-  heart.innerHTML = HEART_SVG;
-  pair.appendChild(tileA);
-  pair.appendChild(heart);
-  pair.appendChild(tileB);
-  stage.appendChild(pair);
+  const go = el('button', 'เปิดดูเนื้อคู่');
+  const refresh: Array<() => void> = [];
+  // The open control's enabled state belongs to this screen: disabled until all three are answered.
+  // The arm gate leaves a control it found disabled alone when its window closes, and every answer
+  // re-runs this after the window, so the gate never has to know the rule.
+  const sync = (): void => {
+    refresh.forEach((r) => r());
+    go.disabled = me === null || band === null || want === null;
+  };
+  const gi = (g: Gender | null): number | null => (g === null ? null : GENDERS.indexOf(g));
 
-  // The meter: a drawn arc, not an image; the number is the one big thing on screen (62px).
-  const meter = document.createElement('div');
-  meter.className = 'lm-meter';
-  meter.innerHTML = meterSvg(arcDashOffset(score));
-  const meterLabel = document.createElement('div');
-  meterLabel.className = 'lm-meter-label';
-  const scoreEl = el('span', String(score));
-  scoreEl.className = 'lm-score';
-  const unitEl = el('span', 'เปอร์เซ็นต์');
-  unitEl.className = 'lm-unit';
-  meterLabel.appendChild(scoreEl);
-  meterLabel.appendChild(unitEl);
-  meter.appendChild(meterLabel);
-  stage.appendChild(meter);
+  refresh.push(question(stage, 'me', 'คุณเป็น', GENDER_OPTIONS, GENDERS, () => gi(me), (i) => {
+    me = GENDERS[i]!;
+    if (!wantChosen) want = GENDERS[1 - i]!;
+  }, sync));
+  refresh.push(question(stage, 'band', 'อายุของคุณ', BANDS.map((b) => b.label), BANDS.map((_, i) => i), () => band, (i) => {
+    band = i;
+  }, sync));
+  refresh.push(question(stage, 'want', 'อยากให้เนื้อคู่เป็น', GENDER_OPTIONS, GENDERS, () => gi(want), (i) => {
+    want = GENDERS[i]!;
+    wantChosen = true;
+  }, sync));
 
-  // The reading card owns its height — no fixed height, no overflow — so the longest line in the pool
-  // renders in full instead of clipping or scrolling (the third AC).
-  const reading = document.createElement('div');
-  reading.className = 'lm-reading';
-  reading.appendChild(el('p', line));
-  stage.appendChild(reading);
+  const privacy = el('p', 'ที่ตอบไว้อยู่แค่ในหน้านี้รอบเดียว ไม่ได้บันทึก ไม่ได้อยู่ในลิงก์ ไม่ได้ส่งไปไหน');
+  privacy.className = 'lm-note';
+  stage.appendChild(privacy);
 
-  const again = el('button', 'ดูคู่อื่น');
-  again.id = 'lm-again';
-  again.type = 'button';
-  again.className = 'game-btn game-btn-primary';
-  on(again, 'click', () => {
-    firstIndex = null;
-    renderPick();
+  go.id = 'lm-go';
+  go.type = 'button';
+  go.className = 'game-btn game-btn-primary';
+  on(go, 'click', () => {
+    if (me !== null && band !== null && want !== null) renderReading(drawReading(band, want));
   });
-  stage.appendChild(again);
+  stage.appendChild(go);
+  sync();
 
-  const note = el('span', 'วันนี้คู่เดิมได้ผลเดิม');
-  note.className = 'lm-note';
-  stage.appendChild(note);
-
-  // No outbound link here — #stage holds no navigation target in any game (ADR-0014); the crawlable
-  // link is static chrome above the stage. The second tap of the pair that produced this screen lands
-  // here under the same finger, so gate it like every render.
+  // Every way into this screen (mount, and the redo from a reading) swaps the stage under the finger
+  // that just tapped, so every control here waits out the arm window.
   cleanup.push(armAllButtons(stage));
 }
 
-function pick(index: number): void {
-  const roster = gameCtx?.session.players ?? [];
-  if (firstIndex === null) {
-    // In place, not a re-render (#36): the chip row must stay exactly as the player saw it for the
-    // second tap. Taken chip is disabled (stops responding) and marked aria-pressed — still visible,
-    // dimmed by TAKEN_CHIP_STYLE, so it doesn't read as "nothing happened".
-    firstIndex = index;
-    if (headerEl) headerEl.textContent = `เลือกคู่ของ ${headerNameFor(roster[index])}`;
-    const chip = chipEls[index];
-    if (chip) {
-      chip.disabled = true;
-      chip.setAttribute('style', TAKEN_CHIP_STYLE);
-      chip.setAttribute('aria-pressed', 'true');
-    }
-    if (backBtn) backBtn.hidden = false;
-    return;
-  }
-  // Same chip tapped twice fast: with the row no longer reflowing, the first chip is still on screen
-  // and still under the finger — without this guard a double-tap pairs someone with themselves (#36).
-  if (index === firstIndex) return;
-  const a = roster[firstIndex];
-  const b = roster[index];
-  gameCtx?.session.markPlayed('love-match');
-  renderResult(a, b, new Date());
-}
+// The self branch's one piece of art, drawn and never an image (criterion 5). Presentation attributes
+// resolve var(), the way daily-fortune's sun does.
+const SELF_SVG =
+  '<svg width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true">' +
+  '<circle cx="48" cy="48" r="30" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3"></circle>' +
+  '<path d="M37 52q11 10 22 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path></svg>';
 
-function mountInto(stage: HTMLElement, ctx: GameContext): void {
-  stageEl = stage;
-  gameCtx = ctx;
-  firstIndex = null;
-  chipEls = [];
-  headerEl = null;
-  backBtn = null;
-  renderPick();
+function renderReading(r: Reading): void {
+  const stage = stageEl;
+  if (!stage) return;
+  stage.replaceChildren();
+  stage.className = 'stage-screen';
+
+  const add = (text: string, cls: string): void => {
+    const p = el('p', text);
+    p.className = cls;
+    stage.appendChild(p);
+  };
+
+  let closing: string;
+  if (r.kind === 'meet') {
+    add('คุณจะได้เจอเขา', 'lm-heading');
+    add(r.age !== undefined ? `ตอนคุณอายุ ${r.age} ปี` : `อีกประมาณ ${r.years} ปีจากนี้`, 'lm-when');
+    add(`ที่ ${r.place}`, 'lm-where');
+
+    // The card's own deck portrait. Empty alt on purpose: every fact in the picture is in the
+    // labelled lines right under it, so a screen reader would only hear the card twice.
+    const box = el('div');
+    box.className = 'lm-portrait';
+    const img = el('img');
+    img.setAttribute('src', `/art/nuea-khu/${r.card.portrait}`);
+    img.setAttribute('alt', '');
+    img.setAttribute('width', '400');
+    img.setAttribute('height', '400');
+    on(img, 'error', () => box.replaceChildren(el('p', 'ยังไม่มีภาพ')));
+    box.appendChild(img);
+    stage.appendChild(box);
+
+    const rows = el('div');
+    rows.className = 'lm-card';
+    for (const [label, value] of cardRows(r.card)) {
+      const row = el('div');
+      row.className = 'lm-row';
+      row.appendChild(el('span', label));
+      row.appendChild(el('span', value));
+      rows.appendChild(row);
+    }
+    stage.appendChild(rows);
+    closing = 'ไม่ต้องรีบออกไปหา แค่จำไว้ว่าประมาณนี้';
+  } else {
+    const art = el('div');
+    art.className = 'lm-art';
+    art.innerHTML = SELF_SVG;
+    stage.appendChild(art);
+    const v = SELF_VARIANTS[r.variant]!;
+    add(v.heading, 'lm-heading');
+    add(v.body, 'lm-body');
+    closing = 'เปิดใหม่ได้เรื่อยๆ ดวงไม่ได้ผูกไว้กับรอบเดียว';
+  }
+  add(closing, 'lm-note');
+
+  // Back to the ask screen with the answers still held, so the reader can change one or open again
+  // with a single tap.
+  const again = el('button', 'เปิดใหม่อีกที');
+  again.id = 'lm-again';
+  again.type = 'button';
+  again.className = 'game-btn game-btn-secondary';
+  on(again, 'click', () => renderAsk());
+  stage.appendChild(again);
+
+  // The press that revealed this screen swaps it in under the same finger; a ghost second contact
+  // would land on the redo and skip the reading nobody read yet.
+  cleanup.push(armAllButtons(stage));
 }
 
 function teardown(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
-  firstIndex = null;
-  chipEls = [];
-  headerEl = null;
-  backBtn = null;
   stageEl?.replaceChildren();
   stageEl = null;
-  gameCtx = null;
+  me = null;
+  band = null;
+  want = null;
+  wantChosen = false;
 }
 
 const game: GameModule = {
   id: 'love-match',
-  names: { th: 'ดวงความรัก', en: 'Love Match' },
+  names: { th: 'เนื้อคู่ของคุณ', en: 'Your Soulmate' },
   category: 'fortune',
-  // gh#96 / ADR-0040 — the cross-binding makes [1, 1] the only shape a fortune page may declare, so
-  // this module carries it while its content is still the party-shaped pair score. The solo mount
-  // hands it an empty group; content redesign is the "เนื้อคู่" ticket, which this ticket unblocks.
+  // gh#96 / ADR-0040 — a fortune page is one reader and one answer, so [1, 1] and no setup panel.
   players: [1, 1],
   renderer: 'dom',
-  // One person, one answer, no rounds (ADR-0040) — the leave-confirm must never arm on this page.
+  // One reader, one answer, no rounds (ADR-0040) — the leave-confirm must never arm on this page.
   startsRound: false,
-  keywords: ['ดวงความรัก', 'ดูดวงคู่', 'ดวงคู่วันนี้', 'ทดสอบความเข้ากัน', 'ดูดวงบนเครื่องเดียว'],
-  tagline: 'เลือกชื่อสองคน แล้วดูว่าวันนี้ดวงเข้ากันกี่เปอร์เซ็นต์',
+  keywords: ['เนื้อคู่', 'เนื้อคู่ของคุณ', 'ดูดวงเนื้อคู่', 'เนื้อคู่เป็นคนแบบไหน', 'จะเจอเนื้อคู่ตอนอายุเท่าไร'],
+  tagline: 'ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็นคนแบบไหน',
+  ogTagline: 'ตอบสามข้อ เปิดครั้งเดียว',
   seo: {
-    title: 'ดวงความรัก — เลือกชื่อสองคนดูดวงคู่วันนี้ เล่นฟรีบนเครื่องเดียว',
+    title: 'เนื้อคู่ของคุณ — ตอบสามข้อ รู้ว่าเนื้อคู่เป็นคนแบบไหน และจะเจอตอนอายุเท่าไร',
     description:
-      'เลือกชื่อสองคน แล้วดูว่าวันนี้ดวงของคู่นี้เข้ากันกี่เปอร์เซ็นต์ พร้อมคำทำนายประจำวัน คู่เดิมในวันเดิมได้ผลเดิมเสมอ สลับลำดับก็ได้ผลเท่ากัน พรุ่งนี้ค่อยเปลี่ยนใหม่ ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
+      'ดูดวงเนื้อคู่ได้คนเดียว ตอบสามข้อแล้วเปิดครั้งเดียว ได้รายละเอียดว่าเนื้อคู่เป็นคนแบบไหน ทำงานอะไร นิสัยยังไง และจะเจอกันตอนอายุเท่าไรที่ไหน ไม่ต้องโหลดแอป ไม่ต้องสมัคร ไม่เก็บข้อมูลที่กรอก',
     steps: [
-      'ใส่ชื่อที่จะเทียบดวงด้วยกัน',
-      'แตะเลือกคนแรก แล้วแตะเลือกคนที่สอง',
-      'ดูเปอร์เซ็นต์ความเข้ากันของคู่นี้พร้อมคำทำนายวันนี้',
-      'กด "ดูคู่อื่น" แล้วเลือกคู่ใหม่ได้เรื่อยๆ วันนี้คู่เดิมได้ผลเดิม',
+      'บอกว่าคุณเป็นผู้ชายหรือผู้หญิง',
+      'เลือกช่วงอายุของคุณ',
+      'เลือกว่าอยากให้เนื้อคู่เป็นผู้ชายหรือผู้หญิง',
+      'กด "เปิดดูเนื้อคู่" ครั้งเดียว แล้วอ่านผล',
     ],
   },
   og: 'love-match.png',
@@ -476,8 +426,9 @@ const game: GameModule = {
   // the decision was no slot on the PLAY SCREEN, never no slot on the page.
   ads: true,
 
-  mount(stage: HTMLElement, ctx: GameContext) {
-    mountInto(stage, ctx);
+  mount(stage: HTMLElement, _ctx: GameContext) {
+    stageEl = stage;
+    renderAsk();
   },
 
   dispose() {

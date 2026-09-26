@@ -78,9 +78,9 @@
 // box, click #start-round · or let the solo branch mount itself) is the one in
 // scripts/ad-slot-game-probe.mjs, gh#154: this walk USED to also reach the party game that was the
 // ONLY page rendering a .game-btn-secondary, i.e. the only page where the 56px secondary floor was
-// measurable at all. That page is deleted and nothing replaced it (`git grep -n game-btn-secondary
-// src/` returns the declaration in [id].astro and no producer). The 56px floor is therefore
-// UNMEASURED, and the success line says so per-variant rather than folding it into a total.
+// measurable at all. That page is deleted; since gh#101 love-match's redo control on its screen 2 is
+// the one producer again, so the floor is measured on that one control. The success line still
+// reports per variant, so if that producer goes the gap shows rather than folding into a total.
 //
 // gh#170 — PLAY ROUTES ARE IN THE WALK, and the exclusion that kept them out is gone as a class, not
 // as a line. It used to live in THREE places that a grep could never link: the pageSet() filter, the
@@ -112,12 +112,10 @@
 //
 // WHAT ITS GREEN DOES NOT MEAN. 320px only — 390px is UNMEASURED here, deliberately: 320 is the
 // binding width (a floor that holds at 320 holds wider, and every layout hazard in this repo has
-// surfaced at 320 first). Two screens per page, not every screen; one browser; and love-match
-// contributes ZERO controls — it has no page at all any more. It was delisted pending its "เนื้อคู่"
-// redesign, so this manifest-driven walk never reaches it. It contributed zero before the delisting
-// too, for a different reason: its solo wiring handed mount() an empty roster and the pick screen
-// rendered a buttonless "need 2+ people" message. So a green here says NOTHING about that game, and
-// nothing else covers it either: gh#170 — this file used to close that sentence by pointing at
+// surfaced at 320 first). Two screens per page, not every screen; one browser. love-match (rebuilt
+// under gh#101) is walked like the other solo landings; before the rebuild it contributed zero, first
+// because its solo wiring rendered a buttonless "need 2+ people" message and then because it was
+// delisted. gh#170 — this file used to point at
 // scripts/ad-slot-game-probe.mjs as "still reaching its code by mounting the chunk directly". That
 // claim was false in two independent ways and is struck rather than repaired. (1) Nothing executes
 // that probe: `grep -rn ad-slot-game-probe .github/ scripts/ package.json` finds it nowhere but in
@@ -126,7 +124,8 @@
 // deleted ... do not read a run of it as evidence." The probe is KEPT — it is the hand-run tool
 // ADR-0044/gh#120 wants, and deliberately unwired because what it measures is font-metric-dependent
 // and would flap on a runner font update rather than on a regression here. What is retired is the
-// coverage this file claimed on its behalf. love-match's HEADER_NAME_MAX path is UNCOVERED.
+// coverage this file claimed on its behalf. (The HEADER_NAME_MAX path it named left with the old
+// love-match module.)
 //
 // WIRED as a ci-probes leg (a red = a floor that stopped reaching JS-created controls, or a control
 // below the tap minimum — both regressions in THIS repo). Not --selftest-audited: it lives behind the
@@ -277,7 +276,13 @@ const EPS = 0.05;
 // screen, #ss-hold on the second. RE-MEASURED on the current dist/, both before and after the
 // trigger fix: the pre-fix 4 was siamsi #ss-intent-done twice plus df-go and #df-again; the 4
 // recorded here is four distinct controls, one per screen.
-export const CONTROL_COUNT = 4;
+// 4 -> 6: gh#101 put love-match back in the manifest as a third solo landing. ATTRIBUTED, not bumped:
+// #lm-go (primary) on screen 1 and #lm-again (secondary) on screen 2 — one control per screen, the
+// same 1+1 shape as the other two — and the registering change touches no other game module. The
+// seed answers two of its questions first (see the love-match branch in the seed step), or screen 1's
+// open control would still be disabled and the screen-2 trigger would press an answer toggle instead,
+// counting #lm-go twice the way siamsi's chip row once did.
+export const CONTROL_COUNT = 6;
 /**
  * A play route that renders zero measurable controls did not mount — the mockup markup is inert HTML
  * until main.js runs, so a broken bundle leaves a page that loads, paints, and measures nothing. That
@@ -586,6 +591,18 @@ async function seed(session, page) {
     await session.evaluate(`
       const input = document.getElementById('df-name');
       if (input) input.value = 'ทดสอบชื่อ';
+      return true;
+    `);
+  }
+  if (page.id === 'love-match') {
+    // Its open control stays disabled until the three questions are answered (the third pre-sets
+    // from the first), so answer two once the arm window lets them.
+    await session.evaluate(`
+      for (const id of ['lm-me-f', 'lm-band-0']) {
+        const b = document.getElementById(id);
+        for (let i = 0; i < 20 && b && b.disabled; i++) await new Promise((r) => setTimeout(r, 60));
+        if (b) b.click();
+      }
       return true;
     `);
   }

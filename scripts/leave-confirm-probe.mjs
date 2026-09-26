@@ -2,11 +2,10 @@
 // against a state the author of the leave-confirm guard was not thinking about, and each was confirmed
 // RED on the shipped code before the fix landed:
 //
-//   A. CLOSED-DIALOG INERTNESS, on all 5 pages that render #leave-confirm — the game pages, since
+//   A. CLOSED-DIALOG INERTNESS, on every page that renders #leave-confirm — the game pages, since
 //      gh#106 moved the dialog out of PlayerSetup and into GameLayout (it was "6 games + 3 tools" when
 //      this probe was written, on the false premise that tool pages mount it too; see NOT_SCANNED).
-//      love-match was delisted pending its "เนื้อคู่" redesign (gh#101) and no longer resolves, so it
-//      dropped out of DIALOG_PAGES entirely rather than moving to a skip-reason map.
+//      love-match left DIALOG_PAGES while delisted and came back with its gh#101 rebuild.
 //      A closed <dialog> must have zero client rects and must not answer
 //      elementFromPoint anywhere. tokens.css set `display: flex` on #leave-confirm unconditionally,
 //      which beats the UA's `dialog:not([open]) { display: none }` — so the closed dialog painted a
@@ -62,8 +61,9 @@ const PLAYERS = [
 // gh#149 — timebomb, dice-loser and short-stick left this list with their landing pages (ADR-0050
 // ruling 2 deletes every /game/<id>/ page whose game declares a playRoute). GameLayout still renders
 // the dialog unconditionally, so the property is unchanged; the set it can be measured on is now the
-// two fortune pages, and the pinned counts in ci-probes-verdict.mjs drop from 5 to 2 with it.
-const DIALOG_PAGES = ['siamsi', 'daily-fortune'];
+// fortune pages, and the pinned counts in ci-probes-verdict.mjs dropped from 5 to 2 with it (3 since
+// gh#101 brought love-match back).
+const DIALOG_PAGES = ['siamsi', 'daily-fortune', 'love-match'];
 
 // /tool/draw|team|wheel/ used to be scanned here on the assumption that they mount the same dialog.
 // They never did: the tools render ToolNameEntry, not PlayerSetup, and since gh#106 the dialog comes
@@ -93,6 +93,7 @@ const NOT_SCANNED = {
 const ROUND_PAGES = [];
 const NOT_ARMED = {
   'daily-fortune': 'startsRound: false — LeaveConfirm.astro never arms here, so there is no armed guard for B/C/D to measure. Assertion A above still covers the page.',
+  'love-match': 'startsRound: false — same as daily-fortune: no armed guard for B/C/D to measure. Assertion A above still covers the page.',
   siamsi: 'startsRound: true on a [1, 1] page — the guard DOES arm here, via ROUND_STARTED_EVENT, but reaching that state needs the solo idle screen its own redesign ticket is about to replace. UNCOVERED gap, not a by-design N/A: B/C/D are unmeasured on this page.',
 };
 

@@ -1,544 +1,405 @@
 // node --test src/games/love-match.test.mjs — no framework, no dependency
-// Mostly checks the pure reading exported from love-match.ts (no DOM needed).
-// The invariant under test is the one the game exists for (#34): the reading is a pure function of
-// (sorted normalized pair, Bangkok date) — tap order cannot change it, the same group on the same day
-// gets the same answer, and the score can never contradict the line printed next to it.
-// The DOM tests near the bottom (#36, #42) cover a different seam — the pick SCREEN, not the reading —
-// using a hand-rolled fake `document` (no jsdom/happy-dom in this repo), the same pattern
-// short-stick.test.mjs uses (the reference DOM harness in this repo).
+// gh#101: "Your Soulmate" (fortune category, one reader, one draw). The invariants this file owns:
+//   - the draw splits near eight-to-two between meeting someone and the self branch;
+//   - the meeting age sits above the chosen band BY CONSTRUCTION (every closed band's meeting range
+//     starts above the band's top), and the open band answers in the relative form instead;
+//   - the card pool is never empty: a card is drawn only from cards within AGE_WINDOW years of the
+//     meeting age, and at the open band from cards aged OPEN_BAND_CARD_FLOOR and over;
+//   - every card is the signed-off copy byte for byte, and every published portrait is referenced
+//     by exactly one card (gh#103 box 4);
+//   - nothing the reader picks is written to storage, the session, or the URL;
+//   - the stage holds no navigation target on any screen (ADR-0014).
+// Each draw-level check is a function run against the shipped draw AND against a broken mutant, so
+// a check that cannot fail shows up here as a failing calibration test.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import game, { BANDS, HEADER_NAME_MAX, SCORES, arcDashOffset, bandFor, lineFor, pairSeed, scoreFor } from './love-match.ts';
-import { normalizeName } from './daily-fortune.ts';
+import { readFileSync, readdirSync } from 'node:fs';
+import game, {
+  AGE_WINDOW,
+  BANDS,
+  CARDS,
+  MEET_ODDS,
+  OPEN_BAND_CARD_FLOOR,
+  OPEN_BAND_YEARS,
+  PLACES,
+  SELF_VARIANTS,
+  cardPool,
+  cardRows,
+  drawReading,
+} from './love-match.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
-import { readFileSync } from 'node:fs';
+import { makeDocument } from './_fake-dom.mjs';
 
-// ---- Minimal fake DOM for the two #36 tests below — see the header comment for why. ----
-class FakeElement {
-  constructor(tagName) {
-    this.tagName = tagName;
-    this.children = [];
-    this._text = '';
-    this.style = {};
-    this._attrs = {};
-    this._listeners = {};
-    this.disabled = false;
-    this.hidden = false;
-  }
-  set textContent(v) { this._text = v; }
-  get textContent() { return this._text; }
-  setAttribute(k, v) { this._attrs[k] = String(v); }
-  getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null; }
-  removeAttribute(k) { delete this._attrs[k]; }
-  appendChild(child) { this.children.push(child); return child; }
-  replaceChildren() { this.children = []; }
-  addEventListener(type, fn) { (this._listeners[type] ??= []).push(fn); }
-  removeEventListener(type, fn) {
-    this._listeners[type] = (this._listeners[type] || []).filter((f) => f !== fn);
-  }
-  dispatch(type) { (this._listeners[type] || []).forEach((fn) => fn()); }
-  // A disabled control dispatches no activation — the platform swallows the click before any
-  // listener runs. The fake models that on purpose: without it every gate assertion passes vacuously.
-  click() { if (!this.disabled) this.dispatch('click'); }
-}
-const fakeDocument = { createElement: (tag) => new FakeElement(tag) };
+const fakeDocument = makeDocument();
 globalThis.document = fakeDocument;
 
-/** A GameContext stub with a fixed roster — enough surface for love-match.ts's mount/pick/dispose. */
-function makeCtx(players) {
+const repo = (rel) => new URL(`../../${rel}`, import.meta.url);
+const read = (rel) => readFileSync(repo(rel), 'utf8');
+
+// A fixed generator: every result below is pass-always or fail-always, never flaky.
+function lcg(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 2 ** 32;
+  };
+}
+
+function collect(node, pred, out = []) {
+  if (pred(node)) out.push(node);
+  for (const c of node.children || []) collect(c, pred, out);
+  return out;
+}
+const byId = (node, id) => collect(node, (n) => n.id === id)[0] ?? null;
+const byClass = (node, cls) => collect(node, (n) => (n.className || '').split(' ').includes(cls));
+const byTag = (node, tag) => collect(node, (n) => (n.tagName || '').toLowerCase() === tag);
+const bandTop = (label) => Number(/[–-](\d+)$/.exec(label)?.[1]);
+
+// ---- The signed-off copy is the source; the module must carry it byte for byte ----
+
+function copyCards() {
+  const text = ['cards.md', 'cards-m6-m20.md', 'cards-f6-f20.md']
+    .map((f) => read(`docs/copy/nuea-khu/${f}`))
+    .join('\n');
+  const out = new Map();
+  for (const m of text.matchAll(/\*\*([MF]\d+)\*\* — ([\s\S]+?)(?=\n\n|\n*$)/g)) {
+    out.set(m[1], m[2].replace(/\s*\n\s*/g, ' ').trim());
+  }
+  return out;
+}
+
+test('forty cards, twenty per gender, each one the signed-off copy byte for byte', () => {
+  const copy = copyCards();
+  assert.equal(copy.size, 40, `the copy files hold ${copy.size} cards, the extractor or the files moved`);
+  assert.equal(CARDS.length, 40);
+  assert.equal(CARDS.filter((c) => c.gender === 'm').length, 20);
+  assert.equal(CARDS.filter((c) => c.gender === 'f').length, 20);
+  for (const card of CARDS) {
+    assert.ok(copy.has(card.id), `module card ${card.id} is not in the copy files`);
+    assert.equal(cardRows(card).map(([, v]) => v).join(' · '), copy.get(card.id), `card ${card.id} drifted from the signed-off copy`);
+    assert.equal(card.id[0], card.gender === 'm' ? 'M' : 'F', `card ${card.id} sits in the wrong gender list`);
+  }
+  assert.deepEqual(cardRows(CARDS[0]).map(([k]) => k),
+    ['เพศ', 'อายุ', 'ส่วนสูง', 'รูปร่าง', 'สัญชาติ', 'อาชีพ', 'ฐานะ', 'ท่าที', 'นิสัยติดตัว', 'จุดสังเกต']);
+});
+
+test('every screen string is the signed-off copy', () => {
+  const copy = read('docs/copy/nuea-khu.md');
+  const strings = [
+    game.names.th, game.names.en, game.tagline, game.seo.title, game.seo.description, game.ogTagline,
+    ...game.keywords, ...game.seo.steps, ...PLACES,
+    ...SELF_VARIANTS.flatMap((v) => [v.heading, v.body]),
+    ...BANDS.map((b) => b.label),
+  ];
+  for (const s of strings) assert.ok(copy.includes(s), `not in docs/copy/nuea-khu.md: ${s}`);
+  const src = read('src/games/love-match.ts');
+  for (const s of ['คุณจะได้เจอเขา', 'ไม่ต้องรีบออกไปหา แค่จำไว้ว่าประมาณนี้', 'เปิดใหม่อีกที', 'ยังไม่มีภาพ',
+    'เปิดใหม่ได้เรื่อยๆ ดวงไม่ได้ผูกไว้กับรอบเดียว', 'ที่ตอบไว้อยู่แค่ในหน้านี้รอบเดียว ไม่ได้บันทึก ไม่ได้อยู่ในลิงก์ ไม่ได้ส่งไปไหน',
+    'ตอบสามข้อ แล้วเปิดดูครั้งเดียว', 'อยากให้เนื้อคู่เป็น', 'อายุของคุณ', 'คุณเป็น', 'เปิดดูเนื้อคู่']) {
+    assert.ok(src.includes(s) && copy.includes(s), `screen string missing from the module or the copy: ${s}`);
+  }
+});
+
+test('every card maps to its deck portrait, and every published portrait is referenced (gh#103 box 4)', () => {
+  const images = read('images/IMAGES.md');
+  const deck = new Map();
+  for (const m of images.matchAll(/- id: (IMG_01_\d{3})\n(?:.*\n){0,6}?\s+location: "docs\/copy\/nuea-khu\/[\w-]+\.md — card ([MF]\d+)"/g)) {
+    if (m[1] >= 'IMG_01_011') deck.set(m[2], m[1]);
+  }
+  assert.equal(deck.size, 40, `IMAGES.md maps ${deck.size} deck portraits, expected 40`);
+  const published = readdirSync(repo('public/art/nuea-khu')).sort();
+  const referenced = CARDS.map((c) => c.portrait).sort();
+  assert.equal(new Set(referenced).size, 40, 'two cards share one portrait');
+  assert.deepEqual(published, referenced, 'the published set and the referenced set differ');
+  for (const card of CARDS) assert.equal(card.portrait, `${deck.get(card.id)}.webp`, `card ${card.id} shows the wrong portrait`);
+});
+
+// ---- The draw ----
+
+function assertMeetAboveBand(draw, perBand) {
+  const rand = lcg(20260926);
+  BANDS.forEach((band, b) => {
+    if (!band.meet) return;
+    const top = bandTop(band.label);
+    assert.ok(Number.isFinite(top), `closed band ${band.label} has no readable top`);
+    for (let i = 0; i < perBand; i++) {
+      for (const want of ['m', 'f']) {
+        const r = draw(b, want, rand);
+        if (r.kind !== 'meet') continue;
+        assert.ok(r.age > top, `band ${band.label}: meeting age ${r.age} is not above ${top}`);
+        assert.equal(r.years, undefined, `band ${band.label} answered in the open-band form`);
+      }
+    }
+  });
+}
+
+function assertSplit(draw, n) {
+  const rand = lcg(101);
+  let meet = 0;
+  for (let i = 0; i < n; i++) if (draw(i % BANDS.length, i % 2 ? 'm' : 'f', rand).kind === 'meet') meet++;
+  const share = meet / n;
+  assert.ok(share > 0.78 && share < 0.82, `meet share ${share.toFixed(4)} over ${n} draws is not near eight in ten`);
+}
+
+test('the meeting age sits above every closed band by construction', () => {
+  for (const band of BANDS) {
+    if (!band.meet) continue;
+    assert.ok(band.meet[0] > bandTop(band.label), `${band.label} meets from ${band.meet[0]}, not above its top`);
+  }
+  // The signed-off per-band table, verbatim.
+  assert.deepEqual(BANDS.map((b) => [b.label, b.meet]), [
+    ['18–24', [25, 29]], ['25–29', [30, 34]], ['30–34', [35, 39]], ['35–39', [40, 44]], ['40–49', [50, 55]], ['50 ขึ้นไป', null],
+  ]);
+  assertMeetAboveBand(drawReading, 400);
+  // Every meeting age in every closed range is reachable, so the range is the draw, not a label.
+  const rand = lcg(3);
+  BANDS.forEach((band, b) => {
+    if (!band.meet) return;
+    const seen = new Set();
+    for (let i = 0; i < 3000; i++) { const r = drawReading(b, 'f', rand); if (r.kind === 'meet') seen.add(r.age); }
+    assert.equal(seen.size, band.meet[1] - band.meet[0] + 1, `${band.label}: only ${[...seen].sort()} reachable`);
+  });
+});
+
+test('calibration: the band check reds on a draw that meets inside the chosen band', () => {
+  const inside = (b, want, rand) => {
+    const r = drawReading(b, want, rand);
+    return r.kind === 'meet' && BANDS[b].meet ? { ...r, age: bandTop(BANDS[b].label) } : r;
+  };
+  assert.throws(() => assertMeetAboveBand(inside, 50), /is not above/);
+});
+
+test('the open band answers in the relative form, and its card pool is the 45-and-over cards', () => {
+  const open = BANDS.findIndex((b) => !b.meet);
+  assert.equal(BANDS[open].label, '50 ขึ้นไป');
+  assert.deepEqual(OPEN_BAND_YEARS, [2, 5]);
+  assert.equal(OPEN_BAND_CARD_FLOOR, 45);
+  const rand = lcg(50);
+  const years = new Set();
+  for (let i = 0; i < 2000; i++) {
+    const r = drawReading(open, i % 2 ? 'm' : 'f', rand);
+    if (r.kind !== 'meet') continue;
+    assert.equal(r.age, undefined, 'the open band produced an absolute age');
+    assert.ok(r.years >= 2 && r.years <= 5, `years-from-now ${r.years} outside 2..5`);
+    assert.ok(r.card.age >= OPEN_BAND_CARD_FLOOR, `open band drew ${r.card.id} aged ${r.card.age}`);
+    years.add(r.years);
+  }
+  assert.deepEqual([...years].sort(), [2, 3, 4, 5]);
+  assert.deepEqual(cardPool(open, 'm').map((c) => c.id), ['M8', 'M13', 'M17']);
+  assert.deepEqual(cardPool(open, 'f').map((c) => c.id), ['F7', 'F11', 'F16', 'F19']);
+});
+
+test('the card pool is never empty: at least three per gender at every meeting age, all inside the window', () => {
+  assert.equal(AGE_WINDOW, 8);
+  let smallest = Infinity;
+  BANDS.forEach((band, b) => {
+    for (const want of ['m', 'f']) {
+      const ages = band.meet ? Array.from({ length: band.meet[1] - band.meet[0] + 1 }, (_, i) => band.meet[0] + i) : [undefined];
+      for (const age of ages) {
+        const pool = cardPool(b, want, age);
+        smallest = Math.min(smallest, pool.length);
+        assert.ok(pool.length >= 3, `${band.label}, ${want}, age ${age}: pool of ${pool.length}`);
+        for (const c of pool) {
+          assert.equal(c.gender, want, `${c.id} drawn for the other gender`);
+          if (age !== undefined) assert.ok(Math.abs(c.age - age) <= AGE_WINDOW, `${c.id} aged ${c.age} drawn for meeting age ${age}`);
+        }
+      }
+    }
+  });
+  assert.equal(smallest, 3, 'the measured minimum moved — re-read gh#101 before changing either constant');
+  // And the draw actually uses the pool it claims to.
+  const rand = lcg(9);
+  for (let i = 0; i < 3000; i++) {
+    const b = i % BANDS.length;
+    const r = drawReading(b, i % 2 ? 'm' : 'f', rand);
+    if (r.kind === 'meet') assert.ok(cardPool(b, r.card.gender, r.age).includes(r.card), `drew ${r.card.id} outside its pool`);
+  }
+});
+
+test('eight in ten meet someone, two in ten are their own; every place and variant is reachable', () => {
+  assert.equal(MEET_ODDS, 0.8);
+  assertSplit(drawReading, 20000);
+  const rand = lcg(77);
+  const places = new Set();
+  const variants = new Set();
+  for (let i = 0; i < 5000; i++) {
+    const r = drawReading(i % BANDS.length, 'f', rand);
+    if (r.kind === 'meet') places.add(r.place); else variants.add(r.variant);
+  }
+  assert.equal(places.size, PLACES.length, 'a meeting place is unreachable');
+  assert.equal(variants.size, SELF_VARIANTS.length, 'a self-branch variant is unreachable');
+  assert.equal(SELF_VARIANTS.length, 4);
+});
+
+test('calibration: the split check reds on a coin-flip draw', () => {
+  const coin = (b, want, rand) => (rand() < 0.5 ? { kind: 'self', variant: 0 } : drawReading(b, want, () => 0));
+  assert.throws(() => assertSplit(coin, 4000), /not near eight in ten/);
+});
+
+// ---- The page ----
+
+function spyCtx() {
+  const calls = [];
+  const rec = (name) => (...args) => { calls.push([name, args]); };
   return {
-    roster: { names: () => [], add() {} },
-    session: {
-      players,
-      setPlayers() {},
-      played: [],
-      markPlayed() {},
-      checkpoint: null,
-      saveCheckpoint() {},
-      clear() {},
+    calls,
+    ctx: {
+      roster: { names: () => [], add: rec('roster.add') },
+      session: {
+        players: [], played: [], checkpoint: null,
+        setPlayers: rec('setPlayers'), markPlayed: rec('markPlayed'), saveCheckpoint: rec('saveCheckpoint'), clear: rec('clear'),
+      },
     },
   };
 }
 
-// The test's OWN copy of the band boundaries, written as a literal on purpose. Deriving them from
-// BANDS would make a shifted boundary unkillable: bandFor() and the expectation would move together
-// and every assertion below would still pass. This table is the independent side of that check.
-const EXPECTED_BANDS = [
-  [0, 24, 'far'],
-  [25, 49, 'slow'],
-  [50, 69, 'steady'],
-  [70, 89, 'close'],
-  [90, 100, 'locked'],
-];
-
-/** Band id a score should map to, computed without touching the module. */
-function expectedBandId(score) {
-  const row = EXPECTED_BANDS.find(([min, max]) => score >= min && score <= max);
-  assert.ok(row, `no expected band covers score ${score}`);
-  return row[2];
-}
-
-/** The module's line pool for a band id. Looked up by NAME, never by boundary — the boundaries are
- *  what the mutation moves, and this lookup must not follow them. */
-function linesOf(id) {
-  const band = BANDS.find((b) => b.id === id);
-  assert.ok(band, `no band with id ${id}`);
-  return band.lines;
-}
-
-// A fixed name space — no RNG anywhere in this file, so every result is pass-always or fail-always.
-const PEOPLE = ['ก้อง', 'ฟ้า', 'ตูน', 'แนน', 'บอส', 'มิ้น', 'เจ', 'ปอ', 'หมิว', 'ต้น', 'ใบเตย', 'ขวัญ',
-  'Bank', 'Ploy', 'Jane', 'Nice', 'พี่หมี', 'น้องเมย์', 'อาร์ม', 'กิ๊ฟ', 'ตาล 2', 'ตั้ม', 'หนึ่ง', 'สอง'];
-const PAIRS = PEOPLE.flatMap((a, i) => PEOPLE.slice(i + 1).map((b) => [a, b])); // 276 unordered pairs
-const DAYS = Array.from({ length: 60 }, (_, i) =>
-  `2026-${String(1 + (i % 12)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}`);
-
-test('the pools: 25–35 lines across the bands, all distinct, none blank', () => {
-  const all = BANDS.flatMap((b) => b.lines);
-  assert.ok(all.length >= 25 && all.length <= 35, `${all.length} lines total, #34 asked for 25–35`);
-  // A duplicate keeps coverage looking full while two bands read identically to a player — and a
-  // line shared across two bands would make "the line belongs to that score's band" ambiguous.
-  assert.equal(new Set(all).size, all.length, 'a line is duplicated across the pools');
-  for (const line of all) assert.ok(line.trim().length > 0, 'blank line in a pool');
-  for (const band of BANDS) assert.ok(band.lines.length >= 4, `band ${band.id} has only ${band.lines.length} lines`);
-});
-
-test('bands tile 0..100 exactly once, matching the table this file holds', () => {
-  assert.equal(BANDS.length, EXPECTED_BANDS.length, 'band count changed');
-  BANDS.forEach((band, i) => {
-    const [min, max, id] = EXPECTED_BANDS[i];
-    assert.equal(band.id, id, `band ${i} id`);
-    assert.equal(band.min, min, `band ${id} min moved`);
-    assert.equal(band.max, max, `band ${id} max moved`);
+function installWebStateSpies() {
+  const writes = [];
+  const store = (name) => ({
+    setItem: (...a) => writes.push([`${name}.setItem`, a]),
+    removeItem: (...a) => writes.push([`${name}.removeItem`, a]),
+    clear: () => writes.push([`${name}.clear`]),
+    getItem: () => null,
   });
-  // Every score in the whole space resolves, and resolves to what the literal table says. This is
-  // the assertion a one-off boundary shift dies on.
-  for (let s = 0; s <= 100; s++) {
-    assert.equal(bandFor(s).id, expectedBandId(s), `score ${s} landed in the wrong band`);
-  }
-  assert.throws(() => bandFor(101), /outside/);
-  assert.throws(() => bandFor(-1), /outside/);
-});
-
-test('tap order cannot change the reading — (a,b) and (b,a) are one pair', () => {
-  for (const day of DAYS.slice(0, 10)) {
-    for (const [a, b] of PAIRS) {
-      assert.equal(pairSeed(a, b, day), pairSeed(b, a, day), `seed differs by order for ${a}/${b}`);
-      assert.equal(scoreFor(a, b, day), scoreFor(b, a, day), `score differs by order for ${a}/${b}`);
-      assert.equal(lineFor(a, b, day), lineFor(b, a, day), `line differs by order for ${a}/${b}`);
-    }
-  }
-});
-
-test('same pair + same Bangkok day → the same score and line, every time it is asked', () => {
-  const day = '2026-08-15';
-  for (const [a, b] of PAIRS) {
-    const score = scoreFor(a, b, day);
-    const line = lineFor(a, b, day);
-    // A negative index would return undefined, and undefined === undefined would pass this test.
-    assert.ok(SCORES.includes(score), `${a}/${b} scored something unproducible: ${score}`);
-    assert.ok(linesOf(expectedBandId(score)).includes(line), `${a}/${b} drew a line from no pool`);
-    for (let again = 0; again < 5; again++) {
-      assert.equal(scoreFor(a, b, day), score, `${a}/${b} score changed on repeat ${again}`);
-      assert.equal(lineFor(a, b, day), line, `${a}/${b} line changed on repeat ${again}`);
-    }
-  }
-});
-
-test('a new day re-deals most pairs — measured, not assumed 100%', () => {
-  // Not 100% by construction: 94 producible scores and 31 lines mean consecutive days collide for a
-  // small fraction of pairs by chance, and asserting 100% would be asserting something false.
-  // Measured over these 276 pairs: 96.7% of scores and 96.7% of lines move from 08-15 to 08-16, and
-  // the worst of the 59 day-to-day steps below moves 97.1% of scores and 94.9% of lines. Thresholds
-  // sit under those measurements with room for a content edit, not flush against them.
-  let scoreMoved = 0;
-  let lineMoved = 0;
-  for (const [a, b] of PAIRS) {
-    if (scoreFor(a, b, '2026-08-15') !== scoreFor(a, b, '2026-08-16')) scoreMoved++;
-    if (lineFor(a, b, '2026-08-15') !== lineFor(a, b, '2026-08-16')) lineMoved++;
-  }
-  assert.ok(scoreMoved / PAIRS.length >= 0.93, `only ${scoreMoved}/${PAIRS.length} scores moved overnight`);
-  assert.ok(lineMoved / PAIRS.length >= 0.93, `only ${lineMoved}/${PAIRS.length} lines moved overnight`);
-
-  // And it is not one lucky pair of days — every day must move most of the group, on both outputs.
-  for (let i = 1; i < DAYS.length; i++) {
-    const s = PAIRS.filter(([a, b]) => scoreFor(a, b, DAYS[i - 1]) !== scoreFor(a, b, DAYS[i])).length;
-    const l = PAIRS.filter(([a, b]) => lineFor(a, b, DAYS[i - 1]) !== lineFor(a, b, DAYS[i])).length;
-    assert.ok(s / PAIRS.length >= 0.92, `${DAYS[i - 1]} → ${DAYS[i]}: only ${s}/${PAIRS.length} scores moved`);
-    assert.ok(l / PAIRS.length >= 0.85, `${DAYS[i - 1]} → ${DAYS[i]}: only ${l}/${PAIRS.length} lines moved`);
-  }
-});
-
-test('every band, every line and every producible score is reachable', () => {
-  const bandHits = new Map(BANDS.map((b) => [b.id, 0]));
-  const seenLines = new Set();
-  const seenScores = new Set();
-  for (const [a, b] of PAIRS) {
-    for (const day of DAYS) {
-      const score = scoreFor(a, b, day);
-      seenScores.add(score);
-      seenLines.add(lineFor(a, b, day));
-      bandHits.set(expectedBandId(score), bandHits.get(expectedBandId(score)) + 1);
-    }
-  }
-  // Per band, not in aggregate: an aggregate line count can look full while one band is starved.
-  for (const band of BANDS) {
-    assert.ok(bandHits.get(band.id) > 0, `band ${band.id} is unreachable`);
-    const missing = band.lines.filter((l) => !seenLines.has(l));
-    assert.equal(missing.length, 0, `band ${band.id}: ${missing.length} line(s) nobody can draw`);
-  }
-  assert.equal(seenScores.size, new Set(SCORES).size, `only ${seenScores.size} distinct scores are reachable`);
-});
-
-test('score and line never disagree — the reason one seed drives both', () => {
-  // For every reachable reading, the line must come from the pool of the band THIS FILE says the
-  // score belongs to. Two independent hashes would print 95% beside a difficult-match line.
-  // `owner` maps line → the one band that holds it, so "in the right pool" cannot be satisfied by a
-  // line that several pools share.
-  const owner = new Map();
-  for (const band of BANDS) for (const line of band.lines) owner.set(line, band.id);
-  for (const [a, b] of PAIRS) {
-    for (const day of DAYS) {
-      const score = scoreFor(a, b, day);
-      const id = expectedBandId(score);
-      assert.equal(owner.get(lineFor(a, b, day)), id, `${a}/${b} on ${day}: ${score}% printed a ${id}-mismatched line`);
-    }
-  }
-});
-
-test('the middling number is deliberately rare, and both ends are fat', () => {
-  // #34: a flat distribution hands every group a mediocre middling percentage, which is the boring
-  // outcome. Measured over the whole pair space, not asserted from the weights table.
-  const counts = { middling: 0, low: 0, high: 0, total: 0 };
-  for (const [a, b] of PAIRS) {
-    for (const day of DAYS) {
-      const score = scoreFor(a, b, day);
-      counts.total++;
-      if (score >= 45 && score <= 59) counts.middling++;
-      if (score <= 24) counts.low++;
-      if (score >= 90) counts.high++;
-    }
-  }
-  const flat = 15 / 101; // what 45..59 would get from a uniform 0..100 score
-  assert.ok(counts.middling / counts.total < flat * 0.75,
-    `45–59 takes ${(counts.middling / counts.total * 100).toFixed(1)}% — no flatter than uniform`);
-  assert.ok(counts.low / counts.total > 0.18, `low readings are only ${counts.low / counts.total}`);
-  assert.ok(counts.high / counts.total > 0.18, `high readings are only ${counts.high / counts.total}`);
-});
-
-test('a person paired with themselves reads, it does not crash', () => {
-  // Reachable for real: two players in one group may share a name (the roster allows duplicates), and
-  // they are two different people who deserve a real reading — forcing a fixed 100% would be wrong.
-  // The UI separately refuses the same roster INDEX twice; that is a screen rule, not this seam's.
-  const day = '2026-08-15';
-  for (const name of PEOPLE) {
-    const score = scoreFor(name, name, day);
-    const line = lineFor(name, name, day);
-    assert.ok(SCORES.includes(score), `self-pair "${name}" scored ${score}, which is unproducible`);
-    assert.ok(linesOf(expectedBandId(score)).includes(line), `self-pair "${name}" drew a mismatched line`);
-    assert.equal(scoreFor(name, name, day), score, 'self-pair is not deterministic');
-    assert.equal(pairSeed(name, name, day), pairSeed(name, name, day));
-  }
-});
-
-test('normalisation survives the pair path — padding, case, zero-width, composition', () => {
-  const day = '2026-08-15';
-  const base = scoreFor('ก้อง', 'ฟ้า', day);
-  const baseLine = lineFor('ก้อง', 'ฟ้า', day);
-  const same = (a, b, why) => {
-    assert.equal(scoreFor(a, b, day), base, `${why} changed the score`);
-    assert.equal(lineFor(a, b, day), baseLine, `${why} changed the line`);
+  const saved = {};
+  for (const k of ['localStorage', 'sessionStorage', 'history', 'location']) saved[k] = globalThis[k];
+  globalThis.localStorage = store('localStorage');
+  globalThis.sessionStorage = store('sessionStorage');
+  globalThis.history = { pushState: (...a) => writes.push(['history.pushState', a]), replaceState: (...a) => writes.push(['history.replaceState', a]) };
+  globalThis.location = { href: 'https://x.test/game/love-match/', hash: '', search: '' };
+  return {
+    writes,
+    restore() { for (const [k, v] of Object.entries(saved)) { if (v === undefined) delete globalThis[k]; else globalThis[k] = v; } },
   };
-  same(' ก้อง ', 'ฟ้า', 'padding on the first name');
-  same('ก้อง', '\tฟ้า\n', 'tab/newline padding on the second name');
-  same(' ฟ้า ', ' ก้อง ', 'padding plus swapped order');
-  assert.equal(scoreFor('ก้อง  ใหญ่', 'ฟ้า', day), scoreFor('ก้อง ใหญ่', 'ฟ้า', day), 'double space');
-  assert.equal(scoreFor('BANK', 'Ploy', day), scoreFor('bank', 'ploy', day), 'Latin case');
-
-  // Zero-width chars: `\s` does not match them, so a name pasted out of LINE carries an invisible
-  // U+200B and would seed differently from the identical-looking typed name.
-  // Escapes, not the literal characters — an invisible char in source is edited away by accident.
-  for (const [label, zw] of [['ZWSP', '\u200B'], ['ZWNJ', '\u200C'], ['ZWJ', '\u200D'], ['BOM', '\uFEFF']]) {
-    same(`${zw}ก้อง${zw}`, `ฟ้า${zw}`, `${label} in the pair`);
-  }
-  // NFC folds the two spellings of an accented Latin name (Thai has no canonical decomposition).
-  const nfd = 'José'.normalize('NFD');
-  assert.notEqual(nfd, 'José', 'this string has no decomposed form — pick another to test NFC with');
-  assert.equal(scoreFor(nfd, 'ก้อง', day), scoreFor('José', 'ก้อง', day), 'a decomposed spelling re-seeded');
-
-  // What deliberately does NOT normalise: two different names are two different pairs.
-  assert.equal(normalizeName(' ก้อง '), 'ก้อง');
-  assert.notEqual(scoreFor('ก้อง', 'ฟ้า', day) + lineFor('ก้อง', 'ฟ้า', day),
-    scoreFor('กอง', 'ฟ้า', day) + lineFor('กอง', 'ฟ้า', day));
-});
-
-test('the pair is ordered by code unit, so no locale can reorder it', () => {
-  // `<` on strings compares UTF-16 code units, which are the same on every runtime. localeCompare
-  // and Intl.Collator read ICU locale data that varies by build — that is the trap this avoids.
-  const day = '2026-08-15';
-  const [x, y] = ['ฟ้า', 'ก้อง'];
-  const lo = x <= y ? x : y;
-  assert.ok(pairSeed(x, y, day).startsWith(`${lo}|`), 'the seed is not built from the lower name first');
-  assert.equal(pairSeed(x, y, day), `${lo}|${lo === x ? y : x}|${day}`);
-  // And the date really is in the seed — drop it and every day would read the same.
-  assert.ok(pairSeed(x, y, day).endsWith(day), 'the date is missing from the seed');
-  assert.notEqual(pairSeed(x, y, day), pairSeed(x, y, '2026-08-16'));
-});
-
-// ---- #36: the pick SCREEN, not the reading — a rapid double-tap must not announce a pair the group
-// never chose. Both tests below drive the real mount()/pick() path through the fake DOM above. ----
-
-test('#36: a first tap does not reflow or rebuild the chip row', (t) => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
-  const stage = fakeDocument.createElement('div');
-  const players = ['เอ', 'บี', 'ซี'];
-  game.mount(stage, makeCtx(players));
-  t.mock.timers.tick(ARM_DELAY_MS + 1); // #42 gates the fresh chip row; wait past it, as a real tap would
-
-  const chipsBefore = stage.children[1].children.slice();
-  const textBefore = chipsBefore.map((c) => c.textContent);
-  assert.equal(chipsBefore.length, players.length, 'setup: one chip per player before any tap');
-
-  chipsBefore[0].click(); // tap 1: pick players[0]
-
-  const chipsAfter = stage.children[1].children.slice();
-  assert.equal(chipsAfter.length, chipsBefore.length, 'chip count changed after tap 1');
-  assert.deepEqual(chipsAfter.map((c) => c.textContent), textBefore, 'chip text/order changed after tap 1');
-  chipsAfter.forEach((chip, i) => {
-    assert.strictEqual(chip, chipsBefore[i], `chip at position ${i} is a different node after tap 1 — the row was rebuilt`);
-  });
-
-  game.dispose();
-});
-
-/** First descendant carrying `cls`, or null. The fake DOM has no querySelector. */
-function findByClass(node, cls) {
-  for (const child of node.children) {
-    if (child.className === cls) return child;
-    const hit = findByClass(child, cls);
-    if (hit) return hit;
-  }
-  return null;
 }
 
-test('#36: a fast double-tap on one chip cannot pair a person with themselves', (t) => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
+function arm(t) { t.mock.timers.tick(ARM_DELAY_MS + 1); }
+
+function mountAsk(t) {
   const stage = fakeDocument.createElement('div');
-  const players = ['เอ', 'บี', 'ซี'];
-  game.mount(stage, makeCtx(players));
-  t.mock.timers.tick(ARM_DELAY_MS + 1); // #42 gates the fresh chip row; wait past it, as a real tap would
+  const spy = spyCtx();
+  game.mount(stage, spy.ctx);
+  arm(t);
+  return { stage, spy };
+}
 
-  const tapped = stage.children[1].children[0]; // players[0]'s chip — the exact node under the finger both times
-  tapped.click();
-  assert.equal(tapped.disabled, true, 'tap 1 must disable the chip it took — the first line of defence');
-
-  // Second tap via dispatch(), NOT click(), and that difference is the whole point. click() honours
-  // `disabled` exactly as the platform does, so it swallows the second tap and pick() is never
-  // re-entered — which is why this test passed for both a present and an absent guard. A real fast
-  // double-tap is the case where the second activation was already in flight when the disable landed,
-  // and dispatch() is that event arriving anyway. This is what reaches the guard.
-  tapped.dispatch('click');
-
-  // The result screen is identified by the percentage element, which only renderResult creates. It
-  // used to be identified by PAIR_STYLE's unique '1.25rem' substring; gh#81 deleted that constant, so
-  // the old lookup could not have matched anything either way.
-  const scoreEl = findByClass(stage, 'lm-score');
-  assert.equal(scoreEl, null,
-    `a double-tap on one chip alone must not complete a pair at all, let alone a self-pair — got: ${scoreEl && scoreEl.textContent}`);
-
-  game.dispose();
-});
-
-test('#42: ghost-tap gate — every button on the pick screen disables at render, including a hidden one', (t) => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
-  const stage = fakeDocument.createElement('div');
-  const players = ['เอ', 'บี', 'ซี'];
-  game.mount(stage, makeCtx(players));
-
-  // The chip row: unlike daily-fortune's roster chips, chip→chip here crosses no #stage swap (the
-  // first tap mutates the row in place, see pick()), so there is no same-finger exception to carve out.
-  const chips = stage.children[1].children;
-  assert.equal(chips.length, players.length, 'setup: one chip per player');
-  for (const chip of chips) {
-    assert.equal(chip.disabled, true, `${chip.textContent} chip must be disabled the instant the row is painted`);
-  }
-
-  // lm-reset ('back') starts hidden but is still a real button in this render — armAllButtons finds
-  // every <button> under the stage, not a hand-picked list, so a control nobody named is gated too.
-  const back = stage.children[2];
-  assert.equal(back.disabled, true, 'lm-reset must be disabled at render even though it starts hidden');
-
-  // before arming: a click on a gated chip must not register a pick
-  chips[0].click();
-  assert.equal(chips[0].getAttribute('aria-pressed'), null,
-    'a ghost tap picked a player before the window elapsed — the disabled chip fired anyway');
-
-  // one window later the same tap really does register the pick
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  assert.equal(chips[0].disabled, false, 'the chip row never armed');
-  chips[0].click();
-  assert.equal(chips[0].getAttribute('aria-pressed'), 'true', 'a real tap after arming did not register the pick');
-
-  game.dispose();
-});
-
-test('a long player name cannot grow the header past its HEADER_NAME_MAX-truncated length', () => {
-  const stage = fakeDocument.createElement('div');
-  const longName = 'ก'.repeat(50); // far past a maxlength=24 input, and past any old uncapped localStorage name
-  const players = [longName, 'บี'];
-  game.mount(stage, makeCtx(players));
-
-  const header = stage.children[0];
-  // dispatch(), not click(): this test's own concern is header truncation, not the #42 gate — going
-  // straight at the listener keeps it decoupled from ARM_DELAY_MS timing, the same way the #36 tests
-  // did before #42 existed.
-  stage.children[1].children[0].dispatch('click'); // tap 1: pick players[0], the long name
-
-  // The header string is a fixed prefix plus the (possibly truncated) name plus an ellipsis when cut —
-  // so its length must never exceed prefix + HEADER_NAME_MAX + 1 (the ellipsis char), regardless of how
-  // long the underlying player name is.
-  const prefix = 'เลือกคู่ของ ';
-  assert.ok(
-    header.textContent.length <= prefix.length + HEADER_NAME_MAX + 1,
-    `header grew past its truncation budget: "${header.textContent}" (${header.textContent.length} chars)`,
-  );
-  assert.ok(header.textContent.includes('…'), 'a name past HEADER_NAME_MAX should be shown truncated with an ellipsis');
-
-  game.dispose();
-});
-
-// ---- gh#81: the result screen — the pair is symmetric, the percentage dominates, the reading card
-// owns its height, and no <a> ever enters the stage. The fake DOM above cannot measure a computed
-// font-size, so type-step assertions read love-match.css directly (via node:fs) instead of pretending
-// layout was computed. ----
-
-const loveMatchCss = readFileSync(new URL('../styles/games/love-match.css', import.meta.url), 'utf8');
-
-/** Mount into a fresh stage and drive two distinct, armed taps to the result screen. */
-function driveToResult(t, players) {
-  const stage = fakeDocument.createElement('div');
-  t.mock.timers.enable({ apis: ['setTimeout'] });
-  game.mount(stage, makeCtx(players));
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  const chips = stage.children[1].children; // mount draws the pick screen first
-  chips[0].click();
-  chips[1].click();
+function drawWith(stage, value, t) {
+  const real = Math.random;
+  Math.random = () => value;
+  try { byId(stage, 'lm-go').click(); } finally { Math.random = real; }
   return stage;
 }
 
-test('the pair is two structurally identical tiles — equal weight, both names shown', (t) => {
-  const stage = driveToResult(t, ['เอ', 'บี']);
-  const pair = stage.children[0];
-  assert.equal(pair.children.length, 3, 'the pair row must be tile + heart + tile');
-  const [tileA, heart, tileB] = pair.children;
-  assert.equal(tileA.tagName, tileB.tagName, 'the two tiles must be the same element shape');
-  assert.equal(tileA.className, tileB.className, 'the two tiles must carry the identical class list — no first/second styling');
-  assert.equal(tileA.className, 'lm-name', 'a name tile lost the shared lm-name class');
-  assert.equal(tileB.className, 'lm-name', 'a name tile lost the shared lm-name class');
-  assert.equal(tileA.textContent, 'เอ', 'the first name did not render');
-  assert.equal(tileB.textContent, 'บี', 'the second name did not render');
-  assert.equal(heart.className, 'lm-heart', 'the heart is its own element between the two tiles');
-  game.dispose();
-});
+const assertNoAnchor = (stage, where) => assert.equal(byTag(stage, 'a').length, 0, `an <a> renders inside #stage on ${where} — ADR-0014`);
 
-test('the percentage uses the dedicated 62px step and the arc offset derives from it', (t) => {
-  const stage = driveToResult(t, ['เอ', 'บี']);
-  const meter = stage.children[1];
-  const label = meter.children[0];
-  const scoreEl = label.children[0];
-  assert.equal(scoreEl.className, 'lm-score', 'the percentage must use the dedicated dominant-type-step class');
-  // The type steps live in the CSS the fake DOM cannot measure. gh#125 restated the invariant: what
-  // matters is not that "62" appears somewhere in the file, but that the LARGEST step on the screen
-  // belongs to .lm-score — the percentage is the one big thing. Parsed per rule (comments stripped
-  // first, so a cited size in prose is not a declaration), so a bigger step added to any other
-  // selector reds this, and renaming the step's value while keeping it dominant does not.
-  const rules = [...loveMatchCss.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)]
-    .map((m) => ({
-      selectors: m[1].split(',').map((s) => s.trim()),
-      sizes: [...m[2].matchAll(/font-size:\s*(\d+)px/g)].map((s) => Number(s[1])),
-    }))
-    .filter((r) => r.sizes.length > 0);
-  // Positive control: with fewer than two sized rules there is no "largest" to attribute to anyone.
-  assert.ok(rules.length > 1, `love-match.css declares ${rules.length} sized rule(s) — nothing to compare`);
-  // Every rule tied for the largest step must be .lm-score's: reduce-keeps-first hid a rival rule
-  // gaining an EQUAL step (REFUTE on gh#125's conversion).
-  const maxStep = Math.max(...rules.map((r) => Math.max(...r.sizes)));
-  const atMax = rules.filter((r) => Math.max(...r.sizes) === maxStep);
-  for (const r of atMax) {
-    assert.ok(
-      r.selectors.includes('.lm-score'),
-      `the largest type step (${maxStep}px) also belongs to "${r.selectors.join(', ')}" — the percentage must be the one big thing`,
-    );
-  }
-  // The arc's dashoffset is derived from the percentage, never hardcoded:
-  const score = Number(scoreEl.textContent);
-  assert.equal(arcDashOffset(score), Math.round(264 * (1 - score / 100)), 'the offset did not derive from the score');
-  assert.equal(arcDashOffset(75), 66, 'the 264 dasharray / formula drifted from the canvas (75% → 66)');
-  assert.ok(meter.innerHTML.includes(`stroke-dashoffset="${arcDashOffset(score)}"`), 'the rendered meter does not carry the computed dashoffset');
-  game.dispose();
-});
-
-test('the longest reading in the library renders in full — no truncation, no height clamp', (t) => {
-  const all = BANDS.flatMap((b) => b.lines);
-  const longest = all.reduce((m, l) => (l.length > m.length ? l : m));
-  assert.ok(longest.length > 0, 'the library has no longest line to test');
-
-  const stage = driveToResult(t, ['เอ', 'บี']);
-  const reading = stage.children[2];
-  const para = reading.children[0];
-  // renderResult must have written a full library line verbatim — any slice or ellipsis would leave a
-  // string that is not a line in the pool.
-  assert.ok(all.includes(para.textContent), 'the reading paragraph is not a full line from the library');
-
-  // Pool membership alone would still pass a truncation that only bites lines longer than the one this
-  // pair happens to draw today, and which line that is depends on the date. Pin the rendered text to
-  // the module's own answer for this pair and day, so ANY slice is caught whatever the draw was.
-  const today = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit',
-  }).format(new Date());
-  assert.equal(para.textContent, lineFor('เอ', 'บี', today),
-    'the rendered reading is not verbatim what lineFor returned for this pair and day');
-
-  // And the longest line in the library is reachable and survives the same path — driven through the
-  // pure function over the fixed name space, so this holds on every date rather than only the one a
-  // test run happens to land on.
-  const drawsLongest = PAIRS.some(([a, b]) => DAYS.some((d) => lineFor(a, b, d) === longest));
-  assert.ok(drawsLongest, 'the longest line in the library is never drawn by any pair on any day');
-  for (const [a, b] of PAIRS) {
-    for (const d of DAYS) {
-      assert.ok(all.includes(lineFor(a, b, d)), `lineFor returned a string that is not a library line: ${a}+${b} on ${d}`);
-    }
-  }
-
-  // The card owns its height: love-match.css pins no height, max-height, or overflow-clip on it, so the
-  // longest line grows the card rather than clipping or scrolling.
-  const readingRule = loveMatchCss.match(/\.lm-reading\s*\{[^}]*\}/)?.[0] ?? '';
-  assert.ok(readingRule.length > 0, '.lm-reading has no rule to inspect in love-match.css');
-  assert.ok(!/(?<![\w-])height\s*:/.test(readingRule), '.lm-reading pins a fixed height');
-  assert.ok(!/max-height/.test(readingRule), '.lm-reading pins a max-height');
-  assert.ok(!/overflow\s*:\s*hidden/.test(readingRule), '.lm-reading clips its overflow');
-  assert.ok(!/-webkit-line-clamp|line-clamp/.test(loveMatchCss), 'love-match.css line-clamps some text');
-  game.dispose();
-});
-
-function assertNoAnchor(stage) {
-  const walk = (node) => {
-    for (const child of node.children) {
-      assert.notEqual(child.tagName.toUpperCase(), 'A', 'an <a> rendered inside #stage');
-      walk(child);
-    }
-  };
-  walk(stage);
-}
-
-test('#81: no <a> renders inside the stage on either screen', (t) => {
-  const stage = fakeDocument.createElement('div');
+test('the ask screen: three questions, want pre-set opposite and freely changeable, open disabled until answered', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
-  game.mount(stage, makeCtx(['เอ', 'บี']));
-  assertNoAnchor(stage); // the pick screen
-  t.mock.timers.tick(ARM_DELAY_MS + 1);
-  stage.children[1].children[0].click();
-  stage.children[1].children[1].click();
-  assertNoAnchor(stage); // the result screen
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, spyCtx().ctx);
+  const go = byId(stage, 'lm-go');
+  assert.equal(go.disabled, true, 'the open control is live at mount — a ghost tap would press it');
+  assert.equal(byClass(stage, 'lm-choice').every((b) => b.disabled), true, 'a choice is live at mount');
+  arm(t);
+  assertNoAnchor(stage, 'the ask screen');
+  assert.equal(byTag(stage, 'input').length, 0, 'the ask screen asks for typed input');
+  assert.equal(go.disabled, true, 'open is pressable with nothing answered');
+
+  byId(stage, 'lm-me-m').click();
+  assert.equal(byId(stage, 'lm-want-f').getAttribute('aria-pressed'), 'true', 'want is not pre-set opposite to ผู้ชาย');
+  byId(stage, 'lm-me-f').click();
+  assert.equal(byId(stage, 'lm-want-m').getAttribute('aria-pressed'), 'true', 'want did not follow the changed answer');
+  assert.equal(byId(stage, 'lm-want-f').getAttribute('aria-pressed'), 'false');
+  byId(stage, 'lm-want-f').click();
+  byId(stage, 'lm-me-m').click();
+  assert.equal(byId(stage, 'lm-want-f').getAttribute('aria-pressed'), 'true', 'a want the reader chose was overwritten');
+  assert.equal(go.disabled, true, 'open is pressable before the age band is answered');
+  byId(stage, 'lm-band-2').click();
+  assert.equal(go.disabled, false, 'open stayed disabled with all three answered');
   game.dispose();
+});
+
+test('both branches render, read correctly, and hold no navigation target; nothing is written anywhere', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const web = installWebStateSpies();
+  try {
+    const { stage, spy } = mountAsk(t);
+    byId(stage, 'lm-me-f').click();
+    byId(stage, 'lm-band-1').click();
+
+    // rand 0.1 is below MEET_ODDS: the eighty-percent screen.
+    drawWith(stage, 0.1, t);
+    assertNoAnchor(stage, 'the meet screen');
+    assert.equal(byClass(stage, 'lm-heading')[0]?.textContent, 'คุณจะได้เจอเขา');
+    assert.match(byClass(stage, 'lm-when')[0]?.textContent ?? '', /^ตอนคุณอายุ 3\d ปี$/);
+    assert.match(byClass(stage, 'lm-where')[0]?.textContent ?? '', /^ที่ /);
+    const img = byTag(stage, 'img')[0];
+    assert.ok(img, 'the meet screen has no portrait');
+    const shown = CARDS.find((c) => img.getAttribute('src') === `/art/nuea-khu/${c.portrait}`);
+    assert.ok(shown, `portrait src ${img.getAttribute('src')} is no card's`);
+    assert.equal(shown.gender, 'm', 'the reader wanted ผู้ชาย and got another gender');
+    assert.deepEqual(byClass(stage, 'lm-row').map((r) => r.children.map((c) => c.textContent)), cardRows(shown),
+      'the rendered card lines are not the portrait card');
+    const again = byId(stage, 'lm-again');
+    assert.equal(again.disabled, true, 'redo is live at reveal — a ghost tap skips the reading');
+    arm(t);
+
+    // Redo returns to the ask screen with the answers still held, so one tap redraws.
+    again.click();
+    assert.equal(byId(stage, 'lm-band-1').getAttribute('aria-pressed'), 'true', 'the band answer was dropped');
+    assert.equal(byId(stage, 'lm-go').disabled, true, 'open is live the instant the ask screen returns');
+    arm(t);
+    assert.equal(byId(stage, 'lm-go').disabled, false);
+
+    // rand 0.9 is at or above MEET_ODDS: the self branch — no portrait, no generated asset.
+    drawWith(stage, 0.9, t);
+    assertNoAnchor(stage, 'the self screen');
+    assert.equal(byTag(stage, 'img').length, 0, 'the self screen carries a raster');
+    assert.equal(byClass(stage, 'lm-heading')[0]?.textContent, SELF_VARIANTS[3].heading);
+    assert.equal(byClass(stage, 'lm-body')[0]?.textContent, SELF_VARIANTS[3].body);
+    assert.ok(byTag(stage, 'svg').length <= 1, 'more than one piece of art on the self screen');
+
+    // The open band renders the relative form.
+    arm(t);
+    byId(stage, 'lm-again').click();
+    arm(t);
+    byId(stage, 'lm-band-5').click();
+    drawWith(stage, 0.1, t);
+    assert.match(byClass(stage, 'lm-when')[0]?.textContent ?? '', /^อีกประมาณ [2-5] ปีจากนี้$/);
+
+    assert.deepEqual(spy.calls, [], `the page wrote to the session or roster: ${JSON.stringify(spy.calls)}`);
+    assert.deepEqual(web.writes, [], `the page wrote storage or the URL: ${JSON.stringify(web.writes)}`);
+    game.dispose();
+  } finally {
+    web.restore();
+  }
+});
+
+test('a missing portrait falls back to the signed-off placeholder copy', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { stage } = mountAsk(t);
+  byId(stage, 'lm-me-m').click();
+  byId(stage, 'lm-band-0').click();
+  drawWith(stage, 0.1, t);
+  const box = byClass(stage, 'lm-portrait')[0];
+  box.children[0].dispatch('error');
+  assert.equal(box.children.length, 1);
+  assert.equal(box.children[0].textContent, 'ยังไม่มีภาพ');
+  game.dispose();
+});
+
+test('the module source touches no storage, no URL and no session write', () => {
+  const src = read('src/games/love-match.ts').replace(/^\s*\/\/.*$/gm, '');
+  for (const banned of ['localStorage', 'sessionStorage', 'indexedDB', 'document.cookie', 'history.', 'location', 'saveCheckpoint', 'setPlayers', 'markPlayed', 'fetch(']) {
+    assert.ok(!src.includes(banned), `love-match.ts references ${banned}`);
+  }
+});
+
+test('manifest shape: a solo fortune page that starts no round', () => {
+  assert.equal(game.id, 'love-match');
+  assert.equal(game.category, 'fortune');
+  assert.deepEqual(game.players, [1, 1]);
+  assert.equal(game.startsRound, false);
+  assert.equal(game.names.th, 'เนื้อคู่ของคุณ');
+  assert.equal(game.og, 'love-match.png');
+  assert.equal(game.playRoute, undefined);
 });
