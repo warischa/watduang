@@ -1,0 +1,34 @@
+aloud	บอก… (imperative opener, addressee dropped)	A	runtime	copy	yes	/game/love-match/ how-to-play + HowTo JSON-LD	love-match.seo.steps[0]	บอกว่าคุณเป็นผู้ชายหรือผู้หญิง
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[0].manner	พูดน้อยแต่ยิ้มง่าย
+group	ทุกคน	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[6].manner	ร่าเริง คุยกับทุกคนที่เจอ
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[7].manner	อารมณ์ดี เล่าเรื่องเก่งกว่าตัดผม
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[9].manner	พูดช้า คิดก่อนพูดทุกคำ
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[12].manner	พูดน้อย ทำมากกว่าพูด
+group	คนอื่น	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[14].manner	จริงจัง แต่ขำง่ายเวลาคนอื่นเล่นมุก
+group	คนอื่น	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[15].manner	ช่างสังเกต เห็นรายละเอียดที่คนอื่นมองข้าม
+group	คนอื่น	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[16].manner	อบอุ่น ใจเย็น ชอบสอนคนอื่นโดยไม่รู้ตัว
+group	เพื่อน	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[16].habit	แจกผลไม้ให้เพื่อนบ้านทุกครั้งที่เก็บได้
+group+aloud	คนอื่น,พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[22].habit	วาดเส้นเล่นบนขอบกระดาษเวลาฟังคนอื่นพูด
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[24].manner	เงียบ แต่พอเริ่มพูดแล้วหยุดยาก
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[27].manner	พูดตรง คม แต่ยุติธรรม
+group	คนอื่น	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[29].habit	มองตะเข็บเสื้อคนอื่นก่อนมองหน้า
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[33].manner	พูดน้อย คิดเร็ว ตลกแบบหน้านิ่ง
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[35].manner	นิ่ง สุขุม พูดทีละคำ
+group	ทุกคน	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> CARDS[38].habit	เรียกลูกค้าทุกคนว่าลูก
+group	เพื่อน	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> PLACES[6]	งานแต่งของเพื่อนคนเดียวกัน
+aloud	บอกวง/บอกให้	A	runtime	copy	yes	/game/love-match/ deck + exported UI copy	love-match.ts -> SELF_VARIANTS[0].body	คนที่อยู่ด้วยได้ทุกวันโดยไม่เบื่อ มีอยู่คนเดียว และคนนั้นก็คือคุณ รอบนี้ดวงบอกให้ใช้เวลากับตัวเองให้คุ้ม
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> MALE	29|172|ผอมสูง||ครูสอนดนตรี|มีรายได้ประจำ ไม่ถึงกับสบาย|พูดน้อยแต่ยิ้มง่าย|ฮัมเพลงตอนคิดอะไรไม่ออก|แผลเป็นเล็กๆ ที่คิ้วซ้าย|IMG_01_041.webp
+group	ทุกคน	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> MALE	26|178|ผอมสูง||โค้ชสอนว่ายน้ำเด็ก|พอใช้|ร่าเริง คุยกับทุกคนที่เจอ|นับจังหวะหายใจเวลาตื่นเต้น|แผลเป็นเส้นสั้นๆ ที่คาง|IMG_01_012.webp
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> MALE	52|170|สมส่วน||ช่างตัดผม เปิดร้านเล็กๆ ในซอยมายี่สิบปี|พอใช้|อารมณ์ดี เล่าเรื่องเก่งกว่าตัดผม|หวีผมตัวเองทุกครั้งที่เดินผ่านกระจก|ผมขาวทั้งหัว ตัดเรียบกริบ|IMG_01_013.webp
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> MALE	41|172|ผอม|ญี่ปุ่น|ช่างซ่อมนาฬิกา|พอดีตัว|พูดช้า คิดก่อนพูดทุกคำ|ตั้งนาฬิกาทุกเรือนในบ้านให้ตรงกันทุกวันอาทิตย์|คิ้วหนาเป็นแนวตรงเกือบชนกัน|IMG_01_015.webp
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> MALE	47|171|ท้วม||ช่างไม้ รับทำเฟอร์นิเจอร์ตามสั่ง|พอใช้ งานเข้าไม่ขาด|พูดน้อย ทำมากกว่าพูด|เหน็บดินสอไว้หลังหูตลอดเวลา|หนวดเคราสั้นสีดอกเลา|IMG_01_018.webp
+group	คนอื่น	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> MALE	39|182|ล่ำ|ลาว|วิศวกรโยธา คุมงานก่อสร้าง|มั่นคง|จริงจัง แต่ขำง่ายเวลาคนอื่นเล่นมุก|มาถึงที่นัดก่อนเวลาสิบห้านาทีเสมอ|ลักยิ้มข้างเดียวที่แก้มขวา|IMG_01_020.webp
+group	คนอื่น	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> MALE	31|166|ตัวเล็ก||ช่างภาพงานแต่งงานอิสระ|รายได้ขึ้นลงตามฤดูแต่งงาน|ช่างสังเกต เห็นรายละเอียดที่คนอื่นมองข้าม|ถ่ายรูปท้องฟ้าทุกเย็น|ต่างหูห่วงเล็กๆ ข้างเดียวที่หูซ้าย|IMG_01_021.webp
+group	คนอื่น,เพื่อน	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> MALE	54|168|สมส่วน||ชาวสวนผลไม้ มีสวนของตัวเอง|สบายแบบไม่หวือหวา|อบอุ่น ใจเย็น ชอบสอนคนอื่นโดยไม่รู้ตัว|แจกผลไม้ให้เพื่อนบ้านทุกครั้งที่เก็บได้|ตีนกาลึกชัดเวลายิ้ม|IMG_01_022.webp
+group+aloud	คนอื่น,พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> FEMALE	36|168|สูงผอม||สถาปนิก|มั่นคง|เถียงเก่งแต่ไม่ถือโทษ|วาดเส้นเล่นบนขอบกระดาษเวลาฟังคนอื่นพูด|ตาสองข้างสีไม่เท่ากัน|IMG_01_048.webp
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> FEMALE	41|163|ท้วม||นักแปลอิสระ|ไม่แน่นอนแต่พออยู่ได้|เงียบ แต่พอเริ่มพูดแล้วหยุดยาก|อ่านหนังสือทีละสามเล่มสลับกัน|ปอยผมหน้าม้าที่ไม่เคยอยู่ทรง|IMG_01_050.webp
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> FEMALE	32|170|สูงผอม||ทนายความ|สบาย|พูดตรง คม แต่ยุติธรรม|อ่านทุกอย่างจนถึงบรรทัดสุดท้าย แม้แต่ใบเสร็จ|ไฝเม็ดเล็กเหนือริมฝีปากซ้าย|IMG_01_028.webp
+group	คนอื่น	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> FEMALE	38|160|สมส่วน||ช่างตัดเสื้อ รับตัดเย็บที่บ้าน|พอดีตัว|เนี้ยบ ช่างติ แต่ติด้วยความหวังดี|มองตะเข็บเสื้อคนอื่นก่อนมองหน้า|ผมยาวถักเปียข้างเดียวพาดไหล่|IMG_01_030.webp
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> FEMALE	42|168|สูงโปร่ง||วิศวกรซอฟต์แวร์|สบาย|พูดน้อย คิดเร็ว ตลกแบบหน้านิ่ง|ซื้อต้นไม้มาแล้วลืมรดน้ำ|หน้าม้าตรงเป๊ะเหมือนใช้ไม้บรรทัดตัด|IMG_01_034.webp
+aloud	พูด/เล่า/ประกาศ/เอ่ยชื่อ	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> FEMALE	47|165|สมส่วน||ช่างปั้นเซรามิก|ขายงานได้เป็นช่วงๆ พออยู่ได้|นิ่ง สุขุม พูดทีละคำ|เปิดวิทยุเพลงเก่าฟังทั้งวันตอนทำงาน|ริ้วรอยระหว่างคิ้วจากการขมวดคิ้วตอนตั้งใจ|IMG_01_036.webp
+group	ทุกคน	A	static-read	copy	yes	/game/love-match/ in-module UI literal	love-match.ts -> FEMALE	53|160|ท้วม||เจ้าของร้านก๋วยเตี๋ยวที่ขายมาสามสิบปี|สบายพอตัว|ใจกว้าง ยิ้มทั้งตา|เรียกลูกค้าทุกคนว่าลูก|ผมขาวแซม มัดรวบต่ำที่ท้ายทอย|IMG_01_039.webp
