@@ -1,0 +1,52 @@
+{
+  "desktop": {
+    "ctx": {
+      "hidden": false,
+      "noWebgl": false,
+      "canvas": [
+        780,
+        416
+      ],
+      "inner": 1280,
+      "tier": null
+    },
+    "perf": {
+      "frames": 137,
+      "meanMs": 22.22,
+      "drawCallsPerFrame": 95,
+      "canvas": [
+        780,
+        416
+      ],
+      "hidden": false
+    },
+    "correct": "A",
+    "nose": "+7",
+    "errors": []
+  },
+  "mobile": {
+    "ctx": {
+      "hidden": false,
+      "noWebgl": false,
+      "canvas": [
+        722,
+        747
+      ],
+      "inner": 375,
+      "tier": null
+    },
+    "perf": {
+      "frames": 132,
+      "meanMs": 23.08,
+      "drawCallsPerFrame": 95,
+      "canvas": [
+        722,
+        747
+      ],
+      "hidden": false
+    },
+    "correct": "A",
+    "nose": "+7",
+    "errors": []
+  }
+}

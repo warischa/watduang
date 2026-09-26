@@ -1,0 +1,16 @@
+{
+  "note": "375x812 emulation, devicePixelRatio spoofed to 3, headless Chrome --use-angle=swiftshader (CPU rasterizer, not a device number). One run per leg, taken back to back on the same dev server; trisPerFrame is total drawElements indices/3 divided by calls, times calls in the last frame (approximate).",
+  "before": {
+    "meanMs": 26.25,
+    "drawCallsPerFrame": 95,
+    "trisPerFrame": 41272,
+    "canvas": "722x747"
+  },
+  "after": {
+    "meanMs": 26.64,
+    "drawCallsPerFrame": 94,
+    "trisPerFrame": 55465,
+    "canvas": "542x560",
+    "tier": "lite"
+  }
+}

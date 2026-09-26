@@ -580,55 +580,99 @@ function initGL(){
   const VS=`
     attribute vec3 aPos, aNormal;
     uniform mat4 uModel, uViewProj;
+    uniform mat3 uNormalM;
     varying vec3 vWorld, vNormal;
     void main(){
       vec4 w = uModel * vec4(aPos, 1.0);
       vWorld = w.xyz;
-      vNormal = normalize(mat3(uModel) * aNormal);
+      vNormal = normalize(uNormalM * aNormal);
       gl_Position = uViewProj * w;
     }
   `;
 
+  // Lighting runs in linear space: uBase is authored as sRGB, decoded here, lit, tone-mapped with
+  // the ACES fit and re-encoded. Materials by uMat: 0 cloth (wrapped diffuse + sheen), 1 painted
+  // wood (soft grain, satin gloss), 2 lacquer (sharp gloss + strong fresnel reflection), 3 stage
+  // floor (planks + the puppet's contact shadow). Reflections sample a procedural stage gradient,
+  // so there is no texture and no second pass. uLite drops the two softbox lobes on phones.
   const FS=`
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
     precision mediump float;
+    #endif
     uniform vec3 uBase, uCamera;
-    uniform float uAlpha, uGlow, uMat;
+    uniform float uAlpha, uGlow, uMat, uLite;
+    uniform vec4 uBlob;
     varying vec3 vWorld, vNormal;
+
+    vec3 aces(vec3 x){
+      return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0);
+    }
+
     void main(){
       vec3 N = normalize(vNormal);
       vec3 V = normalize(uCamera - vWorld);
-      
-      // Warm key spotlight from upper left
+      float NoV = max(dot(N, V), 0.0);
       vec3 L_key = normalize(vec3(-0.45, 0.95, 0.75));
-      vec3 H_key = normalize(L_key + V);
-      float diff_key = max(dot(N, L_key), 0.0);
-      
-      // Warm theatrical footlight uplight
       vec3 L_up = normalize(vec3(0.0, -0.9, 0.45));
-      float diff_up = max(dot(N, L_up), 0.0) * 0.42;
-      
-      // Cool magenta/violet theatrical rim light
       vec3 L_rim = normalize(vec3(0.55, 0.25, -0.85));
-      float rim = pow(1.0 - max(dot(N, V), 0.0), 2.8) * 0.35;
-      
-      // Material-specific surface details
-      vec3 surfaceColor = uBase;
-      if(uMat > 0.5 && uMat < 1.5){
-        // Wood grain banding
-        float grain = sin(vWorld.y * 24.0 + sin(vWorld.x * 14.0 + vWorld.z * 12.0) * 1.8) * 0.5 + 0.5;
-        surfaceColor = mix(uBase * 0.9, uBase * 1.12, grain * 0.35);
+      vec3 albedo = pow(uBase, vec3(2.2));
+
+      float wrap = 0.1, gloss = 40.0, specK = 0.25, reflK = 0.18, sheen = 0.0, ao = 1.0;
+      vec3 specTint = vec3(1.0, 0.94, 0.85);
+      if(uMat < 0.5){
+        wrap = 0.4; gloss = 10.0; specK = 0.06; reflK = 0.05; sheen = 0.45;
+      }else if(uMat < 1.5){
+        float g = sin(vWorld.y * 9.0 + sin(vWorld.x * 5.0 + vWorld.z * 4.0) * 1.5) * 0.5 + 0.5;
+        albedo *= mix(0.93, 1.05, g);
+        // Painted wood: a warm satin highlight, so a long nose does not wash out to grey-pink.
+        specTint = mix(specTint, albedo / max(albedo.r, 0.01), 0.55);
+        wrap = 0.25;
+      }else if(uMat < 2.5){
+        wrap = 0.0; gloss = 140.0; specK = 1.1; reflK = 1.0;
+      }else{
+        float px = vWorld.x * 2.2, f = fract(px);
+        float plank = fract(sin(floor(px) * 91.7) * 43758.5);
+        float seam = smoothstep(0.0, 0.05, f) * smoothstep(1.0, 0.95, f);
+        float g = sin(vWorld.z * 11.0 + sin(vWorld.x * 23.0) * 0.8) * 0.5 + 0.5;
+        albedo *= mix(0.45, 1.0, seam) * (0.88 + plank * 0.22) * mix(0.9, 1.06, g);
+        gloss = 24.0; specK = 0.18; reflK = 0.12;
+        // Soft elliptical contact shadow under the puppet, top faces only.
+        float d = length((vWorld.xz - uBlob.xy) / uBlob.zw);
+        ao = 1.0 - step(0.5, N.y) * 0.72 * (1.0 - smoothstep(0.15, 1.0, d));
       }
-      
-      float spec = pow(max(dot(N, H_key), 0.0), uMat > 1.5 ? 45.0 : 18.0) * (uMat > 1.5 ? 0.65 : 0.28);
-      
-      vec3 ambient = surfaceColor * 0.38;
-      vec3 keyLight = surfaceColor * diff_key * vec3(1.05, 0.98, 0.88);
-      vec3 footLight = surfaceColor * diff_up * vec3(1.0, 0.65, 0.3);
-      vec3 rimLight = vec3(0.7, 0.45, 0.85) * rim;
-      
-      vec3 c = ambient + keyLight + footLight + rimLight + vec3(spec) + surfaceColor * uGlow * 1.4;
-      c = c / (c + vec3(0.65));
-      gl_FragColor = vec4(pow(c, vec3(0.92)), uAlpha);
+      // Cheap height occlusion: the figure darkens where it meets the stage.
+      if(uMat < 2.5) ao *= mix(0.62, 1.0, smoothstep(-1.55, -0.95, vWorld.y));
+
+      // Hemisphere ambient: violet loft above, warm dark boards below.
+      vec3 hemi = mix(vec3(0.13, 0.06, 0.06), vec3(0.30, 0.27, 0.42), N.y * 0.5 + 0.5);
+      float dKey = max((dot(N, L_key) + wrap) / (1.0 + wrap), 0.0);
+      float dUp = max(dot(N, L_up), 0.0);
+      vec3 H = normalize(L_key + V);
+      float spec = pow(max(dot(N, H), 0.0), gloss) * specK * (gloss + 8.0) / 48.0 * step(0.0, dot(N, L_key));
+      float fres = pow(1.0 - NoV, 5.0);
+      // Rim from behind only, and not on up-facing tops (a nose or the boards seen edge-on).
+      float rim = pow(1.0 - NoV, 3.0) * max(dot(N, L_rim) + 0.2, 0.0) * (1.0 - max(N.y, 0.0) * 0.85) * step(uMat, 2.5);
+
+      vec3 R = reflect(-V, N);
+      vec3 env = mix(vec3(0.30, 0.06, 0.14), vec3(0.62, 0.48, 0.44), smoothstep(0.0, 0.8, R.y));
+      env = mix(env, vec3(0.04, 0.015, 0.025), smoothstep(0.0, -0.4, R.y));
+      if(uLite < 0.5){
+        env += vec3(2.0, 1.75, 1.4) * pow(max(dot(R, L_key), 0.0), 28.0);
+        env += vec3(0.45, 0.55, 1.1) * pow(max(dot(R, L_rim), 0.0), 10.0);
+      }
+
+      vec3 c = albedo * hemi * ao;
+      c += albedo * dKey * vec3(1.9, 1.72, 1.5) * mix(1.0, ao, 0.8);
+      c += albedo * dUp * vec3(0.7, 0.4, 0.16);
+      c += albedo * sheen * pow(1.0 - NoV, 2.0) * vec3(0.9, 0.8, 1.0);
+      c += vec3(0.62, 0.36, 0.85) * rim * 0.3;
+      c += specTint * spec * ao;
+      c += env * reflK * (0.04 + 0.96 * fres) * ao;
+      c += albedo * uGlow * 1.6;
+      c = aces(c * 0.95);
+      gl_FragColor = vec4(pow(c, vec3(1.0 / 2.2)), uAlpha);
     }
   `;
 
@@ -651,13 +695,21 @@ function initGL(){
     aPos:gl.getAttribLocation(prog,'aPos'),
     aNormal:gl.getAttribLocation(prog,'aNormal'),
     model:gl.getUniformLocation(prog,'uModel'),
+    normalM:gl.getUniformLocation(prog,'uNormalM'),
     vp:gl.getUniformLocation(prog,'uViewProj'),
     base:gl.getUniformLocation(prog,'uBase'),
     camera:gl.getUniformLocation(prog,'uCamera'),
     alpha:gl.getUniformLocation(prog,'uAlpha'),
     glow:gl.getUniformLocation(prog,'uGlow'),
-    mat:gl.getUniformLocation(prog,'uMat')
+    mat:gl.getUniformLocation(prog,'uMat'),
+    lite:gl.getUniformLocation(prog,'uLite'),
+    blob:gl.getUniformLocation(prog,'uBlob')
   };
+  // Quality tier, decided once. A phone-sized or touch-first screen caps the pixel ratio lower and
+  // skips the reflection softbox lobes; the tier is exposed on #app so a probe can read which ran.
+  const lite=matchMedia('(pointer: coarse)').matches||innerWidth<600;
+  app.dataset.gl=lite?'lite':'full';
+  gl.uniform1f(loc.lite,lite?1:0);
 
   function mesh(p,n,i){
     const m={count:i.length,p:gl.createBuffer(),n:gl.createBuffer(),i:gl.createBuffer()};
@@ -670,7 +722,7 @@ function initGL(){
     return m;
   }
 
-  function sphere(lat=14,lon=18){
+  function sphere(lat=24,lon=32){
     const p=[],n=[],i=[];
     for(let y=0;y<=lat;y++)for(let x=0;x<=lon;x++){
       const ph=y/lat*Math.PI,th=x/lon*Math.PI*2;
@@ -702,21 +754,25 @@ function initGL(){
     return mesh(p,n,i);
   }
 
-  function cylinder(seg=20){
-    const p=[],n=[],i=[];
+  // top < 1 tapers the +y end to that radius; the side normal tilts toward +y to match the slope.
+  function cylinder(seg=32,top=1){
+    const p=[],n=[],i=[],ny=(1-top)/2,nl=Math.hypot(1,ny);
     for(let k=0;k<=seg;k++){
       const a=k/seg*Math.PI*2,x=Math.cos(a),z=Math.sin(a);
-      p.push(x,-1,z,x,1,z);
-      n.push(x,0,z,x,0,z);
+      p.push(x,-1,z,x*top,1,z*top);
+      n.push(x/nl,ny/nl,z/nl,x/nl,ny/nl,z/nl);
     }
     for(let k=0;k<seg;k++){
       const a=k*2,b=a+2;
-      i.push(a,b,a+1,b,b+1,a+1);
+      // Counter-clockwise seen from outside, so back-face culling keeps the outer wall (the
+      // opposite order showed the far inner wall of every nose, arm and ring).
+      i.push(a,a+1,b,b,a+1,b+1);
     }
     return mesh(p,n,i);
   }
 
-  const meshes={sphere:sphere(),box:box(),cylinder:cylinder()};
+  const NOSE_TAPER=.72;
+  const meshes={sphere:sphere(),ball:sphere(14,18),dot:sphere(8,10),box:box(),cylinder:cylinder(),taper:cylinder(32,NOSE_TAPER)};
 
   function mul(a,b){
     const o=new Float32Array(16);
@@ -749,6 +805,12 @@ function initGL(){
   function norm(a){const l=Math.hypot(...a)||1;return a.map(v=>v/l)}
 
   function draw(which,model,color,alpha=1,glow=0,mat=1.0){
+    // Sphere LOD by on-model size: only the large silhouettes (head, body, hat, hair) pay for the
+    // dense mesh; eyes and buttons stay on the light one, motes, particles and glints on the lightest.
+    if(which==='sphere'){
+      const s=Math.max(Math.hypot(model[0],model[1],model[2]),Math.hypot(model[4],model[5],model[6]),Math.hypot(model[8],model[9],model[10]));
+      if(s<.07)which='dot';else if(s<.2)which='ball';
+    }
     const m=meshes[which];
     gl.bindBuffer(gl.ARRAY_BUFFER,m.p);
     gl.vertexAttribPointer(loc.aPos,3,gl.FLOAT,false,0,0);
@@ -758,6 +820,10 @@ function initGL(){
     gl.enableVertexAttribArray(loc.aNormal);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,m.i);
     gl.uniformMatrix4fv(loc.model,false,model);
+    // Normal matrix = cofactor of the model's 3x3 (the inverse-transpose up to a positive scale the
+    // shader normalizes away). mat3(model) would bend normals on every non-uniformly scaled part.
+    const c0=[model[0],model[1],model[2]],c1=[model[4],model[5],model[6]],c2=[model[8],model[9],model[10]];
+    gl.uniformMatrix3fv(loc.normalM,false,[...cross(c1,c2),...cross(c2,c0),...cross(c0,c1)]);
     gl.uniform3fv(loc.base,color);
     gl.uniform1f(loc.alpha,alpha);
     gl.uniform1f(loc.glow,glow);
@@ -765,7 +831,7 @@ function initGL(){
     gl.drawElements(gl.TRIANGLES,m.count,gl.UNSIGNED_SHORT,0);
   }
 
-  return{gl,canvas,loc,draw,mul,tr,sc,rz,ry,rx,chain,perspective,lookAt};
+  return{gl,canvas,loc,draw,mul,tr,sc,rz,ry,rx,chain,perspective,lookAt,lite,NOSE_TAPER};
 }
 
 let renderer;
@@ -777,20 +843,41 @@ function drawScene(time,dt){
   // answers the accessibility request by deleting the one thing the player came to see. It still
   // travels here, on a gentler approach with no spring overshoot — every other motion in this scene
   // (idle bob, arm swing, feather sway, blink, camera trauma) stays switched off below.
-  const noseTarget=.34+visual.targetNose*.125,stiff=reduced?Math.min(1,dt*5):Math.min(1,dt*8.5);
-  visual.nose+=(noseTarget-visual.nose)*stiff;
+  // Full motion: an underdamped spring (a small comic overshoot), integrated in fixed 1/240 s
+  // substeps so it behaves the same at any frame rate and stays stable at the 50 ms dt clamp.
+  // Reduced motion: a frame-rate-independent exponential approach, no overshoot.
+  const noseTarget=.34+visual.targetNose*.125;
+  if(reduced){
+    visual.nose+=(noseTarget-visual.nose)*(1-Math.exp(-5*dt));
+    visual.noseVelocity=0;
+  }else{
+    const W=13,Z=.5,steps=Math.ceil(dt*240),h=dt/steps;
+    for(let s=0;s<steps;s++){
+      visual.noseVelocity+=(W*W*(noseTarget-visual.nose)-2*Z*W*visual.noseVelocity)*h;
+      visual.nose+=visual.noseVelocity*h;
+    }
+    visual.nose=Math.max(.2,visual.nose);
+  }
   visual.reactionTime+=dt;
   visual.celebrate=Math.max(0,visual.celebrate-dt);
 
-  const bob=reduced?0:Math.sin(time*1.8)*.035+(visual.reaction==='good'&&visual.reactionTime<.75?Math.sin(visual.reactionTime*16)*.085:0);
+  // A correct answer is one eased hop (stretch on the way up, squash on landing) instead of a
+  // jitter; hopT runs 0..1 in the air and 1..1.35 for the landing squash.
+  const hopT=!reduced&&visual.reaction==='good'?visual.reactionTime/.55:9;
+  const hop=hopT<1?4*hopT*(1-hopT)*.17:0;
+  const stretch=hopT<1?.07*(1-2*hopT):hopT<1.35?-.09*Math.sin((hopT-1)/.35*Math.PI):0;
+  const bob=reduced?0:Math.sin(time*1.8)*.035+hop;
+  const sway=reduced?0:Math.sin(time*.9)*.022;
   const bad=visual.reaction==='bad'&&visual.reactionTime<.85?Math.sin(visual.reactionTime*36)*(1-visual.reactionTime/.85)*.065:0;
+  // The head recoils from its own growing nose, then settles; driven by the spring's velocity.
+  const headTilt=reduced?0:Math.max(-.14,Math.min(.14,visual.noseVelocity*.045))+Math.sin(time*1.1+.4)*.02;
   const jawDrop=visual.reaction==='bad'&&visual.reactionTime<.95?Math.sin(Math.min(1,visual.reactionTime/.4)*Math.PI/2)*.16:0;
 
   document.documentElement.style.setProperty('--fallback-nose',`${34+visual.targetNose*14}px`);
   if(!renderer)return;
 
-  const {gl,canvas,loc,draw,chain,tr,sc,rz,ry,rx,perspective,lookAt}=renderer;
-  const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
+  const {gl,canvas,loc,draw,chain,tr,sc,rz,ry,rx,perspective,lookAt,lite,NOSE_TAPER}=renderer;
+  const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,lite?1.5:2);
   const w=Math.max(2,Math.round(rect.width*dpr)),h=Math.max(2,Math.round(rect.height*dpr));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
 
@@ -809,10 +896,17 @@ function drawScene(time,dt){
   gl.uniformMatrix4fv(loc.vp,false,vp);
   gl.uniform3fv(loc.camera,eye);
 
-  const root=chain(tr(-.44+bad,bob,0),ry(.42));
+  // Squash-stretch pivots at the feet so the puppet never sinks into the boards.
+  const sy=1+stretch,sxz=1/Math.sqrt(sy);
+  const root=chain(tr(-.44+bad,bob,0),tr(0,-1.5,0),rz(sway),sc(sxz,sy,sxz),tr(0,1.5,0),ry(.42));
 
   const skin=[.96,.75,.54],hairColor=[.09,.08,.11],white=[.98,.98,.96],shirtY=[.99,.86,.34];
   const HX=-.5,HY=.25; // head center
+  // Every head part hangs off this neck pivot, so a tilt moves face, hat, hair and nose as one.
+  const head=chain(root,tr(HX,-.45,0),rz(headTilt),tr(-HX,.45,0));
+  // Contact shadow: centred under the body after the ry turn, spreading softer as the puppet rises.
+  const spread=1+Math.max(0,bob)*.75;
+  gl.uniform4f(loc.blob,-.44+bad+HX*Math.cos(.42),-HX*Math.sin(.42)+.05,.95*spread,.5*spread);
 
   // --- BODY: YELLOW SHIRT, BLACK VEST, RED SHORTS ---
   draw('sphere',chain(root,tr(HX,-.62,0),sc(.17,.2,.16)),skin,1,0,1.0);
@@ -848,85 +942,88 @@ function drawScene(time,dt){
   draw('sphere',chain(root,tr(HX+.77,-1.44,.16),sc(.13,.14,.12)),white,1,0,0.0);
 
   // --- CARVED WOODEN HEAD (features sit ON the surface) ---
-  draw('sphere',chain(root,tr(HX,HY,0),sc(.82,.95,.8)),skin,1,0,1.0);
-  draw('sphere',chain(root,tr(HX+.05,-.38,.26),sc(.36,.32,.34)),skin,1,0,1.0);
+  draw('sphere',chain(head,tr(HX,HY,0),sc(.82,.95,.8)),skin,1,0,1.0);
+  draw('sphere',chain(head,tr(HX+.05,-.38,.26),sc(.36,.32,.34)),skin,1,0,1.0);
 
   // Carved ear (screen-left side)
-  draw('sphere',chain(root,tr(HX-.78,.28,.02),sc(.13,.19,.1)),skin,1,0,1.0);
-  draw('sphere',chain(root,tr(HX-.84,.28,.08),sc(.07,.11,.06)),[.85,.6,.45],1,0,1.0);
+  draw('sphere',chain(head,tr(HX-.78,.28,.02),sc(.13,.19,.1)),skin,1,0,1.0);
+  draw('sphere',chain(head,tr(HX-.84,.28,.08),sc(.07,.11,.06)),[.85,.6,.45],1,0,1.0);
 
   // Rosy apple cheeks
-  draw('sphere',chain(root,tr(HX+.4,HY-.24,.66),sc(.12,.08,.05)),[.95,.52,.48],1,.08,0.0);
-  draw('sphere',chain(root,tr(HX-.38,HY-.26,.66),sc(.11,.075,.05)),[.95,.52,.48],1,.08,0.0);
+  draw('sphere',chain(head,tr(HX+.4,HY-.24,.66),sc(.12,.08,.05)),[.95,.52,.48],1,.08,0.0);
+  draw('sphere',chain(head,tr(HX-.38,HY-.26,.66),sc(.11,.075,.05)),[.95,.52,.48],1,.08,0.0);
 
   // --- BIG ROUND BOYISH BLUE EYES (set lower, larger iris) ---
-  const blink=!reduced&&Math.sin(time*.72)>0.982?.07:1;
+  // Eased blink: the lid closes and opens over a few frames instead of a one-frame toggle.
+  const blink=reduced?1:1-.93*Math.min(1,Math.max(0,(Math.sin(time*.72)-.968)/.014));
   const eyeWide=visual.reaction==='bad'&&visual.reactionTime<.75?1.3:1.0;
   const eyeSquint=visual.reaction==='good'&&visual.reactionTime<.75?.55:1.0;
   const eyeY=blink*eyeWide*eyeSquint;
   for(const [ex,ez] of [[HX+.3,.66],[HX-.28,.68]]){
-    draw('sphere',chain(root,tr(ex,HY+.14,ez),sc(.15,.185*eyeY,.09)),white,1,0,2.0);
-    draw('sphere',chain(root,tr(ex+.02,HY+.13,ez+.07),sc(.105,.145*eyeY,.05)),[.22,.56,.9],1,.05,2.0);
-    draw('sphere',chain(root,tr(ex+.03,HY+.13,ez+.11),sc(.062,.095*eyeY,.03)),[.05,.05,.06],1,0,2.0);
-    draw('sphere',chain(root,tr(ex+.06,HY+.18,ez+.13),sc(.026,.03,.015)),[1,1,1],1,.9,2.0);
+    draw('sphere',chain(head,tr(ex,HY+.14,ez),sc(.15,.185*eyeY,.09)),white,1,0,2.0);
+    draw('sphere',chain(head,tr(ex+.02,HY+.13,ez+.07),sc(.105,.145*eyeY,.05)),[.22,.56,.9],1,.05,2.0);
+    draw('sphere',chain(head,tr(ex+.03,HY+.13,ez+.11),sc(.062,.095*eyeY,.03)),[.05,.05,.06],1,0,2.0);
+    draw('sphere',chain(head,tr(ex+.06,HY+.18,ez+.13),sc(.026,.03,.015)),[1,1,1],1,.9,2.0);
   }
 
   // Thin soft boyish eyebrows, a little above the eyes
   const browAngle=visual.reaction==='bad'?.3:(visual.reaction==='good'?-.15:.04);
   const browLift=visual.reaction==='bad'&&visual.reactionTime<.75?.06:0;
-  draw('box',chain(root,tr(HX+.31,HY+.38+browLift,.63),rz(-browAngle),sc(.19,.038,.05)),hairColor,1,0,2.0);
-  draw('box',chain(root,tr(HX-.29,HY+.38+browLift,.63),rz(browAngle),sc(.19,.038,.05)),hairColor,1,0,2.0);
+  draw('box',chain(head,tr(HX+.31,HY+.38+browLift,.63),rz(-browAngle),sc(.19,.038,.05)),hairColor,1,0,2.0);
+  draw('box',chain(head,tr(HX-.29,HY+.38+browLift,.63),rz(browAngle),sc(.19,.038,.05)),hairColor,1,0,2.0);
 
   // --- BIG OPEN GRIN WITH TONGUE, UPTURNED CORNERS (widens into shock when wrong) ---
   const my=HY-.46,jd=jawDrop+.09;
-  draw('sphere',chain(root,tr(HX+.12,my-jd*.4,.6),sc(.22,.08+jd*.5,.08)),[.45,.1,.13],1,0,0.0);
-  draw('sphere',chain(root,tr(HX+.12,my-jd*.55-.04,.64),sc(.13,.05+jd*.15,.06)),[.94,.44,.5],1,.05,0.0);
-  draw('sphere',chain(root,tr(HX+.12,my+.08-jd*.06,.63),sc(.24,.08,.1)),skin,1,0,1.0);
+  draw('sphere',chain(head,tr(HX+.12,my-jd*.4,.6),sc(.22,.08+jd*.5,.08)),[.45,.1,.13],1,0,0.0);
+  draw('sphere',chain(head,tr(HX+.12,my-jd*.55-.04,.64),sc(.13,.05+jd*.15,.06)),[.94,.44,.5],1,.05,0.0);
+  draw('sphere',chain(head,tr(HX+.12,my+.08-jd*.06,.63),sc(.24,.08,.1)),skin,1,0,1.0);
   // smile corner ticks
-  draw('sphere',chain(root,tr(HX+.33,my+.04,.62),sc(.035,.026,.05)),[.45,.1,.13],1,0,0.0);
-  draw('sphere',chain(root,tr(HX-.09,my+.04,.62),sc(.035,.026,.05)),[.45,.1,.13],1,0,0.0);
+  draw('sphere',chain(head,tr(HX+.33,my+.04,.62),sc(.035,.026,.05)),[.45,.1,.13],1,0,0.0);
+  draw('sphere',chain(head,tr(HX-.09,my+.04,.62),sc(.035,.026,.05)),[.45,.1,.13],1,0,0.0);
 
   // --- GLOSSY BLACK HAIR: SMOOTH SWOOP ACROSS THE FOREHEAD (ref style) ---
-  draw('sphere',chain(root,tr(HX-.45,.55,-.25),sc(.45,.5,.5)),hairColor,1,0,2.0);
-  draw('sphere',chain(root,tr(HX-.05,.98,.4),rz(-.12),sc(.5,.17,.3)),hairColor,1,0,2.0);
-  draw('sphere',chain(root,tr(HX+.34,.84,.5),rz(-.45),sc(.24,.11,.16)),hairColor,1,0,2.0);
-  draw('sphere',chain(root,tr(HX-.62,.8,.3),sc(.2,.22,.18)),hairColor,1,0,2.0);
+  draw('sphere',chain(head,tr(HX-.45,.55,-.25),sc(.45,.5,.5)),hairColor,1,0,2.0);
+  draw('sphere',chain(head,tr(HX-.05,.98,.4),rz(-.12),sc(.5,.17,.3)),hairColor,1,0,2.0);
+  draw('sphere',chain(head,tr(HX+.34,.84,.5),rz(-.45),sc(.24,.11,.16)),hairColor,1,0,2.0);
+  draw('sphere',chain(head,tr(HX-.62,.8,.3),sc(.2,.22,.18)),hairColor,1,0,2.0);
 
   // --- YELLOW ALPINE HAT (tapered crown) WITH THIN BLUE BAND & FEATHER ---
-  draw('sphere',chain(root,tr(HX,1.16,0),rz(.12),sc(1.02,.07,.86)),[.98,.78,.16],1,0,1.0);
-  draw('sphere',chain(root,tr(HX-.02,1.24,0),rz(.12),sc(.62,.09,.53)),[.16,.42,.8],1,.1,0.0);
-  draw('sphere',chain(root,tr(HX-.05,1.48,0),rz(.12),sc(.55,.32,.48)),[.98,.78,.16],1,0,1.0);
-  draw('sphere',chain(root,tr(HX-.08,1.74,0),rz(.12),sc(.32,.18,.28)),[.98,.78,.16],1,0,1.0);
+  draw('sphere',chain(head,tr(HX,1.16,0),rz(.12),sc(1.02,.07,.86)),[.98,.78,.16],1,0,1.0);
+  draw('sphere',chain(head,tr(HX-.02,1.24,0),rz(.12),sc(.62,.09,.53)),[.16,.42,.8],1,.1,0.0);
+  draw('sphere',chain(head,tr(HX-.05,1.48,0),rz(.12),sc(.55,.32,.48)),[.98,.78,.16],1,0,1.0);
+  draw('sphere',chain(head,tr(HX-.08,1.74,0),rz(.12),sc(.32,.18,.28)),[.98,.78,.16],1,0,1.0);
   // Bouncy scarlet feather
   const featherSway=reduced?0:Math.sin(time*2.6)*.1+bob*1.2;
-  draw('cylinder',chain(root,tr(HX-.5,1.75+featherSway*.2,-.05),rz(.55+featherSway),sc(.045,.34,.045)),[.9,.16,.16],1,.15,0.0);
-  draw('sphere',chain(root,tr(HX-.72,2.02+featherSway*.35,-.05),rz(.55+featherSway),sc(.11,.24,.05)),[.94,.22,.2],1,.15,0.0);
-  draw('sphere',chain(root,tr(HX-.85,2.2+featherSway*.45,-.05),sc(.07,.12,.04)),[.98,.6,.2],1,.25,0.0);
+  draw('cylinder',chain(head,tr(HX-.5,1.75+featherSway*.2,-.05),rz(.55+featherSway),sc(.045,.34,.045)),[.9,.16,.16],1,.15,0.0);
+  draw('sphere',chain(head,tr(HX-.72,2.02+featherSway*.35,-.05),rz(.55+featherSway),sc(.11,.24,.05)),[.94,.22,.2],1,.15,0.0);
+  draw('sphere',chain(head,tr(HX-.85,2.2+featherSway*.45,-.05),sc(.07,.12,.04)),[.98,.6,.2],1,.25,0.0);
 
   // Marionette strings to head and both gloves
-  draw('cylinder',chain(root,tr(HX,4.1,0),sc(.01,2.6,.01)),[.92,.87,.72],.4,.15,0.0);
+  draw('cylinder',chain(head,tr(HX,4.1,0),sc(.01,2.6,.01)),[.92,.87,.72],.4,.15,0.0);
   draw('cylinder',chain(root,tr(HX-.77,1.3,.12),sc(.008,2.7,.008)),[.92,.87,.72],.32,.15,0.0);
   draw('cylinder',chain(root,tr(HX+.77,1.3,.16),sc(.008,2.7,.008)),[.92,.87,.72],.32,.15,0.0);
 
   // --- THE COMEDIC NOSE (grows from the face front, out to screen-right) ---
   const nx=HX+.01,ny=HY-.16,nz=.7,noseLen=visual.nose; // centered between the eyes; midway between eyes and mouth
   const NA=.6,ndx=Math.cos(NA),ndz=Math.sin(NA); // local angle; ~horizontal after root ry(.42)
-  draw('cylinder',chain(root,tr(nx+ndx*.03,ny,nz+ndz*.03),ry(-NA),rz(-Math.PI/2),sc(.17,.05,.17)),[.88,.64,.46],1,0,1.0);
-  draw('cylinder',chain(root,tr(nx+ndx*noseLen/2,ny,nz+ndz*noseLen/2),ry(-NA),rz(-Math.PI/2),sc(.13,noseLen/2,.13)),skin,1,0,1.0);
-  // Growth rings
-  if(noseLen>.8)draw('cylinder',chain(root,tr(nx+ndx*noseLen*.4,ny,nz+ndz*noseLen*.4),ry(-NA),rz(-Math.PI/2),sc(.145,.025,.145)),[.85,.6,.42],1,0,1.0);
-  if(noseLen>1.3)draw('cylinder',chain(root,tr(nx+ndx*noseLen*.72,ny,nz+ndz*noseLen*.72),ry(-NA),rz(-Math.PI/2),sc(.145,.025,.145)),[.85,.6,.42],1,0,1.0);
+  draw('cylinder',chain(head,tr(nx+ndx*.03,ny,nz+ndz*.03),ry(-NA),rz(-Math.PI/2),sc(.17,.05,.17)),[.88,.64,.46],1,0,1.0);
+  // The shaft tapers toward the tip; rings follow the taper so they hug it at any length.
+  draw('taper',chain(head,tr(nx+ndx*noseLen/2,ny,nz+ndz*noseLen/2),ry(-NA),rz(-Math.PI/2),sc(.13,noseLen/2,.13)),skin,1,0,1.0);
+  const ringR=(f)=>.13*(1-(1-NOSE_TAPER)*f)+.014;
+  if(noseLen>.8)draw('cylinder',chain(head,tr(nx+ndx*noseLen*.4,ny,nz+ndz*noseLen*.4),ry(-NA),rz(-Math.PI/2),sc(ringR(.4),.025,ringR(.4))),[.85,.6,.42],1,0,1.0);
+  if(noseLen>1.3)draw('cylinder',chain(head,tr(nx+ndx*noseLen*.72,ny,nz+ndz*noseLen*.72),ry(-NA),rz(-Math.PI/2),sc(ringR(.72),.025,ringR(.72))),[.85,.6,.42],1,0,1.0);
   // Sprouting leaves at high growth (>=5)
   if(visual.targetNose>=5&&noseLen>.7)
-    draw('sphere',chain(root,tr(nx+ndx*noseLen*.55,ny+.15,nz+ndz*noseLen*.55),ry(-NA),rz(.75),sc(.07,.15,.03)),[.3,.8,.35],1,.15,0.0);
+    draw('sphere',chain(head,tr(nx+ndx*noseLen*.55,ny+.15,nz+ndz*noseLen*.55),ry(-NA),rz(.75),sc(.07,.15,.03)),[.3,.8,.35],1,.15,0.0);
   if(visual.targetNose>=8&&noseLen>1.1)
-    draw('sphere',chain(root,tr(nx+ndx*noseLen*.82,ny-.13,nz+ndz*noseLen*.82),ry(-NA),rz(-.75),sc(.06,.13,.03)),[.3,.8,.35],1,.15,0.0);
-  // Rounded wooden tip
-  draw('sphere',chain(root,tr(nx+ndx*noseLen,ny,nz+ndz*noseLen),sc(.17,.16,.16)),[.95,.68,.5],1,.1,1.0);
+    draw('sphere',chain(head,tr(nx+ndx*noseLen*.82,ny-.13,nz+ndz*noseLen*.82),ry(-NA),rz(-.75),sc(.06,.13,.03)),[.3,.8,.35],1,.15,0.0);
+  // Rounded wooden tip, stretched along the nose while it shoots out and squashed as it snaps back.
+  const tipS=1+Math.max(-.2,Math.min(.3,visual.noseVelocity*.06)),tipW=.13/Math.sqrt(tipS);
+  draw('sphere',chain(head,tr(nx+ndx*noseLen,ny,nz+ndz*noseLen),ry(-NA),sc(.135*tipS,tipW,tipW)),[.95,.68,.5],1,.1,1.0);
 
   // --- STAGE FLOOR & GOLDEN FOOTLIGHTS ---
   // Wooden Stage Apron Planks
-  draw('box',chain(tr(-.4,-1.42,-.2),sc(7.5,.18,2.2)),[.28,.1,.14],1,0,1.0);
+  draw('box',chain(tr(-.4,-1.42,-.2),sc(7.5,.18,2.2)),[.3,.13,.12],1,0,3.0);
   draw('box',chain(tr(-.4,-1.31,.65),sc(7.5,.04,.12)),[.48,.22,.15],1,0,1.0);
   // 7 Warm Golden Footlight Domes
   for(let i=0;i<7;i++){
@@ -940,8 +1037,7 @@ function drawScene(time,dt){
   gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
   gl.depthMask(false);
 
-  // Soft puppet shadow on the stage planks
-  draw('sphere',chain(tr(-.45,-1.3,.25),sc(1.15,.025,.55)),[.05,.02,.04],.4,0,0.0);
+  // The puppet's shadow is computed in the floor's own shader (uBlob), so no coplanar disc here.
 
   // Floating ambient stage dust motes
   for(const m of visual.motes){
