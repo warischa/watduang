@@ -1624,10 +1624,13 @@ first). Every call, its as-sent prompt and its output hash is in
 passed `transparent_background: true` on every call: on codex-cli 0.159.2 the tool has that argument.
 
 **Reusing a direction for the other games.** Each prompt is six labelled paragraphs. `Scene:`,
-`Style/medium:`, `Composition/framing:`, `Color palette:` and `Constraints:` are the direction and stay
-byte-identical across the set. `Subject:` is the only game-specific paragraph; it carries the game's own
-colours (`Subject colours:`) and its own "nothing else in frame" exclusions. A new game's entry copies
-the picked direction's five paragraphs and writes a new `Subject:`. Attach the picked master with `-i` as
+`Style/medium:`, `Composition/framing:`, `Color palette:` and `Constraints:` are the direction;
+`Subject:` carries the game's own colours (`Subject colours:`) and its own "nothing else in frame"
+exclusions. **The five direction paragraphs are not yet game-neutral**: crocodile wording leaked into
+them (A's `Style/medium:` "no scale pattern"; B's `Color palette:` "pure white for teeth"; C's
+`Style/medium:` "highlights on the teeth and eyes", "NO realistic reptile skin, NO scale texture"). Before
+the picked direction is reused (gh#242), move that wording into `Subject:`; then a new game's entry copies
+the five paragraphs and writes a new `Subject:`. The `prompt:` text below stays as sent. Attach the picked master with `-i` as
 the style reference (the skill's Style anchoring): Codex rewrites the prompt, so the text alone does not
 pin the look.
 
@@ -1659,6 +1662,9 @@ The owner's comparison sheet, the proposed card slot and the full grading record
 - id: IMG_02_001
   deliverable: "02"
   profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
   location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
   direction: "A - flat editorial"
   purpose: "croc-bite card art, direction A: the shipped site style - even ink outline, flat colour areas, at most two flat shade tones, restrained, brand palette plus a muted croc green (#4caf6e)."
@@ -1683,6 +1689,9 @@ The owner's comparison sheet, the proposed card slot and the full grading record
 - id: IMG_02_002
   deliverable: "02"
   profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
   location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
   direction: "B - bold sticker pop"
   purpose: "croc-bite card art, direction B: loud cartoon mascot - thick chunky ink outline, saturated flat fills, exaggerated proportions, big expression; still flat, no shadow."
@@ -1707,6 +1716,9 @@ The owner's comparison sheet, the proposed card slot and the full grading record
 - id: IMG_02_003
   deliverable: "02"
   profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
   location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
   direction: "C - soft 3D toy"
   purpose: "croc-bite card art, direction C: rounded vinyl toy render with soft volumetric shading, in the live croc-bite route material colours (#27ae60 skin); not photoreal."
