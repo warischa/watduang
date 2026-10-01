@@ -59,10 +59,25 @@
 # the verdict line says. `SKIP_EXPENSIVE=1` skips it and COUNTS IT AS NOT-EXECUTED, which forces a
 # non-zero exit. A skip that kept exit 0 would recreate the defect gh#171 exists to remediate.
 #
+# THE CITATION RANGE. In CI the added-lineno-citation gate takes its base from the push or PR event
+# (the step's `env:` block, which this extractor never reads). Run here with nothing set, the gate
+# fell back to its own local default, HEAD~1 -> working tree, so it saw ONE commit. On 2026-10-01 a
+# docs/evidence commit sat on top of an unpushed src commit: the lane's step scanned 0 files ("nothing
+# policed was scanned") and passed, while the same gate given the real base scanned 3 files and 324
+# lines. So this script now exports CITATION_DIFF_RANGE as the merge-base of HEAD and origin/main,
+# as a BARE rev, never `<sha>..HEAD`: the gate folds in uncommitted and untracked files only when the
+# range has no `..`, so the bare form covers every unpushed commit plus the working tree. A stale
+# origin/main (no recent fetch) moves the base further back while main only moves forward, so it
+# widens the scan, never narrows it. No origin/main, or HEAD already on it, leaves the variable unset
+# and the gate's HEAD~1 default runs, which is never narrower than the HEAD -> working tree it would
+# otherwise get. A CITATION_DIFF_RANGE the caller already set is used as given. A `citation range:`
+# line before the first step prints which case applied and why.
+#
 #   bash scripts/run-workflow-gates.sh          # run them all
 #   MIN_STEPS=25 bash scripts/run-workflow-gates.sh
 #   SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh  # fast; ALWAYS exits non-zero, never a pass
 #   CLASSIFY_ONLY=1 bash scripts/run-workflow-gates.sh   # print the partition, execute nothing
+#   CITATION_DIFF_RANGE=<rev> bash scripts/run-workflow-gates.sh  # pin the citation gate's base
 #
 # Exit: 0 every runnable step ran and passed · N = N runnable steps failed or went unexecuted
 #       96 = the workflow moved the unit tests out of local reach (REQUIRE guard)
@@ -228,6 +243,21 @@ if [ -n "$CLASSIFY_ONLY" ]; then
   echo "log: $LOG"
   exit 0
 fi
+
+# THE CITATION RANGE (header). Exported, or `bash -e "$body"` never sees it.
+head_sha=$(git rev-parse HEAD)
+if [ -n "${CITATION_DIFF_RANGE:-}" ]; then
+  range_note="CITATION_DIFF_RANGE=$CITATION_DIFF_RANGE (set by the caller, used as given)"
+elif upstream_base=$(git merge-base HEAD origin/main 2>/dev/null) && [ "$upstream_base" != "$head_sha" ]; then
+  export CITATION_DIFF_RANGE="$upstream_base"
+  ahead=$(git rev-list --count "$upstream_base..HEAD")
+  range_note="CITATION_DIFF_RANGE=$upstream_base -> working tree (merge-base of HEAD and origin/main: $ahead commit(s) not on origin/main, plus uncommitted and untracked files)"
+elif [ -n "${upstream_base:-}" ]; then
+  range_note="CITATION_DIFF_RANGE unset -> the gate's HEAD~1 default (HEAD is already on origin/main, nothing unpushed)"
+else
+  range_note="CITATION_DIFF_RANGE unset -> the gate's HEAD~1 default (no merge-base with origin/main)"
+fi
+echo "citation range: $range_note" | tee -a "$LOG"
 
 echo "executing $runnable runnable step(s) of $declared declared" | tee -a "$LOG"
 

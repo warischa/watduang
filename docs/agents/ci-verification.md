@@ -22,7 +22,10 @@ It reads `ci.yml` and derives the list, so it cannot drift from the thing it is 
 code is the number of runnable gates that failed **plus the number that were never executed**;
 **98 means the extractor is broken, not the tree**, and **96 means the workflow moved the unit tests
 out of local reach** — never read either as a pass. `MIN_STEPS=` raises
-the floor. `CLASSIFY_ONLY=1` prints the partition and executes nothing.
+the floor. `CLASSIFY_ONLY=1` prints the partition and executes nothing. The lane hands
+`added-lineno-citation-check` the merge-base of HEAD and `origin/main` (its `citation range:` line),
+so that gate scans every unpushed commit plus the working tree. Until 2026-10-01 it scanned HEAD~1
+only, so a docs commit on top hid the src commit beneath it and the step still passed.
 
 **What a local green does and does not prove, and how a step gets classified** -> `docs/agents/workflow-gate-classification.md`.
 Moved there 2026-09-08 (a further ADR-0012 task seam): the DENY and REQUIRE guards, the `${{` and
