@@ -1,0 +1,85 @@
+{
+  "_about": "Extracted from each Codex session log (~/.codex/sessions/2026/10/01/rollout-*.jsonl): every image_gen call Codex made for one gh#241 render, in order, with the prompt Codex itself wrote for the tool (Codex rewrites the prompt it is given, so these are NOT the registry text) and the tool arguments it passed. picked = the call whose output sha256 equals the file Codex saved to the requested path, which is the file copied byte-identical to images/.",
+  "renders": [
+    {
+      "id": "IMG_02_001",
+      "direction": "A",
+      "codex_session": "01a0f801-3558-7f62-b85d-cd4b5dd97dce",
+      "image_gen_calls": 3,
+      "calls": [
+        {
+          "generation_id": "exec-62a82599-8b2a-4a57-ae2d-2210bfd66cf4",
+          "sha256": "911c54d0a6990e813c1e8eb087528cd5179f26c57d47d2e378724b57fea7eb50",
+          "picked": false,
+          "transparent_background_arg": true,
+          "edit_of_previous_image": false,
+          "prompt_as_sent_to_image_gen": "Use case: illustration-story. Asset type: a game-card illustration for the game grid of a Thai party-game website, final PNG with a true alpha channel. Create one isolated cartoon toy crocodile that identifies the crocodile tooth game at a glance. Square 1:1 canvas. Front three-quarter view, sitting low and compact, jaws wide open, neat row of big rounded white teeth along lower jaw and matching row along upper jaw, mouth and small tongue visible inside. Friendly slightly mischievous expression. Whole subject centred, fully within frame with even margins on all four sides, readable as small thumbnail.\nFLAT EDITORIAL VECTOR ILLUSTRATION appearance: large simple flat colour areas, single clean warm ink #1a1a1a outline of even medium weight, at most two flat shade tones per area. Restrained calm modern printed magazine spot illustration. Body green #4caf6e with one flat shade tone #3a8a56, pale green belly and jaw underside #cfe8c2, mouth interior and gums rose #d6336c, teeth warm paper cream #fff8e8, eyes warm gold #ffd27f with ink pupils. Main colours kept muted to sit on a coral card. Warm gold and sky #7fd8e8 used only sparingly if needed; coral #f89880 only a small accent if needed, never a large area.\nBackground must be fully transparent, true alpha: NO background of any kind, no scenery, no solid backdrop, no gradient or checkerboard pattern. Nothing else in frame: no water, lily pads, splash, ground, floor, props. NO cast shadow, contact shadow, drop shadow. NO gradients, airbrushing, glossy highlights, texture, scale pattern. NOT 3D, photorealistic, anime, or a sticker. No white sticker border. NO bottles, cans, drinking glasses, alcohol, humans, hands, human faces, logos, brand marks, watermarks, text, letters, numbers."
+        },
+        {
+          "generation_id": "exec-976dc152-fd73-4a9e-a38e-e6e6d37d91eb",
+          "sha256": "a98e9ceece8014a117b8bec94bfa4ff104379acd1aeb072f47d1a266271687bf",
+          "picked": false,
+          "transparent_background_arg": true,
+          "edit_of_previous_image": true,
+          "prompt_as_sent_to_image_gen": "Edit this crocodile illustration. Preserve the single friendly mischievous cartoon toy crocodile, front three-quarter view, low compact seated pose, wide open jaws, big rounded upper and lower teeth, visible mouth and small tongue. Make ONE correction to match the flat editorial vector art direction: replace ALL gradients, smooth shading, highlights and tonal variation with strictly SOLID UNIFORM FLAT COLOR regions. Body solid #4caf6e and only one hard-edge flat shadow color #3a8a56. Jaw underside and belly solid #cfe8c2; mouth and gums solid #d6336c with at most one flat darker rose shade; teeth solid #fff8e8 with NO shaded teeth or highlights; gold eyes solid #ffd27f and ink pupils. Clean even medium weight #1a1a1a outlines. Reduce extra shading shapes and decorative contour details. Calm restrained magazine spot illustration, NOT dimensional rendering, NOT glossy, NOT sticker. Square canvas; fit entire subject inside a centered box with approximately 12% clear transparent padding on every side so it has balanced margins. Preserve TRUE ALPHA transparency around the subject. No background, no scenery, no floor, no cast/contact/drop shadows, no checkerboard, no border, no text, no letters, no numbers, no logo, no watermark. Nothing besides the crocodile."
+        },
+        {
+          "generation_id": "exec-e4ca9103-02ff-4385-9abd-6b8f58569b46",
+          "sha256": "6c1183eab99d87e87807e009ef3ad9fe3eb015f9691be34b682fafefafdb6272",
+          "picked": true,
+          "transparent_background_arg": true,
+          "edit_of_previous_image": false,
+          "prompt_as_sent_to_image_gen": "Square transparent PNG. Flat editorial vector spot illustration of one cartoon crocodile tooth-game TOY, front three-quarter view, seated low and compact with huge open jaws. Big rounded cream teeth in neat matching upper and lower rows, rose mouth with SMALL tongue, golden eyes and black pupils, friendly mischievous smile. Entire crocodile centered with generous EVEN 15 percent transparent margins on ALL four sides. Compact silhouette and simple shapes readable as a tiny game card thumbnail. No elements beyond the crocodile.\nDraw this like a deliberately minimal screen print with ONLY six solid inks: #1a1a1a for clean uniform medium outlines and pupils; #4caf6e for body; #3a8a56 for a SINGLE flat hard edged green shadow; #cfe8c2 for belly and lower jaw underside; #d6336c for mouth gums and tongue; #fff8e8 for teeth; #ffd27f for eyes. Each filled region is a single perfectly uniform solid color. Teeth all plain cream with no inner shading. Absolutely NO smooth tonal transitions, NO gradients, NO texture or speckles, NO lighting effects, NO glossy highlights. Calm restrained printed magazine vector illustration, simple flat graphic shapes, not 3D, not anime, not sticker. NO scales. Transparent empty background with actual alpha, NO opaque canvas, NO scenery, water, lilies, splash, ground, floor, props, shadow of any kind, checkerboard or white sticker border. No bottles cans glasses alcohol humans hands human faces logos brands watermarks text letters or numbers."
+        }
+      ]
+    },
+    {
+      "id": "IMG_02_002",
+      "direction": "B",
+      "codex_session": "01a0f808-ce45-7973-8b05-f80219da913b",
+      "image_gen_calls": 2,
+      "calls": [
+        {
+          "generation_id": "exec-c6f0fd05-e76b-4d29-8c67-8dde061529b9",
+          "sha256": "6cfef02790096dae9fea7aa632eae8ab4af413dc03ae72ddb4ddceaa932e350a",
+          "picked": false,
+          "transparent_background_arg": true,
+          "edit_of_previous_image": false,
+          "prompt_as_sent_to_image_gen": "Create one final square 1:1 PNG illustration with TRUE transparent alpha background.\nUse case: stylized-concept. Asset type: game-grid card mascot for a Thai party-game website.\nSubject: ONE isolated cartoon TOY CROCODILE in front three-quarter view. Chunky compact body, oversized head, tiny stubby legs. Jaws flung wide open with a neat row of BIG SQUARE WHITE TEETH along the lower jaw and a matching row along the upper jaw. Red mouth interior and little tongue. Huge round eyes, big gleeful cheeky grin. Body bright green #27ae60, belly and snout ridge light green #7bed9f, mouth interior red #d63031, tongue #ff4757, teeth pure white #ffffff. White eyes with big ink #1a1a1a pupils and flat white catch-light. Warm gold #ffd27f eyelids.\nStyle: BOLD CARTOON STICKER-POP MASCOT. Thick chunky warm ink #1a1a1a outline, heavy even weight around entire silhouette AND EVERY internal shape. Saturated FLAT COLOR fills, exaggerated playful proportions, big expression, loud energetic game mascot readable at small thumbnail size. Flat fills only, at most one flat shade per area. No gradients, airbrushing, gloss, lighting effects or texture. Only eye catch-lights may be white highlights. Outermost silhouette edge MUST be thick black ink, NO white sticker border. NOT 3D, NOT photorealistic, NOT anime.\nComposition: whole single subject centered with EVEN transparent margin on all four sides. Nothing cropped, square 1:1 frame.\nPalette: specified subject colors at full saturation, warm ink #1a1a1a and pure white. Rose #d6336c and gold #ffd27f permitted as small pop accents; no pastel or muted colors. Never use coral #f89880 for a large area as the hosting card is coral.\nABSOLUTE constraints: no background of any kind, no scenery, solid backdrop, gradient, checkerboard pattern, drop shadow, cast shadow, contact shadow or floor. No water, lily pads, splash, ground or props. No bottles, cans, drinking glasses or alcohol. No human figures, hands or human faces. No logos, brand marks, watermarks, text, letters or numbers. True alpha transparency; the transparent space surrounds only the crocodile mascot."
+        },
+        {
+          "generation_id": "exec-131296e8-bbc5-434c-a917-d490267e7be4",
+          "sha256": "77f6b57badef16afa973915c9da3b64e2ddf38919cec6158f1ef13de60482e09",
+          "picked": true,
+          "transparent_background_arg": true,
+          "edit_of_previous_image": true,
+          "prompt_as_sent_to_image_gen": "Edit this crocodile mascot. Preserve the character, pose, front three-quarter view, big wide-open red mouth, square tooth rows, tiny legs, cheeky happy eyes, thick ink outlines, transparent background, and absence of all text/props/scenery/shadows. Make ONLY the following corrections: remove EVERY gradient, soft shading, airbrush, texture, light gleam and tonal variation from all color regions. Use solid uniformly flat color shapes ONLY, like clean vector cartoon cel art. Each shape should have exactly ONE constant color, at most ONE additional distinct solid flat shade shape in a region. No gradients whatsoever. Use exact palette body #27ae60, belly and snout #7bed9f, mouth red #d63031, tongue #ff4757, eyelids warm gold #ffd27f, outlines and pupils #1a1a1a, teeth and eye whites/catchlights #ffffff. Teeth must be PURE WHITE flat color with black outlines, no grey bevels. Use thick EVEN line weight around shapes, no white sticker border. Fit the whole subject slightly smaller into a square 1:1 canvas so the clear transparent margin is generous and visually equal on all four sides (about 8 percent). True alpha transparency, no solid background, no checkerboard, no ground, no cast/contact shadow. Output one PNG."
+        }
+      ]
+    },
+    {
+      "id": "IMG_02_003",
+      "direction": "C",
+      "codex_session": "01a0f80c-f847-7170-96d9-26747efcb31a",
+      "image_gen_calls": 2,
+      "calls": [
+        {
+          "generation_id": "exec-09af1c08-b175-42db-a849-69a49734237a",
+          "sha256": "1ff908a750c202e1a82e4295013b79a092a7a05d3cb5a629c0205378f3ebaaba",
+          "picked": false,
+          "transparent_background_arg": true,
+          "edit_of_previous_image": false,
+          "prompt_as_sent_to_image_gen": "Use case: stylized-concept\nAsset type: Square game-card illustration for a Thai party-game website, readable at thumbnail size.\nGenerate one isolated cute toy crocodile on a truly transparent background, PNG with real alpha. Front three-quarter view, rounded chubby designer vinyl toy, jaws WIDE OPEN, clearly visible neat rows of big rounded glossy white teeth along BOTH the lower and upper jaw. Deep red mouth with a red gum band and small tongue. Big glossy eyes, friendly playful expression. Full crocodile toy entirely within the square 1:1 frame, centered, evenly balanced generous empty margins on all four sides. Nothing cropped.\nSubject material colors: saturated playful green body #27ae60; lighter snout ridge and belly #2ecc71; deep mouth throat #8b2626; gum band #d63031; tongue #c0392b; glossy white teeth #ffffff; yellowish sclera #fef9e7; glossy dark pupils #111111; dark green nostrils #145a32.\nStyle: SOFT 3D TOY RENDER, rounded vinyl or clay, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only within subject creases, soft studio key light from upper left and soft fill, small soft specular highlights on eyes and teeth. Premium designer toy / modern 3D mobile-game mascot. Saturated colors softly lit. NO overall color grading, NO colored environmental rim light. Coral #f89880 must never be a large area.\nStrict constraints: ONLY the single toy crocodile. NO background whatsoever, NO solid or gradient backdrop, NO checkerboard pattern baked into the image, NO scenery, water, lily pads, splash, ground, props, floor, reflection. NO drop shadow, NO cast or contact shadow underneath subject. NO photorealism, realistic reptile skin, scales, ink outline, flat vector styling, sticker border. NO bottles, cans, drinking glasses, alcohol, humans, human hands or faces. NO logos, brand marks, watermark, text, letters, numbers."
+        },
+        {
+          "generation_id": "exec-18a24033-7c76-497d-acba-ea827ea785f6",
+          "sha256": "05d722e01853839107cad0c4de161eda9c3ff68f73292d8be8c2eee76c646ed9",
+          "picked": true,
+          "transparent_background_arg": true,
+          "edit_of_previous_image": true,
+          "prompt_as_sent_to_image_gen": "Edit target: the attached crocodile game-card illustration. Make ONLY a precision alpha cleanup: remove all stray near-transparent pixels in empty areas, especially at frame edges, and remove the thin green/yellow edge fringe. Empty space must have exactly alpha 0, including every pixel in all four generous outer margins. Preserve the complete crocodile, its open jaws, both glossy white tooth rows, big eyes, body and tail, green materials, red mouth/gums/tongue, soft 3D vinyl toy style, light, details, square composition and size. Keep full subject inside frame. Do not change subject design or add anything. PNG with true transparency, clean antialiased subject silhouette. NO background, checkerboard, scenery, floor, shadow, cast/contact shadow, reflection, text, logos or watermarks."
+        }
+      ]
+    }
+  ]
+}

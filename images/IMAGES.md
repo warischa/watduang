@@ -1,8 +1,8 @@
 ---
 title: "Master Image Prompt Registry — วัดดวง"
 target_model: "gpt-image-2"
-total_images: 50
-last_updated: 2026-09-23
+total_images: 53
+last_updated: 2026-10-01
 schema_version: "4.0"
 brand_block: |
   Style/medium: FLAT EDITORIAL VECTOR ILLUSTRATION — large simple areas of flat color, a single clean ink outline of even weight, at most two flat shade tones per area, no gradients, no airbrushing, no glossy highlights, no rendered individual hair strands. NOT anime, NOT manga, NOT manhwa, NOT webtoon, NOT comic-book art, NOT photorealistic, NOT 3D. Think a modern printed magazine spot illustration, not a character sheet.
@@ -1595,4 +1595,136 @@ would erase it, which matters most for the ranger (F17), whose uniform would nor
   status: "approved"
   notes: "Agent-reviewed. Full fringe, draped grey top, full figure; reads forties; composed. The unruly lock is not distinct."
   output_path: "images/IMG_01_050.png"
+```
+
+---
+
+# Game-card art pilot — croc-bite, three styles (gh#241)
+
+The owner asked (gh#241) for an illustration on every game card in the party grid, generated with the
+`gpt-image-2` skill; for these cards only, that overrides `docs/agents/assets.md` rule 1, and every
+other rule there still binds. This section is the style pilot: croc-bite rendered in three directions,
+and the owner picks one (gh#241's last comment). **Owner pick: pending.** Only the picked file enters
+`public/art/`; the other two stay here as provenance and never enter `public/`.
+
+**Do not render these through `emit_prompt.py`.** The front matter's `brand_block` is portrait-specific
+("chest-up portrait, three-quarter turn", occupation, manner) and `emit_prompt.py` appends it to every
+prompt it emits, with no per-entry opt-out; `--all-pending` selects every entry whose status is not
+`approved`, so these three would be re-rendered with the portrait block glued on. Each was rendered with
+bare `codex exec`, the skill's rule for an entry the block contradicts, from a scratch directory so
+Codex could not write into the repo:
+
+    cd <scratch dir> && codex exec --skip-git-repo-check -- "<prompt> Save the final PNG to: <scratch dir>/<name>.png" < /dev/null
+
+**What the model received is not the `prompt:` text.** Codex rewrote each prompt before calling its
+built-in `image_gen` tool, then chose on its own to make more calls: three for A (the picked one a fresh
+generation from Codex's own third prompt), two for B and two for C (each picked one an edit of the
+first). Every call, its as-sent prompt and its output hash is in
+`docs/verification/evidence/gh241/as-sent-prompts.json`, extracted from the Codex session logs. Codex
+passed `transparent_background: true` on every call: on codex-cli 0.159.2 the tool has that argument.
+
+**Reusing a direction for the other games.** Each prompt is six labelled paragraphs. `Scene:`,
+`Style/medium:`, `Composition/framing:`, `Color palette:` and `Constraints:` are the direction and stay
+byte-identical across the set. `Subject:` is the only game-specific paragraph; it carries the game's own
+colours (`Subject colours:`) and its own "nothing else in frame" exclusions. A new game's entry copies
+the picked direction's five paragraphs and writes a new `Subject:`. Attach the picked master with `-i` as
+the style reference (the skill's Style anchoring): Codex rewrites the prompt, so the text alone does not
+pin the look.
+
+**Masters vs ship derivatives.** `output_path` is the raw model output, byte-identical to the file in
+`~/.codex/generated_images/` that the run saved (`sha256_master` below, matched by hash per
+`docs/agents/assets.md` rule 5). It is NOT the shippable cutout: every raw render carried alpha-1-to-3
+haze outside the subject. `ship_derivative` is made from the master by
+`docs/verification/evidence/gh241/make_ship.py`: an alpha level remap with the black point at the
+highest haze alpha (never `-threshold`), `magick -trim +repage`, a fit inside 502x320 (the proposed
+251x160 CSS px card slot at 2x), and `cwebp -q 88 -alpha_q 100`. When the owner picks, that webp is the
+file that enters `public/art/`.
+
+Transparency, graded by `docs/verification/evidence/gh241/grade.py`. Its positive control reproduces the
+gh#102 ten (fully transparent 36.7%-46.5%, `IMG_01_002`'s bottom corners 66 and 76, haze outside 0 on
+all ten); its must-reds go red (an opaque flatten reads `srgb` and 0%; one planted alpha-10 pixel reads
+haze outside 1). "Haze outside" counts alpha 1-25 pixels outside the alpha >= 26 mask dilated by a
+radius-4 disk.
+
+| id | direction | channels | transparent, raw | haze outside, raw | black point | haze outside, trimmed and shipped | corners after trim | ship bytes |
+|---|---|---|---|---|---|---|---|---|
+| `IMG_02_001` | A flat editorial | srgba | 56.01% | 1583 | 2 | 0 / 0 | 0 0 0 0 | 34,962 |
+| `IMG_02_002` | B bold sticker pop | srgba | 51.89% | 407 | 2 | 0 / 0 | 0 0 0 0 | 31,438 |
+| `IMG_02_003` | C soft 3D toy | srgba | 51.35% | 2761 | 3 | 0 / 0 | 0 0 0 0 | 29,038 |
+
+The owner's comparison sheet, the proposed card slot and the full grading record:
+`docs/verification/evidence/gh241/README.md`.
+
+```yaml
+- id: IMG_02_001
+  deliverable: "02"
+  profile: "asset"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
+  direction: "A - flat editorial"
+  purpose: "croc-bite card art, direction A: the shipped site style - even ink outline, flat colour areas, at most two flat shade tones, restrained, brand palette plus a muted croc green (#4caf6e)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a cartoon toy crocodile seen from a front three-quarter view, sitting low and compact, its jaws wide open to show a neat row of big rounded white teeth along the lower jaw and a matching row along the upper jaw, the mouth and a small tongue visible inside, a friendly, slightly mischievous expression. Subject colours: body croc green (#4caf6e) with one flat shade tone (#3a8a56), pale green belly and underside of the jaw (#cfe8c2), mouth interior and gums rose (#d6336c), teeth warm paper cream (#fff8e8), eyes warm gold (#ffd27f) with ink pupils. Nothing else in frame: no water, no lily pads, no splash, no ground, no props.
+
+    Style/medium: FLAT EDITORIAL VECTOR ILLUSTRATION — large simple areas of flat colour, a single clean ink outline of even, medium weight, at most two flat shade tones per area, no gradients, no airbrushing, no glossy highlights, no texture, no scale pattern. Restrained and calm, like a modern printed magazine spot illustration. NOT 3D, NOT photorealistic, NOT anime, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: warm ink (#1a1a1a) linework; warm paper cream (#fff8e8) for light areas; rose (#d6336c), warm gold (#ffd27f) and sky (#7fd8e8) used sparingly as accents; coral (#f89880) only as a small accent, never a large area, because the card the art sits on is coral; the subject's own main colours are the ones named in Subject, kept muted so they sit with this palette.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor.
+  status: "pending"
+  output_path: "images/IMG_02_001.png"
+  sha256_master: "6c1183eab99d87e87807e009ef3ad9fe3eb015f9691be34b682fafefafdb6272"
+  ship_derivative: "images/gh241-ship/IMG_02_001.webp"
+  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Owner pick pending. Codex made 3 image_gen calls; the picked one (3rd) is a fresh generation from a prompt Codex wrote itself after judging the first too soft-shaded - see as-sent-prompts.json. Raw: srgba, 56.01% fully transparent, 1583 haze px outside the dilated solid mask (alpha 1 x1582, alpha 2 x1). Level remap black point 2 -> haze 0; trimmed 1110x872, 29.06% transparent, corners 0/0/0/0. Ship webp 407x320, 34962 bytes, decoded: haze 0, corners 0/0/0/0, 28.65% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no painted checkerboard, no text, no bottle/can/glass, no human or hand. The cream toe claws echo the teeth."
+
+- id: IMG_02_002
+  deliverable: "02"
+  profile: "asset"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
+  direction: "B - bold sticker pop"
+  purpose: "croc-bite card art, direction B: loud cartoon mascot - thick chunky ink outline, saturated flat fills, exaggerated proportions, big expression; still flat, no shadow."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a cartoon toy crocodile mascot seen from a front three-quarter view, chunky and compact with an oversized head and tiny stubby legs, its jaws flung wide open to show a neat row of big square white teeth along the lower jaw and a matching row along the upper jaw, a red mouth and a little tongue inside, huge round eyes and a big gleeful, cheeky grin. Subject colours: body bright green (#27ae60), belly and snout ridge light green (#7bed9f), mouth interior red (#d63031), tongue (#ff4757), teeth pure white (#ffffff), eyes white with big ink pupils and a flat white catch-light, warm gold (#ffd27f) eyelids. Nothing else in frame: no water, no lily pads, no splash, no ground, no props.
+
+    Style/medium: BOLD CARTOON STICKER-POP MASCOT — a thick, chunky ink outline of heavy even weight around the silhouette and every shape, saturated flat colour fills, exaggerated playful proportions, a big readable expression, loud and energetic like a game mascot. Flat fills only, at most one flat shade tone per area, no gradients, no airbrushing, no glossy highlights beyond flat white catch-lights in the eyes, no texture. The thick ink outline is the outermost edge of the silhouette — no white sticker border. NOT 3D, NOT photorealistic, NOT anime.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: warm ink (#1a1a1a) for the thick outline and pupils; pure white (#ffffff) for teeth and catch-lights; the subject's own colours named in Subject at full saturation; rose (#d6336c) and warm gold (#ffd27f) as pop accents; no pastel and no muted tones; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor.
+  status: "pending"
+  output_path: "images/IMG_02_002.png"
+  sha256_master: "77f6b57badef16afa973915c9da3b64e2ddf38919cec6158f1ef13de60482e09"
+  ship_derivative: "images/gh241-ship/IMG_02_002.webp"
+  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Owner pick pending. Codex made 2 image_gen calls; the picked one (2nd) is an edit of the first, which Codex judged to carry gradients - see as-sent-prompts.json. Raw: srgba, 51.89% fully transparent, 407 haze px outside the dilated solid mask (alpha 1 x405, alpha 2 x2). Level remap black point 2 -> haze 0; trimmed 1117x1027, 34.46% transparent, corners 0/0/0/0. Ship webp 348x320, 31438 bytes, decoded: haze 0, corners 0/0/0/0, 33.86% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no painted checkerboard, no text, no bottle/can/glass, no human or hand. Square teeth, upright pose with tail."
+
+- id: IMG_02_003
+  deliverable: "02"
+  profile: "asset"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "croc-bite card art, direction C: rounded vinyl toy render with soft volumetric shading, in the live croc-bite route material colours (#27ae60 skin); not photoreal."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a cute toy crocodile seen from a front three-quarter view, rounded and chubby like a designer vinyl toy, its jaws wide open to show a neat row of big rounded glossy white teeth along the lower jaw and a matching row along the upper jaw, a deep red mouth with a red gum band and a small tongue inside, big glossy eyes, a friendly, playful expression. Subject colours: body saturated playful green (#27ae60), lighter snout ridge and belly (#2ecc71), deep mouth throat (#8b2626), gum band (#d63031), tongue (#c0392b), glossy white teeth (#ffffff), yellowish sclera (#fef9e7), glossy dark pupils (#111111), dark green nostrils (#145a32). Nothing else in frame: no water, no lily pads, no splash, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the teeth and eyes, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic reptile skin, NO scale texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_02_003.png"
+  sha256_master: "05d722e01853839107cad0c4de161eda9c3ff68f73292d8be8c2eee76c646ed9"
+  ship_derivative: "images/gh241-ship/IMG_02_003.webp"
+  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Owner pick pending. Codex made 2 image_gen calls; the picked one (2nd) is an edit of the first that Codex asked for as an alpha clean-up - see as-sent-prompts.json. Raw: srgba, 51.35% fully transparent, 2761 haze px outside the dilated solid mask (alpha 1 x2632, 2 x120, 3 x9; median 5.4 px outside the silhouette - a faint ring). Level remap black point 3 -> haze 0; trimmed 1118x991, 31.91% transparent, corners 0/0/0/0. Ship webp 361x320, 29038 bytes, decoded: haze 0, corners 0/0/0/0, 31.29% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no contact shadow or floor under the feet, no painted checkerboard, no text, no bottle/can/glass, no human or hand."
 ```
