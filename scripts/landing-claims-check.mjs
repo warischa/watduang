@@ -3,6 +3,9 @@
 // the category route's own filter can widen past the manifest, two category pages can ship identical
 // copy, and the home page's category links can be a marker with no resolvable target. All three are
 // read straight off dist/ (read-only, never rebuilt here) — the artifact the site actually ships.
+// Two more claims joined later, both scanned the same way: a declared playRoute must be built
+// (scanPlayRoutes), and every category card carries exactly the art its module declares (scanCardArt,
+// gh#241).
 //
 //   node scripts/landing-claims-check.mjs                 -> scan dist/, exit non-zero on violation
 //   node scripts/landing-claims-check.mjs --dist DIR       -> scan DIR instead (calibration hook)
@@ -173,8 +176,88 @@ function scanPlayRoutes(distDir) {
   return problems;
 }
 
-function scanAll(distDir) {
-  return [...scanCategoryFilter(distDir), ...scanCopy(distDir), ...scanHomeLinks(distDir), ...scanPlayRoutes(distDir)];
+// ---- 5. card art matches the manifest's cardArt field, in both directions (gh#241) --------------
+// Owned expectation: the manifest's own cardArt field, per game. On every category page, a card whose
+// game declares cardArt carries exactly ONE <img class="game-card-art">, as the card's first child
+// (above the h3, the artboard's slot), with src "/art/<cardArt>" and loading="lazy" (owner ruling
+// 2026-10-01 in gh#241's body), and dist/art/<cardArt> exists; a card whose game declares none
+// carries no such img. The expected src is DERIVED from the field, never spelled here:
+// scripts/public-orphan-check.mjs treats a basename spelled anywhere under src/ as a referrer, and the
+// field must stay the only one. `gameList` is a parameter so the selftest can calibrate this scan
+// whether or not the real manifest declares any art today.
+const attrOf = (tag, name) => {
+  const m = tag.match(new RegExp(`\\s${name}="([^"]*)"`));
+  return m ? m[1] : null;
+};
+
+function scanCardArt(distDir, gameList = games, stats = { withArt: 0, withoutArt: 0 }) {
+  const problems = [];
+  const byId = new Map(gameList.map((g) => [g.id, g]));
+  for (const slug of categorySlugs) {
+    const htmlPath = path.join(distDir, 'c', slug, 'index.html');
+    if (!fs.existsSync(htmlPath)) {
+      problems.push({ page: slug, kind: 'missing-page', text: `dist/c/${slug}/: no index.html built (card art check)` });
+      continue;
+    }
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const grid = html.match(/<div class="cards-grid"[^>]*>([\s\S]*?)<\/div>\s*<\/section>/);
+    if (!grid) {
+      problems.push({ page: slug, kind: 'missing-grid', text: `dist/c/${slug}/: no <div class="cards-grid"> game listing found (card art check)` });
+      continue;
+    }
+    // A card holds no nested <a> (its children are the art, h3, p and the CTA span), so the first
+    // closing tag after a card's opening tag ends that card.
+    for (const card of grid[1].matchAll(/<a\b([^>]*\bclass="game-card"[^>]*)>([\s\S]*?)<\/a>/g)) {
+      const id = (attrOf(` ${card[1]}`, 'href') || '').match(/^\/game\/([^"/]+)\/(?:play\/)?$/)?.[1];
+      const game = id ? byId.get(id) : undefined;
+      if (!game) continue; // a card for no manifest game is scanCategoryFilter's finding, not this one's
+      const arts = [...card[2].matchAll(/<img\b[^>]*>/g)]
+        .map((m) => m[0])
+        .filter((tag) => (attrOf(tag, 'class') || '').split(/\s+/).includes('game-card-art'));
+      const where = `dist/c/${slug}/ card ${id}`;
+      if (!game.cardArt) {
+        stats.withoutArt += 1;
+        if (arts.length > 0) {
+          problems.push({ page: slug, kind: 'card-art-unexpected', text: `${where}: carries ${arts.length} img.game-card-art but the module declares no cardArt` });
+        }
+        continue;
+      }
+      if (arts.length !== 1) {
+        problems.push({
+          page: slug,
+          kind: arts.length === 0 ? 'card-art-missing' : 'card-art-duplicated',
+          text: `${where}: the module declares cardArt "${game.cardArt}" and the card carries ${arts.length} img.game-card-art (exactly 1 required)`,
+        });
+        continue;
+      }
+      stats.withArt += 1;
+      const tag = arts[0];
+      const wantSrc = `/art/${game.cardArt}`;
+      if (attrOf(tag, 'src') !== wantSrc) {
+        problems.push({ page: slug, kind: 'card-art-src', text: `${where}: img.game-card-art src is ${JSON.stringify(attrOf(tag, 'src'))}, the module declares ${wantSrc}` });
+      }
+      if (attrOf(tag, 'loading') !== 'lazy') {
+        problems.push({ page: slug, kind: 'card-art-eager', text: `${where}: img.game-card-art loading is ${JSON.stringify(attrOf(tag, 'loading'))}, must be "lazy" (gh#241 owner ruling)` });
+      }
+      if (!card[2].trimStart().startsWith(tag)) {
+        problems.push({ page: slug, kind: 'card-art-position', text: `${where}: img.game-card-art is not the card's first child, above the h3 (the artboard's slot)` });
+      }
+      if (!fs.existsSync(path.join(distDir, 'art', game.cardArt))) {
+        problems.push({ page: slug, kind: 'card-art-file-missing', text: `${where}: dist/art/${game.cardArt} does not exist — the card ships a broken image` });
+      }
+    }
+  }
+  return problems;
+}
+
+function scanAll(distDir, stats) {
+  return [
+    ...scanCategoryFilter(distDir),
+    ...scanCopy(distDir),
+    ...scanHomeLinks(distDir),
+    ...scanPlayRoutes(distDir),
+    ...scanCardArt(distDir, games, stats),
+  ];
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -182,8 +265,15 @@ function scanAll(distDir) {
 // build (this script is read-only against dist/, gh#127's own brief), and never a write into the
 // real dist/. Category copy/games come off the real, owned manifest/categories data imported above,
 // so "known-good" is checked against the shape those files actually declare today.
-function categoryPageHtml({ gameIds, h1, lead, intro }) {
-  const cards = gameIds.map((id) => `<a class="game-card" href="/game/${id}/" data-x><h3>t</h3></a>`).join('');
+// The art tag a correct build renders for a game that declares cardArt (the scan reads attributes in
+// any order), and what a correct card holds: that tag first when the game declares art, then the h3.
+const artOf = (gameList, id) => gameList.find((g) => g.id === id)?.cardArt;
+const artTag = (file, { loading = 'lazy', src = `/art/${file}` } = {}) =>
+  `<img class="game-card-art" src="${src}" width="361" height="320" alt="" loading="${loading}" decoding="async" data-x>`;
+const goodCardInner = (gameList) => (id) => (artOf(gameList, id) ? artTag(artOf(gameList, id)) : '') + '<h3 data-x>t</h3>';
+
+function categoryPageHtml({ gameIds, h1, lead, intro }, cardInner) {
+  const cards = gameIds.map((id) => `<a class="game-card" href="/game/${id}/" data-x>${cardInner(id)}</a>`).join('');
   return (
     `<html><body><main><header class="cat-head"><div class="cat-head-inner"><div class="cat-head-copy">` +
     `<h1 data-x>${h1}</h1><p class="lead" data-x>${lead}</p></div>` +
@@ -200,11 +290,18 @@ function homePageHtml(slugs) {
   return `<html><body>${links}</body></html>`;
 }
 
-function buildFixtureDist(root, categoryData, homeSlugs = categorySlugs) {
+function buildFixtureDist(root, categoryData, homeSlugs = categorySlugs, { gameList = games, cardInner = goodCardInner(gameList) } = {}) {
   for (const [slug, data] of Object.entries(categoryData)) {
     const dir = path.join(root, 'c', slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), categoryPageHtml(data));
+    fs.writeFileSync(path.join(dir, 'index.html'), categoryPageHtml(data, cardInner));
+  }
+  // Every declared card art gets a stub file, so the known-good fixture stays green under
+  // scanCardArt — the calibrated file-missing red deletes one of these.
+  for (const g of gameList) {
+    if (!g.cardArt) continue;
+    fs.mkdirSync(path.join(root, 'art'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'art', g.cardArt), '');
   }
   fs.writeFileSync(path.join(root, 'index.html'), homePageHtml(homeSlugs));
   // Every declared play route gets a stub page, so the known-good fixture stays green under
@@ -283,7 +380,54 @@ function selftest() {
       const missing = scanAll(tmp).filter((p) => p.kind === 'play-route-missing');
       assert.equal(missing.length, 1, `expected exactly one play-route-missing problem, got ${missing.length}`);
       console.log(`PASS calibrated red — declared playRoute with no built page: ${missing[0].text}`);
+      reset();
     }
+
+    // calibrations 6-12: card art (gh#241). Run on a game list that declares art on exactly one
+    // game — the real declaring game if the manifest has one, else a stand-in — so this scan is
+    // calibrated whatever the manifest holds today. Each red must be the ONLY problem the scan
+    // reports, so none can pass by reddening for a different reason.
+    const artPick = games.find((g) => g.cardArt) ?? games.find((g) => g.category === slugA);
+    const artList = games.map((g) => (g.id === artPick.id ? { ...g, cardArt: g.cardArt ?? 'selftest-card-art.webp' } : g));
+    const artFile = artList.find((g) => g.id === artPick.id).cardArt;
+    const bare = artList.find((g) => !g.cardArt && (g.category === slugA || g.category === slugB));
+    if (artList.filter((g) => g.cardArt).length !== 1 || !bare) {
+      throw new Error('selftest needs a game list with exactly one cardArt game and one game without, across the first two categories');
+    }
+    const both = { [slugA]: copyOf(slugA, gamesA), [slugB]: copyOf(slugB, gamesB) };
+    const goodArt = goodCardInner(artList);
+    const artStats = { withArt: 0, withoutArt: 0 };
+    buildFixtureDist(tmp, both, categorySlugs, { gameList: artList });
+    const artGood = scanCardArt(tmp, artList, artStats);
+    assert.deepEqual(artGood, [], `known-good card art must report zero problems, got:\n${artGood.map((p) => p.text).join('\n')}`);
+    assert.equal(artStats.withArt, 1, `known-good card art: the scan must COUNT the one art card it saw, got ${artStats.withArt}`);
+    assert.equal(artStats.withoutArt, gamesA.length + gamesB.length - 1, 'known-good card art: every other card must be counted as carrying none');
+    console.log(`PASS known-good card art: ${artPick.id} carries its one declared img, ${artStats.withoutArt} other card(s) carry none`);
+    reset();
+
+    const artReds = [
+      ['card-art-missing', (id) => (id === artPick.id ? '<h3 data-x>t</h3>' : goodArt(id))],
+      ['card-art-duplicated', (id) => (id === artPick.id ? artTag(artFile) + goodArt(id) : goodArt(id))],
+      ['card-art-unexpected', (id) => (id === bare.id ? artTag('selftest-stray.webp') + goodArt(id) : goodArt(id))],
+      ['card-art-src', (id) => (id === artPick.id ? artTag(artFile, { src: '/art/selftest-wrong.webp' }) + '<h3 data-x>t</h3>' : goodArt(id))],
+      ['card-art-eager', (id) => (id === artPick.id ? artTag(artFile, { loading: 'eager' }) + '<h3 data-x>t</h3>' : goodArt(id))],
+      ['card-art-position', (id) => (id === artPick.id ? '<h3 data-x>t</h3>' + artTag(artFile) : goodArt(id))],
+    ];
+    for (const [kind, cardInner] of artReds) {
+      buildFixtureDist(tmp, both, categorySlugs, { gameList: artList, cardInner });
+      const found = scanCardArt(tmp, artList);
+      assert.equal(found.length, 1, `${kind}: expected exactly one problem, got ${found.length}:\n${found.map((p) => p.text).join('\n')}`);
+      assert.equal(found[0].kind, kind, `${kind}: the one problem must be ${kind}, got ${found[0].kind}`);
+      console.log(`PASS calibrated red — ${kind}: ${found[0].text}`);
+      reset();
+    }
+
+    buildFixtureDist(tmp, both, categorySlugs, { gameList: artList });
+    fs.rmSync(path.join(tmp, 'art', artFile));
+    const fileGone = scanCardArt(tmp, artList);
+    assert.equal(fileGone.length, 1, `card-art-file-missing: expected exactly one problem, got ${fileGone.length}`);
+    assert.equal(fileGone[0].kind, 'card-art-file-missing', `card-art-file-missing: got ${fileGone[0].kind}`);
+    console.log(`PASS calibrated red — card-art-file-missing: ${fileGone[0].text}`);
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
@@ -299,7 +443,8 @@ if (args.includes('--selftest')) {
     console.error(`::error::scripts/landing-claims-check.mjs: ${distDir} not found — build before running this gate`);
     process.exit(1);
   }
-  const problems = scanAll(distDir);
+  const stats = { withArt: 0, withoutArt: 0 };
+  const problems = scanAll(distDir, stats);
   if (problems.length > 0) {
     console.error(problems.map((p) => p.text).join('\n'));
     console.error(`\n${problems.length} landing-claims problem(s) across dist/c/*/ and dist/index.html.`);
@@ -307,6 +452,7 @@ if (args.includes('--selftest')) {
   }
   console.log(
     `OK — all ${categorySlugs.length} dist/c/*/ page(s): route filter scoped to the manifest, copy distinct page-to-page, ` +
-      'and dist/index.html carries a resolvable link to every one of them.',
+      'and dist/index.html carries a resolvable link to every one of them. Card art: ' +
+      `${stats.withArt} card(s) carry their declared img.game-card-art, ${stats.withoutArt} card(s) declare none and carry none.`,
   );
 }

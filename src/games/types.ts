@@ -101,6 +101,13 @@ export interface GameModule {
   seo: { title: string; description: string; steps: string[] };
   /** Filename in public/og/, e.g. "timebomb.png" — must never show a bottle, can, or logo'd glass */
   og: string;
+  /** The party-grid card illustration (gh#241): a bare filename under public/art/. The category page
+   *  (src/pages/c/[category].astro) renders it as the card's first child, above the title, only when
+   *  this is set, so a game without approved art keeps its card unchanged. Spelled whole on purpose:
+   *  scripts/public-orphan-check.mjs finds a published file's referrer by its basename token, so this
+   *  field IS that file's referrer, and no other file under src/ should spell the name.
+   *  scripts/landing-claims-check.mjs holds the built cards to this field in both directions. */
+  cardArt?: string;
   /** Whether this game's page carries an ad slot, in the how-to-play prose below the stage — never on
    *  the play screen itself (issue #13, amendment 8). Most games are true; false means this page
    *  must generate no ad request at all, which is a content decision rather than a layout one.

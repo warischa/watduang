@@ -89,6 +89,21 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
           <div class="cards-grid">
             {games.map((game) => (
               <a class="game-card" href={game.playRoute ?? `/game/${game.id}/`}>
+                {/* gh#241 card art, rendered only for a game whose module sets cardArt. alt is empty
+                    because the h3 in the same link already names the game. width/height are the one
+                    shipped file's pixel size; the .game-card-art rule fixes both box dimensions, so
+                    they steer no layout - a second file of another width revisits them (gh#242). */}
+                {game.cardArt && (
+                  <img
+                    class="game-card-art"
+                    src={`/art/${game.cardArt}`}
+                    width="361"
+                    height="320"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
                 <h3>{game.names.th}</h3>
                 <p>{game.tagline}</p>
                 <span class="card-cta">
@@ -391,6 +406,10 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
   .cross-card:hover {
     color: var(--color-line-strong); /* the card keeps its ink; the canvas hover is for its text links */
   }
+
+  /* gh#241 - the card art slot, byte-identical to design/CatPartyPop.dc.html's own rule. One value at
+     every width: the box is fixed before the image arrives, so lazy loading shifts nothing. */
+  .game-card-art { display: block; width: 100%; height: 160px; object-fit: contain; object-position: center; }
 
   .game-card h3 {
     margin: 0;

@@ -12,6 +12,11 @@
     body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
     a { color: #1a1a1a; text-decoration: none; }
     a:hover { color: #d6336c; }
+    /* gh#241 - the game card art slot: the card's first child, above the h3. A fixed 160px box with
+       object-fit contain fits any game's art whatever its aspect, and is sized before the image
+       arrives, so lazy loading shifts nothing. src/pages/c/[category].astro carries this rule
+       byte-identical. */
+    .game-card-art { display: block; width: 100%; height: 160px; object-fit: contain; object-position: center; }
   </style>
 </helmet>
 
@@ -80,7 +85,12 @@
         <h2 style="margin: 0 0 20px 0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 1px; color: #6b7280;">เกมในหมวดนี้</h2>
         <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;">
 
+          <!-- gh#241 art slot, shown on this first specimen card only. The slot is this artboard's
+               value (position and box); WHICH game shows art is the manifest's cardArt field, and
+               the one approved file today is croc-bite's (owner pick 2026-10-01, direction C), so
+               the specimen borrows it. These three specimen cards predate croc-bite. -->
           <a href="/game/timebomb/" style="display: flex; flex-direction: column; gap: 12px; padding: 22px; background: {{accent}}; border: 2.5px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0 0 #1a1a1a; min-height: 200px;">
+            <img class="game-card-art" src="/art/croc-bite.webp" width="361" height="320" alt="" loading="lazy" decoding="async">
             <h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 22px; line-height: 1.3;">ระเบิดเวลา</h3>
             <p style="margin: 0; font-size: 15px; line-height: 1.65;">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
             <span style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-block-start: auto; border-block-start: 2px solid rgba(26,26,26,0.2); padding-block-start: 12px; font-size: 14px;">

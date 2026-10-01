@@ -118,6 +118,23 @@ test('the games-list heading is per-category copy, not one literal shared by bot
 // scripts/page-chrome-check.mjs against dist/ (wired in `npm run ci` after the build), whose opt-in
 // list carries c/fortune/index.html and c/party/index.html by name.
 
+// gh#241 / ADR-0033: the card art slot is a canvas value, so the one rule that sizes it sits in the
+// artboard this page's header names and in this page byte-identical. The src derives from the
+// module's cardArt field: a basename spelled in this page would hand scripts/public-orphan-check.mjs a
+// second referrer and blind it to a module that drops the field. What the BUILT cards carry is
+// scripts/landing-claims-check.mjs's job (it reads dist/, which this source-level test never does).
+test('the card art rule is the artboard rule byte-identical, and the src derives from cardArt', () => {
+  const artboard = readFileSync(join(here, '..', '..', '..', 'design', 'CatPartyPop.dc.html'), 'utf8');
+  const rule = /\.game-card-art \{[^}]*\}/;
+  const inBoard = artboard.match(rule);
+  const inPage = pageSrc.match(rule);
+  assert.ok(inBoard, 'design/CatPartyPop.dc.html must carry the .game-card-art rule');
+  assert.ok(inPage, 'the page must carry the .game-card-art rule');
+  assert.equal(inPage[0], inBoard[0], 'the page rule must be the artboard rule, byte-identical (ADR-0033)');
+  assert.ok(pageSrc.includes('src={`/art/${game.cardArt}`}'), 'the art src must derive from the module field');
+  assert.doesNotMatch(pageSrc, /\/art\/[\w.-]+\.(?:webp|png|jpe?g|avif)/, 'the page must spell no art basename');
+});
+
 test('a new category builds a page with no edit to this file', () => {
   assert.match(pageSrc, /Object\.keys\(categories\)/, 'getStaticPaths must enumerate the manifest keys');
   assert.match(pageSrc, /\.filter\(\(key\) => key !== category\)/, 'the cross-links must derive from the same keys minus self');
