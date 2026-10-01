@@ -1,7 +1,8 @@
 ---
 // gh#88 — the category pages take the pop-card design of design/CatFortunePop.dc.html and its twin
 // design/CatPartyPop.dc.html (same structure throughout, only the copy and the category colour
-// differ). Every value below — colour, size, radius, border weight, shadow, copy — is an artboard's
+// differ — with ONE exception: the .game-card-art slot, gh#241, exists in CatPartyPop only, so a
+// fortune module may not set cardArt until CatFortunePop carries the same slot). Every value below — colour, size, radius, border weight, shadow, copy — is an artboard's
 // own (ADR-0033); the only reflows are the ticket's criteria: one column below the 1100px the
 // artboard names, and no sideways scroll at 320/390.
 //

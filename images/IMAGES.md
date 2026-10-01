@@ -1606,7 +1606,9 @@ The owner asked (gh#241) for an illustration on every game card in the party gri
 other rule there still binds. This section is the style pilot: croc-bite rendered in three directions,
 and the owner picks one (gh#241's comments). **Owner pick 2026-10-01: direction C, `IMG_02_003`** (gh#241
 comment), shipped as `public/art/croc-bite.webp` and wired onto the croc-bite card. Only the picked file enters
-`public/art/`; the other two stay here as provenance and never enter `public/`.
+`public/art/`; the other two stay here as provenance and never enter `public/`. **In this section
+`status: "approved"` means the owner's pick**, not the agent-reviewed meaning the Status section above
+gives it for the เนื้อคู่ set; the unpicked two stay `pending` only because the registry has no third value.
 
 **Do not render these through `emit_prompt.py`.** The front matter's `brand_block` is portrait-specific
 ("chest-up portrait, three-quarter turn", occupation, manner) and `emit_prompt.py` appends it to every

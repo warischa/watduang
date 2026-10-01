@@ -13,13 +13,13 @@ was only caught because someone listed the directory by hand. Nothing in CI woul
 |---|---|---|---|
 | Share card (OG) | `public/og/<game-id>.png`, plus `site.png` for every non-game page | yes | `scripts/make-og.mjs` — never by hand, never by an image model |
 | Icons, motifs, decorative shapes | inline SVG in the component that draws it — **no file at all** | as markup | written by hand |
-| Raster art the browser loads | `public/art/<name>.png` | yes | only when code genuinely cannot draw it |
+| Raster art the browser loads | `public/art/<name>.webp` (or `.png`) | yes | only when code genuinely cannot draw it — or, for game-card art only, the owner's gh#241 ask |
 | 3D model or texture | `public/models/<game-id>/` | yes | loaded by dynamic import on that one game's page only |
 | Design sources (`.dc.html`, canvas manifest) | `design/` | **no** | design canvas; committed as source, never referenced at runtime |
 | Generated-art provenance | `images/IMAGES.md` | no | create it with the first approved generated asset, not before |
 
-`public/art/` and `public/models/` do not exist yet, and should be created by the first ticket that
-genuinely needs one — not in advance. An empty directory is not structure, it is a promise nobody kept.
+`public/art/` exists (the เนื้อคู่ portraits, gh#103, and the game-card art, gh#241). `public/models/` does
+not exist yet, and should be created by the first ticket that genuinely needs it — not in advance. An empty directory is not structure, it is a promise nobody kept.
 
 ## The rules
 

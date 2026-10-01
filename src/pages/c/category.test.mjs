@@ -135,6 +135,19 @@ test('the card art rule is the artboard rule byte-identical, and the src derives
   assert.doesNotMatch(pageSrc, /\/art\/[\w.-]+\.(?:webp|png|jpe?g|avif)/, 'the page must spell no art basename');
 });
 
+// The slot is CatPartyPop's only (the page header says so), but the one page serves every category,
+// so a fortune module setting cardArt would render art whose slot no fortune artboard holds. Each
+// module that sets cardArt needs its OWN category's artboard to carry the rule.
+test('a module sets cardArt only when its own category artboard carries the art slot', () => {
+  const withArt = allGames.filter((g) => g.cardArt);
+  assert.ok(withArt.length > 0, 'positive control: at least one module sets cardArt (gh#241 croc-bite)');
+  for (const g of withArt) {
+    const board = `Cat${g.category[0].toUpperCase()}${g.category.slice(1)}Pop.dc.html`;
+    const src = readFileSync(join(here, '..', '..', '..', 'design', board), 'utf8');
+    assert.match(src, /\.game-card-art \{[^}]*\}/, `${g.id} sets cardArt but design/${board} has no .game-card-art slot`);
+  }
+});
+
 test('a new category builds a page with no edit to this file', () => {
   assert.match(pageSrc, /Object\.keys\(categories\)/, 'getStaticPaths must enumerate the manifest keys');
   assert.match(pageSrc, /\.filter\(\(key\) => key !== category\)/, 'the cross-links must derive from the same keys minus self');
