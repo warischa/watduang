@@ -203,10 +203,14 @@ Record: device — OS version — PASS / FAIL — note.
 1. With 4+ people, choose whether high or low loses before the first roll — confirm that mode
    choice reads clearly at that point.
 2. Play until the dice tie, and walk the tiebreak round: is it obvious who is still in it?
+3. Added 2026-10-01 (gh#240, gh#141 comment `5937040950`): before each roll the dice show dimmed
+   random faces. In daylight, pass the phone to the next player — do the dimmed faces read as "not
+   rolled yet" to them, never as the previous player's result?
 
-**Pass:** the high/low choice is clear before the first roll, and a real tiebreak makes who is
-still in obvious.
-**Fail:** the mode choice is ambiguous, or the tiebreak does not make the survivors obvious.
+**Pass:** the high/low choice is clear before the first roll, a real tiebreak makes who is
+still in obvious, and the dimmed idle faces never read as a result.
+**Fail:** the mode choice is ambiguous, the tiebreak does not make the survivors obvious, or an idle
+face is taken for a roll.
 
 Record: device — OS version — PASS / FAIL — note.
 
@@ -447,5 +451,19 @@ Record: device — OS version — PASS / FAIL — note.
 
 **Pass:** each tap registers once, the portrait loads and sits cleanly, and nothing scrolls sideways.
 **Fail:** a tap doubles or is missed, the portrait is missing or clipped, or the page scrolls sideways.
+
+Record: device — OS version — PASS / FAIL — note.
+
+### Party grid card art — `/c/party/`
+
+**gh#141** — added 2026-10-01 when the croc-bite card art shipped (gh#241, gh#141 comment `5937040950`).
+One person walks it.
+
+1. On a phone at device pixel ratio 2 or 3, scroll to the จระเข้งับ card: is the art crisp and whole
+   on the card? The file is 361x320 for a 236x160 CSS box.
+2. Does it appear when scrolled to, with no layout jump? The box is fixed at 160px before it loads.
+
+**Pass:** crisp, whole, and no jump when it loads.
+**Fail:** blurry, clipped, missing, or the card resizes when the image arrives.
 
 Record: device — OS version — PASS / FAIL — note.

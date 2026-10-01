@@ -1,6 +1,6 @@
 # Category pages scrolled sideways from 1100 to 1323px — fixed 2026-10-02
 
-Found during the gh#241 wiring measurements (`docs/verification/evidence/gh241/wiring/`), fixed in session S2026-10-01#2. There is no ticket number: the fix and its gate shipped in the same batch as the finding.
+Found during the gh#241 wiring measurements (`docs/verification/evidence/gh241/wiring/`), fixed in session S2026-10-01#2. Recorded as gh#245, filed and closed in one step: the fix and its gate shipped in the same batch as the finding.
 
 ## Cause
 

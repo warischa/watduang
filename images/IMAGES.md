@@ -1637,6 +1637,23 @@ the five paragraphs and writes a new `Subject:`. The `prompt:` text below stays 
 the style reference (the skill's Style anchoring): Codex rewrites the prompt, so the text alone does not
 pin the look.
 
+**Direction C reuse template — the picked direction, made game-neutral (gh#242 starts here).** The
+`IMG_02_003` paragraphs below with the crocodile wording moved out: C's `Style/medium:` "specular
+highlights on the teeth and eyes" became "on the subject's glossy parts", and "NO realistic reptile skin,
+NO scale texture" became "NO realistic surface texture". Croc-bite's own copy of those two phrases now
+belongs in its `Subject:`. A new game's entry is this block plus its own `Subject:` (shape, pose, `Subject
+colours:`, "Nothing else in frame: …"), rendered with `-i images/IMG_02_003.png` as the style reference.
+
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+
 **Masters vs ship derivatives.** `output_path` is the raw model output, byte-identical to the file in
 `~/.codex/generated_images/` that the run saved (`sha256_master` below, matched by hash per
 `docs/agents/assets.md` rule 5). It is NOT the shippable cutout: every raw render carried alpha-1-to-3

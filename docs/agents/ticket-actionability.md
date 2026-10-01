@@ -40,3 +40,7 @@ Probe its state in the same batch as the ticket itself: `gh issue view N --json 
 already own เซียมซี's deck". Both had closed on 2026-09-12, having rebuilt that deck, and the
 rewrite the line described no longer existed. The resume brief repeated the line as a human task, and
 only a later state probe killed it.
+
+## A brief carries the acceptance criteria verbatim, never paraphrased
+
+Paste the ticket's checklist as written, and put any interpretation beside the box it reads, labelled as a reading. 2026-10-01: two parallel briefs paraphrased theirs. One narrowed gh#240's live-region box and the agent followed the brief. One dropped gh#241's "records its model" and the entries shipped without one. Only review caught either.
