@@ -1,0 +1,9 @@
+width	mobile_emulation	innerWidth	clientWidth	scrollWidth_27563b2	scrollWidth_wired	overflow_els_27563b2	overflow_els_wired	widest_right_wired	detector_calibrated	art_box_wxh	art_natural	art_first_child_above_h3	card_h
+320	True	320	320	320	320	0	0	-	True	236x160	not-loaded-at-first-read	True	331.34
+390	True	390	390	390	390	0	0	-	True	306x160	not-loaded-at-first-read	True	331.34
+1100	False	1100	1100	1302	1302	5	5	ad-slot ad-rail-slot@1302	True	252x160	361x320	True	331.34
+1200	False	1200	1200	1302	1302	3	3	ad-slot ad-rail-slot@1302	True	252x160	361x320	True	331.34
+1280	False	1280	1280	1302	1302	2	2	ad-slot ad-rail-slot@1302	True	252x160	361x320	True	331.34
+1315	False	1315	1315	1320	1320	1	1	ad-slot ad-rail-slot@1319.5	True	252x160	361x320	True	331.34
+1316	False	1316	1316	1320	1320	1	1	ad-slot ad-rail-slot@1320	True	252x160	361x320	True	331.34
+1440	False	1440	1440	1440	1440	0	0	-	True	252x160	361x320	True	331.34

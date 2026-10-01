@@ -1604,7 +1604,8 @@ would erase it, which matters most for the ranger (F17), whose uniform would nor
 The owner asked (gh#241) for an illustration on every game card in the party grid, generated with the
 `gpt-image-2` skill; for these cards only, that overrides `docs/agents/assets.md` rule 1, and every
 other rule there still binds. This section is the style pilot: croc-bite rendered in three directions,
-and the owner picks one (gh#241's last comment). **Owner pick: pending.** Only the picked file enters
+and the owner picks one (gh#241's comments). **Owner pick 2026-10-01: direction C, `IMG_02_003`** (gh#241
+comment), shipped as `public/art/croc-bite.webp` and wired onto the croc-bite card. Only the picked file enters
 `public/art/`; the other two stay here as provenance and never enter `public/`.
 
 **Do not render these through `emit_prompt.py`.** The front matter's `brand_block` is portrait-specific
@@ -1640,8 +1641,8 @@ pin the look.
 haze outside the subject. `ship_derivative` is made from the master by
 `docs/verification/evidence/gh241/make_ship.py`: an alpha level remap with the black point at the
 highest haze alpha (never `-threshold`), `magick -trim +repage`, a fit inside 502x320 (the proposed
-251x160 CSS px card slot at 2x), and `cwebp -q 88 -alpha_q 100`. When the owner picks, that webp is the
-file that enters `public/art/`.
+251x160 CSS px card slot at 2x), and `cwebp -q 88 -alpha_q 100`. The picked webp entered `public/art/`
+byte-identical (`IMG_02_003.webp` as `public/art/croc-bite.webp`, sha256 `96940eba…b55fe1`).
 
 Transparency, graded by `docs/verification/evidence/gh241/grade.py`. Its positive control reproduces the
 gh#102 ten (fully transparent 36.7%-46.5%, `IMG_01_002`'s bottom corners 66 and 76, haze outside 0 on
@@ -1665,7 +1666,7 @@ The owner's comparison sheet, the proposed card slot and the full grading record
   api_call:
     model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
     size: "auto"
-  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - not picked, never wired"
   direction: "A - flat editorial"
   purpose: "croc-bite card art, direction A: the shipped site style - even ink outline, flat colour areas, at most two flat shade tones, restrained, brand palette plus a muted croc green (#4caf6e)."
   prompt: |
@@ -1684,7 +1685,7 @@ The owner's comparison sheet, the proposed card slot and the full grading record
   output_path: "images/IMG_02_001.png"
   sha256_master: "6c1183eab99d87e87807e009ef3ad9fe3eb015f9691be34b682fafefafdb6272"
   ship_derivative: "images/gh241-ship/IMG_02_001.webp"
-  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Owner pick pending. Codex made 3 image_gen calls; the picked one (3rd) is a fresh generation from a prompt Codex wrote itself after judging the first too soft-shaded - see as-sent-prompts.json. Raw: srgba, 56.01% fully transparent, 1583 haze px outside the dilated solid mask (alpha 1 x1582, alpha 2 x1). Level remap black point 2 -> haze 0; trimmed 1110x872, 29.06% transparent, corners 0/0/0/0. Ship webp 407x320, 34962 bytes, decoded: haze 0, corners 0/0/0/0, 28.65% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no painted checkerboard, no text, no bottle/can/glass, no human or hand. The cream toe claws echo the teeth."
+  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Not picked - provenance only (owner pick 2026-10-01 was IMG_02_003); never enters public/. Codex made 3 image_gen calls; the picked one (3rd) is a fresh generation from a prompt Codex wrote itself after judging the first too soft-shaded - see as-sent-prompts.json. Raw: srgba, 56.01% fully transparent, 1583 haze px outside the dilated solid mask (alpha 1 x1582, alpha 2 x1). Level remap black point 2 -> haze 0; trimmed 1110x872, 29.06% transparent, corners 0/0/0/0. Ship webp 407x320, 34962 bytes, decoded: haze 0, corners 0/0/0/0, 28.65% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no painted checkerboard, no text, no bottle/can/glass, no human or hand. The cream toe claws echo the teeth."
 
 - id: IMG_02_002
   deliverable: "02"
@@ -1692,7 +1693,7 @@ The owner's comparison sheet, the proposed card slot and the full grading record
   api_call:
     model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
     size: "auto"
-  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - not picked, never wired"
   direction: "B - bold sticker pop"
   purpose: "croc-bite card art, direction B: loud cartoon mascot - thick chunky ink outline, saturated flat fills, exaggerated proportions, big expression; still flat, no shadow."
   prompt: |
@@ -1711,7 +1712,7 @@ The owner's comparison sheet, the proposed card slot and the full grading record
   output_path: "images/IMG_02_002.png"
   sha256_master: "77f6b57badef16afa973915c9da3b64e2ddf38919cec6158f1ef13de60482e09"
   ship_derivative: "images/gh241-ship/IMG_02_002.webp"
-  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Owner pick pending. Codex made 2 image_gen calls; the picked one (2nd) is an edit of the first, which Codex judged to carry gradients - see as-sent-prompts.json. Raw: srgba, 51.89% fully transparent, 407 haze px outside the dilated solid mask (alpha 1 x405, alpha 2 x2). Level remap black point 2 -> haze 0; trimmed 1117x1027, 34.46% transparent, corners 0/0/0/0. Ship webp 348x320, 31438 bytes, decoded: haze 0, corners 0/0/0/0, 33.86% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no painted checkerboard, no text, no bottle/can/glass, no human or hand. Square teeth, upright pose with tail."
+  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Not picked - provenance only (owner pick 2026-10-01 was IMG_02_003); never enters public/. Codex made 2 image_gen calls; the picked one (2nd) is an edit of the first, which Codex judged to carry gradients - see as-sent-prompts.json. Raw: srgba, 51.89% fully transparent, 407 haze px outside the dilated solid mask (alpha 1 x405, alpha 2 x2). Level remap black point 2 -> haze 0; trimmed 1117x1027, 34.46% transparent, corners 0/0/0/0. Ship webp 348x320, 31438 bytes, decoded: haze 0, corners 0/0/0/0, 33.86% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no painted checkerboard, no text, no bottle/can/glass, no human or hand. Square teeth, upright pose with tail."
 
 - id: IMG_02_003
   deliverable: "02"
@@ -1719,7 +1720,7 @@ The owner's comparison sheet, the proposed card slot and the full grading record
   api_call:
     model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
     size: "auto"
-  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - proposed slot, not wired"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), croc-bite - wired 2026-10-01 as /art/croc-bite.webp via the croc-bite module cardArt field"
   direction: "C - soft 3D toy"
   purpose: "croc-bite card art, direction C: rounded vinyl toy render with soft volumetric shading, in the live croc-bite route material colours (#27ae60 skin); not photoreal."
   prompt: |
@@ -1734,9 +1735,9 @@ The owner's comparison sheet, the proposed card slot and the full grading record
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_02_003.png"
   sha256_master: "05d722e01853839107cad0c4de161eda9c3ff68f73292d8be8c2eee76c646ed9"
   ship_derivative: "images/gh241-ship/IMG_02_003.webp"
-  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Owner pick pending. Codex made 2 image_gen calls; the picked one (2nd) is an edit of the first that Codex asked for as an alpha clean-up - see as-sent-prompts.json. Raw: srgba, 51.35% fully transparent, 2761 haze px outside the dilated solid mask (alpha 1 x2632, 2 x120, 3 x9; median 5.4 px outside the silhouette - a faint ring). Level remap black point 3 -> haze 0; trimmed 1118x991, 31.91% transparent, corners 0/0/0/0. Ship webp 361x320, 29038 bytes, decoded: haze 0, corners 0/0/0/0, 31.29% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no contact shadow or floor under the feet, no painted checkerboard, no text, no bottle/can/glass, no human or hand."
+  notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Approved = owner pick 2026-10-01 (gh#241 comment), shipped as public/art/croc-bite.webp (the ship_derivative byte-identical). Codex made 2 image_gen calls; the picked one (2nd) is an edit of the first that Codex asked for as an alpha clean-up - see as-sent-prompts.json. Raw: srgba, 51.35% fully transparent, 2761 haze px outside the dilated solid mask (alpha 1 x2632, 2 x120, 3 x9; median 5.4 px outside the silhouette - a faint ring). Level remap black point 3 -> haze 0; trimmed 1118x991, 31.91% transparent, corners 0/0/0/0. Ship webp 361x320, 29038 bytes, decoded: haze 0, corners 0/0/0/0, 31.29% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no contact shadow or floor under the feet, no painted checkerboard, no text, no bottle/can/glass, no human or hand."
 ```

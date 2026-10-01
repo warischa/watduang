@@ -1,7 +1,9 @@
 # gh#241 — game-card art style pilot: croc-bite in three directions
 
-2026-10-01. Render-and-grade half only, per gh#241's last comment (owner ruling: pilot game croc-bite,
-three styles, the owner picks one). **Owner pick: pending.** Nothing here entered `public/` or `src/`.
+2026-10-01. Render-and-grade half, per gh#241's comments (owner ruling: pilot game croc-bite, three
+styles, the owner picks one). **Owner pick 2026-10-01: direction C, `IMG_02_003`.** Nothing in this
+render-and-grade half entered `public/` or `src/`; the wiring that followed (the picked webp as
+`public/art/croc-bite.webp` on the croc-bite card) and its browser readings are in `wiring/README.md`.
 Registry entries: `images/IMAGES.md`, section "Game-card art pilot — croc-bite, three styles (gh#241)",
 ids `IMG_02_001` (A), `IMG_02_002` (B), `IMG_02_003` (C).
 
@@ -96,7 +98,11 @@ Masters: `images/IMG_02_00N.png` are the raw model outputs, picked by sha256 (ru
 `python3 docs/verification/evidence/gh241/make_ship.py images/IMG_02_00N.png <black point> <work dir>
 images/gh241-ship/IMG_02_00N.webp`; re-running it on `IMG_02_003` reproduced the webp byte-identical.
 
-## Proposed card slot — a proposal, not wired
+## Proposed card slot — as proposed before the pick
+
+Wired 2026-10-01 with exactly these values: the artboard is `design/CatPartyPop.dc.html` (the page
+header's), and the measured boxes, which differ from the arithmetic below by 1px, are in
+`wiring/README.md`.
 
 ADR-0033: a value not in the canvas is drift, so these enter the artboard before `src/`. The page's own
 header names `design/CatPartyPop.dc.html` as its artboard; the brief for this task named
@@ -132,7 +138,8 @@ left-aligned title; `object-position: left center` is the alternative.
 
 ## Not covered
 
-- No browser render of the card: the slot is arithmetic, not measured layout, and nothing is wired.
+- No browser render of the card in this half: the slot below was arithmetic. Measured since, in
+  `wiring/README.md`.
 - Whether a reviewer prefers A, B or C — the owner's pick.
 - Re-render reproducibility: Codex rewrites the prompt and iterates on its own, so the registry text
   alone does not reproduce these files; the hashes and `as-sent-prompts.json` are the record.

@@ -1,0 +1,79 @@
+{
+  "label": "edge-base-27563b2",
+  "page": "http://localhost:4321/c/party/",
+  "takenAt": "2026-10-01T16:43:51.650Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+  "rows": [
+    {
+      "width": 1320,
+      "mobileEmulation": false,
+      "detectorSawInjected": true,
+      "innerWidth": 1320,
+      "innerHeight": 900,
+      "clientWidth": 1320,
+      "scrollWidth": 1322,
+      "overflowCount": 1,
+      "widest": [
+        {
+          "tag": "DIV",
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1322
+        }
+      ],
+      "cardCount": 14,
+      "art": []
+    },
+    {
+      "width": 1323,
+      "mobileEmulation": false,
+      "detectorSawInjected": true,
+      "innerWidth": 1323,
+      "innerHeight": 900,
+      "clientWidth": 1323,
+      "scrollWidth": 1324,
+      "overflowCount": 0,
+      "widest": [],
+      "cardCount": 14,
+      "art": []
+    },
+    {
+      "width": 1324,
+      "mobileEmulation": false,
+      "detectorSawInjected": true,
+      "innerWidth": 1324,
+      "innerHeight": 900,
+      "clientWidth": 1324,
+      "scrollWidth": 1324,
+      "overflowCount": 0,
+      "widest": [],
+      "cardCount": 14,
+      "art": []
+    },
+    {
+      "width": 1330,
+      "mobileEmulation": false,
+      "detectorSawInjected": true,
+      "innerWidth": 1330,
+      "innerHeight": 900,
+      "clientWidth": 1330,
+      "scrollWidth": 1330,
+      "overflowCount": 0,
+      "widest": [],
+      "cardCount": 14,
+      "art": []
+    }
+  ],
+  "lazy": {
+    "width": 320,
+    "before": {
+      "present": false,
+      "entries": [],
+      "networkRequests": []
+    },
+    "after": {
+      "present": false,
+      "entries": [],
+      "networkRequests": []
+    }
+  }
+}
