@@ -255,8 +255,21 @@ function startRound(seats: number[]): void {
   show(playEl);
 }
 
-function renderPips(el: HTMLElement | null, face: number): void {
+/** gh#240. A decorative face for a die that has not been rolled yet, so the turn screen never shows
+ *  three blank squares. Deliberately NOT rollDice and nothing else from the rule module: this value
+ *  is never stored in `rolls`, never totalled and never announced, so it cannot feed a result. It
+ *  shares Math.random with rollDice's default source, and that is harmless -- the generator is
+ *  unseeded and its state is unobservable, so an extra draw here changes no roll's distribution. */
+function idleFace(): number {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+/** Draws `face` into one die. `idle` marks a decorative face (gh#240) and is the ONE place the
+ *  dimming class is decided: renderTurn passes true, the roll timer's real result passes nothing and
+ *  so clears it -- the dimming is lifted only when the actual roll is on the die. */
+function renderPips(el: HTMLElement | null, face: number, idle = false): void {
   if (!el) return;
+  el.classList.toggle('is-idle', idle);
   el.replaceChildren();
   const on = PIPS[face] ?? [];
   for (let cell = 0; cell < 9; cell += 1) {
@@ -284,9 +297,12 @@ function renderTurn(): void {
     }
   }
 
+  // gh#240, owner ruling 2026-10-01: the dice wait on DIMMED random faces, not blank ones, so a phone
+  // handed to the next player never looks as if that player already rolled. roll() tumbles these
+  // same dimmed faces; the timer's real result is what lifts the dimming.
   for (const el of dieEls) {
     el?.classList.remove('is-rolling');
-    renderPips(el, 0);
+    renderPips(el, idleFace(), true);
   }
   if (scoreEl) scoreEl.textContent = '';
   if (rollEl) rollEl.hidden = false;

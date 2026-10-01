@@ -28,6 +28,7 @@
   --dl-danger: #ef4444;
   --dl-die-face: #f8fafc;
   --dl-die-pip: #0f172a;
+  --dl-die-idle-filter: brightness(0.4);
 
   position: relative;
   display: flex;
@@ -399,6 +400,18 @@ body {
 
 .dl-pip.is-on {
   background: var(--dl-die-pip);
+}
+
+/* gh#240: a die waiting for its roll shows a decorative random face, dimmed so it reads as "not rolled
+   yet" -- a phone handed to the next player must never look as if that player already rolled.
+   FILTER, NOT OPACITY: the reduced-motion tumble at the end of this file animates `opacity` starting
+   from 1, so an opacity dim would be overridden for as long as that animation runs and the idle face
+   would show at full strength before the real result lands. No keyframe in this file touches
+   `filter`, so the dim holds through both tumbles and is lifted only when main.ts renders the real
+   result. brightness(0.4) takes the near-white face to a mid grey while the pips keep their contrast
+   against it; the measured reading is in the gh#240 evidence directory. */
+.dl-die.is-idle {
+  filter: var(--dl-die-idle-filter);
 }
 
 .dl-die.is-rolling {
