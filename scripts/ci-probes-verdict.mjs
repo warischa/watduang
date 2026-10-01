@@ -108,7 +108,7 @@ const V = {
   'category-pop': () => {
     const v = out.verdict;
     if (!sawInjected(out.calibration)) return `overflow detector calibration failed (${JSON.stringify(out.calibration)})`;
-    for (const k of ['noSidewaysScroll320', 'noSidewaysScroll390', 'railAbsentBelow1100', 'billboardReservesHeightAt1440', 'railReservesHeightAt1440']) {
+    for (const k of ['noSidewaysScroll320', 'noSidewaysScroll390', 'noSidewaysScrollDesktopBand', 'railAbsentBelow1100', 'billboardReservesHeightAt1440', 'railReservesHeightAt1440']) {
       if (v?.[k] !== true) return `${k} = ${JSON.stringify(v?.[k])}`;
     }
     if (v.accent?.accentsDiffer !== true || v.accent?.matchesCanvas !== true) return `accent: ${JSON.stringify(v.accent)}`;

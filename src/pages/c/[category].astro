@@ -4,7 +4,9 @@
 // differ — with ONE exception: the .game-card-art slot, gh#241, exists in CatPartyPop only, so a
 // fortune module may not set cardArt until CatFortunePop carries the same slot). Every value below — colour, size, radius, border weight, shadow, copy — is an artboard's
 // own (ADR-0033); the only reflows are the ticket's criteria: one column below the 1100px the
-// artboard names, and no sideways scroll at 320/390.
+// artboard names, no sideways scroll at 320/390, and the 940px main column shrinking (never
+// growing past 940px) from 1100px up to the 1316px where the rows' 1280px content box fits whole,
+// so nothing scrolls sideways there either (scripts/category-pop-probe.mjs, desktop band).
 //
 // Copy provenance, exactly as the artboard headers state it. FROM THE MANIFEST, byte-exact: the H1
 // is categories label, the lead line is whenToUse, the intro card is intro, the games-list heading
@@ -198,7 +200,11 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
      from manifest accent NAMES, never hex values: no colour is written in this page file. The
      canvas pages are desktop-only at a fixed 1440px — no phone artboard exists for them — so the
      inner rows are the canvas's 1280px boxes capped by max-width, and the 18px inline padding is
-     the same structural value the home page took from the shared chrome's pill padding. */
+     the same structural value the home page took from the shared chrome's pill padding. The 1280px
+     is the CONTENT box (content-box sizing, auto width), as the canvas draws it and as the shared
+     chrome's inner row already sizes it: capped border-box, the rows held 1244px against the
+     940 + 40 + 300 tracks and the page scrolled sideways from 1100 to 1323px (measured 2026-10-02),
+     18px out of line with the chrome on each side above 1316px. */
   main {
     background: var(--color-ground-warm);
     color: var(--color-text);
@@ -222,7 +228,6 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
   }
 
   .cat-head-inner {
-    width: 100%;
     max-width: 1280px;
     margin-inline: auto;
     padding-inline: 18px;
@@ -231,7 +236,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
     gap: 56px;
     align-items: center;
     padding-block: 52px;
-    box-sizing: border-box;
+    box-sizing: content-box;
   }
 
   .cat-head-copy {
@@ -299,14 +304,13 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
      placeholder. The rail uses the artboard's smaller 300x250 unit — this column carries less
      content than the home page's, and the taller rail there would hang past it. */
   .ad-band {
-    width: 100%;
     max-width: 1280px;
     margin-inline: auto;
     padding-inline: 18px;
     padding-block: 40px;
     display: flex;
     justify-content: center;
-    box-sizing: border-box;
+    box-sizing: content-box;
   }
 
   .ad-slot {
@@ -350,16 +354,15 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
   /* ------------------------------ body ---------------------------------- */
 
   .body-grid {
-    width: 100%;
     max-width: 1280px;
     margin-inline: auto;
     padding-inline: 18px;
     display: grid;
-    grid-template-columns: 940px 300px;
+    grid-template-columns: minmax(0, 940px) 300px;
     gap: 40px;
     align-items: start;
     padding-block-end: 48px;
-    box-sizing: border-box;
+    box-sizing: content-box;
   }
 
   .col {

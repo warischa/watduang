@@ -12,7 +12,10 @@
 //      === clientWidth, and zero elements whose right edge passes the viewport edge. Calibrated per
 //      width and per page: a deliberately overflowing element injected before each measurement must
 //      flip the detector red, or the run fail-louds — a detector that cannot see the overflow it
-//      exists to catch measures nothing.
+//      exists to catch measures nothing. The same holds across the desktop band (DESKTOP_BAND,
+//      1100-1440px, measured without mobile emulation): until 2026-10-02 the page scrolled
+//      sideways from 1100 to 1323px, because its rows capped 1280px INCLUDING their 18px padding
+//      while the 940 + 40 + 300 tracks need 1280px of content, and no width here could see it.
 //   2. ACCENTS — the header block (-cat-head) on each page resolves to a DIFFERENT computed
 //      background colour, read from getComputedStyle rather than from the stylesheet: fortune
 //      rgb(255, 210, 127) (--accent-gold #ffd27f) and party rgb(248, 152, 128) (--accent-punch
@@ -56,8 +59,35 @@ const MEASURE = `
   };
 `;
 
+const DESKTOP_BAND = [1100, 1280, 1315, 1316, 1323, 1440];
+
+// Content-box left/right edges of the rows that must line up under the shared chrome, plus the
+// main column and rail widths. Informational in the verdict except where stated: it is what shows
+// whether the rows' 1280px box is the canvas's content box (chrome-inner) or 36px short of it.
+const ALIGN = `
+  const edge = (sel) => {
+    const el = document.querySelector(sel);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    const pl = parseFloat(cs.paddingLeft) || 0;
+    const pr = parseFloat(cs.paddingRight) || 0;
+    return { left: Math.round((r.left + pl) * 10) / 10, right: Math.round((r.right - pr) * 10) / 10 };
+  };
+  const w = (sel) => { const el = document.querySelector(sel); return el ? Math.round(el.getBoundingClientRect().width * 10) / 10 : null; };
+  return {
+    chrome: edge('.chrome-inner'),
+    head: edge('.cat-head-inner'),
+    adBand: edge('.ad-band'),
+    body: edge('.body-grid'),
+    colWidth: w('.body-grid > .col'),
+    railWidth: w('.ad-rail'),
+  };
+`;
+
 export default async function (session) {
   const rows = [];
+  const band = [];
   const calibration = [];
   for (const slug of PAGES) {
     for (const width of [320, 390]) {
@@ -85,6 +115,26 @@ export default async function (session) {
     await session.nav(`${BASE}/c/${slug}/`);
     const wide = await session.evaluate(MEASURE);
     rows.push({ slug, width: 1440, ...wide.value });
+
+    // The desktop band, WITHOUT mobile emulation (driver.setWidth's third argument): mobile
+    // emulation grows the layout viewport around overflowing content, so a desktop reading taken
+    // with it measures a phone. 1100 is the rail's first width; 1315/1316 straddle the width where
+    // the rows' 1280px content box stops shrinking; 1323 was the last overflowing width before the
+    // rows moved to content-box sizing (2026-10-02). Same calibration as the narrow widths.
+    for (const width of DESKTOP_BAND) {
+      await session.setWidth(width, 900, false);
+      await session.nav(`${BASE}/c/${slug}/`);
+      await session.evaluate(
+        `document.body.insertAdjacentHTML('afterbegin',
+          '<div id="probe-overflow" style="width:150vw;height:1px"></div>'); return true;`,
+      );
+      const injected = await session.evaluate(MEASURE);
+      await session.nav(`${BASE}/c/${slug}/`);
+      const clean = await session.evaluate(MEASURE);
+      const align = await session.evaluate(ALIGN);
+      calibration.push({ slug, width, sawInjectedOverflow: injected.value.overflowCount > 0 });
+      band.push({ slug, width, ...clean.value, align: align.value ?? { error: align.error } });
+    }
   }
 
   const at = (slug, width) => rows.find((r) => r.slug === slug && r.width === width);
@@ -115,6 +165,8 @@ export default async function (session) {
     verdict: {
       noSidewaysScroll320: narrow.filter((n) => n.width === 320).every((n) => n.r.innerWidth === 320 && noScroll(n.r)),
       noSidewaysScroll390: narrow.filter((n) => n.width === 390).every((n) => n.r.innerWidth === 390 && noScroll(n.r)),
+      noSidewaysScrollDesktopBand: band.length === PAGES.length * DESKTOP_BAND.length &&
+        band.every((b) => b.innerWidth === b.width && noScroll(b)),
       railAbsentBelow1100: narrow.every((n) => !n.r.railRendered || n.r.railDisplay === 'none'),
       billboardReservesHeightAt1440: heightVerdict.every((h) => h.billboardHeight >= 250),
       railReservesHeightAt1440: heightVerdict.every((h) => h.railRenderedAt1440 && h.railSlotHeight >= 250),
@@ -122,6 +174,10 @@ export default async function (session) {
       overflowDetectorCalibration: calibrationClean ? 'red-then-clean on every width and page' : 'CALIBRATION FAILED',
     },
     narrow,
+    band: band.map((b) => ({
+      slug: b.slug, width: b.width, innerWidth: b.innerWidth, clientWidth: b.clientWidth,
+      scrollWidth: b.scrollWidth, overflowCount: b.overflowCount, overflowSample: b.overflowSample, align: b.align,
+    })),
     heightVerdict,
     calibration,
     consoleErrors: session.consoleErrors,

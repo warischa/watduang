@@ -5,7 +5,10 @@
 // Usage: node scripts/driver.mjs <script.mjs>
 // <script.mjs> default-exports an async function(session) that gets:
 //   session.nav(url)              -> Page.navigate + wait for load, returns nothing
-//   session.setWidth(w,h)         -> Emulation.setDeviceMetricsOverride
+//   session.setWidth(w,h,mobile)  -> Emulation.setDeviceMetricsOverride; mobile defaults to true.
+//                                     Pass false for a desktop-width reading: mobile emulation grows
+//                                     the layout viewport around overflowing content, so a sideways
+//                                     scroll at 1100-1440px reads as a phone no desktop visitor has
 //   session.evaluate(exprString)  -> Runtime.evaluate, returns {value} or {error} — a reply with no
 //                                     result envelope (destroyed context, detached target) is an
 //                                     {error}, never a null value: scripts/cdp-evaluate-result.mjs
@@ -93,8 +96,8 @@ const session = {
     await p;
     await settle();
   },
-  async setWidth(width, height = 900) {
-    await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: true });
+  async setWidth(width, height = 900, mobile = true) {
+    await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile });
     await settle(300);
   },
   async wipe() {

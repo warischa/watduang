@@ -1,0 +1,642 @@
+{
+  "verdict": {
+    "noSidewaysScroll320": true,
+    "noSidewaysScroll390": true,
+    "noSidewaysScrollDesktopBand": false,
+    "railAbsentBelow1100": true,
+    "billboardReservesHeightAt1440": true,
+    "railReservesHeightAt1440": true,
+    "accent": {
+      "fortuneComputed": "rgb(255, 210, 127)",
+      "partyComputed": "rgb(248, 152, 128)",
+      "accentsDiffer": true,
+      "matchesCanvas": true
+    },
+    "overflowDetectorCalibration": "red-then-clean on every width and page"
+  },
+  "narrow": [
+    {
+      "slug": "fortune",
+      "width": 320,
+      "r": {
+        "slug": "fortune",
+        "width": 320,
+        "innerWidth": 320,
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "overflowCount": 0,
+        "overflowSample": [],
+        "headBg": "rgb(255, 210, 127)",
+        "railRendered": true,
+        "railDisplay": "none",
+        "slots": [
+          {
+            "cls": "ad-slot ad-billboard",
+            "height": 254
+          },
+          {
+            "cls": "ad-slot ad-rail-slot",
+            "height": 0
+          }
+        ]
+      }
+    },
+    {
+      "slug": "fortune",
+      "width": 390,
+      "r": {
+        "slug": "fortune",
+        "width": 390,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "overflowCount": 0,
+        "overflowSample": [],
+        "headBg": "rgb(255, 210, 127)",
+        "railRendered": true,
+        "railDisplay": "none",
+        "slots": [
+          {
+            "cls": "ad-slot ad-billboard",
+            "height": 254
+          },
+          {
+            "cls": "ad-slot ad-rail-slot",
+            "height": 0
+          }
+        ]
+      }
+    },
+    {
+      "slug": "party",
+      "width": 320,
+      "r": {
+        "slug": "party",
+        "width": 320,
+        "innerWidth": 320,
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "overflowCount": 0,
+        "overflowSample": [],
+        "headBg": "rgb(248, 152, 128)",
+        "railRendered": true,
+        "railDisplay": "none",
+        "slots": [
+          {
+            "cls": "ad-slot ad-billboard",
+            "height": 254
+          },
+          {
+            "cls": "ad-slot ad-rail-slot",
+            "height": 0
+          }
+        ]
+      }
+    },
+    {
+      "slug": "party",
+      "width": 390,
+      "r": {
+        "slug": "party",
+        "width": 390,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "overflowCount": 0,
+        "overflowSample": [],
+        "headBg": "rgb(248, 152, 128)",
+        "railRendered": true,
+        "railDisplay": "none",
+        "slots": [
+          {
+            "cls": "ad-slot ad-billboard",
+            "height": 254
+          },
+          {
+            "cls": "ad-slot ad-rail-slot",
+            "height": 0
+          }
+        ]
+      }
+    }
+  ],
+  "band": [
+    {
+      "slug": "fortune",
+      "width": 1100,
+      "innerWidth": 1100,
+      "clientWidth": 1100,
+      "scrollWidth": 1302,
+      "overflowCount": 5,
+      "overflowSample": [
+        {
+          "cls": "ad-rail",
+          "right": 1298
+        },
+        {
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1302
+        },
+        {
+          "cls": "ad-label",
+          "right": 1179.859375
+        },
+        {
+          "cls": "ad-sub",
+          "right": 1188.96875
+        }
+      ],
+      "align": {
+        "chrome": {
+          "left": 18,
+          "right": 1082
+        },
+        "head": {
+          "left": 18,
+          "right": 1082
+        },
+        "adBand": {
+          "left": 18,
+          "right": 1082
+        },
+        "body": {
+          "left": 18,
+          "right": 1082
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "fortune",
+      "width": 1280,
+      "innerWidth": 1280,
+      "clientWidth": 1280,
+      "scrollWidth": 1302,
+      "overflowCount": 2,
+      "overflowSample": [
+        {
+          "cls": "ad-rail",
+          "right": 1298
+        },
+        {
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1302
+        }
+      ],
+      "align": {
+        "chrome": {
+          "left": 18,
+          "right": 1262
+        },
+        "head": {
+          "left": 18,
+          "right": 1262
+        },
+        "adBand": {
+          "left": 18,
+          "right": 1262
+        },
+        "body": {
+          "left": 18,
+          "right": 1262
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "fortune",
+      "width": 1315,
+      "innerWidth": 1315,
+      "clientWidth": 1315,
+      "scrollWidth": 1320,
+      "overflowCount": 1,
+      "overflowSample": [
+        {
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1319.5
+        }
+      ],
+      "align": {
+        "chrome": {
+          "left": 18,
+          "right": 1297
+        },
+        "head": {
+          "left": 35.5,
+          "right": 1279.5
+        },
+        "adBand": {
+          "left": 35.5,
+          "right": 1279.5
+        },
+        "body": {
+          "left": 35.5,
+          "right": 1279.5
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "fortune",
+      "width": 1316,
+      "innerWidth": 1316,
+      "clientWidth": 1316,
+      "scrollWidth": 1320,
+      "overflowCount": 1,
+      "overflowSample": [
+        {
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1320
+        }
+      ],
+      "align": {
+        "chrome": {
+          "left": 18,
+          "right": 1298
+        },
+        "head": {
+          "left": 36,
+          "right": 1280
+        },
+        "adBand": {
+          "left": 36,
+          "right": 1280
+        },
+        "body": {
+          "left": 36,
+          "right": 1280
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "fortune",
+      "width": 1323,
+      "innerWidth": 1323,
+      "clientWidth": 1323,
+      "scrollWidth": 1324,
+      "overflowCount": 0,
+      "overflowSample": [],
+      "align": {
+        "chrome": {
+          "left": 21.5,
+          "right": 1301.5
+        },
+        "head": {
+          "left": 39.5,
+          "right": 1283.5
+        },
+        "adBand": {
+          "left": 39.5,
+          "right": 1283.5
+        },
+        "body": {
+          "left": 39.5,
+          "right": 1283.5
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "fortune",
+      "width": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "overflowCount": 0,
+      "overflowSample": [],
+      "align": {
+        "chrome": {
+          "left": 80,
+          "right": 1360
+        },
+        "head": {
+          "left": 98,
+          "right": 1342
+        },
+        "adBand": {
+          "left": 98,
+          "right": 1342
+        },
+        "body": {
+          "left": 98,
+          "right": 1342
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "party",
+      "width": 1100,
+      "innerWidth": 1100,
+      "clientWidth": 1100,
+      "scrollWidth": 1302,
+      "overflowCount": 5,
+      "overflowSample": [
+        {
+          "cls": "ad-rail",
+          "right": 1298
+        },
+        {
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1302
+        },
+        {
+          "cls": "ad-label",
+          "right": 1179.859375
+        },
+        {
+          "cls": "ad-sub",
+          "right": 1188.96875
+        }
+      ],
+      "align": {
+        "chrome": {
+          "left": 18,
+          "right": 1082
+        },
+        "head": {
+          "left": 18,
+          "right": 1082
+        },
+        "adBand": {
+          "left": 18,
+          "right": 1082
+        },
+        "body": {
+          "left": 18,
+          "right": 1082
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "party",
+      "width": 1280,
+      "innerWidth": 1280,
+      "clientWidth": 1280,
+      "scrollWidth": 1302,
+      "overflowCount": 2,
+      "overflowSample": [
+        {
+          "cls": "ad-rail",
+          "right": 1298
+        },
+        {
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1302
+        }
+      ],
+      "align": {
+        "chrome": {
+          "left": 18,
+          "right": 1262
+        },
+        "head": {
+          "left": 18,
+          "right": 1262
+        },
+        "adBand": {
+          "left": 18,
+          "right": 1262
+        },
+        "body": {
+          "left": 18,
+          "right": 1262
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "party",
+      "width": 1315,
+      "innerWidth": 1315,
+      "clientWidth": 1315,
+      "scrollWidth": 1320,
+      "overflowCount": 1,
+      "overflowSample": [
+        {
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1319.5
+        }
+      ],
+      "align": {
+        "chrome": {
+          "left": 18,
+          "right": 1297
+        },
+        "head": {
+          "left": 35.5,
+          "right": 1279.5
+        },
+        "adBand": {
+          "left": 35.5,
+          "right": 1279.5
+        },
+        "body": {
+          "left": 35.5,
+          "right": 1279.5
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "party",
+      "width": 1316,
+      "innerWidth": 1316,
+      "clientWidth": 1316,
+      "scrollWidth": 1320,
+      "overflowCount": 1,
+      "overflowSample": [
+        {
+          "cls": "ad-slot ad-rail-slot",
+          "right": 1320
+        }
+      ],
+      "align": {
+        "chrome": {
+          "left": 18,
+          "right": 1298
+        },
+        "head": {
+          "left": 36,
+          "right": 1280
+        },
+        "adBand": {
+          "left": 36,
+          "right": 1280
+        },
+        "body": {
+          "left": 36,
+          "right": 1280
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "party",
+      "width": 1323,
+      "innerWidth": 1323,
+      "clientWidth": 1323,
+      "scrollWidth": 1324,
+      "overflowCount": 0,
+      "overflowSample": [],
+      "align": {
+        "chrome": {
+          "left": 21.5,
+          "right": 1301.5
+        },
+        "head": {
+          "left": 39.5,
+          "right": 1283.5
+        },
+        "adBand": {
+          "left": 39.5,
+          "right": 1283.5
+        },
+        "body": {
+          "left": 39.5,
+          "right": 1283.5
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    },
+    {
+      "slug": "party",
+      "width": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "overflowCount": 0,
+      "overflowSample": [],
+      "align": {
+        "chrome": {
+          "left": 80,
+          "right": 1360
+        },
+        "head": {
+          "left": 98,
+          "right": 1342
+        },
+        "adBand": {
+          "left": 98,
+          "right": 1342
+        },
+        "body": {
+          "left": 98,
+          "right": 1342
+        },
+        "colWidth": 940,
+        "railWidth": 300
+      }
+    }
+  ],
+  "heightVerdict": [
+    {
+      "slug": "fortune",
+      "railRenderedAt1440": true,
+      "billboardHeight": 254,
+      "railSlotHeight": 254
+    },
+    {
+      "slug": "party",
+      "railRenderedAt1440": true,
+      "billboardHeight": 254,
+      "railSlotHeight": 254
+    }
+  ],
+  "calibration": [
+    {
+      "slug": "fortune",
+      "width": 320,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "fortune",
+      "width": 390,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "fortune",
+      "width": 1100,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "fortune",
+      "width": 1280,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "fortune",
+      "width": 1315,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "fortune",
+      "width": 1316,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "fortune",
+      "width": 1323,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "fortune",
+      "width": 1440,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "party",
+      "width": 320,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "party",
+      "width": 390,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "party",
+      "width": 1100,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "party",
+      "width": 1280,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "party",
+      "width": 1315,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "party",
+      "width": 1316,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "party",
+      "width": 1323,
+      "sawInjectedOverflow": true
+    },
+    {
+      "slug": "party",
+      "width": 1440,
+      "sawInjectedOverflow": true
+    }
+  ],
+  "consoleErrors": []
+}
