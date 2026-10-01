@@ -1,0 +1,27 @@
+{
+  "env": {
+    "innerWidth": 320,
+    "reducedMotion": true
+  },
+  "trace": {
+    "idle-before-roll": {
+      "frames": 12,
+      "idleFrames": 12,
+      "opacityMin": 0.4,
+      "opacityMax": 0.4
+    },
+    "rolling": {
+      "frames": 7,
+      "idleFrames": 7,
+      "opacityMin": 0.849968,
+      "opacityMax": 1
+    },
+    "landed": {
+      "frames": 73,
+      "idleFrames": 0,
+      "opacityMin": 1,
+      "opacityMax": 1
+    }
+  },
+  "consoleErrors": []
+}

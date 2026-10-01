@@ -1,0 +1,12 @@
+default	idle	default-idle-first-turn.png	320x640	dl-die-1	class="dl-die is-idle"	filter=brightness(0.4)	pipsOn=4	face@20,353=srgb(99,100,101)	dieMeanGrey=0.3169
+default	idle	default-idle-first-turn.png	320x640	dl-die-2	class="dl-die is-idle"	filter=brightness(0.4)	pipsOn=5	face@119,353=srgb(99,100,101)	dieMeanGrey=0.2978
+default	idle	default-idle-first-turn.png	320x640	dl-die-3	class="dl-die is-idle"	filter=brightness(0.4)	pipsOn=5	face@219,353=srgb(99,100,101)	dieMeanGrey=0.2990
+default	landed	default-landed.png	320x640	dl-die-1	class="dl-die"	filter=none	pipsOn=2	face@20,352=srgb(248,250,252)	dieMeanGrey=0.8770
+default	landed	default-landed.png	320x640	dl-die-2	class="dl-die"	filter=none	pipsOn=5	face@119,352=srgb(248,250,252)	dieMeanGrey=0.7447
+default	landed	default-landed.png	320x640	dl-die-3	class="dl-die"	filter=none	pipsOn=1	face@219,352=srgb(248,250,252)	dieMeanGrey=0.9215
+reduced	idle	reduced-idle-first-turn.png	320x640	dl-die-1	class="dl-die is-idle"	filter=brightness(0.4)	pipsOn=2	face@20,353=srgb(99,100,101)	dieMeanGrey=0.3518
+reduced	idle	reduced-idle-first-turn.png	320x640	dl-die-2	class="dl-die is-idle"	filter=brightness(0.4)	pipsOn=4	face@119,353=srgb(99,100,101)	dieMeanGrey=0.3157
+reduced	idle	reduced-idle-first-turn.png	320x640	dl-die-3	class="dl-die is-idle"	filter=brightness(0.4)	pipsOn=2	face@219,353=srgb(99,100,101)	dieMeanGrey=0.3518
+reduced	landed	reduced-landed.png	320x640	dl-die-1	class="dl-die"	filter=none	pipsOn=3	face@20,352=srgb(248,250,252)	dieMeanGrey=0.8346
+reduced	landed	reduced-landed.png	320x640	dl-die-2	class="dl-die"	filter=none	pipsOn=5	face@119,352=srgb(248,250,252)	dieMeanGrey=0.7447
+reduced	landed	reduced-landed.png	320x640	dl-die-3	class="dl-die"	filter=none	pipsOn=4	face@219,352=srgb(248,250,252)	dieMeanGrey=0.7899

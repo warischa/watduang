@@ -1,0 +1,248 @@
+{
+  "lane": "reduced",
+  "env": {
+    "innerWidth": 320,
+    "innerHeight": 640,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "reducedMotion": true,
+    "storageKeys": 0,
+    "setupHidden": false
+  },
+  "begin": {
+    "x": 160,
+    "y": 586.1875,
+    "hidden": false,
+    "disabled": false
+  },
+  "idleScreen": {
+    "playHidden": false,
+    "score": "",
+    "live": "ถึงตาของ แมวส้ม แล้ว",
+    "turn": "ตาของ แมวส้ม",
+    "currentPill": "แมวส้ม",
+    "rollHidden": false
+  },
+  "idle": [
+    {
+      "id": "dl-die-1",
+      "classes": "dl-die is-idle",
+      "filter": "brightness(0.4)",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 2,
+      "rect": {
+        "left": 16,
+        "top": 308.328125,
+        "width": 89.34375,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 20,
+        "y": 353
+      }
+    },
+    {
+      "id": "dl-die-2",
+      "classes": "dl-die is-idle",
+      "filter": "brightness(0.4)",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 4,
+      "rect": {
+        "left": 115.34375,
+        "top": 308.328125,
+        "width": 89.328125,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 119,
+        "y": 353
+      }
+    },
+    {
+      "id": "dl-die-3",
+      "classes": "dl-die is-idle",
+      "filter": "brightness(0.4)",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 2,
+      "rect": {
+        "left": 214.671875,
+        "top": 308.328125,
+        "width": 89.328125,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 219,
+        "y": 353
+      }
+    }
+  ],
+  "idleAfterScroll": [
+    {
+      "id": "dl-die-1",
+      "classes": "dl-die is-idle",
+      "filter": "brightness(0.4)",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 2,
+      "rect": {
+        "left": 16,
+        "top": 308.328125,
+        "width": 89.34375,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 20,
+        "y": 353
+      }
+    },
+    {
+      "id": "dl-die-2",
+      "classes": "dl-die is-idle",
+      "filter": "brightness(0.4)",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 4,
+      "rect": {
+        "left": 115.34375,
+        "top": 308.328125,
+        "width": 89.328125,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 119,
+        "y": 353
+      }
+    },
+    {
+      "id": "dl-die-3",
+      "classes": "dl-die is-idle",
+      "filter": "brightness(0.4)",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 2,
+      "rect": {
+        "left": 214.671875,
+        "top": 308.328125,
+        "width": 89.328125,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 219,
+        "y": 353
+      }
+    }
+  ],
+  "roll": {
+    "x": 160,
+    "y": 489.671875,
+    "hidden": false,
+    "disabled": false
+  },
+  "trace": {
+    "totalFrames": 122,
+    "phases": {
+      "idle-before-roll": {
+        "frames": 13,
+        "filters": [
+          "brightness(0.4)"
+        ],
+        "opacityMin": 1,
+        "opacityMax": 1,
+        "rollingWithoutIdle": 0,
+        "transformsSeen": 0
+      },
+      "rolling": {
+        "frames": 7,
+        "filters": [
+          "brightness(0.4)"
+        ],
+        "opacityMin": 0.850015,
+        "opacityMax": 1,
+        "rollingWithoutIdle": 0,
+        "transformsSeen": 0
+      },
+      "landed": {
+        "frames": 102,
+        "filters": [
+          "none"
+        ],
+        "opacityMin": 1,
+        "opacityMax": 1,
+        "rollingWithoutIdle": 0,
+        "transformsSeen": 0
+      }
+    }
+  },
+  "landedScreen": {
+    "playHidden": false,
+    "score": "แต้มรวม 12 แต้ม",
+    "live": "แมวส้ม ทอยได้ 3 5 4 รวม 12 แต้ม",
+    "turn": "ตาของ แมวส้ม",
+    "currentPill": "แมวส้ม",
+    "rollHidden": true
+  },
+  "landed": [
+    {
+      "id": "dl-die-1",
+      "classes": "dl-die",
+      "filter": "none",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 3,
+      "rect": {
+        "left": 16,
+        "top": 306.828125,
+        "width": 89.34375,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 20,
+        "y": 352
+      }
+    },
+    {
+      "id": "dl-die-2",
+      "classes": "dl-die",
+      "filter": "none",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 5,
+      "rect": {
+        "left": 115.34375,
+        "top": 306.828125,
+        "width": 89.328125,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 119,
+        "y": 352
+      }
+    },
+    {
+      "id": "dl-die-3",
+      "classes": "dl-die",
+      "filter": "none",
+      "opacity": "1",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "pipsOn": 4,
+      "rect": {
+        "left": 214.671875,
+        "top": 306.828125,
+        "width": 89.328125,
+        "height": 89.34375
+      },
+      "facePoint": {
+        "x": 219,
+        "y": 352
+      }
+    }
+  ],
+  "shots": [
+    "/Users/waris.c/claude/free-game/.claude/worktrees/wf_c992c386-dca-1/docs/verification/evidence/gh240//reduced-idle-first-turn.png",
+    "/Users/waris.c/claude/free-game/.claude/worktrees/wf_c992c386-dca-1/docs/verification/evidence/gh240//reduced-landed.png"
+  ],
+  "consoleErrors": []
+}
