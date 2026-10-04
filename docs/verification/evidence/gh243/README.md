@@ -56,3 +56,28 @@ Only `croc-bite.webp` exists; the 13 other party renders are pending, so every o
 the dashed mockup-only box and no screenshot shows the full art set. Hover states and
 real-device rendering were not captured. Motion cost figures (CSS bytes, element counts) are
 read from the artboards, not profiled.
+
+## Owner pick 2026-10-04: D · Toy Shelf
+
+Re-captured after gh#242 landed the 13 other party images. The repo root was served over http, and
+Chrome `--headless=new` was driven through CDP with prefers-reduced-motion so that every frame is still.
+Every image was loaded eagerly before each full-page capture. Readings:
+
+| Artboard | innerWidth | scrollWidth | height | images | broken |
+|---|---|---|---|---|---|
+| D 1440 | 1440 | 1440 | 4289 | 18 | 0 |
+| D 320 | 320 | 320 | 4611 | 18 | 0 |
+| E 1440 | 1440 | 1440 | 3398 | 7 | 0 |
+| E 320 | 320 | 320 | 3130 | 7 | 0 |
+| F 1440 | 1440 | 1440 | 3339 | 18 | 0 |
+| F 320 | 320 | 320 | 3109 | 12 | 0 |
+
+The owner picked **D** from `*-art.png` (popup, session 2026-10-04). D's two captures are committed as the
+artifact the pick cites; they are quantized to 256 colours. The four E and F captures stay local.
+
+The same popup ruled that copy already live on the home page (hero, badge, the two calls to action, the
+how-to step, the FAQ, "ดูทั้งหมด →") counts as approved reuse, not placeholder.
+
+The tiles still show the dashed "pending" frame behind each image. That is mockup-only styling from
+before the art landed, not a missing file. Choosing D means amending ADR-0058, done in the same change
+as gh#244's build, never left contradicting the page.

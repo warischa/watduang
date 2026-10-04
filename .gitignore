@@ -21,6 +21,8 @@ docs/verification/evidence/**/*.png
 !docs/verification/evidence/gh241/compare-abc.png
 # gh#242: same reason — the owner judges "the set reads as one style next to the pilot" off these sheets.
 !docs/verification/evidence/gh242/set-*.png
+# gh#243: the owner picked direction D off these captures, so the pick comment cites them.
+!docs/verification/evidence/gh243/D-shelf-*-art.png
 
 # Design canvas build output — a ~2MB seeded bundle whose minified editor code
 # trips added-lineno-citation-check. The .dc.html sources + canvas.json beside it are the real artifact.

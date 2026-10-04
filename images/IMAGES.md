@@ -1806,8 +1806,9 @@ The batch script and the grading log are in `docs/verification/evidence/gh242/` 
 `set-coral-2.png`, `set-ink.png`). The scripts resolve their paths against the session scratch directory
 they ran from, so they are a record, not a runnable pipeline.
 
-**Whether the set reads as one style next to the pilot is the owner's call** (gh#242), so every entry
-below stays `pending` until the owner says so.
+**Whether the set reads as one style next to the pilot is the owner's call** (gh#242). **Owner ruling
+2026-10-04 (popup): the whole set passes.** Every entry below is `approved` in this section's meaning, the
+owner's pick or acceptance (see the gh#241 section).
 
 | id | game | black point | haze outside, shipped | corners | ship size | ship bytes | image_gen calls (picked) |
 |---|---|---|---|---|---|---|---|
@@ -1852,7 +1853,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_001.png"
   sha256_master: "69b850d471281d65d4cbf8c7201151783bdd6b0541ee020389fe1f4bcfcfdf80"
   ship_derivative: "images/gh242-ship/IMG_03_001.webp"
@@ -1880,7 +1881,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_002.png"
   sha256_master: "0ebe1796bd6c66eb78533bb591d6a709df81697e985f35544eb73a2c25c40d62"
   ship_derivative: "images/gh242-ship/IMG_03_002.webp"
@@ -1908,7 +1909,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_003.png"
   sha256_master: "42123fe9d113aa0240436293d5da76c980f997d0e5b5e19e74fb72d148bafc4b"
   ship_derivative: "images/gh242-ship/IMG_03_003.webp"
@@ -1936,7 +1937,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_004.png"
   sha256_master: "ab6eb4166edb668c76286a4b1909c7f5a92a3a7bd9a736c977ba717f4201dc9f"
   ship_derivative: "images/gh242-ship/IMG_03_004.webp"
@@ -1964,7 +1965,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_005.png"
   sha256_master: "8af28543c0146eeae10248dfba7b519bb2a339f904bb1fd4cb3337e89affe975"
   ship_derivative: "images/gh242-ship/IMG_03_005.webp"
@@ -1992,7 +1993,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_006.png"
   sha256_master: "835610b374fec68e065981b8820c4d944847c00540759af25bf0204416ee8065"
   ship_derivative: "images/gh242-ship/IMG_03_006.webp"
@@ -2020,7 +2021,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_007.png"
   sha256_master: "1d1114c6776a8167b0ef83758fe2401d7e5099bfb9afddff574a06664ec64156"
   ship_derivative: "images/gh242-ship/IMG_03_007.webp"
@@ -2048,7 +2049,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_008.png"
   sha256_master: "f99de99f687713b2f9347f57d4d47f05b6d7054aa68559013ae4bd3e28e10045"
   ship_derivative: "images/gh242-ship/IMG_03_008.webp"
@@ -2076,7 +2077,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_009.png"
   sha256_master: "221e6646d746641180810175c8dfc205f54d11e544dd79aa619de4f7e5d406df"
   ship_derivative: "images/gh242-ship/IMG_03_009.webp"
@@ -2104,7 +2105,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_010.png"
   sha256_master: "dbdded6673bf1eac853d81b5c70ae1024175c0f65a1e02f583496dba6cd8bd6f"
   ship_derivative: "images/gh242-ship/IMG_03_010.webp"
@@ -2132,7 +2133,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_011.png"
   sha256_master: "2fb622ad51780d953eecc8d292d2b6681fe1778f48c51e1aeed11eed8f487ca7"
   ship_derivative: "images/gh242-ship/IMG_03_011.webp"
@@ -2160,7 +2161,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_012.png"
   sha256_master: "97734bd3e5610ed5078ef4d1cca70da6656712c90d172b057b01b68d1adbe67e"
   ship_derivative: "images/gh242-ship/IMG_03_012.webp"
@@ -2188,7 +2189,7 @@ visible loss.
     Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
 
     Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
-  status: "pending"
+  status: "approved"
   output_path: "images/IMG_03_013.png"
   sha256_master: "629d8e96a897f9d5b19635b9620648541895bf4712d82e8a5abf59e55de0cac8"
   ship_derivative: "images/gh242-ship/IMG_03_013.webp"
