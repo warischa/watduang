@@ -384,11 +384,14 @@ function selftest() {
     }
 
     // calibrations 6-12: card art (gh#241). Run on a game list that declares art on exactly one
-    // game — the real declaring game if the manifest has one, else a stand-in — so this scan is
-    // calibrated whatever the manifest holds today. Each red must be the ONLY problem the scan
-    // reports, so none can pass by reddening for a different reason.
+    // game — the first real declaring game if the manifest has one, else a stand-in — and strips it
+    // from every other game, so this scan is calibrated whatever the manifest holds today (gh#242
+    // gave every party game art, which left no bare card to calibrate against). Each red must be the
+    // ONLY problem the scan reports, so none can pass by reddening for a different reason.
     const artPick = games.find((g) => g.cardArt) ?? games.find((g) => g.category === slugA);
-    const artList = games.map((g) => (g.id === artPick.id ? { ...g, cardArt: g.cardArt ?? 'selftest-card-art.webp' } : g));
+    const artList = games.map((g) =>
+      g.id === artPick.id ? { ...g, cardArt: g.cardArt ?? 'selftest-card-art.webp' } : { ...g, cardArt: undefined },
+    );
     const artFile = artList.find((g) => g.id === artPick.id).cardArt;
     const bare = artList.find((g) => !g.cardArt && (g.category === slugA || g.category === slugB));
     if (artList.filter((g) => g.cardArt).length !== 1 || !bare) {
