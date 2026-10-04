@@ -1,0 +1,321 @@
+{
+  "width": 1440,
+  "pages": [
+    {
+      "path": "/",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "hScroll": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "headerInner": {
+        "x": 80,
+        "y": 0,
+        "w": 1280,
+        "h": 84
+      },
+      "footer": {
+        "x": 0,
+        "y": 3376.8,
+        "w": 1440,
+        "h": 96
+      },
+      "footerInner": {
+        "x": 80,
+        "y": 3376.8,
+        "w": 1280,
+        "h": 96
+      },
+      "brand": {
+        "x": 80,
+        "y": 18,
+        "w": 91.8,
+        "h": 48
+      },
+      "brandStyle": {
+        "fontFamily": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "fontSize": "32px",
+        "fontWeight": "700",
+        "color": "rgb(255, 204, 0)"
+      },
+      "pills": [
+        {
+          "text": "ดูดวง",
+          "x": 1021.5,
+          "y": 20,
+          "w": 79.4,
+          "h": 44,
+          "backgroundColor": "rgb(255, 204, 0)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        },
+        {
+          "text": "สุ่มคนโดน",
+          "x": 1113,
+          "y": 20,
+          "w": 109.3,
+          "h": 44,
+          "backgroundColor": "rgb(255, 61, 127)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        },
+        {
+          "text": "เครื่องมือสุ่ม",
+          "x": 1234.3,
+          "y": 20,
+          "w": 125.7,
+          "h": 44,
+          "backgroundColor": "rgb(43, 123, 255)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        }
+      ],
+      "pillsOneRow": true,
+      "pillsGap": 12,
+      "pillsBox": {
+        "x": 1021.5,
+        "y": 20,
+        "w": 338.5,
+        "h": 44
+      },
+      "headerBg": "rgb(20, 20, 43)",
+      "footerStyle": {
+        "fontFamily": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "fontSize": "26px",
+        "fontWeight": "700",
+        "color": "rgb(255, 204, 0)"
+      },
+      "footerLinks": 0,
+      "headerLinks": 4,
+      "footerAfterMain": 0
+    },
+    {
+      "path": "/c/party/",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "hScroll": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "headerInner": {
+        "x": 80,
+        "y": 0,
+        "w": 1280,
+        "h": 84
+      },
+      "footer": {
+        "x": 0,
+        "y": 2854.2,
+        "w": 1440,
+        "h": 96
+      },
+      "footerInner": {
+        "x": 80,
+        "y": 2854.2,
+        "w": 1280,
+        "h": 96
+      },
+      "brand": {
+        "x": 80,
+        "y": 18,
+        "w": 91.8,
+        "h": 48
+      },
+      "brandStyle": {
+        "fontFamily": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "fontSize": "32px",
+        "fontWeight": "700",
+        "color": "rgb(255, 204, 0)"
+      },
+      "pills": [
+        {
+          "text": "ดูดวง",
+          "x": 1021.5,
+          "y": 20,
+          "w": 79.4,
+          "h": 44,
+          "backgroundColor": "rgb(255, 204, 0)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        },
+        {
+          "text": "สุ่มคนโดน",
+          "x": 1113,
+          "y": 20,
+          "w": 109.3,
+          "h": 44,
+          "backgroundColor": "rgb(255, 61, 127)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        },
+        {
+          "text": "เครื่องมือสุ่ม",
+          "x": 1234.3,
+          "y": 20,
+          "w": 125.7,
+          "h": 44,
+          "backgroundColor": "rgb(43, 123, 255)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        }
+      ],
+      "pillsOneRow": true,
+      "pillsGap": 12,
+      "pillsBox": {
+        "x": 1021.5,
+        "y": 20,
+        "w": 338.5,
+        "h": 44
+      },
+      "headerBg": "rgb(20, 20, 43)",
+      "footerStyle": {
+        "fontFamily": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "fontSize": "26px",
+        "fontWeight": "700",
+        "color": "rgb(255, 204, 0)"
+      },
+      "footerLinks": 0,
+      "headerLinks": 4,
+      "footerAfterMain": 0
+    },
+    {
+      "path": "/c/fortune/",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "hScroll": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "headerInner": {
+        "x": 80,
+        "y": 0,
+        "w": 1280,
+        "h": 84
+      },
+      "footer": {
+        "x": 0,
+        "y": 1169,
+        "w": 1440,
+        "h": 96
+      },
+      "footerInner": {
+        "x": 80,
+        "y": 1169,
+        "w": 1280,
+        "h": 96
+      },
+      "brand": {
+        "x": 80,
+        "y": 18,
+        "w": 91.8,
+        "h": 48
+      },
+      "brandStyle": {
+        "fontFamily": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "fontSize": "32px",
+        "fontWeight": "700",
+        "color": "rgb(255, 204, 0)"
+      },
+      "pills": [
+        {
+          "text": "ดูดวง",
+          "x": 1021.5,
+          "y": 20,
+          "w": 79.4,
+          "h": 44,
+          "backgroundColor": "rgb(255, 204, 0)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        },
+        {
+          "text": "สุ่มคนโดน",
+          "x": 1113,
+          "y": 20,
+          "w": 109.3,
+          "h": 44,
+          "backgroundColor": "rgb(255, 61, 127)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        },
+        {
+          "text": "เครื่องมือสุ่ม",
+          "x": 1234.3,
+          "y": 20,
+          "w": 125.7,
+          "h": 44,
+          "backgroundColor": "rgb(43, 123, 255)",
+          "color": "rgb(20, 20, 43)",
+          "fontSize": "17px",
+          "fontWeight": "600",
+          "paddingTop": "9px",
+          "paddingLeft": "20px",
+          "borderTopLeftRadius": "999px"
+        }
+      ],
+      "pillsOneRow": true,
+      "pillsGap": 12,
+      "pillsBox": {
+        "x": 1021.5,
+        "y": 20,
+        "w": 338.5,
+        "h": 44
+      },
+      "headerBg": "rgb(20, 20, 43)",
+      "footerStyle": {
+        "fontFamily": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "fontSize": "26px",
+        "fontWeight": "700",
+        "color": "rgb(255, 204, 0)"
+      },
+      "footerLinks": 0,
+      "headerLinks": 4,
+      "footerAfterMain": 0
+    }
+  ],
+  "consoleErrors": []
+}

@@ -128,7 +128,7 @@
   --surface-tile: #ffffff;
   --surface-band: var(--color-line-strong);
   --ink: var(--color-line-strong);
-  --ink-light: #ffffff; /* text on the hero pink, the ink band and the tools blue */
+  --ink-light: #ffffff; /* text on the hero h1 and the ink band; the tools blue and the hero lead line carry --ink (gh#248) */
   --ink-soft: #3d3b5c;
   --ink-on-band-soft: #d9d6f0;
   --ad-line: #c9c3a8;

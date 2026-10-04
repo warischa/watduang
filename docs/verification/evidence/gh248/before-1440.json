@@ -1,0 +1,238 @@
+{
+  "width": 1440,
+  "pages": [
+    {
+      "path": "/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [
+        {
+          "el": "span.mark \"ใครโดน\"",
+          "ratio": 2.23,
+          "need": 3,
+          "fs": 84,
+          "fw": 700,
+          "fg": "rgb(255, 204, 0)"
+        },
+        {
+          "el": "p.lead \"ไม่ต้องโหลดแอป ไม่ต้องสม\"",
+          "ratio": 3.37,
+          "need": 4.5,
+          "fs": 22,
+          "fw": 600,
+          "fg": "rgb(255, 255, 255)"
+        },
+        {
+          "el": "div.wrap.ad-slot \"ช่องโฆษณา\"",
+          "ratio": 2.83,
+          "need": 4.5,
+          "fs": 16,
+          "fw": 400,
+          "fg": "rgb(154, 148, 122)"
+        },
+        {
+          "el": "p.desc \"ใส่ชื่อในวงแล้วกดหมุน รู\"",
+          "ratio": 3.9,
+          "need": 4.5,
+          "fs": 15,
+          "fw": 400,
+          "fg": "rgb(255, 255, 255)"
+        },
+        {
+          "el": "p.desc \"ใส่ชื่อทั้งวง เลือกว่าจะ\"",
+          "ratio": 3.9,
+          "need": 4.5,
+          "fs": 15,
+          "fw": 400,
+          "fg": "rgb(255, 255, 255)"
+        },
+        {
+          "el": "p.desc \"ใส่ชื่อแล้วบอกว่าอยากได้\"",
+          "ratio": 3.9,
+          "need": 4.5,
+          "fs": 15,
+          "fw": 400,
+          "fg": "rgb(255, 255, 255)"
+        },
+        {
+          "el": "p.desc \"ตั้งเลขต่ำสุดกับสูงสุดแล\"",
+          "ratio": 3.9,
+          "need": 4.5,
+          "fs": 15,
+          "fw": 400,
+          "fg": "rgb(255, 255, 255)"
+        }
+      ],
+      "contrastUnmeasured": 0,
+      "textElements16": 10,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 36,
+      "under44": 5,
+      "under44Sample": [
+        {
+          "el": "a.chrome-brand \"วัดดวง\"",
+          "w": 116,
+          "h": 43
+        },
+        {
+          "el": "a.chrome-pill \"ดูดวง\"",
+          "w": 68,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"สุ่มคนโดน\"",
+          "w": 97,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+          "w": 109,
+          "h": 37
+        },
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 30,
+          "h": 44
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "123332333333333333332333233332333",
+      "cls": 0.0008,
+      "lcp": {
+        "el": "img \"\"",
+        "ms": 32,
+        "url": "http://localhost:4331/art/croc-bite.webp"
+      }
+    },
+    {
+      "path": "/c/party/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 46,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 24,
+      "under44": 6,
+      "under44Sample": [
+        {
+          "el": "a.chrome-brand \"วัดดวง\"",
+          "w": 116,
+          "h": 43
+        },
+        {
+          "el": "a.chrome-pill \"ดูดวง\"",
+          "w": 68,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"สุ่มคนโดน\"",
+          "w": 97,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+          "w": 109,
+          "h": 37
+        },
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 18
+        },
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 30,
+          "h": 44
+        }
+      ],
+      "under24": [
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 18
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "12333333333333332",
+      "cls": 0.0027,
+      "lcp": {
+        "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
+        "ms": 40,
+        "url": null
+      }
+    },
+    {
+      "path": "/c/fortune/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 24,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 13,
+      "under44": 6,
+      "under44Sample": [
+        {
+          "el": "a.chrome-brand \"วัดดวง\"",
+          "w": 116,
+          "h": 43
+        },
+        {
+          "el": "a.chrome-pill \"ดูดวง\"",
+          "w": 68,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"สุ่มคนโดน\"",
+          "w": 97,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+          "w": 109,
+          "h": 37
+        },
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 18
+        },
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 30,
+          "h": 44
+        }
+      ],
+      "under24": [
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 18
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "123332",
+      "cls": 0,
+      "lcp": {
+        "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+        "ms": 20,
+        "url": null
+      }
+    }
+  ],
+  "consoleErrors": []
+}

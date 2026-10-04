@@ -2,13 +2,13 @@
 interface SiteLink {
   label: string;
   href: string;
-  /** Token value for the top-bar pill background; absent on the one outlined pill. */
-  accent?: string;
+  /** Token value for the top-bar pill background. */
+  accent: string;
 }
 
-// The four site links, declared exactly once — the top bar and the footer nav both map over this
-// array, so a label or href can never drift between the two consumers (gh#86 acceptance).
-// Labels are byte-for-byte the design canvas's own copy (design/HomeArcade.dc.html).
+// The three section links, declared exactly once and mapped into the top bar, so a label or href
+// can never drift between consumers (gh#86 acceptance). The footer carries the brand only (gh#247).
+// Labels are byte-for-byte the design canvas's own copy (design/HomeShelfDesktop.dc.html).
 const SITE_LINKS: SiteLink[] = [
   { label: 'ดูดวง', href: '/c/fortune/', accent: 'var(--accent-gold)' },
   { label: 'สุ่มคนโดน', href: '/c/party/', accent: 'var(--accent-punch)' },
@@ -18,29 +18,10 @@ const SITE_LINKS: SiteLink[] = [
 
 <header class="chrome-bar chrome-topbar" data-page-chrome>
   <div class="chrome-inner chrome-topbar-inner">
-    <a class="chrome-brand" href="/">
-      <svg
-        width="27"
-        height="27"
-        viewBox="0 0 24 24"
-        fill="none"
-        style="stroke: var(--color-primary)"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
-      </svg>
-      วัดดวง
-    </a>
+    <a class="chrome-brand" href="/">วัดดวง</a>
     <nav class="chrome-pills">
       {SITE_LINKS.map((link) => (
-        <a
-          href={link.href}
-          class:list={{ 'chrome-pill': true, 'chrome-pill-outline': !link.accent }}
-          style={link.accent ? `background: ${link.accent}` : undefined}
-        >
+        <a class="chrome-pill" href={link.href} style={`background: ${link.accent}`}>
           {link.label}
         </a>
       ))}
@@ -53,35 +34,24 @@ const SITE_LINKS: SiteLink[] = [
 <footer class="chrome-bar chrome-footer" data-page-chrome>
   <div class="chrome-inner chrome-footer-inner">
     <span class="chrome-footer-brand">วัดดวง</span>
-    <nav class="chrome-footer-links">
-      {SITE_LINKS.map((link) => (
-        <a href={link.href}>{link.label}</a>
-      ))}
-    </nav>
   </div>
 </footer>
 
 <style>
-  /* gh#86 — the top bar and footer of design/HomeArcade.dc.html (direction C, the owner's choice
-     of 2026-08-25), values byte for byte. Colours go through tokens where the canvas value IS a
-     token (--color-line-strong, --color-ground-warm, the three accent tokens, --color-primary
-     #d6336c which is the canvas accent default); the two rgba() fills are the ground token's
-     value at the canvas's own alphas, no token exists for either alpha pair. gh#246 / ADR-0069:
-     those tokens and both fills carry canvas D's palette now; this file's layout is still direction
-     C's until gh#247 builds canvas D's chrome. The canvas page is desktop-only at a fixed
-     1440px — no mobile artboard exists for this chrome — so nothing here is invented: the inner
-     row is the canvas's 1280px box capped by max-width, min-height stands in for the canvas's
-     fixed heights so wrapped pills can grow the bar, the wrap gaps reuse the canvas's own 10px and
-     28px gaps, and the padding is the canvas's own pill padding pair 9px × 18px. data-page-chrome
-     on both landmark elements is the marker scripts/page-chrome-check.mjs reads; it is never
-     presentation. */
+  /* gh#247 — the top bar and footer of canvas D (design/HomeShelfDesktop.dc.html and
+     design/HomeShelf320.dc.html), values byte for byte. Colours go through tokens where the canvas
+     value IS a token: ink --color-line-strong, the brand's yellow --accent-gold, and the three pill
+     fills --accent-gold / --accent-punch / --accent-sky. The canvas page is two artboards: the
+     1440 one is the base here, and the 320 one takes over at max-width 1099px (ADR-0058, the
+     breakpoint every landing component shares). The pill text is ink on all three pills (gh#248).
+     The footer carries the brand only, no links: the section links live in the top-bar pills.
+     data-page-chrome on both landmark elements is the marker scripts/page-chrome-check.mjs reads;
+     it is never presentation. */
   .chrome-bar {
     background: var(--color-line-strong);
-    color: var(--color-ground-warm);
-    font-family: var(--font-sans);
-    /* the inline half of the canvas's 9px × 18px pill padding pair, on the full-bleed bar: with
-       UA content-box sizing, inline padding on the 100%-wide inner box overflows it past the
-       viewport (measured +36px at 390px) */
+    font-family: var(--font-display);
+    /* the full-bleed bar's own gutter: with UA content-box sizing, inline padding on the 100%-wide
+       inner box overflows it past the viewport (measured +36px at 390px) */
     padding-inline: 18px;
   }
 
@@ -89,100 +59,87 @@ const SITE_LINKS: SiteLink[] = [
     text-decoration: none;
   }
 
-  /* the canvas's own global a:hover colour */
-  .chrome-bar a:hover {
-    color: var(--color-primary);
-  }
-
   .chrome-inner {
+    box-sizing: border-box;
     width: 100%;
     max-width: 1280px;
     margin-inline: auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-    /* the block half of the same pair — vertical breathing so wrapped pill rows never crowd the
-       bar edges; the canvas's fixed 80px/124px heights stay the min-height floors below */
-    padding-block: 9px;
   }
 
   .chrome-topbar-inner {
-    min-height: 80px;
-    font-size: 15px;
-    font-weight: 500;
+    height: 84px;
   }
 
   .chrome-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 28px;
-    color: var(--color-ground-warm);
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--accent-gold);
   }
 
   .chrome-pills {
     display: flex;
-    align-items: center;
-    gap: 10px;
     flex-wrap: wrap;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 17px;
   }
 
   .chrome-pill {
     border-radius: 999px;
-    padding: 9px 18px;
+    padding: 9px 20px;
     color: var(--color-line-strong);
   }
 
-  /* the games pill: canvas border and its 7px padding, which with the 2px border keeps the pill
-     box the same size as its 9px-padded siblings */
-  .chrome-pill-outline {
-    color: var(--color-ground-warm);
-    border: 2px solid rgba(255, 246, 224, 0.4);
-    padding: 7px 18px;
-    background: none;
-  }
-
   .chrome-footer-inner {
-    min-height: 147px;
-    font-size: 14px;
-    gap: 28px;
+    height: 96px;
+    justify-content: center;
   }
 
   .chrome-footer-brand {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 22px;
-    color: var(--color-ground-warm);
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--accent-gold);
   }
 
-  .chrome-footer-links {
-    display: flex;
-    gap: 28px;
-    flex-wrap: wrap;
-  }
+  @media (max-width: 1099px) {
+    .chrome-bar {
+      padding: 12px 14px;
+    }
 
-  .chrome-footer-links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    color: rgba(255, 246, 224, 0.8);
-  }
+    .chrome-topbar-inner {
+      height: auto;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
 
-  .chrome-footer-links a:focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: var(--focus-offset);
-    /* Colour only, deliberately overriding the shared token on this one surface. Measured: the
-       token resolves to a 3px solid rgb(20, 20, 43) ring, and this bar is dark, so the ring paints
-       and is still not findable — a screenshot of a focused link shows no ring at all. Before this
-       block existed these links fell back to the UA outline, which browsers render two-tone so it
-       survives any background; a solid near-black ring is a step DOWN from that on a dark bar, so
-       leaving it at the default would have been a regression this file introduced rather than one
-       it inherited. currentColor tracks the link colour above (a near-white cream), so the ring
-       stays visible if that colour is ever retuned, and no new token is invented. */
-    outline-color: currentColor;
+    .chrome-brand {
+      font-size: 26px;
+    }
+
+    .chrome-pills {
+      margin-top: 10px;
+      gap: 6px;
+      font-size: 14px;
+    }
+
+    .chrome-pill {
+      padding: 6px 12px;
+    }
+
+    .chrome-footer {
+      padding-block: 0;
+    }
+
+    .chrome-footer-inner {
+      height: 72px;
+    }
+
+    .chrome-footer-brand {
+      font-size: 22px;
+    }
   }
 </style>
