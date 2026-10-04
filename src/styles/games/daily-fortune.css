@@ -151,3 +151,12 @@
   max-width: 30ch;
   margin: 0;
 }
+
+/* gh#251, owner ruling 2026-10-04: the joke line and the foot line are BODY text, 16px on phones (the
+   canvas's 390px frame now draws 16). Wider than the tokens.css phone class they keep 15px and 13px. */
+@media (max-width: 639px) {
+  .df-joke,
+  .df-foot {
+    font-size: 16px;
+  }
+}

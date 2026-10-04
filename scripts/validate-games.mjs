@@ -196,6 +196,21 @@ function validateGames(games, checkRoot, categories, noAdRequest = NO_AD_REQUEST
       err('ads', `must be false for "${g.id}" — ${noAdRequest[g.id]}`);
     }
 
+    // gh#253 / ADR-0070: a game that renders the solo landing reserves its first screen until mount, or
+    // its how-to section, ad slot and footer jump when the module lands. The partition key is the one
+    // src/pages/game/[id].astro's getStaticPaths builds a landing on, `!g.playRoute`, spelled the same
+    // way so the two sets cannot drift. Both widths, finite and positive: a 0 or a missing class is the
+    // shift back on that class.
+    if (!g?.playRoute) {
+      const r = g?.firstScreenReserve;
+      const okPx = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0;
+      if (r === undefined) {
+        err('firstScreenReserve', 'is required on a game with no playRoute — it renders the solo landing, whose #stage reserves its first screen until mount (docs/adr/0070)');
+      } else if (!r || !okPx(r.phone) || !okPx(r.wide)) {
+        err('firstScreenReserve', `must be { phone, wide }, both positive finite px numbers, got ${JSON.stringify(r)}`);
+      }
+    }
+
     if (!isFn(g?.mount)) err('mount', 'must be a function');
     if (!isFn(g?.dispose)) err('dispose', 'must be a function');
     if (g?.onVisibility !== undefined && !isFn(g.onVisibility)) {
@@ -253,6 +268,8 @@ function selftest() {
       cardArt: 'happy-game.webp',
       cardArt2x: 'happy-game-2x.webp',
       ads: false,
+      // no playRoute, so this fixture renders the solo landing and must carry the reserve (gh#253)
+      firstScreenReserve: { phone: 500, wide: 480 },
       mount: () => {},
       dispose: () => {},
     });
@@ -304,6 +321,15 @@ function selftest() {
     );
     console.log('PASS known-good: a fortune page declaring [1, 1] reports zero violations');
 
+    // --- known-good: gh#253 — a game WITH a playRoute builds no landing, so it needs no reserve. Guards
+    // against the rule being widened to every game, which would demand dead data of every play route. ---
+    assert.deepEqual(
+      validateGames([{ ...goodGame(), playRoute: '/game/happy-game/play/', firstScreenReserve: undefined }], tmpDir, partyOnly),
+      [],
+      'a game with a playRoute and no firstScreenReserve must report zero violations',
+    );
+    console.log('PASS known-good: a playRoute game without firstScreenReserve reports zero violations');
+
     // --- known-bad, one case per rule. Each mutates exactly one field off the good fixture so the
     // resulting violation is attributable to that rule, not a side effect of another one. ---
     const cases = [
@@ -337,6 +363,9 @@ function selftest() {
       { field: 'og (file missing)', mutate: (g) => ({ ...g, og: 'ghost.png' }), expect: /og "ghost\.png" — public\/og\/ghost\.png does not exist/ },
       { field: 'ads (not a boolean)', mutate: (g) => ({ ...g, ads: 'yes' }), expect: /ads must be a boolean/ },
       { field: 'ads (true on a no-ad-request id)', mutate: (g) => ({ ...g, id: 'restricted-fixture', og: 'restricted-fixture.png', ads: true }), expect: /ads must be false for "restricted-fixture" — fixture page: AdSense restricted content/ },
+      { field: 'firstScreenReserve (missing, no playRoute)', mutate: (g) => ({ ...g, firstScreenReserve: undefined }), expect: /firstScreenReserve is required on a game with no playRoute/ },
+      { field: 'firstScreenReserve (wide missing)', mutate: (g) => ({ ...g, firstScreenReserve: { phone: 500 } }), expect: /firstScreenReserve must be \{ phone, wide \}/ },
+      { field: 'firstScreenReserve (phone not positive)', mutate: (g) => ({ ...g, firstScreenReserve: { phone: 0, wide: 480 } }), expect: /firstScreenReserve must be \{ phone, wide \}/ },
       { field: 'mount', mutate: (g) => ({ ...g, mount: undefined }), expect: /mount must be a function/ },
       { field: 'dispose', mutate: (g) => ({ ...g, dispose: undefined }), expect: /dispose must be a function/ },
       { field: 'onVisibility (present, not a function)', mutate: (g) => ({ ...g, onVisibility: 'nope' }), expect: /onVisibility must be a function when present/ },

@@ -111,3 +111,29 @@ The desktop artboards draw `.name-hint` at 13px. That gap predates this ticket, 
 
 `screens/<page>-320-{before,after}.jpg`: full-page captures at 320, taken after a scroll-through so
 lazy art loads. Each file is a JPEG of 150000 bytes or less, re-encoded at the highest quality that fits.
+
+## Addendum: the solo game landings (owner ruling, 2026-10-04)
+
+The owner ruled by popup this session that three in-stage texts on the fortune solo landings count as BODY at
+phone widths: daily-fortune `p.df-joke` (15px) and `p.df-foot` (13px), and love-match `p.lm-note` (13px).
+Desktop keeps the drawn sizes. Labels, pills, chips, the date pill and the topbar link stay exempt.
+
+- Canvas first (ADR-0033): `design/DuangTodayIdle.dc.html` now draws the joke and foot lines at 16px in its 390px
+  frame. `design/DuangTodayResult.dc.html` draws the same `df-foot` line (same class, same rule), so it moved too.
+  Each edit carries a comment naming the ruling and the desktop size.
+- `p.lm-note`: **no canvas draws it**, so only the code changed.
+- Code: one `@media (max-width: 639px)` block each in `src/styles/games/daily-fortune.css` and
+  `src/styles/games/love-match.css`, at the tokens.css phone boundary.
+
+Proof: `body-font-probe.mjs` with `PAGES=/game/siamsi/,/game/daily-fortune/,/game/love-match/`, before = `64d4483`,
+after = this change (`solo-{before,after}-{320,1440}.json`), compared with `compare-sizes.mjs`:
+
+| width | elements compared | diffs |
+|---|---|---|
+| 320 | 108 on 3 pages | 3: `p.df-joke` 15 -> 16, `p.df-foot` 13 -> 16, `p.lm-note` 13 -> 16 |
+| 1440 | 108 on 3 pages | 0 |
+
+Ceiling: a cold load shows each game's first screen only. The result-screen `df-foot` and love-match's closing
+`lm-note` are the same classes under the same rule and are not separately measured. The larger text makes the phone
+first screens taller (daily-fortune 530 -> 539, love-match 569 -> 579). The gh#253 reserve values moved with them;
+see `docs/verification/evidence/gh253/README.md`.

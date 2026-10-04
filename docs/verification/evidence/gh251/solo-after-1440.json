@@ -1,0 +1,827 @@
+{
+ "width": 1440,
+ "base": "http://localhost:4361",
+ "pages": [
+  {
+   "path": "/game/siamsi/",
+   "innerWidth": 1440,
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "rows": [
+    {
+     "sel": "main > header.game-topbar > a",
+     "fs": 14,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "main > div.play-area > h1.game-title",
+     "fs": 44,
+     "role": null,
+     "forced": false,
+     "text": "เสี่ยงเซียมซี"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > span.sm-title",
+     "fs": 30,
+     "role": null,
+     "forced": false,
+     "text": "เซียมซี"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > p",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตั้งจิตให้นิ่ง แล้วนึกถึงเรื่อ"
+    },
+    {
+     "sel": "div.play-area > div#stage.stage-screen > div.sm-intent > span.sm-intent-label",
+     "fs": 13,
+     "role": null,
+     "forced": false,
+     "text": "เรื่องที่อยากถาม"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip",
+     "fs": 14,
+     "role": null,
+     "forced": false,
+     "text": "การงาน"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip",
+     "fs": 14,
+     "role": null,
+     "forced": false,
+     "text": "ความรัก"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip",
+     "fs": 14,
+     "role": null,
+     "forced": false,
+     "text": "การเงิน"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip",
+     "fs": 14,
+     "role": null,
+     "forced": false,
+     "text": "สุขภาพ"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip.sm-chip--on",
+     "fs": 14,
+     "role": null,
+     "forced": false,
+     "text": "ไม่เจาะจง"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > button#ss-intent-done.game-btn.game-btn-primary",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "ตั้งจิตแล้ว"
+    },
+    {
+     "sel": "main > section#how-to-play > h2",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "วิธีเล่น"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตั้งจิตให้นิ่ง แล้วเลือกเรื่อง"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เขย่าเครื่องต่อเนื่อง หรือกดปุ"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ดูเบอร์ไม้ติ้วก่อน แล้วค่อยเปิ"
+    },
+    {
+     "sel": "nav.game-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ดวงวันนี้"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เนื้อคู่ของคุณ"
+    },
+    {
+     "sel": "nav.game-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "สุ่มคนโดน"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "footer > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 34,
+    "under16": 7,
+    "bodyUnder16": [],
+    "unclassifiedUnder16": [
+     "14 main > header.game-topbar > a \"ดูดวง\"",
+     "13 div.play-area > div#stage.stage-screen > div.sm-intent > span.sm-intent-label \"เรื่องที่อยากถาม\"",
+     "14 div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip \"การงาน\"",
+     "14 div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip \"ความรัก\"",
+     "14 div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip \"การเงิน\"",
+     "14 div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip \"สุขภาพ\"",
+     "14 div#stage.stage-screen > div.sm-intent > div.sm-chips > button.sm-chip.sm-chip--on \"ไม่เจาะจง\""
+    ],
+    "exemptUnder16": {},
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/game/daily-fortune/",
+   "innerWidth": 1440,
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "rows": [
+    {
+     "sel": "main > header.game-topbar > a",
+     "fs": 14,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "main > div.play-area > h1.game-title",
+     "fs": 44,
+     "role": null,
+     "forced": false,
+     "text": "ดวงวันนี้"
+    },
+    {
+     "sel": "div.play-area > div#stage.stage-screen > div.df-date-row > span.df-date",
+     "fs": 13,
+     "role": null,
+     "forced": false,
+     "text": "อา. 4 ต.ค."
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > span.df-headline",
+     "fs": 30,
+     "role": null,
+     "forced": false,
+     "text": "วันนี้คุณจะเจอกับอะไร"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > p.df-joke",
+     "fs": 15,
+     "role": null,
+     "forced": false,
+     "text": "ดวงขำๆ เรื่องจิ๊บจ๊อยประจำวัน "
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > button#df-go.game-btn.game-btn-primary",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "เปิดดวงวันนี้"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > p.df-foot",
+     "fs": 13,
+     "role": null,
+     "forced": false,
+     "text": "อยากได้คำทำนายจริงจัง ไปเสี่ยง"
+    },
+    {
+     "sel": "main > section#how-to-play > h2",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "วิธีเล่น"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กด \"เปิดดวงวันนี้\" ครั้งเดียว"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "อ่านสามเรื่องที่ได้ เรื่องกิน "
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ดูสรุปดวงวันนี้ที่มาจากสามเรื่"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "อยากได้ใหม่ กด \"เปิดใหม่อีกที\""
+    },
+    {
+     "sel": "nav.game-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เสี่ยงเซียมซี"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เนื้อคู่ของคุณ"
+    },
+    {
+     "sel": "nav.game-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "สุ่มคนโดน"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "footer > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 31,
+    "under16": 4,
+    "bodyUnder16": [],
+    "unclassifiedUnder16": [
+     "14 main > header.game-topbar > a \"ดูดวง\"",
+     "13 div.play-area > div#stage.stage-screen > div.df-date-row > span.df-date \"อา. 4 ต.ค.\"",
+     "15 main > div.play-area > div#stage.stage-screen > p.df-joke \"ดวงขำๆ เรื่องจิ๊บจ๊อยประจำวัน \"",
+     "13 main > div.play-area > div#stage.stage-screen > p.df-foot \"อยากได้คำทำนายจริงจัง ไปเสี่ยง\""
+    ],
+    "exemptUnder16": {},
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/game/love-match/",
+   "innerWidth": 1440,
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "rows": [
+    {
+     "sel": "main > header.game-topbar > a",
+     "fs": 14,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "main > div.play-area > h1.game-title",
+     "fs": 44,
+     "role": null,
+     "forced": false,
+     "text": "เนื้อคู่ของคุณ"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > p.lm-heading",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "เนื้อคู่ของคุณ"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > p",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตอบสามข้อ แล้วเปิดดูครั้งเดียว"
+    },
+    {
+     "sel": "div.play-area > div#stage.stage-screen > div.lm-qbox > p#lm-q-me.lm-q",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "คุณเป็น"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-me-m.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ผู้ชาย"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-me-f.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ผู้หญิง"
+    },
+    {
+     "sel": "div.play-area > div#stage.stage-screen > div.lm-qbox > p#lm-q-band.lm-q",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "อายุของคุณ"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-band-0.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "18–24"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-band-1.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "25–29"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-band-2.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "30–34"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-band-3.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "35–39"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-band-4.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "40–49"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-band-5.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "50 ขึ้นไป"
+    },
+    {
+     "sel": "div.play-area > div#stage.stage-screen > div.lm-qbox > p#lm-q-want.lm-q",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "อยากให้เนื้อคู่เป็น"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-want-m.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ผู้ชาย"
+    },
+    {
+     "sel": "div#stage.stage-screen > div.lm-qbox > div.lm-opts > button#lm-want-f.lm-choice",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ผู้หญิง"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > p.lm-note",
+     "fs": 13,
+     "role": null,
+     "forced": false,
+     "text": "ที่ตอบไว้อยู่แค่ในหน้านี้รอบเด"
+    },
+    {
+     "sel": "main > div.play-area > div#stage.stage-screen > button#lm-go.game-btn.game-btn-primary",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "เปิดดูเนื้อคู่"
+    },
+    {
+     "sel": "main > section#how-to-play > h2",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "วิธีเล่น"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บอกว่าคุณเป็นผู้ชายหรือผู้หญิง"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลือกช่วงอายุของคุณ"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลือกว่าอยากให้เนื้อคู่เป็นผู้"
+    },
+    {
+     "sel": "main > section#how-to-play > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กด \"เปิดดูเนื้อคู่\" ครั้งเดียว"
+    },
+    {
+     "sel": "nav.game-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เสี่ยงเซียมซี"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ดวงวันนี้"
+    },
+    {
+     "sel": "nav.game-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "สุ่มคนโดน"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "nav.game-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "footer > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 43,
+    "under16": 2,
+    "bodyUnder16": [],
+    "unclassifiedUnder16": [
+     "14 main > header.game-topbar > a \"ดูดวง\"",
+     "13 main > div.play-area > div#stage.stage-screen > p.lm-note \"ที่ตอบไว้อยู่แค่ในหน้านี้รอบเด\""
+    ],
+    "exemptUnder16": {},
+    "hScroll": false
+   }
+  }
+ ],
+ "consoleErrors": []
+}

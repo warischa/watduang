@@ -64,6 +64,14 @@
   color: rgba(20, 20, 43, 0.7);
 }
 
+/* gh#251, owner ruling 2026-10-04: the note is BODY text, 16px on phones. No canvas draws it, so this
+   size is the ruling's, not a canvas value. Wider than the tokens.css phone class it keeps 13px. */
+@media (max-width: 639px) {
+  .lm-note {
+    font-size: 16px;
+  }
+}
+
 /* ---- the meet screen ---- */
 .lm-when {
   font-family: var(--font-display);

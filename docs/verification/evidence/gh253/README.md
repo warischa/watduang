@@ -111,3 +111,29 @@ the two not-runnable-here steps are the CI-expression step and the SWA token fet
 `run.mjs` (serve + fresh Chrome + teardown), `cls-matrix.mjs` (the before/after matrix), `stage-heights-probe.mjs`,
 `throttled-cls-probe.mjs`, `cls-*.json` and `cls-*.txt` (raw and per-cell lists), `stage-heights-before.json`,
 `stage-reserve-*.json`.
+
+## Addendum: gh#251 phone body text moves two reserves (base `64d4483`)
+
+The owner's gh#251 ruling put `p.df-joke`, `p.df-foot` and `p.lm-note` at 16px below 640px (evidence:
+`docs/verification/evidence/gh251/README.md`, addendum). Re-measured with `stage-heights-probe.mjs`, Mitr `loaded`
+on every row: `stage-heights-base-64d4483.json` (before, identical to the def4563 sweep) and
+`stage-heights-gh251-font.json` (after):
+
+| game | phone before | phone after | wide | reserve phone / wide, old -> new |
+|---|---|---|---|---|
+| siamsi | 597 / 576 / 534 | unchanged | 534 | 576 / 534, unchanged |
+| daily-fortune | 530.3 | 538.5 at 320-639 | 530.3 | 530 / 530 -> 539 / 530 |
+| love-match | 569.2 to 560, 517.2 from 600 | 578.8 to 560, 526.8 at 600-639 | 517.2 | 569 / 517 -> 579 / 517 |
+
+After the change, on the font+reserve build:
+- `stage-reserve-probe.mjs`: pass, 0 failures (`stage-reserve-after-gh251.json`); worst 0.0073 (love-match 768).
+- slow-4G (`cls-after-gh251.json`, `.txt`, n=2): worst 0.0066 (love-match 768); phone heights 390x844 and 360x780
+  all <= 0.005. Ceiling: daily-fortune and love-match below 640 were already near 0 throttled before any reserve
+  (their mount beats first paint there), so these runs do not discriminate those two phone values. The heights do.
+
+New-landing guard: `scripts/validate-games.mjs` requires `firstScreenReserve` (phone and wide, positive finite
+numbers) on every game with no `playRoute`. Selftest: 3 known-bad cases (missing, wide missing, phone 0) plus a
+known-good playRoute game with no reserve. Must-red: siamsi's field deleted on a scratch copy -> exit 1 with
+`src/games/siamsi.ts: firstScreenReserve is required on a game with no playRoute`; the rule disabled -> the
+selftest exits 1 at `firstScreenReserve (missing, no playRoute): known-bad fixture must report at least one
+violation`. Both files were restored from `cp` copies, and the hashes matched.

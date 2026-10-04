@@ -51,6 +51,11 @@ its impact fraction times its distance fraction, and both are a fraction of the 
 measured, not derived; a copy or font change that moves a first screen changes the residual, and the
 probe below is what notices.
 
+Note 2026-10-04 (gh#251): the owner's 16px phone body ruling grew two phone first screens (daily-fortune
+539, love-match 579 up to 560 and 527 at 600-639); their `phone` values moved with it, `wide` did not.
+`scripts/validate-games.mjs` now requires the field, both widths positive, on every game with no
+`playRoute`, the same key the landing route builds on.
+
 ## Rejected
 
 - **Hide the below-stage content until mount** — removes the shift by hiding the crawlable how-to and the
