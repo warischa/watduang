@@ -1,0 +1,356 @@
+{
+ "home320": {
+  "daily": {
+   "lines": 2,
+   "ff": "Sarabun",
+   "fs": "16px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 258,
+   "h": 42
+  },
+  "siamsi": {
+   "lines": 2,
+   "ff": "Sarabun",
+   "fs": "16px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 258,
+   "h": 42
+  },
+  "wheelTile": {
+   "lines": 0,
+   "ff": "Sarabun",
+   "fs": "15px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 0,
+   "h": 0
+  },
+  "popular": {
+   "lines": 3,
+   "ff": "Sarabun",
+   "fs": "16px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 156,
+   "h": 63
+  },
+  "faq": {
+   "lines": 2,
+   "ff": "Sarabun",
+   "fs": "16px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 258,
+   "h": 42
+  }
+ },
+ "home1440": {
+  "daily": {
+   "lines": 2,
+   "ff": "Sarabun",
+   "fs": "16px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 348,
+   "h": 42
+  },
+  "siamsi": {
+   "lines": 1,
+   "ff": "Sarabun",
+   "fs": "16px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 348,
+   "h": 21
+  },
+  "wheelTile": {
+   "lines": 1,
+   "ff": "Sarabun",
+   "fs": "15px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 250,
+   "h": 19
+  },
+  "popular": {
+   "lines": 2,
+   "ff": "Sarabun",
+   "fs": "16px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 353,
+   "h": 42
+  },
+  "faq": {
+   "lines": 2,
+   "ff": "Sarabun",
+   "fs": "16px",
+   "lh": "normal",
+   "wb": "normal",
+   "ow": "anywhere",
+   "lb": "auto",
+   "ls": "normal",
+   "w": 359,
+   "h": 42
+  }
+ },
+ "number320": {
+  "b": [
+   [
+    "สุ่ม",
+    "Arial",
+    "rgb(239, 239, 239)",
+    "2px outset",
+    "0px",
+    24
+   ],
+   [
+    "เริ่มรอบใหม่",
+    "Arial",
+    "rgb(239, 239, 239)",
+    "2px outset",
+    "0px",
+    24
+   ]
+  ],
+  "i": [
+   [
+    "number",
+    "Arial",
+    "rgb(255, 255, 255)",
+    "2px inset",
+    "0px"
+   ],
+   [
+    "number",
+    "Arial",
+    "rgb(255, 255, 255)",
+    "2px inset",
+    "0px"
+   ],
+   [
+    "checkbox",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px"
+   ]
+  ],
+  "dark": [],
+  "sw": 320,
+  "h1font": [
+   "Sarabun-Bold"
+  ]
+ },
+ "number1440": {
+  "b": [
+   [
+    "สุ่ม",
+    "Arial",
+    "rgb(239, 239, 239)",
+    "2px outset",
+    "0px",
+    24
+   ],
+   [
+    "เริ่มรอบใหม่",
+    "Arial",
+    "rgb(239, 239, 239)",
+    "2px outset",
+    "0px",
+    24
+   ]
+  ],
+  "i": [
+   [
+    "number",
+    "Arial",
+    "rgb(255, 255, 255)",
+    "2px inset",
+    "0px"
+   ],
+   [
+    "number",
+    "Arial",
+    "rgb(255, 255, 255)",
+    "2px inset",
+    "0px"
+   ],
+   [
+    "checkbox",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px"
+   ]
+  ],
+  "dark": [],
+  "sw": 1440,
+  "h1font": [
+   "Sarabun-Bold"
+  ]
+ },
+ "wheel320": {
+  "b": [
+   [
+    "หมุน",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px",
+    288
+   ],
+   [
+    "หมุน",
+    "Mitr",
+    "rgb(43, 123, 255)",
+    "2px solid",
+    "16px",
+    60
+   ],
+   [
+    "หยุด",
+    "Mitr",
+    "rgb(20, 20, 43)",
+    "2px solid",
+    "16px",
+    0
+   ],
+   [
+    "คืนทุกชื่อเข",
+    "Mitr",
+    "rgb(255, 246, 224)",
+    "2px solid",
+    "14px",
+    60
+   ]
+  ],
+  "i": [
+   [
+    "radio",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px"
+   ],
+   [
+    "radio",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px"
+   ],
+   [
+    "checkbox",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px"
+   ]
+  ],
+  "dark": [
+   "DIV#wheel-result.wheel-result 288x60 txt=\"\"",
+   "BUTTON#name-start. 252x60 txt=\"ใส่ชื่อลงวงล้อ\""
+  ],
+  "sw": 320,
+  "h1font": [
+   "Sarabun-Bold"
+  ]
+ },
+ "wheel1440": {
+  "b": [
+   [
+    "หมุน",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px",
+    400
+   ],
+   [
+    "หมุน",
+    "Mitr",
+    "rgb(43, 123, 255)",
+    "2px solid",
+    "16px",
+    60
+   ],
+   [
+    "หยุด",
+    "Mitr",
+    "rgb(20, 20, 43)",
+    "2px solid",
+    "16px",
+    0
+   ],
+   [
+    "คืนทุกชื่อเข",
+    "Mitr",
+    "rgb(255, 246, 224)",
+    "2px solid",
+    "14px",
+    60
+   ]
+  ],
+  "i": [
+   [
+    "radio",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px"
+   ],
+   [
+    "radio",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px"
+   ],
+   [
+    "checkbox",
+    "Arial",
+    "rgba(0, 0, 0, 0)",
+    "0px none",
+    "0px"
+   ]
+  ],
+  "dark": [
+   "DIV#wheel-result.wheel-result 544x60 txt=\"\"",
+   "BUTTON#name-start. 508x60 txt=\"ใส่ชื่อลงวงล้อ\""
+  ],
+  "sw": 1440,
+  "h1font": [
+   "Sarabun-Bold"
+  ]
+ }
+}
