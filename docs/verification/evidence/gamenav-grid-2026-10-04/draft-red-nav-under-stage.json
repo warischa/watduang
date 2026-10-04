@@ -1,0 +1,1343 @@
+{
+  "verdict": "UNGUARDED",
+  "failures": [],
+  "landings": [
+    "daily-fortune",
+    "love-match",
+    "siamsi"
+  ],
+  "guardedCollisions": [
+    "siamsi 320x900 start #ss-keep: 204/1120 points on /game/daily-fortune/ /game/love-match/; real tap at (38,14) -> /game/siamsi/, dialog true, third tap -> /game/siamsi/, leave-go 830px away",
+    "siamsi 375x667 start #ss-keep: 558/1328 points on /game/pinocchio-luck/play/ /game/zero-trigger/play/ /game/croc-bite/play/ /game/cursed-number/play/ /game/one-bomb/play/ /game/bangkok-drift/play/ /game/wire-snip-panic/play/; real tap at (38,2) -> /game/siamsi/, dialog true, third tap -> /game/siamsi/, leave-go 612px away"
+  ],
+  "unguardedCollisions": [
+    "love-match 320x900 start #lm-again: 192/980 points on /game/siamsi/ /game/daily-fortune/; no round announced, real tap -> /game/siamsi/",
+    "love-match 320x900 center #lm-go: 384/1120 points on /game/timebomb/play/ /game/power-meter/play/ /game/dice-loser/play/ /game/short-stick/play/ /game/freeze-tap/play/ /game/cannon-flag/play/; no round announced, real tap -> /game/timebomb/play/",
+    "love-match 320x900 end #lm-again: 444/980 points on /game/zero-trigger/play/ /game/bangkok-drift/play/ /game/one-bomb/play/ /game/croc-bite/play/; no round announced, real tap -> /game/zero-trigger/play/",
+    "love-match 375x667 start #lm-again: 619/1162 points on /game/pinocchio-luck/play/ /game/zero-trigger/play/ /game/croc-bite/play/ /game/cursed-number/play/ /game/one-bomb/play/ /game/bangkok-drift/play/ /game/wire-snip-panic/play/; no round announced, real tap -> /game/pinocchio-luck/play/",
+    "love-match 375x667 center #lm-again: 84/1162 points on /game/croc-bite/play/; no round announced, real tap -> /game/croc-bite/play/",
+    "love-match 375x667 end #lm-again: 619/1162 points on /game/pinocchio-luck/play/ /game/zero-trigger/play/ /game/croc-bite/play/ /game/cursed-number/play/ /game/one-bomb/play/ /game/bangkok-drift/play/ /game/wire-snip-panic/play/; no round announced, real tap -> /game/pinocchio-luck/play/"
+  ],
+  "stepsScanned": 53,
+  "runs": [
+    {
+      "page": "daily-fortune",
+      "viewport": "320x900",
+      "align": "start",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            620
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            620,
+            620
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "320x900",
+      "align": "center",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            679
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            679,
+            679
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "320x900",
+      "align": "end",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            598,
+            300,
+            662
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            679
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            747,
+            300,
+            811
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            679,
+            679
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "375x667",
+      "align": "start",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            595
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            595,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "375x667",
+      "align": "center",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            301,
+            355,
+            365
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            301,
+            355,
+            365
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            595
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "375x667",
+      "align": "end",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            600,
+            355,
+            664
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            595
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "love-match",
+      "viewport": "320x900",
+      "align": "start",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            925
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            0,
+            300,
+            56
+          ],
+          "sampled": 980,
+          "changed": true,
+          "stageHeightPx": [
+            925,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 192,
+          "hrefsHit": [
+            "/game/siamsi/",
+            "/game/daily-fortune/"
+          ],
+          "firstHit": {
+            "x": 38,
+            "y": 14,
+            "href": "/game/siamsi/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              38,
+              14
+            ],
+            "pathAfterSecondTap": "/game/siamsi/",
+            "dialogOpen": false,
+            "pathAfterThirdTap": "/game/siamsi/",
+            "leaveGoClearancePx": null
+          },
+          "unguarded": true
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "love-match",
+      "viewport": "320x900",
+      "align": "center",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            345
+          ],
+          "roundAnnounced": false,
+          "navHits": 384,
+          "hrefsHit": [
+            "/game/timebomb/play/",
+            "/game/power-meter/play/",
+            "/game/dice-loser/play/",
+            "/game/short-stick/play/",
+            "/game/freeze-tap/play/",
+            "/game/cannon-flag/play/"
+          ],
+          "firstHit": {
+            "x": 38,
+            "y": 444,
+            "href": "/game/timebomb/play/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              38,
+              444
+            ],
+            "pathAfterSecondTap": "/game/timebomb/play/",
+            "dialogOpen": null,
+            "pathAfterThirdTap": "/game/timebomb/play/",
+            "leaveGoClearancePx": null
+          },
+          "unguarded": true
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "love-match",
+      "viewport": "320x900",
+      "align": "end",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            680,
+            300,
+            744
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            925
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            844,
+            300,
+            900
+          ],
+          "sampled": 980,
+          "changed": true,
+          "stageHeightPx": [
+            925,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 444,
+          "hrefsHit": [
+            "/game/zero-trigger/play/",
+            "/game/bangkok-drift/play/",
+            "/game/one-bomb/play/",
+            "/game/croc-bite/play/"
+          ],
+          "firstHit": {
+            "x": 38,
+            "y": 846,
+            "href": "/game/zero-trigger/play/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              38,
+              846
+            ],
+            "pathAfterSecondTap": "/game/zero-trigger/play/",
+            "dialogOpen": null,
+            "pathAfterThirdTap": "/game/zero-trigger/play/",
+            "leaveGoClearancePx": null
+          },
+          "unguarded": true
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "love-match",
+      "viewport": "375x667",
+      "align": "start",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            877
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            0,
+            355,
+            56
+          ],
+          "sampled": 1162,
+          "changed": true,
+          "stageHeightPx": [
+            877,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 619,
+          "hrefsHit": [
+            "/game/pinocchio-luck/play/",
+            "/game/zero-trigger/play/",
+            "/game/croc-bite/play/",
+            "/game/cursed-number/play/",
+            "/game/one-bomb/play/",
+            "/game/bangkok-drift/play/",
+            "/game/wire-snip-panic/play/"
+          ],
+          "firstHit": {
+            "x": 38,
+            "y": 2,
+            "href": "/game/pinocchio-luck/play/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              38,
+              2
+            ],
+            "pathAfterSecondTap": "/game/pinocchio-luck/play/",
+            "dialogOpen": null,
+            "pathAfterThirdTap": "/game/pinocchio-luck/play/",
+            "leaveGoClearancePx": null
+          },
+          "unguarded": true
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "love-match",
+      "viewport": "375x667",
+      "align": "center",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            925
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            306,
+            355,
+            362
+          ],
+          "sampled": 1162,
+          "changed": true,
+          "stageHeightPx": [
+            925,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 84,
+          "hrefsHit": [
+            "/game/croc-bite/play/"
+          ],
+          "firstHit": {
+            "x": 38,
+            "y": 308,
+            "href": "/game/croc-bite/play/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              38,
+              308
+            ],
+            "pathAfterSecondTap": "/game/croc-bite/play/",
+            "dialogOpen": null,
+            "pathAfterThirdTap": "/game/croc-bite/play/",
+            "leaveGoClearancePx": null
+          },
+          "unguarded": true
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "love-match",
+      "viewport": "375x667",
+      "align": "end",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            877
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            611,
+            355,
+            667
+          ],
+          "sampled": 1162,
+          "changed": true,
+          "stageHeightPx": [
+            877,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 619,
+          "hrefsHit": [
+            "/game/pinocchio-luck/play/",
+            "/game/zero-trigger/play/",
+            "/game/croc-bite/play/",
+            "/game/cursed-number/play/",
+            "/game/one-bomb/play/",
+            "/game/bangkok-drift/play/",
+            "/game/wire-snip-panic/play/"
+          ],
+          "firstHit": {
+            "x": 38,
+            "y": 613,
+            "href": "/game/pinocchio-luck/play/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              38,
+              613
+            ],
+            "pathAfterSecondTap": "/game/pinocchio-luck/play/",
+            "dialogOpen": null,
+            "pathAfterThirdTap": "/game/pinocchio-luck/play/",
+            "leaveGoClearancePx": null
+          },
+          "unguarded": true
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "siamsi",
+      "viewport": "320x900",
+      "align": "start",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            597,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            893
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            893,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 204,
+          "hrefsHit": [
+            "/game/daily-fortune/",
+            "/game/love-match/"
+          ],
+          "firstHit": {
+            "x": 38,
+            "y": 14,
+            "href": "/game/daily-fortune/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              38,
+              14
+            ],
+            "pathAfterSecondTap": "/game/siamsi/",
+            "dialogOpen": true,
+            "pathAfterThirdTap": "/game/siamsi/",
+            "leaveGoClearancePx": 830
+          }
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            597
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "siamsi",
+      "viewport": "320x900",
+      "align": "center",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            597,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            917
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            917,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            217,
+            300,
+            281
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            597
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "siamsi",
+      "viewport": "320x900",
+      "align": "end",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            707,
+            300,
+            771
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            597,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            595,
+            300,
+            659
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            623,
+            300,
+            687
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            885
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            836,
+            300,
+            900
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            885,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            217,
+            300,
+            281
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            597
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "siamsi",
+      "viewport": "375x667",
+      "align": "start",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            576,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            830
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            830,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 558,
+          "hrefsHit": [
+            "/game/pinocchio-luck/play/",
+            "/game/zero-trigger/play/",
+            "/game/croc-bite/play/",
+            "/game/cursed-number/play/",
+            "/game/one-bomb/play/",
+            "/game/bangkok-drift/play/",
+            "/game/wire-snip-panic/play/"
+          ],
+          "firstHit": {
+            "x": 38,
+            "y": 2,
+            "href": "/game/pinocchio-luck/play/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              38,
+              2
+            ],
+            "pathAfterSecondTap": "/game/siamsi/",
+            "dialogOpen": true,
+            "pathAfterThirdTap": "/game/siamsi/",
+            "leaveGoClearancePx": 612
+          }
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            576
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "siamsi",
+      "viewport": "375x667",
+      "align": "center",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            576,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            783
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            301,
+            355,
+            365
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            783,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            220,
+            355,
+            284
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            576
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "siamsi",
+      "viewport": "375x667",
+      "align": "end",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            576,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            597,
+            355,
+            661
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            735
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            735,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            220,
+            355,
+            284
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            576
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    }
+  ],
+  "consoleErrors": [
+    {
+      "kind": "console.error",
+      "text": "Failed to initialize 3D scene: Error: WEBGL_NOT_SUPPORTED\n    at new Ag (http://localhost:4392/_astro/play.astro_astro_type_script_index_0_lang.C2c04qtr.js:3828:111611)\n    at new Pg (http://localhost:4392/_astro/play.astro_astro_type_script_index_0_lang.C2c04qtr.js:3828:147626)\n    at http://localhost:4392/_astro/play.astro_astro_type_script_index_0_lang.C2c04qtr.js:3828:150957"
+    }
+  ]
+}

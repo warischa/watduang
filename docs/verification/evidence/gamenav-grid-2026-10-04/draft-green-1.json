@@ -1,0 +1,1204 @@
+{
+  "verdict": "PASS",
+  "failures": [],
+  "landings": [
+    "daily-fortune",
+    "love-match",
+    "siamsi"
+  ],
+  "guardedCollisions": [
+    "siamsi 320x900 end #ss-keep: 231/1120 points on /game/daily-fortune/ /game/love-match/; real tap at (22,850) -> /game/siamsi/, dialog true, third tap -> /game/siamsi/, leave-go 795px away"
+  ],
+  "unguardedCollisions": [],
+  "stepsScanned": 54,
+  "runs": [
+    {
+      "page": "daily-fortune",
+      "viewport": "320x900",
+      "align": "start",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            654
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            654,
+            679
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "320x900",
+      "align": "center",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            679
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            679,
+            654
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "320x900",
+      "align": "end",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            598,
+            300,
+            662
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            654
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            722,
+            300,
+            786
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            654,
+            646
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "375x667",
+      "align": "start",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "375x667",
+      "align": "center",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            301,
+            355,
+            365
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            628
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            301,
+            355,
+            365
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            628,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "daily-fortune",
+      "viewport": "375x667",
+      "align": "end",
+      "steps": [
+        {
+          "id": "df-go",
+          "rect": [
+            20,
+            600,
+            355,
+            664
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            530,
+            595
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "df-again",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            595,
+            595
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "love-match",
+      "viewport": "320x900",
+      "align": "start",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            973
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            0,
+            300,
+            56
+          ],
+          "sampled": 980,
+          "changed": true,
+          "stageHeightPx": [
+            973,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "love-match",
+      "viewport": "320x900",
+      "align": "center",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            377
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            422,
+            300,
+            478
+          ],
+          "sampled": 980,
+          "changed": true,
+          "stageHeightPx": [
+            377,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "love-match",
+      "viewport": "320x900",
+      "align": "end",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            680,
+            300,
+            744
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            925
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            844,
+            300,
+            900
+          ],
+          "sampled": 980,
+          "changed": true,
+          "stageHeightPx": [
+            925,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "love-match",
+      "viewport": "375x667",
+      "align": "start",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            925
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            0,
+            355,
+            56
+          ],
+          "sampled": 1162,
+          "changed": true,
+          "stageHeightPx": [
+            925,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "love-match",
+      "viewport": "375x667",
+      "align": "center",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            853
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            306,
+            355,
+            362
+          ],
+          "sampled": 1162,
+          "changed": true,
+          "stageHeightPx": [
+            853,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "love-match",
+      "viewport": "375x667",
+      "align": "end",
+      "steps": [
+        {
+          "id": "lm-go",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            569,
+            877
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "lm-again",
+          "rect": [
+            20,
+            611,
+            355,
+            667
+          ],
+          "sampled": 1162,
+          "changed": true,
+          "stageHeightPx": [
+            877,
+            569
+          ],
+          "roundAnnounced": false,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "siamsi",
+      "viewport": "320x900",
+      "align": "start",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            597,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            949
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            949,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            0,
+            300,
+            64
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            597
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "siamsi",
+      "viewport": "320x900",
+      "align": "center",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            597,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            862
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            418,
+            300,
+            482
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            862,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            217,
+            300,
+            281
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            597
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "siamsi",
+      "viewport": "320x900",
+      "align": "end",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            707,
+            300,
+            771
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            597,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            595,
+            300,
+            659
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            623,
+            300,
+            687
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            885
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            836,
+            300,
+            900
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            885,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 231,
+          "hrefsHit": [
+            "/game/daily-fortune/",
+            "/game/love-match/"
+          ],
+          "firstHit": {
+            "x": 22,
+            "y": 850,
+            "href": "/game/daily-fortune/"
+          },
+          "doubleTap": {
+            "tapAt": [
+              22,
+              850
+            ],
+            "pathAfterSecondTap": "/game/siamsi/",
+            "dialogOpen": true,
+            "pathAfterThirdTap": "/game/siamsi/",
+            "leaveGoClearancePx": 795
+          }
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            217,
+            300,
+            281
+          ],
+          "sampled": 1120,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            597
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 320
+    },
+    {
+      "page": "siamsi",
+      "viewport": "375x667",
+      "align": "start",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            576,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            759
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            759,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            0,
+            355,
+            64
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            576
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "siamsi",
+      "viewport": "375x667",
+      "align": "center",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            576,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            781
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            302,
+            355,
+            366
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            781,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            220,
+            355,
+            284
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            576
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    },
+    {
+      "page": "siamsi",
+      "viewport": "375x667",
+      "align": "end",
+      "steps": [
+        {
+          "id": "ss-intent-done",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            576,
+            548
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-hold",
+          "rect": [
+            20,
+            597,
+            355,
+            661
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            548,
+            512
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-open-slip",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            512,
+            807
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-keep",
+          "rect": [
+            20,
+            603,
+            355,
+            667
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            807,
+            107
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        },
+        {
+          "id": "ss-again",
+          "rect": [
+            20,
+            220,
+            355,
+            284
+          ],
+          "sampled": 1328,
+          "changed": true,
+          "stageHeightPx": [
+            107,
+            576
+          ],
+          "roundAnnounced": true,
+          "navHits": 0,
+          "hrefsHit": [],
+          "firstHit": null
+        }
+      ],
+      "innerWidth": 375
+    }
+  ],
+  "consoleErrors": []
+}

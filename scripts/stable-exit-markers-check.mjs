@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// Static regression tripwire standing in for scripts/gamenav-again-grid-probe.mjs and
-// scripts/gamenav-start-grid-probe.mjs (issue #39), neither of which runs in CI. Per
+// Static regression tripwire standing in for scripts/gamenav-again-grid-probe.mjs (issue #39),
+// which does not run in CI (its #start-round sibling was deleted 2026-10-04: no page renders that
+// control since gh#149). Per
 // ADR-0018 (docs/adr/0018-a-static-tripwire-may-stand-in-for-a-probe-that-never-runs.md),
-// this does NOT re-measure the collision geometry those probes checked — ADR-0015 already
+// this does NOT re-measure the collision geometry that probe scans — ADR-0015 already
 // accepted that geometry permanently ("nothing moves; only the consequence changes"), and
 // that set is owned by Thai text length, roster size and the layout engine, so scanning for
 // it would never converge (docs/adr/0016). What CAN regress is the codebase-owned marker set

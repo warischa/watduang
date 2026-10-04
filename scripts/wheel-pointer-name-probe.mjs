@@ -7,7 +7,7 @@
 // segmentAtPointer()/nameAtPointer() itself — recomputing what the fix computes proves nothing
 // about what a player actually sees on screen.
 //
-// Shape follows scripts/gamenav-start-grid-probe.mjs: a default-exported async function(session)
+// Shape follows scripts/gamenav-again-grid-probe.mjs: a default-exported async function(session)
 // for scripts/driver.mjs. Also self-spawns that same driver when run directly, so one file covers
 // both `node scripts/wheel-pointer-name-probe.mjs` and `node scripts/driver.mjs <this file>`
 // without a second driver implementation.

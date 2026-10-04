@@ -54,6 +54,9 @@ tapped, and the second tap of a double-tap opens another game. Measured at 320px
 at roster 7 with 24-character names resolves 25 of 60 sampled points to `/game/pick-loser/` and
 `/game/short-stick/`; pick-loser at roster 10 puts `/game/timebomb/` under the start button. Repro:
 `scripts/gamenav-again-grid-probe.mjs`, `scripts/gamenav-start-grid-probe.mjs`.
+*2026-10-04:* the start probe is deleted (no page renders `#start-round` since gh#149); the again
+probe was retargeted to the solo landings, where siamsi's `#ss-keep` still drops `GameNav` under the
+finger and the leave-confirm holds the tap.
 
 This decision's reasoning rests on a label matching its effect. That reasoning does not reach an
 unaimed tap, so the closure above does not cover this case — it is not refuted, it is out of scope.

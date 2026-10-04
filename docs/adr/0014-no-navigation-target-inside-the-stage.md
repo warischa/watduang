@@ -95,6 +95,11 @@ to score a vacuous PASS (now INCONCLUSIVE), and the ordering bug that let one un
 game with real hits (now FAIL first). Neither hole was found by running the probe; both were found by
 reading it. Treat a green from any harness here as a claim about the points it sampled, nothing more.
 
+*2026-10-04:* the `#start-round` half no longer has a subject — since gh#149 every GameLayout page is
+`[1, 1]` and renders no setup panel, so `gamenav-start-grid-probe.mjs` was deleted.
+`gamenav-again-grid-probe.mjs` was retargeted to the solo landings and now grid-scans every tap that
+replaces `#stage`; its header carries what it measured and how it was calibrated.
+
 ## Outcome recorded 2026-08-18 (ADR-0016)
 
 The alternatives section above did work it was not written for. Its layout-guard measurement
