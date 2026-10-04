@@ -2,7 +2,7 @@
 
 Measured 2026-10-04 on this machine, against `npm run build` served by `npx serve dist/ -l 4321`.
 Headless Chrome was driven through `scripts/driver.mjs`. The before build is `b5f5f42`. The after
-build is the gh#244 working tree on top of `bc7b0e5` (gh#246, the palette).
+build is `cb89973`, the final tree of this batch (re-measured after the `c43d91e` token change).
 
 ## Box 5 — home page weight
 
@@ -14,10 +14,10 @@ after the load event plus a settle, with no scroll. "Full scroll" is after scrol
 
 | Width | Moment | Before: requests / bytes | After: requests / bytes | Delta |
 |---|---|---|---|---|
-| 1440 | first load | 5 / 40,523 | 19 / 336,032 | +295,509 |
-| 1440 | full scroll | 5 / 40,523 | 19 / 336,032 | +295,509 |
-| 320 | first load | 5 / 40,523 | 14 / 231,012 | +190,489 |
-| 320 | full scroll | 5 / 40,523 | 19 / 336,032 | +295,509 |
+| 1440 | first load | 5 / 40,523 | 19 / 336,027 | +295,504 |
+| 1440 | full scroll | 5 / 40,523 | 19 / 336,027 | +295,504 |
+| 320 | first load | 5 / 40,523 | 14 / 231,007 | +190,484 |
+| 320 | full scroll | 5 / 40,523 | 19 / 336,027 | +295,504 |
 
 The increase is the card art: 14 unique webp files, 294,908 bytes at full scroll. The three popular
 tiles reuse shelf files, so they add no requests. At 320 the first load fetches 9 of the 14, and
