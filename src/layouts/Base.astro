@@ -49,7 +49,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
   <body>
     <slot />
 
-    {/* gh#86 — skipped on pages whose chrome (PageChrome) brings its own footer nav. */}
+    {/* gh#86 — skipped on pages whose chrome (PageChrome) brings its own footer (brand only since gh#247). */}
     {!chrome && (
       <footer>
         {

@@ -2,9 +2,10 @@
 // Content-dependent-height gate for the live regions above an .ad-slot (gh#120).
 //
 // THE HAZARD, confirmed on ubuntu-latest and not reproducible on macOS: a tool page reserves space
-// for a status line with `min-height`, which is a FLOOR, not a bound. The site ships no @font-face
-// (src/styles/tokens.css names 'Noto Sans Thai' / 'Sarabun' / 'Mitr' and nothing serves them), so
-// both the line box and the wrap point are the visitor's OS. On a platform whose Thai font runs
+// for a status line with `min-height`, which is a FLOOR, not a bound. When this gate was written the
+// site shipped no @font-face, so both the line box and the wrap point were the visitor's OS. Sarabun
+// (gh#202) and Mitr (gh#252) are self-hosted now, but until a face loads the text renders in the
+// OS fallback, so the wrap point can still be the OS's during the swap. On a platform whose Thai font runs
 // wider the initial text wraps past the floor, the script rewrites it shorter, the element drops
 // back to the floor, and everything below it — the ad slot included — moves. /tool/wheel/ measured
 // -9px this way at 320px while every local run reported 0px. The fix is a fixed `height` plus the
