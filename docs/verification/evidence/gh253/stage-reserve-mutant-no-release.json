@@ -1,0 +1,130 @@
+{
+  "pass": false,
+  "maxCls": 0.05,
+  "failures": [
+    "siamsi 1440x900: data-stage is null, expected mounted",
+    "siamsi 1440x900: min-block-size after mount is 534px, expected auto or 0px",
+    "daily-fortune 1440x900: data-stage is null, expected mounted",
+    "daily-fortune 1440x900: min-block-size after mount is 530px, expected auto or 0px",
+    "love-match 1440x900: data-stage is null, expected mounted",
+    "love-match 1440x900: min-block-size after mount is 517px, expected auto or 0px",
+    "siamsi 768x900: data-stage is null, expected mounted",
+    "siamsi 768x900: min-block-size after mount is 534px, expected auto or 0px",
+    "daily-fortune 768x900: data-stage is null, expected mounted",
+    "daily-fortune 768x900: min-block-size after mount is 530px, expected auto or 0px",
+    "love-match 768x900: data-stage is null, expected mounted",
+    "love-match 768x900: min-block-size after mount is 517px, expected auto or 0px",
+    "siamsi 390x844: data-stage is null, expected mounted",
+    "siamsi 390x844: min-block-size after mount is 576px, expected auto or 0px",
+    "daily-fortune 390x844: data-stage is null, expected mounted",
+    "daily-fortune 390x844: min-block-size after mount is 530px, expected auto or 0px",
+    "love-match 390x844: data-stage is null, expected mounted",
+    "love-match 390x844: min-block-size after mount is 569px, expected auto or 0px",
+    "fail leg siamsi: data-stage is null, expected failed",
+    "fail leg siamsi: min-block-size is 534px, expected auto or 0px (a reserved hole over a failed page)"
+  ],
+  "rows": [
+    {
+      "id": "siamsi",
+      "viewport": "1440x900",
+      "cls": 0,
+      "state": null,
+      "minBlock": "534px",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "1440x900",
+      "cls": 0.0002,
+      "state": null,
+      "minBlock": "530px",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "1440x900",
+      "cls": 0.0045,
+      "state": null,
+      "minBlock": "517px",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "768x900",
+      "cls": 0,
+      "state": null,
+      "minBlock": "534px",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "768x900",
+      "cls": 0.0003,
+      "state": null,
+      "minBlock": "530px",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "768x900",
+      "cls": 0.0073,
+      "state": null,
+      "minBlock": "517px",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": null,
+      "minBlock": "576px",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": null,
+      "minBlock": "530px",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "love-match",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": null,
+      "minBlock": "569px",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    }
+  ],
+  "failLeg": {
+    "id": "siamsi",
+    "aborted": [
+      "http://localhost:4361/_astro/siamsi.DLcKeZlM.js"
+    ],
+    "cls": 0,
+    "state": null,
+    "minBlock": "534px",
+    "declared": true,
+    "innerWidth": 1440,
+    "innerHeight": 900
+  }
+}

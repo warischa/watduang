@@ -107,6 +107,14 @@ const { game } = Astro.props as { game: GameModule };
     game?.dispose();
   }
 
+  // gh#253 / ADR-0070 — releases the stage's pre-mount reserve (GameLayout keys it on this attribute
+  // being absent). Set right after a mount returns, in the same task, so no frame shows the reserve
+  // collapse under an unfilled stage; set on a failed import or mount too, or the reserve would sit as
+  // an empty hole above the page. Never removed: once the game owns the stage it sizes to its content.
+  function settleStage(state: 'mounted' | 'failed'): void {
+    stage.dataset.stage = state;
+  }
+
   // No client router (ClientRouter) in this project — every navigation is already a full page load.
   // Uses pagehide because on iOS other page-exit events don't fire reliably.
   // persisted = the page entered bfcache and wasn't discarded → must not dispose, because on return
@@ -150,7 +158,9 @@ const { game } = Astro.props as { game: GameModule };
       // runs sync back-to-back (no await between them) and dispose before any mount is a no-op.
       game.dispose();
       game.mount(stage, ctx);
+      settleStage('mounted');
     } catch {
+      settleStage('failed');
       // gh#54 — neither the import nor the mount had any handling, and requestStart sets root.hidden =
       // true the moment it dispatches. root.hidden IS the liveness bit the panel reads later (it is what
       // planClear is handed as roundLive), so a failed mount left the panel believing a round was
@@ -224,8 +234,11 @@ const { game } = Astro.props as { game: GameModule };
         if (!game) game = (await load()).default;
         game.dispose(); // no-op before the first mount, as on the party path
         game.mount(stage, { roster: loadRoster(), session: soloSession });
+        settleStage('mounted');
       } catch {
-        // nothing to restore, nothing lost — see the comment on the branch above
+        // nothing to restore, nothing lost — see the comment on the branch above. The reserve still
+        // goes, so a failed page shows no empty block where the game would have been.
+        settleStage('failed');
       }
     })();
   }

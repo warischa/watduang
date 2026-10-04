@@ -27,6 +27,13 @@ const accentName = categories[game.category].accent;
 // claim is dropped. Read from the flag, never from the slug — see categories.ts.
 const carriesGroup = categories[game.category].carriesGroup;
 
+// gh#253 / ADR-0070 — the game's own first-screen reserve, handed to #stage as two custom properties
+// (an attribute, never a child: #stage ships empty). Absent field = no style attribute = no reserve.
+const reserve = game.firstScreenReserve;
+const stageReserveStyle = reserve
+  ? `--stage-reserve-phone: ${reserve.phone}px; --stage-reserve-wide: ${reserve.wide}px`
+  : undefined;
+
 const howToJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
@@ -117,7 +124,7 @@ const howToJsonLd = {
 
       {/* data-players carries the page's declared range to the game page island, which reads it to
            decide whether this page is the solo class — the same dataset channel data-game-id uses. */}
-      <div id="stage" data-game-id={game.id} data-players={`${game.players[0]},${game.players[1]}`}></div>
+      <div id="stage" data-game-id={game.id} data-players={`${game.players[0]},${game.players[1]}`} style={stageReserveStyle}></div>
 
       {/* gh#50 — session.ts's write() refuses a stale/superseded write instead of clobbering, and this is
            the only surface that says so. Text only, no control (ADR-0015, ADR-0020): a button here would be
@@ -254,6 +261,22 @@ const howToJsonLd = {
     display: flex;
     flex-direction: column;
     gap: 22px;
+  }
+
+  /* gh#253 / ADR-0070 — PRE-MOUNT ONLY. Until the page script sets data-stage (mounted, or failed) the
+     stage holds the game's declared first-screen height, so the how-to section, the ad slot and the
+     footer are already where the mounted game leaves them. Keyed on that attribute and never on
+     :empty: a game empties and refills the stage on every screen, and an in-play floor is what
+     ADR-0014 and ADR-0015 rejected. The 0px fallback makes a game with no declared reserve a no-op.
+     640px is the tokens.css phone/tablet boundary. */
+  #stage:not([data-stage]) {
+    min-block-size: var(--stage-reserve-phone, 0px);
+  }
+
+  @media (min-width: 640px) {
+    #stage:not([data-stage]) {
+      min-block-size: var(--stage-reserve-wide, 0px);
+    }
   }
 
   #how-to-play {

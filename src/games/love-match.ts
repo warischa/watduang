@@ -425,6 +425,9 @@ const game: GameModule = {
   // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:
   // the decision was no slot on the PLAY SCREEN, never no slot on the page.
   ads: true,
+  // gh#253 — the ask screen's measured height (docs/verification/evidence/gh253/): 569 up to 560,
+  // 517 from 639 up.
+  firstScreenReserve: { phone: 569, wide: 517 },
 
   mount(stage: HTMLElement, _ctx: GameContext) {
     stageEl = stage;

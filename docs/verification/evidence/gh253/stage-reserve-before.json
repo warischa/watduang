@@ -1,0 +1,135 @@
+{
+  "pass": false,
+  "maxCls": 0.05,
+  "failures": [
+    "siamsi 1440x900: CLS 0.2825 > 0.05",
+    "siamsi 1440x900: data-stage is null, expected mounted",
+    "siamsi 1440x900: no --stage-reserve-* on #stage",
+    "daily-fortune 1440x900: CLS 0.2807 > 0.05",
+    "daily-fortune 1440x900: data-stage is null, expected mounted",
+    "daily-fortune 1440x900: no --stage-reserve-* on #stage",
+    "love-match 1440x900: CLS 0.2814 > 0.05",
+    "love-match 1440x900: data-stage is null, expected mounted",
+    "love-match 1440x900: no --stage-reserve-* on #stage",
+    "siamsi 768x900: CLS 0.452 > 0.05",
+    "siamsi 768x900: data-stage is null, expected mounted",
+    "siamsi 768x900: no --stage-reserve-* on #stage",
+    "daily-fortune 768x900: CLS 0.4492 > 0.05",
+    "daily-fortune 768x900: data-stage is null, expected mounted",
+    "daily-fortune 768x900: no --stage-reserve-* on #stage",
+    "love-match 768x900: CLS 0.4504 > 0.05",
+    "love-match 768x900: data-stage is null, expected mounted",
+    "love-match 768x900: no --stage-reserve-* on #stage",
+    "siamsi 390x844: data-stage is null, expected mounted",
+    "siamsi 390x844: no --stage-reserve-* on #stage",
+    "daily-fortune 390x844: data-stage is null, expected mounted",
+    "daily-fortune 390x844: no --stage-reserve-* on #stage",
+    "love-match 390x844: data-stage is null, expected mounted",
+    "love-match 390x844: no --stage-reserve-* on #stage",
+    "fail leg siamsi: data-stage is null, expected failed"
+  ],
+  "rows": [
+    {
+      "id": "siamsi",
+      "viewport": "1440x900",
+      "cls": 0.2825,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "1440x900",
+      "cls": 0.2807,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "1440x900",
+      "cls": 0.2814,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "768x900",
+      "cls": 0.452,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "768x900",
+      "cls": 0.4492,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "768x900",
+      "cls": 0.4504,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "love-match",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": null,
+      "minBlock": "auto",
+      "declared": false,
+      "innerWidth": 390,
+      "innerHeight": 844
+    }
+  ],
+  "failLeg": {
+    "id": "siamsi",
+    "aborted": [
+      "http://localhost:4361/_astro/siamsi.DJu1v_Xt.js"
+    ],
+    "cls": 0,
+    "state": null,
+    "minBlock": "auto",
+    "declared": false,
+    "innerWidth": 1440,
+    "innerHeight": 900
+  }
+}

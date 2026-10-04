@@ -125,6 +125,14 @@ export interface GameModule {
    *  static chrome ABOVE the stage, which is where ADR-0014 puts every navigation target.
    *  Absent on a game whose module renders its own screens, which is every other game today. */
   playRoute?: string;
+  /** gh#253 / ADR-0070 — the block size, in CSS px, this game's FIRST screen takes inside #stage, per
+   *  width class (phone = below the tokens.css 640px tablet boundary, wide = from it up). GameLayout
+   *  emits it as a custom property, and #stage reserves it ONLY until the page script marks the stage
+   *  mounted or failed, so the how-to section and ad slot below do not jump when the module lands.
+   *  After that the stage sizes to its content: this is not an in-play floor (ADR-0014, ADR-0015).
+   *  Measured, never derived: Thai wrapping and Mitr metrics own the real height, so the outcome is
+   *  asserted (residual CLS), never height equality. Absent = no reserve. */
+  firstScreenReserve?: { phone: number; wide: number };
   mount(stage: HTMLElement, ctx: GameContext): void;
   /** Clear timers / listeners / audio on every exit path — required */
   dispose(): void;

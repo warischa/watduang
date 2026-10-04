@@ -1,0 +1,7 @@
+width 320 done
+width 414 done
+width 768 done
+width 1440 done
+phone /game/siamsi/ {"390x844":[0.51589,0.51589],"360x780":[0,0.54627]}
+phone /game/daily-fortune/ {"390x844":[0.00047,0.00047],"360x780":[0.00059,0.00059]}
+phone /game/love-match/ {"390x844":[0.0049,0.0049],"360x780":[0.00487,0.00487]}
