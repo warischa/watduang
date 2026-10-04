@@ -1,0 +1,49 @@
+{
+  "width": 1440,
+  "pages": [
+    {
+      "path": "/",
+      "innerWidth": 1440,
+      "h1Computed": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif | 700",
+      "nodesWithText": 2,
+      "fonts": [
+        {
+          "family": "Noto Sans Thai",
+          "custom": false,
+          "glyphs": 24
+        },
+        {
+          "family": "Noto Sans Thai",
+          "custom": false,
+          "glyphs": 6
+        }
+      ]
+    },
+    {
+      "path": "/c/party/",
+      "innerWidth": 1440,
+      "h1Computed": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif | 600",
+      "nodesWithText": 1,
+      "fonts": [
+        {
+          "family": "Noto Sans Thai",
+          "custom": false,
+          "glyphs": 9
+        }
+      ]
+    },
+    {
+      "path": "/c/fortune/",
+      "innerWidth": 1440,
+      "h1Computed": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif | 600",
+      "nodesWithText": 1,
+      "fonts": [
+        {
+          "family": "Noto Sans Thai",
+          "custom": false,
+          "glyphs": 5
+        }
+      ]
+    }
+  ]
+}

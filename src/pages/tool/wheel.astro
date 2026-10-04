@@ -211,11 +211,17 @@ import GameNav from '../../components/GameNav.astro';
     overflow-wrap: anywhere;
   }
 
-  /* A BOUND, not a floor — the confirmed gh#120 reflow on this page. The site ships no @font-face,
-     so both the line box and the wrap point are the visitor's OS: min-height: 3em (48px) rendered
+  /* A BOUND, not a floor — the confirmed gh#120 reflow on this page. When it was measured the site
+     shipped no @font-face (it self-hosts Sarabun and Mitr since gh#202 and gh#252), so both the line
+     box and the wrap point were the visitor's OS: min-height: 3em (48px) rendered
      the initial copy at 57px on ubuntu-latest (three 19px lines) and at 48px on macOS, and the -9px
-     drop to the floor on the next note text moved the ad slot up. An explicit line-height makes the
-     line box 24px everywhere, so an em height is an exact line count.
+     drop to the floor on the next note text moved the ad slot up. Hosting the face did NOT retire
+     the bound: font-display: swap paints a fallback face first, so the wrap point can still differ
+     between the first frame and the settled page. Re-measured with Mitr hosted (gh#252 evidence):
+     the slot sits at the same y before and after a result, with the face loaded or blocked; the swap
+     itself moves it a few px once, at load, which is a load shift and not this state-driven one.
+     An explicit line-height makes the line box 24px everywhere, so an em height is an exact line
+     count.
      4.5em = 72px = three lines is a NEW design value, a deliberate ADR-0033 departure (gh#120):
      measured at 320px in a real browser, every note text this page can emit with a realistic name
      is at most three lines (the initial copy is 2 on macOS and 3 on ubuntu; the single-name and

@@ -88,9 +88,10 @@ import GameNav from '../../components/GameNav.astro';
 
   /* Reserves space for the result so content below doesn't shift when a number appears.
      A BOUND, not a floor: both live regions here are role="status" whose text the island rewrites,
-     which is the confirmed gh#120 reflow mechanism on /tool/wheel/ — the site ships no @font-face,
-     so the line box and the wrap point are the visitor's OS and a floor is only safe on the
-     platforms someone measured. An explicit line-height makes the line box exactly 1.5x the font
+     which is the confirmed gh#120 reflow mechanism on /tool/wheel/ — it was confirmed while the site
+     shipped no @font-face, so the line box and the wrap point were the visitor's OS. The site
+     self-hosts Sarabun and Mitr now (gh#202, gh#252), but font-display: swap still paints a fallback
+     face first, so a floor is still only safe on the platforms someone measured. An explicit line-height makes the line box exactly 1.5x the font
      size everywhere, so these em heights are exact line counts.
      Both heights are unchanged (2em = 48px, 3em = 48px), so no ADR-0033 departure; the measurement
      behind them, at 320px in a real browser: one result line is 36px and one note line 24px, the

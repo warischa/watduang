@@ -1,0 +1,332 @@
+{
+  "width": 1440,
+  "pageCount": 26,
+  "pages": [
+    {
+      "path": "/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "other"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {
+        "600": 24,
+        "700": 22
+      }
+    },
+    {
+      "path": "/404.html",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/c/fortune/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "other"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "500": 6,
+        "600": 7,
+        "700": 2
+      }
+    },
+    {
+      "path": "/c/party/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "500": 6,
+        "600": 18,
+        "700": 2
+      }
+    },
+    {
+      "path": "/game/bangkok-drift/play/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/cannon-flag/play/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/croc-bite/play/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/cursed-number/play/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/daily-fortune/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "500": 2,
+        "700": 4
+      }
+    },
+    {
+      "path": "/game/dice-loser/play/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "400": 4,
+        "500": 3
+      }
+    },
+    {
+      "path": "/game/freeze-tap/play/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/how-close-is-near/play/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/love-match/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser",
+        "other"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {
+        "500": 2,
+        "700": 4
+      }
+    },
+    {
+      "path": "/game/one-bomb/play/",
+      "fonts": [],
+      "initiators": [],
+      "fontBytes": 0,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/pinocchio-luck/play/",
+      "fonts": [],
+      "initiators": [],
+      "fontBytes": 0,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/power-meter/play/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/short-stick/play/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/siamsi/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "500": 2,
+        "700": 4
+      }
+    },
+    {
+      "path": "/game/timebomb/play/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "400": 3,
+        "500": 2
+      }
+    },
+    {
+      "path": "/game/wire-snip-panic/play/",
+      "fonts": [],
+      "initiators": [],
+      "fontBytes": 0,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/zero-trigger/play/",
+      "fonts": [],
+      "initiators": [],
+      "fontBytes": 0,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/tool/draw/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "500": 5,
+        "600": 2,
+        "700": 3
+      }
+    },
+    {
+      "path": "/tool/number/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {
+        "700": 1
+      }
+    },
+    {
+      "path": "/tool/team/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "500": 3,
+        "600": 2,
+        "700": 3
+      }
+    },
+    {
+      "path": "/tool/wheel/",
+      "fonts": [
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 33085,
+      "paintedWeights": {
+        "500": 3,
+        "600": 3,
+        "700": 1
+      }
+    },
+    {
+      "path": "/tools/",
+      "fonts": [
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 16466,
+      "paintedWeights": {
+        "500": 1,
+        "600": 5
+      }
+    }
+  ]
+}

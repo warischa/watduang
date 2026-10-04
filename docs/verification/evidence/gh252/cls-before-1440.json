@@ -1,0 +1,151 @@
+{
+  "width": 1440,
+  "note": "ui-audit-probe CLS, one fresh Chrome per run",
+  "runs": {
+    "/": [
+      {
+        "cls": 0.0008,
+        "lcp": {
+          "el": "img \"\"",
+          "ms": 40,
+          "url": "http://localhost:4351/art/croc-bite.webp"
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.0008,
+        "lcp": {
+          "el": "img \"\"",
+          "ms": 48,
+          "url": "http://localhost:4351/art/croc-bite.webp"
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.0008,
+        "lcp": {
+          "el": "img \"\"",
+          "ms": 36,
+          "url": "http://localhost:4351/art/croc-bite.webp"
+        },
+        "innerWidth": 1440
+      }
+    ],
+    "/c/fortune/": [
+      {
+        "cls": 0.0027,
+        "lcp": {
+          "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+          "ms": 32,
+          "url": null
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.0027,
+        "lcp": {
+          "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+          "ms": 32,
+          "url": null
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.0027,
+        "lcp": {
+          "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+          "ms": 36,
+          "url": null
+        },
+        "innerWidth": 1440
+      }
+    ],
+    "/c/party/": [
+      {
+        "cls": 0.0027,
+        "lcp": {
+          "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
+          "ms": 40,
+          "url": null
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.0027,
+        "lcp": {
+          "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
+          "ms": 40,
+          "url": null
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.0027,
+        "lcp": {
+          "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
+          "ms": 44,
+          "url": null
+        },
+        "innerWidth": 1440
+      }
+    ],
+    "/game/siamsi/": [
+      {
+        "cls": 0.2825,
+        "lcp": {
+          "el": "h1.game-title \"เสี่ยงเซียมซี\"",
+          "ms": 24,
+          "url": null
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.2825,
+        "lcp": {
+          "el": "h1.game-title \"เสี่ยงเซียมซี\"",
+          "ms": 32,
+          "url": null
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.2825,
+        "lcp": {
+          "el": "h1.game-title \"เสี่ยงเซียมซี\"",
+          "ms": 28,
+          "url": null
+        },
+        "innerWidth": 1440
+      }
+    ],
+    "/tool/wheel/": [
+      {
+        "cls": 0.003,
+        "lcp": {
+          "el": "p.wheel-note \"ยังหมุนไม่ได้ — ใส่ชื่ออ\"",
+          "ms": 52,
+          "url": null
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.003,
+        "lcp": {
+          "el": "p.wheel-note \"ยังหมุนไม่ได้ — ใส่ชื่ออ\"",
+          "ms": 48,
+          "url": null
+        },
+        "innerWidth": 1440
+      },
+      {
+        "cls": 0.003,
+        "lcp": {
+          "el": "p.wheel-note \"ยังหมุนไม่ได้ — ใส่ชื่ออ\"",
+          "ms": 52,
+          "url": null
+        },
+        "innerWidth": 1440
+      }
+    ]
+  }
+}

@@ -81,3 +81,15 @@ expressed in `em` at all.
 Secondarily: if the Thai font is ever self-hosted, the metrics become ours and the *floor* mechanism
 stops being platform-variable — it would still be wrong, but it would fail identically everywhere,
 and it would then be catchable locally.
+
+## Note 2026-10-04 (gh#202, gh#252): the site now self-hosts its fonts
+
+Context fact 2 above, "this site ships no fonts", was true when this ADR was written and is not true
+now: gh#202 self-hosted Sarabun and gh#252 self-hosts Mitr, both as Thai subsets declared in
+`src/styles/fonts.css`. The history above is left as written.
+
+What the self-hosting changed, measured in gh#252 (`docs/verification/evidence/gh252/`): the glyph
+metrics are ours, as the last paragraph predicted. What it did not change: `font-display: swap`
+paints a fallback face first, so the first frame and the settled page can still wrap differently, and
+the bound stays the right shape. With Mitr hosted, the ad slot on /tool/wheel/ and /tool/number/ sits at
+the same y before and after a result, and the swap moves it a few px once, at load.

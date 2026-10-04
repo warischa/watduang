@@ -1,6 +1,6 @@
 /* gh#202 — the self-hosted Thai face. Separate from tokens.css on that file's own instruction
    ("Design tokens only ... no other selectors go in here"); this declares a resource, not a token.
-   The family name it defines is consumed by --font-sans and --font-display in tokens.css.
+   The family names it defines are consumed by --font-sans and --font-display in tokens.css.
 
    FONT: Sarabun. Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun).
    Licensed under the SIL Open Font License, Version 1.1. The full licence text ships beside the
@@ -10,10 +10,10 @@
    under it. Subsetting is not modification for that purpose, but re-drawing glyphs would be.
 
    WHY TWO FORMATS, so nobody deletes the .ttf as redundant. Browsers take the woff2 -- it is less
-   than half the bytes. The .ttf exists for scripts/font-coverage-check.mjs, which parses the cmap
-   out of an sfnt table and REFUSES woff2, so a woff2-only ship would leave that gate unable to read
-   the very thing it exists to check. Both are listed in src below, which is also what keeps the
-   .ttf from reading as an orphan.
+   than half the bytes. The .ttf is the sfnt twin that scripts/font-coverage-check.mjs pairs with each
+   woff2 to assert both carry the same codepoint set (it reads the cmap from either container, so the
+   twin is a parity witness, not the only readable copy). Both are listed in src below, which is also
+   what keeps the .ttf from reading as an orphan.
 
    SUBSET: the WHOLE assigned Thai block (U+0E00-U+0E7F, 87 codepoints), plus basic Latin and the
    punctuation the Thai copy actually uses. Deliberately NOT subset to the 63 codepoints the build
@@ -43,4 +43,64 @@
   src:
     url('/fonts/sarabun-bold-subset.woff2') format('woff2'),
     url('/fonts/sarabun-bold-subset.ttf') format('truetype');
+}
+
+/* gh#252 -- Mitr, the display face. --font-display leads with it, and every canvas draws headings in it.
+
+   FONT: Mitr. Copyright 2015 The Mitr Project Authors (https://github.com/cadsondemak/mitr).
+   Licensed under the SIL Open Font License, Version 1.1. The full licence text ships beside the
+   files as public/fonts/mitr-OFL.txt, named here so scripts/public-orphan-check.mjs sees it referenced.
+
+   WEIGHTS: 400, 500, 600 and 700 -- the set the built site's Mitr text actually computes to, read from
+   getComputedStyle on every built page at 320 and 1440 (docs/verification/evidence/gh252/). No 200/300
+   is hosted: nothing computes to them, and a request for 800+ takes the 700 face.
+
+   SUBSET: the same codepoints as the Sarabun faces above, read back from the shipped Sarabun cmap
+   (basic Latin, NBSP, middle dot, the assigned Thai block, en/em dash, curly quotes, ellipsis).
+   Produced with pyftsubset (fontTools 4.63.0), once per weight and format, with SRC the upstream
+   Mitr-<Weight>.ttf and STEM mitr-<weight>-subset:
+     pyftsubset SRC --unicodes='U+0020-007E,U+00A0,U+00B7,U+0E01-0E3A,U+0E3F-0E5B,U+2013-2014,U+2018-2019,U+201C-201D,U+2026'
+       --layout-features='*' --name-IDs='*' --notdef-outline --output-file=public/fonts/STEM.ttf
+     the same command plus --flavor=woff2 and --output-file=public/fonts/STEM.woff2
+   MEASURED 2026-10-04: woff2 26,320 / 25,772 / 26,068 / 25,112 B (regular / medium / semibold / bold),
+   ttf 70,616 / 68,756 / 70,120 / 70,792 B. Source faces were 222,416 / 222,116 / 225,796 / 224,432 B. */
+
+@font-face {
+  font-family: 'Mitr';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('/fonts/mitr-regular-subset.woff2') format('woff2'),
+    url('/fonts/mitr-regular-subset.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mitr';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src:
+    url('/fonts/mitr-medium-subset.woff2') format('woff2'),
+    url('/fonts/mitr-medium-subset.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mitr';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src:
+    url('/fonts/mitr-semibold-subset.woff2') format('woff2'),
+    url('/fonts/mitr-semibold-subset.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mitr';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    url('/fonts/mitr-bold-subset.woff2') format('woff2'),
+    url('/fonts/mitr-bold-subset.ttf') format('truetype');
 }

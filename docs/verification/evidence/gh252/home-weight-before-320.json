@@ -1,0 +1,253 @@
+{
+  "width": 320,
+  "height": 640,
+  "firstLoad": {
+    "innerWidth": 320,
+    "requests": 14,
+    "encodedBytes": 230767,
+    "decodedBytes": 262460,
+    "cached": 0,
+    "rows": [
+      {
+        "url": "/",
+        "type": "navigation",
+        "enc": 4412,
+        "dec": 22448,
+        "xfer": 4712
+      },
+      {
+        "url": "/_astro/index.CQXSe2xm.css",
+        "type": "link",
+        "enc": 2644,
+        "dec": 13583,
+        "xfer": 2944
+      },
+      {
+        "url": "/art/croc-bite.webp",
+        "type": "img",
+        "enc": 29038,
+        "dec": 29038,
+        "xfer": 29338
+      },
+      {
+        "url": "/fonts/sarabun-bold-subset.woff2",
+        "type": "css",
+        "enc": 16328,
+        "dec": 16328,
+        "xfer": 16628
+      },
+      {
+        "url": "/fonts/sarabun-regular-subset.woff2",
+        "type": "css",
+        "enc": 16172,
+        "dec": 16172,
+        "xfer": 16472
+      },
+      {
+        "url": "/art/pinocchio-luck.webp",
+        "type": "img",
+        "enc": 15962,
+        "dec": 15962,
+        "xfer": 16262
+      },
+      {
+        "url": "/art/how-close-is-near.webp",
+        "type": "img",
+        "enc": 20358,
+        "dec": 20358,
+        "xfer": 20658
+      },
+      {
+        "url": "/art/dice-loser.webp",
+        "type": "img",
+        "enc": 18836,
+        "dec": 18836,
+        "xfer": 19136
+      },
+      {
+        "url": "/art/timebomb.webp",
+        "type": "img",
+        "enc": 13744,
+        "dec": 13744,
+        "xfer": 14044
+      },
+      {
+        "url": "/art/short-stick.webp",
+        "type": "img",
+        "enc": 23092,
+        "dec": 23092,
+        "xfer": 23392
+      },
+      {
+        "url": "/art/freeze-tap.webp",
+        "type": "img",
+        "enc": 21292,
+        "dec": 21292,
+        "xfer": 21592
+      },
+      {
+        "url": "/art/cannon-flag.webp",
+        "type": "img",
+        "enc": 22274,
+        "dec": 22274,
+        "xfer": 22574
+      },
+      {
+        "url": "/art/power-meter.webp",
+        "type": "img",
+        "enc": 25292,
+        "dec": 25292,
+        "xfer": 25592
+      },
+      {
+        "url": "/favicon.ico",
+        "type": "other",
+        "enc": 1323,
+        "dec": 4041,
+        "xfer": 1623
+      }
+    ]
+  },
+  "fullScroll": {
+    "innerWidth": 320,
+    "requests": 19,
+    "encodedBytes": 335787,
+    "decodedBytes": 367480,
+    "cached": 0,
+    "rows": [
+      {
+        "url": "/",
+        "type": "navigation",
+        "enc": 4412,
+        "dec": 22448,
+        "xfer": 4712
+      },
+      {
+        "url": "/_astro/index.CQXSe2xm.css",
+        "type": "link",
+        "enc": 2644,
+        "dec": 13583,
+        "xfer": 2944
+      },
+      {
+        "url": "/art/croc-bite.webp",
+        "type": "img",
+        "enc": 29038,
+        "dec": 29038,
+        "xfer": 29338
+      },
+      {
+        "url": "/fonts/sarabun-bold-subset.woff2",
+        "type": "css",
+        "enc": 16328,
+        "dec": 16328,
+        "xfer": 16628
+      },
+      {
+        "url": "/fonts/sarabun-regular-subset.woff2",
+        "type": "css",
+        "enc": 16172,
+        "dec": 16172,
+        "xfer": 16472
+      },
+      {
+        "url": "/art/pinocchio-luck.webp",
+        "type": "img",
+        "enc": 15962,
+        "dec": 15962,
+        "xfer": 16262
+      },
+      {
+        "url": "/art/how-close-is-near.webp",
+        "type": "img",
+        "enc": 20358,
+        "dec": 20358,
+        "xfer": 20658
+      },
+      {
+        "url": "/art/dice-loser.webp",
+        "type": "img",
+        "enc": 18836,
+        "dec": 18836,
+        "xfer": 19136
+      },
+      {
+        "url": "/art/timebomb.webp",
+        "type": "img",
+        "enc": 13744,
+        "dec": 13744,
+        "xfer": 14044
+      },
+      {
+        "url": "/art/short-stick.webp",
+        "type": "img",
+        "enc": 23092,
+        "dec": 23092,
+        "xfer": 23392
+      },
+      {
+        "url": "/art/freeze-tap.webp",
+        "type": "img",
+        "enc": 21292,
+        "dec": 21292,
+        "xfer": 21592
+      },
+      {
+        "url": "/art/cannon-flag.webp",
+        "type": "img",
+        "enc": 22274,
+        "dec": 22274,
+        "xfer": 22574
+      },
+      {
+        "url": "/art/power-meter.webp",
+        "type": "img",
+        "enc": 25292,
+        "dec": 25292,
+        "xfer": 25592
+      },
+      {
+        "url": "/favicon.ico",
+        "type": "other",
+        "enc": 1323,
+        "dec": 4041,
+        "xfer": 1623
+      },
+      {
+        "url": "/art/cursed-number.webp",
+        "type": "img",
+        "enc": 15884,
+        "dec": 15884,
+        "xfer": 16184
+      },
+      {
+        "url": "/art/wire-snip-panic.webp",
+        "type": "img",
+        "enc": 20310,
+        "dec": 20310,
+        "xfer": 20610
+      },
+      {
+        "url": "/art/zero-trigger.webp",
+        "type": "img",
+        "enc": 18440,
+        "dec": 18440,
+        "xfer": 18740
+      },
+      {
+        "url": "/art/one-bomb.webp",
+        "type": "img",
+        "enc": 21058,
+        "dec": 21058,
+        "xfer": 21358
+      },
+      {
+        "url": "/art/bangkok-drift.webp",
+        "type": "img",
+        "enc": 29328,
+        "dec": 29328,
+        "xfer": 29628
+      }
+    ]
+  }
+}

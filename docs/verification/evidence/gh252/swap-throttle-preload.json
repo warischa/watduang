@@ -1,0 +1,449 @@
+[
+  {
+    "page": "/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00151,
+    "shifts": [
+      {
+        "v": 0.00064,
+        "t": 768,
+        "input": false
+      },
+      {
+        "v": 0.00006,
+        "t": 819,
+        "input": false
+      },
+      {
+        "v": 0.00081,
+        "t": 1052,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 688,
+    "slotYSettled": 683,
+    "after": null
+  },
+  {
+    "page": "/c/party/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00278,
+    "shifts": [
+      {
+        "v": 0.00006,
+        "t": 693,
+        "input": false
+      },
+      {
+        "v": 0.00272,
+        "t": 836,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 439,
+    "slotYSettled": 433,
+    "after": null
+  },
+  {
+    "page": "/c/fortune/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00278,
+    "shifts": [
+      {
+        "v": 0.00006,
+        "t": 687,
+        "input": false
+      },
+      {
+        "v": 0.00272,
+        "t": 766,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 439,
+    "slotYSettled": 433,
+    "after": null
+  },
+  {
+    "page": "/game/siamsi/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:unloaded",
+      "700:loaded"
+    ],
+    "cls": 0.28383,
+    "shifts": [
+      {
+        "v": 0.00054,
+        "t": 646,
+        "input": false
+      },
+      {
+        "v": 0.00187,
+        "t": 785,
+        "input": false
+      },
+      {
+        "v": 0.28142,
+        "t": 1007,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 372,
+    "slotYSettled": 908,
+    "after": null
+  },
+  {
+    "page": "/tool/wheel/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "wheel",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00299,
+    "shifts": [
+      {
+        "v": 0.00133,
+        "t": 827,
+        "input": false
+      },
+      {
+        "v": 0.00164,
+        "t": 853,
+        "input": false
+      },
+      {
+        "v": 0.00002,
+        "t": 927,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 1898,
+    "slotYSettled": 1878,
+    "after": {
+      "slotYNames": 1878,
+      "slotYResult": 1878,
+      "result": "สมชาย",
+      "resultH": 60,
+      "faces": [
+        "400:unloaded",
+        "500:loaded",
+        "600:loaded",
+        "700:loaded"
+      ]
+    }
+  },
+  {
+    "page": "/tool/number/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "number",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:unloaded",
+      "700:loaded"
+    ],
+    "cls": 0.06005,
+    "shifts": [
+      {
+        "v": 0.05834,
+        "t": 768,
+        "input": false
+      },
+      {
+        "v": 0.00171,
+        "t": 783,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 615,
+    "slotYSettled": 591,
+    "after": {
+      "slotYResult": 591,
+      "result": "ได้: 521",
+      "note": "",
+      "goDisabled": false,
+      "min": "1",
+      "max": "1000",
+      "faces": [
+        "400:unloaded",
+        "500:unloaded",
+        "600:unloaded",
+        "700:loaded"
+      ]
+    }
+  },
+  {
+    "page": "/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00243,
+    "shifts": [
+      {
+        "v": 0.00104,
+        "t": 768,
+        "input": true
+      },
+      {
+        "v": 0.0001,
+        "t": 784,
+        "input": true
+      },
+      {
+        "v": 0.00243,
+        "t": 1050,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 761,
+    "slotYSettled": 757,
+    "after": null
+  },
+  {
+    "page": "/c/party/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.0001,
+        "t": 722,
+        "input": true
+      },
+      {
+        "v": 0.02445,
+        "t": 843,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 731,
+    "slotYSettled": 755,
+    "after": null
+  },
+  {
+    "page": "/c/fortune/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.0001,
+        "t": 677,
+        "input": true
+      },
+      {
+        "v": 0.00701,
+        "t": 757,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 701,
+    "slotYSettled": 694,
+    "after": null
+  },
+  {
+    "page": "/game/siamsi/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:unloaded",
+      "700:loaded"
+    ],
+    "cls": 0.63839,
+    "shifts": [
+      {
+        "v": 0.63839,
+        "t": 1013,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 408,
+    "slotYSettled": 1007,
+    "after": null
+  },
+  {
+    "page": "/tool/wheel/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "wheel",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.02819,
+    "shifts": [
+      {
+        "v": 0.01984,
+        "t": 829,
+        "input": false
+      },
+      {
+        "v": 0.00835,
+        "t": 858,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 1668,
+    "slotYSettled": 1657,
+    "after": {
+      "slotYNames": 1657,
+      "slotYResult": 1657,
+      "result": "มานี",
+      "resultH": 60,
+      "faces": [
+        "400:unloaded",
+        "500:loaded",
+        "600:loaded",
+        "700:loaded"
+      ]
+    }
+  },
+  {
+    "page": "/tool/number/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "number",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:unloaded",
+      "700:loaded"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.02173,
+        "t": 756,
+        "input": true
+      },
+      {
+        "v": 0.01281,
+        "t": 787,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 735,
+    "slotYSettled": 699,
+    "after": {
+      "slotYResult": 699,
+      "result": "ได้: 155",
+      "note": "",
+      "goDisabled": false,
+      "min": "1",
+      "max": "1000",
+      "faces": [
+        "400:unloaded",
+        "500:unloaded",
+        "600:unloaded",
+        "700:loaded"
+      ]
+    }
+  }
+]

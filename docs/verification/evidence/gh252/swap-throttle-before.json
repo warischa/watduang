@@ -1,0 +1,319 @@
+[
+  {
+    "page": "/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [],
+    "cls": 0.00081,
+    "shifts": [
+      {
+        "v": 0.00081,
+        "t": 970,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 688,
+    "slotYSettled": 683,
+    "after": null
+  },
+  {
+    "page": "/c/party/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [],
+    "cls": 0.00271,
+    "shifts": [
+      {
+        "v": 0.00271,
+        "t": 914,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 439,
+    "slotYSettled": 433,
+    "after": null
+  },
+  {
+    "page": "/c/fortune/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [],
+    "cls": 0.00271,
+    "shifts": [
+      {
+        "v": 0.00271,
+        "t": 577,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 439,
+    "slotYSettled": 433,
+    "after": null
+  },
+  {
+    "page": "/game/siamsi/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [],
+    "cls": 0.28338,
+    "shifts": [
+      {
+        "v": 0.00196,
+        "t": 609,
+        "input": false
+      },
+      {
+        "v": 0.28142,
+        "t": 942,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 372,
+    "slotYSettled": 906,
+    "after": null
+  },
+  {
+    "page": "/tool/wheel/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "wheel",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [],
+    "cls": 0.00297,
+    "shifts": [
+      {
+        "v": 0.00133,
+        "t": 530,
+        "input": false
+      },
+      {
+        "v": 0.00164,
+        "t": 537,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 1898,
+    "slotYSettled": 1873,
+    "after": {
+      "slotYNames": 1873,
+      "slotYResult": 1873,
+      "result": "วิชัยนามสกุลยาวมากมายเหลือเกินคนนี้",
+      "resultH": 60,
+      "faces": []
+    }
+  },
+  {
+    "page": "/tool/number/",
+    "width": 1440,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "number",
+    "mitrRequests": [],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [],
+    "cls": 0.06005,
+    "shifts": [
+      {
+        "v": 0.05834,
+        "t": 513,
+        "input": false
+      },
+      {
+        "v": 0.00171,
+        "t": 521,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 615,
+    "slotYSettled": 589,
+    "after": {
+      "slotYResult": 589,
+      "result": "ได้: 972",
+      "note": "",
+      "goDisabled": false,
+      "min": "1",
+      "max": "1000",
+      "faces": []
+    }
+  },
+  {
+    "page": "/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [],
+    "cls": 0.00246,
+    "shifts": [
+      {
+        "v": 0.00246,
+        "t": 970,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 761,
+    "slotYSettled": 753,
+    "after": null
+  },
+  {
+    "page": "/c/party/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.02445,
+        "t": 751,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 731,
+    "slotYSettled": 753,
+    "after": null
+  },
+  {
+    "page": "/c/fortune/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.00697,
+        "t": 572,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 701,
+    "slotYSettled": 692,
+    "after": null
+  },
+  {
+    "page": "/game/siamsi/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [],
+    "cls": 0.63839,
+    "shifts": [
+      {
+        "v": 0.63839,
+        "t": 946,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 408,
+    "slotYSettled": 1005,
+    "after": null
+  },
+  {
+    "page": "/tool/wheel/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "wheel",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.01984,
+        "t": 522,
+        "input": true
+      },
+      {
+        "v": 0.00835,
+        "t": 528,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 1668,
+    "slotYSettled": 1652,
+    "after": {
+      "slotYNames": 1652,
+      "slotYResult": 1652,
+      "result": "มานี",
+      "resultH": 60,
+      "faces": []
+    }
+  },
+  {
+    "page": "/tool/number/",
+    "width": 320,
+    "fonts": "normal",
+    "throttle": true,
+    "delay": 0,
+    "interact": "number",
+    "mitrRequests": [],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.02173,
+        "t": 505,
+        "input": true
+      },
+      {
+        "v": 0.01281,
+        "t": 519,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 735,
+    "slotYSettled": 697,
+    "after": {
+      "slotYResult": 697,
+      "result": "ได้: 420",
+      "note": "",
+      "goDisabled": false,
+      "min": "1",
+      "max": "1000",
+      "faces": []
+    }
+  }
+]

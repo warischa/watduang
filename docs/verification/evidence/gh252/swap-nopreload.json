@@ -1,0 +1,844 @@
+[
+  {
+    "page": "/",
+    "width": 1440,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf",
+      "/fonts/mitr-semibold-subset.ttf"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:error",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [],
+    "slotYFirstFrame": 683,
+    "slotYSettled": 683,
+    "after": null
+  },
+  {
+    "page": "/",
+    "width": 1440,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00155,
+    "shifts": [
+      {
+        "v": 0.00081,
+        "t": 27,
+        "input": false
+      },
+      {
+        "v": 0.00074,
+        "t": 1525,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 688,
+    "slotYSettled": 683,
+    "after": null
+  },
+  {
+    "page": "/c/party/",
+    "width": 1440,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf",
+      "/fonts/mitr-semibold-subset.ttf",
+      "/fonts/mitr-medium-subset.ttf"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:error",
+      "600:error",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [],
+    "slotYFirstFrame": 433,
+    "slotYSettled": 433,
+    "after": null
+  },
+  {
+    "page": "/c/party/",
+    "width": 1440,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00006,
+    "shifts": [
+      {
+        "v": 0.00006,
+        "t": 1525,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 433,
+    "slotYSettled": 433,
+    "after": null
+  },
+  {
+    "page": "/c/fortune/",
+    "width": 1440,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf",
+      "/fonts/mitr-semibold-subset.ttf",
+      "/fonts/mitr-medium-subset.ttf"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:error",
+      "600:error",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [],
+    "slotYFirstFrame": 433,
+    "slotYSettled": 433,
+    "after": null
+  },
+  {
+    "page": "/c/fortune/",
+    "width": 1440,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00006,
+    "shifts": [
+      {
+        "v": 0.00006,
+        "t": 1541,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 433,
+    "slotYSettled": 433,
+    "after": null
+  },
+  {
+    "page": "/game/siamsi/",
+    "width": 1440,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-medium-subset.ttf"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:error",
+      "600:unloaded",
+      "700:error"
+    ],
+    "cls": 0.28338,
+    "shifts": [
+      {
+        "v": 0.00196,
+        "t": 19,
+        "input": false
+      },
+      {
+        "v": 0.28142,
+        "t": 36,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 372,
+    "slotYSettled": 906,
+    "after": null
+  },
+  {
+    "page": "/game/siamsi/",
+    "width": 1440,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:unloaded",
+      "700:loaded"
+    ],
+    "cls": 0.28338,
+    "shifts": [
+      {
+        "v": 0.00196,
+        "t": 32,
+        "input": false
+      },
+      {
+        "v": 0.28142,
+        "t": 58,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 372,
+    "slotYSettled": 908,
+    "after": null
+  },
+  {
+    "page": "/tool/wheel/",
+    "width": 1440,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "wheel",
+    "mitrRequests": [
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.ttf",
+      "/fonts/mitr-medium-subset.ttf",
+      "/fonts/mitr-bold-subset.ttf"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:error",
+      "600:error",
+      "700:error"
+    ],
+    "cls": 0.00305,
+    "shifts": [
+      {
+        "v": 0.00305,
+        "t": 60,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 1898,
+    "slotYSettled": 1873,
+    "after": {
+      "slotYNames": 1873,
+      "slotYResult": 1873,
+      "result": "วิชัยนามสกุลยาวมากมายเหลือเกินคนนี้",
+      "resultH": 60,
+      "faces": [
+        "400:unloaded",
+        "500:error",
+        "600:error",
+        "700:error"
+      ]
+    }
+  },
+  {
+    "page": "/tool/wheel/",
+    "width": 1440,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "wheel",
+    "mitrRequests": [
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-bold-subset.woff2"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.00308,
+    "shifts": [
+      {
+        "v": 0.00305,
+        "t": 45,
+        "input": false
+      },
+      {
+        "v": 0.00003,
+        "t": 1521,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 1898,
+    "slotYSettled": 1878,
+    "after": {
+      "slotYNames": 1878,
+      "slotYResult": 1878,
+      "result": "สมหญิง",
+      "resultH": 60,
+      "faces": [
+        "400:unloaded",
+        "500:loaded",
+        "600:loaded",
+        "700:loaded"
+      ]
+    }
+  },
+  {
+    "page": "/tool/number/",
+    "width": 1440,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "number",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:unloaded",
+      "700:error"
+    ],
+    "cls": 0.06445,
+    "shifts": [
+      {
+        "v": 0.06445,
+        "t": 43,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 615,
+    "slotYSettled": 589,
+    "after": {
+      "slotYResult": 589,
+      "result": "ได้: 905",
+      "note": "",
+      "goDisabled": false,
+      "min": "1",
+      "max": "1000",
+      "faces": [
+        "400:unloaded",
+        "500:unloaded",
+        "600:unloaded",
+        "700:error"
+      ]
+    }
+  },
+  {
+    "page": "/tool/number/",
+    "width": 1440,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "number",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2"
+    ],
+    "innerWidth": 1440,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:unloaded",
+      "700:loaded"
+    ],
+    "cls": 0.06445,
+    "shifts": [
+      {
+        "v": 0.06445,
+        "t": 23,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 615,
+    "slotYSettled": 591,
+    "after": {
+      "slotYResult": 591,
+      "result": "ได้: 563",
+      "note": "",
+      "goDisabled": false,
+      "min": "1",
+      "max": "1000",
+      "faces": [
+        "400:unloaded",
+        "500:unloaded",
+        "600:unloaded",
+        "700:loaded"
+      ]
+    }
+  },
+  {
+    "page": "/",
+    "width": 320,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf",
+      "/fonts/mitr-semibold-subset.ttf"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:error",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.00273,
+        "t": 27,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 761,
+    "slotYSettled": 753,
+    "after": null
+  },
+  {
+    "page": "/",
+    "width": 320,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.0012,
+    "shifts": [
+      {
+        "v": 0.0012,
+        "t": 1530,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 753,
+    "slotYSettled": 757,
+    "after": null
+  },
+  {
+    "page": "/c/party/",
+    "width": 320,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf",
+      "/fonts/mitr-semibold-subset.ttf",
+      "/fonts/mitr-medium-subset.ttf"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:error",
+      "600:error",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [],
+    "slotYFirstFrame": 753,
+    "slotYSettled": 753,
+    "after": null
+  },
+  {
+    "page": "/c/party/",
+    "width": 320,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.0001,
+    "shifts": [
+      {
+        "v": 0.0001,
+        "t": 1528,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 753,
+    "slotYSettled": 755,
+    "after": null
+  },
+  {
+    "page": "/c/fortune/",
+    "width": 320,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf",
+      "/fonts/mitr-semibold-subset.ttf",
+      "/fonts/mitr-medium-subset.ttf"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:error",
+      "600:error",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [],
+    "slotYFirstFrame": 692,
+    "slotYSettled": 692,
+    "after": null
+  },
+  {
+    "page": "/c/fortune/",
+    "width": 320,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0.0001,
+    "shifts": [
+      {
+        "v": 0.0001,
+        "t": 1517,
+        "input": false
+      }
+    ],
+    "slotYFirstFrame": 692,
+    "slotYSettled": 694,
+    "after": null
+  },
+  {
+    "page": "/game/siamsi/",
+    "width": 320,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-medium-subset.ttf"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:error",
+      "600:unloaded",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.63839,
+        "t": 56,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 408,
+    "slotYSettled": 1005,
+    "after": null
+  },
+  {
+    "page": "/game/siamsi/",
+    "width": 320,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "none",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:unloaded",
+      "700:loaded"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.63839,
+        "t": 34,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 408,
+    "slotYSettled": 1007,
+    "after": null
+  },
+  {
+    "page": "/tool/wheel/",
+    "width": 320,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "wheel",
+    "mitrRequests": [
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-semibold-subset.ttf",
+      "/fonts/mitr-medium-subset.ttf",
+      "/fonts/mitr-bold-subset.ttf"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:error",
+      "600:error",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.01322,
+        "t": 34,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 1668,
+    "slotYSettled": 1652,
+    "after": {
+      "slotYNames": 1652,
+      "slotYResult": 1652,
+      "result": "วิชัยนามสกุลยาวมากมายเหลือเกินคนนี้",
+      "resultH": 60,
+      "faces": [
+        "400:unloaded",
+        "500:error",
+        "600:error",
+        "700:error"
+      ]
+    }
+  },
+  {
+    "page": "/tool/wheel/",
+    "width": 320,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "wheel",
+    "mitrRequests": [
+      "/fonts/mitr-semibold-subset.woff2",
+      "/fonts/mitr-medium-subset.woff2",
+      "/fonts/mitr-bold-subset.woff2"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:loaded",
+      "600:loaded",
+      "700:loaded"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.01322,
+        "t": 36,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 1668,
+    "slotYSettled": 1657,
+    "after": {
+      "slotYNames": 1657,
+      "slotYResult": 1657,
+      "result": "สมหญิง",
+      "resultH": 60,
+      "faces": [
+        "400:unloaded",
+        "500:loaded",
+        "600:loaded",
+        "700:loaded"
+      ]
+    }
+  },
+  {
+    "page": "/tool/number/",
+    "width": 320,
+    "fonts": "block",
+    "throttle": false,
+    "delay": 0,
+    "interact": "number",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2",
+      "/fonts/mitr-bold-subset.ttf"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:unloaded",
+      "700:error"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.03769,
+        "t": 37,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 735,
+    "slotYSettled": 697,
+    "after": {
+      "slotYResult": 697,
+      "result": "ได้: 718",
+      "note": "",
+      "goDisabled": false,
+      "min": "1",
+      "max": "1000",
+      "faces": [
+        "400:unloaded",
+        "500:unloaded",
+        "600:unloaded",
+        "700:error"
+      ]
+    }
+  },
+  {
+    "page": "/tool/number/",
+    "width": 320,
+    "fonts": "delay",
+    "throttle": false,
+    "delay": 1500,
+    "interact": "number",
+    "mitrRequests": [
+      "/fonts/mitr-bold-subset.woff2"
+    ],
+    "innerWidth": 320,
+    "mitrFacesLoaded": [
+      "400:unloaded",
+      "500:unloaded",
+      "600:unloaded",
+      "700:loaded"
+    ],
+    "cls": 0,
+    "shifts": [
+      {
+        "v": 0.03769,
+        "t": 39,
+        "input": true
+      }
+    ],
+    "slotYFirstFrame": 735,
+    "slotYSettled": 699,
+    "after": {
+      "slotYResult": 699,
+      "result": "ได้: 974",
+      "note": "",
+      "goDisabled": false,
+      "min": "1",
+      "max": "1000",
+      "faces": [
+        "400:unloaded",
+        "500:unloaded",
+        "600:unloaded",
+        "700:loaded"
+      ]
+    }
+  }
+]

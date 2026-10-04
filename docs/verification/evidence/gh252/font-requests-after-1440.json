@@ -1,0 +1,414 @@
+{
+  "width": 1440,
+  "pageCount": 26,
+  "pages": [
+    {
+      "path": "/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser",
+        "other"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {
+        "600": 24,
+        "700": 22
+      }
+    },
+    {
+      "path": "/404.html",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 68226,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/c/fortune/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser",
+        "other"
+      ],
+      "fontBytes": 94288,
+      "paintedWeights": {
+        "500": 6,
+        "600": 7,
+        "700": 2
+      }
+    },
+    {
+      "path": "/c/party/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser",
+        "other"
+      ],
+      "fontBytes": 94288,
+      "paintedWeights": {
+        "500": 6,
+        "600": 18,
+        "700": 2
+      }
+    },
+    {
+      "path": "/game/bangkok-drift/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/cannon-flag/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/croc-bite/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/cursed-number/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/daily-fortune/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser",
+        "other"
+      ],
+      "fontBytes": 94288,
+      "paintedWeights": {
+        "500": 2,
+        "700": 4
+      }
+    },
+    {
+      "path": "/game/dice-loser/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-regular-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 120899,
+      "paintedWeights": {
+        "400": 4,
+        "500": 3
+      }
+    },
+    {
+      "path": "/game/freeze-tap/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/how-close-is-near/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/love-match/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser",
+        "other"
+      ],
+      "fontBytes": 110907,
+      "paintedWeights": {
+        "500": 2,
+        "700": 4
+      }
+    },
+    {
+      "path": "/game/one-bomb/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 51760,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/pinocchio-luck/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 51760,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/power-meter/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/short-stick/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/siamsi/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser",
+        "other"
+      ],
+      "fontBytes": 94288,
+      "paintedWeights": {
+        "500": 2,
+        "700": 4
+      }
+    },
+    {
+      "path": "/game/timebomb/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-regular-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 120899,
+      "paintedWeights": {
+        "400": 3,
+        "500": 2
+      }
+    },
+    {
+      "path": "/game/wire-snip-panic/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 51760,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/game/zero-trigger/play/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 51760,
+      "paintedWeights": {}
+    },
+    {
+      "path": "/tool/draw/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 94288,
+      "paintedWeights": {
+        "500": 5,
+        "600": 2,
+        "700": 3
+      }
+    },
+    {
+      "path": "/tool/number/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 84845,
+      "paintedWeights": {
+        "700": 1
+      }
+    },
+    {
+      "path": "/tool/team/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 94288,
+      "paintedWeights": {
+        "500": 3,
+        "600": 2,
+        "700": 3
+      }
+    },
+    {
+      "path": "/tool/wheel/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-bold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 110907,
+      "paintedWeights": {
+        "500": 3,
+        "600": 3,
+        "700": 1
+      }
+    },
+    {
+      "path": "/tools/",
+      "fonts": [
+        "mitr-bold-subset.woff2",
+        "mitr-medium-subset.woff2",
+        "mitr-semibold-subset.woff2",
+        "sarabun-regular-subset.woff2"
+      ],
+      "initiators": [
+        "parser"
+      ],
+      "fontBytes": 94288,
+      "paintedWeights": {
+        "500": 1,
+        "600": 5
+      }
+    }
+  ]
+}

@@ -91,12 +91,13 @@ function woff2WithCodepoints(codepoints) {
 }
 
 function fullFontSet(override = {}) {
-  const base = {
-    'fonts/sarabun-regular-subset.woff2': woff2WithCodepoints(THAI_BLOCK),
-    'fonts/sarabun-regular-subset.ttf': ttfWithCodepoints(THAI_BLOCK),
-    'fonts/sarabun-bold-subset.woff2': woff2WithCodepoints(THAI_BLOCK),
-    'fonts/sarabun-bold-subset.ttf': ttfWithCodepoints(THAI_BLOCK),
-  };
+  // Built from the declared inventory, so a stem added to EXPECTED_STEMS (gh#252 added the Mitr
+  // weights) is shipped here too and every green case stays a complete build.
+  const base = {};
+  for (const stem of EXPECTED_STEMS) {
+    base[`fonts/${stem}.woff2`] = woff2WithCodepoints(THAI_BLOCK);
+    base[`fonts/${stem}.ttf`] = ttfWithCodepoints(THAI_BLOCK);
+  }
   const res = { ...base, ...override };
   for (const [k, v] of Object.entries(res)) {
     if (v === null || v === undefined) delete res[k];
@@ -226,6 +227,31 @@ test('the gate reds when declared inventory has vanished from build, naming ever
   assert.match(r.out, /expected font file sarabun-regular-subset\.ttf is missing/);
   assert.match(r.out, /expected font file sarabun-bold-subset\.woff2 is missing/);
   assert.match(r.out, /expected font file sarabun-bold-subset\.ttf is missing/);
+  for (const w of ['regular', 'medium', 'semibold', 'bold']) {
+    assert.match(r.out, new RegExp(`expected font file mitr-${w}-subset\\.woff2 is missing`));
+    assert.match(r.out, new RegExp(`expected font file mitr-${w}-subset\\.ttf is missing`));
+  }
+});
+
+test('the gate reds when a Mitr face is missing a codepoint or a Mitr woff2 is deleted, and names the Mitr face', () => {
+  // Mitr leads --font-display, so each of its faces must cover the Thai the site ships on its own.
+  const missingOne = THAI_BLOCK.filter((c) => c !== 0x0e02);
+  const holed = runOn({
+    'index.html': PAGE,
+    ...fullFontSet({
+      'fonts/mitr-semibold-subset.ttf': ttfWithCodepoints(missingOne),
+      'fonts/mitr-semibold-subset.woff2': woff2WithCodepoints(missingOne),
+    }),
+  });
+  assert.equal(holed.status, 1, 'a hole in one Mitr weight must fail the build');
+  assert.match(holed.out, /mitr-semibold-subset\.ttf is missing 1 Thai codepoint\(s\)/);
+  assert.match(holed.out, /U\+0E02/);
+  const deleted = runOn({
+    'index.html': PAGE,
+    ...fullFontSet({ 'fonts/mitr-bold-subset.woff2': null }),
+  });
+  assert.equal(deleted.status, 1, 'a deleted Mitr woff2 must fail the build');
+  assert.match(deleted.out, /expected font file mitr-bold-subset\.woff2 is missing/);
 });
 
 // The one green a CLI flag is no longer allowed to assert, exercised through main() anyway. An
@@ -509,10 +535,11 @@ test('the gate greens when paired woff2 and ttf have identical codepoint sets', 
 
 test('checkInventory detects missing expected faces and unexpected readable fonts', () => {
   const invMissing = checkInventory(['fonts/sarabun-regular-subset.ttf']);
-  assert.equal(invMissing.missing.length, 3);
+  assert.equal(invMissing.missing.length, EXPECTED_STEMS.length * 2 - 1, 'every declared face but the one present');
   assert.ok(invMissing.missing.includes('sarabun-regular-subset.woff2'));
   assert.ok(invMissing.missing.includes('sarabun-bold-subset.ttf'));
   assert.ok(invMissing.missing.includes('sarabun-bold-subset.woff2'));
+  assert.ok(invMissing.missing.includes('mitr-semibold-subset.woff2'));
 
   const invUnexpected = checkInventory([
     ...EXPECTED_STEMS.flatMap((s) => [`fonts/${s}.woff2`, `fonts/${s}.ttf`]),

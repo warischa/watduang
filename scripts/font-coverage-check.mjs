@@ -59,7 +59,9 @@ const FONT_EXT = new Set(['.ttf', '.otf', '.ttc', '.woff', '.woff2']);
 const READABLE_EXT = new Set(['.ttf', '.otf', '.woff2']);
 export const IGNORABLE = new Set([0x00ad, 0x200b, 0x200c, 0x200d, 0x2060, 0xfeff]);
 
-export const EXPECTED_STEMS = ['sarabun-regular-subset', 'sarabun-bold-subset'];
+// gh#252: Mitr leads --font-display, one stem per weight the site's display text computes to. Kept on ONE
+// line on purpose: font-coverage.test.mjs empties it by a line-anchored rewrite to reach the SKIP branch.
+export const EXPECTED_STEMS = ['sarabun-regular-subset', 'sarabun-bold-subset', 'mitr-regular-subset', 'mitr-medium-subset', 'mitr-semibold-subset', 'mitr-bold-subset'];
 export const EXPECTED_FACES = new Set(
   EXPECTED_STEMS.flatMap((s) => [`${s}.woff2`, `${s}.ttf`]),
 );

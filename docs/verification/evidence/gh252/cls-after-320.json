@@ -1,0 +1,151 @@
+{
+  "width": 320,
+  "note": "ui-audit-probe CLS, one fresh Chrome per run",
+  "runs": {
+    "/": [
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "img \"\"",
+          "ms": 56,
+          "url": "http://localhost:4351/art/croc-bite.webp"
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "img \"\"",
+          "ms": 52,
+          "url": "http://localhost:4351/art/croc-bite.webp"
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "img \"\"",
+          "ms": 52,
+          "url": "http://localhost:4351/art/croc-bite.webp"
+        },
+        "innerWidth": 320
+      }
+    ],
+    "/c/fortune/": [
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+          "ms": 36,
+          "url": null
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+          "ms": 36,
+          "url": null
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+          "ms": 28,
+          "url": null
+        },
+        "innerWidth": 320
+      }
+    ],
+    "/c/party/": [
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
+          "ms": 52,
+          "url": null
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
+          "ms": 36,
+          "url": null
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
+          "ms": 48,
+          "url": null
+        },
+        "innerWidth": 320
+      }
+    ],
+    "/game/siamsi/": [
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p \"ตั้งจิตให้นิ่ง แล้วนึกถึ\"",
+          "ms": 32,
+          "url": null
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p \"ตั้งจิตให้นิ่ง แล้วนึกถึ\"",
+          "ms": 36,
+          "url": null
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p \"ตั้งจิตให้นิ่ง แล้วนึกถึ\"",
+          "ms": 36,
+          "url": null
+        },
+        "innerWidth": 320
+      }
+    ],
+    "/tool/wheel/": [
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "h1 \"วงล้อสุ่มชื่อ\"",
+          "ms": 36,
+          "url": null
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "h1 \"วงล้อสุ่มชื่อ\"",
+          "ms": 40,
+          "url": null
+        },
+        "innerWidth": 320
+      },
+      {
+        "cls": 0,
+        "lcp": {
+          "el": "p \"ใส่ชื่อในวง กดหมุน แล้วใ\"",
+          "ms": 56,
+          "url": null
+        },
+        "innerWidth": 320
+      }
+    ]
+  }
+}
