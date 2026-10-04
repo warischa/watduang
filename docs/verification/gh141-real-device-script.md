@@ -457,11 +457,12 @@ Record: device — OS version — PASS / FAIL — note.
 ### Party grid card art — `/c/party/`
 
 **gh#141** — added 2026-10-01 when the croc-bite card art shipped (gh#241, gh#141 comment `5937040950`).
-One person walks it.
+Extended 2026-10-04: all 14 party cards now carry art (gh#242). One person walks it.
 
-1. On a phone at device pixel ratio 2 or 3, scroll to the จระเข้งับ card: is the art crisp and whole
-   on the card? The file is 361x320 for a 236x160 CSS box.
-2. Does it appear when scrolled to, with no layout jump? The box is fixed at 160px before it loads.
+1. On a phone at device pixel ratio 2 or 3, scroll through every card: is each image crisp and whole
+   on its card? Each file is at most 502x320 (`docs/verification/evidence/gh242/grade-ship.jsonl` lists
+   each size) for a 236x160 CSS box at 320px.
+2. Does each appear when scrolled to, with no layout jump? The box is fixed at 160px before it loads.
 
 **Pass:** crisp, whole, and no jump when it loads.
 **Fail:** blurry, clipped, missing, or the card resizes when the image arrives.

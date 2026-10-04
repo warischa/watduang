@@ -73,7 +73,7 @@ Every image was loaded eagerly before each full-page capture. Readings:
 | F 320 | 320 | 320 | 3109 | 12 | 0 |
 
 The owner picked **D** from `*-art.png` (popup, session 2026-10-04). D's two captures are committed as the
-artifact the pick cites; they are quantized to 256 colours. The four E and F captures stay local.
+artifact the pick cites; they are quantized to 256 colours. The E and F captures were not kept (cleanup 2026-10-04). Regenerate them from the canvases if needed.
 
 The same popup ruled that copy already live on the home page (hero, badge, the two calls to action, the
 how-to step, the FAQ, "ดูทั้งหมด →") counts as approved reuse, not placeholder.
