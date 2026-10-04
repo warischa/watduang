@@ -1,97 +1,76 @@
 ---
-// gh#87 — the home page becomes direction C "สนามวัดดวง", design/HomeArcade.dc.html (owner's
-// choice of 2026-08-25). Every value below — colour, size, radius, border, shadow, copy — is the
-// artboard's own (ADR-0033); the only reflows are the ones the ticket's criteria own: a single
-// column at phone widths, no sideways scroll at 320/390, and the rail hidden below the 1100px the
-// artboard names. Manifest-held copy (game names, taglines, tool names and descriptions, category
-// labels) is read at build time, never retyped; the hero, section headings, how-to and FAQ are the
-// canvas's own new copy (design/canvas.json "new-copy-page4"), typed here once and never rewritten.
-// All motion is CSS only (ADR-0005: no inline page script) and stops under prefers-reduced-motion.
+// gh#244 — the home page becomes canvas D, Toy Shelf (design/HomeShelfDesktop.dc.html and
+// design/HomeShelf320.dc.html; owner pick 2026-10-04 on gh#243). Every value is the artboards' own
+// (ADR-0033), read through the landing tokens in src/styles/tokens.css and the landing components.
+// Structure is ADR-0058 as amended for gh#244: the page lists every party game again as an art
+// shelf, then the fortune and tools rows, each under its own hub heading with a see-all link to its
+// hub — those links are what keep landing-claims-check's per-category link resolvable.
+//
+// Manifest-held copy (game names, taglines, tool names and descriptions, hub headings and bodies,
+// the popular heading) is read at build time and never retyped. The hero, the see-all label, the
+// FAQ and the ad placeholder are the live page's own copy, approved for reuse (owner ruling
+// 2026-10-04 on gh#243); this page invents no Thai. All motion is CSS only (ADR-0005: no inline
+// page script) and stops under prefers-reduced-motion.
 import Base from '../layouts/Base.astro';
 import PageChrome from '../components/PageChrome.astro';
+import HomeHero from '../components/landing/HomeHero.astro';
 import Section from '../components/landing/Section.astro';
-import Card from '../components/landing/Card.astro';
-import type { Props as CardProps } from '../components/landing/Card.astro';
+import ArtTile from '../components/landing/ArtTile.astro';
+import TextTile from '../components/landing/TextTile.astro';
 import { categories } from '../games/categories';
-import { popularGames, popularGroup } from '../games/manifest';
-import { toolsGroup } from '../tools/manifest';
+import { games, popularGames, popularGroup, featuredGame } from '../games/manifest';
+import { tools, toolsGroup } from '../tools/manifest';
 import type { Category, GameModule } from '../games/types';
 
-// The canvas's per-card bob phase, in canvas order — the stagger is a design value, not i % 3.
-const BOB_PHASES = ['bob-1', 'bob-2', 'bob-3', 'bob-2', 'bob-3', 'bob-1'];
-
-// One card shape for every game the page shows, wherever it shows it. The promoted row is its only
-// caller today, and a promoted card enters the game by the play route wherever one exists (ADR-0050
-// ruling 2) and carries its own category pill — the row mixes categories, and the pill is what says
-// which one a card belongs to. The bob phase counter is shared and runs in render order, so a new
-// row of games joins the canvas stagger instead of restarting it.
-let bobPhase = 0;
-const gameCard = (game: GameModule): CardProps => ({
-  kind: game.category,
+// One tile model for every game the page shows, wherever it shows it. A tile enters the game by its
+// play route wherever one exists (ADR-0050 ruling 2).
+const gameTile = (game: GameModule) => ({
   title: game.names.th,
   desc: game.tagline,
-  pill: categories[game.category].label as string | null,
   href: game.playRoute ?? `/game/${game.id}/`,
-  accentVar: `--accent-${categories[game.category].accent}`,
-  bob: BOB_PHASES[bobPhase++] ?? '',
+  art: game.cardArt ?? null,
 });
 
-// gh#75 — the page presents GROUPS, never one flat games list headed by a claim about the whole
-// catalogue (the heading ADR-0041 left owing). One group renders today: the promoted row. The
-// per-category groups that used to sit between it and the tools group are gone — the intent panels
-// below carry each category to its own hub instead, which is where a full listing belongs. Every
-// string a group shows is manifest-held (ADR-0034), including its when-to-use line. A further group
-// is one more entry in this array and nothing above it moves: the H1 and the lead name no group, no
-// content type and no count.
-// gh#192 (i), owner ruling 2026-09-03 — the tools group LIST is gone from this array and the tools
-// PANEL below stays. Both rendered the same tools hub heading, which put one h2 on the page twice;
-// the panel is the one that survives, because a whole-panel link to a hub is what the other panels
-// are too. The four per-tool cards are not replaced here — the tools hub IS the full listing and
-// the panel links straight to it. This file still reads the tools manifest, for that panel, and
-// that link still goes to the tools hub and never to a /c/<slug>/ URL: tools are not a category
-// (ADR-0032).
-// gh#159 / ADR-0052 — the promoted row is the FIRST group and is data like the rest: its games and
-// their order are the manifest's (popularGames), its heading is the manifest's (ADR-0034), and the
-// page names none of them. It has no "see all" destination — there is no popularity hub — so its
-// href is null and the head renders without the link; `body` is null for the same reason, the row's
-// heading is the whole of its copy. Nothing here describes a group size, a player count or how a
-// phone is passed around: the row mixes categories, and those claims belong to the party category
-// alone (ADR-0040).
-const groups = [
-  {
-    heading: popularGroup.heading,
-    body: null as string | null,
-    href: null as string | null,
-    id: 'popular',
-    cols: 3 as const,
-    cards: popularGames.map(gameCard),
-  },
-];
+// Art tiles need art. Every party game declares it (validate-games), and the popular row and the
+// featured game are party games, so a missing file name here is a manifest regression, said loudly.
+const withArt = (game: GameModule) => {
+  const tile = gameTile(game);
+  if (!tile.art) throw new Error(`home: ${game.id} renders as an art tile but declares no cardArt`);
+  return { ...tile, art: tile.art };
+};
 
-// Intent panels (design/landing-playful-arcade.md, "Three intent panels"): one whole-panel link
-// per product type, in the groups' own order (categories record order, fortune first per gh#75,
-// then tools). Copy is the groups' own hub pair — hubHeading/hubBody from the categories record,
-// heading/body from toolsGroup — so a panel says exactly what its section says, and no panel can
-// describe a roster, a player count or phone-passing unless the party category's own manifest
-// copy does (ADR-0040). Nothing here is new Thai.
-const intents: CardProps[] = [
-  ...(Object.keys(categories) as Category[]).map((cat): CardProps => ({
-    kind: cat,
-    panel: true,
-    href: `/c/${cat}/`,
-    title: categories[cat].hubHeading,
-    desc: categories[cat].hubBody,
-    accentVar: `--accent-${categories[cat].accent}`,
-  })),
-  {
-    kind: 'tool',
-    panel: true,
-    href: toolsGroup.href,
-    title: toolsGroup.heading,
-    desc: toolsGroup.body,
-    accentVar: toolsGroup.accentVar,
-  },
-];
+// The popular row wiggles in turn, in the canvas order of its three beats.
+const TILTS = ['tilt-a', 'tilt-b', 'tilt-c'] as const;
+
+// One row per category, each under the category's own hub pair (ADR-0034) and linking its hub. The
+// party row is the art shelf on the ink band and comes first, as the canvas draws it; the fortune
+// row is typographic because no art set exists for it. A category this list does not place fails
+// the build here rather than going missing from the home page.
+const categoryRow = (cat: Category) => ({
+  id: cat,
+  heading: categories[cat].hubHeading,
+  body: categories[cat].hubBody,
+  href: `/c/${cat}/`,
+  accentVar: `--accent-${categories[cat].accent}` as const,
+  games: games.filter((game) => game.category === cat),
+});
+const ROW_ORDER: Category[] = ['party', 'fortune'];
+for (const cat of Object.keys(categories) as Category[]) {
+  if (!ROW_ORDER.includes(cat)) throw new Error(`home: category "${cat}" has no row on the home page`);
+}
+const [partyRow, fortuneRow] = ROW_ORDER.map(categoryRow);
+
+// Tools are not a category (ADR-0032): their row links the tools hub, never a /c/<slug>/ URL, and
+// renders the tools hub heading once — the duplicate h2 gh#192 (i) removed does not come back.
+const toolsRow = {
+  heading: toolsGroup.heading,
+  body: toolsGroup.body,
+  href: toolsGroup.href,
+  accentVar: toolsGroup.accentVar,
+  tiles: tools.map((tool) => ({ href: tool.href, title: tool.name, desc: tool.desc })),
+};
+
+const featured = withArt(featuredGame);
 ---
 
 <Base
@@ -101,566 +80,222 @@ const intents: CardProps[] = [
 >
   <PageChrome>
   <main>
-    <header class="hero">
-      <div class="hero-stripes" aria-hidden="true"></div>
-      <div class="hero-inner">
-        <div class="hero-copy">
-          <span class="hero-badge">เปิดเว็บแล้วกดเล่นได้เลย</span>
-          <h1>กดทีเดียว<br />รู้เลยว่า<span class="hero-mark">ใครโดน</span></h1>
-          <!-- gh#89 / ADR-0040: the party-size and phone-passing claims that stood here named the
-               whole site as their subject. They hold for the party category alone. Deleted rather
-               than rewritten: replacement wording is the owner's, not an agent's. -->
-          <p class="hero-lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p>
-          <div class="hero-cta">
-            <a class="cta-primary" href="/c/party/">
-              เลือกเกมเลย
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M5 12h13"></path
-                ><path d="M12 5l7 7-7 7"></path>
-              </svg>
-            </a>
-            <a class="cta-secondary" href="/tools/">หรือใช้เครื่องมือสุ่มแบบเร็ว ๆ</a>
-          </div>
+    <HomeHero
+      badge="เปิดเว็บแล้วกดเล่นได้เลย"
+      titleTop="กดทีเดียว"
+      titleLead="รู้เลยว่า"
+      titleMark="ใครโดน"
+      lead="ไม่ต้องโหลดแอป ไม่ต้องสมัคร"
+      ctaLabel="เลือกเกมเลย"
+      ctaHref="/c/party/"
+      featured={featured}
+    />
+
+    {/* The one ad slot canvas D marks, under the hero (owner ruling 2026-10-04 on gh#244: one slot,
+        as drawn). The height is reserved, fixed rather than a floor (ADR-0024), so a real unit
+        replacing this placeholder shifts nothing above it. */}
+    <div class="wrap ad-slot" aria-hidden="true">ช่องโฆษณา</div>
+
+    <div class="wrap popular">
+      <Section id="popular" heading={popularGroup.heading}>
+        <div class="grid grid-popular">
+          {popularGames.map(withArt).map((card, index) => (
+            <ArtTile
+              variant="popular"
+              href={card.href}
+              title={card.title}
+              desc={card.desc}
+              art={card.art}
+              tilt={TILTS[index % TILTS.length]}
+            />
+          ))}
         </div>
-        <div class="hero-art">
-          <svg width="400" height="400" viewBox="0 0 400 400" aria-hidden="true">
-            <circle cx="200" cy="200" r="176" fill="#14142b"></circle>
-            <g class="hero-wheel">
-              <path d="M200 200 L200 36 A164 164 0 0 1 316 84 Z" fill="#ffcc00"></path>
-              <path d="M200 200 L316 84 A164 164 0 0 1 364 200 Z" fill="#ff3d7f"></path>
-              <path d="M200 200 L364 200 A164 164 0 0 1 316 316 Z" fill="#2b7bff"></path>
-              <path d="M200 200 L316 316 A164 164 0 0 1 200 364 Z" fill="#ffcc00"></path>
-              <path d="M200 200 L200 364 A164 164 0 0 1 84 316 Z" fill="#ff3d7f"></path>
-              <path d="M200 200 L84 316 A164 164 0 0 1 36 200 Z" fill="#2b7bff"></path>
-              <path d="M200 200 L36 200 A164 164 0 0 1 84 84 Z" fill="#ffcc00"></path>
-              <path d="M200 200 L84 84 A164 164 0 0 1 200 36 Z" fill="#ff3d7f"></path>
-              <circle cx="200" cy="200" r="164" fill="none" stroke="#14142b" stroke-width="7"></circle>
-            </g>
-            <circle cx="200" cy="200" r="46" fill="#fff6e0" stroke="#14142b" stroke-width="7"></circle>
-            <text
-              x="200"
-              y="212"
-              text-anchor="middle"
-              font-family="Mitr, sans-serif"
-              font-weight="600"
-              font-size="26"
-              fill="#14142b">สุ่ม</text>
-            <path d="M200 8 l22 40 h-44 z" fill="#fff6e0" stroke="#14142b" stroke-width="6" stroke-linejoin="round"></path>
-          </svg>
+      </Section>
+    </div>
+
+    <div class="band">
+      <div class="wrap">
+        <Section id={partyRow.id} tone="dark" heading={partyRow.heading} body={partyRow.body} href={partyRow.href} linkLabel="ดูทั้งหมด →">
+          <div class="grid grid-shelf">
+            {partyRow.games.map((game) => {
+              const card = withArt(game);
+              return (
+                <ArtTile
+                  href={card.href}
+                  title={card.title}
+                  art={card.art}
+                  highlight={game === featuredGame}
+                />
+              );
+            })}
+          </div>
+        </Section>
+      </div>
+    </div>
+
+    <div class="wrap row">
+      <Section id={fortuneRow.id} heading={fortuneRow.heading} body={fortuneRow.body} href={fortuneRow.href} linkLabel="ดูทั้งหมด →">
+        <div class="grid grid-fortune">
+          {fortuneRow.games.map(gameTile).map((card) => (
+            <TextTile kind="fortune" href={card.href} title={card.title} desc={card.desc} accentVar={fortuneRow.accentVar} />
+          ))}
         </div>
+      </Section>
+    </div>
+
+    <div class="wrap row">
+      <Section id="tools" heading={toolsRow.heading} body={toolsRow.body} href={toolsRow.href} linkLabel="ดูทั้งหมด →">
+        <div class="grid grid-tools">
+          {toolsRow.tiles.map((card) => (
+            <TextTile kind="tool" href={card.href} title={card.title} desc={card.desc} accentVar={toolsRow.accentVar} />
+          ))}
+        </div>
+      </Section>
+    </div>
+
+    <section class="wrap faq" aria-labelledby="faq">
+      <h2 id="faq">คำถามที่เจอบ่อย</h2>
+      <div class="faq-item">
+        <h3>ต้องโหลดแอปไหม</h3>
+        <p>ไม่ต้อง ทุกเกมทำงานในเบราว์เซอร์ เปิดลิงก์แล้วกดเล่นได้เลย</p>
       </div>
-    </header>
-
-    {/* Ad slot 1 of 4 — the billboard the canvas marks below the hero. The 250px height is
-        reserved (ADR-0024: the reflow is the hazard), so a real unit replacing this shifts
-        nothing above it. */}
-    <div class="ad-band ad-band-billboard">
-      <div class="ad-slot ad-billboard" aria-hidden="true">ช่องโฆษณา</div>
-    </div>
-
-    <div class="body-grid">
-      <div class="col">
-        {/* gh#159 — the single hardcoded featured card that stood here is gone; the promoted row
-            below is the same slot turned into data (ADR-0052). Its copy went with it: the kicker
-            addressed a first-time player, which is not what a popular row says.
-
-            One section per group, same markup for all of them: a group is data, not a hand-written
-            block, so a fourth one renders here with no edit to this file and none to the hero. */}
-        {groups.map((group, index) => (
-          <>
-            <Section id={group.id} heading={group.heading} body={group.body} href={group.href} linkLabel="ดูทั้งหมด →">
-              <div class="card-grid" data-cols={group.cols}>
-                {group.cards.map((card) => (
-                  <Card
-                    kind={card.kind}
-                    href={card.href}
-                    title={card.title}
-                    desc={card.desc}
-                    pill={card.pill}
-                    accentVar={card.accentVar}
-                    bob={card.bob}
-                  />
-                ))}
-              </div>
-            </Section>
-            {/* The three intent panels sit right under the popular row (design order). Each panel
-                heads its own h2 region, so no section heading — and no new copy — stands above them. */}
-            {index === 0 && (
-              <div class="card-grid" data-cols={3}>
-                {intents.map((card) => (
-                  <Card
-                    kind={card.kind}
-                    panel
-                    href={card.href}
-                    title={card.title}
-                    desc={card.desc}
-                    accentVar={card.accentVar}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        ))}
-
-        {/* Ad slot 2 of 4 — the in-content unit the canvas marks between the card grids and the
-            how-to. It used to render inside the loop above, before the last group, which was the
-            same position while a second group existed; with the tools list dropped (gh#192 (i))
-            that condition would have pulled it above the first section instead. It is a fixed
-            in-content slot, not a per-group one, so it sits here and a further group cannot move
-            it. 90px reserved. */}
-        <div class="ad-slot ad-inline" aria-hidden="true">ช่องโฆษณา</div>
-
-        <section class="howto">
-          <h2>เล่นยังไง</h2>
-          <div class="howto-grid">
-            <div class="step">
-              <span class="step-num">1</span>
-              <h3>เลือกเกม</h3>
-              <p>เปิดจากหน้านี้ได้เลย ไม่ต้องโหลดอะไรก่อน</p>
-            </div>
-            <!-- gh#192 (a) / ADR-0040, owner ruling 2026-09-03: steps 2 and 3 stood here and stated
-                 a shared roster carried between games, and a phone passed around the group, as
-                 facts of the whole site. Both hold for the party category alone. Deleted rather
-                 than rewritten, the same call gh#89 made on the hero and on a FAQ answer:
-                 replacement wording is the owner's, and the remaining half of gh#192 (a) is where
-                 it gets written. The page reads thinner until then, and that was accepted. -->
-          </div>
-        </section>
-
-        <section class="faq">
-          <h2>คำถามที่เจอบ่อย</h2>
-          <div class="faq-list">
-            <div class="faq-item">
-              <h3>ต้องโหลดแอปไหม</h3>
-              <p>ไม่ต้อง ทุกเกมทำงานในเบราว์เซอร์ เปิดลิงก์แล้วกดเล่นได้เลย</p>
-            </div>
-            <div class="faq-item">
-              <h3>ต้องสมัครสมาชิกไหม</h3>
-              <p>ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง</p>
-            </div>
-            <!-- gh#89 / ADR-0040: an unscoped site-level answer stating 2-10 players and
-                 phone-passing as facts of the whole site. Removed whole rather than reworded;
-                 a category-scoped replacement is the owner's copy to write. -->
-            <div class="faq-item">
-              <h3>เสียเงินไหม</h3>
-              <p>ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p>
-            </div>
-            <!-- gh#192 (a) / ADR-0040, owner ruling 2026-09-03: the answer that stood here told a
-                 site-level question about desktop that the phone gets passed around. That is the
-                 party category's fact, not the site's, and this page owns the string, so it is not
-                 covered by the exception that lets a game module's own copy travel with it.
-                 Removed whole rather than reworded; the replacement is the owner's to write. -->
-          </div>
-        </section>
+      <div class="faq-item">
+        <h3>ต้องสมัครสมาชิกไหม</h3>
+        <p>ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง</p>
       </div>
-
-      {/* Ad slot 3 of 4 — the sticky right rail the canvas marks, 300×600 reserved. Below the
-          1100px the canvas names the rail is not rendered at all (AC: absent, not just unstuck). */}
-      <aside class="ad-rail">
-        <div class="ad-slot ad-rail-slot" aria-hidden="true">ช่องโฆษณา</div>
-      </aside>
-    </div>
-
-    {/* Ad slot 4 of 4 — the billboard the canvas marks above the footer. 250px reserved. */}
-    <div class="ad-band ad-band-prefooter">
-      <div class="ad-slot ad-billboard" aria-hidden="true">ช่องโฆษณา</div>
-    </div>
+      <div class="faq-item">
+        <h3>เสียเงินไหม</h3>
+        <p>ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p>
+      </div>
+    </section>
   </main>
   </PageChrome>
 </Base>
 
 <style>
-  /* gh#87 — every value below is design/HomeArcade.dc.html's own (ADR-0033). Colours go through
-     tokens where the canvas value IS a token (--color-primary #d6336c is the canvas accent
-     default, --color-line-strong #14142b, --color-ground-warm #fff6e0, the three accent tokens);
-     the rgba() fills are canvas literals, no token exists for them. --card-accent is
-     defined per card by the inline custom property above, resolved from the manifest accent NAME
-     (category accent / toolsGroup.accentVar), never a hex. The `main a:hover` colour is the
-     canvas's own global a:hover rule. */
+  /* Canvas D values (ADR-0033): desktop from the 1440 artboard, <= 1099px from the 320 one. Every
+     row is the canvas's 1280px box, kept 14px off each edge — the 320 artboard's own gutter —
+     wherever the viewport is narrower. Section spacing is the canvas's own margins; the bottom
+     padding stands in for the canvas's gap above its footer band. */
   main {
     background: var(--surface-page);
     color: var(--color-text);
     font-family: var(--font-sans);
+    padding-block-end: 88px;
   }
 
-  main a {
-    text-decoration: none;
-  }
-
-  main a:hover {
-    color: var(--color-primary);
-  }
-
-  /* ------------------------------ hero ---------------------------------- */
-
-  .hero {
-    position: relative;
-    overflow: hidden;
-    background: var(--surface-hero);
-    color: var(--ink-on-hero);
-    border-block-end: 5px solid var(--ink);
-  }
-
-  .hero-stripes {
-    position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(135deg, rgba(255, 246, 224, 0.09) 0 26px, transparent 26px 80px);
-    background-size: 160px 100%;
-    animation: arc-stripes 9s linear infinite;
-  }
-
-  .hero-inner {
-    position: relative;
-    width: 100%;
-    max-width: var(--container-max);
+  .wrap {
+    width: min(1280px, 100% - 28px);
     margin-inline: auto;
-    padding-inline: var(--gutter);
+  }
+
+  /* content-box on purpose, as the canvas draws it: the 250px is the space a real unit gets, and the
+     dashed border sits outside it rather than eating 6px of a 250px creative. */
+  .ad-slot {
+    margin-top: 40px;
+    height: 250px;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 48px;
-    align-items: center;
-    padding-block: 76px;
-    box-sizing: border-box;
+    place-items: center;
+    border: 3px dashed var(--ad-line);
+    border-radius: 16px;
+    color: var(--ad-label);
+    font-size: 16px;
   }
 
-  .hero-copy {
-    display: flex;
-    flex-direction: column;
+  .grid {
+    display: grid;
+  }
+
+  .popular {
+    margin-top: 88px;
+  }
+
+  .grid-popular {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px;
+  }
+
+  .band {
+    margin-top: 96px;
+    background: var(--surface-band);
+    padding-block: 72px 84px;
+  }
+
+  .grid-shelf {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    column-gap: 20px;
+    row-gap: 64px;
+  }
+
+  .row {
+    margin-top: 96px;
+  }
+
+  .grid-fortune {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+    margin-top: -20px;
+  }
+
+  .grid-tools {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 24px;
-    min-width: 0;
-    overflow-wrap: anywhere; /* handoff D7: the hero clips (overflow: hidden), so a no-break string must wrap here — measured running to 1140px at 320 without this */
+    margin-top: -20px;
   }
 
-  .hero-badge {
-    align-self: flex-start;
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--color-line-strong);
-    background: var(--accent-gold);
-    border: 3px solid var(--color-line-strong);
-    border-radius: 999px;
-    padding: 7px 18px;
-    animation: arc-pop 3.4s ease-in-out infinite;
+  .faq {
+    margin-top: 96px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
   }
 
-  h1 {
+  .faq h2 {
+    grid-column: 1 / -1;
     margin: 0;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: var(--text-hero);
-    line-height: 1.1;
-    letter-spacing: -2px;
-    text-wrap: pretty;
-  }
-
-  .hero-mark {
-    display: inline-block;
-    background: var(--accent-gold);
-    color: var(--color-line-strong);
-    padding: 0 12px;
-    border: 4px solid var(--color-line-strong);
-    transform: rotate(-2deg);
-  }
-
-  .hero-lead {
-    margin: 0;
-    font-size: 19px;
-    line-height: 1.75;
-    color: rgba(255, 246, 224, 0.92);
-    max-width: 44ch;
-  }
-
-  .hero-cta {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    padding-block-start: 10px;
-    flex-wrap: wrap; /* structural: the canvas pair is one row; a phone column is what the ticket's
-                        no-sideways-scroll criteria require — no new value introduced */
-  }
-
-  .cta-primary {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 66px;
-    padding: 0 34px;
-    background: var(--color-ground-warm);
-    color: var(--color-line-strong);
-    border: 4px solid var(--color-line-strong);
-    border-radius: 16px;
-    box-shadow: 6px 6px 0 0 var(--color-line-strong);
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 22px;
-    box-sizing: border-box;
-  }
-
-  .cta-secondary {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: var(--tap-min); /* tap minimum: the canvas link is a 16px text line */
-    font-size: 16px;
-    color: var(--color-ground-warm);
-    border-block-end: 2px solid rgba(255, 246, 224, 0.6);
-    padding-block-end: 3px;
-  }
-
-  /* the page-wide a:hover paints --color-primary, which is the hero surface itself: without this
-     the link vanished on hover (REFUTE 2026-09-02) */
-  .cta-secondary:hover {
-    color: var(--ink-on-hero);
-  }
-
-  .hero-art {
-    display: flex;
-    justify-content: center;
-  }
-
-  .hero-art svg {
-    max-width: 100%;
-    height: auto; /* structural: the 400px canvas wheel must fit a phone column, size unchanged */
-  }
-
-  .hero-wheel {
-    transform-origin: 200px 200px;
-    animation: arc-wheel 22s linear infinite;
-  }
-
-  /* ------------------------------ ads ----------------------------------- */
-
-  /* gh#87 — reserved heights are the canvas's own slot sizes, fixed (`height`, not `min-height`)
-     so a real unit replacing a placeholder shifts nothing above it (ADR-0024). The dashed border
-     and the "ช่องโฆษณา" label are the canvas's own way of marking a placeholder; the existing
-     slots on the category pages render the same label (gh#82). */
-  .ad-band {
-    width: 100%;
-    max-width: var(--container-max);
-    margin-inline: auto;
-    padding-inline: var(--gutter);
-    display: flex;
-    justify-content: center;
-    box-sizing: border-box;
-  }
-
-  .ad-band-billboard {
-    padding-block: 44px;
-  }
-
-  .ad-band-prefooter {
-    padding-block: 20px 52px;
-  }
-
-  .ad-slot {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    border: 3px dashed rgba(20, 20, 43, 0.35);
-    color: var(--color-muted);
-    font-size: 13px;
-  }
-
-  .ad-billboard {
-    width: 100%;
-    max-width: 970px;
-    height: 250px;
-    border-radius: 16px;
-  }
-
-  .ad-inline {
-    width: 100%;
-    max-width: 728px;
-    height: 90px;
-    margin-inline: auto;
-    border-radius: 14px;
-    font-size: 12px;
-    gap: 10px;
-  }
-
-  .ad-rail {
-    position: sticky;
-    top: 24px;
-  }
-
-  .ad-rail-slot {
-    width: 100%;
-    max-width: 300px;
-    height: 600px;
-    border-radius: 16px;
-  }
-
-  /* ------------------------------ body grid ---------------------------- */
-
-  .body-grid {
-    width: 100%;
-    max-width: var(--container-max);
-    margin-inline: auto;
-    padding-inline: var(--gutter);
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 40px;
-    align-items: start;
-    padding-block-end: 44px;
-    box-sizing: border-box;
-  }
-
-  .col {
-    display: flex;
-    flex-direction: column;
-    gap: var(--section-gap);
-  }
-
-  /* ------------------------------ card grid ---------------------------- */
-
-  /* The one grid every card section uses (handoff D6). Columns: desktop 3, or 4 with
-     data-cols="4"; tablet 2; phone 1 — set through --cols so a section never writes its own
-     template. The phone/tablet rules repeat the [data-cols] selector on purpose: without it a
-     4-column grid (specificity 0,2,0) outranks the media rule (0,1,0) and stays 4-wide on a phone. */
-  .card-grid {
-    --cols: 3;
-    display: grid;
-    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-    gap: var(--grid-gap);
-  }
-
-  .card-grid[data-cols='4'] {
-    --cols: 4;
-  }
-
-  /* ------------------------------ how-to ------------------------------- */
-
-  .howto h2,
-  .faq h2 {
-    margin: 0 0 22px 0;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: var(--text-xl);
-  }
-
-  .howto-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
-  }
-
-  .step {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 24px;
-    border: 3.5px solid var(--color-line-strong);
-    border-radius: 18px;
-  }
-
-  .step-num {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    background: var(--color-primary);
-    color: var(--color-ground-warm);
-    border: 3px solid var(--color-line-strong);
-    border-radius: 999px;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 24px;
-  }
-
-  .step h3 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 20px;
-  }
-
-  .step p {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.7;
-  }
-
-  /* ------------------------------ faq ---------------------------------- */
-
-  .faq-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    font-size: 40px;
   }
 
   .faq-item {
-    padding: 22px 24px;
-    background: var(--surface-paper);
-    border: 3px solid var(--color-line-strong);
-    border-radius: 16px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    border: 4px solid var(--ink);
+    border-radius: 20px;
+    padding: 22px;
+    background: var(--surface-tile);
   }
 
   .faq-item h3 {
-    margin: 0 0 8px 0;
+    margin: 0;
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 19px;
+    font-size: 22px;
   }
 
   .faq-item p {
-    margin: 0;
-    font-size: 15px;
-    line-height: 1.75;
-  }
-
-  /* ------------------------------ motion & reflow ---------------------- */
-
-  /* Canvas keyframes, verbatim — decoration only, nothing is lost under reduced motion. */
-  @keyframes arc-stripes {
-    to {
-      background-position: 160px 0;
-    }
-  }
-
-  @keyframes arc-wheel {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes arc-pop {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.07);
-    }
+    margin: 8px 0 0;
   }
 
   /* ------------------------------ focus & motion contracts ------------ */
 
-  /* Handoff D10 — the one focus treatment on the page. :global reaches the anchors the landing
-     components render (their scoped attribute is not this file's), so a component never writes an
-     outline of its own and none is ever removed. Ink on every surface here clears the 3:1
-     non-text minimum, the hero's primary red included. */
+  /* The one focus treatment on the page. :global reaches the anchors the landing components render
+     (their scoped attribute is not this file's), so a component never writes an outline of its own.
+     On the ink band an ink ring around a tile vanishes against the band, so the ring there takes the
+     band's own sun yellow, the colour its see-all pill already uses. */
   main :global(:focus-visible) {
     outline: var(--focus-ring);
     outline-offset: var(--focus-offset);
   }
 
-  /* Handoff D12 — every animation and transition on this page is decorative, so under reduced
-     motion ALL of them stop, not a listed few: any motion a later section adds, in this file or in
-     a landing component, falls under this rule with no edit. !important is what makes that true
-     against the components' scoped selectors; it is the only !important on the page. */
+  .band :global(:focus-visible) {
+    outline-color: var(--surface-sun);
+  }
+
+  /* Every animation and transition on this page is decorative, so under reduced motion ALL of them
+     stop, not a listed few: any motion a later section adds, in this file or in a landing component,
+     falls under this rule with no edit. !important is what makes that true against the components'
+     scoped selectors; it is the only !important on the page. */
   @media (prefers-reduced-motion: reduce) {
     main :global(*),
     main :global(*::before),
@@ -670,52 +305,86 @@ const intents: CardProps[] = [
     }
   }
 
-  /* Below the 1100px the artboard names the rail, the page is a single column — the ticket's own
-     criteria own this reflow (the canvas has no phone artboard yet; its 390 pair is a later ticket
-     per the home-brief note). 30px below is the page-title size of design/SiamsiIntent.dc.html, a
-     390px artboard — not an invented value. */
   @media (max-width: 1099px) {
-    .hero-inner {
+    main {
+      padding-block-end: 40px;
+    }
+
+    .ad-slot {
+      margin-top: 24px;
+      height: 100px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .popular {
+      margin-top: 40px;
+    }
+
+    .grid-popular {
       grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 16px;
     }
 
-    h1 {
-      font-size: var(--text-hero-narrow);
+    .band {
+      margin-top: 44px;
+      padding-block: 32px 36px;
     }
 
-    .body-grid {
+    /* Four columns between the artboards: two would draw each tile far larger than the desktop's. */
+    .grid-shelf {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: 12px;
+      row-gap: 40px;
+      margin-top: 40px;
+    }
+
+    .row {
+      margin-top: 40px;
+    }
+
+    .grid-fortune {
       grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 16px;
     }
 
-    .ad-rail {
-      display: none;
+    .grid-tools {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
     }
 
-    .card-grid,
-    .card-grid[data-cols] {
-      --cols: 2;
-    }
-
-    .howto-grid {
+    .faq {
+      margin-top: 40px;
       grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .faq h2 {
+      font-size: 26px;
+    }
+
+    .faq-item {
+      border-width: 3px;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .faq-item h3 {
+      font-size: 18px;
+    }
+
+    .faq-item p {
+      margin: 6px 0 0;
+      font-size: 14px;
     }
   }
 
-  /* Phone: one column everywhere and the CTA pair stacks (design/landing-playful-arcade.md,
-     "Mobile first"). The second and last query on this page — the set is closed in tokens.css. */
   @media (max-width: 639px) {
-    .card-grid,
-    .card-grid[data-cols] {
-      --cols: 1;
-    }
-
-    .hero-cta {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .cta-primary {
-      justify-content: center;
+    .grid-shelf {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 </style>

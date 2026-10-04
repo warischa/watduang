@@ -1,8 +1,10 @@
 ---
-// The heading row every home-page section shares. Owns the heading level — h2, under the hero's
-// h1, with item cards as h3 inside — and the aria-labelledby wiring. What goes under the head is
-// the page's slot. Zero copy of its own: heading, body and the link label all arrive as props from
-// manifest data or the page (ADR-0034), so a label cannot be invented here.
+// The heading row every home-page section shares (canvas D's `.sec-head`, gh#244). Owns the heading
+// level — h2, under the hero's h1, with tiles below it — and the aria-labelledby wiring. What goes
+// under the head is the page's slot. Zero copy of its own: heading, body and the link label all
+// arrive as props from manifest data or the page (ADR-0034), so a label cannot be invented here.
+// `tone` is the one surface choice D makes per section: the party shelf sits on the ink band, where
+// the heading turns white and the see-all pill swaps to the sun yellow.
 export interface Props {
   /** Unique on the page; becomes the h2 id that aria-labelledby points at. */
   id: string;
@@ -12,41 +14,39 @@ export interface Props {
   href?: string | null;
   /** Required with href. */
   linkLabel?: string;
+  tone?: 'light' | 'dark';
 }
 
-const { id, heading, body = null, href = null, linkLabel } = Astro.props;
+const { id, heading, body = null, href = null, linkLabel, tone = 'light' } = Astro.props;
 if (href && !linkLabel) throw new Error(`Section ${id}: href needs a linkLabel`);
 ---
 
-<section aria-labelledby={id}>
-  <div class="section-head">
-    <div class="section-head-copy">
+<section aria-labelledby={id} data-tone={tone}>
+  <div class="sec-head">
+    <div class="sec-copy">
       <h2 id={id}>{heading}</h2>
-      {body && <p class="section-body">{body}</p>}
+      {body && <p>{body}</p>}
     </div>
-    {href && <a class="section-link" href={href}>{linkLabel}</a>}
+    {href && <a class="see-all" href={href}>{linkLabel}</a>}
   </div>
   <slot />
 </section>
 
 <style>
-  /* gh#75 values, read through the landing tokens. flex-wrap is structural: the long tools heading
-     must not collide with its link on a phone. min-width: 0 + overflow-wrap on the copy column is
-     the Thai-text guard (a flex child defaults to min-width:auto). The link is sized to the tap
-     minimum the way Base.astro sizes its footer link, with inline-flex so the baseline row holds. */
-  .section-head {
+  /* Canvas D values (ADR-0033): desktop from the 1440 artboard, <= 1099px from the 320 one. The
+     see-all pill keeps the tap minimum as a floor (min-block-size) — the 320 artboard's 8px padding
+     on a 16px label measures under it, and a floor never shrinks what the canvas draws. min-width: 0
+     and overflow-wrap on the copy column are the Thai-text guard (a flex child defaults to
+     min-width: auto). */
+  .sec-head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: var(--grid-gap);
-    flex-wrap: wrap;
-    margin-block-end: var(--grid-gap);
+    gap: 24px;
+    margin-bottom: 52px;
   }
 
-  .section-head-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  .sec-copy {
     min-width: 0;
     overflow-wrap: anywhere;
   }
@@ -54,23 +54,65 @@ if (href && !linkLabel) throw new Error(`Section ${id}: href needs a linkLabel`)
   h2 {
     margin: 0;
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: var(--text-xl);
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 1.15;
   }
 
-  .section-body {
-    margin: 0;
-    font-size: var(--text-base);
-    line-height: 1.75;
-    color: var(--ink-muted);
+  p {
+    margin: 6px 0 0;
+    font-size: 18px;
+    color: var(--ink-soft);
   }
 
-  .section-link {
+  .see-all {
+    flex: none;
     display: inline-flex;
     align-items: center;
     min-block-size: var(--tap-min);
-    font-size: var(--text-base);
-    color: var(--color-primary);
+    box-sizing: border-box;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    background: var(--ink);
+    color: var(--surface-sun);
+    border-radius: 999px;
+    padding: 10px 22px;
     text-decoration: none;
+  }
+
+  [data-tone='dark'] h2 {
+    color: var(--ink-light);
+  }
+
+  [data-tone='dark'] p {
+    color: var(--ink-on-band-soft);
+  }
+
+  [data-tone='dark'] .see-all {
+    background: var(--surface-sun);
+    color: var(--ink);
+  }
+
+  @media (max-width: 1099px) {
+    .sec-head {
+      display: block;
+      margin-bottom: 0;
+    }
+
+    h2 {
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 15px;
+    }
+
+    .see-all {
+      margin-top: 12px;
+      font-size: 16px;
+      padding: 8px 18px;
+    }
   }
 </style>

@@ -114,17 +114,20 @@ const V = {
     if (v.accent?.accentsDiffer !== true || v.accent?.matchesCanvas !== true) return `accent: ${JSON.stringify(v.accent)}`;
     return null;
   },
-  'home-direction-c': () => {
+  'home-page': () => {
     const v = out.verdict;
     if (!sawInjected(out.calibration)) return `overflow detector calibration failed (${JSON.stringify(out.calibration)})`;
     if (!all(out.widthVerdicts, (w) => w.voidUnlessEqual === true)) return `a width did not reflow -- run is void, not a pass: ${JSON.stringify(out.widthVerdicts)}`;
-    for (const k of ['noSidewaysScroll320', 'noSidewaysScroll390', 'railAbsentAt1024', 'noSidewaysScroll1024', 'railRenderedAt1440', 'noSidewaysScroll1440']) {
-      if (v?.[k] !== true) return `${k} = ${JSON.stringify(v?.[k])}`;
+    for (const k of ['noSidewaysScrollAll', 'oneAdSlotNoRail', 'slotHeightsAsDrawn', 'shelfColumnsAsDrawn', 'shelfOneImagePerTile', 'artLoaded']) {
+      if (v?.[k] !== true) return `${k} = ${JSON.stringify(v?.[k])} -- ${JSON.stringify(k === 'artLoaded' ? out.art : out.widthVerdicts)}`;
     }
     // Which motion leg this is comes from the browser, not from the label: a --force-prefers-
     // reduced-motion flag that silently failed to apply would otherwise read as the reduced leg.
+    // An empty decoration scan would pass "all stopped" vacuously, so every width must have found
+    // decorated elements before either leg's motion verdict counts.
     const m = v.motion;
-    if (label === 'home-direction-c-normal') {
+    if (!all(m?.decorated, (n) => n > 0)) return `the decoration selector matched nothing at some width -- the motion verdict measures nothing: ${JSON.stringify(m?.decorated)}`;
+    if (label === 'home-page-normal') {
       if (m?.state !== 'normal') return `expected the normal-motion browser, got state=${m?.state}`;
       if (m.motionActuallyPresent !== true) return 'no running animation found under normal motion -- the motion check cannot prove motion exists, so its reduced-motion sibling is N/A, not a pass';
     } else {
@@ -294,7 +297,7 @@ const V = {
     return null;
   },
 };
-const key = label.startsWith('home-direction-c') ? 'home-direction-c' : label;
+const key = label.startsWith('home-page') ? 'home-page' : label;
 if (!V[key]) bad(`no verdict predicate for label "${label}" -- refusing to report a pass`);
 const why = V[key]();
 if (why) bad(why);

@@ -105,47 +105,36 @@
   flex-direction: column-reverse;
 }
 
-/* ---- Landing-page contract (design/landing-playful-arcade.md, foundation laid 2026-09-02) ----
+/* ---- Landing-page contract (gh#244: canvas D, design/HomeShelfDesktop.dc.html + HomeShelf320) ----
    A semantic layer over the primitives above. The landing components under src/components/landing/
-   and src/pages/index.astro reference THESE names, never the primitives, so a palette or rhythm
-   change is an edit to this block alone. Every value is one the home page already shipped from
-   design/HomeArcade.dc.html (ADR-0033). The concept's own palette (coral #f54867, ink #17213a) is
-   NOT applied: the --accent-* block above is owner-confirmed and gated by
-   scripts/accent-single-source-check.mjs, so swapping it is an owner decision, not a token edit.
+   and src/pages/index.astro reference THESE names for colour, never the primitives, so a palette
+   change is an edit to this block alone. Every value is canvas D's own (ADR-0033); the accent and
+   ink primitives carry D's palette since gh#246 / ADR-0069. Sizes stay in the components, each one
+   the artboard's literal, because D sets them per element and per artboard, not on a scale.
 
    Breakpoints cannot be custom properties, so the closed set lives in this comment and nowhere else:
      phone    <= 639px    written  @media (max-width: 639px)
-     tablet   640-1099px  written  @media (max-width: 1099px)   -- also where the 300px ad rail goes
+     tablet   640-1099px  written  @media (max-width: 1099px)
      desktop  >= 1100px
-   No file adds a third query. */
+   No file adds a third query. Canvas D has two artboards, 1440 and 320: desktop takes the 1440
+   values, and everything at or below 1099px takes the 320 values — the 640-1099 band differs only
+   where a phone column count would blow a tile up past its desktop size. */
 :root {
   --surface-page: var(--color-ground-warm);
-  --surface-paper: #fff8e8; /* the canvas's FAQ paper; the concept's cream is the same value */
-  --surface-hero: var(--color-primary);
+  --surface-hero: var(--accent-punch);
+  --surface-sun: var(--accent-gold); /* D's yellow: badge, call to action, featured card, see-all on ink */
+  --surface-tile: #ffffff;
+  --surface-band: var(--color-line-strong);
   --ink: var(--color-line-strong);
-  --ink-on-hero: var(--color-ground-warm);
-  --ink-muted: var(--color-muted);
+  --ink-light: #ffffff; /* text on the hero pink, the ink band and the tools blue */
+  --ink-soft: #3d3b5c;
+  --ink-on-band-soft: #d9d6f0;
+  --ad-line: #c9c3a8;
+  --ad-label: #9a947a;
+  --art-shadow: rgba(20, 20, 43, 0.28);
+  --hero-dot: rgba(255, 255, 255, 0.18);
 
-  --container-max: 1280px;
-  --gutter: 18px;
-  --section-gap: 56px;
-  --grid-gap: 22px;
   --tap-min: 44px;
-
-  --card-line: 3.5px solid var(--ink);
-  --card-radius: 18px;
-  --card-shadow: 5px 5px 0 0 var(--ink);
-  --card-pad: 22px;
-
-  /* type scale: the sizes the shipped page uses; a new section picks from these, never a literal */
-  --text-xs: 12px;
-  --text-sm: 14px;
-  --text-base: 15px;
-  --text-md: 19px;
-  --text-lg: 23px;
-  --text-xl: 32px;
-  --text-hero: 76px;
-  --text-hero-narrow: 30px;
 
   --focus-ring: 3px solid var(--ink);
   --focus-offset: 3px;

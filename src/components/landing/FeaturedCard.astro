@@ -1,0 +1,209 @@
+---
+// The hero's featured game (canvas D, gh#244): one whole-card link to the game, its own card art
+// at hero size, bobbing, with four sparkles around it. The game is the manifest's `featuredGame`,
+// never an id written into a page. The art loads eagerly with its intrinsic size — it is the page's
+// largest above-the-fold image. No copy lives here: name and tagline arrive as props.
+export interface Props {
+  href: string;
+  title: string;
+  desc: string;
+  /** The art file name under /art/ — the game module's own cardArt. */
+  art: string;
+}
+
+const { href, title, desc, art } = Astro.props;
+---
+
+<a class="featured" href={href}>
+  <span class="spark spark-1" aria-hidden="true"></span>
+  <span class="spark spark-2" aria-hidden="true"></span>
+  <span class="spark spark-3" aria-hidden="true"></span>
+  <span class="spark spark-4" aria-hidden="true"></span>
+  <span class="art toy"><img src={`/art/${art}`} alt="" width="361" height="320" /></span>
+  <span class="name">{title}</span>
+  <span class="desc">{desc}</span>
+</a>
+
+<style>
+  /* Canvas D values (ADR-0033): desktop from the 1440 artboard, <= 1099px from the 320 one, which
+     draws two sparkles instead of four and a smaller toy. The card's 540px is the canvas's content
+     width (content-box, as drawn), capped by its column so the card never pushes the page sideways. */
+  .featured {
+    position: relative;
+    display: block;
+    justify-self: end;
+    width: 540px;
+    max-width: calc(100% - 70px);
+    min-width: 0;
+    overflow-wrap: anywhere;
+    background: var(--surface-sun);
+    color: var(--ink);
+    text-decoration: none;
+    border: 5px solid var(--ink);
+    border-radius: 34px;
+    box-shadow: 10px 10px 0 0 var(--ink);
+    padding: 0 30px 26px;
+  }
+
+  .spark {
+    position: absolute;
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  }
+
+  .spark-1 {
+    left: 34px;
+    top: 40px;
+    width: 26px;
+    height: 26px;
+    background: var(--ink-light);
+    animation: shelf-twinkle 2.4s ease-in-out infinite;
+  }
+
+  .spark-2 {
+    right: 40px;
+    top: 70px;
+    width: 34px;
+    height: 34px;
+    background: var(--ink-light);
+    animation: shelf-twinkle 2.4s ease-in-out infinite 0.6s;
+  }
+
+  .spark-3 {
+    left: 70px;
+    top: 250px;
+    width: 20px;
+    height: 20px;
+    background: var(--ink);
+    animation: shelf-twinkle 2.4s ease-in-out infinite 1.2s;
+  }
+
+  .spark-4 {
+    right: 70px;
+    top: 290px;
+    width: 22px;
+    height: 22px;
+    background: var(--ink);
+    animation: shelf-twinkle 2.4s ease-in-out infinite 1.8s;
+  }
+
+  .art {
+    position: relative;
+    display: block;
+    aspect-ratio: 361 / 320;
+  }
+
+  .art img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 8px var(--art-shadow));
+  }
+
+  .toy {
+    width: 420px;
+    max-width: 100%;
+    margin: -48px auto 0;
+    animation: shelf-bob 3.2s ease-in-out infinite;
+  }
+
+  .name {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 46px;
+    line-height: 1.1;
+  }
+
+  .desc {
+    display: block;
+    margin-top: 6px;
+    font-size: 19px;
+    font-weight: 600;
+  }
+
+  /* Canvas keyframes verbatim. Decoration only: the page's reduced-motion rule stops all three. */
+  @keyframes shelf-bob {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+      transform: translateY(-14px) rotate(2deg);
+    }
+  }
+
+  @keyframes shelf-bob-narrow {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(2deg);
+    }
+  }
+
+  @keyframes shelf-twinkle {
+    0%,
+    100% {
+      transform: scale(0.6);
+      opacity: 0.35;
+    }
+    50% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 1099px) {
+    .featured {
+      justify-self: auto;
+      width: auto;
+      max-width: 540px;
+      margin-top: 48px;
+      border-width: 4px;
+      border-radius: 24px;
+      box-shadow: 6px 6px 0 0 var(--ink);
+      padding: 0 16px 16px;
+    }
+
+    .spark-1 {
+      left: 14px;
+      top: 24px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .spark-2 {
+      right: 16px;
+      top: 40px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .spark-3,
+    .spark-4 {
+      display: none;
+    }
+
+    .art img {
+      filter: drop-shadow(0 8px 6px var(--art-shadow));
+    }
+
+    .toy {
+      width: 240px;
+      margin: -36px auto 0;
+      animation-name: shelf-bob-narrow;
+    }
+
+    .name {
+      font-size: 30px;
+    }
+
+    .desc {
+      margin-top: 4px;
+      font-size: 15px;
+    }
+  }
+</style>

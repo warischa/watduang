@@ -1,0 +1,119 @@
+---
+// One typographic tile (canvas D's fortune and tools rows, gh#244): no art set exists for these, so
+// the tile is its name and its one-line description on a flat accent block. `kind` is the product
+// type the tile belongs to — a fortune game or a randomizer tool, never a party game (ADR-0040) — and
+// sets the size pair and the ink; the colour itself is the manifest's accent NAME, resolved here, so a
+// tile and its own hub can never disagree on it. No copy lives here: every string is a prop.
+export interface Props {
+  kind: 'fortune' | 'tool';
+  href: string;
+  title: string;
+  desc: string;
+  /** An accent token NAME such as `--accent-gold`, never a hex. */
+  accentVar: `--accent-${string}`;
+}
+
+const { kind, href, title, desc, accentVar } = Astro.props;
+---
+
+<a class="tile" data-kind={kind} href={href} style={`--tile-accent: var(${accentVar});`}>
+  <h3 class="name">{title}</h3>
+  <p class="desc">{desc}</p>
+</a>
+
+<style>
+  /* Canvas D values (ADR-0033): desktop from the 1440 artboard, <= 1099px from the 320 one. The
+     frame, shadow and hover lift are the shelf tile's; only the padding and the type pair differ per
+     kind. The 320 artboard draws a tool tile as its name alone, so the description is hidden there
+     and stays in the document. */
+  .tile {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    background: var(--tile-accent);
+    color: var(--ink);
+    text-decoration: none;
+    border: 4px solid var(--ink);
+    border-radius: 22px;
+    box-shadow: 6px 6px 0 0 var(--ink);
+    padding: 26px;
+    transition:
+      transform 160ms ease-out,
+      box-shadow 160ms ease-out;
+  }
+
+  .tile:hover {
+    transform: translate(-3px, -6px);
+    box-shadow: 9px 12px 0 0 var(--ink);
+  }
+
+  .name {
+    display: block;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 30px;
+  }
+
+  .desc {
+    display: block;
+    margin: 8px 0 0;
+    font-size: 16px;
+  }
+
+  .tile[data-kind='tool'] {
+    color: var(--ink-light);
+    padding: 22px;
+  }
+
+  .tile[data-kind='tool'] .name {
+    font-size: 26px;
+  }
+
+  .tile[data-kind='tool'] .desc {
+    font-size: 15px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile,
+    .tile:hover {
+      transition: none;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 1099px) {
+    .tile {
+      border-width: 3px;
+      border-radius: 18px;
+      box-shadow: 4px 4px 0 0 var(--ink);
+      padding: 14px;
+    }
+
+    .tile:hover {
+      transform: none;
+      box-shadow: 4px 4px 0 0 var(--ink);
+    }
+
+    .name {
+      font-size: 21px;
+    }
+
+    .desc {
+      margin-top: 4px;
+      font-size: 14px;
+    }
+
+    .tile[data-kind='tool'] {
+      padding: 12px;
+    }
+
+    .tile[data-kind='tool'] .name {
+      font-size: 17px;
+    }
+
+    .tile[data-kind='tool'] .desc {
+      display: none;
+    }
+  }
+</style>

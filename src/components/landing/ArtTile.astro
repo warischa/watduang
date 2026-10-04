@@ -1,0 +1,194 @@
+---
+// One art-led game tile (canvas D's `.shelf-tile` with its `.art` box, gh#244): the game's own card
+// art breaks out of the top edge of a flat sticker frame. Two sizes of the same tile — `shelf` is
+// the party band's name-only tile, `popular` the popular row's larger tile that also carries the
+// tagline. No copy lives here: every string and the art file name arrive as props the page reads
+// from the games manifest.
+export interface Props {
+  href: string;
+  title: string;
+  /** The art file name under /art/ — the game module's own cardArt. */
+  art: string;
+  variant?: 'shelf' | 'popular';
+  /** Popular tiles only: the game's tagline. */
+  desc?: string | null;
+  /** The featured game's shelf tile takes the sun yellow, echoing the hero card. */
+  highlight?: boolean;
+  /** Popular tiles only: which beat of the staggered wiggle this tile takes. */
+  tilt?: '' | 'tilt-a' | 'tilt-b' | 'tilt-c';
+}
+
+const { href, title, art, variant = 'shelf', desc = null, highlight = false, tilt = '' } = Astro.props;
+if (variant === 'popular' && !desc) throw new Error(`ArtTile ${href}: a popular tile carries the tagline`);
+---
+
+<a
+  class:list={['tile', tilt]}
+  data-variant={variant}
+  data-highlight={highlight || undefined}
+  href={href}
+>
+  <span class="art"><img src={`/art/${art}`} alt="" loading="lazy" /></span>
+  <div class="copy">
+    <h3 class="name">{title}</h3>
+    {desc && <p class="desc">{desc}</p>}
+  </div>
+</a>
+
+<style>
+  /* Canvas D values (ADR-0033): desktop from the 1440 artboard, <= 1099px from the 320 one, where
+     the frame thins, the shadow shortens and a popular tile turns into an art-left row. min-width: 0
+     and overflow-wrap are the Thai-text guard: a grid child defaults to min-width: auto, and a name
+     with no break opportunity would widen the column and the page. */
+  .tile {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    background: var(--surface-tile);
+    color: var(--ink);
+    text-decoration: none;
+    border: 4px solid var(--ink);
+    border-radius: 22px;
+    box-shadow: 6px 6px 0 0 var(--ink);
+    padding: 0 12px 14px;
+    transition:
+      transform 160ms ease-out,
+      box-shadow 160ms ease-out;
+  }
+
+  .tile:hover {
+    transform: translate(-3px, -6px);
+    box-shadow: 9px 12px 0 0 var(--ink);
+  }
+
+  .tile[data-highlight] {
+    background: var(--surface-sun);
+  }
+
+  .art {
+    position: relative;
+    display: block;
+    aspect-ratio: 361 / 320;
+    margin-top: -34px;
+  }
+
+  .art img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 8px var(--art-shadow));
+  }
+
+  .copy {
+    display: block;
+  }
+
+  .name {
+    display: block;
+    margin: 4px 0 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .desc {
+    display: block;
+    margin: 6px 0 0;
+    font-size: 16px;
+    color: var(--ink-soft);
+  }
+
+  .tile[data-variant='popular'] {
+    padding: 0 22px 22px;
+  }
+
+  .tile[data-variant='popular'] .name {
+    font-size: 28px;
+    text-align: left;
+  }
+
+  /* The popular row wiggles in turn, canvas keyframes verbatim: idle for 92% of a 6s cycle, so at
+     most one tile moves at a time. Decoration only; the page's reduced-motion rule stops it. */
+  @keyframes shelf-tilt {
+    0%,
+    92%,
+    100% {
+      transform: rotate(0deg);
+    }
+    95% {
+      transform: rotate(-4deg);
+    }
+    98% {
+      transform: rotate(3deg);
+    }
+  }
+
+  .tilt-a {
+    animation: shelf-tilt 6s ease-in-out infinite;
+  }
+
+  .tilt-b {
+    animation: shelf-tilt 6s ease-in-out infinite 2s;
+  }
+
+  .tilt-c {
+    animation: shelf-tilt 6s ease-in-out infinite 4s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile,
+    .tile:hover {
+      transition: none;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 1099px) {
+    .tile {
+      border-width: 3px;
+      border-radius: 18px;
+      box-shadow: 4px 4px 0 0 var(--ink);
+      padding: 0 8px 10px;
+    }
+
+    /* the 320 artboard draws no hover lift */
+    .tile:hover {
+      transform: none;
+      box-shadow: 4px 4px 0 0 var(--ink);
+    }
+
+    .art {
+      margin-top: -24px;
+    }
+
+    .art img {
+      filter: drop-shadow(0 8px 6px var(--art-shadow));
+    }
+
+    .name {
+      font-size: 16px;
+      margin-top: 2px;
+    }
+
+    .tile[data-variant='popular'] {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .tile[data-variant='popular'] .name {
+      font-size: 19px;
+    }
+
+    .desc {
+      margin: 0;
+      font-size: 13px;
+    }
+  }
+</style>

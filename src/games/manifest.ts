@@ -97,3 +97,19 @@ export const popularGames: GameModule[] = popularGroup.ids.map((id) => {
   if (!game) throw new Error(`popularGroup.ids: no game is registered under the id "${id}"`);
   return game;
 });
+
+// gh#244 — the home hero's featured game, the same bargain as the popular row: data here, never a
+// game id written into the page. The id is the one canvas D draws (design/HomeShelfDesktop.dc.html,
+// owner pick 2026-10-04 on gh#243); changing it is an owner decision and an edit to `id` alone. The
+// hero renders the game's own card art, so the game must declare `cardArt` — a party game, per
+// validate-games, which is what makes "featured GAME" true (ADR-0040).
+export const featuredGroup = {
+  id: 'croc-bite',
+};
+
+export const featuredGame: GameModule = (() => {
+  const game = byId(featuredGroup.id);
+  if (!game) throw new Error(`featuredGroup.id: no game is registered under the id "${featuredGroup.id}"`);
+  if (!game.cardArt) throw new Error(`featuredGroup.id: "${featuredGroup.id}" declares no cardArt for the hero`);
+  return game;
+})();

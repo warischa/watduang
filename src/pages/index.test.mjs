@@ -15,18 +15,29 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { games, popularGroup, popularGames } from '../games/manifest.ts';
+import { games, popularGroup, popularGames, featuredGame, featuredGroup } from '../games/manifest.ts';
 import { categories } from '../games/categories.ts';
 import { tools, toolsGroup } from '../tools/manifest.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pageSrc = readFileSync(join(here, 'index.astro'), 'utf8');
-// Landing components render the card and section markup the page used to hold inline. They are
-// scanned whole: a component has no frontmatter copy exemption, because nothing it renders may be
-// a literal (handoff D2 — zero content literals in components).
-const componentSrc = ['Card.astro', 'Section.astro']
+// Landing components render the hero, tile and section markup the page used to hold inline. They
+// are scanned whole: a component has no frontmatter copy exemption, because nothing it renders may
+// be a literal (handoff D2 — zero content literals in components). gh#244 split canvas D into these
+// five; a sixth landing component the page imports must join this list, and the import check below
+// is what makes that a red rather than a quiet gap.
+const COMPONENTS = ['HomeHero.astro', 'FeaturedCard.astro', 'Section.astro', 'ArtTile.astro', 'TextTile.astro'];
+const componentSrc = COMPONENTS
   .map((name) => readFileSync(join(here, '..', 'components', 'landing', name), 'utf8'))
   .join('\n');
+
+test('every landing component the page renders is in the literal scan', () => {
+  const imported = [...pageSrc.matchAll(/from '\.\.\/components\/landing\/([A-Za-z]+\.astro)'/g)].map((m) => m[1]);
+  const nested = [...componentSrc.matchAll(/from '\.\/([A-Za-z]+\.astro)'/g)].map((m) => m[1]);
+  assert.ok(imported.length > 0, 'positive control: the import scan found no landing component at all');
+  const missing = [...new Set([...imported, ...nested])].filter((name) => !COMPONENTS.includes(name));
+  assert.deepEqual(missing, [], 'a landing component renders on the home page but is not scanned for retyped copy');
+});
 
 // Comments and metadata are exempt from the literal scan: the frontmatter cites canvas copy in
 // quotes and the <Base …> tag carries the owner-mandated title/description that enumerates tool
@@ -44,9 +55,9 @@ assert.match(pageBody, /<PageChrome>/, 'positive control: the frontmatter/<Base>
 // The frontmatter with its full-line comments removed — the page MODEL, nothing that merely talks
 // about it. gh#192 (i) counts how many times the page renders one manifest field, and a count taken
 // over prose would red on the next comment that names the field. Same vacuous-green risk as above,
-// same shape of positive control: `const intents` is the last model this slice must still hold.
+// same shape of positive control: `const toolsRow` is the last model this slice must still hold.
 const pageModel = (pageSrc.match(/^---[\s\S]*?^---$/m) ?? [''])[0].replace(/^[ \t]*\/\/.*$/gm, '');
-assert.match(pageModel, /const intents/, 'positive control: the frontmatter slice or the comment strip blanked the model');
+assert.match(pageModel, /const toolsRow/, 'positive control: the frontmatter slice or the comment strip blanked the model');
 
 const manifestCopy = [
   ...games.map((g) => g.names.th),
@@ -100,24 +111,38 @@ test('the home page reads game names and taglines from the games manifest', () =
 // the markup would pass on a page whose model retyped the string; pinning only the model would pass
 // on a page that never rendered it.
 //
-// gh#192 (i), owner ruling 2026-09-03: the tools group LIST is dropped and the tools PANEL stays, so
-// the page renders the tools hub heading once instead of twice. That retires the half of the gh#75
-// acceptance that demanded a per-tool card model — keeping `title: tool.name` asserted here is
-// exactly what would have kept the duplicate heading on the page. What replaces it is the same
-// invariant read off the panel model, plus a count that fails if a second render comes back.
-test('the tools hub copy renders once, from the manifest, through the panel model', () => {
+// gh#192 (i), owner ruling 2026-09-03, dropped the tools group LIST because it and the tools panel
+// rendered the same hub heading twice. gh#244 (canvas D, ADR-0058 as amended) brings per-tool tiles
+// back under ONE tools row whose head is that heading — the panel is gone, so the heading still
+// renders once. The pin therefore flips on the per-tool model (it must exist again) and keeps the
+// count, which is what actually guards the duplicate h2.
+test('the tools row renders its hub copy once and every tool from the manifest', () => {
   assert.match(pageSrc, /from '\.\.\/tools\/manifest'/, 'must import the tools manifest, not a copy of it');
-  assert.doesNotMatch(pageModel, /title:\s*tool\.name\b/, 'gh#192 (i): the per-tool card model is gone with the tools group list');
-  assert.doesNotMatch(pageModel, /desc:\s*tool\.desc\b/, 'gh#192 (i): the per-tool card model is gone with the tools group list');
+  assert.match(pageModel, /title:\s*tool\.name\b/, 'gh#244: a tool tile must take its title from the tools manifest');
+  assert.match(pageModel, /desc:\s*tool\.desc\b/, 'gh#244: a tool tile must take its body from the tools manifest');
+  assert.match(pageModel, /tools\.map\(/, 'gh#244: the tools row renders every tool the manifest holds, not a picked list');
   assert.equal(
     (pageModel.match(/toolsGroup\.heading\b/g) ?? []).length,
     1,
-    'gh#192 (i): the tools hub heading must be rendered exactly once — two renders is the duplicate h2 this closes',
+    'gh#192 (i): the tools hub heading must be rendered exactly once — two renders is the duplicate h2 it closed',
   );
-  assert.match(pageModel, /title:\s*toolsGroup\.heading\b/, 'the panel model must take its title from the manifest tools heading');
-  assert.match(pageModel, /desc:\s*toolsGroup\.body\b/, 'the panel model must take its body from the manifest tools body');
-  assert.match(pageBody, /\{card\.title\}/, 'a panel must render the title by interpolation');
-  assert.match(pageBody, /\{card\.desc\}/, 'a panel must render the description by interpolation');
+  assert.match(pageModel, /heading:\s*toolsGroup\.heading\b/, 'the tools row head must take its heading from the manifest');
+  assert.match(pageModel, /body:\s*toolsGroup\.body\b/, 'the tools row head must take its body from the manifest');
+  assert.match(pageBody, /\{card\.title\}/, 'a tile must render the title by interpolation');
+  assert.match(pageBody, /\{card\.desc\}/, 'a tile must render the description by interpolation');
+});
+
+// gh#244 / ADR-0058 as amended — the party shelf lists every party game again, and which games and
+// in what order is the manifest's alone: the page filters the registry by category and names no game.
+// The featured hero card is the same bargain as the popular row (ADR-0052): data in the manifest.
+test('the party shelf and the featured card are driven by the manifest, not by game ids in the page', () => {
+  assert.match(pageModel, /games\.filter\(\(game\) => game\.category === cat\)/, 'a category row must list its games by filtering the registry');
+  const named = games.map((g) => g.id).filter((id) => pageSrc.includes(`'${id}'`) || pageSrc.includes(`"${id}"`));
+  assert.deepEqual(named, [], 'no game id may be written into the home page');
+  assert.match(pageSrc, /\bfeaturedGame\b/, 'the hero card must render the manifest-held featured game');
+  assert.ok(games.includes(featuredGame), `featuredGroup.id "${featuredGroup.id}" must be a registered game`);
+  assert.equal(featuredGame.category, 'party', 'the featured card promotes a GAME (ADR-0040): a party game');
+  assert.ok(featuredGame.cardArt, 'the hero renders the featured game\'s own card art, so it must declare cardArt');
 });
 
 // gh#159 / ADR-0052 — the popular row is data. Which games and in what order is one manifest edit;
@@ -146,10 +171,15 @@ test('the popular row is driven by the manifest, not by a game id in the page', 
   }
 });
 
+// gh#244: canvas D's tiles carry no category pill. The pill existed because the popular row mixed
+// categories; on D every game sits under its own category's hub heading, and the popular row is party
+// games only (popularGroup's own load-bearing comment). ADR-0058's gh#244 amendment records that
+// trade. What stays pinned is the half that still applies: no label is retyped as bare markup.
 test('category labels render through the manifest, never as page literals', () => {
   assert.match(pageSrc, /from '\.\.\/games\/categories'/, 'must import the categories record');
-  assert.match(pageSrc, /pill:\s*categories\[[^\]]+\]\.label\b/, 'the pill must take its text from the categories record');
-  assert.match(pageBody, /\{card\.pill\}/, 'a game pill must render that field by interpolation');
+  for (const game of popularGames) {
+    assert.equal(game.category, 'party', `${game.id}: a pill-less popular row must stay party-only, or a reader cannot tell a fortune page from a game`);
+  }
   assert.doesNotMatch(pageBody, />\s*ดูดวง\s*</, 'the literal label must not sit in markup as bare copy');
   assert.doesNotMatch(pageBody, />\s*สุ่มคนโดน\s*</, 'the literal label must not sit in markup as bare copy');
 });

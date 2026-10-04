@@ -149,7 +149,7 @@ fi
 
 # --- serve + five browsers ---------------------------------------------------------------------
 # One normal Chrome per lane (CDP_1..CDP_4) so no two concurrent legs ever share a browser. Chrome B
-# exists only for home-direction-c-probe.mjs's reduced-motion leg: prefers-reduced-motion is a launch
+# exists only for home-page-probe.mjs's reduced-motion leg: prefers-reduced-motion is a launch
 # flag, not something CDP can toggle per tab, and that probe's own header prescribes two instances.
 # Both legs of that probe run, or its motion criterion is never checked at all. Chrome B is driven
 # only from lane four, so it is never shared either.
@@ -296,7 +296,7 @@ standalone() { # label, command...
 #
 # Positive-control legs sit next to the probe they calibrate. narrow-overflow and ad-reflow both pass
 # on "nothing moved" and neither reports a calibration of its own, so each is run twice: once clean,
-# once with its detector handed something it MUST see. category-pop and home-direction-c inject their
+# once with its detector handed something it MUST see. category-pop and home-page inject their
 # own overflow and report it in `calibration`, checked above -- they need no second leg.
 # no-nav-in-stage, leave-confirm and arm-gate pass on "nothing happened" too (no anchor in #stage, no
 # live button in a closed dialog, no early tap getting through), so each gets its own BREAK_GUARD
@@ -391,8 +391,8 @@ fit_lane() { # shard-index, cdp-port, lane-name
 lane4() {
   LANE=lane4
   probe wheel-pointer-name        wheel-pointer-name-probe.mjs        "$CDP_4"
-  probe home-direction-c-normal   home-direction-c-probe.mjs          "$CDP_4"
-  probe home-direction-c-reduced  home-direction-c-probe.mjs          "$CDP_B"
+  probe home-page-normal          home-page-probe.mjs                 "$CDP_4"
+  probe home-page-reduced         home-page-probe.mjs                 "$CDP_B"
   standalone live-region-floor         env BASE="$SITE" CDP_PORT="$CDP_4" node scripts/live-region-floor-probe.mjs
   standalone live-region-floor-control env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_GUARD=1 node scripts/live-region-floor-probe.mjs
   standalone control-floor             env BASE="$SITE" CDP_PORT="$CDP_4" node scripts/control-floor-probe.mjs

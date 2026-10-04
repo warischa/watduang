@@ -5,7 +5,7 @@
 //   Chrome: --remote-debugging-port=9222
 //   node scripts/driver.mjs scripts/category-pop-probe.mjs
 //
-// The same committed shape the home page uses (home-direction-c-probe.mjs); this probe drives the
+// The same committed shape the home page uses (home-page-probe.mjs); this probe drives the
 // two category pages. Verdicts:
 //   1. NO_SIDEWAYS_SCROLL at 320px and 390px on BOTH /c/fortune/ and /c/party/ — each run reports
 //      innerWidth equal to what was asked (a run that does not is void, not a pass), scrollWidth

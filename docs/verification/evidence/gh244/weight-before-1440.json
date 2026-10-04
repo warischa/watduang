@@ -1,0 +1,92 @@
+{
+  "width": 1440,
+  "height": 900,
+  "firstLoad": {
+    "innerWidth": 1440,
+    "requests": 5,
+    "encodedBytes": 40523,
+    "decodedBytes": 64640,
+    "cached": 0,
+    "rows": [
+      {
+        "url": "/",
+        "type": "navigation",
+        "enc": 4640,
+        "dec": 18625,
+        "xfer": 4940
+      },
+      {
+        "url": "/_astro/index.DRU5WMLg.css",
+        "type": "link",
+        "enc": 2018,
+        "dec": 9328,
+        "xfer": 2318
+      },
+      {
+        "url": "/fonts/sarabun-regular-subset.woff2",
+        "type": "css",
+        "enc": 16172,
+        "dec": 16172,
+        "xfer": 16472
+      },
+      {
+        "url": "/fonts/sarabun-bold-subset.woff2",
+        "type": "css",
+        "enc": 16328,
+        "dec": 16328,
+        "xfer": 16628
+      },
+      {
+        "url": "/favicon.ico",
+        "type": "other",
+        "enc": 1365,
+        "dec": 4187,
+        "xfer": 1665
+      }
+    ]
+  },
+  "fullScroll": {
+    "innerWidth": 1440,
+    "requests": 5,
+    "encodedBytes": 40523,
+    "decodedBytes": 64640,
+    "cached": 0,
+    "rows": [
+      {
+        "url": "/",
+        "type": "navigation",
+        "enc": 4640,
+        "dec": 18625,
+        "xfer": 4940
+      },
+      {
+        "url": "/_astro/index.DRU5WMLg.css",
+        "type": "link",
+        "enc": 2018,
+        "dec": 9328,
+        "xfer": 2318
+      },
+      {
+        "url": "/fonts/sarabun-regular-subset.woff2",
+        "type": "css",
+        "enc": 16172,
+        "dec": 16172,
+        "xfer": 16472
+      },
+      {
+        "url": "/fonts/sarabun-bold-subset.woff2",
+        "type": "css",
+        "enc": 16328,
+        "dec": 16328,
+        "xfer": 16628
+      },
+      {
+        "url": "/favicon.ico",
+        "type": "other",
+        "enc": 1365,
+        "dec": 4187,
+        "xfer": 1665
+      }
+    ]
+  }
+}

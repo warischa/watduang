@@ -1,0 +1,165 @@
+---
+// The home page hero (canvas D, gh#244): a featured-game stage, not a pitch. The left column is
+// the page's own hero copy, passed in as props because a component carries no copy; the right
+// column is the featured game's card. Below 1100px the two stack, copy first, the way the 320
+// artboard draws them.
+import FeaturedCard from './FeaturedCard.astro';
+
+export interface Props {
+  badge: string;
+  /** The h1's first line. */
+  titleTop: string;
+  /** The h1's second line, up to the highlighted words. */
+  titleLead: string;
+  /** The highlighted words that close the h1. */
+  titleMark: string;
+  lead: string;
+  ctaLabel: string;
+  ctaHref: string;
+  featured: { href: string; title: string; desc: string; art: string };
+}
+
+const { badge, titleTop, titleLead, titleMark, lead, ctaLabel, ctaHref, featured } = Astro.props;
+---
+
+<header class="hero">
+  <div class="dots" aria-hidden="true"></div>
+  <div class="inner">
+    <div class="copy">
+      <span class="badge">{badge}</span>
+      <h1>{titleTop}<br />{titleLead}<span class="mark">{titleMark}</span></h1>
+      <p class="lead">{lead}</p>
+      <a class="cta" href={ctaHref}>{ctaLabel} <span aria-hidden="true">→</span></a>
+    </div>
+    <FeaturedCard href={featured.href} title={featured.title} desc={featured.desc} art={featured.art} />
+  </div>
+</header>
+
+<style>
+  /* Canvas D values (ADR-0033): desktop from the 1440 artboard, <= 1099px from the 320 one. The
+     inner row is the canvas's 1280px box, kept 14px off each edge — the 320 artboard's own gutter —
+     wherever the viewport is narrower. overflow-wrap on the copy column is the Thai-text guard: the
+     hero clips (overflow: hidden), so a no-break string has to wrap rather than vanish. */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-hero);
+    border-block-end: 6px solid var(--ink);
+  }
+
+  .dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, var(--hero-dot) 3px, transparent 3.5px);
+    background-size: 34px 34px;
+  }
+
+  .inner {
+    position: relative;
+    width: min(1280px, 100% - 28px);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 40px;
+    padding-block: 56px;
+  }
+
+  .copy {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--surface-sun);
+    color: var(--ink);
+    border: 4px solid var(--ink);
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  h1 {
+    margin: 22px 0 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 84px;
+    line-height: 1.08;
+    color: var(--ink-light);
+    text-shadow: 5px 5px 0 var(--ink);
+  }
+
+  .mark {
+    color: var(--surface-sun);
+  }
+
+  .lead {
+    margin: 22px 0 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink-light);
+  }
+
+  .cta {
+    display: inline-block;
+    margin-top: 30px;
+    background: var(--surface-sun);
+    color: var(--ink);
+    text-decoration: none;
+    border: 4px solid var(--ink);
+    border-radius: 18px;
+    box-shadow: 6px 6px 0 0 var(--ink);
+    padding: 16px 32px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 26px;
+  }
+
+  @media (max-width: 1099px) {
+    .hero {
+      border-block-end-width: 5px;
+    }
+
+    .dots {
+      background-image: radial-gradient(circle, var(--hero-dot) 2.5px, transparent 3px);
+      background-size: 26px 26px;
+    }
+
+    .inner {
+      display: block;
+      padding-block: 24px 30px;
+    }
+
+    .badge {
+      border-width: 3px;
+      padding: 4px 12px;
+      font-size: 14px;
+    }
+
+    h1 {
+      margin-top: 14px;
+      font-size: 44px;
+      line-height: 1.1;
+      text-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .lead {
+      margin-top: 12px;
+      font-size: 17px;
+    }
+
+    .cta {
+      display: block;
+      margin-top: 18px;
+      text-align: center;
+      border-width: 3px;
+      border-radius: 14px;
+      box-shadow: 4px 4px 0 0 var(--ink);
+      padding: 12px 16px;
+      font-size: 20px;
+    }
+  }
+</style>
