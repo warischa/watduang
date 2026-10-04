@@ -25,8 +25,10 @@ export const WHEEL_HUB_R = 46;
 // computed label takes the midpoint of the two canvas radii (hub 46, rim 164). Flagged in the
 // ticket return, not silent.
 export const WHEEL_LABEL_R = 105;
-// Segment fill order — the artboard cycles these three, starting #ffd27f at the 12 o'clock segment.
-export const WHEEL_PALETTE = ['#ffd27f', '#f89880', '#7fd8e8'] as const;
+// Segment fill order — the artboard cycles the three accents, gold at the 12 o'clock segment. The
+// values are the site accents of gh#246 / ADR-0069 (canvas D), a whole-set copy of the --accent-*
+// block that accent-single-source-check holds to tokens.css.
+export const WHEEL_PALETTE = ['#ffcc00', '#ff3d7f', '#2b7bff'] as const;
 
 export interface WheelPoint {
   x: number;

@@ -191,7 +191,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
 <style>
   /* gh#88 — every value below is design/CatFortunePop.dc.html / design/CatPartyPop.dc.html's own
      (ADR-0033). Colours go through tokens where the canvas value IS a token (--color-ground-warm
-     #fffdf7, --color-line-strong #1a1a1a, --color-muted #6b7280, --color-primary #d6336c is the
+     #fff6e0, --color-line-strong #14142b, --color-muted #6b7280, --color-primary #d6336c is the
      canvas's own global a:hover, --accent-gold/--accent-punch/--accent-sky, --radius-lg 16px,
      --shadow-pop 4px 4px 0); the rgba() fills are canvas literals, no token exists for either
      alpha pair. --page-accent and --cross-accent are defined by the inline custom properties above
@@ -317,7 +317,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    border: 2.5px dashed rgba(26, 26, 26, 0.35);
+    border: 2.5px dashed rgba(20, 20, 43, 0.35);
     border-radius: 14px;
     color: var(--color-muted);
     font-size: 13px;
@@ -433,7 +433,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
     justify-content: space-between;
     gap: 8px;
     margin-block-start: auto;
-    border-block-start: 2px solid rgba(26, 26, 26, 0.2);
+    border-block-start: 2px solid rgba(20, 20, 43, 0.2);
     padding-block-start: 12px;
     font-size: 14px;
   }

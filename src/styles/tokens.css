@@ -2,21 +2,24 @@
    Real design work comes later and must not need to gut this file */
 :root {
   --color-bg: #ffffff;
-  --color-text: #1a1a1a;
+  --color-text: #14142b;
   --color-primary: #d6336c;
   --color-accent: #ffb703;
-  /* Accent values are lifted verbatim from the design canvas, which is their source of truth:
-     gold from design/CatFortune.dc.html, punch from design/CatParty.dc.html, sky from the third
-     group in design/HubNeutral.dc.html. gold/punch are the two names src/games/categories.ts
-     declares; sky has no manifest entry because the tools group is not a category. A value here
-     that is not in the canvas is drift, not a choice — the previous pair was invented from prose. */
-  --accent-gold: #ffd27f;
-  --accent-punch: #f89880;
-  --accent-sky: #7fd8e8;
+  /* Accent values are lifted verbatim from the design canvas, which is their source of truth.
+     gh#246 / ADR-0069 (owner ruling 2026-10-04): the whole site takes canvas D's palette —
+     design/HomeShelfDesktop.dc.html and design/HomeShelf320.dc.html — so gold is D's fortune
+     yellow, punch its party pink, sky its tools blue. The per-category artboards (CatFortune,
+     CatParty, HubNeutral) still hold the previous trio; the owner's ruling is what breaks that
+     tie. gold/punch are the two names src/games/categories.ts declares; sky has no manifest entry
+     because the tools group is not a category. A value here that is not in the canvas is drift,
+     not a choice. Ink, text and the warm ground below are D's own ink and cream, same ruling. */
+  --accent-gold: #ffcc00;
+  --accent-punch: #ff3d7f;
+  --accent-sky: #2b7bff;
   --color-muted: #6b7280;
   --color-border: #e5e7eb;
-  --color-ground-warm: #fffdf7;
-  --color-line-strong: #1a1a1a;
+  --color-ground-warm: #fff6e0;
+  --color-line-strong: #14142b;
 
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;

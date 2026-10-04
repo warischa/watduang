@@ -149,7 +149,7 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
 
 // Inline art, drawn and never an image: the winking sun says the page is a joke in the drawing and
 // not only in the copy. `stroke` references the token the way pick-loser's burst does: presentation
-// attributes resolve var() (here --color-line-strong, the canvas's #1a1a1a).
+// attributes resolve var() (here --color-line-strong, the site ink).
 const WINK_SUN_SVG =
   '<svg width="150" height="150" viewBox="0 0 150 150" fill="none" aria-hidden="true">' +
   '<circle cx="75" cy="75" r="34" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3"></circle>' +

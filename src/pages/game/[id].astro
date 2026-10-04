@@ -235,7 +235,7 @@ const { game } = Astro.props as { game: GameModule };
   /* gh#76 — game-screen classes, styled from design/GamePickLoser.dc.html and shared by every game
      that adopts the pattern. is:global because game modules create this DOM at runtime and Astro
      scoping would never reach it. Colours reference tokens defined in src/styles/tokens.css
-     (--color-line-strong #1a1a1a, --color-ground-warm #fffdf7, --color-text, --font-display);
+     (--color-line-strong #14142b, --color-ground-warm #fff6e0, --color-text, --font-display);
      sizes are the design's own literals. The canvas carries no animation, so none is added here —
      that is the whole reduced-motion story. rgba() pairs are the canvas's literal values. */
   .stage-screen {
@@ -269,7 +269,7 @@ const { game } = Astro.props as { game: GameModule };
     color: var(--color-ground-warm);
     font-weight: 500;
     font-size: 22px;
-    box-shadow: 5px 5px 0 rgba(26, 26, 26, 0.3);
+    box-shadow: 5px 5px 0 rgba(20, 20, 43, 0.3);
   }
 
   /* The shell's declared secondary-control style. gh#154 deleted its only producer; gh#101's
@@ -286,7 +286,7 @@ const { game } = Astro.props as { game: GameModule };
 
   /* the brief's verbatim inert look — the arm gate renders the control disabled for its 400ms window */
   .game-btn-secondary:disabled {
-    color: rgba(26, 26, 26, 0.45);
-    border: 2.5px dashed rgba(26, 26, 26, 0.35);
+    color: rgba(20, 20, 43, 0.45);
+    border: 2.5px dashed rgba(20, 20, 43, 0.35);
   }
 </style>

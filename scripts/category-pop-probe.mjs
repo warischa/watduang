@@ -18,8 +18,8 @@
 //      while the 940 + 40 + 300 tracks need 1280px of content, and no width here could see it.
 //   2. ACCENTS — the header block (-cat-head) on each page resolves to a DIFFERENT computed
 //      background colour, read from getComputedStyle rather than from the stylesheet: fortune
-//      rgb(255, 210, 127) (--accent-gold #ffd27f) and party rgb(248, 152, 128) (--accent-punch
-//      #f89880), the two canvas accents.
+//      rgb(255, 204, 0) (--accent-gold #ffcc00) and party rgb(255, 61, 127) (--accent-punch
+//      #ff3d7f), the two canvas accents (canvas D's, gh#246 / ADR-0069).
 //   3. AD HEIGHTS — the billboard slot and the rail slot reserve their height at 1440px (the
 //      artboard's own width; the rail only exists there), and below the 1100px the artboard names
 //      the rail is not rendered at all (absent, not merely unstuck) while the billboard keeps its
@@ -27,7 +27,7 @@
 const BASE = process.env.BASE || 'http://localhost:4321';
 const PAGES = ['fortune', 'party'];
 
-const ACCENT_RGB = { fortune: 'rgb(255, 210, 127)', party: 'rgb(248, 152, 128)' };
+const ACCENT_RGB = { fortune: 'rgb(255, 204, 0)', party: 'rgb(255, 61, 127)' };
 
 // One evaluate body, returned raw so both pages' rows are comparable. `return` is load-bearing:
 // driver.mjs wraps the body in an async function, an expression without it reads back as null

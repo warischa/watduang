@@ -175,7 +175,7 @@ test('labelText ตัดชื่อยาวที่เกินช่อง�
 });
 
 test('WHEEL_PALETTE ตามลำดับสีของ artboard', () => {
-  assert.deepEqual([...WHEEL_PALETTE], ['#ffd27f', '#f89880', '#7fd8e8']);
+  assert.deepEqual([...WHEEL_PALETTE], ['#ffcc00', '#ff3d7f', '#2b7bff']);
 });
 
 // ---- Pointer/announcement invariant (confirmed defect: reveal() re-sliced the disc while

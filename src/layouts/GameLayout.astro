@@ -173,7 +173,8 @@ const howToJsonLd = {
      itself (gh#77 box7; see timebomb.ts's frame() for the pattern). Scoped: every selector
      here matches only GameLayout's own static markup; the runtime DOM game modules build is styled by
      src/pages/game/[id].astro's is:global sheet instead. */
-  /* The shell's page ground — the design renders #fffdf7, which is exactly --color-ground-warm.
+  /* The shell's page ground — the design's warm ground, which is --color-ground-warm (canvas D's
+     cream since gh#246 / ADR-0069).
      --color-bg stays #ffffff on purpose; the game shell does not own that token. */
   main {
     background: var(--color-ground-warm);

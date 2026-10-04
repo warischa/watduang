@@ -134,19 +134,19 @@ const intents: CardProps[] = [
         </div>
         <div class="hero-art">
           <svg width="400" height="400" viewBox="0 0 400 400" aria-hidden="true">
-            <circle cx="200" cy="200" r="176" fill="#1a1a1a"></circle>
+            <circle cx="200" cy="200" r="176" fill="#14142b"></circle>
             <g class="hero-wheel">
-              <path d="M200 200 L200 36 A164 164 0 0 1 316 84 Z" fill="#ffd27f"></path>
-              <path d="M200 200 L316 84 A164 164 0 0 1 364 200 Z" fill="#f89880"></path>
-              <path d="M200 200 L364 200 A164 164 0 0 1 316 316 Z" fill="#7fd8e8"></path>
-              <path d="M200 200 L316 316 A164 164 0 0 1 200 364 Z" fill="#ffd27f"></path>
-              <path d="M200 200 L200 364 A164 164 0 0 1 84 316 Z" fill="#f89880"></path>
-              <path d="M200 200 L84 316 A164 164 0 0 1 36 200 Z" fill="#7fd8e8"></path>
-              <path d="M200 200 L36 200 A164 164 0 0 1 84 84 Z" fill="#ffd27f"></path>
-              <path d="M200 200 L84 84 A164 164 0 0 1 200 36 Z" fill="#f89880"></path>
-              <circle cx="200" cy="200" r="164" fill="none" stroke="#1a1a1a" stroke-width="7"></circle>
+              <path d="M200 200 L200 36 A164 164 0 0 1 316 84 Z" fill="#ffcc00"></path>
+              <path d="M200 200 L316 84 A164 164 0 0 1 364 200 Z" fill="#ff3d7f"></path>
+              <path d="M200 200 L364 200 A164 164 0 0 1 316 316 Z" fill="#2b7bff"></path>
+              <path d="M200 200 L316 316 A164 164 0 0 1 200 364 Z" fill="#ffcc00"></path>
+              <path d="M200 200 L200 364 A164 164 0 0 1 84 316 Z" fill="#ff3d7f"></path>
+              <path d="M200 200 L84 316 A164 164 0 0 1 36 200 Z" fill="#2b7bff"></path>
+              <path d="M200 200 L36 200 A164 164 0 0 1 84 84 Z" fill="#ffcc00"></path>
+              <path d="M200 200 L84 84 A164 164 0 0 1 200 36 Z" fill="#ff3d7f"></path>
+              <circle cx="200" cy="200" r="164" fill="none" stroke="#14142b" stroke-width="7"></circle>
             </g>
-            <circle cx="200" cy="200" r="46" fill="#fffdf7" stroke="#1a1a1a" stroke-width="7"></circle>
+            <circle cx="200" cy="200" r="46" fill="#fff6e0" stroke="#14142b" stroke-width="7"></circle>
             <text
               x="200"
               y="212"
@@ -154,8 +154,8 @@ const intents: CardProps[] = [
               font-family="Mitr, sans-serif"
               font-weight="600"
               font-size="26"
-              fill="#1a1a1a">สุ่ม</text>
-            <path d="M200 8 l22 40 h-44 z" fill="#fffdf7" stroke="#1a1a1a" stroke-width="6" stroke-linejoin="round"></path>
+              fill="#14142b">สุ่ม</text>
+            <path d="M200 8 l22 40 h-44 z" fill="#fff6e0" stroke="#14142b" stroke-width="6" stroke-linejoin="round"></path>
           </svg>
         </div>
       </div>
@@ -282,7 +282,7 @@ const intents: CardProps[] = [
 <style>
   /* gh#87 — every value below is design/HomeArcade.dc.html's own (ADR-0033). Colours go through
      tokens where the canvas value IS a token (--color-primary #d6336c is the canvas accent
-     default, --color-line-strong #1a1a1a, --color-ground-warm #fffdf7, the three accent tokens);
+     default, --color-line-strong #14142b, --color-ground-warm #fff6e0, the three accent tokens);
      the rgba() fills are canvas literals, no token exists for them. --card-accent is
      defined per card by the inline custom property above, resolved from the manifest accent NAME
      (category accent / toolsGroup.accentVar), never a hex. The `main a:hover` colour is the
@@ -314,7 +314,7 @@ const intents: CardProps[] = [
   .hero-stripes {
     position: absolute;
     inset: 0;
-    background-image: repeating-linear-gradient(135deg, rgba(255, 253, 247, 0.09) 0 26px, transparent 26px 80px);
+    background-image: repeating-linear-gradient(135deg, rgba(255, 246, 224, 0.09) 0 26px, transparent 26px 80px);
     background-size: 160px 100%;
     animation: arc-stripes 9s linear infinite;
   }
@@ -377,7 +377,7 @@ const intents: CardProps[] = [
     margin: 0;
     font-size: 19px;
     line-height: 1.75;
-    color: rgba(255, 253, 247, 0.92);
+    color: rgba(255, 246, 224, 0.92);
     max-width: 44ch;
   }
 
@@ -413,7 +413,7 @@ const intents: CardProps[] = [
     min-block-size: var(--tap-min); /* tap minimum: the canvas link is a 16px text line */
     font-size: 16px;
     color: var(--color-ground-warm);
-    border-block-end: 2px solid rgba(255, 253, 247, 0.6);
+    border-block-end: 2px solid rgba(255, 246, 224, 0.6);
     padding-block-end: 3px;
   }
 
@@ -468,7 +468,7 @@ const intents: CardProps[] = [
     align-items: center;
     justify-content: center;
     gap: 6px;
-    border: 3px dashed rgba(26, 26, 26, 0.35);
+    border: 3px dashed rgba(20, 20, 43, 0.35);
     color: var(--color-muted);
     font-size: 13px;
   }

@@ -80,9 +80,10 @@
 
 /* gh#97 — the four screens: "ตั้งจิต", "เขย่า", "ไม้ติ้วตก", "ใบเซียมซี". Every value below is read from
    design/SiamsiIntent.dc.html, design/SiamsiShake.dc.html, design/SiamsiStick.dc.html and
-   design/SiamsiSlip.dc.html (ADR-0033). The canvas paints its panels on #fffdf7 and its rules in
-   #1a1a1a; those are the shell's warm-ground and strong-line tokens, so the tokens are what is
-   written here — a raw hex would be a second source for a colour this site already defines. */
+   design/SiamsiSlip.dc.html (ADR-0033). The canvas paints its panels in the shell's warm ground
+   and its rules in the shell's strong line, so the tokens are what is written here — a raw hex
+   would be a second source for a colour this site already defines. Those two tokens carry canvas
+   D's cream and ink since gh#246 / ADR-0069, not the older values these artboards hold. */
 
 .sm-title {
   font-family: var(--font-display);

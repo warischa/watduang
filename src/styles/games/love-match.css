@@ -61,7 +61,7 @@
   font-size: 13px;
   line-height: 1.6;
   max-width: 32ch;
-  color: rgba(26, 26, 26, 0.7);
+  color: rgba(20, 20, 43, 0.7);
 }
 
 /* ---- the meet screen ---- */
@@ -115,7 +115,7 @@
 
 .lm-row > :first-child {
   flex: 0 0 6.5em;
-  color: rgba(26, 26, 26, 0.7);
+  color: rgba(20, 20, 43, 0.7);
 }
 
 /* ---- the self screen ---- */

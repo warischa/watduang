@@ -40,9 +40,9 @@ import GameNav from '../../components/GameNav.astro';
         <button type="button" id="wheel-disc" class="wheel-disc" aria-label="หมุน" aria-describedby="wheel-note">
           <svg viewBox="0 0 400 400" aria-hidden="true">
             <g id="wheel-group"></g>
-            <circle cx="200" cy="200" r="46" fill="#fffdf7" stroke="#1a1a1a" stroke-width="7"></circle>
-            <text x="200" y="212" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="26" fill="#1a1a1a">หมุน</text>
-            <path d="M200 8 l22 40 h-44 z" fill="#fffdf7" stroke="#1a1a1a" stroke-width="6" stroke-linejoin="round"></path>
+            <circle cx="200" cy="200" r="46" fill="#fff6e0" stroke="#14142b" stroke-width="7"></circle>
+            <text x="200" y="212" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="26" fill="#14142b">หมุน</text>
+            <path d="M200 8 l22 40 h-44 z" fill="#fff6e0" stroke="#14142b" stroke-width="6" stroke-linejoin="round"></path>
           </svg>
         </button>
       </div>
@@ -266,7 +266,7 @@ import GameNav from '../../components/GameNav.astro';
     color: var(--color-ground-warm);
     font-size: 18px;
     border-radius: 16px;
-    box-shadow: 4px 4px 0 rgba(26, 26, 26, 0.3);
+    box-shadow: 4px 4px 0 rgba(20, 20, 43, 0.3);
   }
 
   .wheel-reset {
@@ -440,7 +440,7 @@ import GameNav from '../../components/GameNav.astro';
     rim.setAttribute('cy', '200');
     rim.setAttribute('r', '164');
     rim.setAttribute('fill', 'none');
-    rim.setAttribute('stroke', '#1a1a1a');
+    rim.setAttribute('stroke', '#14142b');
     rim.setAttribute('stroke-width', '7');
     group.appendChild(rim);
 
@@ -453,7 +453,7 @@ import GameNav from '../../components/GameNav.astro';
       text.setAttribute('font-family', 'Mitr, sans-serif');
       text.setAttribute('font-weight', '600');
       text.setAttribute('font-size', String(labelFontSize(names.length)));
-      text.setAttribute('fill', '#1a1a1a');
+      text.setAttribute('fill', '#14142b');
       text.setAttribute('transform', `rotate(${label.angle} ${label.x} ${label.y})`);
       text.textContent = labelText(names[i]!, names.length);
       group.appendChild(text);
