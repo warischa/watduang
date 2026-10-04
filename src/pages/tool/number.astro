@@ -124,6 +124,12 @@ import GameNav from '../../components/GameNav.astro';
     flex-wrap: wrap;
     gap: var(--space-sm);
   }
+
+  /* hit-area only (gh#254): the all-tools link stands alone in its paragraph, so it is a target and
+     not running prose. Vertical padding on an inline link is invisible and moves no line. */
+  #how-to-use p a {
+    padding-block: 2px;
+  }
 </style>
 
 <script>

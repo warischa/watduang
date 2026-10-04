@@ -74,7 +74,10 @@ const groups = category
   /* gh#76 — bottom chrome strip, same design language as the game shell's topbar (strong seam rule,
      ground fill). Deliberately token-only: this component also renders on the four tool pages, and
      --page-accent is not defined there, so it must never be referenced from here. No sizes invented —
-     nothing here sets a font-size or a radius the design values did not hand over. */
+     nothing here sets a font-size or a radius the design values did not hand over. The one number
+     below, the link's vertical padding, is an accessibility hit-area value and not a design size: it
+     is invisible (no background, no border) and an inline box's padding never moves a line, so the
+     list renders exactly as drawn while each link's pointer target reaches 24px (WCAG 2.5.8). */
   nav {
     background: var(--color-ground-warm);
     border-block-start: 2.5px solid var(--color-line-strong);
@@ -105,6 +108,7 @@ const groups = category
   a {
     color: var(--color-text);
     text-decoration: none;
+    padding-block: 2px;
   }
 
   a:hover {

@@ -254,6 +254,8 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
   .breadcrumb a {
     color: var(--color-line-strong);
     text-decoration: none;
+    /* hit-area only: invisible, and an inline box's vertical padding moves no line (gh#254) */
+    padding-block: 4px;
   }
 
   h1 {

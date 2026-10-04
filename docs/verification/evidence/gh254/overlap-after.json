@@ -1,0 +1,156 @@
+[
+  {
+    "width": 320,
+    "path": "/",
+    "interactive": 33,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/c/party/",
+    "interactive": 21,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/c/fortune/",
+    "interactive": 10,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/tools/",
+    "interactive": 6,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/tool/wheel/",
+    "interactive": 23,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/tool/number/",
+    "interactive": 21,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/tool/draw/",
+    "interactive": 21,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/tool/team/",
+    "interactive": 20,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/game/siamsi/",
+    "interactive": 24,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/game/daily-fortune/",
+    "interactive": 19,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 320,
+    "path": "/game/love-match/",
+    "interactive": 29,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/",
+    "interactive": 33,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/c/party/",
+    "interactive": 21,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/c/fortune/",
+    "interactive": 10,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/tools/",
+    "interactive": 6,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/tool/wheel/",
+    "interactive": 23,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/tool/number/",
+    "interactive": 21,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/tool/draw/",
+    "interactive": 21,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/tool/team/",
+    "interactive": 20,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/game/siamsi/",
+    "interactive": 24,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/game/daily-fortune/",
+    "interactive": 19,
+    "overlapping": 0,
+    "examples": []
+  },
+  {
+    "width": 1440,
+    "path": "/game/love-match/",
+    "interactive": 29,
+    "overlapping": 0,
+    "examples": []
+  }
+]

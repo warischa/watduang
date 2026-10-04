@@ -1,0 +1,542 @@
+[
+ {
+  "width": 320,
+  "path": "/c/party/",
+  "group": "categoryCrumb",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 26,
+   "max": 26
+  }
+ },
+ {
+  "width": 320,
+  "path": "/c/fortune/",
+  "group": "categoryCrumb",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 26,
+   "max": 26
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/wheel/",
+  "group": "gamenav",
+  "n": 14,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 14
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/wheel/",
+  "group": "allTools",
+  "n": 1,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 1
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/number/",
+  "group": "gamenav",
+  "n": 14,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 14
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/number/",
+  "group": "allTools",
+  "n": 1,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 1
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/draw/",
+  "group": "gamenav",
+  "n": 14,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 14
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/draw/",
+  "group": "allTools",
+  "n": 1,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 1
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/draw/",
+  "group": "toolBack",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 24,
+   "max": 24
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/team/",
+  "group": "gamenav",
+  "n": 14,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 14
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/team/",
+  "group": "allTools",
+  "n": 1,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 1
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/tool/team/",
+  "group": "toolBack",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 24,
+   "max": 24
+  }
+ },
+ {
+  "width": 320,
+  "path": "/game/siamsi/",
+  "group": "gamenav",
+  "n": 16,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 16
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/game/siamsi/",
+  "group": "topbarBack",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 24,
+   "max": 24
+  }
+ },
+ {
+  "width": 320,
+  "path": "/game/daily-fortune/",
+  "group": "gamenav",
+  "n": 16,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 16
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/game/daily-fortune/",
+  "group": "topbarBack",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 24,
+   "max": 24
+  }
+ },
+ {
+  "width": 320,
+  "path": "/game/love-match/",
+  "group": "gamenav",
+  "n": 16,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 16
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 320,
+  "path": "/game/love-match/",
+  "group": "topbarBack",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 24,
+   "max": 24
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/c/party/",
+  "group": "categoryCrumb",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 26,
+   "max": 26
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/c/fortune/",
+  "group": "categoryCrumb",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 26,
+   "max": 26
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/wheel/",
+  "group": "gamenav",
+  "n": 14,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 14
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/wheel/",
+  "group": "allTools",
+  "n": 1,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 1
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/number/",
+  "group": "gamenav",
+  "n": 14,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 14
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/number/",
+  "group": "allTools",
+  "n": 1,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 1
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/draw/",
+  "group": "gamenav",
+  "n": 14,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 14
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/draw/",
+  "group": "allTools",
+  "n": 1,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 1
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/draw/",
+  "group": "toolCrumb",
+  "n": 1,
+  "before": {
+   "min": 22,
+   "max": 22,
+   "n": 1
+  },
+  "after": {
+   "min": 26,
+   "max": 26
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/team/",
+  "group": "gamenav",
+  "n": 14,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 14
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/team/",
+  "group": "allTools",
+  "n": 1,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 1
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/tool/team/",
+  "group": "toolCrumb",
+  "n": 1,
+  "before": {
+   "min": 22,
+   "max": 22,
+   "n": 1
+  },
+  "after": {
+   "min": 26,
+   "max": 26
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/game/siamsi/",
+  "group": "gamenav",
+  "n": 16,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 16
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/game/siamsi/",
+  "group": "topbarBack",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 24,
+   "max": 24
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/game/daily-fortune/",
+  "group": "gamenav",
+  "n": 16,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 16
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/game/daily-fortune/",
+  "group": "topbarBack",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 24,
+   "max": 24
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/game/love-match/",
+  "group": "gamenav",
+  "n": 16,
+  "before": {
+   "min": 21,
+   "max": 21,
+   "n": 16
+  },
+  "after": {
+   "min": 25,
+   "max": 25
+  }
+ },
+ {
+  "width": 1440,
+  "path": "/game/love-match/",
+  "group": "topbarBack",
+  "n": 1,
+  "before": {
+   "min": 18,
+   "max": 18,
+   "n": 1
+  },
+  "after": {
+   "min": 24,
+   "max": 24
+  }
+ }
+]

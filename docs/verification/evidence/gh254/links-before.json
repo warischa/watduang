@@ -1,0 +1,2080 @@
+[
+  {
+    "path": "/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 33,
+    "under24": [],
+    "width": 320
+  },
+  {
+    "path": "/c/party/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 21,
+    "under24": [
+      {
+        "text": "หน้าแรก",
+        "cls": "",
+        "parent": "p.breadcrumb",
+        "display": "inline",
+        "h": 18,
+        "w": 47.56
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/c/fortune/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 10,
+    "under24": [
+      {
+        "text": "หน้าแรก",
+        "cls": "",
+        "parent": "p.breadcrumb",
+        "display": "inline",
+        "h": 18,
+        "w": 47.56
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/tools/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 6,
+    "under24": [],
+    "width": 320
+  },
+  {
+    "path": "/tool/wheel/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 16,
+    "under24": [
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      },
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p",
+        "display": "inline",
+        "h": 21,
+        "w": 124.58
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/tool/number/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 16,
+    "under24": [
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      },
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p",
+        "display": "inline",
+        "h": 21,
+        "w": 124.58
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/tool/draw/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 17,
+    "under24": [
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "tool-back",
+        "parent": "div.tool-chrome",
+        "display": "flex",
+        "h": 18,
+        "w": 131.02
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      },
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p",
+        "display": "inline",
+        "h": 21,
+        "w": 124.58
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/tool/team/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 17,
+    "under24": [
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "tool-back",
+        "parent": "div.tool-chrome",
+        "display": "flex",
+        "h": 18,
+        "w": 131.02
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      },
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p",
+        "display": "inline",
+        "h": 21,
+        "w": 124.58
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/game/siamsi/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 18,
+    "under24": [
+      {
+        "text": "ดูดวง",
+        "cls": "",
+        "parent": "header.game-topbar",
+        "display": "flex",
+        "h": 18,
+        "w": 52.11
+      },
+      {
+        "text": "ดวงวันนี้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 53.52
+      },
+      {
+        "text": "เนื้อคู่ของคุณ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 83.3
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/game/daily-fortune/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 18,
+    "under24": [
+      {
+        "text": "ดูดวง",
+        "cls": "",
+        "parent": "header.game-topbar",
+        "display": "flex",
+        "h": 18,
+        "w": 52.11
+      },
+      {
+        "text": "เสี่ยงเซียมซี",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 74.31
+      },
+      {
+        "text": "เนื้อคู่ของคุณ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 83.3
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/game/love-match/",
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "links": 18,
+    "under24": [
+      {
+        "text": "ดูดวง",
+        "cls": "",
+        "parent": "header.game-topbar",
+        "display": "flex",
+        "h": 18,
+        "w": 52.11
+      },
+      {
+        "text": "เสี่ยงเซียมซี",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 74.31
+      },
+      {
+        "text": "ดวงวันนี้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 53.52
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      }
+    ],
+    "width": 320
+  },
+  {
+    "path": "/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 33,
+    "under24": [],
+    "width": 1440
+  },
+  {
+    "path": "/c/party/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 21,
+    "under24": [
+      {
+        "text": "หน้าแรก",
+        "cls": "",
+        "parent": "p.breadcrumb",
+        "display": "inline",
+        "h": 18,
+        "w": 47.56
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "path": "/c/fortune/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 10,
+    "under24": [
+      {
+        "text": "หน้าแรก",
+        "cls": "",
+        "parent": "p.breadcrumb",
+        "display": "inline",
+        "h": 18,
+        "w": 47.56
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "path": "/tools/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 6,
+    "under24": [],
+    "width": 1440
+  },
+  {
+    "path": "/tool/wheel/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 16,
+    "under24": [
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      },
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p",
+        "display": "inline",
+        "h": 21,
+        "w": 124.58
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "path": "/tool/number/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 16,
+    "under24": [
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      },
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p",
+        "display": "inline",
+        "h": 21,
+        "w": 124.58
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "path": "/tool/draw/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 17,
+    "under24": [
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p.tool-breadcrumb",
+        "display": "inline",
+        "h": 22,
+        "w": 109.02
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      },
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p",
+        "display": "inline",
+        "h": 21,
+        "w": 124.58
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "path": "/tool/team/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 17,
+    "under24": [
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p.tool-breadcrumb",
+        "display": "inline",
+        "h": 22,
+        "w": 109.02
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      },
+      {
+        "text": "เครื่องมือสุ่มทั้งหม",
+        "cls": "",
+        "parent": "p",
+        "display": "inline",
+        "h": 21,
+        "w": 124.58
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "path": "/game/siamsi/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 18,
+    "under24": [
+      {
+        "text": "ดูดวง",
+        "cls": "",
+        "parent": "header.game-topbar",
+        "display": "flex",
+        "h": 18,
+        "w": 52.11
+      },
+      {
+        "text": "ดวงวันนี้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 53.52
+      },
+      {
+        "text": "เนื้อคู่ของคุณ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 83.3
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "path": "/game/daily-fortune/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 18,
+    "under24": [
+      {
+        "text": "ดูดวง",
+        "cls": "",
+        "parent": "header.game-topbar",
+        "display": "flex",
+        "h": 18,
+        "w": 52.11
+      },
+      {
+        "text": "เสี่ยงเซียมซี",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 74.31
+      },
+      {
+        "text": "เนื้อคู่ของคุณ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 83.3
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "path": "/game/love-match/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "over": 0,
+    "links": 18,
+    "under24": [
+      {
+        "text": "ดูดวง",
+        "cls": "",
+        "parent": "header.game-topbar",
+        "display": "flex",
+        "h": 18,
+        "w": 52.11
+      },
+      {
+        "text": "เสี่ยงเซียมซี",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 74.31
+      },
+      {
+        "text": "ดวงวันนี้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 53.52
+      },
+      {
+        "text": "ระเบิดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 71.23
+      },
+      {
+        "text": "จับไม้สั้น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 54.77
+      },
+      {
+        "text": "มือลั่น",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 38.7
+      },
+      {
+        "text": "ยิงธง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 32.36
+      },
+      {
+        "text": "วัดพลัง",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 45.73
+      },
+      {
+        "text": "เต๋าชี้คนแพ้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 72.77
+      },
+      {
+        "text": "ไกลแค่ไหนคือใกล้",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 113.84
+      },
+      {
+        "text": "พิน็อคคิอวย",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.14
+      },
+      {
+        "text": "เลขอาถรรพ์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 77.2
+      },
+      {
+        "text": "ตัดสายกู้ชีพ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 75.81
+      },
+      {
+        "text": "แตะหยุดเวลา",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 86.52
+      },
+      {
+        "text": "กับระเบิด",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 60.58
+      },
+      {
+        "text": "บางกอกดริฟต์",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 91.63
+      },
+      {
+        "text": "จระเข้งับ",
+        "cls": "",
+        "parent": "li",
+        "display": "inline",
+        "h": 21,
+        "w": 57.23
+      }
+    ],
+    "width": 1440
+  }
+]

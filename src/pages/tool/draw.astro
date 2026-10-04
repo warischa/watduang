@@ -134,6 +134,8 @@ import GameNav from '../../components/GameNav.astro';
   .tool-back {
     display: flex;
     align-items: center;
+    /* hit-area only (gh#254): grows around the same midpoint inside the chrome row */
+    min-block-size: 24px;
     gap: 6px;
     font-size: 14px;
     color: var(--color-text);
@@ -400,6 +402,8 @@ import GameNav from '../../components/GameNav.astro';
 
   #how-to-use p a {
     color: var(--color-text);
+    /* hit-area only (gh#254): this link stands alone in its paragraph, so it is a target and not prose */
+    padding-block: 2px;
   }
 
   #how-to-use p a:hover {
@@ -439,6 +443,8 @@ import GameNav from '../../components/GameNav.astro';
       text-decoration: none;
       border-bottom: 2px solid rgba(20, 20, 43, 0.35);
       padding-bottom: 2px;
+      /* hit-area only (gh#254): top padding alone, so the rule under the link stays where it is */
+      padding-top: 4px;
     }
 
     .tool-band h1 {

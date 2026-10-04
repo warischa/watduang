@@ -1,0 +1,23 @@
+1440_.png  1440x3480  diff=0
+1440_c_fortune_.png  1440x1265  diff=0
+1440_c_party_.png  1440x2950  diff=0
+1440_game_daily-fortune_.png  1440x1505  diff=0
+1440_game_love-match_.png  1440x1492  diff=0
+1440_game_siamsi_.png  1440x1484  diff=0
+1440_tool_draw_.png  1440x2302  diff=0
+1440_tool_number_.png  1440x1121  diff=0
+1440_tool_team_.png  1440x2203  diff=0
+1440_tool_wheel_.png  1440x2408  diff=0
+1440_tools_.png  1440x900  diff=0
+320_.png  320x4044  diff=0
+320_c_fortune_.png  320x2034  diff=0
+320_c_party_.png  320x6725  diff=0
+320_game_daily-fortune_.png  320x1684  diff=0
+320_game_love-match_.png  320x1672  diff=0
+320_game_siamsi_.png  320x1699  diff=0
+320_tool_draw_.png  320x2304  diff=0
+320_tool_number_.png  320x1292  diff=0
+320_tool_team_.png  320x2113  diff=0
+320_tool_wheel_.png  320x2271  diff=0
+320_tools_.png  320x1132  diff=0
+TOTAL differing pixels: 0 over 22 files
