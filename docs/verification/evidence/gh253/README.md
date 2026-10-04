@@ -137,3 +137,16 @@ known-good playRoute game with no reserve. Must-red: siamsi's field deleted on a
 `src/games/siamsi.ts: firstScreenReserve is required on a game with no playRoute`; the rule disabled -> the
 selftest exits 1 at `firstScreenReserve (missing, no playRoute): known-bad fixture must report at least one
 violation`. Both files were restored from `cp` copies, and the hashes matched.
+
+## Addendum 2026-10-04: the new-landing guard is partitioned on solo, not on `playRoute` alone
+
+REFUTE round 1 found the guard above keyed too wide: it required `firstScreenReserve` on every game with no
+`playRoute`, but only the solo landing releases its reserve on mount. A party landing mounts on the start
+event, so a declared reserve would hold an empty block under its setup panel. `scripts/validate-games.mjs`
+now requires the field on no-`playRoute` and solo (the landing's own `isSolo`), and forbids it on a
+no-`playRoute` party game. Latent before: the three landings (siamsi, daily-fortune, love-match) are all solo.
+Selftest: solo landing without the field, wide missing and phone 0 each red; a party landing declaring the
+field reds; a party landing without it passes; a `playRoute` game without it passes. Must-red: forbid branch
+disabled -> the party-declared case reds; require branch disabled -> the solo-missing case reds; the old
+"every no-`playRoute` game" key restored -> the fully-valid known-good reds. File restored from a `cp` copy,
+hashes matched. See the amendment in ADR-0070.

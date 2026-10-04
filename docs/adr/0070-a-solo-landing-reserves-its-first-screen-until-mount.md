@@ -22,7 +22,8 @@ slot is one of the things that moves, so this is an ADR-0024 instance: the reflo
 2. **`#stage` reserves that height only while it carries no `data-stage` attribute.** The page script
    sets `data-stage="mounted"` in the same task as `mount()` returns, and `data-stage="failed"` on every
    failed import or mount (solo and party paths both), so a page whose game never arrives shows no empty
-   hole. The attribute is never removed.
+   hole. *(Amended 2026-10-04: the reserve is solo-only, see the amendment at the foot. "Solo and party
+   paths both" describes where `settleStage` is called, not where a reserve is declared.)* The attribute is never removed.
 3. **The outcome is asserted, never the height.** The check is residual CLS (<= 0.05 per landing per
    viewport, the layout-shift instrument the audit used), plus "the stage reads `mounted` and its computed
    `min-block-size` is 0px after mount", plus a failure leg. Height equality is never asserted.
@@ -94,3 +95,14 @@ first-screen-sized hole above the how-to section on a page whose game never come
 If a solo game's first screen stops being a fixed-height function of width — for example, it renders a
 remembered result whose length varies per visitor — a declared reserve can no longer be close for every
 visitor, and the residual must be re-measured over that set before this holds.
+
+## Amendment 2026-10-04: the reserve belongs to the solo landing only
+
+Decision 2 said the stage is released on "solo and party paths both", which read as if a party landing could
+declare a reserve. It cannot: the party branch of `src/pages/game/[id].astro` mounts the game only on the
+`watduang:start` event, so a reserve declared there would hold an empty block under the setup panel until
+the player taps start. The reserve applies to a game with no `playRoute` AND solo (`players` `[1, 1]`,
+the same `isSolo` the landing's page script computes), nothing else. `scripts/validate-games.mjs` now
+requires it on that set and forbids it on a landing that is not solo; a game with a `playRoute` builds no
+landing and declares none. Found by the session's adversarial review (REFUTE round 1); latent, because
+every landing today (siamsi, daily-fortune, love-match) is solo. Decisions 1 and 3 stand.

@@ -119,11 +119,12 @@ function validateGames(games, checkRoot, categories, noAdRequest = NO_AD_REQUEST
       err('category', `is ${JSON.stringify(g?.category)}, must be one of: ${categoryKeys.join(', ')}`);
     }
 
-    if (!Array.isArray(g?.players) || g.players.length !== 2 || g.players.some((n) => typeof n !== 'number')) {
+    const playersShapeOk = Array.isArray(g?.players) && g.players.length === 2 && g.players.every((n) => typeof n === 'number');
+    const isSolo = playersShapeOk && g.players[0] === 1 && g.players[1] === 1;
+    if (!playersShapeOk) {
       err('players', 'must be a 2-element number array');
     } else {
       const [min, max] = g.players;
-      const isSolo = min === 1 && max === 1;
       // gh#96 / ADR-0040 rule 1: a min of 1 is legal only as [1, 1]. A [1, N>1] hybrid passes the
       // reopened min gate while skipping the panel, and ADR-0007's full-party enumeration then has no
       // party to enumerate. The field named is players[1] — it is the N that is not 1.
@@ -196,18 +197,26 @@ function validateGames(games, checkRoot, categories, noAdRequest = NO_AD_REQUEST
       err('ads', `must be false for "${g.id}" — ${noAdRequest[g.id]}`);
     }
 
-    // gh#253 / ADR-0070: a game that renders the solo landing reserves its first screen until mount, or
-    // its how-to section, ad slot and footer jump when the module lands. The partition key is the one
-    // src/pages/game/[id].astro's getStaticPaths builds a landing on, `!g.playRoute`, spelled the same
-    // way so the two sets cannot drift. Both widths, finite and positive: a 0 or a missing class is the
-    // shift back on that class.
-    if (!g?.playRoute) {
+    // gh#253 / ADR-0070: a solo landing reserves its first screen until mount, or its how-to section, ad
+    // slot and footer jump when the module lands. The partition key is the predicate the landing's own
+    // page script splits on: the landing exists only for a game with no playRoute (getStaticPaths in
+    // src/pages/game/[id].astro), and `isSolo` there reads the stage's data-players as "1,1" — the same
+    // value as isSolo above, so the two sets cannot drift. The release (settleStage) fires on mount only
+    // on that solo path: a party landing mounts on the start event, so a reserve declared there would
+    // hold an empty block under the setup panel until the player taps start. Required on the solo set,
+    // forbidden on the rest of the landings. Both widths, finite and positive: a 0 or a missing class is
+    // the shift back on that class. A malformed players field is already reported above, so skip it here.
+    if (!g?.playRoute && playersShapeOk) {
       const r = g?.firstScreenReserve;
       const okPx = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0;
-      if (r === undefined) {
-        err('firstScreenReserve', 'is required on a game with no playRoute — it renders the solo landing, whose #stage reserves its first screen until mount (docs/adr/0070)');
-      } else if (!r || !okPx(r.phone) || !okPx(r.wide)) {
-        err('firstScreenReserve', `must be { phone, wide }, both positive finite px numbers, got ${JSON.stringify(r)}`);
+      if (isSolo) {
+        if (r === undefined) {
+          err('firstScreenReserve', 'is required on a solo landing (no playRoute, players [1, 1]) — its #stage reserves its first screen until mount (docs/adr/0070)');
+        } else if (!r || !okPx(r.phone) || !okPx(r.wide)) {
+          err('firstScreenReserve', `must be { phone, wide }, both positive finite px numbers, got ${JSON.stringify(r)}`);
+        }
+      } else if (r !== undefined) {
+        err('firstScreenReserve', 'is forbidden on a party landing (no playRoute, players not [1, 1]) — it mounts on the start event, so the reserve would hold an empty block until then (docs/adr/0070)');
       }
     }
 
@@ -268,8 +277,7 @@ function selftest() {
       cardArt: 'happy-game.webp',
       cardArt2x: 'happy-game-2x.webp',
       ads: false,
-      // no playRoute, so this fixture renders the solo landing and must carry the reserve (gh#253)
-      firstScreenReserve: { phone: 500, wide: 480 },
+      // a party range with no playRoute: a party landing, which must NOT carry a reserve (gh#253)
       mount: () => {},
       dispose: () => {},
     });
@@ -278,7 +286,8 @@ function selftest() {
     // claims 'fortune' (so partyAndFortune's keys are all claimed) and needs its own id file on disk,
     // exactly like the restricted-fixture files above.
     fs.writeFileSync(path.join(tmpDir, 'src/games/solo-game.ts'), '');
-    const soloGame = () => ({ ...goodGame(), id: 'solo-game', category: 'fortune', players: [1, 1], cardArt: undefined, cardArt2x: undefined });
+    // gh#253: no playRoute and [1, 1] makes it a solo landing, which must carry the reserve.
+    const soloGame = () => ({ ...goodGame(), id: 'solo-game', category: 'fortune', players: [1, 1], cardArt: undefined, cardArt2x: undefined, firstScreenReserve: { phone: 500, wide: 480 } });
 
     // Category-manifest fixtures for the gh#74 gates (the validator only reads Object.keys, so the
     // values are placeholders): partyOnly leaves every key claimed by goodGame, partyAndFortune
@@ -292,6 +301,7 @@ function selftest() {
     });
     const partyOnly = { party: categoryMeta('party') };
     const partyAndFortune = { party: categoryMeta('party'), fortune: categoryMeta('fortune') };
+    const fortuneOnly = { fortune: categoryMeta('fortune') };
 
     // --- known-good: guards against a selftest that always fails. ---
     assert.deepEqual(validateGames([goodGame()], tmpDir, partyOnly), [], 'a fully-valid GameModule must report zero violations');
@@ -330,6 +340,15 @@ function selftest() {
     );
     console.log('PASS known-good: a playRoute game without firstScreenReserve reports zero violations');
 
+    // --- known-good: gh#253 — a party landing (no playRoute, not [1, 1]) without the field is the legal
+    // shape: it mounts on the start event, so it must not reserve. goodGame is exactly that. ---
+    assert.deepEqual(
+      validateGames([goodGame()], tmpDir, partyOnly),
+      [],
+      'a party landing with no playRoute and no firstScreenReserve must report zero violations',
+    );
+    console.log('PASS known-good: a party landing without firstScreenReserve reports zero violations');
+
     // --- known-bad, one case per rule. Each mutates exactly one field off the good fixture so the
     // resulting violation is attributable to that rule, not a side effect of another one. ---
     const cases = [
@@ -363,9 +382,7 @@ function selftest() {
       { field: 'og (file missing)', mutate: (g) => ({ ...g, og: 'ghost.png' }), expect: /og "ghost\.png" — public\/og\/ghost\.png does not exist/ },
       { field: 'ads (not a boolean)', mutate: (g) => ({ ...g, ads: 'yes' }), expect: /ads must be a boolean/ },
       { field: 'ads (true on a no-ad-request id)', mutate: (g) => ({ ...g, id: 'restricted-fixture', og: 'restricted-fixture.png', ads: true }), expect: /ads must be false for "restricted-fixture" — fixture page: AdSense restricted content/ },
-      { field: 'firstScreenReserve (missing, no playRoute)', mutate: (g) => ({ ...g, firstScreenReserve: undefined }), expect: /firstScreenReserve is required on a game with no playRoute/ },
-      { field: 'firstScreenReserve (wide missing)', mutate: (g) => ({ ...g, firstScreenReserve: { phone: 500 } }), expect: /firstScreenReserve must be \{ phone, wide \}/ },
-      { field: 'firstScreenReserve (phone not positive)', mutate: (g) => ({ ...g, firstScreenReserve: { phone: 0, wide: 480 } }), expect: /firstScreenReserve must be \{ phone, wide \}/ },
+      { field: 'firstScreenReserve (declared on a party landing)', mutate: (g) => ({ ...g, firstScreenReserve: { phone: 500, wide: 480 } }), expect: /firstScreenReserve is forbidden on a party landing/ },
       { field: 'mount', mutate: (g) => ({ ...g, mount: undefined }), expect: /mount must be a function/ },
       { field: 'dispose', mutate: (g) => ({ ...g, dispose: undefined }), expect: /dispose must be a function/ },
       { field: 'onVisibility (present, not a function)', mutate: (g) => ({ ...g, onVisibility: 'nope' }), expect: /onVisibility must be a function when present/ },
@@ -377,6 +394,20 @@ function selftest() {
       assert.ok(errors.some((e) => expect.test(e)), `${field}: expected a violation matching ${expect}, got: ${JSON.stringify(errors)}`);
     }
     console.log(`PASS known-bad: ${cases.length} case(s), one per rule (${cases.map((c) => c.field).join(', ')})`);
+
+    // --- known-bad, gh#253: the reserve's required side runs on a solo landing (fortune, [1, 1], no
+    // playRoute), where it is mandatory; each case mutates the one field off that fixture. ---
+    const soloCases = [
+      { field: 'firstScreenReserve (missing, solo landing)', mutate: (g) => ({ ...g, firstScreenReserve: undefined }), expect: /firstScreenReserve is required on a solo landing/ },
+      { field: 'firstScreenReserve (wide missing)', mutate: (g) => ({ ...g, firstScreenReserve: { phone: 500 } }), expect: /firstScreenReserve must be \{ phone, wide \}/ },
+      { field: 'firstScreenReserve (phone not positive)', mutate: (g) => ({ ...g, firstScreenReserve: { phone: 0, wide: 480 } }), expect: /firstScreenReserve must be \{ phone, wide \}/ },
+    ];
+    for (const { field, mutate, expect } of soloCases) {
+      const errors = validateGames([mutate(soloGame())], tmpDir, fortuneOnly);
+      assert.equal(errors.length, 1, `${field}: a solo landing mutated on one field must report exactly one violation, got: ${JSON.stringify(errors)}`);
+      assert.match(errors[0], expect, `${field}: expected a violation matching ${expect}`);
+    }
+    console.log(`PASS known-bad: ${soloCases.length} solo-landing reserve case(s) (${soloCases.map((c) => c.field).join(', ')})`);
 
     // --- known-bad for the category manifest gates (gh#74): both directions. ---
     // A game whose category has no manifest entry must fail naming the category (the old category
@@ -397,7 +428,6 @@ function selftest() {
     // other. Each direction mutates exactly one field off the good fixture, and each runs against a
     // category record where its shape is otherwise a valid member, so the single violation it
     // produces is attributable to the cross-rule and to nothing else. ---
-    const fortuneOnly = { fortune: categoryMeta('fortune') };
     const soloRange = validateGames([{ ...goodGame(), category: 'fortune' }], tmpDir, fortuneOnly);
     assert.equal(soloRange.length, 1, 'rule 2, fortune direction: a fortune page with a party range must produce exactly one violation');
     assert.match(
@@ -406,7 +436,7 @@ function selftest() {
       `rule 2, fortune direction: expected the violation to name the players field, got: ${JSON.stringify(soloRange)}`,
     );
     assert.match(soloRange[0], /^src\/games\/happy-game\.ts: /, 'rule 2, fortune direction: the violation must name the file');
-    const partySolo = validateGames([{ ...goodGame(), players: [1, 1] }], tmpDir, partyOnly);
+    const partySolo = validateGames([{ ...goodGame(), players: [1, 1], firstScreenReserve: { phone: 500, wide: 480 } }], tmpDir, partyOnly);
     assert.equal(partySolo.length, 1, 'rule 2, party direction: a party page declaring [1, 1] must produce exactly one violation');
     assert.match(
       partySolo[0],
