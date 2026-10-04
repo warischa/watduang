@@ -1,0 +1,581 @@
+{
+  "width": 320,
+  "pages": [
+    {
+      "path": "/",
+      "innerWidth": 320,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [
+        {
+          "el": "span.mark \"ใครโดน\"",
+          "ratio": 2.23,
+          "need": 3,
+          "fs": 44,
+          "fw": 700,
+          "fg": "rgb(255, 204, 0)"
+        },
+        {
+          "el": "p.lead \"ไม่ต้องโหลดแอป ไม่ต้องสม\"",
+          "ratio": 3.37,
+          "need": 4.5,
+          "fs": 17,
+          "fw": 600,
+          "fg": "rgb(255, 255, 255)"
+        },
+        {
+          "el": "div.wrap.ad-slot \"ช่องโฆษณา\"",
+          "ratio": 2.83,
+          "need": 4.5,
+          "fs": 14,
+          "fw": 400,
+          "fg": "rgb(154, 148, 122)"
+        },
+        {
+          "el": "h3.name \"วงล้อสุ่มชื่อ\"",
+          "ratio": 3.9,
+          "need": 4.5,
+          "fs": 17,
+          "fw": 700,
+          "fg": "rgb(255, 255, 255)"
+        },
+        {
+          "el": "h3.name \"จับฉลาก\"",
+          "ratio": 3.9,
+          "need": 4.5,
+          "fs": 17,
+          "fw": 700,
+          "fg": "rgb(255, 255, 255)"
+        },
+        {
+          "el": "h3.name \"แบ่งทีม\"",
+          "ratio": 3.9,
+          "need": 4.5,
+          "fs": 17,
+          "fw": 700,
+          "fg": "rgb(255, 255, 255)"
+        },
+        {
+          "el": "h3.name \"สุ่มเลข\"",
+          "ratio": 3.9,
+          "need": 4.5,
+          "fs": 17,
+          "fw": 700,
+          "fg": "rgb(255, 255, 255)"
+        }
+      ],
+      "contrastUnmeasured": 0,
+      "textElements16": 21,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 36,
+      "under44": 5,
+      "under44Sample": [
+        {
+          "el": "a.chrome-brand \"วัดดวง\"",
+          "w": 116,
+          "h": 43
+        },
+        {
+          "el": "a.chrome-pill \"ดูดวง\"",
+          "w": 68,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"สุ่มคนโดน\"",
+          "w": 97,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+          "w": 109,
+          "h": 37
+        },
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 30,
+          "h": 44
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "123332333333333333332333233332333",
+      "cls": 0,
+      "lcp": {
+        "el": "img \"\"",
+        "ms": 44,
+        "url": "http://localhost:4321/art/croc-bite.webp"
+      }
+    },
+    {
+      "path": "/c/party/",
+      "innerWidth": 320,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 43,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 24,
+      "under44": 6,
+      "under44Sample": [
+        {
+          "el": "a.chrome-brand \"วัดดวง\"",
+          "w": 116,
+          "h": 43
+        },
+        {
+          "el": "a.chrome-pill \"ดูดวง\"",
+          "w": 68,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"สุ่มคนโดน\"",
+          "w": 97,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+          "w": 109,
+          "h": 37
+        },
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 18
+        },
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 30,
+          "h": 44
+        }
+      ],
+      "under24": [
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 18
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "12333333333333332",
+      "cls": 0,
+      "lcp": {
+        "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
+        "ms": 24,
+        "url": null
+      }
+    },
+    {
+      "path": "/c/fortune/",
+      "innerWidth": 320,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 21,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 13,
+      "under44": 6,
+      "under44Sample": [
+        {
+          "el": "a.chrome-brand \"วัดดวง\"",
+          "w": 116,
+          "h": 43
+        },
+        {
+          "el": "a.chrome-pill \"ดูดวง\"",
+          "w": 68,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"สุ่มคนโดน\"",
+          "w": 97,
+          "h": 37
+        },
+        {
+          "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+          "w": 109,
+          "h": 37
+        },
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 18
+        },
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 30,
+          "h": 44
+        }
+      ],
+      "under24": [
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 18
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "123332",
+      "cls": 0,
+      "lcp": {
+        "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+        "ms": 44,
+        "url": null
+      }
+    },
+    {
+      "path": "/tools/",
+      "innerWidth": 320,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 4,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 6,
+      "under44": 0,
+      "under44Sample": [],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "12222",
+      "cls": 0,
+      "lcp": {
+        "el": "p.lead \"เครื่องมือให้คำตอบทันที \"",
+        "ms": 16,
+        "url": null
+      }
+    },
+    {
+      "path": "/tool/wheel/",
+      "innerWidth": 320,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [
+        {
+          "el": "text \"หมุน\"",
+          "ratio": 2,
+          "need": 3,
+          "fs": 26,
+          "fw": 600,
+          "fg": "rgba(16, 16, 16, 0.3)"
+        }
+      ],
+      "contrastUnmeasured": 0,
+      "textElements16": 3,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 23,
+      "under44": 18,
+      "under44Sample": [
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 21
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 21
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 21
+        },
+        {
+          "el": "a \"ยิงธง\"",
+          "w": 32,
+          "h": 21
+        },
+        {
+          "el": "a \"วัดพลัง\"",
+          "w": 46,
+          "h": 21
+        }
+      ],
+      "under24": [
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 21
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 21
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 21
+        },
+        {
+          "el": "a \"ยิงธง\"",
+          "w": 32,
+          "h": 21
+        },
+        {
+          "el": "a \"วัดพลัง\"",
+          "w": 46,
+          "h": 21
+        },
+        {
+          "el": "a \"เต๋าชี้คนแพ้\"",
+          "w": 73,
+          "h": 21
+        },
+        {
+          "el": "a \"ไกลแค่ไหนคือใกล้\"",
+          "w": 114,
+          "h": 21
+        },
+        {
+          "el": "a \"พิน็อคคิอวย\"",
+          "w": 77,
+          "h": 21
+        },
+        {
+          "el": "a \"เลขอาถรรพ์\"",
+          "w": 77,
+          "h": 21
+        },
+        {
+          "el": "a \"ตัดสายกู้ชีพ\"",
+          "w": 76,
+          "h": 21
+        },
+        {
+          "el": "a \"แตะหยุดเวลา\"",
+          "w": 87,
+          "h": 21
+        },
+        {
+          "el": "a \"กับระเบิด\"",
+          "w": 61,
+          "h": 21
+        },
+        {
+          "el": "a \"บางกอกดริฟต์\"",
+          "w": 92,
+          "h": 21
+        },
+        {
+          "el": "a \"จระเข้งับ\"",
+          "w": 57,
+          "h": 21
+        },
+        {
+          "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+          "w": 125,
+          "h": 21
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "12232",
+      "cls": 0,
+      "lcp": {
+        "el": "p \"ใส่ชื่อในวง กดหมุน แล้วใ\"",
+        "ms": 44,
+        "url": null
+      }
+    },
+    {
+      "path": "/game/siamsi/",
+      "innerWidth": 320,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 7,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 24,
+      "under44": 22,
+      "under44Sample": [
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 52,
+          "h": 18
+        },
+        {
+          "el": "button.sm-chip \"การงาน\"",
+          "w": 76,
+          "h": 34
+        },
+        {
+          "el": "button.sm-chip \"ความรัก\"",
+          "w": 78,
+          "h": 34
+        },
+        {
+          "el": "button.sm-chip \"การเงิน\"",
+          "w": 73,
+          "h": 34
+        },
+        {
+          "el": "button.sm-chip \"สุขภาพ\"",
+          "w": 74,
+          "h": 34
+        },
+        {
+          "el": "button.sm-chip.sm-chip--on \"ไม่เจาะจง\"",
+          "w": 87,
+          "h": 34
+        },
+        {
+          "el": "a \"ดวงวันนี้\"",
+          "w": 54,
+          "h": 21
+        },
+        {
+          "el": "a \"เนื้อคู่ของคุณ\"",
+          "w": 83,
+          "h": 21
+        }
+      ],
+      "under24": [
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 52,
+          "h": 18
+        },
+        {
+          "el": "a \"ดวงวันนี้\"",
+          "w": 54,
+          "h": 21
+        },
+        {
+          "el": "a \"เนื้อคู่ของคุณ\"",
+          "w": 83,
+          "h": 21
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 21
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 21
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 21
+        },
+        {
+          "el": "a \"ยิงธง\"",
+          "w": 32,
+          "h": 21
+        },
+        {
+          "el": "a \"วัดพลัง\"",
+          "w": 46,
+          "h": 21
+        },
+        {
+          "el": "a \"เต๋าชี้คนแพ้\"",
+          "w": 73,
+          "h": 21
+        },
+        {
+          "el": "a \"ไกลแค่ไหนคือใกล้\"",
+          "w": 114,
+          "h": 21
+        },
+        {
+          "el": "a \"พิน็อคคิอวย\"",
+          "w": 77,
+          "h": 21
+        },
+        {
+          "el": "a \"เลขอาถรรพ์\"",
+          "w": 77,
+          "h": 21
+        },
+        {
+          "el": "a \"ตัดสายกู้ชีพ\"",
+          "w": 76,
+          "h": 21
+        },
+        {
+          "el": "a \"แตะหยุดเวลา\"",
+          "w": 87,
+          "h": 21
+        },
+        {
+          "el": "a \"กับระเบิด\"",
+          "w": 61,
+          "h": 21
+        },
+        {
+          "el": "a \"บางกอกดริฟต์\"",
+          "w": 92,
+          "h": 21
+        },
+        {
+          "el": "a \"จระเข้งับ\"",
+          "w": 57,
+          "h": 21
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "1233",
+      "cls": 0,
+      "lcp": {
+        "el": "p \"ตั้งจิตให้นิ่ง แล้วนึกถึ\"",
+        "ms": 36,
+        "url": null
+      }
+    }
+  ],
+  "consoleErrors": []
+}
