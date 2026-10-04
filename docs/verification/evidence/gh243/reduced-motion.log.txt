@@ -1,0 +1,6 @@
+HomeShelfDesktop normal={"reduce":false,"running":8} reduced={"reduce":true,"running":0}
+HomeShelf320 normal={"reduce":false,"running":6} reduced={"reduce":true,"running":0}
+HomeToyBoxDesktop normal={"reduce":false,"running":9} reduced={"reduce":true,"running":0}
+HomeToyBox320 normal={"reduce":false,"running":7} reduced={"reduce":true,"running":0}
+HomeNightArcadeDesktop normal={"reduce":false,"running":4} reduced={"reduce":true,"running":0}
+HomeNightArcade320 normal={"reduce":false,"running":4} reduced={"reduce":true,"running":0}

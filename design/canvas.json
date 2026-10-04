@@ -23,6 +23,10 @@
     {
       "id": "page-6",
       "name": "เครื่องมือสุ่ม 3 ตัว · เดสก์ท็อป + 390"
+    },
+    {
+      "id": "page-7",
+      "name": "Home redesign gh#243 · D / E / F · desktop + 320"
     }
   ],
   "artboards": [
@@ -322,6 +326,60 @@
       "y": 2360,
       "w": 390,
       "h": 940
+    },
+    {
+      "file": "HomeShelfDesktop.dc.html",
+      "title": "D · Toy Shelf · desktop (changes ADR-0058)",
+      "page": "page-7",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 4289
+    },
+    {
+      "file": "HomeToyBoxDesktop.dc.html",
+      "title": "E · Toy Box · desktop",
+      "page": "page-7",
+      "x": 1540,
+      "y": 0,
+      "w": 1440,
+      "h": 3398
+    },
+    {
+      "file": "HomeNightArcadeDesktop.dc.html",
+      "title": "F · Night Arcade · desktop",
+      "page": "page-7",
+      "x": 3080,
+      "y": 0,
+      "w": 1440,
+      "h": 3339
+    },
+    {
+      "file": "HomeShelf320.dc.html",
+      "title": "D · Toy Shelf · 320 (changes ADR-0058)",
+      "page": "page-7",
+      "x": 0,
+      "y": 4489,
+      "w": 320,
+      "h": 4611
+    },
+    {
+      "file": "HomeToyBox320.dc.html",
+      "title": "E · Toy Box · 320",
+      "page": "page-7",
+      "x": 1540,
+      "y": 4489,
+      "w": 320,
+      "h": 3130
+    },
+    {
+      "file": "HomeNightArcade320.dc.html",
+      "title": "F · Night Arcade · 320",
+      "page": "page-7",
+      "x": 3080,
+      "y": 4489,
+      "w": 320,
+      "h": 3109
     }
   ],
   "annotations": [
@@ -500,6 +558,38 @@
       "y": -420,
       "w": 900,
       "text": "เนื้อคู่ของคุณ — แทน ดวงความรัก เดิม เล่นคนเดียว ไม่มี roster (ADR-0040)\n\nกรอกเพศ + ช่วงอายุ + เพศเนื้อคู่ (ตั้งไว้ให้เป็นเพศตรงข้ามก่อน เปลี่ยนได้) ทุกอย่างอยู่ในหน่วยความจำรอบเดียว ไม่เขียน checkpoint ไม่ขึ้น URL ไม่ส่งออก\n\nสุ่ม 80 เจอ / 20 เป็นของตัวเอง — กิ่ง 20 เก็บสัดส่วนเดิมแต่เปลี่ยนคำให้เป็นคำชม ไม่ใช่คำพิพากษา และไม่ใช้รูป generate เลย วาด SVG เอา\n\nindex เป็นการ์ดตัวละคร ไม่ใช่คลังคำเอามาต่อกัน หนึ่งการ์ด = หนึ่งคน = หนึ่งรูป รูปกับคำจึงตรงกันเสมอ\nติดกับการ์ด: เพศ อายุ ส่วนสูง รูปร่าง สัญชาติ อาชีพ ฐานะ บุคลิก นิสัย จุดสังเกต\nสุ่มใหม่ทุกครั้ง ไม่ผูกกับรูป: อายุที่จะเจอ (ต้องสูงกว่าเพดานของช่วงอายุที่กรอกเสมอ) และที่เจอกัน\nอาชีพเป็นตัวคุมความสมเหตุสมผล พกช่วงฐานะกับช่วงอายุมาด้วย\nน้ำหนักตัดออกแล้ว (เจ้าของตัดสิน 2026-08-25) สัญชาติเก็บไว้เป็นตัวหนังสือ ไม่เอามาวาดหน้าตาตาม\n\nกล่องรูป 240x240 CSS px มาจากไฟล์ 1024x1024 ย่อเหลือ ~480px เป็น PNG โปร่งจริง พื้นทองข้างหลังต้องทะลุขึ้นมา โหลดทีละใบ ไม่ใช่ทั้งชุด — กรอบเส้นประในอาร์ตบอร์ดเป็น placeholder ไม่ใช่เส้นที่ต้องทำตาม\n\nกฎเนื้อหาของรูป: ไม่มีคนต่ำกว่า 18 ไม่มีท่าทางเชิงชวน ไม่ใช่หน้าคนจริง สไตล์ต้องล็อกเป็นคำสั่งเดียวใช้ซ้ำทุกใบ ไม่งั้นได้คนละสไตล์\n\nยังไม่มีคลังจริง ยังไม่ผ่าน ADR-0011 · public/art/ กับ images/IMAGES.md ยังไม่มีทั้งคู่ ตั๋วนี้จะเป็นตัวสร้าง"
+    },
+    {
+      "id": "gh243-brief",
+      "page": "page-7",
+      "x": 0,
+      "y": -330,
+      "w": 4520,
+      "text": "gh#243 - three home directions for the owner to pick. Each artboard carries its own notes block: how it answers the four lacks, motion cost, invented Thai (0 in all three), and whether it changes ADR-0058. Copy is reused verbatim from the manifest, categories, tools group, site chrome and the live home page. Only croc-bite art exists; every other art slot points at ../public/art/<game-id>.webp and shows a dashed mockup-only box until that render lands. Values are literal hex/px, no {{...}} placeholders, so a pick can be extracted as exact strings."
+    },
+    {
+      "id": "gh243-dir-d",
+      "page": "page-7",
+      "x": 0,
+      "y": -190,
+      "w": 1440,
+      "text": "D · Toy Shelf - CHANGES ADR-0058. Intent panels give way to full category rows: all 14 party games as art tiles, plus fortune and tools rows, each keeping a link to its hub. Flat sticker UI; the 3D art is the only depth. Picking D means amending ADR-0058 and moving the index.test.mjs pins."
+    },
+    {
+      "id": "gh243-dir-e",
+      "page": "page-7",
+      "x": 1540,
+      "y": -190,
+      "w": 1440,
+      "text": "E · Toy Box - keeps ADR-0058. The UI itself goes soft 3D (clay surfaces, no ink outlines) to match the toy art. Answers lack 4 by look only."
+    },
+    {
+      "id": "gh243-dir-f",
+      "page": "page-7",
+      "x": 3080,
+      "y": -190,
+      "w": 1440,
+      "text": "F · Night Arcade - keeps ADR-0058. Dark stage, neon light replaces the ink outline, toys rim-lit as prizes; the party panel scrolls its art as decoration. Answers lack 4 by look only. A dark ground is a site-wide question if the chrome follows."
     }
   ],
   "launch": {

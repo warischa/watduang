@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #2a1f5c; text-decoration: none; }
+
+    /* Direction E - Toy Box. The UI itself goes soft 3D ("clay"): no ink outlines; every surface is a
+       top-lit gradient with an inner highlight, an inner base shade, and a solid "thickness" drop. */
+    .clay { border-radius: 32px; box-shadow: inset 0 4px 0 rgba(255,255,255,0.45), inset 0 -8px 0 rgba(42,31,92,0.12), 0 12px 0 var(--clay-edge), 0 24px 34px rgba(42,31,92,0.22); transition: transform 160ms ease-out; }
+    .clay:hover { transform: translateY(-4px); }
+    .clay-white { background: linear-gradient(180deg, #ffffff 0%, #f1ecff 100%); --clay-edge: #cfc4f2; }
+    .clay-yellow { background: linear-gradient(180deg, #ffe680 0%, #ffd23f 100%); --clay-edge: #d9a300; }
+    .clay-coral { background: linear-gradient(180deg, #ff8f80 0%, #ff6b5a 100%); --clay-edge: #c9412f; }
+    .clay-gold { background: linear-gradient(180deg, #ffe39a 0%, #ffc94a 100%); --clay-edge: #c99317; }
+    .clay-sky { background: linear-gradient(180deg, #7ddcff 0%, #38c6ff 100%); --clay-edge: #1a8fc0; }
+    .extrude { color: #ffffff; text-shadow: 0 2px 0 #e7ddff, 0 4px 0 #c9b8ff, 0 6px 0 #a58cff, 0 8px 0 #7b5cff, 0 16px 22px rgba(42,31,92,0.35); }
+    .ball { position: absolute; border-radius: 50%; }
+
+    .art { position: relative; display: block; aspect-ratio: 361 / 320; }
+    .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    /* Mockup-only: shows where a pending render lands. Not a design value; never ships. */
+    .pending { position: absolute; inset: 18% 10% 8%; border: 2px dashed #8a7fc0; border-radius: 18px; display: grid; place-items: center; text-align: center; font: 600 11px/1.3 ui-monospace, Menlo, monospace; color: #6a5fa0; background: rgba(255,255,255,0.6); }
+
+    @keyframes toy-squash { 0%, 100% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-22px) scale(0.97, 1.03); } 80% { transform: translateY(0) scale(1.04, 0.96); } }
+    @keyframes toy-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+    @keyframes toy-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .squash { transform-origin: 50% 100%; animation: toy-squash 2.6s ease-in-out infinite; }
+    .float-1 { animation: toy-float 4s ease-in-out infinite; }
+    .float-2 { animation: toy-float 4s ease-in-out infinite 1s; }
+    .float-3 { animation: toy-float 4s ease-in-out infinite 2s; }
+    .float-4 { animation: toy-float 4s ease-in-out infinite 3s; }
+    .pulse { animation: toy-pulse 2.2s ease-in-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .squash, .float-1, .float-2, .float-3, .float-4, .pulse { animation: none; }
+      .clay, .clay:hover { transition: none; transform: none; }
+    }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #f3eeff; color: #2a1f5c;">
+
+  <!-- HERO block: header + stage share one candy gradient -->
+  <div style="position: relative; overflow: hidden; background: linear-gradient(160deg, #6c4dff 0%, #a64dff 55%, #ff5fa2 100%); border-radius: 0 0 64px 64px;">
+    <span class="ball float-1" style="left: 36px; bottom: 54px; width: 70px; height: 70px; background: radial-gradient(circle at 32% 30%, #fff6c4 0%, #ffd23f 45%, #d9a300 100%);"></span>
+    <span class="ball float-2" style="left: 610px; top: 120px; width: 44px; height: 44px; background: radial-gradient(circle at 32% 30%, #d8f6ff 0%, #38c6ff 45%, #1a8fc0 100%);"></span>
+    <span class="ball float-3" style="right: 80px; top: 130px; width: 58px; height: 58px; background: radial-gradient(circle at 32% 30%, #ffe0db 0%, #ff6b5a 45%, #c9412f 100%);"></span>
+    <span class="ball float-4" style="right: 520px; bottom: 70px; width: 36px; height: 36px; background: radial-gradient(circle at 32% 30%, #ffffff 0%, #e7ddff 50%, #a58cff 100%);"></span>
+
+    <!-- Top bar: chrome labels as clay pills -->
+    <div style="position: relative; width: 1280px; margin-inline: auto; height: 96px; display: flex; align-items: center; justify-content: space-between;">
+      <a href="/" class="extrude" style="font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 36px;">วัดดวง</a>
+      <div style="display: flex; gap: 14px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 17px;">
+        <a href="/c/fortune/" class="clay clay-gold" style="border-radius: 999px; padding: 10px 22px;">ดูดวง</a>
+        <a href="/c/party/" class="clay clay-coral" style="border-radius: 999px; padding: 10px 22px; color: #ffffff;">สุ่มคนโดน</a>
+        <a href="/tools/" class="clay clay-sky" style="border-radius: 999px; padding: 10px 22px;">เครื่องมือสุ่ม</a>
+      </div>
+    </div>
+
+    <div style="position: relative; width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 1.05fr 0.95fr; align-items: center; gap: 24px; padding-block: 36px 96px;">
+      <div>
+        <span class="clay clay-white" style="display: inline-block; border-radius: 999px; padding: 8px 20px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px; color: #6c4dff;">เปิดเว็บแล้วกดเล่นได้เลย</span>
+        <h1 class="extrude" style="margin: 30px 0 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 92px; line-height: 1.1;">กดทีเดียว<br>รู้เลยว่า<span style="color: #ffe680;">ใครโดน</span></h1>
+        <p style="margin: 26px 0 0; font-size: 23px; font-weight: 600; color: #ffffff;">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p>
+        <div style="display: flex; align-items: center; gap: 28px; margin-top: 36px;">
+          <a href="/c/party/" class="clay clay-yellow pulse" style="display: inline-block; padding: 20px 40px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px;">เลือกเกมเลย <span aria-hidden="true">→</span></a>
+          <a href="/tools/" style="font-size: 18px; font-weight: 600; color: #ffffff; text-decoration: underline; text-underline-offset: 6px;">หรือใช้เครื่องมือสุ่มแบบเร็ว ๆ</a>
+        </div>
+      </div>
+
+      <!-- Featured toy on a clay pedestal; the whole stage is one link to the game -->
+      <a href="/game/croc-bite/play/" style="position: relative; display: block; justify-self: center; width: 520px; padding-top: 10px;">
+        <span class="art squash" style="width: 460px; margin-inline: auto; z-index: 1;"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320" style="filter: drop-shadow(0 18px 14px rgba(42,31,92,0.35));"></span>
+        <span style="display: block; width: 440px; height: 86px; margin: -52px auto 0; border-radius: 50%; background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, #e7ddff 55%, #b9a6ff 100%); box-shadow: 0 14px 0 #8f78e8, 0 30px 40px rgba(42,31,92,0.35);"></span>
+        <span class="clay clay-white" style="display: block; width: 400px; margin: 34px auto 0; padding: 16px 22px; text-align: center;">
+          <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 34px; color: #2a1f5c;">จระเข้งับ</span>
+          <span style="display: block; font-size: 16px; font-weight: 600; color: #6c4dff;">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Ad slot, reserved -->
+  <div style="width: 1280px; margin: 48px auto 0; height: 250px; border: 3px dashed #c4b8ee; border-radius: 28px; display: grid; place-items: center; color: #8f84bd; font-size: 16px;">ช่องโฆษณา</div>
+
+  <!-- POPULAR: three clay cards with art -->
+  <div style="width: 1280px; margin: 80px auto 0;">
+    <h2 style="margin: 0 0 40px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 48px; color: #6c4dff;">ยอดนิยม</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px;">
+      <a class="clay clay-white" href="/game/pinocchio-luck/play/" style="display: block; padding: 18px 24px 26px;">
+        <span class="art"><span class="pending">art pending<br>pinocchio-luck.webp</span><img src="../public/art/pinocchio-luck.webp" alt="" loading="lazy"></span>
+        <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px;">พิน็อคคิอวย</span>
+        <span style="display: block; margin-top: 4px; font-size: 16px; color: #5b5088;">ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน</span>
+      </a>
+      <a class="clay clay-white" href="/game/how-close-is-near/play/" style="display: block; padding: 18px 24px 26px;">
+        <span class="art"><span class="pending">art pending<br>how-close-is-near.webp</span><img src="../public/art/how-close-is-near.webp" alt="" loading="lazy"></span>
+        <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px;">ไกลแค่ไหนคือใกล้</span>
+        <span style="display: block; margin-top: 4px; font-size: 16px; color: #5b5088;">แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้ ตกลงกันก่อนเริ่ม</span>
+      </a>
+      <a class="clay clay-white" href="/game/dice-loser/play/" style="display: block; padding: 18px 24px 26px;">
+        <span class="art"><span class="pending">art pending<br>dice-loser.webp</span><img src="../public/art/dice-loser.webp" alt="" loading="lazy"></span>
+        <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px;">เต๋าชี้คนแพ้</span>
+        <span style="display: block; margin-top: 4px; font-size: 16px; color: #5b5088;">ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่อนว่าแต้มสูงหรือแต้มต่ำแพ้</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- INTENT PANELS (ADR-0058 structure kept): one whole-panel link each, hub copy verbatim.
+       The party panel shows three toys as decoration inside its single link. -->
+  <div style="width: 1280px; margin: 96px auto 0; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px;">
+    <a class="clay clay-coral" href="/c/party/" style="display: block; padding: 28px 30px 32px; color: #ffffff; min-height: 300px;">
+      <span style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: -70px;">
+        <span class="art float-1"><img src="../public/art/croc-bite.webp" alt=""></span>
+        <span class="art float-2"><span class="pending">pending<br>timebomb</span><img src="../public/art/timebomb.webp" alt="" loading="lazy"></span>
+        <span class="art float-3"><span class="pending">pending<br>short-stick</span><img src="../public/art/short-stick.webp" alt="" loading="lazy"></span>
+      </span>
+      <span style="display: block; margin-top: 18px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.15;">เกมวัดดวง สุ่มคนโดน</span>
+      <span style="display: block; margin-top: 10px; font-size: 18px; font-weight: 500;">จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลงกันเองว่าคนโดนต้องทำอะไร</span>
+    </a>
+    <a class="clay clay-gold" href="/c/fortune/" style="display: block; padding: 30px; min-height: 300px;">
+      <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 36px; line-height: 1.15;">ดูดวง ทำนายโชคชะตา</span>
+      <span style="display: block; margin-top: 12px; font-size: 18px; font-weight: 500;">ไม่มีใครแพ้ ไม่มีใครโดน กดดูดวงของตัวเองได้ทันที อยากรู้เมื่อไหร่ก็เปิดดูได้เลย</span>
+    </a>
+    <a class="clay clay-sky" href="/tools/" style="display: block; padding: 30px; min-height: 300px;">
+      <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 36px; line-height: 1.15;">เครื่องมือกิจกรรมสันทนาการ</span>
+      <span style="display: block; margin-top: 12px; font-size: 18px; font-weight: 500;">ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง</span>
+    </a>
+  </div>
+
+  <!-- How-to + FAQ: shipped copy, clay cards -->
+  <div style="width: 1280px; margin: 96px auto 0; display: grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: start;">
+    <div class="clay clay-white" style="padding: 28px;">
+      <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 34px; color: #6c4dff;">เล่นยังไง</h2>
+      <div style="display: flex; gap: 16px; margin-top: 18px; align-items: start;">
+        <span class="clay clay-yellow" style="flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px;">1</span>
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 22px;">เลือกเกม</h3><p style="margin: 4px 0 0;">เปิดจากหน้านี้ได้เลย ไม่ต้องโหลดอะไรก่อน</p></div>
+      </div>
+    </div>
+    <div class="clay clay-white" style="padding: 28px;">
+      <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 34px; color: #6c4dff;">คำถามที่เจอบ่อย</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 18px;">
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 20px;">ต้องโหลดแอปไหม</h3><p style="margin: 6px 0 0;">ไม่ต้อง ทุกเกมทำงานในเบราว์เซอร์ เปิดลิงก์แล้วกดเล่นได้เลย</p></div>
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 20px;">ต้องสมัครสมาชิกไหม</h3><p style="margin: 6px 0 0;">ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง</p></div>
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 20px;">เสียเงินไหม</h3><p style="margin: 6px 0 0;">ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 88px; background: linear-gradient(160deg, #6c4dff 0%, #ff5fa2 100%); height: 100px; display: grid; place-items: center; border-radius: 64px 64px 0 0;"><span class="extrude" style="font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 30px;">วัดดวง</span></div>
+
+  <!-- DESIGN NOTES - mockup only, not page content -->
+  <div style="width: 1280px; margin: 48px auto 0; padding: 32px 0 56px; font: 15px/1.6 ui-monospace, Menlo, monospace; color: #2a1f5c; border-top: 3px dashed #2a1f5c;">
+    <div style="font-weight: 700; font-size: 18px;">DESIGN NOTES - E · Toy Box (desktop 1440). Not page content.</div>
+    <div style="margin-top: 10px;"><b>STRUCTURE: CHANGES ADR-0058 - NO.</b> Same order as the live page: hero, popular row, three whole-panel intent links (/c/party/, /c/fortune/, /tools/), how-to, FAQ. landing-claims-check unaffected. The toys inside the party panel are decoration inside its one link, not a game list.</div>
+    <div style="margin-top: 10px;"><b>Lack 1 (no game art):</b> featured toy at 460px on a pedestal; popular cards lead with art; three toys burst out of the party panel's top edge.</div>
+    <div><b>Lack 2 (no motion):</b> hero toy squash-bounces; 4 clay balls float; CTA pulses; panel toys float; cards rise on hover.</div>
+    <div><b>Lack 3 (not bold):</b> violet-to-pink candy gradient #6c4dff/#a64dff/#ff5fa2; clay coral/gold/sky panels; Mitr 700 at 92px with a 4-layer extruded text shadow.</div>
+    <div><b>Lack 4 (ad landing, not portal):</b> answered by look only - the hero is a toy on a stage rather than a pitch, and every surface is a tactile toy piece. The panel structure stays; if the owner reads lack 4 as structural, E does not fix it.</div>
+    <div style="margin-top: 10px;"><b>3D art vs flat UI:</b> full reconciliation - the UI goes soft 3D too (top-lit gradients, inner highlight, solid edge drop, no ink outlines), matching the toy art's material.</div>
+    <div style="margin-top: 10px;"><b>Motion + cost:</b> 0 bytes JS. ~1.3 KB CSS, 3 keyframes. Idle per frame: 1 squash + 4 balls + 3 panel toys + 1 CTA pulse = 9 elements, transform only (compositor). The extruded text-shadow and the layered clay box-shadows are static paint, never animated. Art ~29 KB per webp, 6 on the page (~175 KB), hero eager, rest lazy. Reduced-motion: all animation and the hover rise off.</div>
+    <div style="margin-top: 10px;"><b>Invented Thai strings: 0.</b> Hero, CTA pair, "ยอดนิยม", how-to step, FAQ, "ช่องโฆษณา" = live home page copy; panel copy = categories hubHeading/hubBody + toolsGroup heading/body; games = module names.th / tagline; nav = site chrome.</div>
+    <div style="margin-top: 10px;"><b>Art:</b> croc-bite.webp is real; pinocchio-luck, how-close-is-near, dice-loser, timebomb, short-stick are PENDING (../public/art/&lt;id&gt;.webp; dashed box is mockup-only). The clay balls are CSS gradients, not images.</div>
+    <div style="margin-top: 10px;"><b>New colour values:</b> none of these are today's --accent-* tokens; adopting them is an owner decision.</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

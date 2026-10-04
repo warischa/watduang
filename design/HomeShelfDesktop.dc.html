@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #14142b; text-decoration: none; }
+
+    /* Direction D - Toy Shelf. Flat sticker UI (4px ink outline, hard offset shadow) kept on purpose;
+       the 3D card art is the only depth on the page and breaks out of the top of its frame. */
+    .shelf-tile { display: block; background: #ffffff; border: 4px solid #14142b; border-radius: 22px; box-shadow: 6px 6px 0 0 #14142b; padding: 0 12px 14px; transition: transform 160ms ease-out, box-shadow 160ms ease-out; }
+    .shelf-tile:hover { transform: translate(-3px, -6px); box-shadow: 9px 12px 0 0 #14142b; }
+    .shelf-tile .art { margin-top: -34px; }
+    .shelf-name { display: block; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 19px; line-height: 1.25; text-align: center; margin-top: 4px; }
+
+    .art { position: relative; display: block; aspect-ratio: 361 / 320; }
+    .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 8px rgba(20,20,43,0.28)); }
+    /* Mockup-only: shows where a pending render lands. Not a design value; never ships. */
+    .pending { position: absolute; inset: 22% 10% 6%; border: 2px dashed #8a87a8; border-radius: 14px; display: grid; place-items: center; text-align: center; font: 600 11px/1.3 ui-monospace, Menlo, monospace; color: #6c6990; background: #f4f1ff; }
+
+    .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 52px; }
+    .sec-head h2 { margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 44px; line-height: 1.15; }
+    .sec-head p { margin: 6px 0 0; font-size: 18px; color: #3d3b5c; }
+    .see-all { flex: none; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 10px 22px; }
+
+    .ph { outline: 3px dashed #ff00a8; outline-offset: 2px; }
+
+    @keyframes shelf-bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-14px) rotate(2deg); } }
+    @keyframes shelf-twinkle { 0%, 100% { transform: scale(0.6); opacity: 0.35; } 50% { transform: scale(1); opacity: 1; } }
+    @keyframes shelf-tilt { 0%, 92%, 100% { transform: rotate(0deg); } 95% { transform: rotate(-4deg); } 98% { transform: rotate(3deg); } }
+    .hero-toy { animation: shelf-bob 3.2s ease-in-out infinite; }
+    .tw-1 { animation: shelf-twinkle 2.4s ease-in-out infinite; }
+    .tw-2 { animation: shelf-twinkle 2.4s ease-in-out infinite 0.6s; }
+    .tw-3 { animation: shelf-twinkle 2.4s ease-in-out infinite 1.2s; }
+    .tw-4 { animation: shelf-twinkle 2.4s ease-in-out infinite 1.8s; }
+    .tilt { animation: shelf-tilt 6s ease-in-out infinite; }
+    .tilt-b { animation: shelf-tilt 6s ease-in-out infinite 2s; }
+    .tilt-c { animation: shelf-tilt 6s ease-in-out infinite 4s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-toy, .tw-1, .tw-2, .tw-3, .tw-4, .tilt, .tilt-b, .tilt-c { animation: none; }
+      .shelf-tile, .shelf-tile:hover { transition: none; transform: none; }
+    }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #fff6e0; color: #14142b;">
+
+  <!-- Top bar: the nav labels are the site chrome's own -->
+  <div style="background: #14142b;">
+    <div style="width: 1280px; margin-inline: auto; height: 84px; display: flex; align-items: center; justify-content: space-between;">
+      <a href="/" style="font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 32px; color: #ffcc00;">วัดดวง</a>
+      <div style="display: flex; gap: 12px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 17px;">
+        <a href="/c/fortune/" style="background: #ffcc00; border-radius: 999px; padding: 9px 20px;">ดูดวง</a>
+        <a href="/c/party/" style="background: #ff3d7f; color: #ffffff; border-radius: 999px; padding: 9px 20px;">สุ่มคนโดน</a>
+        <a href="/tools/" style="background: #2b7bff; color: #ffffff; border-radius: 999px; padding: 9px 20px;">เครื่องมือสุ่ม</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO: a featured-game stage, not a pitch. The whole right half is one game's real art. -->
+  <div style="background: #ff3d7f; border-block-end: 6px solid #14142b; overflow: hidden; position: relative;">
+    <div style="position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.18) 3px, transparent 3.5px); background-size: 34px 34px;"></div>
+    <div style="position: relative; width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 40px; padding-block: 56px;">
+      <div>
+        <span style="display: inline-block; background: #ffcc00; border: 4px solid #14142b; border-radius: 999px; padding: 6px 18px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px;">เปิดเว็บแล้วกดเล่นได้เลย</span>
+        <h1 style="margin: 22px 0 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 84px; line-height: 1.08; color: #ffffff; text-shadow: 5px 5px 0 #14142b;">กดทีเดียว<br>รู้เลยว่า<span style="color: #ffcc00;">ใครโดน</span></h1>
+        <p style="margin: 22px 0 0; font-size: 22px; font-weight: 600; color: #ffffff;">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p>
+        <a href="/c/party/" style="display: inline-block; margin-top: 30px; background: #ffcc00; border: 4px solid #14142b; border-radius: 18px; box-shadow: 6px 6px 0 0 #14142b; padding: 16px 32px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px;">เลือกเกมเลย <span aria-hidden="true">→</span></a>
+      </div>
+
+      <!-- Featured game card: whole card is one link to the game's play route -->
+      <a href="/game/croc-bite/play/" style="position: relative; display: block; justify-self: end; width: 540px; background: #ffcc00; border: 5px solid #14142b; border-radius: 34px; box-shadow: 10px 10px 0 0 #14142b; padding: 0 30px 26px;">
+        <span class="tw-1" style="position: absolute; left: 34px; top: 40px; width: 26px; height: 26px; background: #ffffff; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);"></span>
+        <span class="tw-2" style="position: absolute; right: 40px; top: 70px; width: 34px; height: 34px; background: #ffffff; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);"></span>
+        <span class="tw-3" style="position: absolute; left: 70px; top: 250px; width: 20px; height: 20px; background: #14142b; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);"></span>
+        <span class="tw-4" style="position: absolute; right: 70px; top: 290px; width: 22px; height: 22px; background: #14142b; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);"></span>
+        <span class="art hero-toy" style="width: 420px; margin: -48px auto 0;"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span>
+        <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 46px; line-height: 1.1;">จระเข้งับ</span>
+        <span style="display: block; margin-top: 6px; font-size: 19px; font-weight: 600;">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Ad slot: billboard under the hero, height reserved -->
+  <div style="width: 1280px; margin: 40px auto 0; height: 250px; border: 3px dashed #c9c3a8; border-radius: 16px; display: grid; place-items: center; color: #9a947a; font-size: 16px;">ช่องโฆษณา</div>
+
+  <!-- POPULAR: three big art cards with tagline -->
+  <div style="width: 1280px; margin: 88px auto 0;">
+    <div class="sec-head"><div><h2>ยอดนิยม</h2></div></div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;">
+      <a class="shelf-tile tilt" href="/game/pinocchio-luck/play/" style="background: #ffffff; padding: 0 22px 22px;">
+        <span class="art"><span class="pending">art pending<br>pinocchio-luck.webp</span><img src="../public/art/pinocchio-luck.webp" alt="" loading="lazy"></span>
+        <span class="shelf-name" style="font-size: 28px; text-align: left;">พิน็อคคิอวย</span>
+        <span style="display: block; margin-top: 6px; font-size: 16px; color: #3d3b5c;">ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน</span>
+      </a>
+      <a class="shelf-tile tilt-b" href="/game/how-close-is-near/play/" style="padding: 0 22px 22px;">
+        <span class="art"><span class="pending">art pending<br>how-close-is-near.webp</span><img src="../public/art/how-close-is-near.webp" alt="" loading="lazy"></span>
+        <span class="shelf-name" style="font-size: 28px; text-align: left;">ไกลแค่ไหนคือใกล้</span>
+        <span style="display: block; margin-top: 6px; font-size: 16px; color: #3d3b5c;">แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้ ตกลงกันก่อนเริ่ม</span>
+      </a>
+      <a class="shelf-tile tilt-c" href="/game/dice-loser/play/" style="padding: 0 22px 22px;">
+        <span class="art"><span class="pending">art pending<br>dice-loser.webp</span><img src="../public/art/dice-loser.webp" alt="" loading="lazy"></span>
+        <span class="shelf-name" style="font-size: 28px; text-align: left;">เต๋าชี้คนแพ้</span>
+        <span style="display: block; margin-top: 6px; font-size: 16px; color: #3d3b5c;">ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่อนว่าแต้มสูงหรือแต้มต่ำแพ้</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- PARTY SHELF: every party game, one tap each. This is the structural change (lists return). -->
+  <div style="margin-top: 96px; background: #14142b; padding-block: 72px 84px;">
+    <div style="width: 1280px; margin-inline: auto;">
+      <div class="sec-head">
+        <div>
+          <h2 style="color: #ffffff;">เกมวัดดวง สุ่มคนโดน</h2>
+          <p style="color: #d9d6f0;">จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลงกันเองว่าคนโดนต้องทำอะไร</p>
+        </div>
+        <a class="see-all" href="/c/party/" style="background: #ffcc00; color: #14142b;">ดูทั้งหมด →</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); column-gap: 20px; row-gap: 64px;">
+        <a class="shelf-tile" href="/game/timebomb/play/"><span class="art"><span class="pending">pending<br>timebomb</span><img src="../public/art/timebomb.webp" alt="" loading="lazy"></span><span class="shelf-name">ระเบิดเวลา</span></a>
+        <a class="shelf-tile" href="/game/short-stick/play/"><span class="art"><span class="pending">pending<br>short-stick</span><img src="../public/art/short-stick.webp" alt="" loading="lazy"></span><span class="shelf-name">จับไม้สั้น</span></a>
+        <a class="shelf-tile" href="/game/freeze-tap/play/"><span class="art"><span class="pending">pending<br>freeze-tap</span><img src="../public/art/freeze-tap.webp" alt="" loading="lazy"></span><span class="shelf-name">มือลั่น</span></a>
+        <a class="shelf-tile" href="/game/cannon-flag/play/"><span class="art"><span class="pending">pending<br>cannon-flag</span><img src="../public/art/cannon-flag.webp" alt="" loading="lazy"></span><span class="shelf-name">ยิงธง</span></a>
+        <a class="shelf-tile" href="/game/power-meter/play/"><span class="art"><span class="pending">pending<br>power-meter</span><img src="../public/art/power-meter.webp" alt="" loading="lazy"></span><span class="shelf-name">วัดพลัง</span></a>
+        <a class="shelf-tile" href="/game/dice-loser/play/"><span class="art"><span class="pending">pending<br>dice-loser</span><img src="../public/art/dice-loser.webp" alt="" loading="lazy"></span><span class="shelf-name">เต๋าชี้คนแพ้</span></a>
+        <a class="shelf-tile" href="/game/how-close-is-near/play/"><span class="art"><span class="pending">pending<br>how-close-is-near</span><img src="../public/art/how-close-is-near.webp" alt="" loading="lazy"></span><span class="shelf-name">ไกลแค่ไหนคือใกล้</span></a>
+        <a class="shelf-tile" href="/game/pinocchio-luck/play/"><span class="art"><span class="pending">pending<br>pinocchio-luck</span><img src="../public/art/pinocchio-luck.webp" alt="" loading="lazy"></span><span class="shelf-name">พิน็อคคิอวย</span></a>
+        <a class="shelf-tile" href="/game/cursed-number/play/"><span class="art"><span class="pending">pending<br>cursed-number</span><img src="../public/art/cursed-number.webp" alt="" loading="lazy"></span><span class="shelf-name">เลขอาถรรพ์</span></a>
+        <a class="shelf-tile" href="/game/wire-snip-panic/play/"><span class="art"><span class="pending">pending<br>wire-snip-panic</span><img src="../public/art/wire-snip-panic.webp" alt="" loading="lazy"></span><span class="shelf-name">ตัดสายกู้ชีพ</span></a>
+        <a class="shelf-tile" href="/game/zero-trigger/play/"><span class="art"><span class="pending">pending<br>zero-trigger</span><img src="../public/art/zero-trigger.webp" alt="" loading="lazy"></span><span class="shelf-name">แตะหยุดเวลา</span></a>
+        <a class="shelf-tile" href="/game/one-bomb/play/"><span class="art"><span class="pending">pending<br>one-bomb</span><img src="../public/art/one-bomb.webp" alt="" loading="lazy"></span><span class="shelf-name">กับระเบิด</span></a>
+        <a class="shelf-tile" href="/game/bangkok-drift/play/"><span class="art"><span class="pending">pending<br>bangkok-drift</span><img src="../public/art/bangkok-drift.webp" alt="" loading="lazy"></span><span class="shelf-name">บางกอกดริฟต์</span></a>
+        <a class="shelf-tile" href="/game/croc-bite/play/" style="background: #ffcc00;"><span class="art"><img src="../public/art/croc-bite.webp" alt="" loading="lazy"></span><span class="shelf-name">จระเข้งับ</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORTUNE ROW: no art set exists for this category, so its tiles stay typographic -->
+  <div style="width: 1280px; margin: 96px auto 0;">
+    <div class="sec-head">
+      <div>
+        <h2>ดูดวง ทำนายโชคชะตา</h2>
+        <p>ไม่มีใครแพ้ ไม่มีใครโดน กดดูดวงของตัวเองได้ทันที อยากรู้เมื่อไหร่ก็เปิดดูได้เลย</p>
+      </div>
+      <a class="see-all" href="/c/fortune/">ดูทั้งหมด →</a>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: -20px;">
+      <a class="shelf-tile" href="/game/siamsi/" style="background: #ffcc00; padding: 26px;"><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 30px;">เสี่ยงเซียมซี</span><span style="display: block; margin-top: 8px; font-size: 16px;">เขย่ามือถือเสี่ยงเซียมซี เปิดดูใบทำนายของคุณ</span></a>
+      <a class="shelf-tile" href="/game/daily-fortune/" style="background: #ffcc00; padding: 26px;"><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 30px;">ดวงวันนี้</span><span style="display: block; margin-top: 8px; font-size: 16px;">กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ไม่ต้องเชื่อ</span></a>
+      <a class="shelf-tile" href="/game/love-match/" style="background: #ffcc00; padding: 26px;"><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 30px;">เนื้อคู่ของคุณ</span><span style="display: block; margin-top: 8px; font-size: 16px;">ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็นคนแบบไหน</span></a>
+    </div>
+  </div>
+
+  <!-- TOOLS ROW: tools are not a category; this links the tools hub, never a /c/ URL -->
+  <div style="width: 1280px; margin: 96px auto 0;">
+    <div class="sec-head">
+      <div>
+        <h2>เครื่องมือกิจกรรมสันทนาการ</h2>
+        <p>ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง</p>
+      </div>
+      <a class="see-all" href="/tools/">ดูทั้งหมด →</a>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: -20px;">
+      <a class="shelf-tile" href="/tool/wheel/" style="background: #2b7bff; color: #ffffff; padding: 22px;"><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px;">วงล้อสุ่มชื่อ</span><span style="display: block; margin-top: 8px; font-size: 15px;">ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน</span></a>
+      <a class="shelf-tile" href="/tool/draw/" style="background: #2b7bff; color: #ffffff; padding: 22px;"><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px;">จับฉลาก</span><span style="display: block; margin-top: 8px; font-size: 15px;">ใส่ชื่อทั้งวง เลือกว่าจะจั่วกี่คน กดทีเดียวรู้ผล คนที่ออกแล้วไม่ออกซ้ำในรอบเดิม</span></a>
+      <a class="shelf-tile" href="/tool/team/" style="background: #2b7bff; color: #ffffff; padding: 22px;"><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px;">แบ่งทีม</span><span style="display: block; margin-top: 8px; font-size: 15px;">ใส่ชื่อแล้วบอกว่าอยากได้กี่ทีม แบ่งให้ทันที จำนวนคนแต่ละทีมต่างกันไม่เกินหนึ่งคน</span></a>
+      <a class="shelf-tile" href="/tool/number/" style="background: #2b7bff; color: #ffffff; padding: 22px;"><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px;">สุ่มเลข</span><span style="display: block; margin-top: 8px; font-size: 15px;">ตั้งเลขต่ำสุดกับสูงสุดแล้วกดสุ่ม เลือกได้ว่าจะให้เลขซ้ำได้ หรือห้ามซ้ำในรอบเดียวกัน</span></a>
+    </div>
+  </div>
+
+  <!-- FAQ: the live page's shipped copy, unchanged -->
+  <div style="width: 1280px; margin: 96px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+    <div style="grid-column: 1 / -1;"><h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 40px;">คำถามที่เจอบ่อย</h2></div>
+    <div style="border: 4px solid #14142b; border-radius: 20px; padding: 22px; background: #ffffff;"><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 22px;">ต้องโหลดแอปไหม</h3><p style="margin: 8px 0 0;">ไม่ต้อง ทุกเกมทำงานในเบราว์เซอร์ เปิดลิงก์แล้วกดเล่นได้เลย</p></div>
+    <div style="border: 4px solid #14142b; border-radius: 20px; padding: 22px; background: #ffffff;"><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 22px;">ต้องสมัครสมาชิกไหม</h3><p style="margin: 8px 0 0;">ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง</p></div>
+    <div style="border: 4px solid #14142b; border-radius: 20px; padding: 22px; background: #ffffff;"><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 22px;">เสียเงินไหม</h3><p style="margin: 8px 0 0;">ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p></div>
+  </div>
+
+  <div style="margin-top: 88px; background: #14142b; color: #ffcc00; height: 96px; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px;">วัดดวง</div>
+
+  <!-- DESIGN NOTES - mockup only, not page content -->
+  <div style="width: 1280px; margin: 48px auto 0; padding: 32px 0 56px; font: 15px/1.6 ui-monospace, Menlo, monospace; color: #14142b; border-top: 3px dashed #14142b;">
+    <div style="font-weight: 700; font-size: 18px;">DESIGN NOTES - D · Toy Shelf (desktop 1440). Not page content.</div>
+    <div style="margin-top: 10px;"><b>STRUCTURE: CHANGES ADR-0058 - YES.</b> The page lists every party game again (14 art tiles, one tap each) plus fortune and tools rows: the grouped-list shape ADR-0058 replaced, with art leading. Intent panels are gone. Each category row keeps a "ดูทั้งหมด →" link to its /c/&lt;slug&gt;/ hub, so landing-claims-check's per-category link still resolves without rework; the ADR-0058 amendment and the index.test.mjs pins move. Choosing D = amending ADR-0058 (owner's call).</div>
+    <div style="margin-top: 10px;"><b>Lack 1 (no game art):</b> hero is one game's real 3D art at 420px; popular row and the full party shelf are art-first tiles; art breaks out of each frame's top edge.</div>
+    <div><b>Lack 2 (no motion):</b> featured toy bobs; 4 sparkles twinkle; popular cards wiggle in turn; shelf tiles lift on hover.</div>
+    <div><b>Lack 3 (not bold):</b> #ff3d7f hero, #ffcc00 sun, #2b7bff tools, #14142b ink shelf band; Mitr 700 at 84px with a 5px hard text shadow.</div>
+    <div><b>Lack 4 (ad landing, not portal):</b> structural - the page becomes a catalogue shelf; the visitor sees and taps games, not a pitch.</div>
+    <div style="margin-top: 10px;"><b>3D art vs flat UI:</b> UI stays flat sticker (4px ink outline, hard offset shadow); art is the only depth and sits ON the shelf, so the contrast reads as toys on a shelf, not a style clash.</div>
+    <div style="margin-top: 10px;"><b>Motion + cost:</b> 0 bytes JS. ~1.1 KB CSS, 3 keyframes. Idle per frame: 1 bob + 4 twinkles + 3 wiggles (wiggle idle 92% of its 6s cycle) = 8 elements, transform/opacity only (compositor, no layout or paint). Hover: transform transition on 1 tile. Art: ~29 KB per webp (croc-bite measured) x 15 on page ~ 435 KB, below-fold tiles loading="lazy"; hero art eager (LCP candidate). Reduced-motion: every animation and the hover lift off; nothing conveys meaning by motion.</div>
+    <div style="margin-top: 10px;"><b>Invented Thai strings: 0.</b> Sources: game names/taglines = module names.th / tagline; section headings/bodies = categories hubHeading/hubBody and toolsGroup heading/body; "ยอดนิยม" = popularGroup.heading; tool names/descs = tools manifest; nav = site chrome; hero, "ดูทั้งหมด →", FAQ, "ช่องโฆษณา" = live home page copy.</div>
+    <div style="margin-top: 10px;"><b>Art:</b> croc-bite.webp is real. The other 13 party tiles point at ../public/art/&lt;game-id&gt;.webp - PENDING, rendering in parallel; the dashed "pending" box is mockup-only. Fortune and tools have no art set; their tiles stay typographic.</div>
+    <div style="margin-top: 10px;"><b>New colour values:</b> #ff3d7f #ffcc00 #2b7bff #14142b #fff6e0 are not today's --accent-* tokens; adopting them is an owner decision (accent tokens are gated single-source).</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

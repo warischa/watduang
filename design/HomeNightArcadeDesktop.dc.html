@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; background: #0e0b24; }
+    a { color: #ffffff; text-decoration: none; }
+
+    /* Direction F - Night Arcade. Dark stage, light as the outline: neon rules replace the ink
+       outline, and the 3D toys are rim-lit on podiums like prizes in a cabinet. */
+    .neon-pink { border: 3px solid #ff2e97; box-shadow: 0 0 0 1px #ff2e97, 0 0 18px rgba(255,46,151,0.55), inset 0 0 18px rgba(255,46,151,0.25); }
+    .neon-cyan { border: 3px solid #19e6ff; box-shadow: 0 0 0 1px #19e6ff, 0 0 18px rgba(25,230,255,0.55), inset 0 0 18px rgba(25,230,255,0.22); }
+    .neon-yellow { border: 3px solid #ffe83d; box-shadow: 0 0 0 1px #ffe83d, 0 0 18px rgba(255,232,61,0.5), inset 0 0 18px rgba(255,232,61,0.2); }
+    .glow-text { text-shadow: 0 0 6px rgba(255,46,151,0.9), 0 0 22px rgba(255,46,151,0.6); }
+    .cab { display: block; border-radius: 26px; background: linear-gradient(180deg, #1d1745 0%, #120f30 100%); }
+
+    .art { position: relative; display: block; aspect-ratio: 361 / 320; }
+    .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    /* Mockup-only: shows where a pending render lands. Not a design value; never ships. */
+    .pending { position: absolute; inset: 18% 10% 8%; border: 2px dashed #6f6aa6; border-radius: 14px; display: grid; place-items: center; text-align: center; font: 600 11px/1.3 ui-monospace, Menlo, monospace; color: #a9a4dc; background: rgba(255,255,255,0.04); }
+
+    .ticker-window { overflow: hidden; border-radius: 16px; background: #0a0820; }
+    .ticker { display: flex; gap: 10px; width: max-content; padding: 10px; }
+    .ticker .art { width: 110px; flex: none; }
+
+    @keyframes arc-ticker { to { transform: translateX(-50%); } }
+    @keyframes arc-flicker { 0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; } 20%, 63% { opacity: 0.45; } }
+    @keyframes arc-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+    @keyframes arc-beam { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+    .run-ticker { animation: arc-ticker 36s linear infinite; }
+    .flicker { animation: arc-flicker 5s linear infinite; }
+    .bob { animation: arc-bob 3s ease-in-out infinite; }
+    .beam { animation: arc-beam 3s ease-in-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .run-ticker, .flicker, .bob, .beam { animation: none; }
+    }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #0e0b24; color: #ffffff;">
+
+  <!-- Top bar -->
+  <div style="width: 1280px; margin-inline: auto; height: 92px; display: flex; align-items: center; justify-content: space-between;">
+    <a href="/" style="font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 34px; color: #ffe83d; text-shadow: 0 0 6px rgba(255,232,61,0.9), 0 0 20px rgba(255,232,61,0.5);">วัดดวง</a>
+    <div style="display: flex; gap: 14px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 17px;">
+      <a href="/c/fortune/" class="neon-yellow" style="border-radius: 999px; padding: 8px 20px; color: #ffe83d;">ดูดวง</a>
+      <a href="/c/party/" class="neon-pink" style="border-radius: 999px; padding: 8px 20px; color: #ff7cc0;">สุ่มคนโดน</a>
+      <a href="/tools/" class="neon-cyan" style="border-radius: 999px; padding: 8px 20px; color: #19e6ff;">เครื่องมือสุ่ม</a>
+    </div>
+  </div>
+
+  <!-- HERO: a lit stage on a perspective floor -->
+  <div style="position: relative; overflow: hidden; height: 700px;">
+    <div style="position: absolute; left: -10%; right: -10%; bottom: -170px; height: 380px; background-image: linear-gradient(rgba(122,44,255,0.55) 2px, transparent 2px), linear-gradient(90deg, rgba(122,44,255,0.55) 2px, transparent 2px); background-size: 64px 64px; transform: perspective(420px) rotateX(58deg); transform-origin: 50% 0;"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, #0e0b24 0%, rgba(14,11,36,0) 55%, rgba(14,11,36,0.2) 100%);"></div>
+
+    <div style="position: relative; width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 1fr 1fr; align-items: center; height: 100%;">
+      <div>
+        <span class="neon-cyan" style="display: inline-block; border-radius: 999px; padding: 6px 18px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px; color: #19e6ff;">เปิดเว็บแล้วกดเล่นได้เลย</span>
+        <h1 class="glow-text" style="margin: 26px 0 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 88px; line-height: 1.1;">กดทีเดียว<br>รู้เลยว่า<span class="flicker" style="color: #19e6ff; text-shadow: 0 0 6px rgba(25,230,255,0.95), 0 0 26px rgba(25,230,255,0.7);">ใครโดน</span></h1>
+        <p style="margin: 24px 0 0; font-size: 22px; font-weight: 600; color: #d8d4ff;">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p>
+        <div style="display: flex; align-items: center; gap: 28px; margin-top: 34px;">
+          <a href="/c/party/" style="display: inline-block; background: #ffe83d; color: #0e0b24; border-radius: 16px; padding: 18px 36px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 27px; box-shadow: 0 0 0 4px #0e0b24, 0 0 0 7px #ffe83d, 0 0 34px rgba(255,232,61,0.6);">เลือกเกมเลย <span aria-hidden="true">→</span></a>
+          <a href="/tools/" style="font-size: 18px; font-weight: 600; color: #19e6ff; text-decoration: underline; text-underline-offset: 6px;">หรือใช้เครื่องมือสุ่มแบบเร็ว ๆ</a>
+        </div>
+      </div>
+
+      <!-- Featured toy under a spotlight; whole stage is one link to the game -->
+      <a href="/game/croc-bite/play/" style="position: relative; display: block; justify-self: center; width: 560px; height: 620px;">
+        <span class="beam" style="position: absolute; left: 50%; top: -40px; width: 520px; height: 600px; transform: translateX(-50%); background: radial-gradient(ellipse 50% 60% at 50% 0%, rgba(255,232,61,0.42) 0%, rgba(255,46,151,0.16) 55%, rgba(14,11,36,0) 75%); clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%);"></span>
+        <span style="position: absolute; left: 50%; bottom: 118px; width: 420px; height: 70px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse at 50% 40%, #3a2c86 0%, #1d1745 70%); box-shadow: 0 0 0 3px #19e6ff, 0 0 26px rgba(25,230,255,0.7), 0 18px 40px rgba(0,0,0,0.6);"></span>
+        <span class="art bob" style="position: absolute; left: 50%; bottom: 146px; width: 430px; margin-left: -215px;"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320" style="filter: drop-shadow(0 0 18px rgba(255,46,151,0.55)) drop-shadow(0 16px 12px rgba(0,0,0,0.5));"></span>
+        <span style="position: absolute; left: 0; right: 0; bottom: 0; text-align: center;">
+          <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 38px; color: #ffe83d; text-shadow: 0 0 8px rgba(255,232,61,0.8);">จระเข้งับ</span>
+          <span style="display: block; font-size: 17px; font-weight: 600; color: #d8d4ff;">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Ad slot, reserved -->
+  <div style="width: 1280px; margin: 40px auto 0; height: 250px; border: 3px dashed #3b3570; border-radius: 22px; display: grid; place-items: center; color: #6f6aa6; font-size: 16px;">ช่องโฆษณา</div>
+
+  <!-- POPULAR: three lit cartridges -->
+  <div style="width: 1280px; margin: 84px auto 0;">
+    <h2 class="glow-text" style="margin: 0 0 32px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 48px;">ยอดนิยม</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;">
+      <a class="cab neon-pink" href="/game/pinocchio-luck/play/" style="padding: 18px 24px 24px;">
+        <span class="art" style="background: radial-gradient(circle at 50% 60%, rgba(255,46,151,0.35) 0%, rgba(14,11,36,0) 65%);"><span class="pending">art pending<br>pinocchio-luck.webp</span><img src="../public/art/pinocchio-luck.webp" alt="" loading="lazy"></span>
+        <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px;">พิน็อคคิอวย</span>
+        <span style="display: block; margin-top: 4px; font-size: 16px; color: #c9c4f2;">ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน</span>
+      </a>
+      <a class="cab neon-cyan" href="/game/how-close-is-near/play/" style="padding: 18px 24px 24px;">
+        <span class="art" style="background: radial-gradient(circle at 50% 60%, rgba(25,230,255,0.3) 0%, rgba(14,11,36,0) 65%);"><span class="pending">art pending<br>how-close-is-near.webp</span><img src="../public/art/how-close-is-near.webp" alt="" loading="lazy"></span>
+        <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px;">ไกลแค่ไหนคือใกล้</span>
+        <span style="display: block; margin-top: 4px; font-size: 16px; color: #c9c4f2;">แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้ ตกลงกันก่อนเริ่ม</span>
+      </a>
+      <a class="cab neon-yellow" href="/game/dice-loser/play/" style="padding: 18px 24px 24px;">
+        <span class="art" style="background: radial-gradient(circle at 50% 60%, rgba(255,232,61,0.28) 0%, rgba(14,11,36,0) 65%);"><span class="pending">art pending<br>dice-loser.webp</span><img src="../public/art/dice-loser.webp" alt="" loading="lazy"></span>
+        <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px;">เต๋าชี้คนแพ้</span>
+        <span style="display: block; margin-top: 4px; font-size: 16px; color: #c9c4f2;">ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่อนว่าแต้มสูงหรือแต้มต่ำแพ้</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- INTENT PANELS as cabinets (ADR-0058 kept). The party cabinet's screen scrolls its games'
+       art as decoration INSIDE its one link; the strip is aria-hidden and holds no links. -->
+  <div style="width: 1280px; margin: 96px auto 0; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); gap: 30px;">
+    <a class="cab neon-pink" href="/c/party/" style="padding: 22px 26px 28px;">
+      <span class="ticker-window" aria-hidden="true" style="display: block; box-shadow: inset 0 0 0 2px #ff2e97;">
+        <span class="ticker run-ticker">
+          <span class="art"><img src="../public/art/croc-bite.webp" alt=""></span>
+          <span class="art"><span class="pending">timebomb</span><img src="../public/art/timebomb.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">short-stick</span><img src="../public/art/short-stick.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">freeze-tap</span><img src="../public/art/freeze-tap.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">cannon-flag</span><img src="../public/art/cannon-flag.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">power-meter</span><img src="../public/art/power-meter.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">one-bomb</span><img src="../public/art/one-bomb.webp" alt="" loading="lazy"></span>
+          <span class="art"><img src="../public/art/croc-bite.webp" alt=""></span>
+          <span class="art"><span class="pending">timebomb</span><img src="../public/art/timebomb.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">short-stick</span><img src="../public/art/short-stick.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">freeze-tap</span><img src="../public/art/freeze-tap.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">cannon-flag</span><img src="../public/art/cannon-flag.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">power-meter</span><img src="../public/art/power-meter.webp" alt="" loading="lazy"></span>
+          <span class="art"><span class="pending">one-bomb</span><img src="../public/art/one-bomb.webp" alt="" loading="lazy"></span>
+        </span>
+      </span>
+      <span style="display: block; margin-top: 22px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.15; color: #ff7cc0; text-shadow: 0 0 10px rgba(255,46,151,0.7);">เกมวัดดวง สุ่มคนโดน</span>
+      <span style="display: block; margin-top: 10px; font-size: 18px; color: #d8d4ff;">จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลงกันเองว่าคนโดนต้องทำอะไร</span>
+    </a>
+    <a class="cab neon-yellow" href="/c/fortune/" style="padding: 30px 28px;">
+      <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 36px; line-height: 1.15; color: #ffe83d; text-shadow: 0 0 10px rgba(255,232,61,0.6);">ดูดวง ทำนายโชคชะตา</span>
+      <span style="display: block; margin-top: 12px; font-size: 18px; color: #d8d4ff;">ไม่มีใครแพ้ ไม่มีใครโดน กดดูดวงของตัวเองได้ทันที อยากรู้เมื่อไหร่ก็เปิดดูได้เลย</span>
+    </a>
+    <a class="cab neon-cyan" href="/tools/" style="padding: 30px 28px;">
+      <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 36px; line-height: 1.15; color: #19e6ff; text-shadow: 0 0 10px rgba(25,230,255,0.6);">เครื่องมือกิจกรรมสันทนาการ</span>
+      <span style="display: block; margin-top: 12px; font-size: 18px; color: #d8d4ff;">ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง</span>
+    </a>
+  </div>
+
+  <!-- How-to + FAQ: shipped copy -->
+  <div style="width: 1280px; margin: 96px auto 0; display: grid; grid-template-columns: 1fr 2fr; gap: 30px; align-items: start;">
+    <div class="cab" style="padding: 28px; border: 2px solid #3b3570;">
+      <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 32px; color: #19e6ff;">เล่นยังไง</h2>
+      <div style="display: flex; gap: 16px; margin-top: 18px; align-items: start;">
+        <span class="neon-yellow" style="flex: none; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 24px; color: #ffe83d;">1</span>
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 22px;">เลือกเกม</h3><p style="margin: 4px 0 0; color: #c9c4f2;">เปิดจากหน้านี้ได้เลย ไม่ต้องโหลดอะไรก่อน</p></div>
+      </div>
+    </div>
+    <div class="cab" style="padding: 28px; border: 2px solid #3b3570;">
+      <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 32px; color: #19e6ff;">คำถามที่เจอบ่อย</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 18px;">
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 20px;">ต้องโหลดแอปไหม</h3><p style="margin: 6px 0 0; color: #c9c4f2;">ไม่ต้อง ทุกเกมทำงานในเบราว์เซอร์ เปิดลิงก์แล้วกดเล่นได้เลย</p></div>
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 20px;">ต้องสมัครสมาชิกไหม</h3><p style="margin: 6px 0 0; color: #c9c4f2;">ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง</p></div>
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 20px;">เสียเงินไหม</h3><p style="margin: 6px 0 0; color: #c9c4f2;">ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 88px; border-top: 3px solid #7a2cff; box-shadow: 0 -6px 24px rgba(122,44,255,0.45); height: 96px; display: grid; place-items: center;"><span style="font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px; color: #ffe83d; text-shadow: 0 0 8px rgba(255,232,61,0.8);">วัดดวง</span></div>
+
+  <!-- DESIGN NOTES - mockup only, not page content -->
+  <div style="width: 1280px; margin: 40px auto 0; padding: 32px 0 56px; font: 15px/1.6 ui-monospace, Menlo, monospace; color: #e6e3ff; border-top: 3px dashed #6f6aa6;">
+    <div style="font-weight: 700; font-size: 18px;">DESIGN NOTES - F · Night Arcade (desktop 1440). Not page content.</div>
+    <div style="margin-top: 10px;"><b>STRUCTURE: CHANGES ADR-0058 - NO.</b> Live order kept: hero, popular row, three whole-panel intent links, how-to, FAQ. The party cabinet's scrolling art strip is aria-hidden decoration inside its single /c/party/ link - no per-game links, hub copy verbatim, so ADR-0058's consequences and landing-claims-check hold.</div>
+    <div style="margin-top: 10px;"><b>Lack 1 (no game art):</b> spotlit featured toy at 430px; art-led popular cartridges; the party cabinet's screen scrolls the party set's art.</div>
+    <div><b>Lack 2 (no motion):</b> the art ticker runs; "ใครโดน" flickers like a neon tube; the toy bobs; the spotlight breathes.</div>
+    <div><b>Lack 3 (not bold):</b> dark #0e0b24 ground with neon #ff2e97 / #19e6ff / #ffe83d / #7a2cff; Mitr 700 at 88px with glow; maximum contrast of the three directions.</div>
+    <div><b>Lack 4 (ad landing, not portal):</b> by look - the page reads as an arcade floor (perspective grid, cabinets, lit prizes) instead of a light marketing page. Structure unchanged; if lack 4 is structural, F does not fix it.</div>
+    <div style="margin-top: 10px;"><b>3D art vs flat UI:</b> the UI drops the flat ink outline for light: neon rules and glows. Toys are rim-lit on a podium, so they read as physical prizes in a dark cabinet - the art and the UI share one lighting story.</div>
+    <div style="margin-top: 10px;"><b>Motion + cost:</b> 0 bytes JS. ~1.4 KB CSS, 4 keyframes. Idle per frame: 1 ticker strip (transform, one composited layer, 14 images decoded) + 1 flicker (opacity) + 1 bob (transform) + 1 beam (opacity) = 4 elements, compositor only. Glows are static box/text shadows, never animated (animating shadows repaints). Art ~29 KB per webp; ticker shows 7 distinct (14 slots, duplicated for the seamless loop) + 3 popular + hero ~ 11 distinct ~ 320 KB; all below the hero lazy. Reduced-motion: ticker stops as a static row, no flicker, no bob, no beam pulse.</div>
+    <div style="margin-top: 10px;"><b>Invented Thai strings: 0.</b> Same sources as the live page: hero/CTAs/"ยอดนิยม"/how-to/FAQ/"ช่องโฆษณา" from the live home page; panels from categories hubHeading/hubBody + toolsGroup; games from module names.th / tagline; nav from site chrome.</div>
+    <div style="margin-top: 10px;"><b>Art:</b> croc-bite.webp is real; every other art slot is PENDING (../public/art/&lt;id&gt;.webp; dashed box mockup-only). The build would fill the ticker with the full party set from the manifest, not this hand subset.</div>
+    <div style="margin-top: 10px;"><b>New colour values / risk:</b> none of these are today's --accent-* tokens - owner decision. A dark ground also changes every category and game page that shares the chrome, unless the dark is home-only.</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

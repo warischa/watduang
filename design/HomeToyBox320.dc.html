@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #2a1f5c; text-decoration: none; }
+
+    /* Direction E - Toy Box at 320. Same clay recipe as desktop, smaller radii and drops. */
+    .clay { border-radius: 24px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -6px 0 rgba(42,31,92,0.12), 0 8px 0 var(--clay-edge), 0 16px 24px rgba(42,31,92,0.22); }
+    .clay-white { background: linear-gradient(180deg, #ffffff 0%, #f1ecff 100%); --clay-edge: #cfc4f2; }
+    .clay-yellow { background: linear-gradient(180deg, #ffe680 0%, #ffd23f 100%); --clay-edge: #d9a300; }
+    .clay-coral { background: linear-gradient(180deg, #ff8f80 0%, #ff6b5a 100%); --clay-edge: #c9412f; }
+    .clay-gold { background: linear-gradient(180deg, #ffe39a 0%, #ffc94a 100%); --clay-edge: #c99317; }
+    .clay-sky { background: linear-gradient(180deg, #7ddcff 0%, #38c6ff 100%); --clay-edge: #1a8fc0; }
+    .extrude { color: #ffffff; text-shadow: 0 2px 0 #e7ddff, 0 3px 0 #c9b8ff, 0 4px 0 #a58cff, 0 5px 0 #7b5cff, 0 10px 14px rgba(42,31,92,0.35); }
+    .ball { position: absolute; border-radius: 50%; }
+
+    .art { position: relative; display: block; aspect-ratio: 361 / 320; }
+    .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    /* Mockup-only: shows where a pending render lands. Not a design value; never ships. */
+    .pending { position: absolute; inset: 18% 8% 8%; border: 2px dashed #8a7fc0; border-radius: 14px; display: grid; place-items: center; text-align: center; font: 600 9px/1.3 ui-monospace, Menlo, monospace; color: #6a5fa0; background: rgba(255,255,255,0.6); }
+
+    @keyframes toy-squash { 0%, 100% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-14px) scale(0.97, 1.03); } 80% { transform: translateY(0) scale(1.04, 0.96); } }
+    @keyframes toy-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes toy-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+    .squash { transform-origin: 50% 100%; animation: toy-squash 2.6s ease-in-out infinite; }
+    .float-1 { animation: toy-float 4s ease-in-out infinite; }
+    .float-2 { animation: toy-float 4s ease-in-out infinite 1s; }
+    .float-3 { animation: toy-float 4s ease-in-out infinite 2s; }
+    .pulse { animation: toy-pulse 2.2s ease-in-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .squash, .float-1, .float-2, .float-3, .pulse { animation: none; }
+    }
+  </style>
+</helmet>
+
+<div style="width: 320px; background: #f3eeff; color: #2a1f5c;">
+
+  <div style="position: relative; overflow: hidden; background: linear-gradient(160deg, #6c4dff 0%, #a64dff 55%, #ff5fa2 100%); border-radius: 0 0 36px 36px; padding: 14px 14px 40px;">
+    <span class="ball float-2" style="right: 18px; top: 300px; width: 28px; height: 28px; background: radial-gradient(circle at 32% 30%, #d8f6ff 0%, #38c6ff 45%, #1a8fc0 100%);"></span>
+    <span class="ball float-3" style="left: 12px; top: 560px; width: 34px; height: 34px; background: radial-gradient(circle at 32% 30%, #ffe0db 0%, #ff6b5a 45%, #c9412f 100%);"></span>
+
+    <a href="/" class="extrude" style="position: relative; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px;">วัดดวง</a>
+    <div style="position: relative; display: flex; gap: 8px; margin-top: 12px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 14px;">
+      <a href="/c/fortune/" class="clay clay-gold" style="border-radius: 999px; padding: 6px 12px;">ดูดวง</a>
+      <a href="/c/party/" class="clay clay-coral" style="border-radius: 999px; padding: 6px 12px; color: #ffffff;">สุ่มคนโดน</a>
+      <a href="/tools/" class="clay clay-sky" style="border-radius: 999px; padding: 6px 12px;">เครื่องมือสุ่ม</a>
+    </div>
+
+    <div style="position: relative; margin-top: 28px;">
+      <span class="clay clay-white" style="display: inline-block; border-radius: 999px; padding: 5px 14px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 14px; color: #6c4dff;">เปิดเว็บแล้วกดเล่นได้เลย</span>
+      <h1 class="extrude" style="margin: 18px 0 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.12;">กดทีเดียว<br>รู้เลยว่า<span style="color: #ffe680; white-space: nowrap;">ใครโดน</span></h1>
+      <p style="margin: 14px 0 0; font-size: 17px; font-weight: 600; color: #ffffff;">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p>
+
+      <a href="/game/croc-bite/play/" style="position: relative; display: block; margin-top: 18px;">
+        <span class="art squash" style="width: 250px; margin-inline: auto; z-index: 1;"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320" style="filter: drop-shadow(0 12px 10px rgba(42,31,92,0.35));"></span>
+        <span style="display: block; width: 240px; height: 48px; margin: -30px auto 0; border-radius: 50%; background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, #e7ddff 55%, #b9a6ff 100%); box-shadow: 0 8px 0 #8f78e8, 0 18px 24px rgba(42,31,92,0.35);"></span>
+        <span class="clay clay-white" style="display: block; margin: 22px 8px 0; padding: 10px 14px; text-align: center;">
+          <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 24px; color: #2a1f5c;">จระเข้งับ</span>
+          <span style="display: block; font-size: 13px; font-weight: 600; color: #6c4dff;">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span>
+        </span>
+      </a>
+
+      <a href="/c/party/" class="clay clay-yellow pulse" style="display: block; margin-top: 30px; text-align: center; padding: 14px 16px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 21px;">เลือกเกมเลย <span aria-hidden="true">→</span></a>
+      <a href="/tools/" style="display: block; margin-top: 16px; text-align: center; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: underline; text-underline-offset: 5px;">หรือใช้เครื่องมือสุ่มแบบเร็ว ๆ</a>
+    </div>
+  </div>
+
+  <div style="margin: 28px 14px 0; height: 100px; border: 3px dashed #c4b8ee; border-radius: 20px; display: grid; place-items: center; color: #8f84bd; font-size: 14px;">ช่องโฆษณา</div>
+
+  <!-- POPULAR: art-left clay rows -->
+  <div style="margin: 40px 14px 0;">
+    <h2 style="margin: 0 0 18px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 30px; color: #6c4dff;">ยอดนิยม</h2>
+    <div style="display: grid; gap: 22px;">
+      <a class="clay clay-white" href="/game/pinocchio-luck/play/" style="display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; padding: 10px 12px;">
+        <span class="art"><span class="pending">pending<br>pinocchio-luck</span><img src="../public/art/pinocchio-luck.webp" alt="" loading="lazy"></span>
+        <span><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 19px;">พิน็อคคิอวย</span><span style="display: block; font-size: 13px; color: #5b5088;">ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน</span></span>
+      </a>
+      <a class="clay clay-white" href="/game/how-close-is-near/play/" style="display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; padding: 10px 12px;">
+        <span class="art"><span class="pending">pending<br>how-close-is-near</span><img src="../public/art/how-close-is-near.webp" alt="" loading="lazy"></span>
+        <span><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 19px;">ไกลแค่ไหนคือใกล้</span><span style="display: block; font-size: 13px; color: #5b5088;">แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้ ตกลงกันก่อนเริ่ม</span></span>
+      </a>
+      <a class="clay clay-white" href="/game/dice-loser/play/" style="display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; padding: 10px 12px;">
+        <span class="art"><span class="pending">pending<br>dice-loser</span><img src="../public/art/dice-loser.webp" alt="" loading="lazy"></span>
+        <span><span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 19px;">เต๋าชี้คนแพ้</span><span style="display: block; font-size: 13px; color: #5b5088;">ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่อนว่าแต้มสูงหรือแต้มต่ำแพ้</span></span>
+      </a>
+    </div>
+  </div>
+
+  <!-- INTENT PANELS (ADR-0058 kept): one column, one link each -->
+  <div style="margin: 56px 14px 0; display: grid; gap: 28px;">
+    <a class="clay clay-coral" href="/c/party/" style="display: block; padding: 0 18px 22px; color: #ffffff;">
+      <span style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: -30px;">
+        <span class="art float-1"><img src="../public/art/croc-bite.webp" alt=""></span>
+        <span class="art float-2"><span class="pending">pending<br>timebomb</span><img src="../public/art/timebomb.webp" alt="" loading="lazy"></span>
+        <span class="art float-3"><span class="pending">pending<br>short-stick</span><img src="../public/art/short-stick.webp" alt="" loading="lazy"></span>
+      </span>
+      <span style="display: block; margin-top: 8px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.2;">เกมวัดดวง สุ่มคนโดน</span>
+      <span style="display: block; margin-top: 6px; font-size: 15px; font-weight: 500;">จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลงกันเองว่าคนโดนต้องทำอะไร</span>
+    </a>
+    <a class="clay clay-gold" href="/c/fortune/" style="display: block; padding: 20px 18px;">
+      <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 25px; line-height: 1.2;">ดูดวง ทำนายโชคชะตา</span>
+      <span style="display: block; margin-top: 6px; font-size: 15px; font-weight: 500;">ไม่มีใครแพ้ ไม่มีใครโดน กดดูดวงของตัวเองได้ทันที อยากรู้เมื่อไหร่ก็เปิดดูได้เลย</span>
+    </a>
+    <a class="clay clay-sky" href="/tools/" style="display: block; padding: 20px 18px;">
+      <span style="display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 25px; line-height: 1.2;">เครื่องมือกิจกรรมสันทนาการ</span>
+      <span style="display: block; margin-top: 6px; font-size: 15px; font-weight: 500;">ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง</span>
+    </a>
+  </div>
+
+  <!-- How-to + FAQ: shipped copy -->
+  <div style="margin: 44px 14px 0; display: grid; gap: 22px;">
+    <div class="clay clay-white" style="padding: 18px;">
+      <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 25px; color: #6c4dff;">เล่นยังไง</h2>
+      <div style="display: flex; gap: 12px; margin-top: 12px; align-items: start;">
+        <span class="clay clay-yellow" style="flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 20px;">1</span>
+        <div><h3 style="margin: 0; font-family: 'Mitr', sans-serif; font-size: 18px;">เลือกเกม</h3><p style="margin: 2px 0 0; font-size: 14px;">เปิดจากหน้านี้ได้เลย ไม่ต้องโหลดอะไรก่อน</p></div>
+      </div>
+    </div>
+    <div class="clay clay-white" style="padding: 18px;">
+      <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 25px; color: #6c4dff;">คำถามที่เจอบ่อย</h2>
+      <h3 style="margin: 12px 0 0; font-family: 'Mitr', sans-serif; font-size: 17px;">ต้องโหลดแอปไหม</h3><p style="margin: 2px 0 0; font-size: 14px;">ไม่ต้อง ทุกเกมทำงานในเบราว์เซอร์ เปิดลิงก์แล้วกดเล่นได้เลย</p>
+      <h3 style="margin: 12px 0 0; font-family: 'Mitr', sans-serif; font-size: 17px;">ต้องสมัครสมาชิกไหม</h3><p style="margin: 2px 0 0; font-size: 14px;">ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง</p>
+      <h3 style="margin: 12px 0 0; font-family: 'Mitr', sans-serif; font-size: 17px;">เสียเงินไหม</h3><p style="margin: 2px 0 0; font-size: 14px;">ไม่เสีย เล่นได้ทุกเกมทุกเครื่องมือ ไม่มีของที่ต้องปลดล็อก</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 44px; background: linear-gradient(160deg, #6c4dff 0%, #ff5fa2 100%); height: 76px; display: grid; place-items: center; border-radius: 36px 36px 0 0;"><span class="extrude" style="font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 24px;">วัดดวง</span></div>
+
+  <!-- DESIGN NOTES - mockup only -->
+  <div style="padding: 20px 14px 32px; font: 11px/1.55 ui-monospace, Menlo, monospace; color: #2a1f5c; border-top: 2px dashed #2a1f5c; overflow-wrap: anywhere;">
+    <div style="font-weight: 700; font-size: 13px;">DESIGN NOTES - E · Toy Box (320). Not page content.</div>
+    <div style="margin-top: 8px;"><b>ADR-0058 STRUCTURE CHANGED: NO.</b> Hero, popular row, three whole-panel intent links, how-to, FAQ - the live order.</div>
+    <div style="margin-top: 8px;"><b>1 art:</b> featured toy on a pedestal, art-led popular rows, toys bursting from the party panel. <b>2 motion:</b> squash-bounce, floating balls and toys, CTA pulse. <b>3 bold:</b> violet-pink candy gradient, clay coral/gold/sky, Mitr 700 40px extruded. <b>4 portal:</b> look only - toy stage instead of a pitch; structure unchanged.</div>
+    <div style="margin-top: 8px;"><b>Motion cost:</b> 0 JS; ~1.2 KB CSS; 7 idle transform-only elements; shadows static. Reduced-motion stops all.</div>
+    <div style="margin-top: 8px;"><b>Invented Thai: 0.</b> All copy from manifest, categories, tools group, chrome, or the live home page.</div>
+    <div style="margin-top: 8px;"><b>Art:</b> croc-bite real; others pending (dashed, mockup-only). UI goes soft 3D to match the art.</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
