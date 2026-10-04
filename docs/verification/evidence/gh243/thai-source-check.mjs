@@ -11,7 +11,7 @@ let bad = 0;
 for (const f of files) {
   const html = fs.readFileSync(f, 'utf8').split('DESIGN NOTES - mockup only')[0].replace(/<!--[\s\S]*?-->/g, '').replace(/<style[\s\S]*?<\/style>/g, '');
   // text between tags, <br> joins nothing (each side checked on its own)
-  const runs = html.split(/<[^>]+>/).map((s) => s.replace(/&lt;|&gt;|&amp;/g, ' ').trim()).filter((s) => /[฀-๿]/.test(s));
+  const runs = html.split(/<[^>]+>/).map((s) => s.replace(/&lt;|&gt;|&amp;/g, ' ').trim()).filter((s) => /[\u0E00-\u0E7F]/.test(s));
   const missing = [...new Set(runs)].filter((r) => !corpus.includes(r));
   bad += missing.length;
   console.log(f.split('/').pop(), 'thaiRuns=' + new Set(runs).size, 'notInSources=' + missing.length, missing.slice(0, 8).join(' | '));

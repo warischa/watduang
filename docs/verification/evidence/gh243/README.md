@@ -38,7 +38,9 @@ page out at 980px.
 
 - **No sideways scroll at 320**: `scrollWidth == 320` on all three. Must-red: a throwaway copy of a
   320 artboard with one 400px-wide block injected read `scrollWidth 400`. The roots carry no
-  `overflow: hidden`, so the number is not masked.
+  `overflow: hidden`, so the number is not masked. The verdict is `scrollWidth == rootWidth`; the
+  log's `overflowingEls` field is informational only — on that same must-red it stayed `[]`,
+  because mobile emulation widens `innerWidth` along with the content.
 - **Reduced motion**: running animations (`document.getAnimations()`, playState `running`) per
   artboard, normal browser vs one launched with `--force-prefers-reduced-motion`
   (`matchMedia` false vs true): D 8→0 / 6→0, E 9→0 / 7→0, F 4→0 / 4→0 (desktop / 320). The normal
