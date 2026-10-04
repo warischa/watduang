@@ -160,3 +160,23 @@ DPR 2 is emulated, not a physical retina panel. DPR 3 phones fetch the same 2x c
 measured. Only croc-bite was opened, on the coral ground; the other 13 files were graded
 numerically (`grade-2x.txt`) and not opened. Ten of the 14 `-2x` files (the shelf-only games) are served
 nowhere today and cost deploy bytes only; they are kept so the popular row can change without a re-render.
+
+## Addendum 2026-10-04: two fail-opens closed in `scripts/landing-claims-check.mjs`
+
+An adversarial review reproduced both on a copy of the real `dist/`, each exiting 0 with the normal OK line.
+
+- The hero priority hint could move off the hero. With `fetchpriority="high"` removed from the img inside
+  `a.featured` and set on the first popular tile's lazy img, the old scan saw one marked tag, an `/art/` src and
+  the value "high", and passed while the LCP image lost its hint. `scanHeroPriority` now requires the one
+  marked tag to be the hero img (`hero-priority-target`), and reds when no `a.featured` img exists
+  (`hero-priority-no-hero`).
+- The srcset scan could skip an img. With the hero `src` changed to its 2x file and no `srcset`, the old scan
+  met `if (!game) continue;`, judged 3 imgs instead of 4, and only an all-zero count was red. A hero or popular
+  img whose src is no manifest `cardArt` is now `home-art-src`, and judged plus flagged must equal the number
+  of hero and popular anchors counted from their opening tags (`home-art-count`).
+- Mutations on scratch copies of the real `dist/`: hint moved to the first popular tile gives `the one
+  fetchpriority tag is not the hero img inside a.featured`; hero src set to the 2x file gives `hero img src is
+  "/art/croc-bite-2x.webp", which is no manifest cardArt`. The unmutated `dist/` stays green (4 imgs judged).
+- Self-test must-red: with the hero-binding test forced off the moved-hint case reports 0 problems; with the
+  silent skip restored the src cases report `home-art-count` or nothing instead of `home-art-src`; with the
+  count check forced off the swallowed-anchor case reports 0 problems.
