@@ -271,6 +271,8 @@ const game: GameModule = {
     ],
   },
   og: 'short-stick.png',
+  // gh#242, direction C set (IMG_03_002 in images/IMAGES.md).
+  cardArt: 'short-stick.webp',
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/short-stick/play/',
   // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:

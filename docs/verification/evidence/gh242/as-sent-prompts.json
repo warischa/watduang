@@ -1,0 +1,338 @@
+{
+ "_about": "Extracted from each Codex session log (~/.codex/sessions/2026/10/04/rollout-*.jsonl): every image_gen call Codex made for one gh#242 render, in order, with the prompt Codex itself wrote for the tool (Codex rewrites the prompt it is given, so these are NOT the registry text) and the tool arguments it passed. picked = the call whose output sha256 equals the file Codex saved to the requested path, which is the file copied byte-identical to images/.",
+ "renders": [
+  {
+   "id": "IMG_03_001",
+   "game": "timebomb",
+   "codex_session": "01a1053f-5e14-7df0-bdc7-f107554a5203",
+   "image_gen_calls": 2,
+   "master_sha256": "69b850d471281d65d4cbf8c7201151783bdd6b0541ee020389fe1f4bcfcfdf80",
+   "calls": [
+    {
+     "generation_id": "exec-a77e2d51-67b9-48d7-987a-2f656e826ae5",
+     "status": "completed",
+     "sha256": "cccc2d22bc411a7edf20b0f4d2fa67c96fe3426d8ab40a1826ce6251660a618c",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Generate a NEW square 1:1 game-card illustration for a Thai party-game website. Input image 1 is a STYLE REFERENCE ONLY: match its soft rounded 3D toy rendering, lighting, and glossy material finish. Do not copy the crocodile, its anatomy, face, colors, or any subject element.\nScene/backdrop: truly transparent background, PNG with real alpha. One isolated subject, centered as a complete silhouette with visually even generous margins on all four sides and nothing cropped. Readable as a small thumbnail.\nSubject: a cute round toy cartoon bomb viewed front three-quarter, a chubby glossy sphere, short stubby brass gold fuse cap on top, a warm tan curling fuse with a small bright solid sculpted spark at its tip and exactly TWO tiny solid star-shaped sparks beside the tip. No face, no eyes, no clock dial. Bomb body deep navy slate #334155 with soft lighter highlights #5b6b85. Cap brass gold #c9a227. Fuse warm tan #d9b98a. Spark warm yellow #fde68a with orange core #f59e0b and red-orange edge #ef4444. Sparks are opaque rounded toy pieces with crisp silhouettes, no glow or light spill. Entire object solid opaque except antialiased outer edges.\nStyle: SOFT 3D TOY RENDER, rounded vinyl/clay, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only in creases, soft studio key from upper left and soft fill, small soft specular highlights on glossy parts, premium designer toy/mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.\nConstraints: Nothing else. No smoke cloud, explosion, ground, props, floor, cast shadow/contact shadow beneath object, reflection. NO background of any kind, no solid backdrop/gradient/checkerboard. No soft mist, haze, motion blur or glow. No global color grade or colored environmental rim light; coral #f89880 never a large area. NO bottles, cans, drinking glasses, alcohol, human figures, hands, people faces, logos, brand marks, watermarks, text, letters, numbers. Deliver one finished bomb asset with true transparent alpha.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-eda73076-7541-4572-9f06-defc119c1060",
+     "status": "completed",
+     "sha256": "69b850d471281d65d4cbf8c7201151783bdd6b0541ee020389fe1f4bcfcfdf80",
+     "prompt_as_sent_to_image_gen": "Refine this game-card asset. Keep the deep navy/slate glossy round toy bomb, brass short stubby cap, warm tan curled fuse, front three-quarter view, soft premium rounded vinyl 3D toy finish and upper-left studio lighting. Keep no face, no eyes, no dial. Make one targeted composition correction: the spark at the fuse tip must be SMALL, about one tenth the bomb body's diameter, with warm yellow #fde68a, orange core #f59e0b and red-orange #ef4444 edge; keep exactly TWO much tinier solid star shaped sparks beside it. No glow, no bloom, no translucent light spill, no haze. All spark pieces are solid opaque toy shapes. Center the ENTIRE silhouette including fuse and sparks in a square canvas with about 12 percent clear transparent margin at EVERY side, nothing cropped. Smooth satin lightly clear-coated surfaces with small soft specular highlights and no realistic surface texture. Body deep navy slate #334155 highlights #5b6b85, cap #c9a227, cord #d9b98a. True transparent PNG alpha, clean clear empty background, fully opaque interiors, clean antialiased edges, no stray pixels outside the silhouette. NO cast shadow, contact shadow, floor, reflection, backdrop, checkerboard, smoke, explosion, props, bottles, cans, drinking glasses, alcohol, humans, hands, text, letters, numbers, logos or watermark.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_002",
+   "game": "short-stick",
+   "codex_session": "01a1053e-557b-7122-a092-940163bb0e68",
+   "image_gen_calls": 1,
+   "master_sha256": "0ebe1796bd6c66eb78533bb591d6a709df81697e985f35544eb73a2c25c40d62",
+   "calls": [
+    {
+     "generation_id": "exec-35528c30-64a5-430f-ba46-24254cf44817",
+     "status": "completed",
+     "sha256": "0ebe1796bd6c66eb78533bb591d6a709df81697e985f35544eb73a2c25c40d62",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Asset type: square 1:1 Thai party-game website game-card illustration.\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft premium 3D toy rendering, rounded geometry, lighting and satin lightly clear-coated material finish. DO NOT copy its crocodile subject, anatomy, colors or face.\nGenerate one isolated subject: a small fan of EXACTLY FIVE rounded wooden toy sticks held upright in a chunky round wooden stick holder. Four sticks are long and gently fan outward. The fifth stick is clearly MUCH shorter, in the foreground, protruding only a little above the holder's rim, its colored rounded tip plainly visible. All five individually readable at thumbnail size. Holder is a low chunky round solid wooden holder with slots, never a drinking glass.\nSticks warm honey wood (#d97706) with lighter grain-free highlights (#fbbf24); rounded tips alternate rose (#f43f5e) and pale yellow (#fef08a). Holder deep amber wood (#b45309), with a rose band (#e11d48) encircling it. No realistic grain or surface texture.\nSOFT 3D TOY RENDER: rounded vinyl/clay toy look, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only in subject creases, soft studio key light upper left with soft fill, small soft specular highlights. Not photorealistic, no ink outlines, not flat vector, not a sticker.\nCentered square composition, whole subject inside frame, balanced clear margin on all four sides, readable small thumbnail. Saturated own material colors softly lit, no global color grade, no environmental colored rim light. Coral #f89880 never a large area.\nEVERY part solid and opaque, crisp edges. TRUE fully transparent background with alpha channel. No background, no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow, no cast/contact shadow beneath subject, no floor, no reflection. No glow, mist, haze, motion blur.\nNothing else: no hands, table, ground, props, bottles, cans, drinking glasses, alcohol, humans, faces, logos, brands, watermarks, text, letters or numbers.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_003",
+   "game": "freeze-tap",
+   "codex_session": "01a1053a-f70c-7772-bae4-dcd6d8b04d2a",
+   "image_gen_calls": 2,
+   "master_sha256": "42123fe9d113aa0240436293d5da76c980f997d0e5b5e19e74fb72d148bafc4b",
+   "calls": [
+    {
+     "generation_id": "exec-d4aa7aee-9652-4acd-9966-66f1094bcd93",
+     "status": "completed",
+     "sha256": "a7630bdd5f1cf0a39c39ea16c4c0916ad35c35a53d35d4025be482caa85341ff",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Asset type: square game-card illustration for the game grid of a Thai party-game website, readable at small thumbnail size.\nInput image 1 is a STYLE REFERENCE ONLY: match its premium soft 3D toy rendering, lighting and clear-coated material finish, do not copy its crocodile subject, anatomy or colors.\nCreate ONE isolated big chunky toy arcade push button, front three-quarter view. A glossy round red dome on a squat round dark slate base with a lighter raised rim. A light opaque frost cap clings to the top of the dome, accompanied by a few small cute ice crystals attached to the dome. Keep the red dome clearly dominant and recognizable as a push button. No other objects.\nColors: dome red #ef4444, soft pink highlights #fca5a5; base dark slate #1e293b, lighter rim #334155; solid opaque crystals and frost icy sky blue #38bdf8 and pale ice white #e0f2fe. All parts solid opaque with crisp edges, including the ice.\nStyle: SOFT 3D TOY RENDER, rounded vinyl/clay designer toy, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only in subject creases, studio key light upper left, soft fill and small soft specular highlights. No realistic surface texture, not photorealistic, no ink outline, not flat vector, not a sticker.\nComposition: square 1:1, single subject centered with balanced generous margins all four sides, complete subject wholly inside frame, nothing cropped.\nBackground: absolutely fully transparent true PNG alpha. No background color, backdrop, scenery, gradient, checkerboard, floor, ground, cast/contact/drop shadow beneath the object or reflection. No glow, mist, haze, motion blur. No environment-colored rim lighting or overall color grade; no large coral area.\nForbidden: fingers, hands, people, faces, bottles, cans, drinking glasses, alcohol, props, logos, brand marks, watermark, text, letters, numbers. Output one final transparent PNG.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-c264ee3b-a121-45ea-a53a-14566645fe8d",
+     "status": "completed",
+     "sha256": "42123fe9d113aa0240436293d5da76c980f997d0e5b5e19e74fb72d148bafc4b",
+     "prompt_as_sent_to_image_gen": "Correct only the transparency of this generated frozen red arcade button asset. Preserve the same shape, subject, framing, material colors, toy rendering, attached frost and crystals, no new objects. The subject must be completely SOLID and OPAQUE: dome, base, rim, frost and ALL ice crystals have alpha exactly 255 throughout their interiors. Only the narrow antialiased outer silhouette edge may have intermediate alpha. Clean away all stray near-transparent pixels outside the single subject. Background alpha exactly 0 everywhere, absolutely no shadow, ground, glow, haze, backdrop, text. Keep centered square composition with balanced clear margins and nothing cropped. Save as true RGBA transparent PNG.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_004",
+   "game": "cannon-flag",
+   "codex_session": "01a10539-4519-7f30-8615-e5c70641c496",
+   "image_gen_calls": 2,
+   "master_sha256": "ab6eb4166edb668c76286a4b1909c7f5a92a3a7bd9a736c977ba717f4201dc9f",
+   "calls": [
+    {
+     "generation_id": "exec-36ad8b5c-3261-4abd-a41d-42b14ce64723",
+     "status": "completed",
+     "sha256": "7338cb739c16e7ce88613396b76dc1fcf13da338e2e13e695281ed71fb3da74e",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square 1:1 game-card illustration for the game grid of a Thai party-game website, readable at small thumbnail size.\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering, soft studio lighting, satin/light clear-coated smooth material finish, rounded forms and gentle ambient occlusion. Do NOT copy its crocodile subject, face, anatomy or colors.\nCreate one centered isolated compact subject grouping: a chubby toy cannon on TWO big round wheels, seen from a front three-quarter view. Its short thick rounded barrel tilts upward and its circular open muzzle is visible. Beside the cannon, a small toy flag stands on a thin pole stuck into a little round grassy mound. The flag is a simple plain triangular pennant with no symbol. No other props.\nMaterial colors: deep blue-grey cannon barrel #475569 with soft #94a3b8 highlights; warm orange wheels #f97316 with gold hubs #fbbf24; red triangular pennant #ef4444; light grey pole #e2e8f0; little green mound #22c55e. Every part solid and opaque with crisp edges.\nSOFT 3D TOY RENDER: rounded vinyl or clay toy, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion ONLY within creases, soft studio key light from upper left plus soft fill, small soft specular highlights. Premium designer toy / modern 3D mobile-game mascot. No realistic surface texture.\nCenter the complete cannon and flag grouping within the square canvas, visually balanced with even comfortable margin on all four sides. Whole subject inside frame, nothing cropped.\nTrue transparent background with alpha channel. All empty space completely transparent, including beneath the subject. NO background, scenery, solid backdrop, gradient, checkerboard pixels, ground beyond the small mound, floor, reflection, drop shadow, cast shadow or contact shadow beneath the subject. No glow, mist, haze, motion blur, smoke or cannonball in flight. No environment color grade or colored rim light. Coral #f89880 never as a large area.\nNO photorealism, ink outline, flat vector or sticker look. NO bottles, cans, drinking glasses, alcohol of any kind, human figures, hands, faces of people, logos, brand marks, watermarks, text, letters or numbers.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-8e32f678-0635-4227-9253-6d9a3ea6aa9b",
+     "status": "completed",
+     "sha256": "ab6eb4166edb668c76286a4b1909c7f5a92a3a7bd9a736c977ba717f4201dc9f",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square 1:1 game-card illustration for the game grid of a Thai party-game website, readable at small thumbnail size.\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering, soft studio lighting, satin/light clear-coated smooth material finish, rounded forms and gentle ambient occlusion. Do NOT copy its crocodile subject, face, anatomy or colors.\nCreate one centered isolated compact subject grouping: a chubby toy cannon on TWO big round wheels, seen from a front three-quarter view. Its short thick rounded barrel tilts upward and its circular open muzzle is visible. Beside the cannon, a small toy flag stands on a thin pole stuck into a little round grassy mound. The flag is a simple plain triangular pennant with no symbol. No other props.\nMaterial colors: deep blue-grey cannon barrel #475569 with soft #94a3b8 highlights; warm orange wheels #f97316 with gold hubs #fbbf24; red triangular pennant #ef4444; light grey pole #e2e8f0; little green mound #22c55e. Every part solid and opaque with crisp edges.\nSOFT 3D TOY RENDER: rounded vinyl or clay toy, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion ONLY within creases, soft studio key light from upper left plus soft fill, small soft specular highlights. Premium designer toy / modern 3D mobile-game mascot. No realistic surface texture.\nCenter the complete cannon and flag grouping within the square canvas, visually balanced with even comfortable margin on all four sides. Whole subject inside frame, nothing cropped.\nTrue transparent background with alpha channel. All empty space completely transparent, including beneath the subject. NO background, scenery, solid backdrop, gradient, checkerboard pixels, ground beyond the small mound, floor, reflection, drop shadow, cast shadow or contact shadow beneath the subject. No glow, mist, haze, motion blur, smoke or cannonball in flight. No environment color grade or colored rim light. Coral #f89880 never as a large area.\nNO photorealism, ink outline, flat vector or sticker look. NO bottles, cans, drinking glasses, alcohol of any kind, human figures, hands, faces of people, logos, brand marks, watermarks, text, letters or numbers.\nAdditional essential alpha requirements: subject surfaces must be fully opaque (alpha 255), with transparency confined to the empty background and narrow anti-aliased silhouette edges. No semitransparent material anywhere. Empty transparent margins must be clean with zero stray pixels, at least 10% clear space on EVERY side. Keep subject bounding box centered in both axes. Exact square composition. Do not reuse any rendering artifacts from the reference image.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_005",
+   "game": "power-meter",
+   "codex_session": "01a1053e-3112-7cf3-84d9-7e185f6e26e3",
+   "image_gen_calls": 2,
+   "master_sha256": "8af28543c0146eeae10248dfba7b519bb2a339f904bb1fd4cb3337e89affe975",
+   "calls": [
+    {
+     "generation_id": "exec-0f8b4fb1-1f9a-40a5-b610-bb9c976fcceb",
+     "status": "completed",
+     "sha256": "ff72ed759dd328f57c824caf4d9ae33476a012f5d6ade77f00f27960fb8998d2",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept\nAsset type: square transparent PNG game-card illustration for the game grid of a Thai party-game website, readable as a small thumbnail.\nInput image 1 is a STYLE REFERENCE ONLY. Match its rounded soft 3D toy rendering, lighting and lightly clear-coated material finish. DO NOT copy the crocodile, creature, eyes, mouth, teeth or any subject features.\nCreate one isolated chunky toy power gauge seen directly from the front. The outer housing is a rounded semicircular dome with a thick smoothly rounded base, deep violet (#7c3aed) with soft violet highlights (#a855f7). The dial is plain solid violet, with no numbers, no ticks, no labels and no markings other than a thick glossy semicircular arc of colored segments. The arc runs from green (#10b981) at the left, through yellow (#ffd700), then amber (#f59e0b), to hot pink-red (#ff2a5f) at the right. Give these segments distinct clean boundaries. One single fat cyan (#00f2fe) needle extends from the bottom-center pivot and points up-right high into the hot pink-red section, indicating high power. A round glossy cyan cap covers the needle pivot. Every part is solid and opaque, with crisp edges.\nStyle: SOFT 3D TOY RENDER, premium rounded vinyl or clay designer toy, smooth satin lightly clear-coated surfaces, no realistic texture. Soft volumetric shading and gentle ambient occlusion only within the object's creases. Soft studio key light from upper left plus soft fill; small soft specular highlights. Saturated material colors softly lit, no overall color grade, no environmental colored rim light.\nComposition: one subject centered on square 1:1 canvas, whole object fully inside frame, visually balanced generous clear margins, no cropping. Front-on symmetrical housing; needle points into the right-hand red end.\nBackground MUST be genuinely fully transparent with a true alpha channel. No background of any kind, no solid color, no gradient, no checkerboard baked into image. Nothing else in frame. NO cast shadow or contact shadow beneath the gauge, no drop shadow, no floor, no ground, no reflection.\nAvoid: glow, mist, haze, motion blur, ink outlines, flat vector style, sticker style, photorealism, coral large areas, hands, humans, human faces, animal or creature features, props, bottles, cans, glasses, alcohol, logos, brand marks, watermarks, text, letters, numbers, ticks or labels.\nSave final as transparent PNG.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-28a8d03a-3650-48f1-b754-30af8b03db34",
+     "status": "completed",
+     "sha256": "8af28543c0146eeae10248dfba7b519bb2a339f904bb1fd4cb3337e89affe975",
+     "prompt_as_sent_to_image_gen": "Correct this transparent PNG game asset. Preserve the exact front-facing chunky purple toy semicircular power gauge, four glossy arc segments green/yellow/amber/hot pink-red in left-to-right order, single cyan needle pointing into the red end and round cyan pivot, soft 3D rounded vinyl style and upper-left studio lighting. Preserve no text, no labels, no numbers, no ticks.\nMake the entire gauge interior fully solid and opaque (alpha 255 throughout the subject, only narrow antialiasing at its silhouette); all empty canvas fully transparent (alpha 0). Remove any detached colored pixels, edge noise or fringe. Crisp smooth clean cutout silhouette, no glow, no haze, no cast shadow, no contact shadow, no floor, no reflection. Reduce the gauge slightly to give clear margins of at least 10 percent of the square canvas at left and right. Center its visual bounding box vertically and horizontally, retaining comparable top and bottom transparent space. Whole gauge inside frame, nothing cropped. No additional objects or markings. True transparent PNG.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_006",
+   "game": "dice-loser",
+   "codex_session": "01a10539-4513-74b1-a1d2-7e8c2b077b8c",
+   "image_gen_calls": 1,
+   "master_sha256": "835610b374fec68e065981b8820c4d944847c00540759af25bf0204416ee8065",
+   "calls": [
+    {
+     "generation_id": "exec-777dc2c1-edfa-4d30-969e-0a66172a7dce",
+     "status": "completed",
+     "sha256": "835610b374fec68e065981b8820c4d944847c00540759af25bf0204416ee8065",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept\nAsset type: square 1:1 transparent PNG game-card illustration for the game grid of a Thai party-game website, readable as a small thumbnail.\nInput images: image 1 is a STYLE REFERENCE ONLY. Match its rounded soft 3D toy rendering, studio lighting, volumetric shading and lightly clear-coated finish. Do NOT copy the crocodile subject, green colors, or any creature features.\nScene/backdrop: fully transparent background with true alpha. Absolutely no background, floor, ground, scenery, solid backdrop, gradient, checkerboard, cast shadow, contact shadow beneath the subject, or reflection.\nSubject: Exactly three chunky rounded toy dice tumbling together in mid-air, each at a distinctly different angle. The three dice form one centered isolated cluster with balanced even margins on all four sides. Whole cluster inside frame, nothing cropped. Soft rounded cubes with ROUND INSET PIPS in conventional dice dot arrangements; pips are round dots ONLY, never numerals. Two dice have deep indigo (#1e1b4b) pips, and the third die has red (#ef4444) pips on every visible face. All dice bodies clean off-white (#f8fafc), with soft cool shading (#94a3b8) and a soft lavender (#a78bfa) tint in shaded creases. Every part is solid and opaque with crisp clean silhouette edges.\nStyle/medium: SOFT 3D TOY RENDER, premium designer vinyl or clay toy, smooth satin lightly clear-coated surfaces. Soft volumetric shading, gentle ambient occlusion inside pip recesses and creases. Soft studio key from upper left with soft fill, small soft specular highlights on glossy parts. Stylized modern 3D mobile-game mascot finish, not photorealistic. NO realistic surface textures, no ink outlines, not flat vector, not a sticker.\nColor: use the dice material colors specified; saturated red and indigo pips but softly lit. No whole-image color grade, no colored environmental rim lighting. No large coral (#f89880) area.\nConstraints: Nothing else in frame. NO table, cup, props, bottles, cans, drinking glasses, alcohol, human figures, hands, faces, logos, brand marks, watermark, text, letters, or numbers. NO glow, mist, haze, motion blur. NO drop shadow. Only the three fully opaque rounded dice on actual transparency.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_007",
+   "game": "how-close-is-near",
+   "codex_session": "01a1053b-5805-70c2-9c08-9417a73dcfbf",
+   "image_gen_calls": 2,
+   "master_sha256": "1d1114c6776a8167b0ef83758fe2401d7e5099bfb9afddff574a06664ec64156",
+   "calls": [
+    {
+     "generation_id": "exec-08a6aa00-4f2c-4c82-b6ac-abe950292070",
+     "status": "completed",
+     "sha256": "094036998e04794ce1ade83a6081900259ecc8abc7f29cb6e62c965bb400881e",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept\nAsset type: square game-card illustration for the game grid of a Thai party-game website.\nInput image 1 (/Users/waris.c/claude/free-game/images/IMG_02_003.png) is a STYLE REFERENCE ONLY. Match its rounded soft 3D toy rendering, soft upper-left studio lighting, smooth lightly clear-coated vinyl finish, glossy highlights and gentle ambient occlusion. DO NOT copy the crocodile, animal, eyes, face, green colours or its subject.\nGenerate one isolated subject: a chunky round toy target board seen from a front three-quarter view, standing on a small stubby slate grey stand. Thick glossy concentric rings alternate indigo #6366f1 and pale periwinkle #a5b4fc. Pink #ec4899 bullseye. No radial divisions, no numbers, no markings other than the rings. One and ONLY one soft toy dart with a rounded suction-cup tip attached near the centre, just off the pink bullseye. The cup visibly touches the target face; dart shaft projects outward from the board, with soft red #f87171 body and pink #f472b6 flight. Rounded child-safe toy shape. Stand slate grey #94a3b8.\nSOFT 3D TOY RENDER: smooth satin vinyl or clay, lightly clear-coated solid opaque material, premium designer toy/mobile game asset. Soft volumetric shading and gentle occlusion only within subject creases. Small soft specular highlights. Soft studio key from upper left with soft neutral fill. Not photorealistic, no realistic texture, no ink outlines, not flat vector, not a sticker.\nComposition: 1:1 square, one centred subject, balanced even transparent margins all four sides, whole stand/board/dart entirely inside frame, nothing cropped, highly readable at small thumbnail size.\nTRUE TRANSPARENT ALPHA BACKGROUND. No backdrop, no scenery, no solid colour, no gradient, no checkerboard, no floor, no reflection, no cast shadow/contact shadow/drop shadow beneath subject. Crisp edges; solid opaque parts; no glow, haze, mist or motion blur. Natural material colours, no global colour grade, no coloured environment rim light. No large coral #f89880 areas.\nNothing else: no props, no hands, no human figures or faces, no wall, no bottles, cans, glasses, alcohol, logos, brand marks, watermarks, text, letters or numbers.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-b59c79c2-197e-4601-ac61-a09de7b0a222",
+     "status": "completed",
+     "sha256": "1d1114c6776a8167b0ef83758fe2401d7e5099bfb9afddff574a06664ec64156",
+     "prompt_as_sent_to_image_gen": "Edit this toy target illustration. Preserve the exact target, concentric indigo and pale periwinkle rings, pink bullseye, single soft-red suction-cup dart with pink flight just off centre, stubby slate-grey stand, three-quarter perspective and soft glossy vinyl style. Clean up every stray speck/pixel outside the subject. Slightly reduce the entire subject to fit centrally with balanced generous clear transparent margins on all four sides, about 10% of canvas width minimum on each side. Keep all parts solid opaque and edges clean with antialiasing only at silhouettes. Square 1:1. Genuine fully transparent alpha outside the subject, including every outermost row and column. No shadow beneath stand, no cast or contact shadow, no floor, no reflection, no backdrop, no checkerboard. No text, numbers, radial divisions, logos, extra darts, extra objects, haze, glow or motion blur. Change only cleanup and framing, keep subject design.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_008",
+   "game": "pinocchio-luck",
+   "codex_session": "01a10544-b7f9-76e2-ba8c-7be21e169ec4",
+   "image_gen_calls": 2,
+   "master_sha256": "f99de99f687713b2f9347f57d4d47f05b6d7054aa68559013ae4bd3e28e10045",
+   "calls": [
+    {
+     "generation_id": "exec-83d37203-23c0-46aa-b602-21a3028c6ed3",
+     "status": "completed",
+     "sha256": "45eab890046ff23c19d2faed480db36c07e3ffad85d5d13b41c5e69ad7523ac3",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Create one square 1:1 PNG game-card illustration for a Thai party-game website with a true transparent alpha background. The attached Image 1 is a STYLE REFERENCE ONLY: match its polished soft 3D toy rendering, rounded shapes, soft studio lighting, volumetric shading and lightly clear-coated satin material finish; do not copy its crocodile subject or its face.\nSubject: one chubby egg-shaped wooden toy figure in front three-quarter view, smooth rounded turned-wood desk-toy form. Two simple round glossy dark-brown dot eyes (#5a301c) with small white catchlights. A very long pointed wooden nose projects straight horizontally to one side, with one tiny green leaf (#22c55e) sprouting from its tip. Nose must read unmistakably at thumbnail size. Completely abstract original toy, not any known character. NO mouth, ears, hair, hat, clothes, limbs or strings. Body and nose warm light tan (#dca177), lighter highlights (#f7d2b5), soft darker band at the base (#b07a4f), with a small thin berry-red (#881b40) painted ring around the bottom base. The ring is paint on the toy, not a separate stand.\nStyle: SOFT 3D TOY RENDER, premium designer vinyl/clay toy, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in creases. Soft studio key light upper left, soft fill, small soft specular highlights on glossy parts. Stylized wooden color only, NO realistic wood grain or surface texture. Every part solid and opaque, crisp edges. No glow, mist, haze or motion blur. Not photorealistic, no outlines, not flat vector, not a sticker.\nComposition: one isolated subject centered by the entire body-plus-nose silhouette, even comfortable margin on all four sides, entire figure and leaf fully within frame, nothing cropped, readable small thumbnail. Saturated material colors softly lit; no global color grade, no colored environmental rim light. Coral (#f89880) never a large area because destination card is coral.\nStrict backdrop constraints: genuinely transparent alpha everywhere outside the subject. NO scenery, solid backdrop, gradient, checkerboard pattern, drop shadow, cast/contact shadow beneath the subject, floor, ground, reflection, stand or props. Nothing else in frame. NO bottles, cans, drinking glasses, alcohol, human figures, hands, faces of people, logos, brand marks, watermarks, text, letters or numbers.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-ee226677-4664-4e0c-a63b-9165facc2369",
+     "status": "completed",
+     "sha256": "f99de99f687713b2f9347f57d4d47f05b6d7054aa68559013ae4bd3e28e10045",
+     "prompt_as_sent_to_image_gen": "Refine this transparent toy illustration. Preserve the abstract chubby egg-shaped tan wooden toy, two glossy brown dot eyes, thin berry-red painted base ring, darker base, green leaf at nose tip, three-quarter view, soft studio upper-left lighting, smooth satin clear-coated 3D toy finish, no mouth/ears/hair/hat/clothes/limbs/strings, no text. Make its very long straight nose taper to a clearly pointed wooden tip instead of a bulbous rounded end, with the tiny leaf sprouting from that pointed tip. Fit the entire body-plus-nose-plus-leaf silhouette centered in a square frame with roughly 12 percent comfortable transparent margin on every side; reduce subject scale as needed for balanced margins. Smooth toy surface without wood grain or realistic texture. Every part solid opaque with crisp edges. Preserve true alpha transparency outside the subject, no background/checkerboard/floor/stand/props/glow/haze/cast shadow/contact shadow/drop shadow/reflection.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_009",
+   "game": "cursed-number",
+   "codex_session": "01a10539-4512-7410-9299-2abdc776340d",
+   "image_gen_calls": 1,
+   "master_sha256": "221e6646d746641180810175c8dfc205f54d11e544dd79aa619de4f7e5d406df",
+   "calls": [
+    {
+     "generation_id": "exec-5a08cc42-fbda-49e7-9749-1eed6794ac3a",
+     "status": "completed",
+     "sha256": "221e6646d746641180810175c8dfc205f54d11e544dd79aa619de4f7e5d406df",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Create one square 1:1 PNG game-card illustration for the game grid of a Thai party-game website. Image 1 shown in the conversation is a STYLE REFERENCE ONLY: match its soft 3D toy rendering, studio lighting and material finish, absolutely do not copy the crocodile subject. Subject: ONE cursed lottery ball, a smooth perfectly round glossy blank purple sphere viewed from front three-quarter, with exactly two small cute rounded red devil horns attached to its top and one short red devil tail curling out from behind with a pointed tip. Completely blank ball surface: no numeral, letter, symbol, panel, marking or face. Purple base #a855f7 with soft violet #d8b4fe highlights. Horns and tail red #ef4444 with small magenta #ec4899 accents only on horn tips. Soft 3D toy render, rounded vinyl or clay designer toy, smooth satin lightly clear-coated solid opaque surfaces, gentle volumetric shading and ambient occlusion only in creases, upper-left soft studio key plus soft fill, small soft specular highlights. No realistic surface texture. One subject centered in the full square with balanced generous transparent margin on all four sides, complete horns and tail inside the frame, nothing cropped. Readable at thumbnail size. Every part solid opaque with crisp antialiased edges. TRUE ALPHA TRANSPARENCY surrounding subject, no background of any kind: no solid backdrop, gradient, scenery, checkerboard, ground, floor, reflection, drop shadow, cast shadow or contact shadow beneath subject. No glow, mist, haze, motion blur, environmental colored rim light or whole-image color grade. No coral as a large area. No other balls, machines, props, bottles, cans, drinking glasses, alcohol, human figures, hands, people faces, logos, brand marks, watermarks, text, letters or numbers. Not photorealistic, no ink outlines, not flat vector, not sticker.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_010",
+   "game": "wire-snip-panic",
+   "codex_session": "01a1053f-81bb-72b2-b3bb-cdf79fc8e939",
+   "image_gen_calls": 2,
+   "master_sha256": "dbdded6673bf1eac853d81b5c70ae1024175c0f65a1e02f583496dba6cd8bd6f",
+   "calls": [
+    {
+     "generation_id": "exec-ae5ae62e-f331-4342-9d0d-a4d48487b81a",
+     "status": "completed",
+     "sha256": "283ca7322c845c3d09b6d2c107c547d882b6beb20726dd9d1f83f5098ca48723",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Create one square 1:1 PNG game-card illustration for a Thai party-game grid with TRUE ALPHA TRANSPARENCY.\nImage 1 is a STYLE REFERENCE ONLY: match its soft 3D designer-toy rendering, studio lighting, smooth rounded forms, satin lightly clear-coated vinyl materials and small soft specular highlights. DO NOT copy the crocodile or any part of its subject.\nSubject: a chunky toy bomb-defusal box from a front three-quarter view. Small rounded rectangular charcoal case (#111827) with soft grey highlights (#374151). EXACTLY THREE thick glossy coloured wires, red (#ef4444), amber (#f59e0b), cyan (#06b6d4), loop out from the top and back into the case; each is a continuous solid wire with two attached ends, all three visually distinct and readable. One pair of chunky rounded toy scissors, green (#10b981) big round handles, silver-white (#e5e7eb) rounded blades, floating beside and above the box, with the open blades straddling one wire as if about to snip it. One small round opaque orange (#f97316) warning indicator on the front of the case, with a specular highlight but NO glow. No screen, digits, text, labels, logos or marks on the case. This box-wire-scissors assembly is the ONLY subject.\nStyle: SOFT 3D TOY RENDER, premium designer vinyl/clay toy, smooth satin surfaces, gentle ambient occlusion ONLY in subject creases, soft volumetric shading, upper-left soft studio key light and soft fill, saturated softly lit material colours. Every part solid and opaque with crisp edges. No realistic textures, photorealism, ink outline, vector style or sticker border. No colour grade, coloured rim light, coral large areas.\nComposition: one subject centred, even generous margins on all four sides, whole box, wires and scissors fully in frame with nothing cropped. Compact coherent silhouette readable as a small thumbnail.\nBackground: fully transparent, no background of any kind, no backdrop, scenery, gradient, checkerboard, ground, floor, reflection, cast or contact shadow beneath the subject. No haze, mist, motion blur or glow. Nothing else: no hands, people, faces, explosion, props, bottles, cans, drinking glasses, alcohol, watermarks, text, letters or numbers.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-7d5513b7-4fdb-498f-8406-7196e06ac6af",
+     "status": "completed",
+     "sha256": "dbdded6673bf1eac853d81b5c70ae1024175c0f65a1e02f583496dba6cd8bd6f",
+     "prompt_as_sent_to_image_gen": "Edit this illustration with ONE scoped cleanup: clean framing and clean true-alpha cutout. Preserve the same charcoal toy bomb-defusal box, exactly three glossy red/amber/cyan looping wires, green handled silver-white scissors about to cut red wire, and small round orange indicator. Preserve subject design, colours, soft 3D vinyl toy style and upper-left studio lighting. Reframe the entire assembly slightly smaller, centred both horizontally and vertically, with roughly equal clear margins of 12% on all four sides. The whole subject must remain intact without any cropped part. Background must be pure transparent alpha 0, including handle holes and gaps between wires. Remove EVERY stray disconnected pixel, halo, haze, shadow and background residue outside the subject. Solid material interiors must be fully opaque alpha 255; anti-aliasing only at the immediate crisp silhouette boundary. No shadow beneath the box, no floor, no checkerboard, no background, no glow, no blur. Smooth satin vinyl material without gritty or realistic surface texture. No text, digits, screens, labels, logos, people, hands or other objects. Deliver square 1:1 PNG with true alpha.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_011",
+   "game": "zero-trigger",
+   "codex_session": "01a10540-56f6-73e2-b74e-6f8ae3c2f84a",
+   "image_gen_calls": 2,
+   "master_sha256": "2fb622ad51780d953eecc8d292d2b6681fe1778f48c51e1aeed11eed8f487ca7",
+   "calls": [
+    {
+     "generation_id": "exec-ecf0c9b5-16e9-47e9-a1fa-0192c7272459",
+     "status": "completed",
+     "sha256": "022ab11bea63636d68f53ce9db3e961c888cc9153864fa022e8d50001ab73d36",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square game-card illustration for the game grid of a Thai party-game website.\nInput image 1 is a STYLE REFERENCE ONLY: match its soft 3D toy rendering, lighting, rounded forms, and material finish. DO NOT copy its crocodile subject, face, eyes or anatomy.\n\nGenerate one isolated chunky round toy stopwatch seen from a front three-quarter view. Glossy rounded warm yellow case (#fbbf24) with soft pale yellow highlights (#fde68a). Big rounded red button (#ef4444) on top and one small cyan side button (#06b6d4). A clear rounded dome cover over a plain blank pale grey-white dial (#f1f5f9) with a soft blue rim (#38bdf8) and EXACTLY ONE thick slate hand (#475569). No numerals, no tick marks, no text on the dial or any part. Dome should be indicated by soft highlights over the opaque dial; subject silhouette and every material area fully opaque, solid, crisply defined.\n\nSOFT 3D TOY RENDER: rounded vinyl or clay premium designer toy, smooth satin lightly clear-coated surfaces, soft volumetric shading and gentle ambient occlusion in creases. Soft studio key light from upper left, soft fill, small soft specular highlights. Saturated material colors softly lit, no overall color grade and no colored environmental rim light. Not photorealistic, no realistic surface texture, no ink outlines, not flat vector, not a sticker.\n\nOne subject centered with visually even generous margins on all four sides in square 1:1 composition. Whole subject fits, nothing cropped, silhouette and single hand easily readable at small thumbnail size.\nTRUE transparent background with PNG alpha: no scenery, solid backdrop, gradient, checkerboard, drop shadow, cast/contact shadow beneath subject, floor, reflection, glow, mist, haze or motion blur.\nNothing else in frame: no human hands, chain, props, bottles, cans, drinking glasses, alcohol, human figures, human faces, logos, brand marks, watermarks, text, letters or numbers. No coral large areas. Output a clean transparent PNG.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-b03b0f58-b73d-46b5-9914-c9c3a0d30fe6",
+     "status": "completed",
+     "sha256": "2fb622ad51780d953eecc8d292d2b6681fe1778f48c51e1aeed11eed8f487ca7",
+     "prompt_as_sent_to_image_gen": "Refine this generated stopwatch PNG only. Keep the same subject, colors, blank dial, exactly one thick hand, toy style, lighting, three-quarter camera and framing. Correct alpha channel: every interior pixel of the entire stopwatch including the dial and dome-cover area must be fully opaque alpha 255. Only the crisp antialiased silhouette edge may have intermediate alpha. The empty exterior must be pure alpha 0 everywhere, with no faint stray pixels, particles, haze, shadow, floor, backdrop or speckles anywhere. Maintain generous even margins and square framing. Smooth satin lightly clear-coated toy finish without realistic surface texture. No text, ticks, numerals, logos, additional objects or hands.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_012",
+   "game": "one-bomb",
+   "codex_session": "01a1053c-f41d-7822-8b03-9f86cfd96985",
+   "image_gen_calls": 2,
+   "master_sha256": "97734bd3e5610ed5078ef4d1cca70da6656712c90d172b057b01b68d1adbe67e",
+   "calls": [
+    {
+     "generation_id": "exec-58ac1a0b-0b2e-4715-93e1-5279e739cafa",
+     "status": "completed",
+     "sha256": "352c49b0c9dfb2102c6045b3bf8be5546116ccf61345e3ea91ad16db34b4fd00",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Create one square 1:1 PNG game-card illustration for the game grid of a Thai party-game website, with a true transparent alpha background. The attached Image 1 is a STYLE REFERENCE ONLY: match its soft 3D toy rendering, rounded forms, studio lighting and smooth lightly clear-coated material finish; do not copy its crocodile subject or its green palette.\nSubject: one small tilted square toy board with exactly nine rounded stone tiles arranged in a clear three-by-three grid. Front three-quarter view from above. Eight tiles lie flat; the ninth tile is flipped up on its edge, revealing a small cute round bomb peeking out of the hole directly beneath that tile. The bomb is recognizable as a smooth round dark slate body with a short fuse and a tiny crisp bright orange spark at its tip. No face is needed. All nine tiles have absolutely no numbers and no markings.\nMaterials and colours: tiles soft blue-grey stone #8fa7bf, pale highlights #e2effa; thick rounded board frame deep blue #3d5b7d; bomb body dark slate #334155; spark #ff9500; exactly one tiny green accent #2ed573 on a corner of the board frame. Use stone-like colour but NO realistic stone texture. Every part solid and opaque, crisp silhouettes, smooth satin vinyl or clay toy finish with small soft specular highlights. Soft volumetric shading, gentle ambient occlusion only within subject creases, soft studio key light from upper left and soft fill. Premium designer toy / modern 3D mobile-game mascot illustration. NOT photorealistic, no realistic surface texture, no ink outlines, not flat vector, not a sticker.\nComposition: one subject centered with balanced even generous margins on all four sides, full board and raised tile and fuse all within frame, nothing cropped. Make the 3x3 structure and single revealed bomb clearly readable at thumbnail size.\nStrict exclusions: nothing else in frame, no hands, no human figures, no faces of people, no explosion, no ground, no props, no bottles, no cans, no drinking glasses, no alcohol, no logos, no brand marks, no watermarks, no text, no letters, no numbers. No large coral area (#f89880), no overall colour grade, no coloured environment rim light. No glow around the spark or other parts, no mist, no haze, no motion blur. Absolutely NO background of any kind: no scenery, no solid backdrop, no gradient, no checkerboard pattern. NO cast shadow or contact shadow beneath the subject, no drop shadow, no floor, no reflection. Preserve true alpha transparency around the isolated toy board.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-ad43f060-6d8b-4d98-a186-b74bb7d1b394",
+     "status": "completed",
+     "sha256": "97734bd3e5610ed5078ef4d1cca70da6656712c90d172b057b01b68d1adbe67e",
+     "prompt_as_sent_to_image_gen": "Correct only the opacity and framing of this existing toy board illustration. Keep exactly the same subject, colours, style, lighting, 3x3 grid with eight flat unmarked tiles and one ninth raised tile, bomb, short fuse, orange crisp spark, tiny green corner accent. All physical parts of the board, tiles, bomb, fuse, spark and green accent must be COMPLETELY OPAQUE alpha=255 throughout their interior. Partial alpha permitted only at the narrow antialiased outer silhouette edge. The exterior background must be completely transparent alpha=0, clean empty pixels with no stray specks. No shadows outside subject, no floor, no reflection, no glow, no background. Centre the whole object with even margins of at least 8 percent of canvas on all four sides. Square 1:1 PNG with actual RGBA transparency. No text, letters, numbers, markings, props or other objects. Preserve smooth satin clear-coated toy surfaces with gentle soft highlights, no realistic texture.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_03_013",
+   "game": "bangkok-drift",
+   "codex_session": "01a10539-451a-7c21-91c3-a2780fba9266",
+   "image_gen_calls": 3,
+   "master_sha256": "629d8e96a897f9d5b19635b9620648541895bf4712d82e8a5abf59e55de0cac8",
+   "calls": [
+    {
+     "generation_id": "exec-6d4406ac-f6d2-48e1-90a3-5b74b1279065",
+     "status": "completed",
+     "sha256": "6bb804e97436d220defb027359980be3e277552a9fb2282fdd156b91017d7864",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Asset type: square game-card illustration for the game grid of a Thai party-game website.\nInput image 1 is a STYLE REFERENCE ONLY. Match only its rounded soft 3D toy rendering, studio lighting, volumetric shading and lightly clear-coated material finish. Do not copy the crocodile subject, eyes, mouth, colours or anatomy.\nGenerate one isolated chubby toy RED SPORTS CAR seen from a front three-quarter view, mid-drift with its rear swung out, countersteered big wheels and a short rounded body. Include exactly TWO SMALL solid rounded clay-like puffs of tyre smoke at the rear wheels. The puffs are opaque toy sculptures with crisp silhouettes, not atmospheric smoke.\nBody glossy red (#ef4444) with soft pink highlights (#fca5a5). Windows dark navy tint (#070c14), completely dark with no driver visible. Big dark wheels (#1f2937), silver hubs (#e5e7eb). Headlights warm yellow (#facc15), solid coloured material with no light emission or glow. Smoke puffs solid pale grey-white (#f8fafc). Every part solid and opaque, crisp edges.\nStyle: SOFT 3D TOY RENDER, rounded vinyl or clay toy, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in creases, soft studio key light from upper left and soft fill, small soft specular highlights on glossy parts. Premium designer toy / modern 3D mobile game illustration. Not photorealistic. No realistic texture, no ink outline, no flat vector, no sticker.\nComposition: one subject centred with balanced even clear margin on all four sides. Square 1:1 aspect. Whole car and both puffs inside frame, nothing cropped, readable as a small thumbnail.\nBackground: FULLY TRANSPARENT, true PNG alpha. No scenery, no solid backdrop, no gradient, no checkerboard pattern. No road, track, buildings, ground, props, floor, reflection, drop shadow, cast shadow or contact shadow underneath.\nNo licence plate, number, badge, logo, text, letters, numbers, watermark, brands, driver, human figure, hands, faces, bottles, cans, drinking glasses or alcohol. No glow, soft mist, haze, motion blur, coloured rim light or global colour grade. Coral (#f89880) must never be a large area.\nSave the generated PNG asset for subsequent copying to bangkok-drift.png.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-0c602c1e-352a-4a28-8aa8-590340251a8a",
+     "status": "completed",
+     "sha256": "4b2d9ff12977015f7193a37d2ab590c4d9b1ab937428d0d784ca0542cf58da9d",
+     "prompt_as_sent_to_image_gen": "Refine this toy car illustration. Preserve its red rounded toy sports car design, front three-quarter view, glossy soft 3D toy finish, dark windows, yellow headlights, silver wheel hubs, no text and no logos. Correct the composition: scale the complete subject down so its silhouette including both puffs is centered with approximately 12-15% clear transparent margin at left and right; balance the top and bottom margins, all wheels fully visible. Make the rear swung out and front wheels countersteered so it reads as drifting. Replace the existing smoke cluster with exactly TWO distinct SMALL solid opaque rounded pale grey-white clay puffs, one at each rear wheel; position the far puff so it is also visibly distinguishable beside the rear. Each puff a small cohesive toy cloud, crisp edges, no floating extra wisps. No haze, glow, blur. True transparent background, square 1:1 PNG, no floor or any background, no drop/cast/contact shadow or reflection beneath the subject. All subject surfaces solid opaque with smoothly antialiased edges.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-fa394476-df74-47c3-a882-6185685e3463",
+     "status": "completed",
+     "sha256": "629d8e96a897f9d5b19635b9620648541895bf4712d82e8a5abf59e55de0cac8",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Asset type: square game-card illustration for the game grid of a Thai party-game website.\nInput image 1 is a STYLE REFERENCE ONLY. Match only its rounded soft 3D toy rendering, studio lighting, volumetric shading and lightly clear-coated material finish. Do not copy the crocodile subject, eyes, mouth, colours or anatomy.\nGenerate one isolated chubby toy RED SPORTS CAR seen from a front three-quarter view, mid-drift with its rear swung out, countersteered big wheels and a short rounded body. Include exactly TWO SMALL solid rounded clay-like puffs of tyre smoke at the rear wheels. The puffs are opaque toy sculptures with crisp silhouettes, not atmospheric smoke.\nBody glossy red (#ef4444) with soft pink highlights (#fca5a5). Windows dark navy tint (#070c14), completely dark with no driver visible. Big dark wheels (#1f2937), silver hubs (#e5e7eb). Headlights warm yellow (#facc15), solid coloured material with no light emission or glow. Smoke puffs solid pale grey-white (#f8fafc). Every part solid and opaque, crisp edges.\nStyle: SOFT 3D TOY RENDER, rounded vinyl or clay toy, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in creases, soft studio key light from upper left and soft fill, small soft specular highlights on glossy parts. Premium designer toy / modern 3D mobile game illustration. Not photorealistic. No realistic texture, no ink outline, no flat vector, no sticker.\nComposition: one subject centred with balanced even clear margin on all four sides. Square 1:1 aspect. Whole car and both puffs inside frame, nothing cropped, readable as a small thumbnail.\nBackground: FULLY TRANSPARENT, true PNG alpha. No scenery, no solid backdrop, no gradient, no checkerboard pattern. No road, track, buildings, ground, props, floor, reflection, drop shadow, cast shadow or contact shadow underneath.\nNo licence plate, number, badge, logo, text, letters, numbers, watermark, brands, driver, human figure, hands, faces, bottles, cans, drinking glasses or alcohol. No glow, soft mist, haze, motion blur, coloured rim light or global colour grade. Coral (#f89880) must never be a large area.\nSave the generated PNG asset for subsequent copying to bangkok-drift.png.\nCritical composition requirements: show the CAR from an ELEVATED front three-quarter angle so BOTH REAR WHEEL POSITIONS and TWO SEPARATE SMOKE PUFFS can be seen. Point the car nose diagonally toward the lower-left and swing its rear toward upper-right in a drifting pose. ONE SMALL OPAQUE CLAY CLOUD beside the near rear wheel and a SECOND SEPARATE SMALL OPAQUE CLAY CLOUD visible beyond the far rear wheel. Both puffs must be fully visible and distinct, separated in the silhouette, approximately wheel-sized or smaller. Front wheels sharply countersteered.\nThe entire car INCLUDING BOTH PUFFS must fit within a centered square occupying only 72% of the image width and 72% of the image height. Large clear TRANSPARENT margin all around, at least 12% on EVERY side. No surface or shadow underneath. Smooth solid opaque 3D toy material. No face-like car styling. No added objects.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "picked": true
+    }
+   ]
+  }
+ ]
+}

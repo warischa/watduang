@@ -442,6 +442,8 @@ const game: GameModule = {
     ],
   },
   og: 'timebomb.png',
+  // gh#242, direction C set (IMG_03_001 in images/IMAGES.md).
+  cardArt: 'timebomb.webp',
   // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:
   // the decision was no slot on the PLAY SCREEN, never no slot on the page.
   ads: true,

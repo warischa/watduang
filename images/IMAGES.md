@@ -1760,3 +1760,438 @@ The owner's comparison sheet, the proposed card slot and the full grading record
   ship_derivative: "images/gh241-ship/IMG_02_003.webp"
   notes: "Bare codex exec, NOT emit_prompt.py: the front-matter brand_block is portrait-specific. Approved = owner pick 2026-10-01 (gh#241 comment), shipped as public/art/croc-bite.webp (the ship_derivative byte-identical). Codex made 2 image_gen calls; the picked one (2nd) is an edit of the first that Codex asked for as an alpha clean-up - see as-sent-prompts.json. Raw: srgba, 51.35% fully transparent, 2761 haze px outside the dilated solid mask (alpha 1 x2632, 2 x120, 3 x9; median 5.4 px outside the silhouette - a faint ring). Level remap black point 3 -> haze 0; trimmed 1118x991, 31.91% transparent, corners 0/0/0/0. Ship webp 361x320, 29038 bytes, decoded: haze 0, corners 0/0/0/0, 31.29% transparent. Look check (flattened on #f89880 and #1a1a1a, edges enlarged 4x): no fringe or halo, no contact shadow or floor under the feet, no painted checkerboard, no text, no bottle/can/glass, no human or hand."
 ```
+
+
+# Game-card art — the remaining thirteen party games, direction C (gh#242)
+
+The owner's direction C pick (gh#241, `IMG_02_003`), rendered for every other party-grid game. The scope
+is the party grid only (gh#242 comment 2026-10-04): the art slot lives only in the party card's artboard,
+and ADR-0040 says the fortune หมวด is not เกม. Each entry's `prompt:` is the **Direction C reuse
+template** above, unchanged, with the game's own `Subject:` placed second, exactly as in `IMG_02_003`.
+After the first test render, one sentence was added to every `Subject:`: "Every part is solid and opaque,
+with crisp edges: no glow, no soft mist, no haze, no motion blur". The reason: the first cursed-number
+try asked for a glowing mist, and it read as 29,107 haze pixels outside the solid mask, which no level
+remap clears without cutting into the mist. That try was discarded and never entered `images/`.
+
+**How each was rendered.** Each was rendered with bare `codex exec` from a scratch directory, never
+`emit_prompt.py` (its `brand_block` is portrait-specific; see the gh#241 section).
+- The style reference was attached with `-i images/IMG_02_003.png`, and the prompt was prefixed with:
+  "Input images: image 1 (<path>) is a STYLE REFERENCE only - match its rendering style, lighting and
+  material finish; do not copy its subject."
+- Four renders ran at a time, 90-312 s each.
+- Every `image_gen` call passed `transparent_background: true`.
+- Codex rewrote each prompt and sometimes made a second or third call, an edit of its own first output.
+  Every call, its as-sent prompt and its output hash are in
+  `docs/verification/evidence/gh242/as-sent-prompts.json`.
+- Each master below is matched to its call by sha256, never by mtime.
+
+**pinocchio-luck needed a second subject.** The first wording was a carved wooden puppet head with a long
+nose, a felt cap, painted cheeks and a smile. The image tool's output moderation refused it
+(`moderation_blocked`, category "other", no further reason). The likeliest cause is a likeness filter for
+the named character; that is inferred, not stated by the tool. The entry below is the second wording: an
+abstract egg-shaped wooden toy with a long nose, no mouth and no hat, described as "not any known
+character". The game's own name and copy are unchanged.
+
+**Ship derivatives** are made exactly as for the pilot:
+- `docs/verification/evidence/gh241/make_ship.py` builds them, with the black point set to the highest
+  haze alpha outside the radius-4 dilated solid mask. The same rule reproduces the pilot's black points
+  2/2/3.
+- `docs/verification/evidence/gh241/grade.py` grades them.
+- Positive control, run first: `make_ship.py` on `IMG_02_003` at black point 3 rebuilt
+  `public/art/croc-bite.webp` byte-identical (sha256 `96940eba…`).
+- Each ship webp entered `public/art/<game-id>.webp` byte-identical.
+
+The batch script and the grading log are in `docs/verification/evidence/gh242/` (`ship_all.py`,
+`grade-ship.jsonl`), with the set shown on the coral card ground and on ink (`set-coral-1.png`,
+`set-coral-2.png`, `set-ink.png`). The scripts resolve their paths against the session scratch directory
+they ran from, so they are a record, not a runnable pipeline.
+
+**Whether the set reads as one style next to the pilot is the owner's call** (gh#242), so every entry
+below stays `pending` until the owner says so.
+
+| id | game | black point | haze outside, shipped | corners | ship size | ship bytes | image_gen calls (picked) |
+|---|---|---|---|---|---|---|---|
+| `IMG_03_001` | timebomb | 2 | 0 | 0 0 0 0 | 283x320 | 13,744 | 2 (2) |
+| `IMG_03_002` | short-stick | 3 | 0 | 0 0 0 0 | 324x320 | 23,092 | 1 (1) |
+| `IMG_03_003` | freeze-tap | 7 | 0 | 0 0 0 0 | 351x320 | 21,292 | 2 (2) |
+| `IMG_03_004` | cannon-flag | 4 | 0 | 0 0 0 0 | 382x320 | 22,274 | 2 (2) |
+| `IMG_03_005` | power-meter | 2 | 0 | 0 0 0 0 | 473x320 | 25,292 | 2 (2) |
+| `IMG_03_006` | dice-loser | 3 | 0 | 0 0 0 0 | 308x320 | 18,836 | 1 (1) |
+| `IMG_03_007` | how-close-is-near | 3 | 0 | 0 0 0 0 | 310x320 | 20,358 | 2 (2) |
+| `IMG_03_008` | pinocchio-luck | 2 | 0 | 0 0 0 0 | 448x320 | 15,962 | 2 (2) |
+| `IMG_03_009` | cursed-number | 4 | 0 | 0 0 0 0 | 367x320 | 15,884 | 1 (1) |
+| `IMG_03_010` | wire-snip-panic | 4 | 0 | 0 0 0 0 | 264x320 | 20,310 | 2 (2) |
+| `IMG_03_011` | zero-trigger | 2 | 0 | 0 0 0 0 | 280x320 | 18,440 | 2 (2) |
+| `IMG_03_012` | one-bomb | 3 | 0 | 0 0 0 0 | 390x320 | 21,058 | 2 (2) |
+| `IMG_03_013` | bangkok-drift | 2 | 0 | 0 0 0 0 | 468x320 | 29,328 | 3 (3) |
+
+`IMG_03_003` (freeze-tap) needed black point 7, higher than the others (2-4): its frost cap and ice
+crystals carry a wider faint alpha fringe. Its shipped edges were checked at 4x on ink, with no halo and no
+visible loss.
+
+```yaml
+- id: IMG_03_001
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), timebomb - wired 2026-10-04 as /art/timebomb.webp via the timebomb module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "timebomb card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a cute round toy cartoon bomb seen from a front three-quarter view, a chubby glossy sphere with a short stubby fuse cap on top and a curling fuse with a small bright spark at its tip, two tiny solid star-shaped sparks beside it. Subject colours: bomb body deep navy slate (#334155) with soft lighter highlights (#5b6b85), fuse cap brass gold (#c9a227), fuse cord warm tan (#d9b98a), spark warm yellow (#fde68a) with an orange core (#f59e0b) and a red-orange edge (#ef4444). The bomb has no face, no eyes and no clock dial. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no smoke cloud, no explosion, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_001.png"
+  sha256_master: "69b850d471281d65d4cbf8c7201151783bdd6b0541ee020389fe1f4bcfcfdf80"
+  ship_derivative: "images/gh242-ship/IMG_03_001.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 67.86% fully transparent, 3650 haze px outside the dilated solid mask. Level remap black point 2 -> haze 0. Ship webp 283x320, 13744 bytes, decoded: haze 0, corners 0/0/0/0, 45.82% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_002
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), short-stick - wired 2026-10-04 as /art/short-stick.webp via the short-stick module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "short-stick card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a small fan of five rounded wooden toy sticks held upright in a chunky round wooden stick holder, the sticks fanned out slightly, their rounded tips coloured, one stick clearly much shorter than the others and poking up only a little. Subject colours: sticks warm honey wood (#d97706) with lighter grain-free highlights (#fbbf24), tips rose (#f43f5e) and pale yellow (#fef08a), holder deep amber wood (#b45309) with a rose band (#e11d48). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no hands, no table, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_002.png"
+  sha256_master: "0ebe1796bd6c66eb78533bb591d6a709df81697e985f35544eb73a2c25c40d62"
+  ship_derivative: "images/gh242-ship/IMG_03_002.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 1 image_gen call(s); the master is call 1, matched by sha256 (as-sent-prompts.json). Raw: 55.13% fully transparent, 8234 haze px outside the dilated solid mask. Level remap black point 3 -> haze 0. Ship webp 324x320, 23092 bytes, decoded: haze 0, corners 0/0/0/0, 38.83% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_003
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), freeze-tap - wired 2026-10-04 as /art/freeze-tap.webp via the freeze-tap module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "freeze-tap card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a big chunky toy arcade push button seen from a front three-quarter view, a glossy round red dome button on a squat round dark base, with a few small cute ice crystals and a light frost cap clinging to the top of the dome, as if the button is frozen. Subject colours: button dome red (#ef4444) with soft pink highlights (#fca5a5), base dark slate (#1e293b) with a lighter rim (#334155), ice crystals and frost icy sky blue (#38bdf8) and pale ice white (#e0f2fe). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no fingers, no hands, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_003.png"
+  sha256_master: "42123fe9d113aa0240436293d5da76c980f997d0e5b5e19e74fb72d148bafc4b"
+  ship_derivative: "images/gh242-ship/IMG_03_003.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 46.25% fully transparent, 10100 haze px outside the dilated solid mask. Level remap black point 7 -> haze 0. Ship webp 351x320, 21292 bytes, decoded: haze 0, corners 0/0/0/0, 27.93% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_004
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), cannon-flag - wired 2026-10-04 as /art/cannon-flag.webp via the cannon-flag module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "cannon-flag card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy cannon on two big round wheels seen from a front three-quarter view, its short rounded barrel tilted up, and beside it a small toy flag on a thin pole stuck in a little round grassy mound, the flag a plain triangular pennant with no symbol on it. Subject colours: cannon barrel deep blue-grey (#475569) with soft highlights (#94a3b8), wheels warm orange (#f97316) with gold hubs (#fbbf24), pennant red (#ef4444), pole light grey (#e2e8f0), mound green (#22c55e). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no cannonball in flight, no smoke, no ground beyond the small mound, no other props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_004.png"
+  sha256_master: "ab6eb4166edb668c76286a4b1909c7f5a92a3a7bd9a736c977ba717f4201dc9f"
+  ship_derivative: "images/gh242-ship/IMG_03_004.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 57.66% fully transparent, 3415 haze px outside the dilated solid mask. Level remap black point 4 -> haze 0. Ship webp 382x320, 22274 bytes, decoded: haze 0, corners 0/0/0/0, 35.00% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_005
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), power-meter - wired 2026-10-04 as /art/power-meter.webp via the power-meter module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "power-meter card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chunky toy power gauge seen from the front, a rounded semicircular dial housing with a thick glossy arc of coloured segments running from green on the left through yellow to hot pink-red on the right, a single fat needle pointing high into the red end, and a round glossy cap at the needle's pivot. The dial carries no numbers, no tick labels and no markings other than the coloured segments. Subject colours: housing deep violet (#7c3aed) with soft highlights (#a855f7), segments green (#10b981), yellow (#ffd700), amber (#f59e0b), hot pink-red (#ff2a5f), needle and pivot cap cyan (#00f2fe). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no hands, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_005.png"
+  sha256_master: "8af28543c0146eeae10248dfba7b519bb2a339f904bb1fd4cb3337e89affe975"
+  ship_derivative: "images/gh242-ship/IMG_03_005.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 55.18% fully transparent, 2192 haze px outside the dilated solid mask. Level remap black point 2 -> haze 0. Ship webp 473x320, 25292 bytes, decoded: haze 0, corners 0/0/0/0, 21.04% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_006
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), dice-loser - wired 2026-10-04 as /art/dice-loser.webp via the dice-loser module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "dice-loser card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: three chunky rounded toy dice tumbling together in mid-air, each at a different angle, soft rounded cubes with round inset pips. The pips are round dots only, never numerals. Subject colours: dice body clean off-white (#f8fafc) with soft cool shading (#94a3b8), pips deep indigo (#1e1b4b), one die's pips red (#ef4444) instead, a soft lavender (#a78bfa) tint in the shaded creases. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no table, no cup, no hands, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_006.png"
+  sha256_master: "835610b374fec68e065981b8820c4d944847c00540759af25bf0204416ee8065"
+  ship_derivative: "images/gh242-ship/IMG_03_006.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 1 image_gen call(s); the master is call 1, matched by sha256 (as-sent-prompts.json). Raw: 59.07% fully transparent, 2096 haze px outside the dilated solid mask. Level remap black point 3 -> haze 0. Ship webp 308x320, 18836 bytes, decoded: haze 0, corners 0/0/0/0, 35.84% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_007
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), how-close-is-near - wired 2026-10-04 as /art/how-close-is-near.webp via the how-close-is-near module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "how-close-is-near card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chunky round toy target board seen from a front three-quarter view, standing on a small stubby stand, with thick glossy concentric rings and one soft toy dart with a rounded suction-cup tip stuck near the centre, just off the bullseye. The board carries no numbers and no markings other than the rings. Subject colours: rings alternating indigo (#6366f1) and pale periwinkle (#a5b4fc), bullseye pink (#ec4899), dart body soft red (#f87171) with a pink flight (#f472b6), stand slate grey (#94a3b8). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no hands, no wall, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_007.png"
+  sha256_master: "1d1114c6776a8167b0ef83758fe2401d7e5099bfb9afddff574a06664ec64156"
+  ship_derivative: "images/gh242-ship/IMG_03_007.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 67.44% fully transparent, 2454 haze px outside the dilated solid mask. Level remap black point 3 -> haze 0. Ship webp 310x320, 20358 bytes, decoded: haze 0, corners 0/0/0/0, 32.84% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_008
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), pinocchio-luck - wired 2026-10-04 as /art/pinocchio-luck.webp via the pinocchio-luck module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "pinocchio-luck card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby egg-shaped wooden toy figure seen from a front three-quarter view, smooth and rounded like a turned-wood desk toy, two simple round glossy dot eyes, and a very long pointed wooden nose sticking straight out to one side with a tiny green leaf sprouting from its tip. It is a simple abstract wooden toy with no mouth, no ears, no hair, no hat, no clothes, no limbs and no strings, and not any known character. Subject colours: wood warm light tan (#dca177) with lighter highlights (#f7d2b5) and a soft darker band at the base (#b07a4f), eyes dark brown (#5a301c) with white catch-lights, leaf green (#22c55e), a small berry-red (#881b40) painted ring around the base. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no stand, no hands, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_008.png"
+  sha256_master: "f99de99f687713b2f9347f57d4d47f05b6d7054aa68559013ae4bd3e28e10045"
+  ship_derivative: "images/gh242-ship/IMG_03_008.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 69.79% fully transparent, 3810 haze px outside the dilated solid mask. Level remap black point 2 -> haze 0. Ship webp 448x320, 15962 bytes, decoded: haze 0, corners 0/0/0/0, 47.10% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_009
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), cursed-number - wired 2026-10-04 as /art/cursed-number.webp via the cursed-number module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "cursed-number card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a cursed lottery ball, a glossy round ball seen from a front three-quarter view with two small cute rounded devil horns on top and a short pointed devil tail curling out from behind. The ball's surface is completely blank, with no numeral, no letter and no marking of any kind. Subject colours: ball deep purple (#a855f7) with soft violet highlights (#d8b4fe), horns and tail red (#ef4444), a small magenta (#ec4899) highlight on the horn tips. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no other balls, no machine, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_009.png"
+  sha256_master: "221e6646d746641180810175c8dfc205f54d11e544dd79aa619de4f7e5d406df"
+  ship_derivative: "images/gh242-ship/IMG_03_009.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 1 image_gen call(s); the master is call 1, matched by sha256 (as-sent-prompts.json). Raw: 55.02% fully transparent, 1951 haze px outside the dilated solid mask. Level remap black point 4 -> haze 0. Ship webp 367x320, 15884 bytes, decoded: haze 0, corners 0/0/0/0, 34.49% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_010
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), wire-snip-panic - wired 2026-10-04 as /art/wire-snip-panic.webp via the wire-snip-panic module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "wire-snip-panic card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chunky toy bomb-defusal box seen from a front three-quarter view, a small rounded rectangular case with three thick glossy coloured wires looping out of its top and back in, a pair of chunky rounded toy scissors with big round handles about to snip one wire, and one small round warning light on the box. The box carries no screen, no digits, no text and no labels. Subject colours: box dark charcoal (#111827) with soft grey highlights (#374151), wires red (#ef4444), amber (#f59e0b) and cyan (#06b6d4), scissors handles green (#10b981) with silver-white blades (#e5e7eb), warning light orange (#f97316). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no hands, no explosion, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_010.png"
+  sha256_master: "dbdded6673bf1eac853d81b5c70ae1024175c0f65a1e02f583496dba6cd8bd6f"
+  ship_derivative: "images/gh242-ship/IMG_03_010.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 63.13% fully transparent, 5904 haze px outside the dilated solid mask. Level remap black point 4 -> haze 0. Ship webp 264x320, 20310 bytes, decoded: haze 0, corners 0/0/0/0, 37.01% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_011
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), zero-trigger - wired 2026-10-04 as /art/zero-trigger.webp via the zero-trigger module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "zero-trigger card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chunky round toy stopwatch seen from a front three-quarter view, a glossy rounded case with a big round button on top and a small side button, a clear rounded dome cover over a plain blank dial with one thick hand. The dial carries no numerals, no tick marks and no text. Subject colours: case warm yellow (#fbbf24) with soft highlights (#fde68a), top button red (#ef4444), side button cyan (#06b6d4), dial pale grey-white (#f1f5f9) with a soft blue rim (#38bdf8), hand slate (#475569). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no hands, no chain, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_011.png"
+  sha256_master: "2fb622ad51780d953eecc8d292d2b6681fe1778f48c51e1aeed11eed8f487ca7"
+  ship_derivative: "images/gh242-ship/IMG_03_011.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 50.96% fully transparent, 3105 haze px outside the dilated solid mask. Level remap black point 2 -> haze 0. Ship webp 280x320, 18440 bytes, decoded: haze 0, corners 0/0/0/0, 30.38% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_012
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), one-bomb - wired 2026-10-04 as /art/one-bomb.webp via the one-bomb module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "one-bomb card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a small tilted square toy board of nine rounded stone tiles in a three-by-three grid, seen from a front three-quarter view above, one tile flipped up on its edge to reveal a small cute round bomb with a short fuse peeking out of the hole beneath it. The tiles carry no numbers and no markings. Subject colours: tiles soft blue-grey stone (#8fa7bf) with pale highlights (#e2effa), board frame deep blue (#3d5b7d), bomb body dark slate (#334155) with a bright orange spark (#ff9500) at the fuse tip, one tiny green accent (#2ed573) on the board frame's corner. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no hands, no explosion, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_012.png"
+  sha256_master: "97734bd3e5610ed5078ef4d1cca70da6656712c90d172b057b01b68d1adbe67e"
+  ship_derivative: "images/gh242-ship/IMG_03_012.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 2 image_gen call(s); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: 51.41% fully transparent, 1922 haze px outside the dilated solid mask. Level remap black point 3 -> haze 0. Ship webp 390x320, 21058 bytes, decoded: haze 0, corners 0/0/0/0, 31.94% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+- id: IMG_03_013
+  deliverable: "03"
+  profile: "asset"
+  api_call:
+    model: "ChatGPT Images 2.5 via the Codex built-in image_gen tool (inferred: the tool reports no model id; codex-cli 0.159.2, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "party grid game card (src/pages/c/[category].astro, .game-card), bangkok-drift - wired 2026-10-04 as /art/bangkok-drift.webp via the bangkok-drift module cardArt field"
+  direction: "C - soft 3D toy"
+  purpose: "bangkok-drift card art in direction C (gh#242)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy red sports car seen from a front three-quarter view, mid-drift with its rear swung out and two small solid rounded clay-like puffs of tyre smoke at the rear wheels, rounded toy proportions with big wheels and a short body. No licence plate, no number, no badge, no logo, no text and no driver visible; the windows are tinted dark. Subject colours: body glossy red (#ef4444) with soft pink highlights (#fca5a5), windows dark navy tint (#070c14), wheels dark (#1f2937) with silver hubs (#e5e7eb), headlights warm yellow (#facc15), smoke puffs solid pale grey-white (#f8fafc). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no road, no track, no buildings, no ground, no props.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_03_013.png"
+  sha256_master: "629d8e96a897f9d5b19635b9620648541895bf4712d82e8a5abf59e55de0cac8"
+  ship_derivative: "images/gh242-ship/IMG_03_013.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png. 3 image_gen call(s); the master is call 3, matched by sha256 (as-sent-prompts.json). Raw: 62.87% fully transparent, 1922 haze px outside the dilated solid mask. Level remap black point 2 -> haze 0. Ship webp 468x320, 29328 bytes, decoded: haze 0, corners 0/0/0/0, 33.43% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
+
+```

@@ -1,0 +1,13 @@
+{"id": "bangkok-drift", "raw_transparent": 0.6287, "raw_haze": 1922, "bp": 2, "size": "468x320", "bytes": 29328, "transparent": 0.3343, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "cannon-flag", "raw_transparent": 0.5766, "raw_haze": 3415, "bp": 4, "size": "382x320", "bytes": 22274, "transparent": 0.35, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "cursed-number", "raw_transparent": 0.5502, "raw_haze": 1951, "bp": 4, "size": "367x320", "bytes": 15884, "transparent": 0.3449, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "dice-loser", "raw_transparent": 0.5907, "raw_haze": 2096, "bp": 3, "size": "308x320", "bytes": 18836, "transparent": 0.3584, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "freeze-tap", "raw_transparent": 0.4625, "raw_haze": 10100, "bp": 7, "size": "351x320", "bytes": 21292, "transparent": 0.2793, "haze": 0, "corners": [0, 0, 0, 0], "flags": ["black point 7 > 5 (soft element?)"]}
+{"id": "how-close-is-near", "raw_transparent": 0.6744, "raw_haze": 2454, "bp": 3, "size": "310x320", "bytes": 20358, "transparent": 0.3284, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "one-bomb", "raw_transparent": 0.5141, "raw_haze": 1922, "bp": 3, "size": "390x320", "bytes": 21058, "transparent": 0.3194, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "pinocchio-luck", "raw_transparent": 0.6979, "raw_haze": 3810, "bp": 2, "size": "448x320", "bytes": 15962, "transparent": 0.471, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "power-meter", "raw_transparent": 0.5518, "raw_haze": 2192, "bp": 2, "size": "473x320", "bytes": 25292, "transparent": 0.2104, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "short-stick", "raw_transparent": 0.5513, "raw_haze": 8234, "bp": 3, "size": "324x320", "bytes": 23092, "transparent": 0.3883, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "timebomb", "raw_transparent": 0.6786, "raw_haze": 3650, "bp": 2, "size": "283x320", "bytes": 13744, "transparent": 0.4582, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "wire-snip-panic", "raw_transparent": 0.6313, "raw_haze": 5904, "bp": 4, "size": "264x320", "bytes": 20310, "transparent": 0.3701, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}
+{"id": "zero-trigger", "raw_transparent": 0.5096, "raw_haze": 3105, "bp": 2, "size": "280x320", "bytes": 18440, "transparent": 0.3038, "haze": 0, "corners": [0, 0, 0, 0], "flags": []}

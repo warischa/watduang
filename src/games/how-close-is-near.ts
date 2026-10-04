@@ -138,6 +138,8 @@ const game: GameModule = {
     ],
   },
   og: 'how-close-is-near.png',
+  // gh#242, direction C set (IMG_03_007 in images/IMAGES.md).
+  cardArt: 'how-close-is-near.webp',
   // The how-to-play prose below the stage is ad inventory: the decision was no slot on the PLAY
   // SCREEN, never no slot on the page.
   ads: true,

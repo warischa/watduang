@@ -269,7 +269,7 @@ function scanAll(distDir, stats) {
 // any order), and what a correct card holds: that tag first when the game declares art, then the h3.
 const artOf = (gameList, id) => gameList.find((g) => g.id === id)?.cardArt;
 const artTag = (file, { loading = 'lazy', src = `/art/${file}` } = {}) =>
-  `<img class="game-card-art" src="${src}" width="361" height="320" alt="" loading="${loading}" decoding="async" data-x>`;
+  `<img class="game-card-art" src="${src}" alt="" loading="${loading}" decoding="async" data-x>`;
 const goodCardInner = (gameList) => (id) => (artOf(gameList, id) ? artTag(artOf(gameList, id)) : '') + '<h3 data-x>t</h3>';
 
 function categoryPageHtml({ gameIds, h1, lead, intro }, cardInner) {

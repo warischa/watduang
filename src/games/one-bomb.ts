@@ -76,6 +76,8 @@ const game: GameModule = {
     ],
   },
   og: 'one-bomb.png',
+  // gh#242, direction C set (IMG_03_012 in images/IMAGES.md).
+  cardArt: 'one-bomb.webp',
   ads: true,
   playRoute: '/game/one-bomb/play/',
 

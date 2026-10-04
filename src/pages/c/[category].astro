@@ -93,15 +93,13 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
             {games.map((game) => (
               <a class="game-card" href={game.playRoute ?? `/game/${game.id}/`}>
                 {/* gh#241 card art, rendered only for a game whose module sets cardArt. alt is empty
-                    because the h3 in the same link already names the game. width/height are the one
-                    shipped file's pixel size; the .game-card-art rule fixes both box dimensions, so
-                    they steer no layout - a second file of another width revisits them (gh#242). */}
+                    because the h3 in the same link already names the game. No width/height: each file
+                    has its own pixel size, and the .game-card-art rule fixes both box dimensions, so the
+                    box is reserved before any file loads (gh#242). */}
                 {game.cardArt && (
                   <img
                     class="game-card-art"
                     src={`/art/${game.cardArt}`}
-                    width="361"
-                    height="320"
                     alt=""
                     loading="lazy"
                     decoding="async"

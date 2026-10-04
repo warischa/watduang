@@ -315,6 +315,8 @@ const game: GameModule = {
     ],
   },
   og: 'pinocchio-luck.png',
+  // gh#242, direction C set (IMG_03_008 in images/IMAGES.md).
+  cardArt: 'pinocchio-luck.webp',
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/pinocchio-luck/play/',

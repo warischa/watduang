@@ -17,6 +17,8 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = path.join(root, 'src/games/manifest.ts');
 const categoriesPath = path.join(root, 'src/games/categories.ts');
+// Categories whose card artboard holds the art slot; every game in one must declare cardArt (gh#242).
+const ART_CATEGORIES = ['party'];
 
 // Games that must never generate an ad request at all, keyed by id, valued by the reason. A game NOT
 // in here may set ads either way — that is a revenue choice and no gate's business.
@@ -155,6 +157,22 @@ function validateGames(games, checkRoot, categories, noAdRequest = NO_AD_REQUEST
       err('og', `"${g.og}" — public/og/${g.og} does not exist`);
     }
 
+    // gh#242: every card in an art-slot category carries art, so a new game cannot ship a bare card.
+    // The set is the categories whose artboard holds the .game-card-art slot (party only today;
+    // src/pages/c/category.test.mjs refuses cardArt on a category whose artboard lacks it). The name is
+    // pinned to `<id>.webp` so a file cannot be shared or mismatched across games.
+    if (g?.cardArt !== undefined) {
+      if (!isStr(g.cardArt)) {
+        err('cardArt', 'must be a non-empty string when present');
+      } else if (isStr(g?.id) && g.cardArt !== `${g.id}.webp`) {
+        err('cardArt', `is "${g.cardArt}", must be "${g.id}.webp"`);
+      } else if (!existsSync(path.join(checkRoot, 'public/art', g.cardArt))) {
+        err('cardArt', `"${g.cardArt}" — public/art/${g.cardArt} does not exist`);
+      }
+    } else if (ART_CATEGORIES.includes(g?.category)) {
+      err('cardArt', `is required in category "${g.category}" — every card there carries art (gh#242)`);
+    }
+
     if (typeof g?.ads !== 'boolean') {
       err('ads', 'must be a boolean');
     } else if (g.ads === true && noAdRequest[g.id]) {
@@ -194,6 +212,8 @@ function selftest() {
   try {
     fs.mkdirSync(path.join(tmpDir, 'src/games'), { recursive: true });
     fs.mkdirSync(path.join(tmpDir, 'public/og'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, 'public/art'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'public/art/happy-game.webp'), '');
     fs.writeFileSync(path.join(tmpDir, 'src/games/happy-game.ts'), '');
     fs.writeFileSync(path.join(tmpDir, 'public/og/happy-game.png'), '');
     // the ads denylist case below mutates the fixture's id, so it needs its own two files on disk —
@@ -212,6 +232,7 @@ function selftest() {
       keywords: ['party', 'สนุก'],
       seo: { title: 'ชื่อ', description: 'คำอธิบาย', steps: ['หนึ่ง', 'สอง', 'สาม'] },
       og: 'happy-game.png',
+      cardArt: 'happy-game.webp',
       ads: false,
       mount: () => {},
       dispose: () => {},
@@ -221,7 +242,7 @@ function selftest() {
     // claims 'fortune' (so partyAndFortune's keys are all claimed) and needs its own id file on disk,
     // exactly like the restricted-fixture files above.
     fs.writeFileSync(path.join(tmpDir, 'src/games/solo-game.ts'), '');
-    const soloGame = () => ({ ...goodGame(), id: 'solo-game', category: 'fortune', players: [1, 1] });
+    const soloGame = () => ({ ...goodGame(), id: 'solo-game', category: 'fortune', players: [1, 1], cardArt: undefined });
 
     // Category-manifest fixtures for the gh#74 gates (the validator only reads Object.keys, so the
     // values are placeholders): partyOnly leaves every key claimed by goodGame, partyAndFortune
@@ -285,6 +306,10 @@ function selftest() {
       { field: 'seo.description', mutate: (g) => ({ ...g, seo: { ...g.seo, description: '' } }), expect: /seo\.description must be a non-empty string/ },
       { field: 'seo.steps (too few)', mutate: (g) => ({ ...g, seo: { ...g.seo, steps: ['หนึ่ง', 'สอง'] } }), expect: /seo\.steps must be an array of at least 3 non-empty strings/ },
       { field: 'og (not a string)', mutate: (g) => ({ ...g, og: '' }), expect: /og must be a non-empty string/ },
+      { field: 'cardArt (missing in an art-slot category)', mutate: (g) => ({ ...g, cardArt: undefined }), expect: /cardArt is required in category "party"/ },
+      { field: 'cardArt (not a string)', mutate: (g) => ({ ...g, cardArt: '' }), expect: /cardArt must be a non-empty string when present/ },
+      { field: 'cardArt (name is not <id>.webp)', mutate: (g) => ({ ...g, cardArt: 'croc-bite.webp' }), expect: /cardArt is "croc-bite\.webp", must be "happy-game\.webp"/ },
+      { field: 'cardArt (file missing)', mutate: (g) => ({ ...g, id: 'restricted-fixture', og: 'restricted-fixture.png', cardArt: 'restricted-fixture.webp' }), expect: /cardArt "restricted-fixture\.webp" — public\/art\/restricted-fixture\.webp does not exist/ },
       { field: 'og (file missing)', mutate: (g) => ({ ...g, og: 'ghost.png' }), expect: /og "ghost\.png" — public\/og\/ghost\.png does not exist/ },
       { field: 'ads (not a boolean)', mutate: (g) => ({ ...g, ads: 'yes' }), expect: /ads must be a boolean/ },
       { field: 'ads (true on a no-ad-request id)', mutate: (g) => ({ ...g, id: 'restricted-fixture', og: 'restricted-fixture.png', ads: true }), expect: /ads must be false for "restricted-fixture" — fixture page: AdSense restricted content/ },

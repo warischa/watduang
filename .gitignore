@@ -19,6 +19,8 @@ docs/verification/evidence/**/*.png
 # gh#241: the owner picks a card-art style by looking at this sheet. Its content is a look, which no
 # log can carry, so the image is the artifact the pick will cite (rebuild: make_compare.py beside it).
 !docs/verification/evidence/gh241/compare-abc.png
+# gh#242: same reason — the owner judges "the set reads as one style next to the pilot" off these sheets.
+!docs/verification/evidence/gh242/set-*.png
 
 # Design canvas build output — a ~2MB seeded bundle whose minified editor code
 # trips added-lineno-citation-check. The .dc.html sources + canvas.json beside it are the real artifact.
