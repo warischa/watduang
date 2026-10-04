@@ -25,7 +25,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
-const { games } = await import(path.join(repoRoot, 'src/games/manifest.ts'));
+const { games, featuredGame, popularGames } = await import(path.join(repoRoot, 'src/games/manifest.ts'));
 const { categories } = await import(path.join(repoRoot, 'src/games/categories.ts'));
 const categorySlugs = Object.keys(categories);
 
@@ -253,22 +253,19 @@ function scanCardArt(distDir, gameList = games, stats = { withArt: 0, withoutArt
 }
 
 // The hero card (a.featured) and every popular-row tile (a.tile with data-variant="popular") on the home
-// page, each with its first <img> tag (undefined when the card holds none). `opened` counts those same
-// anchors by their opening tag alone, a second reading that does not depend on a closing </a> being found,
-// so a card the lazy match swallowed or lost shows up as a difference.
+// page, each with its href and its first <img> tag (undefined when the card holds none). Which cards the
+// page MUST hold is not read off these selectors: the manifest owns it (featuredGame, popularGames), so a
+// renamed attribute, a deleted tile or a second hero cannot shrink the set the scans judge.
 function homeArtCards(html) {
-  const isArtAnchor = (attrs) => {
-    const hero = (attrOf(attrs, 'class') || '').split(/\s+/).includes('featured');
-    return hero ? 'hero' : attrOf(attrs, 'data-variant') === 'popular' ? 'popular' : null;
-  };
   const cards = [];
   // A tile holds no nested <a>, so the first closing tag after an opening one ends it.
   for (const card of html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)) {
-    const slot = isArtAnchor(` ${card[1]}`);
-    if (slot) cards.push({ slot, tag: card[2].match(/<img\b[^>]*>/)?.[0] });
+    const attrs = ` ${card[1]}`;
+    const hero = (attrOf(attrs, 'class') || '').split(/\s+/).includes('featured');
+    const slot = hero ? 'hero' : attrOf(attrs, 'data-variant') === 'popular' ? 'popular' : null;
+    if (slot) cards.push({ slot, href: attrOf(attrs, 'href'), tag: card[2].match(/<img\b[^>]*>/)?.[0] });
   }
-  const opened = [...html.matchAll(/<a\b([^>]*)>/g)].filter((m) => isArtAnchor(` ${m[1]}`)).length;
-  return { cards, opened };
+  return cards;
 }
 
 // ---- 6. the home page's LCP art carries fetchpriority, exactly once (gh#249) ----------------------
@@ -294,7 +291,15 @@ function scanHeroPriority(distDir) {
       text: `dist/index.html: ${marked.length} tag(s) carry a fetchpriority attribute, exactly 1 required (the hero art, the page's LCP image)`,
     }];
   }
-  const hero = homeArtCards(html).cards.find((c) => c.slot === 'hero')?.tag;
+  const heroCards = homeArtCards(html).filter((c) => c.slot === 'hero');
+  if (heroCards.length > 1) {
+    return [{
+      page: '(home)',
+      kind: 'hero-priority-multi-hero',
+      text: `dist/index.html: ${heroCards.length} a.featured cards on the page, exactly 1 required — the hint cannot be bound to a hero that is not unique`,
+    }];
+  }
+  const hero = heroCards[0]?.tag;
   if (!hero) {
     return [{
       page: '(home)',
@@ -329,7 +334,7 @@ function scanHeroPriority(distDir) {
 
 // ---- 7. hero and popular-row art carry the density srcset their module declares (gh#250) ----------
 // Owned expectation: the manifest's own cardArt and cardArt2x fields. The hero card (a.featured) and
-// every popular-row tile (a.tile with data-variant="popular") hold one <img> whose src is /art/<cardArt>;
+// every popular-row tile (a.tile with data-variant="popular") hold one <img> whose src is /art/<cardArt> of the game its href names;
 // it carries srcset "/art/<cardArt> 1x, /art/<cardArt2x> 2x" and both files exist in dist/art/. The
 // party shelf (data-variant="shelf") is left out on purpose: its 1x files measured >= 2.70 of their
 // painted size at DPR 2, so a 2x candidate there only adds bytes (see docs/verification/evidence/gh250/).
@@ -337,33 +342,50 @@ function scanHeroPriority(distDir) {
 // keeps the module fields as the only referrers. Density descriptors only: no file width is stored
 // anywhere, so a w descriptor or a sizes attribute would be invented. `stats.homeArt` counts the images
 // judged, so a markup change that drops them reads as a zero, not a pass. A hero or popular img whose src
-// is no manifest cardArt is a finding, never a skip, and the judged-plus-flagged total must equal the
-// number of hero and popular anchors on the page.
+// is not its own game's cardArt is a finding, never a skip, and the cards judged are the ones the manifest
+// names (featuredGame once, popularGames in order), not the ones the page's selectors happen to find.
 function scanHomeArtSrcset(distDir, gameList = games, stats = { homeArt: 0 }) {
   const homePath = path.join(distDir, 'index.html');
   if (!fs.existsSync(homePath)) {
     return [{ page: '(home)', kind: 'missing-home', text: 'dist/index.html: not built (home art srcset check)' }];
   }
   const html = fs.readFileSync(homePath, 'utf8');
-  const byArt = new Map(gameList.filter((g) => g.cardArt).map((g) => [`/art/${g.cardArt}`, g]));
+  // A card is the game its anchor href names (the play route where the game has one), never the game its
+  // img src happens to match: an img from another game under this card's anchor must not pass.
+  const byHref = new Map(gameList.map((g) => [g.playRoute ?? `/game/${g.id}/`, g]));
   const problems = [];
-  const { cards, opened } = homeArtCards(html);
-  let judged = 0;
-  let flagged = 0;
-  for (const { slot, tag } of cards) {
+  const cards = homeArtCards(html).map((c) => ({ ...c, game: byHref.get(c.href) }));
+  const idsOf = (list) => JSON.stringify(list.map((c) => c.game?.id ?? `(href ${c.href})`));
+  const heroes = cards.filter((c) => c.slot === 'hero');
+  const populars = cards.filter((c) => c.slot === 'popular');
+  // The manifest owns which games the hero and the popular row show, and how many.
+  if (heroes.length !== 1 || heroes[0].game?.id !== featuredGame.id) {
+    problems.push({
+      page: '(home)',
+      kind: 'home-art-hero-set',
+      text: `dist/index.html: the page holds ${heroes.length} a.featured card(s) naming ${idsOf(heroes)}, the manifest's featuredGame is exactly one: ${featuredGame.id}`,
+    });
+  }
+  const wantPopular = popularGames.map((g) => g.id);
+  if (JSON.stringify(populars.map((c) => c.game?.id)) !== JSON.stringify(wantPopular)) {
+    problems.push({
+      page: '(home)',
+      kind: 'home-art-popular-set',
+      text: `dist/index.html: the page holds ${populars.length} popular tile(s) naming ${idsOf(populars)}, the manifest's popularGames are ${JSON.stringify(wantPopular)}`,
+    });
+  }
+  for (const { slot, tag, game } of cards) {
+    if (!game) continue; // an unresolvable href is already a hero-set or popular-set finding above
     const src = tag ? attrOf(tag, 'src') : null;
-    const game = src ? byArt.get(src) : undefined;
-    if (!game) {
-      // A hero or popular img whose src is no manifest cardArt is never skipped: it is the img this scan exists to judge.
-      flagged += 1;
+    const wantSrc = game.cardArt ? `/art/${game.cardArt}` : null;
+    if (!wantSrc || src !== wantSrc) {
       problems.push({
         page: '(home)',
         kind: 'home-art-src',
-        text: `dist/index.html: ${slot} img src is ${JSON.stringify(src)}, which is no manifest cardArt — the srcset scan cannot judge it`,
+        text: `dist/index.html: ${slot} card for ${game.id} holds an img with src ${JSON.stringify(src)}, the module's cardArt gives ${JSON.stringify(wantSrc)}`,
       });
       continue;
     }
-    judged += 1;
     stats.homeArt += 1;
     const want = `/art/${game.cardArt} 1x, /art/${game.cardArt2x} 2x`;
     if (!game.cardArt2x) {
@@ -377,17 +399,6 @@ function scanHomeArtSrcset(distDir, gameList = games, stats = { homeArt: 0 }) {
     } else if (!fs.existsSync(path.join(distDir, 'art', game.cardArt2x))) {
       problems.push({ page: '(home)', kind: 'home-art-2x-missing', text: `dist/index.html: dist/art/${game.cardArt2x} does not exist — the ${slot} 2x candidate 404s` });
     }
-  }
-  // Every hero and popular anchor must be accounted for: judged, or named by a src finding above.
-  if (judged + flagged !== opened) {
-    problems.push({
-      page: '(home)',
-      kind: 'home-art-count',
-      text: `dist/index.html: ${opened} hero and popular anchor(s) on the page, the scan judged ${judged} and flagged ${flagged} — a card went unread`,
-    });
-  }
-  if (stats.homeArt === 0 && byArt.size > 0) {
-    problems.push({ page: '(home)', kind: 'home-art-none', text: 'dist/index.html: no hero or popular tile with a declared /art/ src found — the srcset scan judged nothing' });
   }
   return problems;
 }
@@ -430,25 +441,23 @@ function categoryPageHtml({ gameIds, h1, lead, intro }, cardInner) {
 }
 
 // The home page a correct build renders: the category links, the hero art (eager, the one tag carrying
-// fetchpriority, with its density srcset) for the first game declaring art, FIXTURE_POPULAR popular tiles
-// with theirs, and a plain lazy shelf tile with no srcset for every other art game.
-const FIXTURE_POPULAR = 3;
+// fetchpriority, with its density srcset) for the manifest's featuredGame, a popular tile with theirs for
+// each of popularGames, and a plain lazy shelf tile with no srcset for every other art game.
 const srcsetOf = (g) => `/art/${g.cardArt} 1x, /art/${g.cardArt2x} 2x`;
 function homePageHtml(slugs, gameList = games) {
   const links = slugs.map((s) => `<a href="/c/${s}/" class="chrome-pill">x</a>`).join('');
-  const withArt = gameList.filter((g) => g.cardArt);
-  const imgs = withArt
-    .map((g, i) => {
-      if (i === 0) {
-        return `<a class="featured" href="/game/${g.id}/"><img src="/art/${g.cardArt}" srcset="${srcsetOf(g)}" alt="" width="361" height="320" fetchpriority="high"></a>`;
-      }
-      if (i <= FIXTURE_POPULAR) {
-        return `<a class="tile" data-variant="popular" href="/game/${g.id}/"><img src="/art/${g.cardArt}" srcset="${srcsetOf(g)}" alt="" loading="lazy"></a>`;
-      }
-      return `<a class="tile" data-variant="shelf" href="/game/${g.id}/"><img src="/art/${g.cardArt}" alt="" loading="lazy"></a>`;
-    })
+  const hrefOf = (g) => g.playRoute ?? `/game/${g.id}/`;
+  const art = (g, extra = '') => `<img src="/art/${g.cardArt}" srcset="${srcsetOf(g)}" alt=""${extra}>`;
+  const hero = `<a class="featured" href="${hrefOf(featuredGame)}">${art(featuredGame, ' width="361" height="320" fetchpriority="high"')}</a>`;
+  const popular = popularGames
+    .map((g) => `<a class="tile" data-variant="popular" href="${hrefOf(g)}">${art(g, ' loading="lazy"')}</a>`)
     .join('');
-  return `<html><body>${links}${imgs}</body></html>`;
+  const taken = new Set([featuredGame.id, ...popularGames.map((g) => g.id)]);
+  const shelf = gameList
+    .filter((g) => g.cardArt && !taken.has(g.id))
+    .map((g) => `<a class="tile" data-variant="shelf" href="${hrefOf(g)}"><img src="/art/${g.cardArt}" alt="" loading="lazy"></a>`)
+    .join('');
+  return `<html><body>${links}${hero}${popular}${shelf}</body></html>`;
 }
 
 function buildFixtureDist(
@@ -614,6 +623,7 @@ function selftest() {
       ['hero-priority-value', 'fetchpriority reads low', goodHome.replace('fetchpriority="high"', 'fetchpriority="low"')],
       // The hint moved off the hero onto the first popular tile's lazy img: count 1, /art/ src, value high.
       ['hero-priority-target', 'the one fetchpriority moved to a popular tile, the hero unmarked', goodHome.replace(' fetchpriority="high"', '').replace('loading="lazy"', 'loading="lazy" fetchpriority="high"')],
+      ['hero-priority-multi-hero', 'a second a.featured card on the page', goodHome.replace(/<a class="featured"[^>]*>.*?<\/a>/, (m) => m + m.replace(' fetchpriority="high"', ''))],
       ['hero-priority-no-hero', 'no a.featured on the page, one fetchpriority left on a tile', goodHome.replace('<a class="featured"', '<a class="not-featured"')],
     ];
     for (const [kind, what, html] of heroReds) {
@@ -634,12 +644,12 @@ function selftest() {
     // calibrations 19-28: the density srcset on the hero and popular-row art (gh#250). Each red is the
     // ONLY problem the scan reports, once for a hero img and once for a popular img. The party shelf
     // carries no srcset in the known-good fixture and must stay green.
-    if (homeArtGames.length < FIXTURE_POPULAR + 2) throw new Error('selftest needs a hero, the popular tiles and at least one shelf tile');
-    const judgedGood = 1 + FIXTURE_POPULAR;
+    if (homeArtGames.length < popularGames.length + 2) throw new Error('selftest needs a hero, the popular tiles and at least one shelf tile');
+    const judgedGood = 1 + popularGames.length;
     buildFixtureDist(tmp, both, categorySlugs);
     const goodStats = { homeArt: 0 };
     assert.deepEqual(scanHomeArtSrcset(tmp, games, goodStats), [], 'known-good home art: hero and popular srcset present, shelf with none, must be green');
-    assert.equal(goodStats.homeArt, judgedGood, `known-good home art: the scan must judge the hero and the ${FIXTURE_POPULAR} popular imgs only, got ${goodStats.homeArt}`);
+    assert.equal(goodStats.homeArt, judgedGood, `known-good home art: the scan must judge the hero and the ${popularGames.length} popular imgs only, got ${goodStats.homeArt}`);
     console.log(`PASS known-good home art: ${goodStats.homeArt} img(s) judged (hero + popular), shelf tiles carry no srcset and are not judged`);
     reset();
 
@@ -677,13 +687,26 @@ function selftest() {
     reset();
     // A hero or popular img whose src is no manifest cardArt is a finding, never a skipped card. Each red is the
     // ONLY problem reported, and the scan must judge every other hero and popular img.
-    const heroGame = homeArtGames[0];
-    const popGame = homeArtGames[1];
+    const heroGame = featuredGame;
+    const popGame = popularGames[0];
+    const heroCard = goodHome.match(/<a class="featured"[^>]*>.*?<\/a>/)[0];
+    const heroImgOf = (g) => `<img src="/art/${g.cardArt}" srcset="${srcsetOf(g)}" alt="" width="361" height="320" fetchpriority="high">`;
+    const popRe = /<a class="tile" data-variant="popular"[^>]*>.*?<\/a>/;
     const srcReds = [
       ['home-art-src', 'hero src is the 2x file with no srcset', goodHome.replace(`src="/art/${heroGame.cardArt}" srcset="${srcsetOf(heroGame)}"`, `src="/art/${heroGame.cardArt2x}"`), judgedGood - 1],
       ['home-art-src', 'popular src is the 2x file with no srcset', goodHome.replace(`src="/art/${popGame.cardArt}" srcset="${srcsetOf(popGame)}"`, `src="/art/${popGame.cardArt2x}"`), judgedGood - 1],
       ['home-art-src', 'hero card holds no img', goodHome.replace(/(<a class="featured"[^>]*>)<img[^>]*>/, '$1'), judgedGood - 1],
-      ['home-art-count', 'hero anchor never closed, the popular tile after it swallowed', goodHome.replace(/(<a class="featured"[^>]*><img[^>]*>)<\/a>/, '$1'), judgedGood - 1],
+      // Another game's img, src and srcset both self-consistent, under this card's anchor.
+      ['home-art-src', "hero anchor holds another game's img with its own src and srcset", goodHome.replace(heroCard, heroCard.replace(/<img[^>]*>/, heroImgOf(popGame))), judgedGood - 1],
+      ['home-art-src', "popular anchor holds the hero game's img with its own src and srcset", goodHome.replace(/(<a class="tile" data-variant="popular"[^>]*>)<img[^>]*>/, `$1${heroImgOf(heroGame).replace(' fetchpriority="high"', '')}`), judgedGood - 1],
+      ['home-art-popular-set', 'hero anchor never closed, the popular tile after it swallowed', goodHome.replace(/(<a class="featured"[^>]*><img[^>]*>)<\/a>/, '$1'), judgedGood - 1],
+      // The reviewer's mutants: the template's own selectors stop matching, or match twice.
+      ['home-art-popular-set', 'data-variant renamed on every popular tile', goodHome.replaceAll('data-variant="popular"', 'data-variant="pop"'), 1],
+      ['home-art-popular-set', 'every popular tile deleted', goodHome.replace(new RegExp(popRe.source, 'g'), ''), 1],
+      ['home-art-popular-set', 'one popular tile deleted', goodHome.replace(popRe, ''), judgedGood - 1],
+      ['home-art-popular-set', 'the first popular tile is the hero game, anchor and img alike', goodHome.replace(popRe, `<a class="tile" data-variant="popular" href="${featuredGame.playRoute ?? `/game/${featuredGame.id}/`}">${heroImgOf(heroGame).replace(' fetchpriority="high"', '')}</a>`), judgedGood],
+      ['home-art-hero-set', 'a second a.featured card', goodHome.replace(heroCard, heroCard + heroCard.replace(' fetchpriority="high"', '')), judgedGood + 1],
+      ['home-art-hero-set', 'the hero card renamed away from a.featured', goodHome.replace('<a class="featured"', '<a class="hero"'), judgedGood - 1],
     ];
     for (const [kind, what, html, wantJudged] of srcReds) {
       assert.notEqual(html, goodHome, `${kind} (${what}): the planting did not change the fixture`);
@@ -696,7 +719,7 @@ function selftest() {
       console.log(`PASS calibrated red — ${kind} (${what}): ${found[0].text}`);
       reset();
     }
-    for (const [slot, game] of [['hero', homeArtGames[0]], ['popular', homeArtGames[1]]]) {
+    for (const [slot, game] of [['hero', featuredGame], ['popular', popularGames[0]]]) {
       buildFixtureDist(tmp, both, categorySlugs);
       fs.rmSync(path.join(tmp, 'art', game.cardArt2x));
       const gone2x = scanHomeArtSrcset(tmp);
@@ -705,13 +728,14 @@ function selftest() {
       console.log(`PASS calibrated red — home-art-2x-missing (${slot}): ${gone2x[0].text}`);
       reset();
     }
+    // Every hero and popular card gone: the manifest still names them, so both sets are findings, and nothing is judged.
     buildFixtureDist(tmp, both, categorySlugs, { home: (slugs) => homePageHtml(slugs).replace(/<a class="featured".*$/, '</body></html>') });
     const stats3 = { homeArt: 0 };
     const none = scanHomeArtSrcset(tmp, games, stats3);
     assert.equal(stats3.homeArt, 0, 'a home page with no art img must count zero judged images');
-    assert.equal(none.length, 1, `home-art-none: expected exactly one problem, got ${none.length}`);
-    assert.equal(none[0].kind, 'home-art-none', `got ${none[0].kind}`);
-    console.log(`PASS calibrated red — home-art-none: ${none[0].text}`);
+    assert.deepEqual(none.map((p) => p.kind).sort(), ['home-art-hero-set', 'home-art-popular-set'], `a home page with no hero or popular card: got ${none.map((p) => p.kind)}`);
+    console.log(`PASS calibrated red — no hero and no popular card: ${none.map((p) => p.kind).join(', ')}`);
+    reset();
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }

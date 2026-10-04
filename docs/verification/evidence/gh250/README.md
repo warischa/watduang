@@ -180,3 +180,12 @@ An adversarial review reproduced both on a copy of the real `dist/`, each exitin
 - Self-test must-red: with the hero-binding test forced off the moved-hint case reports 0 problems; with the
   silent skip restored the src cases report `home-art-count` or nothing instead of `home-art-src`; with the
   count check forced off the swallowed-anchor case reports 0 problems.
+
+Addendum 2026-10-04 (round 2): the hero and popular set is bound to the manifest, not to the page's own selectors.
+`scanHomeArtSrcset` requires exactly one `a.featured` naming `featuredGame` and popular tiles naming `popularGames`
+in order (`home-art-hero-set`, `home-art-popular-set`), resolves each card's game from its anchor href, and requires
+the img src to be that game's `cardArt` (`home-art-src`); `scanHeroPriority` reds on more than one `a.featured`
+(`hero-priority-multi-hero`). Scratch-copy mutants on the real `dist/`, each rc 1: `data-variant` renamed on all
+popular tiles, all popular tiles deleted, a second `a.featured`, and the hero img swapped for another game's
+self-consistent src and srcset. The real `dist/` is rc 0. Self-test must-red: each of the hero-set, popular-set,
+src and multi-hero tests forced off reds a named case.
