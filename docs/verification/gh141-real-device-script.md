@@ -468,3 +468,28 @@ Extended 2026-10-04: all 14 party cards now carry art (gh#242). One person walks
 **Fail:** blurry, clipped, missing, or the card resizes when the image arrives.
 
 Record: device — OS version — PASS / FAIL — note.
+
+### Home page, canvas D — `/`
+
+**gh#141**: added 2026-10-04, when the home page shipped as canvas D (gh#244, deployed in CI run
+`37184918599`). One person walks it. Measured in headless Chrome, not on a phone: the hero art file is
+361×320 and renders 242px wide at 320, so a 2x screen draws it upscaled. gh#250 owns the fix. This walk
+records how it actually looks to a person.
+
+1. **Hero art.** On a phone at device pixel ratio 2 or 3, is the croc-bite art in the yellow hero card
+   acceptably sharp, or visibly soft? Compare the popular row's three tiles.
+2. **Party shelf taps.** Tap a few tiles in the two-column party shelf, including one at each edge.
+   Does each tap open the right game on the first touch, with no mis-tap onto a neighbour?
+3. **No hover lift on touch.** After tapping a tile and coming back, is any tile left raised or offset?
+   The 320 artboard draws no hover lift, and the page removes it below 1100px.
+4. **Motion.** With the phone's reduce-motion setting on, do the bobbing toy, the sparkles and the
+   popular row's wiggle all stay still?
+5. **Ad slot.** One dashed placeholder under the hero, about 100px tall. Does the page below it hold
+   still while scrolling and loading?
+
+**Pass:** the art is acceptably sharp, every tap lands first time, nothing stays raised, all motion
+stops under reduce-motion, and nothing jumps.
+**Fail:** blurry art, a mis-tap or a double fire, a tile stuck raised, motion under reduce-motion, or
+a jump.
+
+Record: device — OS version — PASS / FAIL — note.

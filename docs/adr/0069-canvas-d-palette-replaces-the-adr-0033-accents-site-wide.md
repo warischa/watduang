@@ -46,6 +46,9 @@ sources.
   token-driven surface puts ink on its accent, so all three pass the 4.5:1 AA minimum. White on punch
   is 3.37 and white on sky is 3.90. Canvas D paints white text on sky in the home page's tool tiles,
   and on both colours in its nav pills (gh#247). That is an owner finding, not a token question.
+- A palette change re-measures every text pair on each surface it changes, not just the text on the
+  accents. This swap measured the accents and missed the text on the new ground, which `c43d91e`
+  then fixed. The instrument is `docs/verification/evidence/ui-audit-2026-10-04/ui-audit-probe.mjs`.
 - `accent-single-source-check` CLASS V holds the wheel palette to the new trio, and
   `category-pop-probe` pins the new RGB values.
 - The play routes under `src/play/**` keep their own named accents (ADR-0050). The OG images keep the
