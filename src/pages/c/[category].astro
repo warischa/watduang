@@ -191,7 +191,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
 <style>
   /* gh#88 — every value below is design/CatFortunePop.dc.html / design/CatPartyPop.dc.html's own
      (ADR-0033). Colours go through tokens where the canvas value IS a token (--color-ground-warm
-     #fff6e0, --color-line-strong #14142b, --color-muted #6b7280, --color-primary #d6336c is the
+     #fff6e0, --color-line-strong #14142b, --color-muted (canvas D secondary text since gh#246), --color-primary #d6336c is the
      canvas's own global a:hover, --accent-gold/--accent-punch/--accent-sky, --radius-lg 16px,
      --shadow-pop 4px 4px 0); the rgba() fills are canvas literals, no token exists for either
      alpha pair. --page-accent and --cross-accent are defined by the inline custom properties above
@@ -246,6 +246,14 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
   .breadcrumb {
     margin: 0;
     font-size: 14px;
+  }
+
+  /* The canvas's own global link rule (ink, no underline), which this link never received: it
+     rendered in the browser's default blue, 4.38:1 on the old party accent and 2.79:1 on canvas
+     D's (gh#246). Ink on either category accent clears 4.5:1. */
+  .breadcrumb a {
+    color: var(--color-line-strong);
+    text-decoration: none;
   }
 
   h1 {

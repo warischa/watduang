@@ -24,6 +24,11 @@ put separately when gh#244 started.
 | `--accent-sky` (tools) | `#7fd8e8` | `#2b7bff` |
 | `--color-line-strong`, `--color-text` (ink) | `#1a1a1a` | `#14142b` |
 | `--color-ground-warm` (page ground) | `#fffdf7` | `#fff6e0` |
+| `--color-muted` (secondary text) | `#6b7280` | `#3d3b5c` |
+
+The secondary-text row was added after a measurement on the same day. The old grey was 4.75:1 on
+the old ground but only 4.49:1 on D's cream, below the 4.5:1 AA minimum. So it takes D's own
+secondary-text colour, which measures 9.86:1 on the cream.
 
 The category→accent mapping is unchanged, because D uses the same one. Literal copies of the old ink
 and ground move with the tokens, so no surface keeps the old palette. Those copies are the alpha

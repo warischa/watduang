@@ -16,7 +16,9 @@
   --accent-gold: #ffcc00;
   --accent-punch: #ff3d7f;
   --accent-sky: #2b7bff;
-  --color-muted: #6b7280;
+  /* gh#246 / ADR-0069: canvas D's secondary-text colour. The previous grey measured 4.75:1 on the
+     old ground and 4.49:1 on D's cream — under the 4.5:1 AA minimum — so it moves with the ground. */
+  --color-muted: #3d3b5c;
   --color-border: #e5e7eb;
   --color-ground-warm: #fff6e0;
   --color-line-strong: #14142b;
