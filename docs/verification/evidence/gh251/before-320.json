@@ -1,0 +1,2324 @@
+{
+ "width": 320,
+ "base": "http://localhost:4381",
+ "pages": [
+  {
+   "path": "/",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "rows": [
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > a.chrome-brand",
+     "fs": 26,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "สุ่มคนโดน"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "เครื่องมือสุ่ม"
+    },
+    {
+     "sel": "header.hero > div.inner > div.copy > span.badge",
+     "fs": 14,
+     "role": "exempt:badge",
+     "forced": false,
+     "text": "เปิดเว็บแล้วกดเล่นได้เลย"
+    },
+    {
+     "sel": "header.hero > div.inner > div.copy > h1",
+     "fs": 44,
+     "role": null,
+     "forced": false,
+     "text": "กดทีเดียวรู้เลยว่าใครโดน"
+    },
+    {
+     "sel": "div.inner > div.copy > h1 > span.mark",
+     "fs": 44,
+     "role": null,
+     "forced": false,
+     "text": "ใครโดน"
+    },
+    {
+     "sel": "header.hero > div.inner > div.copy > p.lead",
+     "fs": 17,
+     "role": null,
+     "forced": false,
+     "text": "ไม่ต้องโหลดแอป ไม่ต้องสมัคร"
+    },
+    {
+     "sel": "header.hero > div.inner > div.copy > a.cta",
+     "fs": 20,
+     "role": null,
+     "forced": false,
+     "text": "เลือกเกมเลย →"
+    },
+    {
+     "sel": "div.inner > div.copy > a.cta > span",
+     "fs": 20,
+     "role": null,
+     "forced": false,
+     "text": "→"
+    },
+    {
+     "sel": "header.hero > div.inner > a.featured > span.name",
+     "fs": 30,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "header.hero > div.inner > a.featured > span.desc",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่"
+    },
+    {
+     "sel": "main > div.wrap.ad-slot",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ช่องโฆษณา"
+    },
+    {
+     "sel": "section > div.sec-head > div.sec-copy > h2#popular",
+     "fs": 28,
+     "role": null,
+     "forced": false,
+     "text": "ยอดนิยม"
+    },
+    {
+     "sel": "div.grid.grid-popular > a.tile.tilt-a > div.copy > h3.name",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "div.grid.grid-popular > a.tile.tilt-a > div.copy > p.desc",
+     "fs": 13,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ตอบคำถามคนละข้อ ตอบผิดจมูกยาว "
+    },
+    {
+     "sel": "div.grid.grid-popular > a.tile.tilt-b > div.copy > h3.name",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "div.grid.grid-popular > a.tile.tilt-b > div.copy > p.desc",
+     "fs": 13,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "แอบทายเลขลับคนละ 1 ตัว รอบนี้ใ"
+    },
+    {
+     "sel": "div.grid.grid-popular > a.tile.tilt-c > div.copy > h3.name",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "div.grid.grid-popular > a.tile.tilt-c > div.copy > p.desc",
+     "fs": 13,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่"
+    },
+    {
+     "sel": "section > div.sec-head > div.sec-copy > h2#party",
+     "fs": 28,
+     "role": null,
+     "forced": false,
+     "text": "เกมวัดดวง สุ่มคนโดน"
+    },
+    {
+     "sel": "section > div.sec-head > div.sec-copy > p",
+     "fs": 15,
+     "role": "body:hub-body",
+     "forced": false,
+     "text": "จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลง"
+    },
+    {
+     "sel": "div.wrap > section > div.sec-head > a.see-all",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ดูทั้งหมด →"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "div.grid.grid-shelf > a.tile > div.copy > h3.name",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "section > div.sec-head > div.sec-copy > h2#fortune",
+     "fs": 28,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง ทำนายโชคชะตา"
+    },
+    {
+     "sel": "section > div.sec-head > div.sec-copy > p",
+     "fs": 15,
+     "role": "body:hub-body",
+     "forced": false,
+     "text": "ไม่มีใครแพ้ ไม่มีใครโดน กดดูดว"
+    },
+    {
+     "sel": "div.wrap.row > section > div.sec-head > a.see-all",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ดูทั้งหมด →"
+    },
+    {
+     "sel": "section > div.grid.grid-fortune > a.tile > h3.name",
+     "fs": 21,
+     "role": null,
+     "forced": false,
+     "text": "เสี่ยงเซียมซี"
+    },
+    {
+     "sel": "section > div.grid.grid-fortune > a.tile > p.desc",
+     "fs": 14,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "เขย่ามือถือเสี่ยงเซียมซี เปิดด"
+    },
+    {
+     "sel": "section > div.grid.grid-fortune > a.tile > h3.name",
+     "fs": 21,
+     "role": null,
+     "forced": false,
+     "text": "ดวงวันนี้"
+    },
+    {
+     "sel": "section > div.grid.grid-fortune > a.tile > p.desc",
+     "fs": 14,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "กดครั้งเดียว รู้เลยว่าวันนี้จะ"
+    },
+    {
+     "sel": "section > div.grid.grid-fortune > a.tile > h3.name",
+     "fs": 21,
+     "role": null,
+     "forced": false,
+     "text": "เนื้อคู่ของคุณ"
+    },
+    {
+     "sel": "section > div.grid.grid-fortune > a.tile > p.desc",
+     "fs": 14,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ตอบสามข้อ แล้วดูว่าเนื้อคู่ของ"
+    },
+    {
+     "sel": "section > div.sec-head > div.sec-copy > h2#tools",
+     "fs": 28,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือกิจกรรมสันทนาการ"
+    },
+    {
+     "sel": "section > div.sec-head > div.sec-copy > p",
+     "fs": 15,
+     "role": "body:hub-body",
+     "forced": false,
+     "text": "ไม่ใช่เกม ตอบทันทีในกดเดียว ใค"
+    },
+    {
+     "sel": "div.wrap.row > section > div.sec-head > a.see-all",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ดูทั้งหมด →"
+    },
+    {
+     "sel": "section > div.grid.grid-tools > a.tile > h3.name",
+     "fs": 17,
+     "role": null,
+     "forced": false,
+     "text": "วงล้อสุ่มชื่อ"
+    },
+    {
+     "sel": "section > div.grid.grid-tools > a.tile > h3.name",
+     "fs": 17,
+     "role": null,
+     "forced": false,
+     "text": "จับฉลาก"
+    },
+    {
+     "sel": "section > div.grid.grid-tools > a.tile > h3.name",
+     "fs": 17,
+     "role": null,
+     "forced": false,
+     "text": "แบ่งทีม"
+    },
+    {
+     "sel": "section > div.grid.grid-tools > a.tile > h3.name",
+     "fs": 17,
+     "role": null,
+     "forced": false,
+     "text": "สุ่มเลข"
+    },
+    {
+     "sel": "main > section.wrap.faq > h2#faq",
+     "fs": 26,
+     "role": null,
+     "forced": false,
+     "text": "คำถามที่เจอบ่อย"
+    },
+    {
+     "sel": "main > section.wrap.faq > div.faq-item > h3",
+     "fs": 18,
+     "role": null,
+     "forced": false,
+     "text": "ต้องโหลดแอปไหม"
+    },
+    {
+     "sel": "main > section.wrap.faq > div.faq-item > p",
+     "fs": 14,
+     "role": "body:faq-answer",
+     "forced": false,
+     "text": "ไม่ต้อง ทุกเกมทำงานในเบราว์เซอ"
+    },
+    {
+     "sel": "main > section.wrap.faq > div.faq-item > h3",
+     "fs": 18,
+     "role": null,
+     "forced": false,
+     "text": "ต้องสมัครสมาชิกไหม"
+    },
+    {
+     "sel": "main > section.wrap.faq > div.faq-item > p",
+     "fs": 14,
+     "role": "body:faq-answer",
+     "forced": false,
+     "text": "ไม่ต้อง ไม่มีการล็อกอิน ชื่อที"
+    },
+    {
+     "sel": "main > section.wrap.faq > div.faq-item > h3",
+     "fs": 18,
+     "role": null,
+     "forced": false,
+     "text": "เสียเงินไหม"
+    },
+    {
+     "sel": "main > section.wrap.faq > div.faq-item > p",
+     "fs": 14,
+     "role": "body:faq-answer",
+     "forced": false,
+     "text": "ไม่เสีย เล่นได้ทุกเกมทุกเครื่อ"
+    },
+    {
+     "sel": "footer.chrome-bar.chrome-footer > div.chrome-inner.chrome-footer-inner > span.chrome-footer-brand",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 61,
+    "under16": 18,
+    "bodyUnder16": [
+     "15 body:tile-description header.hero > div.inner > a.featured > span.desc \"เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่\"",
+     "13 body:tile-description div.grid.grid-popular > a.tile.tilt-a > div.copy > p.desc \"ตอบคำถามคนละข้อ ตอบผิดจมูกยาว \"",
+     "13 body:tile-description div.grid.grid-popular > a.tile.tilt-b > div.copy > p.desc \"แอบทายเลขลับคนละ 1 ตัว รอบนี้ใ\"",
+     "13 body:tile-description div.grid.grid-popular > a.tile.tilt-c > div.copy > p.desc \"ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่\"",
+     "15 body:hub-body section > div.sec-head > div.sec-copy > p \"จบรอบมีคนโดนหนึ่งคนเสมอ วงตกลง\"",
+     "15 body:hub-body section > div.sec-head > div.sec-copy > p \"ไม่มีใครแพ้ ไม่มีใครโดน กดดูดว\"",
+     "14 body:tile-description section > div.grid.grid-fortune > a.tile > p.desc \"เขย่ามือถือเสี่ยงเซียมซี เปิดด\"",
+     "14 body:tile-description section > div.grid.grid-fortune > a.tile > p.desc \"กดครั้งเดียว รู้เลยว่าวันนี้จะ\"",
+     "14 body:tile-description section > div.grid.grid-fortune > a.tile > p.desc \"ตอบสามข้อ แล้วดูว่าเนื้อคู่ของ\"",
+     "15 body:hub-body section > div.sec-head > div.sec-copy > p \"ไม่ใช่เกม ตอบทันทีในกดเดียว ใค\"",
+     "14 body:faq-answer main > section.wrap.faq > div.faq-item > p \"ไม่ต้อง ทุกเกมทำงานในเบราว์เซอ\"",
+     "14 body:faq-answer main > section.wrap.faq > div.faq-item > p \"ไม่ต้อง ไม่มีการล็อกอิน ชื่อที\"",
+     "14 body:faq-answer main > section.wrap.faq > div.faq-item > p \"ไม่เสีย เล่นได้ทุกเกมทุกเครื่อ\""
+    ],
+    "unclassifiedUnder16": [],
+    "exemptUnder16": {
+     "exempt:pill": 3,
+     "exempt:badge": 1,
+     "exempt:label": 1
+    },
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/c/party/",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "rows": [
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > a.chrome-brand",
+     "fs": 26,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "สุ่มคนโดน"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "เครื่องมือสุ่ม"
+    },
+    {
+     "sel": "header.cat-head > div.cat-head-inner > div.cat-head-copy > p.breadcrumb",
+     "fs": 14,
+     "role": "exempt:breadcrumb",
+     "forced": false,
+     "text": "หน้าแรก · สุ่มคนโดน"
+    },
+    {
+     "sel": "div.cat-head-inner > div.cat-head-copy > p.breadcrumb > a",
+     "fs": 14,
+     "role": "exempt:breadcrumb",
+     "forced": false,
+     "text": "หน้าแรก"
+    },
+    {
+     "sel": "header.cat-head > div.cat-head-inner > div.cat-head-copy > h1",
+     "fs": 30,
+     "role": null,
+     "forced": false,
+     "text": "สุ่มคนโดน"
+    },
+    {
+     "sel": "header.cat-head > div.cat-head-inner > div.cat-head-copy > p.lead",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "ต้องหาคนโดน คนจ่าย หรือคนเริ่ม"
+    },
+    {
+     "sel": "div.cat-head-inner > div.cat-head-copy > ul.pills > li",
+     "fs": 13,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "ไม่ต้องโหลดแอป"
+    },
+    {
+     "sel": "div.cat-head-inner > div.cat-head-copy > ul.pills > li",
+     "fs": 13,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "ไม่ต้องสมัคร"
+    },
+    {
+     "sel": "div.cat-head-inner > div.cat-head-copy > ul.pills > li",
+     "fs": 13,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "มือถือเครื่องเดียว"
+    },
+    {
+     "sel": "main > header.cat-head > div.cat-head-inner > p.intro-card",
+     "fs": 17,
+     "role": null,
+     "forced": false,
+     "text": "รวมเกมสุ่มคนโดนสำหรับวงเพื่อน "
+    },
+    {
+     "sel": "main > div.ad-band > div.ad-slot.ad-billboard > span.ad-label",
+     "fs": 13,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ช่องโฆษณา"
+    },
+    {
+     "sel": "main > div.ad-band > div.ad-slot.ad-billboard > span.ad-sub",
+     "fs": 12,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "970 × 250 · ใต้หัวหน้าหมวด"
+    },
+    {
+     "sel": "div.body-grid > div.col > section > h2.kicker",
+     "fs": 15,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เกมในหมวดนี้"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ส่งมือถือวนรอบวง ใครถืออยู่ตอน"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ส่งมือถือวนจับไม้ทีละคน ใครได้"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "แตะให้ไวที่สุด แตะก่อนสัญญาณคื"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ดวลปืนใหญ่ผลัดกันยิง ใครห่างธง"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "แตะหยุดเกจพลังคนละ 3 ครั้ง ใคร"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "แอบทายเลขลับคนละ 1 ตัว รอบนี้ใ"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ตอบคำถามคนละข้อ ตอบผิดจมูกยาว "
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ผลัดกันทายเลข ช่วงแคบลงทุกตา ใ"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "จำลำดับไฟที่กระพริบ แล้วตัดสาย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ผลัดกันแตะหยุดนาฬิกา ใครหยุดโด"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ผลัดกันเปิดแผ่นหินบนกระดาน ใต้"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ผลัดกันขับรถบนสนามเดียวกัน ใคร"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "div.body-grid > div.col > section > h2.kicker.kicker-cross",
+     "fs": 15,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ไปที่อื่นต่อ"
+    },
+    {
+     "sel": "div.col > section > div.cross-grid > a.cross-card",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "div.col > section > div.cross-grid > a.cross-card",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือสุ่ม"
+    },
+    {
+     "sel": "footer.chrome-bar.chrome-footer > div.chrome-inner.chrome-footer-inner > span.chrome-footer-brand",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 61,
+    "under16": 40,
+    "bodyUnder16": [
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ส่งมือถือวนรอบวง ใครถืออยู่ตอน\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ส่งมือถือวนจับไม้ทีละคน ใครได้\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"แตะให้ไวที่สุด แตะก่อนสัญญาณคื\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ดวลปืนใหญ่ผลัดกันยิง ใครห่างธง\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"แตะหยุดเกจพลังคนละ 3 ครั้ง ใคร\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"แอบทายเลขลับคนละ 1 ตัว รอบนี้ใ\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ตอบคำถามคนละข้อ ตอบผิดจมูกยาว \"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ผลัดกันทายเลข ช่วงแคบลงทุกตา ใ\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"จำลำดับไฟที่กระพริบ แล้วตัดสาย\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ผลัดกันแตะหยุดนาฬิกา ใครหยุดโด\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ผลัดกันเปิดแผ่นหินบนกระดาน ใต้\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ผลัดกันขับรถบนสนามเดียวกัน ใคร\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่\""
+    ],
+    "unclassifiedUnder16": [],
+    "exemptUnder16": {
+     "exempt:pill": 6,
+     "exempt:breadcrumb": 2,
+     "exempt:label": 18
+    },
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/c/fortune/",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "rows": [
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > a.chrome-brand",
+     "fs": 26,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "สุ่มคนโดน"
+    },
+    {
+     "sel": "header.chrome-bar.chrome-topbar > div.chrome-inner.chrome-topbar-inner > nav.chrome-pills > a.chrome-pill",
+     "fs": 14,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "เครื่องมือสุ่ม"
+    },
+    {
+     "sel": "header.cat-head > div.cat-head-inner > div.cat-head-copy > p.breadcrumb",
+     "fs": 14,
+     "role": "exempt:breadcrumb",
+     "forced": false,
+     "text": "หน้าแรก · ดูดวง"
+    },
+    {
+     "sel": "div.cat-head-inner > div.cat-head-copy > p.breadcrumb > a",
+     "fs": 14,
+     "role": "exempt:breadcrumb",
+     "forced": false,
+     "text": "หน้าแรก"
+    },
+    {
+     "sel": "header.cat-head > div.cat-head-inner > div.cat-head-copy > h1",
+     "fs": 30,
+     "role": null,
+     "forced": false,
+     "text": "ดูดวง"
+    },
+    {
+     "sel": "header.cat-head > div.cat-head-inner > div.cat-head-copy > p.lead",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "อยากรู้ว่าวันนี้ดวงเป็นยังไง"
+    },
+    {
+     "sel": "div.cat-head-inner > div.cat-head-copy > ul.pills > li",
+     "fs": 13,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "ไม่ต้องโหลดแอป"
+    },
+    {
+     "sel": "div.cat-head-inner > div.cat-head-copy > ul.pills > li",
+     "fs": 13,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "ไม่ต้องสมัคร"
+    },
+    {
+     "sel": "div.cat-head-inner > div.cat-head-copy > ul.pills > li",
+     "fs": 13,
+     "role": "exempt:pill",
+     "forced": false,
+     "text": "มือถือเครื่องเดียว"
+    },
+    {
+     "sel": "main > header.cat-head > div.cat-head-inner > p.intro-card",
+     "fs": 17,
+     "role": null,
+     "forced": false,
+     "text": "รวมคำทำนายดูดวงฟรีบนมือถือเครื"
+    },
+    {
+     "sel": "main > div.ad-band > div.ad-slot.ad-billboard > span.ad-label",
+     "fs": 13,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ช่องโฆษณา"
+    },
+    {
+     "sel": "main > div.ad-band > div.ad-slot.ad-billboard > span.ad-sub",
+     "fs": 12,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "970 × 250 · ใต้หัวหน้าหมวด"
+    },
+    {
+     "sel": "div.body-grid > div.col > section > h2.kicker",
+     "fs": 15,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "คำทำนายในหมวดนี้"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "เสี่ยงเซียมซี"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "เขย่ามือถือเสี่ยงเซียมซี เปิดด"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "ดวงวันนี้"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "กดครั้งเดียว รู้เลยว่าวันนี้จะ"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > h3",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "เนื้อคู่ของคุณ"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ตอบสามข้อ แล้วดูว่าเนื้อคู่ของ"
+    },
+    {
+     "sel": "section > div.cards-grid > a.game-card > span.card-cta",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เล่นเลย"
+    },
+    {
+     "sel": "div.body-grid > div.col > section > h2.kicker.kicker-cross",
+     "fs": 15,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ไปที่อื่นต่อ"
+    },
+    {
+     "sel": "div.col > section > div.cross-grid > a.cross-card",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "สุ่มคนโดน"
+    },
+    {
+     "sel": "div.col > section > div.cross-grid > a.cross-card",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือสุ่ม"
+    },
+    {
+     "sel": "footer.chrome-bar.chrome-footer > div.chrome-inner.chrome-footer-inner > span.chrome-footer-brand",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 28,
+    "under16": 18,
+    "bodyUnder16": [
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"เขย่ามือถือเสี่ยงเซียมซี เปิดด\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"กดครั้งเดียว รู้เลยว่าวันนี้จะ\"",
+     "15 body:tile-description section > div.cards-grid > a.game-card > p \"ตอบสามข้อ แล้วดูว่าเนื้อคู่ของ\""
+    ],
+    "unclassifiedUnder16": [],
+    "exemptUnder16": {
+     "exempt:pill": 6,
+     "exempt:breadcrumb": 2,
+     "exempt:label": 7
+    },
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/tools/",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "rows": [
+    {
+     "sel": "main > header.hub-head > div.hub-head-inner > h1",
+     "fs": 30,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือสุ่ม"
+    },
+    {
+     "sel": "main > header.hub-head > div.hub-head-inner > p.lead",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือให้คำตอบทันที ไม่มีร"
+    },
+    {
+     "sel": "ul.tools-grid > li > a.tool-card > h2",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "วงล้อสุ่มชื่อ"
+    },
+    {
+     "sel": "ul.tools-grid > li > a.tool-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ใส่ชื่อในวงแล้วกดหมุน รู้ทันที"
+    },
+    {
+     "sel": "ul.tools-grid > li > a.tool-card > h2",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "จับฉลาก"
+    },
+    {
+     "sel": "ul.tools-grid > li > a.tool-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ใส่ชื่อทั้งวง เลือกว่าจะจั่วกี"
+    },
+    {
+     "sel": "ul.tools-grid > li > a.tool-card > h2",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "แบ่งทีม"
+    },
+    {
+     "sel": "ul.tools-grid > li > a.tool-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ใส่ชื่อแล้วบอกว่าอยากได้กี่ทีม"
+    },
+    {
+     "sel": "ul.tools-grid > li > a.tool-card > h2",
+     "fs": 22,
+     "role": null,
+     "forced": false,
+     "text": "สุ่มเลข"
+    },
+    {
+     "sel": "ul.tools-grid > li > a.tool-card > p",
+     "fs": 15,
+     "role": "body:tile-description",
+     "forced": false,
+     "text": "ตั้งเลขต่ำสุดกับสูงสุดแล้วกดสุ"
+    },
+    {
+     "sel": "main > div.hub-body > p.back > a.back-link",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "กลับหน้าแรก"
+    },
+    {
+     "sel": "footer > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 12,
+    "under16": 4,
+    "bodyUnder16": [
+     "15 body:tile-description ul.tools-grid > li > a.tool-card > p \"ใส่ชื่อในวงแล้วกดหมุน รู้ทันที\"",
+     "15 body:tile-description ul.tools-grid > li > a.tool-card > p \"ใส่ชื่อทั้งวง เลือกว่าจะจั่วกี\"",
+     "15 body:tile-description ul.tools-grid > li > a.tool-card > p \"ใส่ชื่อแล้วบอกว่าอยากได้กี่ทีม\"",
+     "15 body:tile-description ul.tools-grid > li > a.tool-card > p \"ตั้งเลขต่ำสุดกับสูงสุดแล้วกดสุ\""
+    ],
+    "unclassifiedUnder16": [],
+    "exemptUnder16": {},
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/tool/wheel/",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "rows": [
+    {
+     "sel": "main > h1",
+     "fs": 32,
+     "role": null,
+     "forced": false,
+     "text": "วงล้อสุ่มชื่อ"
+    },
+    {
+     "sel": "main > p",
+     "fs": 16,
+     "role": "body:tagline",
+     "forced": false,
+     "text": "ใส่ชื่อในวง กดหมุน แล้วให้ดวงต"
+    },
+    {
+     "sel": "main > section#wheel > div.wheel-head > h2#wheel-heading",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "วงล้อ"
+    },
+    {
+     "sel": "main > section#wheel > div.wheel-mode > label.wheel-mode-option",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "A · หมุนแล้วช้าลงจนหยุดเอง"
+    },
+    {
+     "sel": "main > section#wheel > div.wheel-mode > label.wheel-mode-option",
+     "fs": 14,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "B · หมุนค้างไว้ จนกว่าจะกด \"หย"
+    },
+    {
+     "sel": "div.wheel-stage > button#wheel-disc.wheel-disc > svg > text",
+     "fs": 26,
+     "role": null,
+     "forced": false,
+     "text": "หมุน"
+    },
+    {
+     "sel": "main > section#wheel > p#wheel-note.wheel-note",
+     "fs": 16,
+     "role": "body:tool-helper",
+     "forced": false,
+     "text": "ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้"
+    },
+    {
+     "sel": "main > section#wheel > div.wheel-actions > button#wheel-spin.wheel-spin",
+     "fs": 20,
+     "role": null,
+     "forced": false,
+     "text": "หมุน"
+    },
+    {
+     "sel": "main > section#wheel > div.wheel-actions > button#wheel-reset.wheel-reset",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "คืนทุกชื่อเข้าวงล้อ"
+    },
+    {
+     "sel": "main > section#wheel > p.wheel-toggle > label",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เอาคนที่ออกแล้วออกจากวงล้อ"
+    },
+    {
+     "sel": "section#wheel > div#tool-name-entry > div.name-head > h2",
+     "fs": 18,
+     "role": null,
+     "forced": false,
+     "text": "ชื่อในวง"
+    },
+    {
+     "sel": "section#wheel > div#tool-name-entry > div.name-head > span.name-hint",
+     "fs": 12,
+     "role": "body:tool-helper",
+     "forced": false,
+     "text": "ใส่ได้กี่คนก็ได้"
+    },
+    {
+     "sel": "main > section#wheel > div#tool-name-entry > textarea#name-input",
+     "fs": 15,
+     "role": "body:name-entry-textarea",
+     "forced": false,
+     "text": "พิมพ์ชื่อ บรรทัดละ 1 ชื่อ"
+    },
+    {
+     "sel": "main > section#wheel > div#tool-name-entry > button#name-start",
+     "fs": 20,
+     "role": null,
+     "forced": false,
+     "text": "ใส่ชื่อลงวงล้อ"
+    },
+    {
+     "sel": "main > section#wheel > nav.wheel-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "เล่นเกมต่อ"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "nav.wheel-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "main > section#how-to-use > h2",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "วิธีใช้"
+    },
+    {
+     "sel": "main > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิมพ์ชื่อในช่อง \"ชื่อในวง\" บรร"
+    },
+    {
+     "sel": "main > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กด \"หมุน\" หนึ่งครั้งต่อหนึ่งคน"
+    },
+    {
+     "sel": "main > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "อยากไล่ทีละคนจนครบวง ให้ติ๊ก \""
+    },
+    {
+     "sel": "main > section#how-to-use > p > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือสุ่มทั้งหมด"
+    },
+    {
+     "sel": "footer > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 35,
+    "under16": 4,
+    "bodyUnder16": [
+     "12 body:tool-helper section#wheel > div#tool-name-entry > div.name-head > span.name-hint \"ใส่ได้กี่คนก็ได้\"",
+     "15 body:name-entry-textarea main > section#wheel > div#tool-name-entry > textarea#name-input \"พิมพ์ชื่อ บรรทัดละ 1 ชื่อ\""
+    ],
+    "unclassifiedUnder16": [],
+    "exemptUnder16": {
+     "exempt:label": 2
+    },
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/tool/number/",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "rows": [
+    {
+     "sel": "main > h1",
+     "fs": 32,
+     "role": null,
+     "forced": false,
+     "text": "สุ่มเลข"
+    },
+    {
+     "sel": "main > p",
+     "fs": 16,
+     "role": "body:tagline",
+     "forced": false,
+     "text": "ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่"
+    },
+    {
+     "sel": "main > section#number > h2#number-heading",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "ช่วงตัวเลข"
+    },
+    {
+     "sel": "main > section#number > p.number-field > label",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ต่ำสุด"
+    },
+    {
+     "sel": "main > section#number > p.number-field > input#number-min",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": ""
+    },
+    {
+     "sel": "main > section#number > p.number-field > label",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "สูงสุด"
+    },
+    {
+     "sel": "main > section#number > p.number-field > input#number-max",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": ""
+    },
+    {
+     "sel": "main > section#number > p.number-toggle > label",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขที่ออกแล้วห้ามออกซ้ำในรอบนี"
+    },
+    {
+     "sel": "main > section#number > div.number-actions > button#number-go",
+     "fs": 13.3333,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "สุ่ม"
+    },
+    {
+     "sel": "main > section#number > div.number-actions > button#number-reset",
+     "fs": 13.3333,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "เริ่มรอบใหม่"
+    },
+    {
+     "sel": "main > nav.number-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "เล่นเกมต่อ"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "nav.number-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "main > section#how-to-use > h2",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "วิธีใช้"
+    },
+    {
+     "sel": "main > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ใส่ค่าต่ำสุดและสูงสุดของช่วงที"
+    },
+    {
+     "sel": "main > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "อยากให้เลขที่ออกแล้วไม่ออกซ้ำ "
+    },
+    {
+     "sel": "main > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กด \"สุ่ม\" ผลขึ้นเป็นตัวหนังสือ"
+    },
+    {
+     "sel": "main > section#how-to-use > p > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือสุ่มทั้งหมด"
+    },
+    {
+     "sel": "footer > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 31,
+    "under16": 2,
+    "bodyUnder16": [],
+    "unclassifiedUnder16": [],
+    "exemptUnder16": {
+     "exempt:label": 2
+    },
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/tool/draw/",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "rows": [
+    {
+     "sel": "main.tool-page > header.tool-head > div.tool-chrome > a.tool-back",
+     "fs": 14,
+     "role": "exempt:breadcrumb",
+     "forced": false,
+     "text": "เครื่องมือสุ่มทั้งหมด"
+    },
+    {
+     "sel": "main.tool-page > header.tool-head > div.tool-chrome > span.tool-badge",
+     "fs": 13,
+     "role": "exempt:badge",
+     "forced": false,
+     "text": "เครื่องมือ"
+    },
+    {
+     "sel": "header.tool-head > div.tool-band > div.tool-band-inner > p.tool-eyebrow",
+     "fs": 13,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ไม่ใช่เกม ตอบทันทีในกดเดียว ใค"
+    },
+    {
+     "sel": "header.tool-head > div.tool-band > div.tool-band-inner > h1",
+     "fs": 26,
+     "role": null,
+     "forced": false,
+     "text": "จับฉลาก"
+    },
+    {
+     "sel": "header.tool-head > div.tool-band > div.tool-band-inner > p.tool-tagline",
+     "fs": 14.5,
+     "role": "body:tagline",
+     "forced": false,
+     "text": "ใส่ชื่อลงกล่อง เลือกจำนวนที่จะ"
+    },
+    {
+     "sel": "div.tool-column > div#tool-name-entry > div.name-head > h2",
+     "fs": 18,
+     "role": null,
+     "forced": false,
+     "text": "ชื่อในกล่อง"
+    },
+    {
+     "sel": "div.tool-column > div#tool-name-entry > div.name-head > span.name-hint",
+     "fs": 12,
+     "role": "body:tool-helper",
+     "forced": false,
+     "text": "ใส่ได้กี่คนก็ได้"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > div#tool-name-entry > textarea#name-input",
+     "fs": 15,
+     "role": "body:name-entry-textarea",
+     "forced": false,
+     "text": "พิมพ์ชื่อ บรรทัดละ 1 ชื่อ"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > div#tool-name-entry > button#name-start",
+     "fs": 20,
+     "role": null,
+     "forced": false,
+     "text": "ใส่ชื่อลงกล่อง"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > section#draw.tool-module > h2#draw-heading.module-title",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "กล่องฉลาก"
+    },
+    {
+     "sel": "section#draw.tool-module > div.draw-grid > div.draw-left > label.draw-count",
+     "fs": 15,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "จับกี่คน"
+    },
+    {
+     "sel": "div.draw-grid > div.draw-left > label.draw-count > input#draw-count",
+     "fs": 18,
+     "role": null,
+     "forced": false,
+     "text": ""
+    },
+    {
+     "sel": "div.draw-grid > div.draw-left > div.draw-actions > button#draw-go",
+     "fs": 20,
+     "role": null,
+     "forced": false,
+     "text": "จับฉลาก"
+    },
+    {
+     "sel": "div.draw-grid > div.draw-left > div.draw-actions > button#draw-reset",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เริ่มรอบใหม่"
+    },
+    {
+     "sel": "section#draw.tool-module > div.draw-grid > div#draw-box.draw-box > h3",
+     "fs": 15,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ยังอยู่ในกล่อง"
+    },
+    {
+     "sel": "div.tool-column > section#draw.tool-module > div.draw-grid > p#draw-note.draw-note",
+     "fs": 13,
+     "role": "body:tool-helper",
+     "forced": false,
+     "text": "ยังจับไม่ได้ — ใส่ชื่ออย่างน้อ"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > nav.draw-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "เล่นเกมต่อ"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "nav.draw-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > div.ad-slot > span.ad-slot-mobile",
+     "fs": 12,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ช่องโฆษณา — ใต้เครื่องมือ (ADR"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > section#how-to-use > h2",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "วิธีใช้"
+    },
+    {
+     "sel": "div.tool-column > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิมพ์ชื่อในช่อง \"ชื่อในกล่อง\" "
+    },
+    {
+     "sel": "div.tool-column > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลือกจำนวนที่จะจับ แล้วกด \"จับ"
+    },
+    {
+     "sel": "div.tool-column > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับต่อได้เรื่อยๆ คนที่จับไปแล้"
+    },
+    {
+     "sel": "div.tool-column > section#how-to-use > p > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือสุ่มทั้งหมด"
+    },
+    {
+     "sel": "footer > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 38,
+    "under16": 10,
+    "bodyUnder16": [
+     "14.5 body:tagline header.tool-head > div.tool-band > div.tool-band-inner > p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนวนที่จะ\"",
+     "12 body:tool-helper div.tool-column > div#tool-name-entry > div.name-head > span.name-hint \"ใส่ได้กี่คนก็ได้\"",
+     "15 body:name-entry-textarea main.tool-page > div.tool-column > div#tool-name-entry > textarea#name-input \"พิมพ์ชื่อ บรรทัดละ 1 ชื่อ\"",
+     "13 body:tool-helper div.tool-column > section#draw.tool-module > div.draw-grid > p#draw-note.draw-note \"ยังจับไม่ได้ — ใส่ชื่ออย่างน้อ\""
+    ],
+    "unclassifiedUnder16": [],
+    "exemptUnder16": {
+     "exempt:breadcrumb": 1,
+     "exempt:badge": 1,
+     "exempt:label": 4
+    },
+    "hScroll": false
+   }
+  },
+  {
+   "path": "/tool/team/",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "rows": [
+    {
+     "sel": "main.tool-page > header.tool-head > div.tool-chrome > a.tool-back",
+     "fs": 14,
+     "role": "exempt:breadcrumb",
+     "forced": false,
+     "text": "เครื่องมือสุ่มทั้งหมด"
+    },
+    {
+     "sel": "main.tool-page > header.tool-head > div.tool-chrome > span.tool-badge",
+     "fs": 13,
+     "role": "exempt:badge",
+     "forced": false,
+     "text": "เครื่องมือ"
+    },
+    {
+     "sel": "header.tool-head > div.tool-band > div.tool-band-inner > p.tool-eyebrow",
+     "fs": 13,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ไม่ใช่เกม ตอบทันทีในกดเดียว ใค"
+    },
+    {
+     "sel": "header.tool-head > div.tool-band > div.tool-band-inner > h1",
+     "fs": 26,
+     "role": null,
+     "forced": false,
+     "text": "แบ่งทีม"
+    },
+    {
+     "sel": "header.tool-head > div.tool-band > div.tool-band-inner > p.tool-tagline",
+     "fs": 14.5,
+     "role": "body:tagline",
+     "forced": false,
+     "text": "ใส่ชื่อลงสนาม เลือกจำนวนทีม แล"
+    },
+    {
+     "sel": "div.tool-column > div#tool-name-entry > div.name-head > h2",
+     "fs": 18,
+     "role": null,
+     "forced": false,
+     "text": "ชื่อในสนาม"
+    },
+    {
+     "sel": "div.tool-column > div#tool-name-entry > div.name-head > span.name-hint",
+     "fs": 12,
+     "role": "body:tool-helper",
+     "forced": false,
+     "text": "ใส่ได้กี่คนก็ได้"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > div#tool-name-entry > textarea#name-input",
+     "fs": 15,
+     "role": "body:name-entry-textarea",
+     "forced": false,
+     "text": "พิมพ์ชื่อ บรรทัดละ 1 ชื่อ"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > div#tool-name-entry > button#name-start",
+     "fs": 20,
+     "role": null,
+     "forced": false,
+     "text": "ใส่ชื่อลงสนาม"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > section#team.tool-module > h2#team-heading.module-title",
+     "fs": 19,
+     "role": null,
+     "forced": false,
+     "text": "แบ่งทีม"
+    },
+    {
+     "sel": "div.tool-column > section#team.tool-module > div.team-row > label.team-count",
+     "fs": 15,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "จำนวนทีม"
+    },
+    {
+     "sel": "section#team.tool-module > div.team-row > label.team-count > input#team-count",
+     "fs": 18,
+     "role": null,
+     "forced": false,
+     "text": ""
+    },
+    {
+     "sel": "div.tool-column > section#team.tool-module > div.team-row > button#team-split",
+     "fs": 20,
+     "role": null,
+     "forced": false,
+     "text": "แบ่งทีม"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > section#team.tool-module > p#team-note.team-note",
+     "fs": 13,
+     "role": "body:tool-helper",
+     "forced": false,
+     "text": "ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > nav.team-next > h3",
+     "fs": 18.72,
+     "role": null,
+     "forced": false,
+     "text": "เล่นเกมต่อ"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ระเบิดเวลา"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จับไม้สั้น"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "มือลั่น"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ยิงธง"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดพลัง"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เต๋าชี้คนแพ้"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ไกลแค่ไหนคือใกล้"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิน็อคคิอวย"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เลขอาถรรพ์"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ตัดสายกู้ชีพ"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "แตะหยุดเวลา"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "กับระเบิด"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "บางกอกดริฟต์"
+    },
+    {
+     "sel": "nav.team-next > ul > li > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "จระเข้งับ"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > div.ad-slot > span.ad-slot-mobile",
+     "fs": 12,
+     "role": "exempt:label",
+     "forced": false,
+     "text": "ช่องโฆษณา — ใต้เครื่องมือ (ADR"
+    },
+    {
+     "sel": "main.tool-page > div.tool-column > section#how-to-use > h2",
+     "fs": 24,
+     "role": null,
+     "forced": false,
+     "text": "วิธีใช้"
+    },
+    {
+     "sel": "div.tool-column > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "พิมพ์ชื่อในช่อง \"ชื่อในสนาม\" บ"
+    },
+    {
+     "sel": "div.tool-column > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "ใส่จำนวนทีมที่ต้องการ แล้วกด \""
+    },
+    {
+     "sel": "div.tool-column > section#how-to-use > ol > li",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เปลี่ยนจำนวนทีมเมื่อไหร่ก็แบ่ง"
+    },
+    {
+     "sel": "div.tool-column > section#how-to-use > p > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "เครื่องมือสุ่มทั้งหมด"
+    },
+    {
+     "sel": "footer > a",
+     "fs": 16,
+     "role": null,
+     "forced": false,
+     "text": "วัดดวง"
+    }
+   ],
+   "summary": {
+    "n": 36,
+    "under16": 9,
+    "bodyUnder16": [
+     "14.5 body:tagline header.tool-head > div.tool-band > div.tool-band-inner > p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวนทีม แล\"",
+     "12 body:tool-helper div.tool-column > div#tool-name-entry > div.name-head > span.name-hint \"ใส่ได้กี่คนก็ได้\"",
+     "15 body:name-entry-textarea main.tool-page > div.tool-column > div#tool-name-entry > textarea#name-input \"พิมพ์ชื่อ บรรทัดละ 1 ชื่อ\"",
+     "13 body:tool-helper main.tool-page > div.tool-column > section#team.tool-module > p#team-note.team-note \"ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้\""
+    ],
+    "unclassifiedUnder16": [],
+    "exemptUnder16": {
+     "exempt:breadcrumb": 1,
+     "exempt:badge": 1,
+     "exempt:label": 3
+    },
+    "hScroll": false
+   }
+  }
+ ],
+ "consoleErrors": []
+}

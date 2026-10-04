@@ -502,5 +502,11 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
     .cross-grid {
       grid-template-columns: 1fr;
     }
+
+    /* gh#251: the phone note on both pop-card boards sets card body text to 16px at this width;
+       the 1440 board's 15px above stays the desktop size. */
+    .game-card p {
+      font-size: 16px;
+    }
   }
 </style>

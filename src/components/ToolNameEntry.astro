@@ -77,19 +77,28 @@ const { heading, storageKey, ctaLabel } = Astro.props as Props;
     font-size: 18px;
   }
 
+  /* gh#251: helper text is 16px on phones (the 390 artboards); the desktop size is unchanged. */
   .name-hint {
-    font-size: 12px;
+    font-size: 16px;
     color: var(--color-muted);
   }
 
-  /* Same border, radius, padding and type size the single-line input carried, so no new design
-     value enters the file (ADR-0033) — only the box grew. resize keeps the reader's control over
-     height without letting a drag break the panel's own width. */
+  @media (min-width: 1100px) {
+    .name-hint {
+      font-size: 12px;
+    }
+  }
+
+  /* Same border, radius and padding the single-line input carried, so no new design value enters
+     the file (ADR-0033) — only the box grew. The type size is 16px at every width (gh#251): the
+     phone artboards now draw it, the desktop artboards already did, and below 16px iOS zooms the
+     page on focus. resize keeps the reader's control over height without letting a drag break the
+     panel's own width. */
   #name-input {
     box-sizing: border-box;
     padding: 10px 14px;
     font: inherit;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
     background: #fff6e0;
     border: 2.5px solid #14142b;
@@ -100,23 +109,24 @@ const { heading, storageKey, ctaLabel } = Astro.props as Props;
   /* Owner-decided deviation, this session: 20 rows is 88% of a small phone's viewport height
      (measured 500px clientHeight at 320x568 and 390x568 — see the session's measurement table).
      9 rows keeps a few more names visible than the 8-row floor while dropping well under half the
-     viewport (241px border-box height / 568px ~ 42%). 700px is a plain height breakpoint: every
+     viewport (255.4px border-box height at the 16px type size / 568px ~ 45%). 700px is a plain height breakpoint: every
      measured phone height (568px) is under it, the measured desktop/tablet case (900px) is over it.
 
      Pre-merge review, a11y fix: this was a bare `height: 241px`, which pins the box while the line
      box it holds can still grow. `em` resolves against this element's own COMPUTED font-size, so
      the height tracks the line box instead of fighting it.
      Be precise about WHICH setting this helps, because the obvious reading is wrong: the font-size
-     below is an explicit 15px, and a browser's DEFAULT-font-size preference does not touch an
+     above is an explicit px value, and a browser's DEFAULT-font-size preference does not touch an
      explicit px value, so that case never resized the text here in the first place. Full page zoom
      scales px and em alike, so it was never the problem either. The case this fixes is a browser's
-     MINIMUM font size, which does force an explicit 15px upward — there the old fixed 241px showed
+     MINIMUM font size, which does force an explicit px size upward — there the old fixed 241px showed
      roughly 4.5 rows instead of 9, worst for exactly the readers who set it. Same for any later
      change that makes this font-size relative.
      Exact box-sizing: border-box arithmetic, not an approximation: 9 lines * line-height 1.6 =
      14.4em of content, plus the padding (10px + 10px) and border (2.5px + 2.5px) this rule does not
-     touch = 25px. At the 15px base, calc(14.4em + 25px) = 14.4*15 + 25 = 241px — byte-identical to
-     the value it replaces, so nothing moves at the default setting. */
+     touch = 25px. At the old 15px size, calc(14.4em + 25px) = 14.4*15 + 25 = 241px, byte-identical
+     to the value it replaced. At today's 16px (gh#251) it is 14.4*16 + 25 = 255.4px: still 9 rows,
+     the box simply follows the larger line. */
   @media (max-height: 700px) {
     #name-input {
       height: calc(14.4em + 25px);

@@ -1,0 +1,186 @@
+[
+  {
+    "path": "/tool/draw/",
+    "width": 320,
+    "innerWidth": 320,
+    "res": [
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "ยังจับไม่ได้ — ใส่ชื่ออย"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "จับครบทั้ง 100 คนแล้ว — "
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "จำนวนที่จะจับต้องเป็นเลข"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "เหลือในกล่องแค่ 100 คน จ"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "เหลือในกล่องแค่ 12 คน จั"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "เหลือในกล่องแค่ 3 คน จับ"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "เหลือในกล่อง 100 คน"
+      },
+      {
+        "fs": "13px",
+        "fits": false,
+        "lines": 3,
+        "text": "CONTROL เหลือในกล่องแค่ "
+      }
+    ]
+  },
+  {
+    "path": "/tool/team/",
+    "width": 320,
+    "innerWidth": 320,
+    "res": [
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "ยังแบ่งไม่ได้ — ใส่ชื่ออ"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "จำนวนทีมต้องเป็นเลขจำนวน"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "ขอ 999 ทีมไม่ได้ เพราะมี"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "พร้อมแบ่ง 100 คน เป็น 10"
+      },
+      {
+        "fs": "13px",
+        "fits": false,
+        "lines": 3,
+        "text": "CONTROL ขอ 1234567890123"
+      }
+    ]
+  },
+  {
+    "path": "/tool/draw/",
+    "width": 390,
+    "innerWidth": 390,
+    "res": [
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "ยังจับไม่ได้ — ใส่ชื่ออย"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "จับครบทั้ง 100 คนแล้ว — "
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "จำนวนที่จะจับต้องเป็นเลข"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "เหลือในกล่องแค่ 100 คน จ"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "เหลือในกล่องแค่ 12 คน จั"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "เหลือในกล่องแค่ 3 คน จับ"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "เหลือในกล่อง 100 คน"
+      },
+      {
+        "fs": "13px",
+        "fits": false,
+        "lines": 3,
+        "text": "CONTROL เหลือในกล่องแค่ "
+      }
+    ]
+  },
+  {
+    "path": "/tool/team/",
+    "width": 390,
+    "innerWidth": 390,
+    "res": [
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "ยังแบ่งไม่ได้ — ใส่ชื่ออ"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "จำนวนทีมต้องเป็นเลขจำนวน"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "ขอ 999 ทีมไม่ได้ เพราะมี"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "พร้อมแบ่ง 100 คน เป็น 10"
+      },
+      {
+        "fs": "13px",
+        "fits": true,
+        "lines": 2,
+        "text": "CONTROL ขอ 1234567890123"
+      }
+    ]
+  }
+]

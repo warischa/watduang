@@ -188,7 +188,7 @@ import GameNav from '../../components/GameNav.astro';
 
   .tool-tagline {
     margin: 0;
-    font-size: 14.5px;
+    font-size: 16px;
     line-height: 1.65;
   }
 
@@ -352,7 +352,9 @@ import GameNav from '../../components/GameNav.astro';
   }
 
   /* Every legal status line measures one or two line boxes at 320px and 390px (all five texts
-     measured in a real browser). An explicit line-height makes the existing one-line 1.5em reserve
+     measured in a real browser), re-measured at the 16px size (gh#251) with counts up to two
+     digits. One exception at 320px: the "not enough left" line with three-digit counts takes a
+     third line box, which scrolls inside the bound below. An explicit line-height makes the existing one-line 1.5em reserve
      exact, so a two-line floor of 3em is the height EVERY one of them renders at — the note cannot
      change height when a list loads, and no script has to pin it. */
   .draw-note {
@@ -364,7 +366,7 @@ import GameNav from '../../components/GameNav.astro';
        the box we own converges; enumerating the strings the user can produce does not. */
     height: 3em;
     overflow-y: auto;
-    font-size: 13px;
+    font-size: 16px;
     color: var(--color-muted);
   }
 

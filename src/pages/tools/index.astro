@@ -212,5 +212,11 @@ import { tools, toolsGroup } from '../../tools/manifest';
     .tools-grid {
       grid-template-columns: 1fr;
     }
+
+    /* gh#251: the borrowed pop-card boards' phone note sets card body text to 16px at this width;
+       the 15px above stays the desktop size. */
+    .tool-card p {
+      font-size: 16px;
+    }
   }
 </style>

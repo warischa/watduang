@@ -1,0 +1,297 @@
+{
+  "token": "Wolfeschlegelsteinhausen",
+  "tokenLength": 24,
+  "breakGuard": false,
+  "checked": 12,
+  "checkedGames": 0,
+  "checkedTools": 12,
+  "badGames": 0,
+  "badTools": 0,
+  "bad": 0,
+  "badRows": [],
+  "games": [],
+  "tools": [
+    {
+      "roster": "normal",
+      "id": "wheel",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".wheel-names",
+          "rows": 6,
+          "textLen": 20,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 29.7
+        },
+        {
+          "sel": ".wheel-result",
+          "rows": 0,
+          "textLen": 3,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 0
+        }
+      ]
+    },
+    {
+      "roster": "normal",
+      "id": "draw",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".draw-result-box",
+          "rows": 1,
+          "textLen": 17,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 212
+        },
+        {
+          "sel": ".draw-names",
+          "rows": 4,
+          "textLen": 13,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 52.1
+        }
+      ]
+    },
+    {
+      "roster": "normal",
+      "id": "team",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".team-cards",
+          "rows": 2,
+          "textLen": 52,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 244
+        }
+      ]
+    },
+    {
+      "roster": "normal",
+      "id": "number",
+      "seeded": false,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".number-result",
+          "rows": 0,
+          "textLen": 6,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 0
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "wheel",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".wheel-names",
+          "rows": 7,
+          "textLen": 44,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 180.6
+        },
+        {
+          "sel": ".wheel-result",
+          "rows": 0,
+          "textLen": 3,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 0
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "draw",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".draw-result-box",
+          "rows": 1,
+          "textLen": 16,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 212
+        },
+        {
+          "sel": ".draw-names",
+          "rows": 5,
+          "textLen": 38,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 174.7
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "team",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".team-cards",
+          "rows": 2,
+          "textLen": 90,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 244
+        }
+      ]
+    },
+    {
+      "roster": "long-latin",
+      "id": "number",
+      "seeded": false,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".number-result",
+          "rows": 0,
+          "textLen": 6,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 0
+        }
+      ]
+    },
+    {
+      "roster": "token-only",
+      "id": "wheel",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".wheel-names",
+          "rows": 2,
+          "textLen": 48,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 180.6
+        },
+        {
+          "sel": ".wheel-result",
+          "rows": 0,
+          "textLen": 24,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 0
+        }
+      ]
+    },
+    {
+      "roster": "token-only",
+      "id": "draw",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".draw-result-box",
+          "rows": 1,
+          "textLen": 58,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 212
+        },
+        {
+          "sel": ".draw-names",
+          "rows": 0,
+          "textLen": 0,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 0
+        }
+      ]
+    },
+    {
+      "roster": "token-only",
+      "id": "team",
+      "seeded": true,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".team-cards",
+          "rows": 2,
+          "textLen": 72,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 244
+        }
+      ]
+    },
+    {
+      "roster": "token-only",
+      "id": "number",
+      "seeded": false,
+      "innerWidth": 320,
+      "scrollX": 0,
+      "overflowing": [],
+      "boxes": [
+        {
+          "sel": ".number-result",
+          "rows": 0,
+          "textLen": 6,
+          "boxScrollX": 0,
+          "rowsOver": 0,
+          "rowsClipped": 0,
+          "widestRow": 0
+        }
+      ]
+    }
+  ]
+}
