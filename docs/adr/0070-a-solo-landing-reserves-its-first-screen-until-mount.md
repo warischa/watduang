@@ -1,6 +1,6 @@
 # ADR-0070 — A solo landing reserves its first screen until mount, and only until mount
 
-Date: 2026-10-04 · Status: proposed (gh#253 design review; rides the session's integrated push) ·
+Date: 2026-10-04 · Status: accepted (owner ruling, popup, 2026-10-04, at the push gate; trade accepted: a failed import shifts once) ·
 Extends: ADR-0024, ADR-0044 · Carves out of: ADR-0014, ADR-0015 (their stage-height floor) · Issue: gh#253
 
 ## Context
