@@ -65,3 +65,11 @@ The page's Thai strings are the hero badge, headline, lead and call to action, "
 "ช่องโฆษณา", and the FAQ heading with its three questions and answers. Every one was on the live
 page before. Everything else is interpolated from the manifests. Dropped with the canvas: the
 secondary call to action and the how-to section.
+
+## Live check after deploy (CI run `37184918599`, `22f2818`)
+
+`probe-home-page-live.json` is `scripts/home-page-probe.mjs` run against the live origin. It passed
+2 of 3 runs. The first run reported 5 bottom-shelf images not loaded inside its wait. A direct check
+on the same origin then showed all 5 loaded at about 1.8s with nonzero natural widths, so this was
+remote-origin timing, not missing art. CI runs the probe on localhost. The live `/`, `/c/party/`,
+`/c/fortune/` and `/tools/` are byte-identical to the local build the suite graded.

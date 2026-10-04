@@ -1,0 +1,106 @@
+{
+  "verdict": {
+    "noSidewaysScrollAll": true,
+    "oneAdSlotNoRail": true,
+    "slotHeightsAsDrawn": true,
+    "shelfColumnsAsDrawn": true,
+    "shelfOneImagePerTile": true,
+    "artLoaded": true,
+    "overflowDetectorCalibration": "red-then-clean on all 5 widths",
+    "motion": {
+      "state": "normal",
+      "motionActuallyPresent": true,
+      "decorated": [
+        8,
+        8,
+        8,
+        8,
+        8
+      ]
+    }
+  },
+  "widthVerdicts": [
+    {
+      "width": 320,
+      "innerWidthReported": 320,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "oneAdSlot": true,
+      "slotHeight": 106,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 2,
+      "shelfColumnsAsDrawn": true
+    },
+    {
+      "width": 390,
+      "innerWidthReported": 390,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "oneAdSlot": true,
+      "slotHeight": 106,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 2,
+      "shelfColumnsAsDrawn": true
+    },
+    {
+      "width": 768,
+      "innerWidthReported": 768,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "oneAdSlot": true,
+      "slotHeight": 106,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 4,
+      "shelfColumnsAsDrawn": true
+    },
+    {
+      "width": 1024,
+      "innerWidthReported": 1024,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "oneAdSlot": true,
+      "slotHeight": 106,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 4,
+      "shelfColumnsAsDrawn": true
+    },
+    {
+      "width": 1440,
+      "innerWidthReported": 1440,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "oneAdSlot": true,
+      "slotHeight": 256,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 7,
+      "shelfColumnsAsDrawn": true
+    }
+  ],
+  "art": {
+    "images": 18,
+    "broken": []
+  },
+  "calibration": [
+    {
+      "width": 320,
+      "sawInjectedOverflow": true
+    },
+    {
+      "width": 390,
+      "sawInjectedOverflow": true
+    },
+    {
+      "width": 768,
+      "sawInjectedOverflow": true
+    },
+    {
+      "width": 1024,
+      "sawInjectedOverflow": true
+    },
+    {
+      "width": 1440,
+      "sawInjectedOverflow": true
+    }
+  ],
+  "consoleErrors": []
+}
