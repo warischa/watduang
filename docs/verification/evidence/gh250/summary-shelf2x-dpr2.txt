@@ -1,0 +1,77 @@
+W=320 dpr=2 / requests=19 weight=759145 B
+  hero: n=1 boxW<=240.3 min file/box=3.525 (fail 0) min file/painted=3.525 (fail 0)
+     /art/croc-bite.webp -> /art/croc-bite-2x.webp file=847x751 box=240.3x213 painted=240.3 box:ok painted:ok
+  tile-popular: n=3 boxW<=103.4 min file/box=7.070 (fail 0) min file/painted=8.221 (fail 0)
+     /art/pinocchio-luck.webp -> /art/pinocchio-luck-2x.webp file=897x640 box=103.4x92.5 painted=103.4 box:ok painted:ok
+     /art/how-close-is-near.webp -> /art/how-close-is-near-2x.webp file=707x729 box=100x88.6 painted=86 box:ok painted:ok
+     /art/dice-loser.webp -> /art/dice-loser-2x.webp file=707x735 box=100x88.6 painted=85.3 box:ok painted:ok
+  tile-shelf: n=14 boxW<=118 min file/box=4.475 (fail 0) min file/painted=6.118 (fail 0)
+     /art/timebomb.webp -> /art/timebomb-2x.webp file=566x640 box=118x104.6 painted=92.5 box:ok painted:ok
+     /art/short-stick.webp -> /art/short-stick-2x.webp file=648x640 box=118x104.6 painted=105.9 box:ok painted:ok
+     /art/freeze-tap.webp -> /art/freeze-tap-2x.webp file=702x640 box=118x104.6 painted=114.7 box:ok painted:ok
+     /art/cannon-flag.webp -> /art/cannon-flag-2x.webp file=763x640 box=118x104.6 painted=118 box:ok painted:ok
+     /art/power-meter.webp -> /art/power-meter-2x.webp file=947x640 box=118x104.6 painted=118 box:ok painted:ok
+     /art/dice-loser.webp -> /art/dice-loser-2x.webp file=707x735 box=118x104.6 painted=100.6 box:ok painted:ok
+     /art/how-close-is-near.webp -> /art/how-close-is-near-2x.webp file=707x729 box=118x104.6 painted=101.4 box:ok painted:ok
+     /art/pinocchio-luck.webp -> /art/pinocchio-luck-2x.webp file=897x640 box=118x104.6 painted=118 box:ok painted:ok
+     /art/cursed-number.webp -> /art/cursed-number-2x.webp file=734x640 box=118x104.6 painted=118 box:ok painted:ok
+     /art/wire-snip-panic.webp -> /art/wire-snip-panic-2x.webp file=528x640 box=118x104.6 painted=86.3 box:ok painted:ok
+     /art/zero-trigger.webp -> /art/zero-trigger-2x.webp file=561x640 box=118x104.6 painted=91.5 box:ok painted:ok
+     /art/one-bomb.webp -> /art/one-bomb-2x.webp file=780x640 box=118x104.6 painted=118 box:ok painted:ok
+     /art/bangkok-drift.webp -> /art/bangkok-drift-2x.webp file=937x640 box=118x104.6 painted=118 box:ok painted:ok
+     /art/croc-bite.webp -> /art/croc-bite-2x.webp file=847x751 box=118x104.6 painted=118 box:ok painted:ok
+W=320 dpr=2 /c/party/ requests=17 weight=316027 B
+  category-card: n=14 boxW<=236 min file/box=1.119 (fail 13) min file/painted=2.000 (fail 0)
+     /art/timebomb.webp -> /art/timebomb.webp file=283x320 box=236x160 painted=141.5 box:FAIL painted:ok
+     /art/short-stick.webp -> /art/short-stick.webp file=324x320 box=236x160 painted=162 box:FAIL painted:ok
+     /art/freeze-tap.webp -> /art/freeze-tap.webp file=351x320 box=236x160 painted=175.5 box:FAIL painted:ok
+     /art/cannon-flag.webp -> /art/cannon-flag.webp file=382x320 box=236x160 painted=191 box:FAIL painted:ok
+     /art/power-meter.webp -> /art/power-meter.webp file=473x320 box=236x160 painted=236 box:ok painted:ok
+     /art/dice-loser.webp -> /art/dice-loser.webp file=308x320 box=236x160 painted=154 box:FAIL painted:ok
+     /art/how-close-is-near.webp -> /art/how-close-is-near.webp file=310x320 box=236x160 painted=155 box:FAIL painted:ok
+     /art/pinocchio-luck.webp -> /art/pinocchio-luck.webp file=448x320 box=236x160 painted=224 box:FAIL painted:ok
+     /art/cursed-number.webp -> /art/cursed-number.webp file=367x320 box=236x160 painted=183.5 box:FAIL painted:ok
+     /art/wire-snip-panic.webp -> /art/wire-snip-panic.webp file=264x320 box=236x160 painted=132 box:FAIL painted:ok
+     /art/zero-trigger.webp -> /art/zero-trigger.webp file=280x320 box=236x160 painted=140 box:FAIL painted:ok
+     /art/one-bomb.webp -> /art/one-bomb.webp file=390x320 box=236x160 painted=195 box:FAIL painted:ok
+     /art/bangkok-drift.webp -> /art/bangkok-drift.webp file=468x320 box=236x160 painted=234 box:FAIL painted:ok
+     /art/croc-bite.webp -> /art/croc-bite.webp file=361x320 box=236x160 painted=180.5 box:FAIL painted:ok
+W=1440 dpr=2 / requests=19 weight=759145 B
+  hero: n=1 boxW<=422.8 min file/box=2.003 (fail 0) min file/painted=2.003 (fail 0)
+     /art/croc-bite.webp -> /art/croc-bite-2x.webp file=847x751 box=422.8x375.4 painted=422.8 box:ok painted:ok
+  tile-popular: n=3 boxW<=353.3 min file/box=2.001 (fail 0) min file/painted=2.328 (fail 0)
+     /art/pinocchio-luck.webp -> /art/pinocchio-luck-2x.webp file=897x640 box=353.3x313.2 painted=353.3 box:ok painted:ok
+     /art/how-close-is-near.webp -> /art/how-close-is-near-2x.webp file=707x729 box=353.3x313.2 painted=303.7 box:ok painted:ok
+     /art/dice-loser.webp -> /art/dice-loser-2x.webp file=707x735 box=353.3x313.2 painted=301.3 box:ok painted:ok
+  tile-shelf: n=14 boxW<=133.7 min file/box=3.949 (fail 0) min file/painted=5.399 (fail 0)
+     /art/timebomb.webp -> /art/timebomb-2x.webp file=566x640 box=133.7x118.5 painted=104.8 box:ok painted:ok
+     /art/short-stick.webp -> /art/short-stick-2x.webp file=648x640 box=133.7x118.5 painted=120 box:ok painted:ok
+     /art/freeze-tap.webp -> /art/freeze-tap-2x.webp file=702x640 box=133.7x118.5 painted=130 box:ok painted:ok
+     /art/cannon-flag.webp -> /art/cannon-flag-2x.webp file=763x640 box=133.7x118.5 painted=133.7 box:ok painted:ok
+     /art/power-meter.webp -> /art/power-meter-2x.webp file=947x640 box=133.7x118.5 painted=133.7 box:ok painted:ok
+     /art/dice-loser.webp -> /art/dice-loser-2x.webp file=707x735 box=133.7x118.5 painted=114 box:ok painted:ok
+     /art/how-close-is-near.webp -> /art/how-close-is-near-2x.webp file=707x729 box=133.7x118.5 painted=114.9 box:ok painted:ok
+     /art/pinocchio-luck.webp -> /art/pinocchio-luck-2x.webp file=897x640 box=133.7x118.5 painted=133.7 box:ok painted:ok
+     /art/cursed-number.webp -> /art/cursed-number-2x.webp file=734x640 box=133.7x118.5 painted=133.7 box:ok painted:ok
+     /art/wire-snip-panic.webp -> /art/wire-snip-panic-2x.webp file=528x640 box=133.7x118.5 painted=97.8 box:ok painted:ok
+     /art/zero-trigger.webp -> /art/zero-trigger-2x.webp file=561x640 box=133.7x118.5 painted=103.7 box:ok painted:ok
+     /art/one-bomb.webp -> /art/one-bomb-2x.webp file=780x640 box=133.7x118.5 painted=133.7 box:ok painted:ok
+     /art/bangkok-drift.webp -> /art/bangkok-drift-2x.webp file=937x640 box=133.7x118.5 painted=133.7 box:ok painted:ok
+     /art/croc-bite.webp -> /art/croc-bite-2x.webp file=847x751 box=133.7x118.5 painted=133.7 box:ok painted:ok
+W=1440 dpr=2 /c/party/ requests=17 weight=316027 B
+  category-card: n=14 boxW<=252 min file/box=1.048 (fail 14) min file/painted=2.000 (fail 0)
+     /art/timebomb.webp -> /art/timebomb.webp file=283x320 box=252x160 painted=141.5 box:FAIL painted:ok
+     /art/short-stick.webp -> /art/short-stick.webp file=324x320 box=252x160 painted=162 box:FAIL painted:ok
+     /art/freeze-tap.webp -> /art/freeze-tap.webp file=351x320 box=252x160 painted=175.5 box:FAIL painted:ok
+     /art/cannon-flag.webp -> /art/cannon-flag.webp file=382x320 box=252x160 painted=191 box:FAIL painted:ok
+     /art/power-meter.webp -> /art/power-meter.webp file=473x320 box=252x160 painted=236.5 box:FAIL painted:ok
+     /art/dice-loser.webp -> /art/dice-loser.webp file=308x320 box=252x160 painted=154 box:FAIL painted:ok
+     /art/how-close-is-near.webp -> /art/how-close-is-near.webp file=310x320 box=252x160 painted=155 box:FAIL painted:ok
+     /art/pinocchio-luck.webp -> /art/pinocchio-luck.webp file=448x320 box=252x160 painted=224 box:FAIL painted:ok
+     /art/cursed-number.webp -> /art/cursed-number.webp file=367x320 box=252x160 painted=183.5 box:FAIL painted:ok
+     /art/wire-snip-panic.webp -> /art/wire-snip-panic.webp file=264x320 box=252x160 painted=132 box:FAIL painted:ok
+     /art/zero-trigger.webp -> /art/zero-trigger.webp file=280x320 box=252x160 painted=140 box:FAIL painted:ok
+     /art/one-bomb.webp -> /art/one-bomb.webp file=390x320 box=252x160 painted=195 box:FAIL painted:ok
+     /art/bangkok-drift.webp -> /art/bangkok-drift.webp file=468x320 box=252x160 painted=234 box:FAIL painted:ok
+     /art/croc-bite.webp -> /art/croc-bite.webp file=361x320 box=252x160 painted=180.5 box:FAIL painted:ok
+TOTAL images judged=64  fail(box)=27  fail(painted)=0

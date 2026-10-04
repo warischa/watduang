@@ -369,6 +369,7 @@ const game: GameModule = {
   og: 'cursed-number.png',
   // gh#242, direction C set (IMG_03_009 in images/IMAGES.md).
   cardArt: 'cursed-number.webp',
+  cardArt2x: 'cursed-number-2x.webp',
   ads: true,
   playRoute: '/game/cursed-number/play/',
 

@@ -16,7 +16,7 @@ export interface Props {
   lead: string;
   ctaLabel: string;
   ctaHref: string;
-  featured: { href: string; title: string; desc: string; art: string };
+  featured: { href: string; title: string; desc: string; art: string; art2x: string };
 }
 
 const { badge, titleTop, titleLead, titleMark, lead, ctaLabel, ctaHref, featured } = Astro.props;
@@ -31,7 +31,7 @@ const { badge, titleTop, titleLead, titleMark, lead, ctaLabel, ctaHref, featured
       <p class="lead">{lead}</p>
       <a class="cta" href={ctaHref}>{ctaLabel} <span aria-hidden="true">→</span></a>
     </div>
-    <FeaturedCard href={featured.href} title={featured.title} desc={featured.desc} art={featured.art} />
+    <FeaturedCard href={featured.href} title={featured.title} desc={featured.desc} art={featured.art} art2x={featured.art2x} />
   </div>
 </header>
 

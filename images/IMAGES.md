@@ -2196,3 +2196,34 @@ visible loss.
   notes: "Bare codex exec with -i images/IMG_02_003.png. 3 image_gen call(s); the master is call 3, matched by sha256 (as-sent-prompts.json). Raw: 62.87% fully transparent, 1922 haze px outside the dilated solid mask. Level remap black point 2 -> haze 0. Ship webp 468x320, 29328 bytes, decoded: haze 0, corners 0/0/0/0, 33.43% transparent. Look check (flattened on #f89880 and #1a1a1a): no fringe or halo, no text, letters or numerals, no bottle/can/glass, no human or hand."
 
 ```
+
+# Game-card art at 2x — one file per game, density srcset (gh#250)
+
+Each of the fourteen card-art games has a second file, `public/art/<game-id>-2x.webp`, declared by the
+game module as `cardArt2x` beside `cardArt`. No new render and no image API: every 2x is cut from the
+tracked master the 1x came from (`IMG_02_003` for croc-bite, `IMG_03_001` to `IMG_03_013` for the rest,
+each master's game named in its entry above), by the same recipe as the 1x. The tier is flat under
+`public/art/`, never a subfolder.
+
+**Positive control, run first.** The recipe (`docs/verification/evidence/gh241/make_ship.py`, with the
+per-master black points recorded in `docs/verification/evidence/gh242/grade-ship.jsonl` and 3 for
+`IMG_02_003`) was re-run on all fourteen masters. Every regenerated 1x was byte-identical to the shipped
+`public/art/<id>.webp` (same dimensions, same sha256), so the crop and the black points are the shipped
+ones, not an approximation. A black point of 0 on `IMG_03_001` gave a different sha256, so the compare
+can fail.
+
+**The 2x recipe**, `docs/verification/evidence/gh250/make_2x.py ship`: the same level remap and `-trim`,
+then `magick -resize <w>x<h>!` and `cwebp -q <q> -alpha_q 100 -m 6 -sharp_yuv`. The size is twice the 1x
+(height 640), raised where a home-page slot needs more: the file's width must be at least twice the
+widest rendered img box of any slot the game appears in (hero 423.2 CSS px, popular row 353.3, shelf
+133.7, measured at 1440). `q` is the highest value from 88 down whose output fits the 60 KB cap of
+`scripts/public-orphan-check.mjs` (61,440 B), searched per file. The cap was not raised. The q table is in
+`docs/verification/evidence/gh250/q-table.tsv`; the grade (srgba, haze outside the solid mask 0, corners
+0/0/0/0) is `grade-2x.txt` there.
+
+**Markup.** `srcset="/art/<id>.webp 1x, /art/<id>-2x.webp 2x"` on the home hero and the popular row. The
+party shelf gets none: its 1x files already clear twice their painted size at DPR 2 (min 2.70), so a 2x
+candidate there only adds bytes; the 2x files of shelf-only games ship unused so popular membership can
+change. Density descriptors only: no file widths are stored anywhere, so a `w` descriptor or a
+`sizes` attribute would be invented. The category page is untouched; its 160 px-tall card boxes already
+get 2x from the 320 px-tall 1x files (measured in the evidence README).

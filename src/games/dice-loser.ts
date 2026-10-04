@@ -139,6 +139,7 @@ const game: GameModule = {
   og: 'dice-loser.png',
   // gh#242, direction C set (IMG_03_006 in images/IMAGES.md).
   cardArt: 'dice-loser.webp',
+  cardArt2x: 'dice-loser-2x.webp',
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/dice-loser/play/',

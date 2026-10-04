@@ -173,6 +173,23 @@ function validateGames(games, checkRoot, categories, noAdRequest = NO_AD_REQUEST
       err('cardArt', `is required in category "${g.category}" — every card there carries art (gh#242)`);
     }
 
+    // gh#250: the 2x file of that art, served on the home page as the density srcset's 2x candidate.
+    // A second explicit field, pinned to `<id>-2x.webp` the same way, flat under public/art/ (a
+    // subfolder would pass scripts/public-orphan-check.mjs only through its same-basename blind spot).
+    if (g?.cardArt !== undefined) {
+      if (g?.cardArt2x === undefined) {
+        err('cardArt2x', 'is required beside cardArt — the home page serves it as the 2x candidate (gh#250)');
+      } else if (!isStr(g.cardArt2x)) {
+        err('cardArt2x', 'must be a non-empty string when present');
+      } else if (isStr(g?.id) && g.cardArt2x !== `${g.id}-2x.webp`) {
+        err('cardArt2x', `is "${g.cardArt2x}", must be "${g.id}-2x.webp"`);
+      } else if (!existsSync(path.join(checkRoot, 'public/art', g.cardArt2x))) {
+        err('cardArt2x', `"${g.cardArt2x}" — public/art/${g.cardArt2x} does not exist`);
+      }
+    } else if (g?.cardArt2x !== undefined) {
+      err('cardArt2x', 'is declared without cardArt — a 2x file only makes sense beside its 1x');
+    }
+
     if (typeof g?.ads !== 'boolean') {
       err('ads', 'must be a boolean');
     } else if (g.ads === true && noAdRequest[g.id]) {
@@ -214,6 +231,7 @@ function selftest() {
     fs.mkdirSync(path.join(tmpDir, 'public/og'), { recursive: true });
     fs.mkdirSync(path.join(tmpDir, 'public/art'), { recursive: true });
     fs.writeFileSync(path.join(tmpDir, 'public/art/happy-game.webp'), '');
+    fs.writeFileSync(path.join(tmpDir, 'public/art/happy-game-2x.webp'), '');
     fs.writeFileSync(path.join(tmpDir, 'src/games/happy-game.ts'), '');
     fs.writeFileSync(path.join(tmpDir, 'public/og/happy-game.png'), '');
     // the ads denylist case below mutates the fixture's id, so it needs its own two files on disk —
@@ -233,6 +251,7 @@ function selftest() {
       seo: { title: 'ชื่อ', description: 'คำอธิบาย', steps: ['หนึ่ง', 'สอง', 'สาม'] },
       og: 'happy-game.png',
       cardArt: 'happy-game.webp',
+      cardArt2x: 'happy-game-2x.webp',
       ads: false,
       mount: () => {},
       dispose: () => {},
@@ -242,7 +261,7 @@ function selftest() {
     // claims 'fortune' (so partyAndFortune's keys are all claimed) and needs its own id file on disk,
     // exactly like the restricted-fixture files above.
     fs.writeFileSync(path.join(tmpDir, 'src/games/solo-game.ts'), '');
-    const soloGame = () => ({ ...goodGame(), id: 'solo-game', category: 'fortune', players: [1, 1], cardArt: undefined });
+    const soloGame = () => ({ ...goodGame(), id: 'solo-game', category: 'fortune', players: [1, 1], cardArt: undefined, cardArt2x: undefined });
 
     // Category-manifest fixtures for the gh#74 gates (the validator only reads Object.keys, so the
     // values are placeholders): partyOnly leaves every key claimed by goodGame, partyAndFortune
@@ -310,6 +329,11 @@ function selftest() {
       { field: 'cardArt (not a string)', mutate: (g) => ({ ...g, cardArt: '' }), expect: /cardArt must be a non-empty string when present/ },
       { field: 'cardArt (name is not <id>.webp)', mutate: (g) => ({ ...g, cardArt: 'croc-bite.webp' }), expect: /cardArt is "croc-bite\.webp", must be "happy-game\.webp"/ },
       { field: 'cardArt (file missing)', mutate: (g) => ({ ...g, id: 'restricted-fixture', og: 'restricted-fixture.png', cardArt: 'restricted-fixture.webp' }), expect: /cardArt "restricted-fixture\.webp" — public\/art\/restricted-fixture\.webp does not exist/ },
+      { field: 'cardArt2x (missing beside cardArt)', mutate: (g) => ({ ...g, cardArt2x: undefined }), expect: /cardArt2x is required beside cardArt/ },
+      { field: 'cardArt2x (not a string)', mutate: (g) => ({ ...g, cardArt2x: '' }), expect: /cardArt2x must be a non-empty string/ },
+      { field: 'cardArt2x (name is not <id>-2x.webp)', mutate: (g) => ({ ...g, cardArt2x: 'croc-bite-2x.webp' }), expect: /cardArt2x is "croc-bite-2x\.webp", must be "happy-game-2x\.webp"/ },
+      { field: 'cardArt2x (file missing)', mutate: (g) => ({ ...g, id: 'restricted-fixture', og: 'restricted-fixture.png', cardArt2x: 'restricted-fixture-2x.webp' }), expect: /cardArt2x "restricted-fixture-2x\.webp" — public\/art\/restricted-fixture-2x\.webp does not exist/ },
+      { field: 'cardArt2x (declared without cardArt)', mutate: (g) => ({ ...g, cardArt: undefined }), expect: /cardArt2x is declared without cardArt/ },
       { field: 'og (file missing)', mutate: (g) => ({ ...g, og: 'ghost.png' }), expect: /og "ghost\.png" — public\/og\/ghost\.png does not exist/ },
       { field: 'ads (not a boolean)', mutate: (g) => ({ ...g, ads: 'yes' }), expect: /ads must be a boolean/ },
       { field: 'ads (true on a no-ad-request id)', mutate: (g) => ({ ...g, id: 'restricted-fixture', og: 'restricted-fixture.png', ads: true }), expect: /ads must be false for "restricted-fixture" — fixture page: AdSense restricted content/ },

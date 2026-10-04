@@ -2,16 +2,20 @@
 // The hero's featured game (canvas D, gh#244): one whole-card link to the game, its own card art
 // at hero size, bobbing, with four sparkles around it. The game is the manifest's `featuredGame`,
 // never an id written into a page. The art loads eagerly with its intrinsic size — it is the page's
-// largest above-the-fold image. No copy lives here: name and tagline arrive as props.
+// largest above-the-fold image, and the page's LCP element, so it alone carries fetchpriority="high"
+// (gh#249; scripts/landing-claims-check.mjs holds it to exactly one such tag on the page). Its 2x file
+// is the density srcset's second candidate (gh#250). No copy lives here: name and tagline arrive as props.
 export interface Props {
   href: string;
   title: string;
   desc: string;
   /** The art file name under /art/ — the game module's own cardArt. */
   art: string;
+  /** The 2x file name under /art/ — the game module's own cardArt2x, the srcset's 2x candidate. */
+  art2x: string;
 }
 
-const { href, title, desc, art } = Astro.props;
+const { href, title, desc, art, art2x } = Astro.props;
 ---
 
 <a class="featured" href={href}>
@@ -19,7 +23,14 @@ const { href, title, desc, art } = Astro.props;
   <span class="spark spark-2" aria-hidden="true"></span>
   <span class="spark spark-3" aria-hidden="true"></span>
   <span class="spark spark-4" aria-hidden="true"></span>
-  <span class="art toy"><img src={`/art/${art}`} alt="" width="361" height="320" /></span>
+  <span class="art toy"><img
+      src={`/art/${art}`}
+      srcset={`/art/${art} 1x, /art/${art2x} 2x`}
+      alt=""
+      width="361"
+      height="320"
+      fetchpriority="high"
+    /></span>
   <span class="name">{title}</span>
   <span class="desc">{desc}</span>
 </a>

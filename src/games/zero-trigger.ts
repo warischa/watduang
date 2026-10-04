@@ -76,6 +76,7 @@ const game: GameModule = {
   og: 'zero-trigger.png',
   // gh#242, direction C set (IMG_03_011 in images/IMAGES.md).
   cardArt: 'zero-trigger.webp',
+  cardArt2x: 'zero-trigger-2x.webp',
   ads: true,
   playRoute: '/game/zero-trigger/play/',
 

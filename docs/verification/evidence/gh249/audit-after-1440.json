@@ -1,0 +1,48 @@
+{
+  "width": 1440,
+  "pages": [
+    {
+      "path": "/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [
+        {
+          "el": "span.mark \"ใครโดน\"",
+          "ratio": 2.23,
+          "need": 3,
+          "fs": 84,
+          "fw": 700,
+          "fg": "rgb(255, 204, 0)"
+        },
+        {
+          "el": "div.wrap.ad-slot \"ช่องโฆษณา\"",
+          "ratio": 2.83,
+          "need": 4.5,
+          "fs": 16,
+          "fw": 400,
+          "fg": "rgb(154, 148, 122)"
+        }
+      ],
+      "contrastUnmeasured": 0,
+      "textElements16": 4,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 33,
+      "under44": 0,
+      "under44Sample": [],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "123332333333333333332333233332333",
+      "cls": 0.0008,
+      "lcp": {
+        "el": "img \"\"",
+        "ms": 64,
+        "url": "http://localhost:4341/art/croc-bite.webp"
+      }
+    }
+  ],
+  "consoleErrors": []
+}

@@ -78,6 +78,7 @@ const game: GameModule = {
   og: 'cannon-flag.png',
   // gh#242, direction C set (IMG_03_004 in images/IMAGES.md).
   cardArt: 'cannon-flag.webp',
+  cardArt2x: 'cannon-flag-2x.webp',
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/cannon-flag/play/',

@@ -1,0 +1,69 @@
+{
+  "width": 320,
+  "pages": [
+    {
+      "path": "/",
+      "innerWidth": 320,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [
+        {
+          "el": "span.mark \"ใครโดน\"",
+          "ratio": 2.23,
+          "need": 3,
+          "fs": 44,
+          "fw": 700,
+          "fg": "rgb(255, 204, 0)"
+        },
+        {
+          "el": "div.wrap.ad-slot \"ช่องโฆษณา\"",
+          "ratio": 2.83,
+          "need": 4.5,
+          "fs": 14,
+          "fw": 400,
+          "fg": "rgb(154, 148, 122)"
+        }
+      ],
+      "contrastUnmeasured": 0,
+      "textElements16": 18,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 33,
+      "under44": 4,
+      "under44Sample": [
+        {
+          "el": "a.chrome-brand \"วัดดวง\"",
+          "w": 75,
+          "h": 40
+        },
+        {
+          "el": "a.chrome-pill \"ดูดวง\"",
+          "w": 56,
+          "h": 33
+        },
+        {
+          "el": "a.chrome-pill \"สุ่มคนโดน\"",
+          "w": 81,
+          "h": 33
+        },
+        {
+          "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+          "w": 95,
+          "h": 33
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "123332333333333333332333233332333",
+      "cls": 0,
+      "lcp": {
+        "el": "img \"\"",
+        "ms": 64,
+        "url": "http://localhost:4341/art/croc-bite.webp"
+      }
+    }
+  ],
+  "consoleErrors": []
+}

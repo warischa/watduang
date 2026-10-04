@@ -71,6 +71,7 @@ const game: GameModule = {
   og: 'croc-bite.png',
   // gh#241 owner pick 2026-10-01, direction C (images/IMAGES.md, IMG_02_003).
   cardArt: 'croc-bite.webp',
+  cardArt2x: 'croc-bite-2x.webp',
   ads: true,
   playRoute: '/game/croc-bite/play/',
 

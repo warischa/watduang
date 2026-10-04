@@ -29,14 +29,16 @@ const gameTile = (game: GameModule) => ({
   desc: game.tagline,
   href: game.playRoute ?? `/game/${game.id}/`,
   art: game.cardArt ?? null,
+  art2x: game.cardArt2x ?? null,
 });
 
-// Art tiles need art. Every party game declares it (validate-games), and the popular row and the
-// featured game are party games, so a missing file name here is a manifest regression, said loudly.
+// Art tiles need art and its 2x file. Every party game declares both (validate-games), and the popular
+// row and the featured game are party games, so a missing file name here is a manifest regression, said
+// loudly.
 const withArt = (game: GameModule) => {
   const tile = gameTile(game);
-  if (!tile.art) throw new Error(`home: ${game.id} renders as an art tile but declares no cardArt`);
-  return { ...tile, art: tile.art };
+  if (!tile.art || !tile.art2x) throw new Error(`home: ${game.id} renders as an art tile but declares no cardArt and cardArt2x`);
+  return { ...tile, art: tile.art, art2x: tile.art2x };
 };
 
 // The popular row wiggles in turn, in the canvas order of its three beats.
@@ -106,6 +108,7 @@ const featured = withArt(featuredGame);
               title={card.title}
               desc={card.desc}
               art={card.art}
+              art2x={card.art2x}
               tilt={TILTS[index % TILTS.length]}
             />
           ))}

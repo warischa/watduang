@@ -77,6 +77,7 @@ const game: GameModule = {
   og: 'freeze-tap.png',
   // gh#242, direction C set (IMG_03_003 in images/IMAGES.md).
   cardArt: 'freeze-tap.webp',
+  cardArt2x: 'freeze-tap-2x.webp',
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/freeze-tap/play/',

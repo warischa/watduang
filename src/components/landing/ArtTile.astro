@@ -9,6 +9,10 @@ export interface Props {
   title: string;
   /** The art file name under /art/ — the game module's own cardArt. */
   art: string;
+  /** The 2x file name under /art/ — the game module's own cardArt2x. Given, the img carries a density
+   *  srcset; left out, it is the plain 1x img. The popular row passes it, the party shelf does not: the
+   *  shelf's 1x files already clear twice their painted size (gh#250 evidence README). */
+  art2x?: string;
   variant?: 'shelf' | 'popular';
   /** Popular tiles only: the game's tagline. */
   desc?: string | null;
@@ -18,7 +22,7 @@ export interface Props {
   tilt?: '' | 'tilt-a' | 'tilt-b' | 'tilt-c';
 }
 
-const { href, title, art, variant = 'shelf', desc = null, highlight = false, tilt = '' } = Astro.props;
+const { href, title, art, art2x, variant = 'shelf', desc = null, highlight = false, tilt = '' } = Astro.props;
 if (variant === 'popular' && !desc) throw new Error(`ArtTile ${href}: a popular tile carries the tagline`);
 ---
 
@@ -28,7 +32,7 @@ if (variant === 'popular' && !desc) throw new Error(`ArtTile ${href}: a popular 
   data-highlight={highlight || undefined}
   href={href}
 >
-  <span class="art"><img src={`/art/${art}`} alt="" loading="lazy" /></span>
+  <span class="art"><img src={`/art/${art}`} srcset={art2x ? `/art/${art} 1x, /art/${art2x} 2x` : undefined} alt="" loading="lazy" /></span>
   <div class="copy">
     <h3 class="name">{title}</h3>
     {desc && <p class="desc">{desc}</p>}

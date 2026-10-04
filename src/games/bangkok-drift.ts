@@ -74,6 +74,7 @@ const game: GameModule = {
   og: 'bangkok-drift.png',
   // gh#242, direction C set (IMG_03_013 in images/IMAGES.md).
   cardArt: 'bangkok-drift.webp',
+  cardArt2x: 'bangkok-drift-2x.webp',
   ads: true,
   playRoute: '/game/bangkok-drift/play/',
 

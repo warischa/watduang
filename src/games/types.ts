@@ -108,6 +108,12 @@ export interface GameModule {
    *  field IS that file's referrer, and no other file under src/ should spell the name.
    *  scripts/landing-claims-check.mjs holds the built cards to this field in both directions. */
   cardArt?: string;
+  /** The 2x file of `cardArt` (gh#250): a bare filename under public/art/, always `<id>-2x.webp`, flat
+   *  beside the 1x. The home page serves it as the 2x candidate of a density srcset on the hero, the
+   *  popular row and the party shelf. A second explicit field for the same reason as `cardArt`: the
+   *  basename spelled whole here is that file's referrer, and no other file under src/ spells it.
+   *  scripts/validate-games.mjs pins the name and the file, scripts/landing-claims-check.mjs the built srcset. */
+  cardArt2x?: string;
   /** Whether this game's page carries an ad slot, in the how-to-play prose below the stage — never on
    *  the play screen itself (issue #13, amendment 8). Most games are true; false means this page
    *  must generate no ad request at all, which is a content decision rather than a layout one.

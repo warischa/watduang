@@ -77,6 +77,7 @@ const game: GameModule = {
   og: 'wire-snip-panic.png',
   // gh#242, direction C set (IMG_03_010 in images/IMAGES.md).
   cardArt: 'wire-snip-panic.webp',
+  cardArt2x: 'wire-snip-panic-2x.webp',
   // The how-to-play prose below the stage is ad inventory: the decision was no slot on the PLAY
   // SCREEN, never no slot on the page.
   ads: true,

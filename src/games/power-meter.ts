@@ -66,6 +66,7 @@ const game: GameModule = {
   og: 'power-meter.png',
   // gh#242, direction C set (IMG_03_005 in images/IMAGES.md).
   cardArt: 'power-meter.webp',
+  cardArt2x: 'power-meter-2x.webp',
   // The how-to-play prose below the stage is ad inventory: the decision was no slot on the PLAY
   // SCREEN, never no slot on the page.
   ads: true,
