@@ -114,9 +114,13 @@ const HELPERS = `
     const inViewport = pts.every(([x, y]) =>
       x >= 0 && x <= window.innerWidth && y >= 0 && y <= window.innerHeight);
     const htmlBefore = stage.innerHTML;
+    // The nodes themselves, not only their markup: a random redraw (daily-fortune's #df-again) can
+    // re-render the same lines, and identical markup then reads a real re-render as "nothing changed".
+    // A detached old child is the proof that replaceChildren ran, which markup equality cannot show.
+    const childrenBefore = [...stage.children];
     if (trigger) { await trigger(); } else { el.click(); await sleep(250); }
     // Read before the control is injected, or the injection itself would answer this.
-    const changed = stage.innerHTML !== htmlBefore;
+    const changed = stage.innerHTML !== htmlBefore || childrenBefore.some((n) => !n.isConnected);
     // Positive control (BREAK_GUARD=1): one real anchor, appended INTO #stage after the transition and
     // positioned over the box that is about to be sampled. Claim 0 counts it, claim 1's
     // elementFromPoint lands on it. It adds an intruder, it never disables the rule under test, so a
@@ -171,12 +175,13 @@ const WALKS = {
     minTransitions: 2,
     // Rewritten for the solo screens: the old walk tapped roster chips, and a solo mount gets
     // `players: []` so renderAsk() appends none. #df-name + #df-go is the only path to the result
-    // screen a real solo player has, and #df-again is the only way back.
+    // screen a real solo player has, and #df-again redraws the result in place (it does not return
+    // to the ask screen).
     body: `
       const input = document.getElementById('df-name');
       if (input) { input.value = 'ทดสอบเอ'; input.dispatchEvent(new Event('input', { bubbles: true })); }
       taps.push(await tap('#df-go -> result', document.getElementById('df-go')));
-      taps.push(await tap('#df-again -> ask', document.getElementById('df-again')));
+      taps.push(await tap('#df-again -> redraw', document.getElementById('df-again')));
       return taps;`,
   },
   // gh#101 — the rebuilt solo page. Two answers are in-place toggles, not transitions (the row mutates,

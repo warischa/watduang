@@ -1,0 +1,580 @@
+{
+  "summary": {
+    "games": 3,
+    "breakGuard": false,
+    "breakViewport": false,
+    "gamesWithUsableWalk": 2,
+    "totalTransitions": 9,
+    "totalScreensWithStageAnchor": 0,
+    "totalInStageAnchorHits": 0,
+    "notCovered": {},
+    "claim0_stageHasNoAnchor": {
+      "pass": [
+        "love-match",
+        "siamsi"
+      ],
+      "fail": [
+        "daily-fortune"
+      ]
+    },
+    "claim1_noNavTargetHitInStage": {
+      "pass": [
+        "love-match",
+        "siamsi"
+      ],
+      "fail": [
+        "daily-fortune"
+      ],
+      "inconclusive": []
+    },
+    "claim2_hitNeverInGameNext": {
+      "pass": [
+        "love-match",
+        "siamsi"
+      ],
+      "fail": [
+        "daily-fortune"
+      ],
+      "inconclusive": []
+    },
+    "perGame": {
+      "daily-fortune": {
+        "stageHasNoAnchor": "FAIL",
+        "noNavTargetHitInStage": "FAIL",
+        "hitNeverInGameNext": "FAIL",
+        "walkUsable": false,
+        "coordinateHitsMeasurable": true,
+        "transitions": 2,
+        "screensWithStageAnchor": 0,
+        "inStageAnchorHits": 0,
+        "gameNextHits": 0,
+        "anyAnchorHits": 0,
+        "anchorHrefsHit": [],
+        "nearestStageAnchorGapsPx": []
+      },
+      "love-match": {
+        "stageHasNoAnchor": "PASS",
+        "noNavTargetHitInStage": "PASS",
+        "hitNeverInGameNext": "PASS",
+        "walkUsable": true,
+        "coordinateHitsMeasurable": true,
+        "transitions": 2,
+        "screensWithStageAnchor": 0,
+        "inStageAnchorHits": 0,
+        "gameNextHits": 0,
+        "anyAnchorHits": 0,
+        "anchorHrefsHit": [],
+        "nearestStageAnchorGapsPx": []
+      },
+      "siamsi": {
+        "stageHasNoAnchor": "PASS",
+        "noNavTargetHitInStage": "PASS",
+        "hitNeverInGameNext": "PASS",
+        "walkUsable": true,
+        "coordinateHitsMeasurable": true,
+        "transitions": 5,
+        "screensWithStageAnchor": 0,
+        "inStageAnchorHits": 0,
+        "gameNextHits": 0,
+        "anyAnchorHits": 0,
+        "anchorHrefsHit": [],
+        "nearestStageAnchorGapsPx": []
+      }
+    }
+  },
+  "games": {
+    "daily-fortune": {
+      "beforeStart": {
+        "innerWidth": 320,
+        "innerHeight": 900,
+        "seededRosterLength": 8,
+        "sessionStorageLen": 0,
+        "stageChildren": 6,
+        "staticHubLinks": 1,
+        "setupPanelVisible": false
+      },
+      "rosterTicks": {
+        "solo": true,
+        "boxCount": 0,
+        "allChecked": null
+      },
+      "afterStart": {
+        "setupPanelVisible": false,
+        "stageChildren": 6,
+        "staticHubLinks": 1,
+        "innerWidth": 320
+      },
+      "walkError": null,
+      "walkUsable": false,
+      "transitions": 2,
+      "transitionsExpectedAtLeast": 2,
+      "screensWithStageAnchor": 0,
+      "inStageAnchorHits": 0,
+      "gameNextHits": 0,
+      "anyAnchorHits": 0,
+      "anchorHrefsHit": [],
+      "nearestStageAnchorGapsPx": [],
+      "coordinateHitsMeasurable": true,
+      "stageHasNoAnchor": "FAIL",
+      "noNavTargetHitInStage": "FAIL",
+      "hitNeverInGameNext": "FAIL",
+      "taps": [
+        {
+          "label": "#df-go -> result",
+          "tappedTag": "BUTTON",
+          "tappedId": "df-go",
+          "inViewport": true,
+          "changed": true,
+          "wasDisabled": false,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 450,
+              "tag": "P",
+              "text": "ไปถึงหน้าลิฟต์ตอนประตูเพ",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 420,
+              "tag": "P",
+              "text": "ไปถึงหน้าลิฟต์ตอนประตูเพ",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 480,
+              "tag": "DIV",
+              "text": "ทางไปถึงหน้าลิฟต์ตอนประต",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#df-again -> redraw",
+          "tappedTag": "BUTTON",
+          "tappedId": "df-again",
+          "inViewport": true,
+          "changed": false,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 450,
+              "tag": "BUTTON",
+              "text": "เปิดใหม่อีกที",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 420,
+              "tag": "BUTTON",
+              "text": "เปิดใหม่อีกที",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 480,
+              "tag": "BUTTON",
+              "text": "เปิดใหม่อีกที",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        }
+      ]
+    },
+    "love-match": {
+      "beforeStart": {
+        "innerWidth": 320,
+        "innerHeight": 900,
+        "seededRosterLength": 8,
+        "sessionStorageLen": 0,
+        "stageChildren": 7,
+        "staticHubLinks": 1,
+        "setupPanelVisible": false
+      },
+      "rosterTicks": {
+        "solo": true,
+        "boxCount": 0,
+        "allChecked": null
+      },
+      "afterStart": {
+        "setupPanelVisible": false,
+        "stageChildren": 7,
+        "staticHubLinks": 1,
+        "innerWidth": 320
+      },
+      "walkError": null,
+      "walkUsable": true,
+      "transitions": 2,
+      "transitionsExpectedAtLeast": 2,
+      "screensWithStageAnchor": 0,
+      "inStageAnchorHits": 0,
+      "gameNextHits": 0,
+      "anyAnchorHits": 0,
+      "anchorHrefsHit": [],
+      "nearestStageAnchorGapsPx": [],
+      "coordinateHitsMeasurable": true,
+      "stageHasNoAnchor": "PASS",
+      "noNavTargetHitInStage": "PASS",
+      "hitNeverInGameNext": "PASS",
+      "taps": [
+        {
+          "label": "#lm-go -> reading",
+          "tappedTag": "BUTTON",
+          "tappedId": "lm-go",
+          "inViewport": true,
+          "changed": true,
+          "wasDisabled": false,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 450,
+              "tag": "LI",
+              "text": "เลือกว่าอยากให้เนื้อคู่เ",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 420,
+              "tag": "LI",
+              "text": "เลือกช่วงอายุของคุณ",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 480,
+              "tag": "LI",
+              "text": "เลือกว่าอยากให้เนื้อคู่เ",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#lm-again -> ask",
+          "tappedTag": "BUTTON",
+          "tappedId": "lm-again",
+          "inViewport": true,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 450,
+              "tag": "P",
+              "text": "อยากให้เนื้อคู่เป็น",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 424,
+              "tag": "BUTTON",
+              "text": "40–49",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 476,
+              "tag": "DIV",
+              "text": "อยากให้เนื้อคู่เป็นผู้ชา",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        }
+      ]
+    },
+    "siamsi": {
+      "beforeStart": {
+        "innerWidth": 320,
+        "innerHeight": 900,
+        "seededRosterLength": 8,
+        "sessionStorageLen": 0,
+        "stageChildren": 5,
+        "staticHubLinks": 1,
+        "setupPanelVisible": false
+      },
+      "rosterTicks": {
+        "solo": true,
+        "boxCount": 0,
+        "allChecked": null
+      },
+      "afterStart": {
+        "setupPanelVisible": false,
+        "stageChildren": 5,
+        "staticHubLinks": 1,
+        "innerWidth": 320
+      },
+      "walkError": null,
+      "walkUsable": true,
+      "transitions": 5,
+      "transitionsExpectedAtLeast": 5,
+      "screensWithStageAnchor": 0,
+      "inStageAnchorHits": 0,
+      "gameNextHits": 0,
+      "anyAnchorHits": 0,
+      "anchorHrefsHit": [],
+      "nearestStageAnchorGapsPx": [],
+      "coordinateHitsMeasurable": true,
+      "stageHasNoAnchor": "PASS",
+      "noNavTargetHitInStage": "PASS",
+      "hitNeverInGameNext": "PASS",
+      "taps": [
+        {
+          "label": "#ss-intent-done -> shake",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-intent-done",
+          "inViewport": true,
+          "changed": true,
+          "wasDisabled": false,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 450,
+              "tag": "DIV",
+              "text": "เสี่ยงเซียมซี     ออกจาก",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 420,
+              "tag": "P",
+              "text": "ของจริงต้องเขย่าจนไม้หลุ",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 480,
+              "tag": "SECTION",
+              "text": "วิธีเล่น  ตั้งจิตให้นิ่ง",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#ss-hold -> stick",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-hold",
+          "inViewport": true,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 450,
+              "tag": "BUTTON",
+              "text": "เปิดใบเซียมซี",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 420,
+              "tag": "SPAN",
+              "text": "ไม้ติ้วเบอร์ 27",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 480,
+              "tag": "BUTTON",
+              "text": "เปิดใบเซียมซี",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#ss-open-slip -> slip",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-open-slip",
+          "inViewport": true,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 450,
+              "tag": "P",
+              "text": "จังหวะยังไม่ตรงกัน ไม่ได",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 420,
+              "tag": "DIV",
+              "text": "ความรักจังหวะยังไม่ตรงกั",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 480,
+              "tag": "DIV",
+              "text": "การงานพลาดจังหวะหนึ่งไปไ",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#ss-keep -> done",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-keep",
+          "inViewport": true,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 450,
+              "tag": "DIV",
+              "text": "",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 420,
+              "tag": "DIV",
+              "text": "",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 480,
+              "tag": "SECTION",
+              "text": "วิธีเล่น  ตั้งจิตให้นิ่ง",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        },
+        {
+          "label": "#ss-again -> intent",
+          "tappedTag": "BUTTON",
+          "tappedId": "ss-again",
+          "inViewport": true,
+          "changed": true,
+          "wasDisabled": true,
+          "stageAnchorCount": 0,
+          "stageAnchor": null,
+          "anchorInStageHit": false,
+          "gameNextHit": false,
+          "anyAnchorHit": false,
+          "hits": [
+            {
+              "x": 160,
+              "y": 249,
+              "tag": "P",
+              "text": "ตั้งจิตให้นิ่ง แล้วนึกถึ",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 219,
+              "tag": "DIV",
+              "text": "เซียมซีตั้งจิตให้นิ่ง แล",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            },
+            {
+              "x": 160,
+              "y": 279,
+              "tag": "DIV",
+              "text": "เซียมซีตั้งจิตให้นิ่ง แล",
+              "anchorHref": null,
+              "anchorInStage": false,
+              "inGameNext": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "consoleErrors": []
+}
