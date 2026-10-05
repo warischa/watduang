@@ -1,0 +1,29 @@
+[missing-topbar] 404.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] 404.html · carries the footer marker 0 time(s), expected 1.
+[unknown-marker-value] c/fortune/index.html:4 · data-page-chrome carries no value — only "topbar" and "footer" exist · <link rel="stylesheet" href="/_astro/_category_.BCeJzYHG.css"></head> <body data-astro-cid-5hce7sga>  <header class="chrome-bar chrome-topbar" data-page-chrome 
+[unknown-marker-value] c/fortune/index.html:12 · data-page-chrome carries no value — only "topbar" and "footer" exist · <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden=
+[missing-topbar] c/fortune/index.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] c/fortune/index.html · carries the footer marker 0 time(s), expected 1.
+[unknown-marker-value] c/party/index.html:4 · data-page-chrome carries no value — only "topbar" and "footer" exist · <link rel="stylesheet" href="/_astro/_category_.BCeJzYHG.css"></head> <body data-astro-cid-5hce7sga>  <header class="chrome-bar chrome-topbar" data-page-chrome 
+[unknown-marker-value] c/party/index.html:34 · data-page-chrome carries no value — only "topbar" and "footer" exist · <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden=
+[missing-topbar] c/party/index.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] c/party/index.html · carries the footer marker 0 time(s), expected 1.
+[missing-footer] game/daily-fortune/index.html · carries the footer marker 0 time(s), expected 1.
+[missing-footer] game/love-match/index.html · carries the footer marker 0 time(s), expected 1.
+[missing-footer] game/siamsi/index.html · carries the footer marker 0 time(s), expected 1.
+[unknown-marker-value] index.html:4 · data-page-chrome carries no value — only "topbar" and "footer" exist · <link rel="stylesheet" href="/_astro/index.rYW9dV9q.css"></head> <body data-astro-cid-5hce7sga>  <header class="chrome-bar chrome-topbar" data-page-chrome data-
+[unknown-marker-value] index.html:4 · data-page-chrome carries no value — only "topbar" and "footer" exist · <link rel="stylesheet" href="/_astro/index.rYW9dV9q.css"></head> <body data-astro-cid-5hce7sga>  <header class="chrome-bar chrome-topbar" data-page-chrome data-
+[missing-topbar] index.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] index.html · carries the footer marker 0 time(s), expected 1.
+[missing-topbar] tool/draw/index.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] tool/draw/index.html · carries the footer marker 0 time(s), expected 1.
+[missing-topbar] tool/number/index.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] tool/number/index.html · carries the footer marker 0 time(s), expected 1.
+[missing-topbar] tool/team/index.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] tool/team/index.html · carries the footer marker 0 time(s), expected 1.
+[missing-topbar] tool/wheel/index.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] tool/wheel/index.html · carries the footer marker 0 time(s), expected 1.
+[missing-topbar] tools/index.html · carries the top-bar marker 0 time(s), expected 1.
+[missing-footer] tools/index.html · carries the footer marker 0 time(s), expected 1.
+
+page-chrome-check: 27 breach(es) in /Users/waris.c/claude/free-game/dist. gh#247/gh#255: canvas D's top bar and footer render on every page; solo landings carry the footer only; play routes carry neither (ADR-0014).

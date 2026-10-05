@@ -1,0 +1,20 @@
+PASS detector: values read per landmark, bare and unknown values surfaced, look-alikes and commented markers ignored, <footer> counted outside comments
+PASS NO_CHROME red (stale entry): [stale-exemption] — [stale-exemption] NO_CHROME entry gone/index.html is not a built page any more — remove the stale entry.
+PASS NO_CHROME red (uncited entry): [uncited-exemption] — [uncited-exemption] NO_CHROME entry tools/index.html must cite the owner ruling that exempts it (an owner ruling by gh#N or ADR-NNNN) — got: "looked fine"
+PASS NO_CHROME red (game page listed): [game-page-exemption] — [game-page-exemption] NO_CHROME entry game/siamsi/index.html is a game page — its class belongs to the manifest, never to this set.
+PASS NO_CHROME red (exempt page carrying chrome): [exempt-page-marker] — [exempt-page-marker] tools/index.html:1 · data-page-chrome="topbar" · a NO_CHROME page renders no page chrome · <!doctype html><body><header class="chrome-bar chrome-topbar" data-page-chrome="topbar"><a href="/">x</a></header>
+PASS green direction: page-chrome-check: 24 page(s) in /var/folders/js/9dbybzdx6n5bg24w7d04n63c0000gn/T/page-chrome-good-5UDf4n — play route (no chrome) 14 · solo landing (footer only) 3 · every other page (top bar + footer) 7 · NO_CHROME exempt 0 (PAGE_CHROME_DIST_OVERRIDE active)
+PASS red (play route carrying the top bar): [play-route-marker] game/timebomb/play/index.html:1 · data-page-chrome="topbar" · a play route renders no page chrome · <!doctype html><header class="chrome-bar chrome-topbar" data-page-chrome="topbar"><a href="/">x</a></header><main>app</main>
+PASS red (play route carrying the footer): [play-route-marker] game/timebomb/play/index.html:1 · data-page-chrome="footer" · a play route renders no page chrome · <!doctype html><main>app</main><footer class="chrome-bar chrome-footer" data-page-chrome="footer"><span>x</span></footer>
+PASS red (solo landing carrying the top bar): [solo-topbar] game/siamsi/index.html · carries the top-bar marker 1 time(s) — a solo landing renders the footer only.
+PASS red (play route shipping a plain footer (Base without `chrome`)): [play-route-footer] game/timebomb/play/index.html · ships 1 <footer> tag(s), expected 0 — a play route passes Base's `chrome` prop with no PageChrome, so a footer here means that prop was dropped (Base's plain footer and its link are back).
+PASS red (solo landing with no footer marker): [missing-footer] game/siamsi/index.html · carries the footer marker 0 time(s), expected 1.
+PASS red (solo landing shipping two footers): [footer-tags] game/siamsi/index.html · ships 2 <footer> tag(s), expected exactly 1 — a forgotten `chrome` prop on Base ships its plain footer as well.
+PASS red (tools hub bare): [missing-topbar] tools/index.html · carries the top-bar marker 0 time(s), expected 1.
+PASS red (tool page with two <footer> tags): [footer-tags] tool/wheel/index.html · ships 2 <footer> tag(s), expected exactly 1 — a forgotten `chrome` prop on Base ships its plain footer as well.
+PASS red (404 carrying the pre-gh#255 bare marker): [unknown-marker-value] 404.html:2 · data-page-chrome carries no value — only "topbar" and "footer" exist · <main data-page-chrome>x</main>
+PASS red (unmapped game id): [unmapped-game-id] game/nope/index.html · game id "nope" is not in src/games/manifest.ts — a built game page the manifest does not own cannot be classed.
+PASS red (nested page under a known game): [unexpected-game-page] game/siamsi/extra/index.html · not a page the manifest derives for siamsi (its play route, or its landing when it has no play route).
+PASS red (tree with no play route): [empty-class] the play route class matched zero built pages — a class that matches nothing checks nothing (docs/adr/0019).
+PASS red (empty walk): [empty-walk] the walk matched zero built .html pages — the target set must never be empty (docs/adr/0019).
+PASS CI guard: PAGE_CHROME_DIST_OVERRIDE + CI=1 refuses to run instead of scanning a narrowed set

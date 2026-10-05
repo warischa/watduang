@@ -10,12 +10,15 @@
 // No script of any kind (ADR-0005) — this page needs none.
 import Base from '../../layouts/Base.astro';
 import { tools, toolsGroup } from '../../tools/manifest';
+import PageChrome from '../../components/PageChrome.astro';
 ---
 
 <Base
   title="เครื่องมือสุ่มทั้งหมด — วัดดวง"
   description="รวมเครื่องมือสุ่มเล่นฟรี วงล้อสุ่มชื่อ จับฉลาก แบ่งทีม สุ่มเลข ใช้ได้ทันทีบนมือถือ ไม่ต้องโหลดแอป"
+  chrome
 >
+  <PageChrome>
   <main style={`--page-accent: var(${toolsGroup.accentVar});`}>
     <header class="hub-head">
       <div class="hub-head-inner">
@@ -45,6 +48,7 @@ import { tools, toolsGroup } from '../../tools/manifest';
       <p class="back"><a class="back-link" href="/">กลับหน้าแรก</a></p>
     </div>
   </main>
+  </PageChrome>
 </Base>
 
 <style>

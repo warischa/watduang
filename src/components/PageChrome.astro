@@ -1,4 +1,11 @@
 ---
+interface Props {
+  /** gh#255: false renders the footer alone (the solo game landings, whose own topbar stays). */
+  topbar?: boolean;
+}
+
+const { topbar = true } = Astro.props as Props;
+
 interface SiteLink {
   label: string;
   href: string;
@@ -16,22 +23,24 @@ const SITE_LINKS: SiteLink[] = [
 ];
 ---
 
-<header class="chrome-bar chrome-topbar" data-page-chrome>
-  <div class="chrome-inner chrome-topbar-inner">
-    <a class="chrome-brand" href="/">วัดดวง</a>
-    <nav class="chrome-pills">
-      {SITE_LINKS.map((link) => (
-        <a class="chrome-pill" href={link.href} style={`background: ${link.accent}`}>
-          {link.label}
-        </a>
-      ))}
-    </nav>
-  </div>
-</header>
+{topbar && (
+  <header class="chrome-bar chrome-topbar" data-page-chrome="topbar">
+    <div class="chrome-inner chrome-topbar-inner">
+      <a class="chrome-brand" href="/">วัดดวง</a>
+      <nav class="chrome-pills">
+        {SITE_LINKS.map((link) => (
+          <a class="chrome-pill" href={link.href} style={`background: ${link.accent}`}>
+            {link.label}
+          </a>
+        ))}
+      </nav>
+    </div>
+  </header>
+)}
 
 <slot />
 
-<footer class="chrome-bar chrome-footer" data-page-chrome>
+<footer class="chrome-bar chrome-footer" data-page-chrome="footer">
   <div class="chrome-inner chrome-footer-inner">
     <span class="chrome-footer-brand">วัดดวง</span>
   </div>
@@ -45,8 +54,8 @@ const SITE_LINKS: SiteLink[] = [
      1440 one is the base here, and the 320 one takes over at max-width 1099px (ADR-0058, the
      breakpoint every landing component shares). The pill text is ink on all three pills (gh#248).
      The footer carries the brand only, no links: the section links live in the top-bar pills.
-     data-page-chrome on both landmark elements is the marker scripts/page-chrome-check.mjs reads;
-     it is never presentation. */
+     data-page-chrome on both landmark elements is the marker scripts/page-chrome-check.mjs reads,
+     and its value names the landmark ("topbar" / "footer"); it is never presentation. */
   .chrome-bar {
     background: var(--color-line-strong);
     font-family: var(--font-display);
@@ -96,6 +105,28 @@ const SITE_LINKS: SiteLink[] = [
   .chrome-footer-inner {
     height: 96px;
     justify-content: center;
+  }
+
+  /* gh#255, owner ruling 2026-10-05: on a page shorter than the viewport the footer sits on the
+     viewport's bottom edge instead of floating above a band of bare body ground. Keyed on the
+     footer itself, a direct child of body, so the one page set this touches is the set that renders
+     it; a play route renders none and keeps its layout. The spare height goes to the page's <main>,
+     so its own ground fills it rather than a band of body ground opening above the footer; the auto
+     margin covers a page whose <main> is not a body child. On a page taller than the viewport there
+     is no spare height, and nothing moves. Layout only, no colour or size value (ADR-0033). */
+  :global(body:has(> .chrome-footer)) {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 100vh;
+    min-block-size: 100dvh;
+  }
+
+  :global(body:has(> .chrome-footer) > main) {
+    flex-grow: 1;
+  }
+
+  .chrome-footer {
+    margin-block-start: auto;
   }
 
   .chrome-footer-brand {

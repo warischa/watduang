@@ -40,6 +40,8 @@ top bar's static-position property under ADR-0015 is unaffected.
 inbound links. `/` is not orphaned from these pages: `Base.astro`'s footer still carries
 `<a href="/">วัดดวง</a>`, so the root stays one hop from every landing. Measured, not assumed.
 
+**Amended 2026-10-05 (gh#255):** the paragraph above no longer holds for the solo landings. Their footer is now canvas D's brand-only footer with no link (gh#247), so Base's home link is gone from them. `/` is reached through the stable-exit link to the category page, whose top bar links home.
+
 ## Scope: this is two pages, not sixteen
 
 `src/pages/game/[id].astro` filters out every game with a `playRoute`, so `GameLayout` renders only

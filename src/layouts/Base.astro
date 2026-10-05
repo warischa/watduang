@@ -8,8 +8,9 @@ interface Props {
   ogImage?: string;
   noindex?: boolean;
   // gh#86 — when a page renders the shared PageChrome component, the chrome supplies the site
-  // footer and this layout's plain one steps aside. DEFAULT FALSE: every page that does not opt
-  // in keeps the footer it has always had, which is what keeps every game page unchanged.
+  // footer and this layout's plain one steps aside. DEFAULT FALSE: a page that does not pass it
+  // keeps this plain footer. Since gh#255 every page renders PageChrome and passes it, except the
+  // play routes, which pass it with no PageChrome so they ship no footer at all.
   chrome?: boolean;
 }
 

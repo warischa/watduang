@@ -1,0 +1,5 @@
+stage-reserve-probe {"pass":true,"maxCls":0.05} verdicts PASS=0 FAIL=0
+narrow-overflow-probe {"token":"Wolfeschlegelsteinhausen","tokenLength":24,"breakGuard":false,"checked":12,"checkedGames":0,"checkedTools":12,"badGames":0,"badTools":0,"bad":0} verdicts PASS=0 FAIL=0
+ad-reflow-first-list-load-probe {"allPass":true} verdicts PASS=8 FAIL=0
+ad-slot-grid-probe {} verdicts PASS=12 FAIL=5
+ad-slot-game-probe {"platform":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"} verdicts PASS=0 FAIL=4

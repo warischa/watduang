@@ -1,57 +1,50 @@
 #!/usr/bin/env node
-// Static regression tripwire for #86: the shared page chrome — the site top bar (brand + four
-// nav links) and the footer nav from src/components/PageChrome.astro — is opt-in. gh#105 widened
-// the scan (docs/adr/0019-a-tripwires-green-must-not-imply-coverage-it-has-not-earned.md): the
-// gate now walks EVERY built .html page, recursively, where it used to read dist/game/*/index.html
-// one level deep. Two false greens forced the widening, both measured against the real artifact
-// before this header was written:
-//   - chrome markup carrying the real marker appended to a built /tools/, /c/<category>/, or
-//     404.html page exited 0 — only game pages were enumerated;
-//   - the marker on a nested dist/game/x/y/index.html exited 0 — the page-listing helper read one
-//     directory level, and the real build is flat, so nothing else would ever have caught it.
+// Static regression tripwire for the shared page chrome — canvas D's site top bar and its footer,
+// both rendered by src/components/PageChrome.astro. History: #86 shipped the chrome opt-in and
+// home-only; gh#105 widened the scan to EVERY built .html page, recursively, after two measured
+// false greens (chrome appended to a non-game page, and a marker on a nested game page, both exited
+// 0 while the scan read one directory level); gh#247 ruled the chrome belongs on EVERY page; gh#255
+// carried that ruling to the pages that still lacked it and replaced this gate's hand list.
 //
-// It reads the BUILT artifact, not source: "renders" is a property of the served HTML, and a
-// source scan cannot see chrome slipping in through a layout or an include chain. The marker the
-// component stamps — the bare attribute data-page-chrome, once on the top bar, once on the footer
-// nav — is owned by PageChrome.astro, so the check recognises the thing it polices by
-// construction rather than by look-alike signals.
+// It reads the BUILT artifact, not source: "renders" is a property of the served HTML, and a source
+// scan cannot see chrome slipping in (or dropping out) through a layout or an include chain. The
+// marker is owned by PageChrome.astro, and its VALUE names the landmark: data-page-chrome="topbar"
+// on the top bar, data-page-chrome="footer" on the footer. The parser reads the value; a bare
+// attribute or any other value is a red, never a silent "neither".
 //
-// Three legs, three sets — and who owns each set is the reason a naive widen was wrong. A plain
-// "no page may carry the marker" is false: the chrome legitimately renders on the home page, and
-// possibly on other non-game pages by later owner decision. So the gate is inverted instead of
-// blanket-banned (docs/adr/0019: an inverted guard must count, not just exclude):
+// Why the expected set is DERIVED, not listed. The pre-gh#255 header defended an explicit list of
+// pages allowed to render chrome — "permission is a per-page owner call, and an explicit list fails
+// safe". gh#247 overturned that premise: chrome is now the DEFAULT, so the list would have had to
+// enumerate the pages that MUST render it, and a hand list in that direction fails OPEN — a new page
+// shipped without chrome is simply unlisted, and the gate reads green on it. So the expectation is
+// keyed on page CLASS, with the game manifest (src/games/manifest.ts, imported and executed, never
+// text-grepped) as the one owner of which class a game page is in:
 //
-//   game leg —    every built page under dist/game/** (recursive) must NOT carry the marker. The
-//                 set's owner is the BUILD (the games manifest + getStaticPaths); it is enumerated
-//                 by walking the artifact, never from an id list, and the smoke test crosses its
-//                 size against the manifest. This set can never be allowlisted: chrome here is the
-//                 ADR-0014/0015 tap hazard itself (docs/adr/0014-no-navigation-target-inside-the-
-//                 stage.md), not a design drift.
-//   opt-in leg —  every built page NOT under dist/game/** must NOT carry the marker unless it has
-//                 an ALLOWED_CHROME entry. Owner of the allowed pages: the chrome opt-in — each
-//                 entry cites the owner decision that admits it, and the set stays closed
-//                 (the docs/adr/0016 pattern this repo keeps for exception sets). Chrome landing on
-//                 a page with no entry goes red until a decision is cited, so the list grows only
-//                 through decisions, never by drift. An id list over "pages that may render chrome"
-//                 would be guessed and rot; the two-state split (provably-allowed few vs
-//                 everything else) is the one that converges.
-//   render leg —  every page in ALLOWED_CHROME MUST carry the marker at least once. Without this,
-//                 a marker rename in the component (or the chrome silently dropped from an opted-in
-//                 page) leaves the two negative legs green on nothing — a detector returning
-//                 nothing looks exactly like a clean tree.
+//   play route   — dist/game/<id>/<playRoute>/index.html, for every manifest game with a playRoute.
+//                  ZERO markers and ZERO <footer> tags: the play route is the app view and a tap target
+//                  above the game root is the ADR-0014/0015 hazard itself (owner ruling on gh#255:
+//                  unchanged). A <footer> here means the page dropped Base's `chrome` prop.
+//   solo landing — dist/game/<id>/index.html, for every manifest game with NO playRoute (rendered by
+//                  GameLayout). Footer marker x1, top-bar marker x0, and exactly one <footer> tag
+//                  (owner ruling on gh#255: canvas D's footer only; the game topbar and its stable
+//                  exit stay as they are).
+//   every other page — top-bar marker x1, footer marker x1, and exactly one <footer> tag. The tag
+//                  count is what catches a page that renders PageChrome but forgets Base's `chrome`
+//                  prop, which ships Base's plain footer as a second one.
 //
-// ponytail: raw artifact scan. It proves the SERVED legend — a chrome that renders only behind a
+// Fail closed (docs/adr/0019): the walk must find pages, and each class must be non-empty; any page
+// under dist/game/ that is not exactly one of the manifest-derived shapes reds, and an id there that
+// the manifest does not know reds by name. NO_CHROME is the only way out of the default class: each
+// entry must cite the owner ruling that exempts it, an exempted page must carry no marker, and an
+// entry whose page is no longer built reds as stale. It is empty today.
+//
+// ponytail: raw artifact scan. It proves the SERVED markup — a chrome that renders only behind a
 // runtime condition this scan cannot evaluate would pass; nothing in this repo does that, and the
-// real rendered-DOM proof is the browser walk that accompanies every ticket here, never this gate.
-// ponytail: an ALLOWED_CHROME entry asserts PERMISSION AND PRESENCE — an entry whose chrome never
-// renders reds the render leg. An opted-in page whose marker count drops to zero is caught; what
-// this gate does not cover is a _rebuilt_ page that stops being built at all — that page vanishes
-// from the artifact walk and no leg sees it. Page presence is the smoke test's count against the
-// manifest, not this gate's.
+// rendered-DOM proof is the browser walk that accompanies every ticket here, never this gate.
+// ponytail: a manifest game whose page is not built at all is not this gate's red — page presence
+// against the manifest is the smoke test's count. This gate classes what IS built.
 //
-//   node scripts/page-chrome-check.mjs             -> scan dist/, exit non-zero if the chrome
-//                                                     renders on a page outside the opt-in set,
-//                                                     or an opt-in page stops rendering it
+//   node scripts/page-chrome-check.mjs             -> scan dist/, exit non-zero on any class breach
 //   node scripts/page-chrome-check.mjs --selftest  -> both-direction calibration on temp fixtures
 
 import fs from 'node:fs';
@@ -63,29 +56,22 @@ import { spawnSync } from 'node:child_process';
 // Reused, not re-implemented: csp-inline-check.mjs owns the calibrated HTML comment blanker and
 // guards its own entry point, so importing it never runs that gate. See markerHits below.
 import { stripHtmlComments } from './csp-inline-check.mjs';
+// The one owner of which game page is a play route and which a solo landing (precedent:
+// scripts/stage-reserve-probe.mjs). Executed, so the class set is the runtime value.
+import { games } from '../src/games/manifest.ts';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const scriptPath = fileURLToPath(import.meta.url);
 
-const MARKER = 'data-page-chrome'; // stamped by src/components/PageChrome.astro on bar and footer
+const MARKER = 'data-page-chrome'; // stamped by src/components/PageChrome.astro, value = landmark
+const TOPBAR = 'topbar';
+const FOOTER = 'footer';
 
-// The chrome opt-in set: each entry is a built page path relative to the scanned dist root, and each
-// entry cites the owner decision that admits it. The set is closed — growing it is a decision, not an
-// edit; a page carrying the marker without an entry here goes red (docs/adr/0019). Game pages
-// (dist/game/**) can never be admitted: chrome there is the tap hazard this gate and ADR-0014/0015
-// exist to prevent, so the game leg bans them below the allowlist entirely. Pinned by the selftest
-// (deepEqual), so an entry appearing or disappearing without updating the pin and this comment is
-// loud, never silent.
-// Deliberately an EXPLICIT list of built page paths, never derived from the category manifest:
-// permission is a per-page owner call, and an explicit list fails safe. A THIRD category page added
-// to the manifest renders the chrome from the shared layout, has no entry here, and goes red on the
-// opt-in leg — loudly, until the owner admits it and the pin below is updated. That red is the
-// designed behaviour, not a bug in the new page.
-const ALLOWED_CHROME = new Set([
-  'index.html', // the home page — #86 shipped the chrome as home-only, and the owner ruled 2026-08-26 to keep it that way while gh#105 widened the scan
-  'c/fortune/index.html', // the fortune category landing — owner ruled 2026-08-27 that category pages get the same top bar as other non-game pages, answering the open gh#74 question
-  'c/party/index.html', // the party category landing — same 2026-08-27 owner decision, per page: each category landing is admitted on its own entry
-]);
+// The exemption set: built page path (relative to the scanned root) -> the owner ruling that exempts
+// it from the every-other-page class. Empty today. An entry must cite an owner ruling by ticket or
+// ADR, its page must exist in the artifact (a stale entry reds), and that page must carry no marker.
+// Game pages cannot be listed here: their class belongs to the manifest.
+const NO_CHROME = new Map([]);
 
 // ponytail: PAGE_CHROME_DIST_OVERRIDE exists only so the selftest can spawn this script for real
 // against a directory it controls, to exercise main()'s actual exit paths. Blocked whenever CI is
@@ -106,39 +92,37 @@ if (process.env.PAGE_CHROME_DIST_OVERRIDE && process.env.CI) {
 }
 
 // ---------------------------------------------------------------------------
-// Pure: text -> marker hits. No file IO here, so the selftest can feed it strings directly.
-// Built HTML is minified, so hits report the (usually single) line number plus a capped snippet.
+// Pure: text -> marker hits, each with its VALUE ('' for a bare attribute). No file IO here, so the
+// selftest can feed it strings directly. Built HTML is minified, so hits report the (usually single)
+// line number plus a capped snippet.
 // ---------------------------------------------------------------------------
+const MARKER_RE = /(?<![\w-])data-page-chrome(?![\w-])(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
 function markerHits(text) {
-  // gh#105 follow-up: comments are blanked before ANY matching, through the one choke point every
-  // leg reads. This gate is unusual in needing it for BOTH directions. The negative legs are the
-  // familiar ADR-0019 rule 2 case — a comment that merely mentions the marker must not red the
-  // build. The render leg is the dangerous one and is positive-presence: without blanking, an
-  // allowlisted page whose only surviving marker sat in a comment reported "renders it (1 hit(s))"
-  // and exited 0 while carrying no chrome at all, so the leg that exists to catch a dropped top bar
-  // could not catch it. Reproduced against the built home page before this fix.
-  //
-  // stripHtmlComments is imported rather than re-implemented: it is the calibrated one, and it
-  // already handles the three abrupt-close forms a naive lazy match gets wrong (`<!-->`, `<!--->`,
-  // `--!>`), each of which would otherwise blank LIVE markup. Blanking preserves offsets, so the
-  // line numbers reported below stay true.
+  // Comments are blanked before ANY matching, through the one choke point every check reads. Both
+  // directions need it: a comment that mentions the marker must not red a page that has none, and —
+  // the dangerous one — a page whose only surviving marker sits in a comment must not count as
+  // rendering the chrome (a false green reproduced against the built home page in gh#105).
+  // stripHtmlComments is the calibrated blanker: it handles the abrupt-close forms (`<!-->`,
+  // `<!--->`, `--!>`) a naive lazy match gets wrong, and preserves offsets so line numbers stay true.
   const scanned = stripHtmlComments(text);
   const hits = [];
   scanned.split('\n').forEach((line, i) => {
-    if (line.includes(MARKER)) {
-      hits.push({ line: i + 1, snippet: line.trim().slice(0, 160) });
+    for (const m of line.matchAll(MARKER_RE)) {
+      hits.push({ line: i + 1, value: m[1] ?? m[2] ?? m[3] ?? '', snippet: line.trim().slice(0, 160) });
     }
   });
   return hits;
 }
 
-// Pure-ish: root -> absolute paths of every built .html page, RECURSIVE. gh#105: the pre-widening
-// helper read dist/game/*/index.html one directory level deep, so a marker on dist/game/x/y/
-// index.html exited 0 (false green), and it never enumerated tool/, tools/, c/, games/, or
-// 404.html at all (the other false green). The recursion is the point. Dot-entries are skipped; a
-// missing root yields [] — main() fails closed on the empty set, so a vanished dist/ can never
-// read as clean. A game directory whose index.html is missing is not a built page and is skipped:
-// the built-vs-manifest count is the smoke test's job, not this gate's.
+// Pure: text -> number of <footer> start tags outside comments. Astro emits template comments into
+// the built page, so a comment mentioning the tag must not count.
+function footerTagCount(text) {
+  return (stripHtmlComments(text).match(/<footer(?=[\s>/])/gi) || []).length;
+}
+
+// Pure-ish: root -> relative paths of every built .html page, RECURSIVE (gh#105: the recursion is
+// the point). Dot-entries are skipped; a missing root yields [] — evaluate() fails closed on the
+// empty set, so a vanished dist/ can never read as clean.
 function listHtmlPages(root) {
   const out = [];
   if (!fs.existsSync(root)) return out;
@@ -147,20 +131,92 @@ function listHtmlPages(root) {
       if (entry.name.startsWith('.')) continue;
       const abs = path.join(dir, entry.name);
       if (entry.isDirectory()) walk(abs);
-      else if (entry.isFile() && entry.name.endsWith('.html')) out.push(abs);
+      else if (entry.isFile() && entry.name.endsWith('.html')) out.push(path.relative(root, abs).split(path.sep).join('/'));
     }
   };
   walk(root);
   return out.sort();
 }
 
+// Pure: manifest -> Map of built game page path -> 'play' | 'solo'. The play page path is derived
+// from the playRoute VALUE, never assumed to be <id>/play/.
+function gamePageClasses(gameList) {
+  const out = new Map();
+  for (const g of gameList) {
+    if (g.playRoute) out.set(`${g.playRoute.replace(/^\/+|\/+$/g, '')}/index.html`, 'play');
+    else out.set(`game/${g.id}/index.html`, 'solo');
+  }
+  return out;
+}
+
+const CITES_OWNER_RULING = (s) => typeof s === 'string' && /owner/i.test(s) && /gh#\d+|ADR-\d{4}/.test(s);
+
+// Pure: (pages, reader, manifest, exemptions) -> { failures, counts }. Every failure starts with a
+// bracketed reason code, so the selftest can prove each fixture reds for its OWN reason and no other.
+function evaluate({ pages, read, gameList, noChrome }) {
+  const failures = [];
+  const fail = (code, msg) => failures.push(`[${code}] ${msg}`);
+  const counts = { play: 0, solo: 0, chrome: 0, exempt: 0 };
+  const knownIds = new Set(gameList.map((g) => g.id));
+  const classes = gamePageClasses(gameList);
+  const pageSet = new Set(pages);
+
+  if (pages.length === 0) {
+    fail('empty-walk', 'the walk matched zero built .html pages — the target set must never be empty (docs/adr/0019).');
+  }
+
+  for (const [rel, ruling] of noChrome) {
+    if (!CITES_OWNER_RULING(ruling)) fail('uncited-exemption', `NO_CHROME entry ${rel} must cite the owner ruling that exempts it (an owner ruling by gh#N or ADR-NNNN) — got: ${JSON.stringify(ruling)}`);
+    if (rel.startsWith('game/')) fail('game-page-exemption', `NO_CHROME entry ${rel} is a game page — its class belongs to the manifest, never to this set.`);
+    if (!pageSet.has(rel)) fail('stale-exemption', `NO_CHROME entry ${rel} is not a built page any more — remove the stale entry.`);
+  }
+
+  for (const rel of pages) {
+    const text = read(rel);
+    const hits = markerHits(text);
+    for (const h of hits.filter((x) => x.value !== TOPBAR && x.value !== FOOTER)) {
+      fail('unknown-marker-value', `${rel}:${h.line} · ${MARKER} carries ${h.value === '' ? 'no value' : `value ${JSON.stringify(h.value)}`} — only "${TOPBAR}" and "${FOOTER}" exist · ${h.snippet}`);
+    }
+    const nTop = hits.filter((x) => x.value === TOPBAR).length;
+    const nFoot = hits.filter((x) => x.value === FOOTER).length;
+    const nFooterTags = footerTagCount(text);
+
+    let cls = classes.get(rel);
+    if (!cls && rel.startsWith('game/')) {
+      const id = rel.split('/')[1];
+      if (!knownIds.has(id)) fail('unmapped-game-id', `${rel} · game id ${JSON.stringify(id)} is not in src/games/manifest.ts — a built game page the manifest does not own cannot be classed.`);
+      else fail('unexpected-game-page', `${rel} · not a page the manifest derives for ${id} (its play route, or its landing when it has no play route).`);
+      continue;
+    }
+    if (!cls) cls = noChrome.has(rel) ? 'exempt' : 'chrome';
+    counts[cls] += 1;
+
+    if (cls === 'play' || cls === 'exempt') {
+      for (const h of hits) fail(cls === 'play' ? 'play-route-marker' : 'exempt-page-marker', `${rel}:${h.line} · ${MARKER}="${h.value}" · ${cls === 'play' ? 'a play route renders no page chrome' : 'a NO_CHROME page renders no page chrome'} · ${h.snippet}`);
+      if (cls === 'play' && nFooterTags !== 0) fail('play-route-footer', `${rel} · ships ${nFooterTags} <footer> tag(s), expected 0 — a play route passes Base's \`chrome\` prop with no PageChrome, so a footer here means that prop was dropped (Base's plain footer and its link are back).`);
+    } else if (cls === 'solo') {
+      if (nTop !== 0) fail('solo-topbar', `${rel} · carries the top-bar marker ${nTop} time(s) — a solo landing renders the footer only.`);
+      if (nFoot !== 1) fail('missing-footer', `${rel} · carries the footer marker ${nFoot} time(s), expected 1.`);
+      if (nFooterTags !== 1) fail('footer-tags', `${rel} · ships ${nFooterTags} <footer> tag(s), expected exactly 1 — a forgotten \`chrome\` prop on Base ships its plain footer as well.`);
+    } else {
+      if (nTop !== 1) fail('missing-topbar', `${rel} · carries the top-bar marker ${nTop} time(s), expected 1.`);
+      if (nFoot !== 1) fail('missing-footer', `${rel} · carries the footer marker ${nFoot} time(s), expected 1.`);
+      if (nFooterTags !== 1) fail('footer-tags', `${rel} · ships ${nFooterTags} <footer> tag(s), expected exactly 1 — a forgotten \`chrome\` prop on Base ships its plain footer as well.`);
+    }
+  }
+
+  if (pages.length > 0) {
+    for (const [cls, label] of [['play', 'play route'], ['solo', 'solo landing'], ['chrome', 'every-other-page']]) {
+      if (counts[cls] === 0) fail('empty-class', `the ${label} class matched zero built pages — a class that matches nothing checks nothing (docs/adr/0019).`);
+    }
+  }
+  return { failures, counts };
+}
+
 // ---------------------------------------------------------------------------
 // Self-test: temp fixtures under os.tmpdir(), never repo content. Spawns the real script (no
-// --selftest) against fixture trees so main()'s exit paths are exercised for real, the same
-// idiom no-nav-in-stage-check.mjs uses — reverting a pure-function assertion out of main() still
-// shows up here. Calibrated PER MEMBER, not once: each page kind a marker can land on has its own
-// red fixture (docs/agents/ci-verification.md — the sitemap gate that passed both ways on one tool
-// page while covering 1 of 4).
+// --selftest) against fixture trees so main()'s exit paths are exercised for real; the clean tree is
+// driven off the imported manifest, so a new game cannot leave the fixtures behind.
 // ---------------------------------------------------------------------------
 function write(root, relPath, content) {
   const abs = path.join(root, relPath);
@@ -168,24 +224,20 @@ function write(root, relPath, content) {
   fs.writeFileSync(abs, content, 'utf8');
 }
 
-// The planted chrome fixture every red case below uses: the REAL top-bar shape plus the marker,
-// so a look-alike detector could never be satisfied by it. Marker lands on line 2.
-const PLANTED_CHROME = [
-  '<!doctype html>',
-  '<header class="chrome-bar" data-page-chrome>',
-  '  <a href="/games/">เกมทั้งหมด</a>',
-  '</header>',
-].join('\n');
+const TOPBAR_HTML = '<header class="chrome-bar chrome-topbar" data-page-chrome="topbar"><a href="/">x</a></header>';
+const FOOTER_HTML = '<footer class="chrome-bar chrome-footer" data-page-chrome="footer"><span>x</span></footer>';
+const CHROME_PAGE = `<!doctype html><body>${TOPBAR_HTML}\n<main>x</main>\n${FOOTER_HTML}</body>`;
+const SOLO_PAGE = `<!doctype html><body><main><header class="game-topbar"><a href="/c/fortune/" data-stable-exit>x</a></header></main>\n${FOOTER_HTML}</body>`;
+const PLAY_PAGE = '<!doctype html><body><main>app</main></body>';
+const OTHER_PAGES = ['index.html', 'c/fortune/index.html', 'c/party/index.html', 'tools/index.html', 'tool/wheel/index.html', 'tool/draw/index.html', '404.html'];
+const PLAY_GAMES = games.filter((g) => g.playRoute);
+const SOLO_GAMES = games.filter((g) => !g.playRoute);
+const playRel = (g) => `${g.playRoute.replace(/^\/+|\/+$/g, '')}/index.html`;
 
-// Every red fixture tree needs the other legs clean, or the planted member is not what went red:
-// EVERY opt-in page marked (the render leg counts across the whole set, so one unmarked opt-in page
-// would red every fixture below for the wrong reason) and, where the planted member is not itself a
-// game page, one clean game page (satisfies the game leg). Driven off ALLOWED_CHROME itself so a
-// future entry cannot leave the fixtures behind.
-const MARKED_PAGE = '<header data-page-chrome>bar</header>';
-function baseTree(root, withGame = true) {
-  for (const rel of ALLOWED_CHROME) write(root, rel, MARKED_PAGE);
-  if (withGame) write(root, 'game/a/index.html', '<!doctype html><title>a</title>');
+function cleanTree(root, { withPlay = true } = {}) {
+  if (withPlay) for (const g of PLAY_GAMES) write(root, playRel(g), PLAY_PAGE);
+  for (const g of SOLO_GAMES) write(root, `game/${g.id}/index.html`, SOLO_PAGE);
+  for (const rel of OTHER_PAGES) write(root, rel, CHROME_PAGE);
 }
 
 function spawnAgainst(fixtureDir, env = {}) {
@@ -195,180 +247,117 @@ function spawnAgainst(fixtureDir, env = {}) {
   });
 }
 
+const codesOf = (stderr) => new Set([...stderr.matchAll(/^\[([a-z-]+)\]/gm)].map((m) => m[1]));
+
 function selftest() {
-  // Detector, firing direction: the marker must be found wherever it lands, and the line number
-  // must come from the match. Without this the legs below are guards that cannot fail.
-  const dirtyLines = [
-    '<!doctype html>',
-    '<header class="chrome-bar" data-page-chrome>',
-    '  <a href="/c/fortune/">ดูดวง</a>',
-    '<footer class="chrome-bar" data-page-chrome>',
-  ].join('\n');
-  const dirty = markerHits(dirtyLines);
-  assert.deepEqual(
-    dirty.map((h) => h.line),
-    [2, 4],
-    'both marker-bearing lines must be found, at their line numbers',
-  );
-  console.log('PASS marker detector, firing direction: top-bar and footer markers found, one hit per line');
+  assert.ok(PLAY_GAMES.length > 0 && SOLO_GAMES.length > 0, 'the manifest must yield both a play-route game and a solo landing, or the fixtures below calibrate nothing');
 
-  // Detector, other direction: the shapes the built artifact really ships around the marker must
-  // not read as one — including a plain mention in text and the substring inside prose.
-  const cleanLines = [
-    '<!doctype html>',
-    '<header class="game-topbar"><a href="/games/" data-stable-exit-ish-no">x</a></header>',
-    'no page chrome here',
-  ].join('\n');
-  assert.deepEqual(markerHits(cleanLines), [], 'fixtures without the exact marker must report zero hits');
-  console.log('PASS marker detector, other direction: unrelated attributes and prose stay clean');
+  // Detector: value read, bare attribute and unknown value surfaced, comments blanked.
+  assert.deepEqual(
+    markerHits(`<!doctype html>\n${TOPBAR_HTML}\n${FOOTER_HTML}\n<div data-page-chrome></div><i data-page-chrome='x'></i>`).map((h) => [h.line, h.value]),
+    [[2, TOPBAR], [3, FOOTER], [4, ''], [4, 'x']],
+    'each marker must be found at its line with its value — bare reads as "", unquoted values read too',
+  );
+  assert.deepEqual(markerHits('<a data-page-chrome-ish="topbar" x-data-page-chrome="footer">no page chrome here</a>'), [], 'look-alike attributes and prose must not read as the marker');
+  assert.deepEqual(markerHits('<body><!-- data-page-chrome="topbar" --></body>'), [], 'a marker inside an HTML comment must NOT count as rendered chrome');
+  assert.deepEqual(markerHits('<body><!--><header data-page-chrome="topbar">live</header></body>').map((h) => h.value), [TOPBAR], 'a marker after an abrupt-close empty comment is LIVE markup');
+  assert.equal(footerTagCount('<footer a><!-- <footer> --><footer>\n<footers><FOOTER/>'), 3, 'footer tags count outside comments only, never a longer tag name');
+  console.log('PASS detector: values read per landmark, bare and unknown values surfaced, look-alikes and commented markers ignored, <footer> counted outside comments');
 
-  // gh#105 follow-up, the false green a REFUTE pass demonstrated against the real built home page:
-  // a commented-out marker counted as a hit, so the render leg reported "renders it (1 hit(s))" and
-  // exited 0 on a page carrying no chrome at all. Both directions are pinned here because this gate
-  // reads markerHits for negative AND positive legs, and only the positive one fails OPEN.
-  const commentedOnly = [
-    '<!doctype html>',
-    '<body><!-- data-page-chrome --></body>',
-  ].join('\n');
-  assert.deepEqual(
-    markerHits(commentedOnly),
-    [],
-    'a marker that survives only inside an HTML comment must NOT count as rendered chrome',
-  );
-  const commentedPlusReal = [
-    '<!doctype html>',
-    '<body><!-- data-page-chrome -->',
-    '<header data-page-chrome>real</header></body>',
-  ].join('\n');
-  assert.deepEqual(
-    markerHits(commentedPlusReal).map((h) => h.line),
-    [3],
-    'the real marker must still be found, at its true line number, with the commented one ignored',
-  );
-  // The abrupt-close forms are the ones a naive lazy match gets wrong, and getting them wrong blanks
-  // LIVE markup — the direction that hides a hazard. `<!-->` is a COMPLETE empty comment, so the
-  // marker after it is live and must be found.
-  assert.deepEqual(
-    markerHits('<body><!--><header data-page-chrome>live</header></body>').map((h) => h.line),
-    [1],
-    'a marker after an abrupt-close empty comment is LIVE markup and must still be found',
-  );
-  console.log('PASS marker detector, comment blanking: commented markers ignored, live markers after abrupt closes still found');
+  // Exemption rules, through the pure evaluator — NO_CHROME is empty in production, and a fixture
+  // channel for it on the production path would be a backdoor, so these call evaluate() directly.
+  {
+    const pages = ['index.html', 'tools/index.html', ...PLAY_GAMES.map(playRel), ...SOLO_GAMES.map((g) => `game/${g.id}/index.html`)];
+    const content = new Map([
+      ['index.html', CHROME_PAGE],
+      ['tools/index.html', PLAY_PAGE], // bare: the page the exemptions below point at
+      ...PLAY_GAMES.map((g) => [playRel(g), PLAY_PAGE]),
+      ...SOLO_GAMES.map((g) => [`game/${g.id}/index.html`, SOLO_PAGE]),
+    ]);
+    const read = (rel) => content.get(rel);
+    const cited = evaluate({ pages, read, gameList: games, noChrome: new Map([['tools/index.html', 'owner ruling 2026-10-05 on gh#255']]) });
+    assert.deepEqual(cited.failures, [], `a cited exemption on a bare page must pass — got ${cited.failures}`);
+    assert.equal(cited.counts.exempt, 1, 'the exempted page must be counted as exempt');
+    const cases = [
+      ['stale entry', new Map([['tools/index.html', 'owner ruling on gh#255'], ['gone/index.html', 'owner ruling on gh#255']]), 'stale-exemption', read],
+      ['uncited entry', new Map([['tools/index.html', 'looked fine']]), 'uncited-exemption', read],
+      ['game page listed', new Map([['tools/index.html', 'owner ruling on gh#255'], [`game/${SOLO_GAMES[0].id}/index.html`, 'owner ruling on gh#255']]), 'game-page-exemption', read],
+      ['exempt page carrying chrome', new Map([['tools/index.html', 'owner ruling on gh#255']]), 'exempt-page-marker', (rel) => (rel === 'tools/index.html' ? CHROME_PAGE : read(rel))],
+    ];
+    for (const [label, noChrome, code, reader] of cases) {
+      const r = evaluate({ pages, read: reader, gameList: games, noChrome });
+      const got = new Set(r.failures.map((f) => f.match(/^\[([a-z-]+)\]/)[1]));
+      assert.ok(got.has(code), `${label}: must red with [${code}] — got ${[...got]}`);
+      assert.deepEqual([...got], [code], `${label}: must red for its own reason only — got ${[...got]}`);
+      console.log(`PASS NO_CHROME red (${label}): [${[...got].join(', ')}] — ${r.failures.find((f) => f.startsWith(`[${code}]`))}`);
+    }
+  }
 
-  // Allowlist pin: the opt-in set is exactly what the owner has decided through gh#105. An entry
-  // appears without its decision cited (or a decision lands without the entry) and this selftest
-  // goes red — a set change is loud, never silent (docs/adr/0019).
-  assert.deepEqual(
-    [...ALLOWED_CHROME],
-    ['index.html', 'c/fortune/index.html', 'c/party/index.html'],
-    'ALLOWED_CHROME changed without this pin being updated — every entry must cite the owner decision that admits it; update the header comment, the pin, and the red fixtures together',
-  );
-  console.log('PASS allowlist pin: the opt-in set is exactly [index.html, c/fortune/index.html, c/party/index.html] (#86 home-only, plus the 2026-08-27 owner decision admitting the two category landings)');
-
-  // Green direction, EVERY member clean: two flat game pages, one NESTED game page (the recursion
-  // must not invent reds the old one-level helper never saw), the tools hub, a tool page, the
-  // games hub, 404 — the two category landings come from baseTree, marked, since they are opt-in now — plus a marked home page. Spawns the real script; the
-  // success line must name the real counts, not hardcoded sizees (gh#46).
+  // Green direction: the manifest-driven clean tree — every play route bare, every solo landing
+  // footer-only, the hub, tool, category, home and 404 pages with both landmarks.
   const good = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-good-'));
   try {
-    baseTree(good);
-    write(good, 'game/b/index.html', '<!doctype html><title>b</title>');
-    write(good, 'game/x/y/index.html', '<!doctype html><title>nested</title>');
-    write(good, 'tools/index.html', '<!doctype html><title>tools</title>');
-    write(good, 'tool/wheel/index.html', '<!doctype html><title>wheel</title>');
-    write(good, 'games/index.html', '<!doctype html><title>games</title>');
-    write(good, '404.html', '<!doctype html><title>404</title>');
+    cleanTree(good);
     const run = spawnAgainst(good);
     assert.equal(run.status, 0, `clean fixture must exit 0 — stderr: ${run.stderr}`);
-    assert.match(
-      run.stdout,
-      /3 game page\(s\) and 4 other page\(s\) outside the opt-in set clean of data-page-chrome in .+; opt-in set \[index\.html, c\/fortune\/index\.html, c\/party\/index\.html\] renders it \(3 hit\(s\)\)/,
-      'the success line must name the measured counts of both negative legs and the render leg',
-    );
-    console.log(`PASS negative legs + render leg, green direction: spawned against ${good} — flat and nested game pages, tools hub, tool, games hub and 404 all clean; home and both category landings render the chrome`);
+    const expect = `play route (no chrome) ${PLAY_GAMES.length} · solo landing (footer only) ${SOLO_GAMES.length} · every other page (top bar + footer) ${OTHER_PAGES.length} · NO_CHROME exempt 0`;
+    assert.ok(run.stdout.includes(expect), `the success line must carry the measured per-class counts (${expect}) — got: ${run.stdout}`);
+    assert.ok(run.stdout.includes(good), 'the success line must name the resolved fixture directory, never a hardcoded dist/');
+    console.log(`PASS green direction: ${run.stdout.trim()}`);
   } finally {
     fs.rmSync(good, { recursive: true, force: true });
   }
 
-  // Red direction, PER MEMBER: the planted chrome on exactly one page, everything else clean, so
-  // the error that follows cannot be any other leg's. The three classes the widened gate must own:
-  // a flat game page, a NESTED game page (gh#105 false green 2), and the non-game pages the old
-  // scan never enumerated — the tools hub, a tool page, a category page, and 404 (gh#105 false
-  // green 1, all three of its named landing sites plus one level deeper). The category shape stays
-  // covered after the 2026-08-27 opt-in: the planted page is a category landing with no entry, which
-  // is exactly what a newly added third category looks like before the owner admits it. The message must name
-  // the file, the line, and which leg fired.
-  const GAME_PHRASE = 'game pages must never render it';
-  const OPTIN_PHRASE = 'not in the chrome opt-in set';
-  for (const [label, member, phrase] of [
-    ['a flat game page', 'game/a/index.html', GAME_PHRASE],
-    ['a NESTED game page — gh#105 false green 2', 'game/x/y/index.html', GAME_PHRASE],
-    ['the /tools/ hub — gh#105 false green 1', 'tools/index.html', OPTIN_PHRASE],
-    ['a tool page', 'tool/wheel/index.html', OPTIN_PHRASE],
-    ['a category page with no opt-in entry — the fail-safe a third category hits', 'c/newcat/index.html', OPTIN_PHRASE],
-    ['the 404 page', '404.html', OPTIN_PHRASE],
-  ]) {
+  // Red direction, one breach per tree, everything else clean — each must red with EXACTLY its own
+  // reason codes, so a fixture can never pass on another check's red.
+  const solo0 = `game/${SOLO_GAMES[0].id}/index.html`;
+  const play0 = playRel(PLAY_GAMES[0]);
+  const redCases = [
+    ['play route carrying the top bar', (r) => write(r, play0, `<!doctype html>${TOPBAR_HTML}<main>app</main>`), ['play-route-marker']],
+    // PageChrome's real footer is both a marker AND a <footer> tag, so it reds on both; the marker
+    // reason alone is isolated by the top-bar case above, the tag reason alone by the plain-footer case.
+    ['play route carrying the footer', (r) => write(r, play0, `<!doctype html><main>app</main>${FOOTER_HTML}`), ['play-route-marker', 'play-route-footer']],
+    ['solo landing carrying the top bar', (r) => write(r, solo0, `<!doctype html>${TOPBAR_HTML}${SOLO_PAGE}`), ['solo-topbar']],
+    ['play route shipping a plain footer (Base without `chrome`)', (r) => write(r, play0, `${PLAY_PAGE}<footer><a href="/">x</a></footer>`), ['play-route-footer']],
+    ['solo landing with no footer marker', (r) => write(r, solo0, SOLO_PAGE.replace(' data-page-chrome="footer"', '')), ['missing-footer']],
+    ['solo landing shipping two footers', (r) => write(r, solo0, `${SOLO_PAGE}<footer><a href="/">x</a></footer>`), ['footer-tags']],
+    ['tools hub bare', (r) => write(r, 'tools/index.html', PLAY_PAGE), ['missing-topbar', 'missing-footer', 'footer-tags']],
+    ['tool page with two <footer> tags', (r) => write(r, 'tool/wheel/index.html', `${CHROME_PAGE}<footer><a href="/">x</a></footer>`), ['footer-tags']],
+    ['404 carrying the pre-gh#255 bare marker', (r) => write(r, '404.html', CHROME_PAGE.replace('<main>', '<main data-page-chrome>')), ['unknown-marker-value']],
+    ['unmapped game id', (r) => write(r, 'game/nope/index.html', SOLO_PAGE), ['unmapped-game-id']],
+    ['nested page under a known game', (r) => write(r, `game/${SOLO_GAMES[0].id}/extra/index.html`, PLAY_PAGE), ['unexpected-game-page']],
+    ['tree with no play route', null, ['empty-class']],
+  ];
+  for (const [label, breach, codes] of redCases) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-bad-'));
     try {
-      baseTree(dir, !member.startsWith('game/'));
-      write(dir, member, PLANTED_CHROME);
+      cleanTree(dir, { withPlay: breach !== null });
+      if (breach) breach(dir);
       const run = spawnAgainst(dir);
-      assert.notEqual(run.status, 0, `${label}: a marker on ${member} must exit non-zero`);
-      assert.ok(run.stderr.includes(`${member}:2 · ${MARKER}`), `${label}: the failure must name the file, the line and the marker — got: ${JSON.stringify(run.stderr.split('\n')[0])}`);
-      assert.ok(run.stderr.includes(phrase), `${label}: the failure must name the leg that fired (${phrase})`);
-      console.log(`PASS game/opt-in leg, red direction (${label}): planted chrome on ${member} flagged at line 2 with the ${phrase} message`);
+      assert.notEqual(run.status, 0, `${label}: must exit non-zero`);
+      assert.deepEqual([...codesOf(run.stderr)].sort(), [...codes].sort(), `${label}: must red for exactly [${codes}] — stderr: ${run.stderr}`);
+      console.log(`PASS red (${label}): ${run.stderr.split('\n')[0]}`);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   }
 
-  // Render leg, RED directions: the opt-in set is what keeps a marker rename loud. Three shapes —
-  // the entry missing entirely, the entry built but unmarked, and (covered below in the empty-set
-  // cases) the tree with no non-game pages at all. All three must fail, never read as clean.
-  for (const [label, makeTree] of [
-    // The other opt-in entries stay present AND marked in both trees, so the failure named below can
-    // only be about index.html — with them absent, 'c/fortune/index.html not found' would satisfy a
-    // loose match and the leg would stop pinning the shape it is named for.
-    ['opt-in page missing', (root) => { baseTree(root); fs.rmSync(path.join(root, 'index.html')); write(root, '404.html', '<!doctype html><title>404</title>'); }],
-    ['opt-in page present but unmarked', (root) => { baseTree(root); write(root, 'index.html', '<title>x</title>'); write(root, '404.html', '<!doctype html><title>404</title>'); }],
-  ]) {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-render-'));
-    try {
-      makeTree(dir);
-      const run = spawnAgainst(dir);
-      assert.notEqual(run.status, 0, `${label}: the render leg must exit non-zero, or a marker rename goes green on nothing`);
-      assert.match(run.stderr, /check: index\.html (not found under|carries data-page-chrome 0 times)/, `${label}: the failure message must name the opt-in entry`);
-      console.log(`PASS render leg, red direction: ${label} exits non-zero and names index.html`);
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true });
-    }
+  // Empty walk: a green zero would claim coverage of a set that was never scanned.
+  const emptyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-empty-'));
+  try {
+    write(emptyDir, 'stray.txt', 'not a built page');
+    const run = spawnAgainst(emptyDir);
+    assert.notEqual(run.status, 0, 'an empty walk must exit non-zero');
+    assert.deepEqual([...codesOf(run.stderr)], ['empty-walk'], `an empty walk must red for that reason only — stderr: ${run.stderr}`);
+    console.log(`PASS red (empty walk): ${run.stderr.split('\n')[0]}`);
+  } finally {
+    fs.rmSync(emptyDir, { recursive: true, force: true });
   }
 
-  // Empty-set guards, all three legs: a green zero would claim coverage of a set that was never
-  // scanned (docs/adr/0019 rule 1).
-  const emptyCases = [
-    ['the artifact walk enumerates nothing', (root) => write(root, 'stray.txt', 'not a built page'), /the walk matched zero built \.html pages under/],
-    ['no built game pages', (root) => { baseTree(root, false); fs.mkdirSync(path.join(root, 'game')); fs.writeFileSync(path.join(root, 'game', 'stray.txt'), 'not a built page'); }, /zero built pages under dist\/game\/\*\* matched/],
-    ['no non-game pages at all', (root) => write(root, 'game/a/index.html', '<!doctype html><title>a</title>'), /zero non-game pages matched under/],
-  ];
-  for (const [label, makeTree, re] of emptyCases) {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-empty-'));
-    try {
-      makeTree(dir);
-      const run = spawnAgainst(dir);
-      assert.notEqual(run.status, 0, `${label}: must exit non-zero, never pass by scanning nothing`);
-      assert.match(run.stderr, re, `${label}: the failure message must say which set was empty`);
-      console.log(`PASS empty-set guard (${label}): exits non-zero and says which set was empty`);
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true });
-    }
-  }
-
-  // CI guard: PAGE_CHROME_DIST_OVERRIDE must never narrow the scanned set in CI (coverage it has
-  // not earned). Spawns the real script with CI=1 and the override set; it must refuse first.
+  // CI guard: PAGE_CHROME_DIST_OVERRIDE must never narrow the scanned set in CI.
   const ciDir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-ci-guard-'));
   try {
-    baseTree(ciDir);
+    cleanTree(ciDir);
     const run = spawnAgainst(ciDir, { CI: '1' });
     assert.notEqual(run.status, 0, 'PAGE_CHROME_DIST_OVERRIDE + CI must exit non-zero, never scan a narrowed set');
     assert.match(run.stderr, /PAGE_CHROME_DIST_OVERRIDE must never narrow the scanned set in CI/, 'the failure message must name the CI hazard');
@@ -376,93 +365,27 @@ function selftest() {
   } finally {
     fs.rmSync(ciDir, { recursive: true, force: true });
   }
-
-  // Override note: a narrowed run's success line names the resolved fixture directory rather than
-  // the hardcoded dist/ — a reader of a green line can tell what was actually scanned (the same
-  // note no-nav-in-stage-check.mjs prints for GAMES_DIR_OVERRIDE).
-  const noteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-note-'));
-  try {
-    baseTree(noteDir);
-    const run = spawnAgainst(noteDir);
-    assert.equal(run.status, 0, 'a clean fixture under the override must still pass');
-    assert.ok(run.stdout.includes(noteDir), 'the success line must name the resolved fixture directory');
-    console.log(`PASS override note: success line names the resolved fixture directory (${noteDir})`);
-  } finally {
-    fs.rmSync(noteDir, { recursive: true, force: true });
-  }
 }
 
 // ---------------------------------------------------------------------------
-async function main() {
+function main() {
   if (process.argv.includes('--selftest')) return selftest();
 
-  const allPages = listHtmlPages(distRoot);
-  const relOf = (abs) => path.relative(distRoot, abs);
-  const underGame = (abs) => relOf(abs).startsWith(`game${path.sep}`);
-
-  let anyFail = false;
-  const fail = (msg) => {
-    console.error(msg);
-    anyFail = true;
-  };
-  const readHits = (abs) => markerHits(fs.readFileSync(abs, 'utf8'));
-
-  if (allPages.length === 0) {
-    fail(`page-chrome-check: the walk matched zero built .html pages under ${distRoot} — the target set must never be empty (docs/adr/0019).`);
-  }
-  const gamePages = allPages.filter(underGame);
-  const otherPages = allPages.filter((a) => !underGame(a));
-  if (allPages.length > 0 && gamePages.length === 0) {
-    fail(`page-chrome-check: zero built pages under dist/game/** matched under ${distRoot} — the target set must never be empty (docs/adr/0019).`);
-  }
-  if (allPages.length > 0 && otherPages.length === 0) {
-    fail(`page-chrome-check: zero non-game pages matched under ${distRoot} — the opt-in leg would report green on nothing, so the set must never be empty (docs/adr/0019).`);
-  }
-
-  // Game leg: no built game page may carry the marker — unconditional and below the allowlist.
-  // Paths print relative to the scanned root, so a narrowed PAGE_CHROME_DIST_OVERRIDE run names
-  // its fixture files, never a made-up dist/ path.
-  for (const abs of gamePages) {
-    for (const hit of readHits(abs)) {
-      fail(`${relOf(abs)}:${hit.line} · ${MARKER} · game pages must never render it · ${hit.snippet}`);
-    }
-  }
-
-  // Opt-in leg: a non-game page may carry the marker only with an entry in ALLOWED_CHROME. Game
-  // pages never reach this branch — the game leg owns that message outright.
-  const otherPagesOutsideOptIn = otherPages.filter((a) => !ALLOWED_CHROME.has(relOf(a)));
-  for (const abs of otherPagesOutsideOptIn) {
-    for (const hit of readHits(abs)) {
-      fail(`${relOf(abs)}:${hit.line} · ${MARKER} · not in the chrome opt-in set · ${hit.snippet}`);
-    }
-  }
-
-  // Render leg: every allowlisted page MUST carry the marker — the positive control (see the
-  // header). Counts across the whole set, not just the first entry (docs/adr/0019).
-  let optInHits = 0;
-  for (const rel of [...ALLOWED_CHROME].sort()) {
-    const abs = path.join(distRoot, rel);
-    if (!fs.existsSync(abs)) {
-      fail(`page-chrome-check: ${rel} not found under ${distRoot} — every page in the chrome opt-in set must exist and render the chrome; without it the two negative legs are detectors that returned nothing, and that is not the same as nothing existing (docs/adr/0019).`);
-      continue;
-    }
-    const hits = readHits(abs).length;
-    if (hits === 0) {
-      fail(`page-chrome-check: ${rel} carries ${MARKER} 0 times — every page in the chrome opt-in set must render it; without it the two negative legs are detectors that returned nothing, and that is not the same as nothing existing (docs/adr/0019).`);
-    }
-    optInHits += hits;
-  }
-
-  if (anyFail) {
-    console.error('\n#86: the page chrome is opt-in. #105: this gate walks every built .html page, recursively — the chrome renders on every page in the opt-in set and on NO other page, game or not. A game page carrying the top bar puts tap targets above #stage (docs/adr/0014-no-navigation-target-inside-the-stage.md).');
+  const pages = listHtmlPages(distRoot);
+  const { failures, counts } = evaluate({
+    pages,
+    read: (rel) => fs.readFileSync(path.join(distRoot, rel), 'utf8'),
+    gameList: games,
+    noChrome: NO_CHROME,
+  });
+  if (failures.length > 0) {
+    for (const f of failures) console.error(f);
+    console.error(`\npage-chrome-check: ${failures.length} breach(es) in ${distRoot}. gh#247/gh#255: canvas D's top bar and footer render on every page; solo landings carry the footer only; play routes carry neither (ADR-0014).`);
     process.exit(1);
   }
   console.log(
-    // gh#46: every printed number comes from the set that was actually walked. otherPages.length -
-    // ALLOWED_CHROME.size was equivalent only while every entry was a real non-game page; it would
-    // undercount the moment an entry did not exist in the artifact or did not land in otherPages.
-    `page-chrome-check: ${gamePages.length} game page(s) and ${otherPagesOutsideOptIn.length} other page(s) outside the opt-in set clean of ${MARKER} in ${distRoot}; opt-in set [${[...ALLOWED_CHROME].join(', ')}] renders it (${optInHits} hit(s))${process.env.PAGE_CHROME_DIST_OVERRIDE ? ' (PAGE_CHROME_DIST_OVERRIDE active)' : ''}`
+    `page-chrome-check: ${pages.length} page(s) in ${distRoot} — play route (no chrome) ${counts.play} · solo landing (footer only) ${counts.solo} · every other page (top bar + footer) ${counts.chrome} · NO_CHROME exempt ${counts.exempt}${process.env.PAGE_CHROME_DIST_OVERRIDE ? ' (PAGE_CHROME_DIST_OVERRIDE active)' : ''}`,
   );
 }
 
-await main();
+main();

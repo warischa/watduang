@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import ToolNameEntry from '../../components/ToolNameEntry.astro';
 import GameNav from '../../components/GameNav.astro';
+import PageChrome from '../../components/PageChrome.astro';
 // gh#94, owner ruling 2026-08-26: the trailing continue-into-a-game clause was DELETED from
 // the SEO description above rather than reworded, the same call made on the wheel's desc in
 // src/tools/manifest.ts (which quotes the removed clause for the record). Tools keep no
@@ -12,12 +13,14 @@ import GameNav from '../../components/GameNav.astro';
 <Base
   title="แบ่งทีม — วัดดวง"
   description="แบ่งทีมออนไลน์ ใส่ชื่อแล้วเลือกจำนวนทีม สุ่มแบ่งให้ทันทีแบบยุติธรรม เปลี่ยนจำนวนทีมแล้วแบ่งใหม่ได้เรื่อยๆ"
+  chrome
 >
+  <PageChrome>
   <main class="tool-page">
     <header class="tool-head">
       {/* tool chrome (390 artboard) — the back row plus the accent title band; desktop artboards add
-          the site-wide top bar above this, which stays home-only per the page-chrome opt-in, so the
-          tool chrome renders at every width */}
+          the site-wide top bar above this; that bar (PageChrome) now renders above this header at every
+          width (gh#255, owner ruling), and the tool chrome stays below it at every width too */}
       <div class="tool-chrome">
         <a href="/tools/" class="tool-back">
           <svg
@@ -97,6 +100,7 @@ import GameNav from '../../components/GameNav.astro';
       </section>
     </div>
   </main>
+  </PageChrome>
 </Base>
 
 <style>

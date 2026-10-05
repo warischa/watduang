@@ -1,12 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
 import GameNav from '../../components/GameNav.astro';
+import PageChrome from '../../components/PageChrome.astro';
 ---
 
 <Base
   title="สุ่มเลข — วัดดวง"
   description="สุ่มเลขในช่วงออนไลน์ ตั้งค่าต่ำสุด-สูงสุดแล้วกดสุ่ม เลือกได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้หรือไม่"
+  chrome
 >
+  <PageChrome>
   <main>
     <h1>สุ่มเลข</h1>
     <p>ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม — เลือกโหมดได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้ไหม</p>
@@ -56,6 +59,7 @@ import GameNav from '../../components/GameNav.astro';
       <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
     </section>
   </main>
+  </PageChrome>
 </Base>
 
 <style>

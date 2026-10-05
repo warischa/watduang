@@ -1,0 +1,737 @@
+{
+  "n": 20,
+  "pass": 20,
+  "consoleErrors": [],
+  "rows": [
+    {
+      "p": "/",
+      "w": 320,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 109
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 4088,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 0,
+        "y": 109,
+        "w": 320,
+        "h": 626
+      },
+      "shot": "home-320.png"
+    },
+    {
+      "p": "/tools/",
+      "w": 320,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 109
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 1232,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 0,
+        "y": 109,
+        "w": 320,
+        "h": 219
+      },
+      "shot": "tools-320.png"
+    },
+    {
+      "p": "/tool/wheel/",
+      "w": 320,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 109
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 2318,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 16,
+        "y": 146,
+        "w": 288,
+        "h": 41
+      },
+      "shot": "tool-wheel-320.png"
+    },
+    {
+      "p": "/tool/draw/",
+      "w": 320,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 1,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 109
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 2392,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 0,
+        "y": 109,
+        "w": 320,
+        "h": 277
+      },
+      "shot": "tool-draw-320.png"
+    },
+    {
+      "p": "/tool/team/",
+      "w": 320,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 1,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 109
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 2177,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 0,
+        "y": 109,
+        "w": 320,
+        "h": 277
+      },
+      "shot": "tool-team-320.png"
+    },
+    {
+      "p": "/tool/number/",
+      "w": 320,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 109
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 1325,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 16,
+        "y": 146,
+        "w": 288,
+        "h": 41
+      },
+      "shot": "tool-number-320.png"
+    },
+    {
+      "p": "/404.html",
+      "w": 320,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 109
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 256,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 0,
+        "y": 130,
+        "w": 320,
+        "h": 44
+      },
+      "shot": "404-320.png"
+    },
+    {
+      "p": "/game/siamsi/",
+      "w": 320,
+      "cls": "solo",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 0,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": null,
+      "footerIsLastLandmark": true,
+      "stableExit": 1,
+      "stableExitInGameTopbar": true,
+      "gameTopbarFirstInMain": true,
+      "toolBack": 0,
+      "topbarRect": null,
+      "footerRect": {
+        "x": 0,
+        "y": 1623,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 86
+      },
+      "shot": "game-siamsi-320.png"
+    },
+    {
+      "p": "/game/daily-fortune/",
+      "w": 320,
+      "cls": "solo",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 0,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": null,
+      "footerIsLastLandmark": true,
+      "stableExit": 1,
+      "stableExitInGameTopbar": true,
+      "gameTopbarFirstInMain": true,
+      "toolBack": 0,
+      "topbarRect": null,
+      "footerRect": {
+        "x": 0,
+        "y": 1616,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 86
+      },
+      "shot": "game-daily-fortune-320.png"
+    },
+    {
+      "p": "/game/love-match/",
+      "w": 320,
+      "cls": "solo",
+      "verdict": "PASS",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "topbar": 0,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": null,
+      "footerIsLastLandmark": true,
+      "stableExit": 1,
+      "stableExitInGameTopbar": true,
+      "gameTopbarFirstInMain": true,
+      "toolBack": 0,
+      "topbarRect": null,
+      "footerRect": {
+        "x": 0,
+        "y": 1605,
+        "w": 320,
+        "h": 72
+      },
+      "headRect": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 86
+      },
+      "shot": "game-love-match-320.png"
+    },
+    {
+      "p": "/",
+      "w": 1440,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 3384,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 0,
+        "y": 84,
+        "w": 1440,
+        "h": 559
+      },
+      "shot": "home-1440.png"
+    },
+    {
+      "p": "/tools/",
+      "w": 1440,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 669,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 0,
+        "y": 84,
+        "w": 1440,
+        "h": 222
+      },
+      "shot": "tools-1440.png"
+    },
+    {
+      "p": "/tool/wheel/",
+      "w": 1440,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 2448,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 448,
+        "y": 121,
+        "w": 544,
+        "h": 41
+      },
+      "shot": "tool-wheel-1440.png"
+    },
+    {
+      "p": "/tool/draw/",
+      "w": 1440,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 1,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 2342,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 0,
+        "y": 84,
+        "w": 1440,
+        "h": 220
+      },
+      "shot": "tool-draw-1440.png"
+    },
+    {
+      "p": "/tool/team/",
+      "w": 1440,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 1,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 2243,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 0,
+        "y": 84,
+        "w": 1440,
+        "h": 220
+      },
+      "shot": "tool-team-1440.png"
+    },
+    {
+      "p": "/tool/number/",
+      "w": 1440,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 1129,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 448,
+        "y": 121,
+        "w": 544,
+        "h": 41
+      },
+      "shot": "tool-number-1440.png"
+    },
+    {
+      "p": "/404.html",
+      "w": 1440,
+      "cls": "chrome",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 1,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": true,
+      "footerIsLastLandmark": true,
+      "stableExit": 0,
+      "stableExitInGameTopbar": false,
+      "gameTopbarFirstInMain": false,
+      "toolBack": 0,
+      "topbarRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 84
+      },
+      "footerRect": {
+        "x": 0,
+        "y": 231,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 0,
+        "y": 105,
+        "w": 1440,
+        "h": 44
+      },
+      "shot": "404-1440.png"
+    },
+    {
+      "p": "/game/siamsi/",
+      "w": 1440,
+      "cls": "solo",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 0,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": null,
+      "footerIsLastLandmark": true,
+      "stableExit": 1,
+      "stableExitInGameTopbar": true,
+      "gameTopbarFirstInMain": true,
+      "toolBack": 0,
+      "topbarRect": null,
+      "footerRect": {
+        "x": 0,
+        "y": 1408,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 86
+      },
+      "shot": "game-siamsi-1440.png"
+    },
+    {
+      "p": "/game/daily-fortune/",
+      "w": 1440,
+      "cls": "solo",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 0,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": null,
+      "footerIsLastLandmark": true,
+      "stableExit": 1,
+      "stableExitInGameTopbar": true,
+      "gameTopbarFirstInMain": true,
+      "toolBack": 0,
+      "topbarRect": null,
+      "footerRect": {
+        "x": 0,
+        "y": 1429,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 86
+      },
+      "shot": "game-daily-fortune-1440.png"
+    },
+    {
+      "p": "/game/love-match/",
+      "w": 1440,
+      "cls": "solo",
+      "verdict": "PASS",
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "topbar": 0,
+      "footerMarker": 1,
+      "footerTags": 1,
+      "footerLinks": 0,
+      "topbarBeforeHead": null,
+      "footerIsLastLandmark": true,
+      "stableExit": 1,
+      "stableExitInGameTopbar": true,
+      "gameTopbarFirstInMain": true,
+      "toolBack": 0,
+      "topbarRect": null,
+      "footerRect": {
+        "x": 0,
+        "y": 1416,
+        "w": 1440,
+        "h": 96
+      },
+      "headRect": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 86
+      },
+      "shot": "game-love-match-1440.png"
+    }
+  ]
+}

@@ -81,6 +81,7 @@ const PIN = [
 const EXCLUDED = {
   'src/layouts/Base.astro': 'site-wide chrome — its Thai belongs to every page, not to the tool surfaces gh#112 enumerated',
   'src/components/GameNav.astro': 'site-wide chrome, shared with game and fortune pages; the ticket enumerated the tool surfaces only',
+  'src/components/PageChrome.astro': 'site-wide chrome (canvas D top bar and footer, gh#255), rendered on every non-play page; its copy is the home canvas copy, not a tool surface gh#112 enumerated',
   'src/shell/lock.ts': 'shell primitive, no player-facing copy channel of its own',
 };
 

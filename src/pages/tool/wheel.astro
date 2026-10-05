@@ -2,12 +2,15 @@
 import Base from '../../layouts/Base.astro';
 import ToolNameEntry from '../../components/ToolNameEntry.astro';
 import GameNav from '../../components/GameNav.astro';
+import PageChrome from '../../components/PageChrome.astro';
 ---
 
 <Base
   title="วงล้อสุ่มชื่อ — วัดดวง"
   description="วงล้อสุ่มชื่อออนไลน์ ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน"
+  chrome
 >
+  <PageChrome>
   <main>
     <h1>วงล้อสุ่มชื่อ</h1>
     {/* gh#91 removed the tool-to-game name handoff: this tool now keeps its own list and never
@@ -98,6 +101,7 @@ import GameNav from '../../components/GameNav.astro';
       <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
     </section>
   </main>
+  </PageChrome>
 </Base>
 
 <style>

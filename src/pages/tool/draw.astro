@@ -2,17 +2,20 @@
 import Base from '../../layouts/Base.astro';
 import ToolNameEntry from '../../components/ToolNameEntry.astro';
 import GameNav from '../../components/GameNav.astro';
+import PageChrome from '../../components/PageChrome.astro';
 ---
 
 <Base
   title="จับฉลาก — วัดดวง"
   description="จับฉลากออนไลน์ ใส่ชื่อลงกล่องแล้วเลือกว่าจะจับกี่คน กดจับได้ทันที ไม่ซ้ำคนเดิมในรอบเดียวกัน"
+  chrome
 >
+  <PageChrome>
   <main class="tool-page">
     <header class="tool-head">
       {/* tool chrome (390 artboard) — the back row plus the accent title band; desktop artboards add
-          the site-wide top bar above this, which stays home-only per the page-chrome opt-in, so the
-          tool chrome renders at every width */}
+          the site-wide top bar above this; that bar (PageChrome) now renders above this header at every
+          width (gh#255, owner ruling), and the tool chrome stays below it at every width too */}
       <div class="tool-chrome">
         <a href="/tools/" class="tool-back">
           <svg
@@ -103,6 +106,7 @@ import GameNav from '../../components/GameNav.astro';
       </section>
     </div>
   </main>
+  </PageChrome>
 </Base>
 
 <style>

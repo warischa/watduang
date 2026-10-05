@@ -8,7 +8,7 @@ const { gameId } = Astro.props as Props;
     leave-confirm at all — while that same ADR-0040 sentence continues "Nothing else about the shell's
     start contract moves ... and so do ADR-0014 and ADR-0015". The guard now mounts from GameLayout,
     unconditionally: that is the layer which DECLARES the links it protects (the topbar's stable exit,
-    GameNav's siblings, the footer's link home), which is ADR-0028's rule. Tool pages stay unguarded by
+    GameNav's siblings; the footer carries no link since gh#255), which is ADR-0028's rule. Tool pages stay unguarded by
     not rendering this component at all — ADR-0015's own reason, "there is no round to lose there".
 
     data-game-id is the predicate's first half, read off this element rather than routed through a

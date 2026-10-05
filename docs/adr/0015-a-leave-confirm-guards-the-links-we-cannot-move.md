@@ -44,6 +44,8 @@ element, the `/games/` link that ADR-0014 already placed above `#stage` and prov
 Everything else below the stage — `GameNav`'s five siblings, the brand footer's link home — is
 guarded without ever being named.
 
+**Amended 2026-10-05 (gh#255):** no link home in the solo landings' footer now; see ADR-0066.
+
 The rejected alternatives each rest on a set nobody owns:
 
 - **Relocate `GameNav` above `#stage`**, mirroring ADR-0014. Rejected because #35 placed it below the

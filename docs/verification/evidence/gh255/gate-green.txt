@@ -1,0 +1,1 @@
+page-chrome-check: 26 page(s) in /Users/waris.c/claude/free-game/dist — play route (no chrome) 14 · solo landing (footer only) 3 · every other page (top bar + footer) 9 · NO_CHROME exempt 0

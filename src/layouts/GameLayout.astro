@@ -4,6 +4,7 @@ import PlayerSetup from '../shell/PlayerSetup.astro';
 import LeaveConfirm from '../shell/LeaveConfirm.astro';
 import PassPhone from '../shell/PassPhone.astro';
 import GameNav from '../components/GameNav.astro';
+import PageChrome from '../components/PageChrome.astro';
 import { categories } from '../games/categories';
 import type { GameModule } from '../games/types';
 
@@ -42,7 +43,11 @@ const howToJsonLd = {
 };
 ---
 
-<Base title={game.seo.title} description={game.seo.description} ogImage={`/og/${game.og}`}>
+<Base title={game.seo.title} description={game.seo.description} ogImage={`/og/${game.og}`} chrome>
+  {/* gh#255 — canvas D's footer only (owner ruling): no site top bar on a game landing, where the
+       game topbar below and its stable exit stay the page's first and only top row. `chrome` above
+       keeps Base's plain footer from rendering as a second one. */}
+  <PageChrome topbar={false}>
   <main style={`--page-accent: var(--accent-${accentName});`}>
     {/* gh#76 — the themed chrome, from design/GamePickLoser.dc.html: topbar (the page's only crawlable
          outbound link, static, deliberately the first thing in <main> — nothing that changes height at
@@ -51,8 +56,8 @@ const howToJsonLd = {
          then the accent play area, then the how-to on the page ground. */}
     {/* data-stable-exit (#39): this link never moves under a tap-transition (see the comment above),
          so it is the one link exempted from the leave-confirm guard in LeaveConfirm.astro (it lived in
-         PlayerSetup.astro until gh#106) — every other link below #stage (GameNav's siblings, the
-         footer's) still asks first mid-round. The exemption is one ADR-0015 grants by name: "It marks
+         PlayerSetup.astro until gh#106) — every other link below #stage (GameNav's siblings) still asks
+         first mid-round. The exemption is one ADR-0015 grants by name: "It marks
          the links that provably cannot move: data-stable-exit, carried today by exactly one element."
          What is load-bearing is that this link is static and sits above the stage, not where it points
          (ADR-0014, retargeted to / by ADR-0041, retargeted again — owner decision 2026-09-11 — to the
@@ -63,8 +68,9 @@ const howToJsonLd = {
          this file's frontmatter already dereferences the same key — a game with a category that is not
          a key fails the build before this anchor renders, so /c/undefined/ cannot ship. The label is
          the category manifest's own approved Thai, never a new string; "back to the home page" would
-         have been a false promise once the href stopped going there. / stays one hop away through the footer link Base.astro renders
-         on every page that opts out of the site chrome. */}
+         have been a false promise once the href stopped going there. / is reached through this link: the
+         category page it lands on carries canvas D's top bar, whose brand links home. The footer this
+         layout renders is canvas D's brand-only footer and carries no link (gh#247, gh#255). */}
     <header class="game-topbar">
       <a href={`/c/${game.category}/`} data-stable-exit>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
@@ -114,8 +120,8 @@ const howToJsonLd = {
            legal, says in the same breath: "a page declaring [1, 1] skips the setup panel. Nothing else
            about the shell's start contract moves — ... and so do ADR-0014 and ADR-0015."
            Never put a condition on this line. The set of pages that start a round grows with the
-           manifest and is not enumerable here; what IS ours is the two links below the stage this
-           layout declares (GameNav's siblings, the footer's) plus the topbar's data-stable-exit
+           manifest and is not enumerable here; what IS ours is the links below the stage this
+           layout declares (GameNav's siblings) plus the topbar's data-stable-exit
            exemption above — so the guard belongs to this layer, unconditionally, and the exempt set is
            marked rather than the guarded one (ADR-0015's inversion, ADR-0028's layer rule).
            scripts/leave-confirm-check.mjs condition (f) evaluates any guard added here against every
@@ -169,6 +175,7 @@ const howToJsonLd = {
   />
 
   <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
+  </PageChrome>
 </Base>
 
 <style>

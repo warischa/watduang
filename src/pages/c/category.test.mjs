@@ -115,8 +115,8 @@ test('the games-list heading is per-category copy, not one literal shared by bot
 
 // gh#125: the PageChrome import/render pin is gone. It asserted that the page's SOURCE names the
 // component, which is a mechanism; the top bar's presence in the built page is measured for real by
-// scripts/page-chrome-check.mjs against dist/ (wired in `npm run ci` after the build), whose opt-in
-// list carries c/fortune/index.html and c/party/index.html by name.
+// scripts/page-chrome-check.mjs against dist/ (wired in `npm run ci` after the build), which since
+// gh#255 derives the expected chrome per page class from the game manifest instead of a list of names.
 
 // gh#241 / ADR-0033: the card art slot is a canvas value, so the one rule that sizes it sits in the
 // artboard this page's header names and in this page byte-identical. The src derives from the
