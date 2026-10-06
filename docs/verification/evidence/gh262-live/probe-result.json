@@ -1,0 +1,738 @@
+[
+  {
+    "path": "/",
+    "width": 320,
+    "height": 4232,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "badImages": 0,
+    "h1": {
+      "size": "44px",
+      "weight": "700",
+      "text": "กดทีเดียวรู้เลยว่าใครโดน"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "desc": [
+      {
+        "fs": 16,
+        "lh": "normal",
+        "lhPx": null,
+        "rectH": 21,
+        "lines": 1,
+        "pitch": null,
+        "pitchByH": 21
+      },
+      {
+        "fs": 16,
+        "lh": "normal",
+        "lhPx": null,
+        "rectH": 63,
+        "lines": 3,
+        "pitch": 21,
+        "pitchByH": 21
+      },
+      {
+        "fs": 16,
+        "lh": "normal",
+        "lhPx": null,
+        "rectH": 63,
+        "lines": 3,
+        "pitch": 21,
+        "pitchByH": 21
+      },
+      {
+        "fs": 16,
+        "lh": "normal",
+        "lhPx": null,
+        "rectH": 63,
+        "lines": 3,
+        "pitch": 21,
+        "pitchByH": 21
+      },
+      {
+        "fs": 16,
+        "lh": "24px",
+        "lhPx": 24,
+        "rectH": 48,
+        "lines": 2,
+        "pitch": 24,
+        "pitchByH": 24
+      },
+      {
+        "fs": 16,
+        "lh": "24px",
+        "lhPx": 24,
+        "rectH": 48,
+        "lines": 2,
+        "pitch": 24,
+        "pitchByH": 24
+      },
+      {
+        "fs": 16,
+        "lh": "24px",
+        "lhPx": 24,
+        "rectH": 48,
+        "lines": 2,
+        "pitch": 24,
+        "pitchByH": 24
+      },
+      {
+        "fs": 15,
+        "lh": "22.5px",
+        "lhPx": 22.5,
+        "rectH": 0,
+        "lines": 0,
+        "pitch": null,
+        "pitchByH": 0
+      },
+      {
+        "fs": 15,
+        "lh": "22.5px",
+        "lhPx": 22.5,
+        "rectH": 0,
+        "lines": 0,
+        "pitch": null,
+        "pitchByH": 0
+      },
+      {
+        "fs": 15,
+        "lh": "22.5px",
+        "lhPx": 22.5,
+        "rectH": 0,
+        "lines": 0,
+        "pitch": null,
+        "pitchByH": 0
+      },
+      {
+        "fs": 15,
+        "lh": "22.5px",
+        "lhPx": 22.5,
+        "rectH": 0,
+        "lines": 0,
+        "pitch": null,
+        "pitchByH": 0
+      }
+    ],
+    "mark": {
+      "text": "ใครโดน",
+      "color": "rgb(20, 20, 43)",
+      "bg": "rgb(255, 204, 0)",
+      "border": "3px solid rgb(20, 20, 43)",
+      "display": "inline-block",
+      "radius": "12px"
+    },
+    "ad": {
+      "text": "ช่องโฆษณา",
+      "color": "rgb(61, 59, 92)",
+      "textNodeParentColor": "rgb(61, 59, 92)",
+      "parentTag": "DIV.wrap ad-slot"
+    },
+    "reducedMotion": true,
+    "pathname": "/",
+    "h1Font": "Mitr-Bold x24",
+    "files": [
+      "docs/verification/evidence/gh262-live/home-320-part0.jpg",
+      "docs/verification/evidence/gh262-live/home-320-part1.jpg"
+    ]
+  },
+  {
+    "path": "/",
+    "width": 1440,
+    "height": 3493,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "badImages": 0,
+    "h1": {
+      "size": "84px",
+      "weight": "700",
+      "text": "กดทีเดียวรู้เลยว่าใครโดน"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "desc": [
+      {
+        "fs": 19,
+        "lh": "normal",
+        "lhPx": null,
+        "rectH": 24,
+        "lines": 1,
+        "pitch": null,
+        "pitchByH": 24
+      },
+      {
+        "fs": 16,
+        "lh": "normal",
+        "lhPx": null,
+        "rectH": 42,
+        "lines": 2,
+        "pitch": 21,
+        "pitchByH": 21
+      },
+      {
+        "fs": 16,
+        "lh": "normal",
+        "lhPx": null,
+        "rectH": 42,
+        "lines": 2,
+        "pitch": 21,
+        "pitchByH": 21
+      },
+      {
+        "fs": 16,
+        "lh": "normal",
+        "lhPx": null,
+        "rectH": 42,
+        "lines": 2,
+        "pitch": 21,
+        "pitchByH": 21
+      },
+      {
+        "fs": 16,
+        "lh": "24px",
+        "lhPx": 24,
+        "rectH": 24,
+        "lines": 1,
+        "pitch": null,
+        "pitchByH": 24
+      },
+      {
+        "fs": 16,
+        "lh": "24px",
+        "lhPx": 24,
+        "rectH": 48,
+        "lines": 2,
+        "pitch": 24,
+        "pitchByH": 24
+      },
+      {
+        "fs": 16,
+        "lh": "24px",
+        "lhPx": 24,
+        "rectH": 24,
+        "lines": 1,
+        "pitch": null,
+        "pitchByH": 24
+      },
+      {
+        "fs": 15,
+        "lh": "22.5px",
+        "lhPx": 22.5,
+        "rectH": 22.5,
+        "lines": 1,
+        "pitch": null,
+        "pitchByH": 22.5
+      },
+      {
+        "fs": 15,
+        "lh": "22.5px",
+        "lhPx": 22.5,
+        "rectH": 45,
+        "lines": 2,
+        "pitch": 22,
+        "pitchByH": 22.5
+      },
+      {
+        "fs": 15,
+        "lh": "22.5px",
+        "lhPx": 22.5,
+        "rectH": 45,
+        "lines": 2,
+        "pitch": 22,
+        "pitchByH": 22.5
+      },
+      {
+        "fs": 15,
+        "lh": "22.5px",
+        "lhPx": 22.5,
+        "rectH": 45,
+        "lines": 2,
+        "pitch": 22,
+        "pitchByH": 22.5
+      }
+    ],
+    "mark": {
+      "text": "ใครโดน",
+      "color": "rgb(20, 20, 43)",
+      "bg": "rgb(255, 204, 0)",
+      "border": "3px solid rgb(20, 20, 43)",
+      "display": "inline-block",
+      "radius": "12px"
+    },
+    "ad": {
+      "text": "ช่องโฆษณา",
+      "color": "rgb(61, 59, 92)",
+      "textNodeParentColor": "rgb(61, 59, 92)",
+      "parentTag": "DIV.wrap ad-slot"
+    },
+    "reducedMotion": true,
+    "pathname": "/",
+    "h1Font": "Mitr-Bold x24",
+    "files": [
+      "docs/verification/evidence/gh262-live/home-1440-part0.jpg",
+      "docs/verification/evidence/gh262-live/home-1440-part1.jpg"
+    ]
+  },
+  {
+    "path": "/tool/number/",
+    "width": 320,
+    "height": 1726,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "badImages": 0,
+    "h1": {
+      "size": "26px",
+      "weight": "600",
+      "text": "สุ่มเลข"
+    },
+    "bodyBg": "rgb(255, 246, 224)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [
+      {
+        "type": "checkbox",
+        "id": "number-no-repeat",
+        "w": 24,
+        "h": 24
+      }
+    ],
+    "result": {
+      "w": 244,
+      "h": 60,
+      "borderStyle": "dashed",
+      "borderWidth": "2px",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "go": 60,
+    "reset": 52,
+    "reducedMotion": true,
+    "pathname": "/tool/number/",
+    "h1Font": "Mitr-SemiBold x7",
+    "files": [
+      "docs/verification/evidence/gh262-live/tool-number-320.jpg"
+    ]
+  },
+  {
+    "path": "/tool/number/",
+    "width": 1440,
+    "height": 1464,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "badImages": 0,
+    "h1": {
+      "size": "38px",
+      "weight": "700",
+      "text": "สุ่มเลข"
+    },
+    "bodyBg": "rgb(255, 246, 224)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [
+      {
+        "type": "checkbox",
+        "id": "number-no-repeat",
+        "w": 24,
+        "h": 24
+      }
+    ],
+    "result": {
+      "w": 427,
+      "h": 72,
+      "borderStyle": "dashed",
+      "borderWidth": "2px",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "go": 64,
+    "reset": 56,
+    "reducedMotion": true,
+    "pathname": "/tool/number/",
+    "h1Font": "Mitr-Bold x7",
+    "files": [
+      "docs/verification/evidence/gh262-live/tool-number-1440.jpg"
+    ]
+  },
+  {
+    "path": "/tool/wheel/",
+    "width": 320,
+    "height": 2690,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "badImages": 0,
+    "h1": {
+      "size": "26px",
+      "weight": "600",
+      "text": "วงล้อสุ่มชื่อ"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [
+      {
+        "type": "radio",
+        "id": "",
+        "w": 24,
+        "h": 24
+      },
+      {
+        "type": "radio",
+        "id": "",
+        "w": 24,
+        "h": 24
+      },
+      {
+        "type": "checkbox",
+        "id": "wheel-eliminate",
+        "w": 24,
+        "h": 24
+      }
+    ],
+    "result": {
+      "w": 288,
+      "h": 60,
+      "borderStyle": "dashed",
+      "borderWidth": "2px",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "reducedMotion": true,
+    "pathname": "/tool/wheel/",
+    "h1Font": "Mitr-SemiBold x13",
+    "files": [
+      "docs/verification/evidence/gh262-live/tool-wheel-320.jpg"
+    ]
+  },
+  {
+    "path": "/tool/wheel/",
+    "width": 1440,
+    "height": 2557,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "badImages": 0,
+    "h1": {
+      "size": "26px",
+      "weight": "600",
+      "text": "วงล้อสุ่มชื่อ"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [
+      {
+        "type": "radio",
+        "id": "",
+        "w": 24,
+        "h": 24
+      },
+      {
+        "type": "radio",
+        "id": "",
+        "w": 24,
+        "h": 24
+      },
+      {
+        "type": "checkbox",
+        "id": "wheel-eliminate",
+        "w": 24,
+        "h": 24
+      }
+    ],
+    "result": {
+      "w": 544,
+      "h": 60,
+      "borderStyle": "dashed",
+      "borderWidth": "2px",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "reducedMotion": true,
+    "pathname": "/tool/wheel/",
+    "h1Font": "Mitr-SemiBold x13",
+    "files": [
+      "docs/verification/evidence/gh262-live/tool-wheel-1440.jpg"
+    ]
+  },
+  {
+    "path": "/tool/draw/",
+    "width": 320,
+    "height": 2745,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "badImages": 0,
+    "h1": {
+      "size": "26px",
+      "weight": "600",
+      "text": "จับฉลาก"
+    },
+    "bodyBg": "rgb(255, 246, 224)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "eyebrow": {
+      "color": "rgb(20, 20, 43)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "display": "block"
+    },
+    "reducedMotion": true,
+    "pathname": "/tool/draw/",
+    "h1Font": "Mitr-SemiBold x7",
+    "files": [
+      "docs/verification/evidence/gh262-live/tool-draw-320.jpg"
+    ]
+  },
+  {
+    "path": "/tool/draw/",
+    "width": 1440,
+    "height": 2438,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "badImages": 0,
+    "h1": {
+      "size": "38px",
+      "weight": "700",
+      "text": "จับฉลาก"
+    },
+    "bodyBg": "rgb(255, 246, 224)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "eyebrow": {
+      "color": "rgb(20, 20, 43)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "display": "none"
+    },
+    "reducedMotion": true,
+    "pathname": "/tool/draw/",
+    "h1Font": "Mitr-Bold x7",
+    "files": [
+      "docs/verification/evidence/gh262-live/tool-draw-1440.jpg"
+    ]
+  },
+  {
+    "path": "/tool/team/",
+    "width": 320,
+    "height": 2530,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "badImages": 0,
+    "h1": {
+      "size": "26px",
+      "weight": "600",
+      "text": "แบ่งทีม"
+    },
+    "bodyBg": "rgb(255, 246, 224)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "eyebrow": {
+      "color": "rgb(20, 20, 43)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "display": "block"
+    },
+    "reducedMotion": true,
+    "pathname": "/tool/team/",
+    "h1Font": "Mitr-SemiBold x7",
+    "files": [
+      "docs/verification/evidence/gh262-live/tool-team-320.jpg"
+    ]
+  },
+  {
+    "path": "/tool/team/",
+    "width": 1440,
+    "height": 2339,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "badImages": 0,
+    "h1": {
+      "size": "38px",
+      "weight": "700",
+      "text": "แบ่งทีม"
+    },
+    "bodyBg": "rgb(255, 246, 224)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "eyebrow": {
+      "color": "rgb(20, 20, 43)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "display": "none"
+    },
+    "reducedMotion": true,
+    "pathname": "/tool/team/",
+    "h1Font": "Mitr-Bold x7",
+    "files": [
+      "docs/verification/evidence/gh262-live/tool-team-1440.jpg"
+    ]
+  },
+  {
+    "path": "/404.html",
+    "width": 320,
+    "height": 900,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "badImages": 0,
+    "h1": {
+      "size": "28px",
+      "weight": "700",
+      "text": "ไม่พบหน้านี้"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "pill": {
+      "w": 130.27,
+      "h": 48,
+      "color": "rgb(255, 204, 0)",
+      "bg": "rgb(20, 20, 43)",
+      "radius": "999px"
+    },
+    "reducedMotion": true,
+    "pathname": "/404.html",
+    "h1Font": "Mitr-Bold x12",
+    "files": [
+      "docs/verification/evidence/gh262-live/404-320.jpg"
+    ]
+  },
+  {
+    "path": "/404.html",
+    "width": 1440,
+    "height": 900,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "badImages": 0,
+    "h1": {
+      "size": "44px",
+      "weight": "700",
+      "text": "ไม่พบหน้านี้"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "pill": {
+      "w": 149.05,
+      "h": 48,
+      "color": "rgb(255, 204, 0)",
+      "bg": "rgb(20, 20, 43)",
+      "radius": "999px"
+    },
+    "reducedMotion": true,
+    "pathname": "/404.html",
+    "h1Font": "Mitr-Bold x12",
+    "files": [
+      "docs/verification/evidence/gh262-live/404-1440.jpg"
+    ]
+  },
+  {
+    "path": "/c/fortune/",
+    "width": 320,
+    "height": 2046,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "badImages": 0,
+    "h1": {
+      "size": "30px",
+      "weight": "600",
+      "text": "ดูดวง"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "kickers": [
+      "18px",
+      "18px"
+    ],
+    "reducedMotion": true,
+    "pathname": "/c/fortune/",
+    "h1Font": "Mitr-SemiBold x5",
+    "files": [
+      "docs/verification/evidence/gh262-live/c-fortune-320.jpg"
+    ]
+  },
+  {
+    "path": "/c/fortune/",
+    "width": 1440,
+    "height": 1277,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "badImages": 0,
+    "h1": {
+      "size": "58px",
+      "weight": "600",
+      "text": "ดูดวง"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "kickers": [
+      "18px",
+      "18px"
+    ],
+    "reducedMotion": true,
+    "pathname": "/c/fortune/",
+    "h1Font": "Mitr-SemiBold x5",
+    "files": [
+      "docs/verification/evidence/gh262-live/c-fortune-1440.jpg"
+    ]
+  },
+  {
+    "path": "/c/party/",
+    "width": 320,
+    "height": 6784,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "badImages": 0,
+    "h1": {
+      "size": "30px",
+      "weight": "600",
+      "text": "สุ่มคนโดน"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "kickers": [
+      "18px",
+      "18px"
+    ],
+    "reducedMotion": true,
+    "pathname": "/c/party/",
+    "h1Font": "Mitr-SemiBold x9",
+    "files": [
+      "docs/verification/evidence/gh262-live/c-party-320-part0.jpg",
+      "docs/verification/evidence/gh262-live/c-party-320-part1.jpg"
+    ]
+  },
+  {
+    "path": "/c/party/",
+    "width": 1440,
+    "height": 2962,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "badImages": 0,
+    "h1": {
+      "size": "58px",
+      "weight": "600",
+      "text": "สุ่มคนโดน"
+    },
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "controls": [],
+    "kickers": [
+      "18px",
+      "18px"
+    ],
+    "reducedMotion": true,
+    "pathname": "/c/party/",
+    "h1Font": "Mitr-SemiBold x9",
+    "files": [
+      "docs/verification/evidence/gh262-live/c-party-1440-part0.jpg",
+      "docs/verification/evidence/gh262-live/c-party-1440-part1.jpg"
+    ]
+  }
+]
