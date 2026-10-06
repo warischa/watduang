@@ -1,0 +1,256 @@
+{
+ "cells": 22,
+ "allTrue": true,
+ "mustRed": {
+  "page": "/tool/wheel/",
+  "unmodified": true,
+  "droppedRowGoesRed": true,
+  "editedHeightGoesRed": true,
+  "swappedOrderGoesRed": true,
+  "allRed": true
+ },
+ "detail": [
+  {
+   "width": 320,
+   "path": "/tools/",
+   "oldCount": 4,
+   "newListLength": 4,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/tool/wheel/",
+   "oldCount": 22,
+   "newListLength": 22,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/tool/draw/",
+   "oldCount": 20,
+   "newListLength": 20,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/tool/team/",
+   "oldCount": 20,
+   "newListLength": 20,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/tool/number/",
+   "oldCount": 20,
+   "newListLength": 20,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/c/fortune/",
+   "oldCount": 5,
+   "newListLength": 5,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/game/siamsi/",
+   "oldCount": 22,
+   "newListLength": 22,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/game/daily-fortune/",
+   "oldCount": 17,
+   "newListLength": 17,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/game/love-match/",
+   "oldCount": 17,
+   "newListLength": 17,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/404",
+   "oldCount": 4,
+   "newListLength": 4,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 320,
+   "path": "/",
+   "oldCount": 4,
+   "newListLength": 4,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/tools/",
+   "oldCount": 0,
+   "newListLength": 0,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/tool/wheel/",
+   "oldCount": 18,
+   "newListLength": 18,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/tool/draw/",
+   "oldCount": 16,
+   "newListLength": 16,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/tool/team/",
+   "oldCount": 16,
+   "newListLength": 16,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/tool/number/",
+   "oldCount": 16,
+   "newListLength": 16,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/c/fortune/",
+   "oldCount": 1,
+   "newListLength": 1,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/game/siamsi/",
+   "oldCount": 22,
+   "newListLength": 22,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/game/daily-fortune/",
+   "oldCount": 17,
+   "newListLength": 17,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/game/love-match/",
+   "oldCount": 17,
+   "newListLength": 17,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/404",
+   "oldCount": 0,
+   "newListLength": 0,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  },
+  {
+   "width": 1440,
+   "path": "/",
+   "oldCount": 0,
+   "newListLength": 0,
+   "countEq": true,
+   "newCountEq": true,
+   "sampleEq": true,
+   "ownSampleEq": true,
+   "ok": true
+  }
+ ]
+}

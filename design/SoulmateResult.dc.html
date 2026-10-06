@@ -36,10 +36,13 @@
     </div>
 
     <!-- The headline is the shareable line. The meeting age is drawn per result, never stored on the
-         card, and is always above the top of the age band the reader picked. -->
+         card, and is always above the top of the age band the reader picked. The heading and the
+         when line are two elements, as the game renders them; 31 is a sample value. The when line's
+         size is UNRULED (owner approval 2026-10-06 covers .lm-heading only; live .lm-when is 20px). -->
     <div style="text-align: center;">
       <span style="font-size: 14px;">ดวงบอกว่า</span>
-      <p style="margin: 4px 0 0 0; font-family: Mitr, sans-serif; font-weight: 500; font-size: 26px; line-height: 1.35;">คุณจะเจอเขา<br>ตอนอายุ 31</p>
+      <p data-lm-heading style="margin: 4px 0 0 0; font-family: Mitr, sans-serif; font-weight: 500; font-size: 26px; line-height: 1.35;">คุณจะได้เจอเขา</p>
+      <p style="margin: 0; font-family: Mitr, sans-serif; font-weight: 500; font-size: 26px; line-height: 1.35;">ตอนคุณอายุ 31 ปี</p>
     </div>
 
     <!-- Short facts in two columns, prose facts full width below. Everything in this panel comes from

@@ -1,0 +1,71 @@
+[
+  {
+    "name": "SoulmateStart",
+    "width": 390,
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "height": 900,
+    "heading": "เนื้อคู่ของคุณ",
+    "headingStyle": "500 30px/36px",
+    "headingBox": {
+      "w": 165,
+      "h": 36
+    },
+    "headingScrollW": 165,
+    "headingClientW": 165,
+    "headingLines": 1,
+    "leftoverAccent": false,
+    "headingFont": "Mitr-Medium x14",
+    "errors": [
+      "ReferenceError: DCLogic is not defined"
+    ],
+    "file": "docs/verification/evidence/gh263-canvas/love-match/SoulmateStart.jpg"
+  },
+  {
+    "name": "SoulmateResult",
+    "width": 390,
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "height": 1232,
+    "heading": "คุณจะได้เจอเขา",
+    "headingStyle": "500 26px/35.1px",
+    "headingBox": {
+      "w": 195,
+      "h": 35
+    },
+    "headingScrollW": 195,
+    "headingClientW": 195,
+    "headingLines": 1,
+    "leftoverAccent": false,
+    "headingFont": "Mitr-Medium x14",
+    "errors": [
+      "ReferenceError: DCLogic is not defined"
+    ],
+    "file": "docs/verification/evidence/gh263-canvas/love-match/SoulmateResult.jpg"
+  },
+  {
+    "name": "SoulmateSolo",
+    "width": 390,
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "height": 900,
+    "heading": "เนื้อคู่ของคุณคือตัวคุณเอง",
+    "headingStyle": "500 26px/35.1px",
+    "headingBox": {
+      "w": 287,
+      "h": 35
+    },
+    "headingScrollW": 287,
+    "headingClientW": 287,
+    "headingLines": 1,
+    "leftoverAccent": false,
+    "headingFont": "Mitr-Medium x26",
+    "errors": [
+      "ReferenceError: DCLogic is not defined"
+    ],
+    "file": "docs/verification/evidence/gh263-canvas/love-match/SoulmateSolo.jpg"
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "name": "ToolWheel390",
+    "width": 390,
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "height": 3165,
+    "howtoCss": "Mitr, sans-serif 600 19px",
+    "howtoBlock": {
+      "x": 0,
+      "y": 2895,
+      "w": 390,
+      "h": 269
+    },
+    "mitr600": true,
+    "notoThai": true,
+    "howtoH2Font": "Mitr-SemiBold x7",
+    "otherH2": {
+      "text": "วงล้อ",
+      "font": "Mitr-SemiBold x5"
+    },
+    "errors": [
+      "ReferenceError: DCLogic is not defined"
+    ],
+    "files": [
+      "docs/verification/evidence/gh263-canvas/how-to/ToolWheel390.jpg",
+      "docs/verification/evidence/gh263-canvas/how-to/ToolWheel390-howto.jpg"
+    ]
+  },
+  {
+    "name": "ToolWheelDesktop",
+    "width": 1440,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "height": 3031,
+    "howtoCss": "Mitr, sans-serif 600 21px",
+    "howtoBlock": {
+      "x": 80,
+      "y": 2851,
+      "w": 940,
+      "h": 159
+    },
+    "mitr600": true,
+    "notoThai": true,
+    "howtoH2Font": "Mitr-SemiBold x7",
+    "otherH2": {
+      "text": "วงล้อ",
+      "font": "Mitr-SemiBold x5"
+    },
+    "errors": [
+      "ReferenceError: DCLogic is not defined"
+    ],
+    "files": [
+      "docs/verification/evidence/gh263-canvas/how-to/ToolWheelDesktop.jpg",
+      "docs/verification/evidence/gh263-canvas/how-to/ToolWheelDesktop-howto.jpg"
+    ]
+  },
+  {
+    "name": "ToolNumber390",
+    "width": 390,
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "height": 2899,
+    "howtoCss": "Mitr, sans-serif 600 19px",
+    "howtoBlock": {
+      "x": 20,
+      "y": 2236,
+      "w": 350,
+      "h": 202
+    },
+    "mitr600": false,
+    "notoThai": true,
+    "howtoH2Font": "Mitr-SemiBold x7",
+    "otherH2": {
+      "text": "ช่วงตัวเลข",
+      "font": "Mitr-SemiBold x10"
+    },
+    "errors": [],
+    "files": [
+      "docs/verification/evidence/gh263-canvas/how-to/ToolNumber390.jpg",
+      "docs/verification/evidence/gh263-canvas/how-to/ToolNumber390-howto.jpg"
+    ]
+  },
+  {
+    "name": "ToolNumberDesktop",
+    "width": 1440,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "height": 2465,
+    "howtoCss": "Mitr, sans-serif 600 21px",
+    "howtoBlock": {
+      "x": 80,
+      "y": 1941,
+      "w": 940,
+      "h": 159
+    },
+    "mitr600": false,
+    "notoThai": true,
+    "howtoH2Font": "Mitr-SemiBold x7",
+    "otherH2": {
+      "text": "ช่วงตัวเลข",
+      "font": "Mitr-SemiBold x10"
+    },
+    "errors": [],
+    "files": [
+      "docs/verification/evidence/gh263-canvas/how-to/ToolNumberDesktop.jpg",
+      "docs/verification/evidence/gh263-canvas/how-to/ToolNumberDesktop-howto.jpg"
+    ]
+  }
+]

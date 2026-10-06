@@ -37,8 +37,8 @@
 <div style="width: 1440px; background: #ffffff; color: #14142b;">
 
   <div style="padding: 32px 40px; background: #14142b; color: #ffcc00;">
-    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#262 · values the owner has not chosen</div>
-    <div style="margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">One pick per row. Ratios are WCAG 2.x, computed by contrast.mjs in the gh262-canvas evidence dir. "rec" marks one recommendation per row.</div>
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#262 · proposals, owner decided 2026-10-06</div>
+    <div style="margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">One pick per row. Ratios are WCAG 2.x, computed by contrast.mjs in the gh262-canvas evidence dir. "rec" marked one recommendation per row. Each row now carries APPROVED 2026-10-06 on the chosen candidate and "rejected" on every other.</div>
   </div>
 
   <!-- (a) home hero span.mark -->
@@ -47,19 +47,19 @@
     <p class="why">Large text (44px / 84px), needs 3:1. Current: #ffcc00 on #ff3d7f = 2.23:1. The ink text-shadow is not counted by WCAG. Drawn at 320; the ratio is the same at desktop.</p>
     <div class="cands">
       <div class="cand">
-        <span class="tag">CURRENT · gold text on pink · <span class="fail">2.23:1 FAIL</span></span>
+        <span class="tag">CURRENT · gold text on pink · <span class="fail">2.23:1 FAIL</span> · rejected</span>
         <div class="frame"><div class="hero"><div class="dots"></div><h1>กดทีเดียว<br>รู้เลยว่า<span style="color: #ffcc00;">ใครโดน</span></h1></div></div>
       </div>
       <div class="cand">
-        <span class="tag">A · ink text on a gold chip, 3px ink border · 11.93:1 (chip border vs pink 5.35:1)<span class="r">rec</span><br>keeps the gold emphasis, widest margin; at 320 the chip takes its own line</span>
+        <span class="tag">A · ink text on a gold chip, 3px ink border · 11.93:1 (chip border vs pink 5.35:1)<span class="r">rec</span><br>keeps the gold emphasis, widest margin; at 320 the chip takes its own line<br><b>APPROVED 2026-10-06</b></span>
         <div class="frame"><div class="hero"><div class="dots"></div><h1>กดทีเดียว<br>รู้เลยว่า<span style="color: #14142b; text-shadow: none; background: #ffcc00; border: 3px solid #14142b; border-radius: 12px; display: inline-block; white-space: nowrap; padding: 0 8px;">ใครโดน</span></h1></div></div>
       </div>
       <div class="cand">
-        <span class="tag">B · ink text on pink · 5.35:1</span>
+        <span class="tag">B · ink text on pink · 5.35:1 · rejected</span>
         <div class="frame"><div class="hero"><div class="dots"></div><h1>กดทีเดียว<br>รู้เลยว่า<span style="color: #14142b; text-shadow: 3px 3px 0 #ffcc00;">ใครโดน</span></h1></div></div>
       </div>
       <div class="cand">
-        <span class="tag">C · white text on pink, gold underline · 3.37:1 (large-text pass only)</span>
+        <span class="tag">C · white text on pink, gold underline · 3.37:1 (large-text pass only) · rejected</span>
         <div class="frame"><div class="hero"><div class="dots"></div><h1>กดทีเดียว<br>รู้เลยว่า<span style="color: #ffffff; text-decoration: underline; text-decoration-color: #ffcc00; text-decoration-thickness: 6px; text-underline-offset: 6px;">ใครโดน</span></h1></div></div>
       </div>
     </div>
@@ -71,19 +71,19 @@
     <p class="why">Normal text (14px at 320, 16px at desktop), needs 4.5:1. Current: #9a947a on #fff6e0 = 2.83:1. Box border #c9c3a8 unchanged in every candidate.</p>
     <div class="cands">
       <div class="cand">
-        <span class="tag">CURRENT · #9a947a · <span class="fail">2.83:1 FAIL</span></span>
+        <span class="tag">CURRENT · #9a947a · <span class="fail">2.83:1 FAIL</span> · rejected</span>
         <div class="frame"><div class="ground"><div class="ad" style="color: #9a947a;">ช่องโฆษณา</div></div></div>
       </div>
       <div class="cand">
-        <span class="tag">A · #3d3b5c (canvas D secondary text) · 9.86:1<span class="r">rec</span><br>already a D value; no new colour</span>
+        <span class="tag">A · #3d3b5c (canvas D secondary text) · 9.86:1<span class="r">rec</span><br>already a D value; no new colour<br><b>APPROVED 2026-10-06</b></span>
         <div class="frame"><div class="ground"><div class="ad" style="color: #3d3b5c;">ช่องโฆษณา</div></div></div>
       </div>
       <div class="cand">
-        <span class="tag">B · #75705d (#9a947a darkened, same hue) · 4.61:1<br>stays quiet, but a new value with a thin margin</span>
+        <span class="tag">B · #75705d (#9a947a darkened, same hue) · 4.61:1<br>stays quiet, but a new value with a thin margin · rejected</span>
         <div class="frame"><div class="ground"><div class="ad" style="color: #75705d;">ช่องโฆษณา</div></div></div>
       </div>
       <div class="cand">
-        <span class="tag">C · #14142b ink · 16.75:1<br>reads as loud as body copy</span>
+        <span class="tag">C · #14142b ink · 16.75:1<br>reads as loud as body copy · rejected</span>
         <div class="frame"><div class="ground"><div class="ad" style="color: #14142b;">ช่องโฆษณา</div></div></div>
       </div>
     </div>
@@ -95,15 +95,15 @@
     <p class="why">Built: Mitr 500, 15px, letter-spacing 1px, #3d3b5c (the CatFortunePop kicker idiom, D colour). The card body under it is 16px at 320. Colour unchanged: #3d3b5c on #fff6e0 = 9.86:1 in every candidate.</p>
     <div class="cands">
       <div class="cand">
-        <span class="tag">CURRENT · 15px · 9.86:1 (smaller than the 16px body)</span>
+        <span class="tag">CURRENT · 15px · 9.86:1 (smaller than the 16px body) · rejected</span>
         <div class="frame"><div class="ground"><h2 class="kicker" style="font-size: 15px;">คำทำนายในหมวดนี้</h2><div class="card"><h3>ดวงวันนี้</h3><p>กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ไม่ต้องเชื่อ</p><span class="cta">เล่นเลย →</span></div></div></div>
       </div>
       <div class="cand">
-        <span class="tag">A · 16px · 9.86:1<br>equal to the body, no longer below it</span>
+        <span class="tag">A · 16px · 9.86:1<br>equal to the body, no longer below it · rejected</span>
         <div class="frame"><div class="ground"><h2 class="kicker" style="font-size: 16px;">คำทำนายในหมวดนี้</h2><div class="card"><h3>ดวงวันนี้</h3><p>กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ไม่ต้องเชื่อ</p><span class="cta">เล่นเลย →</span></div></div></div>
       </div>
       <div class="cand">
-        <span class="tag">B · 18px · 9.86:1<span class="r">rec</span><br>the only size that reads above the body</span>
+        <span class="tag">B · 18px · 9.86:1<span class="r">rec</span><br>the only size that reads above the body<br><b>APPROVED 2026-10-06</b> (also applied to /c/party/)</span>
         <div class="frame"><div class="ground"><h2 class="kicker" style="font-size: 18px;">คำทำนายในหมวดนี้</h2><div class="card"><h3>ดวงวันนี้</h3><p>กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ไม่ต้องเชื่อ</p><span class="cta">เล่นเลย →</span></div></div></div>
       </div>
     </div>
