@@ -44,3 +44,7 @@ only a later state probe killed it.
 ## A brief carries the acceptance criteria verbatim, never paraphrased
 
 Paste the ticket's checklist as written, and put any interpretation beside the box it reads, labelled as a reading. 2026-10-01: two parallel briefs paraphrased theirs. One narrowed gh#240's live-region box and the agent followed the brief. One dropped gh#241's "records its model" and the entries shipped without one. Only review caught either.
+
+## "No board draws X" is a claim about `design/` — grep it before filing or briefing
+
+A ticket that says an element needs a board first sends the owner to a canvas pass. Before writing that, grep `design/*.dc.html` for the element's built copy and class, and put the grep command in the ticket. 2026-10-06: gh#263 shipped three such premises unchecked. The number boards already drew the how-to section, the Soulmate boards already drew the love-match heading, and "most under-44 targets are chrome" was 32 of 155 rows. One grep each would have shown it.
