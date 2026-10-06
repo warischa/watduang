@@ -31,6 +31,10 @@
     .go[disabled] { opacity: 0.4; box-shadow: none; }
     .reset { min-height: 56px; background: #fff6e0; color: #14142b; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 18px; border: 2.5px solid #14142b; border-radius: 16px; }
     .actions { display: flex; flex-direction: column; gap: 10px; }
+    /* GameNav link list: owner ruling 2026-10-06: 44px hit area; pending render approval.
+       Text stays at the page's inherited 16px / weight 400; only the link box grows. */
+    .game-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 16px; }
+    .game-nav a { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; }
   </style>
 </helmet>
 
@@ -102,10 +106,26 @@
         </div>
       </div>
 
-      <!-- Continue path (GameNav), unchanged by gh#262 -->
+      <!-- Continue path (GameNav): party links in manifest order, as the tool page lists them.
+           owner ruling 2026-10-06: 44px hit area; pending render approval -->
       <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
         <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 21px;">เล่นเกมต่อ</h2>
-        <div style="border: 2px dashed #8a87a8; border-radius: 12px; padding: 14px; font: 12px/1.4 ui-monospace, Menlo, monospace; color: #3d3b5c;">GameNav party links (manifest), unchanged; not redrawn here</div>
+        <ul class="game-nav">
+          <li><a href="#">ระเบิดเวลา</a></li>
+          <li><a href="#">จับไม้สั้น</a></li>
+          <li><a href="#">มือลั่น</a></li>
+          <li><a href="#">ยิงธง</a></li>
+          <li><a href="#">วัดพลัง</a></li>
+          <li><a href="#">เต๋าชี้คนแพ้</a></li>
+          <li><a href="#">ไกลแค่ไหนคือใกล้</a></li>
+          <li><a href="#">พิน็อคคิอวย</a></li>
+          <li><a href="#">เลขอาถรรพ์</a></li>
+          <li><a href="#">ตัดสายกู้ชีพ</a></li>
+          <li><a href="#">แตะหยุดเวลา</a></li>
+          <li><a href="#">กับระเบิด</a></li>
+          <li><a href="#">บางกอกดริฟต์</a></li>
+          <li><a href="#">จระเข้งับ</a></li>
+        </ul>
       </div>
 
       <!-- Ad below the tool, ADR-0004 -->

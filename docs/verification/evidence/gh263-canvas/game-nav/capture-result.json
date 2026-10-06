@@ -1,0 +1,255 @@
+[
+  {
+    "name": "ToolNumber390",
+    "width": 390,
+    "dir": "design",
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "height": 3040,
+    "blockHeight": 238,
+    "listHeight": 200,
+    "listTag": "UL",
+    "rows": 4,
+    "linkCount": 14,
+    "minLinkHeight": 44,
+    "blockRect": {
+      "x": 20,
+      "y": 1861,
+      "w": 350,
+      "h": 238
+    },
+    "links": [
+      {
+        "label": "ระเบิดเวลา",
+        "height": 44,
+        "width": 65.36,
+        "top": 1899.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "จับไม้สั้น",
+        "height": 44,
+        "width": 51.83,
+        "top": 1899.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "มือลั่น",
+        "height": 44,
+        "width": 37.95,
+        "top": 1899.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "ยิงธง",
+        "height": 44,
+        "width": 35.41,
+        "top": 1899.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "วัดพลัง",
+        "height": 44,
+        "width": 46.58,
+        "top": 1899.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "เต๋าชี้คนแพ้",
+        "height": 44,
+        "width": 69.58,
+        "top": 1951.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "ไกลแค่ไหนคือใกล้",
+        "height": 44,
+        "width": 108.8,
+        "top": 1951.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "พิน็อคคิอวย",
+        "height": 44,
+        "width": 76.33,
+        "top": 1951.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "เลขอาถรรพ์",
+        "height": 44,
+        "width": 74.5,
+        "top": 2003.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "ตัดสายกู้ชีพ",
+        "height": 44,
+        "width": 74.72,
+        "top": 2003.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "แตะหยุดเวลา",
+        "height": 44,
+        "width": 81.33,
+        "top": 2003.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "กับระเบิด",
+        "height": 44,
+        "width": 56.55,
+        "top": 2003.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "บางกอกดริฟต์",
+        "height": 44,
+        "width": 91.89,
+        "top": 2055.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "จระเข้งับ",
+        "height": 44,
+        "width": 53.27,
+        "top": 2055.53,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      }
+    ],
+    "errors": [],
+    "files": [
+      "docs/verification/evidence/gh263-canvas/game-nav/ToolNumber390.jpg",
+      "docs/verification/evidence/gh263-canvas/game-nav/ToolNumber390-gamenav.jpg"
+    ]
+  },
+  {
+    "name": "ToolNumberDesktop",
+    "width": 1440,
+    "dir": "design",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "height": 2513,
+    "blockHeight": 139,
+    "listHeight": 96,
+    "listTag": "UL",
+    "rows": 2,
+    "linkCount": 14,
+    "minLinkHeight": 44,
+    "blockRect": {
+      "x": 80,
+      "y": 1567,
+      "w": 940,
+      "h": 139
+    },
+    "links": [
+      {
+        "label": "ระเบิดเวลา",
+        "height": 44,
+        "width": 65.36,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "จับไม้สั้น",
+        "height": 44,
+        "width": 51.83,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "มือลั่น",
+        "height": 44,
+        "width": 37.95,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "ยิงธง",
+        "height": 44,
+        "width": 35.41,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "วัดพลัง",
+        "height": 44,
+        "width": 46.58,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "เต๋าชี้คนแพ้",
+        "height": 44,
+        "width": 69.58,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "ไกลแค่ไหนคือใกล้",
+        "height": 44,
+        "width": 108.8,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "พิน็อคคิอวย",
+        "height": 44,
+        "width": 76.33,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "เลขอาถรรพ์",
+        "height": 44,
+        "width": 74.5,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "ตัดสายกู้ชีพ",
+        "height": 44,
+        "width": 74.72,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "แตะหยุดเวลา",
+        "height": 44,
+        "width": 81.33,
+        "top": 1610.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "กับระเบิด",
+        "height": 44,
+        "width": 56.55,
+        "top": 1662.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "บางกอกดริฟต์",
+        "height": 44,
+        "width": 91.89,
+        "top": 1662.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      },
+      {
+        "label": "จระเข้งับ",
+        "height": 44,
+        "width": 53.27,
+        "top": 1662.47,
+        "font": "\"Noto Sans Thai\", system-ui, sans-serif 400 16px/normal"
+      }
+    ],
+    "errors": [],
+    "files": [
+      "docs/verification/evidence/gh263-canvas/game-nav/ToolNumberDesktop-part0.jpg",
+      "docs/verification/evidence/gh263-canvas/game-nav/ToolNumberDesktop-part1.jpg",
+      "docs/verification/evidence/gh263-canvas/game-nav/ToolNumberDesktop-gamenav.jpg"
+    ]
+  }
+]
