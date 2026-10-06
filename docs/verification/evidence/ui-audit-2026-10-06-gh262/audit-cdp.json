@@ -1,0 +1,612 @@
+{
+  "generatedFor": "gh#262",
+  "base": "http://localhost:4410",
+  "platformFonts": {
+    "/tool/wheel/@320": {
+      "h1Computed": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif | 700",
+      "h1Painted": [
+        "Sarabun / Sarabun-Bold (13 glyphs, custom=true)"
+      ]
+    },
+    "/tool/number/@320": {
+      "h1Computed": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif | 700",
+      "h1Painted": [
+        "Sarabun / Sarabun-Bold (7 glyphs, custom=true)"
+      ]
+    },
+    "/tool/draw/@320": {
+      "h1Computed": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif | 600",
+      "h1Painted": [
+        "Mitr SemiBold / Mitr-SemiBold (7 glyphs, custom=true)"
+      ]
+    },
+    "/tool/wheel/@1440": {
+      "h1Computed": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif | 700",
+      "h1Painted": [
+        "Sarabun / Sarabun-Bold (13 glyphs, custom=true)"
+      ]
+    },
+    "/tool/number/@1440": {
+      "h1Computed": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif | 700",
+      "h1Painted": [
+        "Sarabun / Sarabun-Bold (7 glyphs, custom=true)"
+      ]
+    },
+    "/tool/draw/@1440": {
+      "h1Computed": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif | 700",
+      "h1Painted": [
+        "Mitr / Mitr-Bold (7 glyphs, custom=true)"
+      ]
+    }
+  },
+  "built": {
+    "320": [
+      {
+        "tile": "/game/pinocchio-luck/play/",
+        "text": "ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 156,
+        "boxH": 63,
+        "lines": 3,
+        "linePitchPx": [
+          21,
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ตอบคำถามคนละข้อ",
+          "ตอบผิดจมูกยาว ใครยาว",
+          "สุดคนนั้นโดน"
+        ]
+      },
+      {
+        "tile": "/game/how-close-is-near/play/",
+        "text": "แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้ ตกลงกันก่อนเร",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 156,
+        "boxH": 63,
+        "lines": 3,
+        "linePitchPx": [
+          21,
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "แอบทายเลขลับคนละ 1",
+          "ตัว รอบนี้ใกล้แพ้หรือ",
+          "ไกลแพ้ ตกลงกันก่อนเริ่ม"
+        ]
+      },
+      {
+        "tile": "/game/dice-loser/play/",
+        "text": "ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่อนว่าแต้มสูงหรือแต้มต่ำแพ้",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 156,
+        "boxH": 63,
+        "lines": 3,
+        "linePitchPx": [
+          21,
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ผลัดกันทอยเต๋า 3 ลูก",
+          "ตกลงกันก่อนว่าแต้มสูง",
+          "หรือแต้มต่ำแพ้"
+        ]
+      },
+      {
+        "tile": "/game/siamsi/",
+        "text": "เขย่ามือถือเสี่ยงเซียมซี เปิดดูใบทำนายของคุณ",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 258,
+        "boxH": 42,
+        "lines": 2,
+        "linePitchPx": [
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "เขย่ามือถือเสี่ยงเซียมซี เปิดดูใบทำนาย",
+          "ของคุณ"
+        ]
+      },
+      {
+        "tile": "/game/daily-fortune/",
+        "text": "กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 258,
+        "boxH": 42,
+        "lines": 2,
+        "linePitchPx": [
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่อง",
+          "จิ๊บจ๊อยอะไร อ่านขำๆ ไม่ต้องเชื่อ"
+        ]
+      },
+      {
+        "tile": "/game/love-match/",
+        "text": "ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็นคนแบบไหน",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 258,
+        "boxH": 42,
+        "lines": 2,
+        "linePitchPx": [
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็น",
+          "คนแบบไหน"
+        ]
+      }
+    ],
+    "1440": [
+      {
+        "tile": "/game/pinocchio-luck/play/",
+        "text": "ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 353,
+        "boxH": 42,
+        "lines": 2,
+        "linePitchPx": [
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้น",
+          "โดน"
+        ]
+      },
+      {
+        "tile": "/game/how-close-is-near/play/",
+        "text": "แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้ ตกลงกันก่อนเร",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 353,
+        "boxH": 42,
+        "lines": 2,
+        "linePitchPx": [
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้",
+          "ตกลงกันก่อนเริ่ม"
+        ]
+      },
+      {
+        "tile": "/game/dice-loser/play/",
+        "text": "ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่อนว่าแต้มสูงหรือแต้มต่ำแพ้",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 353,
+        "boxH": 42,
+        "lines": 2,
+        "linePitchPx": [
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่อนว่าแต้มสูงหรือแต้ม",
+          "ต่ำแพ้"
+        ]
+      },
+      {
+        "tile": "/game/siamsi/",
+        "text": "เขย่ามือถือเสี่ยงเซียมซี เปิดดูใบทำนายของคุณ",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 348,
+        "boxH": 21,
+        "lines": 1,
+        "linePitchPx": [],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "เขย่ามือถือเสี่ยงเซียมซี เปิดดูใบทำนายของคุณ"
+        ]
+      },
+      {
+        "tile": "/game/daily-fortune/",
+        "text": "กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 348,
+        "boxH": 42,
+        "lines": 2,
+        "linePitchPx": [
+          21
+        ],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่า",
+          "นขำๆ ไม่ต้องเชื่อ"
+        ]
+      },
+      {
+        "tile": "/game/love-match/",
+        "text": "ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็นคนแบบไหน",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 348,
+        "boxH": 21,
+        "lines": 1,
+        "linePitchPx": [],
+        "boxHPerLine": 21,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็นคนแบบไหน"
+        ]
+      },
+      {
+        "tile": "/tool/wheel/",
+        "text": "ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน",
+        "fontSize": "15px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 250,
+        "boxH": 19,
+        "lines": 1,
+        "linePitchPx": [],
+        "boxHPerLine": 19,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ใส่ชื่อในวงแล้วกดหมุน รู้ทันทีว่าใครโดน"
+        ]
+      },
+      {
+        "tile": "/tool/draw/",
+        "text": "ใส่ชื่อทั้งวง เลือกว่าจะจั่วกี่คน กดทีเดียวรู้ผล คนที่ออกแล้",
+        "fontSize": "15px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 250,
+        "boxH": 38,
+        "lines": 2,
+        "linePitchPx": [
+          19
+        ],
+        "boxHPerLine": 19,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ใส่ชื่อทั้งวง เลือกว่าจะจั่วกี่คน กดทีเดียวรู้",
+          "ผล คนที่ออกแล้วไม่ออกซ้ำในรอบเดิม"
+        ]
+      },
+      {
+        "tile": "/tool/team/",
+        "text": "ใส่ชื่อแล้วบอกว่าอยากได้กี่ทีม แบ่งให้ทันที จำนวนคนแต่ละทีมต",
+        "fontSize": "15px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 250,
+        "boxH": 38,
+        "lines": 2,
+        "linePitchPx": [
+          19
+        ],
+        "boxHPerLine": 19,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ใส่ชื่อแล้วบอกว่าอยากได้กี่ทีม แบ่งให้ทันที",
+          "จำนวนคนแต่ละทีมต่างกันไม่เกินหนึ่งคน"
+        ]
+      },
+      {
+        "tile": "/tool/number/",
+        "text": "ตั้งเลขต่ำสุดกับสูงสุดแล้วกดสุ่ม เลือกได้ว่าจะให้เลขซ้ำได้ ห",
+        "fontSize": "15px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "anywhere",
+        "wordBreak": "normal",
+        "family": "Sarabun, \"Noto Sans Thai\", system-ui, -a",
+        "boxW": 250,
+        "boxH": 38,
+        "lines": 2,
+        "linePitchPx": [
+          19
+        ],
+        "boxHPerLine": 19,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ตั้งเลขต่ำสุดกับสูงสุดแล้วกดสุ่ม เลือกได้ว่า",
+          "จะให้เลขซ้ำได้ หรือห้ามซ้ำในรอบเดียวกัน"
+        ]
+      }
+    ],
+    "320Control": {
+      "text": "เครื่องมือกิจกรรมสันทนาการ",
+      "fontSize": "16px",
+      "lineHeightComputed": "normal",
+      "overflowWrap": "anywhere",
+      "wordBreak": "normal",
+      "family": "Times",
+      "boxW": 40,
+      "boxH": 132,
+      "lines": 6,
+      "linePitchPx": [
+        22,
+        22,
+        22,
+        22,
+        22
+      ],
+      "boxHPerLine": 22,
+      "midWordSplits": [
+        "กิจกรรม",
+        "สันทนาการ"
+      ],
+      "lineTexts": [
+        "เครื่อง",
+        "มือ",
+        "กิจกร",
+        "รม",
+        "สันทน",
+        "าการ"
+      ]
+    },
+    "1440Control": {
+      "text": "เครื่องมือกิจกรรมสันทนาการ",
+      "fontSize": "16px",
+      "lineHeightComputed": "normal",
+      "overflowWrap": "anywhere",
+      "wordBreak": "normal",
+      "family": "Times",
+      "boxW": 40,
+      "boxH": 132,
+      "lines": 6,
+      "linePitchPx": [
+        22,
+        22,
+        22,
+        22,
+        22
+      ],
+      "boxHPerLine": 22,
+      "midWordSplits": [
+        "กิจกรรม",
+        "สันทนาการ"
+      ],
+      "lineTexts": [
+        "เครื่อง",
+        "มือ",
+        "กิจกร",
+        "รม",
+        "สันทน",
+        "าการ"
+      ]
+    }
+  },
+  "canvas": {
+    "320": [
+      {
+        "tile": "/game/siamsi/",
+        "text": "เขย่ามือถือเสี่ยงเซียมซี เปิดดูใบทำนายของคุณ",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "normal",
+        "wordBreak": "normal",
+        "family": "\"Noto Sans Thai\", system-ui, sans-serif",
+        "boxW": 258,
+        "boxH": 48,
+        "lines": 2,
+        "linePitchPx": [
+          24
+        ],
+        "boxHPerLine": 24,
+        "midWordSplits": [],
+        "lineTexts": [
+          "เขย่ามือถือเสี่ยงเซียมซี เปิดดูใบทำนาย",
+          "ของคุณ"
+        ]
+      },
+      {
+        "tile": "/game/daily-fortune/",
+        "text": "กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "normal",
+        "wordBreak": "normal",
+        "family": "\"Noto Sans Thai\", system-ui, sans-serif",
+        "boxW": 258,
+        "boxH": 48,
+        "lines": 2,
+        "linePitchPx": [
+          24
+        ],
+        "boxHPerLine": 24,
+        "midWordSplits": [],
+        "lineTexts": [
+          "กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อ",
+          "ยอะไร อ่านขำๆ ไม่ต้องเชื่อ"
+        ]
+      },
+      {
+        "tile": "/game/love-match/",
+        "text": "ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็นคนแบบไหน",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "normal",
+        "wordBreak": "normal",
+        "family": "\"Noto Sans Thai\", system-ui, sans-serif",
+        "boxW": 258,
+        "boxH": 48,
+        "lines": 2,
+        "linePitchPx": [
+          24
+        ],
+        "boxHPerLine": 24,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ตอบสามข้อ แล้วดูว่าเนื้อคู่ของคุณเป็นคน",
+          "แบบไหน"
+        ]
+      }
+    ],
+    "popularDescs320": [
+      {
+        "tile": "/game/pinocchio-luck/play/",
+        "text": "ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "normal",
+        "wordBreak": "normal",
+        "family": "\"Noto Sans Thai\", system-ui, sans-serif",
+        "boxW": 156,
+        "boxH": 72,
+        "lines": 3,
+        "linePitchPx": [
+          24,
+          24
+        ],
+        "boxHPerLine": 24,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ตอบคำถามคนละข้อ",
+          "ตอบผิดจมูกยาว ใครยาว",
+          "สุดคนนั้นโดน"
+        ]
+      },
+      {
+        "tile": "/game/how-close-is-near/play/",
+        "text": "แอบทายเลขลับคนละ 1 ตัว รอบนี้ใกล้แพ้หรือไกลแพ้ ตกลงกันก่อนเร",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "normal",
+        "wordBreak": "normal",
+        "family": "\"Noto Sans Thai\", system-ui, sans-serif",
+        "boxW": 156,
+        "boxH": 72,
+        "lines": 3,
+        "linePitchPx": [
+          24,
+          24
+        ],
+        "boxHPerLine": 24,
+        "midWordSplits": [],
+        "lineTexts": [
+          "แอบทายเลขลับคนละ 1",
+          "ตัว รอบนี้ใกล้แพ้หรือไกล",
+          "แพ้ ตกลงกันก่อนเริ่ม"
+        ]
+      },
+      {
+        "tile": "/game/dice-loser/play/",
+        "text": "ผลัดกันทอยเต๋า 3 ลูก ตกลงกันก่อนว่าแต้มสูงหรือแต้มต่ำแพ้",
+        "fontSize": "16px",
+        "lineHeightComputed": "normal",
+        "overflowWrap": "normal",
+        "wordBreak": "normal",
+        "family": "\"Noto Sans Thai\", system-ui, sans-serif",
+        "boxW": 156,
+        "boxH": 72,
+        "lines": 3,
+        "linePitchPx": [
+          24,
+          24
+        ],
+        "boxHPerLine": 24,
+        "midWordSplits": [],
+        "lineTexts": [
+          "ผลัดกันทอยเต๋า 3 ลูก",
+          "ตกลงกันก่อนว่าแต้มสูง",
+          "หรือแต้มต่ำแพ้"
+        ]
+      }
+    ],
+    "overflowWrapAnywhere": [
+      "div \"DESIGN NOTES - D · Toy Shelf (320). Not \" inline=true font=11px",
+      "div \"DESIGN NOTES - D · Toy Shelf (320). Not \" inline=false font=13px",
+      "div \"ADR-0058 STRUCTURE CHANGED: YES. Intent \" inline=false font=11px",
+      "b \"ADR-0058 STRUCTURE CHANGED: YES.\" inline=false font=11px",
+      "div \"1 art: featured 3D toy + art-first popul\" inline=false font=11px",
+      "b \"1 art:\" inline=false font=11px",
+      "b \"2 motion:\" inline=false font=11px",
+      "b \"3 bold:\" inline=false font=11px",
+      "b \"4 portal:\" inline=false font=11px",
+      "div \"Motion cost: 0 JS; ~1 KB CSS; 6 idle tra\" inline=false font=11px",
+      "b \"Motion cost:\" inline=false font=11px",
+      "div \"Invented Thai: 0. All copy from manifest\" inline=false font=11px",
+      "b \"Invented Thai: 0.\" inline=false font=11px",
+      "div \"Art: croc-bite real; 13 pending (dashed \" inline=false font=11px",
+      "b \"Art:\" inline=false font=11px"
+    ]
+  },
+  "canvasFonts": {
+    "loaded": [
+      "Mitr 600",
+      "Mitr 600",
+      "Mitr 700",
+      "Mitr 700",
+      "Noto Sans Thai 400",
+      "Noto Sans Thai 400",
+      "Noto Sans Thai 600",
+      "Noto Sans Thai 600"
+    ],
+    "innerWidth": 320,
+    "tiles": 24
+  }
+}

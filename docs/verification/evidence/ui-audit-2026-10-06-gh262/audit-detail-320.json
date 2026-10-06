@@ -1,0 +1,292 @@
+{
+  "W": 320,
+  "p404": {
+    "html": 7102,
+    "linkedCss": [],
+    "inlineStyleTags": 1,
+    "body": {
+      "family": "Times",
+      "bg": "rgba(0, 0, 0, 0)",
+      "color": "rgb(0, 0, 0)",
+      "margin": "0px",
+      "fontSize": "16px"
+    },
+    "els": [
+      {
+        "tag": "header",
+        "text": "วัดดวงดูดวงสุ่มคนโดนเครื่องมือ",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "16px",
+        "color": "rgb(0, 0, 0)",
+        "deco": "none",
+        "rect": [
+          0,
+          0,
+          320,
+          109
+        ]
+      },
+      {
+        "tag": "div",
+        "text": "วัดดวงดูดวงสุ่มคนโดนเครื่องมือ",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "16px",
+        "color": "rgb(0, 0, 0)",
+        "deco": "none",
+        "rect": [
+          14,
+          12,
+          292,
+          85
+        ]
+      },
+      {
+        "tag": "a",
+        "text": "วัดดวง",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "26px",
+        "color": "rgb(255, 204, 0)",
+        "deco": "none",
+        "rect": [
+          14,
+          12,
+          80,
+          41
+        ]
+      },
+      {
+        "tag": "nav",
+        "text": "ดูดวงสุ่มคนโดนเครื่องมือสุ่ม",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "14px",
+        "color": "rgb(0, 0, 0)",
+        "deco": "none",
+        "rect": [
+          14,
+          63,
+          250,
+          34
+        ]
+      },
+      {
+        "tag": "a",
+        "text": "ดูดวง",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "14px",
+        "color": "rgb(20, 20, 43)",
+        "deco": "none",
+        "rect": [
+          14,
+          63,
+          59,
+          34
+        ]
+      },
+      {
+        "tag": "a",
+        "text": "สุ่มคนโดน",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "14px",
+        "color": "rgb(20, 20, 43)",
+        "deco": "none",
+        "rect": [
+          79,
+          63,
+          82,
+          34
+        ]
+      },
+      {
+        "tag": "a",
+        "text": "เครื่องมือสุ่ม",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "14px",
+        "color": "rgb(20, 20, 43)",
+        "deco": "none",
+        "rect": [
+          167,
+          63,
+          97,
+          34
+        ]
+      },
+      {
+        "tag": "main",
+        "text": "ไม่พบหน้านี้ ขออภัย ไม่พบหน้าท",
+        "family": "Times",
+        "size": "16px",
+        "color": "rgb(0, 0, 0)",
+        "deco": "none",
+        "rect": [
+          0,
+          109,
+          320,
+          459
+        ]
+      },
+      {
+        "tag": "h1",
+        "text": "ไม่พบหน้านี้",
+        "family": "Times",
+        "size": "32px",
+        "color": "rgb(0, 0, 0)",
+        "deco": "none",
+        "rect": [
+          0,
+          130,
+          320,
+          44
+        ]
+      },
+      {
+        "tag": "p",
+        "text": "ขออภัย ไม่พบหน้าที่คุณต้องการ",
+        "family": "Times",
+        "size": "16px",
+        "color": "rgb(0, 0, 0)",
+        "deco": "none",
+        "rect": [
+          0,
+          196,
+          320,
+          22
+        ]
+      },
+      {
+        "tag": "a",
+        "text": "กลับหน้าแรก",
+        "family": "Times",
+        "size": "16px",
+        "color": "rgb(0, 0, 238)",
+        "deco": "underline",
+        "rect": [
+          0,
+          237,
+          84,
+          18
+        ]
+      },
+      {
+        "tag": "footer",
+        "text": "วัดดวง",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "16px",
+        "color": "rgb(0, 0, 0)",
+        "deco": "none",
+        "rect": [
+          0,
+          568,
+          320,
+          72
+        ]
+      },
+      {
+        "tag": "div",
+        "text": "วัดดวง",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "16px",
+        "color": "rgb(0, 0, 0)",
+        "deco": "none",
+        "rect": [
+          14,
+          568,
+          292,
+          72
+        ]
+      },
+      {
+        "tag": "span",
+        "text": "วัดดวง",
+        "family": "Mitr, \"Noto Sans Thai\", ",
+        "size": "22px",
+        "color": "rgb(255, 204, 0)",
+        "deco": "none",
+        "rect": [
+          126,
+          587,
+          67,
+          34
+        ]
+      }
+    ],
+    "nav": true,
+    "footer": true,
+    "canvasBgVar": ""
+  },
+  "eyebrow": [
+    "p.tool-eyebrow bg=rgba(0, 0, 0, 0) bgimg=none color=rgb(61, 59, 92)",
+    "div.tool-band-inner bg=rgba(0, 0, 0, 0) bgimg=none color=rgb(20, 20, 43)",
+    "div.tool-band bg=rgb(43, 123, 255) bgimg=none color=rgb(20, 20, 43)",
+    "header.tool-head bg=rgba(0, 0, 0, 0) bgimg=none color=rgb(20, 20, 43)",
+    "main.tool-page bg=rgb(255, 246, 224) bgimg=none color=rgb(20, 20, 43)",
+    "body. bg=rgb(255, 246, 224) bgimg=none color=rgb(0, 0, 0)",
+    "html. bg=rgba(0, 0, 0, 0) bgimg=none color=rgb(0, 0, 0)"
+  ],
+  "homeToolTiles": [
+    {
+      "href": "/tool/wheel/",
+      "bg": "rgb(43, 123, 255)",
+      "name": "rgb(20, 20, 43)",
+      "desc": "rgb(20, 20, 43) none"
+    },
+    {
+      "href": "/tool/draw/",
+      "bg": "rgb(43, 123, 255)",
+      "name": "rgb(20, 20, 43)",
+      "desc": "rgb(20, 20, 43) none"
+    },
+    {
+      "href": "/tool/team/",
+      "bg": "rgb(43, 123, 255)",
+      "name": "rgb(20, 20, 43)",
+      "desc": "rgb(20, 20, 43) none"
+    },
+    {
+      "href": "/tool/number/",
+      "bg": "rgb(43, 123, 255)",
+      "name": "rgb(20, 20, 43)",
+      "desc": "rgb(20, 20, 43) none"
+    }
+  ],
+  "checkboxes": [
+    {
+      "type": "radio",
+      "id": "",
+      "box": [
+        13,
+        13
+      ],
+      "label": [
+        210,
+        38
+      ],
+      "labelText": "A · หมุนแล้วช้าลงจนห"
+    },
+    {
+      "type": "radio",
+      "id": "",
+      "box": [
+        13,
+        13
+      ],
+      "label": [
+        242,
+        38
+      ],
+      "labelText": "B · หมุนค้างไว้ จนกว"
+    },
+    {
+      "type": "checkbox",
+      "id": "wheel-eliminate",
+      "box": [
+        13,
+        13
+      ],
+      "label": [
+        219,
+        21
+      ],
+      "labelText": "เอาคนที่ออกแล้วออกจา"
+    }
+  ]
+}

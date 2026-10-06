@@ -1,0 +1,1850 @@
+{
+  "width": 1440,
+  "pages": [
+    {
+      "path": "/tools/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 4,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 9,
+      "under44": 0,
+      "under44Sample": [],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "12222",
+      "cls": 0.0007,
+      "lcp": {
+        "el": "h1 \"เครื่องมือสุ่ม\"",
+        "ms": 28,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"เครื่องมือสุ่ม\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "58px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"วงล้อสุ่มชื่อ\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "22px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"จับฉลาก\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "22px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"แบ่งทีม\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "22px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"สุ่มเลข\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "22px",
+            "weight": "600"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 unloaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 loaded",
+          "Mitr 600 loaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 125,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "เครื่องมือสุ่มทั้งหมด — วัดดวง",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 1,
+          "h1Size": "58px"
+        }
+      }
+    },
+    {
+      "path": "/tool/wheel/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [
+        {
+          "el": "text \"หมุน\"",
+          "ratio": 2,
+          "need": 3,
+          "fs": 26,
+          "fw": 600,
+          "fg": "rgba(16, 16, 16, 0.3)"
+        }
+      ],
+      "contrastUnmeasured": 0,
+      "textElements16": 3,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 26,
+      "under44": 18,
+      "under44Sample": [
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 25
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 25
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 25
+        },
+        {
+          "el": "a \"ยิงธง\"",
+          "w": 32,
+          "h": 25
+        },
+        {
+          "el": "a \"วัดพลัง\"",
+          "w": 46,
+          "h": 25
+        }
+      ],
+      "under24": [
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "12232",
+      "cls": 0.0015,
+      "lcp": {
+        "el": "p.wheel-note \"ยังหมุนไม่ได้ — ใส่ชื่ออ\"",
+        "ms": 20,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"วงล้อสุ่มชื่อ\"",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "size": "32px",
+            "weight": "700"
+          },
+          {
+            "el": "h2#wheel-heading \"วงล้อ\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "19px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"ชื่อในวง\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "18px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"วิธีใช้\"",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "size": "24px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 loaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 loaded",
+          "Mitr 600 loaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [
+          {
+            "el": "button#wheel-disc \"หมุน\"",
+            "disabled": true,
+            "appearance": "auto",
+            "bg": "rgba(0, 0, 0, 0)",
+            "color": "rgba(16, 16, 16, 0.3)",
+            "border": "0px none rgba(16, 16, 16, 0.3)",
+            "radius": "0px",
+            "family": "Arial",
+            "fontSize": "13.3333px",
+            "w": 400,
+            "h": 400,
+            "uaDefault": false
+          },
+          {
+            "el": "button#wheel-spin \"หมุน\"",
+            "disabled": true,
+            "appearance": "auto",
+            "bg": "rgb(43, 123, 255)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "20px",
+            "w": 378,
+            "h": 60,
+            "uaDefault": false
+          },
+          {
+            "el": "button#wheel-reset \"คืนทุกชื่อเข้าวงล้อ\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "14px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "16px",
+            "w": 158,
+            "h": 60,
+            "uaDefault": false
+          },
+          {
+            "el": "button#name-start \"ใส่ชื่อลงวงล้อ\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(20, 20, 43)",
+            "color": "rgb(255, 246, 224)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "20px",
+            "w": 508,
+            "h": 60,
+            "uaDefault": false
+          }
+        ],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "wheelResult": {
+          "text": "",
+          "textLen": 0,
+          "w": 544,
+          "h": 60,
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "1",
+          "bg": "rgb(20, 20, 43)",
+          "border": "0px none",
+          "padding": "14px 16px",
+          "boxShadow": "none",
+          "hidden": false,
+          "ariaHidden": null,
+          "className": "wheel-result"
+        },
+        "thaiWords": 194,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "วงล้อสุ่มชื่อ — วัดดวง",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 1,
+          "h1Size": "32px"
+        }
+      }
+    },
+    {
+      "path": "/tool/draw/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 5,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 24,
+      "under44": 16,
+      "under44Sample": [
+        {
+          "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+          "w": 109,
+          "h": 26
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 25
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 25
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 25
+        },
+        {
+          "el": "a \"ยิงธง\"",
+          "w": 32,
+          "h": 25
+        },
+        {
+          "el": "a \"วัดพลัง\"",
+          "w": 46,
+          "h": 25
+        },
+        {
+          "el": "a \"เต๋าชี้คนแพ้\"",
+          "w": 73,
+          "h": 25
+        },
+        {
+          "el": "a \"ไกลแค่ไหนคือใกล้\"",
+          "w": 114,
+          "h": 25
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "122332",
+      "cls": 0,
+      "lcp": {
+        "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
+        "ms": 20,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"จับฉลาก\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "38px",
+            "weight": "700"
+          },
+          {
+            "el": "h2 \"ชื่อในกล่อง\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "18px",
+            "weight": "600"
+          },
+          {
+            "el": "h2#draw-heading \"กล่องฉลาก\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "26px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"วิธีใช้\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "24px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 unloaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 loaded",
+          "Mitr 600 loaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [
+          {
+            "el": "button#name-start \"ใส่ชื่อลงกล่อง\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(20, 20, 43)",
+            "color": "rgb(255, 246, 224)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "20px",
+            "w": 904,
+            "h": 60,
+            "uaDefault": false
+          },
+          {
+            "el": "button#draw-go \"จับฉลาก\"",
+            "disabled": true,
+            "appearance": "auto",
+            "bg": "rgb(43, 123, 255)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "22px",
+            "w": 427,
+            "h": 64,
+            "uaDefault": false
+          },
+          {
+            "el": "button#draw-reset \"เริ่มรอบใหม่\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "18px",
+            "w": 427,
+            "h": 56,
+            "uaDefault": false
+          }
+        ],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 195,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "จับฉลาก — วัดดวง",
+          "bodyBg": "rgb(255, 246, 224)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 3,
+          "h1Size": "38px"
+        }
+      }
+    },
+    {
+      "path": "/tool/team/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 5,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 23,
+      "under44": 16,
+      "under44Sample": [
+        {
+          "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+          "w": 109,
+          "h": 26
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 25
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 25
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 25
+        },
+        {
+          "el": "a \"ยิงธง\"",
+          "w": 32,
+          "h": 25
+        },
+        {
+          "el": "a \"วัดพลัง\"",
+          "w": 46,
+          "h": 25
+        },
+        {
+          "el": "a \"เต๋าชี้คนแพ้\"",
+          "w": 73,
+          "h": 25
+        },
+        {
+          "el": "a \"ไกลแค่ไหนคือใกล้\"",
+          "w": 114,
+          "h": 25
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "12232",
+      "cls": 0.0011,
+      "lcp": {
+        "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
+        "ms": 20,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"แบ่งทีม\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "38px",
+            "weight": "700"
+          },
+          {
+            "el": "h2 \"ชื่อในสนาม\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "18px",
+            "weight": "600"
+          },
+          {
+            "el": "h2#team-heading \"แบ่งทีม\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "26px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"วิธีใช้\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "24px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 unloaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 loaded",
+          "Mitr 600 loaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [
+          {
+            "el": "button#name-start \"ใส่ชื่อลงสนาม\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(20, 20, 43)",
+            "color": "rgb(255, 246, 224)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "20px",
+            "w": 904,
+            "h": 60,
+            "uaDefault": false
+          },
+          {
+            "el": "button#team-split \"แบ่งทีม\"",
+            "disabled": true,
+            "appearance": "auto",
+            "bg": "rgb(43, 123, 255)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "22px",
+            "w": 726,
+            "h": 64,
+            "uaDefault": false
+          }
+        ],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 194,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "แบ่งทีม — วัดดวง",
+          "bodyBg": "rgb(255, 246, 224)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 3,
+          "h1Size": "38px"
+        }
+      }
+    },
+    {
+      "path": "/tool/number/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 2,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 24,
+      "under44": 20,
+      "under44Sample": [
+        {
+          "el": "input \"\"",
+          "w": 92,
+          "h": 30
+        },
+        {
+          "el": "input \"\"",
+          "w": 92,
+          "h": 30
+        },
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        },
+        {
+          "el": "button \"สุ่ม\"",
+          "w": 32,
+          "h": 24
+        },
+        {
+          "el": "button \"เริ่มรอบใหม่\"",
+          "w": 82,
+          "h": 24
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 25
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 25
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 25
+        }
+      ],
+      "under24": [
+        {
+          "el": "input \"\"",
+          "w": 13,
+          "h": 13
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "1232",
+      "cls": 0,
+      "lcp": {
+        "el": "p \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
+        "ms": 24,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"สุ่มเลข\"",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "size": "32px",
+            "weight": "700"
+          },
+          {
+            "el": "h2#number-heading \"ช่วงตัวเลข\"",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "size": "24px",
+            "weight": "700"
+          },
+          {
+            "el": "h2 \"วิธีใช้\"",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "size": "24px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 loaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 unloaded",
+          "Mitr 600 loaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [
+          {
+            "el": "button#number-go \"สุ่ม\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(239, 239, 239)",
+            "color": "rgb(0, 0, 0)",
+            "border": "2px outset rgb(0, 0, 0)",
+            "radius": "0px",
+            "family": "Arial",
+            "fontSize": "13.3333px",
+            "w": 32,
+            "h": 24,
+            "uaDefault": true
+          },
+          {
+            "el": "button#number-reset \"เริ่มรอบใหม่\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(239, 239, 239)",
+            "color": "rgb(0, 0, 0)",
+            "border": "2px outset rgb(0, 0, 0)",
+            "radius": "0px",
+            "family": "Arial",
+            "fontSize": "13.3333px",
+            "w": 82,
+            "h": 24,
+            "uaDefault": true
+          }
+        ],
+        "buttonsUaDefault": 2,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 155,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "สุ่มเลข — วัดดวง",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 1,
+          "h1Size": "32px"
+        }
+      }
+    },
+    {
+      "path": "/c/fortune/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 18,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 10,
+      "under44": 1,
+      "under44Sample": [
+        {
+          "el": "a \"หน้าแรก\"",
+          "w": 48,
+          "h": 26
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "123332",
+      "cls": 0,
+      "lcp": {
+        "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
+        "ms": 28,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"ดูดวง\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "58px",
+            "weight": "600"
+          },
+          {
+            "el": "h2 \"คำทำนายในหมวดนี้\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "15px",
+            "weight": "500"
+          },
+          {
+            "el": "h2 \"ไปที่อื่นต่อ\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "15px",
+            "weight": "500"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 unloaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 loaded",
+          "Mitr 600 loaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 154,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "ดูดวงออนไลน์ฟรี — เซียมซี ดวงวันนี้ | วัดดวง",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 2,
+          "h1Size": "58px"
+        }
+      }
+    },
+    {
+      "path": "/game/siamsi/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 7,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 23,
+      "under44": 22,
+      "under44Sample": [
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 52,
+          "h": 24
+        },
+        {
+          "el": "button.sm-chip \"การงาน\"",
+          "w": 76,
+          "h": 34
+        },
+        {
+          "el": "button.sm-chip \"ความรัก\"",
+          "w": 78,
+          "h": 34
+        },
+        {
+          "el": "button.sm-chip \"การเงิน\"",
+          "w": 73,
+          "h": 34
+        },
+        {
+          "el": "button.sm-chip \"สุขภาพ\"",
+          "w": 74,
+          "h": 34
+        },
+        {
+          "el": "button.sm-chip.sm-chip--on \"ไม่เจาะจง\"",
+          "w": 87,
+          "h": 34
+        },
+        {
+          "el": "a \"ดวงวันนี้\"",
+          "w": 54,
+          "h": 25
+        },
+        {
+          "el": "a \"เนื้อคู่ของคุณ\"",
+          "w": 83,
+          "h": 25
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "1233",
+      "cls": 0,
+      "lcp": {
+        "el": "h1.game-title \"เสี่ยงเซียมซี\"",
+        "ms": 20,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"เสี่ยงเซียมซี\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "44px",
+            "weight": "700"
+          },
+          {
+            "el": "h2 \"วิธีเล่น\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "24px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 unloaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 loaded",
+          "Mitr 600 unloaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [
+          {
+            "el": "button \"การงาน\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "14px",
+            "w": 76,
+            "h": 34,
+            "uaDefault": false
+          },
+          {
+            "el": "button \"ความรัก\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "14px",
+            "w": 78,
+            "h": 34,
+            "uaDefault": false
+          },
+          {
+            "el": "button \"การเงิน\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "14px",
+            "w": 73,
+            "h": 34,
+            "uaDefault": false
+          },
+          {
+            "el": "button \"สุขภาพ\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "14px",
+            "w": 74,
+            "h": 34,
+            "uaDefault": false
+          },
+          {
+            "el": "button \"ไม่เจาะจง\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(20, 20, 43)",
+            "color": "rgb(255, 246, 224)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "14px",
+            "w": 87,
+            "h": 34,
+            "uaDefault": false
+          },
+          {
+            "el": "button#ss-intent-done \"ตั้งจิตแล้ว\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(20, 20, 43)",
+            "color": "rgb(255, 246, 224)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "22px",
+            "w": 1400,
+            "h": 64,
+            "uaDefault": false
+          }
+        ],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 128,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "เสี่ยงเซียมซีออนไลน์ — ตั้งจิต เขย่ามือถือ เปิดใบทำนายฟรี",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 3,
+          "h1Size": "44px"
+        }
+      }
+    },
+    {
+      "path": "/game/daily-fortune/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 4,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 18,
+      "under44": 17,
+      "under44Sample": [
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 52,
+          "h": 24
+        },
+        {
+          "el": "a \"เสี่ยงเซียมซี\"",
+          "w": 74,
+          "h": 25
+        },
+        {
+          "el": "a \"เนื้อคู่ของคุณ\"",
+          "w": 83,
+          "h": 25
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 25
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 25
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 25
+        },
+        {
+          "el": "a \"ยิงธง\"",
+          "w": 32,
+          "h": 25
+        },
+        {
+          "el": "a \"วัดพลัง\"",
+          "w": 46,
+          "h": 25
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "1233",
+      "cls": 0.0002,
+      "lcp": {
+        "el": "span.df-headline \"วันนี้คุณจะเจอกับอะไร\"",
+        "ms": 40,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"ดวงวันนี้\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "44px",
+            "weight": "700"
+          },
+          {
+            "el": "h2 \"วิธีเล่น\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "24px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 unloaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 loaded",
+          "Mitr 600 unloaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [
+          {
+            "el": "button#df-go \"เปิดดวงวันนี้\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(20, 20, 43)",
+            "color": "rgb(255, 246, 224)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "22px",
+            "w": 1400,
+            "h": 64,
+            "uaDefault": false
+          }
+        ],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 134,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "ดวงวันนี้ — กดครั้งเดียว รู้ว่าวันนี้จะเจอเรื่องขำๆ อะไรบ้าง",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 3,
+          "h1Size": "44px"
+        }
+      }
+    },
+    {
+      "path": "/game/love-match/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 2,
+      "under12": [],
+      "tightLines": 1,
+      "tightLineSample": [
+        "p.lm-heading \"เนื้อคู่ของคุณ\" 1.40"
+      ],
+      "targets": 28,
+      "under44": 17,
+      "under44Sample": [
+        {
+          "el": "a \"ดูดวง\"",
+          "w": 52,
+          "h": 24
+        },
+        {
+          "el": "a \"เสี่ยงเซียมซี\"",
+          "w": 74,
+          "h": 25
+        },
+        {
+          "el": "a \"ดวงวันนี้\"",
+          "w": 54,
+          "h": 25
+        },
+        {
+          "el": "a \"ระเบิดเวลา\"",
+          "w": 71,
+          "h": 25
+        },
+        {
+          "el": "a \"จับไม้สั้น\"",
+          "w": 55,
+          "h": 25
+        },
+        {
+          "el": "a \"มือลั่น\"",
+          "w": 39,
+          "h": 25
+        },
+        {
+          "el": "a \"ยิงธง\"",
+          "w": 32,
+          "h": 25
+        },
+        {
+          "el": "a \"วัดพลัง\"",
+          "w": 46,
+          "h": 25
+        }
+      ],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "1233",
+      "cls": 0.0045,
+      "lcp": {
+        "el": "h1.game-title \"เนื้อคู่ของคุณ\"",
+        "ms": 16,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"เนื้อคู่ของคุณ\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "44px",
+            "weight": "700"
+          },
+          {
+            "el": "h2 \"วิธีเล่น\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "24px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 loaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 loaded",
+          "Mitr 600 unloaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [
+          {
+            "el": "button#lm-me-m \"ผู้ชาย\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 73,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-me-f \"ผู้หญิง\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 77,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-band-0 \"18–24\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 80,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-band-1 \"25–29\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 80,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-band-2 \"30–34\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 80,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-band-3 \"35–39\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 80,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-band-4 \"40–49\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 80,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-band-5 \"50 ขึ้นไป\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 94,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-want-m \"ผู้ชาย\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 73,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-want-f \"ผู้หญิง\"",
+            "disabled": false,
+            "appearance": "auto",
+            "bg": "rgb(255, 246, 224)",
+            "color": "rgb(20, 20, 43)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "999px",
+            "family": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "w": 77,
+            "h": 44,
+            "uaDefault": false
+          },
+          {
+            "el": "button#lm-go \"เปิดดูเนื้อคู่\"",
+            "disabled": true,
+            "appearance": "auto",
+            "bg": "rgb(20, 20, 43)",
+            "color": "rgb(255, 246, 224)",
+            "border": "2px solid rgb(20, 20, 43)",
+            "radius": "16px",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "fontSize": "22px",
+            "w": 1400,
+            "h": 64,
+            "uaDefault": false
+          }
+        ],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 153,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "เนื้อคู่ของคุณ — ตอบสามข้อ รู้ว่าเนื้อคู่เป็นคนแบบไหน และจะเจอตอนอายุเท่าไร",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 3,
+          "h1Size": "44px"
+        }
+      }
+    },
+    {
+      "path": "/404",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [],
+      "contrastUnmeasured": 0,
+      "textElements16": 0,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 5,
+      "under44": 1,
+      "under44Sample": [
+        {
+          "el": "a \"กลับหน้าแรก\"",
+          "w": 84,
+          "h": 18
+        }
+      ],
+      "under24": [
+        {
+          "el": "a \"กลับหน้าแรก\"",
+          "w": 84,
+          "h": 18
+        }
+      ],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "1",
+      "cls": 0,
+      "lcp": {
+        "el": "h1 \"ไม่พบหน้านี้\"",
+        "ms": 56,
+        "url": null
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"ไม่พบหน้านี้\"",
+            "family": "Times",
+            "size": "32px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 unloaded",
+          "Sarabun 700 unloaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 unloaded",
+          "Mitr 600 loaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 25,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "page": {
+          "title": "ไม่พบหน้านี้ — วัดดวง",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 1,
+          "h1Size": "32px"
+        }
+      }
+    },
+    {
+      "path": "/",
+      "innerWidth": 1440,
+      "lang": "th",
+      "viewport": "width=device-width, initial-scale=1",
+      "contrastFails": [
+        {
+          "el": "span.mark \"ใครโดน\"",
+          "ratio": 2.23,
+          "need": 3,
+          "fs": 84,
+          "fw": 700,
+          "fg": "rgb(255, 204, 0)"
+        },
+        {
+          "el": "div.wrap.ad-slot \"ช่องโฆษณา\"",
+          "ratio": 2.83,
+          "need": 4.5,
+          "fs": 16,
+          "fw": 400,
+          "fg": "rgb(154, 148, 122)"
+        }
+      ],
+      "contrastUnmeasured": 0,
+      "textElements16": 4,
+      "under12": [],
+      "tightLines": 0,
+      "tightLineSample": [],
+      "targets": 33,
+      "under44": 0,
+      "under44Sample": [],
+      "under24": [],
+      "imgNoAlt": [],
+      "headingSkips": 0,
+      "headings": "123332333333333333332333233332333",
+      "cls": 0,
+      "lcp": {
+        "el": "img \"\"",
+        "ms": 20,
+        "url": "http://localhost:4410/art/croc-bite.webp"
+      },
+      "extras": {
+        "hOverflowPx": 0,
+        "fontVars": {
+          "display": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+          "sans": "\"Sarabun\", \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+          "bodyFamily": "Times"
+        },
+        "headings": [
+          {
+            "el": "h1 \"กดทีเดียวรู้เลยว่าใค\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "84px",
+            "weight": "700"
+          },
+          {
+            "el": "h2#popular \"ยอดนิยม\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "44px",
+            "weight": "700"
+          },
+          {
+            "el": "h2#party \"เกมวัดดวง สุ่มคนโดน\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "44px",
+            "weight": "700"
+          },
+          {
+            "el": "h2#fortune \"ดูดวง ทำนายโชคชะตา\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "44px",
+            "weight": "700"
+          },
+          {
+            "el": "h2#tools \"เครื่องมือกิจกรรมสัน\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "44px",
+            "weight": "700"
+          },
+          {
+            "el": "h2#faq \"คำถามที่เจอบ่อย\"",
+            "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+            "size": "40px",
+            "weight": "700"
+          }
+        ],
+        "fontFaces": [
+          "Sarabun 400 loaded",
+          "Sarabun 700 loaded",
+          "Mitr 400 unloaded",
+          "Mitr 500 unloaded",
+          "Mitr 600 loaded",
+          "Mitr 700 loaded"
+        ],
+        "buttons": [],
+        "buttonsUaDefault": 0,
+        "buttonControlUnstyled": {
+          "el": "button \"control\"",
+          "disabled": false,
+          "appearance": "auto",
+          "bg": "rgb(239, 239, 239)",
+          "color": "rgb(0, 0, 0)",
+          "border": "2px outset rgb(0, 0, 0)",
+          "radius": "0px",
+          "family": "Arial",
+          "fontSize": "13.3333px",
+          "w": 1440,
+          "h": 21,
+          "uaDefault": true
+        },
+        "thaiWords": 433,
+        "thaiMidWordBreaks": 0,
+        "thaiMidWordSample": [],
+        "tileBodies": [
+          {
+            "el": "p \"ตอบคำถามคนละข้อ ตอบผ\"",
+            "lineHeight": "normal",
+            "fontSize": "16px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"แอบทายเลขลับคนละ 1 ต\"",
+            "lineHeight": "normal",
+            "fontSize": "16px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"ผลัดกันทอยเต๋า 3 ลูก\"",
+            "lineHeight": "normal",
+            "fontSize": "16px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"เขย่ามือถือเสี่ยงเซี\"",
+            "lineHeight": "normal",
+            "fontSize": "16px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"กดครั้งเดียว รู้เลยว\"",
+            "lineHeight": "normal",
+            "fontSize": "16px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"ตอบสามข้อ แล้วดูว่าเ\"",
+            "lineHeight": "normal",
+            "fontSize": "16px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"ใส่ชื่อในวงแล้วกดหมุ\"",
+            "lineHeight": "normal",
+            "fontSize": "15px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"ใส่ชื่อทั้งวง เลือกว\"",
+            "lineHeight": "normal",
+            "fontSize": "15px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"ใส่ชื่อแล้วบอกว่าอยา\"",
+            "lineHeight": "normal",
+            "fontSize": "15px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          },
+          {
+            "el": "p \"ตั้งเลขต่ำสุดกับสูงส\"",
+            "lineHeight": "normal",
+            "fontSize": "15px",
+            "overflowWrap": "anywhere",
+            "wordBreak": "normal"
+          }
+        ],
+        "tileBodyLineHeightNormal": 10,
+        "tileBodyOverflowWrapAnywhere": 10,
+        "page": {
+          "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+          "bodyBg": "rgba(0, 0, 0, 0)",
+          "bodyColor": "rgb(0, 0, 0)",
+          "bodyMargin": "0px",
+          "stylesheets": 2,
+          "h1Size": "84px"
+        }
+      }
+    }
+  ],
+  "consoleErrors": []
+}
