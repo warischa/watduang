@@ -374,6 +374,34 @@ test('both branches render, read correctly, and hold no navigation target; nothi
   }
 });
 
+// gh#263 (owner approval 2026-10-06, SoulmateStart / SoulmateResult / SoulmateSolo boards): the ask
+// title is the larger 30px heading; the meet and self reading headings stay on the 26px base.
+test('the ask title carries the ask modifier; the meet and self reading headings do not', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { stage } = mountAsk(t);
+  const ask = byClass(stage, 'lm-heading');
+  assert.equal(ask.length, 1, 'the ask screen has no single lm-heading');
+  assert.equal(ask[0].className, 'lm-heading lm-heading--ask', 'the ask title lost the ask modifier');
+  byId(stage, 'lm-me-f').click();
+  byId(stage, 'lm-band-1').click();
+
+  drawWith(stage, 0.1, t);
+  const meet = byClass(stage, 'lm-heading');
+  assert.equal(meet.length, 1);
+  assert.equal(meet[0].className, 'lm-heading', 'the meet heading carries a modifier');
+  assert.equal(byClass(stage, 'lm-heading--ask').length, 0, 'the ask modifier leaked onto the meet screen');
+
+  arm(t);
+  byId(stage, 'lm-again').click();
+  arm(t);
+  drawWith(stage, 0.9, t);
+  const self = byClass(stage, 'lm-heading');
+  assert.equal(self.length, 1);
+  assert.equal(self[0].className, 'lm-heading', 'the self heading carries a modifier');
+  assert.equal(byClass(stage, 'lm-heading--ask').length, 0, 'the ask modifier leaked onto the self screen');
+  game.dispose();
+});
+
 test('a missing portrait falls back to the signed-off placeholder copy', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { stage } = mountAsk(t);

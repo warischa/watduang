@@ -267,7 +267,7 @@ function renderAsk(): void {
   stage.className = 'stage-screen';
 
   const title = el('p', 'เนื้อคู่ของคุณ');
-  title.className = 'lm-heading';
+  title.className = 'lm-heading lm-heading--ask';
   stage.appendChild(title);
   stage.appendChild(el('p', 'ตอบสามข้อ แล้วเปิดดูครั้งเดียว'));
 
@@ -425,9 +425,10 @@ const game: GameModule = {
   // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:
   // the decision was no slot on the PLAY SCREEN, never no slot on the page.
   ads: true,
-  // gh#253 — the ask screen's measured height (docs/verification/evidence/gh253/). With the gh#251
-  // 16px phone note: 579 up to 560, 527 at 600-639; 517 from 640 up.
-  firstScreenReserve: { phone: 579, wide: 517 },
+  // gh#253 — the ask screen's measured height (docs/verification/evidence/gh253/), re-measured for
+  // gh#263 when the ask title grew to 30px / 1.2 (docs/verification/evidence/gh263-code/): 581 up to
+  // 560, 529 at 600-639; 520 from 640 up.
+  firstScreenReserve: { phone: 581, wide: 520 },
 
   mount(stage: HTMLElement, _ctx: GameContext) {
     stageEl = stage;

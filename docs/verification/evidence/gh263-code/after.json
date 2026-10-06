@@ -1,0 +1,196 @@
+{
+  "builtAt": "2026-10-06T09:33:54.359Z",
+  "runs": [
+    {
+      "page": "/tool/wheel/",
+      "width": 390,
+      "mobile": true,
+      "which": "how-to-use h2",
+      "style": {
+        "text": "วิธีใช้",
+        "className": "",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "600",
+        "size": "19px",
+        "lineHeight": "normal",
+        "boxH": 30,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390
+      },
+      "fonts": "Mitr-SemiBold x7"
+    },
+    {
+      "page": "/tool/number/",
+      "width": 390,
+      "mobile": true,
+      "which": "how-to-use h2",
+      "style": {
+        "text": "วิธีใช้",
+        "className": "",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "600",
+        "size": "19px",
+        "lineHeight": "normal",
+        "boxH": 30,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390
+      },
+      "fonts": "Mitr-SemiBold x7"
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 390,
+      "mobile": true,
+      "which": "ask",
+      "style": {
+        "text": "เนื้อคู่ของคุณ",
+        "className": "lm-heading lm-heading--ask",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "500",
+        "size": "30px",
+        "lineHeight": "36px",
+        "boxH": 36,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390
+      },
+      "fonts": "Mitr-Medium x14"
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 390,
+      "mobile": true,
+      "which": "meet",
+      "style": {
+        "text": "คุณจะได้เจอเขา",
+        "className": "lm-heading",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "500",
+        "size": "26px",
+        "lineHeight": "35.1px",
+        "boxH": 35.09,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390
+      },
+      "fonts": "Mitr-Medium x14"
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 390,
+      "mobile": true,
+      "which": "self",
+      "style": {
+        "text": "รอบนี้ยังไม่มีชื่อใคร",
+        "className": "lm-heading",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "500",
+        "size": "26px",
+        "lineHeight": "35.1px",
+        "boxH": 35.09,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390
+      },
+      "fonts": "Mitr-Medium x21"
+    },
+    {
+      "page": "/tool/wheel/",
+      "width": 1440,
+      "mobile": false,
+      "which": "how-to-use h2",
+      "style": {
+        "text": "วิธีใช้",
+        "className": "",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "600",
+        "size": "21px",
+        "lineHeight": "normal",
+        "boxH": 33,
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      },
+      "fonts": "Mitr-SemiBold x7"
+    },
+    {
+      "page": "/tool/number/",
+      "width": 1440,
+      "mobile": false,
+      "which": "how-to-use h2",
+      "style": {
+        "text": "วิธีใช้",
+        "className": "",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "600",
+        "size": "21px",
+        "lineHeight": "normal",
+        "boxH": 33,
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      },
+      "fonts": "Mitr-SemiBold x7"
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 1440,
+      "mobile": false,
+      "which": "ask",
+      "style": {
+        "text": "เนื้อคู่ของคุณ",
+        "className": "lm-heading lm-heading--ask",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "500",
+        "size": "30px",
+        "lineHeight": "36px",
+        "boxH": 36,
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      },
+      "fonts": "Mitr-Medium x14"
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 1440,
+      "mobile": false,
+      "which": "meet",
+      "style": {
+        "text": "คุณจะได้เจอเขา",
+        "className": "lm-heading",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "500",
+        "size": "26px",
+        "lineHeight": "35.1px",
+        "boxH": 35.09,
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      },
+      "fonts": "Mitr-Medium x14"
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 1440,
+      "mobile": false,
+      "which": "self",
+      "style": {
+        "text": "รอบนี้ยังไม่มีชื่อใคร",
+        "className": "lm-heading",
+        "family": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+        "weight": "500",
+        "size": "26px",
+        "lineHeight": "35.1px",
+        "boxH": 35.09,
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      },
+      "fonts": "Mitr-Medium x21"
+    }
+  ],
+  "exceptions": 0
+}

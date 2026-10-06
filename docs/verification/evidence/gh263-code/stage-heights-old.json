@@ -1,0 +1,167 @@
+[
+  {
+    "w": 320,
+    "page": "/game/love-match/",
+    "h": 578.8,
+    "stageTop": 174,
+    "howY": 781,
+    "iw": 320,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 360,
+    "page": "/game/love-match/",
+    "h": 578.8,
+    "stageTop": 175,
+    "howY": 782,
+    "iw": 360,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 375,
+    "page": "/game/love-match/",
+    "h": 578.8,
+    "stageTop": 177,
+    "howY": 783,
+    "iw": 375,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 390,
+    "page": "/game/love-match/",
+    "h": 578.8,
+    "stageTop": 178,
+    "howY": 785,
+    "iw": 390,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 414,
+    "page": "/game/love-match/",
+    "h": 578.8,
+    "stageTop": 181,
+    "howY": 788,
+    "iw": 414,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 480,
+    "page": "/game/love-match/",
+    "h": 578.8,
+    "stageTop": 188,
+    "howY": 795,
+    "iw": 480,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 560,
+    "page": "/game/love-match/",
+    "h": 578.8,
+    "stageTop": 189,
+    "howY": 796,
+    "iw": 560,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 639,
+    "page": "/game/love-match/",
+    "h": 526.8,
+    "stageTop": 189,
+    "howY": 744,
+    "iw": 639,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 640,
+    "page": "/game/love-match/",
+    "h": 517.2,
+    "stageTop": 189,
+    "howY": 734,
+    "iw": 640,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 700,
+    "page": "/game/love-match/",
+    "h": 517.2,
+    "stageTop": 189,
+    "howY": 734,
+    "iw": 700,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 768,
+    "page": "/game/love-match/",
+    "h": 517.2,
+    "stageTop": 189,
+    "howY": 734,
+    "iw": 768,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 900,
+    "page": "/game/love-match/",
+    "h": 517.2,
+    "stageTop": 189,
+    "howY": 734,
+    "iw": 900,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 1024,
+    "page": "/game/love-match/",
+    "h": 517.2,
+    "stageTop": 189,
+    "howY": 734,
+    "iw": 1024,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 1280,
+    "page": "/game/love-match/",
+    "h": 517.2,
+    "stageTop": 189,
+    "howY": 734,
+    "iw": 1280,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  },
+  {
+    "w": 1440,
+    "page": "/game/love-match/",
+    "h": 517.2,
+    "stageTop": 189,
+    "howY": 734,
+    "iw": 1440,
+    "minBlock": "auto",
+    "state": "mounted",
+    "fontsOk": "loaded"
+  }
+]

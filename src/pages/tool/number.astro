@@ -302,11 +302,25 @@ import PageChrome from '../../components/PageChrome.astro';
     padding-block: 2px;
   }
 
+  /* gh#263, owner approval 2026-10-06 on the ToolWheel390 and ToolNumber390 boards: the how-to
+     heading was the browser default (bold, 1.5em); the boards set the display face at 600 / 19px. */
+  #how-to-use h2 {
+    font-family: var(--font-display);
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 19px;
+  }
+
   /* desktop block — values from ToolNumberDesktop.dc.html. The column is centred at 940px the way
      the draw page centres its own. */
   @media (min-width: 1100px) {
     .tool-band {
       border-bottom-width: 5px;
+    }
+
+    /* ToolNumberDesktop board, approved 2026-10-06 (gh#263): the how-to heading steps up to 21px. */
+    #how-to-use h2 {
+      font-size: 21px;
     }
 
     .tool-band-inner {

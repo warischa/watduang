@@ -8,11 +8,19 @@
    here. Colours are the shell's tokens; the stage ground is var(--page-accent). No motion anywhere,
    so there is no reduced-motion branch to keep. */
 
+/* gh#263, owner approval 2026-10-06 on the SoulmateResult and SoulmateSolo boards: the reading
+   headings (meet and self) are 26px / 1.35. The ask title is the larger modifier below, taken from
+   the SoulmateStart board. The "when" line under a meet heading is unruled and is not set here. */
 .lm-heading {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 24px;
-  line-height: 1.4;
+  font-size: 26px;
+  line-height: 1.35;
+}
+
+.lm-heading--ask {
+  font-size: 30px;
+  line-height: 1.2;
 }
 
 /* ---- the ask screen: one box per question, the label over a wrapping row of toggles ---- */

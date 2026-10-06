@@ -1,0 +1,109 @@
+{
+  "pass": true,
+  "maxCls": 0.05,
+  "failures": [],
+  "rows": [
+    {
+      "id": "siamsi",
+      "viewport": "1440x900",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "1440x900",
+      "cls": 0.0002,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "1440x900",
+      "cls": 0.0044,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "768x900",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "768x900",
+      "cls": 0.0003,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "768x900",
+      "cls": 0.0071,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "love-match",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    }
+  ],
+  "failLeg": {
+    "id": "siamsi",
+    "aborted": [
+      "http://localhost:4461/_astro/siamsi.DLcKeZlM.js"
+    ],
+    "cls": 0.2846,
+    "state": "failed",
+    "minBlock": "auto",
+    "declared": true,
+    "innerWidth": 1440,
+    "innerHeight": 900
+  }
+}
