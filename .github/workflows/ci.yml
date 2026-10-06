@@ -314,15 +314,12 @@ jobs:
       - name: Build
         run: npm run build
 
-      # gh#86 — the shared page chrome (top bar + footer nav) is opt-in; a game page carrying it
-      # would put tap targets above #stage (ADR-0014, ADR-0015). gh#105: the scan once read
-      # dist/game/* one level deep and its step name claimed more than the scan (ADR-0019) — it now
-      # walks EVERY built .html page, recursively: game pages must never carry the marker, every
-      # other page must not unless it is in the check's opt-in set (today: the home page, the #86
-      # owner decision), and each opt-in page must keep rendering it. Reads the built artifact, so
-      # it sits after Build; --selftest is hermetic (temp fixtures only, never dist/) so it can
-      # never regenerate the artifact every step below reads.
-      - name: Page chrome confined to the opt-in set (dist artifact)
+      # The shared page chrome (canvas D top bar + footer) is checked per page CLASS, derived from
+      # the executed game manifest (gh#255); the classes and what each must carry are owned by
+      # scripts/page-chrome-check.mjs's header, not restated here. Reads the built artifact, so it
+      # sits after Build; --selftest is hermetic (temp fixtures only, never dist/) so it can never
+      # regenerate the artifact every step below reads.
+      - name: Page chrome matches each page class (dist artifact)
         run: node scripts/page-chrome-check.mjs --selftest && node scripts/page-chrome-check.mjs
 
       # Three landing-page claims that no gate covered (gh#127): the category route filter must not
