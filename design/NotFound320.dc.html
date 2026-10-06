@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #14142b; text-decoration: none; }
+  </style>
+</helmet>
+
+<div style="width: 320px; background: #fff6e0; color: #14142b;">
+
+  <!-- Top bar: the gh#255 page chrome, HomeShelf320 values -->
+  <div style="background: #14142b; padding: 12px 14px;">
+    <a href="/" style="font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px; color: #ffcc00;">วัดดวง</a>
+    <div style="display: flex; gap: 6px; margin-top: 10px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 14px;">
+      <a href="/c/fortune/" style="background: #ffcc00; border-radius: 999px; padding: 6px 12px;">ดูดวง</a>
+      <a href="/c/party/" style="background: #ff3d7f; color: #14142b; border-radius: 999px; padding: 6px 12px;">สุ่มคนโดน</a>
+      <a href="/tools/" style="background: #2b7bff; color: #14142b; border-radius: 999px; padding: 6px 12px;">เครื่องมือสุ่ม</a>
+    </div>
+  </div>
+
+  <!-- Body: D's section-head type (Mitr 700 28px, 16px #3d3b5c lead), the see-all pill as the way home -->
+  <div style="padding: 56px 14px 72px; min-height: 360px; box-sizing: border-box;">
+    <h1 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 28px; line-height: 1.2;">ไม่พบหน้านี้</h1>
+    <p style="margin: 10px 0 0; font-size: 16px; line-height: 1.6; color: #3d3b5c;">ขออภัย ไม่พบหน้าที่คุณต้องการ</p>
+    <a href="/" style="display: inline-flex; align-items: center; min-height: 48px; box-sizing: border-box; margin-top: 24px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 16px; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 0 22px;">กลับหน้าแรก</a>
+  </div>
+
+  <!-- Footer: the gh#255 page chrome -->
+  <div style="background: #14142b; color: #ffcc00; height: 72px; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 22px;">วัดดวง</div>
+
+  <!-- DESIGN NOTES - mockup only -->
+  <div style="padding: 20px 14px 32px; font: 11px/1.55 ui-monospace, Menlo, monospace; color: #14142b; border-top: 2px dashed #14142b;">
+    <div style="font-weight: 700; font-size: 13px;">DESIGN NOTES - 404 (320), gh#262. Not page content.</div>
+    <div style="margin-top: 8px;"><b>Chrome:</b> HomeShelf320 top bar and footer. <b>Ground:</b> #fff6e0 (the build paints none today).</div>
+    <div style="margin-top: 8px;"><b>Link:</b> "กลับหน้าแรก" as D's see-all pill, gold on ink (11.93:1), 48px tall (build: 84x18 UA link).</div>
+    <div style="margin-top: 8px;"><b>Copy:</b> verbatim from the 404 page. Invented Thai: 0.</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

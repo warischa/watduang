@@ -1,0 +1,67 @@
+{
+ "ToolWheel390": {
+  "url": "file:///Users/waris.c/claude/free-game/design/ToolWheel390.dc.html",
+  "innerWidth": 390,
+  "title": "",
+  "bodyEls": 86,
+  "allEls": 91,
+  "bodyH": 2000,
+  "bodyTextLen": 580,
+  "h1": "วงล้อสุ่มชื่อ",
+  "xdc": true,
+  "supportJsDefined": false,
+  "fontsLoaded": [
+   "Mitr 500",
+   "Mitr 600",
+   "Mitr 600",
+   "Noto Sans Thai 400",
+   "Noto Sans Thai 400",
+   "Noto Sans Thai 500",
+   "Noto Sans Thai 500"
+  ],
+  "scripts": [
+   "file:///Users/waris.c/claude/free-game/design/support.js",
+   ""
+  ],
+  "h1PlatformFonts": [
+   "Mitr SemiBold / Mitr-SemiBold (13 glyphs, custom=true)"
+  ],
+  "consoleAndNet": [
+   "NETFAIL net::ERR_FILE_NOT_FOUND file:///Users/waris.c/claude/free-game/design/support.js",
+   "LOG.error Failed to load resource: net::ERR_FILE_NOT_FOUND file:///Users/waris.c/claude/free-game/design/support.js",
+   "EXC ReferenceError: DCLogic is not defined\n    at file:///Users/waris.c/claude/free-game/design/ToolWheel390.dc.html:156:25"
+  ]
+ },
+ "HomeShelf320": {
+  "url": "file:///Users/waris.c/claude/free-game/design/HomeShelf320.dc.html",
+  "innerWidth": 320,
+  "title": "",
+  "bodyEls": 197,
+  "allEls": 203,
+  "bodyH": 4731,
+  "bodyTextLen": 2544,
+  "h1": "กดทีเดียวรู้เลยว่าใครโดน",
+  "xdc": true,
+  "supportJsDefined": false,
+  "fontsLoaded": [
+   "Mitr 600",
+   "Mitr 600",
+   "Mitr 700",
+   "Mitr 700",
+   "Noto Sans Thai 400",
+   "Noto Sans Thai 400",
+   "Noto Sans Thai 600",
+   "Noto Sans Thai 600"
+  ],
+  "scripts": [
+   "file:///Users/waris.c/claude/free-game/design/support.js"
+  ],
+  "h1PlatformFonts": [
+   "Mitr / Mitr-Bold (24 glyphs, custom=true)"
+  ],
+  "consoleAndNet": [
+   "NETFAIL net::ERR_FILE_NOT_FOUND file:///Users/waris.c/claude/free-game/design/support.js",
+   "LOG.error Failed to load resource: net::ERR_FILE_NOT_FOUND file:///Users/waris.c/claude/free-game/design/support.js"
+  ]
+ }
+}

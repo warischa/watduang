@@ -1,0 +1,12 @@
+21.00:1  #000000 on #ffffff  control: black on white (must print 21.00)
+11.93:1  #14142b on #ffcc00  control: ADR-0069 ink on gold (11.93)
+2.23:1  #ffcc00 on #ff3d7f  (a) current: mark gold on hero pink
+11.93:1  #14142b on #ffcc00  (a) A: ink text on gold highlight chip
+5.35:1  #14142b on #ff3d7f  (a) A: chip 3px ink border vs pink
+5.35:1  #14142b on #ff3d7f  (a) B: ink text on hero pink
+3.37:1  #ffffff on #ff3d7f  (a) C: white text on hero pink
+2.83:1  #9a947a on #fff6e0  (b) current: ad label on cream
+9.86:1  #3d3b5c on #fff6e0  (b) A: ink-soft on cream
+4.61:1  #75705d on #fff6e0  (b) B: #9a947a scaled darker, same hue
+16.75:1  #14142b on #fff6e0  (b) C: ink on cream
+9.86:1  #3d3b5c on #fff6e0  (c) all: kicker ink-soft on cream

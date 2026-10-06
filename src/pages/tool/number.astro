@@ -10,37 +10,50 @@ import PageChrome from '../../components/PageChrome.astro';
   chrome
 >
   <PageChrome>
-  <main>
-    <h1>สุ่มเลข</h1>
-    <p>ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม — เลือกโหมดได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้ไหม</p>
+  <main class="tool-page">
+    {/* gh#262: the accent title band of the sibling tool pages (draw/team). The number boards draw
+        no back row, eyebrow or breadcrumb, so only the band, h1 and tagline render here. */}
+    <header class="tool-head">
+      <div class="tool-band">
+        <div class="tool-band-inner">
+          <h1>สุ่มเลข</h1>
+          <p class="tool-tagline">ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม — เลือกโหมดได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้ไหม</p>
+        </div>
+      </div>
+    </header>
 
-    <section id="number" aria-labelledby="number-heading">
-      <h2 id="number-heading">ช่วงตัวเลข</h2>
+    <div class="tool-column">
+    <section id="number" class="tool-module" aria-labelledby="number-heading">
+      <div class="number-left">
+        <h2 id="number-heading" class="module-title">ช่วงตัวเลข</h2>
 
-      <p class="number-field">
-        <label for="number-min">ต่ำสุด</label>
-        <input id="number-min" type="number" step="1" inputmode="numeric" />
-        <label for="number-max">สูงสุด</label>
-        <input id="number-max" type="number" step="1" inputmode="numeric" />
-      </p>
+        <p class="number-field">
+          <label for="number-min">ต่ำสุด</label>
+          <input id="number-min" type="number" step="1" inputmode="numeric" />
+          <label for="number-max">สูงสุด</label>
+          <input id="number-max" type="number" step="1" inputmode="numeric" />
+        </p>
 
-      <p class="number-toggle">
-        <label for="number-no-repeat">
-          <input id="number-no-repeat" type="checkbox" /> เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้
-        </label>
-      </p>
+        <p class="number-toggle">
+          <label for="number-no-repeat">
+            <input id="number-no-repeat" type="checkbox" /> เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้
+          </label>
+        </p>
+      </div>
 
-      <p id="number-result" class="number-result" role="status" aria-live="polite"></p>
-      <p id="number-note" class="number-note" role="status" aria-live="polite"></p>
+      <div class="number-right">
+        <p id="number-result" class="number-result" role="status" aria-live="polite"></p>
+        <p id="number-note" class="number-note" role="status" aria-live="polite"></p>
 
-      <div class="number-actions">
-        <button id="number-go" type="button" disabled aria-describedby="number-note">สุ่ม</button>
-        <button id="number-reset" type="button">เริ่มรอบใหม่</button>
+        <div class="number-actions">
+          <button id="number-go" type="button" disabled aria-describedby="number-note">สุ่ม</button>
+          <button id="number-reset" type="button">เริ่มรอบใหม่</button>
+        </div>
       </div>
     </section>
 
     {/* Continue-path sits next to the tool, not under the ad (#11) — same placement as wheel/draw/team.
-         Inside <main> so it inherits the 34rem column and font; outside it the nav renders flush-left and UA-serif. */}
+         Inside the tool column so it takes the column width and the page font. */}
     <GameNav navClass="number-next" category="party" heading="เล่นเกมต่อ" />
 
     {/* Ad always sits below the tool (ADR-0004) · min-height reserves space so content doesn't jump on load
@@ -58,81 +71,334 @@ import PageChrome from '../../components/PageChrome.astro';
       </ol>
       <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
     </section>
+    </div>
   </main>
   </PageChrome>
 </Base>
 
 <style>
-  main {
-    max-width: 34rem;
-    margin: 0 auto;
-    padding: var(--space-md);
+  /* Values from design/ToolNumber390.dc.html (base block) and design/ToolNumberDesktop.dc.html (the
+     min-width: 1100px block, the same boundary draw uses) — ADR-0033, gh#262. Structure follows the
+     draw page: band, column, module card. Tokens stand in wherever the board value IS a token
+     (--color-ground-warm, --color-line-strong, --color-text, --color-muted, --color-bg, --accent-sky,
+     --tap-min, --radius-lg,
+     the font tokens); the 2.5px rules, radii, control heights and the rgba() placeholder rule are
+     board literals with no token. Base = 390px board, mobile-first. */
+
+  :global(body) {
+    background-color: var(--color-ground-warm);
+  }
+
+  .tool-page {
     font-family: var(--font-sans);
     color: var(--color-text);
+    background: var(--color-ground-warm);
+  }
+
+  /* title band — tools accent ground, page title and tagline */
+  .tool-band {
+    background: var(--accent-sky);
+    border-bottom: 3px solid var(--color-line-strong);
+  }
+
+  .tool-band-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px 20px 22px 20px;
+  }
+
+  .tool-band h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.3;
+  }
+
+  .tool-tagline {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .tool-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* the tool module card */
+  .tool-module {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+    padding: 18px 16px;
+  }
+
+  .number-left,
+  .number-right {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .module-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
   }
 
   .number-field {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-sm);
-    margin: var(--space-md) 0;
+    gap: 10px;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
   }
 
   /* Number input: wide enough for multiple digits, doesn't overflow a 320px screen */
   .number-field input {
     width: 5rem;
-    padding: var(--space-xs);
-    font-size: 1rem;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    font-size: 18px;
+    text-align: center;
+    background: var(--color-bg);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 14px;
   }
 
   .number-toggle {
-    margin: var(--space-sm) 0 var(--space-md);
+    margin: 0;
   }
 
-  /* Reserves space for the result so content below doesn't shift when a number appears.
-     A BOUND, not a floor: both live regions here are role="status" whose text the island rewrites,
-     which is the confirmed gh#120 reflow mechanism on /tool/wheel/ — it was confirmed while the site
-     shipped no @font-face, so the line box and the wrap point were the visitor's OS. The site
-     self-hosts Sarabun and Mitr now (gh#202, gh#252), but font-display: swap still paints a fallback
-     face first, so a floor is still only safe on the platforms someone measured. An explicit line-height makes the line box exactly 1.5x the font
-     size everywhere, so these em heights are exact line counts.
-     Both heights are unchanged (2em = 48px, 3em = 48px), so no ADR-0033 departure; the measurement
-     behind them, at 320px in a real browser: one result line is 36px and one note line 24px, the
-     longest realistic note text is two lines (48px), and the empty state is 0px — so both fit
-     whole. A 21-digit range interpolates into these strings (3 result lines / 4 note lines), an
-     unbounded set which now scrolls in place instead of moving the ad: with min-height the result
-     grew 48px -> 108px. max-height is FORECLOSED — an empty region would collapse and grow on the
-     first render (the gh#114 mechanism). */
-  .number-result {
+  /* The control is drawn 24x24 (the WCAG 2.2 floor); the label row is the 44px hit area. */
+  .number-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: var(--tap-min);
+    font-size: 16px;
     line-height: 1.5;
-    height: 2em;
+    cursor: pointer;
+  }
+
+  .number-toggle input {
+    appearance: none;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    box-sizing: border-box;
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 6px;
+    background: var(--color-bg) no-repeat center / 16px 16px;
+    cursor: pointer;
+  }
+
+  /* Checked: ink fill and the board check mark, stroked in the ground colour. url() cannot read
+     var(), so the stroke %23fff6e0 mirrors --color-ground-warm by hand; change both together. */
+  .number-toggle input:checked {
+    background-color: var(--color-line-strong);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff6e0' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E");
+  }
+
+  /* The result is a dark block of a FIXED height, so content below doesn't shift when a number
+     appears. A BOUND, not a floor: the region is role="status" text the island rewrites, the
+     confirmed gh#120 reflow mechanism on /tool/wheel/, and a 21-digit range interpolates into this
+     string, an unbounded set, which now scrolls in place instead of moving the ad. max-height is
+     FORECLOSED — an empty region would collapse and grow on the first render (the gh#114
+     mechanism). 60px (72px on desktop) is the board value, and it is exact: 14px padding on each
+     side of one 26px line at a 1.2 line-height. Block layout, not a centring flex box, so an
+     overflowing result keeps its first line reachable by the scroll. */
+  .number-result {
+    box-sizing: border-box;
+    height: 60px;
     overflow-y: auto;
     margin: 0;
-    font-size: 1.5rem;
+    padding: 14px 16px;
+    background: var(--color-line-strong);
+    color: var(--color-ground-warm);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 26px;
     font-weight: 700;
+    line-height: 1.2;
     overflow-wrap: anywhere;
   }
 
+  /* gh#262 pre-result slot, variant (i) approved by the owner: same height, a light dashed
+     placeholder, no text, so the first result moves nothing. :empty holds before the first press
+     and after a reset, because the island clears the text to the empty string. */
+  .number-result:empty {
+    background: transparent;
+    border: 2.5px dashed rgba(20, 20, 43, 0.35);
+  }
+
+  /* A BOUND, not a floor, for the same gh#120 reason. An explicit line-height makes the line box
+     exactly 1.5x the font size, so 3em is an exact two-line count: measured at 320px, the longest
+     realistic note text is two lines; a 21-digit range runs longer and scrolls in place. */
   .number-note {
     line-height: 1.5;
     height: 3em;
     overflow-y: auto;
-    margin: var(--space-xs) 0 var(--space-md);
+    margin: 0;
+    font-size: 16px;
     color: var(--color-muted);
   }
 
-  /* Buttons wrap to a new line instead of overflowing when the screen is narrower than both buttons combined */
   .number-actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #number-go {
+    min-height: 60px;
+    background: var(--accent-sky);
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 20px;
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    cursor: pointer;
+  }
+
+  /* Board state 3: a disabled go is dimmed and loses its shadow. */
+  #number-go:disabled {
+    opacity: 0.4;
+    box-shadow: none;
+    cursor: default;
+  }
+
+  #number-reset {
+    min-height: 52px;
+    background: var(--color-ground-warm);
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 16px;
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 14px;
+    cursor: pointer;
   }
 
   /* hit-area only (gh#254): the all-tools link stands alone in its paragraph, so it is a target and
      not running prose. Vertical padding on an inline link is invisible and moves no line. */
   #how-to-use p a {
     padding-block: 2px;
+  }
+
+  /* desktop block — values from ToolNumberDesktop.dc.html. The column is centred at 940px the way
+     the draw page centres its own. */
+  @media (min-width: 1100px) {
+    .tool-band {
+      border-bottom-width: 5px;
+    }
+
+    .tool-band-inner {
+      gap: 0;
+      margin-inline: auto;
+      max-width: 1280px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 40px 0 36px 0;
+    }
+
+    .tool-band h1 {
+      font-weight: 700;
+      font-size: 38px;
+      line-height: 1.2;
+    }
+
+    .tool-tagline {
+      margin: 10px 0 0 0;
+      font-size: 17px;
+      line-height: 1.7;
+      max-width: 56ch;
+    }
+
+    .tool-column {
+      width: 100%;
+      max-width: 940px;
+      margin-inline: auto;
+      box-sizing: border-box;
+      gap: 36px;
+      padding: 44px 0 20px 0;
+    }
+
+    /* Two columns, as on the board: range and toggle left, result and actions right. minmax(0, 1fr)
+       keeps a long result from widening its track past the card. */
+    .tool-module {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 30px;
+      align-items: start;
+      padding: 26px;
+    }
+
+    .number-left {
+      gap: 0;
+    }
+
+    .module-title {
+      margin: 0 0 16px 0;
+      font-size: 26px;
+    }
+
+    .number-field {
+      gap: 12px;
+      font-size: 17px;
+    }
+
+    .number-field input {
+      width: 6rem;
+      min-height: 52px;
+      font-size: 20px;
+    }
+
+    .number-toggle {
+      margin-top: 14px;
+    }
+
+    .number-right {
+      gap: 14px;
+    }
+
+    .number-result {
+      height: 72px;
+      padding: 18px 22px;
+      font-size: 30px;
+    }
+
+    .number-actions {
+      gap: 10px;
+    }
+
+    #number-go {
+      min-height: 64px;
+      font-size: 22px;
+      box-shadow: 5px 5px 0 var(--color-line-strong);
+    }
+
+    #number-reset {
+      min-height: 56px;
+      font-size: 18px;
+      border-radius: var(--radius-lg);
+    }
   }
 </style>
 

@@ -27,6 +27,10 @@
     {
       "id": "page-7",
       "name": "Home redesign gh#243 · D / E / F · desktop + 320"
+    },
+    {
+      "id": "page-8",
+      "name": "gh#262 · 404 + proposals"
     }
   ],
   "artboards": [
@@ -271,7 +275,7 @@
       "x": 0,
       "y": 0,
       "w": 1440,
-      "h": 2180
+      "h": 2836
     },
     {
       "file": "ToolDrawDesktop.dc.html",
@@ -298,7 +302,7 @@
       "x": 0,
       "y": 2360,
       "w": 390,
-      "h": 1560
+      "h": 2866
     },
     {
       "file": "ToolDraw390.dc.html",
@@ -380,6 +384,51 @@
       "y": 4489,
       "w": 320,
       "h": 3109
+    },
+    {
+      "file": "ToolNumberDesktop.dc.html",
+      "title": "สุ่มเลข · เดสก์ท็อป (gh#262)",
+      "page": "page-6",
+      "x": 4620,
+      "y": 0,
+      "w": 1440,
+      "h": 2465
+    },
+    {
+      "file": "ToolNumber390.dc.html",
+      "title": "สุ่มเลข · 390 (gh#262)",
+      "page": "page-6",
+      "x": 1880,
+      "y": 2360,
+      "w": 390,
+      "h": 2899
+    },
+    {
+      "file": "NotFound320.dc.html",
+      "title": "404 · 320 (gh#262)",
+      "page": "page-8",
+      "x": 0,
+      "y": 0,
+      "w": 320,
+      "h": 796
+    },
+    {
+      "file": "NotFoundDesktop.dc.html",
+      "title": "404 · desktop (gh#262)",
+      "page": "page-8",
+      "x": 420,
+      "y": 0,
+      "w": 1440,
+      "h": 747
+    },
+    {
+      "file": "Gh262Proposals.dc.html",
+      "title": "gh#262 proposals · mark / ad label / fortune h2",
+      "page": "page-8",
+      "x": 0,
+      "y": 1000,
+      "w": 1440,
+      "h": 1478
     }
   ],
   "annotations": [

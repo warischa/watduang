@@ -1,0 +1,104 @@
+[
+  {
+    "name": "ToolNumber390",
+    "width": 390,
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "height": 2899,
+    "elements": 82,
+    "mitr600": false,
+    "notoThai": true,
+    "h1Font": "Mitr-SemiBold x7",
+    "errors": [],
+    "file": "docs/verification/evidence/gh262-canvas/ToolNumber390.jpg"
+  },
+  {
+    "name": "ToolNumberDesktop",
+    "width": 1440,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "height": 2465,
+    "elements": 91,
+    "mitr600": false,
+    "notoThai": true,
+    "h1Font": "Mitr-Bold x7",
+    "errors": [],
+    "file": "docs/verification/evidence/gh262-canvas/ToolNumberDesktop.jpg"
+  },
+  {
+    "name": "NotFound320",
+    "width": 320,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "height": 796,
+    "elements": 25,
+    "mitr600": false,
+    "notoThai": true,
+    "h1Font": "Mitr-Bold x12",
+    "errors": [],
+    "file": "docs/verification/evidence/gh262-canvas/NotFound320.jpg"
+  },
+  {
+    "name": "NotFoundDesktop",
+    "width": 1440,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "height": 747,
+    "elements": 24,
+    "mitr600": false,
+    "notoThai": true,
+    "h1Font": "Mitr-Bold x12",
+    "errors": [],
+    "file": "docs/verification/evidence/gh262-canvas/NotFoundDesktop.jpg"
+  },
+  {
+    "name": "ToolWheel390",
+    "width": 390,
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "height": 2866,
+    "elements": 118,
+    "mitr600": true,
+    "notoThai": true,
+    "h1Font": "Mitr-SemiBold x13",
+    "errors": [
+      "ReferenceError: DCLogic is not defined"
+    ],
+    "file": "docs/verification/evidence/gh262-canvas/ToolWheel390.jpg"
+  },
+  {
+    "name": "ToolWheelDesktop",
+    "width": 1440,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "height": 2836,
+    "elements": 141,
+    "mitr600": true,
+    "notoThai": true,
+    "h1Font": "Mitr-Bold x13",
+    "errors": [
+      "ReferenceError: DCLogic is not defined"
+    ],
+    "file": "docs/verification/evidence/gh262-canvas/ToolWheelDesktop.jpg"
+  },
+  {
+    "name": "Gh262Proposals",
+    "width": 1440,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "height": 1478,
+    "elements": 111,
+    "mitr600": true,
+    "notoThai": true,
+    "h1Font": "Mitr-Bold x24",
+    "errors": [],
+    "file": "docs/verification/evidence/gh262-canvas/Gh262Proposals.jpg"
+  }
+]

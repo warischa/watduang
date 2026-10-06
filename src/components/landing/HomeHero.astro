@@ -92,8 +92,17 @@ const { badge, titleTop, titleLead, titleMark, lead, ctaLabel, ctaHref, featured
     text-shadow: 5px 5px 0 var(--ink);
   }
 
+  /* Ink on a gold chip with an ink border (owner ruling, gh#262): the old gold-on-pink text measured 2.23:1,
+     this pair 11.93:1. nowrap keeps the chip whole, so at 320 it takes its own line. */
   .mark {
-    color: var(--surface-sun);
+    display: inline-block;
+    white-space: nowrap;
+    padding: 0 8px;
+    border: 3px solid var(--ink);
+    border-radius: 12px;
+    background: var(--surface-sun);
+    color: var(--ink);
+    text-shadow: none;
   }
 
   .lead {

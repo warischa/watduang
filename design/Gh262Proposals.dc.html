@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    /* Proposal sheet, not a page. Labels are English design annotations; every Thai string is copied
+       from canvas D or the built page it sits on. Ratios: docs/verification/evidence/gh262-canvas/contrast.mjs */
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .row .why { margin: 0 0 22px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #3d3b5c; }
+    .cands { display: grid; grid-template-columns: repeat(4, 320px); gap: 26px; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; }
+    .tag .r { display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; margin-left: 4px; }
+    .tag .fail { color: #b3123f; }
+    .frame { width: 320px; box-sizing: border-box; border: 2px solid #14142b; overflow: hidden; }
+    .hero { background: #ff3d7f; position: relative; padding: 22px 14px 24px; }
+    .hero .dots { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.18) 2.5px, transparent 3px); background-size: 26px 26px; }
+    .hero h1 { position: relative; margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 44px; line-height: 1.1; color: #ffffff; text-shadow: 3px 3px 0 #14142b; }
+    .ground { background: #fff6e0; padding: 18px 14px; }
+    .ad { height: 100px; border: 3px dashed #c9c3a8; border-radius: 12px; display: grid; place-items: center; font-size: 14px; }
+    .kicker { margin: 0 0 14px; font-family: 'Mitr', sans-serif; font-weight: 500; letter-spacing: 1px; color: #3d3b5c; }
+    .card { display: flex; flex-direction: column; gap: 10px; padding: 18px; background: #ffcc00; border: 2.5px solid #14142b; border-radius: 18px; box-shadow: 4px 4px 0 #14142b; color: #14142b; }
+    .card h3 { margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 22px; line-height: 1.3; }
+    .card p { margin: 0; font-size: 16px; line-height: 1.65; }
+    .card .cta { font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 16px; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 32px 40px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#262 · values the owner has not chosen</div>
+    <div style="margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">One pick per row. Ratios are WCAG 2.x, computed by contrast.mjs in the gh262-canvas evidence dir. "rec" marks one recommendation per row.</div>
+  </div>
+
+  <!-- (a) home hero span.mark -->
+  <div class="row">
+    <h2>(a) Home hero highlight "ใครโดน" (span.mark)</h2>
+    <p class="why">Large text (44px / 84px), needs 3:1. Current: #ffcc00 on #ff3d7f = 2.23:1. The ink text-shadow is not counted by WCAG. Drawn at 320; the ratio is the same at desktop.</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">CURRENT · gold text on pink · <span class="fail">2.23:1 FAIL</span></span>
+        <div class="frame"><div class="hero"><div class="dots"></div><h1>กดทีเดียว<br>รู้เลยว่า<span style="color: #ffcc00;">ใครโดน</span></h1></div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">A · ink text on a gold chip, 3px ink border · 11.93:1 (chip border vs pink 5.35:1)<span class="r">rec</span><br>keeps the gold emphasis, widest margin; at 320 the chip takes its own line</span>
+        <div class="frame"><div class="hero"><div class="dots"></div><h1>กดทีเดียว<br>รู้เลยว่า<span style="color: #14142b; text-shadow: none; background: #ffcc00; border: 3px solid #14142b; border-radius: 12px; display: inline-block; white-space: nowrap; padding: 0 8px;">ใครโดน</span></h1></div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">B · ink text on pink · 5.35:1</span>
+        <div class="frame"><div class="hero"><div class="dots"></div><h1>กดทีเดียว<br>รู้เลยว่า<span style="color: #14142b; text-shadow: 3px 3px 0 #ffcc00;">ใครโดน</span></h1></div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">C · white text on pink, gold underline · 3.37:1 (large-text pass only)</span>
+        <div class="frame"><div class="hero"><div class="dots"></div><h1>กดทีเดียว<br>รู้เลยว่า<span style="color: #ffffff; text-decoration: underline; text-decoration-color: #ffcc00; text-decoration-thickness: 6px; text-underline-offset: 6px;">ใครโดน</span></h1></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- (b) home ad-slot label -->
+  <div class="row">
+    <h2>(b) Home ad-slot label "ช่องโฆษณา"</h2>
+    <p class="why">Normal text (14px at 320, 16px at desktop), needs 4.5:1. Current: #9a947a on #fff6e0 = 2.83:1. Box border #c9c3a8 unchanged in every candidate.</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">CURRENT · #9a947a · <span class="fail">2.83:1 FAIL</span></span>
+        <div class="frame"><div class="ground"><div class="ad" style="color: #9a947a;">ช่องโฆษณา</div></div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">A · #3d3b5c (canvas D secondary text) · 9.86:1<span class="r">rec</span><br>already a D value; no new colour</span>
+        <div class="frame"><div class="ground"><div class="ad" style="color: #3d3b5c;">ช่องโฆษณา</div></div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">B · #75705d (#9a947a darkened, same hue) · 4.61:1<br>stays quiet, but a new value with a thin margin</span>
+        <div class="frame"><div class="ground"><div class="ad" style="color: #75705d;">ช่องโฆษณา</div></div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">C · #14142b ink · 16.75:1<br>reads as loud as body copy</span>
+        <div class="frame"><div class="ground"><div class="ad" style="color: #14142b;">ช่องโฆษณา</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- (c) /c/fortune/ section h2 size -->
+  <div class="row">
+    <h2>(c) /c/fortune/ section heading "คำทำนายในหมวดนี้" size</h2>
+    <p class="why">Built: Mitr 500, 15px, letter-spacing 1px, #3d3b5c (the CatFortunePop kicker idiom, D colour). The card body under it is 16px at 320. Colour unchanged: #3d3b5c on #fff6e0 = 9.86:1 in every candidate.</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">CURRENT · 15px · 9.86:1 (smaller than the 16px body)</span>
+        <div class="frame"><div class="ground"><h2 class="kicker" style="font-size: 15px;">คำทำนายในหมวดนี้</h2><div class="card"><h3>ดวงวันนี้</h3><p>กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ไม่ต้องเชื่อ</p><span class="cta">เล่นเลย →</span></div></div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">A · 16px · 9.86:1<br>equal to the body, no longer below it</span>
+        <div class="frame"><div class="ground"><h2 class="kicker" style="font-size: 16px;">คำทำนายในหมวดนี้</h2><div class="card"><h3>ดวงวันนี้</h3><p>กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ไม่ต้องเชื่อ</p><span class="cta">เล่นเลย →</span></div></div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">B · 18px · 9.86:1<span class="r">rec</span><br>the only size that reads above the body</span>
+        <div class="frame"><div class="ground"><h2 class="kicker" style="font-size: 18px;">คำทำนายในหมวดนี้</h2><div class="card"><h3>ดวงวันนี้</h3><p>กดครั้งเดียว รู้เลยว่าวันนี้จะเจอเรื่องจิ๊บจ๊อยอะไร อ่านขำๆ ไม่ต้องเชื่อ</p><span class="cta">เล่นเลย →</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 24px 40px 40px; font: 12px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c;">
+    Copy sources: hero h1 and ad label from HomeShelf320; kicker from the fortune category's listHeading; card name and tagline from the daily-fortune module; "เล่นเลย" from the category page. Invented Thai: 0.
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

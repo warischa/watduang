@@ -107,8 +107,54 @@
               <button style="min-height: 56px; background: #fffdf7; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 18px; border: 2.5px solid #1a1a1a; border-radius: 16px; cursor: pointer;">คืนทุกชื่อเข้าวงล้อ</button>
             </div>
             <label style="display: flex; align-items: center; gap: 8px; font-size: 15px;">
-              <input type="checkbox" style="width: 18px; height: 18px;"> เอาคนที่ออกแล้วออกจากวงล้อ
+              <input type="checkbox" style="width: 24px; height: 24px;"> เอาคนที่ออกแล้วออกจากวงล้อ
             </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- gh#262: PRE-SPIN STATE of the result slot, two variants for the owner to pick plus today's
+           build for comparison. English labels are design annotations, not product copy. Values in
+           this block are canvas D's (ADR-0069). -->
+      <div style="border: 2.5px dashed #14142b; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 18px; background: #ffffff;">
+        <div style="font: 700 15px/1.4 ui-monospace, Menlo, monospace;">gh#262 · result slot before the first spin (right-hand column of the wheel card)</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start;">
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font: 600 12px/1.4 ui-monospace, Menlo, monospace; color: #b3123f;">CURRENT (built) · solid dark 60px bar, empty · rejected</span>
+            <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="height: 60px; background: #14142b; border-radius: 16px;"></div>
+              <div style="min-height: 64px; background: #2b7bff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 5px 5px 0 #14142b; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px;">หมุน</div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font: 600 12px/1.4 ui-monospace, Menlo, monospace;">(i) RESERVED · same height, light dashed placeholder, no text · no layout shift · APPROVED 2026-10-06 (owner popup)</span>
+            <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="height: 60px; box-sizing: border-box; border: 2.5px dashed rgba(20,20,43,0.35); border-radius: 16px;"></div>
+              <div style="min-height: 64px; background: #2b7bff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 5px 5px 0 #14142b; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px;">หมุน</div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font: 600 12px/1.4 ui-monospace, Menlo, monospace;">(ii) COLLAPSED · no slot until the first result · content below moves down 72px on the first spin · rejected</span>
+            <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+              <span style="font: 11px/1.3 ui-monospace, Menlo, monospace;">before</span>
+              <div style="min-height: 64px; background: #2b7bff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 5px 5px 0 #14142b; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px;">หมุน</div>
+              <span style="font: 11px/1.3 ui-monospace, Menlo, monospace; border-top: 2px dashed #14142b; padding-top: 10px;">after 1st spin</span>
+              <div style="height: 60px; box-sizing: border-box; background: #14142b; color: #fff6e0; border-radius: 16px; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px;">โดน: แก้ม</div>
+              <div style="min-height: 64px; background: #2b7bff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 5px 5px 0 #14142b; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 22px;">หมุน</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- controls at the WCAG 2.2 24x24 floor; each label row is a 44px hit area -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <span style="font: 600 12px/1.4 ui-monospace, Menlo, monospace;">CONTROLS · radio and checkbox drawn 24x24 (build: 13x13), rows 44px</span>
+          <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 6px 16px; display: flex; gap: 32px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px;"><span style="flex-shrink: 0; width: 24px; height: 24px; box-sizing: border-box; border: 2.5px solid #14142b; border-radius: 50%; background: #ffffff; display: grid; place-items: center;"><span style="width: 12px; height: 12px; border-radius: 50%; background: #14142b;"></span></span>A · หมุนแล้วช้าลงจนหยุดเอง</div>
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px;"><span style="flex-shrink: 0; width: 24px; height: 24px; box-sizing: border-box; border: 2.5px solid #14142b; border-radius: 50%; background: #ffffff;"></span>B · หมุนค้างไว้ จนกว่าจะกด "หยุด"</div>
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px;"><span style="flex-shrink: 0; width: 24px; height: 24px; box-sizing: border-box; border: 2.5px solid #14142b; border-radius: 6px; background: #ffffff;"></span>เอาคนที่ออกแล้วออกจากวงล้อ</div>
           </div>
         </div>
       </div>
@@ -199,7 +245,7 @@
 
 </div>
 </x-dc>
-<script data-dc-script data-props='{"accent":{"editor":"color","default":"#7fd8e8","options":["#7fd8e8","#ffd27f","#f89880"]},"$preview":{"width":1440,"height":2400}}'>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#7fd8e8","options":["#7fd8e8","#ffd27f","#f89880"]},"$preview":{"width":1440,"height":3000}}'>
 class Component extends DCLogic {
   renderVals() {
     return { accent: this.props.accent ?? '#7fd8e8' };

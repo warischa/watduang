@@ -23,7 +23,7 @@
   </style>
 </helmet>
 
-<div style="width: 390px; min-height: 2000px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
+<div style="width: 390px; min-height: 2700px; background: #fffdf7; font-family: 'Noto Sans Thai', Sarabun, system-ui, sans-serif; color: #1a1a1a; display: flex; flex-direction: column; box-sizing: border-box;">
 
   <!-- tool chrome: back to the tools hub, tool-type pill on the right -->
   <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2.5px solid #1a1a1a;">
@@ -86,8 +86,56 @@
         <button style="min-height: 52px; background: #fffdf7; color: #1a1a1a; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 16px; border: 2.5px solid #1a1a1a; border-radius: 14px; cursor: pointer;">คืนทุกชื่อเข้าวงล้อ</button>
       </div>
       <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; margin-top: 10px;">
-        <input type="checkbox" style="width: 18px; height: 18px;"> เอาคนที่ออกแล้วออกจากวงล้อ
+        <input type="checkbox" style="width: 24px; height: 24px;"> เอาคนที่ออกแล้วออกจากวงล้อ
       </label>
+    </div>
+
+    <!-- gh#262: PRE-SPIN STATE of the result slot, two variants for the owner to pick plus today's
+         build for comparison. English labels are design annotations, not product copy. Values in this
+         block are canvas D's (ADR-0069). -->
+    <div style="border: 2.5px dashed #14142b; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 14px; background: #ffffff;">
+      <div style="font: 700 13px/1.4 ui-monospace, Menlo, monospace;">gh#262 · result slot before the first spin</div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font: 600 11px/1.4 ui-monospace, Menlo, monospace; color: #b3123f;">CURRENT (built) · solid dark 60px bar, empty · rejected</span>
+        <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="height: 60px; background: #14142b; border-radius: 16px;"></div>
+          <div style="min-height: 60px; background: #2b7bff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 #14142b; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px;">หมุน</div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font: 600 11px/1.4 ui-monospace, Menlo, monospace;">(i) RESERVED · same 60px, light dashed placeholder, no text · no layout shift · APPROVED 2026-10-06 (owner popup)</span>
+        <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="height: 60px; box-sizing: border-box; border: 2.5px dashed rgba(20,20,43,0.35); border-radius: 16px;"></div>
+          <div style="min-height: 60px; background: #2b7bff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 #14142b; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px;">หมุน</div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font: 600 11px/1.4 ui-monospace, Menlo, monospace;">(ii) COLLAPSED · no slot until the first result · everything below moves down 70px on the first spin · rejected</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: start;">
+          <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 10px;">
+            <span style="font: 10px/1.3 ui-monospace, Menlo, monospace;">before</span>
+            <div style="min-height: 60px; background: #2b7bff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 #14142b; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px;">หมุน</div>
+          </div>
+          <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 10px;">
+            <span style="font: 10px/1.3 ui-monospace, Menlo, monospace;">after 1st spin</span>
+            <div style="height: 60px; box-sizing: border-box; background: #14142b; color: #fff6e0; border-radius: 16px; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 22px;">โดน: แก้ม</div>
+            <div style="min-height: 60px; background: #2b7bff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 #14142b; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px;">หมุน</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- controls at the WCAG 2.2 24x24 floor; each label row is a 44px hit area -->
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font: 600 11px/1.4 ui-monospace, Menlo, monospace;">CONTROLS · radio and checkbox drawn 24x24 (build: 13x13), rows 44px</span>
+        <div style="background: #fff6e0; border: 2px solid #14142b; border-radius: 14px; padding: 6px 12px; display: flex; flex-direction: column;">
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px;"><span style="flex-shrink: 0; width: 24px; height: 24px; box-sizing: border-box; border: 2.5px solid #14142b; border-radius: 50%; background: #ffffff; display: grid; place-items: center;"><span style="width: 12px; height: 12px; border-radius: 50%; background: #14142b;"></span></span>A · หมุนแล้วช้าลงจนหยุดเอง</div>
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px;"><span style="flex-shrink: 0; width: 24px; height: 24px; box-sizing: border-box; border: 2.5px solid #14142b; border-radius: 50%; background: #ffffff;"></span>B · หมุนค้างไว้ จนกว่าจะกด "หยุด"</div>
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px;"><span style="flex-shrink: 0; width: 24px; height: 24px; box-sizing: border-box; border: 2.5px solid #14142b; border-radius: 6px; background: #ffffff;"></span>เอาคนที่ออกแล้วออกจากวงล้อ</div>
+        </div>
+      </div>
     </div>
 
     <!-- WHEEL state B — runs until the stop control is pressed -->

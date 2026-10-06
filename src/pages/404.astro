@@ -12,3 +12,70 @@ import PageChrome from '../components/PageChrome.astro';
     </main>
   </PageChrome>
 </Base>
+
+<style>
+  /* design/NotFoundDesktop.dc.html is the base and design/NotFound320.dc.html takes over at 1099px,
+     the same breakpoint the home and category pages use; values from those boards. The ground is the canvas cream through its token, and the
+     way home is the canvas see-all pill: gold on ink, 48px tall. No script (ADR-0005). */
+  main {
+    background: var(--color-ground-warm);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    padding: 120px max(14px, calc((100% - 1280px) / 2)) 140px;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 1.15;
+  }
+
+  p {
+    margin: 12px 0 0;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-muted);
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    box-sizing: border-box;
+    margin-top: 32px;
+    padding: 0 26px;
+    border-radius: 999px;
+    background: var(--color-line-strong);
+    color: var(--accent-gold);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    text-decoration: none;
+  }
+
+  @media (max-width: 1099px) {
+    main {
+      min-height: 360px;
+      box-sizing: border-box;
+      padding: 56px 14px 72px;
+    }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    p {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    a {
+      margin-top: 24px;
+      padding: 0 22px;
+      font-size: 16px;
+    }
+  }
+</style>

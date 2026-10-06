@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    a { color: #14142b; text-decoration: none; }
+
+    /* /tool/number/ at 390. Structure and sizes are the ToolDraw390 / ToolWheel390 idiom; colours are
+       canvas D's (ADR-0069), so the band and buttons carry literal values, not the {{accent}} prop. */
+    .state-tag { font: 600 11px/1.4 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; border: 2px dashed #14142b; border-radius: 8px; padding: 4px 8px; align-self: flex-start; }
+    .card { background: #fff6e0; border: 2.5px solid #14142b; border-radius: 20px; box-shadow: 5px 5px 0 #14142b; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .card h2 { margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 19px; }
+    .field { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; }
+    .field .num { width: 5rem; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; background: #ffffff; border: 2.5px solid #14142b; border-radius: 14px; }
+    /* The control itself is 24x24 (WCAG 2.2 floor); the label row is the 44px hit area. */
+    .toggle { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 16px; line-height: 1.5; }
+    .box { flex-shrink: 0; width: 24px; height: 24px; box-sizing: border-box; border: 2.5px solid #14142b; border-radius: 6px; background: #ffffff; display: grid; place-items: center; }
+    .box.on { background: #14142b; }
+    .slot-empty { height: 60px; box-sizing: border-box; border: 2.5px dashed rgba(20,20,43,0.35); border-radius: 16px; }
+    .result { min-height: 60px; box-sizing: border-box; background: #14142b; color: #fff6e0; border-radius: 16px; padding: 14px 16px; text-align: center; }
+    .result p { margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.2; }
+    .note { margin: 0; font-size: 16px; line-height: 1.5; min-height: 3em; color: #3d3b5c; }
+    .go { min-height: 60px; background: #2b7bff; color: #14142b; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 #14142b; }
+    .go[disabled] { opacity: 0.4; box-shadow: none; }
+    .reset { min-height: 52px; background: #fff6e0; color: #14142b; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 16px; border: 2.5px solid #14142b; border-radius: 14px; }
+    .actions { display: flex; flex-direction: column; gap: 8px; }
+  </style>
+</helmet>
+
+<div style="width: 390px; background: #fff6e0; color: #14142b; display: flex; flex-direction: column;">
+
+  <!-- Top bar: the gh#255 page chrome, HomeShelf320 values -->
+  <div style="background: #14142b; padding: 12px 14px;">
+    <a href="/" style="font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px; color: #ffcc00;">วัดดวง</a>
+    <div style="display: flex; gap: 6px; margin-top: 10px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 14px;">
+      <a href="/c/fortune/" style="background: #ffcc00; border-radius: 999px; padding: 6px 12px;">ดูดวง</a>
+      <a href="/c/party/" style="background: #ff3d7f; color: #14142b; border-radius: 999px; padding: 6px 12px;">สุ่มคนโดน</a>
+      <a href="/tools/" style="background: #2b7bff; color: #14142b; border-radius: 999px; padding: 6px 12px;">เครื่องมือสุ่ม</a>
+    </div>
+  </div>
+
+  <!-- Title band: tools accent, ink text (4.62:1) -->
+  <div style="display: flex; flex-direction: column; gap: 14px; padding: 24px 20px 22px 20px; background: #2b7bff; border-bottom: 3px solid #14142b;">
+    <h1 style="font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 26px; line-height: 1.3; margin: 0;">สุ่มเลข</h1>
+    <p style="margin: 0; font-size: 16px; line-height: 1.65;">ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม — เลือกโหมดได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้ไหม</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px; padding: 20px;">
+
+    <!-- STATE 1: idle, before the first press -->
+    <span class="state-tag">STATE 1 · idle, before the first press</span>
+    <div class="card">
+      <h2>ช่วงตัวเลข</h2>
+      <div class="field">ต่ำสุด <span class="num">1</span> สูงสุด <span class="num">10</span></div>
+      <div class="toggle"><span class="box"></span> เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้</div>
+      <div class="slot-empty"></div>
+      <span style="font: 11px/1.4 ui-monospace, Menlo, monospace; color: #3d3b5c; margin-top: -6px;">empty slot drawn as Wheel variant (i); follows the owner's wheel pick</span>
+      <p class="note"></p>
+      <div class="actions">
+        <button class="go">สุ่ม</button>
+        <button class="reset">เริ่มรอบใหม่</button>
+      </div>
+    </div>
+
+    <!-- STATE 2: no-repeat ticked, after one press -->
+    <span class="state-tag" style="margin-top: 10px;">STATE 2 · no-repeat on, after 1 press</span>
+    <div class="card">
+      <h2>ช่วงตัวเลข</h2>
+      <div class="field">ต่ำสุด <span class="num">1</span> สูงสุด <span class="num">10</span></div>
+      <div class="toggle"><span class="box on"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff6e0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></span> เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้</div>
+      <div class="result"><p>ได้: 7</p></div>
+      <p class="note">เหลือ 9 จาก 10 ค่าในรอบนี้</p>
+      <div class="actions">
+        <button class="go">สุ่ม</button>
+        <button class="reset">เริ่มรอบใหม่</button>
+      </div>
+    </div>
+
+    <!-- STATE 3: range error, go disabled -->
+    <span class="state-tag" style="margin-top: 10px;">STATE 3 · range error, go disabled</span>
+    <div class="card">
+      <h2>ช่วงตัวเลข</h2>
+      <div class="field">ต่ำสุด <span class="num">10</span> สูงสุด <span class="num">1</span></div>
+      <div class="toggle"><span class="box"></span> เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้</div>
+      <div class="slot-empty"></div>
+      <p class="note">ช่วงตัวเลขผิด: ต่ำสุด (10) ต้องไม่มากกว่าสูงสุด (1)</p>
+      <div class="actions">
+        <button class="go" disabled>สุ่ม</button>
+        <button class="reset">เริ่มรอบใหม่</button>
+      </div>
+    </div>
+
+    <!-- Continue path (GameNav), unchanged by gh#262: heading only, links not redrawn -->
+    <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 19px;">เล่นเกมต่อ</h2>
+      <div style="border: 2px dashed #8a87a8; border-radius: 12px; padding: 12px; font: 11px/1.4 ui-monospace, Menlo, monospace; color: #3d3b5c;">GameNav party links (manifest), unchanged; not redrawn here</div>
+    </div>
+
+    <!-- Ad below the tool, ADR-0004: the build reserves 250px and paints no label -->
+    <div style="height: 250px; box-sizing: border-box; border: 3px dashed #c9c3a8; border-radius: 12px; display: grid; place-items: center; font: 11px/1.4 ui-monospace, Menlo, monospace; color: #3d3b5c;">ad slot · 250px reserved · no label in the build</div>
+
+    <!-- How-to -->
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 19px;">วิธีใช้</h2>
+      <ol style="margin: 0; padding-left: 22px; font-size: 16px; line-height: 1.65;">
+        <li>ใส่ค่าต่ำสุดและสูงสุดของช่วงที่จะสุ่ม</li>
+        <li>อยากให้เลขที่ออกแล้วไม่ออกซ้ำ ให้ติ๊ก "เลขที่ออกแล้วห้ามออกซ้ำในรอบนี้"</li>
+        <li>กด "สุ่ม" ผลขึ้นเป็นตัวหนังสือทันที กดต่อได้เรื่อยๆ จนกว่าจะกด "เริ่มรอบใหม่"</li>
+      </ol>
+      <p style="margin: 0;"><a href="/tools/" style="font-size: 16px; border-bottom: 2px solid #14142b; padding-block: 2px;">เครื่องมือสุ่มทั้งหมด</a></p>
+    </div>
+  </div>
+
+  <!-- Footer: the gh#255 page chrome -->
+  <div style="margin-top: 20px; background: #14142b; color: #ffcc00; height: 72px; display: grid; place-items: center; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 22px;">วัดดวง</div>
+
+  <!-- DESIGN NOTES - mockup only -->
+  <div style="padding: 20px 14px 32px; font: 11px/1.55 ui-monospace, Menlo, monospace; color: #14142b; border-top: 2px dashed #14142b;">
+    <div style="font-weight: 700; font-size: 13px;">DESIGN NOTES - /tool/number/ (390), gh#262. Not page content.</div>
+    <div style="margin-top: 8px;"><b>Idiom:</b> ToolDraw390 / ToolWheel390 structure (h1 Mitr 600 26px, 60px primary + 52px secondary buttons, dark result block). <b>Palette:</b> canvas D (ADR-0069), not the stale trio on the older tool boards.</div>
+    <div style="margin-top: 8px;"><b>Controls:</b> go 60px and reset 52px tall (build: 24px UA buttons). Checkbox drawn 24x24, label row 44px.</div>
+    <div style="margin-top: 8px;"><b>Copy:</b> every Thai string is verbatim from the number page or its logic module; "ได้: 7", "เหลือ 9 จาก 10 ..." and the range error are the page's own templates with sample values. Invented Thai: 0.</div>
+    <div style="margin-top: 8px;"><b>Proposed, no sibling value:</b> disabled go = opacity 0.4, no shadow. The build has no top band on this page; the band follows the sibling tool boards.</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

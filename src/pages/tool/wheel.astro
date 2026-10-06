@@ -113,6 +113,14 @@ import PageChrome from '../../components/PageChrome.astro';
     color: var(--color-text);
   }
 
+  /* gh#262 finding 3: the h1 inherited the body face; values from the ToolWheel390 artboard */
+  main > h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.3;
+  }
+
   /* 320px screen: the disc is fluid below 400px (the desktop artboard's disc size), so it can
      never overflow sideways; aspect-ratio keeps it square whatever the width. */
   .wheel-stage {
@@ -162,10 +170,14 @@ import PageChrome from '../../components/PageChrome.astro';
     margin: var(--space-sm) 0 var(--space-md);
   }
 
+  /* gh#262 controls: each radio and the checkbox is drawn 24x24 (the WCAG 2.2 floor) and its label
+     row is a 44px hit area — the CONTROLS block of the ToolWheel390 board. */
   .wheel-mode-option {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
+    min-height: var(--tap-min);
+    box-sizing: border-box;
     font-size: 14px;
     color: var(--color-text);
     border: 2px solid var(--color-line-strong);
@@ -178,9 +190,48 @@ import PageChrome from '../../components/PageChrome.astro';
     background: var(--accent-sky);
   }
 
-  .wheel-mode-option input {
+  .wheel-mode-option input,
+  .wheel-toggle input {
+    appearance: none;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
     margin: 0;
-    accent-color: var(--color-line-strong);
+    box-sizing: border-box;
+    border: 2.5px solid var(--color-line-strong);
+    background: var(--color-bg);
+    cursor: pointer;
+  }
+
+  /* Radio: a 12px ink dot inside the ring; the inset shadow paints the white gap around it. */
+  .wheel-mode-option input {
+    border-radius: 50%;
+  }
+
+  .wheel-mode-option input:checked {
+    background: var(--color-line-strong);
+    box-shadow: inset 0 0 0 3.5px var(--color-bg);
+  }
+
+  .wheel-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: var(--tap-min);
+    cursor: pointer;
+  }
+
+  /* Checkbox: the same drawing as the number page, ink fill and a ground-colour check mark. */
+  .wheel-toggle input {
+    border-radius: 6px;
+    background: var(--color-bg) no-repeat center / 16px 16px;
+  }
+
+  /* url() cannot read var(), so the check-mark stroke %23fff6e0 mirrors --color-ground-warm by
+     hand; change both together. */
+  .wheel-toggle input:checked {
+    background-color: var(--color-line-strong);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff6e0' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E");
   }
 
   /* The result bar reserves its full height up front (canvas result card on the 390 artboard:
@@ -213,6 +264,16 @@ import PageChrome from '../../components/PageChrome.astro';
     font-size: 26px;
     line-height: 1.2;
     overflow-wrap: anywhere;
+  }
+
+  /* gh#262 pre-spin slot, variant (i) approved by the owner: the same 60px box drawn as a light
+     dashed placeholder with no text, so the first result moves nothing. :empty holds before the
+     first spin and whenever the script clears the result to the empty string; any name written
+     into it brings back the dark bar above. Keep the element free of whitespace in the markup, or
+     :empty never matches. */
+  .wheel-result:empty {
+    background: transparent;
+    border: 2.5px dashed rgba(20, 20, 43, 0.35);
   }
 
   /* A BOUND, not a floor — the confirmed gh#120 reflow on this page. When it was measured the site
