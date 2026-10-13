@@ -296,10 +296,13 @@ import PageChrome from '../../components/PageChrome.astro';
     cursor: pointer;
   }
 
-  /* hit-area only (gh#254): the all-tools link stands alone in its paragraph, so it is a target and
-     not running prose. Vertical padding on an inline link is invisible and moves no line. */
   #how-to-use p a {
-    padding-block: 2px;
+    /* a 44px invisible hit area per the owner ruling on gh#263; the row may grow to hold it */
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* gh#263, owner approval 2026-10-06 on the ToolWheel390 and ToolNumber390 boards: the how-to

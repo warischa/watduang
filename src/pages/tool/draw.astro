@@ -138,8 +138,9 @@ import PageChrome from '../../components/PageChrome.astro';
   .tool-back {
     display: flex;
     align-items: center;
-    /* hit-area only (gh#254): grows around the same midpoint inside the chrome row */
-    min-block-size: 24px;
+    /* a 44px invisible hit area per the owner ruling on gh#263; the chrome row may grow to hold it */
+    min-height: 44px;
+    min-width: 44px;
     gap: 6px;
     font-size: 14px;
     color: var(--color-text);
@@ -408,8 +409,12 @@ import PageChrome from '../../components/PageChrome.astro';
 
   #how-to-use p a {
     color: var(--color-text);
-    /* hit-area only (gh#254): this link stands alone in its paragraph, so it is a target and not prose */
-    padding-block: 2px;
+    /* a 44px invisible hit area per the owner ruling on gh#263; the row may grow to hold it */
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   #how-to-use p a:hover {
@@ -449,8 +454,13 @@ import PageChrome from '../../components/PageChrome.astro';
       text-decoration: none;
       border-bottom: 2px solid rgba(20, 20, 43, 0.35);
       padding-bottom: 2px;
-      /* hit-area only (gh#254): top padding alone, so the rule under the link stays where it is */
-      padding-top: 4px;
+      /* a 44px invisible hit area per the owner ruling on gh#263; the text sits at the box's bottom
+         edge, so the rule under the link stays under the text and the extra height is above it */
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: flex-end;
+      justify-content: center;
     }
 
     .tool-band h1 {

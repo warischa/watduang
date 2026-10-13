@@ -216,9 +216,10 @@ const howToJsonLd = {
   .game-topbar a {
     display: flex;
     align-items: center;
-    /* hit-area only (gh#254): the box grows around the same midpoint inside the bar's own
-       min-height, so the icon and label stay where they were drawn */
-    min-block-size: 24px;
+    /* a 44px invisible hit area per the owner ruling on gh#263; the bar can now grow past its 60px
+       min-height (12px padding + 44px link) */
+    min-height: 44px;
+    min-width: 44px;
     gap: 6px;
     font-size: 14px;
     color: var(--color-text);
