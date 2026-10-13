@@ -1,6 +1,6 @@
 # gh#263 item 1: the GameNav link list on the number boards, drawn with a 44px hit area
 
-Status: **pending render approval** (owner ruling 2026-10-06 by popup: draw a board with 44px links, approve before code; ADR-0033).
+Status: **APPROVED 2026-10-06, shipped `fbe6a77` (2026-10-13)** (owner ruling 2026-10-06 by popup: draw a board with 44px links, approve before code; ADR-0033). The code adds `min-width: 44px` by owner ruling 2026-10-13 (gh#263).
 
 Captured 2026-10-06 from `file://` with headless Chrome 154 over raw CDP (port 9362, own profile, killed by pid
 afterwards, port confirmed free with `lsof`). Same method as `../how-to/`: `mobile:false`, deviceScaleFactor 1,
