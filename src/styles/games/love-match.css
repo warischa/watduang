@@ -84,7 +84,8 @@
 .lm-when {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 20px;
+  font-size: 26px;
+  line-height: 1.35;
 }
 
 .lm-where {
