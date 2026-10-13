@@ -1,0 +1,126 @@
+{
+  "builtAt": "2026-10-13T03:01:09.183Z",
+  "runs": [
+    {
+      "page": "/tool/wheel/",
+      "width": 320,
+      "bodyBg": "rgb(255, 246, 224)",
+      "innerWidth": 320
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 320,
+      "band": 0,
+      "r": 0.1,
+      "when": {
+        "text": "ตอนคุณอายุ 25 ปี",
+        "size": "26px",
+        "lineHeight": "35.1px",
+        "boxH": 35.09,
+        "lines": 1,
+        "w": 199,
+        "parentW": 280,
+        "elScroll": 199,
+        "elClient": 199,
+        "innerWidth": 320,
+        "docScroll": 320,
+        "docClient": 320
+      }
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 320,
+      "band": 4,
+      "r": 0.9,
+      "when": null
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 320,
+      "band": 5,
+      "r": 0.1,
+      "when": {
+        "text": "อีกประมาณ 2 ปีจากนี้",
+        "size": "26px",
+        "lineHeight": "35.1px",
+        "boxH": 35.09,
+        "lines": 1,
+        "w": 233,
+        "parentW": 280,
+        "elScroll": 233,
+        "elClient": 233,
+        "innerWidth": 320,
+        "docScroll": 320,
+        "docClient": 320
+      }
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 320,
+      "band": 5,
+      "r": 0.9,
+      "when": null
+    },
+    {
+      "page": "/tool/wheel/",
+      "width": 1440,
+      "bodyBg": "rgb(255, 246, 224)",
+      "innerWidth": 1440
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 1440,
+      "band": 0,
+      "r": 0.1,
+      "when": {
+        "text": "ตอนคุณอายุ 25 ปี",
+        "size": "26px",
+        "lineHeight": "35.1px",
+        "boxH": 35.09,
+        "lines": 1,
+        "w": 199,
+        "parentW": 1400,
+        "elScroll": 199,
+        "elClient": 199,
+        "innerWidth": 1440,
+        "docScroll": 1440,
+        "docClient": 1440
+      }
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 1440,
+      "band": 4,
+      "r": 0.9,
+      "when": null
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 1440,
+      "band": 5,
+      "r": 0.1,
+      "when": {
+        "text": "อีกประมาณ 2 ปีจากนี้",
+        "size": "26px",
+        "lineHeight": "35.1px",
+        "boxH": 35.09,
+        "lines": 1,
+        "w": 233,
+        "parentW": 1400,
+        "elScroll": 233,
+        "elClient": 233,
+        "innerWidth": 1440,
+        "docScroll": 1440,
+        "docClient": 1440
+      }
+    },
+    {
+      "page": "/game/love-match/",
+      "width": 1440,
+      "band": 5,
+      "r": 0.9,
+      "when": null
+    }
+  ],
+  "exceptions": 0
+}

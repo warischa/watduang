@@ -1,0 +1,540 @@
+{
+  "builtAt": "2026-10-13T03:40:23.129Z",
+  "runs": [
+    {
+      "path": "/",
+      "width": 320,
+      "sel": ".chrome-brand",
+      "r": [
+        {
+          "t": "วัดดวง",
+          "boxH": 41,
+          "tappable": 45.5,
+          "stolenSamples": 6
+        }
+      ]
+    },
+    {
+      "path": "/",
+      "width": 320,
+      "sel": ".chrome-pill",
+      "r": [
+        {
+          "t": "ดูดวง",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุ่มคนโดน",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "เครื่องมือสุ่ม",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/",
+      "width": 320,
+      "sel": ".chrome-pill MUST-RED (::after off)",
+      "r": [
+        {
+          "t": "ดูดวง",
+          "boxH": 34,
+          "tappable": 20.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุ่มคนโดน",
+          "boxH": 34,
+          "tappable": 19.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "เครื่องมือสุ่ม",
+          "boxH": 34,
+          "tappable": 20.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/c/fortune/",
+      "width": 320,
+      "sel": ".chrome-brand",
+      "r": [
+        {
+          "t": "วัดดวง",
+          "boxH": 41,
+          "tappable": 45.5,
+          "stolenSamples": 6
+        }
+      ]
+    },
+    {
+      "path": "/c/fortune/",
+      "width": 320,
+      "sel": ".chrome-pill",
+      "r": [
+        {
+          "t": "ดูดวง",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุ่มคนโดน",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "เครื่องมือสุ่ม",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/tools/",
+      "width": 320,
+      "sel": ".chrome-brand",
+      "r": [
+        {
+          "t": "วัดดวง",
+          "boxH": 41,
+          "tappable": 45.5,
+          "stolenSamples": 6
+        }
+      ]
+    },
+    {
+      "path": "/tools/",
+      "width": 320,
+      "sel": ".chrome-pill",
+      "r": [
+        {
+          "t": "ดูดวง",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุ่มคนโดน",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "เครื่องมือสุ่ม",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/tool/wheel/",
+      "width": 320,
+      "sel": "GameNav a (control)",
+      "r": [
+        {
+          "t": "ระเบิดเวลา",
+          "boxH": 44,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "จับไม้สั้น",
+          "boxH": 44,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "มือลั่น",
+          "boxH": 44,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/game/siamsi/",
+      "width": 320,
+      "sel": ".sm-chip",
+      "r": [
+        {
+          "t": "การงาน",
+          "boxH": 34,
+          "tappable": 42,
+          "stolenSamples": 12
+        },
+        {
+          "t": "ความรัก",
+          "boxH": 34,
+          "tappable": 42,
+          "stolenSamples": 18
+        },
+        {
+          "t": "การเงิน",
+          "boxH": 34,
+          "tappable": 42,
+          "stolenSamples": 6
+        },
+        {
+          "t": "สุขภาพ",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "ไม่เจาะจง",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/game/siamsi/",
+      "width": 320,
+      "sel": ".sm-chip MUST-RED (::after off)",
+      "r": [
+        {
+          "t": "การงาน",
+          "boxH": 34,
+          "tappable": 19.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "ความรัก",
+          "boxH": 34,
+          "tappable": 20,
+          "stolenSamples": 0
+        },
+        {
+          "t": "การเงิน",
+          "boxH": 34,
+          "tappable": 19,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุขภาพ",
+          "boxH": 34,
+          "tappable": 21,
+          "stolenSamples": 0
+        },
+        {
+          "t": "ไม่เจาะจง",
+          "boxH": 34,
+          "tappable": 19.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/game/siamsi/",
+      "width": 320,
+      "sel": "topbar",
+      "r": {
+        "topbarH": 86,
+        "topbarScroll": 320,
+        "topbarClient": 320,
+        "docScroll": 320,
+        "docClient": 320,
+        "innerWidth": 320,
+        "links": [
+          {
+            "w": 52,
+            "h": 44,
+            "right": 68
+          }
+        ]
+      }
+    },
+    {
+      "path": "/game/love-match/",
+      "width": 320,
+      "sel": "topbar",
+      "r": {
+        "topbarH": 86,
+        "topbarScroll": 320,
+        "topbarClient": 320,
+        "docScroll": 320,
+        "docClient": 320,
+        "innerWidth": 320,
+        "links": [
+          {
+            "w": 52,
+            "h": 44,
+            "right": 68
+          }
+        ]
+      }
+    },
+    {
+      "path": "/game/daily-fortune/",
+      "width": 320,
+      "sel": "topbar",
+      "r": {
+        "topbarH": 86,
+        "topbarScroll": 320,
+        "topbarClient": 320,
+        "docScroll": 320,
+        "docClient": 320,
+        "innerWidth": 320,
+        "links": [
+          {
+            "w": 52,
+            "h": 44,
+            "right": 68
+          }
+        ]
+      }
+    },
+    {
+      "path": "/",
+      "width": 1440,
+      "sel": ".chrome-brand",
+      "r": [
+        {
+          "t": "วัดดวง",
+          "boxH": 50,
+          "tappable": 50.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/",
+      "width": 1440,
+      "sel": ".chrome-pill",
+      "r": [
+        {
+          "t": "ดูดวง",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุ่มคนโดน",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "เครื่องมือสุ่ม",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/c/fortune/",
+      "width": 1440,
+      "sel": ".chrome-brand",
+      "r": [
+        {
+          "t": "วัดดวง",
+          "boxH": 50,
+          "tappable": 50.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/c/fortune/",
+      "width": 1440,
+      "sel": ".chrome-pill",
+      "r": [
+        {
+          "t": "ดูดวง",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุ่มคนโดน",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "เครื่องมือสุ่ม",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/tools/",
+      "width": 1440,
+      "sel": ".chrome-brand",
+      "r": [
+        {
+          "t": "วัดดวง",
+          "boxH": 50,
+          "tappable": 50.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/tools/",
+      "width": 1440,
+      "sel": ".chrome-pill",
+      "r": [
+        {
+          "t": "ดูดวง",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุ่มคนโดน",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "เครื่องมือสุ่ม",
+          "boxH": 45,
+          "tappable": 23.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/tool/wheel/",
+      "width": 1440,
+      "sel": "GameNav a (control)",
+      "r": [
+        {
+          "t": "ระเบิดเวลา",
+          "boxH": 44,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "จับไม้สั้น",
+          "boxH": 44,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "มือลั่น",
+          "boxH": 44,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/game/siamsi/",
+      "width": 1440,
+      "sel": ".sm-chip",
+      "r": [
+        {
+          "t": "การงาน",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "ความรัก",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "การเงิน",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "สุขภาพ",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        },
+        {
+          "t": "ไม่เจาะจง",
+          "boxH": 34,
+          "tappable": 44.5,
+          "stolenSamples": 0
+        }
+      ]
+    },
+    {
+      "path": "/game/siamsi/",
+      "width": 1440,
+      "sel": "topbar",
+      "r": {
+        "topbarH": 86,
+        "topbarScroll": 1440,
+        "topbarClient": 1440,
+        "docScroll": 1440,
+        "docClient": 1440,
+        "innerWidth": 1440,
+        "links": [
+          {
+            "w": 52,
+            "h": 44,
+            "right": 68
+          }
+        ]
+      }
+    },
+    {
+      "path": "/game/love-match/",
+      "width": 1440,
+      "sel": "topbar",
+      "r": {
+        "topbarH": 86,
+        "topbarScroll": 1440,
+        "topbarClient": 1440,
+        "docScroll": 1440,
+        "docClient": 1440,
+        "innerWidth": 1440,
+        "links": [
+          {
+            "w": 52,
+            "h": 44,
+            "right": 68
+          }
+        ]
+      }
+    },
+    {
+      "path": "/game/daily-fortune/",
+      "width": 1440,
+      "sel": "topbar",
+      "r": {
+        "topbarH": 86,
+        "topbarScroll": 1440,
+        "topbarClient": 1440,
+        "docScroll": 1440,
+        "docClient": 1440,
+        "innerWidth": 1440,
+        "links": [
+          {
+            "w": 52,
+            "h": 44,
+            "right": 68
+          }
+        ]
+      }
+    }
+  ],
+  "exceptions": 0
+}
