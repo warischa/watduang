@@ -1,0 +1,1292 @@
+{
+  "board": "design/Gh263TargetProposals.dc.html",
+  "width": 1440,
+  "docHeight": 2400,
+  "artboards": [
+    {
+      "group": "chrome",
+      "variant": "current",
+      "frame": {
+        "w": 320,
+        "h": 109
+      },
+      "rows": 2,
+      "maxClaimedRowOverlapPx": 0,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "items": [
+        {
+          "label": "วัดดวง",
+          "tag": "a",
+          "box": {
+            "w": 79.67,
+            "h": 41,
+            "top": 324.98,
+            "left": 54
+          },
+          "claimed": {
+            "src": "element",
+            "w": 79.67,
+            "h": 41,
+            "top": 324.98,
+            "bottom": 365.98,
+            "left": 54,
+            "right": 133.67
+          },
+          "tappableHeight": 41.5,
+          "tappableWidth": 80.5,
+          "grid": {
+            "samples": 252,
+            "onTarget": 252,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "ดูดวง",
+          "tag": "a",
+          "box": {
+            "w": 58.86,
+            "h": 34,
+            "top": 375.98,
+            "left": 54
+          },
+          "claimed": {
+            "src": "element",
+            "w": 58.86,
+            "h": 34,
+            "top": 375.98,
+            "bottom": 409.98,
+            "left": 54,
+            "right": 112.86
+          },
+          "tappableHeight": 34.5,
+          "tappableWidth": 59.5,
+          "grid": {
+            "samples": 160,
+            "onTarget": 141,
+            "onNeighbour": 19,
+            "neighbours": {
+              "div.pills:ดูดวง\n        ": {
+                "count": 19,
+                "first": [
+                  55,
+                  377
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "สุ่มคนโดน",
+          "tag": "a",
+          "box": {
+            "w": 82.41,
+            "h": 34,
+            "top": 375.98,
+            "left": 118.86
+          },
+          "claimed": {
+            "src": "element",
+            "w": 82.41,
+            "h": 34,
+            "top": 375.98,
+            "bottom": 409.98,
+            "left": 118.86,
+            "right": 201.27
+          },
+          "tappableHeight": 34.5,
+          "tappableWidth": 83,
+          "grid": {
+            "samples": 220,
+            "onTarget": 199,
+            "onNeighbour": 21,
+            "neighbours": {
+              "div.pills:ดูดวง\n        ": {
+                "count": 21,
+                "first": [
+                  119.9,
+                  377
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "เครื่องมือสุ่ม",
+          "tag": "a",
+          "box": {
+            "w": 96.56,
+            "h": 34,
+            "top": 375.98,
+            "left": 207.27
+          },
+          "claimed": {
+            "src": "element",
+            "w": 96.56,
+            "h": 34,
+            "top": 375.98,
+            "bottom": 409.98,
+            "left": 207.27,
+            "right": 303.83
+          },
+          "tappableHeight": 34.5,
+          "tappableWidth": 97.5,
+          "grid": {
+            "samples": 260,
+            "onTarget": 241,
+            "onNeighbour": 19,
+            "neighbours": {
+              "div.pills:ดูดวง\n        ": {
+                "count": 19,
+                "first": [
+                  208.3,
+                  377
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "group": "chrome",
+      "variant": "A",
+      "frame": {
+        "w": 320,
+        "h": 122
+      },
+      "rows": 2,
+      "maxClaimedRowOverlapPx": 0,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "items": [
+        {
+          "label": "วัดดวง",
+          "tag": "a",
+          "box": {
+            "w": 79.67,
+            "h": 44,
+            "top": 359.77,
+            "left": 400
+          },
+          "claimed": {
+            "src": "element",
+            "w": 79.67,
+            "h": 44,
+            "top": 359.77,
+            "bottom": 403.77,
+            "left": 400,
+            "right": 479.67
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 80.5,
+          "grid": {
+            "samples": 252,
+            "onTarget": 252,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "ดูดวง",
+          "tag": "a",
+          "box": {
+            "w": 58.86,
+            "h": 44,
+            "top": 413.77,
+            "left": 400
+          },
+          "claimed": {
+            "src": "element",
+            "w": 58.86,
+            "h": 44,
+            "top": 413.77,
+            "bottom": 457.77,
+            "left": 400,
+            "right": 458.86
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 59.5,
+          "grid": {
+            "samples": 192,
+            "onTarget": 161,
+            "onNeighbour": 31,
+            "neighbours": {
+              "div.pills:ดูดวง\n        ": {
+                "count": 31,
+                "first": [
+                  401,
+                  414.8
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "สุ่มคนโดน",
+          "tag": "a",
+          "box": {
+            "w": 82.41,
+            "h": 44,
+            "top": 413.77,
+            "left": 464.86
+          },
+          "claimed": {
+            "src": "element",
+            "w": 82.41,
+            "h": 44,
+            "top": 413.77,
+            "bottom": 457.77,
+            "left": 464.86,
+            "right": 547.27
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 83,
+          "grid": {
+            "samples": 264,
+            "onTarget": 233,
+            "onNeighbour": 31,
+            "neighbours": {
+              "div.pills:ดูดวง\n        ": {
+                "count": 31,
+                "first": [
+                  465.9,
+                  414.8
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "เครื่องมือสุ่ม",
+          "tag": "a",
+          "box": {
+            "w": 96.56,
+            "h": 44,
+            "top": 413.77,
+            "left": 553.27
+          },
+          "claimed": {
+            "src": "element",
+            "w": 96.56,
+            "h": 44,
+            "top": 413.77,
+            "bottom": 457.77,
+            "left": 553.27,
+            "right": 649.83
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 97.5,
+          "grid": {
+            "samples": 312,
+            "onTarget": 283,
+            "onNeighbour": 29,
+            "neighbours": {
+              "div.pills:ดูดวง\n        ": {
+                "count": 29,
+                "first": [
+                  554.3,
+                  414.8
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "group": "chrome",
+      "variant": "B",
+      "frame": {
+        "w": 320,
+        "h": 109
+      },
+      "rows": 2,
+      "maxClaimedRowOverlapPx": 0,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "items": [
+        {
+          "label": "วัดดวง",
+          "tag": "a",
+          "box": {
+            "w": 79.67,
+            "h": 41,
+            "top": 342.38,
+            "left": 746
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 79.67,
+            "h": 45,
+            "top": 340.38,
+            "bottom": 385.38,
+            "left": 746,
+            "right": 825.67
+          },
+          "tappableHeight": 45.5,
+          "tappableWidth": 80.5,
+          "grid": {
+            "samples": 273,
+            "onTarget": 273,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "ดูดวง",
+          "tag": "a",
+          "box": {
+            "w": 58.86,
+            "h": 34,
+            "top": 393.38,
+            "left": 746
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 58.86,
+            "h": 44,
+            "top": 388.38,
+            "bottom": 432.38,
+            "left": 746,
+            "right": 804.86
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 59.5,
+          "grid": {
+            "samples": 192,
+            "onTarget": 192,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "สุ่มคนโดน",
+          "tag": "a",
+          "box": {
+            "w": 82.41,
+            "h": 34,
+            "top": 393.38,
+            "left": 810.86
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 82.41,
+            "h": 44,
+            "top": 388.38,
+            "bottom": 432.38,
+            "left": 810.86,
+            "right": 893.27
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 83,
+          "grid": {
+            "samples": 264,
+            "onTarget": 264,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "เครื่องมือสุ่ม",
+          "tag": "a",
+          "box": {
+            "w": 96.56,
+            "h": 34,
+            "top": 393.38,
+            "left": 899.27
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 96.56,
+            "h": 44,
+            "top": 388.38,
+            "bottom": 432.38,
+            "left": 899.27,
+            "right": 995.83
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 97.5,
+          "grid": {
+            "samples": 312,
+            "onTarget": 312,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        }
+      ]
+    },
+    {
+      "group": "chrome",
+      "variant": "B-outline",
+      "frame": {
+        "w": 320,
+        "h": 109
+      },
+      "rows": 2,
+      "maxClaimedRowOverlapPx": 0,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "items": [
+        {
+          "label": "วัดดวง",
+          "tag": "a",
+          "box": {
+            "w": 79.67,
+            "h": 41,
+            "top": 324.98,
+            "left": 1092
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 79.67,
+            "h": 45,
+            "top": 322.98,
+            "bottom": 367.98,
+            "left": 1092,
+            "right": 1171.67
+          },
+          "tappableHeight": 45.5,
+          "tappableWidth": 80.5,
+          "grid": {
+            "samples": 273,
+            "onTarget": 273,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "ดูดวง",
+          "tag": "a",
+          "box": {
+            "w": 58.86,
+            "h": 34,
+            "top": 375.98,
+            "left": 1092
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 58.86,
+            "h": 44,
+            "top": 370.98,
+            "bottom": 414.98,
+            "left": 1092,
+            "right": 1150.86
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 59.5,
+          "grid": {
+            "samples": 192,
+            "onTarget": 192,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "สุ่มคนโดน",
+          "tag": "a",
+          "box": {
+            "w": 82.41,
+            "h": 34,
+            "top": 375.98,
+            "left": 1156.86
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 82.41,
+            "h": 44,
+            "top": 370.98,
+            "bottom": 414.98,
+            "left": 1156.86,
+            "right": 1239.27
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 83,
+          "grid": {
+            "samples": 264,
+            "onTarget": 264,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "เครื่องมือสุ่ม",
+          "tag": "a",
+          "box": {
+            "w": 96.56,
+            "h": 34,
+            "top": 375.98,
+            "left": 1245.27
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 96.56,
+            "h": 44,
+            "top": 370.98,
+            "bottom": 414.98,
+            "left": 1245.27,
+            "right": 1341.83
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 97.5,
+          "grid": {
+            "samples": 312,
+            "onTarget": 312,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        }
+      ]
+    },
+    {
+      "group": "chips",
+      "variant": "current",
+      "frame": {
+        "w": 320,
+        "h": 168
+      },
+      "rows": 2,
+      "maxClaimedRowOverlapPx": 0,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "items": [
+        {
+          "label": "การงาน",
+          "tag": "span",
+          "box": {
+            "w": 75.45,
+            "h": 37,
+            "top": 721.16,
+            "left": 79.47
+          },
+          "claimed": {
+            "src": "element",
+            "w": 75.45,
+            "h": 37,
+            "top": 721.16,
+            "bottom": 758.16,
+            "left": 79.47,
+            "right": 154.92
+          },
+          "tappableHeight": 37.5,
+          "tappableWidth": 76,
+          "grid": {
+            "samples": 220,
+            "onTarget": 196,
+            "onNeighbour": 24,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 24,
+                "first": [
+                  80.5,
+                  722.2
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "ความรัก",
+          "tag": "span",
+          "box": {
+            "w": 77,
+            "h": 37,
+            "top": 721.16,
+            "left": 162.92
+          },
+          "claimed": {
+            "src": "element",
+            "w": 77,
+            "h": 37,
+            "top": 721.16,
+            "bottom": 758.16,
+            "left": 162.92,
+            "right": 239.92
+          },
+          "tappableHeight": 37.5,
+          "tappableWidth": 77.5,
+          "grid": {
+            "samples": 231,
+            "onTarget": 206,
+            "onNeighbour": 25,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 25,
+                "first": [
+                  163.9,
+                  722.2
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "การเงิน",
+          "tag": "span",
+          "box": {
+            "w": 72.59,
+            "h": 37,
+            "top": 721.16,
+            "left": 247.92
+          },
+          "claimed": {
+            "src": "element",
+            "w": 72.59,
+            "h": 37,
+            "top": 721.16,
+            "bottom": 758.16,
+            "left": 247.92,
+            "right": 320.52
+          },
+          "tappableHeight": 37.5,
+          "tappableWidth": 73.5,
+          "grid": {
+            "samples": 220,
+            "onTarget": 197,
+            "onNeighbour": 23,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 23,
+                "first": [
+                  248.9,
+                  722.2
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "สุขภาพ",
+          "tag": "span",
+          "box": {
+            "w": 71.53,
+            "h": 37,
+            "top": 766.16,
+            "left": 119.53
+          },
+          "claimed": {
+            "src": "element",
+            "w": 71.53,
+            "h": 37,
+            "top": 766.16,
+            "bottom": 803.16,
+            "left": 119.53,
+            "right": 191.06
+          },
+          "tappableHeight": 37.5,
+          "tappableWidth": 72,
+          "grid": {
+            "samples": 209,
+            "onTarget": 183,
+            "onNeighbour": 26,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 26,
+                "first": [
+                  120.5,
+                  767.2
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "ไม่เจาะจง",
+          "tag": "span",
+          "box": {
+            "w": 81.41,
+            "h": 37,
+            "top": 766.16,
+            "left": 199.06
+          },
+          "claimed": {
+            "src": "element",
+            "w": 81.41,
+            "h": 37,
+            "top": 766.16,
+            "bottom": 803.16,
+            "left": 199.06,
+            "right": 280.47
+          },
+          "tappableHeight": 37.5,
+          "tappableWidth": 81.5,
+          "grid": {
+            "samples": 242,
+            "onTarget": 216,
+            "onNeighbour": 26,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 26,
+                "first": [
+                  200.1,
+                  767.2
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "group": "chips",
+      "variant": "A",
+      "frame": {
+        "w": 320,
+        "h": 182
+      },
+      "rows": 2,
+      "maxClaimedRowOverlapPx": 0,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "items": [
+        {
+          "label": "การงาน",
+          "tag": "span",
+          "box": {
+            "w": 75.45,
+            "h": 44,
+            "top": 755.94,
+            "left": 425.47
+          },
+          "claimed": {
+            "src": "element",
+            "w": 75.45,
+            "h": 44,
+            "top": 755.94,
+            "bottom": 799.94,
+            "left": 425.47,
+            "right": 500.92
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 76,
+          "grid": {
+            "samples": 240,
+            "onTarget": 211,
+            "onNeighbour": 29,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 29,
+                "first": [
+                  426.5,
+                  756.9
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "ความรัก",
+          "tag": "span",
+          "box": {
+            "w": 77,
+            "h": 44,
+            "top": 755.94,
+            "left": 508.92
+          },
+          "claimed": {
+            "src": "element",
+            "w": 77,
+            "h": 44,
+            "top": 755.94,
+            "bottom": 799.94,
+            "left": 508.92,
+            "right": 585.92
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 77.5,
+          "grid": {
+            "samples": 252,
+            "onTarget": 222,
+            "onNeighbour": 30,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 30,
+                "first": [
+                  509.9,
+                  756.9
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "การเงิน",
+          "tag": "span",
+          "box": {
+            "w": 72.59,
+            "h": 44,
+            "top": 755.94,
+            "left": 593.92
+          },
+          "claimed": {
+            "src": "element",
+            "w": 72.59,
+            "h": 44,
+            "top": 755.94,
+            "bottom": 799.94,
+            "left": 593.92,
+            "right": 666.52
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 73.5,
+          "grid": {
+            "samples": 240,
+            "onTarget": 210,
+            "onNeighbour": 30,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 30,
+                "first": [
+                  594.9,
+                  756.9
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "สุขภาพ",
+          "tag": "span",
+          "box": {
+            "w": 71.53,
+            "h": 44,
+            "top": 807.94,
+            "left": 465.53
+          },
+          "claimed": {
+            "src": "element",
+            "w": 71.53,
+            "h": 44,
+            "top": 807.94,
+            "bottom": 851.94,
+            "left": 465.53,
+            "right": 537.06
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 72,
+          "grid": {
+            "samples": 228,
+            "onTarget": 197,
+            "onNeighbour": 31,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 31,
+                "first": [
+                  466.5,
+                  808.9
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "ไม่เจาะจง",
+          "tag": "span",
+          "box": {
+            "w": 81.41,
+            "h": 44,
+            "top": 807.94,
+            "left": 545.06
+          },
+          "claimed": {
+            "src": "element",
+            "w": 81.41,
+            "h": 44,
+            "top": 807.94,
+            "bottom": 851.94,
+            "left": 545.06,
+            "right": 626.47
+          },
+          "tappableHeight": 44.5,
+          "tappableWidth": 81.5,
+          "grid": {
+            "samples": 264,
+            "onTarget": 231,
+            "onNeighbour": 33,
+            "neighbours": {
+              "div.chips:การงานความรักก": {
+                "count": 33,
+                "first": [
+                  546.1,
+                  808.9
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "group": "chips",
+      "variant": "B",
+      "frame": {
+        "w": 320,
+        "h": 168
+      },
+      "rows": 2,
+      "maxClaimedRowOverlapPx": 2,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "items": [
+        {
+          "label": "การงาน",
+          "tag": "span",
+          "box": {
+            "w": 75.45,
+            "h": 37,
+            "top": 738.55,
+            "left": 771.47
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 75.45,
+            "h": 47,
+            "top": 733.55,
+            "bottom": 780.55,
+            "left": 771.47,
+            "right": 846.92
+          },
+          "tappableHeight": 47.5,
+          "tappableWidth": 76,
+          "grid": {
+            "samples": 260,
+            "onTarget": 250,
+            "onNeighbour": 10,
+            "neighbours": {
+              "span.chip.hit.hit-chip:สุขภาพ": {
+                "count": 10,
+                "first": [
+                  811.1,
+                  779.5
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "ความรัก",
+          "tag": "span",
+          "box": {
+            "w": 77,
+            "h": 37,
+            "top": 738.55,
+            "left": 854.92
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 77,
+            "h": 47,
+            "top": 733.55,
+            "bottom": 780.55,
+            "left": 854.92,
+            "right": 931.92
+          },
+          "tappableHeight": 45,
+          "tappableWidth": 77.5,
+          "grid": {
+            "samples": 273,
+            "onTarget": 254,
+            "onNeighbour": 19,
+            "neighbours": {
+              "span.chip.hit.hit-chip:สุขภาพ": {
+                "count": 8,
+                "first": [
+                  855.9,
+                  779.5
+                ]
+              },
+              "span.chip.hit.hit-chip:ไม่เจาะจง": {
+                "count": 11,
+                "first": [
+                  893.4,
+                  779.5
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "การเงิน",
+          "tag": "span",
+          "box": {
+            "w": 72.59,
+            "h": 37,
+            "top": 738.55,
+            "left": 939.92
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 72.59,
+            "h": 47,
+            "top": 733.55,
+            "bottom": 780.55,
+            "left": 939.92,
+            "right": 1012.52
+          },
+          "tappableHeight": 47.5,
+          "tappableWidth": 73.5,
+          "grid": {
+            "samples": 260,
+            "onTarget": 251,
+            "onNeighbour": 9,
+            "neighbours": {
+              "span.chip.hit.hit-chip:ไม่เจาะจง": {
+                "count": 9,
+                "first": [
+                  940.9,
+                  779.5
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "สุขภาพ",
+          "tag": "span",
+          "box": {
+            "w": 71.53,
+            "h": 37,
+            "top": 783.55,
+            "left": 811.53
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 71.53,
+            "h": 47,
+            "top": 778.55,
+            "bottom": 825.55,
+            "left": 811.53,
+            "right": 883.06
+          },
+          "tappableHeight": 47.5,
+          "tappableWidth": 72.5,
+          "grid": {
+            "samples": 247,
+            "onTarget": 247,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "ไม่เจาะจง",
+          "tag": "span",
+          "box": {
+            "w": 81.41,
+            "h": 37,
+            "top": 783.55,
+            "left": 891.06
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 81.41,
+            "h": 47,
+            "top": 778.55,
+            "bottom": 825.55,
+            "left": 891.06,
+            "right": 972.47
+          },
+          "tappableHeight": 47.5,
+          "tappableWidth": 82,
+          "grid": {
+            "samples": 286,
+            "onTarget": 286,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        }
+      ]
+    },
+    {
+      "group": "chips",
+      "variant": "B-outline",
+      "frame": {
+        "w": 320,
+        "h": 168
+      },
+      "rows": 2,
+      "maxClaimedRowOverlapPx": 2,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "items": [
+        {
+          "label": "การงาน",
+          "tag": "span",
+          "box": {
+            "w": 75.45,
+            "h": 37,
+            "top": 755.94,
+            "left": 1117.47
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 75.45,
+            "h": 47,
+            "top": 750.94,
+            "bottom": 797.94,
+            "left": 1117.47,
+            "right": 1192.92
+          },
+          "tappableHeight": 47.5,
+          "tappableWidth": 76,
+          "grid": {
+            "samples": 260,
+            "onTarget": 250,
+            "onNeighbour": 10,
+            "neighbours": {
+              "span.chip.hit.hit-chip:สุขภาพ": {
+                "count": 10,
+                "first": [
+                  1157.1,
+                  796.9
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "ความรัก",
+          "tag": "span",
+          "box": {
+            "w": 77,
+            "h": 37,
+            "top": 755.94,
+            "left": 1200.92
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 77,
+            "h": 47,
+            "top": 750.94,
+            "bottom": 797.94,
+            "left": 1200.92,
+            "right": 1277.92
+          },
+          "tappableHeight": 45,
+          "tappableWidth": 77.5,
+          "grid": {
+            "samples": 273,
+            "onTarget": 254,
+            "onNeighbour": 19,
+            "neighbours": {
+              "span.chip.hit.hit-chip:สุขภาพ": {
+                "count": 8,
+                "first": [
+                  1201.9,
+                  796.9
+                ]
+              },
+              "span.chip.hit.hit-chip:ไม่เจาะจง": {
+                "count": 11,
+                "first": [
+                  1239.4,
+                  796.9
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "การเงิน",
+          "tag": "span",
+          "box": {
+            "w": 72.59,
+            "h": 37,
+            "top": 755.94,
+            "left": 1285.92
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 72.59,
+            "h": 47,
+            "top": 750.94,
+            "bottom": 797.94,
+            "left": 1285.92,
+            "right": 1358.52
+          },
+          "tappableHeight": 47.5,
+          "tappableWidth": 73.5,
+          "grid": {
+            "samples": 260,
+            "onTarget": 251,
+            "onNeighbour": 9,
+            "neighbours": {
+              "span.chip.hit.hit-chip:ไม่เจาะจง": {
+                "count": 9,
+                "first": [
+                  1286.9,
+                  796.9
+                ]
+              }
+            }
+          }
+        },
+        {
+          "label": "สุขภาพ",
+          "tag": "span",
+          "box": {
+            "w": 71.53,
+            "h": 37,
+            "top": 800.94,
+            "left": 1157.53
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 71.53,
+            "h": 47,
+            "top": 795.94,
+            "bottom": 842.94,
+            "left": 1157.53,
+            "right": 1229.06
+          },
+          "tappableHeight": 47.5,
+          "tappableWidth": 72.5,
+          "grid": {
+            "samples": 247,
+            "onTarget": 247,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        },
+        {
+          "label": "ไม่เจาะจง",
+          "tag": "span",
+          "box": {
+            "w": 81.41,
+            "h": 37,
+            "top": 800.94,
+            "left": 1237.06
+          },
+          "claimed": {
+            "src": "::after",
+            "w": 81.41,
+            "h": 47,
+            "top": 795.94,
+            "bottom": 842.94,
+            "left": 1237.06,
+            "right": 1318.47
+          },
+          "tappableHeight": 47.5,
+          "tappableWidth": 82,
+          "grid": {
+            "samples": 286,
+            "onTarget": 286,
+            "onNeighbour": 0,
+            "neighbours": {}
+          }
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "files": [
+    "docs/verification/evidence/gh263-canvas/targets/chrome-current.jpg",
+    "docs/verification/evidence/gh263-canvas/targets/chrome-A.jpg",
+    "docs/verification/evidence/gh263-canvas/targets/chrome-B.jpg",
+    "docs/verification/evidence/gh263-canvas/targets/chrome-B-outline.jpg",
+    "docs/verification/evidence/gh263-canvas/targets/chips-current.jpg",
+    "docs/verification/evidence/gh263-canvas/targets/chips-A.jpg",
+    "docs/verification/evidence/gh263-canvas/targets/chips-B.jpg",
+    "docs/verification/evidence/gh263-canvas/targets/chips-B-outline.jpg"
+  ]
+}

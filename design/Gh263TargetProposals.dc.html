@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    /* Proposal sheet, not a page. Labels are English design annotations; every Thai string and every value in
+       "Current" is copied from HomeShelf320 (chrome bar) and SiamsiIntent (chips). Variants only add the rules
+       named in their label. */
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .row .why { margin: 0 0 22px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #3d3b5c; }
+    .cands { display: grid; grid-template-columns: repeat(4, 320px); gap: 26px; align-items: start; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; }
+    .frame { width: 320px; position: relative; box-shadow: 0 0 0 1px #14142b; }
+
+    /* chrome bar at 320: structure of the live top bar (column, items at the start) */
+    .bar { background: #14142b; padding: 12px 14px; display: flex; flex-direction: column; align-items: flex-start; }
+    .bar a { color: #14142b; text-decoration: none; }
+    .brand { font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px; color: #ffcc00 !important; }
+    .pills { display: flex; gap: 6px; margin-top: 10px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 14px; }
+    .pill { border-radius: 999px; padding: 6px 12px; }
+
+    /* siamsi intent chips at 320 */
+    .panel { background: #ffd27f; padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-sizing: border-box; color: #1a1a1a; }
+    .lbl { font-size: 13px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .chip { font-size: 14px; border: 2px solid #1a1a1a; border-radius: 999px; padding: 6px 14px; background: #fffdf7; }
+    .chip.on { font-weight: 500; background: #1a1a1a; color: #fffdf7; }
+
+    /* A: the element itself grows. box-sizing is stated because pills and brand are bare anchors (content-box). */
+    .a-pill, .a-chip { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; }
+    .a-brand { min-height: 44px; }
+
+    /* B: nothing moves; the target gets an invisible box. Chip insets are 2px wider than the pill's because the
+       containing block of an absolute box is the padding box and the chip has a 2px border. */
+    .hit { position: relative; }
+    .hit::after { content: ""; position: absolute; }
+    .hit-pill::after { inset: -5px 0; }
+    .hit-brand::after { inset: -2px 0; }
+    .hit-chip::after { inset: -7px -2px; }
+    .show .hit::after { outline: 2px dashed #d6336c; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 32px 40px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#263 · 44px touch target, proposals for the chrome pills, the chrome brand and the siamsi chips</div>
+    <div style="margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">Per group: Current, A (the element grows to 44px), B (invisible hit area, drawn plain and with the hit area outlined in pink). Pending owner pick.</div>
+  </div>
+
+  <!-- (a) chrome at 320 -->
+  <div class="row">
+    <h2>(a) Chrome top bar at 320: brand "วัดดวง" and the three pills</h2>
+    <p class="why">Current: pills 34px tall, brand 41px. A grows each pill and the brand to 44px, so the bar grows with it. B keeps every visible size and adds an invisible box (pills inset -5px top and bottom, brand -2px).</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">Current</span>
+        <div class="frame" data-variant="current" data-group="chrome"><div class="bar">
+          <a class="brand" data-t="brand" href="/">วัดดวง</a>
+          <div class="pills">
+            <a class="pill" data-t="pill" href="/c/fortune/" style="background: #ffcc00;">ดูดวง</a>
+            <a class="pill" data-t="pill" href="/c/party/" style="background: #ff3d7f;">สุ่มคนโดน</a>
+            <a class="pill" data-t="pill" href="/tools/" style="background: #2b7bff;">เครื่องมือสุ่ม</a>
+          </div>
+        </div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">A — visible 44px<br>inline-flex, align-items center, min-height 44px (brand: min-height 44px only)</span>
+        <div class="frame" data-variant="A" data-group="chrome"><div class="bar">
+          <a class="brand a-brand" data-t="brand" href="/">วัดดวง</a>
+          <div class="pills">
+            <a class="pill a-pill" data-t="pill" href="/c/fortune/" style="background: #ffcc00;">ดูดวง</a>
+            <a class="pill a-pill" data-t="pill" href="/c/party/" style="background: #ff3d7f;">สุ่มคนโดน</a>
+            <a class="pill a-pill" data-t="pill" href="/tools/" style="background: #2b7bff;">เครื่องมือสุ่ม</a>
+          </div>
+        </div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">B — invisible 44px hit area (what a player sees)</span>
+        <div class="frame" data-variant="B" data-group="chrome"><div class="bar">
+          <a class="brand hit hit-brand" data-t="brand" href="/">วัดดวง</a>
+          <div class="pills">
+            <a class="pill hit hit-pill" data-t="pill" href="/c/fortune/" style="background: #ffcc00;">ดูดวง</a>
+            <a class="pill hit hit-pill" data-t="pill" href="/c/party/" style="background: #ff3d7f;">สุ่มคนโดน</a>
+            <a class="pill hit hit-pill" data-t="pill" href="/tools/" style="background: #2b7bff;">เครื่องมือสุ่ม</a>
+          </div>
+        </div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">B — invisible 44px hit area (outline shown)</span>
+        <div class="frame show" data-variant="B-outline" data-group="chrome"><div class="bar">
+          <a class="brand hit hit-brand" data-t="brand" href="/">วัดดวง</a>
+          <div class="pills">
+            <a class="pill hit hit-pill" data-t="pill" href="/c/fortune/" style="background: #ffcc00;">ดูดวง</a>
+            <a class="pill hit hit-pill" data-t="pill" href="/c/party/" style="background: #ff3d7f;">สุ่มคนโดน</a>
+            <a class="pill hit hit-pill" data-t="pill" href="/tools/" style="background: #2b7bff;">เครื่องมือสุ่ม</a>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- (b) siamsi chips at 320 -->
+  <div class="row">
+    <h2>(b) Siamsi intent chips at 320: "เรื่องที่อยากถาม"</h2>
+    <p class="why">Current: chips 34px tall, wrapped rows 8px apart. A grows each chip to 44px. B keeps the chips and extends the hit box 5px above and below the chip edge; 5px + 5px across an 8px gap makes two wrapped rows overlap by 2px, visible in the outlined board.</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">Current</span>
+        <div class="frame" data-variant="current" data-group="chips"><div class="panel">
+          <span class="lbl">เรื่องที่อยากถาม</span>
+          <div class="chips">
+            <span class="chip on" data-t="chip">การงาน</span><span class="chip" data-t="chip">ความรัก</span><span class="chip" data-t="chip">การเงิน</span><span class="chip" data-t="chip">สุขภาพ</span><span class="chip" data-t="chip">ไม่เจาะจง</span>
+          </div>
+        </div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">A — visible 44px<br>inline-flex, align-items center, min-height 44px, border-box</span>
+        <div class="frame" data-variant="A" data-group="chips"><div class="panel">
+          <span class="lbl">เรื่องที่อยากถาม</span>
+          <div class="chips">
+            <span class="chip a-chip on" data-t="chip">การงาน</span><span class="chip a-chip" data-t="chip">ความรัก</span><span class="chip a-chip" data-t="chip">การเงิน</span><span class="chip a-chip" data-t="chip">สุขภาพ</span><span class="chip a-chip" data-t="chip">ไม่เจาะจง</span>
+          </div>
+        </div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">B — invisible 44px hit area (what a player sees)</span>
+        <div class="frame" data-variant="B" data-group="chips"><div class="panel">
+          <span class="lbl">เรื่องที่อยากถาม</span>
+          <div class="chips">
+            <span class="chip hit hit-chip on" data-t="chip">การงาน</span><span class="chip hit hit-chip" data-t="chip">ความรัก</span><span class="chip hit hit-chip" data-t="chip">การเงิน</span><span class="chip hit hit-chip" data-t="chip">สุขภาพ</span><span class="chip hit hit-chip" data-t="chip">ไม่เจาะจง</span>
+          </div>
+        </div></div>
+      </div>
+      <div class="cand">
+        <span class="tag">B — invisible 44px hit area (outline shown)<br>wrapped rows: the two outlines overlap by 2px</span>
+        <div class="frame show" data-variant="B-outline" data-group="chips"><div class="panel">
+          <span class="lbl">เรื่องที่อยากถาม</span>
+          <div class="chips">
+            <span class="chip hit hit-chip on" data-t="chip">การงาน</span><span class="chip hit hit-chip" data-t="chip">ความรัก</span><span class="chip hit hit-chip" data-t="chip">การเงิน</span><span class="chip hit hit-chip" data-t="chip">สุขภาพ</span><span class="chip hit hit-chip" data-t="chip">ไม่เจาะจง</span>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 24px 40px 40px; font: 12px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c;">
+    Copy sources: brand and pills from HomeShelf320 (top bar); chips and label from SiamsiIntent. Invented Thai: 0.
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

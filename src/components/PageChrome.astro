@@ -149,6 +149,7 @@ const SITE_LINKS: SiteLink[] = [
 
     .chrome-brand {
       font-size: 26px;
+      position: relative;
     }
 
     .chrome-pills {
@@ -159,6 +160,22 @@ const SITE_LINKS: SiteLink[] = [
 
     .chrome-pill {
       padding: 6px 12px;
+      position: relative;
+    }
+
+    /* gh#263 board B, owner-approved 2026-10-13: an invisible hit area reaches 44px while nothing drawn
+       moves — the brand measures 41px here and the pills 34px. The pseudo-element is part of its link, so a
+       tap on it is a tap on the link; it paints nothing and takes no layout. Above 1099px both already
+       clear 44px. */
+    .chrome-brand::after,
+    .chrome-pill::after {
+      content: '';
+      position: absolute;
+      inset: -5px 0;
+    }
+
+    .chrome-brand::after {
+      inset: -2px 0;
     }
 
     .chrome-footer {

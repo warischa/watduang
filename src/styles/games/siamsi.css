@@ -129,6 +129,17 @@
   padding: 6px 14px;
   background: var(--color-ground-warm);
   cursor: pointer;
+  position: relative;
+}
+
+/* gh#263 board B, owner-approved 2026-10-13: the chip draws 34px tall; this invisible extension makes
+   its hit area 44px without moving anything. The absolute box sits against the padding box, inside the
+   2px border, hence 7px. On a wrapped row the extensions of two rows overlap by 2px (accepted on the
+   board); the later chip wins that strip. */
+.sm-chip::after {
+  content: '';
+  position: absolute;
+  inset: -7px -2px;
 }
 
 .sm-chip--on {
