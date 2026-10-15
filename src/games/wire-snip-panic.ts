@@ -13,11 +13,10 @@ import type { GameContext, GameModule } from './types.ts';
 import { el } from './_el.ts';
 
 /** The seat range, which is this game's own number rather than a site-wide one. Both bounds are the
- *  mockup's: its setup screen is titled for 2-10 and its add-player handler refuses an eleventh seat.
- *  Exported because src/play/wire-snip-panic/roster-bridge.ts clamps the shared roster to the ceiling
- *  the rule states instead of restating it — that direction (play reads games) is the allowed one.
- *  The reverse would not be: gh#140 keeps every module under src/games unaware that a roster or a
- *  shared cast exists at all. */
+ *  mockup's: its setup screen was titled for 2-10 and its add-player handler refused an eleventh seat.
+ *  Since gh#264 (ADR-0071) that handler is gone and the shared player screen admits players by the
+ *  `players` tuple below, which the play route hands it whole. gh#140 keeps every module under
+ *  src/games unaware that a roster or a shared cast exists at all. */
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 10;
 

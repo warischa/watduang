@@ -57,8 +57,7 @@
   },
   "wire-snip-panic": {
     "#btn-sound-toggle": "เปิด/ปิดเสียง",
-    "#btn-rules": "กติกาการเล่น",
-    ".player-remove-btn": "ลบผู้เล่น"
+    "#btn-rules": "กติกาการเล่น"
   },
   "zero-trigger": {
     "#btn-audio-toggle": "เปิด/ปิดเสียง",

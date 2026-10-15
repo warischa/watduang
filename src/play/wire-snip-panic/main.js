@@ -12,19 +12,31 @@
 //   3. A prefers-reduced-motion branch was added, because the mockup had none (ADR-0046: reduce the
 //      motion, do not remove it). Both the amplitude and the cadence drop; the canvas keeps drawing.
 //   4. The losing rule moved to ./turn-rules.ts so a node test can reach it (gh#162 box 7).
+//   5. The mockup's player setup -- the add/remove name list, the reset-names control and its
+//      modal, and the `wire-panic-v1` storage that kept the list -- is GONE (ADR-0071, gh#264). The
+//      shared player screen mounts into #wspPlayers instead and hands its players to
+//      startWithPlayers(), the engine entry added for it. #screen-setup keeps only this game's own
+//      option, the penalty, which comes after the players. roster-bridge.ts, which drove the deleted
+//      controls, went with them. The penalty choice no longer survives a reload: that key held it
+//      beside the names, and a converted route keeps no storage of its own.
 //
 // The .ts extension is spelled out in full, the way manifest.ts does it.
-// gh#176 / ADR-0054: names come from the shared cast, never from a hardcoded numbered array.
-// mascotNames seeds the state array and backfills a blank field; resetCastNames is the reset
-// control's wipe (owner ruling 2026-08-31, decided in gh#174 and copied here unchanged).
-import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
+// The module's default export is read for one field, `players`: the range the player screen admits
+// is the one the manifest declares (ADR-0065), never a number restated here. Not named `game`:
+// that name is this file's engine state below.
+import wireSnipPanic from '../../games/wire-snip-panic.ts';
+// ADR-0071: the one player screen every party route mounts. It owns the count, the names, the
+// roster and the group; this file gets the ticked players back through startWithPlayers().
+import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
 // gh#184: the inert `+N` seat counter for the scrolling player strip. Behaviour is shared; the look
 // lives in this route's overrides.css.
 import { mountStripOverflowCounter } from '../_strip-overflow.ts';
-// ADR-0017, the ghost-tap gate. This route reveals controls on SEVEN paths, not one, and
+// ADR-0017, the ghost-tap gate. This route reveals controls on FIVE paths of its own, not one, and
 // scripts/arm-gate-coverage-check.mjs can only see that the import exists and is called somewhere --
-// it counts per directory, never per reveal. ./arm-reveal-paths.test.mjs pins the set instead.
+// it counts per directory, never per reveal. ./arm-reveal-paths.test.mjs pins the set instead. The
+// player screen's own reveals -- its opening, its dialogs, its undo bar -- are armed by the shared
+// screen itself (src/play/_player-screen/player-screen.ts), every one of them over #app.
 import { armAllButtons } from '../../games/_arm-gate.ts';
 // gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
 // of its own -- muting here mutes every other route, and reopening this one shows what the device
@@ -480,14 +492,10 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     // and three of those -- tiger, monkey, unicorn -- appear nowhere in the shared list, while seat 1
     // was fox where every other party game seats the orange cat. Reported rather than forked: the
     // shared list wins, so seat 1 here is now the same player it is in every other game.
-    // Modulo, not a bare index: MAX_PLAYERS is 10 against a 20-row list, so this cannot wrap today --
-    // it is there so a future seat ceiling raise degrades to a repeat instead of `undefined`.
-    const avatarFor = (idx) => MASCOTS[idx % MASCOTS.length].emoji;
-
-    // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
-    // exactly one definition, in _mascots.ts, and none here (gh#176, same helper shape as short-stick's
-    // defaultName from gh#174).
-    const defaultName = (i) => mascotNames(i + 1)[i];
+    // Since gh#264 the glyph comes from the player screen, seat by seat, through startWithPlayers():
+    // with someone sitting out, seat i is not mascot i, so a positional lookup would put an animal
+    // on the wrong player (gh#209).
+    const avatarFor = (idx) => game.avatars[idx];
 
     // Countdown Time Limit Formula:
     // Round 1-3: 5.0s | Round 4-5: 4.0s | Round 6+: 3.0s
@@ -500,8 +508,11 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     // Game Core State Object
     const game = {
       state: GameState.MENU,
-      players: mascotNames(4),
-      scores: [0, 0, 0, 0],
+      // Empty until the player screen starts (startWithPlayers): no seat exists before the group is chosen.
+      players: [],
+      // Each seat's mascot glyph, parallel to `players`.
+      avatars: [],
+      scores: [],
       penaltyMode: 'preset',
       selectedPenalty: '💸 เลี้ยงน้ำ/เลี้ยงขนมเพื่อนทั้งวง',
       
@@ -527,32 +538,6 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       heartbeatTimer: null,
       scanInterval: null
     };
-
-    // Load LocalStorage
-    function loadSavedSettings() {
-      try {
-        const data = localStorage.getItem('wire-panic-v1');
-        if (data) {
-          const parsed = JSON.parse(data);
-          if (Array.isArray(parsed.players) && parsed.players.length >= 2) {
-            game.players = parsed.players;
-            game.scores = game.players.map(() => 0);
-          }
-          if (parsed.penaltyMode) game.penaltyMode = parsed.penaltyMode;
-          if (parsed.selectedPenalty) game.selectedPenalty = parsed.selectedPenalty;
-        }
-      } catch (_) {}
-    }
-
-    function saveSettings() {
-      try {
-        localStorage.setItem('wire-panic-v1', JSON.stringify({
-          players: game.players,
-          penaltyMode: game.penaltyMode,
-          selectedPenalty: game.selectedPenalty
-        }));
-      } catch (_) {}
-    }
 
     // --- 4. 6-WIRE PROCEDURAL ALTERNATING DIFFICULTY GENERATOR ---
     function generateTurnLevel(round) {
@@ -600,8 +585,8 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     }
 
     // --- 5. UI CONTROLLERS & RENDERING ---
-    // Player names are typed by players and persisted to the shared roster by _setup-bridge.ts, so
-    // they are untrusted text wherever this file builds markup by string. Same helper and same idiom
+    // Player names are typed by players and persisted to the shared roster by the shared player
+    // screen, so they are untrusted text wherever this file builds markup by string. Same helper and same idiom
     // as src/play/zero-trigger/main.js -- kept local because a lift file with an import loses the
     // thai-comments verbatim exemption. Applied at the three sinks that print a roster name.
     function escapeHtml(str) {
@@ -623,7 +608,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       if (region) region.textContent = text;
     }
 
-    // REVEAL PATH 1 of 7. Screen-to-screen: the second contact of a double-tap aimed at the screen
+    // REVEAL PATH 1 of 5. Screen-to-screen: the second contact of a double-tap aimed at the screen
     // that just went away must not land on the control that replaced it.
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -634,7 +619,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       }
     }
 
-    // REVEAL PATH 2 of 7. #modal-rules is opened by two separate controls and passes showScreen on
+    // REVEAL PATH 2 of 5. #modal-rules is opened by two separate controls and passes showScreen on
     // neither, so its close button is revealed with nothing gating it. One function so the two
     // openers cannot drift apart, and so there is one receiver to pin.
     function openRulesModal() {
@@ -643,14 +628,17 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       armAllButtons(rulesModal);
     }
 
-    // REVEAL PATH 7 of 7, gh#187 (owner ruling 2026-09-01), openRulesModal's counterpart: CLOSING a
+    // REVEAL PATH 5 of 5, gh#187 (owner ruling 2026-09-01), openRulesModal's counterpart: CLOSING a
     // modal is itself a reveal. The screen under the card was armed when showScreen switched to it
     // and that window closed long ago, so the second contact of a double-tap on a close or cancel
-    // control lands on a live button behind it -- no rebuild involved, which is why the confirm's
-    // renderSetupPlayerList() note above never covered this. Re-arms whichever screen is live rather
-    // than a named one, so a modal reachable from more than one screen (#modal-rules opens from both
-    // #btn-rules and the menu) is covered from all of them. Dismissals that also CHANGE screen keep
-    // their own showScreen() call, which arms the screen it switches to.
+    // control lands on a live button behind it -- no rebuild involved. Re-arms whichever screen is
+    // live rather than a named one, so a modal reachable from more than one screen (#modal-rules
+    // opens from both #btn-rules and the menu) is covered from all of them. Dismissals that also
+    // CHANGE screen keep their own showScreen() call, which arms the screen it switches to.
+    //
+    // gh#264: the header's #btn-rules also opens the card over the shared player screen, which is not
+    // a `.screen` -- while it is up no `.screen` is active at all. So the open player screen is the
+    // live screen when there is one, and closing the card re-arms it.
     //
     // gh#188 box 13/15 -- no exception list is passed, and it is not a blanket re-enable either. The
     // gate preserves any control that was already disabled when it was called, so arming the whole
@@ -662,69 +650,51 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     // are now closed, and both are pinned in arm-reveal-paths.test.mjs.
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
-      const screen = document.querySelector('.screen.active');
+      const players = document.getElementById('wspPlayers');
+      const screen = players && !players.hidden ? players : document.querySelector('.screen.active');
       if (screen) armAllButtons(screen);
     }
 
-    function renderSetupPlayerList() {
-      const container = document.getElementById('player-list-container');
-      container.innerHTML = '';
+    // --- ADR-0071: THE SHARED PLAYER SCREEN ---
+    // Mounted once the page is wired (see the DOMContentLoaded handler at the bottom of this file);
+    // null until then, and if #wspPlayers is ever missing, so every opener checks it.
+    let playerScreen = null;
 
-      game.players.forEach((name, idx) => {
-        const row = document.createElement('div');
-        row.className = 'player-row';
-        const avatar = avatarFor(idx);
-
-        row.innerHTML = `
-          <div class="player-avatar">${avatar}</div>
-          <input type="text" class="player-input" value="${escapeHtml(name)}" data-idx="${idx}" maxlength="15">
-          ${game.players.length > 2 ? `<button class="player-remove-btn" data-idx="${idx}" title="ลบผู้เล่น" aria-label="ลบผู้เล่น">✕</button>` : ''}
-        `;
-        container.appendChild(row);
-      });
-
-      document.getElementById('player-count-badge').textContent = `${game.players.length} คน`;
-
-      // Attach event listeners
-      container.querySelectorAll('.player-input').forEach(input => {
-        input.addEventListener('change', (e) => {
-          const idx = parseInt(e.target.dataset.idx);
-          const val = e.target.value.trim() || defaultName(idx);
-          game.players[idx] = val;
-          saveSettings();
-        });
-      });
-
-      container.querySelectorAll('.player-remove-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const idx = parseInt(e.target.dataset.idx);
-          if (game.players.length > 2) {
-            soundSynth.playClick(440);
-            game.players.splice(idx, 1);
-            game.scores.splice(idx, 1);
-            saveSettings();
-            renderSetupPlayerList();
-          }
-        });
-      });
-
-      // REVEAL PATH 3 of 7, and the one showScreen cannot cover: #btn-menu-start switches to the
-      // setup screen and THEN calls this, so the remove buttons do not exist yet when showScreen
-      // arms. It is also a reveal with no screen change at all -- every add and every remove rebuilds
-      // this container through innerHTML, putting a fresh remove button under the finger that just
-      // pressed one, at the same coordinates.
-      armAllButtons(container);
+    /** Is a round in progress right now? The shared screen asks this before the chrome's edit control
+     *  opens it mid-round (ruling 6). Read as the three IDLE states, not as a list of round states, so
+     *  a state added later is asked about rather than silently discarded. Game over (ROUND_OVER) is
+     *  idle: the match ended with the detonation, and editing there loses nothing. */
+    function roundActive() {
+      return game.state !== GameState.MENU && game.state !== GameState.SETUP && game.state !== GameState.ROUND_OVER;
     }
 
-    /** gh#176, the pattern set in gh#174. The wipe the reset confirm guards: the cast goes back to
-     *  its animal names and the party keeps its size. resetCastNames only reads the length and never
-     *  looks inside an entry, so a typed name cannot survive this call -- that is exactly the loss
-     *  the confirm names. Deliberately free of any DOM or storage call: the redraw and the settings
-     *  write belong to the handler, which leaves this a pure state move that reset-names.test.mjs can
-     *  lift out of main.js and execute without a browser. */
-    const resetPlayerNames = () => {
-      game.players = resetCastNames(game.players);
-    };
+    /** The route's abortRound AND its onOpen: whatever is up when the player screen opens is put away.
+     *  A round here outlives its screens unless it is stopped -- three intervals live on `game`, and
+     *  three one-shot timers (the scan starter, the detonation modal, the turn advance) check the
+     *  state they were scheduled in before they act, so moving the engine to SETUP is what cancels
+     *  them. abort-round.test.mjs runs each of them past this. */
+    function putAwayRound() {
+      clearInterval(game.scanInterval);
+      clearInterval(game.heartbeatTimer);
+      clearInterval(game.countdownInterval);
+      game.state = GameState.SETUP;
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('modal-detonation').classList.remove('active');
+      document.getElementById('modal-rules').classList.remove('active');
+    }
+
+    /** The engine entry the player screen starts (ADR-0071): exactly these players, in the order
+     *  given, every one of them seated. Seat i wears the glyph the player screen gave it, so a group
+     *  with someone sitting out keeps every animal on its owner. The game's own option, the penalty,
+     *  comes next (ruling 1); #btn-start-match on that screen starts the match. */
+    function startWithPlayers(players) {
+      game.players = players.map((p) => p.name);
+      game.avatars = players.map((p) => p.emoji);
+      game.scores = game.players.map(() => 0);
+      game.state = GameState.SETUP;
+      showScreen('screen-setup');
+      renderPenaltyUI();
+    }
 
     function renderPenaltyUI() {
       document.querySelectorAll('.penalty-tab').forEach(tab => {
@@ -904,7 +874,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       scanBtn.style.display = 'flex';
       scanBtn.disabled = false;
 
-      // REVEAL PATH 4 of 7, and it must be armed HERE rather than left to showScreen above: the line
+      // REVEAL PATH 3 of 5, and it must be armed HERE rather than left to showScreen above: the line
       // directly above clears `disabled` on the one control this screen offers, which would undo
       // showScreen's gate on exactly the control that matters most -- this is the pass-the-phone
       // moment, so the stale contact belongs to the PREVIOUS player. Arming last wins.
@@ -933,12 +903,16 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       let step = 0;
       const sequence = game.flashSequence;
 
+      // gh#264: both one-shot timers below check that the scan is still the live state before they
+      // act. putAwayRound() moves the engine off it when the player screen opens mid-round, and an
+      // unguarded timer would start the flashes or the cut countdown on a round nobody is playing.
       setTimeout(() => {
+        if (game.state !== GameState.SCANNING_HINTS) return;
         game.scanInterval = setInterval(() => {
           if (step >= sequence.length) {
             clearInterval(game.scanInterval);
             setTimeout(() => {
-              enterCutDecision();
+              if (game.state === GameState.SCANNING_HINTS) enterCutDecision();
             }, 260);
             return;
           }
@@ -1092,9 +1066,11 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
       renderWiresBay();
 
-      // Advance Turn after celebration delay
+      // Advance Turn after celebration delay. gh#264: only if the round is still in that celebration
+      // -- putAwayRound() moves it off when the player screen opens, and the advance would otherwise
+      // put the game screen back over it.
       setTimeout(() => {
-        advanceTurn();
+        if (game.state === GameState.SAFE_RESOLVE) advanceTurn();
       }, 1200);
     }
 
@@ -1135,9 +1111,10 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
       renderWiresBay();
 
-      // Show Round Over Modal after short dramatic delay
+      // Show Round Over Modal after short dramatic delay. gh#264: only if the blast is still the live
+      // state -- a round put away in those 850ms must not pop its modal over the player screen.
       setTimeout(() => {
-        showDetonationModal();
+        if (game.state === GameState.HAZARD_DETONATE) showDetonationModal();
       }, 850);
     }
 
@@ -1182,7 +1159,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         scoreboard.appendChild(row);
       });
 
-      // REVEAL PATH 5 of 7. #modal-detonation opens on a timer 850ms after the blast, over a screen
+      // REVEAL PATH 4 of 5. #modal-detonation opens on a timer 850ms after the blast, over a screen
       // the player was tapping wires on a moment ago, and its two buttons (replay, edit players) sit
       // in the middle of that surface. No showScreen on this path either.
       modal.classList.add('active');
@@ -1205,6 +1182,9 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         document.getElementById('modal-detonation').classList.remove('active');
         document.getElementById('modal-rules').classList.remove('active');
         game.state = GameState.MENU;
+        // The player screen is not a `.screen`, so showScreen cannot put it away: closed here, or
+        // the menu would come up underneath a player screen that is still showing.
+        if (playerScreen) playerScreen.close();
         showScreen('screen-menu');
       });
 
@@ -1227,13 +1207,11 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         closeModal('modal-rules');
       });
 
-      // Menu Buttons
+      // Menu Buttons. ADR-0071 ruling 1: the menu is this game's intro, and its start leads to the
+      // shared player screen, which hands the players on to the penalty options (startWithPlayers).
       document.getElementById('btn-menu-start').addEventListener('click', () => {
         soundSynth.playClick();
-        game.state = GameState.SETUP;
-        showScreen('screen-setup');
-        renderSetupPlayerList();
-        renderPenaltyUI();
+        if (playerScreen) playerScreen.open();
       });
 
       document.getElementById('btn-menu-rules').addEventListener('click', () => {
@@ -1241,58 +1219,12 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         openRulesModal();
       });
 
-      // Setup Buttons
+      // Setup Buttons. The step before these options is the player screen now (ADR-0071 ruling 1),
+      // so back leads there -- with the players just chosen still ticked -- and the menu stays one
+      // more step back, through the header's home control.
       document.getElementById('btn-setup-back').addEventListener('click', () => {
         soundSynth.playClick();
-        game.state = GameState.MENU;
-        showScreen('screen-menu');
-      });
-
-      document.getElementById('btn-add-player').addEventListener('click', () => {
-        const input = document.getElementById('input-new-player');
-        const name = input.value.trim() || defaultName(game.players.length);
-        if (game.players.length < 10) {
-          soundSynth.playClick(600);
-          game.players.push(name);
-          game.scores.push(0);
-          input.value = '';
-          saveSettings();
-          renderSetupPlayerList();
-        }
-      });
-
-      // Reset Player Names Modal (gh#176, the reset control decided in gh#174). The question is
-      // asked because the answer is destructive: every name a player typed is replaced. The modal
-      // copy in markup.html names every loss this causes -- all typed names go, and they do not come
-      // back -- and what survives -- the player count and the penalty setting -- per
-      // docs/agents/src-edit-rules.md's "over-naming is acceptable, under-naming is not". This route
-      // has no <dialog>/showModal(): every modal here is a .modal-backdrop opened with classList and
-      // armed through armAllButtons, same as #modal-rules and #modal-detonation, so this one follows
-      // that shape rather than short-stick's <dialog> element. Do NOT read the cancel-before-confirm
-      // button order as what protects this: armAllButtons's blanket disable drops focus off both
-      // buttons onto <body>, so nothing is focused a moment later and the 400ms gate is the real
-      // guard (same mechanism gh#174 documented, not the markup order).
-      document.getElementById('btn-reset-names').addEventListener('click', () => {
-        soundSynth.playClick();
-        const resetModal = document.getElementById('modal-reset-names');
-        resetModal.classList.add('active');
-        armAllButtons(resetModal);
-      });
-
-      document.getElementById('btn-cancel-reset-names').addEventListener('click', () => {
-        soundSynth.playClick();
-        closeModal('modal-reset-names');
-      });
-
-      document.getElementById('btn-confirm-reset-names').addEventListener('click', () => {
-        closeModal('modal-reset-names');
-        soundSynth.playClick(420);
-        resetPlayerNames();
-        saveSettings();
-        // renderSetupPlayerList rebuilds the row remove buttons through innerHTML and arms the
-        // rebuilt container itself (see the armAllButtons(container) call inside it) -- the same fix
-        // gh#174 needed for short-stick's confirm, already the shape this call takes.
-        renderSetupPlayerList();
+        if (playerScreen) playerScreen.open();
       });
 
       // Penalty Tab Selection
@@ -1300,7 +1232,6 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         tab.addEventListener('click', (e) => {
           soundSynth.playClick();
           game.penaltyMode = e.currentTarget.dataset.mode;
-          saveSettings();
           renderPenaltyUI();
         });
       });
@@ -1310,14 +1241,12 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         chip.addEventListener('click', (e) => {
           soundSynth.playClick();
           game.selectedPenalty = e.currentTarget.dataset.text;
-          saveSettings();
           renderPenaltyUI();
         });
       });
 
       document.getElementById('input-custom-penalty').addEventListener('input', (e) => {
         game.selectedPenalty = e.target.value.trim();
-        saveSettings();
       });
 
       // Start Match CTA
@@ -1338,13 +1267,12 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         startMatch();
       });
 
+      // ADR-0071: editing the players is the shared player screen's job now. The match is over on
+      // this modal, so it opens straight away -- there is nothing to confirm losing -- and its
+      // onOpen (putAwayRound) takes this modal down with the game screen.
       document.getElementById('btn-edit-players').addEventListener('click', () => {
         soundSynth.playClick();
-        document.getElementById('modal-detonation').classList.remove('active');
-        game.state = GameState.SETUP;
-        showScreen('screen-setup');
-        renderSetupPlayerList();
-        renderPenaltyUI();
+        if (playerScreen) playerScreen.open();
       });
 
       // Keyboard Shortcuts (Desktop Accessibility 1-6)
@@ -1367,8 +1295,21 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       });
     }
 
-    // Initialize App on DOM Load
+    // Initialize App on DOM Load. The player screen is mounted AFTER the route's own wiring, so a
+    // mount that throws (PlayerScreen.astro missing from the page) still leaves the game's controls
+    // live. It opens from #btn-menu-start, never on load: the menu is this game's intro and comes
+    // first (ADR-0071 ruling 1).
     window.addEventListener('DOMContentLoaded', () => {
-      loadSavedSettings();
       attachEventListeners();
+      const playersRoot = document.getElementById('wspPlayers');
+      playerScreen = playersRoot
+        ? mountPlayerScreen({
+            root: playersRoot,
+            range: wireSnipPanic.players,
+            onStart: startWithPlayers,
+            roundActive,
+            abortRound: putAwayRound,
+            onOpen: putAwayRound,
+          })
+        : null;
     });

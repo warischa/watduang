@@ -264,11 +264,15 @@ function textCap(found) {
 // --- Routes whose bounds come from the manifest -------------------------------------------------
 // These cannot disagree with the declaration because they compute from it. The check is structural:
 // the route's own module must still read the maximum out of the manifest.
-const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb']);
+// wire-snip-panic since gh#264: the mockup's add-player guard was its only seat limit and it went
+// with the mockup's player list, so the shared screen's clamp over the handed tuple IS its ceiling.
+const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb', 'wire-snip-panic']);
 // Two shapes: the maximum read out (`= game.players[1]`, dice-loser), or the whole declared tuple
-// handed to the shared player screen (`range: game.players`, timebomb since gh#264) -- whose clamp
-// sharedScreenAudit below then runs against that same tuple.
-const DERIVATION = /(?:=|range:)\s*(?:Math\.min\(\s*)?game\.players(?:\[1\]|(?![\w[]))/;
+// handed to the shared player screen (`range: <x>.players`, timebomb and wire-snip-panic since
+// gh#264) -- whose clamp sharedScreenAudit below then runs against that same tuple. The `range:`
+// branch takes any identifier because sharedScreenAudit independently proves that identifier is the
+// route's default import of its own game module; wire-snip-panic's engine state already owns `game`.
+const DERIVATION = /(?:=\s*(?:Math\.min\(\s*)?game|range:\s*(?:Math\.min\(\s*)?[A-Za-z_$][\w$]*)\.players(?:\[1\]|(?![\w[]))/;
 
 // --- The audit ----------------------------------------------------------------------------------
 
@@ -447,6 +451,19 @@ const HANDOFFS = {
       // Both views of the seat count must agree with the hand: the count the round reads and the
       // seats it iterates.
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
+    },
+  },
+  'wire-snip-panic': {
+    what: 'startWithPlayers() fills the engine state the match is played on: game.players, with game.avatars and game.scores beside it',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      const env = { game: {} };
+      compiled.make(env)(players);
+      const { players: seated, avatars, scores } = env.game;
+      if (!Array.isArray(seated)) return { error: 'startWithPlayers() left no player list on the engine state' };
+      // The three per-seat lists the round indexes together must all hold every player.
+      return { seated: seated.length === avatars?.length && seated.length === scores?.length ? seated.length : NaN };
     },
   },
 };

@@ -45,8 +45,6 @@ const BOOTS_ON = {
   'cannon-flag': { nav: null },
   'freeze-tap': { nav: null },
   'pinocchio-luck': { nav: null },
-  // Opens on a menu whose #btn-menu-start is what renders the seat fields -- setup is a click away.
-  'wire-snip-panic': { nav: '#btn-menu-start' },
   // These two open on the COUNT step, which is step one of their own setup, not a menu.
   'how-close-is-near': { nav: null },
   'power-meter': { nav: null },

@@ -67,7 +67,7 @@ const RESET_TRIGGER = {
   'power-meter': { attr: 'data-act="openResetNamesModal"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'short-stick': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   timebomb: { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
-  'wire-snip-panic': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  'wire-snip-panic': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'zero-trigger': { attr: 'id="btn-open-reset-cast"', copy: /รีเซ็ตเป็นชื่อและรูปสัตว์/ },
 };
 

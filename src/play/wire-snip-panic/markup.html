@@ -71,30 +71,18 @@
       </div>
     </div>
 
-    <!-- SCREEN 2: SETUP -->
+    <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+         mountPlayerScreen as its root, and #btn-menu-start opens it -- the menu above stays this
+         game's own intro and the first screen. The tagline is this game's slot on the board, copied
+         from the module's own `tagline`. This replaced the mockup's add/remove player list and the
+         reset-names control, which sat in #screen-setup below. -->
+    <section id="wspPlayers" class="wsp-players" hidden>
+      <p class="ps-tagline">จำลำดับไฟที่กระพริบ แล้วตัดสายให้ถูกลำดับก่อนหมดเวลา ใครพลาดคนนั้นโดน</p>
+    </section>
+
+    <!-- SCREEN 2: THE GAME'S OWN OPTIONS. Shown after the player screen starts (ADR-0071 ruling 1:
+         the game's non-player options come after the shared screen, then play). -->
     <div class="screen" id="screen-setup">
-      <div class="setup-section">
-        <div class="setup-title">
-          <span>👥 รายชื่อผู้เล่น (2 - 10 คน)</span>
-          <span id="player-count-badge" style="color: var(--muted); font-size: 12px;">4 คน</span>
-        </div>
-
-        <div class="player-list" id="player-list-container">
-          <!-- Dynamic Player Rows Injected by JS -->
-        </div>
-
-        <div class="add-player-row">
-          <input type="text" id="input-new-player" class="player-input" placeholder="พิมพ์ชื่อผู้เล่นใหม่..." style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;" maxlength="15">
-          <button class="btn-secondary btn-small" id="btn-add-player">➕ เพิ่มผู้เล่น</button>
-        </div>
-
-        <!-- gh#176 -- the reset control decided in gh#174. Plain `.btn-secondary`, same class
-             #btn-setup-back already uses unmodified on this screen -- the 2026-08-31 tap-floor probe
-             in overrides.css flagged `.btn-small` and `.player-remove-btn` here, never the bare class,
-             so no new sizing rule is added. No fit re-measurement done (out of scope this ticket). -->
-        <button class="btn-secondary" id="btn-reset-names" type="button" style="width:100%; margin-top:10px;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
-      </div>
-
       <div class="setup-section">
         <div class="setup-title">
           <span>🎯 บทลงโทษคนแพ้</span>
@@ -246,20 +234,7 @@
       </div>
     </div>
 
-    <!-- RESET PLAYER NAMES MODAL (gh#176, the reset control decided in gh#174) -->
-    <div class="modal-backdrop" id="modal-reset-names">
-      <div class="modal-box">
-        <div class="modal-title">
-          <span>↺</span> รีเซ็ตเป็นชื่อสัตว์?
-        </div>
-        <div class="modal-body">
-          <p>ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่</p>
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 4px;">
-          <button class="btn-secondary" id="btn-cancel-reset-names" style="flex: 1;">เก็บชื่อเดิมไว้</button>
-          <button class="btn-primary" id="btn-confirm-reset-names" style="flex: 1;">รีเซ็ตเป็นชื่อสัตว์</button>
-        </div>
-      </div>
-    </div>
+    <!-- The reset-names modal that sat here (gh#176) moved into the shared player screen with the reset
+         control and the name rows it rewrote (ADR-0071, src/play/_player-screen/PlayerScreen.astro). -->
 
   </div>
