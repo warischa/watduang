@@ -1,0 +1,10 @@
+import { connect } from './lib.mjs';
+const s = await connect(); await s.view(390,844);
+await s.nav('/game/timebomb/play/'); await s.wipe();
+await s.ev(`localStorage.setItem('watduang:roster', JSON.stringify(['ก','ข','ค'])); return 1`);
+await s.nav('/game/timebomb/play/'); await s.sleep(700);
+await s.tap('[data-ps=start]', {settle:900});
+const a = await s.ev("return {interstitial:!!document.querySelector('#tb-start'),fuse:!!document.querySelector('#tb-fuse')}");
+await s.tap('#play-edit-players',{noScroll:true,settle:700});
+const b = await s.ev("return {dlg:[...document.querySelectorAll('dialog')].filter(d=>d.open).map(d=>d.id),screenOpen:document.documentElement.getAttribute('data-player-screen'),stageHidden:document.querySelector('#tb-stage').hidden}");
+console.log(JSON.stringify({a,b})); await s.close();
