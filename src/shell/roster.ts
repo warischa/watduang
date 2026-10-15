@@ -221,7 +221,8 @@ function legacyNames(extract: (value: unknown) => string[], value: unknown): str
 }
 
 /** The settings keys whose `players` field this module has already retired -- imported with the
- *  write read back, or dropped under a non-empty roster. Owned here, never by a route.
+ *  write read back, or dropped under a non-empty roster. A key is claimed here, and the claim read
+ *  back, before its import is even attempted. Owned here, never by a route.
  *
  *  Why a record and not just the stripped blob (gh#264 REFUTE round 5): the route rewrites its own
  *  blob too, and it carries an existing `players` field through so a FAILED import can retry. A
@@ -253,6 +254,11 @@ async function migrateSettingsPlayers(legacyKey: string, extract: (value: unknow
     if (!blob || typeof blob !== 'object' || Array.isArray(blob) || !('players' in blob)) return;
     const retired = read(RETIRED_KEY);
     if (!retired.includes(legacyKey)) {
+      // Claimed BEFORE the import, and read back (gh#264 REFUTE round 6): an import or a strip with
+      // no durable record is exactly what a stale route save turns into a resurrection on the next
+      // mount. Not durable: touch nothing this mount, blob whole, nothing imported.
+      write(RETIRED_KEY, [...retired, legacyKey]);
+      if (!read(RETIRED_KEY).includes(legacyKey)) return;
       let imported: string[] = [];
       try {
         imported = legacyNames(extract, blob);
@@ -261,13 +267,24 @@ async function migrateSettingsPlayers(legacyKey: string, extract: (value: unknow
       }
       if (read(KEY).length === 0 && imported.length > 0) {
         write(KEY, imported);
-        // Did not land (quota, private mode): keep the blob whole, players included, and record
-        // nothing, so the next visit imports again.
-        if (read(KEY).length === 0) return;
+        // Did not land (quota, private mode): release the claim and keep the blob whole, players
+        // included, so the next visit imports again. Not a pending state retried later: an empty
+        // roster cannot tell "never landed" from "landed, then the players removed everyone", and
+        // a retry under the second would bring them back. The release only shrinks storage; if
+        // even that fails the claim stands and the players stay unimported -- a loss of the
+        // import, never a resurrection.
+        if (read(KEY).length === 0) {
+          if (retired.length > 0) write(RETIRED_KEY, retired);
+          else {
+            try {
+              localStorage.removeItem(RETIRED_KEY);
+            } catch {
+              // The claim stands; see above.
+            }
+          }
+          return;
+        }
       }
-      // Recorded before the rewrite below: a rewrite that fails then leaves a field the next mount
-      // strips without importing, rather than one it would read as still pending.
-      write(RETIRED_KEY, [...retired, legacyKey]);
     }
     const settings: Record<string, unknown> = { ...(blob as Record<string, unknown>) };
     delete settings.players;

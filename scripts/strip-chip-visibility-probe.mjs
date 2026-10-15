@@ -91,6 +91,13 @@ const ROUTES = ONLY ? ALL_ROUTES.filter((r) => r.id === ONLY.split(':')[0]) : AL
 const VIEWPORTS = ONLY
   ? ALL_VIEWPORTS.filter(([w]) => String(w) === ONLY.split(':')[1])
   : ALL_VIEWPORTS;
+// A filter that selects nothing walks nothing and would report checked:0 with a green exit. Thrown
+// here at module load, so the driver fails before it opens a browser session.
+if (ROUTES.length === 0 || VIEWPORTS.length === 0) {
+  throw new Error(
+    `ONLY=${ONLY} selects no ${ROUTES.length === 0 ? 'route' : 'viewport'} -- routes: [${ALL_ROUTES.map((r) => r.id).join(', ')}], widths: [${ALL_VIEWPORTS.map(([w]) => w).join(', ')}]; a filter that matches nothing measures nothing`,
+  );
+}
 
 async function mascotEntries() {
   const fs = await import('node:fs/promises');

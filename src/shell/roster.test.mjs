@@ -486,3 +486,49 @@ test('ADR-0071 keep-settings: a failed import records nothing, keeps the players
   assert.deepEqual(loadRoster().names(), ['Alice', 'Bob'], 'the retry after a failed import did not import');
   assert.deepEqual(JSON.parse(slots.get(SETTINGS)), { mode: 'preset' });
 });
+
+// gh#264 REFUTE round 6: the retired record is what stops a stale route save from coming back, so
+// it must be durable BEFORE anything it protects happens. A quota that takes the roster import and
+// the blob rewrite but refuses the record used to import and strip anyway; the stale save then put
+// the players back with no record, and the next mount imported them into a roster the players had
+// emptied. The record is now claimed first and read back; an unclaimed key imports nothing.
+const RETIRED = 'watduang:roster-retired-settings';
+async function withRecordRefused(fn) {
+  const real = globalThis.localStorage.setItem;
+  globalThis.localStorage.setItem = (k, v) => {
+    if (k === RETIRED) throw new Error('QuotaExceededError');
+    real(k, v);
+  };
+  try {
+    await fn();
+  } finally {
+    globalThis.localStorage.setItem = real;
+  }
+}
+
+test('ADR-0071 keep-settings: a record that cannot be written imports nothing and keeps the blob whole', async () => {
+  slots.clear();
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob']));
+  await withRecordRefused(() => migrateLegacyList(SETTINGS, extractPlayers, 'settings'));
+  assert.deepEqual(loadRoster().names(), [], 'imported with no durable record that the key was retired');
+  assert.deepEqual(JSON.parse(slots.get(SETTINGS)).players, ['Alice', 'Bob'], 'stripped with no durable record');
+  assert.equal(slots.has(RETIRED), false);
+});
+
+test('ADR-0071 keep-settings: a refused record, a stale route save and a later remount never resurrect removed players', async () => {
+  slots.clear();
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob']));
+  await withRecordRefused(() => migrateLegacyList(SETTINGS, extractPlayers, 'settings'));
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob'])); // the stale route save from another tab
+  await applyRosterOps([{ op: 'remove', name: 'Alice' }, { op: 'remove', name: 'Bob' }], 20);
+  await withRecordRefused(() => migrateLegacyList(SETTINGS, extractPlayers, 'settings'));
+  assert.deepEqual(loadRoster().names(), [], 'players removed after a migration came back on remount');
+  // Storage recovers: the deferred migration now completes once, and a stale save after it stays dead.
+  await migrateLegacyList(SETTINGS, extractPlayers, 'settings');
+  assert.deepEqual(loadRoster().names(), ['Alice', 'Bob'], 'the deferred import never ran once the record could be written');
+  assert.deepEqual(JSON.parse(slots.get(SETTINGS)), { mode: 'preset' });
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob']));
+  await applyRosterOps([{ op: 'remove', name: 'Alice' }, { op: 'remove', name: 'Bob' }], 20);
+  await migrateLegacyList(SETTINGS, extractPlayers, 'settings');
+  assert.deepEqual(loadRoster().names(), []);
+});
