@@ -264,11 +264,16 @@ function textCap(found) {
 // --- Routes whose bounds come from the manifest -------------------------------------------------
 // These cannot disagree with the declaration because they compute from it. The check is structural:
 // the route's own module must still read the maximum out of the manifest.
-const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb']);
+// power-meter since gh#264: its engine seats whatever it is handed and has no ceiling of its own --
+// the count-chip loop reader B used to read was the mockup's count view, which went -- so its only
+// limit is the shared screen's clamp over the declared tuple.
+const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'power-meter', 'timebomb']);
 // Two shapes: the maximum read out (`= game.players[1]`, dice-loser), or the whole declared tuple
-// handed to the shared player screen (`range: game.players`, timebomb since gh#264) -- whose clamp
-// sharedScreenAudit below then runs against that same tuple.
-const DERIVATION = /(?:=|range:)\s*(?:Math\.min\(\s*)?game\.players(?:\[1\]|(?![\w[]))/;
+// handed to the shared player screen (`range: <x>.players`, timebomb since gh#264) -- whose clamp
+// sharedScreenAudit below then runs against that same tuple. The tuple form takes any identifier:
+// sharedScreenAudit already reds unless <x> is the route's own default game import, and a route
+// whose state object is called `game` (power-meter) must name that import something else.
+const DERIVATION = /=\s*(?:Math\.min\(\s*)?game\.players(?:\[1\]|(?![\w[]))|range:\s*[A-Za-z_$][\w$]*\.players(?![\w$[])/;
 
 // --- The audit ----------------------------------------------------------------------------------
 
@@ -447,6 +452,20 @@ const HANDOFFS = {
       // Both views of the seat count must agree with the hand: the count the round reads and the
       // seats it iterates.
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
+    },
+  },
+  'power-meter': {
+    what: 'startWithPlayers() seats the match state, and startNewMatch() opens a score slot for every seat',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)', ['startNewMatch()']);
+      if (compiled.error) return compiled;
+      const env = { game: { players: [], activePlayerIds: [], roundResults: new Map() }, viewRoot: {} };
+      compiled.make(env)(players);
+      const { game } = env;
+      // Three views of the seat count must agree with the hand: the seats, the turn order the round
+      // walks, and the score slots the loser is computed from.
+      const seated = game.players.length;
+      return { seated: seated === game.activePlayerIds.length && seated === game.roundResults.size ? seated : NaN };
     },
   },
 };
@@ -632,6 +651,11 @@ async function selftest() {
   assert.deepEqual(tupleDerivation.failures, [], 'POSITIVE CONTROL: handing the declared tuple over is a live derivation');
   const indexed = auditGame({ id: 'g', declaredMax: 10, routeId: 'timebomb', engine: { name: 'main.ts', source: 'mountPlayerScreen({ root, range: game.players0, onStart });' }, driver: null });
   assert.match(indexed.failures[0].detail, /no longer reads the declared maximum/, 'a different identifier must not read as the tuple');
+  // power-meter's shape: the default import cannot be called `game` there.
+  const renamedImport = auditGame({ id: 'g', declaredMax: 10, routeId: 'power-meter', engine: { name: 'main.js', source: 'mountPlayerScreen({ root, range: powerMeter.players, onStart });' }, driver: null });
+  assert.deepEqual(renamedImport.failures, [], 'POSITIVE CONTROL: the tuple handed under another import name is a live derivation');
+  const literalTuple = auditGame({ id: 'g', declaredMax: 10, routeId: 'power-meter', engine: { name: 'main.js', source: 'mountPlayerScreen({ root, range: [2, 10], onStart });' }, driver: null });
+  assert.match(literalTuple.failures[0].detail, /no longer reads the declared maximum/, 'a literal tuple must not read as a derivation');
   console.log('PASS derived (tuple): handing game.players to the shared screen derives; a lookalike identifier does not');
 
   // gh#264: the shared screen audit, against the REAL shared clamp, both directions.

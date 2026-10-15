@@ -271,7 +271,7 @@ function powerMeterHarness() {
   };
   const api = loadFrom('power-meter', [
     'escapeHtml', 'formatScore', 'getCurrentActivePlayer', 'getGaugeHeightPercent',
-    'renderSetupNamesView', 'renderTurnIntroView', 'renderAttemptView',
+    'renderTurnIntroView', 'renderAttemptView',
     'renderPlayerRoundResultView', 'renderRoundSummaryView', 'renderTiebreakIntroView',
     'renderFinalLoserView',
   ], {
@@ -285,11 +285,6 @@ function powerMeterHarness() {
     soundSynth: noopProxy(),
     addTrauma: () => {},
     evaluateRoundElimination: () => outcome,
-    // gh#175 routed the seat default through mascotNames() in ../_mascots.ts, which this factory
-    // cannot resolve — it evals sliced text. Stubbed like every other collaborator here, and benign
-    // on purpose: a default name is OURS, never the attacker's, and the channel this file guards is
-    // the roster value beside it. The real cast is pinned by ./mascot-defaults.test.mjs.
-    defaultName: (i) => `P${i + 1}`,
   }, ['escapeHtml']);
   return { api, viewRoot };
 }
@@ -297,10 +292,8 @@ function powerMeterHarness() {
 test('power-meter: every view that prints a player name escapes it', () => {
   const { api, viewRoot } = powerMeterHarness();
 
-  api.renderSetupNamesView();
-  assertNoInjection(viewRoot, 'power-meter renderSetupNamesView');
-  assertAttributeIntact(viewRoot, '.name-input', 'power-meter renderSetupNamesView');
-
+  // gh#264 / ADR-0071: the names view this loop used to start with is gone -- names are typed into
+  // the shared player screen, whose own escaping is the shared-screen case in this file.
   for (const name of ['renderTurnIntroView', 'renderAttemptView', 'renderPlayerRoundResultView',
     'renderRoundSummaryView', 'renderTiebreakIntroView', 'renderFinalLoserView']) {
     api[name]();

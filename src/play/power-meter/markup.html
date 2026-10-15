@@ -20,6 +20,15 @@
       </div>
     </header>
 
+    <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+         mountPlayerScreen as its root, and it is the first thing a load shows. It sits BESIDE
+         #view-root, never inside it: renderUI() replaces that element's whole content on every state
+         change. The tagline is this game's slot on the board, copied from the module's own `tagline`.
+         This replaced the mockup's count view, its names view and the reset-names modal. -->
+    <section id="pmPlayers" class="pm-players" hidden>
+      <p class="ps-tagline">แตะหยุดเกจพลังคนละ 3 ครั้ง ใครคะแนนรวมน้อยที่สุดคนนั้นโดน</p>
+    </section>
+
     <!-- View Container (FSM Router) -->
     <main id="view-root" role="region" aria-label="หน้าจอเกม">
       <!-- Dynamic View Injected Here -->
@@ -68,14 +77,5 @@
     </div>
   </div>
 
-  <!-- Reset Player Names Modal (gh#175) — copy rationale in main.js at confirmResetNames. -->
-  <div id="reset-names-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-names-title">
-    <div class="modal-content">
-      <h2 id="reset-names-title" style="margin-bottom: 12px; font-size: 1.3rem;">รีเซ็ตเป็นชื่อสัตว์?</h2>
-      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">
-        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่
-      </p>
-      <button class="btn-primary" data-act="confirmResetNames">รีเซ็ตเป็นชื่อสัตว์</button>
-      <button class="btn-secondary" data-act="closeModal" data-arg="reset-names-modal">เก็บชื่อเดิมไว้</button>
-    </div>
-  </div>
+  <!-- The reset-names modal that sat here (gh#175) moved into the shared player screen with the reset
+       control and the name rows it rewrote (ADR-0071, src/play/_player-screen/PlayerScreen.astro). -->

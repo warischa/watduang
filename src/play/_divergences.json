@@ -234,10 +234,32 @@
   "power-meter": {
     "markup.html": [
       {
-        "fragment": "<div id=\"reset-names-modal\" class=\"modal-overlay\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"reset-names-title\">",
+        "fragment": "<section id=\"pmPlayers\" class=\"pm-players\" hidden>",
         "deliberate": true,
-        "owner": "gh#175",
-        "why": "the confirm that guards resetting typed names; the mockup predates the control"
+        "owner": "gh#264",
+        "why": "the shared player screen's root (ADR-0071); the mockup's own setup views it replaced are recorded absent in main.js below"
+      }
+    ],
+    "main.js": [
+      {
+        "fragment": "mountPlayerScreen({",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the shared player screen mount and its startWithPlayers entry (ADR-0071); the mockup builds its own count and names views instead"
+      },
+      {
+        "fragment": "data-act=\"selectPlayerCount\"",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own count buttons; the count belongs to the shared player screen (ADR-0071), and a re-extraction that put them back would give this route two count controls"
+      },
+      {
+        "fragment": "class=\"name-input\"",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own name fields; names belong to the shared player screen and the shared roster (ADR-0071)"
       }
     ]
   },

@@ -11,11 +11,17 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // neither a migration nor a collision guard. A device that had this route muted comes back audible
 // and the player re-mutes in one tap.
 import { isMuted, setMuted } from '../../shell/audio.ts';
-// gh#175 / ADR-0054: the party opens on the shared animal cast, never on a column of numbers. Every
-// default name on this route -- the seat built when count is chosen, the placeholder an empty field
-// shows, and the fallback for a name left blank at match start -- comes from here. resetCastNames is
-// the reset control's wipe: it keeps the seat count and discards whatever a player typed.
-import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
+// ADR-0071 (gh#264): the one player screen every party route mounts. It owns the count, the names,
+// the roster, the group and the reset-names control; this file gets the ticked players back through
+// startWithPlayers(). The mockup's own count view, names view and reset-names modal are GONE with
+// the roster-bridge.ts that drove them. Every name and glyph a seat plays under now arrives from
+// that screen -- a blank row already resolved to its mascot -- so the cast import this file used for
+// its own defaults went too.
+import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
+// The module's default export is read for one field, `players`: the range the player screen admits
+// is the one the manifest declares (ADR-0065), never a number restated here. Not named `game`: that
+// name is this file's state object below.
+import powerMeter from '../../games/power-meter.ts';
 
     /* ==========================================================================
        1. PURE LOGIC & DETERMINISTIC TIEBREAK ENGINE (2 DECIMAL PLACES)
@@ -457,9 +463,10 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
     /* ==========================================================================
        4. GAME STATE MACHINE & DATA MODEL
        ========================================================================== */
+    // PLAYERS replaced the mockup's SETUP_COUNT and SETUP_NAMES (gh#264): the shared player screen is
+    // up, #view-root is empty and hidden, and no view is drawn for it.
     const GameState = Object.freeze({
-      SETUP_COUNT: 'SETUP_COUNT',
-      SETUP_NAMES: 'SETUP_NAMES',
+      PLAYERS: 'PLAYERS',
       TURN_INTRO: 'TURN_INTRO',
       ATTEMPT_READY: 'ATTEMPT_READY',
       ATTEMPT_RUNNING: 'ATTEMPT_RUNNING',
@@ -470,31 +477,29 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
       FINAL_LOSER: 'FINAL_LOSER'
     });
 
-    const PLAYER_AVATARS = MASCOTS.map((m) => m.emoji);
+    /** The states a match is live in. FINAL_LOSER is not one: editing the players there loses
+     *  nothing, so the player screen opens without asking (ADR-0071 ruling 6). */
+    const ROUND_STATES = [
+      GameState.TURN_INTRO, GameState.ATTEMPT_READY, GameState.ATTEMPT_RUNNING,
+      GameState.ATTEMPT_RESULT, GameState.PLAYER_ROUND_RESULT, GameState.ROUND_SUMMARY,
+      GameState.TIEBREAK_INTRO
+    ];
+
+    // A seat's glyph is the one the shared player screen hands over with it (ADR-0054 ruling 2: the
+    // cast order is fixed and identical in every party game), so this file keeps no avatar list.
+    //
+    // PLAYER_COLORS stays this route's own list on purpose. The cast carries no colour at all -- its
+    // header records that ADR-0054 wants colour to enter through a stylesheet token, not a JS array --
+    // so there is no shared definition here to converge on, and folding colour in would invent one.
+    // It is indexed by the seat's MASCOT, not its seat number: before gh#264 seat N always wore mascot
+    // N, so that is the pairing players saw, and it keeps an animal's colour when someone sits out.
     const PLAYER_COLORS = [
       '#00f2fe', '#10b981', '#f59e0b', '#ff2a5f', '#a855f7',
       '#38bdf8', '#34d399', '#fbbf24', '#f43f5e', '#c084fc'
     ];
 
-    // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
-    // exactly one definition, in _mascots.ts, and none here.
-    //
-    // PLAYER_AVATARS is now derived from that same cast rather than listed here, so seat N shows the
-    // cast's emoji for seat N in this game exactly as it does in every other one -- ADR-0054 ruling 2,
-    // the order is fixed and identical in every party game. It used to be this route's own list, and
-    // the earlier note here reasoned that nothing had claimed it must match the cast row for row. That
-    // reasoning is retired: gh#152 does claim it, in the box asking that names and icons have exactly
-    // one definition, and while a second list existed this route rendered a fox beside the cast's
-    // first default name, whose own cast emoji is a cat.
-    //
-    // PLAYER_COLORS stays this route's own list on purpose. The cast carries no colour at all -- its
-    // header records that ADR-0054 wants colour to enter through a stylesheet token, not a JS array --
-    // so there is no shared definition here to converge on, and folding colour in would invent one.
-    const defaultName = (i) => mascotNames(i + 1)[i];
-
     const game = {
-      state: GameState.SETUP_COUNT,
-      playerCount: 4,
+      state: GameState.PLAYERS,
       players: [],          // Array of { id, name, avatar, color }
       activePlayerIds: [],  // Current players in this round (all, or tiebreak subset)
       currentTurnIndex: 0,  // Index in activePlayerIds
@@ -521,6 +526,10 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
        ========================================================================== */
     const viewRoot = document.getElementById('view-root');
     const srAnnouncer = document.getElementById('sr-announcer');
+    // The shared player screen's root and handle (ADR-0071). The handle is assigned by the mount at
+    // the foot of this file, once every listener below is in place.
+    const playersRoot = document.getElementById('pmPlayers');
+    let playerScreen = null;
 
     function announceSR(text) {
       if (srAnnouncer) {
@@ -559,12 +568,6 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
 
     function renderUI() {
       switch (game.state) {
-        case GameState.SETUP_COUNT:
-          renderSetupCountView();
-          break;
-        case GameState.SETUP_NAMES:
-          renderSetupNamesView();
-          break;
         case GameState.TURN_INTRO:
           renderTurnIntroView();
           break;
@@ -591,62 +594,6 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
       armRenderedView();
     }
 
-    /* --- VIEW 1: SETUP COUNT --- */
-    function renderSetupCountView() {
-      let countBtnsHtml = '';
-      for (let i = 2; i <= 10; i++) {
-        const isSel = (i === game.playerCount) ? 'selected' : '';
-        countBtnsHtml += `
-          <button class="count-btn ${isSel}" data-act="selectPlayerCount" data-arg="${i}" aria-label="${i} คน">
-            ${i}
-          </button>
-        `;
-      }
-
-      viewRoot.innerHTML = `
-        <div class="glass-card">
-          <div style="font-size: 2.2rem; margin-bottom: 6px;">⚡</div>
-          <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 4px;">เกมวัดพลัง</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 16px;">
-            เลือกจำนวนผู้เล่นในวง (2 - 10 คน) • สปีด 1.5x
-          </p>
-
-          <div class="count-grid" role="group" aria-label="เลือกจำนวนผู้เล่น">
-            ${countBtnsHtml}
-          </div>
-
-          <button id="btn-primary-action" class="btn-primary" data-act="goToSetupNames">
-            ถัดไป: ใส่ชื่อผู้เล่น ➔
-          </button>
-        </div>
-      `;
-      announceSR("หน้าเลือกจำนวนผู้เล่น");
-    }
-
-    function selectPlayerCount(num) {
-      soundSynth.playClick(480 + num * 20);
-      game.playerCount = num;
-      renderSetupCountView();
-    }
-
-    function goToSetupNames() {
-      soundSynth.playClick(620);
-      const currentMap = new Map((game.players || []).map(p => [p.id, p.name]));
-      game.players = [];
-      for (let i = 0; i < game.playerCount; i++) {
-        const id = `player_${i + 1}`;
-        const existingName = currentMap.get(id);
-        game.players.push({
-          id,
-          name: existingName || defaultName(i),
-          avatar: PLAYER_AVATARS[i % PLAYER_AVATARS.length],
-          color: PLAYER_COLORS[i % PLAYER_COLORS.length]
-        });
-      }
-      game.state = GameState.SETUP_NAMES;
-      renderUI();
-    }
-
     // Roster names are typed by players, so they are untrusted text wherever this file builds
     // markup by string. Same helper, same idiom as src/play/freeze-tap/main.js — kept local because
     // each main.js is a verbatim lift with no imports. Pinned by src/play/name-escaping.test.mjs.
@@ -660,85 +607,25 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
         .replace(/'/g, '&#039;');
     }
 
-    /* --- VIEW 2: SETUP NAMES --- */
-    function renderSetupNamesView() {
-      let namesHtml = '';
-      game.players.forEach((p, idx) => {
-        namesHtml += `
-          <div class="name-row">
-            <div class="avatar-badge" style="border: 2px solid ${p.color};">${p.avatar}</div>
-            <input type="text" class="name-input" id="input-name-${idx}"
-                   value="${escapeHtml(p.name)}" placeholder="${escapeHtml(defaultName(idx))}"
-                   maxlength="16" data-act="updatePlayerName" data-arg="${idx}"
-                   aria-label="ชื่อผู้เล่นที่ ${idx + 1}">
-          </div>
-        `;
-      });
-
-      viewRoot.innerHTML = `
-        <div class="glass-card">
-          <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 4px;">ตั้งชื่อผู้เล่น</h2>
-          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 12px;">
-            จะเว้นว่างไว้ก็ได้ (ระบบจะใช้ชื่อเริ่มต้นให้)
-          </p>
-
-          <div class="names-list">
-            ${namesHtml}
-          </div>
-
-          <!-- gh#175 -- sits with the rows it acts on. .btn-secondary is 48px tall already: 44px
-               floor, no new rule. -->
-          <button class="btn-secondary" data-act="openResetNamesModal" style="width:100%; margin-top:10px;">
-            ↺ รีเซ็ตเป็นชื่อสัตว์
-          </button>
-
-          <button id="btn-primary-action" class="btn-primary" data-act="startNewMatch">
-            🎮 เริ่มเกมทันที!
-          </button>
-          <button class="btn-secondary" data-act="backToSetupCount">
-            ⬅ ย้อนกลับ
-          </button>
-        </div>
-      `;
-      announceSR("หน้าตั้งชื่อผู้เล่น");
-    }
-
-    function updatePlayerName(idx, val) {
-      if (game.players[idx]) {
-        game.players[idx].name = val;
-      }
-    }
-
-    /** gh#175. The wipe the reset confirm guards: every seat keeps its id/avatar/color and gets an
-     *  animal name back; resetCastNames only reads game.players.length and never looks inside an
-     *  entry, so a typed name cannot survive this call -- that is exactly the loss the confirm's
-     *  copy names. Deliberately free of any DOM write: the redraw belongs to the caller, which lets
-     *  reset-names.test.mjs lift this out of main.js and run it without a browser. */
-    function resetPlayerNames() {
-      const names = resetCastNames(game.players);
-      game.players.forEach((p, idx) => {
-        p.name = names[idx];
-      });
-    }
-
-    // The one inline handler that was an expression rather than a call:
-    // `onclick="game.state = GameState.SETUP_COUNT; renderUI();"`. Named so the delegated dispatcher
-    // below has a function to reach; the two statements are unchanged and in the same order.
-    function backToSetupCount() {
-      game.state = GameState.SETUP_COUNT;
-      renderUI();
+    /* --- THE PLAYER HANDOFF (ADR-0071) --- */
+    /** The engine entry the shared player screen starts: seats exactly the players it is handed, in
+     *  the order given, each under the name and glyph the screen resolved for it (a blank row already
+     *  plays as its mascot). Seat ids stay positional, the shape every later view looks players up
+     *  by. This game has no options of its own to show between the player screen and play
+     *  (ADR-0071 ruling 1), so the match starts straight away. */
+    function startWithPlayers(players) {
+      game.players = players.map((p, i) => ({
+        id: `player_${i + 1}`,
+        name: p.name,
+        avatar: p.emoji,
+        color: PLAYER_COLORS[p.mascot % PLAYER_COLORS.length]
+      }));
+      viewRoot.hidden = false;
+      startNewMatch();
     }
 
     function startNewMatch() {
       soundSynth.playClick(700);
-      game.players.forEach((p, idx) => {
-        if (!p.name || p.name.trim() === '') {
-          p.name = defaultName(idx);
-        } else {
-          p.name = p.name.trim();
-        }
-      });
-
       game.activePlayerIds = game.players.map(p => p.id);
       game.currentTurnIndex = 0;
       game.currentAttempt = 1;
@@ -1365,10 +1252,22 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
       renderUI();
     }
 
+    // "⚙️ ตั้งค่าใหม่ / เปลี่ยนผู้เล่น" on the game-over view. The players are the shared screen's now
+    // (ADR-0071), so this opens it; the match is over, so there is nothing to confirm losing.
     function resetToSetup() {
       soundSynth.playClick(500);
-      game.state = GameState.SETUP_COUNT;
-      renderUI();
+      if (playerScreen) playerScreen.open();
+    }
+
+    /** ADR-0071 ruling 6: the players confirmed ending the live round to edit who plays. The views
+     *  go when the player screen opens; what outlives them here is the meter's own animation frame
+     *  and its hum, stopped the same way the focus-loss guard below stops them. */
+    function stopRound() {
+      if (game.meter.rafId) {
+        cancelAnimationFrame(game.meter.rafId);
+        game.meter.rafId = null;
+      }
+      soundSynth.stopMeterHum();
     }
 
     /* ==========================================================================
@@ -1446,17 +1345,24 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
       if (disarmModal) disarmModal();
       disarmModal = armAllButtons(modal);
     }
-    /** gh#187: CLOSING a modal is itself a reveal ADR-0017 gates. Whatever view was live when the
+    /** gh#187: CLOSING a modal is itself a reveal ADR-0017 gates. Whatever surface was live when the
      *  modal opened is still mounted underneath it, enabled, its own arm window long expired -- and
      *  that expiry is exactly why the second contact of a double-tap on a close control fires the
-     *  button behind it. Every modal on this route overlays #view-root and every dismissal path
-     *  (the close X, cancel, and the reset confirm) goes through this one function, so arming here
-     *  covers them all. armRenderedView() is the same call renderUI() ends in, so the meter button
-     *  keeps its per-control exception. */
+     *  button behind it. Every dismissal path of both header modals goes through this one function,
+     *  so arming here covers them all.
+     *  Two surfaces since gh#264: while the shared player screen is up, IT is what the card covered
+     *  (#view-root is empty and hidden then), so its root is armed, with the two steppers left out
+     *  for the reason the shared screen gives for its own gate -- they are tapped repeatedly on
+     *  purpose (ADR-0057). Otherwise armRenderedView(), the same call renderUI() ends in, so the
+     *  meter button keeps its per-control exception. */
     function closeModal(id) {
       soundSynth.playClick(400);
       document.getElementById(id).classList.remove('active');
-      armRenderedView();
+      if (game.state === GameState.PLAYERS && playersRoot) {
+        armAllButtons(playersRoot, [...playersRoot.querySelectorAll('[data-ps="dec"], [data-ps="inc"]')]);
+      } else {
+        armRenderedView();
+      }
     }
 
     document.getElementById('btn-help-modal').addEventListener('click', () => openModal('help-modal'));
@@ -1469,40 +1375,20 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
        The mockup carried 18 inline `on*` attributes. This site serves `script-src 'self'` with no
        'unsafe-inline' (ADR-0005), so every one of them is dead HTML here — the button renders and
        does nothing. Each is now a `data-act` attribute (plus `data-arg` where the original passed a
-       value) dispatched by the two delegated listeners below.
+       value) dispatched by the delegated listener below (a second one, for the name fields, went with them
+       in gh#264).
 
        DELEGATED ON `document`, not bound per render: renderUI() replaces #view-root's innerHTML on
-       every state change, so a per-render bind would have to be re-run inside each of the eight view
+       every state change, so a per-render bind would have to be re-run inside each of the view
        builders and one missed call is a silently dead button. Delegation binds once and covers the
        modals in markup.html too, which live outside #view-root. Behaviour is unchanged: same
        functions, same arguments, same click that triggered them — only the dispatch point moved from
        the element to the document, one bubble step later in the same event. */
-    // gh#175. The reset overwrites every typed name, so it hides behind #reset-names-modal rather
-    // than firing straight off the trigger, and the modal's own copy in markup.html names every loss
-    // that causes (docs/agents/src-edit-rules.md). Do NOT read primary-before-secondary button order
-    // as what protects it: openModal() arms every control the modal reveals, which disables the
-    // autofocused element and drops focus to <body>, so nothing is focused by the time a held tap
-    // from opening the modal could land -- the 400ms arm window is the guard, not the markup order.
-    const openResetNamesModal = () => openModal('reset-names-modal');
-    const confirmResetNames = () => {
-      closeModal('reset-names-modal');
-      soundSynth.playClick(420);
-      resetPlayerNames();
-      // renderUI() re-renders #view-root (still SETUP_NAMES) and calls armRenderedView() itself --
-      // the same re-arm every state change already gets. Without it the rebuilt name inputs would
-      // land live under a double-tap on the confirm; here they come back re-armed like every other
-      // rebuild in this file.
-      renderUI();
-    };
-
+    // gh#264: the setup actions that sat here -- the count buttons, the names view's start and back,
+    // the gh#175 reset trigger and its confirm -- went with the views they served. The reset-names
+    // control and its confirm are the shared player screen's own now (ADR-0071).
     const clickActions = {
-      selectPlayerCount: (el) => selectPlayerCount(Number(el.dataset.arg)),
       closeModal: (el) => closeModal(el.dataset.arg),
-      goToSetupNames,
-      backToSetupCount,
-      startNewMatch,
-      openResetNamesModal,
-      confirmResetNames,
       beginPlayerTurn,
       startMeter,
       stopMeter,
@@ -1522,12 +1408,6 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
       if (!el) return;
       const action = clickActions[el.dataset.act];
       if (action) action(el);
-    });
-
-    document.addEventListener('input', (e) => {
-      const el = e.target.closest?.('[data-act="updatePlayerName"]');
-      if (!el) return;
-      updatePlayerName(Number(el.dataset.arg), el.value);
     });
 
     /* ==========================================================================
@@ -1616,5 +1496,24 @@ import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
     const testSummary = runAllDeterministicTests();
     console.log("Deterministic Test Suite Results (2 Decimals):", testSummary);
 
-    // Initial View Render
-    renderUI();
+    // Initial view: the shared player screen (ADR-0071). Its start hands the chosen players to
+    // startWithPlayers(), and the match begins from there -- this game has no options of its own.
+    // The handle is declared above as `let` and assigned here, after every listener is in place:
+    // resetToSetup reads it, and cannot run before this line.
+    playerScreen = playersRoot
+      ? mountPlayerScreen({
+          root: playersRoot,
+          range: powerMeter.players,
+          onStart: startWithPlayers,
+          roundActive: () => ROUND_STATES.includes(game.state),
+          abortRound: stopRound,
+          onOpen: () => {
+            // Put away whatever view is up. Emptied, not only hidden: the keyboard handler presses
+            // #btn-primary-action by id, and a stale one left in a hidden view would still answer.
+            viewRoot.replaceChildren();
+            viewRoot.hidden = true;
+            game.state = GameState.PLAYERS;
+          },
+        })
+      : null;
+    if (playerScreen) playerScreen.open();

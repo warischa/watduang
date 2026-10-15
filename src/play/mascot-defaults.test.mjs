@@ -7,17 +7,17 @@
 //      instead: a drift between them is a red test, not a silent divergence.
 //
 //   2. A play route that renders the numbered default opens with the cast instead. Driven through
-//      power-meter's REAL setup functions, sliced out of its main.js by source text and evaluated
-//      (the same idiom as name-escaping.test.mjs and short-stick/fairness.test.mjs), because every
-//      main.js is a lifted IIFE with no exports. The numbered default the fix has to displace is
-//      therefore the mockup's own bytes, not a string this test invented -- if the mockup ever stops
-//      rendering it, the slice or the pre-state assertion fails loudly rather than passing on nothing.
+//      power-meter since gh#264 by the shared player screen over its real markup, then through the
+//      route's REAL startWithPlayers, sliced out of its main.js by source text and evaluated (the
+//      same idiom as name-escaping.test.mjs and short-stick/fairness.test.mjs), because every
+//      main.js is a lifted module with no exports.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { MAX_PLAYERS } from '../games/cursed-number.ts';
+import powerMeter from '../games/power-meter.ts';
 import { FakeElement, makeDocument } from '../games/_fake-dom.mjs';
 import { MASCOTS, applyMascotDefaults, mascotNames, resetCastNames } from './_mascots.ts';
 
@@ -73,112 +73,53 @@ test('the cast is at least as long as the largest seat count any route allows', 
   );
 });
 
-test('power-meter opens with the animal cast, not the numbered default', () => {
+// gh#264 / ADR-0071 replaced the two power-meter cases that stood here. They sliced the route's own
+// setup (goToSetupNames, renderSetupNamesView) and pinned its `defaultName` one-liner by source;
+// all three are gone, with the count and names views they served. The names now come from the shared
+// player screen, so this is driven for real instead: the screen over power-meter's own markup at its
+// declared range, started untouched, and the players it hands over run through the route's own
+// startWithPlayers. A numbered default reaching a seat -- from either side -- reds on the deepEqual,
+// and so does a route that seats anything but the cast's names in the cast's order.
+test('power-meter opens with the animal cast, not the numbered default', async () => {
+  const { mountOnPage, settle } = await import('./_player-screen/screen-harness.mjs');
+  const markup = fs.readFileSync(path.join(here, 'power-meter', 'markup.html'), 'utf8');
   const source = fs.readFileSync(path.join(here, 'power-meter', 'main.js'), 'utf8');
-  const doc = makeDocument();
-  const viewRoot = new FakeElement('div', doc);
-  doc.body = viewRoot;
-  doc.querySelectorAll = (sel) => viewRoot.querySelectorAll(sel);
-
-  const game = { players: [], playerCount: 4 };
-  // gh#175 routed the seat default through `defaultName`. It CANNOT be sliced in: sliceDecl walks
-  // braces, and `const defaultName = (i) => ...` is a brace-less arrow, so the walk runs on and
-  // swallows the `const game = {` that follows it -- which collides with the `game` stub below.
-  // So it is stubbed for execution, and pinned by source separately, immediately after this block.
-  // Between them the two cover what one slice would have: the stub uses the REAL `mascotNames`, so
-  // what reaches the inputs is the real cast, and the pin proves the route asks the cast for it.
-  const parts = ['goToSetupNames', 'escapeHtml', 'renderSetupNamesView'].map((name) => {
-    const slice = sliceDecl(source, name);
-    assert.ok(slice, `power-meter/main.js no longer declares ${name}`);
-    return slice;
-  });
-  const stubs = {
-    game,
-    viewRoot,
-    document: doc,
-    // `const GameState = Object.freeze({...})` does not brace-slice, and its values echo its keys.
-    GameState: new Proxy({}, { get: (_t, k) => k }),
-    soundSynth: new Proxy({}, { get: () => () => {} }),
-    PLAYER_AVATARS: ['A', 'B', 'C', 'D'],
-    PLAYER_COLORS: ['#111', '#222', '#333', '#444'],
-    // Built on the REAL `mascotNames` imported at the top of this file, never on a literal list, so
-    // the names that reach the inputs below are the actual cast. The route's own one-liner is held
-    // to this shape by the source pin that follows this test.
-    defaultName: (i) => mascotNames(i + 1)[i],
-    renderUI: () => {},
-    announceSR: () => {},
-  };
-  const keys = Object.keys(stubs);
-  // eslint-disable-next-line no-new-func -- the whole point is to execute the mockup's own text.
-  const api = new Function(
-    ...keys,
-    `${parts.join('\n;\n')}\n;return { goToSetupNames, renderSetupNamesView };`,
-  )(...keys.map((k) => stubs[k]));
-
-  api.goToSetupNames();
-  api.renderSetupNamesView();
-
-  // The fake parses markup into attributes; a browser exposes those as properties. Map them, so the
-  // code under test reads `.value`/`.maxLength` exactly as it does on a real input.
-  const inputs = viewRoot.querySelectorAll('.name-input');
-  assert.equal(inputs.length, 4, 'the mockup did not render its four name inputs');
-  for (const el of inputs) {
-    el.value = el.getAttribute('value') ?? '';
-    el.maxLength = Number(el.getAttribute('maxlength') ?? 0);
-    el.dispatchEvent = () => true;
-  }
-
-  // gh#175 INVERTED what this test watches. It used to assert the mockup rendered `ผู้เล่น 1..4` and
-  // that applyMascotDefaults then converted them. The route no longer produces a numbered default at
-  // all -- it asks the cast directly -- so that old positive control is now false BY DESIGN, and
-  // keeping it would have made this test demand the very bug gh#175 removed.
-  // What is pinned instead is stronger: the cast arrives with no conversion step at all.
-  // Positive control retained in a form that can still fail: a run where the mockup rendered blanks
-  // or seat numbers reds on the deepEqual below, because both differ from the cast.
-  assert.deepEqual(
-    inputs.map((el) => el.value),
-    MASCOTS.slice(0, 4).map((m) => m.name),
-    'power-meter no longer seeds its own name fields from the cast — check defaultName in main.js',
-  );
-  for (const el of inputs) assert.ok(!NUMBERED.test(el.value), `still numbered: ${el.value}`);
-
-  // applyMascotDefaults still runs on this route through its roster-bridge, so it is exercised here
-  // for the property that now matters: it must be a NO-OP over names that are already the cast.
-  // Before gh#175 this call did the work; now it must be able to run and change nothing.
-  const before = inputs.map((el) => el.value);
-  const saved = globalThis.document;
-  globalThis.document = doc;
+  const before = { document: globalThis.document, localStorage: globalThis.localStorage, window: globalThis.window };
   try {
-    applyMascotDefaults('.name-input');
+    const page = await mountOnPage({ routeMarkup: markup, rootId: 'pmPlayers', range: powerMeter.players });
+    page.screen.open();
+    await settle();
+    // Past the arm window the opening put on start, so the click below is a player's.
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    page.part('start').click();
+    await settle();
+    assert.equal(page.calls.started.length, 1, 'start handed nobody over');
+
+    const parts = ['startWithPlayers', 'startNewMatch'].map((name) => {
+      const slice = sliceDecl(source, name);
+      assert.ok(slice, `power-meter/main.js no longer declares ${name}`);
+      return slice;
+    });
+    const colorsAt = source.indexOf('const PLAYER_COLORS = [');
+    assert.notEqual(colorsAt, -1, 'power-meter/main.js no longer declares PLAYER_COLORS');
+    const colors = source.slice(colorsAt, source.indexOf('];', colorsAt) + 2);
+    const game = { players: [] };
+    // eslint-disable-next-line no-new-func -- the whole point is to execute the route's own text.
+    new Function('game', 'viewRoot', 'soundSynth', 'GameState', 'renderUI', `${colors}\n${parts.join('\n')}\nreturn startWithPlayers;`)(
+      game, {}, { playClick() {} }, {}, () => {},
+    )(page.calls.started[0]);
+
+    const count = game.players.length;
+    assert.ok(count >= powerMeter.players[0], `the route seated ${count} players`);
+    assert.deepEqual(game.players.map((p) => p.name), MASCOTS.slice(0, count).map((m) => m.name),
+      'power-meter no longer seats a first visit as the animal cast');
+    for (const p of game.players) assert.ok(!NUMBERED.test(p.name), `still numbered: ${p.name}`);
   } finally {
-    globalThis.document = saved;
+    for (const [k, v] of Object.entries(before)) {
+      if (v === undefined) delete globalThis[k];
+      else globalThis[k] = v;
+    }
   }
-
-  assert.equal(inputs[0].value, 'แมวส้ม');
-  assert.deepEqual(inputs.map((el) => el.value), before, 'applyMascotDefaults rewrote cast names');
-});
-
-// The other half of the test above. `defaultName` is STUBBED there (sliceDecl walks braces and this
-// is a brace-less arrow, so slicing it swallows the `const game = {` that follows). A stub can drift
-// from the thing it stands for, so this pins the route's own one-liner by source: the stub is only
-// honest while main.js really does ask the shared cast. Remove the import or hand-roll a list here
-// and this reds, even though every assertion above would still pass.
-test('power-meter asks the shared cast for its seat default, rather than carrying its own list', () => {
-  const source = fs.readFileSync(path.join(here, 'power-meter', 'main.js'), 'utf8');
-  assert.match(
-    source,
-    // The index must be the SAME identifier the arrow takes, not merely word-shaped: `\[\w+\]` also
-    // matches `mascotNames(i + 1)[0]`, which names every seat "แมวส้ม" and would pass both this pin
-    // and the exec test above (that one runs the stub, not this arrow). Backreferenced instead.
-    /const defaultName = \((\w+)\) => mascotNames\(\1 \+ 1\)\[\1\]/,
-    'power-meter/main.js no longer derives defaultName from mascotNames — the stub in the test above ' +
-      'now stands for something that does not exist, so that test is measuring its own fixture',
-  );
-  assert.match(
-    source,
-    /import \{[^}]*mascotNames[^}]*\} from '\.\.\/_mascots\.ts'/,
-    'power-meter/main.js stopped importing mascotNames from the shared cast module',
-  );
 });
 
 test('a name the roster already seeded is never overwritten', () => {
