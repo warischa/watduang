@@ -55,6 +55,8 @@ import {
   rowKey,
   recordedPx,
   sidewaysOffenders,
+  PLAYER_SCREEN_SCROLLS,
+  gatedWorstOf,
 } from './play-screen-fit-probe.mjs';
 
 // A narrowed OR SHARDED run judges pins it never walked, and the stale-pin check below is now the only
@@ -852,4 +854,20 @@ test('emitRowReports adds fold lines only for rows that carry a reading', () => 
   emitRowReports([{ route: 'x', vp: '320x568', screens: [{ press: 0, overflowPx: 0, widthFillPct: 90, inkCount: 3, foldSel: '#b', foldVisiblePx: 5, foldHeight: 44, foldTop: 500, foldBottom: 544 }] }], (l) => with_.push(l));
   assert.equal(with_.length, without.length + 1, 'exactly one extra line, so no existing emission is displaced');
   assert.ok(with_.some((l) => l.startsWith('::notice::  fold ')), 'the extra line is the fold line and carries the notice prefix');
+});
+
+// gh#264, owner ruling 2026-10-15: the shared player screen may scroll. The exception is scoped to the
+// player-screen STATE of a row that stays pinned as fitting, so it must never license a play screen.
+test('the player-screen exception lives only on FITS_ROWS rows, and excepts only player-screen measurements', () => {
+  assert.ok(PLAYER_SCREEN_SCROLLS.size > 0);
+  for (const key of PLAYER_SCREEN_SCROLLS.keys()) {
+    assert.ok(FITS_ROWS.has(key), `${key}: a player-screen exception on a row that is not pinned as fitting excepts nothing`);
+    assert.ok(!KNOWN_OVERFLOW.has(key), `${key}: already a whole-row exception`);
+  }
+  const row = (screens) => ({ route: 'timebomb', vp: '320x568', screens });
+  const player = { press: 0, overflowPx: 15, scrollPx: 15, clippedPx: 0, widthFillPct: 90, playerScreen: true };
+  const play = (px) => ({ press: 1, overflowPx: px, scrollPx: px, clippedPx: 0, widthFillPct: 90, playerScreen: false });
+  assert.equal(gatedWorstOf(row([player, play(0)])).overflowPx, 0, 'the player screen alone overflowing is excepted');
+  assert.equal(gatedWorstOf(row([player, play(12)])).overflowPx, 12, 'MUST-RED: a play screen that grows still reaches the gate');
+  assert.equal(gatedWorstOf({ ...row([player]), route: 'dice-loser' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
 });

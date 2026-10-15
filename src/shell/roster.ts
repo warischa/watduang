@@ -80,21 +80,58 @@ export function saveGroup(names: string[]): void {
   write(GROUP_KEY, names);
 }
 
-/** ADR-0071: the shared player screen's one roster write, issued when its start is pressed. `next`
- *  is the list as the screen leaves it -- order kept, because turn order IS roster order (ruling 5),
- *  and names the player removed with the remove control are simply absent. `base` is the roster the
- *  screen opened on.
- *
- *  Not add(): add() appends, so it can neither remove a name nor keep a renamed one in its seat.
- *  Not a blind overwrite either: a name another tab added AFTER this screen opened (in storage, not
- *  in `base`) was never on this screen, so the player cannot have meant to remove it -- it is kept,
- *  after the screen's own names. Same re-read-inside-the-lock shape as add(), for the same reason. */
-export async function replaceRoster(base: readonly string[], next: readonly string[]): Promise<void> {
-  const wanted = [...new Set(next.map((n) => n.trim()).filter((n) => hasVisibleChar(n)))];
+/** One edit the shared player screen made, named by WHAT changed, never by a snapshot of the list. */
+export type RosterOp =
+  | { op: 'remove'; name: string }
+  | { op: 'rename'; from: string; to: string }
+  | { op: 'add'; name: string };
+
+/** ADR-0071 (gh#264): the shared player screen's roster write. The screen hands over the EDITS it
+ *  made -- removes, renames keyed by the name it opened with, adds -- and they are applied INSIDE the
+ *  lock to the roster as it stands NOW, so a second tab's work is never undone by a screen that
+ *  merely opened before it:
+ *    - a name another tab removed is not brought back by a screen that did not touch it;
+ *    - two screens renaming two different names both land, each in its own seat (turn order is
+ *      roster order, ruling 5);
+ *    - a rename whose old name is already gone becomes an add -- the player is still on the screen;
+ *    - an add past `ceiling` is REFUSED and returned, never stored and clipped later. The ceiling is
+ *      the caller's (the shared screen owns that constant, ruling 7); storage only enforces it.
+ *  Removes go first, so a removal frees the seat an add in the same batch needs. Names are
+ *  name-keyed: two screen rows with the same name are one roster entry -- inherent to this key.
+ *  Same re-read-inside-the-lock shape as add(), for the same reason (#data-loss above). */
+export async function applyRosterOps(ops: readonly RosterOp[], ceiling: number): Promise<{ refused: string[] }> {
+  const refused: string[] = [];
   await withLock(LOCK, () => {
-    const arrived = read(KEY).filter((n) => !base.includes(n) && !wanted.includes(n));
-    write(KEY, [...wanted, ...arrived]);
+    // Re-run safe: withLock may run this twice on a rejected lock request, so nothing outside the
+    // list is accumulated across runs except through this reset.
+    refused.length = 0;
+    let list = read(KEY);
+    const adds: string[] = [];
+    for (const o of ops) if (o.op === 'remove') list = list.filter((n) => n !== o.name);
+    for (const o of ops) {
+      if (o.op !== 'rename') continue;
+      const to = o.to.trim();
+      if (!hasVisibleChar(to) || to === o.from) continue;
+      if (list.includes(to)) {
+        list = list.filter((n) => n !== o.from);
+        continue;
+      }
+      const at = list.indexOf(o.from);
+      if (at === -1) adds.push(to);
+      else list = list.map((n, i) => (i === at ? to : n));
+    }
+    for (const o of ops) if (o.op === 'add') adds.push(o.name.trim());
+    for (const name of adds) {
+      if (!hasVisibleChar(name) || list.includes(name)) continue;
+      if (list.length >= ceiling) {
+        refused.push(name);
+        continue;
+      }
+      list = [...list, name];
+    }
+    write(KEY, list);
   });
+  return { refused: [...refused] };
 }
 
 /** ADR-0071 "Data": the one-time import of a per-game player list that predates the shared roster.

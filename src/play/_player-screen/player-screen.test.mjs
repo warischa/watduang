@@ -182,3 +182,138 @@ test('copy: every Thai string the screen builds at run time is on the board, byt
     assert.ok(astro.includes(s), `PlayerScreen.astro does not ship the board string: ${s}`);
   }
 });
+
+// ---- gh#264 REFUTE fix round ------------------------------------------------------------------
+
+test('finding 1: hidden typed seats past the count survive the import; the shown seats keep their order', () => {
+  const names = MASCOTS.map((m) => m.name);
+  names[0] = 'One';
+  names[4] = 'Five';
+  names[5] = 'Six';
+  // The player typed six seats, then stepped the count back to four: Five and Six are hidden, not gone.
+  assert.deepEqual(ps.extractTimebombList({ count: 4, names }), ['One', MASCOTS[1].name, MASCOTS[2].name, MASCOTS[3].name, 'Five', 'Six']);
+});
+
+test('finding 3: a blank shown seat imports as its own mascot, so no later seat shifts', () => {
+  assert.deepEqual(ps.extractTimebombList({ count: 3, names: ['A', '', 'C'] }), ['A', MASCOTS[1].name, 'C']);
+  assert.deepEqual(ps.extractTimebombList({ count: 3, names: ['A', '​', 'C'] }), ['A', MASCOTS[1].name, 'C']);
+});
+
+test('finding 3 (kept, inherent): two seats with one name are one roster entry -- the roster is keyed by name', async () => {
+  assert.deepEqual(ps.extractTimebombList({ count: 2, names: ['Same', 'Same'] }), ['Same', 'Same']);
+  slots.clear();
+  slots.set(ps.LEGACY_LISTS[0].key, JSON.stringify({ count: 2, names: ['Same', 'Same'] }));
+  const { migrateLegacyList } = await import('../../shell/roster.ts');
+  await migrateLegacyList(ps.LEGACY_LISTS[0].key, ps.LEGACY_LISTS[0].extract);
+  assert.deepEqual(loadRoster().names(), ['Same']);
+});
+
+test('the import reads the count the way the timebomb route did: clamped into [2, 10], 6 when absent, capped at 20', () => {
+  const names = Array.from({ length: 20 }, (_, i) => `n${i}`);
+  assert.equal(ps.extractTimebombList({ names }).length, 20, '6 shown, then the 14 typed hidden seats');
+  assert.deepEqual(ps.extractTimebombList({ count: 99, names }).slice(0, 10), names.slice(0, 10));
+  assert.deepEqual(ps.extractTimebombList({ count: 1, names: ['a', 'b'] }), ['a', 'b']);
+  assert.deepEqual(ps.extractTimebombList({ count: 2, names: ['a', 'b', MASCOTS[2].name] }), ['a', 'b'], 'an untouched hidden seat is a default, not a name');
+});
+
+test('finding 4: the start write is a set of EDITS -- an untouched row writes nothing', () => {
+  const s = ps.initialState(['A', 'B', 'C'], [], [2, 10]);
+  assert.deepEqual(ps.opsOf(s), [], 'nothing changed, nothing written -- a stale screen cannot resurrect or reorder');
+  const edited = ps.addRow(ps.setName(ps.removeRow(s, 0), 0, 'Beta'));
+  assert.deepEqual(ps.opsOf(edited), [
+    { op: 'remove', name: 'A' },
+    { op: 'rename', from: 'B', to: 'Beta' },
+    { op: 'add', name: MASCOTS[0].name },
+  ]);
+  assert.deepEqual(ps.opsOf(ps.initialState([], [], [2, 10])).map((o) => o.op), ['add', 'add', 'add', 'add'], 'a first visit adds its seats');
+});
+
+// The page half of rulings 3 and 7, on the real screen over the real template (the harness swaps in
+// its own storage, so these run after every test above that reads `slots`).
+const { mountOnPage, settle } = await import('./screen-harness.mjs');
+const SURFACE = '<div id="app"><section id="root" hidden></section></div>';
+
+async function savedPage(t, roster = ['A', 'B', 'C']) {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const page = await mountOnPage({ routeMarkup: SURFACE, rootId: 'root', roster });
+  page.screen.open();
+  await settle();
+  t.mock.timers.tick(401);
+  const writes = [];
+  const realSet = localStorage.setItem;
+  localStorage.setItem = (k, v) => { writes.push(k); realSet(k, v); };
+  return {
+    page,
+    writes,
+    names: () => page.store.loadRoster().names(),
+    rm: (i) => page.root.querySelectorAll('.ps-rm')[i].click(),
+  };
+}
+
+test('finding 5 / ruling 3: the x removes from the ROSTER once the undo bar expires', async (t) => {
+  const { page, names, rm } = await savedPage(t);
+  rm(0);
+  assert.deepEqual(names(), ['A', 'B', 'C'], 'inside the four seconds nothing is final');
+  t.mock.timers.tick(page.ps.UNDO_MS);
+  await settle();
+  assert.deepEqual(names(), ['B', 'C']);
+  page.screen.close();
+  page.screen.open();
+  await settle();
+  assert.deepEqual(page.root.querySelectorAll('.ps-n').map((f) => f.value), ['B', 'C'], 'a reopen before start does not bring it back');
+});
+
+test('finding 5 / ruling 3: undo within four seconds restores the row at its index and writes NOTHING', async (t) => {
+  const { page, writes, names, rm } = await savedPage(t);
+  rm(1);
+  t.mock.timers.tick(401);
+  page.part('undo').click();
+  t.mock.timers.tick(page.ps.UNDO_MS);
+  await settle();
+  assert.deepEqual(page.root.querySelectorAll('.ps-n').map((f) => f.value), ['A', 'B', 'C']);
+  assert.deepEqual(names(), ['A', 'B', 'C']);
+  assert.deepEqual(writes, [], 'no storage write at all');
+});
+
+test('finding 5 / ruling 3: a second x makes the first removal final at once', async (t) => {
+  const { page, names, rm } = await savedPage(t);
+  rm(0);
+  t.mock.timers.tick(401);
+  rm(0);
+  await settle();
+  assert.deepEqual(names(), ['B', 'C'], 'the first is written when the bar is replaced');
+  t.mock.timers.tick(page.ps.UNDO_MS);
+  await settle();
+  assert.deepEqual(names(), ['C']);
+});
+
+test('finding 5 / ruling 3: a pending removal is made final when the page is put away', async (t) => {
+  const first = await savedPage(t);
+  first.rm(2);
+  first.page.fireWindow('pagehide');
+  await settle();
+  assert.deepEqual(first.names(), ['A', 'B']);
+  t.mock.timers.reset();
+  const second = await savedPage(t, ['A', 'B']);
+  second.rm(0);
+  second.page.doc.visibilityState = 'hidden';
+  second.page.doc.dispatchEvent({ type: 'visibilitychange' });
+  await settle();
+  assert.deepEqual(second.names(), ['B'], 'visibilitychange to hidden is the earlier, safer moment');
+});
+
+test('finding 2: a start whose add another tab pushed past the ceiling is refused -- nothing starts, nothing is clipped', async (t) => {
+  const nineteen = Array.from({ length: 19 }, (_, i) => `p${i + 1}`);
+  const { page, names } = await savedPage(t, nineteen);
+  page.part('add').click();
+  t.mock.timers.tick(401);
+  await page.store.applyRosterOps([{ op: 'add', name: 'otherTab' }], 20); // lands while this screen is open
+  page.part('start').click();
+  await settle();
+  assert.equal(page.calls.started.length, 0, 'the round did not start on a roster that is not the one shown');
+  assert.equal(names().length, 20);
+  assert.ok(names().includes('otherTab'), 'the other tab keeps its legal addition');
+  assert.equal(page.root.querySelectorAll('.ps-p').length, 20, 'the screen re-read storage and shows the roster as it stands');
+  t.mock.timers.tick(401);
+  assert.equal(page.part('add').disabled, true, 'the add row is closed at the ceiling');
+});

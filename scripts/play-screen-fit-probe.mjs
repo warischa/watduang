@@ -286,6 +286,28 @@ export const FITS_ROWS = new Set([
   'one-bomb 1440x900',
 ]);
 /**
+ * gh#264 — the shared player screen (ADR-0071) is a LIST, and the owner ruled 2026-10-15 (popup) that
+ * it may scroll. The exception is SCOPED TO THAT STATE, not to the route: a row named here stays in
+ * FITS_ROWS, and only the screens measured while the player screen was open (`playerScreen`, read off
+ * the page's own data-player-screen attribute) leave its gate. Every play screen of the same row is
+ * still gated as fitting, so a round screen that grows still reds. Every value starts with
+ * 'owner ruling <date>:' and must name the px it was recorded at, like KNOWN_OVERFLOW.
+ */
+export const PLAYER_SCREEN_SCROLLS = new Map([
+  ['timebomb 320x568', 'owner ruling 2026-10-15: 15px on press 0 - 15px documentElement overflow on the shared player screen with 3 saved names (gh#264 popup). The screen is a list that scrolls by design (board frame 4, design/PlayerSetup.dc.html); measured with the start button bottom at 559 of 568, fully visible. A first visit at 4 rows needs 89px, and this walk never measures that screen: it is the fresh, unseeded one. Play screens of this row stay pinned as fitting.'],
+]);
+
+/** The screen a FITS_ROWS row is gated on: its worst screen, minus the player-screen state where
+ *  PLAYER_SCREEN_SCROLLS scopes an owner ruling to it. A row whose every screen is excepted gates on
+ *  nothing and reads 0px. */
+export function gatedWorstOf(r) {
+  const scoped = PLAYER_SCREEN_SCROLLS.has(rowKey(r));
+  const screens = (r.screens || []).filter((s) => !(scoped && s.playerScreen));
+  return screens.slice().sort((a, b) => b.overflowPx - a.overflowPx || a.widthFillPct - b.widthFillPct)[0]
+    ?? { overflowPx: 0, scrollPx: 0, clippedPx: 0, press: null };
+}
+
+/**
  * Row -> why it is allowed to overflow. Recorded 2026-09-02 from three consecutive full runs; the
  * numbers are what those runs measured (they agreed to the pixel on every row in this map), not what
  * a fix is expected to leave behind. cursed-number is the only row carrying an owner ruling, and that ruling
@@ -552,7 +574,7 @@ export function assertRecordedReasons(which, map) {
     }
   }
 }
-for (const [which, map] of [['KNOWN_OVERFLOW', KNOWN_OVERFLOW], ['KNOWN_OVERFLOW_X', KNOWN_OVERFLOW_X]]) {
+for (const [which, map] of [['KNOWN_OVERFLOW', KNOWN_OVERFLOW], ['KNOWN_OVERFLOW_X', KNOWN_OVERFLOW_X], ['PLAYER_SCREEN_SCROLLS', PLAYER_SCREEN_SCROLLS]]) {
   assertRecordedReasons(which, map);
 }
 /**
@@ -801,6 +823,10 @@ const MEASURE = `
     inkCount: n,
     inkLeft: n ? left : null, inkRight: n ? right : null,
     widthFillPct: n ? Math.round((span / innerWidth) * 1000) / 10 : 0,
+    // gh#264: was the shared player screen up when this screen was measured? The screen marks <html>
+    // itself (data-player-screen, ADR-0071), so this is the page's own statement, not a guess from
+    // markup. PLAYER_SCREEN_SCROLLS scopes its exception by this bit and nothing else.
+    playerScreen: de.getAttribute('data-player-screen') === 'open',
   };
 `;
 
@@ -1381,7 +1407,7 @@ const fmt = (r) => {
   // The sideways number is the row's own worst horizontal screen, not the worst VERTICAL screen's
   // horizontal number — otherwise the printed table would disagree with the gate that reads it.
   const x = worstXOf(r);
-  return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} scrolls ${(w.scrollPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(Math.round(w.scrollPx)).padStart(5)}px  clipped ${String(Math.round(w.clippedPx)).padStart(5)}px  sideways ${String(Math.round(x.overflowXPx ?? 0)).padStart(5)}px${x.overflowXFrom ? ' by ' + x.overflowXFrom : ''}  width-fill ${String(w.widthFillPct).padStart(5)}%  (worst of ${r.screens.length} screen(s)${(r.draws ?? 1) > 1 ? ` x ${r.draws} draw(s)` : ''}: press ${w.press}, ${w.inkCount} ink)${FITS_ROWS.has(rowKey(r)) ? ' [pinned fits]' : ''}${KNOWN_OVERFLOW_X.has(rowKey(r)) ? ' [sideways excepted]' : ''}`;
+  return `${r.route.padEnd(18)} ${r.vp.padEnd(9)} scrolls ${(w.scrollPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(Math.round(w.scrollPx)).padStart(5)}px  clipped ${String(Math.round(w.clippedPx)).padStart(5)}px  sideways ${String(Math.round(x.overflowXPx ?? 0)).padStart(5)}px${x.overflowXFrom ? ' by ' + x.overflowXFrom : ''}  width-fill ${String(w.widthFillPct).padStart(5)}%  (worst of ${r.screens.length} screen(s)${(r.draws ?? 1) > 1 ? ` x ${r.draws} draw(s)` : ''}: press ${w.press}, ${w.inkCount} ink)${FITS_ROWS.has(rowKey(r)) ? ' [pinned fits]' : ''}${KNOWN_OVERFLOW_X.has(rowKey(r)) ? ' [sideways excepted]' : ''}${PLAYER_SCREEN_SCROLLS.has(rowKey(r)) ? ' [player screen excepted]' : ''}`;
 };
 
 /**
@@ -1653,8 +1679,16 @@ export function main({
   }
   const regressions = out.rows
     .filter((r) => FITS_ROWS.has(rowKey(r)))
-    .map((r) => ({ r, w: worstOf(r) }))
+    .map((r) => ({ r, w: gatedWorstOf(r) }))
     .filter((x) => x.w.overflowPx > OVERFLOW_TOLERANCE_PX);
+  // gh#264: a player-screen state the owner excepted is still REPORTED, with its recorded px, so the
+  // exception can never grow silently. A warning, not a gate, for the same machine-px reason as (iv).
+  for (const r of out.rows.filter((row) => PLAYER_SCREEN_SCROLLS.has(rowKey(row)))) {
+    const recorded = recordedPx(PLAYER_SCREEN_SCROLLS.get(rowKey(r)));
+    for (const sc of (r.screens || []).filter((x) => x.playerScreen && x.overflowPx > recorded + OVERFLOW_TOLERANCE_PX)) {
+      console.warn(`::warning::${r.url} at ${r.vp}: the shared player screen measured ${Math.round(sc.overflowPx)}px (press ${sc.press}) against PLAYER_SCREEN_SCROLLS's recorded ${recorded}px. Same machine? Something grew on the player screen -- re-measure before re-recording.`);
+    }
+  }
   for (const x of regressions) {
     console.error(`::error::${x.r.url} at ${x.r.vp} no longer fits VERTICALLY: ${Math.round(x.w.scrollPx)}px to scroll and ${Math.round(x.w.clippedPx)}px clipped away on a play screen (press ${x.w.press}). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.`);
   }

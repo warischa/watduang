@@ -221,9 +221,19 @@ export async function mountOnPage({ routeMarkup, rootId, roster = [], group = []
   installStorage();
   const doc = makePage(routeMarkup);
   globalThis.document = doc;
+  // The page's window, for the one thing the screen asks of it: pagehide.
+  const winListeners = {};
+  globalThis.window = {
+    addEventListener: (type, fn) => { (winListeners[type] ??= []).push(fn); },
+    removeEventListener() {},
+  };
+  const fireWindow = (type) => { for (const fn of winListeners[type] ?? []) fn({ type }); };
   const ps = await import('./player-screen.ts');
   const store = await import('../../shell/roster.ts');
-  if (roster.length) await store.replaceRoster([], roster);
+  // Seeded through add(), the roster's oldest write path, so the same harness can also be pointed at
+  // an older tree to show a new case red there.
+  const seeded = store.loadRoster();
+  for (const name of roster) await seeded.add(name);
   if (group.length) store.saveGroup(group);
   const root = doc.getElementById(rootId);
   if (!root) throw new Error(`screen-harness: the route markup has no #${rootId}`);
@@ -239,7 +249,7 @@ export async function mountOnPage({ routeMarkup, rootId, roster = [], group = []
   });
   const part = (name) => root.querySelector(`[data-ps="${name}"]`);
   const byId = (id) => doc.getElementById(id);
-  return { ps, doc, root, screen, calls, live, part, byId };
+  return { ps, store, doc, root, screen, calls, live, part, byId, fireWindow };
 }
 
 /** The shared screen's reveal paths, registered as tests against ONE route's real markup. Each case
@@ -270,6 +280,7 @@ export function revealPathCases({ test, assert, routeMarkup, rootId, headerId, l
     liveNow(page.part('start'), 'start');
     liveNow(page.byId(headerId), `#${headerId}`);
     assert.equal(page.part('start').click(), true);
+    await settle(); // the roster write is applied under the lock before the players are handed over
     assert.equal(page.calls.started.length, 1, 'start hands the players over');
     assert.equal(page.root.hidden, true, 'and the screen closes itself');
   });
@@ -284,6 +295,39 @@ export function revealPathCases({ test, assert, routeMarkup, rootId, headerId, l
     armedNow(page.part('start'), 'start after a stepper re-render inside the window');
     expire(t);
     liveNow(page.part('start'), 'start');
+  });
+
+  // gh#264 REFUTE finding 6: every saved-row rebuild puts NEW controls under the finger. Two contacts
+  // 100ms apart, the second landing on the rebuilt control, must not act twice -- on a tick (which
+  // would toggle straight back), on the add row (a second row), and on the rows an x moved up.
+  test(`${label}: a second contact 100ms after a rebuild lands on nothing live -- tick, add, x`, async (t) => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const page = await mountOnPage({ routeMarkup, rootId, roster: ['A', 'B', 'C'] });
+    page.screen.open();
+    await settle();
+    expire(t);
+    const tick = (i) => page.root.querySelectorAll('.ps-tick')[i];
+    const contact = (stamp, el) => {
+      page.doc.dispatchEvent({ type: 'pointerdown', timeStamp: stamp });
+      page.doc.dispatchEvent({ type: 'pointerup', timeStamp: stamp + 10 });
+      return el.click();
+    };
+    assert.equal(contact(1000, tick(2)), true, 'the first tap is a deliberate one');
+    assert.equal(tick(2).getAttribute('aria-pressed'), 'false');
+    t.mock.timers.tick(100);
+    assert.equal(contact(1100, tick(2)), false, 'the rebuilt tick is inert 100ms later');
+    assert.equal(tick(2).getAttribute('aria-pressed'), 'false', 'and the row did not toggle back');
+    armedNow(page.byId(headerId), `#${headerId} after a tick rebuild`);
+    expire(t);
+    assert.equal(contact(2000, page.part('add')), true);
+    t.mock.timers.tick(100);
+    assert.equal(contact(2100, page.part('add')), false, 'the add row is inert 100ms after it added a row');
+    assert.equal(page.root.querySelectorAll('.ps-p').length, 4, 'one row added, not two');
+    expire(t);
+    assert.equal(contact(3000, page.root.querySelectorAll('.ps-rm')[0]), true);
+    t.mock.timers.tick(100);
+    assert.equal(contact(3100, page.root.querySelectorAll('.ps-rm')[0]), false, 'the x that moved up is inert');
+    assert.equal(page.root.querySelectorAll('.ps-p').length, 3, 'one row removed, not two');
   });
 
   test(`${label}: a ghost contact inside the window starts nothing`, async (t) => {

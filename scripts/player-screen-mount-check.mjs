@@ -20,10 +20,17 @@
 // game's declared maximum must sit at or under the shared ROSTER_CEILING, read from the shared
 // screen's own module, so a game declaring more seats than the roster can hold reds the build.
 //
-// ponytail: a text scan of each route's own top-level files (.ts/.js/.html, tests excluded), with
-// whole-line and trailing comments dropped before it looks. It cannot see storage reached through
-// an alias it does not spell, and it cannot see a sub-directory -- the same flat bound the other
-// play-route gates carry.
+// COMMENTS are blanked before anything is matched, per file and per grammar, by the repo's shared
+// parser-backed stripper (scripts/strip-comments.mjs, gh#191): .ts/.js through the TypeScript
+// parser, so a `//` or `/*` inside a string, a template or a glob is never read as a comment opener;
+// play.astro through stripAstro plus its HTML comments in template position; markup.html's HTML
+// comments. The first version of this gate stripped by line shape and failed OPEN three ways (gh#264
+// REFUTE finding 7): a mount inside a block comment, `<PlayerScreen />` inside an HTML comment, and
+// live storage written after an inline block comment all read as a clean converted route.
+//
+// ponytail: a text scan of each route's own top-level files (.ts/.js/.html, tests excluded). It
+// cannot see storage reached through an alias it does not spell, and it cannot see a sub-directory
+// -- the same flat bound the other play-route gates carry.
 //
 //   node scripts/player-screen-mount-check.mjs             -> audit every party play route
 //   node scripts/player-screen-mount-check.mjs --selftest  -> both-direction calibration on fixtures
@@ -31,6 +38,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { JS, stripAstro, stripComments } from './strip-comments.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -50,21 +58,24 @@ export const PENDING = new Set([
   'zero-trigger',
 ]);
 
-/** Code with comments dropped, so prose about storage is not storage. Whole-line comments always
- *  go; a trailing `//` goes only when no quote opened earlier on the line; HTML comments go whole. */
-export function codeOf(text) {
-  return text
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .split('\n')
-    .filter((line) => {
-      const t = line.trimStart();
-      return !t.startsWith('//') && !t.startsWith('/*') && !t.startsWith('*');
-    })
-    .map((line) => {
-      const i = line.indexOf('//');
-      return i > 0 && !/['"`]/.test(line.slice(0, i)) ? line.slice(0, i) : line;
-    })
-    .join('\n');
+/** An HTML comment blanked to spaces, newlines kept -- both delimiters are explicit, so this
+ *  enumerates nothing a grammar has an opinion about. */
+const blankHtmlComments = (text) => text.replace(/<!--[\s\S]*?-->/g, (c) => c.replace(/[^\n]/g, ' '));
+
+/** One route file with its comments blanked, by the grammar its extension names. */
+export function codeOf(name, text) {
+  if (name.endsWith('.html')) return blankHtmlComments(text);
+  if (name.endsWith('.js') || name.endsWith('.mjs')) return stripComments(text, JS);
+  return stripComments(text);
+}
+
+/** A play.astro with its comments blanked: frontmatter and scripts by the parser (stripAstro), and
+ *  HTML comments in the template that follows the frontmatter fence. */
+export function pageCodeOf(page) {
+  const stripped = stripAstro(page);
+  const fence = /^---\r?\n[\s\S]*?\r?\n---/.exec(stripped);
+  const cut = fence ? fence[0].length : 0;
+  return stripped.slice(0, cut) + blankHtmlComments(stripped.slice(cut));
 }
 
 /** Ways a route keeps a player list of its own. Each is a reason a converted route still reds. */
@@ -81,7 +92,7 @@ const COMPONENT = /import\s+PlayerScreen\s+from\s+['"][^'"]*_player-screen\/Play
 /** One route's class and failures. Pure over its inputs so the selftest can drive it on strings. */
 export function auditRoute({ id, files, page, pending = PENDING }) {
   const failures = [];
-  const code = codeOf(Object.values(files).join('\n'));
+  const code = Object.entries(files).map(([name, text]) => codeOf(name, text)).join('\n');
   const mounts = MOUNT.test(code);
   if (!mounts) {
     if (pending.has(id)) return { id, klass: 'pending', failures };
@@ -89,7 +100,7 @@ export function auditRoute({ id, files, page, pending = PENDING }) {
     return { id, klass: 'unmounted', failures };
   }
   if (pending.has(id)) failures.push(`${id}: mounts the shared player screen but is still listed in PENDING -- delete the entry`);
-  if (!COMPONENT.test(page ?? '')) failures.push(`${id}: mounts the shared player screen but its play.astro does not render <PlayerScreen /> -- the mount has no markup to clone`);
+  if (!COMPONENT.test(pageCodeOf(page ?? ''))) failures.push(`${id}: mounts the shared player screen but its play.astro does not render <PlayerScreen /> -- the mount has no markup to clone`);
   if ('roster-bridge.ts' in files) failures.push(`${id}: still ships a roster-bridge.ts beside the shared screen`);
   for (const { re, why } of OWN_LIST) if (re.test(code)) failures.push(`${id}: ${why}`);
   return { id, klass: 'converted', failures };
@@ -195,8 +206,18 @@ function selftest() {
   console.log('PASS shrink-only: a converted route still named PENDING reds');
 
   // The stripper itself, on the shape that would let a real call hide: code after a quote stays.
-  assert.match(codeOf("const u = 'http://x'; localStorage.clear();"), /localStorage/, 'a // inside a string must not drop the code after it');
-  console.log('PASS stripper: a // inside a string keeps the code after it');
+  assert.match(codeOf('main.js', "const u = 'http://x'; localStorage.clear();"), /localStorage/, 'a // inside a string must not drop the code after it');
+  assert.match(codeOf('main.ts', "const g = 'src/**/*.ts'; localStorage.clear();"), /localStorage/, 'a glob string must not open a block comment');
+  console.log('PASS stripper: a // or a glob inside a string keeps the code after it');
+
+  // MUST-RED, gh#264 REFUTE finding 7: the three shapes the line-shape stripper read as converted.
+  const commentedMount = { 'main.ts': "import { mountPlayerScreen } from '../_player-screen/player-screen.ts';\n/*\n  const screen = mountPlayerScreen({ root, range: game.players });\n  screen.open();\n*/" };
+  assert.equal(auditRoute({ id: 'a', files: commentedMount, page, pending: new Set() }).klass, 'unmounted', 'a mount inside a block comment is no mount');
+  const commentedPage = page.replace('<PlayerScreen />', '<!-- <PlayerScreen /> -->');
+  assert.match(auditRoute({ id: 'a', files: converted, page: commentedPage, pending: new Set() }).failures.join('\n'), /does not render <PlayerScreen \/>/, 'a component inside an HTML comment is not rendered');
+  const afterBlock = { 'main.ts': `${converted['main.ts']}\n/* keep legacy copy */ localStorage.setItem('watduang:timebomb-players', '[]');` };
+  assert.match(auditRoute({ id: 'a', files: afterBlock, page, pending: new Set() }).failures.join('\n'), /localStorage/, 'live storage after an inline block comment is live');
+  console.log('PASS comment-shaped holes: a commented mount, a commented component and storage after a block comment each red');
   console.log('player-screen-mount-check --selftest: all legs passed');
 }
 

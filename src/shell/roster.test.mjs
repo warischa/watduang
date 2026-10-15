@@ -260,32 +260,65 @@ test('gh#140 every default label, and every icon alone, survives hasVisibleChar'
   }
 });
 
-// ADR-0071: the shared player screen writes the roster through replaceRoster on start.
-const { replaceRoster, migrateLegacyList } = await import('./roster.ts');
-
-test('ADR-0071 replaceRoster keeps the screen order, drops a removed name, renames in place', async () => {
+// ADR-0071: the shared player screen writes the roster as an operation set, applied under the lock
+// to the roster as it stands at write time (gh#264 REFUTE findings 2 and 4).
+const { applyRosterOps, migrateLegacyList } = await import('./roster.ts');
+const seed = async (names) => {
   slots.clear();
-  const roster = loadRoster();
-  for (const n of ['เอ', 'บี', 'ซี', 'ดี']) await roster.add(n);
-  const base = loadRoster().names();
-  // The second name removed, the third renamed in its own seat, a new name appended.
-  await replaceRoster(base, ['เอ', 'ซีซี', 'ดี', 'อี']);
+  await applyRosterOps(names.map((name) => ({ op: 'add', name })), 20);
+};
+
+test('ADR-0071 ops: remove, rename in place and add, in one batch', async () => {
+  await seed(['เอ', 'บี', 'ซี', 'ดี']);
+  await applyRosterOps([{ op: 'remove', name: 'บี' }, { op: 'rename', from: 'ซี', to: 'ซีซี' }, { op: 'add', name: 'อี' }], 20);
   assert.deepEqual(loadRoster().names(), ['เอ', 'ซีซี', 'ดี', 'อี']);
 });
 
-test('ADR-0071 replaceRoster keeps a name another tab added after the screen opened', async () => {
-  slots.clear();
-  const roster = loadRoster();
-  for (const n of ['เอ', 'บี']) await roster.add(n);
-  const base = loadRoster().names();
-  await loadRoster().add('จากแท็บอื่น'); // lands while this screen is open
-  await replaceRoster(base, ['บี']); // this screen removed the first name
-  assert.deepEqual(loadRoster().names(), ['บี', 'จากแท็บอื่น']);
+test('ADR-0071 ops: a stale screen that changed nothing does not resurrect a name another tab removed', async () => {
+  await seed(['A', 'B', 'C']);
+  await applyRosterOps([{ op: 'remove', name: 'A' }], 20); // tab A removes A
+  await applyRosterOps([], 20); // tab B opened before that, changed nothing, pressed start
+  assert.deepEqual(loadRoster().names(), ['B', 'C']);
 });
 
-test('ADR-0071 replaceRoster drops blanks and duplicates before writing', async () => {
-  slots.clear();
-  await replaceRoster([], ['เอ', '  ', 'เอ', '​', 'บี']);
+test('ADR-0071 ops: two screens renaming two different names both land, each in its own seat', async () => {
+  await seed(['A', 'B', 'C']);
+  await applyRosterOps([{ op: 'rename', from: 'A', to: 'Alpha' }], 20);
+  await applyRosterOps([{ op: 'rename', from: 'B', to: 'Beta' }], 20);
+  assert.deepEqual(loadRoster().names(), ['Alpha', 'Beta', 'C']);
+});
+
+test('ADR-0071 ops: two legal 19 -> 20 adds race; the second is REFUSED and reported, nothing is stored past 20', async () => {
+  const nineteen = Array.from({ length: 19 }, (_, i) => `p${i + 1}`);
+  await seed(nineteen);
+  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'tabA' }], 20), { refused: [] });
+  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'tabB' }], 20), { refused: ['tabB'] });
+  const stored = loadRoster().names();
+  assert.equal(stored.length, 20);
+  assert.ok(stored.includes('tabA'), 'the first legal addition is kept');
+  // And a later batch from a screen that saw 20 cannot clip anyone: it has nothing to add.
+  await applyRosterOps([], 20);
+  assert.ok(loadRoster().names().includes('tabA'));
+});
+
+test('ADR-0071 ops: a removal in the same batch frees the seat an add needs', async () => {
+  await seed(Array.from({ length: 20 }, (_, i) => `p${i + 1}`));
+  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'new' }, { op: 'remove', name: 'p1' }], 20), { refused: [] });
+  assert.equal(loadRoster().names().at(-1), 'new');
+});
+
+test('ADR-0071 ops: a rename whose old name another tab removed lands as an add; a rename onto an existing name merges', async () => {
+  await seed(['A', 'B']);
+  await applyRosterOps([{ op: 'remove', name: 'A' }], 20);
+  await applyRosterOps([{ op: 'rename', from: 'A', to: 'Alpha' }], 20);
+  assert.deepEqual(loadRoster().names(), ['B', 'Alpha']);
+  await applyRosterOps([{ op: 'rename', from: 'Alpha', to: 'B' }], 20);
+  assert.deepEqual(loadRoster().names(), ['B'], 'name-keyed: two rows with one name are one roster entry');
+});
+
+test('ADR-0071 ops: blanks and duplicate adds are dropped before writing', async () => {
+  await seed([]);
+  await applyRosterOps(['เอ', '  ', 'เอ', '\u200b', 'บี'].map((name) => ({ op: 'add', name })), 20);
   assert.deepEqual(loadRoster().names(), ['เอ', 'บี']);
 });
 
@@ -312,7 +345,7 @@ test('ADR-0071 migrateLegacyList: idempotent -- a second call with the key gone 
   slots.clear();
   slots.set(LEGACY, JSON.stringify({ names: ['ต้น'] }));
   await migrateLegacyList(LEGACY, (v) => v.names);
-  await replaceRoster(['ต้น'], ['ต้น', 'บอส']);
+  await applyRosterOps([{ op: 'add', name: 'บอส' }], 20);
   await migrateLegacyList(LEGACY, (v) => v.names);
   assert.deepEqual(loadRoster().names(), ['ต้น', 'บอส']);
 });

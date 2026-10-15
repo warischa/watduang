@@ -13,7 +13,7 @@
 // The underscore keeps this directory out of the play-route set every gate derives from the manifest:
 // it is shared code under src/play/, not a route.
 import { armAllButtons } from '../../games/_arm-gate.ts';
-import { loadGroup, loadRoster, migrateLegacyList, replaceRoster, saveGroup } from '../../shell/roster.ts';
+import { applyRosterOps, loadGroup, loadRoster, migrateLegacyList, saveGroup, type RosterOp } from '../../shell/roster.ts';
 import { hasVisibleChar } from '../../tools/name-list.ts';
 import { MASCOTS, resetCastNames } from '../_mascots.ts';
 import { takeSetupEditRequest } from '../_setup-bridge.ts';
@@ -37,18 +37,40 @@ export const NAME_MAX = 24;
  *  game's list under it. dice-loser's and one-bomb's keys join this table in their own conversion. */
 export const LEGACY_LISTS: readonly { key: string; extract: (value: unknown) => string[] }[] = [
   {
-    // The timebomb route stored ALL twenty seats (untouched seats holding their mascot name) plus the
-    // count it played. The names it showed are the first `count`, so those are what is imported.
     key: 'watduang:timebomb-players',
-    extract: (value) => {
-      if (!value || typeof value !== 'object') return [];
-      const { count, names } = value as { count?: unknown; names?: unknown };
-      if (!Array.isArray(names)) return [];
-      const n = typeof count === 'number' && Number.isFinite(count) ? Math.max(0, Math.floor(count)) : names.length;
-      return names.slice(0, n).filter((x): x is string => typeof x === 'string');
-    },
+    extract: extractTimebombList,
   },
 ];
+
+/** The timebomb route's `{ count, names }` blob, read the way that route's own load() read it, so
+ *  the import is what its players last saw and nothing they typed is lost (gh#264 REFUTE finding 1).
+ *  It stored ALL twenty seats -- an untouched seat holding its mascot name -- plus the count it
+ *  played, and a seat past the count kept its typed name for when the count came back up.
+ *    1. Seats 0 .. count-1, in seat order. A blank seat played as its mascot, so it imports as that
+ *       mascot's name (ADR-0054 order) rather than vanishing and shifting every later seat.
+ *    2. Then every seat at or past the count that holds a TYPED name -- visible, and not that seat's
+ *       own mascot default. Hidden, not deleted, on that route; deleting the key must not delete it.
+ *  Capped at the roster ceiling. Two seats with the same name become ONE roster entry: the roster is
+ *  keyed by name, which is inherent to it, not to this import.
+ *  The numbers below are that route's own, as it read this key: a count clamped into its [2, 10]
+ *  range, 6 when absent, and a seat name cut to the 12 characters its field allowed. */
+export function extractTimebombList(value: unknown): string[] {
+  if (!value || typeof value !== 'object') return [];
+  const { count, names } = value as { count?: unknown; names?: unknown };
+  if (!Array.isArray(names)) return [];
+  const seat = (i: number): string => {
+    const raw = names[i];
+    return typeof raw === 'string' ? raw.slice(0, 12).trim() : '';
+  };
+  const n = typeof count === 'number' && Number.isFinite(count) ? Math.min(10, Math.max(2, Math.floor(count))) : 6;
+  const shown = Array.from({ length: n }, (_, i) => (hasVisibleChar(seat(i)) ? seat(i) : MASCOTS[i].name));
+  const hidden: string[] = [];
+  for (let i = n; i < Math.min(names.length, MASCOTS.length); i += 1) {
+    const typed = seat(i);
+    if (hasVisibleChar(typed) && typed !== MASCOTS[i].name) hidden.push(typed);
+  }
+  return [...shown, ...hidden].slice(0, ROSTER_CEILING);
+}
 
 // ---- pure state ---------------------------------------------------------------------------------
 
@@ -60,6 +82,9 @@ export interface Row {
   /** Index into MASCOTS. Fixed for the life of the screen, so a remove never repaints a neighbour. */
   mascot: number;
   ticked: boolean;
+  /** The roster name this row opened with, or null for a row added on this screen. The write at
+   *  start is a set of edits keyed by it (applyRosterOps), never a snapshot of the whole list. */
+  origin: string | null;
 }
 
 export interface ScreenState {
@@ -119,7 +144,7 @@ export function initialState(roster: readonly string[], group: readonly string[]
       min,
       max,
       count: clampCount(FIRST_VISIT_COUNT, range),
-      rows: MASCOTS.map((m, i) => ({ name: m.name, mascot: i, ticked: true })),
+      rows: MASCOTS.map((m, i) => ({ name: m.name, mascot: i, ticked: true, origin: null })),
       undo: null,
     };
   }
@@ -130,7 +155,7 @@ export function initialState(roster: readonly string[], group: readonly string[]
     const candidate = wanted ? wanted.has(name) : true;
     const ticked = candidate && seats < max;
     if (ticked) seats += 1;
-    return { name, mascot: i, ticked };
+    return { name, mascot: i, ticked, origin: name };
   });
   return { mode: 'saved', min, max, count: 0, rows, undo: null };
 }
@@ -188,7 +213,7 @@ export function addRow(state: ScreenState): ScreenState {
   let mascot = 0;
   while (worn.has(mascot)) mascot += 1;
   const ticked = tickedCount(state) < state.max;
-  const rows = [...state.rows, { name: MASCOTS[mascot].name, mascot, ticked }];
+  const rows = [...state.rows, { name: MASCOTS[mascot].name, mascot, ticked, origin: null }];
   return { ...state, rows };
 }
 
@@ -210,6 +235,24 @@ export function playersOf(state: ScreenState): Player[] {
 export function rosterOf(state: ScreenState): string[] {
   const rows = state.mode === 'first' ? state.rows.slice(0, state.count) : state.rows;
   return rows.map(displayName);
+}
+
+/** The roster write this screen owes, as EDITS (applyRosterOps), never as a snapshot: each row that
+ *  opened with a roster name and now shows another is a rename keyed by the name it opened with; a
+ *  row added here is an add; the removal the undo bar still holds is a remove. A row left untouched
+ *  writes nothing, which is what keeps a screen that opened before another tab's edit from undoing
+ *  it (gh#264 REFUTE finding 4). Removals already committed (the bar expired or was replaced) were
+ *  written when they were committed. A first visit has no roster rows, so every seat is an add. */
+export function opsOf(state: ScreenState): RosterOp[] {
+  const ops: RosterOp[] = [];
+  if (state.undo?.row.origin) ops.push({ op: 'remove', name: state.undo.row.origin });
+  const rows = state.mode === 'first' ? state.rows.slice(0, state.count) : state.rows;
+  for (const row of rows) {
+    const name = displayName(row);
+    if (row.origin === null) ops.push({ op: 'add', name });
+    else if (name !== row.origin) ops.push({ op: 'rename', from: row.origin, to: name });
+  }
+  return ops;
 }
 
 export function canStart(state: ScreenState): boolean {
@@ -326,7 +369,6 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   const resetConfirm = byId('ps-reset-confirm');
 
   let state: ScreenState = initialState([], [], range);
-  let base: string[] = [];
   let isOpen = false;
   let undoTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -434,6 +476,9 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
         tick.addEventListener('click', () => {
           state = toggleTick(state, index);
           render();
+          // The rebuild put a NEW tick under the finger that just tapped the old one: a second
+          // contact 100ms later would toggle it straight back (gh#264 REFUTE finding 6).
+          armSurface();
         });
         const rm = document.createElement('button');
         rm.type = 'button';
@@ -468,9 +513,21 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     root.classList.remove('ps-toasting');
   }
 
+  /** Ruling 3: the x removes the name from the ROSTER, not just from this screen. It is written
+   *  when the undo bar's chance is spent -- the bar expires, a second x replaces it, the screen
+   *  closes, or the page is put away -- and an undo inside the four seconds writes nothing at all.
+   *  A row added on this screen has no roster name yet, so removing it writes nothing either. */
+  function commitRemoval(): void {
+    const pending = state.undo;
+    state = dropUndo(state);
+    if (pending?.row.origin) void applyRosterOps([{ op: 'remove', name: pending.row.origin }], ROSTER_CEILING);
+  }
+
   function removeAt(index: number): void {
     const gone = state.rows[index];
     if (!gone) return;
+    // One bar at a time: the removal it was holding is final the moment another one replaces it.
+    commitRemoval();
     state = removeRow(state, index);
     render();
     toastText.textContent = `${COPY.undoLead}${displayName(gone)}${COPY.undoTail}`;
@@ -479,7 +536,7 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     clearTimeout(undoTimer);
     // The bar leaving is a reveal like any close (ADR-0057): the start button sits under it.
     undoTimer = setTimeout(() => {
-      state = dropUndo(state);
+      commitRemoval();
       hideToast();
       armSurface();
     }, UNDO_MS);
@@ -507,6 +564,8 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     render();
     const fields = list.querySelectorAll<HTMLInputElement>('.ps-n');
     fields[fields.length - 1]?.focus();
+    // The new row's tick and x appeared under the add row's old place: same rebuild, same arm.
+    armSurface();
   });
 
   // gh#177's confirm, kept: the wipe takes every typed name and they do not come back.
@@ -534,25 +593,57 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     closeReset();
   });
 
+  /** Reads storage into the screen: the roster, the group, the ticks. */
+  function load(): void {
+    state = initialState(loadRoster().names(), loadGroup(), range);
+    hideToast();
+    render();
+  }
+
+  let starting = false;
   start.addEventListener('click', () => {
-    if (!isOpen || !canStart(state)) return;
+    if (!isOpen || starting || !canStart(state)) return;
+    starting = true;
+    start.disabled = true;
     const players = playersOf(state);
-    const nextRoster = rosterOf(state);
-    const group = players.map((p) => p.name);
-    const opened = base;
-    // Roster first, then the group: loadGroup() filters the group by the roster, so a group written
-    // before its names reach the roster reads back empty.
-    void replaceRoster(opened, nextRoster).then(() => saveGroup(group));
-    close();
-    onStart(players);
+    const ops = opsOf(state);
+    state = dropUndo(state); // its removal rides in `ops`
+    hideToast();
+    // The edits are applied to the roster as it is NOW, under the lock. An add another tab's adds
+    // have pushed past the ceiling is refused, never stored and clipped: then nothing starts, and the
+    // screen re-reads storage so the players see the roster as it really stands, the refused name
+    // absent and the add row closed at the ceiling (gh#264 REFUTE finding 2).
+    void applyRosterOps(ops, ROSTER_CEILING).then(({ refused }) => {
+      starting = false;
+      if (refused.length > 0) {
+        load();
+        armSurface();
+        return;
+      }
+      // Roster first, then the group: loadGroup() filters the group by the roster, so a group
+      // written before its names reach the roster reads back empty.
+      saveGroup(players.map((p) => p.name));
+      close();
+      onStart(players);
+    });
   });
+
+  // The page being put away is the last chance to make a pending x final. visibilitychange first:
+  // it fires while the page can still run the write; pagehide is the backstop.
+  const flushRemoval = (): void => {
+    if (state.undo) {
+      commitRemoval();
+      hideToast();
+    }
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushRemoval();
+  });
+  window.addEventListener('pagehide', flushRemoval);
 
   function open(): void {
     void migrated.then(() => {
-      base = loadRoster().names();
-      state = initialState(base, loadGroup(), range);
-      hideToast();
-      render();
+      load();
       onOpen?.();
       root.hidden = false;
       isOpen = true;
@@ -562,8 +653,8 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   }
 
   function close(): void {
+    commitRemoval();
     hideToast();
-    state = dropUndo(state);
     root.hidden = true;
     isOpen = false;
     announce(false);

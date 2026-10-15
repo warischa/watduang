@@ -307,6 +307,11 @@
   }
 
   .ps-dialog {
+    /* The browser centres a modal dialog with an auto margin, and a host stylesheet's universal reset
+       (cursed-number's mockup sets `* { margin: 0 }`) takes it away: the dialog then sat pinned to the
+       top-left corner. Restated here, at class specificity, so every host renders the board's centred
+       box whatever it resets (gh#264 browser walk, UI-1). */
+    margin: auto;
     inline-size: min(340px, calc(100vw - 32px));
     box-sizing: border-box;
     padding: 20px;
