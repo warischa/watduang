@@ -59,6 +59,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { stripTypeScriptTypes } from 'node:module';
+import ts from 'typescript';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { sliceBlock } from '../src/play/_dom-stub.mjs';
 
@@ -381,11 +382,58 @@ export function sharedScreenAudit({ id, routeId, source, declared, screen }) {
 // players and seats them. A handoff that keeps 2 of the 20 it was given passed every leg above
 // (gh#265: executed on cursed-number and timebomb, and on the base tree). Under ADR-0071 every party
 // route receives its players through exactly one such function, so that function is run here.
-// For every route that mounts the shared screen, its handoff bytes are sliced out and RUN with the
-// declared minimum and the declared maximum of distinct players; each must seat exactly what it was
-// handed. A mounting route with no entry below is RED, never skipped: a route converted later must
-// name its handoff here on the day it converts.
-const HANDOFF_SIZES = (declared) => [...new Set([declared[0], declared[1]])];
+// Two facts per route that mounts the shared screen, either failing RED:
+//   FORWARDED -- the mount's `onStart` hands the players, unchanged, to the route's named handoff:
+//     either that function itself, or a one-parameter arrow/function whose body is a single call to
+//     it (bare or on `this`) with that parameter as its only argument. Read with the TypeScript
+//     parser, so a comment or a string cannot pose as the mount. Anything else (a slice, a filter,
+//     a wrapper doing work) reds: the callback is where seats could be dropped unmeasured.
+//   SEATED -- that handoff's bytes, sliced and RUN with EVERY count the shared screen can admit
+//     (declared minimum through declared maximum), seat exactly what they were handed.
+// A mounting route with no entry below is RED, never skipped: a route converted later must name its
+// handoff here on the day it converts. Ceiling: the run uses each entry's own stubs for the route's
+// neighbours, so a seat dropped INSIDE the engine after the handoff is the engine readers' job above.
+const HANDOFF_SIZES = (declared) => Array.from({ length: declared[1] - declared[0] + 1 }, (_, i) => declared[0] + i);
+
+/** The function the mount's onStart forwards the players to, unchanged -- or why it is not one. */
+export function forwardTarget(source, fileName) {
+  const kind = fileName.endsWith('.ts') ? ts.ScriptKind.TS : ts.ScriptKind.JS;
+  const file = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, kind);
+  const mounts = [];
+  const visit = (node) => {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'mountPlayerScreen') mounts.push(node);
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  if (mounts.length !== 1) return { error: `expected exactly one mountPlayerScreen call, found ${mounts.length}` };
+  const options = mounts[0].arguments[0];
+  if (!options || !ts.isObjectLiteralExpression(options)) return { error: 'mountPlayerScreen is not called with an object literal' };
+  const prop = options.properties.find((p) => p.name && ts.isIdentifier(p.name) && p.name.text === 'onStart');
+  if (!prop) return { error: 'the mount passes no onStart' };
+  if (ts.isShorthandPropertyAssignment(prop)) return { target: 'onStart' };
+  if (!ts.isPropertyAssignment(prop)) return { error: 'onStart is not a plain property' };
+  const value = prop.initializer;
+  if (ts.isIdentifier(value)) return { target: value.text };
+  if (ts.isPropertyAccessExpression(value) && value.expression.kind === ts.SyntaxKind.ThisKeyword) return { target: value.name.text };
+  if (ts.isArrowFunction(value) || ts.isFunctionExpression(value)) {
+    const params = value.parameters;
+    if (params.length !== 1 || !ts.isIdentifier(params[0].name)) return { error: 'onStart is not a one-parameter forwarder' };
+    const param = params[0].name.text;
+    let call = value.body;
+    if (ts.isBlock(call)) {
+      const only = call.statements.length === 1 ? call.statements[0] : null;
+      call = only && (ts.isExpressionStatement(only) || ts.isReturnStatement(only)) ? only.expression : null;
+    }
+    if (call && ts.isCallExpression(call) && call.arguments.length === 1
+      && ts.isIdentifier(call.arguments[0]) && call.arguments[0].text === param) {
+      const callee = call.expression;
+      if (ts.isIdentifier(callee)) return { target: callee.text };
+      if (ts.isPropertyAccessExpression(callee) && callee.expression.kind === ts.SyntaxKind.ThisKeyword) return { target: callee.name.text };
+    }
+    return { error: `onStart does more than forward its players unchanged: \`${value.getText(file).replace(/\s+/g, ' ').slice(0, 120)}\`` };
+  }
+  return { error: 'onStart is neither a named function nor a forwarder' };
+}
 
 function makePlayers(count) {
   return Array.from({ length: count }, (_, i) => ({ name: `seat-${i + 1}`, emoji: '?', mascot: i }));
@@ -411,6 +459,7 @@ function compileTsFunctions(source, headers) {
 
 const HANDOFFS = {
   timebomb: {
+    fn: 'begin',
     what: 'begin() keeps the players the shared screen hands it, and buildContext() hands that list to the engine as session.players',
     run: (source, _module, players) => {
       const compiled = compileTsFunctions(source, ['begin(players: Player[]): void', 'buildContext(): GameContext']);
@@ -427,6 +476,7 @@ const HANDOFFS = {
     },
   },
   'cursed-number': {
+    fn: 'startWithPlayers',
     what: 'startWithPlayers() builds the CursedNumberGameModel the round is played on',
     engineModule: 'src/games/cursed-number.ts',
     run: (source, engineModule, players) => {
@@ -451,11 +501,20 @@ const HANDOFFS = {
   },
 };
 
-export function handoffAudit({ id, routeId, source, module, declared, handoff }) {
+export function handoffAudit({ id, routeId, source, fileName = 'main.js', module, declared, handoff }) {
   const failures = [];
   const say = (detail) => failures.push({ id, detail });
   if (!handoff) {
     say(`${routeId} mounts the shared player screen but has no handoff locator in seat-cap-check's HANDOFFS — the function that seats the players it is handed is unmeasured. Add an entry naming that function (gh#265)`);
+    return failures;
+  }
+  const forward = forwardTarget(source, fileName);
+  if (forward.error) {
+    say(`${routeId}: the shared screen's onStart cannot be shown to hand its players unchanged to a named handoff — ${forward.error}. Pass the handoff itself, or a one-line forwarder (gh#265)`);
+    return failures;
+  }
+  if (forward.target !== handoff.fn) {
+    say(`${routeId}: onStart forwards to \`${forward.target}\` but the HANDOFFS entry runs \`${handoff.fn}\` — the measured function is not the one the players reach`);
     return failures;
   }
   for (const count of HANDOFF_SIZES(declared)) {
@@ -510,7 +569,7 @@ async function audit() {
       const handoffModule = handoff?.engineModule
         ? await import(pathToFileURL(path.join(root, handoff.engineModule)).href)
         : undefined;
-      sharedFailures.push(...handoffAudit({ id: game.id, routeId, source: engine.source, module: handoffModule, declared: game.players, handoff }));
+      sharedFailures.push(...handoffAudit({ id: game.id, routeId, source: engine.source, fileName: engine.name, module: handoffModule, declared: game.players, handoff }));
       if (handoff) handoffCount += 1;
     }
   }
@@ -544,7 +603,7 @@ async function audit() {
     `${tally('derived')} derived from the manifest so they cannot disagree); ` +
     `${sharedCount} route(s) mount the shared player screen, each handing it its own manifest range, ` +
     'and its clamp admits exactly the declared maximum (run, not read); ' +
-    `${handoffCount} handoff(s) run at the declared minimum and maximum, each seating every player it is handed. ` +
+    `${handoffCount} handoff(s) reached through their onStart unchanged and run at every admitted count, each seating every player it is handed. ` +
     'The MINIMUM is not covered here — scripts/validate-games.mjs owns it.',
   );
 }
@@ -653,17 +712,39 @@ async function selftest() {
   console.log('PASS shared screen: own range + real clamp is silent; a literal or foreign range, a maximum over the ceiling, and a non-clamping clamp each red');
 
   // gh#265: the handoff, against fixtures first -- every class in both directions.
-  const seatsAll = { what: 'fixture', run: (_s, _m, players) => ({ seated: players.length }) };
-  const keepsTwo = { what: 'fixture', run: (_s, _m, players) => ({ seated: Math.min(players.length, 2) }) };
-  const goneSurface = { what: 'fixture', run: (source) => compileMethod(source, 'startWithPlayers(players)') };
-  const mintedSeat = { what: 'fixture', run: () => ({ seated: NaN }) };
-  const fixtureArgs = { id: 'g', routeId: 'r', source: '', module: undefined, declared: [2, 10] };
+  const seatsAll = { fn: 'go', what: 'fixture', run: (_s, _m, players) => ({ seated: players.length }) };
+  const keepsTwo = { fn: 'go', what: 'fixture', run: (_s, _m, players) => ({ seated: Math.min(players.length, 2) }) };
+  const goneSurface = { fn: 'go', what: 'fixture', run: (source) => compileMethod(source, 'startWithPlayers(players)') };
+  const mintedSeat = { fn: 'go', what: 'fixture', run: () => ({ seated: NaN }) };
+  const fixtureArgs = { id: 'g', routeId: 'r', source: 'mountPlayerScreen({ range: g.players, onStart: go });', module: undefined, declared: [2, 10] };
   assert.deepEqual(handoffAudit({ ...fixtureArgs, handoff: seatsAll }), [], 'POSITIVE CONTROL: a handoff that seats every player is silent');
-  assert.match(handoffAudit({ ...fixtureArgs, handoff: keepsTwo })[0].detail, /handed 10 players and seated 2/, 'a handoff that drops seats must red, naming both numbers');
+  const dropped = handoffAudit({ ...fixtureArgs, handoff: keepsTwo });
+  assert.match(dropped[0].detail, /handed 3 players and seated 2/, 'a handoff that drops seats must red at the first count it drops, naming both numbers');
+  assert.equal(dropped.length, 8, 'and at every count it drops (3 through 10)');
+  // Codex round 2: a handoff that drops seats only at an INTERIOR count passed a min-and-max gate.
+  const interior = { fn: 'go', what: 'fixture', run: (_s, _m, players) => ({ seated: players.length === 3 ? 2 : players.length }) };
+  assert.match(handoffAudit({ ...fixtureArgs, handoff: interior })[0].detail, /handed 3 players and seated 2/, 'a drop at an interior count must red');
+  // The callback is part of the path: what the players reach must be what is run.
+  const forwarders = [
+    ['mountPlayerScreen({ onStart: go });', null],
+    ['mountPlayerScreen({ onStart: (p) => go(p) });', null],
+    ['mountPlayerScreen({ onStart: (p) => this.go(p) });', null],
+    ['mountPlayerScreen({ onStart: function (p) { return go(p); } });', null],
+    ['mountPlayerScreen({ onStart: (p) => go(p.slice(0, 2)) });', /does more than forward/],
+    ['mountPlayerScreen({ onStart: (p) => { log(p); go(p); } });', /does more than forward/],
+    ['mountPlayerScreen({ onStart: (p) => other(p) });', /forwards to `other` but the HANDOFFS entry runs `go`/],
+    ['const x = "mountPlayerScreen({ onStart: go })";', /expected exactly one mountPlayerScreen call, found 0/],
+    ['// mountPlayerScreen({ onStart: go });', /expected exactly one mountPlayerScreen call, found 0/],
+  ];
+  for (const [source, expect] of forwarders) {
+    const got = handoffAudit({ ...fixtureArgs, source, handoff: seatsAll });
+    if (expect === null) assert.deepEqual(got, [], `POSITIVE CONTROL: \`${source}\` forwards unchanged`);
+    else assert.match(got[0]?.detail ?? '', expect, `\`${source}\` must red`);
+  }
   assert.match(handoffAudit({ ...fixtureArgs, handoff: goneSurface })[0].detail, /measuring nothing/, 'a handoff locator whose surface moved must say it measures nothing');
   assert.match(handoffAudit({ ...fixtureArgs, handoff: mintedSeat })[0].detail, /the measurement did not happen/, 'a non-integer seat count must fail as a failed measurement');
   assert.match(handoffAudit({ ...fixtureArgs, handoff: undefined })[0].detail, /has no handoff locator/, 'a mounting route with no locator must red, not skip');
-  console.log('PASS handoff fixtures: seats-all is silent; dropped seats, a moved surface, a minted count and a missing locator each red');
+  console.log('PASS handoff fixtures: seats-all is silent; dropped seats (every count, incl. an interior one), a moved surface, a minted count, a missing locator, a working callback, a callback to another function, and a mount only in a string or comment each red');
 
   // gh#265: the REAL handoffs, run on the real route bytes, then on the two mutants the gap was
   // found with. A mutant that no longer applies is itself a failure: a dead mutant proves nothing.
@@ -672,7 +753,8 @@ async function selftest() {
     const game = games.find((g) => routeIdFor(g) === routeId);
     const handoff = HANDOFFS[routeId];
     const module = handoff.engineModule ? await import(pathToFileURL(path.join(root, handoff.engineModule)).href) : undefined;
-    return { id: game.id, routeId, source: engineFileFor(routeId).source, module, declared: game.players, handoff };
+    const engine = engineFileFor(routeId);
+    return { id: game.id, routeId, source: engine.source, fileName: engine.name, module, declared: game.players, handoff };
   };
   const mutate = (args, from, to) => {
     assert.ok(args.source.includes(from), `the gh#265 mutant no longer applies to ${args.routeId}: \`${from}\` is gone — re-point this leg to the route's current handoff`);
@@ -681,12 +763,16 @@ async function selftest() {
   const timebombArgs = await real('timebomb');
   assert.deepEqual(handoffAudit(timebombArgs), [], 'POSITIVE CONTROL: the real timebomb handoff seats every player');
   assert.match(handoffAudit(mutate(timebombArgs, 'playing = players.map((p) => p.name);', 'playing = players.slice(0, 2).map((p) => p.name);'))[0].detail,
-    /handed 10 players and seated 2/, 'a timebomb handoff keeping two players must red');
+    /handed 3 players and seated 2/, 'a timebomb handoff keeping two players must red');
+  assert.match(handoffAudit(mutate(timebombArgs, 'onStart: begin,', 'onStart: (players: Player[]) => begin(players.slice(0, 2)),'))[0].detail,
+    /does more than forward/, 'a timebomb callback that truncates before the handoff must red');
   const cursedArgs = await real('cursed-number');
   assert.deepEqual(handoffAudit(cursedArgs), [], 'POSITIVE CONTROL: the real cursed-number handoff seats every player');
   assert.match(handoffAudit(mutate(cursedArgs, 'this.game.setPlayerCount(seats.length);', 'this.game.setPlayerCount(2);'))[0].detail,
-    /handed 20 players and seated 2/, 'a cursed-number handoff seating two of twenty must red');
-  console.log('PASS handoff (real): both pilot handoffs seat every player at min and max; each gh#265 mutant reds');
+    /handed 3 players and seated 2/, 'a cursed-number handoff seating two must red');
+  assert.match(handoffAudit(mutate(cursedArgs, 'onStart: (players) => this.startWithPlayers(players),', 'onStart: (players) => this.startWithPlayers(players.slice(0, 2)),'))[0].detail,
+    /does more than forward/, 'a cursed-number callback that truncates before the handoff must red');
+  console.log('PASS handoff (real): both pilot handoffs seat every player at every admitted count; each handoff mutant and each truncating-callback mutant reds');
 
   console.log('seat-cap-check --selftest: all legs passed');
 }
