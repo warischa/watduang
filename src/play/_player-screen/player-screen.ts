@@ -16,7 +16,6 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 import { applyRosterOps, loadGroup, loadRoster, migrateLegacyList, saveGroup, type RosterOp } from '../../shell/roster.ts';
 import { hasVisibleChar } from '../../tools/name-list.ts';
 import { MASCOTS, resetCastNames } from '../_mascots.ts';
-import { takeSetupEditRequest } from '../_setup-bridge.ts';
 
 /** ADR-0071 ruling 7 (ADR-0054 ruling 5): the roster holds at most this many names, and a game
  *  declaring a maximum above it reds the build (scripts/player-screen-mount-check.mjs). It is also
@@ -32,10 +31,20 @@ export const UNDO_MS = 4000;
 /** The roster's own authoring cap -- the same maxlength the shell's add-a-name field uses. */
 export const NAME_MAX = 24;
 
-/** Per-game player lists that predate the shared roster (ADR-0071 "Data"). Only a CONVERTED route's
- *  key is listed: an unconverted route still reads its own key, and retiring it here would empty that
- *  game's list under it. */
-export const LEGACY_LISTS: readonly { key: string; extract: (value: unknown) => string[] }[] = [
+/** One per-game player list that predates the shared roster. `extract` reads the stored value the
+ *  way its route read it. `keep` absent: the key held only players and is deleted once imported.
+ *  `keep: 'settings'`: the key is a JSON object whose `players` field is the list and whose other
+ *  fields are game settings the route still keeps there -- only `players` leaves (migrateLegacyList). */
+export interface LegacyList {
+  key: string;
+  extract: (value: unknown) => string[];
+  keep?: 'settings';
+}
+
+/** Per-game player lists that predate the shared roster (ADR-0071 "Data", widened by the owner
+ *  2026-10-15). Only a CONVERTED route's key is listed: an unconverted route still reads its own key,
+ *  and retiring it here would empty that game's list under it. */
+export const LEGACY_LISTS: readonly LegacyList[] = [
   {
     key: 'watduang:timebomb-players',
     extract: extractTimebombList,
@@ -48,7 +57,77 @@ export const LEGACY_LISTS: readonly { key: string; extract: (value: unknown) => 
     key: 'watduang:one-bomb-players',
     extract: extractOneBombList,
   },
+  {
+    key: 'freeze_tap_players',
+    extract: extractFreezeTapList,
+  },
+  {
+    key: 'ZERO_TRIGGER_DATA_V1',
+    extract: extractZeroTriggerList,
+    keep: 'settings',
+  },
+  {
+    key: 'short-stick-pro-v2',
+    extract: extractShortStickList,
+    keep: 'settings',
+  },
+  {
+    key: 'wire-panic-v1',
+    extract: extractWirePanicList,
+    keep: 'settings',
+  },
 ];
+
+/** The rule the four later imports share. Those routes saved their seats whether or not anyone typed
+ *  -- a count change, a penalty pick, even the first paint wrote the mascot defaults -- so a list in
+ *  which no seat holds a TYPED name (visible, and not that seat's own mascot default) is an untouched
+ *  default, not a list the players kept: it imports nothing, and the device sees the first-visit
+ *  stepper. Otherwise every seat imports in seat order, a blank or default seat as its mascot's name
+ *  (ADR-0054 order), capped at the roster ceiling. All four routes' defaults are the shared cast's,
+ *  in cast order. */
+function typedSeatList(seats: readonly string[]): string[] {
+  const shown = seats.slice(0, ROSTER_CEILING);
+  if (!shown.some((s, i) => hasVisibleChar(s) && s !== MASCOTS[i].name)) return [];
+  return shown.map((s, i) => (hasVisibleChar(s) ? s : MASCOTS[i].name));
+}
+
+/** A seat's name, whether the route stored a bare string or a `{ name }` object. */
+const seatName = (seat: unknown): string => {
+  const raw = typeof seat === 'string' ? seat : (seat as { name?: unknown } | null)?.name;
+  return typeof raw === 'string' ? raw.trim() : '';
+};
+
+/** freeze-tap's `freeze_tap_players`: an array of `{ name, emoji, ... }`, one per seat it showed. That
+ *  route loaded it only with 2 to 20 seats and an emoji on the first. */
+export function extractFreezeTapList(value: unknown): string[] {
+  if (!Array.isArray(value) || value.length < 2 || value.length > 20) return [];
+  if (!(value[0] as { emoji?: unknown } | null)?.emoji) return [];
+  return typedSeatList(value.map(seatName));
+}
+
+/** The `players` field of a settings blob, loaded only with at least two seats -- all three routes'
+ *  own load did the same -- and cut to `cap` seats where the route cut it. */
+function blobPlayers(value: unknown, cap: number): string[] {
+  const players = (value as { players?: unknown } | null)?.players;
+  if (!Array.isArray(players) || players.length < 2) return [];
+  return typedSeatList(players.slice(0, cap).map(seatName));
+}
+
+/** zero-trigger's `ZERO_TRIGGER_DATA_V1`: `{ players: [{ id, name, avatar, score }], penaltyMode }`. */
+export function extractZeroTriggerList(value: unknown): string[] {
+  return blobPlayers(value, ROSTER_CEILING);
+}
+
+/** short-stick's `short-stick-pro-v2`: `{ players: string[], stickCount, shortCount, penaltyMode,
+ *  selectedPenalty }`. Its load kept the first 10 seats. */
+export function extractShortStickList(value: unknown): string[] {
+  return blobPlayers(value, 10);
+}
+
+/** wire-snip-panic's `wire-panic-v1`: `{ players: string[], penaltyMode, selectedPenalty }`. */
+export function extractWirePanicList(value: unknown): string[] {
+  return blobPlayers(value, ROSTER_CEILING);
+}
 
 /** The timebomb route's `{ count, names }` blob, read the way that route's own load() read it, so
  *  the import is what its players last saw and nothing they typed is lost (gh#264 REFUTE finding 1).
@@ -157,6 +236,8 @@ export interface ScreenState {
   rows: Row[];
   /** The last removal, kept for the undo bar. One at a time: a second removal replaces it. */
   undo: { row: Row; index: number } | null;
+  /** 'full': a start was refused because the roster reached the ceiling elsewhere (board frame 10). */
+  notice: 'full' | null;
 }
 
 export interface Player {
@@ -205,6 +286,7 @@ export function initialState(roster: readonly string[], group: readonly string[]
       count: clampCount(FIRST_VISIT_COUNT, range),
       rows: MASCOTS.map((m, i) => ({ name: m.name, mascot: i, ticked: true, origin: null })),
       undo: null,
+      notice: null,
     };
   }
   const names = roster.slice(0, ROSTER_CEILING);
@@ -216,7 +298,7 @@ export function initialState(roster: readonly string[], group: readonly string[]
     if (ticked) seats += 1;
     return { name, mascot: i, ticked, origin: name };
   });
-  return { mode: 'saved', min, max, count: 0, rows, undo: null };
+  return { mode: 'saved', min, max, count: 0, rows, undo: null, notice: null };
 }
 
 export function setCount(state: ScreenState, n: number): ScreenState {
@@ -283,10 +365,96 @@ export function resetNames(state: ScreenState): ScreenState {
   return { ...state, rows: state.rows.map((r, i) => ({ ...r, name: names[i] })) };
 }
 
-/** Who plays this round, in roster order (ruling 5). */
+/** The rows on screen: the seats the stepper shows on a first visit, every row on a saved roster. */
+function shownRows(state: ScreenState): Row[] {
+  return state.mode === 'first' ? state.rows.slice(0, state.count) : state.rows;
+}
+
+/** The rows that play this round, in screen order. */
+function seatedRows(state: ScreenState): Row[] {
+  return state.mode === 'first' ? shownRows(state) : state.rows.filter((r) => r.ticked);
+}
+
+/** Who plays this round, in screen order (ruling 5). What onStart receives is committedPlayers below:
+ *  the same set, in the order storage committed. */
 export function playersOf(state: ScreenState): Player[] {
-  const seated = state.mode === 'first' ? state.rows.slice(0, state.count) : state.rows.filter((r) => r.ticked);
-  return seated.map((r) => ({ name: displayName(r), emoji: MASCOTS[r.mascot].emoji, mascot: r.mascot }));
+  return seatedRows(state).map((r) => ({ name: displayName(r), emoji: MASCOTS[r.mascot].emoji, mascot: r.mascot }));
+}
+
+/** Board frame 9 (owner ruling 2026-10-15): the indices of shown rows whose name -- trimmed, a blank
+ *  read as its mascot -- another shown row also shows. The roster holds each name once, so letting
+ *  such a pair through would merge two players into one; start stays off until one is changed. Every
+ *  shown row counts, ticked or not -- a row sitting out is still written to the roster -- and on a
+ *  first visit too, where a seat typed as the next seat's mascot is the same merge. */
+export function duplicateRows(state: ScreenState): number[] {
+  const shown = shownRows(state).map(displayName);
+  return shown.flatMap((n, i) => (shown.indexOf(n) !== i || shown.lastIndexOf(n) !== i ? [i] : []));
+}
+
+/** The players onStart receives, derived from the COMMITTED roster (gh#264 REFUTE round 3): the
+ *  seated rows' names in the order storage now holds them, so turn order is roster order (ruling 5)
+ *  even when another tab moved a seat while this screen was open. Each player keeps the mascot its
+ *  row wore on screen. Null when a seated name is not in the committed roster -- another tab removed
+ *  a seat this screen never touched -- so the round is never seated short of what the players saw. */
+export function committedPlayers(state: ScreenState, roster: readonly string[]): Player[] | null {
+  const seated = new Map(seatedRows(state).map((r) => [displayName(r), r] as const));
+  const players = roster
+    .filter((n) => seated.has(n))
+    .map((n) => {
+      const mascot = (seated.get(n) as Row).mascot;
+      return { name: n, emoji: MASCOTS[mascot].emoji, mascot };
+    });
+  return players.length === seated.size ? players : null;
+}
+
+/** A start refused for a collision re-reads the roster but keeps this screen's work, so the players
+ *  see board frame 9 for the colliding rows rather than losing what they typed:
+ *    - each stored name is a row, in stored order; a row this screen renamed keeps its new name and
+ *      its tick, keyed by the name it opened with;
+ *    - a row this screen added, or renamed from a name another tab has since removed, is still on the
+ *      screen, so it follows as an add;
+ *    - a row this screen left untouched whose name another tab removed is gone -- a screen that did
+ *      not touch a name does not bring it back (applyRosterOps' rule);
+ *    - the removal the undo bar was holding stays pending: nothing was written.
+ *  Ticks past the game's maximum are dropped in order, as initialState does. */
+export function rebase(state: ScreenState, roster: readonly string[], group: readonly string[]): ScreenState {
+  const fresh = initialState(roster, group, [state.min, state.max]);
+  if (fresh.mode === 'first') return { ...state, notice: null };
+  const removed = state.undo?.row.origin ?? null;
+  const shown = shownRows(state);
+  const mine = new Map(shown.filter((r) => r.origin !== null).map((r) => [r.origin as string, r] as const));
+  const rows: Row[] = fresh.rows
+    .filter((r) => r.origin !== removed)
+    .map((r) => {
+      const own = mine.get(r.origin as string);
+      return own ? { ...r, name: own.name, ticked: own.ticked } : r;
+    });
+  const stored = new Set(roster);
+  let notice: ScreenState['notice'] = null;
+  for (const r of shown) {
+    if (r.origin !== null && stored.has(r.origin)) continue;
+    if (r.origin !== null && displayName(r) === r.origin) continue; // untouched, removed elsewhere
+    // An add the ceiling could never take: the roster filled elsewhere, and board frame 10 says so.
+    if (rows.length >= ROSTER_CEILING) {
+      notice = 'full';
+      break;
+    }
+    // Keeps its own mascot unless a stored row now wears it; then the lowest free one, as addRow.
+    const worn = new Set(rows.map((x) => x.mascot));
+    let mascot = r.mascot;
+    if (worn.has(mascot)) {
+      mascot = 0;
+      while (worn.has(mascot)) mascot += 1;
+    }
+    rows.push({ ...r, mascot, origin: null });
+  }
+  let seats = 0;
+  for (const r of rows) {
+    if (r.ticked && seats < state.max) seats += 1;
+    else r.ticked = false;
+  }
+  const undo = removed !== null && stored.has(removed) ? state.undo : null;
+  return { mode: 'saved', min: state.min, max: state.max, count: 0, rows, undo, notice };
 }
 
 /** The roster as this screen leaves it. A first visit writes the seats it played, blanks as their
@@ -316,12 +484,16 @@ export function opsOf(state: ScreenState): RosterOp[] {
 
 export function canStart(state: ScreenState): boolean {
   const n = state.mode === 'first' ? state.count : tickedCount(state);
-  return n >= state.min && n <= state.max;
+  return n >= state.min && n <= state.max && duplicateRows(state).length === 0;
 }
 
-/** Which limit line the saved screen shows. Under-minimum wins: it is the reason start is off. */
-export function limitLine(state: ScreenState): { kind: 'under' | 'over' | 'count'; n: number } {
+/** Which limit line the screen shows. A duplicate name wins (frame 9): it blocks start and names the
+ *  one fix. Then a start refused at the ceiling (frame 10), while the roster is still full. Then
+ *  under-minimum: it is the reason start is off. A first visit shows only the duplicate line. */
+export function limitLine(state: ScreenState): { kind: 'dup' | 'full' | 'under' | 'over' | 'count'; n: number } {
   const ticked = tickedCount(state);
+  if (duplicateRows(state).length > 0) return { kind: 'dup', n: 0 };
+  if (state.notice === 'full' && state.rows.length >= ROSTER_CEILING) return { kind: 'full', n: ROSTER_CEILING };
   if (ticked < state.min) return { kind: 'under', n: state.min };
   if (state.rows.length > state.max) return { kind: 'over', n: ticked };
   return { kind: 'count', n: ticked };
@@ -342,6 +514,10 @@ export const COPY = {
   undoTail: ' ออกจากวงแล้ว',
   tickLabel: 'เล่นรอบนี้',
   removeLabel: 'เอาออกจากวง',
+  // Frames 9 and 10 (owner rulings 2026-10-15; sentences agent-authored, on the board's copy table).
+  dupLine: 'มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม',
+  fullLead: 'วงเต็ม ',
+  fullTail: ' คนแล้ว — ตรวจรายชื่อแล้วกดเริ่มอีกครั้ง',
   // Not on the board: the first-visit field label stays timebomb's positional one (gh#177).
   seatLabel: 'ชื่อผู้เล่นคนที่ ',
 } as const;
@@ -384,12 +560,6 @@ function surfaceOf(root: HTMLElement): HTMLElement {
 export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   const { root, range, onStart, roundActive, abortRound, onOpen } = options;
   checkRange(range);
-  // gh#185's flag. On a route that mounts this screen the chrome's edit control never writes it (it
-  // edits in place), but a flag already in the tab -- written by an unconverted route's reload that
-  // never completed -- would survive the navigation and force the NEXT unconverted game opened in
-  // this tab onto its setup screen. Taking it here clears it for every converted route at once; the
-  // value itself is irrelevant, because this screen opens on every load anyway.
-  takeSetupEditRequest();
 
   const template = document.getElementById('ps-template') as HTMLTemplateElement | null;
   const editDialog = document.getElementById('ps-edit-dialog') as HTMLDialogElement | null;
@@ -431,9 +601,9 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   let isOpen = false;
   let undoTimer: ReturnType<typeof setTimeout> | undefined;
 
-  // Both legacy imports run once per mount; open() waits for them, or a timebomb-only device would
+  // Every legacy import runs once per mount; open() waits for them, or a timebomb-only device would
   // see the first-visit stepper on the very visit that imports its list.
-  const migrated = Promise.all(LEGACY_LISTS.map(({ key, extract }) => migrateLegacyList(key, extract)));
+  const migrated = Promise.all(LEGACY_LISTS.map(({ key, extract, keep }) => migrateLegacyList(key, extract, keep)));
 
   /** The two steppers are tapped repeatedly on purpose, so no gate collects them (the premise
    *  ARM_DELAY_MS's comment says to check per control). Their `disabled` is this file's to own. */
@@ -472,9 +642,13 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
 
   function renderLimit(): void {
     const line = limitLine(state);
+    // A first visit has no limit line of its own; it shows only frame 9's.
+    limit.hidden = state.mode === 'first' && line.kind !== 'dup';
     const b = document.createElement('b');
     b.textContent = String(line.n);
-    if (line.kind === 'under') limit.replaceChildren(COPY.underLead, b, COPY.countUnit);
+    if (line.kind === 'dup') limit.replaceChildren(COPY.dupLine);
+    else if (line.kind === 'full') limit.replaceChildren(`${COPY.fullLead}${ROSTER_CEILING}${COPY.fullTail}`);
+    else if (line.kind === 'under') limit.replaceChildren(COPY.underLead, b, COPY.countUnit);
     else if (line.kind === 'over') limit.replaceChildren(`${COPY.overLead}${state.max}${COPY.overMid}`, b);
     else limit.replaceChildren(COPY.countLead, b, COPY.countUnit);
   }
@@ -502,15 +676,25 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
       state = setName(state, index, input.value);
       const now = state.rows[index];
       if (controls && now) nameControls(controls[0], controls[1], displayName(now));
+      // Frame 9 follows the typing: marks, line and start change in place, never by a rebuild,
+      // which would take the field out from under the caret.
+      markDuplicates();
+      renderLimit();
+      syncControls();
     });
     return input;
+  }
+
+  /** Board frame 9's accent edge on every row whose name another row also shows. */
+  function markDuplicates(): void {
+    const dup = new Set(duplicateRows(state));
+    list.querySelectorAll<HTMLLIElement>('.ps-p').forEach((li, i) => li.classList.toggle('ps-dup', dup.has(i)));
   }
 
   function renderRows(): void {
     const first = state.mode === 'first';
     countRow.hidden = !first;
     reset.hidden = !first;
-    limit.hidden = first;
     add.hidden = first;
     countNum.textContent = String(state.count);
     const rows: HTMLLIElement[] = [];
@@ -557,11 +741,12 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
       rows.push(li);
     });
     list.replaceChildren(...rows);
+    markDuplicates();
   }
 
   function render(): void {
     renderRows();
-    if (state.mode === 'saved') renderLimit();
+    renderLimit();
     syncControls();
   }
 
@@ -664,26 +849,39 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     if (!isOpen || starting || !canStart(state)) return;
     starting = true;
     start.disabled = true;
-    const players = playersOf(state);
+    const before = state;
     const ops = opsOf(state);
     state = dropUndo(state); // its removal rides in `ops`
     hideToast();
-    // The edits are applied to the roster as it is NOW, under the lock. An add another tab's adds
-    // have pushed past the ceiling is refused, never stored and clipped: then nothing starts, and the
-    // screen re-reads storage so the players see the roster as it really stands, the refused name
-    // absent and the add row closed at the ceiling (gh#264 REFUTE finding 2).
-    void applyRosterOps(ops, ROSTER_CEILING).then(({ refused }) => {
+    // The edits are applied to the roster as it is NOW, under the lock, all or nothing. A refusal
+    // starts nothing and writes nothing; the screen re-reads storage and says why:
+    //   - ceiling (frame 10): another tab's adds filled the roster. The players see it as it really
+    //     stands, the refused name absent, the add row closed (gh#264 REFUTE finding 2);
+    //   - collision (frame 9): another tab stored a name this screen also wants. The re-read keeps
+    //     this screen's edits (rebase), so both colliding rows show, marked, with start off.
+    void applyRosterOps(ops, ROSTER_CEILING).then((result) => {
       starting = false;
-      if (refused.length > 0) {
-        load();
-        armSurface();
-        return;
+      if (result.status === 'ceiling') {
+        state ={ ...initialState(result.roster, loadGroup(), range), notice: 'full' };
+      } else if (result.status === 'collision') {
+        state = rebase(before, result.roster, loadGroup());
+      } else {
+        // onStart order is the COMMITTED order (gh#264 REFUTE round 3), read off what storage now
+        // holds, never off this screen's rows: another tab may have moved a seat while it was open.
+        const players = committedPlayers(before, result.roster);
+        if (players && players.length >= state.min) {
+          // Roster first, then the group: loadGroup() filters the group by the roster, so a group
+          // written before its names reach the roster reads back empty.
+          saveGroup(players.map((p) => p.name));
+          close();
+          onStart(players);
+          return;
+        }
+        // A seated name another tab removed: show the roster as it stands, this screen's ticks kept.
+        state = initialState(result.roster, playersOf(before).map((p) => p.name), range);
       }
-      // Roster first, then the group: loadGroup() filters the group by the roster, so a group
-      // written before its names reach the roster reads back empty.
-      saveGroup(players.map((p) => p.name));
-      close();
-      onStart(players);
+      render();
+      armSurface();
     });
   });
 
