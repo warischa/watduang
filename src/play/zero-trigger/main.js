@@ -589,7 +589,8 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       // The settings blob (ADR-0071 § Data, owner ruling 2026-10-15): this game's own option, under
       // the key the mockup used, and NEVER a player. The players are the shared roster's; the shared
       // core moves an old blob's player list into the roster and rewrites the blob without it, so a
-      // player field still sitting here is ignored on read and never written back.
+      // player field still sitting here is ignored on read, and a save writes it back only as it found
+      // it (an import the core has not landed yet), never one of its own.
       // ./settings-persistence.test.mjs runs both halves.
       loadStorage() {
         try {
@@ -607,9 +608,14 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
       saveStorage() {
         try {
-          localStorage.setItem('ZERO_TRIGGER_DATA_V1', JSON.stringify({
-            penaltyMode: this.state.penaltyMode
-          }));
+          const blob = { penaltyMode: this.state.penaltyMode };
+          // A players field still here is one the shared core could not import yet (its roster
+          // write did not land); carried through untouched so a later mount can, never read here.
+          try {
+            const prior = JSON.parse(localStorage.getItem('ZERO_TRIGGER_DATA_V1'));
+            if (prior && typeof prior === 'object' && !Array.isArray(prior) && 'players' in prior) blob.players = prior.players;
+          } catch (e) {}
+          localStorage.setItem('ZERO_TRIGGER_DATA_V1', JSON.stringify(blob));
         } catch (e) {
           console.warn('LocalStorage save error:', e);
         }
@@ -759,10 +765,15 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         this.synth.playClick();
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.remove('active');
-        const screen =
-          document.querySelector('.screen.active') ||
-          (this.playersRoot && !this.playersRoot.hidden ? this.playersRoot : null);
-        if (screen) armAllButtons(screen);
+        const screen = document.querySelector('.screen.active');
+        if (screen) {
+          armAllButtons(screen);
+          return;
+        }
+        // The open player screen is re-armed through ITS gate, never this route's: a route gate over
+        // it handed start back when its window closed even with two rows showing one name, and let a
+        // keystroke inside the window enable start early (gh#264 REFUTE round 4).
+        if (this.playersRoot && !this.playersRoot.hidden && this.players) this.players.arm();
       }
 
       // The mockup's roster block -- its row builder, add and remove, the avatar shuffle and picker,

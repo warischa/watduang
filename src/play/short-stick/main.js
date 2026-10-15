@@ -384,7 +384,8 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
          2026-10-15 -- game settings are not players). The mockup's draft kept the names beside them
          under the same key; the names are the shared roster's now, and the shared core moves an old
          draft's player list into the roster and rewrites the draft without it. So a player field
-         still sitting here is ignored on read and never written back.
+         still sitting here is ignored on read, and a save writes it back only as it found it (an
+         import the core has not landed yet), never one of its own.
          The stick count's floor is the number of players, and none are seated yet at load: it is
          re-derived when the players are handed over (lockFairCounts in startWithPlayers), never
          taken from storage. ./settings-persistence.test.mjs runs both halves. */
@@ -403,12 +404,19 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
 
       const saveDraft = () => {
         try {
-          localStorage.setItem('short-stick-pro-v2', JSON.stringify({
+          const blob = {
             stickCount: game.stickCount,
             shortCount: game.shortCount,
             penaltyMode: game.penaltyMode,
             selectedPenalty: game.selectedPenalty
-          }));
+          };
+          // A players field still here is one the shared core could not import yet (its roster
+          // write did not land); carried through untouched so a later mount can, never read here.
+          try {
+            const prior = JSON.parse(localStorage.getItem('short-stick-pro-v2'));
+            if (prior && typeof prior === 'object' && !Array.isArray(prior) && 'players' in prior) blob.players = prior.players;
+          } catch (_) {}
+          localStorage.setItem('short-stick-pro-v2', JSON.stringify(blob));
         } catch (_) {}
       };
 
@@ -451,8 +459,12 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         $(id)?.close();
         // No view is live while the shared player screen is up (gh#264), and the rules dialog opens
         // from the top bar over it -- so its root is what the dismissal uncovers then.
-        const shown = document.querySelector('.view.active') ?? (playersRoot.hidden ? null : playersRoot);
+        // Through the screen's OWN gate, never this route's: a route gate over it handed start back
+        // when its window closed even with two rows showing one name, and let a keystroke inside the
+        // window enable start early (gh#264 REFUTE round 4).
+        const shown = document.querySelector('.view.active');
         if (shown) armAllButtons(shown);
+        else if (!playersRoot.hidden) playerScreen.arm();
       };
 
       const calculateOdds = () => {

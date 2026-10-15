@@ -2,7 +2,7 @@
 // persisting its OWN options -- the penalty mode and the chosen penalty -- under the storage key the
 // mockup used, and never a player. The players are the shared roster's; the shared core migrates an
 // old blob's player list out of this key and rewrites the blob without it. So the route must neither
-// seed anyone from a blob that still carries one, nor write one back.
+// seed anyone from a blob that still carries one, nor write one that was not already there.
 //
 // Runs the REAL bytes: the state object, the page-ready handler (which loads, then wires),
 // attachEventListeners (whose penalty tabs, chips and text field save), loadSavedSettings,
@@ -145,6 +145,60 @@ test('wire-snip-panic: the blob this route writes has no players field', () => {
   const written = JSON.parse(storage.slots.get(KEY));
   assert.equal(Object.hasOwn(written, 'players'), false, `players written back: ${storage.slots.get(KEY)}`);
   assert.deepEqual(written, { penaltyMode: 'none', selectedPenalty: CHIPS[0] });
+});
+
+/** The shared core's settings-blob migration for this key, run over `api` as a later mount runs it.
+ *  Returns the roster it leaves. */
+async function migrate(api) {
+  globalThis.localStorage = api;
+  const { LEGACY_LISTS } = await import('../_player-screen/player-screen.ts');
+  const { migrateLegacyList, loadRoster } = await import('../../shell/roster.ts');
+  const entry = LEGACY_LISTS.find((l) => l.key === KEY);
+  await migrateLegacyList(entry.key, entry.extract, entry.keep);
+  return loadRoster().names();
+}
+
+/** `storage` with the origin's quota used up: a write that would grow what is stored throws, as a
+ *  full browser store does, and one that shrinks it lands. A store that refused EVERY write would
+ *  also refuse the core's players-less rewrite and hide a core that drops the field anyway. */
+function originFull(storage) {
+  const units = () => [...storage.slots].reduce((n, [k, v]) => n + k.length + v.length, 0);
+  const cap = units();
+  return {
+    ...storage.api,
+    setItem: (k, v) => {
+      const before = storage.slots.get(k);
+      storage.slots.set(k, String(v));
+      if (units() <= cap) return;
+      if (before === undefined) storage.slots.delete(k);
+      else storage.slots.set(k, before);
+      throw new Error('QuotaExceededError');
+    },
+  };
+}
+
+// gh#264 REFUTE round 4: when the core's import did not land (quota), the blob keeps its players for
+// the next mount -- and this route's next settings save used to rewrite the blob without them, so the
+// names were gone before any later mount could import them. The save now carries an existing players
+// field through untouched; it still never seats from it and never adds one.
+test('wire-snip-panic: players the core could not import yet survive a settings save, and a later mount imports them', async () => {
+  const blob = { players: ['Alice', 'Bob'], penaltyMode: 'custom', selectedPenalty: 'x' };
+  const storage = makeStorage({ [KEY]: JSON.stringify(blob) });
+  const full = originFull(storage);
+  assert.deepEqual(await migrate(full), [], 'the first mount\'s import did not land');
+  assert.deepEqual(JSON.parse(storage.slots.get(KEY)), blob, 'so the core left the blob whole');
+
+  const route = load(storage);
+  assert.deepEqual(route.game.players, [], 'the route seats nobody from the pending field');
+  route.startWithPlayers(seat(['Carol', 'Dan']));
+  route.tab('none').click();
+  const written = JSON.parse(storage.slots.get(KEY));
+  assert.equal(written.penaltyMode, 'none', 'the setting the save was for landed');
+  assert.deepEqual(written.players, blob.players, `the pending players were not carried through: ${storage.slots.get(KEY)}`);
+
+  assert.deepEqual(await migrate(storage.api), ['Alice', 'Bob'], 'a later mount imports them');
+  route.tab('preset').click();
+  assert.equal(Object.hasOwn(JSON.parse(storage.slots.get(KEY)), 'players'), false, 'once imported, a save never puts the field back');
 });
 
 test('wire-snip-panic: corrupt JSON and a storage that throws are both tolerated', () => {

@@ -50,7 +50,7 @@
 // game with a play route and no entry reds on the day it lands. That is the difference from a list --
 // a list of six constants goes green when a seventh game arrives.
 //
-// ponytail: three stated ceilings.
+// ponytail: the stated ceilings, each numbered below.
 //   (1) THE FLOOR IS NOT COVERED. Only the maximum is compared. players[0] is already constrained by
 //       scripts/validate-games.mjs, which requires at least 2 for a party page.
 //   (2) A reader-A driver slices a named surface out of an extractor-owned file. When the next
@@ -58,6 +58,13 @@
 //       safe direction and the message names the repair, but it is maintenance, not zero-cost.
 //   (3) Reader B reads text, so it can only recognise shapes it knows. Its blindness is bounded by
 //       the unlocated class above rather than by the pattern family being complete.
+//   (4) A HANDOFF'S STUBBED NEIGHBOURS ARE NOT MEASURED: each HANDOFFS entry runs its handoff and the
+//       seat-touching helpers it names from their real bytes, but every other neighbour the handoff
+//       reaches -- the paint and screen helpers (renderSetup, setView, showScreen, renderPenaltyUI,
+//       render, renderTurn, show, showTurn, switchScreen, showPassDeviceScreen,
+//       updateTeethDescription, renderBoard, paintHud), the sound and effect objects, freeze-tap's
+//       clearTimers, zero-trigger's prepareTurn and rollSharedForbiddenDigit, and the engine timebomb
+//       mounts -- is a tolerant stub, so a seat changed inside one of them reads green.
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -525,13 +532,22 @@ const HANDOFFS = {
   },
   'one-bomb': {
     fn: 'startWithPlayers',
-    what: 'startWithPlayers() keeps the players the shared screen hands it as the seats the DOM round plays (main.ts)',
+    what: 'startWithPlayers() keeps the players the shared screen hands it as the seats the DOM round plays (main.ts), and the real startMatch opens a score slot for every one',
     run: (source, _module, players) => {
-      const compiled = compileTsFunctions(source, ['startWithPlayers(players: Player[]): void']);
+      // startMatch, startRound and currentCount run from their real bytes (gh#264 REFUTE round 4): a
+      // seat change inside them reaches `playing`. The board grid is left empty so its fallback size
+      // is used; the grid shapes the board, never the seats.
+      const compiled = compileTsFunctions(source, [
+        'startWithPlayers(players: Player[]): void',
+        'startMatch(): void',
+        'startRound(keepTurn: boolean): void',
+        'currentCount(): number',
+      ]);
       if (compiled.error) return compiled;
-      const env = { playing: [] };
+      const env = { playing: [], round: { opened: new Set(), scores: [], n: 0 }, BOARD_GRID: {} };
       compiled.make(env)(players);
-      return { seated: env.playing.length };
+      // The seats the turns walk and the score slots the loser is read from must agree with the hand.
+      return { seated: env.playing.length === env.round.scores.length ? env.playing.length : NaN };
     },
   },
   // The engine is a class inside the route's IIFE, so its three real methods are sliced and run on
@@ -590,12 +606,14 @@ const HANDOFFS = {
     fn: 'startWithPlayers',
     what: 'startWithPlayers() fills the round state the turns are driven from (round.names and round.count)',
     run: (source, _module, players) => {
-      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      // startRound runs from its real bytes (gh#264 REFUTE round 4): it shares the module's `round`,
+      // so a stub there would hide a seat change made inside it. It resets the turn to the first
+      // seat, which is how the run tells that the round really started.
+      const compiled = compileMethod(source, 'startWithPlayers(players)', ['startRound()']);
       if (compiled.error) return compiled;
-      let started = 0;
-      const env = { round: { count: 0, names: [] }, startRound: () => { started += 1; } };
+      const env = { round: { count: 0, names: [], turn: -1 } };
       compiled.make(env)(players);
-      if (started !== 1) return { error: 'startWithPlayers() did not start the round once' };
+      if (env.round.turn !== 0) return { error: 'startWithPlayers() did not start the round' };
       // Both views of the seat count must agree with the hand: the count the turn loop runs to and the
       // names it hands the phone to.
       return { seated: env.round.count === env.round.names.length ? env.round.count : NaN };
@@ -651,12 +669,22 @@ const HANDOFFS = {
   },
   'short-stick': {
     fn: 'startWithPlayers',
-    what: 'startWithPlayers() seats the handed players as the round roster (game.players) and their glyphs (game.avatars)',
+    what: 'startWithPlayers() seats the handed players as the round roster (game.players) and their glyphs (game.avatars), through the real lockFairCounts',
     run: (source, _module, players) => {
-      const compiled = compileMethod(source, 'startWithPlayers(players)');
-      if (compiled.error) return compiled;
+      // lockFairCounts runs from its real bytes: it shares the closure that holds the seats, so a
+      // stub there would hide a seat change made inside it (gh#264 REFUTE round 4). It is an arrow
+      // const, which compileMethod's `function` wrapper cannot take, so both are built as written.
+      const helper = sliceBlock(source, 'const lockFairCounts = () =>');
+      if (!helper) return { error: 'no surface answers to `const lockFairCounts = () =>`' };
+      const handoff = sliceBlock(source, 'function startWithPlayers(players)');
+      if (!handoff) return { error: 'no surface answers to `function startWithPlayers(players)`' };
       const env = { game: { players: [], avatars: [] } };
-      compiled.make(env)(players);
+      let startWithPlayers;
+      try {
+        startWithPlayers = new Function('__scope', '__env',
+          `with (__scope) { with (__env) { ${helper};\n${handoff}\nreturn startWithPlayers; } }`)(freeScope, env);
+      } catch (error) { return { error: `slice will not compile: ${error.message}` }; }
+      startWithPlayers(players);
       // The names the turns walk and the glyphs the strip wears are one seat list; both must hold it.
       const { players: seated, avatars } = env.game;
       return { seated: Array.isArray(seated) && seated.length === avatars.length ? seated.length : NaN };
@@ -682,7 +710,12 @@ const HANDOFFS = {
     run: (source, _module, players) => {
       const compiled = compileMethod(source, 'startWithPlayers(players)');
       if (compiled.error) return compiled;
-      const receiver = tolerantReceiver({ state: { players: [] } });
+      // The quick-start branch, so startNewMatch runs from its real bytes (gh#264 REFUTE round 4): it
+      // walks state.players, so a stub there would hide a seat change made inside it. The other
+      // branch only switches screen.
+      const match = compileMethod(source, 'startNewMatch()');
+      if (match.error) return match;
+      const receiver = tolerantReceiver({ state: { players: [] }, skipOptions: true, startNewMatch: match.make({}) });
       compiled.make({}).call(receiver, players);
       return { seated: receiver.state.players.length };
     },
@@ -990,6 +1023,26 @@ async function selftest() {
   assert.match(handoffAudit(mutate(cursedArgs, 'onStart: (players) => this.startWithPlayers(players),', 'onStart: (players) => this.startWithPlayers(players.slice(0, 2)),'))[0].detail,
     /does more than forward/, 'a cursed-number callback that truncates before the handoff must red');
   console.log('PASS handoff (real): both pilot handoffs seat every player at every admitted count; each handoff mutant and each truncating-callback mutant reds');
+
+  // gh#264 REFUTE round 4: a seat change INSIDE a helper the handoff calls passed while that helper
+  // was a tolerant stub (short-stick: two of ten seated, every leg green). Each helper below is now
+  // run from its real bytes; the mutant goes inside the helper, never in the handoff, so a stub in
+  // its place would leave it green.
+  const helperMutants = [
+    // Anchored inside lockFairCounts' body, not on its opening line: an unpaired brace in a string
+    // here would desync gate-selftest-coverage-check's brace-matched read of this function.
+    ['short-stick', 'game.stickCount = game.players.length;', 'game.players = game.players.slice(0, 2); game.avatars = game.avatars.slice(0, 2);\n game.stickCount = game.players.length;'],
+    ['one-bomb', 'round.scores = Array.from({ length: currentCount() }, () => 0);', 'playing = playing.slice(0, 2);\n round.scores = Array.from({ length: currentCount() }, () => 0);'],
+    ['bangkok-drift', 'round.results = [];', 'round.results = [];\n round.names = round.names.slice(0, 2); round.count = 2;'],
+    ['zero-trigger', 'this.state.roundNumber = 1;', 'this.state.roundNumber = 1;\n this.state.players = this.state.players.slice(0, 2);'],
+  ];
+  for (const [routeId, from, to] of helperMutants) {
+    const args = await real(routeId);
+    assert.deepEqual(handoffAudit(args), [], `POSITIVE CONTROL: the real ${routeId} handoff seats every player, its helper included`);
+    assert.match(handoffAudit(mutate(args, from, to))[0]?.detail ?? '', /handed 3 players and seated 2/,
+      `a ${routeId} helper that drops seats must red through the handoff`);
+  }
+  console.log(`PASS handoff helpers (real): a seat-dropping mutant inside each run helper reds (${helperMutants.map(([r]) => r).join(', ')})`);
 
   console.log('seat-cap-check --selftest: all legs passed');
 }

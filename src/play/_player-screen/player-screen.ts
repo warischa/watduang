@@ -542,6 +542,11 @@ export interface MountOptions {
 export interface PlayerScreen {
   open(): void;
   close(): void;
+  /** Re-arms the surface the screen sits on through the screen's OWN gate -- for a route's modal
+   *  closed over the open screen (ADR-0057). A route gate over this root cannot do it: its window
+   *  closing hands start back whatever the screen holds, and inside that window every keystroke's
+   *  re-render enables start early; only this gate holds start and re-validates it when it arms. */
+  arm(): void;
 }
 
 /** The chrome's edit control (PlayExit.astro) reads these two names to tell a converted route from an
@@ -949,5 +954,5 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
 
   root.hidden = true;
   announce(false);
-  return { open, close };
+  return { open, close, arm: armSurface };
 }

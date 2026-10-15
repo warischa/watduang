@@ -648,18 +648,27 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     // triggerScanSequence sets game.state before it disables, so its own TURN_WAIT guard rejects the
     // re-entry -- but the control still LOOKED live to the player and to a screen reader. Both legs
     // are now closed, and both are pinned in arm-reveal-paths.test.mjs.
+    //
+    // The open player screen is re-armed through ITS gate (playerScreen.arm), never this route's: a
+    // route gate over it handed start back when its window closed even with two rows showing one
+    // name, and let a keystroke inside the window enable start early (gh#264 REFUTE round 4).
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
       const players = document.getElementById('wspPlayers');
-      const screen = players && !players.hidden ? players : document.querySelector('.screen.active');
+      if (players && !players.hidden && playerScreen) {
+        playerScreen.arm();
+        return;
+      }
+      const screen = document.querySelector('.screen.active');
       if (screen) armAllButtons(screen);
     }
 
     // --- SETTINGS STORAGE: this game's own options only (ADR-0071 § Data, owner ruling 2026-10-15) ---
     // The mockup kept its player list beside them under the same key. The players are the shared
     // roster's now, and the shared core moves an old blob's player list into the roster and rewrites
-    // the blob without it, so a player field still sitting here is ignored on read and never written
-    // back. ./settings-persistence.test.mjs runs both halves.
+    // the blob without it, so a player field still sitting here is ignored on read, and a save writes
+    // it back only as it found it (an import the core has not landed yet), never one of its own.
+    // ./settings-persistence.test.mjs runs both halves.
     function loadSavedSettings() {
       try {
         const data = localStorage.getItem('wire-panic-v1');
@@ -673,10 +682,14 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
     function saveSettings() {
       try {
-        localStorage.setItem('wire-panic-v1', JSON.stringify({
-          penaltyMode: game.penaltyMode,
-          selectedPenalty: game.selectedPenalty
-        }));
+        const blob = { penaltyMode: game.penaltyMode, selectedPenalty: game.selectedPenalty };
+        // A players field still here is one the shared core could not import yet (its roster write
+        // did not land); carried through untouched so a later mount can, never read here.
+        try {
+          const prior = JSON.parse(localStorage.getItem('wire-panic-v1'));
+          if (prior && typeof prior === 'object' && !Array.isArray(prior) && 'players' in prior) blob.players = prior.players;
+        } catch (_) {}
+        localStorage.setItem('wire-panic-v1', JSON.stringify(blob));
       } catch (_) {}
     }
 

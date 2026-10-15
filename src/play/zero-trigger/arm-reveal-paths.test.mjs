@@ -22,7 +22,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { closerCases, revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { sliceBlock } from '../_dom-stub.mjs';
+import { armAllButtons } from '../../games/_arm-gate.ts';
+import zeroTrigger from '../../games/zero-trigger.ts';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
 const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
@@ -160,6 +163,25 @@ test('both menu buttons open the player screen; neither starts a match or shows 
 });
 
 revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'zt-players', headerId: 'btn-audio-toggle', label: 'zero-trigger' });
+
+// gh#264 REFUTE round 4: the real closeModal bytes over the open player screen, read for what they
+// leave start holding (closerCases).
+closerCases({
+  test,
+  assert,
+  routeMarkup: MARKUP,
+  rootId: 'zt-players',
+  range: zeroTrigger.players,
+  label: 'zero-trigger',
+  close: (page) => {
+    // The route's onOpen takes every screen and modal down while the player screen is up.
+    for (const sel of ['.screen', '.modal-backdrop']) page.doc.querySelectorAll(sel).forEach((el) => el.classList.remove('active'));
+    const body = sliceBlock(source, 'closeModal(modalId)');
+    assert.ok(body, 'closeModal is gone — this test measures nothing');
+    const closeModal = new Function('document', 'armAllButtons', `return function ${body}`)(page.doc, armAllButtons);
+    closeModal.call({ synth: { playClick() {} }, playersRoot: page.root, players: page.screen }, 'modal-rules');
+  },
+});
 
 // ---------------------------------------------------------------------------
 // gh#188 box 13. This route takes the "state why a blanket re-enable is correct here" branch, and

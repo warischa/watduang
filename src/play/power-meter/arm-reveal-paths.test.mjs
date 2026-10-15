@@ -24,7 +24,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { closerCases, revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { sliceBlock } from '../_dom-stub.mjs';
+import { armAllButtons } from '../../games/_arm-gate.ts';
+import powerMeter from '../../games/power-meter.ts';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
 const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
@@ -115,7 +118,7 @@ test('closeModal re-arms the surface the modal was covering, the player screen i
   );
   assert.match(
     body,
-    /game\.state === GameState\.PLAYERS[\s\S]*armAllButtons\(playersRoot\b/,
+    /game\.state === GameState\.PLAYERS[\s\S]*playerScreen\.arm\(\)/,
     'closeModal no longer re-arms the player screen while it is up: start, the ticks and the x ' +
       'controls sit live under the help card',
   );
@@ -147,3 +150,27 @@ test('the game-over setup control opens the player screen, never a bare state sw
 });
 
 revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'pmPlayers', headerId: 'btn-help-modal', label: 'power-meter' });
+
+// gh#264 REFUTE round 4: the real closeModal bytes over the open player screen, read for what they
+// leave start holding (closerCases). The state is the one the route's onOpen sets.
+closerCases({
+  test,
+  assert,
+  routeMarkup: MARKUP,
+  rootId: 'pmPlayers',
+  range: powerMeter.players,
+  label: 'power-meter',
+  close: (page) => {
+    const body = sliceBlock(source, 'function closeModal(id)');
+    assert.ok(body, 'closeModal is gone — this test measures nothing');
+    const GameState = { PLAYERS: 'PLAYERS' };
+    const closeModal = new Function(
+      'soundSynth', 'document', 'game', 'GameState', 'playersRoot', 'playerScreen', 'armAllButtons', 'armRenderedView',
+      `${body}\nreturn closeModal;`,
+    )({ playClick() {} }, page.doc, { state: GameState.PLAYERS }, GameState, page.root, page.screen, armAllButtons, () => {
+      throw new Error('closeModal re-armed the view while the player screen was up');
+    });
+    page.byId('help-modal').classList.add('active');
+    closeModal('help-modal');
+  },
+});

@@ -21,7 +21,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { closerCases, revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { sliceBlock } from '../_dom-stub.mjs';
+import { armAllButtons } from '../../games/_arm-gate.ts';
+import cursedNumber from '../../games/cursed-number.ts';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
 const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
@@ -102,3 +105,22 @@ test('the house icon and the game-over edit both reach the player screen, never 
 });
 
 revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'cnPlayers', headerId: 'soundToggleBtn', label: 'cursed-number' });
+
+// gh#264 REFUTE round 4: the real closeRules bytes over the open player screen, read for what they
+// leave start holding (closerCases). `currentScreen` is what the route sets while the screen is up.
+closerCases({
+  test,
+  assert,
+  routeMarkup: MARKUP,
+  rootId: 'cnPlayers',
+  range: cursedNumber.players,
+  label: 'cursed-number',
+  close: (page) => {
+    const body = sliceBlock(source, 'const closeRules = () =>');
+    assert.ok(body, 'closeRules is gone — this test measures nothing');
+    const closeRules = new Function('document', 'armAllButtons', `return function () { ${body};\nreturn closeRules; };`)(page.doc, armAllButtons)
+      .call({ currentScreen: 'cnPlayers', players: page.screen });
+    page.byId('rulesModal').classList.add('active');
+    closeRules();
+  },
+});
