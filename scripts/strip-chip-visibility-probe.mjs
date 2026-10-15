@@ -461,7 +461,8 @@ export default async function (session) {
     throw new Error(`the cast offers ${emojis.length} distinct emoji, fewer than the 10 seats this probe seeds -- ten distinct labels cannot be built from it`);
   }
   const labels = emojis.slice(0, 10).map((emoji) => `${emoji} ${name}`);
-  // ZERO-MARGIN GUARD, and the margin may be zero. A label longer, in UTF-16 units, than the
+  // CAP GUARD. The margin is whatever cap minus the longest label comes to at run time; it is not
+  // pinned here, and a roster edit can take it to zero or below. A label longer, in UTF-16 units, than the
   // narrowest name cap among the routes below is truncated before render on whichever route caps
   // below it, and the rows for THAT route then red with "clipped chip with no visible signal": a
   // false red carrying the wrong diagnosis, on the very roster-change path this probe advertises
