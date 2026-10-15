@@ -12,7 +12,7 @@ those three is undone by the next run. `docs/agents/desktop-sizing-decisions.md`
 `style.css` alone under its "Where the rules go" heading; the same is true of the other two, and
 gh#211 is where that got written down after a fix was aimed at `markup.html`.
 
-Everything else in a route folder is hand-authored and safe: `overrides.css`, `roster-bridge.ts`, the
+Everything else in a route folder is hand-authored and safe: `overrides.css`, the
 `*.test.mjs` files, and the `play.css` / `main.ts` pair the two non-lifted routes use instead. Check
 per route — routes differ in which files they have.
 
