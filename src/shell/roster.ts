@@ -219,9 +219,21 @@ function legacyNames(extract: (value: unknown) => string[], value: unknown): str
   return [...new Set(extract(value).filter((n) => typeof n === 'string').map((n) => n.trim()).filter((n) => hasVisibleChar(n)))];
 }
 
+/** The settings keys whose `players` field this module has already retired -- imported with the
+ *  write read back, or dropped under a non-empty roster. Owned here, never by a route.
+ *
+ *  Why a record and not just the stripped blob (gh#264 REFUTE round 5): the route rewrites its own
+ *  blob too, and it carries an existing `players` field through so a FAILED import can retry. A
+ *  route save that read the blob before a migration and wrote after it puts the retired players
+ *  back, and the blob alone cannot tell that copy from a pending import -- so a later mount, after
+ *  the players removed those names, imported them again. A key on this list never imports again:
+ *  a `players` field found under it is stale by definition and is stripped unread. */
+const RETIRED_KEY = 'watduang:roster-retired-settings';
+
 /** migrateLegacyList's `keep: 'settings'` half. The read, the import and the rewrite all sit inside
  *  ONE synchronous lock callback, so the route's own settings write cannot land between the read
- *  and the rewrite and be overwritten by a stale copy. */
+ *  and the rewrite and be overwritten by a stale copy. A stale write that lands AFTER it is what the
+ *  retired record above answers. */
 async function migrateSettingsPlayers(legacyKey: string, extract: (value: unknown) => string[]): Promise<void> {
   await withLock(LOCK, () => {
     let raw: string | null;
@@ -238,23 +250,30 @@ async function migrateSettingsPlayers(legacyKey: string, extract: (value: unknow
       return; // corrupt: nothing to import and nothing this module can rewrite faithfully
     }
     if (!blob || typeof blob !== 'object' || Array.isArray(blob) || !('players' in blob)) return;
-    let imported: string[] = [];
-    try {
-      imported = legacyNames(extract, blob);
-    } catch {
-      imported = [];
-    }
-    if (read(KEY).length === 0 && imported.length > 0) {
-      write(KEY, imported);
-      // Did not land (quota, private mode): keep the blob whole, players included, for the next visit.
-      if (read(KEY).length === 0) return;
+    const retired = read(RETIRED_KEY);
+    if (!retired.includes(legacyKey)) {
+      let imported: string[] = [];
+      try {
+        imported = legacyNames(extract, blob);
+      } catch {
+        imported = [];
+      }
+      if (read(KEY).length === 0 && imported.length > 0) {
+        write(KEY, imported);
+        // Did not land (quota, private mode): keep the blob whole, players included, and record
+        // nothing, so the next visit imports again.
+        if (read(KEY).length === 0) return;
+      }
+      // Recorded before the rewrite below: a rewrite that fails then leaves a field the next mount
+      // strips without importing, rather than one it would read as still pending.
+      write(RETIRED_KEY, [...retired, legacyKey]);
     }
     const settings: Record<string, unknown> = { ...(blob as Record<string, unknown>) };
     delete settings.players;
     try {
       localStorage.setItem(legacyKey, JSON.stringify(settings));
     } catch {
-      // The blob keeps its players field; the next mount finds a non-empty roster and drops it then.
+      // The blob keeps its players field; the key is already recorded, so the next mount strips it.
     }
   });
 }

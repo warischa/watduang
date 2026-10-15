@@ -433,3 +433,56 @@ test('ADR-0071 migrateLegacyList: a write that does not land keeps the legacy ke
   }
   assert.equal(slots.has(LEGACY), true);
 });
+
+// gh#264 REFUTE round 5: `keep: 'settings'` blobs are rewritten by the ROUTE too, and the route
+// carries an existing `players` field through so a failed import can retry. A route save that read
+// the blob before a migration and wrote after it puts the retired players back; without a record
+// that this key was already retired, the next mount imports them again.
+const SETTINGS = 'watduang:test-legacy-settings';
+const extractPlayers = (v) => v.players;
+const blobWith = (players) => JSON.stringify({ players, mode: 'preset' });
+
+test('ADR-0071 keep-settings: a stale route save after a migration does not bring retired players back', async () => {
+  slots.clear();
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob']));
+  await migrateLegacyList(SETTINGS, extractPlayers, 'settings');
+  assert.deepEqual(loadRoster().names(), ['Alice', 'Bob']);
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob'])); // the stale write: read before the import, landed after it
+  await applyRosterOps([{ op: 'remove', name: 'Alice' }, { op: 'remove', name: 'Bob' }], 20);
+  await migrateLegacyList(SETTINGS, extractPlayers, 'settings');
+  assert.deepEqual(loadRoster().names(), [], 'players the roster already retired were imported a second time');
+  assert.deepEqual(JSON.parse(slots.get(SETTINGS)), { mode: 'preset' }, 'the stale players field must be stripped, settings kept');
+});
+
+test('ADR-0071 keep-settings: players dropped under a non-empty roster stay dropped after a stale route save', async () => {
+  await seed(['แนน']);
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob']));
+  await migrateLegacyList(SETTINGS, extractPlayers, 'settings');
+  assert.deepEqual(loadRoster().names(), ['แนน']);
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob']));
+  await applyRosterOps([{ op: 'remove', name: 'แนน' }], 20);
+  await migrateLegacyList(SETTINGS, extractPlayers, 'settings');
+  assert.deepEqual(loadRoster().names(), [], 'players the roster never took were imported into the emptied roster');
+});
+
+test('ADR-0071 keep-settings: a failed import records nothing, keeps the players, and a later mount imports them', async () => {
+  slots.clear();
+  slots.set(SETTINGS, blobWith(['Alice', 'Bob']));
+  // Quota that refuses only the roster write: a small record written elsewhere would still land, so
+  // a record written before the import proved durable is visible here, not hidden by a blanket throw.
+  const real = globalThis.localStorage.setItem;
+  globalThis.localStorage.setItem = (k, v) => {
+    if (k === KEY) throw new Error('QuotaExceededError');
+    real(k, v);
+  };
+  try {
+    await migrateLegacyList(SETTINGS, extractPlayers, 'settings');
+  } finally {
+    globalThis.localStorage.setItem = real;
+  }
+  assert.deepEqual([...slots.keys()], [SETTINGS], 'a failed import wrote something besides the blob it must keep whole');
+  assert.deepEqual(JSON.parse(slots.get(SETTINGS)).players, ['Alice', 'Bob']);
+  await migrateLegacyList(SETTINGS, extractPlayers, 'settings');
+  assert.deepEqual(loadRoster().names(), ['Alice', 'Bob'], 'the retry after a failed import did not import');
+  assert.deepEqual(JSON.parse(slots.get(SETTINGS)), { mode: 'preset' });
+});
