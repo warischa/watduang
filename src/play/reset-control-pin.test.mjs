@@ -49,7 +49,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // keeps its own wider copy, because its confirm names avatars as well as names. No entry here for a
 // route the manifest ships is a red naming that route, not a vacuous pass over the rest.
 const RESET_TRIGGER = {
-  'bangkok-drift': { attr: 'id="bd-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  'bangkok-drift': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'cannon-flag': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   // markup.html belongs to the lifted engine on this route, so the trigger is injected by main.ts --
   // which is why the file loop below reads all three files and not just the markup. The attribute

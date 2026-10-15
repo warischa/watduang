@@ -20,6 +20,8 @@ import Base from '../../../layouts/Base.astro';
 // route; it brings its own style and its own arm gate.
 import PlayExit from '../../../shell/PlayExit.astro';
 import markup from '../../../play/bangkok-drift/markup.html?raw';
+// ADR-0071: the shared player screen's markup and dialogs, rendered beside the route's raw markup.
+import PlayerScreen from '../../../play/_player-screen/PlayerScreen.astro';
 import '../../../play/bangkok-drift/style.css';
 // AFTER style.css, always: overrides.css wins on equal specificity only if it comes second.
 import '../../../play/bangkok-drift/overrides.css';
@@ -36,11 +38,13 @@ const description = game.seo.description;
 <Base title={title} description={description} ogImage={`/og/${game.og}`} chrome>
   <PlayExit />
   <Fragment set:html={markup} />
+  <PlayerScreen />
 </Base>
 
 <script>
   // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block of
-  // this size executes zero lines. Astro emits both of these as one external module.
+  // this size executes zero lines. Astro emits this as one external module. main.js mounts the
+  // shared player screen itself (ADR-0071); the roster bridge that drove the mockup's own setup
+  // controls is gone with them.
   import '../../../play/bangkok-drift/main.js';
-  import '../../../play/bangkok-drift/roster-bridge.ts';
 </script>

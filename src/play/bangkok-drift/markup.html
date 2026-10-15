@@ -2,36 +2,16 @@
      scripts/play-screen-fit-probe.mjs finds a route's play surface by #app / #app-container /
      #appRoot, and a root it cannot find is a route the fit walk cannot measure at all. -->
 <main id="app">
-  <section id="screen-setup" class="screen active">
+  <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+       mountPlayerScreen as its root, and it is the first thing a load shows. What sits inside it
+       stays first, above the screen -- this game's own title and intro, unchanged from the mockup's
+       setup screen (ruling 1: the game's intro, then the players). This replaced that setup screen's
+       card -- the count stepper, the name rows, the reset control -- its start button, and the reset
+       confirm that sat below it. -->
+  <section id="bd-players" class="bd-players" hidden>
     <h1>บางกอกดริฟต์</h1>
     <p class="muted">ผลัดกันขับคนละตา ทุกคนได้สนามเดียวกัน<br />ชนก้อนหิน ชนกรวย หรือหลุดถนนคือจบตา<br />หนองน้ำทำรถลื่น เปลือกกล้วยเตะรถออกข้าง แต่ยังไม่จบตา<br />ไปได้ไกลสุดชนะ สั้นสุดโดน</p>
-    <div class="card">
-      <p class="muted">จำนวนผู้เล่น (2–10 คน)</p>
-      <div class="count-control">
-        <button id="decPlayerBtn" class="count-btn" type="button" aria-label="ลดจำนวนผู้เล่น">−</button>
-        <span class="count-display">4</span>
-        <button id="incPlayerBtn" class="count-btn" type="button" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
-      </div>
-      <div id="roster" class="roster"></div>
-      <!-- gh#178 / ADR-0054: the reset-to-cast trigger every play route's setup screen owes. Hand
-           added to this lift, recorded in src/play/_divergences.json. -->
-      <button id="bd-reset-names" class="btn btn-secondary" type="button">↺ รีเซ็ตเป็นชื่อสัตว์</button>
-    </div>
-    <button id="startGameBtn" class="btn" type="button">เริ่มแข่ง</button>
   </section>
-
-  <!-- The reset confirm. Hand added with the trigger above; its styling lives in overrides.css, so
-       the lifted style.css stays a verbatim lift. -->
-  <div class="bd-modal-backdrop" id="bd-modal-reset-names">
-    <div class="bd-modal-box" role="dialog" aria-modal="true" aria-labelledby="bd-reset-title">
-      <h2 class="bd-modal-title" id="bd-reset-title">↺ รีเซ็ตเป็นชื่อสัตว์?</h2>
-      <p>ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่</p>
-      <div class="bd-modal-actions">
-        <button class="btn btn-secondary" id="bd-cancel-reset-names" type="button">เก็บชื่อเดิมไว้</button>
-        <button class="btn" id="bd-confirm-reset-names" type="button">รีเซ็ตเป็นชื่อสัตว์</button>
-      </div>
-    </div>
-  </div>
 
   <section id="screen-turn" class="screen">
     <p id="turn-count" class="muted"></p>

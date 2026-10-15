@@ -180,17 +180,6 @@ const DRIVERS = {
       return { cap: env.game.playerCount };
     },
   },
-  'bangkok-drift': {
-    what: 'the roster stepper increments only while the count is under its ceiling',
-    run: (source) => {
-      const compiled = compileListener(source, "$('incPlayerBtn').addEventListener('click', () =>");
-      if (compiled.error) return compiled;
-      const env = { game: { count: 2 } };
-      const handler = compiled.make(env, tolerantReceiver({}));
-      if (typeof handler !== 'function') return { error: 'the stepper registered no click handler' };
-      return saturate(() => handler(), () => env.game.count);
-    },
-  },
   // gh#264 / ADR-0071: the route's own stepper is gone -- the count is the shared player screen's,
   // whose clamp is proved once by sharedScreenAudit below. What is still this route's is the ENGINE
   // the players are seated into, so that is what is run: the real CursedNumberGameModel, imported,
@@ -574,6 +563,21 @@ const HANDOFFS = {
         seated: seated.players.length === seated.playerCount && seated.activePlayerPool.length === seated.playerCount
           ? seated.playerCount : NaN,
       };
+    },
+  },
+  'bangkok-drift': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() fills the round state the turns are driven from (round.names and round.count)',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      let started = 0;
+      const env = { round: { count: 0, names: [] }, startRound: () => { started += 1; } };
+      compiled.make(env)(players);
+      if (started !== 1) return { error: 'startWithPlayers() did not start the round once' };
+      // Both views of the seat count must agree with the hand: the count the turn loop runs to and the
+      // names it hands the phone to.
+      return { seated: env.round.count === env.round.names.length ? env.round.count : NaN };
     },
   },
 };
