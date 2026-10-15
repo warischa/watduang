@@ -291,8 +291,8 @@ test('ADR-0071 ops: two screens renaming two different names both land, each in 
 test('ADR-0071 ops: two legal 19 -> 20 adds race; the second is REFUSED and reported, nothing is stored past 20', async () => {
   const nineteen = Array.from({ length: 19 }, (_, i) => `p${i + 1}`);
   await seed(nineteen);
-  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'tabA' }], 20), { refused: [] });
-  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'tabB' }], 20), { refused: ['tabB'] });
+  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'tabA' }], 20), { status: 'ok', roster: [...nineteen, 'tabA'] });
+  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'tabB' }], 20), { status: 'ceiling', roster: [...nineteen, 'tabA'], refused: ['tabB'] });
   const stored = loadRoster().names();
   assert.equal(stored.length, 20);
   assert.ok(stored.includes('tabA'), 'the first legal addition is kept');
@@ -303,17 +303,63 @@ test('ADR-0071 ops: two legal 19 -> 20 adds race; the second is REFUSED and repo
 
 test('ADR-0071 ops: a removal in the same batch frees the seat an add needs', async () => {
   await seed(Array.from({ length: 20 }, (_, i) => `p${i + 1}`));
-  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'new' }, { op: 'remove', name: 'p1' }], 20), { refused: [] });
+  assert.equal((await applyRosterOps([{ op: 'add', name: 'new' }, { op: 'remove', name: 'p1' }], 20)).status, 'ok');
   assert.equal(loadRoster().names().at(-1), 'new');
 });
 
-test('ADR-0071 ops: a rename whose old name another tab removed lands as an add; a rename onto an existing name merges', async () => {
+test('ADR-0071 ops: a rename whose old name another tab removed lands as an add; a rename onto an existing name is a COLLISION', async () => {
   await seed(['A', 'B']);
   await applyRosterOps([{ op: 'remove', name: 'A' }], 20);
   await applyRosterOps([{ op: 'rename', from: 'A', to: 'Alpha' }], 20);
   assert.deepEqual(loadRoster().names(), ['B', 'Alpha']);
-  await applyRosterOps([{ op: 'rename', from: 'Alpha', to: 'B' }], 20);
-  assert.deepEqual(loadRoster().names(), ['B'], 'name-keyed: two rows with one name are one roster entry');
+  const result = await applyRosterOps([{ op: 'rename', from: 'Alpha', to: 'B' }], 20);
+  assert.deepEqual(result, { status: 'collision', roster: ['B', 'Alpha'], names: ['B'] });
+  assert.deepEqual(loadRoster().names(), ['B', 'Alpha'], 'two rows with one name are never merged silently');
+});
+
+// gh#264 REFUTE round 3: a refusal used to keep every edit before the refused add -- the API was
+// partial. A refused batch now writes NOTHING, and says why.
+const countWrites = async (fn) => {
+  let writes = 0;
+  const real = localStorage.setItem;
+  localStorage.setItem = (k, v) => { writes += 1; real(k, v); };
+  try {
+    return { result: await fn(), writes: () => writes };
+  } finally {
+    localStorage.setItem = real;
+  }
+};
+
+test('ADR-0071 ops: a batch refused at the ceiling is ATOMIC -- its renames, removes and earlier adds are not written either', async () => {
+  await seed(['A', 'B', 'C']);
+  const { result, writes } = await countWrites(() => applyRosterOps(
+    [{ op: 'rename', from: 'A', to: 'Alpha' }, { op: 'remove', name: 'C' }, { op: 'add', name: 'D' }, { op: 'add', name: 'E' }], 3));
+  assert.deepEqual(result, { status: 'ceiling', roster: ['A', 'B', 'C'], refused: ['E'] });
+  assert.equal(writes(), 0, 'no storage write at all');
+  assert.deepEqual(loadRoster().names(), ['A', 'B', 'C']);
+});
+
+test('ADR-0071 ops: a rename onto a name ANOTHER TAB added is a collision -- reported, nothing written', async () => {
+  await seed(['A', 'B', 'C']);
+  await applyRosterOps([{ op: 'add', name: 'D' }], 20); // the other tab, while this screen was open
+  const { result, writes } = await countWrites(() => applyRosterOps(
+    [{ op: 'rename', from: 'A', to: 'D' }, { op: 'rename', from: 'B', to: 'Beta' }], 20));
+  assert.deepEqual(result, { status: 'collision', roster: ['A', 'B', 'C', 'D'], names: ['D'] });
+  assert.equal(writes(), 0);
+  assert.deepEqual(loadRoster().names(), ['A', 'B', 'C', 'D'], 'the other rename does not land alone either');
+});
+
+test('ADR-0071 ops: an add onto a stored name, or two adds of one name, is a collision', async () => {
+  await seed(['A', 'B']);
+  assert.deepEqual(await applyRosterOps([{ op: 'add', name: ' B ' }], 20), { status: 'collision', roster: ['A', 'B'], names: ['B'] });
+  assert.deepEqual(await applyRosterOps([{ op: 'add', name: 'C' }, { op: 'add', name: 'C' }], 20), { status: 'collision', roster: ['A', 'B'], names: ['C'] });
+  assert.deepEqual(loadRoster().names(), ['A', 'B']);
+});
+
+test('ADR-0071 ops: a collision outranks the ceiling -- the name is what the players can fix in place', async () => {
+  await seed(['A', 'B']);
+  const result = await applyRosterOps([{ op: 'add', name: 'B' }, { op: 'add', name: 'C' }], 2);
+  assert.equal(result.status, 'collision');
 });
 
 // gh#264 REFUTE round 2: the renames of one batch are ONE simultaneous mapping, never a sequence.
@@ -333,18 +379,18 @@ test('ADR-0071 ops: a swap A<->B keeps both rows, swapped in place', async () =>
   assert.deepEqual(loadRoster().names(), ['B', 'A', 'C']);
 });
 
-test('ADR-0071 ops: a rename onto a name another seat still shows merges -- the EARLIER seat keeps the name', async () => {
+test('ADR-0071 ops: a rename onto a name another seat still shows is a collision, whichever seat moves', async () => {
   await seed(['A', 'B', 'C']);
-  await applyRosterOps([{ op: 'rename', from: 'C', to: 'A' }], 20); // the later seat takes an earlier name
-  assert.deepEqual(loadRoster().names(), ['A', 'B']);
-  await seed(['A', 'B', 'C']);
-  await applyRosterOps([{ op: 'rename', from: 'A', to: 'C' }], 20); // the earlier seat takes a later name
-  assert.deepEqual(loadRoster().names(), ['C', 'B'], 'the renamed earlier seat keeps it; the later C merges');
+  const later = await applyRosterOps([{ op: 'rename', from: 'C', to: 'A' }], 20); // the later seat takes an earlier name
+  assert.deepEqual(later, { status: 'collision', roster: ['A', 'B', 'C'], names: ['A'] });
+  const earlier = await applyRosterOps([{ op: 'rename', from: 'A', to: 'C' }], 20); // the earlier seat takes a later name
+  assert.deepEqual(earlier, { status: 'collision', roster: ['A', 'B', 'C'], names: ['C'] });
+  assert.deepEqual(loadRoster().names(), ['A', 'B', 'C'], 'nobody merged, nobody lost');
 });
 
-test('ADR-0071 ops: blanks and duplicate adds are dropped before writing', async () => {
+test('ADR-0071 ops: blank adds are dropped before writing', async () => {
   await seed([]);
-  await applyRosterOps(['เอ', '  ', 'เอ', '\u200b', 'บี'].map((name) => ({ op: 'add', name })), 20);
+  await applyRosterOps(['เอ', '  ', '\u200b', 'บี'].map((name) => ({ op: 'add', name })), 20);
   assert.deepEqual(loadRoster().names(), ['เอ', 'บี']);
 });
 
