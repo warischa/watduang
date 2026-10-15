@@ -7,8 +7,10 @@
 //
 // Roster: ten seats, all holding the LONGEST name in src/play/_mascots.ts (by grapheme-cluster
 // count, read at run time so a future roster edit is picked up rather than a name typed into this
-// file going stale), rendered with its own emoji in front -- the same "emoji name" shape
+// file going stale), each with an emoji in front -- the same "emoji name" shape
 // src/shell/player-select.ts's defaultPlayers() builds, not a bare name narrower than a real seat.
+// The emoji differs per seat because the shared player screen refuses two seats with one name; see
+// the seeding block in the default export.
 //
 // Usage: BASE=http://localhost:4321 CDP_PORT=9222 node scripts/driver.mjs scripts/strip-chip-visibility-probe.mjs
 // CONTROL=1 injects a mutant stylesheet that force-hides the band (`.strip-more{visibility:hidden}`)
@@ -40,10 +42,20 @@ const ONLY = process.env.ONLY || null;
 // stale the moment a fourth route mounts the counter -- silently, because an uncovered route produces
 // no row and no row produces no finding. The assertion below turns that silence into a red: the number
 // of routes here must equal the number of modules that actually call the shared mount.
+//
+// `walk` is how a player gets from a fresh load to the screen that carries the strip (gh#264,
+// ADR-0071): the route's own intro, then the shared player screen's start, then the route's own
+// options screen, then its play start. Each entry is pressed with a real touch at its centre, in
+// order -- see walkToStrip below. The routes differ, so each one names its own sequence, read off
+// that route's markup and handlers rather than assumed from a sibling.
 const ALL_ROUTES = [
-  { id: 'short-stick', stripId: 'draw-player-strip' },
-  { id: 'wire-snip-panic', stripId: 'hud-player-strip' },
-  { id: 'zero-trigger', stripId: 'game-player-strip' },
+  // hero -> player screen -> stick/penalty options -> draw
+  { id: 'short-stick', stripId: 'draw-player-strip', walk: ['#btn-start-setup', '[data-ps="start"]', '#btn-begin-game'] },
+  // menu -> player screen -> penalty options -> bomb
+  { id: 'wire-snip-panic', stripId: 'hud-player-strip', walk: ['#btn-menu-start', '[data-ps="start"]', '#btn-start-match'] },
+  // menu (the setup button, not quick start, so the options screen is walked too) -> player
+  // screen -> penalty options -> game
+  { id: 'zero-trigger', stripId: 'game-player-strip', walk: ['#btn-goto-setup', '[data-ps="start"]', '#btn-confirm-start-game'] },
 ];
 {
   const playDir = new URL('../src/play/', import.meta.url);
@@ -70,6 +82,11 @@ const ALL_VIEWPORTS = [
   [390, 844],
   [1440, 900],
 ];
+// Imported, never retyped: the walk waits out the same window the gate on every pressed control uses.
+const { ARM_DELAY_MS } = await import(new URL('../src/games/_arm-gate.ts', import.meta.url).href);
+if (!Number.isFinite(ARM_DELAY_MS) || ARM_DELAY_MS <= 0) {
+  throw new Error(`read no usable ARM_DELAY_MS from the arm gate (got ${String(ARM_DELAY_MS)}) -- the walk cannot know how long to wait`);
+}
 const ROUTES = ONLY ? ALL_ROUTES.filter((r) => r.id === ONLY.split(':')[0]) : ALL_ROUTES;
 const VIEWPORTS = ONLY
   ? ALL_VIEWPORTS.filter(([w]) => String(w) === ONLY.split(':')[1])
@@ -289,6 +306,81 @@ const MEASURE_SWIPE = (stripId) => `
   };
 `;
 
+// One walk step's readiness, read in the page. 'ready' means the control exists, is rendered, is
+// not disabled (the arm gate owns the native disabled attribute), has been scrolled to the middle
+// of the viewport, and is the topmost thing at its own centre -- so the tap lands on it and not on
+// a toast, a dialog or chrome sitting over it. Anything else is reported by name, so a step that
+// never becomes ready throws with the reason instead of a later "strip missing".
+const STEP_STATE = (selector) => `
+  const el = document.querySelector(${JSON.stringify(selector)});
+  if (!el) return { state: 'missing' };
+  const visible = () => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0.5 && r.height > 0.5
+      && el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true });
+  };
+  if (!visible()) return { state: 'not visible' };
+  if (el.disabled) return { state: 'disabled' };
+  el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' });
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const r = el.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) {
+    return { state: 'off viewport', x, y };
+  }
+  const hit = document.elementFromPoint(x, y);
+  if (!hit || !(hit === el || el.contains(hit))) {
+    return { state: 'covered', x, y, by: hit ? hit.tagName + (hit.id ? '#' + hit.id : '') + (hit.className && typeof hit.className === 'string' ? '.' + hit.className.trim().split(/\\s+/).join('.') : '') : null };
+  }
+  return { state: 'ready', x, y };
+`;
+
+const STRIP_VISIBLE = (stripId) => `
+  const el = document.getElementById(${JSON.stringify(stripId)});
+  if (!el) return { state: 'missing' };
+  const r = el.getBoundingClientRect();
+  const ok = r.width > 0.5 && r.height > 0.5
+    && el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true });
+  return { state: ok ? 'ready' : 'not visible' };
+`;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Polls `expr` until it reports state 'ready', or THROWS naming `what` and the last state seen. A
+// missing or never-enabled control is a broken walk, never a skipped step: skipping would carry the
+// run on to a screen it never reached and report there instead, as a missing strip at best.
+async function untilReady(session, expr, what, limitMs) {
+  const deadline = Date.now() + limitMs;
+  for (;;) {
+    const res = await session.evaluate(expr);
+    if (res.error) throw new Error(`${what}: evaluate failed: ${res.error}`);
+    const v = res.value || { state: 'no value' };
+    if (v.state === 'ready') return v;
+    if (Date.now() > deadline) {
+      throw new Error(`${what}: never became ready within ${limitMs}ms (last state: ${v.state}${v.by !== undefined ? `, by ${v.by}` : ''})`);
+    }
+    await sleep(100);
+  }
+}
+
+// Drives a route from its fresh load to the strip, the way a player does (gh#264): every press is
+// a real touch at the control's centre (session.tap), never el.click(), so the arm gate on each
+// control sees what a finger would give it. Before each press it waits out ARM_DELAY_MS -- the
+// screen that control sits on was just revealed and armed -- and then for the control to be ready.
+// The walk ends only when the strip itself is rendered; the strip is in the markup from the start
+// inside a hidden screen, so its mere existence proves nothing.
+async function walkToStrip(session, { id, stripId, walk }, w, h) {
+  const limitMs = ARM_DELAY_MS * 15;
+  for (const [i, selector] of walk.entries()) {
+    const what = `${id} ${w}x${h}: walk step ${i + 1}/${walk.length} (${selector})`;
+    await sleep(ARM_DELAY_MS + 100);
+    const { x, y } = await untilReady(session, STEP_STATE(selector), what, limitMs);
+    await session.tap(x, y);
+  }
+  await untilReady(session, STRIP_VISIBLE(stripId), `${id} ${w}x${h}: strip #${stripId} after the walk`, limitMs);
+}
+
 // Reads the narrowest player-name input cap out of the shipped source of the routes below, so the
 // seed guard tracks those inputs instead of restating a number here that would rot the moment one of
 // them changed. It THROWS when it finds no cap at all, on purpose: a guard that silently finds
@@ -355,17 +447,30 @@ export default async function (session) {
   // Production's default seat label is the emoji and the name TOGETHER, one space between --
   // src/shell/player-select.ts's defaultPlayers() builds `${mascot.emoji} ${mascot.name}`. Seeding
   // the bare name alone is a narrower seat than any real one, so the roster mirrors that shape.
-  const emoji = (await mascotEntries()).find((e) => e.name === name).emoji;
-  const label = `${emoji} ${name}`;
-  // ZERO-MARGIN GUARD, and the margin really is zero today. This label is exactly as long, in UTF-16
-  // units, as the shortest name input among the routes below, and that route's roster-bridge
-  // truncates with slice(0, maxLength). One more unit — a variation-selector emoji arriving in a
-  // future roster edit — silently shortens the seed on whichever route caps below it, and the rows
-  // for THAT route then red with "clipped chip with no visible signal": a false red carrying the
-  // wrong diagnosis, on the very roster-change path this probe advertises that it tracks. Rows on
-  // the wider-capped routes still pass, which is what makes such a failure read like a real defect
-  // on one route rather than a seeding problem. Fail loudly here instead, naming the real cause.
+  //
+  // Ten DISTINCT labels, all carrying that same longest name. The shared player screen (gh#264)
+  // keeps start disabled while two rows show the same name -- the roster holds each name once -- so
+  // ten copies of one label can never be started; measured: the walk stopped at the player screen's
+  // start with it still disabled. Each seat therefore wears a different mascot's emoji in front of
+  // the one longest name: the longest name's own emoji first, then the cast's other emoji in roster
+  // order. An emoji is one glyph whichever it is, so every seat stays as wide as the label this
+  // probe has always seeded, and the name the last-seat check looks for is on every seat.
+  const entries = await mascotEntries();
+  const emojis = [...new Set([entries.find((e) => e.name === name).emoji, ...entries.map((e) => e.emoji)])];
+  if (emojis.length < 10) {
+    throw new Error(`the cast offers ${emojis.length} distinct emoji, fewer than the 10 seats this probe seeds -- ten distinct labels cannot be built from it`);
+  }
+  const labels = emojis.slice(0, 10).map((emoji) => `${emoji} ${name}`);
+  // ZERO-MARGIN GUARD, and the margin may be zero. A label longer, in UTF-16 units, than the
+  // narrowest name cap among the routes below is truncated before render on whichever route caps
+  // below it, and the rows for THAT route then red with "clipped chip with no visible signal": a
+  // false red carrying the wrong diagnosis, on the very roster-change path this probe advertises
+  // that it tracks. Rows on the wider-capped routes still pass, which is what makes such a failure
+  // read like a real defect on one route rather than a seeding problem. Fail loudly here instead,
+  // naming the real cause. Checked over EVERY label, because emoji differ in UTF-16 length (a
+  // variation selector adds a unit) and the longest one is the one that would be cut.
   const cap = await seedNameCapUtf16();
+  const label = labels.reduce((a, b) => (b.length > a.length ? b : a));
   if (label.length > cap) {
     throw new Error(
       `seed label ${JSON.stringify(label)} is ${label.length} UTF-16 units but the narrowest name ` +
@@ -375,10 +480,11 @@ export default async function (session) {
         `pick the seed against the new cap — do not relax this guard.`,
     );
   }
-  const roster = JSON.stringify(Array.from({ length: 10 }, () => label));
+  const roster = JSON.stringify(labels);
   const results = [];
 
-  for (const { id, stripId } of ROUTES) {
+  for (const route of ROUTES) {
+    const { id, stripId } = route;
     const url = `${BASE}/game/${id}/play/`;
 
     // Fresh reload PER VIEWPORT, not once per route: a real player always meets this screen via a
@@ -398,17 +504,23 @@ export default async function (session) {
         localStorage.setItem('watduang:roster', ${JSON.stringify(roster)});
         localStorage.setItem('watduang:group', ${JSON.stringify(roster)});
         return true;`);
-      // Re-apply the emulated width BEFORE this reload, not after: roster-bridge's seedFromRoster()
-      // (and the FIRST mountStripOverflowCounter call inside it) runs synchronously on THIS reload's
-      // own DOMContentLoaded, so the width must already be correct when this nav() starts, or the
-      // very first render measures the wrong viewport and freezes a wrong band value nothing later
-      // corrects (confirmed live: applying setWidth AFTER this nav instead produced a deterministic,
-      // per-route-and-viewport-specific wrong count, not a timing flake).
+      // Re-apply the emulated width BEFORE this reload, not after. When the retired roster-bridge
+      // started the round at boot, the FIRST mountStripOverflowCounter call ran on this reload's own
+      // DOMContentLoaded, and a width applied after the nav froze a wrong band value nothing later
+      // corrected (confirmed live then: a deterministic, per-route-and-viewport wrong count, not a
+      // flake). Since gh#264 the strip mounts only at the walk's last press, well after load, so the
+      // ordering no longer carries that hazard -- it is kept so every render this page ever makes,
+      // the player screen's included, happens at the width being measured.
       await session.setWidth(w, h);
-      await session.nav(url); // reload so roster-bridge seeds and auto-starts at boot
+      // Reload so the page reads the seeded roster at boot: the shared player screen opens
+      // pre-filled from it. Nothing starts by itself any more; walkToStrip below presses through.
+      await session.nav(url);
       const check = await session.evaluate('return window.innerWidth;');
       if (check.value !== w) throw new Error(`${id} ${w}x${h}: innerWidth read ${check.value} after reload -- run is void`);
-      await new Promise((r) => setTimeout(r, 1500)); // bridge clicks + ARM_DELAY_MS settle
+      await walkToStrip(session, route, w, h);
+      // The counter mounts on the last press; give its first measure and the screen's own entrance
+      // the same settle the boot-started round used to get.
+      await sleep(1500);
 
       if (CONTROL) {
         await session.evaluate(`
