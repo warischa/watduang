@@ -297,6 +297,21 @@ async function seedNameCapUtf16() {
   const fs = await import('node:fs/promises');
   const path = await import('node:path');
   const caps = [];
+  // gh#264 / ADR-0071: a route that mounts the shared player screen has no name input of its own;
+  // its players are typed into the shared screen, whose cap is the runtime value NAME_MAX. Read it by
+  // importing the module, not by matching text (a text read cannot answer a runtime question).
+  let sharedCap = null;
+  const sharedCapOf = async () => {
+    if (sharedCap === null) {
+      const { pathToFileURL } = await import('node:url');
+      const screen = await import(pathToFileURL(path.join(import.meta.dirname, '..', 'src', 'play', '_player-screen', 'player-screen.ts')).href);
+      if (!Number.isInteger(screen.NAME_MAX) || screen.NAME_MAX < 1) {
+        throw new Error(`seed guard read no usable NAME_MAX from the shared player screen (got ${String(screen.NAME_MAX)})`);
+      }
+      sharedCap = screen.NAME_MAX;
+    }
+    return sharedCap;
+  };
   for (const { id } of ROUTES) {
     const found = [];
     for (const base of ['main.js', 'main.ts']) {
@@ -306,6 +321,9 @@ async function seedNameCapUtf16() {
       if (!src) continue;
       for (const m of src.matchAll(/<input\b[^>]*maxlength="(\d+)"[^>]*>/gi)) {
         if (/name/i.test(m[0])) found.push(Number(m[1]));
+      }
+      if (/import\s*\{[^}]*\bmountPlayerScreen\b[^}]*\}\s*from\s*['"][./]*_player-screen\/player-screen(?:\.ts)?['"]/.test(src)) {
+        found.push(await sharedCapOf());
       }
     }
     // PER ROUTE, not over the union. A union-only check fails open for exactly the case that will

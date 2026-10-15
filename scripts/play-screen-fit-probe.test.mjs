@@ -534,7 +534,9 @@ test('main does not delete or bypass the per-screen emission', () => {
   const EXPECTED_EMISSIONS = [
     '::notice::croc-bite          320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  (worst of 1 screen(s): press 0, 8 ink) [pinned fits]',
     '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  ink 8',
-    '::notice::dice-loser         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  (worst of 2 screen(s): press 0, 12 ink) [pinned fits]',
+    '::notice::dice-loser         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  (worst of 2 screen(s): press 0, 12 ink) [pinned fits] [player screen excepted]',
+    // [player screen excepted]: dice-loser 320x568 joined PLAYER_SCREEN_SCROLLS under the owner
+    // ruling of 2026-10-15 (gh#264). The row is still asserted emitted with every screen.
     '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  ink 12',
     '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    94%  ink 16',
     '::notice::freeze-tap         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  (worst of 3 screen(s): press 0, 10 ink)',
@@ -869,5 +871,5 @@ test('the player-screen exception lives only on FITS_ROWS rows, and excepts only
   const play = (px) => ({ press: 1, overflowPx: px, scrollPx: px, clippedPx: 0, widthFillPct: 90, playerScreen: false });
   assert.equal(gatedWorstOf(row([player, play(0)])).overflowPx, 0, 'the player screen alone overflowing is excepted');
   assert.equal(gatedWorstOf(row([player, play(12)])).overflowPx, 12, 'MUST-RED: a play screen that grows still reaches the gate');
-  assert.equal(gatedWorstOf({ ...row([player]), route: 'dice-loser' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
+  assert.equal(gatedWorstOf({ ...row([player]), route: 'one-bomb' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
 });

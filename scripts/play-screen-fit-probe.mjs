@@ -295,6 +295,8 @@ export const FITS_ROWS = new Set([
  */
 export const PLAYER_SCREEN_SCROLLS = new Map([
   ['timebomb 320x568', 'owner ruling 2026-10-15: 15px on press 0 - 15px documentElement overflow on the shared player screen with 3 saved names (gh#264 popup). The screen is a list that scrolls by design (board frame 4, design/PlayerSetup.dc.html); measured with the start button bottom at 559 of 568, fully visible. A first visit at 4 rows needs 89px, and this walk never measures that screen: it is the fresh, unseeded one. Play screens of this row stay pinned as fitting.'],
+  ['dice-loser 320x568', 'owner ruling 2026-10-15: 14px on press 0 - 14px documentElement overflow on the shared player screen with the seeded names (gh#264 popup: the shared player screen may scroll), measured on the gh#264 integration run 2026-10-15. The route now opens on the shared list; its own rule picker and play screens stay pinned as fitting.'],
+  ['bangkok-drift 320x568', 'owner ruling 2026-10-15: 70px on press 0 - 70px documentElement overflow on the shared player screen with the seeded names (gh#264 popup: the shared player screen may scroll), measured on the gh#264 integration run 2026-10-15. The route keeps its title and long intro above the list (moved byte-identical from its old setup), which is most of the height. Play screens stay pinned as fitting.'],
 ]);
 
 /** The screen a FITS_ROWS row is gated on: its worst screen, minus the player-screen state where
