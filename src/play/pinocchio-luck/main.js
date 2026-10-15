@@ -1,7 +1,15 @@
 // The round rule is NOT defined here. It lives in src/games/pinocchio-luck.ts, where a test can
 // reach it (src/games/pinocchio-luck.test.mjs), and this file is its only caller — one game, one
 // implementation. Everything still in this file is presentation: DOM, WebGL, sound, and timing.
-import {
+//
+// THE PLAYERS ARE NOT SET UP HERE (ADR-0071, gh#264). The route's own setup -- count stepper, number
+// field, name rows, the reset control and its dialog -- is gone; the shared player screen mounts into
+// #plPlayers instead and hands its ticked players to startWithPlayers(). This game has no non-player
+// options, so start goes straight to play. roster-bridge.ts, which drove the deleted controls, went
+// with them. The module's default export is read for one field, `players`: the range the player
+// screen admits is the one the manifest declares (ADR-0065), never a number restated here. It is
+// named pinocchioLuck because `game` below is the match in play.
+import pinocchioLuck, {
   PHASE,
   QUESTIONS,
   liveRng,
@@ -23,16 +31,14 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // neither a migration nor a collision guard. A device that had this route muted comes back audible
 // and the player re-mutes in one tap.
 import { isMuted, setMuted } from '../../shell/audio.ts';
-// gh#179 / ADR-0054: setup opens on the shared animal cast, never on a numbered placeholder. The one
-// default name on this route -- the placeholder a blank seat shows -- comes from mascotNames.
-// resetCastNames is the reset control's wipe: it keeps the seat count and discards whatever a player
-// typed.
-import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
+// ADR-0071: the one player screen every party route mounts. It owns the count, the names, the roster
+// and the group; this file gets the ticked players back through startWithPlayers().
+import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
 
 (()=>{'use strict';
 const panel=document.querySelector('#panel'),roundTag=document.querySelector('#roundTag'),announcer=document.querySelector('#announcer'),app=document.querySelector('#app'),stageFrame=document.querySelector('#stageFrame');
 const fxRng={next:()=>Math.random()};
-let game=null,setupCount=4,setupNames=[],transitionEpoch=0,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||new URLSearchParams(location.search).has('reduced');
+let game=null,playerScreen=null,transitionEpoch=0,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||new URLSearchParams(location.search).has('reduced');
 app.dataset.reducedMotion=String(reduced);
 
 // currentPlayer is exported without a default state; the render functions below all mean "the
@@ -65,116 +71,28 @@ function esc(value){
   return String(value).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 }
 
-function setSetupCount(value){
-  const n=Number(value);
-  if(!Number.isInteger(n)||n<2||n>10)return;
-  document.querySelectorAll('.name-input').forEach((el,i)=>setupNames[i]=el.value);
-  setupCount=n;
-  while(setupNames.length<n)setupNames.push('');
-  setupNames.length=n;
-  renderSetup();
-}
-
-// One seat's default name, gh#179. Routed through mascotNames so the wrap past the end of the cast
-// has exactly one definition, in _mascots.ts, and none here. The aria-label beside it keeps stating
-// the SEAT NUMBER, not this name -- it identifies which row a screen reader is in, same as
-// cursed-number and power-meter already do once their placeholders carry a mascot name too.
-const defaultName=(i)=>mascotNames(i+1)[i];
-
-// gh#140: this route builds its own setup screen, so the shared shell panel's animal icon never
-// reached its roster rows -- they opened with a seat number. mascotEmoji is the one lookup for that
-// badge; see its declaration in _mascots.ts for why the wrap has a single definition.
-function setupMarkup(){
-  return `<div class="view">
-    <p class="kicker">เกมปาร์ตี้เครื่องเดียว · 2–10 คน</p>
-    <h2 class="headline">ใครจมูกยาวสุด คนนั้นแพ้</h2>
-    <p class="support">ตอบคำถามคนละข้อ ถ้าโดนหลอก จมูกน้องจะยาวขึ้น</p>
-    <div class="setup-row">
-      <div>
-        <strong>จำนวนผู้เล่น</strong>
-        <div class="tiny" style="text-align:left;margin-top:2px">ส่งเครื่องต่อกันทีละคน</div>
-      </div>
-      <div class="stepper">
-        <button type="button" id="minus" data-act="count-down" aria-label="ลดจำนวนผู้เล่น">−</button>
-        <label><span class="sr-only">จำนวนผู้เล่น</span><input id="count" inputmode="numeric" value="${setupCount}" aria-describedby="countError"></label>
-        <button type="button" id="plus" data-act="count-up" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
-      </div>
-    </div>
-    <p id="countError" class="sr-only">กรอกจำนวนเต็มตั้งแต่ 2 ถึง 10</p>
-    <div class="names">
-      ${Array.from({length:setupCount},(_,i)=>`
-        <label class="name-field">
-          <!-- gh#140 - the seat's animal, not its number. aria-hidden: it pictures the animal the
-               placeholder already names, and POSITION is the aria-label's job beside it. -->
-          <span aria-hidden="true">${mascotEmoji(i)}</span>
-          <input class="name-input" maxlength="28" autocomplete="off" value="${esc(setupNames[i]||'')}" placeholder="${esc(defaultName(i))}" aria-label="ชื่อผู้เล่น ${i+1}">
-        </label>
-      `).join('')}
-    </div>
-    <!-- gh#179 — sits with the rows it acts on, same placement short-stick used. -->
-    <button class="secondary" id="reset-names" type="button" data-act="reset-names" style="width:100%;margin-top:10px">↺ รีเซ็ตเป็นชื่อสัตว์</button>
-    <button class="primary" id="start" type="button" data-act="start">สุ่มคิว แล้วเริ่มเกม</button>
-    <p class="tiny">คำตอบถูก/ผิดและแต้มจมูกจะสุ่มใหม่ทุกเกม</p>
-    <!-- gh#179 reset confirm. Copy rationale at resetSetupNames/openResetNames below: names every -->
-    <!-- loss (all typed names go) and what survives (the seat count and the round settings). -->
-    <dialog id="reset-names-dialog">
-      <div style="padding:20px">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px">
-          <h2 style="margin:0">รีเซ็ตเป็นชื่อสัตว์?</h2>
-          <button class="icon-btn" id="close-reset-names" type="button" data-act="close-reset-names" aria-label="ปิด">✕</button>
-        </div>
-        <p class="tiny" style="margin-bottom:20px">ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่</p>
-        <div style="display:flex;gap:10px">
-          <button class="secondary" id="cancel-reset-names" type="button" data-act="cancel-reset-names" style="flex:1">เก็บชื่อเดิมไว้</button>
-          <button class="primary" id="confirm-reset-names" type="button" data-act="confirm-reset-names" style="flex:1">รีเซ็ตเป็นชื่อสัตว์</button>
-        </div>
-      </div>
-    </dialog>
-  </div>`;
-}
-
-function renderSetup(){
-  game=null;
-  roundTag.textContent='ตั้งวง';
-  visual.targetNose=0;
-  panel.innerHTML=setupMarkup();
-  validateCount();
-  // Setup is armed like every other screen (ADR-0017). Two things made it look unarmable and
-  // neither does any more:
-  // (1) roster-bridge.ts seeds a saved group by clicking [data-act="start"] right after this module
-  //     runs, and .click() on a `disabled` button dispatches nothing at all. Its drive() unlocks the
-  //     control for that one programmatic call and restores what it found, so seeding survives;
-  // (2) validateCount() owns #start's `disabled`, and the gate's blanket re-enable would fight it,
-  //     offering a roster of one as startable. Handing validateCount to the gate as its onArm makes
-  //     the owner run last: the window still disables every setup button for its 400ms, and when it
-  //     closes #start goes back to whatever the live count says. Excepting #start from the gate was
-  //     the rejected option — it would leave the one button a ghost tap most wants with no guard.
-  // Read the size of what (2) fixes correctly: an invalid count was never a REACHABLE start —
-  // startMatch() re-runs validateCount() and returns on false. What the hook closes is a button
-  // that looks pressable when it is not, and the aria-invalid state next to it. An affordance, not
-  // an exploit; weigh the next change to this seam on that basis.
-  armPanel(countSteppers(),validateCount);
-}
-
-// Reads the live #count field. Returns FALSE when the field is absent rather than assuming a missing
-// field is a valid one — the caller uses this to decide whether a round may start.
-function validateCount(){
-  const count=document.querySelector('#count'),start=document.querySelector('#start');
-  if(!count||!start)return false;
-  const v=Number(count.value),valid=Number.isInteger(v)&&v>=2&&v<=10;
-  count.setAttribute('aria-invalid',String(!valid));
-  document.querySelector('#countError')?.classList.toggle('sr-only',valid);
-  start.disabled=!valid;
-  return valid;
-}
-
-function startMatch(){
-  if(!validateCount())return;
-  document.querySelectorAll('.name-input').forEach((el,i)=>setupNames[i]=el.value);
-  game=makeMatch(setupNames.slice(0,setupCount),liveRng);
+// The engine entry the shared player screen starts (ADR-0071): a fresh match seated with exactly
+// these players, in the order given -- turn order is still the engine's own shuffle. Every name
+// arrives already resolved (a blank row plays as its mascot's name), so nothing here defaults one.
+function startWithPlayers(players){
+  game=makeMatch(players.map(p=>p.name),liveRng);
   sounds.click(620);
   visual.targetNose=0;
+  visual.resultBurst=false;
+  panel.hidden=false;
   render();
+}
+
+// Puts a round away: whatever screen #panel holds, and any reveal timer still pending (answer()'s
+// timeout checks transitionEpoch before it touches the match). Run on every open of the player
+// screen and when a mid-round edit is confirmed, so it is safe to run twice.
+function putRoundAway(){
+  transitionEpoch++;
+  game=null;
+  visual.targetNose=0;
+  visual.resultBurst=false;
+  panel.hidden=true;
+  roundTag.textContent='ตั้งวง';
 }
 
 function renderPass(){
@@ -323,94 +241,27 @@ function replayMatch(){
   render();
 }
 
+// ADR-0071: editing the players is the shared player screen's job. The results screen is not a
+// round, so the screen opens straight away -- there is nothing to confirm losing (ruling 6).
 function editNames(){
-  if(!game)return;
-  setupCount=game.players.length;
-  setupNames=game.players.map(p=>p.name);
-  visual.resultBurst=false;
-  renderSetup();
-}
-
-/** gh#179. The wipe the reset confirm guards: setup goes back to the animal cast and the seat count
- *  stays put. resetCastNames only reads the length and never looks inside an entry, so a typed name
- *  cannot survive this call -- that is exactly the loss the confirm names. Built off setupCount, not
- *  setupNames.length: setupNames can be shorter than the screen's own row count (a row the stepper
- *  added that a player never focused), and setupCount is what setupMarkup() actually renders. */
-function resetSetupNames(){
-  setupNames=resetCastNames(Array.from({length:setupCount}));
-}
-
-// Reset Names Dialog (gh#179). It sits on the SETUP screen only -- reroll only ever renders on the
-// all-safe screen and never touches names, edit-names only ever renders on the results screen and
-// re-seeds setup from the CURRENT roster rather than clearing it -- so this control cannot be read as
-// either of them, and overloading neither was needed.
-//
-// The dialog is part of setupMarkup()'s own markup rather than a static block in markup.html the way
-// short-stick's are, because #panel is this route's one reveal receiver (arm-reveal-paths.test.mjs)
-// and everything else already lives there. That is enough to gate the CLOSED dialog -- it is walked
-// and disabled by the same armPanel() call renderSetup() already runs -- but showModal() is its own
-// reveal: without a fresh arm at the moment it opens, its buttons carry whatever state that far
-// earlier window left them in, live under the finger that just tapped the trigger. disarmDialog
-// cancels the previous window before arming a new one, same reason armPanel keeps disarmPanel -- the
-// dialog node is reused across a cancel-then-reopen within one setup render, and arming again without
-// cancelling would stack a second pointerdown listener on it.
-let disarmDialog=null;
-function openResetNames(){
-  const dlg=document.querySelector('#reset-names-dialog');
-  if(!dlg)return;
-  sounds.click();
-  dlg.showModal();
-  if(disarmDialog)disarmDialog();
-  disarmDialog=armAllButtons(dlg);
-}
-// gh#187: closing the dialog is ITSELF a reveal. #start and the name rows sit behind it on the live
-// setup panel, still enabled, their arm window long expired -- which is exactly why the second
-// contact of a double-tap on close or cancel fires one. Armed here in the shared closer so no branch
-// out of the dialog can miss it, with the same except list and onArm hook renderSetup() uses, so
-// #start goes back to whatever validateCount() says rather than being forced enabled.
-function closeResetNames(){
-  document.querySelector('#reset-names-dialog')?.close();
-  armPanel(countSteppers(),validateCount);
-}
-function confirmResetNames(){
-  closeResetNames();
-  sounds.click(420);
-  resetSetupNames();
-  // renderSetup() rebuilds the whole panel -- rows, trigger and dialog -- through innerHTML and ends
-  // in armPanel(countSteppers(),validateCount), so the rebuilt screen is re-armed by the same call
-  // every other setup entry already goes through. Nothing rebuilt here lands live under the finger
-  // that just confirmed.
-  renderSetup();
+  if(playerScreen)playerScreen.open();
 }
 
 // Every screen below is mounted by replacing #panel's innerHTML, so the gate is re-armed on each
-// reveal — a single call at module init would arm the setup screen and nothing a player ever taps
+// reveal — a single call at module init would arm the first screen and nothing a player ever taps
 // into. #panel is the SAME node across screens, so the previous gate is cancelled first; otherwise
 // each render would leave another pointerdown listener on it, still flipping `disabled` on buttons
 // that left the document several screens ago.
 let disarmPanel=null;
-function armPanel(except=[],onArm){
+function armPanel(){
   if(disarmPanel)disarmPanel();
-  disarmPanel=armAllButtons(panel,except,onArm);
-}
-
-// The roster steppers, excepted from the gate. _arm-gate.ts records why the exception exists and it
-// is per CONTROL, not per game: the 400ms window assumes the gated control has no legitimate
-// sub-500ms follow-up tap, and #minus/#plus are the one pair on this screen a single player taps
-// repeatedly — their own handler re-renders #panel, so gating them would disable the button under
-// the finger on every step and a player walking 2 to 10 would wait 400ms nine times. Same list
-// timebomb, dice-loser, power-meter and freeze-tap's rapidTapControls() keep, and the same ruling
-// short-stick's +/- re-render seam got. Re-queried per call: renderSetup() replaces #panel
-// wholesale, so a cached reference would name a detached node.
-function countSteppers(){
-  return [document.querySelector('#minus'),document.querySelector('#plus')].filter(Boolean);
+  disarmPanel=armAllButtons(panel);
 }
 
 function render(){
   delete panel.dataset.qaCorrect;
-  // Setup arms itself inside renderSetup(), because three of its four reveal sites never pass
-  // through here: setSetupCount(), editNames() and module init all call it directly.
-  if(!game)return renderSetup();
+  // No match, nothing to draw: the players are chosen on the shared player screen, not in #panel.
+  if(!game)return;
   roundTag.textContent=`รอบ ${game.rerollRound} · ${game.currentTurnIndex+1}/${game.players.length}`;
   if(game.phase===PHASE.PASS)renderPass();
   else if(game.phase===PHASE.QUESTION)renderQuestion();
@@ -490,19 +341,12 @@ syncSound();
 // the CSP to block (ADR-0005). The keys here and the data-act values in the markup above are one
 // closed set — src/play/pinocchio-luck/handlers.test.mjs checks it in both directions.
 const ACTIONS={
-  'count-down':()=>setSetupCount(setupCount-1),
-  'count-up':()=>setSetupCount(setupCount+1),
-  start:startMatch,
   ready:revealQuestion,
   answer:(arg)=>answer(arg),
   next:()=>{sounds.click(520);continueTurn()},
   reroll:resetAllSafe,
   replay:replayMatch,
   'edit-names':editNames,
-  'reset-names':openResetNames,
-  'close-reset-names':closeResetNames,
-  'cancel-reset-names':closeResetNames,
-  'confirm-reset-names':confirmResetNames,
   sound:toggleSound,
 };
 
@@ -511,15 +355,6 @@ document.addEventListener('click',(event)=>{
   if(!target)return;
   const run=ACTIONS[target.dataset.act];
   if(run)run(target.dataset.arg);
-});
-// The count field is not a click target, so it gets the same delegation on its own two events.
-document.addEventListener('input',(event)=>{
-  if(event.target instanceof Element&&event.target.id==='count')validateCount();
-});
-document.addEventListener('change',(event)=>{
-  if(event.target instanceof Element&&event.target.id==='count'&&validateCount()){
-    setSetupCount(Number(event.target.value));
-  }
 });
 
 const visual={
@@ -1087,6 +922,17 @@ requestAnimationFrame(frame);
 // The mockup's in-page self-test runner was removed on lift: it ran on every page load, and its
 // assertions now live in src/games/pinocchio-luck.test.mjs, against the same exported functions.
 
-setupNames=Array(setupCount).fill('');
-renderSetup();
+// ADR-0071. The player screen opens first; its start hands the ticked players to startWithPlayers().
+// A round is live from the first pass card until the results: the all-safe screen is mid-round (its
+// reroll continues it), the results are not, so editing the players there asks nothing.
+const playersRoot = document.getElementById('plPlayers');
+playerScreen=playersRoot?mountPlayerScreen({
+  root: playersRoot,
+  range: pinocchioLuck.players,
+  onStart: startWithPlayers,
+  roundActive:()=>game!==null&&game.phase!==PHASE.RESULTS,
+  abortRound:putRoundAway,
+  onOpen:putRoundAway,
+}):null;
+if(playerScreen)playerScreen.open();
 })();
