@@ -56,10 +56,13 @@ reopens the component in place instead of reloading the page.
 
 ### Data
 
-No new storage key. The roster is `watduang:roster`; who plays this round is `watduang:group`. Both
+No new player key. The roster is `watduang:roster`; who plays this round is `watduang:group`. Both
 are read and written only through `src/shell/roster.ts` — the roster-lock structure gate keeps that
 file the single speller of the key. `_setup-bridge.ts` and the per-route bridges retire once no
 importer remains.
+*(Amended 2026-10-15, REFUTE round 5.)* One bookkeeping key, spelled only in `roster.ts`, records
+which settings blobs have been migrated, so a stale settings save from another tab cannot bring
+retired players back; it holds key names, never players.
 
 **One-time migration.** When the shared roster is empty, the core imports the names stored under the
 per-game keys of timebomb, dice-loser and one-bomb, then deletes those keys. When the shared roster is
