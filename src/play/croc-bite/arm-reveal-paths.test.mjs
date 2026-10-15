@@ -35,7 +35,9 @@ import path from 'node:path';
 import { stripTypeScriptTypes } from 'node:module';
 import { sliceBlock } from '../_dom-stub.mjs';
 import { inputClockGate } from '../../games/_arm-gate.ts';
-import { revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { closerCases, revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { armAllButtons } from '../../games/_arm-gate.ts';
+import crocBite from '../../games/croc-bite.ts';
 
 const here = import.meta.dirname;
 
@@ -183,9 +185,9 @@ function loadGlue() {
   );
   // eslint-disable-next-line no-new-func -- executing main.ts's own text is the whole point.
   const api = new Function(
-    '$', 'armAllButtons', 'BOARD_ID', 'MutationObserver', 'armToothInput',
+    '$', 'armAllButtons', 'BOARD_ID', 'MutationObserver', 'armToothInput', 'engine',
     `${code}\n;return { REVEAL_CONTAINERS, CLOSE_CONTROLS, watchEngineReveals, armWhatTheModalCovered, armBehindModal };`,
-  )((id) => $(id), (el) => armed.push(el.id), 'croc-fallback-board', FakeObserver, () => armed.push('3d-tooth-input'));
+  )((id) => $(id), (el) => armed.push(el.id), 'croc-fallback-board', FakeObserver, () => armed.push('3d-tooth-input'), () => undefined);
   return { api, armed, observers, $ };
 }
 
@@ -625,3 +627,24 @@ test('the house icon and the result menu reach the player screen through the edi
 });
 
 revealPathCases({ test, assert, routeMarkup: markup, rootId: 'croc-players', headerId: 'btn-hud-home', label: 'croc-bite' });
+
+// gh#264 REFUTE round 4: closing a modal over the open shared player screen is a reveal of that
+// screen too (ADR-0057). The route's closer must hand it to the screen's own arm(), whose gate also
+// re-applies start's validity -- run here on the real screen over this route's markup.
+closerCases({
+  test,
+  assert,
+  routeMarkup: fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8'),
+  rootId: 'croc-players',
+  range: crocBite.players,
+  label: 'croc-bite',
+  close: (page) => {
+    const code = stripTypeScriptTypes(COVERED_SRC, { mode: 'strip' });
+    // eslint-disable-next-line no-new-func -- the closer's own bytes.
+    const armWhatTheModalCovered = new Function(
+      'REVEAL_CONTAINERS', '$', 'armAllButtons', 'BOARD_ID', 'armToothInput', 'engine',
+      `${code}\n;return armWhatTheModalCovered;`,
+    )([], (id) => page.byId(id), armAllButtons, 'croc-no-such-board', () => {}, () => ({ players: page.screen }));
+    armWhatTheModalCovered();
+  },
+});

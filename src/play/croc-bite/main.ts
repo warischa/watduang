@@ -22,6 +22,8 @@ type PressPayload = { token: number; isLosing: boolean };
  *  route, and nothing outside this file needs the type. */
 type KhengApp = {
   animationFrameId: number | null;
+  /** The shared player screen's handle, set by main.js's mountPlayers (gh#264). */
+  players?: { arm(): void };
   audio: { setMuted(muted: boolean): void };
   state: {
     phase: string;
@@ -140,6 +142,11 @@ function armWhatTheModalCovered(): void {
   const board = $(BOARD_ID);
   if (board) armAllButtons(board);
   armToothInput();
+  // gh#264: the open shared player screen is a region a modal can cover too. Its own arm() runs the
+  // screen's surface gate, which re-applies start's validity when the window closes; a bare
+  // armAllButtons here would hand start back even with two rows showing one name.
+  const players = $('croc-players');
+  if (players && !players.hidden) engine()?.players?.arm();
 }
 
 /** The 3D board, which no entry above can hold either: it has no <button> to disable. The engine's
