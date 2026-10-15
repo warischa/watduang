@@ -50,7 +50,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // route the manifest ships is a red naming that route, not a vacuous pass over the rest.
 const RESET_TRIGGER = {
   'bangkok-drift': { attr: 'id="bd-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
-  'cannon-flag': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  'cannon-flag': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   // markup.html belongs to the lifted engine on this route, so the trigger is injected by main.ts --
   // which is why the file loop below reads all three files and not just the markup. The attribute
   // still sits in a real opening tag in a template string, which is what findTriggerElement needs.

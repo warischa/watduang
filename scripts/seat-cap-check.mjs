@@ -180,17 +180,6 @@ const DRIVERS = {
       return { cap: env.game.playerCount };
     },
   },
-  'cannon-flag': {
-    what: 'the setup stepper increments only while the count is under its ceiling',
-    run: (source) => {
-      const compiled = compileListener(source, "DOM.btnIncPlayers.addEventListener('click', () =>");
-      if (compiled.error) return compiled;
-      const env = { setupPlayerCount: 2 };
-      const handler = compiled.make(env, tolerantReceiver({}));
-      if (typeof handler !== 'function') return { error: 'the stepper registered no click handler' };
-      return saturate(() => handler(), () => env.setupPlayerCount);
-    },
-  },
   'bangkok-drift': {
     what: 'the roster stepper increments only while the count is under its ceiling',
     run: (source) => {
@@ -559,6 +548,32 @@ const HANDOFFS = {
       const roster = receiver.activeRoster;
       if (!Array.isArray(roster)) return { error: 'startWithPlayers() never started a round, so no seated list could be read' };
       return { seated: roster.length === receiver.players.length ? roster.length : NaN };
+    },
+  },
+  'cannon-flag': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() seats the handed players through the real MatchEngine.setupMatch',
+    run: (source, _module, players) => {
+      // The real engine class, not a stub of setupMatch: a stub would measure only the forward, and
+      // a setupMatch that dropped seats would pass. Its neighbours (generateEnvironment, defaultName)
+      // resolve tolerantly; Math and Date stay real.
+      const engine = sliceBlock(source, 'class MatchEngine');
+      if (!engine) return { error: 'no surface answers to `class MatchEngine`' };
+      const handoff = sliceBlock(source, 'function startWithPlayers(players)');
+      if (!handoff) return { error: 'no surface answers to `function startWithPlayers(players)`' };
+      let built;
+      try {
+        built = new Function('__scope', '__env',
+          `with (__scope) { with (__env) { ${engine}\nconst gameEngine = new MatchEngine();\n${handoff}\nreturn { gameEngine, startWithPlayers }; } }`,
+        )(freeScope, {});
+      } catch (error) { return { error: `slice will not compile: ${error.message}` }; }
+      built.startWithPlayers(players);
+      const seated = built.gameEngine;
+      // The seats the round iterates, the turn pool it walks and the count it reads must all agree.
+      return {
+        seated: seated.players.length === seated.playerCount && seated.activePlayerPool.length === seated.playerCount
+          ? seated.playerCount : NaN,
+      };
     },
   },
 };

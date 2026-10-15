@@ -10,12 +10,17 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
 // wrong value costs the player one tap needs neither a migration nor a collision guard.
 import { isMuted, setMuted } from '../../shell/audio.ts';
-// gh#175 / ADR-0054: the setup screen opens on the shared animal cast, never on a column of numbers.
-// Both numbered-default sites on this route -- the placeholder renderSetupPlayerInputs shows on an
-// empty row, and the fallback setupMatch applies when a player left a field blank -- read from here.
-// resetCastNames is the reset control's wipe: it keeps the roster's length and discards whatever the
-// players typed.
-import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
+// gh#175 / ADR-0054: no numbered default on this route. The one default it still owns -- the fallback
+// setupMatch applies to a blank name -- reads from the shared cast. (The mockup's setup rows, their
+// placeholder and their reset wipe went with the setup screen in gh#264.)
+import { mascotNames } from '../_mascots.ts';
+// ADR-0071 (gh#264): the one player screen every party route mounts. It owns the count, the names,
+// the reset, the roster and the group; this file gets the ticked players back through
+// startWithPlayers(). The default export is read for one field, `players`: the range the screen
+// admits is the one the manifest declares (ADR-0065), never a number restated here. Named `game`
+// because scripts/seat-cap-check.mjs proves the hand-off structurally on `range: game.players`.
+import game from '../../games/cannon-flag.ts';
+import { EDIT_EVENT, mountPlayerScreen } from '../_player-screen/player-screen.ts';
 
     /**
      * CANNON FLAG (route id: cannon-flag) - ZERO EXTERNAL ASSET GAME ENGINE
@@ -1298,24 +1303,12 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
 
     if (typeof document !== 'undefined') {
       DOM = {
-        // Screens
-        screenSetup: document.getElementById('screen-setup'),
+        // Screens. The setup screen is not one of them since gh#264: the shared player screen
+        // (#cf-players) comes first, mounted at the end of this file.
         screenPassDevice: document.getElementById('screen-pass-device'),
         screenGameplay: document.getElementById('screen-gameplay'),
         screenResults: document.getElementById('screen-results'),
         testModal: document.getElementById('test-modal'),
-
-        // Setup inputs
-        displayPlayerCount: document.getElementById('display-player-count'),
-        labelPlayerCount: document.getElementById('label-player-count'),
-        btnDecPlayers: document.getElementById('btn-dec-players'),
-        btnIncPlayers: document.getElementById('btn-inc-players'),
-        playerNamesContainer: document.getElementById('player-names-container'),
-        btnStartMatch: document.getElementById('btn-start-match'),
-        btnResetNames: document.getElementById('btn-reset-names'),
-        resetNamesConfirm: document.getElementById('reset-names-confirm'),
-        btnCancelResetNames: document.getElementById('btn-cancel-reset-names'),
-        btnConfirmResetNames: document.getElementById('btn-confirm-reset-names'),
 
         // Pass device
         passPlayerName: document.getElementById('pass-player-name'),
@@ -1378,13 +1371,14 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
     }
 
     // The controls a player deliberately taps twice in a row, so the 400ms window must never cover
-    // them. _arm-gate.ts records this ceiling as PER CONTROL: the counter steppers are held down and
-    // repeated, the angle nudges are tapped in bursts, and the FIRE button is press-and-hold -- a
-    // gate that disabled any of them would take the game away rather than protect it. Everything
-    // else on these screens is a one-shot transition control and is gated.
+    // them. _arm-gate.ts records this ceiling as PER CONTROL: the angle nudges are tapped in bursts,
+    // and the FIRE button is press-and-hold -- a gate that disabled any of them would take the game
+    // away rather than protect it. Everything else on these screens is a one-shot transition control
+    // and is gated. (The count steppers that were also here went with the mockup's setup in gh#264;
+    // the shared player screen keeps its own steppers out of its gate.)
     function rapidTapControls() {
       if (!DOM) return [];
-      return [DOM.btnDecPlayers, DOM.btnIncPlayers, DOM.btnAngleDec, DOM.btnAngleInc, DOM.btnFireCannon]
+      return [DOM.btnAngleDec, DOM.btnAngleInc, DOM.btnFireCannon]
         .filter(Boolean);
     }
 
@@ -1401,8 +1395,8 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
     // #test-modal gets a SEPARATE slot instead of armPanel's. Its trigger, #btn-open-tests, sits in
     // the header outside every game-screen, so it is never gated and can be tapped while a screen
     // reveal is still inside its window. Through armPanel that tap would cancel the pending screen
-    // arm, and the canceller does not re-enable: the setup screen's buttons would stay disabled with
-    // no control left that could call showScreen() again.
+    // arm, and the canceller does not re-enable: the revealed screen's buttons would stay disabled
+    // with no control left that could call showScreen() again.
     let disarmTestModal = null;
     function armTestModal() {
       if (!DOM || !DOM.testModal) return;
@@ -1412,7 +1406,7 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
 
     function showScreen(screenEl) {
       if (!DOM) return;
-      [DOM.screenSetup, DOM.screenPassDevice, DOM.screenGameplay, DOM.screenResults].forEach(s => {
+      [DOM.screenPassDevice, DOM.screenGameplay, DOM.screenResults].forEach(s => {
         if (s) s.classList.remove('active');
       });
       if (screenEl) screenEl.classList.add('active');
@@ -1423,9 +1417,11 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
     }
 
     // ---------------------------------------------------------
-    // SETUP SCREEN CONTROLS
+    // PLAYERS (ADR-0071, gh#264)
     // ---------------------------------------------------------
-    let setupPlayerCount = 4;
+    // The mockup's setup screen -- count stepper, name rows, reset control and its overlay, start
+    // button -- is GONE. The shared player screen (mounted at the end of this file into #cf-players)
+    // owns the count, the names and the reset, and hands the ticked players to startWithPlayers().
 
     // Roster names are typed by players, so they are untrusted text wherever this file builds
     // markup by string. Same helper, same idiom as src/play/freeze-tap/main.js — kept local because
@@ -1442,112 +1438,55 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
     }
 
     // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
-    // exactly one definition, in _mascots.ts, and none here. Used by the placeholder below and by
-    // MatchEngine.setupMatch's blank-field fallback -- declared before both run.
+    // exactly one definition, in _mascots.ts, and none here. Used by MatchEngine.setupMatch's
+    // blank-name fallback -- declared before it runs. The shared screen already hands a blank row
+    // over as its own mascot's name, so this is the engine's last line, not the usual path.
     const defaultName = (i) => mascotNames(i + 1)[i];
 
-    function renderSetupPlayerInputs() {
-      if (!DOM || !DOM.displayPlayerCount) return;
-      DOM.displayPlayerCount.textContent = setupPlayerCount;
-      DOM.labelPlayerCount.textContent = `${setupPlayerCount} คน`;
-
-      // Preserve existing typed names
-      const existingNames = Array.from(DOM.playerNamesContainer.querySelectorAll('.player-name-input')).map(i => i.value);
-      DOM.playerNamesContainer.innerHTML = '';
-
-      for (let i = 0; i < setupPlayerCount; i++) {
-        const row = document.createElement('div');
-        row.className = 'player-name-row';
-        // gh#140's animal icon in the badge, not a seat number: the shared shell panel already
-        // renders the icon, and this route builds its own setup screen so it never got it. Marked
-        // aria-hidden because it pictures the animal the placeholder beside it already names -- the
-        // row's POSITION is a separate channel and is deliberately not sourced from the cast.
-        row.innerHTML = `
-          <span class="player-tag" aria-hidden="true">${mascotEmoji(i)}</span>
-          <input type="text" class="player-name-input" placeholder="${escapeHtml(defaultName(i))}" maxlength="20" value="${escapeHtml(existingNames[i] || '')}">
-        `;
-        DOM.playerNamesContainer.appendChild(row);
-      }
+    /** The engine entry the shared player screen starts (ADR-0071): every player it hands over is
+     *  seated, under the name the screen gave it, and play comes next -- this route has no
+     *  non-player option to show between the players and the pass-device screen (ruling 1).
+     *  setupMatch shuffles the turn order itself; that is this game's rule, kept (ruling 5).
+     *  scripts/seat-cap-check.mjs runs this function with the declared minimum and maximum and
+     *  reads the seated count back. */
+    function startWithPlayers(players) {
+      sound.init();
+      sound.playClick();
+      const env = gameEngine.setupMatch(players.map((p) => p.name));
+      if (DOM) DOM.hudMatchSeed.textContent = `SEED: #${env.seed}`;
+      showPassDeviceScreen();
     }
 
-    /** gh#175 / ADR-0054, same wipe short-stick's gh#174 confirms. Roster names on this route live as
-     *  DOM input values until Start is pressed -- there is no game.players array before that, so the
-     *  state IS the array of current input strings. Takes that array and returns the same-length
-     *  animal cast for the confirm handler to write back; never reads or writes the DOM itself, so
-     *  reset-names.test.mjs can lift it out of main.js and run it without a browser. resetCastNames
-     *  only reads the array's length and never looks inside an entry, so a typed name cannot survive
-     *  this call -- that is exactly the loss the confirm copy names. */
-    const resetPlayerNames = (names) => resetCastNames(names);
+    // A round outlives its screens three ways here: the aim timer interval, the ball's rAF flight,
+    // and the 700ms timeout that lands the shot modal. roundSeq fences off the last two -- a flight
+    // or a timeout started under an older value lands nothing.
+    let roundSeq = 0;
 
-    if (DOM) {
-      DOM.btnDecPlayers.addEventListener('click', () => {
-        if (setupPlayerCount > 2) {
-          setupPlayerCount--;
-          sound.playClick();
-          renderSetupPlayerInputs();
-        }
-      });
+    /** Ends whatever round is on screen and puts every game screen away. The shared screen calls it
+     *  on a confirmed mid-round edit (abortRound, ADR-0071 ruling 6 / ADR-0008) and on every open
+     *  (onOpen), where it is a no-op beyond hiding the screens if no round is live. */
+    function putAwayRound() {
+      roundSeq += 1;
+      clearInterval(aimTimerInterval);
+      isAimingLocked = true;
+      if (isChargingPower) {
+        isChargingPower = false;
+        sound.stopChargeHum();
+        if (DOM) DOM.btnFireCannon.classList.remove('charging');
+      }
+      if (renderer) renderer.flyingBall = null;
+      if (DOM) DOM.shotModalOverlay.classList.remove('active');
+      showScreen(null);
+    }
 
-      DOM.btnIncPlayers.addEventListener('click', () => {
-        if (setupPlayerCount < 20) {
-          setupPlayerCount++;
-          sound.playClick();
-          renderSetupPlayerInputs();
-        }
-      });
-
-      DOM.btnStartMatch.addEventListener('click', () => {
-        sound.init();
-        sound.playClick();
-        const inputs = DOM.playerNamesContainer.querySelectorAll('.player-name-input');
-        const names = Array.from(inputs).map(inp => inp.value);
-        
-        const env = gameEngine.setupMatch(names);
-        DOM.hudMatchSeed.textContent = `SEED: #${env.seed}`;
-        
-        showPassDeviceScreen();
-      });
-
-      // Reset Player Names (gh#175 / ADR-0054). The question is asked because the answer is
-      // destructive: every name a player typed is replaced. #reset-names-confirm is not a native
-      // <dialog> -- it reuses .shot-modal-overlay, the same opacity/pointer-events reveal
-      // showShotResultModal() already uses on this route, armed the same way: armPanel disables every
-      // button inside it for the route's usual 400ms window. Nothing here is autofocused the way a
-      // <dialog>'s showModal() would be, so there is no button-order claim to make -- the 400ms
-      // window is the only thing standing between a held tap and the confirm button.
-      DOM.btnResetNames.addEventListener('click', () => {
-        sound.playClick();
-        DOM.resetNamesConfirm.classList.add('active');
-        armPanel(DOM.resetNamesConfirm);
-      });
-
-      const closeResetNamesConfirm = () => {
-        DOM.resetNamesConfirm.classList.remove('active');
-        // ADR-0017. Closing this overlay is ITSELF a reveal, and that -- not a rebuild -- is the
-        // hazard. "#btn-start-match" and the count controls sat behind it a frame ago, enabled,
-        // their 400ms window long expired, so a double-tap on close, cancel or confirm puts the
-        // second contact on the start button and begins the match with the phone unpassed. Armed
-        // in this shared closer so no branch out of the overlay can miss it.
-        armPanel(DOM.screenSetup);
-      };
-
-      DOM.btnCancelResetNames.addEventListener('click', () => {
-        closeResetNamesConfirm();
-        sound.playClick();
-      });
-
-      DOM.btnConfirmResetNames.addEventListener('click', () => {
-        closeResetNamesConfirm();
-        sound.playClick();
-        const inputs = DOM.playerNamesContainer.querySelectorAll('.player-name-input');
-        const reset = resetPlayerNames(Array.from(inputs).map((inp) => inp.value));
-        // No renderSetupPlayerInputs() call: a row here carries no button at all -- only the #N tag
-        // and the text input -- so overwriting .value in place creates and destroys no control.
-        // That was once written here as the reason no re-arm was needed. It is the wrong model, and
-        // adversarial review caught it: the reveal that matters is the OVERLAY CLOSING over a live
-        // setup screen, which closeResetNamesConfirm above now arms for all three branches.
-        inputs.forEach((inp, i) => { inp.value = reset[i]; });
-      });
+    /** Is a match undecided right now? The pass-device and aiming screens are mid-round, and so is a
+     *  results screen still owed its sudden death: leaving there drops a tie nobody resolved. A
+     *  decided results screen is not -- editing the players there loses nothing (ruling 6). */
+    function roundActive() {
+      if (!DOM) return false;
+      const live = (el) => !!el && el.classList.contains('active');
+      return live(DOM.screenPassDevice) || live(DOM.screenGameplay)
+        || (live(DOM.screenResults) && !!document.getElementById('btn-start-sudden-death'));
     }
 
     // ---------------------------------------------------------
@@ -1734,8 +1673,12 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
       // Animate Ball along trajectory path
       let frameIndex = 0;
       const totalFrames = simResult.path.length;
+      // gh#264: the round this shot belongs to. putAwayRound advances roundSeq, and a flight from an
+      // older round stops where it is instead of landing on the player screen.
+      const seq = roundSeq;
 
       function animBall() {
+        if (seq !== roundSeq) return;
         if (frameIndex < totalFrames) {
           const pt = simResult.path[frameIndex];
           // ADR-0046: under the reduce query the ball walks the SAME trajectory in bigger strides --
@@ -1788,9 +1731,10 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
         renderer.shot1Ghost = simResult;
       }
 
-      // Show In-Game Modal Overlay
+      // Show In-Game Modal Overlay -- unless the round was put away during the 700ms (gh#264).
+      const seq = roundSeq;
       setTimeout(() => {
-        showShotResultModal(simResult);
+        if (seq === roundSeq) showShotResultModal(simResult);
       }, 700);
     }
 
@@ -1919,9 +1863,12 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
         showPassDeviceScreen();
       });
 
+      // ADR-0071: editing the players is the shared player screen's job. Through the same request
+      // the chrome's edit control sends, so roundActive() decides: a decided match opens the screen
+      // straight away, a tie still owed its sudden death is asked about first (ruling 6, ADR-0008).
       DOM.btnNewSetup.addEventListener('click', () => {
         sound.playClick();
-        showScreen(DOM.screenSetup);
+        document.dispatchEvent(new CustomEvent(EDIT_EVENT));
       });
 
       // ---------------------------------------------------------
@@ -1985,12 +1932,24 @@ import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
       requestAnimationFrame(gameLoop);
     }
 
-    // Initial setup display
-    renderSetupPlayerInputs();
-
-    // First paint is a transition too: the tap that opened this route can still be mid-double, and
-    // the setup screen ships `active` in markup.html without ever going through showScreen().
-    if (DOM) armPanel(DOM.screenSetup);
+    // ADR-0071. The shared player screen opens first; its start hands the ticked players to
+    // startWithPlayers, then play. It arms the whole #app-container itself on every open, close,
+    // cancel and confirm (ADR-0057), which is what the old first-paint arming of the setup screen
+    // did -- no game screen ships `active` any more.
+    if (DOM) {
+      const playersRoot = document.getElementById('cf-players');
+      if (playersRoot) {
+        const playerScreen = mountPlayerScreen({
+          root: playersRoot,
+          range: game.players,
+          onStart: startWithPlayers,
+          roundActive,
+          abortRound: putAwayRound,
+          onOpen: putAwayRound,
+        });
+        playerScreen.open();
+      }
+    }
 
     // ---------------------------------------------------------
     // 8. AUTOMATED IN-BROWSER & HEADLESS TEST SUITE
