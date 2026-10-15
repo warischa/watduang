@@ -519,6 +519,26 @@ test('finding 2: a start whose add another tab pushed past the ceiling is refuse
   assert.equal(page.part('limit').textContent, `${page.ps.COPY.fullLead}${page.ps.ROSTER_CEILING}${page.ps.COPY.fullTail}`, 'frame 10: the limit line says why');
 });
 
+test('frame 10 keeps this screen\'s renames: only the add that no longer fits is dropped', async (t) => {
+  const nineteen = Array.from({ length: 19 }, (_, i) => `p${i + 1}`);
+  const { page, names } = await savedPage(t, nineteen);
+  const f = page.root.querySelectorAll('.ps-n')[0];
+  f.value = 'First';
+  f.dispatchEvent({ type: 'input' });
+  page.part('add').click();
+  t.mock.timers.tick(401);
+  await page.store.applyRosterOps([{ op: 'add', name: 'otherTab' }], 20);
+  page.part('start').click();
+  await settle();
+  assert.equal(page.calls.started.length, 0);
+  assert.equal(page.root.querySelectorAll('.ps-n')[0].value, 'First', 'the rename typed here is still on the screen');
+  assert.equal(page.root.querySelectorAll('.ps-p').length, 20);
+  t.mock.timers.tick(401);
+  page.part('start').click();
+  await settle();
+  assert.equal(names()[0], 'First', 'and the next start writes it');
+});
+
 // ---- frames 9 and 10 and the committed order, on the real screen (REFUTE round 3) ---------------
 
 const rename = (page, i, value) => {

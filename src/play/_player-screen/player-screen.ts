@@ -862,7 +862,9 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     void applyRosterOps(ops, ROSTER_CEILING).then((result) => {
       starting = false;
       if (result.status === 'ceiling') {
-        state ={ ...initialState(result.roster, loadGroup(), range), notice: 'full' };
+        // rebase, not a bare re-read: renames and a pending x survive; the adds that no longer fit
+        // are what is dropped, and the full line stays while the roster is at the ceiling.
+        state = { ...rebase(before, result.roster, loadGroup()), notice: 'full' };
       } else if (result.status === 'collision') {
         state = rebase(before, result.roster, loadGroup());
       } else {
