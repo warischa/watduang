@@ -166,7 +166,9 @@ function makeEl(id, classes = []) {
 }
 
 /** Runs the shipped glue over a page of fake elements. Returns the elements the route armed, in
- *  order, plus the observers it installed. */
+ *  order, plus the observers it installed. The engine handle carries a LIVE player screen whose
+ *  arm() is recorded as 'croc-players', and #croc-players is on display unless a test hides it: an
+ *  undefined engine hid the screen's branch from every check below (gh#264 REFUTE round 5). */
 function loadGlue() {
   const armed = [];
   const observers = [];
@@ -187,7 +189,11 @@ function loadGlue() {
   const api = new Function(
     '$', 'armAllButtons', 'BOARD_ID', 'MutationObserver', 'armToothInput', 'engine',
     `${code}\n;return { REVEAL_CONTAINERS, CLOSE_CONTROLS, watchEngineReveals, armWhatTheModalCovered, armBehindModal };`,
-  )((id) => $(id), (el) => armed.push(el.id), 'croc-fallback-board', FakeObserver, () => armed.push('3d-tooth-input'), () => undefined);
+  )(
+    (id) => $(id), (el) => armed.push(el.id), 'croc-fallback-board', FakeObserver, () => armed.push('3d-tooth-input'),
+    () => ({ players: { arm: () => armed.push('croc-players') } }),
+  );
+  $('croc-players').hidden = false;
   return { api, armed, observers, $ };
 }
 
@@ -266,6 +272,30 @@ test('ADR-0057: closing a modal arms the screen behind it and the no-3D board, n
       `${modal.id} was armed by its own close path: at pointerdown it is still open, and disabling its ` +
       'close button there would eat the contact that closes it');
   }
+  // The player screen's own gate covers the whole of #app, the open modal with it, so arming the
+  // screen here is arming the modal: its close is disabled at pointerdown and the click never fires.
+  assert.ok(!armed.includes('croc-players'),
+    'the open player screen was armed while a modal still covered it: its gate spans #app, so the ' +
+    'close control being pressed was disabled before its click');
+});
+
+test('ADR-0057: the open player screen is armed once the modal over it is gone, and only then', () => {
+  const { api, armed, $ } = loadGlue();
+  // The pointerdown pass: the engine has not closed the modal yet.
+  $('modal-how').classList.add('open');
+  api.armWhatTheModalCovered();
+  assert.ok(!armed.includes('croc-players'), 'the player screen was armed with the modal still open over it');
+  // The click leg, after the engine's own close on the button: nothing covers the screen now.
+  $('modal-how').classList.remove('open');
+  api.armWhatTheModalCovered();
+  assert.ok(armed.includes('croc-players'),
+    'closing a modal over the open player screen never armed it: the second contact of the double-tap ' +
+    'that closed the modal lands on a live start');
+
+  const hidden = loadGlue();
+  hidden.$('croc-players').hidden = true;
+  hidden.api.armWhatTheModalCovered();
+  assert.ok(!hidden.armed.includes('croc-players'), 'a player screen that is not on display was armed');
 });
 
 test('ADR-0057: every close, cancel and confirm control on this route is a close path', () => {
@@ -638,13 +668,24 @@ closerCases({
   rootId: 'croc-players',
   range: crocBite.players,
   label: 'croc-bite',
+  // Both passes of a real close of #modal-how over the open screen, with the route's real container
+  // list: the document-capture pointerdown while the modal is still open, then the click leg after
+  // the engine's own close. The close control must still be live between the two (REFUTE round 5).
   close: (page) => {
-    const code = stripTypeScriptTypes(COVERED_SRC, { mode: 'strip' });
+    const code = stripTypeScriptTypes(`${CONTAINERS_SRC}\n${COVERED_SRC}`, { mode: 'strip' });
     // eslint-disable-next-line no-new-func -- the closer's own bytes.
     const armWhatTheModalCovered = new Function(
-      'REVEAL_CONTAINERS', '$', 'armAllButtons', 'BOARD_ID', 'armToothInput', 'engine',
+      '$', 'armAllButtons', 'BOARD_ID', 'armToothInput', 'engine',
       `${code}\n;return armWhatTheModalCovered;`,
-    )([], (id) => page.byId(id), armAllButtons, 'croc-no-such-board', () => {}, () => ({ players: page.screen }));
+    )((id) => page.byId(id), armAllButtons, 'croc-no-such-board', () => {}, () => ({ players: page.screen }));
+    const modal = page.byId('modal-how');
+    const closeBtn = page.byId('btn-close-how');
+    assert.ok(modal && closeBtn, 'the markup lost #modal-how or its close control -- this leg measures nothing');
+    modal.classList.add('open');
+    armWhatTheModalCovered();
+    assert.equal(closeBtn.disabled, false,
+      'the pointerdown pass disabled the close control it was pressed on: its click never fires');
+    modal.classList.remove('open');
     armWhatTheModalCovered();
   },
 });

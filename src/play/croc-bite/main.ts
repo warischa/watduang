@@ -130,7 +130,8 @@ function watchEngineReveals(): void {
  *  cannot see this reveal and it is armed explicitly.
  *
  *  The modal being closed is deliberately NOT in the set: on the pointerdown pass it is still open,
- *  and disabling its own close button there would eat the contact that closes it. */
+ *  and disabling its own close button there would eat the contact that closes it. Nor is any gate
+ *  whose region CONTAINS that modal -- the player screen's, below. */
 function armWhatTheModalCovered(): void {
   for (const { id, cls, visibleWhenPresent, modal } of REVEAL_CONTAINERS) {
     const el = modal ? null : $(id);
@@ -145,8 +146,15 @@ function armWhatTheModalCovered(): void {
   // gh#264: the open shared player screen is a region a modal can cover too. Its own arm() runs the
   // screen's surface gate, which re-applies start's validity when the window closes; a bare
   // armAllButtons here would hand start back even with two rows showing one name.
+  // Only once NO modal is open. That gate spans the whole of #app, the modals inside it, so on the
+  // pointerdown pass it would disable the very close control being pressed and the click that closes
+  // the modal would never fire (gh#264 REFUTE round 5). The click leg runs after the engine's own
+  // close on the button, so the screen is armed there, anchored to that press's release (ADR-0059).
+  const covered = REVEAL_CONTAINERS.some(
+    ({ id, cls, visibleWhenPresent, modal }) => modal && $(id)?.classList.contains(cls) === visibleWhenPresent,
+  );
   const players = $('croc-players');
-  if (players && !players.hidden) engine()?.players?.arm();
+  if (players && !players.hidden && !covered) engine()?.players?.arm();
 }
 
 /** The 3D board, which no entry above can hold either: it has no <button> to disable. The engine's
