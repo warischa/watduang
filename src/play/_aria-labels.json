@@ -47,9 +47,7 @@
     "#btn-fewer-shorts": "ลดจำนวนไม้สั้น",
     "#btn-more-shorts": "เพิ่มจำนวนไม้สั้น",
     "#btn-close-rules": "ปิด",
-    "#btn-close-leave": "ปิด",
-    "#btn-close-reset-names": "ปิด",
-    ".remove-p-btn": "ลบผู้เล่น"
+    "#btn-close-leave": "ปิด"
   },
   "wire-snip-panic": {
     "#btn-sound-toggle": "เปิด/ปิดเสียง",

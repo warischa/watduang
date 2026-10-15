@@ -2,19 +2,25 @@
 // screen that just went away must not activate the control that replaced it. This route is the gate's
 // original consumer -- _arm-gate.ts names it -- and the play-route port dropped the wiring.
 // Armed at reveal seams only (setView, each dialog, and every renderDraw, which IS a turn handover).
-// NOT armed inside renderSetup: the +/- stick and add-player buttons re-render themselves on every
-// tap, and gating those is the per-control exception _arm-gate.ts warns about.
+// NOT armed inside renderSetup: the +/- stick buttons and the preset chips re-render themselves on
+// every tap, and gating those is the per-control exception _arm-gate.ts warns about. The shared
+// player screen's own reveals -- its opening, its dialogs, its undo bar -- are armed by that screen
+// itself, over #app.
 import { armAllButtons } from '../../games/_arm-gate.ts';
 // gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
 // of its own -- muting here mutes every other route, and reopening this one shows what the device
 // actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
 // wrong value costs the player one tap needs neither a migration nor a collision guard.
 import { isMuted, setMuted } from '../../shell/audio.ts';
-// gh#174 / ADR-0054: the party opens on the shared animal cast, never on a column of numbers. Every
-// default name on this route comes from here -- the state array it boots with, the placeholder a row
-// shows while empty, the fallback for a field left blank, and the seat that + adds. resetCastNames is
-// the reset control's wipe: it keeps the count and discards whatever the players typed.
-import { MASCOTS, mascotNames, resetCastNames } from '../_mascots.ts';
+// ADR-0071 (gh#264): the one player screen every party route mounts. It owns the count, the names,
+// their animal defaults (ADR-0054), the reset, the roster and the group; this file gets the ticked
+// players back through startWithPlayers(). The mockup's own name rows, add/remove controls, reset
+// dialog and the draft that persisted them are GONE with roster-bridge.ts, which drove them.
+import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
+// The module's default export is read for one field, `players`: the range the player screen admits is
+// the one the manifest declares (ADR-0065), never a number restated here. Named apart from this
+// file's own `game` state object below.
+import shortStick from '../../games/short-stick.ts';
 // gh#184: the inert `+N` seat counter for the scrolling player strip. Behaviour is shared; the look
 // lives in this route's overrides.css.
 import { mountStripOverflowCounter } from '../_strip-overflow.ts';
@@ -314,23 +320,20 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         '🤪 ทำหน้าตลกให้ทั้งวงถ่ายรูปเก็บไว้'
       ];
 
-      // The badge beside each name row. Taken from the shared cast rather than kept as the mockup's
-      // own list, because the names now come from that cast too and the two lists disagreed row for
-      // row -- seat 1 read "แมวส้ม" next to a fox. Longer than the 10-seat ceiling; the modulo below
-      // never reaches the tail.
-      const AVATARS = MASCOTS.map((m) => m.emoji);
-
-      // One seat's default name. Routed through mascotNames so the wrap past the end of the cast has
-      // exactly one definition, in _mascots.ts, and none here.
-      const defaultName = (i) => mascotNames(i + 1)[i];
-
-      const draftKey = 'short-stick-pro-v2';
       const sounds = new SoundSynth();
       const particles = new ParticleSystem(document.getElementById('particle-canvas'));
 
+      // ADR-0071: the shared player screen's root, inside #app. Declared up here because closeDialog
+      // falls back to it when no view is live.
+      const playersRoot = document.getElementById('ssPlayers');
+
+      // `players` and `avatars` are seated together by startWithPlayers() and only there: seat i's
+      // name and the glyph of the mascot the player screen gave it. Not AVATARS[i] by position -- with
+      // someone sitting this round out, seat i and mascot i are different animals (gh#209).
       const game = {
         state: GameState.MENU,
-        players: mascotNames(4),
+        players: [],
+        avatars: [],
         stickCount: 6,
         shortCount: 1,
         penaltyMode: 'none', // 'none' | 'preset' | 'custom'
@@ -376,34 +379,10 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         app.classList.add('shake-impact');
       };
 
-      /* Storage persistence */
-      const loadDraft = () => {
-        try {
-          const raw = localStorage.getItem(draftKey);
-          if (raw) {
-            const data = JSON.parse(raw);
-            if (Array.isArray(data.players) && data.players.length >= 2) {
-              game.players = data.players.slice(0, 10);
-            }
-            if (Number.isInteger(data.stickCount)) game.stickCount = Math.max(game.players.length, Math.min(20, data.stickCount));
-            if (Number.isInteger(data.shortCount)) game.shortCount = Math.max(1, Math.min(3, data.shortCount));
-            if (['none', 'preset', 'custom'].includes(data.penaltyMode)) game.penaltyMode = data.penaltyMode;
-            if (typeof data.selectedPenalty === 'string') game.selectedPenalty = data.selectedPenalty;
-          }
-        } catch (_) {}
-      };
-
-      const saveDraft = () => {
-        try {
-          localStorage.setItem(draftKey, JSON.stringify({
-            players: game.players,
-            stickCount: game.stickCount,
-            shortCount: game.shortCount,
-            penaltyMode: game.penaltyMode,
-            selectedPenalty: game.selectedPenalty
-          }));
-        } catch (_) {}
-      };
+      /* Storage persistence: none of its own since gh#264. The mockup's draft kept the names AND the
+         penalty choice under one private key; ADR-0071 makes the shared roster the only player store
+         and scripts/player-screen-mount-check.mjs reds a route that touches web storage itself, so
+         the whole draft went. The penalty choice now lasts the page visit, not the device. */
 
       /* ====================================================
          4. SCREEN & FSM MANAGEMENT
@@ -442,7 +421,9 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
        *  their own setView() call, which arms the view it switches to. */
       const closeDialog = (id) => {
         $(id)?.close();
-        const shown = document.querySelector('.view.active');
+        // No view is live while the shared player screen is up (gh#264), and the rules dialog opens
+        // from the top bar over it -- so its root is what the dismissal uncovers then.
+        const shown = document.querySelector('.view.active') ?? (playersRoot.hidden ? null : playersRoot);
         if (shown) armAllButtons(shown);
       };
 
@@ -491,8 +472,6 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         $('btn-more-sticks').disabled = game.stickCount >= 20;
         $('btn-fewer-shorts').disabled = game.shortCount <= 1;
         $('btn-more-shorts').disabled = game.shortCount >= Math.min(3, game.players.length - 1);
-        $('btn-add-player').disabled = game.players.length >= 10;
-        $('btn-add-player').textContent = game.players.length >= 10 ? 'ครบ 10 คนแล้ว' : '+ เพิ่มผู้เล่น';
 
         // Penalty Mode Selector
         const modeSelect = $('penalty-mode-select');
@@ -511,7 +490,6 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
           chip.addEventListener('click', () => {
             sounds.playClick(600);
             game.selectedPenalty = preset;
-            saveDraft();
             renderSetup();
           });
           presetContainer.appendChild(chip);
@@ -521,63 +499,29 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.penaltyMode === 'custom') {
           customInput.value = game.selectedPenalty;
         }
-
-        // Render Players Input
-        const list = $('player-inputs-container');
-        list.innerHTML = '';
-        game.players.forEach((name, i) => {
-          const row = document.createElement('div');
-          row.className = 'player-row';
-          row.innerHTML = `
-            <div class="player-avatar-badge">${AVATARS[i % AVATARS.length]}</div>
-            <input class="input player-input" maxlength="15" value="${escapeHtml(name)}" placeholder="${escapeHtml(defaultName(i))}" data-index="${i}">
-            <button class="icon-btn remove-p-btn" type="button" data-index="${i}" ${game.players.length <= 2 ? 'disabled' : ''} aria-label="ลบผู้เล่น">✕</button>
-          `;
-          list.appendChild(row);
-        });
-
-        list.querySelectorAll('.player-input').forEach((inp) => {
-          inp.addEventListener('input', (e) => {
-            game.players[Number(e.target.dataset.index)] = e.target.value.trim() || defaultName(Number(e.target.dataset.index));
-            saveDraft();
-          });
-        });
-
-        list.querySelectorAll('.remove-p-btn').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            // The `disabled` attribute this button renders with is a UI hint, never the invariant, so
-            // the floor is enforced HERE. Without it a 2-player party can be cut to 1, and to 0 on a
-            // second visit to setup, after which renderDraw divides by a roster of zero.
-            // Same condition as the `disabled` expression that renders this button; they move together.
-            // gh#188 narrowed the gate -- armAllButtons now preserves a control that was already
-            // disabled when it was called, so in a real browser the reflected attribute survives the
-            // window. This check stays: it is one line, it does not depend on attribute reflection,
-            // and it is the only leg that holds if the row is re-rendered mid-window.
-            if (game.players.length <= 2) return;
-            sounds.playClick(420);
-            game.players.splice(Number(btn.dataset.index), 1);
-            saveDraft();
-            renderSetup();
-          });
-        });
+        // The name rows this function also rendered -- with their add, remove and reset controls --
+        // are the shared player screen's since gh#264 (ADR-0071).
       };
 
-      /** gh#174. The wipe the reset confirm guards: the cast goes back to its animal names and the
-       *  party keeps its size. resetCastNames only reads the length and never looks inside an entry,
-       *  so a typed name cannot survive this call -- that is exactly the loss the confirm names.
-       *  Deliberately free of any DOM or storage call: the redraw and the draft write belong to the
-       *  handler, which leaves this a pure state move that reset-names.test.mjs can lift out of
-       *  main.js and execute without a browser. */
-      const resetPlayerNames = () => {
-        game.players = resetCastNames(game.players);
-      };
+      /** ADR-0071, the engine entry the shared player screen starts: seats exactly the players it is
+       *  handed, in the order handed (roster order, ruling 5), each with the glyph of the mascot the
+       *  screen gave it. Then the fairness lock re-runs over the new roster -- one stick per player --
+       *  and this game's own options come next (ruling 1). Probed by scripts/seat-cap-check.mjs, which
+       *  runs it and reads the seated count back. */
+      function startWithPlayers(players) {
+        game.players = players.map((p) => p.name);
+        game.avatars = players.map((p) => p.emoji);
+        lockFairCounts();
+        renderSetup();
+        setView('setup');
+      }
 
       const renderDraw = () => {
         const currentPlayer = game.players[game.turn % game.players.length];
         const odds = calculateOdds();
 
         $('draw-player-name').textContent = `ตาของ ${currentPlayer}`;
-        $('draw-player-avatar').textContent = AVATARS[(game.turn % game.players.length) % AVATARS.length];
+        $('draw-player-avatar').textContent = game.avatars[game.turn % game.players.length];
         $('draw-round-step').textContent = `ดึงครั้งที่ ${game.drawIndex + 1} · เหลือ ${odds.remaining} ไม้`;
 
         // The tension pill is gone from the draw board (owner ruling 2026-09-01: roster strip stays,
@@ -593,7 +537,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
           const isActive = idx === (game.turn % game.players.length);
           const chip = document.createElement('div');
           chip.className = `strip-chip${isActive ? ' active' : ''}`;
-          chip.innerHTML = `<span>${AVATARS[idx % AVATARS.length]}</span> <span>${escapeHtml(p)}</span>`;
+          chip.innerHTML = `<span>${game.avatars[idx]}</span> <span>${escapeHtml(p)}</span>`;
           strip.appendChild(chip);
         });
         // After the chips, always: the rebuild above wipes the counter with everything else, and N is
@@ -699,20 +643,13 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
       const startMatch = (reusePlayers = false) => {
         sounds.init();
         sounds.playClick(600);
-        if (!reusePlayers) {
-          const inputs = document.querySelectorAll('.player-input');
-          if (inputs.length >= 2) {
-            game.players = [...inputs].map((inp, idx) => inp.value.trim() || defaultName(idx));
-          }
-          if (game.penaltyMode === 'custom') {
-            game.selectedPenalty = $('penalty-custom-input').value.trim();
-          }
+        // The players are already seated: startWithPlayers() took them from the shared screen.
+        if (!reusePlayers && game.penaltyMode === 'custom') {
+          game.selectedPenalty = $('penalty-custom-input').value.trim();
         }
         // watduang: re-applied here, not only in renderSetup -- btn-replay-round calls startMatch
-        // directly, and a stickCount restored from an older localStorage draft never passes through
-        // renderSetup on that path.
+        // directly, so the lock holds on that path too.
         lockFairCounts();
-        saveDraft();
 
         game.lengths = generateLengths(game.stickCount, game.shortCount);
         
@@ -737,6 +674,11 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         renderDraw();
       };
 
+      // Which round a pending draw timer belongs to. abortRound() bumps it, so a timer of a round the
+      // players ended from the shared screen's mid-round edit (ADR-0071 ruling 6) acts on nothing --
+      // without it the hazard dialog could open over the player screen.
+      let roundEpoch = 0;
+
       const handleDrawStick = (stickIndex, unitEl, clientX, clientY) => {
         if (game.used[stickIndex] || game.isResolving) return;
 
@@ -745,8 +687,10 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         triggerHaptic([30]);
 
         unitEl.classList.add('drawing');
+        const epoch = roundEpoch;
 
         setTimeout(() => {
+          if (epoch !== roundEpoch) return;
           const player = game.players[game.turn % game.players.length];
           const length = game.lengths[stickIndex];
           const isShort = game.shortIndices.includes(stickIndex);
@@ -767,6 +711,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
             renderDraw();
 
             setTimeout(() => {
+              if (epoch !== roundEpoch) return;
               $('hazard-player-name').textContent = `${player} โดนแล้ว!`;
               $('hazard-stick-len').textContent = `${length} ซม.`;
               openDialog('short-reveal-dialog');
@@ -787,14 +732,15 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
       /* ====================================================
          7. EVENT LISTENERS
          ==================================================== */
-      loadDraft();
-
-      // Navigation & Dialogs
-      $('btn-start-setup').addEventListener('click', () => { sounds.playClick(); renderSetup(); setView('setup'); });
-      $('btn-setup-back').addEventListener('click', () => { sounds.playClick(); setView('start'); });
+      // Navigation & Dialogs. ADR-0071 ruling 1: hero -> the shared player screen -> this game's own
+      // options (#view-setup) -> play. So the hero opens the player screen, the options screen's back
+      // control returns to it, and the result screen's edit control reopens it; startWithPlayers()
+      // is the only way into the options.
+      $('btn-start-setup').addEventListener('click', () => { sounds.playClick(); playerScreen.open(); });
+      $('btn-setup-back').addEventListener('click', () => { sounds.playClick(); playerScreen.open(); });
       $('btn-begin-game').addEventListener('click', () => startMatch());
       $('btn-replay-round').addEventListener('click', () => { sounds.playVictory(); particles.spawnConfetti(); startMatch(true); });
-      $('btn-edit-players').addEventListener('click', () => { sounds.playClick(); renderSetup(); setView('setup'); });
+      $('btn-edit-players').addEventListener('click', () => { sounds.playClick(); playerScreen.open(); });
 
       // Rules Dialog
       const openRules = () => { sounds.playClick(); openDialog('rules-dialog'); };
@@ -821,6 +767,8 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
           openDialog('leave-dialog');
         } else {
           sounds.playClick();
+          // The hero and an open player screen must not both show.
+          playerScreen.close();
           setView('start');
         }
       });
@@ -830,45 +778,6 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         $('leave-dialog').close();
         game.state = GameState.MENU;
         setView('start');
-      });
-
-      // Reset Player Names Dialog (gh#174). The question is asked because the answer is destructive:
-      // every name a player typed is replaced. The dialog is opened through openDialog, so its two
-      // buttons arrive gated -- they appear directly over the control that was just pressed.
-      //
-      // The copy in markup.html names every loss this causes, which is what
-      // docs/agents/src-edit-rules.md requires: all typed names go, and they do not come back. It
-      // also names what survives -- the player count and the round settings -- because over-naming
-      // is acceptable there and under-naming is not. Both safe branches -- the close X and cancel --
-      // precede the destructive button in the markup, so showModal() autofocuses a control that only
-      // closes. That ordering is worth keeping, but do NOT rely on it as the guard: openDialog arms
-      // the dialog immediately after showModal(), and the blanket disable that follows drops focus
-      // off the autofocused X onto <body>. Past that point no button is focused at all, so an Enter
-      // still held from the tap that opened this answers nothing -- safer than the ordering claim,
-      // but a different mechanism. What actually protects this dialog is the 400ms gate, not the
-      // markup order (same outcome as the clear-round confirms in "PlayerSetup.astro", different route).
-      $('btn-reset-names').addEventListener('click', () => {
-        sounds.playClick();
-        openDialog('reset-names-dialog');
-      });
-      const closeResetNames = () => closeDialog('reset-names-dialog');
-      $('btn-close-reset-names').addEventListener('click', closeResetNames);
-      $('btn-cancel-reset-names').addEventListener('click', closeResetNames);
-      $('btn-confirm-reset-names').addEventListener('click', () => {
-        closeResetNames();
-        sounds.playClick(420);
-        resetPlayerNames();
-        saveDraft();
-        renderSetup();
-        // ADR-0017. renderSetup rebuilds the row X buttons and the preset chips through innerHTML,
-        // and the gate setView installed on entry has long since fired and removed itself, so
-        // without this the rows come back LIVE under the finger that just confirmed. The second
-        // contact of a double-tap on the confirm would land on a row X and remove a player -- the
-        // one thing this dialog's own copy promises survives. Same class as zero-trigger's
-        // renderPlayerRoster and dice-loser's renderTurn; a reveal with no view change to hang the
-        // arming on, so it is armed here.
-        const setupView = $('view-setup');
-        if (setupView) armAllButtons(setupView);
       });
 
       // Audio Toggle. Synced before the listener: the mute state is the device's and may already
@@ -889,13 +798,11 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         } else if (game.penaltyMode === 'preset' && !game.selectedPenalty) {
           game.selectedPenalty = PENALTY_PRESETS[0];
         }
-        saveDraft();
         renderSetup();
       });
 
       $('penalty-custom-input').addEventListener('input', (e) => {
         game.selectedPenalty = e.target.value;
-        saveDraft();
       });
 
       // Setup Steppers
@@ -903,7 +810,6 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.stickCount > game.players.length) {
           sounds.playClick(440);
           game.stickCount -= 1;
-          saveDraft();
           renderSetup();
         }
       });
@@ -911,7 +817,6 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.stickCount < 20) {
           sounds.playClick(560);
           game.stickCount += 1;
-          saveDraft();
           renderSetup();
         }
       });
@@ -919,7 +824,6 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.shortCount > 1) {
           sounds.playClick(440);
           game.shortCount -= 1;
-          saveDraft();
           renderSetup();
         }
       });
@@ -927,17 +831,37 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.shortCount < Math.min(3, game.players.length - 1)) {
           sounds.playClick(560);
           game.shortCount += 1;
-          saveDraft();
           renderSetup();
         }
       });
-      $('btn-add-player').addEventListener('click', () => {
-        if (game.players.length < 10) {
-          sounds.playClick(580);
-          game.players.push(defaultName(game.players.length));
-          saveDraft();
-          renderSetup();
-        }
+
+      /* ====================================================
+         8. THE SHARED PLAYER SCREEN (ADR-0071, gh#264)
+         ==================================================== */
+      // A round is live from the first draw until the hazard dialog hands over to the result: the
+      // 300ms before that dialog opens is still the round. Game over is not one -- editing the
+      // players there loses nothing, so the screen opens without asking (ruling 6).
+      const roundActive = () =>
+        [GameState.TURN_WAIT, GameState.RESOLVING, GameState.HAZARD_TRIGGERED].includes(game.state);
+
+      // Asked only after the players confirmed it. The pending draw timers are what outlive a round
+      // here, so ending it is invalidating them and dropping the round's state; the views are put
+      // away by onOpen, which runs on every open anyway.
+      const abortRound = () => {
+        roundEpoch += 1;
+        game.isResolving = false;
+        game.state = GameState.MENU;
+      };
+
+      const playerScreen = mountPlayerScreen({
+        root: playersRoot,
+        range: shortStick.players,
+        onStart: startWithPlayers,
+        roundActive,
+        abortRound,
+        // No view is shown while the player screen is up: setView with no name hides all four and
+        // arms none -- the shared screen arms its own surface as it opens.
+        onOpen: () => setView(null),
       });
 
     })();

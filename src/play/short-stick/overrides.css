@@ -40,8 +40,7 @@
    site is a phone passed around a group. min-* rather than width/height so anything already larger
    stays exactly where the mockup put it. The select carries its 38px as an INLINE style in
    markup.html, which no external rule can outrank without !important. */
-.input,
-.player-input {
+.input {
   min-block-size: 44px;
 }
 
@@ -267,4 +266,26 @@
   inset-inline-end: 100%;
   inline-size: var(--strip-chip-cap);
   background: linear-gradient(to left, var(--bg), rgba(250, 247, 242, 0));
+}
+
+/* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the mockup's
+   own palette (style.css's :root tokens) -- the light host mapping the board draws in its frame 7.
+   One has no token to point at there, so it carries the mockup's own literal: the text its
+   .btn-accent sets on the accent. */
+:root {
+  --ps-panel: var(--surface);
+  --ps-panel-solid: var(--surface);
+  --ps-edge: var(--border);
+  --ps-ink: var(--fg);
+  --ps-muted: var(--muted);
+  --ps-accent: var(--accent);
+  --ps-on-accent: #fff;
+}
+
+/* The player screen's root sits in #app beside the .view sections; the board's page padding around
+   the screen column (its `.main`, design/PlayerSetup.dc.html), so the column never touches a 320px
+   edge. On the root itself, as cursed-number's .cn-players does, hence border-box. */
+.ss-players {
+  box-sizing: border-box;
+  padding: 20px 16px 24px;
 }

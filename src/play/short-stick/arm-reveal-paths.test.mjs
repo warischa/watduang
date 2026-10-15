@@ -5,18 +5,19 @@
 // every reveal path added after today, armed or not. A sibling route shipped three bypasses hiding
 // 23 ungated buttons behind exactly that green.
 //
-// So this file does not re-check the gate. It pins the SET of reveal sites in main.js, keyed by the
-// receiver each one writes to, with a recorded decision for every member. A new receiver -- another
-// dialog, another panel toggled by display -- fails this test on the day it is added, and whoever
-// adds it decides whether a control lands under the finger and records the answer here. A receiver
-// that disappears fails it too: a stale EXPECTED is how a pinning test keeps passing while the code
-// it describes moves on.
+// Two halves since gh#264 (ADR-0071):
+//   1. main.js's OWN reveals -- its views and its dialogs -- pinned by the receiver each one writes
+//      to, on source text, with a recorded decision for every member. A new receiver fails on the
+//      day it is added; one that disappears fails too (a stale EXPECTED keeps passing while the code
+//      it describes moves on).
+//   2. The SHARED PLAYER SCREEN mounted into #ssPlayers, which replaced the mockup's name rows, its
+//      add and remove controls, its reset-names dialog and that dialog's arming paths. Its reveals
+//      are driven for real (revealPathCases): the shared code over THIS route's markup.html with the
+//      real arm gate, read off #btn-start-setup -- the hero control that opens the screen, inside
+//      #app and outside the screen's root. A screen mounted outside #app, or one that armed only its
+//      own root, leaves that control live and reds here.
 //
-// gh#174 adds the reset-names confirm. It is a new tap surface revealed on top of the control that
-// was just pressed, which is the sharpest ghost-tap shape there is, so its reveal path is asserted
-// here by name rather than left to the receiver set: it goes through openDialog, which arms.
-//
-// ponytail: matched on source text, not on a parsed AST. Three stated ceilings:
+// ponytail: half 1 is matched on source text, not on a parsed AST. Three stated ceilings:
 // (1) an inline reveal is recorded under its whole receiver expression, so it still surfaces as an
 //     unexpected receiver and still fails -- it reads worse, it does not slip through;
 // (2) this proves a call site exists at the reveal, never that the 400ms window really disables
@@ -25,12 +26,16 @@
 //     A re-render that replaces innerHTML under an already-visible panel is a different shape and is
 //     out of this set; renderDraw handles its own (main.js arms #view-draw after rebuilding the
 //     straws) and renderSetup does not. That asymmetry is real and is NOT closed here.
+// Stated, not hidden: the route's top bar (<header class="topnav">) sits OUTSIDE #app, so neither
+// setView nor the shared screen ever arms it. That was true before gh#264 and is unchanged by it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { revealPathCases } from '../_player-screen/screen-harness.mjs';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
 // Whole-line comments are dropped: main.js documents its own reveal seams in prose, and a checker
 // cannot tell use from mention. Only FULL-line comments go -- a trailing `//` inside a string would
 // take real code with it, and nothing here needs that.
@@ -54,7 +59,7 @@ const EXPECTED = new Map([
   [
     'dlg',
     'openDialog(): every <dialog> on the route, including the hazard reveal that pops 300ms after ' +
-      'the tap that drew the short stick, and gh#174 reset confirm. Armed inside openDialog.',
+      'the tap that drew the short stick. Armed inside openDialog.',
   ],
   [
     "$('penalty-preset-wrapper')",
@@ -110,65 +115,30 @@ test('each armed reveal receiver has an arming call naming it', () => {
   assert.match(source, /const drawView = \$\('view-draw'\);\s*\n\s*if \(drawView\) armAllButtons\(drawView\);/);
 });
 
-// gh#174. The reset control overwrites every typed name, so it asks first -- and the confirm it
-// opens is itself a fresh pair of buttons appearing under the finger that just pressed reset. Both
-// halves are pinned: the trigger reaches the dialog only through openDialog (which arms), and the
-// destructive branch is the only one that wipes.
-test('the reset-names confirm is opened through the arming path', () => {
-  assert.match(
-    source,
-    /\$\('btn-reset-names'\)\.addEventListener\('click', \(\) => \{[^}]*openDialog\('reset-names-dialog'\)/,
-    '#btn-reset-names must open its confirm through openDialog — a raw showModal() reveals two ' +
-      'buttons with no ghost-tap window',
-  );
-  assert.doesNotMatch(
-    source,
-    /\$\('reset-names-dialog'\)\.showModal\(\)/,
-    'the reset dialog is shown by a raw showModal(), which skips the arming in openDialog',
-  );
-  // The wipe hangs off the confirm button, never off the trigger: a reset that ran before the
-  // question was answered would make the confirm decorative.
-  assert.match(source, /\$\('btn-confirm-reset-names'\)\.addEventListener\('click',[\s\S]{0,240}?resetPlayerNames\(\)/);
-  assert.doesNotMatch(
-    source,
-    /\$\('btn-reset-names'\)\.addEventListener\('click', \(\) => \{[^}]*resetPlayerNames\(\)/,
-    'the trigger itself calls resetPlayerNames — the confirm would be asking about work already done',
-  );
-});
-
-// Found by adversarial review of this diff, 2026-08-31, and invisible to every other check here:
-// the CLOSING of the confirm is a reveal too. renderSetup rebuilds the row X buttons through
-// innerHTML, and the gate setView installed on entry has already fired and removed itself, so the
-// rebuilt rows land live under the finger that just confirmed. Two independent things stop a
-// double-tap on the confirm from deleting a player, and both are pinned below because the suite
-// passed identically before either existed.
-test('the reset confirm re-arms the setup rows it rebuilds', () => {
-  assert.match(
-    source,
-    /renderSetup\(\);\s*\n\s*const setupView = \$\('view-setup'\);\s*\n\s*if \(setupView\) armAllButtons\(setupView\);/,
-    'the reset confirm calls renderSetup without re-arming #view-setup: the second contact of a ' +
-      'double-tap on the confirm lands on a freshly rebuilt row X, which removes a player — the one ' +
-      'thing this dialog\'s own copy promises survives',
-  );
-});
-
 // gh#187, owner ruling 2026-09-01: closing a dialog IS a reveal ADR-0017 gates, with no rebuild
-// anywhere in it. The test above covers the confirm only; close, cancel and the rules OK rebuild
-// nothing at all, and every check in this file stayed green while the view under the card sat live
-// with an expired window. Pinned on closeDialog, the one function all of them now route through.
-test('closeDialog re-arms the live view every dismissal uncovers', () => {
+// anywhere in it. Pinned on closeDialog, the one function every pure closer routes through. Since
+// gh#264 the live screen can be the shared player screen, which is not a `.view`: the rules dialog
+// opens from the top bar over it, so closing that dialog must re-arm the player screen's root when
+// no view is active, or the dismissal re-arms nothing at all (ADR-0057).
+test('closeDialog re-arms the live screen every dismissal uncovers, the player screen included', () => {
   const at = source.indexOf('const closeDialog = (id) =>');
   assert.ok(at > -1, 'closeDialog is gone — this test measures nothing');
   const body = source.slice(at, source.indexOf('};', at));
   assert.match(
     body,
-    /querySelector\('\.view\.active'\)[\s\S]{0,80}?armAllButtons\(shown\)/,
+    /querySelector\('\.view\.active'\)[\s\S]{0,120}?armAllButtons\(shown\)/,
     'closeDialog no longer re-arms the live view: a double-tap on a close X or a cancel puts the ' +
       'second contact on whatever button sits behind the dialog, armed on entry and enabled since',
   );
+  assert.match(
+    body,
+    /\?\? \(playersRoot\.hidden \? null : playersRoot\)/,
+    'closeDialog no longer falls back to the open player screen: closing the rules dialog over it ' +
+      're-arms nothing',
+  );
   // Each pure closer routes through it. A closer that calls .close() directly is the regression:
   // it dismisses the dialog and leaves the view underneath ungated, which is what shipped before.
-  for (const id of ['rules-dialog', 'reset-names-dialog', 'leave-dialog']) {
+  for (const id of ['rules-dialog', 'leave-dialog']) {
     assert.match(
       source,
       new RegExp(`closeDialog\\('${id}'\\)`),
@@ -177,17 +147,40 @@ test('closeDialog re-arms the live view every dismissal uncovers', () => {
   }
 });
 
-test('removing a player enforces the two-player floor in the handler, not in the attribute', () => {
-  assert.match(
-    source,
-    /remove-p-btn[\s\S]{0,500}?if \(game\.players\.length <= 2\) return;/,
-    'the .remove-p-btn handler splices with no floor. The `disabled` attribute it renders with is ' +
-      'not the invariant — gh#188 makes the gate preserve it in a real browser, but nothing here ' +
-      'depends on attribute reflection and a row re-rendered mid-window is disabled by neither. ' +
-      'Without this check a 2-player party can be cut to 1 and then to 0 — after which renderDraw ' +
-      'divides by an empty roster',
-  );
+test('the shared player screen is mounted into #ssPlayers, inside the #app it arms', () => {
+  assert.match(source, /const playersRoot = document\.getElementById\('ssPlayers'\);/);
+  assert.match(source, /mountPlayerScreen\(\{\s*root: playersRoot,/);
+  const app = MARKUP.indexOf('id="app"');
+  const root = MARKUP.indexOf('id="ssPlayers"');
+  assert.ok(app > -1 && root > app && root < MARKUP.indexOf('</main>'), '#ssPlayers must sit inside #app');
 });
+
+// ADR-0071 ruling 1: hero -> player screen -> this game's own options -> play. Every way back to the
+// players goes through the shared screen, never through a bare view swap to the options.
+test('the hero, the options back control and the result edit all open the player screen', () => {
+  for (const id of ['btn-start-setup', 'btn-setup-back', 'btn-edit-players']) {
+    const at = source.indexOf(`$('${id}').addEventListener('click'`);
+    assert.ok(at > -1, `#${id} has no click handler — this test measures nothing`);
+    const handler = source.slice(at, source.indexOf('\n', at));
+    assert.match(handler, /playerScreen\.open\(\)/, `#${id} no longer opens the shared player screen`);
+    assert.doesNotMatch(handler, /setView\('setup'\)/, `#${id} skips the player screen straight to the options`);
+  }
+});
+
+// A round on this route outlives its screen: handleDrawStick resolves 450ms after the tap and pops the
+// hazard dialog 300ms after that. An edit confirmed inside that window must not let either timer act
+// on the round it ended -- the hazard dialog would open over the player screen.
+test('abortRound ends the round for its pending timers too', () => {
+  const at = source.indexOf('const abortRound = () =>');
+  assert.ok(at > -1, 'abortRound is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('};', at));
+  assert.match(body, /roundEpoch \+= 1;/, 'abortRound no longer invalidates the timers of the round it ends');
+  const draw = source.slice(source.indexOf('const handleDrawStick'));
+  const guards = draw.slice(0, draw.indexOf('\n      };')).match(/if \(epoch !== roundEpoch\) return;/g) ?? [];
+  assert.equal(guards.length, 2, 'both of handleDrawStick\'s timers must bail once the round is ended');
+});
+
+revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'ssPlayers', headerId: 'btn-start-setup', label: 'short-stick' });
 
 // ---------------------------------------------------------------------------
 // gh#188 box 14 — the arm window must not clear `disabled` the GAME owns.
@@ -204,13 +197,10 @@ test('removing a player enforces the two-player floor in the handler, not in the
 // renderDraw()'s per-straw write (`btn.disabled = isUsed || game.isResolving`, inside the loop that
 // builds the straw grid) cannot rot it.
 //
-// Two ceilings, stated rather than hidden:
-// (1) the fake DOM does not reflect a boolean `disabled` ATTRIBUTE onto the property, so the
-//     markup-rendered case -- renderSetup()'s `.remove-p-btn`, which carries a bare `disabled`
-//     attribute in its row template -- is NOT covered by the behavioural test below. A real browser does reflect it, so the gate preserves it there; the handler-side floor
-//     is kept anyway as defence in depth and is pinned by its own test above.
-// (2) this drives the gate directly. It proves the gate's contract, not that this route's markup
-//     puts these particular ids inside the container closeDialog arms.
+// One ceiling, stated rather than hidden: this drives the gate directly. It proves the gate's
+// contract, not that this route's markup puts these particular ids inside the container closeDialog
+// arms. (A second ceiling, the markup-rendered `disabled` attribute on the row remove control, went
+// with that control in gh#264: the rows are the shared player screen's now.)
 import { armAllButtons, ARM_DELAY_MS } from '../../games/_arm-gate.ts';
 import { FakeElement } from '../../games/_fake-dom.mjs';
 
@@ -221,7 +211,6 @@ const OWNED_DISABLED = new Map([
   ["$('btn-more-sticks')", 'renderSetup(): ceiling, stickCount >= 20.'],
   ["$('btn-fewer-shorts')", 'renderSetup(): floor, shortCount <= 1.'],
   ["$('btn-more-shorts')", 'renderSetup(): ceiling, min(3, roster-1).'],
-  ["$('btn-add-player')", 'renderSetup(): roster cap of 10.'],
   ['btn', 'renderDraw(): a straw already drawn, or the draw is resolving. Written in a render loop.'],
 ]);
 

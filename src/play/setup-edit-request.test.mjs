@@ -36,8 +36,6 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const BOOTS_ON = {
   // #screen-menu carries `class="screen active"` in markup.html -- setup is a click away.
   'zero-trigger': { nav: '#btn-goto-setup' },
-  // Opens on a marketing hero; its setup view does not exist until this control renders it.
-  'short-stick': { nav: '#btn-start-setup' },
   // The five below render their name fields at load -- their bridges fill them with no navigation.
   'freeze-tap': { nav: null },
   // Opens on a menu whose #btn-menu-start is what renders the seat fields -- setup is a click away.

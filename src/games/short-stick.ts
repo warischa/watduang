@@ -74,7 +74,8 @@ const INFO_SVG =
 //
 // This module is NOT the play route's engine — unlike timebomb, where src/play/timebomb/main.ts
 // imports src/games/timebomb.ts as-is, src/play/short-stick/main.js runs the mockup's own markup
-// and sheets and imports nothing from this directory. What still needs this file is the manifest
+// and sheets, and reads exactly one field of this module: `players`, the range it hands the shared
+// player screen (ADR-0071, gh#264). What else still needs this file is the manifest
 // registration, which src/pages/game/short-stick/play.astro reads via byId('short-stick') and the
 // home and category pages read to render the card. Retiring it is therefore a manifest question,
 // not a dead-code deletion, and it is not gh#146's to answer.

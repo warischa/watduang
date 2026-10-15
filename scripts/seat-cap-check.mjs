@@ -659,6 +659,19 @@ const HANDOFFS = {
       return { seated: seated === game.activePlayerIds.length && seated === game.roundResults.size ? seated : NaN };
     },
   },
+  'short-stick': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() seats the handed players as the round roster (game.players) and their glyphs (game.avatars)',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      const env = { game: { players: [], avatars: [] } };
+      compiled.make(env)(players);
+      // The names the turns walk and the glyphs the strip wears are one seat list; both must hold it.
+      const { players: seated, avatars } = env.game;
+      return { seated: Array.isArray(seated) && seated.length === avatars.length ? seated.length : NaN };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, fileName = 'main.js', module, declared, handoff }) {

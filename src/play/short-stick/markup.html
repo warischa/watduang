@@ -64,13 +64,23 @@
       </div>
     </section>
 
-    <!-- VIEW 2: SETUP -->
+    <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+         mountPlayerScreen as its root. Order per ruling 1: the hero above -> this screen -> VIEW 2, the
+         game's own options -> play. The tagline is this game's slot on the board, copied from the
+         module's own `tagline`. This replaced the mockup's name rows, add/remove controls and reset
+         control, which sat in VIEW 2 below. -->
+    <section id="ssPlayers" class="ss-players" hidden>
+      <p class="ps-tagline">ส่งมือถือวนจับไม้ทีละคน ใครได้ไม้สั้นคนนั้นโดน</p>
+    </section>
+
+    <!-- VIEW 2: SETUP -- the game's own options only, shown after the shared player screen starts
+         (ADR-0071 ruling 1). Its heading asked who is playing and its lead told the players to type
+         their names; both went with the name rows in gh#264, because the players screen asks that
+         now and the options screen does not. -->
     <section class="view section" id="view-setup">
       <div class="container">
         <div style="margin-bottom: 24px;">
           <p class="eyebrow">SETUP MATCH</p>
-          <h2 class="h2">ใครอยู่ในวงรอบนี้?</h2>
-          <p class="lead">พิมพ์ชื่อเล่น 2–10 คน ได้ไม้คนละ 1 อันพอดี</p>
         </div>
 
         <div class="setup-grid">
@@ -127,11 +137,8 @@
               </div>
             </div>
 
-            <!-- Player List Inputs -->
-            <div class="player-list" id="player-inputs-container"></div>
-            <button class="add-player-btn" id="btn-add-player" type="button">+ เพิ่มผู้เล่น</button>
-            <!-- gh#174 — sits with the rows it acts on. `.btn` is 48px tall already: 44px floor, no new rule. -->
-            <button class="btn btn-secondary" id="btn-reset-names" type="button" style="width:100%; margin-top:10px;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
+            <!-- The name rows, the add-player control and the gh#174 reset control that sat here moved
+                 into the shared player screen (ADR-0071, gh#264). #btn-setup-back below goes back to it. -->
 
             <div style="display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;">
               <button class="btn btn-primary" id="btn-begin-game" type="button" style="flex:1;">เริ่มรอบนี้ ➔</button>
@@ -276,24 +283,7 @@
     </div>
   </dialog>
 
-  <!-- 4. Reset Player Names Dialog (gh#174) — copy rationale in main.js at the reset handler. -->
-  <dialog class="dialog" id="reset-names-dialog">
-    <div class="dialog-inner">
-      <div class="dialog-head">
-        <div>
-          <p class="eyebrow">CONFIRM</p>
-          <h2>รีเซ็ตเป็นชื่อสัตว์?</h2>
-        </div>
-        <button class="icon-btn" id="btn-close-reset-names" type="button" aria-label="ปิด">✕</button>
-      </div>
-      <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">
-        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
-      </p>
-      <div style="display:flex; gap:10px;">
-        <button class="btn btn-secondary" id="btn-cancel-reset-names" type="button" style="flex:1;">เก็บชื่อเดิมไว้</button>
-        <button class="btn btn-primary" id="btn-confirm-reset-names" type="button" style="flex:1;">รีเซ็ตเป็นชื่อสัตว์</button>
-      </div>
-    </div>
-  </dialog>
+  <!-- The reset-names dialog that sat here (gh#174) moved into the shared player screen with the reset
+       control and the name rows it rewrote (ADR-0071, src/play/_player-screen/PlayerScreen.astro). -->
 
   <!-- GAME SCRIPT -->
