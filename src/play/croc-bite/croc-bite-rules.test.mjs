@@ -296,14 +296,16 @@ test('the safe outcomes and the tear roll split where the mockup says they do', 
   }
 });
 
-test('an empty name falls back to that seat mascot, and a long one is cut to the field cap', () => {
+test('an empty name falls back to that seat mascot, and a long one is kept whole (gh#266)', () => {
   const api = loadEngine();
   // The fallbacks are read off the engine's own cast rather than retyped: the cast is what a player
   // sees, and a copy here would go on agreeing with a cast that had changed.
   assert.equal(api.sanitizePlayerName('', 1), api.MASCOT_PLAYERS[0].defaultName);
   assert.equal(api.sanitizePlayerName('   ', 2), api.MASCOT_PLAYERS[1].defaultName);
-  assert.equal(api.sanitizePlayerName('A very long name that exceeds maximum allowed length', 4), 'A very long name');
-  assert.equal(api.sanitizePlayerName('A very long name that exceeds maximum allowed length', 4).length, 16);
+  // gh#266: the shared player screen owns the cap (NAME_MAX); a second, shorter cut here seated two
+  // names the screen accepted as distinct as one name. Surrounding whitespace is still trimmed.
+  assert.equal(api.sanitizePlayerName('  abcdefghijklmnopA  ', 4), 'abcdefghijklmnopA');
+  assert.notEqual(api.sanitizePlayerName('abcdefghijklmnopA', 4), api.sanitizePlayerName('abcdefghijklmnopB', 4));
 });
 
 // ---- calibration -------------------------------------------------------------------------------

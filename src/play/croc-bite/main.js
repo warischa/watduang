@@ -185,7 +185,10 @@ function sanitizePlayerName(rawName, fallbackIndex) {
   if (trimmed.length === 0) {
     return fallback;
   }
-  return trimmed.slice(0, 16);
+  // gh#266: no second cap here. Every name reaches this engine from the shared player screen,
+  // which already caps it at its own NAME_MAX (ADR-0071); the mockup's 16-character cut seated two
+  // names the screen accepted as distinct as one name. Long names clip on screen, not in the data.
+  return trimmed;
 }
 
 /**
@@ -2793,7 +2796,22 @@ class UIManager {
 
       const name = document.createElement('div');
       name.className = 'card-name';
-      name.textContent = p.name;
+      // gh#266: the seat keeps its whole name, but this card was drawn for the mockup's 16-character
+      // names, so it shows that budget and hands the full name to screen readers in a hidden span.
+      // Its mascot and colour tell seats apart where two long names share a prefix.
+      const fullName = p.name;
+      const chars = Array.from(fullName);
+      if (chars.length <= 16) {
+        name.textContent = fullName;
+      } else {
+        const shown = document.createElement('span');
+        shown.setAttribute('aria-hidden', 'true');
+        shown.textContent = chars.slice(0, 15).join('') + '…';
+        const full = document.createElement('span');
+        full.className = 'card-name-full';
+        full.textContent = fullName;
+        name.append(shown, full);
+      }
 
       const score = document.createElement('div');
       score.className = 'card-score';

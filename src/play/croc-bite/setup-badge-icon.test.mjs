@@ -113,12 +113,12 @@ test('ADR-0065: the engine clamps at both ends, so no seat outside the range can
   assert.equal(seats(MIN_PLAYERS - 1).players.length, MIN_PLAYERS, 'a party below the range seated fewer than the floor');
 });
 
-// The engine's own name budget, kept: the shared screen admits longer names than this game's HUD
-// cards were drawn for, and the engine cuts them where its own field used to.
-test('a name longer than the engine draws is cut by the engine, not dropped', () => {
+// gh#266: the seat keeps its whole name. The HUD card, drawn for the mockup's 16-character names,
+// clips a longer one in CSS (overrides.css), so the data is never cut.
+test('a long name is seated whole, not cut by the engine', () => {
   const long = 'ก'.repeat(20);
   const state = seatThrough([{ name: long, emoji: '🐱', mascot: 0 }, { name: 'บี', emoji: '🐶', mascot: 1 }]);
-  assert.equal(state.players[0].name, long.slice(0, 16));
+  assert.equal(state.players[0].name, long);
   assert.equal(state.players[1].name, 'บี');
 });
 
