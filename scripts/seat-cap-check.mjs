@@ -199,16 +199,6 @@ const DRIVERS = {
       return { cap: model.playerCount };
     },
   },
-  'zero-trigger': {
-    what: 'addNewPlayer refuses to append past the roster ceiling',
-    run: (source) => {
-      const compiled = compileMethod(source, 'addNewPlayer()');
-      if (compiled.error) return compiled;
-      const receiver = tolerantReceiver({ state: { players: [{ name: 'a' }, { name: 'b' }] } });
-      const fn = compiled.make({});
-      return saturate(() => fn.call(receiver), () => receiver.state.players.length);
-    },
-  },
   // gh#264 / ADR-0071: the route's own count field and its validity guard are gone -- the count is
   // the shared player screen's. What is still this route's is the ENGINE: makeMatch seats any number
   // of names, but every wrong answer is dealt a distinct nose value from one fixed pool, so the
@@ -684,6 +674,17 @@ const HANDOFFS = {
       if (!Array.isArray(seated)) return { error: 'startWithPlayers() left no player list on the engine state' };
       // The three per-seat lists the round indexes together must all hold every player.
       return { seated: seated.length === avatars?.length && seated.length === scores?.length ? seated.length : NaN };
+    },
+  },
+  'zero-trigger': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() fills the state.players list every turn and the round strip read',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      const receiver = tolerantReceiver({ state: { players: [] } });
+      compiled.make({}).call(receiver, players);
+      return { seated: receiver.state.players.length };
     },
   },
 };

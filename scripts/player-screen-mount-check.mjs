@@ -55,7 +55,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /** Not yet converted (gh#264 fan-out). Delete an id in the same commit that converts its route. */
 export const PENDING = new Set([
   'croc-bite',
-  'zero-trigger',
 ]);
 
 /** An HTML comment blanked to spaces, newlines kept -- both delimiters are explicit, so this

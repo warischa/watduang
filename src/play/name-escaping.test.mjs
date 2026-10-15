@@ -423,19 +423,13 @@ test('wire-snip-panic: HUD strip and round-end scoreboard escape roster names', 
 
 function zeroTriggerHarness() {
   const document = makeDoc();
-  // renderPlayerRoster ends with a penalty-button sync over document.querySelectorAll; the fake
-  // document declares none (see makeDocument), so this closes the same gap wireSnipHarness's
-  // `augment` closes for classList.
-  document.querySelectorAll = () => [];
+  // gh#264: the route's own roster rows (renderPlayerRoster) are gone -- the names a player types
+  // reach the DOM through the shared player screen, driven by its own test further down this file.
+  // What stays here is every sink the ROUND writes a name into.
   const api = loadFrom('zero-trigger', ['escapeHtml', 'GameEngine'], {
     document,
-    // AVATAR_LIST, defaultPlayerName and PRESET_PENALTIES are module-level `const`s that GameEngine's
-    // constructor reads to seed its default roster. The sinks under test are driven without ever
-    // constructing GameEngine (see the header note on why AVATAR_LIST cannot be sliced: brace-matching
-    // from its first `{` runs forward into the next declaration), so these are slice-safe stand-ins,
-    // not real cast data.
-    AVATAR_LIST: ['a', 'b'],
-    defaultPlayerName: (index) => `seat-${index}`,
+    // PRESET_PENALTIES is a module-level `const` GameEngine's constructor reads. The sinks under test
+    // are driven without ever constructing GameEngine, so this is a slice-safe stand-in.
     PRESET_PENALTIES: ['penalty'],
     armAllButtons: () => {},
     mountStripOverflowCounter: () => {},
@@ -460,18 +454,7 @@ test('zero-trigger: roster, active turn, live region, strip and defeat modal esc
     get name() { reads += 1; return HOSTILE; },
   });
 
-  // 1. Setup screen: renderPlayerRoster's attribute-context sink (a chip strip too, per ADR-0054's
-  // shared roster shape, but this is the route's own setup rows).
-  const rosterCtx = { state: { players: [hostilePlayer(1, 'a'), hostilePlayer(2, 'b')] } };
-  api.GameEngine.prototype.renderPlayerRoster.call(rosterCtx);
-  const rosterContainer = document.getElementById('player-roster-container');
-  // Attribute check first: a dropped escapeHtml here truncates the value AND spills an `<a>` into
-  // the DOM in the same mutation, so ordering this ahead of assertNoInjection is what makes the
-  // truncation itself (not just the spilled element) a named, reproduced failure.
-  assertAttributeIntact(rosterContainer, '.player-name-input', 'zero-trigger renderPlayerRoster');
-  assertNoInjection(rosterContainer, 'zero-trigger renderPlayerRoster');
-
-  // 2. Active-turn screen: prepareTurn writes the lock-status (innerHTML) and active-name
+  // 1. Active-turn screen: prepareTurn writes the lock-status (innerHTML) and active-name
   // (textContent) sinks directly, then calls renderPlayerStrip (innerHTML) and announceTurn
   // (textContent) itself -- the real methods, reached off the real prototype and bound so `this`
   // inside each stays the same hand-built context (GameEngine is never constructed: its constructor
@@ -497,15 +480,15 @@ test('zero-trigger: roster, active turn, live region, strip and defeat modal esc
   assertNoInjection(document.getElementById('zt-live'), 'zero-trigger announceTurn live-region');
   assertNoInjection(document.getElementById('game-player-strip'), 'zero-trigger renderPlayerStrip');
 
-  // 3. Defeat modal: showDefeatModal's textContent sink for the loser's name.
+  // 2. Defeat modal: showDefeatModal's textContent sink for the loser's name.
   const defeatCtx = { state: { penaltyMode: 'none' }, openModal: () => {} };
   api.GameEngine.prototype.showDefeatModal.call(defeatCtx, hostilePlayer(3, 'c'), '00.0', 7);
   assertNoInjection(document.getElementById('modal-loser-name'), 'zero-trigger showDefeatModal');
 
-  // Every sink above read a roster name once per player it touched: 2 in renderPlayerRoster, 1 each
-  // in prepareTurn's own lock-status/active-name writes, 2 in renderPlayerStrip (one per player),
-  // 1 in announceTurn, 1 in showDefeatModal -- 8 total on today's source.
-  assert.equal(reads, 8, `zero-trigger read player.name ${reads} time(s) -- the sink set changed`);
+  // Every sink above read a roster name once per player it touched: 1 each in prepareTurn's own
+  // lock-status/active-name writes, 2 in renderPlayerStrip (one per player), 1 in announceTurn, 1 in
+  // showDefeatModal -- 6 total on today's source (8 before gh#264 took the 2 setup-row reads away).
+  assert.equal(reads, 6, `zero-trigger read player.name ${reads} time(s) -- the sink set changed`);
 
   DEEP.add('zero-trigger');
 });

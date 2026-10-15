@@ -1,9 +1,24 @@
-// watduang: the one cast, defined once (ADR-0054 rulings 1-3). Adding this import costs the file its
-// thai-comments verbatim-lift exemption, which is why the escaping helper below stayed local -- so
-// every comment in this file is now scanned, and none of them may hold a Thai character.
+// watduang: any import costs this file its thai-comments verbatim-lift exemption, which is why the
+// escaping helper below stayed local -- so every comment in this file is scanned, and none of them
+// may hold a Thai character. The .ts extensions are spelled out in full, the way
+// cursed-number/main.js does it.
 //
-// The .ts extension is spelled out in full, the way cursed-number/main.js does it.
-import { MASCOTS } from '../_mascots.ts';
+// THE PLAYERS ARE NOT THIS FILE'S (ADR-0071, gh#264). The mockup's own setup -- roster rows, add and
+// remove controls, the random-avatar button, the avatar picker, the reset-cast control and its modal,
+// and the per-route storage blob that kept the list -- is GONE. The shared player screen mounts into
+// #zt-players, owns the count, the names and the shared roster, and hands the players it starts with
+// to startWithPlayers(), the engine entry added for it. Each seat's glyph is the mascot the screen
+// gave it (ADR-0054 ruling 1). #screen-setup keeps only this game's own option, the penalty, which
+// comes after the players; the menu stays the first screen and both its buttons open the player
+// screen. roster-bridge.ts, which drove the deleted controls, went with them.
+//
+// The module's default export is read for one field, `players`: the range the player screen admits
+// is the one the manifest declares (ADR-0065), never a number restated here. Imported as `game`
+// because that is the name scripts/seat-cap-check.mjs reads a manifest-derived range under; the
+// engine instance this file builds lives on `window.game`, a property, not this binding.
+import game from '../../games/zero-trigger.ts';
+// ADR-0071: the one player screen every party route mounts.
+import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
 // gh#184: the inert `+N` seat counter for the scrolling player strip. Behaviour is shared; the look
 // lives in this route's overrides.css.
 import { mountStripOverflowCounter } from '../_strip-overflow.ts';
@@ -438,18 +453,11 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     }
 
     /**
-     * PRESET AVATARS & PENALTIES
+     * PENALTIES
      */
-    // watduang: the mockup shipped its own 15 emoji in its own order. ADR-0054 rulings 1 and 2 fix
-    // ONE cast and ONE order for every party game -- player 1 is always the first row -- so the list
-    // is read from _mascots.ts instead of forked here. The picker grid, the auto-assign in
-    // addNewPlayer() and randomizeAllAvatars() all read this, so they all move together.
-    const AVATAR_LIST = MASCOTS.map((m) => m.emoji);
-    /** The default label for seat i, per ADR-0054 ruling 3: ready to play without typing a name.
-     *  Falls back to the numbered form past the cast, which this game's 10-seat ceiling never
-     *  reaches -- it is there so a shrunk cast degrades instead of writing "undefined" on a card. */
-    const defaultPlayerName = (index) => MASCOTS[index]?.name ?? `ผู้เล่น ${index + 1}`;
-    
+    // watduang: the mockup's own emoji list, its default-name helper and the cast lookup they read
+    // went with its setup (gh#264): a seat's name and glyph arrive from the shared player screen.
+
     // watduang: roster names are typed by players and reach this file from the shared roster, so
     // they are untrusted text wherever it builds markup by string. Same helper and same idiom as
     // src/play/cannon-flag/main.js. It was kept local to preserve this file's thai-comments
@@ -495,18 +503,19 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         this.fx = new FXEngine(document.getElementById('fx-canvas'));
 
         this.state = {
-          screen: 'MENU', // 'MENU' | 'SETUP' | 'GAME'
+          // 'PLAYERS' while the shared player screen is up (set in its onOpen below).
+          screen: 'MENU', // 'MENU' | 'PLAYERS' | 'SETUP' | 'GAME'
           tier: 1,        // 1: 0.0s | 2: 0.00s | 3: 0.000s
           roundNumber: 1,
           cycleCount: 1,
           turnIndex: 0,
           forbiddenDigit: 7, // Shared forbidden digit for all players in this round
-          // The two seats the game opens with ARE the first two rows of the cast, in order
-          // (ADR-0054 ruling 2): player 1 is always the first, player 2 always the second.
-          players: [
-            { id: 1, name: defaultPlayerName(0), avatar: AVATAR_LIST[0], score: 0 },
-            { id: 2, name: defaultPlayerName(1), avatar: AVATAR_LIST[1], score: 0 }
-          ],
+          // Empty until the shared player screen starts: startWithPlayers() seats every player it is
+          // handed, and no path reaches a round without passing through it.
+          players: [],
+          // In memory only since gh#264. The mockup kept it in one storage blob beside its own player
+          // list; that blob went with the list, and this route touches no web storage at all
+          // (scripts/player-screen-mount-check.mjs reds a route that does).
           penaltyMode: 'preset', // 'preset' | 'custom' | 'none'
           customPenaltyList: [...PRESET_PENALTIES],
           timer: {
@@ -517,50 +526,69 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
             rafId: null,
             minLockDurationMs: 1000,
             formattedString: '00.0'
-          },
-          editingPlayerIndex: null
+          }
         };
+        // Bumped by endRound(). A turn resolves on a delay (the defeat modal after the blast, the next
+        // turn after the safe chime), and a delay scheduled by a round that has since been ended must
+        // not reach into whatever is on screen now -- the player screen, or the menu.
+        this.roundSeq = 0;
+        // Set by the menu's quick-start button, spent by startWithPlayers(): quick start goes from the
+        // player screen straight into the match; every other way through it shows this game's own
+        // options first (ADR-0071 ruling 1).
+        this.skipOptions = false;
 
-        this.loadStorage();
         this.initUIBindings();
-        this.renderPlayerRoster();
+
+        // ADR-0071. The menu stays the first screen (ruling 1: the game's own intro comes first); the
+        // player screen is mounted now -- hidden, with its edit-control listener live -- and opened
+        // by either menu button or by the chrome's edit control.
+        const playersRoot = document.getElementById('zt-players');
+        this.playersRoot = playersRoot;
+        this.players = playersRoot
+          ? mountPlayerScreen({
+              root: playersRoot,
+              range: game.players,
+              onStart: (players) => this.startWithPlayers(players),
+              // A round is live on the game screen until it is decided: once the result modal is up
+              // the round is over, and editing the players there loses nothing (ruling 6).
+              roundActive: () =>
+                this.state.screen === 'GAME' &&
+                !document.getElementById('modal-result').classList.contains('active'),
+              abortRound: () => this.endRound(),
+              // Whoever opened it, the player screen is the only surface: every screen and modal of
+              // the round is put away, and the house icon leads back to the menu from here.
+              onOpen: () => {
+                this.endRound();
+                document.querySelectorAll('.screen, .modal-backdrop').forEach((el) => el.classList.remove('active'));
+                this.state.screen = 'PLAYERS';
+                const homeBtn = document.getElementById('btn-home-menu');
+                homeBtn.style.display = 'flex';
+              },
+            })
+          : null;
 
         // First paint is a transition too: the tap that opened this route can still be mid-double.
         const firstScreen = document.querySelector('.screen.active');
         if (firstScreen) armAllButtons(firstScreen);
       }
 
-      loadStorage() {
-        try {
-          const saved = localStorage.getItem('ZERO_TRIGGER_DATA_V1');
-          if (saved) {
-            const data = JSON.parse(saved);
-            if (data.players && data.players.length >= 2) {
-              this.state.players = data.players.map(p => ({
-                id: p.id,
-                name: p.name,
-                avatar: p.avatar || AVATAR_LIST[0],
-                score: 0
-              }));
-            }
-            if (data.penaltyMode) {
-              this.state.penaltyMode = data.penaltyMode;
-            }
-          }
-        } catch (e) {
-          console.warn('LocalStorage error:', e);
-        }
+      /** The engine entry the player screen starts (ADR-0071): exactly these players, in the order
+       *  given, each wearing the name and the mascot glyph the screen gave it. A new player list is a
+       *  new match, so every score starts at zero. Then this game's own options, unless the menu's
+       *  quick start asked to go straight into the round. */
+      startWithPlayers(players) {
+        this.state.players = players.map((p, i) => ({ id: i + 1, name: p.name, avatar: p.emoji, score: 0 }));
+        const skip = this.skipOptions;
+        this.skipOptions = false;
+        if (skip) this.startNewMatch();
+        else this.switchScreen('SETUP');
       }
 
-      saveStorage() {
-        try {
-          localStorage.setItem('ZERO_TRIGGER_DATA_V1', JSON.stringify({
-            players: this.state.players,
-            penaltyMode: this.state.penaltyMode
-          }));
-        } catch (e) {
-          console.warn('LocalStorage save error:', e);
-        }
+      /** Ends whatever round is in progress: the clock stops and every delayed step that round
+       *  scheduled is disowned (roundSeq). Safe to call with no round running. */
+      endRound() {
+        this.stopTimerLoop();
+        this.roundSeq += 1;
       }
 
       showToast(msg) {
@@ -607,61 +635,27 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
           this.closeModal('modal-rules');
         });
 
+        // The house icon leads to the menu from every screen, the player screen included: it puts the
+        // player screen away (a pending x becomes final, the way any close makes it) and forgets a
+        // quick start that never reached a round.
         document.getElementById('btn-home-menu').addEventListener('click', () => {
-          if (this.state.timer.isRunning) {
-            this.stopTimerLoop();
-          }
+          this.endRound();
+          if (this.players && this.playersRoot && !this.playersRoot.hidden) this.players.close();
+          this.skipOptions = false;
           this.switchScreen('MENU');
         });
 
-        // Menu buttons
+        // Menu buttons. Both open the shared player screen (ADR-0071): no round starts from players it
+        // did not hand over. They differ only in what comes after it -- quick start goes straight into
+        // the match, the setup button shows this game's own options (the penalty) first.
         document.getElementById('btn-quick-start').addEventListener('click', () => {
-          this.startNewMatch();
+          this.skipOptions = true;
+          if (this.players) this.players.open();
         });
 
         document.getElementById('btn-goto-setup').addEventListener('click', () => {
-          this.renderPlayerRoster();
-          this.switchScreen('SETUP');
-        });
-
-        // Setup buttons
-        document.getElementById('btn-add-player').addEventListener('click', () => {
-          this.addNewPlayer();
-        });
-
-        document.getElementById('btn-random-avatars').addEventListener('click', () => {
-          this.randomizeAllAvatars();
-        });
-
-        // gh#177 / ADR-0054. Reset is asked first because its answer is destructive: it overwrites
-        // every name a player typed AND every emoji a player picked. The question is put through
-        // openModal, so both answers arrive gated -- they appear directly over the control just
-        // pressed. The copy in markup.html names both losses and what survives (the player count and
-        // the penalty setting), which is what docs/agents/src-edit-rules.md requires: over-naming is
-        // acceptable, under-naming is not.
-        // Do NOT read the cancel-before-confirm ordering as the guard. openModal arms the modal
-        // immediately after revealing it, and that blanket disable drops focus onto <body>, so
-        // nothing is focused at all; the 400ms gate is what protects this answer, not the order.
-        document.getElementById('btn-open-reset-cast').addEventListener('click', () => {
-          this.openModal('modal-reset-cast');
-        });
-
-        document.getElementById('btn-cancel-reset-cast').addEventListener('click', () => {
-          this.closeModal('modal-reset-cast');
-        });
-
-        document.getElementById('btn-confirm-reset-cast').addEventListener('click', () => {
-          this.closeModal('modal-reset-cast');
-          this.resetPlayerCast();
-          this.saveStorage();
-          // ADR-0017. This rebuilds every roster row through innerHTML, putting a fresh avatar-btn
-          // where the finger that just confirmed still is, and the modal that was on top of it is
-          // gone by now. renderPlayerRoster arms the container it rebuilds, which covers this path;
-          // ./arm-reveal-paths.test.mjs pins both halves so a later edit cannot take that arming
-          // away and leave the confirm's second contact live on a row control.
-          this.renderPlayerRoster();
-          this.synth.playClick(400);
-          this.showToast('↺ กลับไปใช้ชื่อและรูปสัตว์เริ่มต้นแล้ว');
+          this.skipOptions = false;
+          if (this.players) this.players.open();
         });
 
         document.querySelectorAll('.penalty-btn').forEach(btn => {
@@ -669,7 +663,6 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
             document.querySelectorAll('.penalty-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             this.state.penaltyMode = btn.dataset.mode;
-            this.saveStorage();
             this.synth.playClick(600);
           });
         });
@@ -693,20 +686,6 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
           this.closeModal('modal-result');
           this.switchScreen('MENU');
         });
-
-        document.getElementById('btn-close-avatar-picker').addEventListener('click', () => {
-          this.closeModal('modal-avatar-picker');
-        });
-
-        // Generate Avatar Picker Buttons
-        const avatarGrid = document.getElementById('avatar-picker-grid');
-        AVATAR_LIST.forEach(emoji => {
-          const btn = document.createElement('button');
-          btn.className = 'avatar-pick-btn';
-          btn.textContent = emoji;
-          btn.addEventListener('click', () => this.selectAvatar(emoji));
-          avatarGrid.appendChild(btn);
-        });
       }
 
       openModal(modalId) {
@@ -721,11 +700,13 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       // gh#187 (owner ruling 2026-09-01), openModal's counterpart: CLOSING a modal is itself a reveal
       // ADR-0017 gates. The screen underneath was armed when switchScreen showed it and that window
       // closed long ago -- which is exactly why the second contact of a double-tap on a close or
-      // cancel control fires the button behind it. No rebuild is involved, which is why the reset
-      // confirm's renderPlayerRoster() arming never covered cancel, close-rules or close-avatar.
-      // Every modal on this route overlays the live screen and every dismissal goes through here, so
-      // one call covers all of them; the live screen is looked up rather than named because a modal
-      // is reachable from more than one screen.
+      // cancel control fires the button behind it. No rebuild is involved.
+      // Every modal on this route overlays the live surface and every dismissal goes through here, so
+      // one call covers all of them; the live surface is looked up rather than named because a modal
+      // is reachable from more than one screen. Since gh#264 that surface can be the shared player
+      // screen (the rules sheet opens over it from the header), which is not a `.screen` -- so when no
+      // screen is active and the player screen is up, its root is what is re-armed. Without that
+      // fallback, closing the rules over the player screen would arm nothing at all.
       //
       // gh#188 box 13 -- no exception list is passed, and none is needed: this route writes `disabled`
       // on NOTHING. Every control here is enabled whenever it is on screen, so re-enabling all of
@@ -738,134 +719,14 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         this.synth.playClick();
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.remove('active');
-        const screen = document.querySelector('.screen.active');
+        const screen =
+          document.querySelector('.screen.active') ||
+          (this.playersRoot && !this.playersRoot.hidden ? this.playersRoot : null);
         if (screen) armAllButtons(screen);
       }
 
-      /* =========================================
-         PLAYER ROSTER SETUP MANAGEMENT
-         ========================================= */
-      renderPlayerRoster() {
-        const container = document.getElementById('player-roster-container');
-        container.innerHTML = '';
-
-        document.getElementById('setup-player-count-badge').textContent = `${this.state.players.length} / 10 คน`;
-
-        this.state.players.forEach((player, index) => {
-          const row = document.createElement('div');
-          row.className = 'player-row glass-card';
-
-          row.innerHTML = `
-            <button class="avatar-btn" data-index="${index}" title="เปลี่ยน Avatar">${player.avatar}</button>
-            <input type="text" class="player-name-input" data-index="${index}" value="${escapeHtml(player.name)}" maxlength="12" placeholder="ชื่อผู้เล่น" />
-            ${this.state.players.length > 2 ? `<button class="remove-player-btn" data-index="${index}" title="ลบผู้เล่น" aria-label="ลบผู้เล่น">✕</button>` : '<div></div>'}
-          `;
-
-          // Event listeners
-          row.querySelector('.avatar-btn').addEventListener('click', () => {
-            this.state.editingPlayerIndex = index;
-            this.openModal('modal-avatar-picker');
-          });
-
-          const nameInput = row.querySelector('.player-name-input');
-          nameInput.addEventListener('input', (e) => {
-            this.state.players[index].name = e.target.value.trim() || defaultPlayerName(index);
-            this.saveStorage();
-          });
-
-          const removeBtn = row.querySelector('.remove-player-btn');
-          if (removeBtn) {
-            removeBtn.addEventListener('click', () => {
-              this.removePlayer(index);
-            });
-          }
-
-          container.appendChild(row);
-        });
-
-        // ADR-0017, the ghost-tap gate. Same shape as wire-snip-panic's renderSetupPlayerList:
-        // switchScreen arms the setup screen once, but every add, every remove and every avatar
-        // pick rebuilds these rows through innerHTML afterwards, putting a fresh `avatar-btn` or
-        // `remove-player-btn` under the finger that just pressed one, at the same coordinates and
-        // with no arming of its own. It is a reveal with no screen change to hang it on, so it is
-        // armed here. Pinned by ./arm-reveal-paths.test.mjs.
-        armAllButtons(container);
-
-        // Sync penalty buttons state
-        document.querySelectorAll('.penalty-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.mode === this.state.penaltyMode);
-        });
-      }
-
-      addNewPlayer() {
-        if (this.state.players.length >= 10) {
-          this.showToast('ผู้เล่นสูงสุด 10 คนแล้ว');
-          return;
-        }
-        const nextId = this.state.players.length + 1;
-        const availableAvatars = AVATAR_LIST.filter(a => !this.state.players.some(p => p.avatar === a));
-        const randomAvatar = availableAvatars.length ? availableAvatars[0] : AVATAR_LIST[nextId % AVATAR_LIST.length];
-
-        this.state.players.push({
-          id: nextId,
-          name: defaultPlayerName(nextId - 1),
-          avatar: randomAvatar,
-          score: 0
-        });
-
-        this.saveStorage();
-        this.renderPlayerRoster();
-        this.synth.playClick(650);
-      }
-
-      removePlayer(index) {
-        if (this.state.players.length <= 2) return;
-        this.state.players.splice(index, 1);
-        this.saveStorage();
-        this.renderPlayerRoster();
-        this.synth.playClick(400);
-      }
-
-      randomizeAllAvatars() {
-        const shuffled = [...AVATAR_LIST].sort(() => 0.5 - Math.random());
-        this.state.players.forEach((p, idx) => {
-          p.avatar = shuffled[idx % shuffled.length];
-        });
-        this.saveStorage();
-        this.renderPlayerRoster();
-        this.synth.playClick(700);
-        this.showToast('🎲 สุ่ม Avatar ใหม่ให้ทุกคนแล้ว');
-      }
-
-      /** gh#177. The wipe the reset confirm guards: every seat goes back to the cast row that owns
-       *  it, and the party keeps its size.
-       *  ADR-0054 ruling 1 makes name + emoji ONE identity and ruling 2 fixes the order, so both
-       *  halves come from a SINGLE MASCOTS lookup per seat -- a second lookup for the emoji is
-       *  exactly what would let the pair drift apart. The modulo wrap keeps them on the same row
-       *  past the end of the cast, where defaultPlayerName's numbered fallback would not; the
-       *  10-seat ceiling reaches neither.
-       *  It reads only the roster's length and each seat's position, never an entry's name or
-       *  avatar, so nothing a player typed or picked can survive it -- that is the loss the confirm
-       *  names. id and score are carried through: neither belongs to the mascot identity, and score
-       *  is a per-match value this pre-match screen has no business touching.
-       *  No DOM and no storage call on purpose -- the redraw and the save belong to the handler,
-       *  which leaves this a pure state move that ./reset-cast.test.mjs lifts out and runs without
-       *  a browser. */
-      resetPlayerCast() {
-        this.state.players = this.state.players.map((player, index) => {
-          const mascot = MASCOTS[index % MASCOTS.length];
-          return { ...player, name: mascot.name, avatar: mascot.emoji };
-        });
-      }
-
-      selectAvatar(emoji) {
-        if (this.state.editingPlayerIndex !== null) {
-          this.state.players[this.state.editingPlayerIndex].avatar = emoji;
-          this.saveStorage();
-          this.renderPlayerRoster();
-          this.closeModal('modal-avatar-picker');
-        }
-      }
+      // The mockup's roster block -- its row builder, add and remove, the avatar shuffle and picker,
+      // and the cast reset -- went with its setup (gh#264, ADR-0071).
 
       /* =========================================
          MATCH PROGRESSION & GAMEPLAY FLOW
@@ -1118,6 +979,9 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
       resolveTurn() {
         this.stopTimerLoop();
+        // The round this turn belongs to. Both verdicts land on a delay, and endRound() in between
+        // (the players confirmed an edit, or the house icon) disowns them.
+        const round = this.roundSeq;
         const activePlayer = this.state.players[this.state.turnIndex];
         const timeStr = this.state.timer.formattedString;
         const lastDigit = parseInt(timeStr.slice(-1), 10);
@@ -1140,6 +1004,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
           // Open Defeat Modal
           setTimeout(() => {
+            if (round !== this.roundSeq) return;
             this.showDefeatModal(activePlayer, timeStr, lastDigit);
           }, 700);
 
@@ -1156,6 +1021,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
           activePlayer.score += 1;
 
           setTimeout(() => {
+            if (round !== this.roundSeq) return;
             this.advanceTurn();
           }, 1200);
         }
