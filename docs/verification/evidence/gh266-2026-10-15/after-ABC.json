@@ -1,0 +1,6435 @@
+[
+ {
+  "tag": "after-A-320",
+  "tree": "after",
+  "set": "A",
+  "w": 320,
+  "h": 568,
+  "info": {
+   "gl": false,
+   "inputs": 6,
+   "vals": [
+    "WWWWWWWWWWWWWWW1",
+    "WWWWWWWWWWWWWWW2",
+    "WWWWWWWWWWWWWWW3",
+    "WWWWWWWWWWWWWWW4",
+    "WWWWWWWWWWWWWWW5",
+    "WWWWWWWWWWWWWWW6"
+   ],
+   "startDisabled": false
+  },
+  "hudState": {
+   "hudHidden": false,
+   "strip": 6,
+   "rn": [
+    "WWWWWWWWWWWWWWW1",
+    "WWWWWWWWWWWWWWW2",
+    "WWWWWWWWWWWWWWW3",
+    "WWWWWWWWWWWWWWW4",
+    "WWWWWWWWWWWWWWW5",
+    "WWWWWWWWWWWWWWW6"
+   ]
+  },
+  "clicks": 15,
+  "reached": true,
+  "turnSamples": [
+   "WWWWWWWWWWWWWWW3",
+   "WWWWWWWWWWWWWWW4",
+   "WWWWWWWWWWWWWWW5",
+   "WWWWWWWWWWWWWWW6",
+   "WWWWWWWWWWWWWWW1",
+   "WWWWWWWWWWWWWWW2",
+   "WWWWWWWWWWWWWWW3",
+   "WWWWWWWWWWWWWWW4",
+   "WWWWWWWWWWWWWWW5",
+   "WWWWWWWWWWWWWWW6",
+   "WWWWWWWWWWWWWWW1",
+   "WWWWWWWWWWWWWWW2",
+   "WWWWWWWWWWWWWWW3",
+   "WWWWWWWWWWWWWWW4",
+   "WWWWWWWWWWWWWWW5"
+  ],
+  "toasts": [
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW4 🐸",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW5 🐻",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW6 🐼",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW1 🐱",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW2 🐶",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW3 🐰",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW4 🐸",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW5 🐻",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW6 🐼",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW1 🐱",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW2 🐶",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW3 🐰",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW4 🐸",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW5 🐻",
+    "l": 52.11,
+    "r": 267.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 320,
+    "overflowViewportPx": 0
+   }
+  ],
+  "hud": {
+   "vw": 320,
+   "docScrollW": 320,
+   "bodyScrollW": 320,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 10,
+     "r": 310,
+     "w": 300,
+     "t": 58,
+     "h": 46
+    },
+    "scrollW": 613,
+    "clientW": 300,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 149.44,
+      "l": -303.31,
+      "rr": -153.88
+     },
+     {
+      "w": 149.44,
+      "l": -147.88,
+      "rr": 1.56
+     },
+     {
+      "w": 156.91,
+      "l": 3.83,
+      "rr": 160.74
+     },
+     {
+      "w": 149.44,
+      "l": 163,
+      "rr": 312.44
+     },
+     {
+      "w": 149.44,
+      "l": 318.44,
+      "rr": 467.88
+     },
+     {
+      "w": 149.44,
+      "l": 473.88,
+      "rr": 623.31
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "WWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": -262.31,
+      "r": -162.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -303.31,
+      "r": -153.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 262.31,
+     "cardRect": {
+      "l": -303.31,
+      "r": -153.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -262.31,
+      "r": -162.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "WWWWWWWWWWWWWWW2",
+     "rect": {
+      "l": -106.88,
+      "r": -7.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -147.88,
+      "r": 1.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 106.88,
+     "cardRect": {
+      "l": -147.88,
+      "r": 1.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -106.88,
+      "r": -7.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "WWWWWWWWWWWWWWW3",
+     "rect": {
+      "l": 46.88,
+      "r": 151.29,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 15.8
+     },
+     "container": {
+      "l": 3.83,
+      "r": 160.74,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 3.83,
+      "r": 160.74,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 46.88,
+      "r": 151.29,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 31.5
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "WWWWWWWWWWWWWWW4",
+     "rect": {
+      "l": 204,
+      "r": 303.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 163,
+      "r": 312.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 163,
+      "r": 312.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 204,
+      "r": 303.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 2.44
+    },
+    {
+     "label": "card-name4",
+     "text": "WWWWWWWWWWWWWWW5",
+     "rect": {
+      "l": 359.44,
+      "r": 458.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 318.44,
+      "r": 467.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 138.88,
+     "cardRect": {
+      "l": 318.44,
+      "r": 467.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 359.44,
+      "r": 458.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 157.88
+    },
+    {
+     "label": "card-name5",
+     "text": "WWWWWWWWWWWWWWW6",
+     "rect": {
+      "l": 514.88,
+      "r": 614.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 473.88,
+      "r": 623.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 294.31,
+     "cardRect": {
+      "l": 473.88,
+      "r": 623.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 514.88,
+      "r": 614.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 313.31
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "WWWWWWWWWWWWWWW3",
+    "rect": {
+     "l": 110.11,
+     "r": 267.38,
+     "w": 157.27,
+     "t": 116.5,
+     "h": 15
+    },
+    "container": {
+     "l": 39.61,
+     "r": 280.38,
+     "w": 240.77,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 157,
+    "clientW": 157,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 39.61,
+     "r": 280.38,
+     "w": 240.77,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 239,
+    "clientW": 239
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "แมวส้ม โดนเข้งับ!",
+    "rect": {
+     "l": 67.45,
+     "r": 252.55,
+     "w": 185.1,
+     "t": 213.4,
+     "h": 33.3
+    },
+    "container": {
+     "l": 18.88,
+     "r": 301.12,
+     "w": 282.24,
+     "t": 120.3,
+     "h": 327.3
+    },
+    "scrollW": 189,
+    "clientW": 189,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 18.88,
+     "r": 301.12,
+     "w": 282.24,
+     "t": 120.3,
+     "h": 327.3
+    }
+   },
+   "scoreRows": [],
+   "scoreboard": {
+    "rect": {
+     "l": 39.46,
+     "r": 280.54,
+     "w": 241.08,
+     "t": 315.4,
+     "h": 21.6
+    },
+    "scrollW": 244,
+    "clientW": 244
+   }
+  },
+  "result": {
+   "vw": 320,
+   "docScrollW": 320,
+   "bodyScrollW": 320,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 13,
+     "r": 307,
+     "w": 294,
+     "t": 62.5,
+     "h": 45.1
+    },
+    "scrollW": 613,
+    "clientW": 300,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 146.45,
+      "l": -294.05,
+      "rr": -147.6
+     },
+     {
+      "w": 146.45,
+      "l": -141.72,
+      "rr": 4.73
+     },
+     {
+      "w": 146.45,
+      "l": 10.61,
+      "rr": 157.06
+     },
+     {
+      "w": 146.45,
+      "l": 162.94,
+      "rr": 309.39
+     },
+     {
+      "w": 153.77,
+      "l": 311.61,
+      "rr": 465.38
+     },
+     {
+      "w": 146.45,
+      "l": 467.6,
+      "rr": 614.05
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "WWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": -253.87,
+      "r": -156.42,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": -294.05,
+      "r": -147.6,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 253.87,
+     "cardRect": {
+      "l": -294.05,
+      "r": -147.6,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -253.87,
+      "r": -156.42,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "WWWWWWWWWWWWWWW2",
+     "rect": {
+      "l": -101.54,
+      "r": -4.09,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": -141.72,
+      "r": 4.73,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 101.54,
+     "cardRect": {
+      "l": -141.72,
+      "r": 4.73,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -101.54,
+      "r": -4.09,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "WWWWWWWWWWWWWWW3",
+     "rect": {
+      "l": 50.79,
+      "r": 148.24,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 10.61,
+      "r": 157.06,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 10.61,
+      "r": 157.06,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 50.79,
+      "r": 148.24,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "WWWWWWWWWWWWWWW4",
+     "rect": {
+      "l": 203.12,
+      "r": 300.57,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 162.94,
+      "r": 309.39,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 162.94,
+      "r": 309.39,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 203.12,
+      "r": 300.57,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 2.39
+    },
+    {
+     "label": "card-name4",
+     "text": "WWWWWWWWWWWWWWW5",
+     "rect": {
+      "l": 353.8,
+      "r": 456.12,
+      "w": 102.32,
+      "t": 66.7,
+      "h": 15.4
+     },
+     "container": {
+      "l": 311.61,
+      "r": 465.38,
+      "w": 153.77,
+      "t": 61.5,
+      "h": 41.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 136.12,
+     "cardRect": {
+      "l": 311.61,
+      "r": 465.38,
+      "w": 153.77,
+      "t": 61.5,
+      "h": 41.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 353.8,
+      "r": 456.12,
+      "w": 102.32,
+      "t": 66.7,
+      "h": 30.9
+     },
+     "cardOverflowsStrip": 158.38
+    },
+    {
+     "label": "card-name5",
+     "text": "WWWWWWWWWWWWWWW6",
+     "rect": {
+      "l": 507.78,
+      "r": 605.23,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 467.6,
+      "r": 614.05,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 285.23,
+     "cardRect": {
+      "l": 467.6,
+      "r": 614.05,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 507.78,
+      "r": 605.23,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 307.05
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "WWWWWWWWWWWWWWW5",
+    "rect": {
+     "l": 111.11,
+     "r": 265.23,
+     "w": 154.12,
+     "t": 119.8,
+     "h": 14.7
+    },
+    "container": {
+     "l": 42.02,
+     "r": 277.97,
+     "w": 235.95,
+     "t": 113.5,
+     "h": 27.4
+    },
+    "scrollW": 157,
+    "clientW": 157,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 42.02,
+     "r": 277.97,
+     "w": 235.95,
+     "t": 113.5,
+     "h": 27.4
+    },
+    "scrollW": 239,
+    "clientW": 239
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "🐻 WWWWWWWWWWWWWWW5 โดนเข้งับ!",
+    "rect": {
+     "l": -17.77,
+     "r": 337.78,
+     "w": 355.55,
+     "t": 12,
+     "h": 104
+    },
+    "container": {
+     "l": 16,
+     "r": 304,
+     "w": 288,
+     "t": -83,
+     "h": 734
+    },
+    "scrollW": 356,
+    "clientW": 356,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 33.78,
+    "overflowViewportPx": 17.78,
+    "parentRect": {
+     "l": 16,
+     "r": 304,
+     "w": 288,
+     "t": -83,
+     "h": 734
+    }
+   },
+   "scoreRows": [
+    {
+     "label": "score-name0",
+     "text": "WWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": 84,
+      "r": 217.91,
+      "w": 133.91,
+      "t": 213.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 197,
+      "h": 50
+     },
+     "scrollW": 178,
+     "clientW": 134,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 217.91,
+      "w": 157.91,
+      "t": 211.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name1",
+     "text": "WWWWWWWWWWWWWWW2",
+     "rect": {
+      "l": 84,
+      "r": 217.91,
+      "w": 133.91,
+      "t": 269.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 253,
+      "h": 50
+     },
+     "scrollW": 178,
+     "clientW": 134,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 217.91,
+      "w": 157.91,
+      "t": 267.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name2",
+     "text": "WWWWWWWWWWWWWWW3",
+     "rect": {
+      "l": 84,
+      "r": 217.91,
+      "w": 133.91,
+      "t": 325.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 309,
+      "h": 50
+     },
+     "scrollW": 178,
+     "clientW": 134,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 217.91,
+      "w": 157.91,
+      "t": 323.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name3",
+     "text": "WWWWWWWWWWWWWWW4",
+     "rect": {
+      "l": 84,
+      "r": 217.91,
+      "w": 133.91,
+      "t": 381.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 365,
+      "h": 50
+     },
+     "scrollW": 178,
+     "clientW": 134,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 217.91,
+      "w": 157.91,
+      "t": 379.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name4",
+     "text": "WWWWWWWWWWWWWWW6",
+     "rect": {
+      "l": 84,
+      "r": 217.91,
+      "w": 133.91,
+      "t": 437.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 421,
+      "h": 50
+     },
+     "scrollW": 178,
+     "clientW": 134,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 217.91,
+      "w": 157.91,
+      "t": 435.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name5",
+     "text": "WWWWWWWWWWWWWWW5",
+     "rect": {
+      "l": 84,
+      "r": 217.91,
+      "w": 133.91,
+      "t": 493.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 477,
+      "h": 50
+     },
+     "scrollW": 178,
+     "clientW": 134,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 217.91,
+      "w": 157.91,
+      "t": 491.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    }
+   ],
+   "scoreboard": {
+    "rect": {
+     "l": 37,
+     "r": 283,
+     "w": 246,
+     "t": 186,
+     "h": 352
+    },
+    "scrollW": 244,
+    "clientW": 244
+   }
+  },
+  "consoleErrors": 2
+ },
+ {
+  "tag": "after-A-390",
+  "tree": "after",
+  "set": "A",
+  "w": 390,
+  "h": 844,
+  "info": {
+   "gl": false,
+   "inputs": 6,
+   "vals": [
+    "WWWWWWWWWWWWWWW1",
+    "WWWWWWWWWWWWWWW2",
+    "WWWWWWWWWWWWWWW3",
+    "WWWWWWWWWWWWWWW4",
+    "WWWWWWWWWWWWWWW5",
+    "WWWWWWWWWWWWWWW6"
+   ],
+   "startDisabled": false
+  },
+  "hudState": {
+   "hudHidden": false,
+   "strip": 6,
+   "rn": [
+    "WWWWWWWWWWWWWWW1",
+    "WWWWWWWWWWWWWWW2",
+    "WWWWWWWWWWWWWWW3",
+    "WWWWWWWWWWWWWWW4",
+    "WWWWWWWWWWWWWWW5",
+    "WWWWWWWWWWWWWWW6"
+   ]
+  },
+  "clicks": 10,
+  "reached": true,
+  "turnSamples": [
+   "WWWWWWWWWWWWWWW2",
+   "WWWWWWWWWWWWWWW3",
+   "WWWWWWWWWWWWWWW4",
+   "WWWWWWWWWWWWWWW5",
+   "WWWWWWWWWWWWWWW6",
+   "WWWWWWWWWWWWWWW1",
+   "WWWWWWWWWWWWWWW2",
+   "WWWWWWWWWWWWWWW3",
+   "WWWWWWWWWWWWWWW4",
+   "WWWWWWWWWWWWWWW5"
+  ],
+  "toasts": [
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW3 🐰",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW4 🐸",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW5 🐻",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW6 🐼",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW1 🐱",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW2 🐶",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW3 🐰",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW4 🐸",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWW5 🐻",
+    "l": 87.11,
+    "r": 302.89,
+    "w": 215.78,
+    "scrollW": 214,
+    "clientW": 214,
+    "vw": 390,
+    "overflowViewportPx": 0
+   }
+  ],
+  "hud": {
+   "vw": 390,
+   "docScrollW": 390,
+   "bodyScrollW": 390,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 10,
+     "r": 380,
+     "w": 370,
+     "t": 58,
+     "h": 46
+    },
+    "scrollW": 648,
+    "clientW": 370,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 149.44,
+      "l": -268.31,
+      "rr": -118.88
+     },
+     {
+      "w": 156.91,
+      "l": -116.61,
+      "rr": 40.3
+     },
+     {
+      "w": 149.44,
+      "l": 42.56,
+      "rr": 192
+     },
+     {
+      "w": 149.44,
+      "l": 198,
+      "rr": 347.44
+     },
+     {
+      "w": 149.44,
+      "l": 353.44,
+      "rr": 502.88
+     },
+     {
+      "w": 149.44,
+      "l": 508.88,
+      "rr": 658.31
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "WWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": -227.31,
+      "r": -127.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -268.31,
+      "r": -118.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 227.31,
+     "cardRect": {
+      "l": -268.31,
+      "r": -118.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -227.31,
+      "r": -127.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "WWWWWWWWWWWWWWW2",
+     "rect": {
+      "l": -73.56,
+      "r": 30.85,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 15.8
+     },
+     "container": {
+      "l": -116.61,
+      "r": 40.3,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 73.56,
+     "cardRect": {
+      "l": -116.61,
+      "r": 40.3,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -73.56,
+      "r": 30.85,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 31.5
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "WWWWWWWWWWWWWWW3",
+     "rect": {
+      "l": 83.56,
+      "r": 183,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 42.56,
+      "r": 192,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 42.56,
+      "r": 192,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 83.56,
+      "r": 183,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "WWWWWWWWWWWWWWW4",
+     "rect": {
+      "l": 239,
+      "r": 338.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 198,
+      "r": 347.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 198,
+      "r": 347.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 239,
+      "r": 338.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name4",
+     "text": "WWWWWWWWWWWWWWW5",
+     "rect": {
+      "l": 394.44,
+      "r": 493.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 353.44,
+      "r": 502.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 103.88,
+     "cardRect": {
+      "l": 353.44,
+      "r": 502.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 394.44,
+      "r": 493.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 122.88
+    },
+    {
+     "label": "card-name5",
+     "text": "WWWWWWWWWWWWWWW6",
+     "rect": {
+      "l": 549.88,
+      "r": 649.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 508.88,
+      "r": 658.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 259.31,
+     "cardRect": {
+      "l": 508.88,
+      "r": 658.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 549.88,
+      "r": 649.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 278.31
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "WWWWWWWWWWWWWWW2",
+    "rect": {
+     "l": 145.11,
+     "r": 302.38,
+     "w": 157.27,
+     "t": 116.5,
+     "h": 15
+    },
+    "container": {
+     "l": 74.61,
+     "r": 315.38,
+     "w": 240.77,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 157,
+    "clientW": 157,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 74.61,
+     "r": 315.38,
+     "w": 240.77,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 239,
+    "clientW": 239
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "แมวส้ม โดนเข้งับ!",
+    "rect": {
+     "l": 102.45,
+     "r": 287.55,
+     "w": 185.1,
+     "t": 372.5,
+     "h": 33.3
+    },
+    "container": {
+     "l": 23.01,
+     "r": 366.99,
+     "w": 343.98,
+     "t": 279.4,
+     "h": 285.2
+    },
+    "scrollW": 189,
+    "clientW": 189,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 23.01,
+     "r": 366.99,
+     "w": 343.98,
+     "t": 279.4,
+     "h": 285.2
+    }
+   },
+   "scoreRows": [],
+   "scoreboard": {
+    "rect": {
+     "l": 43.59,
+     "r": 346.41,
+     "w": 302.82,
+     "t": 453.9,
+     "h": 21.6
+    },
+    "scrollW": 307,
+    "clientW": 307
+   }
+  },
+  "result": {
+   "vw": 390,
+   "docScrollW": 390,
+   "bodyScrollW": 390,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 13.7,
+     "r": 376.3,
+     "w": 362.6,
+     "t": 65.3,
+     "h": 45.1
+    },
+    "scrollW": 648,
+    "clientW": 370,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 146.45,
+      "l": -259.05,
+      "rr": -112.6
+     },
+     {
+      "w": 146.45,
+      "l": -106.72,
+      "rr": 39.73
+     },
+     {
+      "w": 146.45,
+      "l": 45.61,
+      "rr": 192.06
+     },
+     {
+      "w": 146.45,
+      "l": 197.94,
+      "rr": 344.39
+     },
+     {
+      "w": 153.77,
+      "l": 346.61,
+      "rr": 500.38
+     },
+     {
+      "w": 146.45,
+      "l": 502.6,
+      "rr": 649.05
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "WWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": -218.87,
+      "r": -121.42,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": -259.05,
+      "r": -112.6,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 218.87,
+     "cardRect": {
+      "l": -259.05,
+      "r": -112.6,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -218.87,
+      "r": -121.42,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "WWWWWWWWWWWWWWW2",
+     "rect": {
+      "l": -66.54,
+      "r": 30.91,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": -106.72,
+      "r": 39.73,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 66.54,
+     "cardRect": {
+      "l": -106.72,
+      "r": 39.73,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -66.54,
+      "r": 30.91,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "WWWWWWWWWWWWWWW3",
+     "rect": {
+      "l": 85.79,
+      "r": 183.24,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 45.61,
+      "r": 192.06,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 45.61,
+      "r": 192.06,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 85.79,
+      "r": 183.24,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "WWWWWWWWWWWWWWW4",
+     "rect": {
+      "l": 238.12,
+      "r": 335.57,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 197.94,
+      "r": 344.39,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 197.94,
+      "r": 344.39,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 238.12,
+      "r": 335.57,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name4",
+     "text": "WWWWWWWWWWWWWWW5",
+     "rect": {
+      "l": 388.8,
+      "r": 491.12,
+      "w": 102.32,
+      "t": 69.4,
+      "h": 15.4
+     },
+     "container": {
+      "l": 346.61,
+      "r": 500.38,
+      "w": 153.77,
+      "t": 64.3,
+      "h": 41.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 101.12,
+     "cardRect": {
+      "l": 346.61,
+      "r": 500.38,
+      "w": 153.77,
+      "t": 64.3,
+      "h": 41.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 388.8,
+      "r": 491.12,
+      "w": 102.32,
+      "t": 69.4,
+      "h": 30.9
+     },
+     "cardOverflowsStrip": 124.08
+    },
+    {
+     "label": "card-name5",
+     "text": "WWWWWWWWWWWWWWW6",
+     "rect": {
+      "l": 542.78,
+      "r": 640.23,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 502.6,
+      "r": 649.05,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 150,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 250.23,
+     "cardRect": {
+      "l": 502.6,
+      "r": 649.05,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 542.78,
+      "r": 640.23,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 272.75
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "WWWWWWWWWWWWWWW5",
+    "rect": {
+     "l": 146.11,
+     "r": 300.23,
+     "w": 154.12,
+     "t": 122.6,
+     "h": 14.7
+    },
+    "container": {
+     "l": 77.02,
+     "r": 312.97,
+     "w": 235.95,
+     "t": 116.2,
+     "h": 27.4
+    },
+    "scrollW": 157,
+    "clientW": 157,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 77.02,
+     "r": 312.97,
+     "w": 235.95,
+     "t": 116.2,
+     "h": 27.4
+    },
+    "scrollW": 239,
+    "clientW": 239
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "🐻 WWWWWWWWWWWWWWW5 โดนเข้งับ!",
+    "rect": {
+     "l": 17.23,
+     "r": 372.78,
+     "w": 355.55,
+     "t": 211.5,
+     "h": 104
+    },
+    "container": {
+     "l": 19.5,
+     "r": 370.5,
+     "w": 351,
+     "t": 116.5,
+     "h": 611
+    },
+    "scrollW": 356,
+    "clientW": 356,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 2.28,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 19.5,
+     "r": 370.5,
+     "w": 351,
+     "t": 116.5,
+     "h": 611
+    }
+   },
+   "scoreRows": [
+    {
+     "label": "score-name0",
+     "text": "WWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": 87.5,
+      "r": 265.28,
+      "w": 177.78,
+      "t": 383.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 375.5,
+      "h": 33
+     },
+     "scrollW": 178,
+     "clientW": 178,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 265.28,
+      "w": 201.78,
+      "t": 381.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name1",
+     "text": "WWWWWWWWWWWWWWW2",
+     "rect": {
+      "l": 87.5,
+      "r": 265.28,
+      "w": 177.78,
+      "t": 422.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 414.5,
+      "h": 33
+     },
+     "scrollW": 178,
+     "clientW": 178,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 265.28,
+      "w": 201.78,
+      "t": 420.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name2",
+     "text": "WWWWWWWWWWWWWWW3",
+     "rect": {
+      "l": 87.5,
+      "r": 265.28,
+      "w": 177.78,
+      "t": 461.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 453.5,
+      "h": 33
+     },
+     "scrollW": 178,
+     "clientW": 178,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 265.28,
+      "w": 201.78,
+      "t": 459.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name3",
+     "text": "WWWWWWWWWWWWWWW4",
+     "rect": {
+      "l": 87.5,
+      "r": 265.28,
+      "w": 177.78,
+      "t": 500.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 492.5,
+      "h": 33
+     },
+     "scrollW": 178,
+     "clientW": 178,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 265.28,
+      "w": 201.78,
+      "t": 498.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name4",
+     "text": "WWWWWWWWWWWWWWW6",
+     "rect": {
+      "l": 87.5,
+      "r": 265.28,
+      "w": 177.78,
+      "t": 539.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 531.5,
+      "h": 33
+     },
+     "scrollW": 178,
+     "clientW": 178,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 265.28,
+      "w": 201.78,
+      "t": 537.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name5",
+     "text": "WWWWWWWWWWWWWWW5",
+     "rect": {
+      "l": 87.5,
+      "r": 265.28,
+      "w": 177.78,
+      "t": 578.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 570.5,
+      "h": 33
+     },
+     "scrollW": 178,
+     "clientW": 178,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 265.28,
+      "w": 201.78,
+      "t": 576.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    }
+   ],
+   "scoreboard": {
+    "rect": {
+     "l": 40.5,
+     "r": 349.5,
+     "w": 309,
+     "t": 364.5,
+     "h": 250
+    },
+    "scrollW": 307,
+    "clientW": 307
+   }
+  },
+  "consoleErrors": 4
+ },
+ {
+  "tag": "after-B-320",
+  "tree": "after",
+  "set": "B",
+  "w": 320,
+  "h": 568,
+  "info": {
+   "gl": false,
+   "inputs": 6,
+   "vals": [
+    "กขคงจฉชซญดตถนบปผ",
+    "ขคงจฉชซญดตถนบปผฝ",
+    "คงจฉชซญดตถนบปผฝพ",
+    "งจฉชซญดตถนบปผฝพฟ",
+    "จฉชซญดตถนบปผฝพฟภ",
+    "ฉชซญดตถนบปผฝพฟภม"
+   ],
+   "startDisabled": false
+  },
+  "hudState": {
+   "hudHidden": false,
+   "strip": 6,
+   "rn": [
+    "กขคงจฉชซญดตถนบปผ",
+    "ขคงจฉชซญดตถนบปผฝ",
+    "คงจฉชซญดตถนบปผฝพ",
+    "งจฉชซญดตถนบปผฝพฟ",
+    "จฉชซญดตถนบปผฝพฟภ",
+    "ฉชซญดตถนบปผฝพฟภม"
+   ]
+  },
+  "clicks": 6,
+  "reached": true,
+  "turnSamples": [
+   "จฉชซญดตถนบปผฝพฟภ",
+   "ฉชซญดตถนบปผฝพฟภม",
+   "กขคงจฉชซญดตถนบปผ",
+   "ขคงจฉชซญดตถนบปผฝ",
+   "คงจฉชซญดตถนบปผฝพ",
+   "งจฉชซญดตถนบปผฝพฟ"
+  ],
+  "toasts": [
+   {
+    "text": "ตาของ ฉชซญดตถนบปผฝพฟภม 🐼",
+    "l": 80,
+    "r": 240,
+    "w": 160,
+    "scrollW": 158,
+    "clientW": 158,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ กขคงจฉชซญดตถนบปผ 🐱",
+    "l": 80,
+    "r": 240,
+    "w": 160,
+    "scrollW": 158,
+    "clientW": 158,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ ขคงจฉชซญดตถนบปผฝ 🐶",
+    "l": 80,
+    "r": 240,
+    "w": 160,
+    "scrollW": 158,
+    "clientW": 158,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ คงจฉชซญดตถนบปผฝพ 🐰",
+    "l": 80,
+    "r": 240,
+    "w": 160,
+    "scrollW": 158,
+    "clientW": 158,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ งจฉชซญดตถนบปผฝพฟ 🐸",
+    "l": 80,
+    "r": 240,
+    "w": 160,
+    "scrollW": 158,
+    "clientW": 158,
+    "vw": 320,
+    "overflowViewportPx": 0
+   }
+  ],
+  "hud": {
+   "vw": 320,
+   "docScrollW": 320,
+   "bodyScrollW": 320,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 10,
+     "r": 310,
+     "w": 300,
+     "t": 58,
+     "h": 46
+    },
+    "scrollW": 613,
+    "clientW": 300,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 149.44,
+      "l": -303.31,
+      "rr": -153.88
+     },
+     {
+      "w": 149.44,
+      "l": -147.88,
+      "rr": 1.56
+     },
+     {
+      "w": 149.44,
+      "l": 7.56,
+      "rr": 157
+     },
+     {
+      "w": 149.44,
+      "l": 163,
+      "rr": 312.44
+     },
+     {
+      "w": 156.91,
+      "l": 314.7,
+      "rr": 471.61
+     },
+     {
+      "w": 149.44,
+      "l": 473.88,
+      "rr": 623.31
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "กขคงจฉชซญดตถนบปผ",
+     "rect": {
+      "l": -262.31,
+      "r": -162.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -303.31,
+      "r": -153.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 111,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 262.31,
+     "cardRect": {
+      "l": -303.31,
+      "r": -153.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -262.31,
+      "r": -162.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "ขคงจฉชซญดตถนบปผฝ",
+     "rect": {
+      "l": -106.88,
+      "r": -7.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -147.88,
+      "r": 1.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 112,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 106.88,
+     "cardRect": {
+      "l": -147.88,
+      "r": 1.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -106.88,
+      "r": -7.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "คงจฉชซญดตถนบปผฝพ",
+     "rect": {
+      "l": 48.56,
+      "r": 148,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 7.56,
+      "r": 157,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 113,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 7.56,
+      "r": 157,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 48.56,
+      "r": 148,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "งจฉชซญดตถนบปผฝพฟ",
+     "rect": {
+      "l": 204,
+      "r": 303.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 163,
+      "r": 312.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 114,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 163,
+      "r": 312.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 204,
+      "r": 303.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 2.44
+    },
+    {
+     "label": "card-name4",
+     "text": "จฉชซญดตถนบปผฝพฟภ",
+     "rect": {
+      "l": 357.75,
+      "r": 462.16,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 15.8
+     },
+     "container": {
+      "l": 314.7,
+      "r": 471.61,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "scrollW": 116,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 142.16,
+     "cardRect": {
+      "l": 314.7,
+      "r": 471.61,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 357.75,
+      "r": 462.16,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 31.5
+     },
+     "cardOverflowsStrip": 161.61
+    },
+    {
+     "label": "card-name5",
+     "text": "ฉชซญดตถนบปผฝพฟภม",
+     "rect": {
+      "l": 514.88,
+      "r": 614.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 473.88,
+      "r": 623.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 117,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 294.31,
+     "cardRect": {
+      "l": 473.88,
+      "r": 623.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 514.88,
+      "r": 614.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 313.31
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "จฉชซญดตถนบปผฝพฟภ",
+    "rect": {
+     "l": 128.09,
+     "r": 249.39,
+     "w": 121.3,
+     "t": 116.5,
+     "h": 15
+    },
+    "container": {
+     "l": 57.59,
+     "r": 262.39,
+     "w": 204.8,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 121,
+    "clientW": 121,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 57.59,
+     "r": 262.39,
+     "w": 204.8,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 203,
+    "clientW": 203
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "แมวส้ม โดนเข้งับ!",
+    "rect": {
+     "l": 67.45,
+     "r": 252.55,
+     "w": 185.1,
+     "t": 213.4,
+     "h": 33.3
+    },
+    "container": {
+     "l": 18.88,
+     "r": 301.12,
+     "w": 282.24,
+     "t": 120.3,
+     "h": 327.3
+    },
+    "scrollW": 189,
+    "clientW": 189,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 18.88,
+     "r": 301.12,
+     "w": 282.24,
+     "t": 120.3,
+     "h": 327.3
+    }
+   },
+   "scoreRows": [],
+   "scoreboard": {
+    "rect": {
+     "l": 39.46,
+     "r": 280.54,
+     "w": 241.08,
+     "t": 315.4,
+     "h": 21.6
+    },
+    "scrollW": 244,
+    "clientW": 244
+   }
+  },
+  "result": {
+   "vw": 320,
+   "docScrollW": 320,
+   "bodyScrollW": 320,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 13,
+     "r": 307,
+     "w": 294,
+     "t": 62.5,
+     "h": 45.1
+    },
+    "scrollW": 613,
+    "clientW": 300,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 146.45,
+      "l": -294.05,
+      "rr": -147.6
+     },
+     {
+      "w": 146.45,
+      "l": -141.72,
+      "rr": 4.73
+     },
+     {
+      "w": 146.45,
+      "l": 10.61,
+      "rr": 157.06
+     },
+     {
+      "w": 153.77,
+      "l": 159.28,
+      "rr": 313.05
+     },
+     {
+      "w": 146.45,
+      "l": 315.27,
+      "rr": 461.72
+     },
+     {
+      "w": 146.45,
+      "l": 467.6,
+      "rr": 614.05
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "กขคงจฉชซญดตถนบปผ",
+     "rect": {
+      "l": -253.87,
+      "r": -156.42,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": -294.05,
+      "r": -147.6,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 111,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 253.87,
+     "cardRect": {
+      "l": -294.05,
+      "r": -147.6,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -253.87,
+      "r": -156.42,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "ขคงจฉชซญดตถนบปผฝ",
+     "rect": {
+      "l": -101.54,
+      "r": -4.09,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": -141.72,
+      "r": 4.73,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 112,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 101.54,
+     "cardRect": {
+      "l": -141.72,
+      "r": 4.73,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -101.54,
+      "r": -4.09,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "คงจฉชซญดตถนบปผฝพ",
+     "rect": {
+      "l": 50.79,
+      "r": 148.24,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 10.61,
+      "r": 157.06,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 113,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 10.61,
+      "r": 157.06,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 50.79,
+      "r": 148.24,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "งจฉชซญดตถนบปผฝพฟ",
+     "rect": {
+      "l": 201.47,
+      "r": 303.79,
+      "w": 102.32,
+      "t": 66.7,
+      "h": 15.4
+     },
+     "container": {
+      "l": 159.28,
+      "r": 313.05,
+      "w": 153.77,
+      "t": 61.5,
+      "h": 41.2
+     },
+     "scrollW": 114,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 159.28,
+      "r": 313.05,
+      "w": 153.77,
+      "t": 61.5,
+      "h": 41.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 201.47,
+      "r": 303.79,
+      "w": 102.32,
+      "t": 66.7,
+      "h": 30.9
+     },
+     "cardOverflowsStrip": 6.05
+    },
+    {
+     "label": "card-name4",
+     "text": "จฉชซญดตถนบปผฝพฟภ",
+     "rect": {
+      "l": 355.45,
+      "r": 452.9,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 315.27,
+      "r": 461.72,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 116,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 132.9,
+     "cardRect": {
+      "l": 315.27,
+      "r": 461.72,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 355.45,
+      "r": 452.9,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 154.72
+    },
+    {
+     "label": "card-name5",
+     "text": "ฉชซญดตถนบปผฝพฟภม",
+     "rect": {
+      "l": 507.78,
+      "r": 605.23,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 467.6,
+      "r": 614.05,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 117,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 285.23,
+     "cardRect": {
+      "l": 467.6,
+      "r": 614.05,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 507.78,
+      "r": 605.23,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 307.05
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "งจฉชซญดตถนบปผฝพฟ",
+    "rect": {
+     "l": 129.57,
+     "r": 246.78,
+     "w": 117.2,
+     "t": 119.8,
+     "h": 14.7
+    },
+    "container": {
+     "l": 60.48,
+     "r": 259.52,
+     "w": 199.03,
+     "t": 113.5,
+     "h": 27.4
+    },
+    "scrollW": 120,
+    "clientW": 120,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 60.48,
+     "r": 259.52,
+     "w": 199.03,
+     "t": 113.5,
+     "h": 27.4
+    },
+    "scrollW": 201,
+    "clientW": 201
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "🐸 งจฉชซญดตถนบปผฝพฟ โดนเข้งับ!",
+    "rect": {
+     "l": 37,
+     "r": 283,
+     "w": 246,
+     "t": 29,
+     "h": 70
+    },
+    "container": {
+     "l": 16,
+     "r": 304,
+     "w": 288,
+     "t": -66,
+     "h": 700
+    },
+    "scrollW": 246,
+    "clientW": 246,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 16,
+     "r": 304,
+     "w": 288,
+     "t": -66,
+     "h": 700
+    }
+   },
+   "scoreRows": [
+    {
+     "label": "score-name0",
+     "text": "กขคงจฉชซญดตถนบปผ",
+     "rect": {
+      "l": 84,
+      "r": 208.63,
+      "w": 124.63,
+      "t": 196.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 180,
+      "h": 50
+     },
+     "scrollW": 132,
+     "clientW": 125,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 208.63,
+      "w": 148.63,
+      "t": 194.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name1",
+     "text": "ขคงจฉชซญดตถนบปผฝ",
+     "rect": {
+      "l": 84,
+      "r": 208.8,
+      "w": 124.8,
+      "t": 252.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 236,
+      "h": 50
+     },
+     "scrollW": 132,
+     "clientW": 125,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 208.8,
+      "w": 148.8,
+      "t": 250.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name2",
+     "text": "คงจฉชซญดตถนบปผฝพ",
+     "rect": {
+      "l": 84,
+      "r": 209.13,
+      "w": 125.13,
+      "t": 308.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 292,
+      "h": 50
+     },
+     "scrollW": 134,
+     "clientW": 125,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 209.13,
+      "w": 149.13,
+      "t": 306.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name3",
+     "text": "จฉชซญดตถนบปผฝพฟภ",
+     "rect": {
+      "l": 84,
+      "r": 209.94,
+      "w": 125.94,
+      "t": 364.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 348,
+      "h": 50
+     },
+     "scrollW": 137,
+     "clientW": 126,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 209.94,
+      "w": 149.94,
+      "t": 362.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name4",
+     "text": "ฉชซญดตถนบปผฝพฟภม",
+     "rect": {
+      "l": 84,
+      "r": 210.11,
+      "w": 126.11,
+      "t": 420.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 404,
+      "h": 50
+     },
+     "scrollW": 138,
+     "clientW": 126,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 210.11,
+      "w": 150.11,
+      "t": 418.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name5",
+     "text": "งจฉชซญดตถนบปผฝพฟ",
+     "rect": {
+      "l": 84,
+      "r": 209.48,
+      "w": 125.48,
+      "t": 476.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 460,
+      "h": 50
+     },
+     "scrollW": 135,
+     "clientW": 125,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 209.48,
+      "w": 149.48,
+      "t": 474.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    }
+   ],
+   "scoreboard": {
+    "rect": {
+     "l": 37,
+     "r": 283,
+     "w": 246,
+     "t": 169,
+     "h": 352
+    },
+    "scrollW": 244,
+    "clientW": 244
+   }
+  },
+  "consoleErrors": 6
+ },
+ {
+  "tag": "after-B-390",
+  "tree": "after",
+  "set": "B",
+  "w": 390,
+  "h": 844,
+  "info": {
+   "gl": false,
+   "inputs": 6,
+   "vals": [
+    "กขคงจฉชซญดตถนบปผ",
+    "ขคงจฉชซญดตถนบปผฝ",
+    "คงจฉชซญดตถนบปผฝพ",
+    "งจฉชซญดตถนบปผฝพฟ",
+    "จฉชซญดตถนบปผฝพฟภ",
+    "ฉชซญดตถนบปผฝพฟภม"
+   ],
+   "startDisabled": false
+  },
+  "hudState": {
+   "hudHidden": false,
+   "strip": 6,
+   "rn": [
+    "กขคงจฉชซญดตถนบปผ",
+    "ขคงจฉชซญดตถนบปผฝ",
+    "คงจฉชซญดตถนบปผฝพ",
+    "งจฉชซญดตถนบปผฝพฟ",
+    "จฉชซญดตถนบปผฝพฟภ",
+    "ฉชซญดตถนบปผฝพฟภม"
+   ]
+  },
+  "clicks": 2,
+  "reached": true,
+  "turnSamples": [
+   "กขคงจฉชซญดตถนบปผ",
+   "ขคงจฉชซญดตถนบปผฝ"
+  ],
+  "toasts": [
+   {
+    "text": "ตาของ ขคงจฉชซญดตถนบปผฝ 🐶",
+    "l": 97.5,
+    "r": 292.5,
+    "w": 195,
+    "scrollW": 193,
+    "clientW": 193,
+    "vw": 390,
+    "overflowViewportPx": 0
+   }
+  ],
+  "hud": {
+   "vw": 390,
+   "docScrollW": 390,
+   "bodyScrollW": 390,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 10,
+     "r": 380,
+     "w": 370,
+     "t": 58,
+     "h": 46
+    },
+    "scrollW": 648,
+    "clientW": 370,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 156.91,
+      "l": -272.05,
+      "rr": -115.14
+     },
+     {
+      "w": 149.44,
+      "l": -112.88,
+      "rr": 36.56
+     },
+     {
+      "w": 149.44,
+      "l": 42.56,
+      "rr": 192
+     },
+     {
+      "w": 149.44,
+      "l": 198,
+      "rr": 347.44
+     },
+     {
+      "w": 149.44,
+      "l": 353.44,
+      "rr": 502.88
+     },
+     {
+      "w": 149.44,
+      "l": 508.88,
+      "rr": 658.31
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "กขคงจฉชซญดตถนบปผ",
+     "rect": {
+      "l": -229,
+      "r": -124.59,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 15.8
+     },
+     "container": {
+      "l": -272.05,
+      "r": -115.14,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "scrollW": 111,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 229,
+     "cardRect": {
+      "l": -272.05,
+      "r": -115.14,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -229,
+      "r": -124.59,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 31.5
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "ขคงจฉชซญดตถนบปผฝ",
+     "rect": {
+      "l": -71.88,
+      "r": 27.56,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -112.88,
+      "r": 36.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 112,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 71.88,
+     "cardRect": {
+      "l": -112.88,
+      "r": 36.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -71.88,
+      "r": 27.56,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "คงจฉชซญดตถนบปผฝพ",
+     "rect": {
+      "l": 83.56,
+      "r": 183,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 42.56,
+      "r": 192,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 113,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 42.56,
+      "r": 192,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 83.56,
+      "r": 183,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "งจฉชซญดตถนบปผฝพฟ",
+     "rect": {
+      "l": 239,
+      "r": 338.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 198,
+      "r": 347.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 114,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 198,
+      "r": 347.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 239,
+      "r": 338.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name4",
+     "text": "จฉชซญดตถนบปผฝพฟภ",
+     "rect": {
+      "l": 394.44,
+      "r": 493.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 353.44,
+      "r": 502.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 116,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 103.88,
+     "cardRect": {
+      "l": 353.44,
+      "r": 502.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 394.44,
+      "r": 493.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 122.88
+    },
+    {
+     "label": "card-name5",
+     "text": "ฉชซญดตถนบปผฝพฟภม",
+     "rect": {
+      "l": 549.88,
+      "r": 649.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 508.88,
+      "r": 658.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 117,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 259.31,
+     "cardRect": {
+      "l": 508.88,
+      "r": 658.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 549.88,
+      "r": 649.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 278.31
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "กขคงจฉชซญดตถนบปผ",
+    "rect": {
+     "l": 165.53,
+     "r": 281.97,
+     "w": 116.44,
+     "t": 116.5,
+     "h": 15
+    },
+    "container": {
+     "l": 95.03,
+     "r": 294.97,
+     "w": 199.94,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 116,
+    "clientW": 116,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 95.03,
+     "r": 294.97,
+     "w": 199.94,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 198,
+    "clientW": 198
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "แมวส้ม โดนเข้งับ!",
+    "rect": {
+     "l": 102.45,
+     "r": 287.55,
+     "w": 185.1,
+     "t": 372.5,
+     "h": 33.3
+    },
+    "container": {
+     "l": 23.01,
+     "r": 366.99,
+     "w": 343.98,
+     "t": 279.4,
+     "h": 285.2
+    },
+    "scrollW": 189,
+    "clientW": 189,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 23.01,
+     "r": 366.99,
+     "w": 343.98,
+     "t": 279.4,
+     "h": 285.2
+    }
+   },
+   "scoreRows": [],
+   "scoreboard": {
+    "rect": {
+     "l": 43.59,
+     "r": 346.41,
+     "w": 302.82,
+     "t": 453.9,
+     "h": 21.6
+    },
+    "scrollW": 307,
+    "clientW": 307
+   }
+  },
+  "result": {
+   "vw": 390,
+   "docScrollW": 390,
+   "bodyScrollW": 390,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 13.7,
+     "r": 376.3,
+     "w": 362.6,
+     "t": 65.3,
+     "h": 45.1
+    },
+    "scrollW": 648,
+    "clientW": 370,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 146.45,
+      "l": -259.05,
+      "rr": -112.6
+     },
+     {
+      "w": 153.77,
+      "l": -110.38,
+      "rr": 43.39
+     },
+     {
+      "w": 146.45,
+      "l": 45.61,
+      "rr": 192.06
+     },
+     {
+      "w": 146.45,
+      "l": 197.94,
+      "rr": 344.39
+     },
+     {
+      "w": 146.45,
+      "l": 350.27,
+      "rr": 496.72
+     },
+     {
+      "w": 146.45,
+      "l": 502.6,
+      "rr": 649.05
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "กขคงจฉชซญดตถนบปผ",
+     "rect": {
+      "l": -218.87,
+      "r": -121.42,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": -259.05,
+      "r": -112.6,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 111,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 218.87,
+     "cardRect": {
+      "l": -259.05,
+      "r": -112.6,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -218.87,
+      "r": -121.42,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "ขคงจฉชซญดตถนบปผฝ",
+     "rect": {
+      "l": -68.19,
+      "r": 34.13,
+      "w": 102.32,
+      "t": 69.4,
+      "h": 15.4
+     },
+     "container": {
+      "l": -110.38,
+      "r": 43.39,
+      "w": 153.77,
+      "t": 64.3,
+      "h": 41.2
+     },
+     "scrollW": 112,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 68.19,
+     "cardRect": {
+      "l": -110.38,
+      "r": 43.39,
+      "w": 153.77,
+      "t": 64.3,
+      "h": 41.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -68.19,
+      "r": 34.13,
+      "w": 102.32,
+      "t": 69.4,
+      "h": 30.9
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "คงจฉชซญดตถนบปผฝพ",
+     "rect": {
+      "l": 85.79,
+      "r": 183.24,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 45.61,
+      "r": 192.06,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 113,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 45.61,
+      "r": 192.06,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 85.79,
+      "r": 183.24,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "งจฉชซญดตถนบปผฝพฟ",
+     "rect": {
+      "l": 238.12,
+      "r": 335.57,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 197.94,
+      "r": 344.39,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 114,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 197.94,
+      "r": 344.39,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 238.12,
+      "r": 335.57,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name4",
+     "text": "จฉชซญดตถนบปผฝพฟภ",
+     "rect": {
+      "l": 390.45,
+      "r": 487.9,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 350.27,
+      "r": 496.72,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 116,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 97.9,
+     "cardRect": {
+      "l": 350.27,
+      "r": 496.72,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 390.45,
+      "r": 487.9,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 120.42
+    },
+    {
+     "label": "card-name5",
+     "text": "ฉชซญดตถนบปผฝพฟภม",
+     "rect": {
+      "l": 542.78,
+      "r": 640.23,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 502.6,
+      "r": 649.05,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 117,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 250.23,
+     "cardRect": {
+      "l": 502.6,
+      "r": 649.05,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 542.78,
+      "r": 640.23,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 272.75
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "ขคงจฉชซญดตถนบปผฝ",
+    "rect": {
+     "l": 165.81,
+     "r": 280.52,
+     "w": 114.71,
+     "t": 122.6,
+     "h": 14.7
+    },
+    "container": {
+     "l": 96.72,
+     "r": 293.26,
+     "w": 196.54,
+     "t": 116.2,
+     "h": 27.4
+    },
+    "scrollW": 117,
+    "clientW": 117,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 96.72,
+     "r": 293.26,
+     "w": 196.54,
+     "t": 116.2,
+     "h": 27.4
+    },
+    "scrollW": 199,
+    "clientW": 199
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "🐶 ขคงจฉชซญดตถนบปผฝ โดนเข้งับ!",
+    "rect": {
+     "l": 40.5,
+     "r": 349.5,
+     "w": 309,
+     "t": 228.5,
+     "h": 70
+    },
+    "container": {
+     "l": 19.5,
+     "r": 370.5,
+     "w": 351,
+     "t": 133.5,
+     "h": 577
+    },
+    "scrollW": 309,
+    "clientW": 309,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 19.5,
+     "r": 370.5,
+     "w": 351,
+     "t": 133.5,
+     "h": 577
+    }
+   },
+   "scoreRows": [
+    {
+     "label": "score-name0",
+     "text": "กขคงจฉชซญดตถนบปผ",
+     "rect": {
+      "l": 87.5,
+      "r": 219.13,
+      "w": 131.63,
+      "t": 366.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 358.5,
+      "h": 33
+     },
+     "scrollW": 132,
+     "clientW": 132,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 219.13,
+      "w": 155.63,
+      "t": 364.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name1",
+     "text": "คงจฉชซญดตถนบปผฝพ",
+     "rect": {
+      "l": 87.5,
+      "r": 221.2,
+      "w": 133.7,
+      "t": 405.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 397.5,
+      "h": 33
+     },
+     "scrollW": 134,
+     "clientW": 134,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 221.2,
+      "w": 157.7,
+      "t": 403.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name2",
+     "text": "งจฉชซญดตถนบปผฝพฟ",
+     "rect": {
+      "l": 87.5,
+      "r": 222.69,
+      "w": 135.19,
+      "t": 444.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 436.5,
+      "h": 33
+     },
+     "scrollW": 135,
+     "clientW": 135,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 222.69,
+      "w": 159.19,
+      "t": 442.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name3",
+     "text": "จฉชซญดตถนบปผฝพฟภ",
+     "rect": {
+      "l": 87.5,
+      "r": 224.63,
+      "w": 137.13,
+      "t": 483.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 475.5,
+      "h": 33
+     },
+     "scrollW": 137,
+     "clientW": 137,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 224.63,
+      "w": 161.13,
+      "t": 481.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name4",
+     "text": "ฉชซญดตถนบปผฝพฟภม",
+     "rect": {
+      "l": 87.5,
+      "r": 225.39,
+      "w": 137.89,
+      "t": 522.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 514.5,
+      "h": 33
+     },
+     "scrollW": 138,
+     "clientW": 138,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 225.39,
+      "w": 161.89,
+      "t": 520.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name5",
+     "text": "ขคงจฉชซญดตถนบปผฝ",
+     "rect": {
+      "l": 87.5,
+      "r": 219.81,
+      "w": 132.31,
+      "t": 561.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 553.5,
+      "h": 33
+     },
+     "scrollW": 132,
+     "clientW": 132,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 219.81,
+      "w": 156.31,
+      "t": 559.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    }
+   ],
+   "scoreboard": {
+    "rect": {
+     "l": 40.5,
+     "r": 349.5,
+     "w": 309,
+     "t": 347.5,
+     "h": 250
+    },
+    "scrollW": 307,
+    "clientW": 307
+   }
+  },
+  "consoleErrors": 8
+ },
+ {
+  "tag": "after-C-320",
+  "tree": "after",
+  "set": "C",
+  "w": 320,
+  "h": 568,
+  "info": {
+   "gl": false,
+   "inputs": 6,
+   "vals": [
+    "abcdefghijklmnopAAAAAAAA",
+    "abcdefghijklmnopBBBBBBBB",
+    "WWWWWWWWWWWWWWWWWWWWWWW1",
+    "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+    "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+    "ZzZzZzZzZzZzZzZzZzZzZzก6"
+   ],
+   "startDisabled": false
+  },
+  "hudState": {
+   "hudHidden": false,
+   "strip": 6,
+   "rn": [
+    "abcdefghijklmnopAAAAAAAA",
+    "abcdefghijklmnopBBBBBBBB",
+    "WWWWWWWWWWWWWWWWWWWWWWW1",
+    "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+    "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+    "ZzZzZzZzZzZzZzZzZzZzZzก6"
+   ]
+  },
+  "clicks": 10,
+  "reached": true,
+  "turnSamples": [
+   "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+   "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+   "ZzZzZzZzZzZzZzZzZzZzZzก6",
+   "abcdefghijklmnopAAAAAAAA",
+   "abcdefghijklmnopBBBBBBBB",
+   "WWWWWWWWWWWWWWWWWWWWWWW1",
+   "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+   "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+   "ZzZzZzZzZzZzZzZzZzZzZzก6",
+   "abcdefghijklmnopAAAAAAAA"
+  ],
+  "toasts": [
+   {
+    "text": "ตาของ งจฉชซญดตถนบปผฝพฟภมยรลวศษ 🐻",
+    "l": 78.8,
+    "r": 241.2,
+    "w": 162.39,
+    "scrollW": 160,
+    "clientW": 160,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ ZzZzZzZzZzZzZzZzZzZzZzก6 🐼",
+    "l": 57.09,
+    "r": 262.91,
+    "w": 205.83,
+    "scrollW": 204,
+    "clientW": 204,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ abcdefghijklmnopAAAAAAAA 🐱",
+    "l": 55.16,
+    "r": 264.84,
+    "w": 209.67,
+    "scrollW": 208,
+    "clientW": 208,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ abcdefghijklmnopBBBBBBBB 🐶",
+    "l": 56.98,
+    "r": 263.02,
+    "w": 206.03,
+    "scrollW": 204,
+    "clientW": 204,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWWWWWWWWWW1 🐰",
+    "l": 6.66,
+    "r": 313.34,
+    "w": 306.67,
+    "scrollW": 305,
+    "clientW": 305,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ กขคงจฉชซญดตถนบปผฝพฟภมยรล 🐸",
+    "l": 80,
+    "r": 240,
+    "w": 160,
+    "scrollW": 158,
+    "clientW": 158,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ งจฉชซญดตถนบปผฝพฟภมยรลวศษ 🐻",
+    "l": 78.8,
+    "r": 241.2,
+    "w": 162.39,
+    "scrollW": 160,
+    "clientW": 160,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ ZzZzZzZzZzZzZzZzZzZzZzก6 🐼",
+    "l": 57.09,
+    "r": 262.91,
+    "w": 205.83,
+    "scrollW": 204,
+    "clientW": 204,
+    "vw": 320,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ abcdefghijklmnopAAAAAAAA 🐱",
+    "l": 55.16,
+    "r": 264.84,
+    "w": 209.67,
+    "scrollW": 208,
+    "clientW": 208,
+    "vw": 320,
+    "overflowViewportPx": 0
+   }
+  ],
+  "hud": {
+   "vw": 320,
+   "docScrollW": 320,
+   "bodyScrollW": 320,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 10,
+     "r": 310,
+     "w": 300,
+     "t": 58,
+     "h": 46
+    },
+    "scrollW": 613,
+    "clientW": 300,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 149.44,
+      "l": -303.31,
+      "rr": -153.88
+     },
+     {
+      "w": 149.44,
+      "l": -147.88,
+      "rr": 1.56
+     },
+     {
+      "w": 149.44,
+      "l": 7.56,
+      "rr": 157
+     },
+     {
+      "w": 156.91,
+      "l": 159.26,
+      "rr": 316.17
+     },
+     {
+      "w": 149.44,
+      "l": 318.44,
+      "rr": 467.88
+     },
+     {
+      "w": 149.44,
+      "l": 473.88,
+      "rr": 623.31
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "abcdefghijklmnopAAAAAAAA",
+     "rect": {
+      "l": -262.31,
+      "r": -162.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -303.31,
+      "r": -153.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 145,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 262.31,
+     "cardRect": {
+      "l": -303.31,
+      "r": -153.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -262.31,
+      "r": -162.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "abcdefghijklmnopBBBBBBBB",
+     "rect": {
+      "l": -106.88,
+      "r": -7.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -147.88,
+      "r": 1.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 142,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 106.88,
+     "cardRect": {
+      "l": -147.88,
+      "r": 1.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -106.88,
+      "r": -7.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "WWWWWWWWWWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": 48.56,
+      "r": 148,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 7.56,
+      "r": 157,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 227,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 7.56,
+      "r": 157,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 48.56,
+      "r": 148,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+     "rect": {
+      "l": 202.31,
+      "r": 306.72,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 15.8
+     },
+     "container": {
+      "l": 159.26,
+      "r": 316.17,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "scrollW": 167,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 159.26,
+      "r": 316.17,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 202.31,
+      "r": 306.72,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 31.5
+     },
+     "cardOverflowsStrip": 6.17
+    },
+    {
+     "label": "card-name4",
+     "text": "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+     "rect": {
+      "l": 359.44,
+      "r": 458.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 318.44,
+      "r": 467.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 167,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 138.88,
+     "cardRect": {
+      "l": 318.44,
+      "r": 467.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 359.44,
+      "r": 458.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 157.88
+    },
+    {
+     "label": "card-name5",
+     "text": "ZzZzZzZzZzZzZzZzZzZzZzก6",
+     "rect": {
+      "l": 514.88,
+      "r": 614.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 473.88,
+      "r": 623.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 142,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 294.31,
+     "cardRect": {
+      "l": 473.88,
+      "r": 623.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 514.88,
+      "r": 614.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 313.31
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+    "rect": {
+     "l": 101.36,
+     "r": 276.13,
+     "w": 174.77,
+     "t": 116.5,
+     "h": 15
+    },
+    "container": {
+     "l": 30.86,
+     "r": 289.13,
+     "w": 258.27,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 175,
+    "clientW": 175,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 30.86,
+     "r": 289.13,
+     "w": 258.27,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 256,
+    "clientW": 256
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "แมวส้ม โดนเข้งับ!",
+    "rect": {
+     "l": 67.45,
+     "r": 252.55,
+     "w": 185.1,
+     "t": 213.4,
+     "h": 33.3
+    },
+    "container": {
+     "l": 18.88,
+     "r": 301.12,
+     "w": 282.24,
+     "t": 120.3,
+     "h": 327.3
+    },
+    "scrollW": 189,
+    "clientW": 189,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 18.88,
+     "r": 301.12,
+     "w": 282.24,
+     "t": 120.3,
+     "h": 327.3
+    }
+   },
+   "scoreRows": [],
+   "scoreboard": {
+    "rect": {
+     "l": 39.46,
+     "r": 280.54,
+     "w": 241.08,
+     "t": 315.4,
+     "h": 21.6
+    },
+    "scrollW": 244,
+    "clientW": 244
+   }
+  },
+  "result": {
+   "vw": 320,
+   "docScrollW": 320,
+   "bodyScrollW": 320,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 13,
+     "r": 307,
+     "w": 294,
+     "t": 62.5,
+     "h": 45.1
+    },
+    "scrollW": 613,
+    "clientW": 300,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 153.77,
+      "l": -297.71,
+      "rr": -143.94
+     },
+     {
+      "w": 146.45,
+      "l": -141.72,
+      "rr": 4.73
+     },
+     {
+      "w": 146.45,
+      "l": 10.61,
+      "rr": 157.06
+     },
+     {
+      "w": 146.45,
+      "l": 162.94,
+      "rr": 309.39
+     },
+     {
+      "w": 146.45,
+      "l": 315.27,
+      "rr": 461.72
+     },
+     {
+      "w": 146.45,
+      "l": 467.6,
+      "rr": 614.05
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "abcdefghijklmnopAAAAAAAA",
+     "rect": {
+      "l": -255.52,
+      "r": -153.2,
+      "w": 102.32,
+      "t": 66.7,
+      "h": 15.4
+     },
+     "container": {
+      "l": -297.71,
+      "r": -143.94,
+      "w": 153.77,
+      "t": 61.5,
+      "h": 41.2
+     },
+     "scrollW": 145,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 255.52,
+     "cardRect": {
+      "l": -297.71,
+      "r": -143.94,
+      "w": 153.77,
+      "t": 61.5,
+      "h": 41.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -255.52,
+      "r": -153.2,
+      "w": 102.32,
+      "t": 66.7,
+      "h": 30.9
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "abcdefghijklmnopBBBBBBBB",
+     "rect": {
+      "l": -101.54,
+      "r": -4.09,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": -141.72,
+      "r": 4.73,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 142,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 101.54,
+     "cardRect": {
+      "l": -141.72,
+      "r": 4.73,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -101.54,
+      "r": -4.09,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "WWWWWWWWWWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": 50.79,
+      "r": 148.24,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 10.61,
+      "r": 157.06,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 227,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 10.61,
+      "r": 157.06,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 50.79,
+      "r": 148.24,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+     "rect": {
+      "l": 203.12,
+      "r": 300.57,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 162.94,
+      "r": 309.39,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 167,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 162.94,
+      "r": 309.39,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 203.12,
+      "r": 300.57,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 2.39
+    },
+    {
+     "label": "card-name4",
+     "text": "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+     "rect": {
+      "l": 355.45,
+      "r": 452.9,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 315.27,
+      "r": 461.72,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 167,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 132.9,
+     "cardRect": {
+      "l": 315.27,
+      "r": 461.72,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 355.45,
+      "r": 452.9,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 154.72
+    },
+    {
+     "label": "card-name5",
+     "text": "ZzZzZzZzZzZzZzZzZzZzZzก6",
+     "rect": {
+      "l": 507.78,
+      "r": 605.23,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 14.7
+     },
+     "container": {
+      "l": 467.6,
+      "r": 614.05,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "scrollW": 142,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 285.23,
+     "cardRect": {
+      "l": 467.6,
+      "r": 614.05,
+      "w": 146.45,
+      "t": 64.5,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 507.78,
+      "r": 605.23,
+      "w": 97.45,
+      "t": 69.4,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 307.05
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "abcdefghijklmnopAAAAAAAA",
+    "rect": {
+     "l": 113.76,
+     "r": 262.58,
+     "w": 148.82,
+     "t": 119.8,
+     "h": 14.7
+    },
+    "container": {
+     "l": 44.67,
+     "r": 275.32,
+     "w": 230.65,
+     "t": 113.5,
+     "h": 27.4
+    },
+    "scrollW": 152,
+    "clientW": 152,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 44.67,
+     "r": 275.32,
+     "w": 230.65,
+     "t": 113.5,
+     "h": 27.4
+    },
+    "scrollW": 233,
+    "clientW": 233
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "🐱 abcdefghijklmnopAAAAAAAA โดนเข้งับ!",
+    "rect": {
+     "l": -11.66,
+     "r": 331.67,
+     "w": 343.33,
+     "t": 12,
+     "h": 104
+    },
+    "container": {
+     "l": 16,
+     "r": 304,
+     "w": 288,
+     "t": -83,
+     "h": 734
+    },
+    "scrollW": 343,
+    "clientW": 343,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 27.67,
+    "overflowViewportPx": 11.67,
+    "parentRect": {
+     "l": 16,
+     "r": 304,
+     "w": 288,
+     "t": -83,
+     "h": 734
+    }
+   },
+   "scoreRows": [
+    {
+     "label": "score-name0",
+     "text": "abcdefghijklmnopBBBBBBBB",
+     "rect": {
+      "l": 84,
+      "r": 216.23,
+      "w": 132.23,
+      "t": 213.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 197,
+      "h": 50
+     },
+     "scrollW": 168,
+     "clientW": 132,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 216.23,
+      "w": 156.23,
+      "t": 211.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name1",
+     "text": "WWWWWWWWWWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": 84,
+      "r": 228.95,
+      "w": 144.95,
+      "t": 269.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 253,
+      "h": 50
+     },
+     "scrollW": 269,
+     "clientW": 145,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 228.95,
+      "w": 168.95,
+      "t": 267.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name2",
+     "text": "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+     "rect": {
+      "l": 84,
+      "r": 220.92,
+      "w": 136.92,
+      "t": 325.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 309,
+      "h": 50
+     },
+     "scrollW": 198,
+     "clientW": 137,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 220.92,
+      "w": 160.92,
+      "t": 323.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name3",
+     "text": "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+     "rect": {
+      "l": 84,
+      "r": 220.97,
+      "w": 136.97,
+      "t": 381.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 365,
+      "h": 50
+     },
+     "scrollW": 198,
+     "clientW": 137,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 220.97,
+      "w": 160.97,
+      "t": 379.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name4",
+     "text": "ZzZzZzZzZzZzZzZzZzZzZzก6",
+     "rect": {
+      "l": 84,
+      "r": 216.2,
+      "w": 132.2,
+      "t": 437.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 421,
+      "h": 50
+     },
+     "scrollW": 168,
+     "clientW": 132,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 216.2,
+      "w": 156.2,
+      "t": 435.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name5",
+     "text": "abcdefghijklmnopAAAAAAAA",
+     "rect": {
+      "l": 84,
+      "r": 216.88,
+      "w": 132.88,
+      "t": 493.5,
+      "h": 17
+     },
+     "container": {
+      "l": 48,
+      "r": 272,
+      "w": 224,
+      "t": 477,
+      "h": 50
+     },
+     "scrollW": 172,
+     "clientW": 133,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 224,
+     "rowClientW": 224,
+     "playerRect": {
+      "l": 60,
+      "r": 216.88,
+      "w": 156.88,
+      "t": 491.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    }
+   ],
+   "scoreboard": {
+    "rect": {
+     "l": 37,
+     "r": 283,
+     "w": 246,
+     "t": 186,
+     "h": 352
+    },
+    "scrollW": 244,
+    "clientW": 244
+   }
+  },
+  "consoleErrors": 10
+ },
+ {
+  "tag": "after-C-390",
+  "tree": "after",
+  "set": "C",
+  "w": 390,
+  "h": 844,
+  "info": {
+   "gl": false,
+   "inputs": 6,
+   "vals": [
+    "abcdefghijklmnopAAAAAAAA",
+    "abcdefghijklmnopBBBBBBBB",
+    "WWWWWWWWWWWWWWWWWWWWWWW1",
+    "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+    "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+    "ZzZzZzZzZzZzZzZzZzZzZzก6"
+   ],
+   "startDisabled": false
+  },
+  "hudState": {
+   "hudHidden": false,
+   "strip": 6,
+   "rn": [
+    "abcdefghijklmnopAAAAAAAA",
+    "abcdefghijklmnopBBBBBBBB",
+    "WWWWWWWWWWWWWWWWWWWWWWW1",
+    "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+    "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+    "ZzZzZzZzZzZzZzZzZzZzZzก6"
+   ]
+  },
+  "clicks": 4,
+  "reached": true,
+  "turnSamples": [
+   "abcdefghijklmnopAAAAAAAA",
+   "abcdefghijklmnopBBBBBBBB",
+   "WWWWWWWWWWWWWWWWWWWWWWW1",
+   "กขคงจฉชซญดตถนบปผฝพฟภมยรล"
+  ],
+  "toasts": [
+   {
+    "text": "ตาของ abcdefghijklmnopBBBBBBBB 🐶",
+    "l": 91.98,
+    "r": 298.02,
+    "w": 206.03,
+    "scrollW": 204,
+    "clientW": 204,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ WWWWWWWWWWWWWWWWWWWWWWW1 🐰",
+    "l": 41.66,
+    "r": 348.34,
+    "w": 306.67,
+    "scrollW": 305,
+    "clientW": 305,
+    "vw": 390,
+    "overflowViewportPx": 0
+   },
+   {
+    "text": "ตาของ กขคงจฉชซญดตถนบปผฝพฟภมยรล 🐸",
+    "l": 97.5,
+    "r": 292.5,
+    "w": 195,
+    "scrollW": 193,
+    "clientW": 193,
+    "vw": 390,
+    "overflowViewportPx": 0
+   }
+  ],
+  "hud": {
+   "vw": 390,
+   "docScrollW": 390,
+   "bodyScrollW": 390,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 10,
+     "r": 380,
+     "w": 370,
+     "t": 58,
+     "h": 46
+    },
+    "scrollW": 648,
+    "clientW": 370,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 156.91,
+      "l": -272.05,
+      "rr": -115.14
+     },
+     {
+      "w": 149.44,
+      "l": -112.88,
+      "rr": 36.56
+     },
+     {
+      "w": 149.44,
+      "l": 42.56,
+      "rr": 192
+     },
+     {
+      "w": 149.44,
+      "l": 198,
+      "rr": 347.44
+     },
+     {
+      "w": 149.44,
+      "l": 353.44,
+      "rr": 502.88
+     },
+     {
+      "w": 149.44,
+      "l": 508.88,
+      "rr": 658.31
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "abcdefghijklmnopAAAAAAAA",
+     "rect": {
+      "l": -229,
+      "r": -124.59,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 15.8
+     },
+     "container": {
+      "l": -272.05,
+      "r": -115.14,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "scrollW": 145,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 229,
+     "cardRect": {
+      "l": -272.05,
+      "r": -115.14,
+      "w": 156.91,
+      "t": 57,
+      "h": 42
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -229,
+      "r": -124.59,
+      "w": 104.41,
+      "t": 62.3,
+      "h": 31.5
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "abcdefghijklmnopBBBBBBBB",
+     "rect": {
+      "l": -71.88,
+      "r": 27.56,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": -112.88,
+      "r": 36.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 142,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 71.88,
+     "cardRect": {
+      "l": -112.88,
+      "r": 36.56,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -71.88,
+      "r": 27.56,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "WWWWWWWWWWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": 83.56,
+      "r": 183,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 42.56,
+      "r": 192,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 227,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 42.56,
+      "r": 192,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 83.56,
+      "r": 183,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+     "rect": {
+      "l": 239,
+      "r": 338.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 198,
+      "r": 347.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 167,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 198,
+      "r": 347.44,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 239,
+      "r": 338.44,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name4",
+     "text": "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+     "rect": {
+      "l": 394.44,
+      "r": 493.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 353.44,
+      "r": 502.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 167,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 103.88,
+     "cardRect": {
+      "l": 353.44,
+      "r": 502.88,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 394.44,
+      "r": 493.88,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 122.88
+    },
+    {
+     "label": "card-name5",
+     "text": "ZzZzZzZzZzZzZzZzZzZzZzก6",
+     "rect": {
+      "l": 549.88,
+      "r": 649.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 15
+     },
+     "container": {
+      "l": 508.88,
+      "r": 658.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "scrollW": 142,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 259.31,
+     "cardRect": {
+      "l": 508.88,
+      "r": 658.31,
+      "w": 149.44,
+      "t": 60,
+      "h": 40
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 549.88,
+      "r": 649.31,
+      "w": 99.44,
+      "t": 65,
+      "h": 30
+     },
+     "cardOverflowsStrip": 278.31
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "abcdefghijklmnopAAAAAAAA",
+    "rect": {
+     "l": 147.81,
+     "r": 299.67,
+     "w": 151.86,
+     "t": 116.5,
+     "h": 15
+    },
+    "container": {
+     "l": 77.31,
+     "r": 312.67,
+     "w": 235.36,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 152,
+    "clientW": 152,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 77.31,
+     "r": 312.67,
+     "w": 235.36,
+     "t": 110,
+     "h": 28
+    },
+    "scrollW": 233,
+    "clientW": 233
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "แมวส้ม โดนเข้งับ!",
+    "rect": {
+     "l": 102.45,
+     "r": 287.55,
+     "w": 185.1,
+     "t": 372.5,
+     "h": 33.3
+    },
+    "container": {
+     "l": 23.01,
+     "r": 366.99,
+     "w": 343.98,
+     "t": 279.4,
+     "h": 285.2
+    },
+    "scrollW": 189,
+    "clientW": 189,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 23.01,
+     "r": 366.99,
+     "w": 343.98,
+     "t": 279.4,
+     "h": 285.2
+    }
+   },
+   "scoreRows": [],
+   "scoreboard": {
+    "rect": {
+     "l": 43.59,
+     "r": 346.41,
+     "w": 302.82,
+     "t": 453.9,
+     "h": 21.6
+    },
+    "scrollW": 307,
+    "clientW": 307
+   }
+  },
+  "result": {
+   "vw": 390,
+   "docScrollW": 390,
+   "bodyScrollW": 390,
+   "docOverflowPx": 0,
+   "strip": {
+    "rect": {
+     "l": 13.7,
+     "r": 376.3,
+     "w": 362.6,
+     "t": 65.3,
+     "h": 45.1
+    },
+    "scrollW": 648,
+    "clientW": 370,
+    "overflowX": "auto",
+    "cards": [
+     {
+      "w": 146.45,
+      "l": -259.05,
+      "rr": -112.6
+     },
+     {
+      "w": 146.45,
+      "l": -106.72,
+      "rr": 39.73
+     },
+     {
+      "w": 146.45,
+      "l": 45.61,
+      "rr": 192.06
+     },
+     {
+      "w": 153.77,
+      "l": 194.28,
+      "rr": 348.05
+     },
+     {
+      "w": 146.45,
+      "l": 350.27,
+      "rr": 496.72
+     },
+     {
+      "w": 146.45,
+      "l": 502.6,
+      "rr": 649.05
+     }
+    ]
+   },
+   "cards": [
+    {
+     "label": "card-name0",
+     "text": "abcdefghijklmnopAAAAAAAA",
+     "rect": {
+      "l": -218.87,
+      "r": -121.42,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": -259.05,
+      "r": -112.6,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 145,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 218.87,
+     "cardRect": {
+      "l": -259.05,
+      "r": -112.6,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -218.87,
+      "r": -121.42,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name1",
+     "text": "abcdefghijklmnopBBBBBBBB",
+     "rect": {
+      "l": -66.54,
+      "r": 30.91,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": -106.72,
+      "r": 39.73,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 142,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 66.54,
+     "cardRect": {
+      "l": -106.72,
+      "r": 39.73,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": -66.54,
+      "r": 30.91,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name2",
+     "text": "WWWWWWWWWWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": 85.79,
+      "r": 183.24,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 45.61,
+      "r": 192.06,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 227,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 45.61,
+      "r": 192.06,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 85.79,
+      "r": 183.24,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name3",
+     "text": "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+     "rect": {
+      "l": 236.47,
+      "r": 338.79,
+      "w": 102.32,
+      "t": 69.4,
+      "h": 15.4
+     },
+     "container": {
+      "l": 194.28,
+      "r": 348.05,
+      "w": 153.77,
+      "t": 64.3,
+      "h": 41.2
+     },
+     "scrollW": 167,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "cardRect": {
+      "l": 194.28,
+      "r": 348.05,
+      "w": 153.77,
+      "t": 64.3,
+      "h": 41.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 236.47,
+      "r": 338.79,
+      "w": 102.32,
+      "t": 69.4,
+      "h": 30.9
+     },
+     "cardOverflowsStrip": 0
+    },
+    {
+     "label": "card-name4",
+     "text": "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+     "rect": {
+      "l": 390.45,
+      "r": 487.9,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 350.27,
+      "r": 496.72,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 167,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 97.9,
+     "cardRect": {
+      "l": 350.27,
+      "r": 496.72,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 390.45,
+      "r": 487.9,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 120.42
+    },
+    {
+     "label": "card-name5",
+     "text": "ZzZzZzZzZzZzZzZzZzZzZzก6",
+     "rect": {
+      "l": 542.78,
+      "r": 640.23,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 14.7
+     },
+     "container": {
+      "l": 502.6,
+      "r": 649.05,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "scrollW": 142,
+     "clientW": 99,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 250.23,
+     "cardRect": {
+      "l": 502.6,
+      "r": 649.05,
+      "w": 146.45,
+      "t": 67.2,
+      "h": 39.2
+     },
+     "cardScrollW": 147,
+     "cardClientW": 147,
+     "infoRect": {
+      "l": 542.78,
+      "r": 640.23,
+      "w": 97.45,
+      "t": 72.1,
+      "h": 29.4
+     },
+     "cardOverflowsStrip": 272.75
+    }
+   ],
+   "turn": {
+    "label": "turn-player-name",
+    "text": "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+    "rect": {
+     "l": 137.53,
+     "r": 308.8,
+     "w": 171.27,
+     "t": 122.6,
+     "h": 14.7
+    },
+    "container": {
+     "l": 68.44,
+     "r": 321.54,
+     "w": 253.1,
+     "t": 116.2,
+     "h": 27.4
+    },
+    "scrollW": 175,
+    "clientW": 175,
+    "clipped": false,
+    "ellipsis": "ellipsis",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0
+   },
+   "turnBanner": {
+    "rect": {
+     "l": 68.44,
+     "r": 321.54,
+     "w": 253.1,
+     "t": 116.2,
+     "h": 27.4
+    },
+    "scrollW": 256,
+    "clientW": 256
+   },
+   "resultTitle": {
+    "label": "result-title",
+    "text": "🐸 กขคงจฉชซญดตถนบปผฝพฟภมยรล โดนเข้งับ!",
+    "rect": {
+     "l": 40.5,
+     "r": 349.5,
+     "w": 309,
+     "t": 186,
+     "h": 104
+    },
+    "container": {
+     "l": 19.5,
+     "r": 370.5,
+     "w": 351,
+     "t": 91,
+     "h": 662
+    },
+    "scrollW": 309,
+    "clientW": 309,
+    "clipped": false,
+    "ellipsis": "clip",
+    "overflowContainerPx": 0,
+    "overflowViewportPx": 0,
+    "parentRect": {
+     "l": 19.5,
+     "r": 370.5,
+     "w": 351,
+     "t": 91,
+     "h": 662
+    }
+   },
+   "scoreRows": [
+    {
+     "label": "score-name0",
+     "text": "abcdefghijklmnopAAAAAAAA",
+     "rect": {
+      "l": 87.5,
+      "r": 259.17,
+      "w": 171.67,
+      "t": 358,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 350,
+      "h": 33
+     },
+     "scrollW": 172,
+     "clientW": 172,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 259.17,
+      "w": 195.67,
+      "t": 356,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name1",
+     "text": "abcdefghijklmnopBBBBBBBB",
+     "rect": {
+      "l": 87.5,
+      "r": 255.53,
+      "w": 168.03,
+      "t": 397,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 389,
+      "h": 33
+     },
+     "scrollW": 168,
+     "clientW": 168,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 255.53,
+      "w": 192.03,
+      "t": 395,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name2",
+     "text": "WWWWWWWWWWWWWWWWWWWWWWW1",
+     "rect": {
+      "l": 87.5,
+      "r": 285.66,
+      "w": 198.16,
+      "t": 444.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 428,
+      "h": 50
+     },
+     "scrollW": 269,
+     "clientW": 198,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 285.66,
+      "w": 222.16,
+      "t": 442.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name3",
+     "text": "งจฉชซญดตถนบปผฝพฟภมยรลวศษ",
+     "rect": {
+      "l": 87.5,
+      "r": 275.17,
+      "w": 187.67,
+      "t": 500.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 484,
+      "h": 50
+     },
+     "scrollW": 198,
+     "clientW": 188,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 275.17,
+      "w": 211.67,
+      "t": 498.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name4",
+     "text": "ZzZzZzZzZzZzZzZzZzZzZzก6",
+     "rect": {
+      "l": 87.5,
+      "r": 255.34,
+      "w": 167.84,
+      "t": 548,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 540,
+      "h": 33
+     },
+     "scrollW": 168,
+     "clientW": 168,
+     "clipped": false,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 255.34,
+      "w": 191.84,
+      "t": 546,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    },
+    {
+     "label": "score-name5",
+     "text": "กขคงจฉชซญดตถนบปผฝพฟภมยรล",
+     "rect": {
+      "l": 87.5,
+      "r": 275.13,
+      "w": 187.63,
+      "t": 595.5,
+      "h": 17
+     },
+     "container": {
+      "l": 51.5,
+      "r": 338.5,
+      "w": 287,
+      "t": 579,
+      "h": 50
+     },
+     "scrollW": 198,
+     "clientW": 188,
+     "clipped": true,
+     "ellipsis": "ellipsis",
+     "overflowContainerPx": 0,
+     "overflowViewportPx": 0,
+     "rowScrollW": 287,
+     "rowClientW": 287,
+     "playerRect": {
+      "l": 63.5,
+      "r": 275.13,
+      "w": 211.63,
+      "t": 593.5,
+      "h": 21
+     },
+     "rowOverflowsBoard": 0
+    }
+   ],
+   "scoreboard": {
+    "rect": {
+     "l": 40.5,
+     "r": 349.5,
+     "w": 309,
+     "t": 339,
+     "h": 301
+    },
+    "scrollW": 307,
+    "clientW": 307
+   }
+  },
+  "consoleErrors": 12
+ }
+]

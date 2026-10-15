@@ -94,3 +94,34 @@
     gap: 8px;
   }
 }
+
+/* gh#266: seats keep their whole name (up to the shared screen's NAME_MAX), so the surfaces that
+   print it inside a fixed row clip or wrap it instead of pushing past their box. The HUD card keeps
+   the mockup's 16-character label (see the card renderer in main.js) and carries the full name in a
+   visually hidden span for screen readers. */
+#turn-player-name,
+.score-player > span:last-child {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+.score-player {
+  min-width: 0;
+}
+/* The result title composes a name into a sentence; at 320 it already overran the viewport with a
+   16-character name (measured 2026-10-15), so it wraps instead. */
+.result-title {
+  overflow-wrap: anywhere;
+}
+.card-name-full {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

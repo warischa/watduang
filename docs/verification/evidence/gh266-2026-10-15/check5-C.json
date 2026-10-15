@@ -1,0 +1,76 @@
+[
+ {
+  "tag": "c5-C-320",
+  "c5": {
+   "withHidden": [
+    141.421875,
+    148.4929656982422,
+    203,
+    163.03125,
+    165.0625,
+    147.546875
+   ],
+   "withoutHidden": [
+    141.421875,
+    148.4929656982422,
+    203,
+    163.03125,
+    165.0625,
+    147.546875
+   ],
+   "hadFull": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "visible": [
+    "abcdefghijklmno…",
+    "abcdefghijklmno…",
+    "WWWWWWWWWWWWWWW…",
+    "กขคงจฉชซญดตถนบป…",
+    "งจฉชซญดตถนบปผฝพ…",
+    "ZzZzZzZzZzZzZzZ…"
+   ]
+  }
+ },
+ {
+  "tag": "c5-C-390",
+  "c5": {
+   "withHidden": [
+    141.421875,
+    141.421875,
+    203,
+    171.18280029296875,
+    165.0625,
+    147.546875
+   ],
+   "withoutHidden": [
+    141.421875,
+    141.421875,
+    203,
+    171.18280029296875,
+    165.0625,
+    147.546875
+   ],
+   "hadFull": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "visible": [
+    "abcdefghijklmno…",
+    "abcdefghijklmno…",
+    "WWWWWWWWWWWWWWW…",
+    "กขคงจฉชซญดตถนบป…",
+    "งจฉชซญดตถนบปผฝพ…",
+    "ZzZzZzZzZzZzZzZ…"
+   ]
+  }
+ }
+]
