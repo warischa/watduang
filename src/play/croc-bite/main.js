@@ -206,8 +206,9 @@ const PHASES = {
   RESET_CONFIRMATION: 'RESET_CONFIRMATION',
 };
 
-const STORAGE_KEY_MOTION = 'watduang:croc-bite-motion';
-const STORAGE_KEY_PARTICLES = 'watduang:croc-bite-particles';
+// The motion and particle preferences are game settings, not players (ADR-0071). Each storage call
+// spells its key as a literal on purpose: player-screen-mount-check reads every storage access with
+// the TypeScript parser and admits only a literal on this route's settings allowlist.
 
 class GameState {
   constructor() {
@@ -241,8 +242,8 @@ class GameState {
     // module drives it through setAudioEnabled and the audio manager's setMuted. Sound on until
     // that glue says otherwise.
     this.audioEnabled = true;
-    this.shakeEnabled = this.loadPref(STORAGE_KEY_MOTION, true);
-    this.particlesEnabled = this.loadPref(STORAGE_KEY_PARTICLES, true);
+    this.shakeEnabled = this.loadPref(() => localStorage.getItem('watduang:croc-bite-motion'), true);
+    this.particlesEnabled = this.loadPref(() => localStorage.getItem('watduang:croc-bite-particles'), true);
     this.reducedMotion = this.detectReducedMotion();
 
     this.initDefaultPlayers(4);
@@ -276,9 +277,9 @@ class GameState {
   }
 
   // --- Preferences ---
-  loadPref(key, fallback = true) {
+  loadPref(read, fallback = true) {
     try {
-      const val = localStorage.getItem(key);
+      const val = read();
       return val !== null ? val === 'true' : fallback;
     } catch {
       return fallback;
@@ -293,7 +294,7 @@ class GameState {
   setShakeEnabled(enabled) {
     this.shakeEnabled = Boolean(enabled);
     try {
-      localStorage.setItem(STORAGE_KEY_MOTION, String(this.shakeEnabled));
+      localStorage.setItem('watduang:croc-bite-motion', String(this.shakeEnabled));
     } catch {}
     this.emit('shakeToggle', this.shakeEnabled);
   }
@@ -301,7 +302,7 @@ class GameState {
   setParticlesEnabled(enabled) {
     this.particlesEnabled = Boolean(enabled);
     try {
-      localStorage.setItem(STORAGE_KEY_PARTICLES, String(this.particlesEnabled));
+      localStorage.setItem('watduang:croc-bite-particles', String(this.particlesEnabled));
     } catch {}
     this.emit('particlesToggle', this.particlesEnabled);
   }
