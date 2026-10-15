@@ -33,7 +33,8 @@ reopens the component in place instead of reloading the page.
 3. **Saved roster.** The same screen, pre-filled, with no stepper. Each row carries a tick (plays this
    round / sits this round out — the name stays in the roster) and an × (removes the name from the
    roster). The list ends with an add-a-player row. Two controls, two meanings: sitting out is not
-   leaving the วง.
+   leaving the วง. An × removes at once and shows an undo bar for 4 seconds; a mis-tap costs one
+   tap, not a retyped name.
 4. **Roster above the game's maximum.** The first `max` rows start ticked and the วง chooses. Start is
    disabled while fewer than `min` are ticked. Nobody is dropped silently.
 5. **No reordering in v1.** Turn order is roster order; a game that shuffles keeps shuffling itself.

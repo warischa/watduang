@@ -91,6 +91,14 @@
     .dlg .acts { display: flex; flex-direction: column; gap: 10px; }
     .dlg .danger { width: 100%; min-height: 48px; border-radius: 16px; background: var(--ps-accent); color: var(--ps-on-accent);
       font: 500 16px 'Mitr', sans-serif; display: grid; place-items: center; }
+    /* NEW (owner ruling 2026-10-15, after board approval): undo for a removed name. Fixed to the viewport
+       foot, 4 s, one at a time; a second removal replaces it. Box, edge and radius from .tb-dialog. */
+    .toast { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; align-items: center; gap: 8px;
+      padding: 4px 4px 4px 16px; border: 1px solid var(--ps-edge); border-radius: 14px; background: var(--ps-panel-solid);
+      font-size: 15px; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
+    .toast span { flex: 1; min-width: 0; }
+    .toast b { min-width: 44px; min-height: 44px; padding: 0 12px; display: grid; place-items: center; color: var(--ps-accent);
+      font: 500 16px 'Mitr', sans-serif; }
     .stage-ghost { padding: 40px 16px; text-align: center; color: var(--ps-muted); font-size: 14px; min-height: 420px; }
     .copy { padding: 24px 40px 40px; font: 12px/1.7 ui-monospace, Menlo, monospace; color: #3d3b5c; }
     .copy td { padding: 2px 16px 2px 0; vertical-align: top; }
@@ -100,7 +108,7 @@
 <div class="sheet">
   <div class="head">
     <b>gh#264 · ADR-0071 · one player-setup screen for every party game</b>
-    <span>Base: timebomb's shipped setup screen. Seven frames, one per state the ADR names. Pink dashed outline = a slot the host game fills. Pending owner approval; no code before it (ADR-0033).</span>
+    <span>Base: timebomb's shipped setup screen. Eight frames, one per state the ADR names. Pink dashed outline = a slot the host game fills. Approved by the owner 2026-10-15 (frames 1-7 and their copy); frame 8, the undo bar, was ruled the same day and drawn after.</span>
   </div>
 
   <!-- Row 1: first visit + 20 seats -->
@@ -258,7 +266,7 @@
 
   <!-- Row 3: mid-round confirm, under-min -->
   <div class="row">
-    <h2>(6) Edit players mid-round · and the under-minimum start</h2>
+    <h2>(6) Edit players mid-round · the under-minimum start · (8) undo after a removal</h2>
     <p class="why">The edit-players control (PlayExit) pressed during a round. Dialog box, backdrop and button sizes are timebomb's reset dialog (.tb-dialog). Confirm ends the round and opens the shared screen; the next start begins a fresh round (ADR-0008). Cancel and confirm both arm their region on close (ADR-0057). Right: fewer than the minimum ticked, start disabled with the reason in the limit line.</p>
     <div class="cands">
       <div class="cand">
@@ -295,12 +303,30 @@
           </div></div>
         </div>
       </div>
+      <div class="cand">
+        <span class="tag">(8) NEW · undo after ✕ · bar at the viewport foot for 4 s · 390</span>
+        <div class="phone theme-dark" style="padding-bottom: 72px;">
+          <div class="top"><span class="x">✕</span><p class="brand">ระเบิดเวลา</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
+            <p class="limit">เล่นรอบนี้ <b>3</b> คน</p>
+            <ul class="players">
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐱</span><span class="n">ต้น</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐶</span><span class="n">มายด์</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐸</span><span class="n">ฟร็อกกี้</span><span class="rm">✕</span></li>
+            </ul>
+            <span class="add">+ เพิ่มคน</span>
+            <span class="go">พร้อมเล่น</span>
+          </div></div>
+          <div class="toast"><span>เอา บอส ออกจากวงแล้ว</span><b>เลิกทำ</b></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="copy">
     <b>Copy sources.</b> From timebomb's shipped setup (src/play/timebomb/markup.html): the tagline, "คน", "↺ รีเซ็ตเป็นชื่อสัตว์", "พร้อมเล่น", the −/+ steppers. Mascot names and emoji: ADR-0054's table. Player names (ต้น, มายด์, บอส, แนน, กอล์ฟ) are sample data, not copy.<br>
-    <b>Agent-authored Thai, pending owner review (7):</b>
+    <b>Agent-authored Thai, approved by the owner 2026-10-15 (7), plus the undo bar (1, drawn after approval):</b>
     <table>
       <tr><td>hint</td><td>แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</td><td>replaces timebomb's "…ชื่อที่ตั้งไว้ใช้เฉพาะเกมนี้", false once names travel</td></tr>
       <tr><td>count line</td><td>เล่นรอบนี้ N คน</td><td>saved roster within the maximum</td></tr>
@@ -309,6 +335,7 @@
       <tr><td>row tag</td><td>นั่งพัก</td><td>unticked row; ✕ means "leave the วง", the tag means "this round only"</td></tr>
       <tr><td>add row</td><td>+ เพิ่มคน</td><td>disabled at 20 or at the roster ceiling</td></tr>
       <tr><td>dialog</td><td>เปลี่ยนผู้เล่นตอนนี้? · รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว · เล่นรอบนี้ต่อ · จบรอบ แล้วแก้ผู้เล่น</td><td>mid-round edit</td></tr>
+      <tr><td>undo bar</td><td>เอา NAME ออกจากวงแล้ว · เลิกทำ</td><td>4 s after a ✕; "เลิกทำ" is the owner's word from the ruling, the sentence is agent-authored</td></tr>
     </table>
     Accessible names (not drawn): tick "เล่นรอบนี้" + the player's name · ✕ "เอาออกจากวง" + the player's name · steppers keep timebomb's "ลดจำนวนคนเล่น" / "เพิ่มจำนวนคนเล่น".
   </div>
