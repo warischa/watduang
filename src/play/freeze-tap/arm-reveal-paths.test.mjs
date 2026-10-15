@@ -4,25 +4,29 @@
 // once? freeze-tap does, through its armPanel() wrapper -- and the gate would stay green with every
 // call but one deleted. It counts calls per DIRECTORY, not per reveal, so it cannot know this route
 // reveals controls on more than one path. The real rule (ADR-0017) is per reveal: the second contact
-// of a double-tap must not land on a control the first contact just put under the finger.
+// of a double-tap must not land on a control the first contact just put under the finger -- and
+// since ADR-0057, every close, cancel and confirm path is a reveal too.
 //
-// So this test does not re-check the gate. It pins the SET of reveal sites, by the receiver each one
-// writes to. A sixth receiver -- a new modal, a new container swapped by innerHTML -- fails this test
-// on the day it is added, and whoever adds it decides whether it needs a call and records that here.
+// Two halves since gh#264 (ADR-0071):
+//   1. main.js's OWN reveals -- the game screens swapped into #mainContent and its overlays -- pinned
+//      by the receiver each one writes to, on source text. A new receiver fails on the day it is added.
+//   2. The SHARED PLAYER SCREEN mounted into #ftPlayers, which replaced the mockup's setup screen, its
+//      reset-names modal and that modal's arming paths. Its reveals are driven for real
+//      (revealPathCases): the shared code over THIS route's markup.html with the real arm gate, read
+//      off this route's own header control. A screen mounted outside #app, or one that armed only its
+//      own root, leaves #soundToggleBtn live and reds here.
 //
-// ponytail: matched on source text, not on a parsed AST. Two stated ceilings:
-// (1) full-line comments are stripped before matching, because prose about a reveal is not a reveal
-//     and a checker cannot tell use from mention. Only full-line ones: a trailing `//` inside a
-//     template string would take real code with it, and nothing here needs that;
-// (2) this proves the CALL SITE exists next to the reveal, never that the 400ms window really
-//     disables anything in a browser — the runtime arm question is deliberately unmeasured
-//     (owner ruling on issue #232), and this test claims nothing about it.
+// ponytail, for half 1: matched on source text, not on a parsed AST. Full-line comments are stripped
+// first, because prose about a reveal is not a reveal; and this proves the CALL SITE exists next to
+// the reveal, never the browser-level 400ms (owner ruling on issue #232).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { revealPathCases } from '../_player-screen/screen-harness.mjs';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
 const source = fs
   .readFileSync(MAIN, 'utf8')
   .split('\n')
@@ -38,9 +42,9 @@ const REVEAL_RE = /([\w.'"()\-]+?)\.(?:innerHTML\s*=|style\.display\s*=\s*['"](?
 const EXPECTED = new Map([
   [
     'mainContent',
-    'renderApp(): the one screen-to-screen path, every game screen including setup. Armed on the ' +
-      'last line of renderApp(), after the switch has drawn whichever screen the state selects, so ' +
-      'one call covers all eight. The count steppers are passed as the except list.',
+    'renderApp(): the one screen-to-screen path, every game screen. Armed on the last line of ' +
+      'renderApp(), after the switch has drawn whichever screen the state selects, so one call ' +
+      'covers all of them. No except list: the count steppers it used to spare went with the setup.',
   ],
   [
     'modal',
@@ -63,11 +67,6 @@ const EXPECTED = new Map([
     'NOT a button reveal: rows of <div>/<span>/<strong> inside #testModal, which is already armed ' +
       'at its own reveal.',
   ],
-  [
-    'resetNamesModal',
-    'gh#177 — the confirm guarding #resetNamesBtn (inside renderSetupScreen, distinct from the ' +
-      'non-destructive #resetAppBtn). Revealed and armed together in the same handler.',
-  ],
 ]);
 
 test('every reveal receiver in freeze-tap/main.js is a known one', () => {
@@ -88,7 +87,7 @@ test('every reveal receiver in freeze-tap/main.js is a known one', () => {
 });
 
 test('each armed reveal receiver has an armPanel call naming it', () => {
-  for (const receiver of ['mainContent', 'modal', 'testModal', 'resetNamesModal']) {
+  for (const receiver of ['mainContent', 'modal', 'testModal']) {
     assert.match(
       source,
       new RegExp(`armPanel\\([^)]*\\b${receiver}\\b`),
@@ -97,31 +96,36 @@ test('each armed reveal receiver has an armPanel call naming it', () => {
   }
 });
 
-// The setup screen is the one that was deliberately left ungated, and the guard that skipped it was
-// a state test in renderApp(). Pin its absence: this is the exact line whose return would silently
-// un-arm eight controls again while both tests above stayed green.
+// The setup screen was once deliberately left ungated by a state test in renderApp(). Pin its
+// absence, and pin that the one call left arms the whole container with nothing excepted.
 test('renderApp arms unconditionally — no screen is excepted by state', () => {
   assert.doesNotMatch(
     source,
-    /if\s*\([^)]*GameState\.SETUP[^)]*\)\s*armPanel/,
-    'renderApp() is skipping armPanel for a state again; ADR-0017 applies to setup too, and ' +
-      'roster-bridge.ts drive() is what makes seeding survive it.',
+    /if\s*\([^)]*GameState\.[A-Z_]+[^)]*\)\s*armPanel/,
+    'renderApp() is skipping armPanel for a state again; ADR-0017 applies to every screen',
   );
-  assert.match(source, /^\s*armPanel\(mainContent, rapidTapControls\(\)\);$/m);
+  assert.match(source, /^\s*armPanel\(mainContent\);$/m);
 });
 
-// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates. REVEAL_RE matches
-// only writes that SHOW something, so a closer -- which writes display:'none' -- is structurally
-// invisible to it and neither test above can fail when this call is deleted. This one can.
-test('closing the reset-names modal re-arms the screen behind it', () => {
-  const at = source.indexOf('const closeResetNamesModal');
-  assert.ok(at > -1, 'closeResetNamesModal is gone — this test measures nothing');
-  const body = source.slice(at, source.indexOf('};', at));
-  assert.match(
-    body,
-    /armPanel\(mainContent, rapidTapControls\(\)\)/,
-    'closeResetNamesModal no longer re-arms #mainContent: close and cancel rebuild nothing, so a ' +
-      'double-tap on either puts the second contact on #startGameBtn or a preset pill, live under ' +
-      'the card with their own arm window long expired',
-  );
+test('the shared player screen is mounted into #ftPlayers, inside the #app it arms', () => {
+  assert.match(source, /getElementById\('ftPlayers'\)/);
+  assert.match(source, /mountPlayerScreen\(\{\s*root: playersRoot,/);
+  assert.ok(MARKUP.indexOf('id="app"') > -1 && MARKUP.indexOf('id="app"') < MARKUP.indexOf('id="ftPlayers"'),
+    '#ftPlayers must sit inside #app');
+  assert.doesNotMatch(source, /renderSetupScreen|rapidTapControls|resetNamesModal/, 'a piece of the old setup survives');
+  assert.doesNotMatch(MARKUP, /id="resetNamesModal"|id="decPlayerBtn"|id="startGameBtn"/, 'old setup markup survives');
 });
+
+// Every way back to the player screen goes through the shared screen: the header reset asks first
+// when a round is live (the same request the chrome's edit control sends), the game-over edit opens
+// it, and the SETUP state itself is the player screen.
+test('the header reset, the game-over edit and the SETUP state all reach the player screen', () => {
+  const reset = source.slice(source.indexOf("resetAppBtn.addEventListener('click'"));
+  assert.match(reset.slice(0, reset.indexOf('});')), /dispatchEvent\(new CustomEvent\(EDIT_EVENT\)\)/);
+  const edit = source.slice(source.indexOf("getElementById('editPlayersBtn').onclick"));
+  assert.match(edit.slice(0, edit.indexOf('};')), /playerScreen\.open\(\)/);
+  const setupCase = source.slice(source.indexOf('case GameState.SETUP:'));
+  assert.match(setupCase.slice(0, setupCase.indexOf('break;')), /playerScreen\.open\(\)/);
+});
+
+revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'ftPlayers', headerId: 'soundToggleBtn', label: 'freeze-tap' });

@@ -13,39 +13,51 @@
   display: none !important;
 }
 
-/* Tap targets. .count-btn is 38x38px in style.css, under the 44px floor the rest of this site meets —
-   the same class of defect cannon-flag's overrides.css already fixed for its own angle controls. The
+/* Tap targets. The header icon buttons render under the 44px floor the rest of this site meets — the
+   same class of defect cannon-flag's overrides.css already fixed for its own angle controls. The
    mockup was built to be looked at on a desktop; this site is a phone passed around a group, so the
    floor applies here and did not there. min-* rather than width/height: it raises what is too small
-   and leaves anything already larger exactly where the mockup put it. */
-#decPlayerBtn,
-#incPlayerBtn,
+   and leaves anything already larger exactly where the mockup put it. (The setup's count steppers and
+   its eight preset pills, which this file also raised, went with the mockup's setup in gh#264: the
+   count is the shared player screen's now, ADR-0071, and its controls meet the floor themselves.) */
 #soundToggleBtn,
 #resetAppBtn {
   min-inline-size: 44px;
   min-block-size: 44px;
 }
 
-/* Same defect, second set: the eight count-shortcut pills on the setup screen. style.css gives
-   .preset-pill padding and a font size and no height at all, which lands them at 32px — the eight
-   controls scripts/control-floor-probe.mjs measures on screen 1. Fixed here, not there, for the
-   reason at the top of this file.
+/* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the mockup's
+   own palette (style.css's :root tokens). On :root, not #app: the screen's two dialogs render beside
+   the route markup, outside #app, in the top layer. Two have no token to point at in style.css, so
+   they carry the mockup's own literals: .modal-dialog's opaque ground, and the ink the mockup set on
+   its --primary fill (.preset-pill.active). The page ground and glow need no mapping: #app already
+   paints the board's dark pair. */
+:root {
+  --ps-panel: var(--bg-card);
+  --ps-panel-solid: #0f172a;
+  --ps-edge: var(--border-card);
+  --ps-ink: var(--text-main);
+  --ps-muted: var(--text-muted);
+  --ps-accent: var(--primary);
+  --ps-on-accent: #040812;
+}
 
-   Why this does not overflow the row at 320px: .preset-pills is already an `overflow-x: auto`
-   scroller in the mockup, because eight pills never fitted on a phone in the first place. So the
-   inline floor pushes the narrowest pills into a row that was built to scroll, and the growth that
-   actually matters is the block one — 32px to 44px of extra height on a column-flex card with no
-   fixed height, which reflows the card and clips nothing. min-* again, so a pill whose Thai label
-   is already wider than 44px keeps the width the mockup gave it.
+/* The player screen's root is a sibling of main#mainContent inside #shakeRoot. #app is a fixed-height
+   column that clips (style.css), so the root takes main's place in that column and scrolls itself the
+   way main does, with the board's page padding around the screen column. While it is open the game
+   container steps out of the column -- read off the page's own data-player-screen statement, the same
+   attribute the fit probe keys on -- or the two would split the height between them. */
+.ft-players {
+  position: relative;
+  z-index: 15;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 16px 24px;
+}
 
-   The flex centering only re-states what a UA already does for button content; it is here so the
-   label's position in the now-taller box is this stylesheet's decision and not an inherited one. */
-.preset-pill {
-  min-inline-size: 44px;
-  min-block-size: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+html[data-player-screen='open'] #mainContent {
+  display: none;
 }
 
 /* ================================================================================================
@@ -109,10 +121,13 @@
     --ft-board-max-inline: 746px;
   }
 
-  /* All five screen containers take one measure, so the game does not change width as it advances
+  /* The game's screen containers take one measure, so the game does not change width as it advances
      through its screens. Modals are deliberately left at their own caps: a dialog is meant to be
-     narrower than the page behind it. */
-  .setup-container,
+     narrower than the page behind it.
+     gh#264: `.setup-container` and `.roster-list` are no longer rendered -- the setup is the shared
+     player screen (ADR-0071), which keeps the board's own column width -- so the two measurements
+     above that name them no longer have a subject. The 746px measure stays as derived, for the four
+     game screens that still use it. */
   .rule-reveal-container,
   .pass-container,
   .result-container,
@@ -120,9 +135,7 @@
     max-width: var(--ft-board-max-inline);
   }
 
-  /* Vertical rhythm at the desktop gap. `.roster-list`'s own 8px gap is NOT changed -- the five-column
-     arithmetic above depends on it. */
-  .setup-container,
+  /* Vertical rhythm at the desktop gap. */
   .leaderboard-container {
     gap: var(--ft-desktop-gap);
   }

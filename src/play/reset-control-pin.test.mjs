@@ -60,7 +60,7 @@ const RESET_TRIGGER = {
   // read that file -- and only for a route whose own main file really mounts the screen.
   'cursed-number': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'dice-loser': { attr: 'id="dl-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
-  'freeze-tap': { attr: 'id="resetNamesBtn"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  'freeze-tap': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'how-close-is-near': { attr: 'id="btnResetNames"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'one-bomb': { attr: 'id="ob-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'pinocchio-luck': { attr: 'id="reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },

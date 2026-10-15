@@ -180,10 +180,32 @@
         "why": "round-start announcement channel; the mockup has none"
       },
       {
-        "fragment": "<div id=\"resetNamesModal\" class=\"modal-overlay\" style=\"display: none;\">",
+        "fragment": "<section id=\"ftPlayers\" class=\"ft-players\" hidden>",
         "deliberate": true,
-        "owner": "gh#177",
-        "why": "the confirm that guards resetting typed names; the mockup predates the control"
+        "owner": "gh#264",
+        "why": "the shared player screen's root (ADR-0071); the mockup's own setup screen it replaced lived in main.js and is recorded absent there"
+      }
+    ],
+    "main.js": [
+      {
+        "fragment": "mountPlayerScreen({",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the shared player screen mount and its FreezeTapEngine.startWithPlayers entry (ADR-0071); the mockup builds its own setup instead"
+      },
+      {
+        "fragment": "function renderSetupScreen() {",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own setup screen (count stepper, preset pills, name grid); the count and names belong to the shared player screen and the shared roster (ADR-0071), and a re-extraction that put it back would give this route two setup screens"
+      },
+      {
+        "fragment": "localStorage.setItem('freeze_tap_players'",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own per-game player list; players live in the shared roster only (ADR-0071), and the player-screen mount gate reds a route that touches storage itself"
       }
     ]
   },

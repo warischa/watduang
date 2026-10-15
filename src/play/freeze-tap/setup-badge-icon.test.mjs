@@ -1,27 +1,32 @@
-// gh#209: this route's setup roster row opens with the seat's ANIMAL, not a seat number.
+// gh#209: this route's seat identity is the seat's ANIMAL, never a seat number -- on the setup rows
+// and on the seats the round is then played with.
 //
-// The assertion is POSITIVE and it is an equality: the badge element's own text must equal the glyph
-// this route's cast holds for that seat. Nothing here scans for digits, deliberately -- the same
-// screen writes the party size as a bare number and a row of "2 คน", "3 คน" preset pills, all
-// legitimate, all of which a digit-scanning check would red on. Equality with the cast is immune.
+// Since gh#264 (ADR-0071) the setup rows are the shared player screen's, mounted into #ftPlayers. The
+// first half runs that real screen over THIS route's markup.html at THIS route's declared range and
+// reads the badges back off the rows it built (against the shared cast, which is what the screen reads).
 //
-// WHICH cast, and why this route is the odd one. main.js declares MASCOT_PLAYERS inline instead of
-// importing the shared module: the file is a verbatim mockup lift whose thai-comments exemption is
-// keyed to its basename, so giving it an import would weaken the claim that it is unmodified. That
-// inline copy is pinned row for row against the shared cast by ../mascot-defaults.test.mjs, which is
-// the instrument for the two agreeing. This file therefore asserts the badge against the ROUTE's own
-// copy, sliced out of main.js, and leaves the drift question where it already lives -- asserting
-// against the shared module here would make one regression red two files and neither of them clearly.
+// The second half is the engine entry the screen starts, FreezeTapEngine.startWithPlayers, sliced out
+// of main.js together with the setPlayerCount it seats through and the route's own inline cast
+// (MASCOT_PLAYERS -- pinned row for row against the shared cast by ../mascot-defaults.test.mjs). The
+// seats the round is played with must wear the glyph, the name and the colour of the mascot the
+// player screen gave them -- with someone sitting out, a seat's index and its mascot differ, and that
+// is exactly the case a positional default gets wrong.
 //
-// It runs the REAL bytes on the REAL seats: setPlayerCount is where a seat is handed its emoji, and
-// renderSetupScreen writes the row, so both are sliced and driven in sequence.
+// Equality with the cast throughout, never a digit scan: the name field beside the badge carries a
+// legitimate numbered positional label.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { makeDocumentStub, sliceBlock } from '../_dom-stub.mjs';
+import { MASCOTS } from '../_mascots.ts';
+import { badgeCases } from '../_player-screen/screen-harness.mjs';
+import { sliceBlock } from '../_dom-stub.mjs';
+import game from '../../games/freeze-tap.ts';
 
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
 const source = fs.readFileSync(path.join(import.meta.dirname, 'main.js'), 'utf8');
+
+badgeCases({ test, assert, routeMarkup: MARKUP, rootId: 'ftPlayers', range: game.players, mascots: MASCOTS, label: 'freeze-tap' });
 
 function slice(header) {
   const found = sliceBlock(source, header);
@@ -46,58 +51,60 @@ function sliceCast() {
 }
 
 const factory = new Function(
-  'document', 'mainContent', 'engine', 'escapeHtml',
   `const MASCOT_PLAYERS = ${sliceCast()};
    return {
      cast: MASCOT_PLAYERS,
      setPlayerCount: function ${slice('setPlayerCount(count)')},
-     renderSetupScreen: ${slice('function renderSetupScreen()')},
+     startWithPlayers: function ${slice('startWithPlayers(players)')},
    }`,
 );
 
-/** Seats `count` players the way the route seats them, renders setup, returns the roster markup. */
-function render(count) {
-  const { document, el } = makeDocumentStub();
-  const mainContent = el('main-content');
-  const engine = { players: [], playerCount: count, savePlayers() {} };
-  const parts = factory(document, mainContent, engine, (s) => String(s));
-  parts.setPlayerCount.call(engine, count);
-  parts.renderSetupScreen();
-  return { html: mainContent.innerHTML, cast: parts.cast };
+/** Runs the real handoff on a stand-in engine carrying the real seat method; returns that engine. */
+function seat(players) {
+  const parts = factory();
+  const engine = {
+    players: [],
+    playerCount: 0,
+    cleared: 0,
+    started: 0,
+    setPlayerCount: parts.setPlayerCount,
+    clearTimers() { this.cleared += 1; },
+    // The real startNewRound copies the seats into the round's own list and draws a rule; only the
+    // copy is what this file reads.
+    startNewRound() { this.started += 1; this.activeRoster = [...this.players]; },
+  };
+  parts.startWithPlayers.call(engine, players);
+  return { engine, cast: parts.cast };
 }
 
-/** Every roster row's badge text, in seat order -- the badges a player actually reads. */
-function badges(html) {
-  const rows = [...html.matchAll(/<div class="roster-item"[^>]*>([\s\S]*?)<\/div>/g)].map((m) => m[1]);
-  assert.ok(rows.length > 0, `no roster rows in the rendered screen: ${html.slice(0, 400)}`);
-  return rows.map((row) => {
-    const m = /<span[^>]*>([\s\S]*?)<\/span>/.exec(row);
-    assert.ok(m, `no seat badge in the rendered row: ${row}`);
-    return m[1].trim();
-  });
-}
-
-test('gh#209: every setup row badge equals that seat mascot glyph', () => {
-  const { html, cast } = render(4);
-  assert.deepEqual(badges(html), cast.slice(0, 4).map((m) => m.emoji));
+test('freeze-tap gh#209: the seats played wear the player screen\'s mascots, sitting-out gap included', () => {
+  // Mascots 0, 2 and 5: the second and the fourth to fifth roster seats sat out.
+  const players = [0, 2, 5].map((m, i) => ({ name: `p${i}`, emoji: MASCOTS[m].emoji, mascot: m }));
+  const { engine, cast } = seat(players);
+  assert.deepEqual(engine.players.map((p) => p.emoji), players.map((p) => p.emoji));
+  assert.deepEqual(engine.players.map((p) => p.name), ['p0', 'p1', 'p2']);
+  assert.deepEqual(engine.players.map((p) => p.color), [0, 2, 5].map((m) => cast[m].color),
+    'the colour follows the mascot, not the seat index');
+  assert.equal(new Set(engine.players.map((p) => p.id)).size, 3, 'every seat keeps its own id -- the loser is found by id');
+  assert.equal(engine.started, 1, 'no game option of its own on this route: the round starts at once (ADR-0071 ruling 1)');
+  assert.deepEqual(engine.activeRoster.map((p) => p.name), ['p0', 'p1', 'p2'], 'the round iterates exactly the seats handed over');
 });
 
-test('gh#209: the mapping holds across the product range, seat by seat', () => {
-  for (const seats of [2, 6, 10]) {
-    const { html, cast } = render(seats);
-    const got = badges(html);
-    assert.equal(got.length, seats);
-    assert.deepEqual(got, Array.from({ length: seats }, (_, i) => cast[i % cast.length].emoji));
+test('freeze-tap: the handoff seats every player it is handed, at both ends of the declared range', () => {
+  for (const n of game.players) {
+    const players = Array.from({ length: n }, (_, i) => ({ name: `s${i}`, emoji: MASCOTS[i].emoji, mascot: i }));
+    const { engine } = seat(players);
+    assert.equal(engine.playerCount, n);
+    assert.deepEqual(engine.players.map((p) => p.name), players.map((p) => p.name));
   }
 });
 
-// Calibration, in the shape that can fail: a seat number is not a value this cast can produce, so
-// the equality above can tell a digit badge from a glyph badge. Run against the SLICED cast, so a
-// cast gutted to numbers reds here rather than passing quietly.
-test('RED CALIBRATION: no seat glyph is a digit, so the equality can separate the two', () => {
-  const { cast } = render(2);
+test('RED CALIBRATION: no seat glyph is a digit, and a positional colour would differ here', () => {
+  const { cast } = seat([0, 1].map((m) => ({ name: 'x', emoji: MASCOTS[m].emoji, mascot: m })));
   const icons = cast.map((m) => m.emoji);
   assert.ok(icons.length >= 10, `the route's cast has shrunk to ${icons.length} seats`);
   assert.notDeepEqual(icons.slice(0, 10), Array.from({ length: 10 }, (_, i) => String(i + 1)));
   for (const icon of icons) assert.doesNotMatch(icon, /\d|#/);
+  assert.notDeepEqual([0, 2, 5].map((m) => cast[m].color), [0, 1, 2].map((m) => cast[m].color),
+    'seat-index colours and mascot colours must be distinguishable in the gap case above');
 });

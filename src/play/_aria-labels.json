@@ -29,10 +29,7 @@
   },
   "freeze-tap": {
     "#soundToggleBtn": "เปิด/ปิดเสียง",
-    "#closeTestModalBtn": "ปิด",
-    "#closeResetNamesModalBtn": "ปิด",
-    "#decPlayerBtn": "ลดจำนวนผู้เล่น",
-    "#incPlayerBtn": "เพิ่มจำนวนผู้เล่น"
+    "#closeTestModalBtn": "ปิด"
   },
   "how-close-is-near": {
     "#btnCloseTestModal": "ปิด",

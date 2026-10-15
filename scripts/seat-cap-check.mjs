@@ -449,6 +449,31 @@ const HANDOFFS = {
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
     },
   },
+  // The engine is a class inside the route's IIFE, so its three real methods are sliced and run on
+  // one receiver: the handoff, the seat clamp it goes through, and the round start that copies the
+  // seats into the list the round iterates. That list is what is read back.
+  'freeze-tap': {
+    what: 'FreezeTapEngine.startWithPlayers() seats through setPlayerCount and starts the round whose activeRoster the turns iterate',
+    run: (source, _module, players) => {
+      const seat = compileMethod(source, 'setPlayerCount(count)');
+      if (seat.error) return seat;
+      const round = compileMethod(source, 'startNewRound()');
+      if (round.error) return round;
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      const receiver = tolerantReceiver({
+        players: [],
+        playerCount: 0,
+        activeRoster: null,
+        setPlayerCount: seat.make({}),
+        startNewRound: round.make({}),
+      });
+      compiled.make({}).call(receiver, players);
+      const roster = receiver.activeRoster;
+      if (!Array.isArray(roster)) return { error: 'startWithPlayers() never started a round, so no seated list could be read' };
+      return { seated: roster.length === receiver.players.length ? roster.length : NaN };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, module, declared, handoff }) {
