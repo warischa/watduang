@@ -159,9 +159,163 @@ test('ADR-0071 Data: a NON-EMPTY roster wins and the timebomb key is deleted unr
   assert.equal(slots.has(timebomb.key), false);
 });
 
-test('ADR-0071 Data: exactly the three per-game keys are migrated, timebomb, dice-loser and one-bomb', () => {
-  assert.deepEqual(ps.LEGACY_LISTS.map((l) => l.key),
-    ['watduang:timebomb-players', 'watduang:dice-loser-players', 'watduang:one-bomb-players']);
+test('ADR-0071 Data: exactly the listed per-game keys are migrated -- four lists deleted, three settings blobs kept', () => {
+  assert.deepEqual(ps.LEGACY_LISTS.map((l) => [l.key, l.keep ?? 'delete']), [
+    ['watduang:timebomb-players', 'delete'],
+    ['watduang:dice-loser-players', 'delete'],
+    ['watduang:one-bomb-players', 'delete'],
+    ['freeze_tap_players', 'delete'],
+    ['ZERO_TRIGGER_DATA_V1', 'settings'],
+    ['short-stick-pro-v2', 'settings'],
+    ['wire-panic-v1', 'settings'],
+  ]);
+});
+
+// Owner ruling 2026-10-15 (ADR-0071 Data, widened): freeze-tap's own list, and the players field of
+// three blobs whose other fields are game settings the routes keep.
+const legacy = (key) => ps.LEGACY_LISTS.find((l) => l.key === key);
+const migrate = async (key) => {
+  const { migrateLegacyList } = await import('../../shell/roster.ts');
+  const entry = legacy(key);
+  await migrateLegacyList(entry.key, entry.extract, entry.keep);
+};
+const freezeSeat = (name, i) => ({ id: `p_${i + 1}`, name, emoji: MASCOTS[i].emoji, color: '#000', defaultName: MASCOTS[i].name });
+
+test('freeze-tap import: the seats it showed, a default seat as its mascot, then the key is gone', async () => {
+  slots.clear();
+  slots.set('freeze_tap_players', JSON.stringify(['ต้น', MASCOTS[1].name, 'มายด์'].map(freezeSeat)));
+  await migrate('freeze_tap_players');
+  assert.deepEqual(loadRoster().names(), ['ต้น', MASCOTS[1].name, 'มายด์']);
+  assert.equal(slots.has('freeze_tap_players'), false);
+});
+
+test('freeze-tap import: an untouched list of mascot defaults is not a list anyone typed -- nothing imports', async () => {
+  slots.clear();
+  slots.set('freeze_tap_players', JSON.stringify(MASCOTS.slice(0, 4).map((m, i) => freezeSeat(m.name, i))));
+  await migrate('freeze_tap_players');
+  assert.deepEqual(loadRoster().names(), [], 'the device still sees the first-visit stepper');
+  assert.equal(slots.has('freeze_tap_players'), false);
+});
+
+test('freeze-tap import: read the way that route read it -- 2 to 20 seats with an emoji, else nothing', () => {
+  const { extract } = legacy('freeze_tap_players');
+  assert.deepEqual(extract([freezeSeat('ต้น', 0)]), [], 'one seat was never loaded by that route');
+  assert.deepEqual(extract([{ name: 'ต้น' }, { name: 'มายด์' }]), [], 'no emoji, not that route\'s list');
+  assert.deepEqual(extract('nope'), []);
+});
+
+// The three blobs, each in the shape its route's own save wrote, with that route's own settings.
+const BLOBS = {
+  ZERO_TRIGGER_DATA_V1: (names) => ({ players: names.map((name, i) => ({ id: i + 1, name, avatar: MASCOTS[i].emoji, score: 0 })), penaltyMode: 'custom' }),
+  'short-stick-pro-v2': (names) => ({ players: names, stickCount: 8, shortCount: 2, penaltyMode: 'preset', selectedPenalty: 'ร้องเพลง' }),
+  'wire-panic-v1': (names) => ({ players: names, penaltyMode: 'custom', selectedPenalty: '💸 เลี้ยงน้ำ' }),
+};
+const withoutPlayers = (blob) => {
+  const copy = { ...blob };
+  delete copy.players;
+  return JSON.stringify(copy);
+};
+
+for (const [key, make] of Object.entries(BLOBS)) {
+  test(`${key}: an EMPTY roster imports the players field; the blob stays, without it, every setting kept`, async () => {
+    slots.clear();
+    const blob = make(['ต้น', MASCOTS[1].name, 'มายด์']);
+    slots.set(key, JSON.stringify(blob));
+    await migrate(key);
+    assert.deepEqual(loadRoster().names(), ['ต้น', MASCOTS[1].name, 'มายด์']);
+    assert.equal(slots.get(key), withoutPlayers(blob), 'the settings are byte-equivalent and the players are gone');
+  });
+
+  test(`${key}: a NON-EMPTY roster wins -- the players field is dropped unread, the settings kept`, async () => {
+    slots.clear();
+    await loadRoster().add('แนน');
+    const blob = make(['ต้น', 'มายด์']);
+    slots.set(key, JSON.stringify(blob));
+    await migrate(key);
+    assert.deepEqual(loadRoster().names(), ['แนน']);
+    assert.equal(slots.get(key), withoutPlayers(blob));
+  });
+
+  test(`${key}: corrupt JSON and a blob with no players are left exactly as they are`, async () => {
+    for (const raw of ['{not json', withoutPlayers(make([]))]) {
+      slots.clear();
+      slots.set(key, raw);
+      await migrate(key);
+      assert.equal(slots.get(key), raw, 'the route\'s own settings key is not the migration\'s to delete');
+      assert.deepEqual(loadRoster().names(), []);
+    }
+  });
+
+  test(`${key}: an untouched default player list imports nothing, and is still dropped from the blob`, async () => {
+    slots.clear();
+    const blob = make(MASCOTS.slice(0, 4).map((m) => m.name));
+    slots.set(key, JSON.stringify(blob));
+    await migrate(key);
+    assert.deepEqual(loadRoster().names(), []);
+    assert.equal(slots.get(key), withoutPlayers(blob));
+  });
+}
+
+test('settings blob: an import whose write does not land keeps the blob whole for the next visit', async () => {
+  slots.clear();
+  const raw = JSON.stringify(BLOBS['wire-panic-v1'](['ต้น', 'มายด์']));
+  slots.set('wire-panic-v1', raw);
+  const real = localStorage.setItem;
+  localStorage.setItem = () => { throw new Error('QuotaExceededError'); };
+  try {
+    await migrate('wire-panic-v1');
+  } finally {
+    localStorage.setItem = real;
+  }
+  assert.equal(slots.get('wire-panic-v1'), raw);
+});
+
+// ---- frames 9 and 10 (owner rulings 2026-10-15), pure ------------------------------------------
+
+test('frame 9: two rows showing one trimmed name both mark, the limit line says so, and start is off', () => {
+  const s = ps.setName(ps.initialState(['A', 'B', 'C'], [], [2, 10]), 2, ' A ');
+  assert.deepEqual(ps.duplicateRows(s), [0, 2]);
+  assert.equal(ps.canStart(s), false);
+  assert.equal(ps.limitLine(s).kind, 'dup');
+  const fixed = ps.setName(s, 2, 'Ann');
+  assert.deepEqual(ps.duplicateRows(fixed), []);
+  assert.equal(ps.canStart(fixed), true);
+});
+
+test('frame 9 on a first visit too: a seat typed as the next seat\'s mascot would merge them', () => {
+  const s = ps.setName(ps.initialState([], [], [2, 10]), 0, MASCOTS[1].name);
+  assert.deepEqual(ps.duplicateRows(s), [0, 1]);
+  assert.equal(ps.canStart(s), false);
+  assert.deepEqual(ps.duplicateRows(ps.setCount(ps.setName(ps.initialState([], [], [2, 10]), 0, MASCOTS[5].name), 4)), [], 'a hidden seat past the count is not on the screen');
+});
+
+test('frame 10: the roster-full line shows while the refused screen is at the ceiling, and outranks the counts', () => {
+  const full = { ...ps.initialState(names(20), [], [2, 10]), notice: 'full' };
+  assert.equal(ps.limitLine(full).kind, 'full');
+  assert.equal(ps.limitLine(ps.removeRow(full, 0)).kind, 'over', 'a seat freed: the roster is no longer full');
+  assert.equal(ps.limitLine({ ...full, notice: null }).kind, 'over');
+});
+
+test('P2 round 3: the players handed to onStart follow the COMMITTED roster order, not the screen\'s', () => {
+  const s = ps.setName(ps.initialState(['A', 'B', 'C'], [], [2, 10]), 0, 'Alpha');
+  // Another tab removed and re-added A while this screen was open; the rename landed on the moved seat.
+  const players = ps.committedPlayers(s, ['B', 'C', 'Alpha']);
+  assert.deepEqual(players.map((p) => p.name), ['B', 'C', 'Alpha']);
+  assert.deepEqual(players.map((p) => p.mascot), [1, 2, 0], 'each player keeps the mascot it wore on the screen');
+  assert.equal(ps.committedPlayers(s, ['B', 'Alpha']), null, 'a seated name missing from the committed roster is refused, never seated short');
+});
+
+test('frame 9 after a refused start: the re-read roster carries this screen\'s edits, so both colliding rows show', () => {
+  const s = ps.setName(ps.initialState(['A', 'B', 'C'], [], [2, 10]), 0, 'D');
+  const again = ps.rebase(s, ['A', 'B', 'C', 'D'], []);
+  assert.deepEqual(again.rows.map((r) => r.name), ['D', 'B', 'C', 'D']);
+  assert.deepEqual(ps.duplicateRows(again), [0, 3]);
+  assert.deepEqual(ps.opsOf(ps.setName(again, 0, 'Dee')), [{ op: 'rename', from: 'A', to: 'Dee' }], 'fixed, the next start sends exactly the edit');
+  // An untouched row another tab removed is not brought back; a row this screen added stays an add.
+  const added = ps.addRow(ps.initialState(['A', 'B', 'C'], [], [2, 10]));
+  const rebased = ps.rebase(added, ['B', 'C'], []);
+  assert.deepEqual(rebased.rows.map((r) => r.name), ['B', 'C', MASCOTS[3].name]);
+  assert.deepEqual(ps.opsOf(rebased), [{ op: 'add', name: MASCOTS[3].name }]);
 });
 
 // gh#264, one-bomb's `{ names }` blob: ten seats, an untouched seat holding its mascot's name, and no
@@ -204,6 +358,8 @@ test('copy: every Thai string the screen builds at run time is on the board, byt
   // The assembled lines, as the board writes them with its sample numbers.
   assert.ok(board.includes(`${ps.COPY.overLead}6${ps.COPY.overMid}`), 'over-max line');
   assert.ok(board.includes(`${ps.COPY.undoLead}บอส${ps.COPY.undoTail}`), 'undo line');
+  assert.ok(board.includes(`${ps.COPY.fullLead}${ps.ROSTER_CEILING}${ps.COPY.fullTail}`), 'roster-full line (frame 10)');
+  assert.ok(board.includes(ps.COPY.dupLine), 'duplicate line (frame 9)');
   const astro = fs.readFileSync(path.join(import.meta.dirname, 'PlayerScreen.astro'), 'utf8');
   for (const s of ['แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย', '+ เพิ่มคน', 'พร้อมเล่น', 'เลิกทำ',
     'เปลี่ยนผู้เล่นตอนนี้?', 'รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว', 'เล่นรอบนี้ต่อ',
@@ -360,4 +516,95 @@ test('finding 2: a start whose add another tab pushed past the ceiling is refuse
   assert.equal(page.root.querySelectorAll('.ps-p').length, 20, 'the screen re-read storage and shows the roster as it stands');
   t.mock.timers.tick(401);
   assert.equal(page.part('add').disabled, true, 'the add row is closed at the ceiling');
+  assert.equal(page.part('limit').textContent, `${page.ps.COPY.fullLead}${page.ps.ROSTER_CEILING}${page.ps.COPY.fullTail}`, 'frame 10: the limit line says why');
+});
+
+test('frame 10 keeps this screen\'s renames: only the add that no longer fits is dropped', async (t) => {
+  const nineteen = Array.from({ length: 19 }, (_, i) => `p${i + 1}`);
+  const { page, names } = await savedPage(t, nineteen);
+  const f = page.root.querySelectorAll('.ps-n')[0];
+  f.value = 'First';
+  f.dispatchEvent({ type: 'input' });
+  page.part('add').click();
+  t.mock.timers.tick(401);
+  await page.store.applyRosterOps([{ op: 'add', name: 'otherTab' }], 20);
+  page.part('start').click();
+  await settle();
+  assert.equal(page.calls.started.length, 0);
+  assert.equal(page.root.querySelectorAll('.ps-n')[0].value, 'First', 'the rename typed here is still on the screen');
+  assert.equal(page.root.querySelectorAll('.ps-p').length, 20);
+  t.mock.timers.tick(401);
+  page.part('start').click();
+  await settle();
+  assert.equal(names()[0], 'First', 'and the next start writes it');
+});
+
+// ---- frames 9 and 10 and the committed order, on the real screen (REFUTE round 3) ---------------
+
+const rename = (page, i, value) => {
+  const f = page.root.querySelectorAll('.ps-n')[i];
+  f.value = value;
+  f.dispatchEvent({ type: 'input' });
+};
+const dupRows = (page) => page.root.querySelectorAll('.ps-p').map((li, i) => (/\bps-dup\b/.test(li.className) ? i : -1)).filter((i) => i >= 0);
+
+test('frame 9 on the real screen: typing a name another row shows marks both rows and turns start off at once', async (t) => {
+  const { page, names } = await savedPage(t);
+  rename(page, 0, 'B');
+  assert.deepEqual(dupRows(page), [0, 1]);
+  assert.equal(page.part('limit').textContent, page.ps.COPY.dupLine);
+  assert.equal(page.part('start').disabled, true);
+  page.part('start').click();
+  await settle();
+  assert.equal(page.calls.started.length, 0, 'the screen never sends a colliding batch');
+  assert.deepEqual(names(), ['A', 'B', 'C']);
+  rename(page, 0, 'Bee');
+  assert.deepEqual(dupRows(page), [], 'fixed: the marks clear');
+  assert.equal(page.part('start').disabled, false);
+});
+
+test('frame 9 after a refused start: another tab stored the name first -- nothing starts, both rows show, start off', async (t) => {
+  const { page, names } = await savedPage(t);
+  rename(page, 0, 'D');
+  await page.store.applyRosterOps([{ op: 'add', name: 'D' }], 20); // the other tab
+  page.part('start').click();
+  await settle();
+  assert.equal(page.calls.started.length, 0);
+  assert.deepEqual(names(), ['A', 'B', 'C', 'D'], 'nothing written, nothing merged');
+  assert.deepEqual(page.root.querySelectorAll('.ps-n').map((f) => f.value), ['D', 'B', 'C', 'D']);
+  assert.deepEqual(dupRows(page), [0, 3]);
+  assert.equal(page.part('limit').textContent, page.ps.COPY.dupLine);
+  t.mock.timers.tick(401);
+  assert.equal(page.part('start').disabled, true);
+  rename(page, 0, 'Dee');
+  page.part('start').click();
+  await settle();
+  assert.deepEqual(page.calls.started[0].map((p) => p.name), ['Dee', 'B', 'C', 'D']);
+  assert.deepEqual(names(), ['Dee', 'B', 'C', 'D']);
+});
+
+test('P2 round 3 on the real screen: onStart, the roster and the group all carry the COMMITTED order', async (t) => {
+  const { page, names } = await savedPage(t);
+  rename(page, 0, 'Alpha');
+  await page.store.applyRosterOps([{ op: 'remove', name: 'A' }], 20); // another tab moves A to the end
+  await page.store.applyRosterOps([{ op: 'add', name: 'A' }], 20);
+  page.part('start').click();
+  await settle();
+  assert.deepEqual(names(), ['B', 'C', 'Alpha']);
+  assert.deepEqual(page.calls.started[0].map((p) => p.name), ['B', 'C', 'Alpha']);
+  assert.deepEqual(page.store.loadGroup(), ['B', 'C', 'Alpha']);
+});
+
+test('a ticked name another tab removed is not seated short: the screen re-reads instead of starting', async (t) => {
+  const { page, names } = await savedPage(t);
+  await page.store.applyRosterOps([{ op: 'remove', name: 'C' }], 20);
+  page.part('start').click();
+  await settle();
+  assert.equal(page.calls.started.length, 0);
+  assert.deepEqual(page.root.querySelectorAll('.ps-n').map((f) => f.value), ['A', 'B'], 'the screen shows the roster as it stands');
+  assert.deepEqual(names(), ['A', 'B']);
+  t.mock.timers.tick(401);
+  page.part('start').click();
+  await settle();
+  assert.deepEqual(page.calls.started[0].map((p) => p.name), ['A', 'B']);
 });

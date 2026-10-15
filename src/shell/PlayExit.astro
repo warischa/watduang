@@ -36,8 +36,8 @@
 
 <a id="play-crawl-home" href="/">กลับหน้าแรก</a>
 <button id="play-exit" type="button" aria-label="ออกจากเกม" disabled>✕</button>
-<!-- Hidden until the script confirms this device knows two or more names: with no saved group the
-     mockup already opens on its own setup screen, so the control would offer what is on screen. -->
+<!-- Hidden until the shared player screen announces itself closed: open, it is already what the
+     control would offer, and with no screen on the page nothing would answer it. -->
 <button id="play-edit-players" type="button" disabled hidden>แก้ผู้เล่น</button>
 
 <style>
@@ -149,22 +149,16 @@
 <script>
   // Bundled by Astro, never inline (ADR-0005 + `script-src 'self'`).
   import { ARM_DELAY_MS, inputClockGate } from '../games/_arm-gate';
-  import { loadRoster } from './roster';
-  // The edit control's whole per-game story lives there: it reloads the play route with a flag, and
-  // each roster-bridge.ts answers that flag by prefilling the mockup's OWN setup and not starting it.
-  // Nothing here reaches into a mockup, so nothing here can be broken by a mockup's innerHTML render.
-  import { requestSetupEdit } from '../play/_setup-bridge';
 
   const exitBtn = document.getElementById('play-exit') as HTMLButtonElement | null;
   const editBtn = document.getElementById('play-edit-players') as HTMLButtonElement | null;
 
-  // ADR-0071, gh#264. A route that mounted the shared player screen edits the players IN PLACE: the
-  // screen marks <html> with this attribute ('open' / 'closed') and answers EDIT_EVENT itself --
-  // confirming first when a round is live. Feature-detected at tap time, never at load: this script
-  // and the route's own can run in either order. The names are player-screen.ts's SCREEN_ATTR,
-  // STATE_EVENT and EDIT_EVENT, spelled here rather than imported so this chrome pulls no player
-  // screen code onto the routes that have not mounted it. Every such route keeps the reload path
-  // below byte-for-byte.
+  // ADR-0071, gh#264. Every play route mounts the shared player screen, and the edit control edits
+  // the players IN PLACE: the screen marks <html> with this attribute ('open' / 'closed') and answers
+  // EDIT_EVENT itself -- confirming first when a round is live. The names are player-screen.ts's
+  // SCREEN_ATTR, STATE_EVENT and EDIT_EVENT, spelled here rather than imported so this chrome pulls no
+  // player screen code of its own. The flag-then-reload path through the per-route bridges is retired:
+  // no route is left to answer it.
   const SCREEN_ATTR = 'data-player-screen';
   const sharedScreen = (): string | null => document.documentElement.getAttribute(SCREEN_ATTR);
 
@@ -172,25 +166,17 @@
   // `stays` says the page is still here afterwards, so the one-way `leaving` latch must not close.
   const controls: { el: HTMLButtonElement; run: () => void; stays?: () => boolean }[] = [];
   if (exitBtn) controls.push({ el: exitBtn, run: () => { window.location.href = '/'; } });
-  // Two names is the threshold the bridges use to skip setup, so it is exactly the case where a
-  // player has no other way back to the setup screen — and the only case this control is for.
-  if (editBtn && loadRoster().names().length >= 2) {
-    editBtn.hidden = false;
-  }
   if (editBtn) {
-    // Always in the gate's list: hidden it can take no contact, so an unconverted route that never
-    // shows it is unaffected, while a converted route can show it later without a second gate.
+    // Always in the gate's list: hidden it can take no contact, and it is shown later without a
+    // second gate.
     controls.push({
       el: editBtn,
-      run: () => {
-        if (sharedScreen()) document.dispatchEvent(new CustomEvent('watduang:edit-players'));
-        else requestSetupEdit();
-      },
-      stays: () => sharedScreen() !== null,
+      run: () => document.dispatchEvent(new CustomEvent('watduang:edit-players')),
+      stays: () => true,
     });
-    // On a converted route the pill is offered exactly while the shared screen is closed: open, it
-    // would offer what is already on screen. Its state arrives as an event; the attribute covers a
-    // screen that announced itself before this script ran.
+    // The pill is offered exactly while the shared screen is closed: open, it would offer what is
+    // already on screen, and with no screen announced nothing would answer it. Its state arrives as
+    // an event; the attribute covers a screen that announced itself before this script ran.
     const syncEdit = (): void => {
       const state = sharedScreen();
       if (state !== null) editBtn.hidden = state === 'open';
@@ -273,9 +259,9 @@
     // no page-level handler can stop the event before this gate sees it. `click` is kept as the
     // keyboard path (Enter/Space fire click and no pointer events); `leaving` stops the two paths
     // from navigating twice.
-    // Both activations are one-way transitions off this page (navigate, or reload into setup), so one
-    // flag stops either path from firing twice — including the pointerup and click paths racing.
-    // The one exception is the in-place edit on a converted route (ADR-0071): the page stays, so the
+    // The exit is a one-way transition off this page, so one flag stops it firing twice — including
+    // the pointerup and click paths racing.
+    // The edit control is the exception (ADR-0071): it edits in place, the page stays, so the
     // latch stays open and the controls are re-gated instead -- the dialog or screen that just
     // appeared is a reveal, and disabling the pill here is also what stops the click that trails a
     // pointerup from firing it a second time (a disabled button dispatches no click).

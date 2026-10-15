@@ -113,7 +113,9 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 //   two more lifted/authored play bundles, minus nothing -- no engine was deleted this batch, because
 //   the stage modules stay until gh#149 removes the landing pages that still render them.
 const BASELINE_BASENAMES = [
-  '_setup-bridge.js',
+  // gh#264 / ADR-0071 -- _setup-bridge.js REMOVED. Every play route mounts the shared player screen
+  // and PlayExit edits in place, so the bridge module (edit flag + save-on-setup-complete) lost its
+  // last importer and was deleted. SET leg only, as the notes below.
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'PlayExit.astro_astro_type_script_index_0_lang.js',
   // gh#149 — PlayerSetup.astro_astro_type_script_index_0_lang.js is NOT in this inventory. The setup
@@ -223,7 +225,11 @@ const BASELINE_BASENAMES = [
   'team.astro_astro_type_script_index_0_lang.js',
   'timebomb.js',
   'play.astro_astro_type_script_index_0_lang.js',
-  'roster.js',
+  // gh#264 / ADR-0071 -- roster.js REMOVED as a chunk, not as code. PlayExit stopped importing
+  // src/shell/roster.ts (its roster-size check fed only the retired reload path), and with that
+  // importer gone Rollup folds the module into the _mascots chunk: the roster key's code ships there
+  // in the build this was measured on (`grep -l watduang:roster dist/_astro/*.js`). Re-check with the
+  // same grep rather than trusting this line.
   'session.js',
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();

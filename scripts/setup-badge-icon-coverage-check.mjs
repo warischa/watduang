@@ -73,8 +73,8 @@ async function deriveDeclaredRoutes(manifestUrl = new URL('../src/games/manifest
   return games.filter((g) => g.playRoute).map((g) => g.id).sort();
 }
 
-/** Every directory directly under `dir`, sorted. Directories only: `_mascots.ts`, `_setup-bridge.ts`
- *  and the shared `*.test.mjs` files sit directly under src/play/ and are not routes. */
+/** Every directory directly under `dir`, sorted. Directories only: `_mascots.ts`, the other shared
+ *  modules and the shared `*.test.mjs` files sit directly under src/play/ and are not routes. */
 export function listRouteDirs(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true })

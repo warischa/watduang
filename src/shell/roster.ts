@@ -86,6 +86,17 @@ export type RosterOp =
   | { op: 'rename'; from: string; to: string }
   | { op: 'add'; name: string };
 
+/** What applyRosterOps did. `roster` is the list storage holds once it returns: the committed one on
+ *  'ok', the untouched stored one on a refusal -- which writes NOTHING (gh#264 REFUTE round 3: a
+ *  refusal used to keep every edit before the refused add, so the API was partial).
+ *    'ceiling'   -- the adds in `refused` do not fit under the ceiling;
+ *    'collision' -- two seats would end on one of the `names`: a rename or an add onto a name the
+ *                   stored roster already shows (another tab added it), or two edits onto one name. */
+export type RosterOpsResult =
+  | { status: 'ok'; roster: string[] }
+  | { status: 'ceiling'; roster: string[]; refused: string[] }
+  | { status: 'collision'; roster: string[]; names: string[] };
+
 /** ADR-0071 (gh#264): the shared player screen's roster write. The screen hands over the EDITS it
  *  made -- removes, renames keyed by the name it opened with, adds -- and they are applied INSIDE the
  *  lock to the roster as it stands NOW, so a second tab's work is never undone by a screen that
@@ -96,22 +107,26 @@ export type RosterOp =
  *    - the renames of one batch are ONE simultaneous mapping, old name -> final name, applied to
  *      every seat at once (gh#264 REFUTE round 2): a chain A->B, B->Z leaves B and Z, a swap A<->B
  *      leaves B and A, each in the seat it was in. Applied one after another they deleted a player;
- *    - when two seats end on the SAME name -- a rename onto a name another seat already shows -- the
- *      EARLIER seat keeps it and the later one merges into it: the roster is keyed by name and cannot
- *      hold one name twice. Every distinct final name is kept;
- *    - a rename whose old name is already gone becomes an add -- the player is still on the screen;
- *    - an add past `ceiling` is REFUSED and returned, never stored and clipped later. The ceiling is
- *      the caller's (the shared screen owns that constant, ruling 7); storage only enforces it.
- *  Removes go first, so a removal frees the seat an add in the same batch needs. Names are
- *  name-keyed: two screen rows with the same name are one roster entry -- inherent to this key.
+ *    - a rename whose old name is already gone becomes an add -- the player is still on the screen.
+ *  ALL OR NOTHING. The batch is resolved in memory first and written once, only if every op lands:
+ *    - two seats ending on the SAME final name is a COLLISION, never a merge (owner ruling
+ *      2026-10-15, board frame 9): the roster is keyed by name, so a merge would silently turn two
+ *      players into one. The screen never sends such a batch itself; what reaches here is a name
+ *      another tab stored after this screen read the roster;
+ *    - an add past `ceiling` is a CEILING refusal, never stored and clipped later. The ceiling is the
+ *      caller's (the shared screen owns that constant, ruling 7); storage only enforces it.
+ *  A collision is reported over a ceiling refusal: it is the one the players can fix in place.
+ *  Removes go first, so a removal frees the seat an add in the same batch needs.
+ *  Known false collision, accepted: two tabs that both rename A to Alpha -- the second finds A gone,
+ *  its rename becomes an add, and the add meets the first tab's Alpha. The refusal shows the truth.
  *  Same re-read-inside-the-lock shape as add(), for the same reason (#data-loss above). */
-export async function applyRosterOps(ops: readonly RosterOp[], ceiling: number): Promise<{ refused: string[] }> {
-  const refused: string[] = [];
+export async function applyRosterOps(ops: readonly RosterOp[], ceiling: number): Promise<RosterOpsResult> {
+  let result: RosterOpsResult = { status: 'ok', roster: [] };
   await withLock(LOCK, () => {
-    // Re-run safe: withLock may run this twice on a rejected lock request, so nothing outside the
-    // list is accumulated across runs except through this reset.
-    refused.length = 0;
-    let list = read(KEY);
+    // Re-run safe: withLock may run this twice on a rejected lock request, and every run computes
+    // its result from a fresh read, never from what an earlier run accumulated.
+    const stored = read(KEY);
+    let list = stored;
     const adds: string[] = [];
     for (const o of ops) if (o.op === 'remove') list = list.filter((n) => n !== o.name);
     // Old name -> final name, resolved against the stored seats in one pass, never in sequence.
@@ -123,20 +138,26 @@ export async function applyRosterOps(ops: readonly RosterOp[], ceiling: number):
       if (list.includes(o.from)) finalName.set(o.from, to);
       else adds.push(to);
     }
-    const mapped = list.map((n) => finalName.get(n) ?? n);
-    list = mapped.filter((n, i) => mapped.indexOf(n) === i);
+    list = list.map((n) => finalName.get(n) ?? n);
     for (const o of ops) if (o.op === 'add') adds.push(o.name.trim());
-    for (const name of adds) {
-      if (!hasVisibleChar(name) || list.includes(name)) continue;
-      if (list.length >= ceiling) {
-        refused.push(name);
-        continue;
-      }
-      list = [...list, name];
+    for (const name of adds) if (hasVisibleChar(name)) list = [...list, name];
+    const seen = new Set<string>();
+    const collided = new Set<string>();
+    for (const n of list) (seen.has(n) ? collided : seen).add(n);
+    if (collided.size > 0) {
+      result = { status: 'collision', roster: stored, names: [...collided] };
+      return;
+    }
+    const kept = list.length - adds.filter((n) => hasVisibleChar(n)).length;
+    const refused = list.slice(Math.max(ceiling, kept));
+    if (refused.length > 0) {
+      result = { status: 'ceiling', roster: stored, refused };
+      return;
     }
     write(KEY, list);
+    result = { status: 'ok', roster: list };
   });
-  return { refused: [...refused] };
+  return result;
 }
 
 /** ADR-0071 "Data": the one-time import of a per-game player list that predates the shared roster.
@@ -150,8 +171,22 @@ export async function applyRosterOps(ops: readonly RosterOp[], ceiling: number):
  *
  *  One refusal to delete: if the import was attempted and the write did not land (quota, private
  *  mode), the legacy key is kept so the next visit can try again -- deleting it would lose the names
- *  in exactly the case the write path above already promises to survive. */
-export async function migrateLegacyList(legacyKey: string, extract: (value: unknown) => string[]): Promise<void> {
+ *  in exactly the case the write path above already promises to survive.
+ *
+ *  `keep: 'settings'` (owner ruling 2026-10-15): the legacy value is a JSON object whose `players`
+ *  field is the list and whose OTHER fields are game settings the route still reads under the same
+ *  key. The same import rule applies to the players, but the key is never deleted: the object is
+ *  written back WITHOUT `players`, every other field kept as it was. A value that is not an object
+ *  with a `players` field -- corrupt JSON included -- is the route's, left exactly as it is. */
+export async function migrateLegacyList(
+  legacyKey: string,
+  extract: (value: unknown) => string[],
+  keep?: 'settings',
+): Promise<void> {
+  if (keep === 'settings') {
+    await migrateSettingsPlayers(legacyKey, extract);
+    return;
+  }
   let raw: string | null;
   try {
     raw = localStorage.getItem(legacyKey);
@@ -161,8 +196,7 @@ export async function migrateLegacyList(legacyKey: string, extract: (value: unkn
   if (raw === null) return;
   let imported: string[] = [];
   try {
-    const parsed: unknown = JSON.parse(raw);
-    imported = [...new Set(extract(parsed).filter((n) => typeof n === 'string').map((n) => n.trim()).filter((n) => hasVisibleChar(n)))];
+    imported = legacyNames(extract, JSON.parse(raw));
   } catch {
     imported = []; // a corrupt legacy value imports nothing and is still retired below
   }
@@ -178,6 +212,51 @@ export async function migrateLegacyList(legacyKey: string, extract: (value: unkn
   } catch {
     // Nothing to do: the key stays and the next mount runs this again, which is harmless.
   }
+}
+
+/** The legacy names an extract returns, cleaned the one way both migrations clean them. */
+function legacyNames(extract: (value: unknown) => string[], value: unknown): string[] {
+  return [...new Set(extract(value).filter((n) => typeof n === 'string').map((n) => n.trim()).filter((n) => hasVisibleChar(n)))];
+}
+
+/** migrateLegacyList's `keep: 'settings'` half. The read, the import and the rewrite all sit inside
+ *  ONE synchronous lock callback, so the route's own settings write cannot land between the read
+ *  and the rewrite and be overwritten by a stale copy. */
+async function migrateSettingsPlayers(legacyKey: string, extract: (value: unknown) => string[]): Promise<void> {
+  await withLock(LOCK, () => {
+    let raw: string | null;
+    try {
+      raw = localStorage.getItem(legacyKey);
+    } catch {
+      return;
+    }
+    if (raw === null) return;
+    let blob: unknown;
+    try {
+      blob = JSON.parse(raw);
+    } catch {
+      return; // corrupt: nothing to import and nothing this module can rewrite faithfully
+    }
+    if (!blob || typeof blob !== 'object' || Array.isArray(blob) || !('players' in blob)) return;
+    let imported: string[] = [];
+    try {
+      imported = legacyNames(extract, blob);
+    } catch {
+      imported = [];
+    }
+    if (read(KEY).length === 0 && imported.length > 0) {
+      write(KEY, imported);
+      // Did not land (quota, private mode): keep the blob whole, players included, for the next visit.
+      if (read(KEY).length === 0) return;
+    }
+    const settings: Record<string, unknown> = { ...(blob as Record<string, unknown>) };
+    delete settings.players;
+    try {
+      localStorage.setItem(legacyKey, JSON.stringify(settings));
+    } catch {
+      // The blob keeps its players field; the next mount finds a non-empty roster and drops it then.
+    }
+  });
 }
 
 export function loadRoster(): Roster {

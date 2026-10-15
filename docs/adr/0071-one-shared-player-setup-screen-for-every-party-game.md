@@ -37,6 +37,11 @@ reopens the component in place instead of reloading the page.
    tap, not a retyped name.
 4. **Roster above the game's maximum.** The first `max` rows start ticked and the วง chooses. Start is
    disabled while fewer than `min` are ticked. Nobody is dropped silently.
+   *(Added 2026-10-15, owner rulings after board approval, frames 9–10.)* **Two rows showing one name
+   block start** until one is changed: the roster holds each name once, so letting it through would
+   merge two players into one silently. **A start refused at the ceiling says why.** When another tab
+   filled the roster to 20 first, the screen re-reads it, closes the add row and names the reason in the
+   limit line.
 5. **No reordering in v1.** Turn order is roster order; a game that shuffles keeps shuffling itself.
 6. **Edit mid-round.** Opening the screen during a round asks first, then restarts the round with the
    new players. A silent restart or a silent continue would break ADR-0008. Every close, cancel and
@@ -59,6 +64,16 @@ importer remains.
 **One-time migration.** When the shared roster is empty, the core imports the names stored under the
 per-game keys of timebomb, dice-loser and one-bomb, then deletes those keys. When the shared roster is
 not empty, it wins and the per-game keys are deleted unread.
+*(Widened 2026-10-15, owner ruling during fan-out.)* freeze-tap's own list (`freeze_tap_players`)
+migrates the same way. Three routes kept their players inside a blob that also held game settings —
+zero-trigger (`ZERO_TRIGGER_DATA_V1`), short-stick (`short-stick-pro-v2`) and wire-snip-panic
+(`wire-panic-v1`); the same rule applies to their players field, and their settings move to a
+settings-only key.
+
+**Game settings are not players.** *(Owner ruling 2026-10-15.)* A route may keep storing its own
+non-player settings — motion, particles, a penalty mode — under keys named in an owned per-route
+allowlist in the mount gate. Ruling 1 keeps those options in the route; dropping their persistence
+would have been a regression nobody asked for.
 
 ## What this supersedes
 
@@ -78,6 +93,8 @@ shared roster like every other party game, and its `buildContext` no-op `setPlay
 - **Every game gets one extra tap on a return visit.** The pre-filled screen shows before play, even
   when nothing changed. That tap buys the over-maximum choice in ruling 4 and a visible check of who is
   playing.
+- **Two legacy seats with one name become one roster entry.** The roster is keyed by name; a list
+  that held "บอส" twice imports one บอส.
 - **A game loses its own count control.** Several were designed per game (croc-bite's seat pills,
   power-meter's chips); they go. Game-specific options stay.
 
@@ -95,6 +112,13 @@ A new gate enumerates the party play routes from the manifest at runtime and red
 not mount the shared screen, or that writes a player key of its own. A route with no mount is a
 failure, never a skip, so a route ported later from a mockup with its own setup screen reds on the day
 it lands. A rule held only in prose would not stop that port: a mockup brings its setup screen with it.
+Mounts and storage are found with the TypeScript and Astro parsers, never by matching text, so a
+comment or a string cannot pose as either. Storage the route touches must be on its settings
+allowlist; anything else reds. The allowlist is a set this repo owns, so the rule converges; what a
+listed key holds is reviewer-owned, and that is the gate's stated ceiling.
+`scripts/seat-cap-check.mjs` also runs each route's handoff: the mount's `onStart` must forward its
+players unchanged to a named function, which must seat every count from the declared minimum to the
+maximum (gh#265).
 
 ## The fact that would change this
 

@@ -124,8 +124,8 @@ const playDir = process.env.PLAY_DIR_OVERRIDE
 const PLAY_EXTS = new Set(['.html', '.js', '.ts']);
 const PLAY_SCRIPT_EXTS = new Set(['.js', '.ts']);
 
-/** Every play-route directory directly under `dir`, sorted. Directories only: `_mascots.ts`,
- *  `_setup-bridge.ts` and the `*.test.mjs` files sit directly under src/play/ and are not routes. */
+/** Every play-route directory directly under `dir`, sorted. Directories only: `_mascots.ts`, the
+ *  other shared modules and the `*.test.mjs` files sit directly under src/play/ and are not routes. */
 function listPlayRouteDirs(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true })
@@ -1218,7 +1218,7 @@ function selftest() {
     console.log('PASS play route, file-set derivation: [main.js, markup.html, roster-bridge.ts] — excludes play.css, *.test.*, and parts/hidden.js (flat glob, disclosed ceiling)');
 
     // Route-set derivation: directories only, so the shared files sitting directly under src/play/
-    // (_mascots.ts, _setup-bridge.ts, the *.test.mjs suites) are never mistaken for routes.
+    // (_mascots.ts, _strip-overflow.ts, the *.test.mjs suites) are never mistaken for routes.
     fs.writeFileSync(path.join(playTmpDir, '_shared.ts'), '');
     assert.ok(
       listPlayRouteDirs(playTmpDir).includes('good-route') && !listPlayRouteDirs(playTmpDir).includes('_shared.ts'),

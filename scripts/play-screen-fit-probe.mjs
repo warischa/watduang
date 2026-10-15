@@ -12,10 +12,10 @@
 // this file exists to refuse. So the proof is DIFFERENTIAL and repo-owned, not per-route:
 //   1. Load the route with storage wiped. That is, by construction, the screen a first-time device
 //      sees — the setup/menu screen. Record its SIGNATURE.
-//   2. Reload with a roster and a group seeded (the roster<->mockup contract in
-//      src/play/_setup-bridge.ts: with two or more names, each route's bridge replays what the player
-//      already told the device and the mockup starts its own match), then press the mockup's own
-//      controls.
+//   2. Reload with a roster and a group seeded (since gh#264 every route mounts the shared player
+//      screen, src/play/_player-screen/, which opens pre-filled from them; the per-route bridges and
+//      their shared module that used to replay the roster into each mockup are retired), then press
+//      the page's own controls.
 //   3. A screen counts as measurable ONLY if its signature differs from the fresh one. A route where
 //      every screen the walk reached still carries the fresh signature FAILS, by name.
 // THE SIGNATURE IS THE VISIBLE TEXT of the mockup root, lowercased, with digits stripped and
@@ -156,8 +156,8 @@
 //   * PRESS_CAP presses per viewport, not every screen: a screen only reachable deeper into a round
 //     (a result panel, a sudden-death branch) is never measured.
 //   * One browser, one font. widthFillPct on a text-only screen moves with the font the runner has.
-//   * A route whose bridge deliberately stops short of starting the match still has to be pressed
-//     there by this walk, so what it measures is whatever the mockup's own controls reach.
+//   * A route that stops short of starting the match (the shared player screen opens on every load)
+//     still has to be pressed there by this walk, so what it measures is whatever its controls reach.
 
 import fs from 'node:fs';
 import path from 'node:path';
