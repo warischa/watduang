@@ -1,80 +1,76 @@
-// gh#209: this route's setup roster row opens with the seat's ANIMAL, not a seat number.
+// gh#209: this route's seat identity is the seat's ANIMAL, never a seat number -- on the setup rows
+// and on the seats the round is then played with.
 //
-// The assertion is POSITIVE and it is an equality: the badge element's own text must equal the glyph
-// the shared cast holds for that seat. Nothing here scans for digits, deliberately -- this same
-// builder writes a player-count badge reading like "4 คน", a legitimate number a digit-scanning check
-// would red on. Equality with the cast cannot be fooled by it.
+// Since gh#264 (ADR-0071) the setup rows are the shared player screen's, mounted into #wspPlayers.
+// The first half runs that real screen over THIS route's markup.html at THIS route's declared range
+// and reads the badges back off the rows it built.
 //
-// It runs the REAL bytes: renderSetupPlayerList is sliced out of main.js and executed over the shared
-// DOM stub, and the badge is read out of the row markup that function itself writes. avatarFor is
-// sliced too rather than re-implemented here, so the seat-to-glyph mapping under test is the route's.
+// The second half is the engine entry the screen starts, startWithPlayers, sliced out of main.js and
+// run together with the route's own avatarFor: the seats the round is played with must wear the
+// glyph of the mascot the player screen gave them -- with someone sitting out, a seat's index and
+// its mascot differ, and that is exactly the case a positional default gets wrong.
+//
+// Equality with the cast throughout, never a digit scan: the name field beside the badge carries a
+// legitimate numbered positional label.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { MASCOTS, mascotEmoji, mascotNames } from '../_mascots.ts';
-import { makeDocumentStub, sliceBlock } from '../_dom-stub.mjs';
+import { MASCOTS, mascotEmoji } from '../_mascots.ts';
+import { badgeCases } from '../_player-screen/screen-harness.mjs';
+import { sliceBlock } from '../_dom-stub.mjs';
+import game from '../../games/wire-snip-panic.ts';
 
-const source = fs.readFileSync(path.join(import.meta.dirname, 'main.js'), 'utf8');
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
+const MAIN = fs.readFileSync(path.join(import.meta.dirname, 'main.js'), 'utf8');
 
-function slice(header) {
-  const found = sliceBlock(source, header);
-  assert.ok(found, `main.js no longer declares ${header} — this test is measuring nothing`);
-  return found;
-}
+badgeCases({ test, assert, routeMarkup: MARKUP, rootId: 'wspPlayers', range: game.players, mascots: MASCOTS, label: 'wire-snip-panic' });
 
-const renderBody = slice('function renderSetupPlayerList()');
-const escapeBody = slice('function escapeHtml(str)');
-// The route's own seat-to-glyph arrow. One statement, so it is taken to its semicolon rather than by
-// brace matching.
-const avatarDecl = 'const avatarFor = ';
-const avatarAt = source.indexOf(avatarDecl);
+const HEADER = 'function startWithPlayers(players)';
+const sliced = sliceBlock(MAIN, HEADER);
+assert.ok(sliced, `main.js no longer declares ${HEADER} — this test is measuring nothing`);
+// The route's own seat-to-glyph arrow. One statement, so it is taken to its semicolon.
+const avatarAt = MAIN.indexOf('const avatarFor = ');
 assert.notEqual(avatarAt, -1, 'main.js no longer declares avatarFor — this test is measuring nothing');
-const avatarBody = source.slice(avatarAt, source.indexOf(';', avatarAt) + 1);
+const avatarDecl = MAIN.slice(avatarAt, MAIN.indexOf(';', avatarAt) + 1);
 
-const runRender = new Function(
-  'document', 'game', 'MASCOTS', 'armAllButtons', 'soundSynth', 'saveSettings',
-  `${escapeBody}\n${avatarBody}\n${renderBody}\nrenderSetupPlayerList();`,
-);
-
-/** Drives the real builder for a party of `count` and returns the raw markup of each row. */
-function render(count) {
-  const { document, el } = makeDocumentStub();
-  const container = el('player-list-container');
-  const game = { players: mascotNames(count), scores: new Array(count).fill(0) };
-  runRender(document, game, MASCOTS, () => {}, { playClick() {} }, () => {});
-  return { rows: container.children.map((row) => row.innerHTML), countBadge: el('player-count-badge').textContent };
+/** Runs the real startWithPlayers over a fresh engine state and returns what it seated. */
+function seat(players) {
+  const state = { state: 'MENU', players: [], avatars: [], scores: [] };
+  const shown = [];
+  let penaltyRendered = 0;
+  const run = new Function('game', 'GameState', 'showScreen', 'renderPenaltyUI',
+    `${avatarDecl}\n${sliced}\nreturn { startWithPlayers, avatarFor };`,
+  )(state, new Proxy({}, { get: (_t, k) => k }), (id) => shown.push(id), () => { penaltyRendered += 1; });
+  run.startWithPlayers(players);
+  return { state, shown, penaltyRendered, avatarFor: run.avatarFor };
 }
 
-/** The text of the .player-avatar element -- the badge a player actually reads. */
-function badgeText(rowHtml) {
-  const m = /<div class="player-avatar">([\s\S]*?)<\/div>/.exec(rowHtml);
-  assert.ok(m, `no seat badge in the rendered row: ${rowHtml}`);
-  return m[1].trim();
-}
-
-test('gh#209: every setup row badge equals that seat mascot glyph', () => {
-  const { rows } = render(5);
-  assert.equal(rows.length, 5);
-  assert.deepEqual(rows.map(badgeText), MASCOTS.slice(0, 5).map((m) => m.emoji));
+test('wire-snip-panic gh#209: the seats played wear the player screen\'s mascots, sitting-out gap included', () => {
+  // Mascots 0, 2 and 5: the second and fourth to fifth roster seats sat out.
+  const players = [0, 2, 5].map((m, i) => ({ name: `p${i}`, emoji: MASCOTS[m].emoji, mascot: m }));
+  const { state, shown, penaltyRendered, avatarFor } = seat(players);
+  assert.deepEqual(state.players, ['p0', 'p1', 'p2']);
+  assert.deepEqual([0, 1, 2].map(avatarFor), [mascotEmoji(0), mascotEmoji(2), mascotEmoji(5)],
+    'the glyph follows the mascot, not the seat index');
+  assert.deepEqual(state.scores, [0, 0, 0], 'every seat starts the match at zero');
+  assert.equal(state.state, 'SETUP');
+  assert.deepEqual(shown, ['screen-setup'], 'the game\'s own options come next (ADR-0071 ruling 1)');
+  assert.equal(penaltyRendered, 1, 'the options screen is drawn as it is shown');
 });
 
-test('gh#209: the mapping holds across the whole product range, seat by seat', () => {
-  for (const seats of [2, 6, 10]) {
-    const { rows } = render(seats);
-    assert.equal(rows.length, seats);
-    assert.deepEqual(rows.map(badgeText), Array.from({ length: seats }, (_, i) => mascotEmoji(i)));
+test('wire-snip-panic gh#209: the whole declared range seats, seat by seat', () => {
+  for (const n of game.players) {
+    const players = Array.from({ length: n }, (_, i) => ({ name: `s${i}`, emoji: MASCOTS[i].emoji, mascot: i }));
+    const { state, avatarFor } = seat(players);
+    assert.equal(state.players.length, n);
+    assert.deepEqual(state.players.map((_, i) => avatarFor(i)), players.map((p) => p.emoji));
   }
 });
 
-test('gh#209: the count badge keeps its legitimate number, which this check must never flag', () => {
-  assert.match(render(4).countBadge, /\b4\b/);
-});
-
-// Calibration, in the shape that can fail: a seat number is not a value the cast can produce, so the
-// equality above can tell a digit badge from a glyph badge.
-test('RED CALIBRATION: no seat glyph is a digit, so the equality can separate the two', () => {
+test('RED CALIBRATION: no seat glyph is a digit, and a positional glyph would differ here', () => {
   const icons = Array.from({ length: 10 }, (_, i) => mascotEmoji(i));
   assert.notDeepEqual(icons, Array.from({ length: 10 }, (_, i) => String(i + 1)));
   for (const icon of icons) assert.doesNotMatch(icon, /\d|#/);
+  assert.notEqual(mascotEmoji(1), mascotEmoji(2), 'seat 1 and mascot 2 must be distinguishable');
 });

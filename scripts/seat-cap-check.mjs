@@ -672,6 +672,20 @@ const HANDOFFS = {
       return { seated: Array.isArray(seated) && seated.length === avatars.length ? seated.length : NaN };
     },
   },
+  'wire-snip-panic': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() fills the engine state the match is played on: game.players, with game.avatars and game.scores beside it',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      const env = { game: {} };
+      compiled.make(env)(players);
+      const { players: seated, avatars, scores } = env.game;
+      if (!Array.isArray(seated)) return { error: 'startWithPlayers() left no player list on the engine state' };
+      // The three per-seat lists the round indexes together must all hold every player.
+      return { seated: seated.length === avatars?.length && seated.length === scores?.length ? seated.length : NaN };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, fileName = 'main.js', module, declared, handoff }) {

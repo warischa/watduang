@@ -368,16 +368,20 @@ function wireSnipHarness() {
   document.getElementById = (id) => augment(rawById(id));
   const rawCreate = document.createElement.bind(document);
   document.createElement = (tag) => augment(rawCreate(tag));
+  // gh#264: `avatars` is the per-seat glyph list startWithPlayers fills from the shared player screen.
   const game = {
     players: [HOSTILE, HOSTILE],
+    avatars: [MASCOTS[0].emoji, MASCOTS[1].emoji],
     scores: [0, 0],
     currentPlayerIndex: 0,
     penaltyMode: 'none',
     selectedPenalty: '',
     state: 'MENU',
   };
+  // renderSetupPlayerList is gone (gh#264, ADR-0071): the setup rows are the shared player screen's,
+  // whose sinks the shared-screen case at the end of this file drives.
   const api = loadFrom('wire-snip-panic',
-    ['escapeHtml', 'avatarFor', 'renderSetupPlayerList', 'renderHUDPlayerStrip', 'showDetonationModal'], {
+    ['escapeHtml', 'avatarFor', 'renderHUDPlayerStrip', 'showDetonationModal'], {
       document,
       game,
       // `const GameState = Object.freeze({...})` does not brace-slice; a key-echoing proxy is the
@@ -404,13 +408,8 @@ function wireSnipHarness() {
   return { api, document };
 }
 
-test('wire-snip-panic: setup input, HUD strip and round-end scoreboard escape roster names', () => {
+test('wire-snip-panic: HUD strip and round-end scoreboard escape roster names', () => {
   const { api, document } = wireSnipHarness();
-
-  api.renderSetupPlayerList();
-  const list = document.getElementById('player-list-container');
-  assertNoInjection(list, 'wire-snip-panic renderSetupPlayerList');
-  assertAttributeIntact(list, '.player-input', 'wire-snip-panic renderSetupPlayerList');
 
   api.renderHUDPlayerStrip();
   assertNoInjection(document.getElementById('hud-player-strip'), 'wire-snip-panic renderHUDPlayerStrip');

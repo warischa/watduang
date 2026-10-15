@@ -24,45 +24,39 @@
    the floor". That was never true — it was written when control-floor-probe.mjs still excluded every
    play route by construction (gh#170), so the walk that would have found the others had never run
    here. It has now: the same probe against a built dist/ also found .player-remove-btn and .btn-small
-   below the floor, both handled below. Kept and corrected rather than deleted, per ADR-0046: a
-   deleted comment leaves the next reader to re-derive the same wrong conclusion. */
+   below the floor. Kept and corrected rather than deleted, per ADR-0046: a deleted comment leaves the
+   next reader to re-derive the same wrong conclusion. (Those two controls, and the rules that raised
+   them, went with the mockup's player list in gh#264: the players are the shared screen's now,
+   ADR-0071.) */
 .header-btn {
   min-inline-size: 44px;
   min-block-size: 44px;
 }
 
-/* The same 44px floor, for the setup screen's per-row remove control. Measured on a built dist/ at
-   innerWidth 320 (scripts/control-floor-probe.mjs, screen 2, 2026-08-31): four .player-remove-btn at
-   26px with a computed floor of `auto` - one per roster row, and the only way to drop a player.
-   The mockup styles it as a bare transparent glyph, so the box IS the hit area: raising the box to
-   44x44 grows the tap target without touching the glyph, which stays at its 16px font size.
-   The row cannot overflow on the extra 18px of inline size, because .player-input takes it. That
-   field is the row's only `flex: 1` item, and a flex item's default `min-width: auto` floors it at
-   its intrinsic width - which is what would push the row wide. Zeroing that lets the field absorb
-   the button's growth instead, so the row is strictly less prone to overflow than before this rule.
-   Applies to the add-player row's field too, which sits next to a button for the same reason. */
-.player-remove-btn {
-  min-inline-size: 44px;
-  min-block-size: 44px;
+/* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the
+   mockup's own palette (style.css's :root tokens). The card ground is already opaque here, so the
+   dialogs' solid panel takes the same token. --ps-on-accent is the literal the mockup's own
+   .btn-primary sets its label in over the cyan, the colour --ps-accent maps to. */
+:root {
+  --ps-panel: var(--surface-card);
+  --ps-panel-solid: var(--surface-card);
+  --ps-edge: var(--border);
+  --ps-ink: var(--fg);
+  --ps-muted: var(--muted);
+  --ps-accent: var(--electric-cyan);
+  --ps-on-accent: #ffffff;
 }
 
-.player-input {
-  min-inline-size: 0;
-}
-
-/* The same 44px floor for the add-player control, measured on the dist/ built 2026-08-31 with the
-   two rules above already in place: #btn-add-player (.btn-secondary.btn-small) rendered 39px at
-   innerWidth 320, resolved floor `auto`. It only became visible once .player-remove-btn was raised —
-   the probe reports per control, and the taller row is what let this one be measured on screen 2.
-
-   Anchored on .btn-small rather than the id: .btn-small is exactly `padding: 8px 14px` plus
-   `font-size: 13px` in the mockup (style.css § .btn-small), which is where the 39px comes from, so the
-   class IS the cause. It has one user on this route today, so the two are equivalent in effect now,
-   and a second small button added later inherits the floor instead of reappearing as a new finding.
-   Block size only: the label is wide enough that inline size was never the failing dimension, and a
-   <button> centres its own content, so nothing needs re-centring. */
-.btn-small {
-  min-block-size: 44px;
+/* The player screen's root sits in #app beside the .screen sections, and like them it takes the
+   frame's remaining height and scrolls inside it: #app is a fixed-height column with overflow
+   hidden, so a long roster would otherwise be clipped. Padding is the board's page padding around
+   the screen column. Layered above the particle canvas the same way .screen is. */
+.wsp-players {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  z-index: 20;
+  padding: 20px 16px 24px;
 }
 
 /* Off-screen but spoken. Not `display: none` and not `visibility: hidden` - either one takes the
@@ -268,9 +262,7 @@
     font-size: 18px;
   }
 
-  .header-btn,
-  .btn-small,
-  .player-remove-btn {
+  .header-btn {
     min-block-size: var(--wsp-desktop-target-min);
   }
 

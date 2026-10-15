@@ -38,8 +38,6 @@ const BOOTS_ON = {
   'zero-trigger': { nav: '#btn-goto-setup' },
   // The five below render their name fields at load -- their bridges fill them with no navigation.
   'freeze-tap': { nav: null },
-  // Opens on a menu whose #btn-menu-start is what renders the seat fields -- setup is a click away.
-  'wire-snip-panic': { nav: '#btn-menu-start' },
   // Boots straight onto #screen-setup: markup.html ships it without the `hidden` its two sibling
   // screens carry, and the engine's own boot renders the seat fields into it. So there is nothing to
   // click to reach setup, and what is pinned for this route is that the bridge navigates nowhere on
