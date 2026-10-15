@@ -4,12 +4,18 @@
 // import here is used outside that block, so the rules the node check drives stay the lifted ones.
 //
 // ADR-0017 / ADR-0057: a freshly revealed control is disabled for a short window off the browser's
-// own input clock, so a second contact from the tap that revealed it fires nothing. Closing the reset
-// confirm is a reveal too — the setup controls behind it come back live with no arm window of their
-// own — so the close paths arm as well.
+// own input clock, so a second contact from the tap that revealed it fires nothing.
 import { armAllButtons } from '../../games/_arm-gate.ts';
-// The shared cast (ADR-0054): one definition of the animals, read by every play route.
-import { MASCOTS, mascotEmoji } from '../_mascots.ts';
+// gh#264 / ADR-0071: the mockup's player setup -- the count stepper, the name rows, the reset
+// control and its confirm -- is GONE, and so is the roster bridge that drove it. The one player
+// screen every party route mounts takes its place (mounted at the foot of this file, into
+// #bd-players) and hands its players to startWithPlayers(). The screen arms its own reveals --
+// opening, its dialogs, its undo bar -- over #app.
+import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
+// The module's default export is read for one field, `players`: the range the player screen admits is
+// the one the manifest declares (ADR-0065), never a number restated here. Named `game` so the seat
+// gate reads this route as deriving its ceiling from the manifest; the round's own state is `round`.
+import game from '../../games/bangkok-drift.ts';
 // @logic-start -- pure rules, no DOM; test-logic.js slices this block out and drives it in node.
 // Units are metres and seconds. Lateral position x is in road half-widths: the road spans -1..1.
 const RULES = {
@@ -149,9 +155,12 @@ function rankPlayers(results) {
 // @logic-end
 
 const $ = (id) => document.getElementById(id);
-const SCREENS = ['setup', 'turn', 'drive', 'result', 'final'];
+// The game's own screens. No setup screen since gh#264: the shared player screen is the first screen,
+// and it lives outside this list in #bd-players (ADR-0071 ruling 1 -- this game has no non-player
+// options, so its players go straight into the round).
+const SCREENS = ['turn', 'drive', 'result', 'final'];
 // EVERY screen change routes through here, so this one call is every reveal path this route has:
-// setup, turn, drive, result and final. ADR-0017/ADR-0057 — the buttons the new screen brings ship
+// turn, drive, result and final. ADR-0017/ADR-0057 — the buttons the new screen brings ship
 // disabled for the arm window, judged on the browser's own input stamp (ADR-0059).
 function show(name) {
   for (const s of SCREENS) {
@@ -163,84 +172,26 @@ function show(name) {
 }
 function announce(text) { $('live').textContent = text; }
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const game = { count: 4, names: [], turn: 0, track: null, results: [] };
+const round = { count: 4, names: [], turn: 0, track: null, results: [] };
 
-// --- setup: the same ids and classes as the shipped ports, so the roster bridge lifts as-is.
-function renderRoster() {
-  const box = $('roster');
-  const typed = [...box.querySelectorAll('.roster-input')].map((el) => el.value);
-  box.replaceChildren();
-  for (let i = 0; i < game.count; i++) {
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'roster-input';
-    input.maxLength = 15;
-    input.dataset.index = i;
-    input.placeholder = 'ผู้เล่น ' + (i + 1);
-    input.setAttribute('aria-label', 'ชื่อผู้เล่นคนที่ ' + (i + 1));
-    input.value = typed[i] || '';
-    // gh#209, hand-added to this lift: the seat opens with its ANIMAL, never a seat number. The glyph
-    // comes from the shared cast so this row can never drift from the badge any other screen shows.
-    const row = document.createElement('div');
-    row.className = 'roster-row';
-    const badge = document.createElement('div');
-    badge.className = 'roster-badge';
-    badge.textContent = mascotEmoji(i);
-    row.append(badge, input);
-    box.appendChild(row);
-  }
-  document.querySelector('.count-display').textContent = game.count;
-}
-// The seat fields are rebuilt above, but the two stepper controls are not — they are static markup and
-// their arm window expired long ago. Arming the whole setup screen after a rebuild is what covers the
-// case where the rebuild was itself the reveal (the reset confirm closing onto it).
-function armSetup() {
-  const screen = $('screen-setup');
-  if (screen) armAllButtons(screen);
-}
-// The reset-to-cast control (gh#178) and its confirm. `เก็บชื่อเดิมไว้` takes focus as soon as the
-// question's controls arm: a click fires on Enter keydown, so focusing the destructive button would
-// let a held key confirm a question nobody read.
-function openResetNames() {
-  const modal = $('bd-modal-reset-names');
-  modal.classList.add('active');
-  // Focus is handed over in the gate's own onArm hook, not beside this call: armAllButtons ships both
-  // buttons `disabled` for the arm window, and focus() on a disabled control does nothing at all —
-  // focusing here would read as a safe default while leaving the question with no focus.
-  armAllButtons(modal, [], () => $('bd-cancel-reset-names').focus());
-}
-function closeResetNames() {
-  $('bd-modal-reset-names').classList.remove('active');
-  // Closing IS a reveal: every control on the setup screen is live again and none of them has an arm
-  // window of its own, which is exactly why a second contact from the closing tap would fire one.
-  armSetup();
-}
-$('bd-reset-names').addEventListener('click', openResetNames);
-$('bd-cancel-reset-names').addEventListener('click', closeResetNames);
-$('bd-confirm-reset-names').addEventListener('click', () => {
-  for (const [i, el] of [...document.querySelectorAll('.roster-input')].entries()) {
-    const name = MASCOTS[i % MASCOTS.length].name;
-    el.value = el.maxLength > 0 ? name.slice(0, el.maxLength) : name;
-  }
-  closeResetNames();
-  announce('รีเซ็ตชื่อผู้เล่นเป็นชื่อสัตว์แล้ว');
-});
-$('decPlayerBtn').addEventListener('click', () => { if (game.count > 2) { game.count--; renderRoster(); } });
-$('incPlayerBtn').addEventListener('click', () => { if (game.count < 10) { game.count++; renderRoster(); } });
-$('startGameBtn').addEventListener('click', () => {
-  game.names = [...document.querySelectorAll('.roster-input')].map((el, i) => el.value.trim() || 'ผู้เล่น ' + (i + 1));
+// --- players: the engine entry the shared player screen starts (ADR-0071). It seats exactly the
+// players it is handed, in the order given -- the ticked roster, a blank row already under its
+// mascot's name -- and the round begins at once.
+function startWithPlayers(players) {
+  round.names = players.map((p) => p.name);
+  round.count = round.names.length;
   startRound();
-});
+}
 function startRound() {
   // One seed per round: every player drives the very same road, so their metres compare.
-  game.track = buildTrack((Math.random() * 4294967296) >>> 0, 6000);
-  game.results = [];
-  game.turn = 0;
+  round.track = buildTrack((Math.random() * 4294967296) >>> 0, 6000);
+  round.results = [];
+  round.turn = 0;
   showTurn();
 }
 function showTurn() {
-  const name = game.names[game.turn];
-  $('turn-count').textContent = 'คนที่ ' + (game.turn + 1) + ' จาก ' + game.count;
+  const name = round.names[round.turn];
+  $('turn-count').textContent = 'คนที่ ' + (round.turn + 1) + ' จาก ' + round.count;
   $('turn-name').textContent = name;
   show('turn');
   announce('ส่งมือถือให้ ' + name);
@@ -262,6 +213,7 @@ const ctx = (() => {
   }
 })();
 let W = 0, H = 0, drive = null, steer = 0, countdown = 0, goFlash = 0, last = 0, raf = 0, announcedHits = 0;
+let resultTimer = 0;
 function resize() {
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   W = stage.clientWidth;
@@ -283,9 +235,9 @@ function startDrive() {
   countdown = 3;
   goFlash = 0;
   announcedHits = 0;
-  $('hud-name').textContent = game.names[game.turn];
+  $('hud-name').textContent = round.names[round.turn];
   $('overlay').textContent = '3';
-  announce(game.names[game.turn] + ' เตรียมตัว นับถอยหลัง');
+  announce(round.names[round.turn] + ' เตรียมตัว นับถอยหลัง');
   last = performance.now();
   cancelAnimationFrame(raf);
   raf = requestAnimationFrame(frame);
@@ -303,7 +255,7 @@ function frame(now) {
     // Reduced motion slows the simulation instead of hiding it: the road still draws every frame.
     // The factor is RULES.REDUCED_DT, not a literal here, so drift-rules.test.mjs can red on a wrong
     // value; this call is the half no test in the slice can see, and the registry guards it (gh#225).
-    ended = stepDrive(drive, game.track, steer, reduceMotion.matches ? dt * RULES.REDUCED_DT : dt);
+    ended = stepDrive(drive, round.track, steer, reduceMotion.matches ? dt * RULES.REDUCED_DT : dt);
     // A control hazard changes the car without ending the turn, and a canvas says nothing about
     // that on its own -- announce it outside the stage, in the live region.
     if (!ended && drive.hits > announcedHits) {
@@ -322,16 +274,18 @@ function endDrive(why) {
   stage.classList.add('crash');
   steer = 0;
   const metres = Math.floor(drive.pos);
-  game.results.push({ name: game.names[game.turn], metres });
+  round.results.push({ name: round.names[round.turn], metres });
   // The table owns the Thai name, so a fifth kind never needs a new string here.
   const hit = RULES.OBSTACLES.find((k) => k.id === drive.hitKind);
   const reason = why === 'crash' ? 'ชน' + (hit ? hit.th : 'สิ่งกีดขวาง') + '!' : 'หลุดออกนอกถนน!';
   announce(reason + ' ' + metres + ' เมตร');
-  setTimeout(() => {
+  // Kept, so putAwayRound() can cancel it: a round ended from the player screen inside these 700ms
+  // would otherwise bring the result screen up over the player screen.
+  resultTimer = setTimeout(() => {
     $('result-why').textContent = reason;
-    $('result-name').textContent = game.names[game.turn];
+    $('result-name').textContent = round.names[round.turn];
     $('result-dist').textContent = metres + ' ม.';
-    const nextLabel = game.turn === game.count - 1 ? 'ดูผลรวม' : 'ส่งต่อให้คนถัดไป';
+    const nextLabel = round.turn === round.count - 1 ? 'ดูผลรวม' : 'ส่งต่อให้คนถัดไป';
     $('nextBtn').textContent = nextLabel;
     // The markup ships a generic Thai accessible name from src/play/_aria-labels.json, because the
     // button is empty until this line runs and an empty control has no name at all. An aria-label
@@ -341,11 +295,11 @@ function endDrive(why) {
   }, 700);
 }
 $('nextBtn').addEventListener('click', () => {
-  game.turn++;
-  if (game.turn < game.count) showTurn(); else showFinal();
+  round.turn++;
+  if (round.turn < round.count) showTurn(); else showFinal();
 });
 function showFinal() {
-  const { order, losers } = rankPlayers(game.results);
+  const { order, losers } = rankPlayers(round.results);
   const list = $('rank');
   list.replaceChildren();
   order.forEach((r, i) => {
@@ -365,7 +319,6 @@ function showFinal() {
   announce('ผลรอบนี้ ' + order[0].name + ' ชนะ ' + hit + ' โดน');
 }
 $('replayBtn').addEventListener('click', startRound);
-$('editBtn').addEventListener('click', () => { renderRoster(); show('setup'); });
 
 // --- input: the left half of the stage steers left, the right half right; arrow keys for a desktop check.
 function steerFrom(e) { steer = e.clientX < stage.getBoundingClientRect().left + W / 2 ? -1 : 1; }
@@ -407,7 +360,7 @@ function draw() {
   // ADR-0051 again: no context means no picture, and the round carries on around it. This is the one
   // guard the whole renderer needs — every other drawing function below is reached only from here.
   if (!ctx) return;
-  const HZ = H * 0.4, F = W / 2, RW = RULES.ROAD_HALF, SEG = RULES.SEG_LEN, track = game.track;
+  const HZ = H * 0.4, F = W / 2, RW = RULES.ROAD_HALF, SEG = RULES.SEG_LEN, track = round.track;
   const sky = ctx.createLinearGradient(0, 0, 0, HZ);
   sky.addColorStop(0, '#070c14');
   sky.addColorStop(1, '#274c7a');
@@ -582,4 +535,36 @@ function drawCar() {
   ctx.restore();
 }
 
-renderRoster();
+// --- the shared player screen (ADR-0071, gh#264). Last in the file, so every function it is handed
+// already exists and the round's own listeners are wired before the first start can fire.
+
+/** A round is live while a turn is being handed over, driven or scored. The final ranking is not
+ *  one: editing the players there loses nothing, so the screen opens without asking (ruling 6). */
+function roundActive() {
+  return ['turn', 'drive', 'result'].some((s) => $('screen-' + s).classList.contains('active'));
+}
+/** Puts the round away, whatever stage it is in: the frame loop, the pending result reveal and the
+ *  crash flash all stop, and every game screen is hidden so the player screen is the only thing up.
+ *  Used both when the players confirm ending a live round and whenever the screen opens. */
+function putAwayRound() {
+  cancelAnimationFrame(raf);
+  clearTimeout(resultTimer);
+  steer = 0;
+  stage.classList.remove('crash');
+  for (const s of SCREENS) $('screen-' + s).classList.remove('active');
+}
+
+const playersRoot = document.getElementById('bd-players');
+const playerScreen = playersRoot
+  ? mountPlayerScreen({
+      root: playersRoot,
+      range: game.players,
+      onStart: startWithPlayers,
+      roundActive,
+      abortRound: putAwayRound,
+      onOpen: putAwayRound,
+    })
+  : null;
+// The final screen's edit opens the player screen straight away: the round is over there.
+$('editBtn').addEventListener('click', () => { if (playerScreen) playerScreen.open(); });
+if (playerScreen) playerScreen.open();

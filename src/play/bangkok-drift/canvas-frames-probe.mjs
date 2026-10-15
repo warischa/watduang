@@ -161,9 +161,10 @@ await send('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, devi
 await sleep(600);
 
 const out = { url, reducedRequested: reduced, paintStubbed: stubbed, nullContext: nullCtx, loopStopped: stopLoop };
-// A fresh device has no roster, so this route opens on its own setup screen with the cast already in
-// the fields: pressing "เริ่มแข่ง" and then "พร้อม ออกตัว!" is the whole path into a drive.
-out.start = (await evaluate(CLICK_WHEN_ARMED('#startGameBtn'))).value;
+// A fresh device has no roster, so this route opens on the shared player screen (ADR-0071) at its
+// first-visit count, the cast standing in for names: pressing its start and then "พร้อม ออกตัว!" is
+// the whole path into a drive.
+out.start = (await evaluate(CLICK_WHEN_ARMED('[data-ps="start"]'))).value;
 await sleep(600);
 out.ready = (await evaluate(CLICK_WHEN_ARMED('#readyBtn'))).value;
 // Past the three-second countdown, so what is measured below is the drive loop and not the count-in.
@@ -206,7 +207,7 @@ if (nullCtx) {
     return {
       screen: document.querySelector('.screen.active')?.id ?? null,
       metresMoved: document.getElementById('hud-dist').textContent !== before,
-      bodyHasContent: document.getElementById('screen-setup') !== null,
+      bodyHasContent: document.getElementById('bd-players') !== null,
       contextIsNull: document.getElementById('road').getContext('2d') === null,
     };`)).value;
   const ok = out.ready?.clicked === true

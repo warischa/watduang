@@ -39,9 +39,6 @@ const BOOTS_ON = {
   // Opens on a marketing hero; its setup view does not exist until this control renders it.
   'short-stick': { nav: '#btn-start-setup' },
   // The five below render their name fields at load -- their bridges fill them with no navigation.
-  // bangkok-drift boots with #screen-setup already carrying `class="screen active"` and calls its own
-  // renderRoster() on main.js's last line, so the seat fields exist before the bridge runs.
-  'bangkok-drift': { nav: null },
   'cannon-flag': { nav: null },
   'freeze-tap': { nav: null },
   'pinocchio-luck': { nav: null },
