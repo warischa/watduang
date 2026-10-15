@@ -459,8 +459,12 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         $(id)?.close();
         // No view is live while the shared player screen is up (gh#264), and the rules dialog opens
         // from the top bar over it -- so its root is what the dismissal uncovers then.
-        const shown = document.querySelector('.view.active') ?? (playersRoot.hidden ? null : playersRoot);
+        // Through the screen's OWN gate, never this route's: a route gate over it handed start back
+        // when its window closed even with two rows showing one name, and let a keystroke inside the
+        // window enable start early (gh#264 REFUTE round 4).
+        const shown = document.querySelector('.view.active');
         if (shown) armAllButtons(shown);
+        else if (!playersRoot.hidden) playerScreen.arm();
       };
 
       const calculateOdds = () => {

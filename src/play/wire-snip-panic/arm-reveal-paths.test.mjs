@@ -25,7 +25,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { mountOnPage, revealPathCases, settle } from '../_player-screen/screen-harness.mjs';
+import { closerCases, mountOnPage, revealPathCases, settle } from '../_player-screen/screen-harness.mjs';
 import { sliceBlock } from '../_dom-stub.mjs';
 import { ARM_DELAY_MS, armAllButtons } from '../../games/_arm-gate.ts';
 import wireSnipPanic from '../../games/wire-snip-panic.ts';
@@ -129,13 +129,30 @@ test('closing the rules modal over the open player screen re-arms the player scr
   assert.equal(page.part('start').disabled, false, 'start must be live before the close, or nothing is measured');
   const body = sliceBlock(source, 'function closeModal(id)');
   assert.ok(body, 'closeModal is gone — this test measures nothing');
-  const closeModal = new Function('document', 'armAllButtons', `${body}\nreturn closeModal;`)(page.doc, armAllButtons);
+  const closeModal = new Function('document', 'armAllButtons', 'playerScreen', `${body}\nreturn closeModal;`)(page.doc, armAllButtons, page.screen);
   page.byId('modal-rules').classList.add('active');
   closeModal('modal-rules');
   assert.equal(page.byId('modal-rules').classList.contains('active'), false, 'the modal did not close');
   assert.equal(page.part('start').disabled, true, 'the player screen uncovered by the close was not armed');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   assert.equal(page.part('start').disabled, false, 'start never came back after the window');
+});
+
+// gh#264 REFUTE round 4: the same closer, read for what it leaves start holding (closerCases).
+closerCases({
+  test,
+  assert,
+  routeMarkup: MARKUP,
+  rootId: 'wspPlayers',
+  range: wireSnipPanic.players,
+  label: 'wire-snip-panic',
+  close: (page) => {
+    const body = sliceBlock(source, 'function closeModal(id)');
+    assert.ok(body, 'closeModal is gone — this test measures nothing');
+    const closeModal = new Function('document', 'armAllButtons', 'playerScreen', `${body}\nreturn closeModal;`)(page.doc, armAllButtons, page.screen);
+    page.byId('modal-rules').classList.add('active');
+    closeModal('modal-rules');
+  },
 });
 
 test('closeModal re-arms the screen the modal was covering', () => {

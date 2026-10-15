@@ -1351,15 +1351,17 @@ import powerMeter from '../../games/power-meter.ts';
      *  button behind it. Every dismissal path of both header modals goes through this one function,
      *  so arming here covers them all.
      *  Two surfaces since gh#264: while the shared player screen is up, IT is what the card covered
-     *  (#view-root is empty and hidden then), so its root is armed, with the two steppers left out
-     *  for the reason the shared screen gives for its own gate -- they are tapped repeatedly on
-     *  purpose (ADR-0057). Otherwise armRenderedView(), the same call renderUI() ends in, so the
-     *  meter button keeps its per-control exception. */
+     *  (#view-root is empty and hidden then), so the screen re-arms its surface through its OWN gate
+     *  (playerScreen.arm), which leaves the two steppers out and re-validates start when it arms. A
+     *  route gate over that root handed start back with two rows showing one name, and let a
+     *  keystroke inside its window enable start early (gh#264 REFUTE round 4). Otherwise
+     *  armRenderedView(), the same call renderUI() ends in, so the meter button keeps its
+     *  per-control exception. */
     function closeModal(id) {
       soundSynth.playClick(400);
       document.getElementById(id).classList.remove('active');
-      if (game.state === GameState.PLAYERS && playersRoot) {
-        armAllButtons(playersRoot, [...playersRoot.querySelectorAll('[data-ps="dec"], [data-ps="inc"]')]);
+      if (game.state === GameState.PLAYERS && playerScreen) {
+        playerScreen.arm();
       } else {
         armRenderedView();
       }

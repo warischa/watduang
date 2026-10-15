@@ -32,7 +32,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { closerCases, revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { sliceBlock } from '../_dom-stub.mjs';
+import shortStick from '../../games/short-stick.ts';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
 const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
@@ -132,7 +134,7 @@ test('closeDialog re-arms the live screen every dismissal uncovers, the player s
   );
   assert.match(
     body,
-    /\?\? \(playersRoot\.hidden \? null : playersRoot\)/,
+    /else if \(!playersRoot\.hidden\) playerScreen\.arm\(\)/,
     'closeDialog no longer falls back to the open player screen: closing the rules dialog over it ' +
       're-arms nothing',
   );
@@ -181,6 +183,28 @@ test('abortRound ends the round for its pending timers too', () => {
 });
 
 revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'ssPlayers', headerId: 'btn-start-setup', label: 'short-stick' });
+
+// gh#264 REFUTE round 4: the real closeDialog bytes over the open player screen, read for what they
+// leave start holding (closerCases).
+closerCases({
+  test,
+  assert,
+  routeMarkup: MARKUP,
+  rootId: 'ssPlayers',
+  range: shortStick.players,
+  label: 'short-stick',
+  close: (page) => {
+    // No view is live while the player screen is up.
+    page.doc.querySelectorAll('.view').forEach((el) => el.classList.remove('active'));
+    const body = sliceBlock(source, 'const closeDialog = (id) =>');
+    assert.ok(body, 'closeDialog is gone — this test measures nothing');
+    const closeDialog = new Function('$', 'document', 'armAllButtons', 'playersRoot', 'playerScreen', `${body}\nreturn closeDialog;`)(
+      (id) => page.doc.getElementById(id), page.doc, armAllButtons, page.root, page.screen,
+    );
+    page.byId('rules-dialog').showModal();
+    closeDialog('rules-dialog');
+  },
+});
 
 // ---------------------------------------------------------------------------
 // gh#188 box 14 — the arm window must not clear `disabled` the GAME owns.

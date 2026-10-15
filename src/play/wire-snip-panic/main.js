@@ -648,10 +648,18 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     // triggerScanSequence sets game.state before it disables, so its own TURN_WAIT guard rejects the
     // re-entry -- but the control still LOOKED live to the player and to a screen reader. Both legs
     // are now closed, and both are pinned in arm-reveal-paths.test.mjs.
+    //
+    // The open player screen is re-armed through ITS gate (playerScreen.arm), never this route's: a
+    // route gate over it handed start back when its window closed even with two rows showing one
+    // name, and let a keystroke inside the window enable start early (gh#264 REFUTE round 4).
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
       const players = document.getElementById('wspPlayers');
-      const screen = players && !players.hidden ? players : document.querySelector('.screen.active');
+      if (players && !players.hidden && playerScreen) {
+        playerScreen.arm();
+        return;
+      }
+      const screen = document.querySelector('.screen.active');
       if (screen) armAllButtons(screen);
     }
 

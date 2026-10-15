@@ -561,3 +561,45 @@ export function resetCases({ test, assert, routeMarkup, rootId, range, mascots, 
     assert.equal(saved.part('reset').hidden, true, 'a saved roster has no reset -- the board draws none there');
   });
 }
+
+/** A ROUTE's own modal closer, run over the open shared screen (ADR-0057's close path). `close(page)`
+ *  runs that closer's real bytes; the route's onOpen state is the caller's to set up.
+ *
+ *  gh#264 REFUTE round 4: a route closer that armed the screen's root through its own gate handed
+ *  start back when its window closed, whatever the screen held -- duplicate names included -- and
+ *  inside that window every keystroke's re-render enabled start early, because only the screen's own
+ *  gate holds start for the window. Both legs are read here: a duplicate typed inside the window
+ *  stays off after it, and a fix typed inside the next window waits it out. */
+export function closerCases({ test, assert, routeMarkup, rootId, range, label, close }) {
+  const QUIET = 400;
+  const expire = (t) => t.mock.timers.tick(QUIET + 1);
+  const typeInto = (field, value) => {
+    field.value = value;
+    field.dispatchEvent({ type: 'input' });
+  };
+
+  test(`${label}: a route modal closed over the player screen leaves start to the screen's own validity`, async (t) => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const page = await mountOnPage({ routeMarkup, rootId, range });
+    page.screen.open();
+    await settle();
+    expire(t);
+    const start = page.part('start');
+    assert.equal(start.disabled, false, 'start must be live before the close, or nothing is measured');
+
+    close(page);
+    assert.equal(start.disabled, true, 'the close did not arm the player screen it uncovered');
+    const [first, second] = page.root.querySelectorAll('.ps-n');
+    typeInto(first, 'same');
+    typeInto(second, 'same');
+    assert.equal(start.disabled, true, 'two rows showing one name must hold start off');
+    expire(t);
+    assert.equal(start.disabled, true, 'the close\'s window handed start back while two rows still show one name');
+
+    close(page);
+    typeInto(second, 'other');
+    assert.equal(start.disabled, true, 'a fix typed inside the close\'s window enabled start before the window passed');
+    expire(t);
+    assert.equal(start.disabled, false, 'start never came back once the names were fixed and the window passed');
+  });
+}

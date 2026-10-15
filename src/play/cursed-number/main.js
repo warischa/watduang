@@ -483,8 +483,15 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         // double-tap on the close X -- which sits in the same top-right corner as rulesBtn -- lands
         // on whatever live control is there. Armed in one shared closer so neither branch can miss
         // it. `this.currentScreen` is the only record of which screen is live.
+        // The open player screen is re-armed through ITS gate, never this route's: a route gate over
+        // it handed start back when its window closed even with two rows showing one name, and let a
+        // keystroke inside the window enable start early (gh#264 REFUTE round 4).
         const closeRules = () => {
           document.getElementById('rulesModal').classList.remove('active');
+          if (this.currentScreen === 'cnPlayers' && this.players) {
+            this.players.arm();
+            return;
+          }
           const screen = document.getElementById(this.currentScreen);
           if (screen) armAllButtons(screen);
         };
