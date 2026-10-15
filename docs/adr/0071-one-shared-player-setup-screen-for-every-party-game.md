@@ -60,9 +60,11 @@ No new player key. The roster is `watduang:roster`; who plays this round is `wat
 are read and written only through `src/shell/roster.ts` — the roster-lock structure gate keeps that
 file the single speller of the key. `_setup-bridge.ts` and the per-route bridges retire once no
 importer remains.
-*(Amended 2026-10-15, REFUTE round 5.)* One bookkeeping key, spelled only in `roster.ts`, records
-which settings blobs have been migrated, so a stale settings save from another tab cannot bring
-retired players back; it holds key names, never players.
+*(Amended 2026-10-15, REFUTE rounds 5–6.)* One bookkeeping key, spelled only in `roster.ts`,
+records which settings blobs the migration has claimed, so a stale settings save from another tab
+cannot bring retired players back; it holds key names, never players. The claim is written and read
+back BEFORE importing and withdrawn if the import fails: a device that cannot store it does not
+migrate rather than risk resurrecting removed players. Losing an import is the accepted failure mode.
 
 **One-time migration.** When the shared roster is empty, the core imports the names stored under the
 per-game keys of timebomb, dice-loser and one-bomb, then deletes those keys. When the shared roster is
