@@ -141,3 +141,23 @@
      that role and the verdict found it correct, so no separate token duplicates it.
    `--pl-desktop-track-inline` -- not declared; with no sizing layer there is no second, narrower
      single-column measure distinct from the frame cap to give it. */
+
+/* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto its own
+   palette -- the board's light host mapping, on the cream card the route's setup used to sit on
+   (#plPlayers wears `.panel`). Only values the route already ships: style.css's :root tokens, and
+   where it has no token, the literal its own setup or copy used. The rows take the ground and border
+   of the name fields they replace; the muted line is `.support`'s colour. The accent is the dark end
+   of the route's gold, not `--gold` itself: the screen also sets the accent as TEXT on the opaque
+   ground (the limit number, the undo control), where `--gold` measures 1.52:1 against
+   `--paper-card` and `--gold-dark` 3.54:1, above the 3.37:1 the board's own light frame paints. Ink
+   on the accent, as on the board: `--ink` on `--gold-dark` is 4.98:1. Declared on :root because the
+   two dialogs render outside #plPlayers. */
+:root {
+  --ps-panel: #fff;
+  --ps-panel-solid: var(--paper-card);
+  --ps-edge: #d2c0b4;
+  --ps-ink: var(--ink);
+  --ps-muted: #6b5260;
+  --ps-accent: var(--gold-dark);
+  --ps-on-accent: var(--ink);
+}

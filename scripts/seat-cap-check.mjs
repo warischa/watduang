@@ -209,6 +209,37 @@ const DRIVERS = {
       return saturate(() => fn.call(receiver), () => receiver.state.players.length);
     },
   },
+  // gh#264 / ADR-0071: the route's own count field and its validity guard are gone -- the count is
+  // the shared player screen's. What is still this route's is the ENGINE: makeMatch seats any number
+  // of names, but every wrong answer is dealt a distinct nose value from one fixed pool, so the
+  // largest group that can ALL answer wrong in one round is the seat limit. That round is played on
+  // the real engine, imported, for a growing group, until it throws.
+  'pinocchio-luck': {
+    what: 'the engine deals each wrong answer a distinct value from one growth pool (makeMatch + resolveChoice + advanceTurn, imported and run with every answer wrong)',
+    engineModule: 'src/games/pinocchio-luck.ts',
+    run: (source, engine) => {
+      if (!/makeMatch\(/.test(source)) return { error: 'the route no longer seats its players through makeMatch' };
+      const { makeMatch, resolveChoice, advanceTurn, currentPlayer, PHASE } = engine ?? {};
+      if (![makeMatch, resolveChoice, advanceTurn, currentPlayer].every((fn) => typeof fn === 'function') || !PHASE) {
+        return { error: 'src/games/pinocchio-luck.ts no longer exports makeMatch, resolveChoice, advanceTurn, currentPlayer and PHASE' };
+      }
+      for (let seats = 2; seats <= SATURATION_LIMIT; seats += 1) {
+        const match = makeMatch(Array.from({ length: seats }, (_, i) => `seat-${i + 1}`));
+        try {
+          for (let turn = 0; turn < seats; turn += 1) {
+            match.phase = PHASE.QUESTION;
+            const player = currentPlayer(match);
+            resolveChoice(match, ['A', 'B', 'C'].find((c) => c !== player.assignedCorrectChoice));
+            match.phase = PHASE.TURN_RESULT;
+            advanceTurn(match);
+          }
+        } catch {
+          return { cap: seats - 1 };
+        }
+      }
+      return { error: `an all-wrong round never failed up to ${SATURATION_LIMIT} seat(s)` };
+    },
+  },
 };
 
 // --- Reader B: the count-guard text family ------------------------------------------------------
@@ -594,6 +625,23 @@ const HANDOFFS = {
       model.initPlayers = seatBuilder.make({});
       handoff.make({ game: model })(players);
       return { seated: model.playerCount === model.players.length ? model.players.length : NaN };
+    },
+  },
+  'pinocchio-luck': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() builds the match the round is played on (makeMatch, imported)',
+    engineModule: 'src/games/pinocchio-luck.ts',
+    run: (source, engineModule, players) => {
+      if (typeof engineModule?.makeMatch !== 'function') return { error: 'src/games/pinocchio-luck.ts no longer exports makeMatch' };
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      // `game` must be a key here, so the handoff's assignment lands in this scope and is read back.
+      const env = { game: null, makeMatch: engineModule.makeMatch, liveRng: engineModule.liveRng, panel: {} };
+      compiled.make(env)(players);
+      const match = env.game;
+      if (!match || !Array.isArray(match.players)) return { error: 'startWithPlayers() left no match on the route' };
+      // Both views of the seat count must agree with the hand: the seats and the turn order played.
+      return { seated: match.players.length === match.turnOrder?.length ? match.players.length : NaN };
     },
   },
 };

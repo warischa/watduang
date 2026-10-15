@@ -28,7 +28,16 @@
     <div class="webgl-error" role="status">อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย</div>
   </section>
   <div class="panel-wrap">
-    <section class="panel" id="panel" aria-label="พื้นที่เล่นเกม"></section>
+    <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+         mountPlayerScreen as its root, and it is the first thing a load shows. It wears the route's
+         own card (.panel). The tagline is this game's slot on the board, copied from the module's
+         own `tagline`. This replaced the route's count stepper, number field, name rows and reset
+         control, which main.js used to render into #panel. -->
+    <section id="plPlayers" class="panel" hidden>
+      <p class="ps-tagline">ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน</p>
+    </section>
+    <!-- The round. Ships hidden: the player screen comes first, and startWithPlayers shows it. -->
+    <section class="panel" id="panel" aria-label="พื้นที่เล่นเกม" hidden></section>
   </div>
   <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 </main>
