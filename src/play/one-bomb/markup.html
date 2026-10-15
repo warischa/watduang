@@ -52,20 +52,14 @@
         <div class="gameSubtitle">เกมปาร์ตี้ดวลเสี่ยงระเบิดสุดน่ารัก</div>
       </div>
 
-      <div class="glassPanel setupCard">
-        <div class="setupInfo">
-          <strong>จำนวนผู้เล่น</strong>
-          <small id="boardDimensionDesc">กระดาน 5 × 5 · แผ่นหิน 25 แผ่น</small>
-        </div>
-        <div class="stepper">
-          <button class="stepBtn" id="playerMinus" type="button" aria-label="ลดจำนวนผู้เล่น">−</button>
-          <div class="playerVal" id="playerCountVal">2</div>
-          <button class="stepBtn" id="playerPlus" type="button" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
-        </div>
-      </div>
+      <!-- The shared player screen mounts here (ADR-0071, gh#264): main.ts hands this section to
+           mountPlayerScreen as its root, between the hero above and the game's own how-to and
+           settings below. It replaced the mockup's count card and its start button -- the screen's
+           own start begins the match. Ships hidden: the screen shows itself once it has read the
+           roster. -->
+      <section id="ob-player-screen" class="ob-player-screen" hidden></section>
 
       <div class="menuBtnCol">
-        <button class="btnBase primaryBtn" id="startPlayBtn" type="button">🚀 เริ่มเกมเลย!</button>
         <button class="btnBase secondaryBtn" id="howToPlayBtn" type="button">📖 วิธีเล่น</button>
         <button class="btnBase secondaryBtn" id="menuSettingsBtn" type="button">⚙️ ตั้งค่าเกม</button>
       </div>

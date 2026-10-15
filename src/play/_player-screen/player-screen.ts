@@ -34,7 +34,7 @@ export const NAME_MAX = 24;
 
 /** Per-game player lists that predate the shared roster (ADR-0071 "Data"). Only a CONVERTED route's
  *  key is listed: an unconverted route still reads its own key, and retiring it here would empty that
- *  game's list under it. one-bomb's key joins this table in its own conversion. */
+ *  game's list under it. */
 export const LEGACY_LISTS: readonly { key: string; extract: (value: unknown) => string[] }[] = [
   {
     key: 'watduang:timebomb-players',
@@ -43,6 +43,10 @@ export const LEGACY_LISTS: readonly { key: string; extract: (value: unknown) => 
   {
     key: 'watduang:dice-loser-players',
     extract: extractDiceLoserList,
+  },
+  {
+    key: 'watduang:one-bomb-players',
+    extract: extractOneBombList,
   },
 ];
 
@@ -97,6 +101,34 @@ export function extractDiceLoserList(value: unknown): string[] {
     if (hasVisibleChar(typed) && typed !== MASCOTS[i].name) hidden.push(typed);
   }
   return [...shown, ...hidden].slice(0, ROSTER_CEILING);
+}
+
+/** The one-bomb route's `{ names }` blob, read the way that route's own load() read it. It stored
+ *  ten seats -- an untouched seat holding its mascot's name -- and NO count: that route read the
+ *  count off its engine's stepper, which opened at 2 on every visit. So the seats it showed are not
+ *  recorded, and what is imported is the shortest run of seats that shows every typed name, never
+ *  fewer than the 2 it opened on:
+ *    1. A typed seat is visible and not that seat's own mascot default. None typed -> nothing is
+ *       imported, and the device sees the first-visit stepper as if the list had never been kept.
+ *    2. Seats 0 .. (last typed seat, at least 1), in seat order. An untouched seat in that run
+ *       imports as its mascot's name (ADR-0054 order) rather than vanishing and shifting every later
+ *       seat off its animal -- the same rule as the timebomb import above.
+ *  The numbers below are that route's own, as it read this key: ten seats, its [2, 10] range, and a
+ *  seat name cut to the 12 characters its field allowed. The default compare uses the full mascot
+ *  name, which is safe only while the first ten names fit in 12 characters (all do, 4 to 9). */
+export function extractOneBombList(value: unknown): string[] {
+  if (!value || typeof value !== 'object') return [];
+  const { names } = value as { names?: unknown };
+  if (!Array.isArray(names)) return [];
+  const seat = (i: number): string => {
+    const raw = names[i];
+    return typeof raw === 'string' ? raw.slice(0, 12).trim() : '';
+  };
+  const typed = (i: number): boolean => hasVisibleChar(seat(i)) && seat(i) !== MASCOTS[i].name;
+  let last = -1;
+  for (let i = 0; i < Math.min(names.length, 10); i += 1) if (typed(i)) last = i;
+  if (last < 0) return [];
+  return Array.from({ length: Math.max(last + 1, 2) }, (_, i) => (typed(i) ? seat(i) : MASCOTS[i].name));
 }
 
 // ---- pure state ---------------------------------------------------------------------------------

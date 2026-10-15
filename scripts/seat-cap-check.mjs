@@ -524,6 +524,17 @@ const HANDOFFS = {
       return { seated: env.active.length };
     },
   },
+  'one-bomb': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() keeps the players the shared screen hands it as the seats the DOM round plays (main.ts)',
+    run: (source, _module, players) => {
+      const compiled = compileTsFunctions(source, ['startWithPlayers(players: Player[]): void']);
+      if (compiled.error) return compiled;
+      const env = { playing: [] };
+      compiled.make(env)(players);
+      return { seated: env.playing.length };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, fileName = 'main.js', module, declared, handoff }) {

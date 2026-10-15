@@ -159,8 +159,38 @@ test('ADR-0071 Data: a NON-EMPTY roster wins and the timebomb key is deleted unr
   assert.equal(slots.has(timebomb.key), false);
 });
 
-test('converted scope: only a converted route key is migrated -- one-bomb still reads its own', () => {
-  assert.deepEqual(ps.LEGACY_LISTS.map((l) => l.key), ['watduang:timebomb-players', 'watduang:dice-loser-players']);
+test('ADR-0071 Data: exactly the three per-game keys are migrated, timebomb, dice-loser and one-bomb', () => {
+  assert.deepEqual(ps.LEGACY_LISTS.map((l) => l.key),
+    ['watduang:timebomb-players', 'watduang:dice-loser-players', 'watduang:one-bomb-players']);
+});
+
+// gh#264, one-bomb's `{ names }` blob: ten seats, an untouched seat holding its mascot's name, and no
+// count stored -- that route read the count off its engine's stepper, which opened at 2 every visit.
+test('one-bomb import: typed seats keep their place, untouched seats before them import as their mascot', () => {
+  const names = MASCOTS.slice(0, 10).map((m) => m.name);
+  names[1] = 'ต้น';
+  names[3] = 'มายด์';
+  assert.deepEqual(ps.extractOneBombList({ names }), [MASCOTS[0].name, 'ต้น', MASCOTS[2].name, 'มายด์']);
+});
+
+test('one-bomb import: an untouched list imports nothing, so the device sees the first-visit stepper', () => {
+  assert.deepEqual(ps.extractOneBombList({ names: MASCOTS.slice(0, 10).map((m) => m.name) }), []);
+  assert.deepEqual(ps.extractOneBombList({ names: ['', ' ', '\u200b'] }), []);
+  assert.deepEqual(ps.extractOneBombList({ names: 'ต้น' }), []);
+  assert.deepEqual(ps.extractOneBombList(null), []);
+});
+
+test('one-bomb import: one typed seat still imports the two seats the route opened on', () => {
+  const names = MASCOTS.slice(0, 10).map((m) => m.name);
+  names[0] = 'ต้น';
+  assert.deepEqual(ps.extractOneBombList({ names }), ['ต้น', MASCOTS[1].name]);
+});
+
+test('one-bomb import: a name is cut to the 12 characters that route allowed, and seats past ten are not read', () => {
+  const names = MASCOTS.slice(0, 12).map((m) => m.name);
+  names[0] = 'abcdefghijklmnop';
+  names[11] = 'ghost';
+  assert.deepEqual(ps.extractOneBombList({ names }), ['abcdefghijkl', MASCOTS[1].name]);
 });
 
 test('copy: every Thai string the screen builds at run time is on the board, byte for byte', () => {

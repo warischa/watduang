@@ -1368,18 +1368,16 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     if (idx >= 0) { e.preventDefault(); clickTile(idx); }
   });
 
+  // gh#264 (ADR-0071): the mockup's count card -- its −/+ stepper, the count display, the board-size
+  // line -- and its start button are gone from markup.html; the shared player screen owns the count
+  // and its own start begins the match (main.ts). What is left here is the engine's own count
+  // setter, still run once below for the parked 3D backdrop. The stepper's listeners and DOM writes
+  // went with the nodes: a lookup of a removed id would throw before the rest of this IIFE binds.
   function setPlayerCount(n) {
     game.playerCount = clamp(n, 2, 10);
     updateBoardConfig();
-    document.getElementById('playerCountVal').textContent = game.playerCount;
-    document.getElementById('playerMinus').disabled = game.playerCount <= 2;
-    document.getElementById('playerPlus').disabled = game.playerCount >= 10;
-    document.getElementById('boardDimensionDesc').textContent = `กระดาน ${game.rows} × ${game.cols} · แผ่นหิน ${game.rows * game.cols} แผ่น`;
   }
 
-  document.getElementById('playerMinus').addEventListener('click', () => setPlayerCount(game.playerCount - 1));
-  document.getElementById('playerPlus').addEventListener('click', () => setPlayerCount(game.playerCount + 1));
-  document.getElementById('startPlayBtn').addEventListener('click', startGame);
   document.getElementById('homeBtn').addEventListener('click', openMenu);
   document.getElementById('newRoundBtn').addEventListener('click', () => startRound(true));
   document.getElementById('nextRoundBtn').addEventListener('click', advanceRound);

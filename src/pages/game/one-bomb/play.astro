@@ -20,6 +20,9 @@ import Base from '../../../layouts/Base.astro';
 // route; it brings its own style and its own arm gate.
 import PlayExit from '../../../shell/PlayExit.astro';
 import markup from '../../../play/one-bomb/markup.html?raw';
+// ADR-0071: the shared player screen's markup and dialogs, rendered beside the route's raw markup;
+// main.ts mounts it into #ob-player-screen.
+import PlayerScreen from '../../../play/_player-screen/PlayerScreen.astro';
 import '../../../play/one-bomb/style.css';
 // AFTER style.css, always: overrides.css wins on equal specificity only if it comes second.
 import '../../../play/one-bomb/overrides.css';
@@ -36,15 +39,16 @@ const description = game.seo.description;
 <Base title={title} description={description} ogImage={`/og/${game.og}`} chrome>
   <PlayExit />
   <Fragment set:html={markup} />
+  <PlayerScreen />
 </Base>
 
 <script>
   // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block of
   // this size executes zero lines. Astro emits both of these as one external module.
   //
-  // main.js FIRST: it is the engine, and main.ts reads the player count off the stepper display the
-  // engine initialises at the end of its own IIFE. Reversing these two would have the name entry
-  // render against an empty count.
+  // main.js FIRST: it is the engine, and main.ts severs the listeners the engine binds at the end of
+  // its own IIFE by replacing those controls. Reversing these two would sever nothing, and the engine
+  // would bind to the live controls after main.ts had wired them.
   import '../../../play/one-bomb/main.js';
   import '../../../play/one-bomb/main.ts';
 </script>
