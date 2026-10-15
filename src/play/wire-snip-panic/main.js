@@ -658,8 +658,9 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     // --- SETTINGS STORAGE: this game's own options only (ADR-0071 § Data, owner ruling 2026-10-15) ---
     // The mockup kept its player list beside them under the same key. The players are the shared
     // roster's now, and the shared core moves an old blob's player list into the roster and rewrites
-    // the blob without it, so a player field still sitting here is ignored on read and never written
-    // back. ./settings-persistence.test.mjs runs both halves.
+    // the blob without it, so a player field still sitting here is ignored on read, and a save writes
+    // it back only as it found it (an import the core has not landed yet), never one of its own.
+    // ./settings-persistence.test.mjs runs both halves.
     function loadSavedSettings() {
       try {
         const data = localStorage.getItem('wire-panic-v1');
@@ -673,10 +674,14 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
     function saveSettings() {
       try {
-        localStorage.setItem('wire-panic-v1', JSON.stringify({
-          penaltyMode: game.penaltyMode,
-          selectedPenalty: game.selectedPenalty
-        }));
+        const blob = { penaltyMode: game.penaltyMode, selectedPenalty: game.selectedPenalty };
+        // A players field still here is one the shared core could not import yet (its roster write
+        // did not land); carried through untouched so a later mount can, never read here.
+        try {
+          const prior = JSON.parse(localStorage.getItem('wire-panic-v1'));
+          if (prior && typeof prior === 'object' && !Array.isArray(prior) && 'players' in prior) blob.players = prior.players;
+        } catch (_) {}
+        localStorage.setItem('wire-panic-v1', JSON.stringify(blob));
       } catch (_) {}
     }
 
