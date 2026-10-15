@@ -302,6 +302,20 @@ test('finding 5 / ruling 3: a pending removal is made final when the page is put
   assert.deepEqual(second.names(), ['B'], 'visibilitychange to hidden is the earlier, safer moment');
 });
 
+test('round 2: a rename chain on the real screen starts B/Z/C and the roster and group keep B/Z/C', async (t) => {
+  const { page, names } = await savedPage(t);
+  const fields = page.root.querySelectorAll('.ps-n');
+  fields[0].value = 'B';
+  fields[0].dispatchEvent({ type: 'input' });
+  fields[1].value = 'Z';
+  fields[1].dispatchEvent({ type: 'input' });
+  page.part('start').click();
+  await settle();
+  assert.deepEqual(page.calls.started[0].map((p) => p.name), ['B', 'Z', 'C']);
+  assert.deepEqual(names(), ['B', 'Z', 'C'], 'nobody the round played with is lost from the roster');
+  assert.deepEqual(page.store.loadGroup(), ['B', 'Z', 'C']);
+});
+
 test('finding 2: a start whose add another tab pushed past the ceiling is refused -- nothing starts, nothing is clipped', async (t) => {
   const nineteen = Array.from({ length: 19 }, (_, i) => `p${i + 1}`);
   const { page, names } = await savedPage(t, nineteen);

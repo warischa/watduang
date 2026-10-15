@@ -316,6 +316,32 @@ test('ADR-0071 ops: a rename whose old name another tab removed lands as an add;
   assert.deepEqual(loadRoster().names(), ['B'], 'name-keyed: two rows with one name are one roster entry');
 });
 
+// gh#264 REFUTE round 2: the renames of one batch are ONE simultaneous mapping, never a sequence.
+test('ADR-0071 ops: a rename chain A->B, B->Z keeps every player, each in its own seat', async () => {
+  await seed(['A', 'B', 'C']);
+  await applyRosterOps([{ op: 'rename', from: 'A', to: 'B' }, { op: 'rename', from: 'B', to: 'Z' }], 20);
+  assert.deepEqual(loadRoster().names(), ['B', 'Z', 'C']);
+  // Order of the ops inside the batch must not matter either.
+  await seed(['A', 'B', 'C']);
+  await applyRosterOps([{ op: 'rename', from: 'B', to: 'Z' }, { op: 'rename', from: 'A', to: 'B' }], 20);
+  assert.deepEqual(loadRoster().names(), ['B', 'Z', 'C']);
+});
+
+test('ADR-0071 ops: a swap A<->B keeps both rows, swapped in place', async () => {
+  await seed(['A', 'B', 'C']);
+  await applyRosterOps([{ op: 'rename', from: 'A', to: 'B' }, { op: 'rename', from: 'B', to: 'A' }], 20);
+  assert.deepEqual(loadRoster().names(), ['B', 'A', 'C']);
+});
+
+test('ADR-0071 ops: a rename onto a name another seat still shows merges -- the EARLIER seat keeps the name', async () => {
+  await seed(['A', 'B', 'C']);
+  await applyRosterOps([{ op: 'rename', from: 'C', to: 'A' }], 20); // the later seat takes an earlier name
+  assert.deepEqual(loadRoster().names(), ['A', 'B']);
+  await seed(['A', 'B', 'C']);
+  await applyRosterOps([{ op: 'rename', from: 'A', to: 'C' }], 20); // the earlier seat takes a later name
+  assert.deepEqual(loadRoster().names(), ['C', 'B'], 'the renamed earlier seat keeps it; the later C merges');
+});
+
 test('ADR-0071 ops: blanks and duplicate adds are dropped before writing', async () => {
   await seed([]);
   await applyRosterOps(['เอ', '  ', 'เอ', '\u200b', 'บี'].map((name) => ({ op: 'add', name })), 20);

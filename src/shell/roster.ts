@@ -93,6 +93,12 @@ export type RosterOp =
  *    - a name another tab removed is not brought back by a screen that did not touch it;
  *    - two screens renaming two different names both land, each in its own seat (turn order is
  *      roster order, ruling 5);
+ *    - the renames of one batch are ONE simultaneous mapping, old name -> final name, applied to
+ *      every seat at once (gh#264 REFUTE round 2): a chain A->B, B->Z leaves B and Z, a swap A<->B
+ *      leaves B and A, each in the seat it was in. Applied one after another they deleted a player;
+ *    - when two seats end on the SAME name -- a rename onto a name another seat already shows -- the
+ *      EARLIER seat keeps it and the later one merges into it: the roster is keyed by name and cannot
+ *      hold one name twice. Every distinct final name is kept;
  *    - a rename whose old name is already gone becomes an add -- the player is still on the screen;
  *    - an add past `ceiling` is REFUSED and returned, never stored and clipped later. The ceiling is
  *      the caller's (the shared screen owns that constant, ruling 7); storage only enforces it.
@@ -108,18 +114,17 @@ export async function applyRosterOps(ops: readonly RosterOp[], ceiling: number):
     let list = read(KEY);
     const adds: string[] = [];
     for (const o of ops) if (o.op === 'remove') list = list.filter((n) => n !== o.name);
+    // Old name -> final name, resolved against the stored seats in one pass, never in sequence.
+    const finalName = new Map<string, string>();
     for (const o of ops) {
       if (o.op !== 'rename') continue;
       const to = o.to.trim();
       if (!hasVisibleChar(to) || to === o.from) continue;
-      if (list.includes(to)) {
-        list = list.filter((n) => n !== o.from);
-        continue;
-      }
-      const at = list.indexOf(o.from);
-      if (at === -1) adds.push(to);
-      else list = list.map((n, i) => (i === at ? to : n));
+      if (list.includes(o.from)) finalName.set(o.from, to);
+      else adds.push(to);
     }
+    const mapped = list.map((n) => finalName.get(n) ?? n);
+    list = mapped.filter((n, i) => mapped.indexOf(n) === i);
     for (const o of ops) if (o.op === 'add') adds.push(o.name.trim());
     for (const name of adds) {
       if (!hasVisibleChar(name) || list.includes(name)) continue;
