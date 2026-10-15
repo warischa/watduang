@@ -449,6 +449,21 @@ const HANDOFFS = {
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
     },
   },
+  'dice-loser': {
+    what: 'startWithPlayers() keeps the players the shared screen hands it, and begin() starts the round with every one of them seated',
+    run: (source, _module, players) => {
+      // Two slices over ONE state: the handoff, then the round start the rule screen fires, so the
+      // seats read back are the ones the first round really plays with.
+      const handoff = compileTsFunctions(source, ['startWithPlayers(players: Player[]): void']);
+      if (handoff.error) return handoff;
+      const round = compileTsFunctions(source, ['begin(): void', 'startRound(seats: number[]): void']);
+      if (round.error) return round;
+      const env = { names: [], active: [], roundNumber: 0, turnIdx: 0, rolls: null, show() {}, renderTurn() {} };
+      handoff.make(env)(players);
+      round.make(env)();
+      return { seated: env.active.length };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, module, declared, handoff }) {

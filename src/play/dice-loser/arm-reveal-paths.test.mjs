@@ -1,31 +1,33 @@
 // The hole scripts/arm-gate-coverage-check.mjs cannot see, pinned here for dice-loser.
 //
 // That gate asks ONE question of a play route: does it import armAllButtons and call it at least
-// once? dice-loser does, three times -- and the gate would stay green even if two of those three
-// were deleted, because it counts calls per DIRECTORY, not per reveal. The real rule (ADR-0017) is
-// per reveal: the second contact of a double-tap must not land on a control the first contact just
-// put under the finger.
+// once? It counts calls per DIRECTORY, not per reveal. The real rule (ADR-0017) is per reveal: the
+// second contact of a double-tap must not land on a control the first contact just put under the
+// finger -- and since ADR-0057, every close, cancel and confirm path is a reveal too.
 //
-// So this test does not re-check the gate. It pins the SET of reveal sites, by the receiver each one
-// writes to, with a recorded decision for every member. A fourth receiver -- a new panel, a new
-// control revealed by unhiding it -- fails this test on the day it is added, and whoever adds it
-// decides whether it needs an arming call and records that here.
+// Two halves since gh#264 (ADR-0071):
+//   1. main.ts's OWN reveals -- its five panels and the two turn controls -- pinned by the receiver
+//      each one writes to, on source text. A new receiver fails on the day it is added.
+//   2. The SHARED PLAYER SCREEN mounted into #dl-players, which replaced this route's stepper, name
+//      rows, reset control and reset dialog (and that dialog's arming paths). Its reveals are driven
+//      for real (revealPathCases): the shared code over THIS route's markup.html with the real arm
+//      gate. This route's header holds no control, so the case reads #dl-begin instead: a button
+//      outside the screen's root and inside #app, which a screen that armed only its own root -- or
+//      one mounted outside #app -- leaves live, and that reds here.
 //
-// ponytail: matched on source text, not on a parsed AST. Two stated ceilings, same as the other ten:
-// (1) an inline reveal is recorded under its whole receiver expression, so a receiver renamed later
-//     still surfaces as unexpected and still fails -- it does not slip through, it just reads worse;
-// (2) this proves the CALL SITE exists next to the reveal, never that the 400ms window really
-//     disables anything in a browser — the runtime arm question is deliberately unmeasured
-//     (owner ruling on issue #232), and this test claims nothing about it.
+// ponytail, for half 1: matched on source text, not on a parsed AST, so (1) a one-expression reveal
+// is recorded under its whole receiver text and still fails as unexpected, and (2) this proves the
+// CALL SITE exists next to the reveal, never the browser-level 400ms (owner ruling on issue #232).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { revealPathCases } from '../_player-screen/screen-harness.mjs';
 
-// No compiled main.js exists for this route (unlike cannon-flag/cursed-number, dice-loser ships
-// main.ts straight from src/play -- same as timebomb). Reading the .ts source is fine here: the
-// regexes below match plain text, not parsed JS, so TypeScript syntax is inert to them.
+// No compiled main.js exists for this route: dice-loser ships main.ts straight from src/play, like
+// timebomb. The regexes below match plain text, so TypeScript syntax is inert to them.
 const MAIN = path.join(import.meta.dirname, 'main.ts');
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
 // Whole-line comments are dropped: main.ts documents its own reveal seams in prose, and a checker
 // cannot tell use from mention. Only full-line comments go -- a trailing `//` inside a string would
 // take real code with it, and nothing here needs that.
@@ -35,43 +37,28 @@ const source = fs
   .filter((line) => !line.trimStart().startsWith('//'))
   .join('\n');
 
-// This route reveals a control by clearing the native `hidden` attribute -- no classList('active')
-// and no style.display write anywhere in the file. Two shapes both count as a reveal: a literal
-// `= false`, and show()'s loop form `el.hidden = el !== panel` (false exactly when `el` is the
-// panel being switched to). `.hidden = true` (a HIDE) matches neither branch and is excluded.
-// gh#175 adds a third shape: showModal(), for the reset-names <dialog> -- a dialog is not in the
-// PANELS array show() walks, so it needs its own branch here or it would be invisible to this test.
+// This route reveals a control by clearing the native `hidden` attribute. Two shapes count: a literal
+// `= false`, and show()'s loop form `el.hidden = el !== panel` (false exactly when `el` is the panel
+// being switched to). showModal() is matched too, so a dialog added back to this file surfaces here.
 const REVEAL_RE = /([\w.'"()\-]+?)\.(?:hidden\s*=\s*(?:false\b|\w+\s*!==\s*\w+)|showModal\(\))/g;
 
 // receiver -> why it is or is not armed. Every entry is a decision, not an observation.
 const EXPECTED = new Map([
   [
     'el',
-    "show(): the screen-to-screen path, all five panels (setup/play/summary/tiebreak/final). Armed " +
+    "show(): the screen-to-screen path, all five panels (rule/play/summary/tiebreak/final). Armed " +
       'on the next line via armAllButtons(panel).',
   ],
   [
     'rollEl',
-    'renderTurn(): reveals #dl-roll. Armed on the FIRST turn of a round only -- startRound() calls ' +
-      'show(playEl) two lines after renderTurn(), and that arms the whole panel. nextTurn() calls ' +
-      'renderTurn() directly on every later turn with NO arming call anywhere near it, so #dl-roll ' +
-      'comes back on screen already enabled (armAllButtons(playEl) at the end of roll() had already ' +
-      're-enabled it while it sat hidden). A double-tap aimed at #dl-next -- same screen slot, both ' +
-      'are the sole .game-btn-primary in #dl-play -- can put the NEXT player’s #dl-roll under the ' +
-      'second contact with nothing gating it. FIXED 2026-08-31: renderTurn() now arms playEl itself, ' +
-      'so both call paths are covered and startRound()`s show(playEl) is no longer load-bearing. ' +
-      'The assertion below pins that call; it goes red again if the call is removed.',
+    'renderTurn(): reveals #dl-roll. nextTurn() calls renderTurn() directly on every later turn with ' +
+      'no panel change, so renderTurn() arms playEl itself (fixed 2026-08-31); the assertion below ' +
+      'pins that call.',
   ],
   [
     'nextEl',
     "roll()'s setTimeout callback: reveals #dl-next once the tumble settles. Armed two lines below " +
       'via armAllButtons(playEl).',
-  ],
-  [
-    'resetDialogEl',
-    'gh#175: the reset-names confirm, opened directly by its trigger with no panel change to hang ' +
-      "the arming on -- it is not one of show()'s five PANELS, so armAllButtons has to be called " +
-      'here explicitly. Armed on the next line via armAllButtons(resetDialogEl).',
   ],
 ]);
 
@@ -91,48 +78,68 @@ test('every reveal receiver in dice-loser/main.ts is a known one', () => {
 });
 
 test('each armed reveal receiver has an arming call naming it', () => {
-  // show(): the panel loop, armed the line right after.
   assert.match(
     source,
     /el\.hidden = el !== panel;\s*\n\s*\}\s*\n\s*if \(panel\) armAllButtons\(panel\);/,
     'el is revealed but the panel-swap in show() lost its adjacent armAllButtons(panel) call',
   );
-  // roll(): #dl-next, armed two lines below its reveal.
   assert.match(
     source,
     /nextEl\.hidden = false;\s*\n\s*\}\s*\n\s*if \(playEl\) armAllButtons\(playEl\);/,
     'nextEl is revealed but the arming call after it is missing',
   );
-  // renderTurn(): #dl-roll. Was the confirmed gap; fixed 2026-08-31 and pinned here.
-  // The `if (playEl)` guard is REQUIRED, not incidental: playEl is nullable and every other arming
-  // call in this file guards it the same way, so an assertion demanding a bare call would force
-  // code that throws when the element is absent. The intervening hide of #dl-next is pinned too,
-  // for the same reason the other two assertions pin their intervening text -- this file matches
-  // source, and adjacency IS the property being checked.
+  // The `if (playEl)` guard is REQUIRED: playEl is nullable and every other arming call in this file
+  // guards it the same way. The intervening hide of #dl-next is pinned too: adjacency IS the property.
   assert.match(
     source,
     /if \(rollEl\) rollEl\.hidden = false;\s*\n\s*if \(nextEl\) nextEl\.hidden = true;\s*\n\s*if \(playEl\) armAllButtons\(playEl\);/,
-    'rollEl is revealed by renderTurn() with no arming call next to it on the nextTurn() path — see ' +
-      'the rollEl entry in EXPECTED for the game-safety reasoning; main.ts needs a fix, not this test',
-  );
-  // resetDialogEl (gh#175): showModal(), armed the very next line.
-  assert.match(
-    source,
-    /resetDialogEl\.showModal\(\);\s*\n\s*armAllButtons\(resetDialogEl\);/,
-    'resetDialogEl is revealed but the arming call right after showModal() is missing',
+    'rollEl is revealed by renderTurn() with no arming call next to it on the nextTurn() path',
   );
 });
 
-// Found by adversarial review, 2026-08-31, and invisible to every assertion above: CLOSING the
-// dialog is a reveal too. #dl-begin sits behind it, enabled, its own 400ms window long expired --
-// and that expiry is exactly why a second contact activates it. The wave shipped three routes whose
-// comments argued the opposite ("nothing is rebuilt, so nothing to re-arm"); the rebuild is not the
-// hazard, the reveal is. Pinned on the shared closer so all three branches stay covered by one call.
-test('closing the reset dialog re-arms the setup screen behind it', () => {
-  assert.match(
-    source,
-    /resetDialogEl\.close\(\);[\s\S]{0,120}?if \(setupEl\) armAllButtons\(setupEl\);/,
-    'closeResetDialog no longer arms #dl-setup: a double-tap on close, cancel or confirm puts the ' +
-      'second contact on #dl-begin and starts the round with the phone still in one player\'s hand',
-  );
+// gh#264: the player screen is mounted into #dl-players and nowhere else, and it is that root's ONLY
+// arming owner -- a second arm of the root here would be a racing duplicate of the screen's own.
+test('the shared player screen is mounted into #dl-players, which sits inside the #app it arms', () => {
+  assert.match(source, /const playersEl = document\.getElementById\('dl-players'\)/);
+  assert.match(source, /mountPlayerScreen\(\{\s*root: playersEl,/);
+  assert.match(source, /onStart: startWithPlayers,/, 'the handoff is handed over by name (seat-cap-check runs it)');
+  assert.doesNotMatch(source, /armAllButtons\(\s*playersEl\b/, 'main.ts arms #dl-players itself again');
+  assert.ok(MARKUP.indexOf('id="app"') < MARKUP.indexOf('id="dl-players"'), '#dl-players must sit inside #app');
+  assert.match(MARKUP, /<section id="dl-setup"[^>]*\bhidden\b/, 'the rule screen must not ship over the player screen');
 });
+
+// The route's own setup is gone, not hidden: no stepper, no name rows, no reset, no private list.
+test('no route-local player setup survives beside the shared screen', () => {
+  for (const id of ['dl-count-dec', 'dl-count-inc', 'dl-count-num', 'dl-reset-names', 'dl-reset-dialog', 'dl-player-name']) {
+    assert.ok(!MARKUP.includes(id) && !source.includes(id), `#${id} or .${id} is still in the route`);
+  }
+  assert.doesNotMatch(source, /STORE_KEY|localStorage|saveOnSetupComplete|takeSetupEditRequest|renderRows|setCount/);
+});
+
+// ADR-0071 ruling 6 needs the round put away when it is ended AND when the screen opens over a
+// finished one; both go through putAwayRound. A live round is one of the three round panels.
+test('the round is put away through putAwayRound on abort and on open; the result screen is not a round', () => {
+  assert.match(source, /abortRound: putAwayRound,/);
+  assert.match(source, /onOpen: putAwayRound,/);
+  const at = source.indexOf('function roundActive');
+  assert.ok(at > -1, 'roundActive is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('\n}', at));
+  assert.match(body, /playEl/);
+  assert.match(body, /summaryEl/);
+  assert.match(body, /tiebreakEl/);
+  assert.doesNotMatch(body, /finalEl|setupEl/, 'the result and rule screens hold nothing to lose');
+  const away = source.indexOf('function putAwayRound');
+  assert.ok(away > -1, 'putAwayRound is gone — this test measures nothing');
+  assert.match(source.slice(away, source.indexOf('\n}', away)), /clearTimeout\(rollTimer\)/,
+    'a roll in flight would land its faces on a round that was put away');
+});
+
+// Every way back to the players goes through the shared screen, never a bare panel swap.
+test('the result screen\'s new-setup control opens the shared screen', () => {
+  const at = source.indexOf('newSetupEl?.addEventListener');
+  assert.ok(at > -1, 'the new-setup wiring is gone — this test measures nothing');
+  assert.match(source.slice(at, source.indexOf(');', at) + 2), /screen\??\.open\(\)/);
+});
+
+// The shared screen's reveal paths, driven over THIS route's markup.
+revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'dl-players', headerId: 'dl-begin', label: 'dice-loser' });

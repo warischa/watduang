@@ -21,6 +21,9 @@ import Base from '../../../layouts/Base.astro';
 // ADR-0014 puts a navigation target. It brings its own style and its own arm gate.
 import PlayExit from '../../../shell/PlayExit.astro';
 import markup from '../../../play/dice-loser/markup.html?raw';
+// ADR-0071: the shared player screen's markup and dialogs. Rendered beside the route's markup, which
+// is a raw string and cannot hold a component; main.ts mounts it into #dl-players.
+import PlayerScreen from '../../../play/_player-screen/PlayerScreen.astro';
 // play.css, not style.css: the thai-comments carve-out exempts the extractor's three basenames inside
 // a play folder as verbatim lifts. Nothing here IS a lift, so the file is named off that exemption and
 // stays under the full gate.
@@ -39,6 +42,7 @@ const description = game.seo.description;
 <Base title={title} description={description} ogImage="/og/dice-loser.png" chrome>
   <PlayExit />
   <Fragment set:html={markup} />
+  <PlayerScreen />
 </Base>
 
 <script>

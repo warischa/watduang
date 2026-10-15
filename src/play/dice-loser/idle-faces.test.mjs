@@ -25,7 +25,7 @@ import { makeDocumentStub } from '../_dom-stub.mjs';
 // The real rule module: resolveRound decides the round for real, and rollDice is wrapped, not
 // replaced, so a roll result in this file is one the shipped function produced.
 import game, { rollDice as realRollDice, resolveRound, CONDITION_LABEL } from '../../games/dice-loser.ts';
-import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
+import { mascotEmoji, mascotNames } from '../_mascots.ts';
 
 const MAIN = path.join(import.meta.dirname, 'main.ts');
 
@@ -109,14 +109,16 @@ function boot() {
   };
 
   const timers = [];
+  // gh#264 (ADR-0071): the players come from the shared player screen. Its mount is stubbed to keep
+  // the options main.ts hands it, so a test seats players through the route's REAL onStart -- the
+  // same function the screen calls -- and then presses the route's own start.
+  const mounted = [];
   const resolve = (spec) => {
     if (spec.endsWith('/games/dice-loser.ts')) return { default: game, rollDice, resolveRound, CONDITION_LABEL };
     if (spec.endsWith('/games/_arm-gate.ts')) return { armAllButtons: (el) => calls.armed.push(el?.id) };
-    if (spec.endsWith('shell/roster')) {
-      return { loadGroup: () => [], loadRoster: () => ({ names: () => [] }), saveGroup: () => {} };
+    if (spec.endsWith('/_player-screen/player-screen.ts')) {
+      return { mountPlayerScreen: (options) => (mounted.push(options), { open() {}, close() {} }) };
     }
-    if (spec.endsWith('_setup-bridge')) return { saveOnSetupComplete: () => {}, takeSetupEditRequest: () => false };
-    if (spec.endsWith('_mascots.ts')) return { mascotEmoji, mascotNames, resetCastNames };
     throw new Error(`unstubbed import in dice-loser/main.ts: ${spec}`);
   };
 
@@ -158,7 +160,12 @@ function boot() {
     assert.ok(timers.length > 0, 'no roll timer was scheduled -- the roll never started');
     while (timers.length) timers.shift().fn();
   };
-  return { el, click, flushTimers, calls, results, api, document: stub.document };
+  /** The shared screen's start: hands `n` players to the route's own onStart, as the screen does. */
+  const seatPlayers = (n) => {
+    assert.equal(mounted.length, 1, 'main.ts did not mount the shared player screen exactly once');
+    mounted[0].onStart(Array.from({ length: n }, (_, i) => ({ name: mascotNames(n)[i], emoji: mascotEmoji(i), mascot: i })));
+  };
+  return { el, click, flushTimers, seatPlayers, calls, results, api, document: stub.document };
 }
 
 const DIE_IDS = ['dl-die-1', 'dl-die-2', 'dl-die-3'];
@@ -226,7 +233,10 @@ test('the first turn, a later turn and a tiebreak turn all open on dimmed idle f
   const route = boot();
   assert.equal(route.calls.rollDice, 0, 'rollDice ran at boot');
 
-  // First turn: the setup screen's start control -> begin -> startRound -> renderTurn.
+  // First turn: the player screen's start (three players) -> the rule screen -> its start control ->
+  // begin -> startRound -> renderTurn.
+  route.seatPlayers(SCRIPT.length);
+  assert.equal(route.el('dl-setup').hidden, false, 'the handoff did not reach the rule screen');
   route.calls.armed.length = 0;
   route.click('dl-begin');
   assert.equal(route.el('dl-play').hidden, false, 'the start control did not reach the turn screen');

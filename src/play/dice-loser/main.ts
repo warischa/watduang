@@ -5,7 +5,14 @@
 // src/games/dice-loser.test.mjs pins. Re-deriving "highest total loses" in this file would put a
 // second, untested copy of the game's one rule on the shipped path.
 //
-// NAMES NEVER TOUCH innerHTML. Every row, pill, summary card and result line below is built with
+// THE PLAYERS ARE NOT THIS FILE'S. The shared player screen (ADR-0071, gh#264) owns the count, the
+// names, the roster and the group; it is mounted into #dl-players and hands the players it starts
+// with to startWithPlayers() below. What this file keeps is the game: its one option (which total
+// loses), then the rounds. This route used to keep its own stepper, name rows, reset control and a
+// private list under a per-game key; they are gone, and that list is migrated once by the shared
+// screen (LEGACY_LISTS there), so this file spells no storage key at all.
+//
+// NAMES NEVER TOUCH innerHTML. Every pill, summary card and result line below is built with
 // createElement + textContent, which is what makes a player called `<img onerror=...>` render as
 // exactly that text. This is the bug three sibling routes shipped, so it is structural here rather
 // than a call to an escape helper that a future edit could forget.
@@ -20,28 +27,7 @@ import game, {
   type Roll,
 } from '../../games/dice-loser.ts';
 import { armAllButtons } from '../../games/_arm-gate.ts';
-import { loadGroup, loadRoster, saveGroup } from '../../shell/roster';
-import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
-// gh#175 / ADR-0054: the party opens on the shared animal cast, never on a numbered placeholder.
-// resetCastNames is the reset control's wipe -- it reads only the array's length and keeps the count.
-import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
-
-const MIN_PLAYERS = game.players[0];
-const MAX_PLAYERS = game.players[1];
-const DEFAULT_COUNT = 3;
-const NAME_MAX = 12;
-
-/** Per-game seat names, so a rename made here does not travel to another game mid-sitting. The shared
- *  roster is still what SEEDS this list, and `saveOnSetupComplete` below writes the finished group
- *  back through roster.ts — the roster key itself is spelled in src/shell/roster.ts and nowhere else
- *  (ADR-0010, enforced by text). */
-const STORE_KEY = 'watduang:dice-loser-players';
-
-/** One seat's default name, from the shared cast (gh#175). Before gh#175 this was kept byte-exact
- *  to the mockup's numbered placeholder ("ผู้เล่น 1", "ผู้เล่น 2"); that claim is gone now that the
- *  default routes through the shared cast instead. Routed through mascotNames so the wrap past the
- *  cast's end has exactly one definition, in _mascots.ts, and none here. */
-const defaultName = (seat: number): string => mascotNames(seat + 1)[seat];
+import { mountPlayerScreen, type Player } from '../_player-screen/player-screen.ts';
 
 /** Which of the nine cells in a 3x3 grid carry a pip, per face. A die is decorative here — the value
  *  that counts is announced as text — but a dice game that shows numerals is not a dice game. */
@@ -61,10 +47,9 @@ const REDUCE_MOTION =
   typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const ROLL_MS = REDUCE_MOTION ? 120 : 620;
 
-type Saved = { count: number; names: string[] };
-
-let count = DEFAULT_COUNT;
-let names: string[] = Array.from({ length: MAX_PLAYERS }, (_, i) => defaultName(i));
+/** The seated players' names, in the order the shared screen handed them over (roster order). Every
+ *  seat index below is an index into this array. Set only by startWithPlayers(). */
+let names: string[] = [];
 let condition: LoseCondition = 'HIGH_LOSES';
 
 /** Seats still in the game, as indexes into `names`. A tiebreak round narrows this and never grows it. */
@@ -75,51 +60,14 @@ let roundNumber = 1;
 let rolls = new Map<number, Roll>();
 let rollTimer: ReturnType<typeof setTimeout> | null = null;
 
-// ---- persistence -------------------------------------------------------------------------------
-
-function load(): void {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (raw) {
-      // Validate before trusting: this blob was written by a past version of this file.
-      const saved = JSON.parse(raw) as Partial<Saved>;
-      if (typeof saved.count === 'number' && Number.isFinite(saved.count)) {
-        count = Math.min(MAX_PLAYERS, Math.max(MIN_PLAYERS, Math.floor(saved.count)));
-      }
-      if (Array.isArray(saved.names)) {
-        names = names.map((fallback, i) => {
-          const stored = saved.names?.[i];
-          return typeof stored === 'string' && stored.trim() !== '' ? stored.slice(0, NAME_MAX) : fallback;
-        });
-      }
-    }
-  } catch {
-    // Private mode, quota, or a corrupt blob — the defaults above are already playable.
-  }
-
-  // Seed from the shared roster: the group the device last played beats the full roster, and either
-  // beats the numbered defaults. Only seats the group actually names are overwritten, so a name typed
-  // on this route survives a roster that is shorter than the count.
-  const group = loadGroup();
-  const seed = group.length >= MIN_PLAYERS ? group : loadRoster().names();
-  if (seed.length >= MIN_PLAYERS) {
-    count = Math.min(MAX_PLAYERS, Math.max(MIN_PLAYERS, seed.length));
-    names = names.map((current, i) => (seed[i] ? seed[i].slice(0, NAME_MAX) : current));
-  }
-}
-
-function save(): void {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify({ count, names } satisfies Saved));
-  } catch {
-    // A round that cannot be persisted still plays; nothing here is load-bearing for this round.
-  }
-}
-
 // ---- elements ----------------------------------------------------------------------------------
 
 const $ = <T extends HTMLElement>(id: string): T | null => document.getElementById(id) as T | null;
 
+// The shared player screen's root. Not through $() above: the shared tests read the mount's root off
+// this declaration, in this spelling, to drive the real screen over this route's markup.
+const playersEl = document.getElementById('dl-players');
+// The game's own option screen (the scoring rule), shown after the players are chosen.
 const setupEl = $('dl-setup');
 const playEl = $('dl-play');
 const summaryEl = $('dl-summary');
@@ -127,18 +75,9 @@ const tiebreakEl = $('dl-tiebreak');
 const finalEl = $('dl-final');
 const liveEl = $('dl-live');
 
-const listEl = $('dl-players');
-const countEl = $('dl-count-num');
-const decEl = $<HTMLButtonElement>('dl-count-dec');
-const incEl = $<HTMLButtonElement>('dl-count-inc');
 const beginEl = $<HTMLButtonElement>('dl-begin');
 const modeHighEl = $<HTMLButtonElement>('dl-mode-high');
 const modeLowEl = $<HTMLButtonElement>('dl-mode-low');
-const resetNamesEl = $<HTMLButtonElement>('dl-reset-names');
-const resetDialogEl = $<HTMLDialogElement>('dl-reset-dialog');
-const resetCloseEl = $<HTMLButtonElement>('dl-reset-close');
-const resetCancelEl = $<HTMLButtonElement>('dl-reset-cancel');
-const resetConfirmEl = $<HTMLButtonElement>('dl-reset-confirm');
 
 const roundLabelEl = $('dl-round-label');
 const turnNameEl = $('dl-turn-name');
@@ -173,66 +112,39 @@ function announce(text: string): void {
   if (liveEl) liveEl.textContent = text;
 }
 
-/** The label a seat plays under — a blanked field falls back so no screen can render an empty name. */
+/** The label a seat plays under. Never blank: the shared screen hands over a blank row under its
+ *  mascot's name (displayName there), so there is no fallback left for this file to own. */
 function seatName(seat: number): string {
-  const typed = names[seat]?.trim();
-  return typed ? typed : defaultName(seat);
+  return names[seat] ?? '';
 }
 
-// ---- setup screen ------------------------------------------------------------------------------
+// ---- the players, then the game's own option ---------------------------------------------------
 
-function renderRows(): void {
-  if (!listEl || !countEl) return;
-  countEl.textContent = String(count);
-  if (decEl) decEl.disabled = count <= MIN_PLAYERS;
-  if (incEl) incEl.disabled = count >= MAX_PLAYERS;
+/** The handoff the shared player screen starts (ADR-0071). Every player it is handed is seated, in
+ *  the order given -- the screen has already admitted the count against this game's declared range,
+ *  so there is nothing left to clamp here -- and the game's own option, the scoring rule, comes next
+ *  (ruling 1). scripts/seat-cap-check.mjs runs this function and reads the seats back. */
+function startWithPlayers(players: Player[]): void {
+  names = players.map((p) => p.name);
+  show(setupEl);
+}
 
-  listEl.replaceChildren();
-  for (let i = 0; i < count; i += 1) {
-    const row = document.createElement('li');
-    row.className = 'dl-player';
+/** A round is live while one of its three panels is up: a turn, a summary or a tiebreak. The rule
+ *  screen before it and the result after it hold nothing to lose, so the edit control opens the
+ *  player screen there without asking (ADR-0071 ruling 6). */
+function roundActive(): boolean {
+  return [playEl, summaryEl, tiebreakEl].some((el) => !!el && !el.hidden);
+}
 
-    const badge = document.createElement('span');
-    badge.className = 'dl-player-seat';
-    // gh#140's animal icon, not a seat number. The shared shell panel already renders it; this route
-    // builds its own setup screen and so never got it, which is the whole gap this line closes.
-    badge.textContent = mascotEmoji(i);
-    badge.setAttribute('aria-hidden', 'true');
-
-    // A native text input brings focus, caret, keyboard and the length cap for free — maxLength as an
-    // ATTRIBUTE so a paste is clamped too, not just typing.
-    const input = document.createElement('input');
-    input.className = 'dl-player-name';
-    input.type = 'text';
-    input.value = names[i];
-    input.maxLength = NAME_MAX;
-    input.setAttribute('aria-label', `ชื่อผู้เล่นคนที่ ${i + 1}`);
-    input.addEventListener('input', () => {
-      names[i] = input.value;
-      save();
-    });
-
-    row.append(badge, input);
-    listEl.appendChild(row);
+/** Puts the round away: a roll still tumbling is dropped, so its faces never land on a round that
+ *  is gone, and every panel is hidden so the player screen is the only thing on the page. Used both
+ *  when the players confirm ending a live round and whenever the screen opens. */
+function putAwayRound(): void {
+  if (rollTimer !== null) {
+    clearTimeout(rollTimer);
+    rollTimer = null;
   }
-}
-
-function setCount(next: number): void {
-  const clamped = Math.min(MAX_PLAYERS, Math.max(MIN_PLAYERS, next));
-  if (clamped === count) return;
-  count = clamped;
-  save();
-  renderRows();
-}
-
-/** gh#175. The wipe the reset confirm guards: the cast goes back to its animal names, and the array's
- *  own length is untouched -- resetCastNames reads only that length, never an entry, so a typed name
- *  cannot survive this call. `names` is fixed at MAX_PLAYERS regardless of `count` (load() and the
- *  count stepper both index into it that way), so resetting the whole array also clears the names of
- *  seats currently hidden past `count`, not just the visible ones -- there is no "count" to keep here
- *  because count is a separate field this function never touches. */
-function resetPlayerNames(): void {
-  names = resetCastNames(names);
+  show(null);
 }
 
 function setCondition(next: LoseCondition): void {
@@ -443,89 +355,46 @@ function showFinal(seat: number, losingScore: number): void {
 
 // ---- entry points ------------------------------------------------------------------------------
 
+/** The rule screen's start, and the result screen's rematch: a round with every seated player. */
 function begin(): void {
   roundNumber = 1;
-  startRound(Array.from({ length: count }, (_, i) => i));
-}
-
-function backToSetup(): void {
-  renderRows();
-  show(setupEl);
+  startRound(Array.from({ length: names.length }, (_, i) => i));
 }
 
 // ---- wiring ------------------------------------------------------------------------------------
 
-load();
-renderRows();
 setCondition(condition);
-// The write-back that makes whatever this setup finishes with the group the NEXT game inherits, and
-// the chrome's edit-players pill. This route opens on its setup screen either way, so taking the flag
-// only clears it.
-saveOnSetupComplete('#dl-begin', '.dl-player-name', MAX_PLAYERS);
-takeSetupEditRequest();
-show(setupEl);
-
-decEl?.addEventListener('click', () => setCount(count - 1));
-incEl?.addEventListener('click', () => setCount(count + 1));
 modeHighEl?.addEventListener('click', () => setCondition('HIGH_LOSES'));
 modeLowEl?.addEventListener('click', () => setCondition('LOW_LOSES'));
-
-// Reset Player Names Dialog (gh#175). Asked because the answer is destructive: every typed name is
-// replaced. #dl-reset-dialog is not reached through show(), so it is armed here explicitly rather
-// than inheriting the panel-swap arming show() gives the five main screens.
-//
-// The copy in markup.html names every loss this causes (docs/agents/src-edit-rules.md): all typed
-// names go and do not come back; the player count and the win condition stay. Do NOT read the close
-// X sitting before the destructive button in the markup as what protects this dialog -- armAllButtons
-// disables the autofocused close control the instant showModal() returns and drops focus to <body>,
-// so nothing is focused at all once the dialog is armed. What actually protects it is the 400ms gate,
-// not the button order (same mechanism note as short-stick's reset confirm, gh#174).
-resetNamesEl?.addEventListener('click', () => {
-  if (!resetDialogEl) return;
-  resetDialogEl.showModal();
-  armAllButtons(resetDialogEl);
-});
-const closeResetDialog = (): void => {
-  if (!resetDialogEl) return;
-  resetDialogEl.close();
-  // ADR-0017. Closing this dialog is ITSELF a reveal, and that -- not a rebuild -- is the hazard.
-  // #dl-begin and the seat steppers sat behind the dialog a frame ago, enabled, their 400ms window
-  // long expired. A double-tap on close, cancel or confirm therefore puts the second contact on
-  // #dl-begin and starts the round with the phone still in the first player's hand. Armed in this
-  // shared closer rather than in the three handlers, so no branch out of this dialog can miss it.
-  if (setupEl) armAllButtons(setupEl);
-};
-resetCloseEl?.addEventListener('click', closeResetDialog);
-resetCancelEl?.addEventListener('click', closeResetDialog);
-resetConfirmEl?.addEventListener('click', () => {
-  closeResetDialog();
-  resetPlayerNames();
-  save();
-  // renderRows() rebuilds only <li> rows holding a seat badge and a name <input>, so it creates no
-  // button of its own. That was once written here as the reason no re-arm was needed; it is the
-  // wrong model and adversarial review caught it. The reveal that matters is the DIALOG CLOSING
-  // over the live setup screen, which closeResetDialog above now arms for all three branches.
-  renderRows();
-});
-
-beginEl?.addEventListener('click', () => {
-  // The group the round actually plays with, written through roster.ts — saveOnSetupComplete reads
-  // the inputs, and this covers the seats whose field was left at its default.
-  saveGroup(Array.from({ length: count }, (_, i) => seatName(i)));
-  begin();
-});
+beginEl?.addEventListener('click', begin);
 rollEl?.addEventListener('click', roll);
 nextEl?.addEventListener('click', nextTurn);
 summaryContinueEl?.addEventListener('click', resolve);
 tiebreakStartEl?.addEventListener('click', startTiebreak);
 rematchEl?.addEventListener('click', begin);
-newSetupEl?.addEventListener('click', backToSetup);
 
-// The count steppers are excepted from the setup screen's arm gate: they are tapped repeatedly on
-// purpose, which is the premise the gate's own comment says to check per control before gating it.
-if (setupEl) {
-  armAllButtons(setupEl, [decEl, incEl].filter((el): el is HTMLButtonElement => el !== null));
-}
+// ADR-0071. The player screen opens first; its start hands the players to startWithPlayers, which
+// shows this game's own option next, then play. Range from the module's own declared players field,
+// so the screen can never admit a count the manifest does not claim; the screen clamps into it and
+// owns the 20 ceiling. Read inline on purpose: scripts/seat-cap-check.mjs proves this hand-off
+// structurally. The screen arms the whole of #app each time it opens, closes a dialog or drops its
+// undo bar (ADR-0057), so nothing here arms it a second time.
+const screen = playersEl
+  ? mountPlayerScreen({
+      root: playersEl,
+      range: game.players,
+      onStart: startWithPlayers,
+      roundActive,
+      abortRound: putAwayRound,
+      onOpen: putAwayRound,
+    })
+  : null;
+screen?.open();
+
+// The result screen's new-setup control leads back to the players, which are the shared screen's.
+// The round is over on that screen, so the screen opens straight away; it asks first only when the
+// chrome's edit control is pressed mid-round (ruling 6).
+newSetupEl?.addEventListener('click', () => screen?.open());
 
 // One timer can be in flight (the tumble). Leaving the page without clearing it leaks it.
 // persisted = bfcache, where the same round is still on screen on return.

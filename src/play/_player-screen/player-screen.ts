@@ -34,11 +34,15 @@ export const NAME_MAX = 24;
 
 /** Per-game player lists that predate the shared roster (ADR-0071 "Data"). Only a CONVERTED route's
  *  key is listed: an unconverted route still reads its own key, and retiring it here would empty that
- *  game's list under it. dice-loser's and one-bomb's keys join this table in their own conversion. */
+ *  game's list under it. one-bomb's key joins this table in its own conversion. */
 export const LEGACY_LISTS: readonly { key: string; extract: (value: unknown) => string[] }[] = [
   {
     key: 'watduang:timebomb-players',
     extract: extractTimebombList,
+  },
+  {
+    key: 'watduang:dice-loser-players',
+    extract: extractDiceLoserList,
   },
 ];
 
@@ -63,6 +67,29 @@ export function extractTimebombList(value: unknown): string[] {
     return typeof raw === 'string' ? raw.slice(0, 12).trim() : '';
   };
   const n = typeof count === 'number' && Number.isFinite(count) ? Math.min(10, Math.max(2, Math.floor(count))) : 6;
+  const shown = Array.from({ length: n }, (_, i) => (hasVisibleChar(seat(i)) ? seat(i) : MASCOTS[i].name));
+  const hidden: string[] = [];
+  for (let i = n; i < Math.min(names.length, MASCOTS.length); i += 1) {
+    const typed = seat(i);
+    if (hasVisibleChar(typed) && typed !== MASCOTS[i].name) hidden.push(typed);
+  }
+  return [...shown, ...hidden].slice(0, ROSTER_CEILING);
+}
+
+/** The dice-loser route's `{ count, names }` blob, read the way that route's own load() read it --
+ *  the same two steps as extractTimebombList above, with that route's own numbers: it stored one
+ *  seat per player up to its maximum (an untouched seat holding its mascot name), a count clamped
+ *  into its [2, 10] range and 3 when absent, and a seat name cut to the 12 characters its field
+ *  allowed. Its default seat name was the mascot cast's, in cast order, as here. */
+export function extractDiceLoserList(value: unknown): string[] {
+  if (!value || typeof value !== 'object') return [];
+  const { count, names } = value as { count?: unknown; names?: unknown };
+  if (!Array.isArray(names)) return [];
+  const seat = (i: number): string => {
+    const raw = names[i];
+    return typeof raw === 'string' ? raw.slice(0, 12).trim() : '';
+  };
+  const n = typeof count === 'number' && Number.isFinite(count) ? Math.min(10, Math.max(2, Math.floor(count))) : 3;
   const shown = Array.from({ length: n }, (_, i) => (hasVisibleChar(seat(i)) ? seat(i) : MASCOTS[i].name));
   const hidden: string[] = [];
   for (let i = n; i < Math.min(names.length, MASCOTS.length); i += 1) {

@@ -159,8 +159,8 @@ test('ADR-0071 Data: a NON-EMPTY roster wins and the timebomb key is deleted unr
   assert.equal(slots.has(timebomb.key), false);
 });
 
-test('pilot scope: only the converted route key is migrated -- dice-loser and one-bomb still read theirs', () => {
-  assert.deepEqual(ps.LEGACY_LISTS.map((l) => l.key), ['watduang:timebomb-players']);
+test('converted scope: only a converted route key is migrated -- one-bomb still reads its own', () => {
+  assert.deepEqual(ps.LEGACY_LISTS.map((l) => l.key), ['watduang:timebomb-players', 'watduang:dice-loser-players']);
 });
 
 test('copy: every Thai string the screen builds at run time is on the board, byte for byte', () => {
