@@ -56,7 +56,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const PENDING = new Set([
   'bangkok-drift',
   'cannon-flag',
-  'croc-bite',
   'dice-loser',
   'freeze-tap',
   'how-close-is-near',

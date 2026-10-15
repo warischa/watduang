@@ -35,6 +35,7 @@ import path from 'node:path';
 import { stripTypeScriptTypes } from 'node:module';
 import { sliceBlock } from '../_dom-stub.mjs';
 import { inputClockGate } from '../../games/_arm-gate.ts';
+import { revealPathCases } from '../_player-screen/screen-harness.mjs';
 
 const here = import.meta.dirname;
 
@@ -79,9 +80,9 @@ const modalReceivers = revealReceivers(/this\.openModal\(this\.(el[A-Za-z]+)\)/g
 // for a missing entry, and asserted below rather than trusted.
 const NOT_A_SCREEN = new Map([['webglUnsupportedNotice', 'the no-3D notice: revealed once, and it carries no control']]);
 
-/** The route's own reveal, which no pattern over main.js can see: the reset-to-cast confirm is
- *  injected by main.ts and opened by main.ts, so the engine's source never mentions it. */
-const ROUTE_OWNED = new Map([['modal-reset-names', 'the reset-to-cast confirm, injected and opened by main.ts']]);
+// The route's own reset-to-cast confirm, which main.ts used to inject and watch here, moved into the
+// shared player screen with the seat count and the names (ADR-0071, gh#264). Its reveals are driven
+// for real at the foot of this file, through revealPathCases.
 
 test('the reveal patterns match something — otherwise every set below is empty and agrees', () => {
   assert.ok(CACHED_IDS.size > 0, 'initDOM no longer caches screens through this.root.querySelector — the id map is empty');
@@ -104,7 +105,7 @@ test("main.ts arms every screen the lifted engine reveals, and nothing it does n
 
   assert.deepEqual(
     watched.slice().sort(),
-    [...revealed, ...ROUTE_OWNED.keys()].sort(),
+    revealed.slice().sort(),
     'the screens main.ts arms and the screens the engine reveals have drifted apart: an engine screen ' +
       'nobody watches comes back on screen with its buttons already enabled, and a watched id nothing ' +
       'reveals arms nothing. The arm-gate CI check will not tell you — it is already green.',
@@ -135,7 +136,7 @@ function region(source, from, to, label = 'main.ts') {
 
 const raw = fs.readFileSync(path.join(here, 'main.ts'), 'utf8');
 const CONTAINERS_SRC = region(raw, 'const REVEAL_CONTAINERS', '/** ADR-0014');
-const CLOSE_CONTROLS_SRC = region(raw, 'const CLOSE_CONTROLS', '// ---- the reset-to-cast');
+const CLOSE_CONTROLS_SRC = region(raw, 'const CLOSE_CONTROLS', '// ---- the no-3D board');
 
 function sliceOf(header) {
   const found = sliceBlock(raw, header);
@@ -268,11 +269,12 @@ test('ADR-0057: closing a modal arms the screen behind it and the no-3D board, n
 test('ADR-0057: every close, cancel and confirm control on this route is a close path', () => {
   const { api } = loadGlue();
   // Derived from the markup rather than retyped: every control whose id says it closes, cancels or
-  // confirms, out of the engine's own screens AND out of the confirm main.ts injects. A seventh such
-  // control added later is not in CLOSE_CONTROLS, and this reds.
-  const injected = region(raw, 'const RESET_MODAL_HTML', '/** Owner ruling');
+  // confirms, out of the engine's own screens. A fifth such control added later is not in
+  // CLOSE_CONTROLS, and this reds. (The shared player screen's dialogs are not here: they arm what
+  // they cover themselves, and revealPathCases below drives that.)
+  assert.doesNotMatch(raw, /insertAdjacentHTML/, 'main.ts injects markup again — its controls are outside this derivation');
   const ids = [...new Set(
-    [...`${markup}${injected}`.matchAll(/id="(btn-[\w-]*(?:close|cancel|confirm)[\w-]*)"/g)].map((m) => m[1]),
+    [...markup.matchAll(/id="(btn-[\w-]*(?:close|cancel|confirm)[\w-]*)"/g)].map((m) => m[1]),
   )].sort();
   assert.ok(ids.length > 0, 'no close control found in the markup — this test is measuring nothing');
 
@@ -460,7 +462,6 @@ function bootRoute() {
     animationFrameId: 1,
     audio: { setMuted() {} },
     state,
-    ui: { renderMascotInputs() {} },
   };
   const window = { __khengApp: app, addEventListener() {} };
 
@@ -473,9 +474,9 @@ function bootRoute() {
   // eslint-disable-next-line no-new-func -- executing main.ts's own text is the whole point.
   new Function(
     'window', 'document', 'MutationObserver', 'armAllButtons', 'inputClockGate', 'lastInputStamp',
-    'isMuted', 'setMuted', 'resetCastNames', code,
+    'isMuted', 'setMuted', code,
   )(window, document, undefined, () => () => {}, inputClockGate, () => lastStamp,
-    () => false, () => {}, (players) => players.map(() => ''));
+    () => false, () => {});
 
   const selected = [];
   // eslint-disable-next-line no-new-func -- executing main.js's own text is the whole point.
@@ -582,3 +583,45 @@ test('a release is swallowed only when its own press was, so the engine pointer 
   assert.equal(selected.length, before + 1,
     'a tap well after the window pressed nothing: the engine is still latched on a pointer whose release was swallowed');
 });
+
+// ---- the shared player screen (ADR-0071, gh#264) ---------------------------------------------------
+//
+// The engine's seat pills and name rows, and main.ts's reset-to-cast confirm, are gone: the shared
+// player screen mounted into #croc-players replaced them. Its reveals -- opening, the mid-round
+// dialog's close, cancel and confirm, the reset dialog, the undo bar, the 100ms double contacts --
+// are driven for real by revealPathCases below: the shared code over THIS route's markup.html with
+// the real arm gate, read off this route's own HUD house icon, which sits outside the screen's root
+// and inside the #app it covers. A screen mounted outside #app, or one that armed only its own root,
+// leaves #btn-hud-home live and reds there.
+
+test('the shared player screen is mounted into #croc-players, inside the #app it arms', () => {
+  const mount = sliceBlock(engine, 'mountPlayers()');
+  assert.ok(mount, 'main.js no longer declares mountPlayers() — the mount is unmeasured');
+  assert.match(mount, /getElementById\('croc-players'\)/);
+  assert.match(mount, /mountPlayerScreen\(\{\s*root: playersRoot,/);
+  assert.match(mount, /onStart: \(players\) => this\.startWithPlayers\(players\)/, 'start no longer reaches the named handoff');
+  assert.match(engine, /window\.__khengApp = new GameApp\(\);\s*\n\s*window\.__khengApp\.mountPlayers\(\);/,
+    'the boot no longer mounts the player screen');
+  assert.ok(markup.indexOf('id="app"') < markup.indexOf('id="croc-players"'), '#croc-players must sit inside #app');
+  assert.ok(markup.indexOf('id="croc-players"') < markup.indexOf('id="screen-setup"'),
+    'the player screen must come before the setup screen in the stacking order it shares with it');
+  assert.match(markup, /<section id="croc-players" class="croc-players" hidden>/, 'the root must ship hidden until it opens');
+});
+
+// The house icon on the HUD and the result card's menu button both lead to the first screen, which is
+// the player screen now. Through the chrome's own edit request, so a live round is asked about first
+// (ruling 6): the engine's returnToSetup, called straight, would end it without a word (ADR-0008).
+test('the house icon and the result menu reach the player screen through the edit request, never a bare return', () => {
+  const app = sliceBlock(engine, 'class GameApp ');
+  assert.match(app, /\(\) => this\.requestPlayers\(\),\s*\n\s*\(\) => this\.confirmRestart\(\)/,
+    'the onReturnSetup slot of UIManager no longer sends the edit request');
+  assert.match(sliceBlock(engine, 'requestPlayers()'), /document\.dispatchEvent\(new CustomEvent\(EDIT_EVENT\)\)/);
+  const ui = sliceBlock(engine, 'bindEvents()');
+  for (const id of ['btn-hud-home', 'btn-result-menu']) {
+    const at = ui.indexOf(`'#${id}'`);
+    assert.notEqual(at, -1, `#${id} is no longer bound — this test is measuring nothing`);
+    assert.match(ui.slice(at, ui.indexOf('});', at)), /this\.onReturnSetup\(\)/, `#${id} no longer goes through onReturnSetup`);
+  }
+});
+
+revealPathCases({ test, assert, routeMarkup: markup, rootId: 'croc-players', headerId: 'btn-hud-home', label: 'croc-bite' });

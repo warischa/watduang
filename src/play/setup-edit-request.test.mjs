@@ -50,11 +50,6 @@ const BOOTS_ON = {
   // These two open on the COUNT step, which is step one of their own setup, not a menu.
   'how-close-is-near': { nav: null },
   'power-meter': { nav: null },
-  // Boots straight onto #screen-setup: markup.html ships it without the `hidden` its two sibling
-  // screens carry, and the engine's own boot renders the seat fields into it. So there is nothing to
-  // click to reach setup, and what is pinned for this route is that the bridge navigates nowhere on
-  // an under-two roster -- an edit that made it auto-start would red here.
-  'croc-bite': { nav: null },
 };
 
 const EDIT_KEY = 'watduang:edit-players';
@@ -233,7 +228,12 @@ function loadMainRoute(route, sessionStorage) {
 
 /** gh#264 / ADR-0071: a route that mounts the shared player screen answers the flag from the screen
  *  itself, which takes it when it mounts. Detected from the route's own main file, never listed. */
-const mainFileOf = (route) => ['main.ts', 'main.js'].map((f) => path.join(here, route, f)).find((f) => fs.existsSync(f));
+// A route can ship BOTH files (croc-bite: a lifted engine in main.js, site glue in main.ts); the one
+// that mounts the screen is the one read, else the first that exists.
+const mainFileOf = (route) => {
+  const files = ['main.ts', 'main.js'].map((f) => path.join(here, route, f)).filter((f) => fs.existsSync(f));
+  return files.find((f) => /mountPlayerScreen\(\{/.test(fs.readFileSync(f, 'utf8'))) ?? files[0];
+};
 const mountsSharedScreen = (route) => {
   const file = mainFileOf(route);
   return !!file && /mountPlayerScreen\(\{/.test(fs.readFileSync(file, 'utf8'));

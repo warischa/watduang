@@ -5,6 +5,13 @@
       <!-- ARIA live region: the round's state read aloud, never painted (ADR-0051). -->
       <div id="aria-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
+      <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+           mountPlayerScreen as its root, and it is the first thing a load shows. The tagline is
+           this game's slot on the board, copied from the module's own `tagline`. -->
+      <section id="croc-players" class="croc-players" hidden>
+        <p class="ps-tagline">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</p>
+      </section>
+
       <!-- ========================================== -->
       <!-- SETUP / MAIN MENU SCREEN                   -->
       <!-- ========================================== -->
@@ -16,24 +23,15 @@
           </div>
 
           <div class="glassPanel setup-card">
-            <!-- Seat count. Written out literally, not built from a .map(): this file is static
-                 scaffold, and a generated pill list has no markup for a scanner to read. -->
+            <!-- The tooth count the seated players get, written by startWithPlayers. The seat pills
+                 and the name rows that sat beside it went with ADR-0071 (gh#264): the count and the
+                 names are the shared player screen's, in #croc-players above. -->
             <div class="setup-row">
               <div class="stepper-label">
                 <strong>แก๊งสัตว์ปาร์ตี้</strong>
                 <small id="setup-teeth-desc">ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8)</small>
               </div>
-              <div class="player-count-pills">
-                <button type="button" class="count-pill" data-count="2">2</button>
-                <button type="button" class="count-pill" data-count="3">3</button>
-                <button type="button" class="count-pill active" data-count="4">4</button>
-                <button type="button" class="count-pill" data-count="5">5</button>
-                <button type="button" class="count-pill" data-count="6">6</button>
-              </div>
             </div>
-
-            <!-- Filled by renderMascotInputs, one row per seat. -->
-            <div class="names-scroll" id="setup-mascots-list"></div>
           </div>
 
           <div class="menu-buttons-col">

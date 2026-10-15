@@ -54,7 +54,7 @@ const RESET_TRIGGER = {
   // markup.html belongs to the lifted engine on this route, so the trigger is injected by main.ts --
   // which is why the file loop below reads all three files and not just the markup. The attribute
   // still sits in a real opening tag in a template string, which is what findTriggerElement needs.
-  'croc-bite': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  'croc-bite': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   // gh#264 / ADR-0071: a route that mounts the shared player screen offers the shared screen's own
   // trigger, which lives in src/play/_player-screen/PlayerScreen.astro. `shared` makes the loop below
   // read that file -- and only for a route whose own main file really mounts the screen.

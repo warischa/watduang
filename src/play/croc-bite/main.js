@@ -16,6 +16,13 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 // GameState.setAudioEnabled and the UI paint; this import only lets the audio manager's own gates
 // read the same live flag every other route reads.
 import { isMuted, setMuted } from '../../shell/audio.ts';
+// ADR-0071 (gh#264): the one player screen every party route mounts. It owns the count, the names,
+// the roster and the group; this engine gets the ticked players back through startWithPlayers(). The
+// mockup's own seat pills and name rows are gone with it.
+import { EDIT_EVENT, mountPlayerScreen } from '../_player-screen/player-screen.ts';
+// The module's default export is read for one field, `players`: the range the player screen admits
+// is the one the manifest declares (ADR-0065), never a number restated here.
+import crocBite from '../../games/croc-bite.ts';
 
 /**
  * RULES AND CONSTANTS. The mascot roster, the tooth layout per seat count, the live bite odds, and
@@ -2604,7 +2611,6 @@ class UIManager {
     this.elWebGLError = this.root.querySelector('#webglUnsupportedNotice');
     this.elAnnouncer = this.root.querySelector('#aria-announcer');
     this.elToast = this.root.querySelector('#hud-toast');
-    this.elSetupMascots = this.root.querySelector('#setup-mascots-list');
     this.elSetupTeethDesc = this.root.querySelector('#setup-teeth-desc');
 
     // HUD items
@@ -2630,7 +2636,6 @@ class UIManager {
     this.toggleShake = this.root.querySelector('#toggle-shake');
     this.toggleParticles = this.root.querySelector('#toggle-particles');
 
-    this.renderMascotInputs();
     this.updateToggleStates();
   }
 
@@ -2690,19 +2695,8 @@ class UIManager {
       this.closeModal(this.elModalSettings);
     });
 
-    // 4. Player Count Pills
-    const countPills = this.root.querySelectorAll('.count-pill');
-    countPills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        this.audio.playClick();
-        const count = parseInt(pill.dataset.count, 10);
-        countPills.forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        this.state.setPlayerCount(count);
-        this.renderMascotInputs();
-        this.updateTeethDescription(count);
-      });
-    });
+    // 4. The seat pills that sat here went with ADR-0071: the count is the shared player screen's,
+    // and GameApp.startWithPlayers seats what it hands over.
 
     // 5. Start Game
     this.root.querySelector('#btn-start-game').addEventListener('click', () => {
@@ -2773,35 +2767,6 @@ class UIManager {
     this.toggleAudio.classList.toggle('on', audioOn);
     this.toggleShake.classList.toggle('on', this.state.shakeEnabled);
     this.toggleParticles.classList.toggle('on', this.state.particlesEnabled);
-  }
-
-  renderMascotInputs() {
-    this.elSetupMascots.innerHTML = '';
-    this.state.players.forEach((p, idx) => {
-      const row = document.createElement('div');
-      row.className = 'mascot-row';
-      row.style.setProperty('--pColor', p.sleeveColor);
-
-      const avatar = document.createElement('div');
-      avatar.className = 'mascot-avatar';
-      avatar.textContent = p.emoji;
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'mascot-name-input';
-      input.maxLength = 16;
-      input.placeholder = p.name;
-      input.value = p.rawName || '';
-      input.setAttribute('aria-label', `ชื่อผู้เล่นคนที่ ${idx + 1}`);
-
-      input.addEventListener('input', (e) => {
-        this.state.updatePlayerName(idx, e.target.value);
-      });
-
-      row.appendChild(avatar);
-      row.appendChild(input);
-      this.elSetupMascots.appendChild(row);
-    });
   }
 
   updateTeethDescription(count) {
@@ -3000,7 +2965,11 @@ class GameApp {
       this.audio,
       () => this.startNewMatch(),
       () => this.replayMatch(),
-      () => this.returnToSetup(),
+      // The HUD house icon and the result card's menu button. Both lead back to the first screen,
+      // which is the shared player screen since ADR-0071 -- and through the request the chrome's
+      // edit control sends, so a live round is asked about first (ruling 6) instead of being ended
+      // under the players without a word (ADR-0008).
+      () => this.requestPlayers(),
       () => this.confirmRestart()
     );
 
@@ -3102,6 +3071,71 @@ class GameApp {
 
   confirmRestart() {
     this.startNewMatch();
+  }
+
+  // ---- the shared player screen (ADR-0071, gh#264) -----------------------------------------------
+  //
+  // Order on this route: the player screen first, then the game's own screen (#screen-setup, which
+  // keeps the title, the tooth count, how-to-play, the settings and the start button), then play.
+  // The screen owns the count, the names, the roster and the group; this engine keeps its own seat
+  // clamp (GameState.setPlayerCount) and is handed the players through startWithPlayers.
+
+  /** Mounts the screen into #croc-players and opens it as the first thing a load shows. Called from
+   *  the boot, after the constructor, so a stub page that builds GameApp alone builds no screen. */
+  mountPlayers() {
+    const playersRoot = document.getElementById('croc-players');
+    if (!playersRoot) return;
+    this.players = mountPlayerScreen({
+      root: playersRoot,
+      range: crocBite.players,
+      onStart: (players) => this.startWithPlayers(players),
+      roundActive: () => this.roundActive(),
+      abortRound: () => this.clearForPlayers(),
+      onOpen: () => this.clearForPlayers(),
+    });
+    // Hidden now rather than when the screen opens: open() first waits for the roster migration, and
+    // updateUI has just put the setup screen up for the SETUP phase.
+    this.clearForPlayers();
+    this.players.open();
+  }
+
+  /** The engine entry the player screen starts: the engine's own seats, sized by its own clamp to
+   *  exactly the players handed over, each renamed to the name the screen gave it and wearing that
+   *  player's mascot glyph -- with someone sitting out, a seat's index and its mascot differ. The
+   *  sleeve and skin tone stay the seat's own: the engine draws six sleeves and the cast has twenty.
+   *  Then the game's own screen comes up (ruling 1). Scores and teeth are reset by the match start. */
+  startWithPlayers(players) {
+    const state = this.state;
+    state.setPlayerCount(players.length);
+    players.forEach((p, i) => {
+      state.updatePlayerName(i, p.name);
+      const seat = state.players[i];
+      if (seat) seat.emoji = p.emoji;
+    });
+    this.ui.updateTeethDescription(state.playerCount);
+    this.ui.elSetup.classList.remove('hidden');
+  }
+
+  /** Is a round in progress? A match that has not reached its last result is: scores carry from
+   *  round to round, so editing the players there loses something and is asked about first. The
+   *  game's own screen and a finished match lose nothing. */
+  roundActive() {
+    const { phase, currentRound, maxRounds } = this.state;
+    if (phase === PHASES.SETUP) return false;
+    return !(phase === PHASES.RESULT && currentRound >= maxRounds);
+  }
+
+  /** Puts everything that is not the player screen away: a round or a result goes back to SETUP
+   *  through the engine's own returnToSetup, and the setup screen itself is hidden -- the player
+   *  screen comes before it now, and startWithPlayers is what brings it back. */
+  clearForPlayers() {
+    if (this.state.phase !== PHASES.SETUP) this.returnToSetup();
+    this.ui.elSetup.classList.add('hidden');
+  }
+
+  /** The house icon and the result card's menu button send the chrome's own edit request. */
+  requestPlayers() {
+    document.dispatchEvent(new CustomEvent(EDIT_EVENT));
   }
 
   /**
@@ -3235,4 +3269,5 @@ class GameApp {
 // Bootstrap when DOM is ready
 window.addEventListener('DOMContentLoaded', () => {
   window.__khengApp = new GameApp();
+  window.__khengApp.mountPlayers();
 });

@@ -546,7 +546,9 @@ test('zero-trigger: roster, active turn, live region, strip and defeat modal esc
 
 // This route reaches tier 2 as NO_HTML_SINK, and that class is exactly why it needs a tier-1 harness:
 // tier 2 can only say the source performs no HTML-sink write, which is a statement about SPELLING. It
-// cannot say the sinks that DO carry a name are safe, and on this route there are six of them.
+// cannot say the sinks that DO carry a name are safe, and on this route there are five of them. (The
+// sixth, the setup rows, went with gh#264: the names are typed on the shared player screen now, whose
+// own case is the shared-screen test below.)
 //
 // The route's own escaping is STRUCTURAL rather than a helper: every sink was rebuilt with
 // createElement and textContent, so a name is never composed into markup at all. The engine's own
@@ -596,7 +598,6 @@ function crocBiteHarness(players) {
       getLiveBiteOdds: () => ({ fraction: '1', percent: 6.3, isCritical: false }),
       getCurrentPlayer: () => players[0],
     },
-    elSetupMascots: el('setup-mascots-list'),
     elPlayerStrip: el('hud-player-strip'),
     elTurnAvatar: el('turn-avatar'),
     elTurnPlayerName: el('turn-player-name'),
@@ -643,7 +644,7 @@ function assertRenderedAsText(root, label) {
   );
 }
 
-test('croc-bite: setup rows, HUD strip, turn banner, toast, live region and scoreboard escape roster names', () => {
+test('croc-bite: HUD strip, turn banner, toast, live region and scoreboard escape roster names', () => {
   // Bounds the sink set this test can see: `name` is a getter, not a plain field, so any sink that
   // reaches a roster name -- however aliased (`const n = p.name` defeats a source grep, never a live
   // read) -- bumps this counter. Residual ceiling: a one-for-one swap (one sink deleted, one added)
@@ -660,23 +661,7 @@ test('croc-bite: setup rows, HUD strip, turn banner, toast, live region and scor
   const players = [hostile('player_0'), hostile('player_1')];
   const { api, ctx, document } = crocBiteHarness(players);
 
-  // 1. Setup screen. The name reaches the field as a PROPERTY, never as an attribute in markup, so
-  // the assertion is the whole payload surviving intact in both places a row carries it -- a value
-  // composed into a tag would have been terminated at the payload's leading quote.
-  api.UIManager.prototype.renderMascotInputs.call(ctx);
-  const rows = document.getElementById('setup-mascots-list').children;
-  assert.equal(rows.length, players.length, 'croc-bite renderMascotInputs built no rows — this check is measuring nothing');
-  for (const row of rows) {
-    const input = row.children.find((c) => c.className === 'mascot-name-input');
-    assert.ok(input, 'croc-bite renderMascotInputs: the row no longer builds a name field');
-    assert.equal(input.value, HOSTILE, 'croc-bite renderMascotInputs: the typed name was altered or terminated in the field');
-    assert.equal(input.placeholder, HOSTILE, 'croc-bite renderMascotInputs: the name was altered or terminated in the placeholder');
-    assert.equal(input.children.length, 0, 'croc-bite renderMascotInputs: a name introduced child nodes into a field');
-  }
-  assert.equal(document.getElementById('setup-mascots-list').querySelectorAll('a').length, 0,
-    'croc-bite renderMascotInputs: a player name introduced an <a> element into the DOM');
-
-  // 2. HUD: the seat strip, the turn banner, the toast and the live region -- handleTurnTransition
+  // 1. HUD: the seat strip, the turn banner, the toast and the live region -- handleTurnTransition
   // drives all four through the real methods.
   api.UIManager.prototype.handleTurnTransition.call(ctx, hostile('player_0'), null);
   assertRenderedAsText(document.getElementById('hud-player-strip'), 'croc-bite renderPlayerStrip');
@@ -688,7 +673,7 @@ test('croc-bite: setup rows, HUD strip, turn banner, toast, live region and scor
   assertRenderedAsText(document.getElementById('aria-announcer'), 'croc-bite announce');
   assertNoInjection(document.getElementById('aria-announcer'), 'croc-bite announce');
 
-  // 3. The result card and its scoreboard, which is the reveal that lands under the finger.
+  // 2. The result card and its scoreboard, which is the reveal that lands under the finger.
   api.UIManager.prototype.handleGameResult.call(ctx, {
     loser: players[0],
     currentRound: 1,
@@ -703,10 +688,11 @@ test('croc-bite: setup rows, HUD strip, turn banner, toast, live region and scor
   assertNoInjection(document.getElementById('result-scoreboard'), 'croc-bite handleGameResult scoreboard');
   assertNoInjection(document.getElementById('aria-announcer'), 'croc-bite handleGameResult announce');
 
-  // Every sink above read a roster name: 2 placeholders in renderMascotInputs, 2 in renderPlayerStrip
-  // (one per seat), 1 in updateTurnDisplay, 1 in the toast, 1 in the turn announcement, 1 for the
-  // loser's name in handleGameResult, and 2 more in the scoreboard rows -- 10 on today's source.
-  assert.equal(reads, 10, `croc-bite read player.name ${reads} time(s) — the sink set changed`);
+  // Every sink above read a roster name: 2 in renderPlayerStrip (one per seat), 1 in
+  // updateTurnDisplay, 1 in the toast, 1 in the turn announcement, 1 for the loser's name in
+  // handleGameResult, and 2 more in the scoreboard rows -- 8 on today's source (10 before gh#264
+  // removed the setup rows' two placeholder reads).
+  assert.equal(reads, 8, `croc-bite read player.name ${reads} time(s) — the sink set changed`);
 
   DEEP.add('croc-bite');
 });

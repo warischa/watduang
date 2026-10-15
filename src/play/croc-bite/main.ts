@@ -1,7 +1,8 @@
 // The site-side glue for the croc-bite play route. main.js is the lifted engine and is owned by
 // scripts/extract-mockup.mjs, so everything this site adds to the route lives here: the shared muted
-// state, the ghost-tap gate on every reveal, the reset-to-cast control, and the round that keeps
-// playing when the 3D context is taken away mid-match.
+// state, the ghost-tap gate on every reveal, and the round that keeps playing when the 3D context is
+// taken away mid-match. The reset-to-cast control that also lived here moved into the shared player
+// screen with the seat count and the names (ADR-0071, gh#264); main.js mounts that screen.
 //
 // It reaches the engine through the one handle the engine publishes on `window`, and holds no copy of
 // any value the engine owns: the seat list, the phase, the round token and the tooth map are read at
@@ -10,9 +11,6 @@ import { armAllButtons, inputClockGate, lastInputStamp } from '../../games/_arm-
 // gh#227: the device's muted state, one slot for the whole site. This file is the only writer on this
 // route — the engine deliberately stores no sound preference of its own.
 import { isMuted, setMuted } from '../../shell/audio.ts';
-// The wipe behind the reset control. It reads only the array's length, which is what makes a typed
-// name unable to survive a reset whatever is passed in.
-import { resetCastNames } from '../_mascots.ts';
 
 // ---- the engine handle -------------------------------------------------------------------------
 
@@ -31,14 +29,12 @@ type KhengApp = {
     players: readonly unknown[];
     teeth: Map<string, Tooth>;
     setAudioEnabled(enabled: boolean): void;
-    updatePlayerName(index: number, rawName: string): void;
     pressTooth(toothId: string): PressPayload | null;
     completeSafeResolution(token: number): void;
     completeLosingResolution(token: number): void;
     beginPlayerTurn(): void;
     on(event: string, fn: () => void): () => void;
   };
-  ui: { renderMascotInputs(): void };
 };
 
 const engine = (): KhengApp | undefined =>
@@ -101,7 +97,6 @@ const REVEAL_CONTAINERS: ReadonlyArray<{
   { id: 'modal-how', cls: 'open', visibleWhenPresent: true, modal: true },
   { id: 'modal-settings', cls: 'open', visibleWhenPresent: true, modal: true },
   { id: 'modal-reset', cls: 'open', visibleWhenPresent: true, modal: true },
-  { id: 'modal-reset-names', cls: 'open', visibleWhenPresent: true, modal: true },
 ];
 
 /** ADR-0014's gate on screens this file cannot reach any other way. Every reveal inside the engine is
@@ -181,53 +176,9 @@ const guardToothInput = (ev: PointerEvent): void => {
   ev.stopPropagation();
 };
 
-/** Every control that closes, cancels or confirms a modal on this route. */
-const CLOSE_CONTROLS =
-  '#btn-close-how, #btn-close-settings, #btn-reset-cancel, #btn-reset-confirm, ' +
-  '#btn-reset-names-cancel, #btn-reset-names-confirm';
-
-// ---- the reset-to-cast control ------------------------------------------------------------------
-
-// The trigger and its confirm step, injected because markup.html is the lifted engine's file. The
-// trigger's id is literal text in a real opening tag, which is what src/play/reset-control-pin.test.mjs
-// reads. Classes are the engine's own, so the control is styled by the lifted stylesheet and adds no
-// rule of its own; the confirm reuses the same overlay shape the engine's three modals use.
-const RESET_TRIGGER_HTML =
-  '<button class="btnBase secondaryBtn" id="btn-reset-names" type="button">รีเซ็ตเป็นชื่อสัตว์</button>';
-
-const RESET_MODAL_HTML = `
-<div id="modal-reset-names" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-names-title">
-  <div class="glassPanel modal-box" style="text-align:center">
-    <h2 id="reset-names-title" style="justify-content:center">รีเซ็ตเป็นชื่อสัตว์</h2>
-    <p style="margin-bottom:18px">ชื่อที่พิมพ์ไว้ทั้งหมดจะหายไป และกลับไปเป็นชื่อสัตว์ประจำที่นั่ง จำนวนผู้เล่นยังเท่าเดิม</p>
-    <div style="display:flex;gap:10px;justify-content:center">
-      <button id="btn-reset-names-cancel" class="btnBase secondaryBtn" type="button">ไม่รีเซ็ต</button>
-      <button id="btn-reset-names-confirm" class="btnBase primaryBtn" type="button">รีเซ็ตเลย</button>
-    </div>
-  </div>
-</div>`;
-
-/** Owner ruling 2026-08-31: reset restores the animal names, keeps the group, and wipes typed names
- *  behind a confirm. The wipe is resetCastNames and the confirm is the modal above.
- *
- *  Written back through the engine's own updatePlayerName, one seat at a time, so the engine's stored
- *  raw name is what changes — writing the fields instead would be undone by the next rebuild, which
- *  reads every field back from that stored value. */
-function resetToCast(app: KhengApp): void {
-  const cast = resetCastNames(app.state.players);
-  cast.forEach((name, i) => app.state.updatePlayerName(i, name));
-  app.ui.renderMascotInputs();
-}
-
-function wireReset(app: KhengApp): void {
-  const overlay = $('modal-reset-names');
-  $('btn-reset-names')?.addEventListener('click', () => overlay?.classList.add('open'));
-  $('btn-reset-names-cancel')?.addEventListener('click', () => overlay?.classList.remove('open'));
-  $('btn-reset-names-confirm')?.addEventListener('click', () => {
-    resetToCast(app);
-    overlay?.classList.remove('open');
-  });
-}
+/** Every control that closes, cancels or confirms one of the engine's modals. The shared player
+ *  screen's own dialogs arm what they cover themselves (ADR-0071, ADR-0057). */
+const CLOSE_CONTROLS = '#btn-close-how, #btn-close-settings, #btn-reset-cancel, #btn-reset-confirm';
 
 // ---- the no-3D board ---------------------------------------------------------------------------
 
@@ -375,13 +326,13 @@ function cutTo2D(app: KhengApp): void {
  *  more code for a worse board: no seats, no arm gate, nothing the engine already paints).
  *
  *  The engine's notice is dismissed as the board goes up because the board carries the same message
- *  inside the play surface, and leaving both would centre a panel over the seat list nobody could
- *  then read. The engine hid every screen when it showed that notice, so the setup screen is put back
- *  — only while the round has not begun, since from the first phase change the engine's own updateUI
- *  owns which screen is on display. */
+ *  inside the play surface, and leaving both would centre a panel over the screen nobody could then
+ *  read. The engine hid every screen when it showed that notice, and the setup screen is NOT put back
+ *  here: since ADR-0071 the first screen is the shared player screen, and its start is what brings
+ *  the setup screen up (GameApp.startWithPlayers). Putting it back here would raise it over the
+ *  player screen, which has usually opened by now. */
 function bootWithout3D(app: KhengApp): void {
   $('webglUnsupportedNotice')?.classList.add('hidden');
-  if (app.state.phase === PHASE_SETUP) $('screen-setup')?.classList.remove('hidden');
   cutTo2D(app);
 }
 
@@ -391,12 +342,7 @@ function mount(): void {
   const app = engine();
   if (!app) return;
 
-  const card = $('setup-mascots-list');
-  card?.insertAdjacentHTML('afterend', RESET_TRIGGER_HTML);
-  $('game-ui-container')?.insertAdjacentHTML('beforeend', RESET_MODAL_HTML);
-
   wireSound(app);
-  wireReset(app);
 
   // The engine's own fact, not a canvas in the container. The scene appends its canvas partway
   // through its setup, so a throw after that point leaves the canvas sitting on a page with no board:
@@ -411,9 +357,8 @@ function mount(): void {
   // The context-loss registration below needs no companion test of its own: on this path the
   // fallback replaces the container with a childless clone, so the query down there finds no canvas
   // and its optional chain registers nothing.
-  // Ahead of BOTH the observer install and the arming block on purpose — putting the setup
-  // screen back is a reveal, and running first means the observer's baseline reads that screen as
-  // already on display, so the block below is its one and only arm rather than one of two.
+  // Ahead of BOTH the observer install and the arming block, so the observer's baseline and the
+  // block below read the screens as the fallback leaves them.
   if (app.animationFrameId === null) bootWithout3D(app);
 
   watchEngineReveals();
@@ -440,8 +385,10 @@ function mount(): void {
     .querySelector('#canvas-container canvas')
     ?.addEventListener('webglcontextlost', () => cutTo2D(app), { once: true });
 
-  // The setup screen is up already, so no reveal will ever be observed for it — every other screen on
-  // this route is armed by watchEngineReveals when the engine reveals it.
+  // A setup screen already up at mount was never revealed, so no observer will arm it. Since ADR-0071
+  // it is normally hidden here -- the player screen comes first and its start reveals setup, which the
+  // observer arms -- and it is up only when no player screen was mounted. Every other screen on this
+  // route is armed by watchEngineReveals when the engine reveals it.
   if (app.state.phase === PHASE_SETUP) {
     const setup = $('screen-setup');
     if (setup) armAllButtons(setup);

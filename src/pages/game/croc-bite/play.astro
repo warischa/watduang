@@ -20,6 +20,9 @@ import Base from '../../../layouts/Base.astro';
 // route; it brings its own style and its own arm gate.
 import PlayExit from '../../../shell/PlayExit.astro';
 import markup from '../../../play/croc-bite/markup.html?raw';
+// ADR-0071: the shared player screen's markup and dialogs, rendered beside the route's raw markup,
+// which is a string and cannot hold a component. main.js mounts it into #croc-players.
+import PlayerScreen from '../../../play/_player-screen/PlayerScreen.astro';
 import '../../../play/croc-bite/style.css';
 // AFTER style.css, always: overrides.css wins on equal specificity only if it comes second.
 import '../../../play/croc-bite/overrides.css';
@@ -36,15 +39,17 @@ const description = game.seo.description;
 <Base title={title} description={description} ogImage={`/og/${game.og}`} chrome>
   <PlayExit />
   <Fragment set:html={markup} />
+  <PlayerScreen />
 </Base>
 
 <script>
   // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block of
   // this size executes zero lines. Astro emits these as one external module.
   //
-  // ORDER IS LOAD-BEARING. The engine must register its `window` boot listener before either glue
-  // file registers its own, because both of them wait for that listener to have built the DOM.
+  // ORDER IS LOAD-BEARING. The engine must register its `window` boot listener before the glue
+  // registers its own, because the glue waits for that listener to have built the DOM. main.js
+  // mounts the shared player screen itself (ADR-0071); the roster bridge that drove the engine's own
+  // seat pills and name rows is gone with them.
   import '../../../play/croc-bite/main.js';
-  import '../../../play/croc-bite/roster-bridge.ts';
   import '../../../play/croc-bite/main.ts';
 </script>

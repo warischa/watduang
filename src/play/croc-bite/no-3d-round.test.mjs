@@ -20,7 +20,9 @@
 // and the file now drives all three: the engine registered its round lifecycle INSIDE the failing
 // try, so no round could leave its intro; the DOM tooth board was installed only by the
 // `webglcontextlost` handler, which a device that never got a context can never fire; and
-// roster-bridge.ts read this very notice and declined to start the match. So the boot below is
+// the roster bridge (gone since gh#264) read this very notice and declined to start the match. Since
+// ADR-0071 the players come from the shared player screen through GameApp.startWithPlayers, which
+// this file calls the way that screen's start does. So the boot below is
 // followed by the route's own no-context entry, and the round is played to its result on real
 // buttons. The same board after a context is LOST mid-match is a separate path with its own file,
 // src/play/croc-bite/webgl-context-loss.test.mjs.
@@ -41,7 +43,7 @@ import path from 'node:path';
 import { stripTypeScriptTypes } from 'node:module';
 import { sliceBlock } from '../_dom-stub.mjs';
 import { MASCOTS } from '../_mascots.ts';
-import { MIN_PLAYERS } from '../../games/croc-bite.ts';
+import { MAX_PLAYERS } from '../../games/croc-bite.ts';
 
 const here = import.meta.dirname;
 const source = fs.readFileSync(path.join(here, 'main.js'), 'utf8');
@@ -169,8 +171,8 @@ function makeNode(tag = 'div') {
     },
     descendants() { return node.children.flatMap((c) => [c, ...c.descendants()]); },
   };
-  // The one container write the boot performs: renderMascotInputs empties the seat list before it
-  // rebuilds it, and a stub that dropped the write would report rows a rebuild had already removed.
+  // The engine empties a container before it rebuilds it (the HUD strip, the scoreboard), and a stub
+  // that dropped the write would report rows a rebuild had already removed.
   Object.defineProperty(node, 'innerHTML', {
     get: () => '',
     set: () => { node.children = []; },
@@ -207,19 +209,10 @@ function makePage() {
     return byKey.get(key);
   };
 
-  // The seat-count pills are static markup, one per seat count this game offers — read off
-  // markup.html rather than invented, so a pill row that changed shape reds instead of agreeing.
-  const counts = [...markup.matchAll(/class="count-pill[^"]*"\s+data-count="(\d+)"/g)].map((m) => Number(m[1]));
-  const pills = counts.map((count) => {
-    const pill = makeNode('button');
-    pill.dataset.count = String(count);
-    return pill;
-  });
-
   const root = makeNode('div');
   root.id = 'ui-root';
   root.querySelector = (sel) => node(sel);
-  root.querySelectorAll = (sel) => (sel === '.count-pill' ? pills : []);
+  root.querySelectorAll = () => [];
 
   // A LIVE tree for the canvas container, walked rather than answered out of the index: the fallback
   // REPLACES that container with a clone of itself and then looks the board back up by id, and an
@@ -251,7 +244,7 @@ function makePage() {
   // read back rather than captured.
   const liveContainer = () => body.children.find((c) => c.id === 'canvas-container');
   return {
-    document, root, pills, counts, body, liveContainer,
+    document, root, body, liveContainer,
     el: (sel) => node(sel),
     board: () => liveContainer()?.children.find((c) => c.id === BOARD_ID) ?? null,
     teeth: () => (liveContainer()?.descendants() ?? []).filter((n) => n.dataset.tooth !== undefined),
@@ -357,7 +350,6 @@ function boot({ rendererThrows = true, appendsCanvas = false } = {}) {
 }
 
 const NOTICE = '#webglUnsupportedNotice';
-const SEAT_LIST = '#setup-mascots-list';
 const SCREENS = ['#screen-setup', '#screen-hud', '#screen-result'];
 
 const visible = (el) => !el.classes.has('hidden');
@@ -370,24 +362,25 @@ test('ADR-0051: with no context, the interface is still built', () => {
   assert.ok(app.ui, 'the boot left no interface at all: the catch has nothing to show the notice on, and the page is blank');
   assert.ok(app.state, 'the boot left no state');
   assert.ok(!built.includes('component'), 'a 3D component was built after the renderer failed');
-  assert.equal(page.el(SEAT_LIST).children.length > 0, true);
+  assert.equal(app.ui.elSetup, page.el('#screen-setup'), 'the interface did not cache the screen the players start into');
 });
 
-test('ADR-0051: the seat fields are filled, one row per seat, before any 3D exists', () => {
+/** What the shared player screen's start hands over: one player per mascot index given, each
+ *  wearing that mascot. Mascot 7 is past the engine's own six, so its glyph can only have come from
+ *  the screen. */
+const handed = (mascots) => mascots.map((m, i) => ({ name: `เพื่อน${i + 1}`, emoji: MASCOTS[m].emoji, mascot: m }));
+
+test('ADR-0051: the players handed over are seated before any 3D exists, and the game screen comes up', () => {
   const { app, page } = boot();
-  const rows = page.el(SEAT_LIST).children;
-  assert.equal(rows.length, app.state.playerCount, 'the seat list does not hold one row per seat');
-  assert.ok(rows.length >= MIN_PLAYERS);
-  // The rows are real: each carries the seat's mascot badge and its own name field. A count alone
-  // would pass on rows built empty.
-  rows.forEach((row, i) => {
-    const avatar = row.children.find((c) => c.className === 'mascot-avatar');
-    const input = row.children.find((c) => c.className === 'mascot-name-input');
-    assert.ok(avatar, `seat ${i} has no mascot badge`);
-    assert.ok(input, `seat ${i} has no name field`);
-    assert.equal(avatar.textContent, MASCOTS[i].emoji);
-    assert.equal(input.placeholder, MASCOTS[i].name);
-  });
+  const players = handed([0, 2, 7]);
+  // The player screen is the first screen: the setup screen waits behind it until its start.
+  page.el('#screen-setup').classList.add('hidden');
+  app.startWithPlayers(players);
+  assert.equal(app.state.playerCount, players.length, 'the engine seats a different count than it was handed');
+  assert.deepEqual(app.state.players.map((p) => p.name), players.map((p) => p.name));
+  assert.deepEqual(app.state.players.map((p) => p.emoji), players.map((p) => p.emoji), 'a seat wears its index\'s mascot');
+  assert.ok(visible(page.el('#screen-setup')), 'the game screen with the start button did not come up after the players');
+  assert.match(page.el('#setup-teeth-desc').textContent, /18/, 'three seats lay out 18 teeth, and the game screen does not say so');
 });
 
 test("ADR-0051: the engine's own boot leaves the readable notice up, and no screen over it", () => {
@@ -454,9 +447,14 @@ function bootWithFallback() {
 test('ADR-0051: the fallback puts a pressable board where the 3D board would have been', () => {
   const h = bootWithFallback();
   assert.ok(h.page.board(), 'no DOM board was installed: the notice is all there is and no round is reachable');
-  assert.ok(!visible(h.page.el(NOTICE)), 'the engine notice is still up over the board, centred on the seat list');
+  assert.ok(!visible(h.page.el(NOTICE)), 'the engine notice is still up over the board');
+  // Since ADR-0071 the fallback does NOT put the setup screen back: the shared player screen is the
+  // first screen and has usually opened by now, and the setup screen would rise over it. The round
+  // stays reachable through that screen's start, which brings the setup screen up.
+  assert.ok(!visible(h.page.el('#screen-setup')), 'the fallback raised the setup screen over the player screen');
+  h.app.startWithPlayers(handed([0, 1, 2]));
   assert.ok(visible(h.page.el('#screen-setup')),
-    'the setup screen is still hidden: the engine hid it to show the notice, so nobody can start the round');
+    'the players were handed over and the setup screen stayed hidden: nobody can start the round');
   assert.deepEqual(h.armed, [BOARD_ID], 'the board went up without the ghost-tap gate, or something else was armed');
 });
 
@@ -508,7 +506,9 @@ test('the fallback is entered on a scene that threw AFTER appending its canvas',
 test('ADR-0051: with no context the DOM board takes a press and the round reaches its result', () => {
   const h = bootWithFallback();
 
-  // Started the way the roster bridge starts it, through the engine's own entry point.
+  // Started the way a player starts it: the players handed over, then the engine's own entry point
+  // behind the setup screen's start button.
+  h.app.startWithPlayers(handed([0, 1, 2, 3]));
   h.app.startNewMatch();
   assert.equal(h.app.state.phase, 'ROUND_INTRO', 'the round did not begin');
   h.runTimers();
@@ -536,8 +536,9 @@ test('ADR-0051: with no context the DOM board takes a press and the round reache
 });
 
 test('the round survives the order the page actually loads: the match starts BEFORE the board goes up', () => {
-  // play.astro imports the roster bridge above main.ts, so the bridge's start runs first and the
-  // fallback installs its board into a round already in progress. The leg above installs the board
+  // A round already in progress when the fallback installs its board: the roster bridge used to
+  // start one before main.ts ran. Nothing starts a round that early since gh#264, and this leg stays
+  // as the guard that the fallback never raises the setup screen over a round. The leg above installs the board
   // first, which no visitor ever does, and would stay green through a regression in this direction.
   const h = boot();
   h.app.startNewMatch();
@@ -675,7 +676,8 @@ test('RED CALIBRATION: with a working renderer the same boot shows no notice at 
   assert.ok(!visible(page.el(NOTICE)), 'the no-3D notice is shown even when the context was available');
   assert.ok(visible(page.el('#screen-setup')), 'the setup screen is hidden on a working boot');
   assert.ok(app.ui, 'the working boot built no interface either — this comparison measures nothing');
-  // And the seat rows are the same on both branches, which is the point: nothing about the interface
+  // And the seating is the same on both branches, which is the point: nothing about the players
   // depends on the 3D stack.
-  assert.equal(page.el(SEAT_LIST).children.length, app.state.playerCount);
+  app.startWithPlayers(handed([0, 1, 2, 3, 4, 5]));
+  assert.equal(app.state.players.length, MAX_PLAYERS);
 });
