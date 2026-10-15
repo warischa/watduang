@@ -268,6 +268,34 @@
         "deliberate": true,
         "owner": "gh#170",
         "why": "the case gh#212 was filed on: an announcement channel with role=status and aria-live=polite that exists nowhere in the mockup, so a re-extraction removed a shipped accessibility feature with no gate going red"
+      },
+      {
+        "fragment": "<section id=\"hcPlayers\" class=\"hc-players\" hidden>",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the shared player screen's root (ADR-0071); the mockup's own count and names screens it replaced are recorded absent in main.js below"
+      }
+    ],
+    "main.js": [
+      {
+        "fragment": "mountPlayerScreen({",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the shared player screen mount and its startWithPlayers entry (ADR-0071); the mockup builds its own count and names screens instead"
+      },
+      {
+        "fragment": "function renderPlayerCountScreen() {",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own count chips; the count belongs to the shared player screen (ADR-0071), and a re-extraction that put it back would give this route two count controls"
+      },
+      {
+        "fragment": "function renderPlayerNamesScreen() {",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own name rows; names belong to the shared player screen and the shared roster (ADR-0071)"
       }
     ]
   },

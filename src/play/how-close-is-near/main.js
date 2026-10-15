@@ -1,7 +1,10 @@
 // The one rule this game turns on, imported rather than re-implemented — see src/games/how-close-is-near.ts
 // for why it lives there and how-close-is-near.test.mjs for what pins it. The .ts extension is
 // spelled out the way manifest.ts does it.
-import {
+// The module's default export is read for one field, `players`: the range the player screen admits
+// is the one the manifest declares (ADR-0065), never a number restated here. Not named `game`: that
+// name is this file's GameModel instance.
+import howCloseIsNear, {
   MIN_NUMBER,
   MAX_NUMBER,
   NEAREST_LOSES,
@@ -13,17 +16,22 @@ import {
 } from '../../games/how-close-is-near.ts';
 // Ghost-tap gate (ADR-0014/ADR-0017). Every screen this route shows is built by render(), which
 // empties #screenContainer and repopulates it, so one call at the end of render() gates every
-// freshly rendered control on every screen -- there is no second path that reveals a button.
+// freshly rendered control on every screen. The one other reveal of this file's own is #testModal,
+// armed at its reveal. The player screen's reveals -- its opening, its dialogs, its undo bar -- are
+// armed by the shared screen itself (src/play/_player-screen/player-screen.ts), over #appRoot.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// ADR-0071 (gh#264): the one player screen every party route mounts. It owns the count, the names,
+// the roster and the group; this file gets the ticked players back through startWithPlayers. The
+// mockup's count screen, names screen, their reset-names modal and roster-bridge.ts are gone.
+import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
 // gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
 // of its own -- muting here mutes every other route, and reopening this one shows what the device
 // actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
 // wrong value costs the player one tap needs neither a migration nor a collision guard.
 import { isMuted, setMuted } from '../../shell/audio.ts';
-// gh#175 / ADR-0054: the names screen opens on the shared animal cast, never on a column of numbers.
-// Both places a numbered default could show -- the fallback for a blank field and the placeholder a
-// player never typed over -- read from here through defaultName below.
-import { mascotEmoji, mascotNames } from '../_mascots.ts';
+// gh#175 / ADR-0054: a seat with no name plays as its animal, never as a number -- the fallback
+// initPlayers uses reads from here through defaultName below.
+import { mascotNames } from '../_mascots.ts';
 
     /**
      * Procedural Web Audio Synthesizer
@@ -277,9 +285,10 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
     /**
      * Core Game Engine & FSM
      */
+    // PLAYERS: the shared player screen is up and this route renders nothing (ADR-0071). It replaced
+    // the mockup's own count and names states.
     const GameState = Object.freeze({
-      PLAYER_COUNT: 'player_count',
-      PLAYER_NAMES: 'player_names',
+      PLAYERS: 'players',
       LOSE_CONDITION: 'lose_condition',
       SECRECY_NOTICE: 'secrecy_notice',
       TURN_INTRO: 'turn_intro',
@@ -305,19 +314,11 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
 
     class GameModel {
       constructor() {
-        this.state = GameState.PLAYER_COUNT;
+        this.state = GameState.PLAYERS;
         this.playerCount = 3;
         this.players = []; // [{ id, name, originalOrder }]
-        // gh#196. What a player typed on the names screen, indexed BY SEAT, so it survives every
-        // rebuild of that screen -- going back to the count screen and forward again, or back from
-        // the losing-rule screen. Before this existed the typed text lived only as live DOM state on
-        // one input element and every re-render silently threw it away. Written on the way OUT of
-        // the names screen (both exits), read on the way IN.
-        // SHRINK IS DECIDED HERE: the write reads only the inputs currently on screen, so lowering
-        // the count and leaving drops the removed seats' names for good while every remaining seat
-        // keeps its own. Raising the count again gives the new seats empty fields, not a name that
-        // belonged to somebody who left.
-        this.typedNames = [];
+        // gh#196's per-seat store of typed names is gone with the names screen it served: the names
+        // live in the shared player screen and the shared roster now (ADR-0071).
         this.loseCondition = LoseCondition.NEAREST_LOSES;
         this.secretTarget = 0;
         this.currentTurnIndex = 0;
@@ -483,13 +484,8 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
 
     function render() {
       container.innerHTML = '';
+      // GameState.PLAYERS has no case: the shared player screen is up, and the container stays empty.
       switch (game.state) {
-        case GameState.PLAYER_COUNT:
-          renderPlayerCountScreen();
-          break;
-        case GameState.PLAYER_NAMES:
-          renderPlayerNamesScreen();
-          break;
         case GameState.LOSE_CONDITION:
           renderLoseConditionScreen();
           break;
@@ -524,186 +520,6 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
     function announce(text) {
       const live = document.getElementById('hc-live');
       if (live) live.textContent = text;
-    }
-
-    // 1. Player Count Screen
-    function renderPlayerCountScreen() {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <h1 class="screen-title">จำนวนผู้เล่น</h1>
-        <p class="screen-subtitle">เลือกจำนวนผู้เล่นที่จะร่วมเล่นในเกมนี้ (2-10 คน)</p>
-        <div class="player-count-grid" id="countGrid"></div>
-        <button id="btnNextCount" class="btn-primary">ถัดไป ➔</button>
-      `;
-
-      const grid = card.querySelector('#countGrid');
-      for (let i = 2; i <= 10; i++) {
-        const chip = document.createElement('button');
-        chip.className = `count-chip ${game.playerCount === i ? 'selected' : ''}`;
-        chip.textContent = `${i} คน`;
-        chip.onclick = () => {
-          sound.playClick();
-          game.playerCount = i;
-          card.querySelectorAll('.count-chip').forEach(c => c.classList.remove('selected'));
-          chip.classList.add('selected');
-        };
-        grid.appendChild(chip);
-      }
-
-      card.querySelector('#btnNextCount').onclick = () => {
-        sound.playClick();
-        game.state = GameState.PLAYER_NAMES;
-        render();
-      };
-
-      container.appendChild(card);
-    }
-
-    // 2. Player Names Screen
-    // gh#175 (pattern from gh#174). The wipe the reset confirm below guards: every name input still
-    // on screen goes back to its seat's animal name, in place -- data-index IS the seat, so no player
-    // is added or removed. This screen holds no array of the typed names (game.players does not exist
-    // until initPlayers runs, on Next), so there is nothing for a typed string to survive inside;
-    // whatever was in inputs[i].value is simply overwritten. Deliberately DOM-only and free of
-    // sound/storage/render calls, so a test can drive it with plain `{ value }` objects
-    // -- it needs nothing shaped like a real <input>, only the property this writes.
-    function resetNameInputs(inputs) {
-      inputs.forEach((input, i) => {
-        input.value = defaultName(i);
-      });
-    }
-
-    function renderPlayerNamesScreen() {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <h2 class="screen-title">ชื่อผู้เล่น</h2>
-        <p class="screen-subtitle">ระบุชื่อของผู้เล่นแต่ละคน (ไม่ระบุได้)</p>
-        <div class="player-name-list" id="nameList"></div>
-        <!-- gh#175 -- sits with the rows it acts on. -->
-        <button id="btnResetNames" class="btn-secondary" style="width:100%; margin-top:10px;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
-        <button id="btnNextNames" class="btn-primary">ถัดไป ➔</button>
-        <button id="btnBackToCount" class="btn-secondary">ย้อนกลับ</button>
-      `;
-
-      const list = card.querySelector('#nameList');
-      for (let i = 0; i < game.playerCount; i++) {
-        const row = document.createElement('div');
-        row.className = 'player-input-row';
-        // gh#140's animal icon in the badge, not a seat number: the shared shell panel already
-        // renders the icon, and this route builds its own setup screen so it never got it. Marked
-        // aria-hidden because it pictures the animal the placeholder beside it already names -- the
-        // row's POSITION is a separate channel and is deliberately not sourced from the cast.
-        row.innerHTML = `
-          <div class="player-badge" aria-hidden="true">${mascotEmoji(i)}</div>
-          <input type="text" class="player-text-input" placeholder="${defaultName(i)}" maxlength="20" data-index="${i}">
-        `;
-        list.appendChild(row);
-        // gh#196. Restores what this seat's player typed on an earlier visit to this screen. Written
-        // as a DOM PROPERTY on the element parsed above, deliberately NOT interpolated into a value=
-        // attribute in the template: a player name is attacker-owned text (ADR-0026), and a property
-        // write is not an HTML sink at all, so this line adds no new place for a name to break out
-        // of. The placeholder beside it stays the seat's animal name and is not a typed name.
-        row.querySelector('.player-text-input').value = game.typedNames[i] ?? '';
-      }
-
-      // gh#196. The names screen's ONLY durable copy of what was typed. Both exits below go through
-      // it, because both re-enter this screen later: Next reaches the losing-rule screen, which has
-      // its own #btnBackToNames, and Back reaches the count screen. It reads the inputs still on
-      // screen, which is what makes a lowered count drop the seats it removed -- see game.typedNames.
-      const captureTypedNames = () =>
-        Array.from(card.querySelectorAll('.player-text-input')).map(inp => inp.value);
-
-      card.querySelector('#btnNextNames').onclick = () => {
-        sound.playClick();
-        game.typedNames = captureTypedNames();
-        game.initPlayers(game.typedNames);
-        game.state = GameState.LOSE_CONDITION;
-        render();
-      };
-
-      card.querySelector('#btnBackToCount').onclick = () => {
-        sound.playClick();
-        game.typedNames = captureTypedNames();
-        game.state = GameState.PLAYER_COUNT;
-        render();
-      };
-
-      // Reset Player Names Modal (gh#175, pattern decided by gh#174). The question is asked because
-      // the answer is destructive: every name a player typed is replaced. #resetNamesModal is a
-      // SIBLING of #nameList inside this same card, so it reuses #testModal's own reveal shape
-      // (style.display, armed by hand at the reveal) rather than render()'s walk, which only covers
-      // #screenContainer's switch-driven rebuilds.
-      //
-      // The copy names every loss this causes -- all typed names go, and they do not come back --
-      // and what survives: the player count, because this screen has not asked about a losing rule
-      // yet (that is the NEXT screen), so gh#174's "and the rules stay" clause does not hold here and
-      // is dropped rather than copied verbatim over something not yet set.
-      const resetModal = document.createElement('div');
-      resetModal.id = 'resetNamesModal';
-      resetModal.className = 'modal-overlay';
-      resetModal.setAttribute('role', 'dialog');
-      resetModal.setAttribute('aria-modal', 'true');
-      resetModal.setAttribute('aria-labelledby', 'resetNamesTitle');
-      // gh#175 box 3. The body clause below names the losing RULE as well as the seat count, and is
-      // the same sentence as short-stick's #reset-names-dialog. The owner's 2026-09-03 licence to omit the
-      // rule clause covers a route with no settable rule; this is not one. renderLoseConditionScreen
-      // writes game.loseCondition from two selectable cards, and its #btnBackToNames returns to this
-      // very screen, so a player can open this modal with the rule already chosen. Neither the rule
-      // nor the count is reachable from the confirm handler, so the promise is true, not decorative.
-      resetModal.innerHTML = `
-        <div class="modal-card">
-          <div class="modal-header">
-            <h3 id="resetNamesTitle">รีเซ็ตเป็นชื่อสัตว์?</h3>
-            <button id="btnCloseResetNames" class="icon-btn" style="width: 36px; height: 36px;" aria-label="ปิด">✕</button>
-          </div>
-          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">
-            ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
-          </p>
-          <div style="display: flex; gap: 10px;">
-            <button id="btnCancelResetNames" class="btn-secondary" style="flex:1;">เก็บชื่อเดิมไว้</button>
-            <button id="btnConfirmResetNames" class="btn-primary" style="flex:1;">รีเซ็ตเป็นชื่อสัตว์</button>
-          </div>
-        </div>
-      `;
-      card.appendChild(resetModal);
-
-      const closeResetNamesModal = () => {
-        resetModal.style.display = 'none';
-        // ADR-0017. Closing this modal is ITSELF a reveal, and that -- not a rebuild -- is the
-        // hazard. "#btnNextNames", "#btnBackToCount" and "#btnResetNames" sat behind it a frame ago,
-        // and the fact their 400ms window is long expired is exactly WHY a second contact activates
-        // one: a double-tap on close, cancel or confirm advances the screen. Armed in this shared
-        // closer so no branch out of the modal can miss it.
-        armAllButtons(card);
-      };
-
-      card.querySelector('#btnResetNames').onclick = () => {
-        sound.playClick();
-        resetModal.style.display = 'flex';
-        // #resetNamesModal is a SIBLING of #nameList, revealed by a direct style write outside
-        // render()'s own container walk -- without this call its two buttons take the second
-        // contact of a double-tap on the trigger that just opened them (ADR-0017), same class as
-        // #testModal above.
-        armAllButtons(resetModal);
-      };
-      resetModal.querySelector('#btnCloseResetNames').onclick = closeResetNamesModal;
-      resetModal.querySelector('#btnCancelResetNames').onclick = closeResetNamesModal;
-      resetModal.querySelector('#btnConfirmResetNames').onclick = () => {
-        sound.playClick(420);
-        closeResetNamesModal();
-        // No render() here on purpose: resetNameInputs writes each input's `.value` in place and
-        // creates no new DOM, so a typed string is simply overwritten. What used to be written here
-        // was that the surrounding buttons "stay the exact elements render() armed, so their 400ms
-        // window is long past" -- offered as the reason no re-arm was needed. That is the wrong way
-        // round, and adversarial review caught it: a long-expired window is precisely why a second
-        // contact ACTIVATES them. The arming now lives in closeResetNamesModal above, which every
-        // branch out of this modal goes through.
-        resetNameInputs(card.querySelectorAll('.player-text-input'));
-      };
-
-      container.appendChild(card);
     }
 
     // 3. Lose Condition Screen
@@ -756,10 +572,11 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
         render();
       };
 
+      // Back leads to the players, which are the shared player screen's since ADR-0071. No round is
+      // live on this screen, so it opens straight away; the chosen rule stays on the model.
       card.querySelector('#btnBackToNames').onclick = () => {
         sound.playClick();
-        game.state = GameState.PLAYER_NAMES;
-        render();
+        playerScreen.open();
       };
 
       container.appendChild(card);
@@ -1099,10 +916,11 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
         render();
       };
 
+      // A new setup starts at the players, the shared player screen's since ADR-0071. The round is
+      // over on this screen, so it opens straight away -- there is nothing to confirm losing.
       card.querySelector('#btnNewSetup').onclick = () => {
         sound.playClick();
-        game.state = GameState.PLAYER_COUNT;
-        render();
+        playerScreen.open();
       };
 
       container.appendChild(card);
@@ -1342,5 +1160,43 @@ import { mascotEmoji, mascotNames } from '../_mascots.ts';
     window.gameEngine = game;
     window.runDeterministicTests = runAllDeterministicTests;
 
-    // Start UI
-    render();
+    /** The engine entry the player screen starts (ADR-0071): every player it hands over is seated, in
+     *  the order given -- a blank-named seat already arrives as its mascot's name. Then this game's
+     *  own option, the losing rule, comes next (ruling 1), then play. */
+    function startWithPlayers(players) {
+      game.playerCount = players.length;
+      game.initPlayers(players.map((p) => p.name));
+      game.state = GameState.LOSE_CONDITION;
+      render();
+    }
+
+    /** The states a round is live on: the target is drawn from the secrecy notice onward. Neither the
+     *  losing-rule screen (nothing drawn yet) nor the results (the round is over) is one, so editing
+     *  the players there loses nothing and the screen opens without asking (ADR-0071 ruling 6). */
+    const ROUND_STATES = new Set([
+      GameState.SECRECY_NOTICE,
+      GameState.TURN_INTRO,
+      GameState.NUMBER_ENTRY,
+      GameState.PICK_LOCKED,
+      GameState.PASS_DEVICE,
+      GameState.REVEAL,
+    ]);
+
+    // Start UI: the player screen opens first; its start hands the ticked players to
+    // startWithPlayers. The chrome's edit control reaches the same screen through the shared event.
+    const playersRoot = document.getElementById('hcPlayers');
+    const playerScreen = mountPlayerScreen({
+      root: playersRoot,
+      range: howCloseIsNear.players,
+      onStart: startWithPlayers,
+      roundActive: () => ROUND_STATES.has(game.state),
+      // Nothing of a round outlives its screen here -- no timer, no audio loop; the draw and the picks
+      // are overwritten by the next startNewGame -- so ending it is putting the screen away, which
+      // onOpen does on every open anyway.
+      abortRound: () => {},
+      onOpen: () => {
+        game.state = GameState.PLAYERS;
+        render();
+      },
+    });
+    playerScreen.open();

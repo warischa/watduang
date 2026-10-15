@@ -33,7 +33,6 @@
   },
   "how-close-is-near": {
     "#btnCloseTestModal": "ปิด",
-    "#btnCloseResetNames": "ปิด",
     "[data-key=\"backspace\"]": "ลบตัวเลขตัวสุดท้าย"
   },
   "one-bomb": {

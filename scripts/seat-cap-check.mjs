@@ -580,6 +580,22 @@ const HANDOFFS = {
       return { seated: env.round.count === env.round.names.length ? env.round.count : NaN };
     },
   },
+  'how-close-is-near': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() sizes the route\'s GameModel to the players it is handed and seats them through the model\'s own initPlayers()',
+    run: (source, _module, players) => {
+      const handoff = compileMethod(source, 'startWithPlayers(players)');
+      if (handoff.error) return handoff;
+      // The model's real seat builder, sliced from the same file: the handoff's count is only half the
+      // seating, and a stub here would be what got measured.
+      const seatBuilder = compileMethod(source, 'initPlayers(names)');
+      if (seatBuilder.error) return seatBuilder;
+      const model = { playerCount: 0, players: [] };
+      model.initPlayers = seatBuilder.make({});
+      handoff.make({ game: model })(players);
+      return { seated: model.playerCount === model.players.length ? model.players.length : NaN };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, fileName = 'main.js', module, declared, handoff }) {
