@@ -48,7 +48,6 @@ const BOOTS_ON = {
   // Opens on a menu whose #btn-menu-start is what renders the seat fields -- setup is a click away.
   'wire-snip-panic': { nav: '#btn-menu-start' },
   // These two open on the COUNT step, which is step one of their own setup, not a menu.
-  'how-close-is-near': { nav: null },
   'power-meter': { nav: null },
   // Boots straight onto #screen-setup: markup.html ships it without the `hidden` its two sibling
   // screens carry, and the engine's own boot renders the seat fields into it. So there is nothing to

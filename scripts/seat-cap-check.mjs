@@ -264,11 +264,13 @@ function textCap(found) {
 // --- Routes whose bounds come from the manifest -------------------------------------------------
 // These cannot disagree with the declaration because they compute from it. The check is structural:
 // the route's own module must still read the maximum out of the manifest.
-const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb']);
+const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'how-close-is-near', 'timebomb']);
 // Two shapes: the maximum read out (`= game.players[1]`, dice-loser), or the whole declared tuple
 // handed to the shared player screen (`range: game.players`, timebomb since gh#264) -- whose clamp
-// sharedScreenAudit below then runs against that same tuple.
-const DERIVATION = /(?:=|range:)\s*(?:Math\.min\(\s*)?game\.players(?:\[1\]|(?![\w[]))/;
+// sharedScreenAudit below then runs against that same tuple. The tuple form takes any receiver name:
+// how-close-is-near's `game` is its model instance, so its import has another name, and
+// sharedScreenAudit independently reds a receiver that is not the route's default game import.
+const DERIVATION = /(?:=|range:)\s*(?:Math\.min\(\s*)?game\.players(?:\[1\]|(?![\w[]))|range:\s*[A-Za-z_$][\w$]*\.players(?![\w$[])/;
 
 // --- The audit ----------------------------------------------------------------------------------
 
@@ -447,6 +449,21 @@ const HANDOFFS = {
       // Both views of the seat count must agree with the hand: the count the round reads and the
       // seats it iterates.
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
+    },
+  },
+  'how-close-is-near': {
+    what: 'startWithPlayers() sizes the route\'s GameModel to the players it is handed and seats them through the model\'s own initPlayers()',
+    run: (source, _module, players) => {
+      const handoff = compileMethod(source, 'startWithPlayers(players)');
+      if (handoff.error) return handoff;
+      // The model's real seat builder, sliced from the same file: the handoff's count is only half the
+      // seating, and a stub here would be what got measured.
+      const seatBuilder = compileMethod(source, 'initPlayers(names)');
+      if (seatBuilder.error) return seatBuilder;
+      const model = { playerCount: 0, players: [] };
+      model.initPlayers = seatBuilder.make({});
+      handoff.make({ game: model })(players);
+      return { seated: model.playerCount === model.players.length ? model.players.length : NaN };
     },
   },
 };
@@ -632,6 +649,12 @@ async function selftest() {
   assert.deepEqual(tupleDerivation.failures, [], 'POSITIVE CONTROL: handing the declared tuple over is a live derivation');
   const indexed = auditGame({ id: 'g', declaredMax: 10, routeId: 'timebomb', engine: { name: 'main.ts', source: 'mountPlayerScreen({ root, range: game.players0, onStart });' }, driver: null });
   assert.match(indexed.failures[0].detail, /no longer reads the declared maximum/, 'a different identifier must not read as the tuple');
+  const renamed = auditGame({ id: 'g', declaredMax: 10, routeId: 'how-close-is-near', engine: { name: 'main.js', source: 'mountPlayerScreen({ root, range: howCloseIsNear.players, onStart });' }, driver: null });
+  assert.deepEqual(renamed.failures, [], 'POSITIVE CONTROL: the tuple under another import name is a live derivation');
+  for (const range of ['[2, 10]', 'howCloseIsNear.players0', 'howCloseIsNear.players[0]']) {
+    const lost = auditGame({ id: 'g', declaredMax: 10, routeId: 'how-close-is-near', engine: { name: 'main.js', source: `mountPlayerScreen({ root, range: ${range}, onStart });` }, driver: null });
+    assert.match(lost.failures[0]?.detail ?? '', /no longer reads the declared maximum/, `range: ${range} must not read as the tuple`);
+  }
   console.log('PASS derived (tuple): handing game.players to the shared screen derives; a lookalike identifier does not');
 
   // gh#264: the shared screen audit, against the REAL shared clamp, both directions.

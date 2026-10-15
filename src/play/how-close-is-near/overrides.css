@@ -27,8 +27,30 @@
   padding-block-start: calc(max(6px, env(safe-area-inset-top)) + 94px);
 }
 
-/* The mockup's own icon buttons sit top-RIGHT and are already 44x44 in style.css, and .count-chip is
-   52px tall — no tap-target floor to raise here. Recorded so the next reader does not re-measure it. */
+/* The mockup's own icon buttons sit top-RIGHT and are already 44x44 in style.css — no tap-target
+   floor to raise here. Recorded so the next reader does not re-measure it. (The mockup's .count-chip
+   went with its count screen in gh#264: the count is the shared player screen's, ADR-0071.) */
+
+/* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the
+   mockup's own palette (style.css's :root tokens). Two have no token to point at there, so they carry
+   the mockup's own literal: the modal card's opaque ground (.modal-card -- the dialogs render in the
+   top layer, over no page to blend with) and the text .btn-primary sets on its accent. */
+:root {
+  --ps-panel: var(--surface-card);
+  --ps-panel-solid: #1e293b;
+  --ps-edge: var(--surface-card-border);
+  --ps-ink: var(--text-main);
+  --ps-muted: var(--text-muted);
+  --ps-accent: var(--primary);
+  --ps-on-accent: #fff;
+}
+
+/* The player screen's root sits in #appRoot beside #screenContainer; the board's page padding around
+   the screen column, block only -- #appRoot already pads the inline edges. */
+.hc-players {
+  box-sizing: border-box;
+  padding: 20px 0 24px;
+}
 
 /* Screen-reader-only. #hc-live carries what the visuals cannot: which player the phone goes to and
    that a new turn began. Never the drawn target and never a pick -- both are secret by the rules of
