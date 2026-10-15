@@ -168,8 +168,8 @@ function armAfterQuiet(
   // window arrives — that one is the deliberate tap, and it is also the only moment we can prove the
   // window is really over. Until then an in-window contact re-disables the set and reschedules, so
   // `arm` (and with it `onArm`) can run twice on a ghost; every onArm on the site is idempotent by
-  // construction — the only one, pinocchio-luck's validateCount, recomputes `disabled` from the
-  // roster rather than toggling it.
+  // construction — the only one, the shared player screen's surface gate (ADR-0071), recomputes
+  // `disabled` from its own state through syncControls rather than toggling it.
   //
   // `ev` is optional because the route tests dispatch a bare pointerdown with no event object, and
   // because the construction call below has none: no stamp means the timer alone decides, unchanged.
@@ -209,10 +209,10 @@ function armAfterQuiet(
  *
  *  `onArm` is the one hook out of the gate: it fires once, synchronously, right after the window
  *  closes and the collected controls that were enabled when the gate was called have been set
- *  `disabled = false`. It exists because a control whose enabled state is OWNED by the page
- *  (pinocchio-luck's `#start`, owned by validateCount()) can become invalid DURING the window --
- *  gh#188's snapshot only reads the state at construction -- which would offer an invalid roster as
- *  startable. Excepting such a control instead would leave it with no ghost-tap guard at all, so the
+ *  `disabled = false`. It exists because a control whose enabled state is OWNED by the page (the
+ *  shared player screen's start control, owned by its syncControls()) can become invalid DURING the
+ *  window -- gh#188's snapshot only reads the state at construction -- which would offer an invalid
+ *  roster as startable. Excepting such a control instead would leave it with no ghost-tap guard at all, so the
  *  hook re-asserts the owner's state rather than opting the control out of the gate. Default
  *  `undefined` — the gate's behaviour for every caller that omits it is byte-for-byte what it was. */
 export function armAllButtons(

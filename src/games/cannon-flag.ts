@@ -47,11 +47,12 @@ const game: GameModule = {
   id: 'cannon-flag',
   names: { th: 'ยิงธง', en: 'Cannon Flag' },
   category: 'party',
-  // Twenty, not ten: this route's setup stepper increments until the count reaches twenty, which is
-  // the ceiling driving that control to saturation measures. Owner ruling 2026-09-10 on gh#230 raised
-  // the declaration to match the engine rather than lowering the ceiling, because the setup panel
-  // admits players using this number. Unlike its sibling route this engine has no clamp function and
-  // no self-test of its own, so scripts/seat-cap-check.mjs is the only thing pinning the pair.
+  // Twenty, not ten: owner ruling 2026-09-10 on gh#230 raised the declaration to match the engine,
+  // whose own setup stepper went up to twenty, rather than lowering the ceiling. That stepper is gone
+  // (ADR-0071): the shared player screen admits players by clamping to this range, and the route
+  // hands the chosen players to its engine through startWithPlayers. This engine has no clamp
+  // function and no self-test of its own, so scripts/seat-cap-check.mjs is the only thing pinning
+  // that the engine seats every player this range admits.
   players: [2, 20],
   renderer: 'canvas2d',
   startsRound: true,

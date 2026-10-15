@@ -14,8 +14,9 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 import { isMuted, setMuted } from '../../shell/audio.ts';
 // ADR-0071 (gh#264): the one player screen every party route mounts. It owns the count, the names,
 // their animal defaults (ADR-0054), the reset, the roster and the group; this file gets the ticked
-// players back through startWithPlayers(). The mockup's own name rows, add/remove controls, reset
-// dialog and the draft that persisted them are GONE with roster-bridge.ts, which drove them.
+// players back through startWithPlayers(). The mockup's own name rows, add/remove controls and reset
+// dialog are GONE with roster-bridge.ts, which drove them; the draft that persisted them now keeps
+// this game's own options only (loadDraft, ADR-0071 § Data).
 import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
 // The module's default export is read for one field, `players`: the range the player screen admits is
 // the one the manifest declares (ADR-0065), never a number restated here. Named apart from this
@@ -379,10 +380,37 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         app.classList.add('shake-impact');
       };
 
-      /* Storage persistence: none of its own since gh#264. The mockup's draft kept the names AND the
-         penalty choice under one private key; ADR-0071 makes the shared roster the only player store
-         and scripts/player-screen-mount-check.mjs reds a route that touches web storage itself, so
-         the whole draft went. The penalty choice now lasts the page visit, not the device. */
+      /* Storage persistence: this game's own options only (ADR-0071 § Data, owner ruling
+         2026-10-15 -- game settings are not players). The mockup's draft kept the names beside them
+         under the same key; the names are the shared roster's now, and the shared core moves an old
+         draft's player list into the roster and rewrites the draft without it. So a player field
+         still sitting here is ignored on read and never written back.
+         The stick count's floor is the number of players, and none are seated yet at load: it is
+         re-derived when the players are handed over (lockFairCounts in startWithPlayers), never
+         taken from storage. ./settings-persistence.test.mjs runs both halves. */
+      const loadDraft = () => {
+        try {
+          const raw = localStorage.getItem('short-stick-pro-v2');
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (Number.isInteger(data.stickCount)) game.stickCount = Math.min(20, data.stickCount);
+            if (Number.isInteger(data.shortCount)) game.shortCount = Math.max(1, Math.min(3, data.shortCount));
+            if (['none', 'preset', 'custom'].includes(data.penaltyMode)) game.penaltyMode = data.penaltyMode;
+            if (typeof data.selectedPenalty === 'string') game.selectedPenalty = data.selectedPenalty;
+          }
+        } catch (_) {}
+      };
+
+      const saveDraft = () => {
+        try {
+          localStorage.setItem('short-stick-pro-v2', JSON.stringify({
+            stickCount: game.stickCount,
+            shortCount: game.shortCount,
+            penaltyMode: game.penaltyMode,
+            selectedPenalty: game.selectedPenalty
+          }));
+        } catch (_) {}
+      };
 
       /* ====================================================
          4. SCREEN & FSM MANAGEMENT
@@ -490,6 +518,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
           chip.addEventListener('click', () => {
             sounds.playClick(600);
             game.selectedPenalty = preset;
+            saveDraft();
             renderSetup();
           });
           presetContainer.appendChild(chip);
@@ -650,6 +679,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         // watduang: re-applied here, not only in renderSetup -- btn-replay-round calls startMatch
         // directly, so the lock holds on that path too.
         lockFairCounts();
+        saveDraft();
 
         game.lengths = generateLengths(game.stickCount, game.shortCount);
         
@@ -736,6 +766,8 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
       // options (#view-setup) -> play. So the hero opens the player screen, the options screen's back
       // control returns to it, and the result screen's edit control reopens it; startWithPlayers()
       // is the only way into the options.
+      loadDraft();
+
       $('btn-start-setup').addEventListener('click', () => { sounds.playClick(); playerScreen.open(); });
       $('btn-setup-back').addEventListener('click', () => { sounds.playClick(); playerScreen.open(); });
       $('btn-begin-game').addEventListener('click', () => startMatch());
@@ -798,11 +830,13 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         } else if (game.penaltyMode === 'preset' && !game.selectedPenalty) {
           game.selectedPenalty = PENALTY_PRESETS[0];
         }
+        saveDraft();
         renderSetup();
       });
 
       $('penalty-custom-input').addEventListener('input', (e) => {
         game.selectedPenalty = e.target.value;
+        saveDraft();
       });
 
       // Setup Steppers
@@ -810,6 +844,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.stickCount > game.players.length) {
           sounds.playClick(440);
           game.stickCount -= 1;
+          saveDraft();
           renderSetup();
         }
       });
@@ -817,6 +852,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.stickCount < 20) {
           sounds.playClick(560);
           game.stickCount += 1;
+          saveDraft();
           renderSetup();
         }
       });
@@ -824,6 +860,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.shortCount > 1) {
           sounds.playClick(440);
           game.shortCount -= 1;
+          saveDraft();
           renderSetup();
         }
       });
@@ -831,6 +868,7 @@ import { mountStripOverflowCounter } from '../_strip-overflow.ts';
         if (game.shortCount < Math.min(3, game.players.length - 1)) {
           sounds.playClick(560);
           game.shortCount += 1;
+          saveDraft();
           renderSetup();
         }
       });

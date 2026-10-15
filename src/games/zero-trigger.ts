@@ -8,14 +8,15 @@
 // entry is what puts the card on the hub and what scripts/make-og.mjs resolves.
 //
 // This module knows nothing about the shared roster or the shared cast (gh#140). Identity and names
-// reach the mockup through src/play/zero-trigger/roster-bridge.ts, which imports MAX_PLAYERS from
-// here — that direction, and only that direction.
+// reach the route through the shared player screen (ADR-0071), which the route mounts with this
+// manifest's `players` range — that direction, and only that direction.
 import type { GameContext, GameModule } from './types.ts';
 import { el } from './_el.ts';
 
-/** This game's own seat range. The mockup's setup screen adds and removes seats between exactly
- *  these two bounds and its own badge reads "N / 10", so 10 is read off the mockup rather than off
- *  the site-wide ceiling of 20, which this game simply does not use. That ceiling is ruling 5 of gh#142,
+/** This game's own seat range, the one the shared player screen clamps to (ADR-0071 ruling 2). The
+ *  mockup's setup screen added and removed seats between exactly these two bounds and its own badge
+ *  read "N / 10", so 10 was read off the mockup rather than off the site-wide ceiling of 20, which
+ *  this game simply does not use. That ceiling is ruling 5 of gh#142,
  *  cited here by ticket on purpose: gh#142's ADR was written on an unmerged branch and the number it
  *  claims is taken on main by an unrelated ADR, so the ticket is the only address that resolves. */
 export const MIN_PLAYERS = 2;
@@ -67,7 +68,7 @@ const game: GameModule = {
     description:
       'เกมจับจังหวะส่งมือถือวนทีละคน ระบบสุ่มเลขต้องห้าม 1 ตัวให้ทั้งวง แต่ละคนแตะหยุดนาฬิกาจับเวลา ถ้าเลขท้ายที่หยุดได้ตรงกับเลขต้องห้าม คนนั้นแพ้ มี 3 ระดับความเร็ว เล่นได้ 2-10 คน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
     steps: [
-      'เลือกจำนวนผู้เล่น 2-10 คน ตั้งชื่อและเลือกตัวการ์ตูนประจำตัวได้',
+      'เลือกจำนวนคนเล่นในวง 2-10 คน ตั้งชื่อได้ หรือใช้ชื่อสัตว์ประจำตัวที่ให้มา',
       'ระบบสุ่มเลขต้องห้าม 1 ตัว (0-9) ให้ทุกคนในวงเหมือนกัน',
       'ส่งมือถือวนทีละคน แต่ละคนแตะหน้าจอเพื่อหยุดนาฬิกา',
       'ใครหยุดแล้วเลขท้ายตรงกับเลขต้องห้าม คนนั้นแพ้และรับบทลงโทษ',

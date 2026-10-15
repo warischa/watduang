@@ -34,8 +34,10 @@ test('wire-snip-panic: no route-local reset survives beside the shared one', () 
 });
 
 // Nor the list it reset: the mockup's add/remove rows and their builder are the player system the
-// shared screen replaced. A hidden leftover is not a conversion.
+// shared screen replaced. A hidden leftover is not a conversion. The storage KEY is allowed back since
+// the owner ruling of 2026-10-15 (ADR-0071 § Data) -- for the penalty choice only; that it holds no
+// player, read or written, is run for real in ./settings-persistence.test.mjs.
 test('wire-snip-panic: the mockup player list is gone from the markup and the engine', () => {
   assert.doesNotMatch(MARKUP, /id="player-list-container"|id="btn-add-player"|id="input-new-player"/);
-  assert.doesNotMatch(MAIN, /renderSetupPlayerList|player-list-container|btn-add-player|wire-panic-v1/);
+  assert.doesNotMatch(MAIN, /renderSetupPlayerList|player-list-container|btn-add-player|parsed\.players|players: game\.players/);
 });

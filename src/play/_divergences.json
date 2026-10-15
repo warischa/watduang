@@ -145,11 +145,18 @@
         "why": "the mockup's own roster-row builder; a re-extraction that put it back would rebuild a setup the shared screen replaced"
       },
       {
-        "fragment": "ZERO_TRIGGER_DATA_V1",
+        "fragment": "data.players",
         "absent": true,
         "deliberate": true,
         "owner": "gh#264",
-        "why": "the mockup's own storage blob, which kept its player list; the route touches no web storage since the shared roster owns the players (ADR-0071)"
+        "why": "the mockup's read of its player list out of its storage blob; the shared roster owns the players (ADR-0071), and the blob keeps only this game's own setting (owner ruling 2026-10-15), so a re-extraction must not seed players from it again"
+      },
+      {
+        "fragment": "players: this.state.players",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's write of its player list into its storage blob; the shared core strips that field when it migrates the blob (ADR-0071 § Data), so a re-extraction must not write it back"
       }
     ]
   },

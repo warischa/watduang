@@ -8,14 +8,14 @@
 // entry is what puts the card on the hub and what scripts/make-og.mjs resolves.
 //
 // This module knows nothing about the shared roster or the shared cast (gh#140). Identity and names
-// reach the mockup through src/play/bangkok-drift/roster-bridge.ts, which imports MAX_PLAYERS from
-// here — that direction, and only that direction.
+// reach the route through the shared player screen (ADR-0071), which the route mounts with this
+// manifest's `players` range — that direction, and only that direction.
 import type { GameContext, GameModule } from './types.ts';
 import { el } from './_el.ts';
 
-/** This game's own seat range. The mockup's setup screen steps between exactly these two bounds —
- *  its own stepper refuses to go below the first or above the second — so seeding past them would
- *  silently drop names. Read off the mockup rather than off any site-wide ceiling. */
+/** This game's own seat range, the one the shared player screen clamps to (ADR-0071 ruling 2). Read
+ *  off the mockup, whose own setup stepper refused to go below the first bound or above the second,
+ *  rather than off any site-wide ceiling. */
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 10;
 

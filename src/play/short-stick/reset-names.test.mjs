@@ -23,9 +23,11 @@ resetCases({ test, assert, routeMarkup: MARKUP, rootId: 'ssPlayers', range: game
 
 // The mockup's own wipe and its own name store must not come back beside the shared ones: two resets
 // over two name stores is the drift gh#174 was about, and a private draft of the names is a second
-// roster the next game never sees.
+// roster the next game never sees. The draft KEY is allowed back since the owner ruling of
+// 2026-10-15 (ADR-0071 § Data) -- for this game's own options only; that it holds no names, read or
+// written, is run for real in ./settings-persistence.test.mjs.
 test('short-stick: no route-local reset or name store survives beside the shared one', () => {
-  assert.doesNotMatch(MAIN, /resetPlayerNames|reset-names-dialog|btn-reset-names|short-stick-pro-v2|localStorage/);
+  assert.doesNotMatch(MAIN, /resetPlayerNames|reset-names-dialog|btn-reset-names|data\.players|players: game\.players/);
   assert.doesNotMatch(MARKUP, /id="btn-reset-names"|id="reset-names-dialog"|id="player-inputs-container"|id="btn-add-player"/);
 });
 
