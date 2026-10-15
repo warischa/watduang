@@ -67,8 +67,8 @@ not empty, it wins and the per-game keys are deleted unread.
 *(Widened 2026-10-15, owner ruling during fan-out.)* freeze-tap's own list (`freeze_tap_players`)
 migrates the same way. Three routes kept their players inside a blob that also held game settings —
 zero-trigger (`ZERO_TRIGGER_DATA_V1`), short-stick (`short-stick-pro-v2`) and wire-snip-panic
-(`wire-panic-v1`); the same rule applies to their players field, and their settings move to a
-settings-only key.
+(`wire-panic-v1`); the same rule applies to their players field; the migration then rewrites each blob without it,
+so the same key holds settings only.
 
 **Game settings are not players.** *(Owner ruling 2026-10-15.)* A route may keep storing its own
 non-player settings — motion, particles, a penalty mode — under keys named in an owned per-route
