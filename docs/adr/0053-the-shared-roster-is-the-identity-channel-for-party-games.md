@@ -1,6 +1,6 @@
 # ADR-0053 — the shared roster is the identity channel for party games
 
-Date: 2026-08-30 · Status: accepted · Owner decision · Supersedes: [ADR-0054](0054-one-fixed-mascot-identity-baseline-for-party-games.md) ruling 4, and the gh#140 ruling comment of 2026-08-29 that restated it · Relates: [ADR-0010](0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md), [ADR-0050](0050-party-games-go-full-screen-landings-deleted.md), gh#164, gh#140, gh#145, gh#146, gh#152
+Date: 2026-08-30 · Status: accepted (§ The exception superseded 2026-10-15 by [ADR-0071](0071-one-shared-player-setup-screen-for-every-party-game.md)) · Owner decision · Supersedes: [ADR-0054](0054-one-fixed-mascot-identity-baseline-for-party-games.md) ruling 4, and the gh#140 ruling comment of 2026-08-29 that restated it · Relates: [ADR-0010](0010-checkpoint-slot-stays-site-wide-until-a-second-writer-exists.md), [ADR-0050](0050-party-games-go-full-screen-landings-deleted.md), gh#164, gh#140, gh#145, gh#146, gh#152
 
 ## Context
 
@@ -61,6 +61,11 @@ list (names, emoji, colors, fixed order, ceiling 20) is the data baseline every 
 baseline and runtime channel are separate questions; only the second one is reversed here.
 
 ## The exception: timebomb keeps a local player list
+
+**SUPERSEDED by [ADR-0071](0071-one-shared-player-setup-screen-for-every-party-game.md)** (owner
+ruling, 2026-10-15, gh#264). timebomb moves onto the shared roster with a one-time migration of its
+local key; the cost this section names is real and was accepted, recorded there. Kept readable rather
+than deleted: it is the record of why the exception existed.
 
 `src/play/timebomb/main.ts` stores its players in its own `localStorage` key and does not import the
 setup bridge. It reads `loadRoster()` but never calls `saveGroup`, and its `buildContext` deliberately

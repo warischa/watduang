@@ -31,6 +31,10 @@
     {
       "id": "page-8",
       "name": "gh#262 · 404 + proposals"
+    },
+    {
+      "id": "page-9",
+      "name": "gh#264 · หน้าผู้เล่นกลาง (ADR-0071)"
     }
   ],
   "artboards": [
@@ -429,6 +433,15 @@
       "y": 1000,
       "w": 1440,
       "h": 1478
+    },
+    {
+      "file": "PlayerSetup.dc.html",
+      "title": "Shared player setup · 7 states (gh#264)",
+      "page": "page-9",
+      "x": 0,
+      "y": 0,
+      "w": 1800,
+      "h": 4164
     }
   ],
   "annotations": [

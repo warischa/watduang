@@ -1,0 +1,318 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; }
+    /* Board for gh#264 / ADR-0071: the one player-setup screen every party game mounts. Labels are English
+       design annotations. Structure and every px value are timebomb's shipped setup screen
+       (src/play/timebomb/play.css: .tb-setup, .tb-count, .tb-step, .tb-player, .tb-secondary-btn,
+       .game-btn-primary, .tb-dialog) unless a tag says NEW. Colour enters only through the --ps-* tokens
+       below; each route maps them onto its own palette (ADR-0054 / ADR-0048 token rule). */
+    .sheet { width: 1800px; background: #ffffff; color: #14142b; }
+    .head { padding: 32px 40px; background: #14142b; color: #ffcc00; }
+    .head b { display: block; font: 700 26px/1.3 ui-monospace, Menlo, monospace; }
+    .head span { display: block; margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0; }
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .row .why { margin: 0 0 22px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1500px; }
+    .cands { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; max-width: 390px; }
+
+    /* Tokens. Dark = timebomb's own values (its --tb-* block), so the pilot route renders unchanged. */
+    .theme-dark {
+      --ps-bg: #070c14; --ps-glow: #172554; --ps-panel: rgba(15, 23, 42, 0.88); --ps-panel-solid: #0f172a;
+      --ps-edge: rgba(255, 255, 255, 0.14); --ps-ink: #f8fafc; --ps-muted: #94a3b8;
+      --ps-accent: #f59e0b; --ps-on-accent: #070c14;
+    }
+    /* Light = an example host mapping from the site tokens (src/styles/tokens.css: --color-ground-warm,
+       --color-text, --color-muted, --color-border) and the party pill colour of the chrome bar
+       (HomeShelf320). A real route supplies its own values; this frame only proves the structure
+       survives a light ground. Ink on the accent, not white: #14142b on #ff3d7f is about 5:1. */
+    .theme-light {
+      --ps-bg: #fff6e0; --ps-glow: #ffffff; --ps-panel: #ffffff; --ps-panel-solid: #ffffff;
+      --ps-edge: #e5e7eb; --ps-ink: #14142b; --ps-muted: #3d3b5c;
+      --ps-accent: #ff3d7f; --ps-on-accent: #14142b;
+    }
+
+    .phone { width: 390px; box-shadow: 0 0 0 1px #14142b; font-family: 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif;
+      background: radial-gradient(circle at 50% 15%, var(--ps-glow) 0%, var(--ps-bg) 70%); color: var(--ps-ink); position: relative; }
+    .phone.w320 { width: 320px; }
+    .top { display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 8px 56px; box-sizing: border-box;
+      border-bottom: 1px solid var(--ps-edge); position: relative; }
+    .x { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--ps-edge); background: var(--ps-panel); display: grid; place-items: center; font-size: 18px; }
+    .brand { margin: 0; font: 500 20px 'Mitr', sans-serif; letter-spacing: .5px; }
+    .main { padding: 20px 16px 24px; }
+    .ps { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; max-width: 420px; margin: 0 auto; }
+    .tagline { margin: 0; text-align: center; font-size: 15px; line-height: 1.6; color: var(--ps-muted); }
+    .slot { outline: 2px dashed #d6336c; outline-offset: 3px; }
+    .count { display: flex; align-items: center; gap: 16px; }
+    .step { width: 48px; height: 48px; border: 1px solid var(--ps-edge); border-radius: 50%; background: var(--ps-panel);
+      color: var(--ps-ink); font-size: 24px; line-height: 1; display: grid; place-items: center; }
+    .step.off { opacity: .4; }
+    .count-read { min-width: 5ch; text-align: center; font: 22px 'Mitr', sans-serif; }
+    .players { display: flex; flex-direction: column; gap: 8px; width: 100%; margin: 0; padding: 0; list-style: none; }
+    .p { display: flex; align-items: center; gap: 12px; padding: 6px 12px; border: 1px solid var(--ps-edge); border-radius: 14px; background: var(--ps-panel); }
+    .p .e { font-size: 22px; line-height: 1; }
+    .p .n { flex: 1; min-width: 0; min-height: 44px; display: flex; align-items: center; font-size: 17px; }
+    .p .n.blank { color: var(--ps-muted); }
+    /* NEW: saved-roster row. Tick and remove are 44px targets (gh#263 floor); the visible tick box is 26px. */
+    .p.saved { gap: 8px; padding: 6px 4px; }
+    .tick, .rm { width: 44px; height: 44px; flex: none; display: grid; place-items: center; }
+    .tick i { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--ps-edge); box-sizing: border-box;
+      display: grid; place-items: center; font-style: normal; font-size: 16px; font-weight: 700; }
+    .tick.on i { background: var(--ps-accent); border-color: var(--ps-accent); color: var(--ps-on-accent); }
+    .rm { color: var(--ps-muted); font-size: 22px; }
+    .p.out .e, .p.out .n { opacity: .45; }
+    .sit { font-size: 12px; color: var(--ps-muted); border: 1px solid var(--ps-edge); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+    .add { width: 100%; min-height: 48px; box-sizing: border-box; border: 1px dashed var(--ps-edge); border-radius: 14px; display: grid;
+      place-items: center; font: 16px 'Mitr', sans-serif; color: var(--ps-ink); }
+    .add.off { opacity: .4; }
+    .limit { margin: 0; font-size: 14px; color: var(--ps-ink); text-align: center; }
+    .limit b { color: var(--ps-accent); font-weight: 600; }
+    .hint { margin: 0; text-align: center; font-size: 12px; color: var(--ps-muted); }
+    .sec { width: 100%; min-height: 48px; box-sizing: border-box; padding: 0 14px; border: 1px solid var(--ps-edge); border-radius: 16px;
+      background: var(--ps-panel); color: var(--ps-ink); font: 16px 'Mitr', sans-serif; display: grid; place-items: center; }
+    .go { width: 100%; min-height: 60px; box-sizing: border-box; border: 1px solid var(--ps-edge); border-radius: 16px; background: var(--ps-accent);
+      color: var(--ps-on-accent); font: 500 21px 'Mitr', sans-serif; display: grid; place-items: center; }
+    .go.off { opacity: .5; }
+    .backdrop { position: absolute; inset: 56px 0 0 0; background: rgba(7, 12, 20, 0.72); display: grid; place-items: center; }
+    .dlg { width: 340px; box-sizing: border-box; padding: 20px; border: 1px solid var(--ps-edge); border-radius: 18px; background: var(--ps-panel-solid); }
+    .dlg h3 { margin: 0 0 12px; font: 500 20px 'Mitr', sans-serif; }
+    .dlg p { margin: 0 0 20px; font-size: 14px; line-height: 1.7; color: var(--ps-muted); }
+    .dlg .acts { display: flex; flex-direction: column; gap: 10px; }
+    .dlg .danger { width: 100%; min-height: 48px; border-radius: 16px; background: var(--ps-accent); color: var(--ps-on-accent);
+      font: 500 16px 'Mitr', sans-serif; display: grid; place-items: center; }
+    .stage-ghost { padding: 40px 16px; text-align: center; color: var(--ps-muted); font-size: 14px; min-height: 420px; }
+    .copy { padding: 24px 40px 40px; font: 12px/1.7 ui-monospace, Menlo, monospace; color: #3d3b5c; }
+    .copy td { padding: 2px 16px 2px 0; vertical-align: top; }
+  </style>
+</helmet>
+
+<div class="sheet">
+  <div class="head">
+    <b>gh#264 · ADR-0071 · one player-setup screen for every party game</b>
+    <span>Base: timebomb's shipped setup screen. Seven frames, one per state the ADR names. Pink dashed outline = a slot the host game fills. Pending owner approval; no code before it (ADR-0033).</span>
+  </div>
+
+  <!-- Row 1: first visit + 20 seats -->
+  <div class="row">
+    <h2>(1) First visit, empty roster · (4) the 20-seat ceiling</h2>
+    <p class="why">Stepper first, starting at 4 (owner ruling), clamped to the game's declared [min, max]. One row per seat; every row starts as its mascot in ADR-0054 order, so start works with zero typing (ADR-0054 ruling 3). No tick and no remove here: the stepper owns the count on a first visit. Frame (4) is a 2-20 game at its maximum: + disabled, the page scrolls (no inner scroller), start stays at the foot.</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">(1) first visit · 4 · dark (timebomb tokens) · 390</span>
+        <div class="phone theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">ระเบิดเวลา</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
+            <div class="count"><span class="step">−</span><span class="count-read">4 คน</span><span class="step">+</span></div>
+            <ul class="players">
+              <li class="p"><span class="e">🐱</span><span class="n">แมวส้ม</span></li>
+              <li class="p"><span class="e">🐶</span><span class="n">ชิบะ</span></li>
+              <li class="p"><span class="e">🐰</span><span class="n">บันนี่</span></li>
+              <li class="p"><span class="e">🐸</span><span class="n">ฟร็อกกี้</span></li>
+            </ul>
+            <p class="hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</p>
+            <span class="sec">↺ รีเซ็ตเป็นชื่อสัตว์</span>
+            <span class="go">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">(4) first visit · 20 of a [2, 20] game · + disabled · 390</span>
+        <div class="phone theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">เลขอาถรรพ์</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">(host game's tagline)</p>
+            <div class="count"><span class="step">−</span><span class="count-read">20 คน</span><span class="step off">+</span></div>
+            <ul class="players">
+              <li class="p"><span class="e">🐱</span><span class="n">แมวส้ม</span></li>
+              <li class="p"><span class="e">🐶</span><span class="n">ชิบะ</span></li>
+              <li class="p"><span class="e">🐰</span><span class="n">บันนี่</span></li>
+              <li class="p"><span class="e">🐸</span><span class="n">ฟร็อกกี้</span></li>
+              <li class="p"><span class="e">🐻</span><span class="n">หมีทอง</span></li>
+              <li class="p"><span class="e">🐼</span><span class="n">แพนด้า</span></li>
+              <li class="p"><span class="e">🐧</span><span class="n">เพนกวิน</span></li>
+              <li class="p"><span class="e">🐥</span><span class="n">ลูกเจี๊ยบ</span></li>
+              <li class="p"><span class="e">🐷</span><span class="n">หมูอ้วน</span></li>
+              <li class="p"><span class="e">⭐</span><span class="n">สไลม์ดาว</span></li>
+              <li class="p"><span class="e">🐨</span><span class="n">โคอาล่า</span></li>
+              <li class="p"><span class="e">🦊</span><span class="n">จิ้งจอก</span></li>
+              <li class="p"><span class="e">🐿️</span><span class="n">กระรอก</span></li>
+              <li class="p"><span class="e">🦦</span><span class="n">นากน้อย</span></li>
+              <li class="p"><span class="e">🦁</span><span class="n">สิงโต</span></li>
+              <li class="p"><span class="e">🦌</span><span class="n">กวางน้อย</span></li>
+              <li class="p"><span class="e">🐹</span><span class="n">แฮมสเตอร์</span></li>
+              <li class="p"><span class="e">🦝</span><span class="n">แรคคูน</span></li>
+              <li class="p"><span class="e">🦭</span><span class="n">แมวน้ำ</span></li>
+              <li class="p"><span class="e">🐲</span><span class="n">มังกรน้อย</span></li>
+            </ul>
+            <p class="hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</p>
+            <span class="sec">↺ รีเซ็ตเป็นชื่อสัตว์</span>
+            <span class="go">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: saved roster, over max, 320, light -->
+  <div class="row">
+    <h2>(2) Saved roster · (3) roster above the game's maximum · (5) 320 · (7) light host palette</h2>
+    <p class="why">NEW row anatomy for a saved roster: tick (plays this round / sits out, name stays) · mascot · name (tap to rename) · ✕ (removes the name from the roster). No stepper; the list ends with an add row. (3): an 8-name roster entering a [2, 6] game. The first 6 start ticked; ticking a 7th is refused until one is unticked; start disables below the minimum. Every tick and ✕ is a 44px target; the visible tick box is 26px.</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">(2) saved roster of 5, one sitting out · 390</span>
+        <div class="phone theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">ระเบิดเวลา</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
+            <p class="limit">เล่นรอบนี้ <b>4</b> คน</p>
+            <ul class="players">
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐱</span><span class="n">ต้น</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐶</span><span class="n">มายด์</span><span class="rm">✕</span></li>
+              <li class="p saved out"><span class="tick"><i></i></span><span class="e">🐰</span><span class="n">บอส</span><span class="sit">นั่งพัก</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐸</span><span class="n">ฟร็อกกี้</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐻</span><span class="n">แนน</span><span class="rm">✕</span></li>
+            </ul>
+            <span class="add">+ เพิ่มคน</span>
+            <p class="hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</p>
+            <span class="go">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">(3) roster of 8 into a [2, 6] game · first 6 ticked · 390</span>
+        <div class="phone theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">จระเข้งับ</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">(host game's tagline)</p>
+            <p class="limit">เกมนี้เล่นได้สูงสุด 6 คน · เลือกแล้ว <b>6</b></p>
+            <ul class="players">
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐱</span><span class="n">ต้น</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐶</span><span class="n">มายด์</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐰</span><span class="n">บอส</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐸</span><span class="n">ฟร็อกกี้</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐻</span><span class="n">แนน</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐼</span><span class="n">แพนด้า</span><span class="rm">✕</span></li>
+              <li class="p saved out"><span class="tick"><i></i></span><span class="e">🐧</span><span class="n">กอล์ฟ</span><span class="sit">นั่งพัก</span><span class="rm">✕</span></li>
+              <li class="p saved out"><span class="tick"><i></i></span><span class="e">🐥</span><span class="n">ลูกเจี๊ยบ</span><span class="sit">นั่งพัก</span><span class="rm">✕</span></li>
+            </ul>
+            <span class="add">+ เพิ่มคน</span>
+            <p class="hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</p>
+            <span class="go">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">(5) frame (2) at 320 · long name truncates, controls keep 44px</span>
+        <div class="phone w320 theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">ระเบิดเวลา</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
+            <p class="limit">เล่นรอบนี้ <b>4</b> คน</p>
+            <ul class="players">
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐱</span><span class="n" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block;line-height:44px">ต้นกล้าผู้ยิ่งใหญ่แห่งซอยสาม</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐶</span><span class="n">มายด์</span><span class="rm">✕</span></li>
+              <li class="p saved out"><span class="tick"><i></i></span><span class="e">🐰</span><span class="n">บอส</span><span class="sit">นั่งพัก</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐸</span><span class="n">ฟร็อกกี้</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐻</span><span class="n">แนน</span><span class="rm">✕</span></li>
+            </ul>
+            <span class="add">+ เพิ่มคน</span>
+            <p class="hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</p>
+            <span class="go">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">(7) frame (2), light host mapping · same markup, tokens swapped</span>
+        <div class="phone theme-light">
+          <div class="top"><span class="x">✕</span><p class="brand">(light host game)</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">(host game's tagline)</p>
+            <p class="limit">เล่นรอบนี้ <b>4</b> คน</p>
+            <ul class="players">
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐱</span><span class="n">ต้น</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐶</span><span class="n">มายด์</span><span class="rm">✕</span></li>
+              <li class="p saved out"><span class="tick"><i></i></span><span class="e">🐰</span><span class="n">บอส</span><span class="sit">นั่งพัก</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐸</span><span class="n">ฟร็อกกี้</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐻</span><span class="n">แนน</span><span class="rm">✕</span></li>
+            </ul>
+            <span class="add">+ เพิ่มคน</span>
+            <p class="hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</p>
+            <span class="go">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: mid-round confirm, under-min -->
+  <div class="row">
+    <h2>(6) Edit players mid-round · and the under-minimum start</h2>
+    <p class="why">The edit-players control (PlayExit) pressed during a round. Dialog box, backdrop and button sizes are timebomb's reset dialog (.tb-dialog). Confirm ends the round and opens the shared screen; the next start begins a fresh round (ADR-0008). Cancel and confirm both arm their region on close (ADR-0057). Right: fewer than the minimum ticked, start disabled with the reason in the limit line.</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">(6) confirm over the play screen · 390</span>
+        <div class="phone theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">ระเบิดเวลา</p></div>
+          <div class="stage-ghost">(the round in progress)</div>
+          <div class="backdrop">
+            <div class="dlg">
+              <h3>เปลี่ยนผู้เล่นตอนนี้?</h3>
+              <p>รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว</p>
+              <div class="acts">
+                <span class="sec">เล่นรอบนี้ต่อ</span>
+                <span class="danger">จบรอบ แล้วแก้ผู้เล่น</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">under the minimum: 1 ticked in a [2, 10] game · start disabled</span>
+        <div class="phone theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">ระเบิดเวลา</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
+            <p class="limit">เลือกอย่างน้อย <b>2</b> คน</p>
+            <ul class="players">
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐱</span><span class="n">ต้น</span><span class="rm">✕</span></li>
+              <li class="p saved out"><span class="tick"><i></i></span><span class="e">🐶</span><span class="n">มายด์</span><span class="sit">นั่งพัก</span><span class="rm">✕</span></li>
+              <li class="p saved out"><span class="tick"><i></i></span><span class="e">🐰</span><span class="n">บอส</span><span class="sit">นั่งพัก</span><span class="rm">✕</span></li>
+            </ul>
+            <span class="add">+ เพิ่มคน</span>
+            <span class="go off">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="copy">
+    <b>Copy sources.</b> From timebomb's shipped setup (src/play/timebomb/markup.html): the tagline, "คน", "↺ รีเซ็ตเป็นชื่อสัตว์", "พร้อมเล่น", the −/+ steppers. Mascot names and emoji: ADR-0054's table. Player names (ต้น, มายด์, บอส, แนน, กอล์ฟ) are sample data, not copy.<br>
+    <b>Agent-authored Thai, pending owner review (7):</b>
+    <table>
+      <tr><td>hint</td><td>แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</td><td>replaces timebomb's "…ชื่อที่ตั้งไว้ใช้เฉพาะเกมนี้", false once names travel</td></tr>
+      <tr><td>count line</td><td>เล่นรอบนี้ N คน</td><td>saved roster within the maximum</td></tr>
+      <tr><td>over-max line</td><td>เกมนี้เล่นได้สูงสุด N คน · เลือกแล้ว M</td><td>roster above the maximum</td></tr>
+      <tr><td>under-min line</td><td>เลือกอย่างน้อย N คน</td><td>start disabled</td></tr>
+      <tr><td>row tag</td><td>นั่งพัก</td><td>unticked row; ✕ means "leave the วง", the tag means "this round only"</td></tr>
+      <tr><td>add row</td><td>+ เพิ่มคน</td><td>disabled at 20 or at the roster ceiling</td></tr>
+      <tr><td>dialog</td><td>เปลี่ยนผู้เล่นตอนนี้? · รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว · เล่นรอบนี้ต่อ · จบรอบ แล้วแก้ผู้เล่น</td><td>mid-round edit</td></tr>
+    </table>
+    Accessible names (not drawn): tick "เล่นรอบนี้" + the player's name · ✕ "เอาออกจากวง" + the player's name · steppers keep timebomb's "ลดจำนวนคนเล่น" / "เพิ่มจำนวนคนเล่น".
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
