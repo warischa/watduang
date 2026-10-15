@@ -65,7 +65,6 @@ export const PENDING = new Set([
   'power-meter',
   'short-stick',
   'wire-snip-panic',
-  'zero-trigger',
 ]);
 
 /** An HTML comment blanked to spaces, newlines kept -- both delimiters are explicit, so this

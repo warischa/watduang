@@ -1,28 +1,31 @@
 // The hole scripts/arm-gate-coverage-check.mjs cannot see, pinned here.
 //
 // That gate asks ONE question of a play route: does it import armAllButtons and call it at least
-// once? zero-trigger does, three times -- and the gate would stay green with two of those three
-// deleted. It counts calls per DIRECTORY, not per reveal, so it has no way to know that this route
-// puts controls under the finger on three separate paths. The real rule (ADR-0017) is per reveal: the
-// second contact of a double-tap must not land on a control the first contact just revealed.
+// once? It counts calls per DIRECTORY, not per reveal. The real rule (ADR-0017) is per reveal: the
+// second contact of a double-tap must not land on a control the first contact just put under the
+// finger -- and since ADR-0057, every close, cancel and confirm path is a reveal too.
 //
-// So this test does not re-check the gate. It pins the SET of reveal sites, by the receiver each one
-// writes to, with a recorded decision for every member. A fifth receiver -- a new modal, a new panel
-// toggled by display -- fails this test on the day it is added, and whoever adds it decides whether
-// it needs a call and records that here. A receiver that no longer exists fails it too: a stale
-// EXPECTED is how a pinning test keeps passing while the code it describes moves on.
+// Two halves since gh#264 (ADR-0071):
+//   1. main.js's OWN reveals -- its three screens, its modals, the penalty toggle -- pinned by the
+//      receiver each one writes to, on source text. A new receiver fails on the day it is added.
+//   2. The SHARED PLAYER SCREEN mounted into #zt-players, which replaced the mockup's roster rows,
+//      its add / remove / random-avatar controls, its avatar picker and its reset-cast modal, and
+//      every arming path those carried. Its reveals are driven for real (revealPathCases): the shared
+//      code over THIS route's markup.html with the real arm gate, read off this route's own header
+//      control. A screen mounted outside #app-container, or one that armed only its own root, leaves
+//      #btn-audio-toggle live and reds here.
 //
-// ponytail: matched on source text, not on a parsed AST. Two stated ceilings:
-// (1) an inline reveal is recorded under its whole receiver expression, so it still surfaces as an
-//     unexpected receiver and still fails -- it does not slip through, it just reads worse;
-// (2) this proves the CALL SITE exists next to the reveal, never that the 400ms window really
-//     disables anything. Only a real browser proves that, and this test claims nothing about it.
+// ponytail, for half 1: matched on source text, not on a parsed AST, so (1) a one-expression reveal
+// is recorded under its whole receiver text and still fails as unexpected, and (2) this proves the
+// CALL SITE exists next to the reveal, never the browser-level 400ms (owner ruling on issue #232).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { revealPathCases } from '../_player-screen/screen-harness.mjs';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
 // Whole-line comments are dropped: main.js documents its own reveal seams in prose, and a checker
 // cannot tell use from mention. Only FULL-line comments go -- a trailing `//` inside a string would
 // take real code with it, and nothing here needs that.
@@ -46,8 +49,13 @@ const EXPECTED = new Map([
   ],
   [
     'modal',
-    'openModal(): shared by modal-rules, modal-avatar-picker, modal-result and the gh#177 reset ' +
-      'confirm modal-reset-cast. Armed on the line below the reveal.',
+    'openModal(): shared by modal-rules and modal-result. Armed on the line below the reveal.',
+  ],
+  [
+    'homeBtn',
+    'the player screen\'s onOpen: shows the header house icon while the player screen is up. Armed ' +
+      'by the shared screen itself, which arms #app-container (the header included) right after ' +
+      'onOpen returns -- the revealPathCases below read a header control to prove that surface.',
   ],
   [
     'btn',
@@ -96,8 +104,9 @@ test('each armed reveal receiver has an armAllButtons call naming it', () => {
 });
 
 // The set of switchScreen destinations, derived from its OWN call sites rather than hand-listed --
-// `grep -n "switchScreen('" src/play/zero-trigger/main.js` is the command this enumerates, and a new
-// destination added anywhere in the file (a 4th screen, a renamed one) is picked up automatically.
+// a new destination added anywhere in the file (a 4th screen, a renamed one) is picked up
+// automatically. The player screen is not one of them: it is the shared screen's own root, opened
+// through its own open(), never through switchScreen.
 test('switchScreen is called with exactly the known set of destinations', () => {
   const calls = [...source.matchAll(/\bswitchScreen\('([A-Z]+)'\)/g)].map((m) => m[1]);
   assert.ok(calls.length > 0, 'no switchScreen(...) call sites found — this test would pass vacuously');
@@ -111,53 +120,46 @@ test('switchScreen is called with exactly the known set of destinations', () => 
   );
 });
 
-// The reveal REVEAL_RE cannot see at all: renderPlayerRoster() rebuilds #player-roster-container
-// through innerHTML on every addNewPlayer/removePlayer/selectAvatar call, and each rebuilt row ships
-// a fresh .avatar-btn and (when the roster has more than 2 players) a fresh .remove-player-btn -- one
-// of them lands at the coordinates of the button the player just pressed. Unlike wire-snip-panic's
-// renderSetupPlayerList (the same shape, and armed), renderPlayerRoster here never calls
-// armAllButtons on the container it rebuilds. Fixed in the same session this file was written; the
-// assertion stays as the pin, because nothing else in the fleet can see this reveal.
-test('renderPlayerRoster arms the container it rebuilds', () => {
-  assert.match(source, /armAllButtons\(container\)/);
-});
-
-// gh#177 adds a FIFTH way into that rebuild, and it is the worst-placed one: the reset confirm closes
-// the modal that was covering the roster and redraws every row underneath it, so the second contact of
-// a double-tap on the confirm lands on a freshly built .avatar-btn at almost the same coordinates --
-// the short-stick bug (eb9891f), one route over. The arming that covers it lives inside
-// renderPlayerRoster (pinned above); what is pinned HERE is that the confirm still goes through
-// renderPlayerRoster rather than touching the DOM some other way, because the day it stops, the arming
-// above is still green and covers nothing on this path.
-test('the reset confirm redraws through the armed renderPlayerRoster', () => {
-  const handler = source.slice(source.indexOf("getElementById('btn-confirm-reset-cast')"));
-  const upToEnd = handler.slice(0, handler.indexOf('});'));
-  assert.ok(upToEnd.length > 0, 'the reset confirm handler was not found -- this test is vacuous');
-  assert.match(
-    upToEnd,
-    /this\.renderPlayerRoster\(\)/,
-    'the reset confirm rebuilds the roster without going through renderPlayerRoster, so nothing arms ' +
-      'the rows it puts back under the finger that just confirmed',
-  );
-});
-
-// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates, and the REBUILD was
-// never what made it one. The confirm was covered only because it happened to redraw; cancel-reset-
-// cast, close-rules and close-avatar-picker redraw nothing, so every check above stayed green while
-// the screen under the card sat live with a window that expired screens ago. REVEAL_RE matches
-// `classList.add` and cannot see a closer either. This is the only pin on that whole class.
-test('closeModal re-arms the screen the modal was covering', () => {
+// gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates. Every modal on this
+// route overlays the live surface and every dismissal goes through closeModal. Since gh#264 the live
+// surface can be the player screen, which is not a `.screen` -- so a closer that re-armed only
+// `.screen.active` would arm NOTHING when the rules sheet is closed over the player screen, and the
+// second contact of a double-tap on its close button would land on a live seat-row control.
+test('closeModal re-arms the surface the modal was covering, the player screen included', () => {
   const at = source.indexOf('closeModal(modalId) {');
   assert.ok(at > -1, 'closeModal is gone — this test measures nothing');
   const body = source.slice(at, source.indexOf('\n      }', at));
-  assert.match(
-    body,
-    /querySelector\('\.screen\.active'\)[\s\S]{0,80}?armAllButtons\(screen\)/,
-    'closeModal no longer re-arms the live screen: a double-tap on #btn-cancel-reset-cast, ' +
-      '#btn-close-rules or #btn-close-avatar-picker puts the second contact on a roster row button ' +
-      'behind the card — an avatar-btn or a remove-player-btn, at almost the same coordinates',
-  );
+  assert.match(body, /querySelector\('\.screen\.active'\)/, 'closeModal no longer looks up the live screen');
+  assert.match(body, /this\.playersRoot/, 'closeModal no longer falls back to the player screen root');
+  assert.match(body, /armAllButtons\(screen\)/, 'closeModal no longer re-arms the live surface');
 });
+
+test('the shared player screen is mounted into #zt-players, inside the #app-container it arms', () => {
+  assert.match(source, /const playersRoot = document\.getElementById\('zt-players'\)/);
+  assert.match(source, /mountPlayerScreen\(\{\s*root: playersRoot,/);
+  // Order only; that the root really sits INSIDE the container is proved by revealPathCases below,
+  // whose header assertions red when the screen's closest('#app-container') misses.
+  assert.ok(MARKUP.indexOf('id="app-container"') < MARKUP.indexOf('id="zt-players"'), '#zt-players must sit inside #app-container');
+  // ADR-0071 ruling 1: the game's own intro comes first on this route -- the menu stays the screen a
+  // load shows, and the player screen ships hidden until a menu button (or the chrome's edit
+  // control) opens it.
+  assert.match(MARKUP, /<section id="screen-menu" class="screen active">/, 'the menu is no longer the first screen');
+  assert.match(MARKUP, /<section id="zt-players" class="zt-players" hidden>/, 'the player screen root must ship hidden');
+});
+
+// Both menu buttons lead to the player screen, never straight past it: a round only starts from
+// the players the shared screen hands over.
+test('both menu buttons open the player screen; neither starts a match or shows setup itself', () => {
+  for (const id of ['btn-quick-start', 'btn-goto-setup']) {
+    const at = source.indexOf(`getElementById('${id}')`);
+    assert.ok(at > -1, `#${id} has no handler — this test measures nothing`);
+    const handler = source.slice(at, source.indexOf('});', at));
+    assert.match(handler, /this\.players\.open\(\)/, `#${id} no longer opens the player screen`);
+    assert.doesNotMatch(handler, /startNewMatch|switchScreen/, `#${id} goes past the player screen`);
+  }
+});
+
+revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'zt-players', headerId: 'btn-audio-toggle', label: 'zero-trigger' });
 
 // ---------------------------------------------------------------------------
 // gh#188 box 13. This route takes the "state why a blanket re-enable is correct here" branch, and

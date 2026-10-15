@@ -63,7 +63,6 @@
   "zero-trigger": {
     "#btn-audio-toggle": "เปิด/ปิดเสียง",
     "#btn-open-rules": "กติกาการเล่น",
-    "#btn-home-menu": "กลับหน้าแรก",
-    ".remove-player-btn": "ลบผู้เล่น"
+    "#btn-home-menu": "กลับหน้าแรก"
   }
 }

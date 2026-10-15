@@ -217,16 +217,6 @@ const DRIVERS = {
       return { cap: model.playerCount };
     },
   },
-  'zero-trigger': {
-    what: 'addNewPlayer refuses to append past the roster ceiling',
-    run: (source) => {
-      const compiled = compileMethod(source, 'addNewPlayer()');
-      if (compiled.error) return compiled;
-      const receiver = tolerantReceiver({ state: { players: [{ name: 'a' }, { name: 'b' }] } });
-      const fn = compiled.make({});
-      return saturate(() => fn.call(receiver), () => receiver.state.players.length);
-    },
-  },
 };
 
 // --- Reader B: the count-guard text family ------------------------------------------------------
@@ -264,7 +254,9 @@ function textCap(found) {
 // --- Routes whose bounds come from the manifest -------------------------------------------------
 // These cannot disagree with the declaration because they compute from it. The check is structural:
 // the route's own module must still read the maximum out of the manifest.
-const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb']);
+// zero-trigger since gh#264: its add-a-seat control went with the mockup's setup, and its engine seats
+// whatever list it is handed -- no clamp of its own is left to drive, the timebomb shape.
+const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb', 'zero-trigger']);
 // Two shapes: the maximum read out (`= game.players[1]`, dice-loser), or the whole declared tuple
 // handed to the shared player screen (`range: game.players`, timebomb since gh#264) -- whose clamp
 // sharedScreenAudit below then runs against that same tuple.
@@ -447,6 +439,16 @@ const HANDOFFS = {
       // Both views of the seat count must agree with the hand: the count the round reads and the
       // seats it iterates.
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
+    },
+  },
+  'zero-trigger': {
+    what: 'startWithPlayers() fills the state.players list every turn and the round strip read',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      const receiver = tolerantReceiver({ state: { players: [] } });
+      compiled.make({}).call(receiver, players);
+      return { seated: receiver.state.players.length };
     },
   },
 };

@@ -34,8 +34,6 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 /** What each mockup boots on, and therefore what its bridge owes an edit request it cannot seed.
  *  `nav` is the selector that must be clicked to REACH setup; null means setup is already on screen. */
 const BOOTS_ON = {
-  // #screen-menu carries `class="screen active"` in markup.html -- setup is a click away.
-  'zero-trigger': { nav: '#btn-goto-setup' },
   // Opens on a marketing hero; its setup view does not exist until this control renders it.
   'short-stick': { nav: '#btn-start-setup' },
   // The five below render their name fields at load -- their bridges fill them with no navigation.

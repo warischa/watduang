@@ -142,6 +142,10 @@ const out = { url, reducedRequested: reduced, paintStubbed: stubbed, nullContext
 // A fresh device has no roster, so the route boots on its menu and quick-start is the shortest path
 // a player has into a round.
 out.quickStart = (await evaluate(CLICK_WHEN_ARMED('#btn-quick-start'))).value;
+// gh#264: quick start opens the shared player screen first (ADR-0071), mounted into #zt-players; its
+// start button hands the players over and the quick-start path then goes straight into the round.
+await sleep(600);
+out.playersStart = (await evaluate(CLICK_WHEN_ARMED('#zt-players [data-ps=start]'))).value;
 await sleep(600);
 // Nothing has burst yet: the burst only follows a stopped clock, so this read is the baseline that
 // proves the coverage below came from the round and not from something painted at load.

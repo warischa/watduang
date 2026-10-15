@@ -11,8 +11,8 @@
 // how-close-is-near / zero-trigger name neither symbol in their main file. What every route DOES
 // share is the SETUP-SCREEN TRIGGER a player actually taps to open the reset confirm dialog -- pinned
 // below by that trigger's own id/data-act (read straight out of each route's markup.html/main.js/
-// main.ts, the same element zero-trigger/reset-cast.test.mjs already selects by
-// getElementById('btn-open-reset-cast')), not by the reset copy alone.
+// main.ts -- or, for a route that mounts the shared player screen, out of that screen's own file),
+// not by the reset copy alone.
 //
 // Why the copy alone is not the pin: the same Thai string appears THREE times per route -- the setup
 // trigger, the confirm dialog's heading, and the confirm dialog's own confirm button -- so a pattern
@@ -24,8 +24,8 @@
 // only the dialog leaves the trigger, its attribute, and its copy all standing, which is correct
 // (the trigger is what this test is pinning).
 //
-// A lookup table keyed by route id, rather than one shared pattern, is what lets zero-trigger's wider
-// copy count as satisfying the same invariant. It is manifest-derived in the only way that matters
+// A lookup table keyed by route id, rather than one shared pattern, is what let zero-trigger's wider
+// copy count as satisfying the same invariant (until gh#264 moved it onto the shared trigger). It is manifest-derived in the only way that matters
 // for gh#178: a route missing from the table is a named red, not a silent skip -- so adding a route
 // here without adding its trigger entry fails loudly instead of passing on nothing. The reverse (a
 // stale entry naming a route the manifest no longer ships) fails loudly too, via the key-set check
@@ -45,8 +45,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 // The ten routes sharing the plain trigger id pattern differ only in the exact id string main.js/
-// markup.html happens to use; power-meter's trigger carries no id at all, only data-act. zero-trigger
-// keeps its own wider copy, because its confirm names avatars as well as names. No entry here for a
+// markup.html happens to use; power-meter's trigger carries no id at all, only data-act. No entry here for a
 // route the manifest ships is a red naming that route, not a vacuous pass over the rest.
 const RESET_TRIGGER = {
   'bangkok-drift': { attr: 'id="bd-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
@@ -68,7 +67,9 @@ const RESET_TRIGGER = {
   'short-stick': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   timebomb: { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'wire-snip-panic': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
-  'zero-trigger': { attr: 'id="btn-open-reset-cast"', copy: /รีเซ็ตเป็นชื่อและรูปสัตว์/ },
+  // gh#264: the shared screen's trigger, like the pilots. Its copy names the animal NAMES only: the
+  // mockup's reset also put back hand-picked glyphs, and the picker that made those went with it.
+  'zero-trigger': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
 };
 
 /** True when `index` falls inside an unclosed `<!-- -->` in `text`. */

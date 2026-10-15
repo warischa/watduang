@@ -93,10 +93,53 @@
         "why": "round-start announcement channel; the mockup has none, and losing it makes the turn handoff silent to a screen reader"
       },
       {
-        "fragment": "<div id=\"modal-reset-cast\" class=\"modal-backdrop\">",
+        "fragment": "<section id=\"zt-players\" class=\"zt-players\" hidden>",
         "deliberate": true,
-        "owner": "gh#177",
-        "why": "the confirm that guards resetting names and animals; the mockup predates the control"
+        "owner": "gh#264",
+        "why": "the shared player screen's root (ADR-0071); the mockup's own setup controls it replaced are recorded absent below"
+      },
+      {
+        "fragment": "id=\"player-roster-container\"",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own roster rows; names belong to the shared player screen and the shared roster (ADR-0071), and a re-extraction that put them back would give this route two player lists"
+      },
+      {
+        "fragment": "id=\"btn-add-player\"",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own add-a-seat control; the count belongs to the shared player screen (ADR-0071)"
+      },
+      {
+        "fragment": "id=\"modal-avatar-picker\"",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's per-seat avatar picker; a seat's glyph is the mascot the shared player screen gives it (ADR-0054 ruling 1, ADR-0071)"
+      }
+    ],
+    "main.js": [
+      {
+        "fragment": "mountPlayerScreen({",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the shared player screen mount and its startWithPlayers entry (ADR-0071); the mockup builds its own setup instead"
+      },
+      {
+        "fragment": "renderPlayerRoster() {",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own roster-row builder; a re-extraction that put it back would rebuild a setup the shared screen replaced"
+      },
+      {
+        "fragment": "ZERO_TRIGGER_DATA_V1",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own storage blob, which kept its player list; the route touches no web storage since the shared roster owns the players (ADR-0071)"
       }
     ]
   },

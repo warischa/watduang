@@ -53,6 +53,35 @@
   min-block-size: 44px;
 }
 
+/* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the
+   mockup's own palette (style.css's :root tokens). On :root, not on the screen's root: its two
+   dialogs render in the top layer, outside #app-container. The opaque dialog ground has no token
+   there, so it carries the mockup's own .modal-window literal. Ink on the accent is the page's
+   deep ground, as timebomb maps it, not the white the mockup's gradient button sets: white on the
+   flat cyan accent reads at about 2.4:1. */
+:root {
+  --ps-panel: var(--bg-card);
+  --ps-panel-solid: #0f172a;
+  --ps-edge: var(--bg-card-border);
+  --ps-ink: var(--text-white);
+  --ps-muted: var(--text-muted);
+  --ps-accent: var(--primary-cyan);
+  --ps-on-accent: var(--bg-deep);
+}
+
+/* The player screen's root sits in #app-container beside the .screen sections and takes their scroll
+   model (style.css .screen: flex 1, overflow-y auto, overflow-x hidden). html and body are
+   overflow: hidden on this route, so a roster longer than the viewport is reachable only if the root
+   scrolls itself; min-block-size 0 lets a flex child shrink below its content so it can. The padding
+   is the board's page padding around the screen column, block axis only: body pads the inline axis. */
+.zt-players {
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-block: 20px 24px;
+}
+
 /* Reduced motion (ADR-0046, ADR-0051). The mockup ships no prefers-reduced-motion branch at all, so
    everything below is this site's, not a tweak of the mockup's.
 
