@@ -1,153 +1,61 @@
-// gh#140: the setup roster row opens with the seat's ANIMAL, not a seat number. The shared shell
-// panel already satisfied that ticket; this route builds its own setup screen, so its badge kept
-// rendering `1`, `2`, `3` beside the mascot names until this test's subject was fixed.
+// gh#140: the setup roster row opens with the seat's ANIMAL, not a seat number.
 //
-// It runs the REAL bytes. main.ts is a module whose top level touches `document`, so it cannot be
-// imported here; renderRows is sliced out by source text and driven over a fake DOM this file
-// supplies -- the same technique reset-names.test.mjs uses on resetNames. A rewrite of renderRows
-// fails this file loudly instead of silently testing nothing.
+// Since gh#264 (ADR-0071) the rows are the shared player screen's, mounted into #dl-players. So the
+// real thing is run: the shared screen's code over THIS route's markup.html, at THIS route's declared
+// range, and the badges read back off the rows it built. A route that stopped mounting the screen, or
+// mounted it somewhere this markup does not have, fails here rather than testing nothing.
 //
-// THE TRAP this file also guards: the row's aria-label stays NUMBERED on purpose (gh#177). It is the
-// field's positional label, not an identity, and sourcing it from the cast would make it lie the
-// moment a player types. The last test below pins that it is still a number, so a future edit that
-// "finishes the job" by casting the label too goes red here.
+// The second half is the handoff the screen starts, startWithPlayers, sliced out of main.ts and run:
+// the round must be played under exactly the names the screen handed over, in the order given --
+// with someone sitting out, a seat's index and its mascot differ, and a positional default (the cast
+// name for seat i) is exactly what would come back wrong.
+//
+// Equality with the cast throughout, never a digit scan: the name field beside the badge carries a
+// legitimate numbered positional label (gh#177).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-// The real cast, imported rather than re-listed -- a stand-in would test this file's idea of the
-// mascots instead of the one that ships.
+import { stripTypeScriptTypes } from 'node:module';
 import { MASCOTS, mascotEmoji } from '../_mascots.ts';
+import { badgeCases } from '../_player-screen/screen-harness.mjs';
+import { sliceBlock } from '../_dom-stub.mjs';
+import game from '../../games/dice-loser.ts';
 
-const source = fs.readFileSync(path.join(import.meta.dirname, 'main.ts'), 'utf8');
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
+const MAIN = fs.readFileSync(path.join(import.meta.dirname, 'main.ts'), 'utf8');
 
-/** Slices `function <name>(...)` out of main.ts by matching braces from the first `{` of its body. */
-function sliceFn(name) {
-  const decl = `function ${name}(`;
-  const start = source.indexOf(decl);
-  assert.notEqual(start, -1, `main.ts no longer declares ${name} — this test is measuring nothing`);
-  const open = source.indexOf('{', start);
-  assert.notEqual(open, -1, `no body found for ${name}`);
-  let depth = 0;
-  for (let i = open; i < source.length; i += 1) {
-    if (source[i] === '{') depth += 1;
-    else if (source[i] === '}') {
-      depth -= 1;
-      if (depth === 0) return source.slice(start, i + 1);
-    }
-  }
-  throw new Error(`unbalanced braces while slicing ${name}`);
-}
+badgeCases({ test, assert, routeMarkup: MARKUP, rootId: 'dl-players', range: game.players, mascots: MASCOTS, label: 'dice-loser' });
 
-// `new Function` parses JavaScript, not TypeScript. The slice carries exactly one annotation, the
-// return type, and it is stripped here -- asserted first, so a rewrite that changes the declaration's
-// shape fails loudly instead of quietly evaluating something this file did not read.
-const sliced = sliceFn('renderRows');
-assert.match(sliced, /^function renderRows\(\): void \{/);
-const body = sliced.replace('function renderRows(): void {', 'function renderRows() {');
+const HEADER = 'startWithPlayers(players: Player[]): void';
+const sliced = sliceBlock(MAIN, HEADER);
+assert.ok(sliced, `main.ts no longer declares ${HEADER} — this test is measuring nothing`);
 
-/** A fake element good for exactly the nodes renderRows builds: it remembers what was written to it
- *  and what was appended, and nothing else. */
-function makeEl(tag) {
-  return {
-    tag,
-    className: '',
-    textContent: '',
-    type: '',
-    value: '',
-    maxLength: 0,
-    attrs: {},
-    kids: [],
-    setAttribute(name, value) {
-      this.attrs[name] = value;
-    },
-    addEventListener() {},
-    append(...nodes) {
-      this.kids.push(...nodes);
-    },
+/** Runs the real startWithPlayers against stand-in module state and returns what it left. */
+function seat(players) {
+  const env = { names: ['stale'], shown: null, setupEl: { id: 'dl-setup' } };
+  env.show = (panel) => {
+    env.shown = panel?.id ?? null;
   };
+  const run = new Function('__env', `with (__env) { return ${stripTypeScriptTypes(`function ${sliced}`)} }`)(env);
+  run(players);
+  return env;
 }
 
-const runRender = new Function(
-  'document',
-  'listEl',
-  'countEl',
-  'count',
-  'names',
-  'MIN_PLAYERS',
-  'MAX_PLAYERS',
-  'NAME_MAX',
-  'mascotEmoji',
-  'save',
-  `let decEl = null; let incEl = null;\n${body}\nrenderRows();`,
-);
-
-/** Drives the real renderRows for a party of `count` and returns one entry per rendered row. */
-function render(count) {
-  const listEl = {
-    kids: [],
-    replaceChildren() {
-      this.kids = [];
-    },
-    appendChild(row) {
-      this.kids.push(row);
-    },
-  };
-  runRender(
-    { createElement: makeEl },
-    listEl,
-    { textContent: '' },
-    count,
-    MASCOTS.map((m) => m.name),
-    2,
-    MASCOTS.length,
-    12,
-    mascotEmoji,
-    () => {},
-  );
-  return listEl.kids.map((row) => {
-    const [badge, input] = row.kids;
-    return { badge: badge.textContent, label: input.attrs['aria-label'] };
-  });
-}
-
-test('gh#140: every setup row badge is that seat mascot emoji', () => {
-  const rows = render(4);
-  assert.equal(rows.length, 4);
-  assert.deepEqual(
-    rows.map((r) => r.badge),
-    MASCOTS.slice(0, 4).map((m) => m.emoji),
-  );
+test('dice-loser gh#264: the handoff seats exactly the players handed over, in order, then shows the rule screen', () => {
+  // Mascots 0, 2 and 5: the second and fourth to fifth roster seats sat out.
+  const players = [0, 2, 5].map((m, i) => ({ name: `p${i}`, emoji: MASCOTS[m].emoji, mascot: m }));
+  const env = seat(players);
+  assert.deepEqual(env.names, ['p0', 'p1', 'p2'], 'the round plays under the names handed over, not a positional default');
+  assert.equal(env.shown, 'dl-setup', "the game's own option (the scoring rule) comes next (ADR-0071 ruling 1)");
+  const max = Array.from({ length: game.players[1] }, (_, i) => ({ name: MASCOTS[i].name, emoji: MASCOTS[i].emoji, mascot: i }));
+  assert.equal(seat(max).names.length, game.players[1], 'every seat up to the declared maximum is kept');
 });
 
-test('gh#140: no setup row badge is a seat number', () => {
-  for (const [i, row] of render(6).entries()) {
-    assert.doesNotMatch(row.badge, /\d/, `seat ${i} badge still renders a number: ${row.badge}`);
-  }
-});
-
-// Calibration, in the shape that can actually fail: the digits a broken badge would render are NOT
-// what the cast holds, so the harness above can tell the two apart. Asserted here rather than left
-// implicit, because a fixture that already satisfies the expectation is how a badge test passes on
-// a badge that was never fixed.
-test('RED CALIBRATION: a seat number is not a value the cast can produce', () => {
-  const digits = Array.from({ length: 6 }, (_, i) => String(i + 1));
-  const icons = Array.from({ length: 6 }, (_, i) => mascotEmoji(i));
-  assert.notDeepEqual(icons, digits);
-  for (const icon of icons) assert.doesNotMatch(icon, /\d/);
-});
-
-// THE TRAP, pinned so a later edit cannot quietly extend the icon into the accessible name. gh#177:
-// this label is the field's POSITION ("the name of the Nth player"), never an identity -- it is never
-// rendered as a name, never persisted, and never handed to the engine. Sourcing it from the cast
-// would make it lie the moment a player types, and would give two seats the same label once two are
-// renamed alike.
-test('gh#177: the row aria-label stays numbered and is not sourced from the cast', () => {
-  const castNames = new Set(MASCOTS.map((m) => m.name));
-  for (const [i, row] of render(5).entries()) {
-    assert.match(row.label, /\d/, `seat ${i} lost its positional aria-label: ${row.label}`);
-    assert.ok(!castNames.has(row.label), `seat ${i} aria-label was sourced from the cast: ${row.label}`);
-  }
-  // Verbatim, because the label is the only part of this row a screen-reader user hears as position.
-  assert.equal(render(3)[2].label, 'ชื่อผู้เล่นคนที่ 3');
+// Calibration, in the shape that can fail: a seat number is not a value the cast can produce, so the
+// badge equality above can tell a digit badge from a glyph badge.
+test('RED CALIBRATION: no seat glyph is a digit, so the equality can separate the two', () => {
+  const icons = Array.from({ length: 10 }, (_, i) => mascotEmoji(i));
+  assert.notDeepEqual(icons, Array.from({ length: 10 }, (_, i) => String(i + 1)));
+  for (const icon of icons) assert.doesNotMatch(icon, /\d|#/);
 });

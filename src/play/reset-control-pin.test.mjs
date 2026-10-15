@@ -59,7 +59,7 @@ const RESET_TRIGGER = {
   // trigger, which lives in src/play/_player-screen/PlayerScreen.astro. `shared` makes the loop below
   // read that file -- and only for a route whose own main file really mounts the screen.
   'cursed-number': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
-  'dice-loser': { attr: 'id="dl-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  'dice-loser': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'freeze-tap': { attr: 'id="resetNamesBtn"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'how-close-is-near': { attr: 'id="btnResetNames"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'one-bomb': { attr: 'id="ob-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },

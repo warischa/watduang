@@ -40,9 +40,12 @@
 // land in exactly one class below, and a route no reader can locate is a FAILURE, not a skip:
 //   measured  - reader A ran; reader B agreed.
 //   located   - reader B found a ceiling; no reader-A driver is built for that surface shape.
-//   derived   - the route computes its own bounds FROM the manifest, so it cannot disagree. Proved
-//               by the derivation's shape in the route's own module, which is a structural question.
-//   unlocated - no reader found anything. RED. There is no green for "we could not tell".
+//   shared    - the route mounts the shared player screen (gh#264, ADR-0071) and no reader found an
+//               engine ceiling of its own. Its seats are proved by sharedScreenAudit (the shared clamp
+//               admits exactly the declared maximum) and handoffAudit (the route seats every count up
+//               to it), both below, both RED on failure. Only a mounting route can be in this class.
+//   unlocated - no reader found anything on a route that does not mount the shared screen. RED.
+//               There is no green for "we could not tell".
 // The route set is enumerated from the manifest AT RUNTIME, so it cannot quietly shrink: a new party
 // game with a play route and no entry reds on the day it lands. That is the difference from a list --
 // a list of six constants goes green when a seventh game arrives.
@@ -262,21 +265,27 @@ function textCap(found) {
   return found.length ? Math.max(...found.map((f) => f.value)) : null;
 }
 
-// --- Routes whose bounds come from the manifest -------------------------------------------------
-// These cannot disagree with the declaration because they compute from it. The check is structural:
-// the route's own module must still read the maximum out of the manifest.
-const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb']);
-// Two shapes: the maximum read out (`= game.players[1]`, dice-loser), or the whole declared tuple
-// handed to the shared player screen (`range: game.players`, timebomb since gh#264) -- whose clamp
-// sharedScreenAudit below then runs against that same tuple.
-const DERIVATION = /(?:=|range:)\s*(?:Math\.min\(\s*)?game\.players(?:\[1\]|(?![\w[]))/;
-
 // --- The audit ----------------------------------------------------------------------------------
 
 function engineFileFor(routeId) {
   for (const name of ['main.js', 'main.ts']) {
     const candidate = path.join(root, 'src/play', routeId, name);
     if (fs.existsSync(candidate)) return { name, source: fs.readFileSync(candidate, 'utf8') };
+  }
+  return null;
+}
+
+/** The route file that MOUNTS the shared player screen, which is not always the engine file above. A
+ *  route can ship both entry files (one-bomb's main.js is the lifted engine and its main.ts the
+ *  site-side module that owns the round), and the mount and the handoff live where the round is
+ *  seated. This one lookup feeds the shared class, the shared-screen leg and the handoff leg; the
+ *  engine reading is unchanged, so a single-file route resolves to the same file it always did. */
+function mountingFileFor(routeId) {
+  for (const name of ['main.js', 'main.ts']) {
+    const candidate = path.join(root, 'src/play', routeId, name);
+    if (!fs.existsSync(candidate)) continue;
+    const source = fs.readFileSync(candidate, 'utf8');
+    if (MOUNT.test(source)) return { name, source };
   }
   return null;
 }
@@ -290,20 +299,13 @@ function routeIdFor(game) {
  * Classify one party game and report every disagreement it carries.
  * Pure over its inputs so the selftest can drive it with fixtures.
  */
-export function auditGame({ id, declaredMax, routeId, engine, driver }) {
+export function auditGame({ id, declaredMax, routeId, engine, driver, mounted = false }) {
   const failures = [];
   const say = (detail) => failures.push({ id, detail });
   if (!routeId) return { id, klass: 'no-route', failures };
   if (!engine) {
     say(`${id} declares a play route at "${routeId}" but no engine module is there to read a seat ceiling from`);
     return { id, klass: 'unlocated', failures };
-  }
-
-  if (DERIVED_FROM_MANIFEST.has(routeId)) {
-    if (!DERIVATION.test(engine.source)) {
-      say(`${routeId} was classified as deriving its ceiling from the manifest, but its ${engine.name} no longer reads the declared maximum — give it a driver entry or restore the derivation`);
-    }
-    return { id, klass: 'derived', failures };
   }
 
   const textFound = readText(engine.source);
@@ -327,6 +329,9 @@ export function auditGame({ id, declaredMax, routeId, engine, driver }) {
   }
 
   const cap = fromExecution ?? fromText;
+  // A mounting route with no engine ceiling of its own: the shared screen admits its players and
+  // handoffAudit seats them, so there is nothing per-route left to compare (gh#264, ADR-0071).
+  if (cap === null && mounted) return { id, klass: 'shared', failures };
   if (cap === null) {
     say(`${routeId}: no seat ceiling could be located in its ${engine.name} — no driver is built for it and no known count-guard shape matched. Add a locator entry rather than leaving the pairing unchecked`);
     return { id, klass: 'unlocated', failures };
@@ -385,7 +390,7 @@ export function sharedScreenAudit({ id, routeId, source, declared, screen }) {
 // Two facts per route that mounts the shared screen, either failing RED:
 //   FORWARDED -- the mount's `onStart` hands the players, unchanged, to the route's named handoff:
 //     either that function itself, or a one-parameter arrow/function whose body is a single call to
-//     it (bare or on `this`) with that parameter as its only argument. Read with the TypeScript
+//     it (bare, on `this`, or on one named receiver) with that parameter as its only argument. Read with the TypeScript
 //     parser, so a comment or a string cannot pose as the mount. Anything else (a slice, a filter,
 //     a wrapper doing work) reds: the callback is where seats could be dropped unmeasured.
 //   SEATED -- that handoff's bytes, sliced and RUN with EVERY count the shared screen can admit
@@ -428,7 +433,11 @@ export function forwardTarget(source, fileName) {
       && ts.isIdentifier(call.arguments[0]) && call.arguments[0].text === param) {
       const callee = call.expression;
       if (ts.isIdentifier(callee)) return { target: callee.text };
-      if (ts.isPropertyAccessExpression(callee) && callee.expression.kind === ts.SyntaxKind.ThisKeyword) return { target: callee.name.text };
+      // A method on `this` or on any one named receiver (freeze-tap: `engine.startWithPlayers(p)`).
+      // The method name must still equal the entry's `fn`; a computed receiver (`make().go(p)`) is
+      // work done in the callback, so it falls through to the red below.
+      if (ts.isPropertyAccessExpression(callee)
+        && (callee.expression.kind === ts.SyntaxKind.ThisKeyword || ts.isIdentifier(callee.expression))) return { target: callee.name.text };
     }
     return { error: `onStart does more than forward its players unchanged: \`${value.getText(file).replace(/\s+/g, ' ').slice(0, 120)}\`` };
   }
@@ -499,6 +508,22 @@ const HANDOFFS = {
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
     },
   },
+  'dice-loser': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() keeps the players the shared screen hands it, and begin() starts the round with every one of them seated',
+    run: (source, _module, players) => {
+      // Two slices over ONE state: the handoff, then the round start the rule screen fires, so the
+      // seats read back are the ones the first round really plays with.
+      const handoff = compileTsFunctions(source, ['startWithPlayers(players: Player[]): void']);
+      if (handoff.error) return handoff;
+      const round = compileTsFunctions(source, ['begin(): void', 'startRound(seats: number[]): void']);
+      if (round.error) return round;
+      const env = { names: [], active: [], roundNumber: 0, turnIdx: 0, rolls: null, show() {}, renderTurn() {} };
+      handoff.make(env)(players);
+      round.make(env)();
+      return { seated: env.active.length };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, fileName = 'main.js', module, declared, handoff }) {
@@ -561,22 +586,22 @@ async function audit() {
     if (engine && driver?.engineModule) {
       engine.module = await import(pathToFileURL(path.join(root, driver.engineModule)).href);
     }
-    results.push(auditGame({ id: game.id, declaredMax: game.players[1], routeId, engine, driver }));
-    if (engine && MOUNT.test(engine.source)) {
+    const mounting = engine && routeId ? mountingFileFor(routeId) : null;
+    results.push(auditGame({ id: game.id, declaredMax: game.players[1], routeId, engine, driver, mounted: Boolean(mounting) }));
+    if (mounting) {
       sharedCount += 1;
-      sharedFailures.push(...sharedScreenAudit({ id: game.id, routeId, source: engine.source, declared: game.players, screen }));
+      sharedFailures.push(...sharedScreenAudit({ id: game.id, routeId, source: mounting.source, declared: game.players, screen }));
       const handoff = HANDOFFS[routeId];
       const handoffModule = handoff?.engineModule
         ? await import(pathToFileURL(path.join(root, handoff.engineModule)).href)
         : undefined;
-      sharedFailures.push(...handoffAudit({ id: game.id, routeId, source: engine.source, fileName: engine.name, module: handoffModule, declared: game.players, handoff }));
+      sharedFailures.push(...handoffAudit({ id: game.id, routeId, source: mounting.source, fileName: mounting.name, module: handoffModule, declared: game.players, handoff }));
       if (handoff) handoffCount += 1;
     }
   }
   const staleHandoffs = Object.keys(HANDOFFS).filter((routeId) => {
     const game = party.find((g) => routeIdFor(g) === routeId);
-    const engine = game ? engineFileFor(routeId) : null;
-    return !engine || !MOUNT.test(engine.source);
+    return !game || !mountingFileFor(routeId);
   });
   for (const routeId of staleHandoffs) {
     sharedFailures.push({ id: routeId, detail: `${routeId} has a handoff entry but no party route by that id mounts the shared player screen — delete or re-point the stale entry` });
@@ -600,7 +625,7 @@ async function audit() {
   console.log(
     `seat-cap-check: ${party.length} party game(s), every declared maximum agrees with the seats its engine accepts ` +
     `(${tally('measured')} measured by running the engine's own seat surface, ${tally('located')} read from a count guard, ` +
-    `${tally('derived')} derived from the manifest so they cannot disagree); ` +
+    `${tally('shared')} shared: no engine ceiling of their own, seats proved by the shared screen's clamp and their handoff below); ` +
     `${sharedCount} route(s) mount the shared player screen, each handing it its own manifest range, ` +
     'and its clamp admits exactly the declared maximum (run, not read); ' +
     `${handoffCount} handoff(s) reached through their onStart unchanged and run at every admitted count, each seating every player it is handed. ` +
@@ -649,10 +674,21 @@ async function selftest() {
 
   // A route no reader can read must be a failure. This is the leg that stops the gate greening on
   // a set it never looked at.
-  const blind = auditGame({ id: 'g', declaredMax: 10, routeId: 'r', engine: engine('function play() { return 1; }'), driver: null });
+  const blind = auditGame({ id: 'g', declaredMax: 10, routeId: 'r', engine: engine('function play() { return 1; }'), driver: null, mounted: false });
   assert.equal(blind.klass, 'unlocated', 'a route with no locatable ceiling must be classified unlocated');
   assert.match(blind.failures[0].detail, /no seat ceiling could be located/, 'and it must fail, not skip');
   console.log('PASS unlocated: a route no reader can read fails instead of passing');
+
+  // gh#264: the same unreadable engine on a route that MOUNTS the shared screen is the shared class --
+  // its seats are proved by sharedScreenAudit and handoffAudit, not by an engine reader -- and silent.
+  const shared = auditGame({ id: 'g', declaredMax: 10, routeId: 'r', engine: engine('function play() { return 1; }'), driver: null, mounted: true });
+  assert.equal(shared.klass, 'shared', 'a mounted route with no engine reading must be classified shared');
+  assert.deepEqual(shared.failures, [], 'and it must be silent: the shared-screen and handoff audits carry its seats');
+  // A mounted route whose engine DOES carry a ceiling keeps it: the engine limit is still compared.
+  const mountedGuard = auditGame({ id: 'g', declaredMax: 10, routeId: 'r', engine: engine('if (playerCount < 6) { step(); }'), driver: null, mounted: true });
+  assert.equal(mountedGuard.klass, 'located', 'a mounted route with a readable engine guard keeps its engine class');
+  assert.match(mountedGuard.failures[0]?.detail ?? '', /declares a maximum of 10 but its engine seats 6/, 'and a mounted engine seating fewer than declared must red');
+  console.log('PASS shared: a mounted route with no engine reading is shared and silent; a mounted engine guard is still compared');
 
   // A driver whose surface has moved must say it is measuring nothing.
   const moved = auditGame({
@@ -679,20 +715,6 @@ async function selftest() {
   assert.match(conflicted.failures[0].detail, /the two readers disagree/, 'a reader conflict must be reported as such');
   console.log('PASS reader conflict: execution and text disagreeing reds instead of picking a winner');
 
-  // A route classified as manifest-derived must lose that status if the derivation goes away.
-  const brokenDerivation = auditGame({ id: 'g', declaredMax: 10, routeId: 'dice-loser', engine: { name: 'main.ts', source: 'const MAX_PLAYERS = 10;' }, driver: null });
-  assert.match(brokenDerivation.failures[0].detail, /no longer reads the declared maximum/, 'a lost derivation must fail');
-  const liveDerivation = auditGame({ id: 'g', declaredMax: 10, routeId: 'dice-loser', engine: { name: 'main.ts', source: 'const MAX_PLAYERS = game.players[1];' }, driver: null });
-  assert.deepEqual(liveDerivation.failures, [], 'POSITIVE CONTROL: a live derivation must stay silent');
-  console.log('PASS derived: a route that stops deriving from the manifest fails, one that still derives is silent');
-
-  // gh#264: the hand-off to the shared screen is a derivation too, in its tuple form.
-  const tupleDerivation = auditGame({ id: 'g', declaredMax: 10, routeId: 'timebomb', engine: { name: 'main.ts', source: 'mountPlayerScreen({ root, range: game.players, onStart });' }, driver: null });
-  assert.deepEqual(tupleDerivation.failures, [], 'POSITIVE CONTROL: handing the declared tuple over is a live derivation');
-  const indexed = auditGame({ id: 'g', declaredMax: 10, routeId: 'timebomb', engine: { name: 'main.ts', source: 'mountPlayerScreen({ root, range: game.players0, onStart });' }, driver: null });
-  assert.match(indexed.failures[0].detail, /no longer reads the declared maximum/, 'a different identifier must not read as the tuple');
-  console.log('PASS derived (tuple): handing game.players to the shared screen derives; a lookalike identifier does not');
-
   // gh#264: the shared screen audit, against the REAL shared clamp, both directions.
   const screen = await import(pathToFileURL(path.join(root, 'src/play/_player-screen/player-screen.ts')).href);
   const good = "import game from '../../games/g.ts';\nmountPlayerScreen({ root, range: game.players, onStart });";
@@ -702,6 +724,11 @@ async function selftest() {
   assert.match(sharedScreenAudit({ id: 'g', routeId: 'g', source: literal, declared: [2, 10], screen })[0].detail, /does not hand it its own manifest range/,
     'a literal range must red');
   const foreign = "import game from '../../games/g.ts';\nimport other from '../../games/h.ts';\nmountPlayerScreen({ root, range: other.players, onStart });";
+  for (const lookalike of ['game.players0', 'game.players[1]']) {
+    const source = `import game from '../../games/g.ts';\nmountPlayerScreen({ root, range: ${lookalike}, onStart });`;
+    assert.match(sharedScreenAudit({ id: 'g', routeId: 'g', source, declared: [2, 10], screen })[0]?.detail ?? '', /does not hand it its own manifest range/,
+      `range: ${lookalike} must not read as the declared tuple`);
+  }
   assert.match(sharedScreenAudit({ id: 'g', routeId: 'g', source: foreign, declared: [2, 10], screen })[0].detail, /does not hand it its own manifest range/,
     'another module\'s range must red');
   const tooMany = sharedScreenAudit({ id: 'g', routeId: 'g', source: good, declared: [2, 25], screen });
@@ -729,6 +756,10 @@ async function selftest() {
     ['mountPlayerScreen({ onStart: go });', null],
     ['mountPlayerScreen({ onStart: (p) => go(p) });', null],
     ['mountPlayerScreen({ onStart: (p) => this.go(p) });', null],
+    ['mountPlayerScreen({ onStart: (p) => engine.go(p) });', null],
+    ['mountPlayerScreen({ onStart: (p) => engine.other(p) });', /forwards to `other` but the HANDOFFS entry runs `go`/],
+    ['mountPlayerScreen({ onStart: (p) => engine.go(p.slice(0, 2)) });', /does more than forward/],
+    ['mountPlayerScreen({ onStart: (p) => make().go(p) });', /does more than forward/],
     ['mountPlayerScreen({ onStart: function (p) { return go(p); } });', null],
     ['mountPlayerScreen({ onStart: (p) => go(p.slice(0, 2)) });', /does more than forward/],
     ['mountPlayerScreen({ onStart: (p) => { log(p); go(p); } });', /does more than forward/],
@@ -753,8 +784,8 @@ async function selftest() {
     const game = games.find((g) => routeIdFor(g) === routeId);
     const handoff = HANDOFFS[routeId];
     const module = handoff.engineModule ? await import(pathToFileURL(path.join(root, handoff.engineModule)).href) : undefined;
-    const engine = engineFileFor(routeId);
-    return { id: game.id, routeId, source: engine.source, fileName: engine.name, module, declared: game.players, handoff };
+    const mounting = mountingFileFor(routeId);
+    return { id: game.id, routeId, source: mounting.source, fileName: mounting.name, module, declared: game.players, handoff };
   };
   const mutate = (args, from, to) => {
     assert.ok(args.source.includes(from), `the gh#265 mutant no longer applies to ${args.routeId}: \`${from}\` is gone — re-point this leg to the route's current handoff`);

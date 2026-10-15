@@ -2,7 +2,7 @@
    not carried across as literals, so every value here is chosen against the freeze-tap dark reference
    the other play routes target.
 
-   COLOUR ENTERS BY NAME: the palette is declared once, in the #app block below, and every rule
+   COLOUR ENTERS BY NAME: the palette is declared once, in the :root block below, and every rule
    downstream references a --dl-* token. No hex literal appears outside that one block.
 
    play.css, not style.css: the thai-comments carve-out exempts the extractor's three basenames
@@ -16,7 +16,10 @@
    Loaded only by src/pages/game/dice-loser/play.astro, so the bare `body` rule cannot reach another
    page. */
 
-#app {
+/* The route's palette. On :root rather than #app since gh#264: the shared player screen's dialogs
+   render in the top layer from OUTSIDE #app, and a token declared on #app never reaches them. This
+   sheet loads on this route only, so :root here is still this route's scope. */
+:root {
   --dl-bg: #080b14;
   --dl-bg-glow: #1e1b4b;
   --dl-panel: rgba(15, 23, 42, 0.88);
@@ -30,6 +33,19 @@
   --dl-die-pip: #0f172a;
   --dl-die-idle-filter: brightness(0.4);
 
+  /* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto its own
+     palette. The palette has no opaque panel, so the opaque ground the dialogs and the undo bar ask
+     for is the page ground; the text on the accent is what .game-btn-primary already sets on it. */
+  --ps-panel: var(--dl-panel);
+  --ps-panel-solid: var(--dl-bg);
+  --ps-edge: var(--dl-edge);
+  --ps-ink: var(--dl-ink);
+  --ps-muted: var(--dl-muted);
+  --ps-accent: var(--dl-accent);
+  --ps-on-accent: var(--dl-bg);
+}
+
+#app {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -124,80 +140,10 @@ body {
   color: var(--dl-muted);
 }
 
-/* ---- setup ------------------------------------------------------------------------------------ */
-
-.dl-count {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.dl-step {
-  inline-size: 44px;
-  block-size: 44px;
-  border: 1px solid var(--dl-edge);
-  border-radius: 50%;
-  background: var(--dl-panel);
-  color: var(--dl-ink);
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.dl-step:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.dl-count-read {
-  min-inline-size: 84px;
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: 20px;
-}
-
-.dl-players {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dl-player {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  border: 1px solid var(--dl-edge);
-  border-radius: 14px;
-  background: var(--dl-panel);
-}
-
-.dl-player-seat {
-  flex: none;
-  inline-size: 28px;
-  block-size: 28px;
-  border-radius: 50%;
-  background: var(--dl-edge);
-  color: var(--dl-ink);
-  text-align: center;
-  line-height: 28px;
-  font-size: 13px;
-}
-
-.dl-player-name {
-  flex: 1;
-  min-inline-size: 0;
-  min-block-size: 32px;
-  border: 0;
-  background: transparent;
-  color: var(--dl-ink);
-  font-family: inherit;
-  font-size: 16px;
-}
+/* ---- the game's own option --------------------------------------------------------------------
+   gh#264: the count stepper, the name rows, the reset control and its confirm moved into the shared
+   player screen (src/play/_player-screen/), which this route mounts into #dl-players and colours
+   through the --ps-* map at the top of this file. Their rules went with them. */
 
 .dl-modes {
   display: flex;
@@ -243,88 +189,6 @@ body {
 .dl-mode-desc {
   font-size: 12px;
   color: var(--dl-muted);
-}
-
-.dl-reset-btn {
-  inline-size: 100%;
-  min-block-size: 44px;
-  border: 1px solid var(--dl-edge);
-  border-radius: 12px;
-  background: transparent;
-  color: var(--dl-muted);
-  font-family: inherit;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-/* ---- reset dialog (gh#175) ---------------------------------------------------------------------- */
-
-.dl-dialog {
-  inline-size: min(92vw, 420px);
-  border: 1px solid var(--dl-edge-strong);
-  border-radius: 20px;
-  padding: 0;
-  background: var(--dl-panel);
-  color: var(--dl-ink);
-  margin: auto;
-}
-
-.dl-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.6);
-}
-
-.dl-dialog-inner {
-  padding: 20px;
-}
-
-.dl-dialog-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.dl-dialog-eyebrow {
-  margin: 0;
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: var(--dl-muted);
-}
-
-.dl-dialog-title {
-  margin: 4px 0 0;
-  font-family: var(--font-display);
-  font-size: 18px;
-}
-
-.dl-dialog-close {
-  flex: none;
-  inline-size: 44px;
-  block-size: 44px;
-  border: 1px solid var(--dl-edge);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--dl-ink);
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.dl-dialog-body {
-  margin: 0 0 20px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--dl-muted);
-}
-
-.dl-dialog-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.dl-dialog-actions .game-btn {
-  flex: 1;
-  min-block-size: 48px;
 }
 
 /* ---- play ------------------------------------------------------------------------------------- */
@@ -558,8 +422,8 @@ body {
    game is a 420px strip = 29.2% of the window, and the three dice render at 92px each in the middle
    of it.
 
-   TOKENS ARE PER-ROUTE LOCALS on `#app`, named `--dl-*`, matching this file's existing palette
-   prefix.
+   TOKENS ARE PER-ROUTE LOCALS, named `--dl-*`, matching this file's existing palette prefix (on
+   :root since gh#264, which this sheet only reaches on this route).
 
    ARITHMETIC, from gh#180's rules:
 
@@ -602,7 +466,8 @@ body {
    between them measures 28px, and the route's fit row stays at 0px of overflow. Any of those being
    wrong falsifies this block. */
 @media (min-width: 1100px) {
-  #app {
+  /* :root, not #app, since gh#264 -- the shared screen's dialogs read the target floor from outside #app. */
+  :root {
     --dl-desktop-target-min: 56px;
     --dl-desktop-gap: 28px;
     --dl-die-inline: 184px;
@@ -610,8 +475,12 @@ body {
     --dl-desktop-track-inline: 662px;
   }
 
+  /* The player screen takes the same measure, so the game does not change width as it advances from
+     the players to the rule. `body` in front: the root also carries the shared screen's `.ps`, whose
+     equal-specificity phone column must not win whatever order the two sheets load in. */
   .dl-setup,
-  .dl-panel {
+  .dl-panel,
+  body .dl-players {
     max-inline-size: var(--dl-desktop-track-inline);
   }
 
@@ -630,8 +499,12 @@ body {
 
   /* gh#180's fixed 56px desktop target floor. min-block-size only raises: anything already taller
      stays where it is. */
+  /* gh#264: the reset control and the dialog answers live in the shared player screen now (.ps-*);
+     this route keeps applying its own desktop floor to them, `body` in front for the reason above. */
   .game-btn,
-  .dl-reset-btn {
+  body .ps-go,
+  body .ps-sec,
+  body .ps-danger {
     min-block-size: var(--dl-desktop-target-min);
   }
 
@@ -647,7 +520,8 @@ body {
   /* Primary button. `.game-btn-primary` (the phone rule earlier in this file: `font-size: 21px`) is this route's real primary
      action, sized with min-block-size rather than padding (the same shell-vocabulary pattern the
      target-min rule above already follows), so there is no padding property on it to raise. */
-  .game-btn-primary {
+  .game-btn-primary,
+  body .ps-go {
     font-size: 24px;
   }
 
