@@ -1,9 +1,23 @@
 /* Site-side adjustments for the one-bomb play route. Loaded AFTER style.css so it wins on equal
    specificity. Nothing here belongs in the lifted files: those stay reproducible from the mockup.
 
-   Everything below styles the name entry src/play/one-bomb/main.ts injects into the mockup's own
-   menu, which the mockup itself has no rules for. The colours are read off the neighbouring lifted
-   rules rather than invented, so the block reads as part of the same card. */
+   Colours below are read off the neighbouring lifted rules rather than invented, so what this file
+   adds reads as part of the same screens. */
+
+/* ADR-0071 ruling 8: the shared player screen mounted into the menu reads --ps-* and this route maps
+   them onto the mockup's own palette (style.css's :root tokens, and the literals its own rules use
+   where it has no token). On :root, not on the screen's root: its two dialogs render in the top
+   layer outside #app, over no page to blend with, which is also why the solid ground is the opaque
+   navy of the mockup's own title shadow rather than the translucent panel. */
+:root {
+  --ps-panel: var(--panel-bg);
+  --ps-panel-solid: #152230;
+  --ps-edge: var(--panel-border);
+  --ps-ink: #e2effa;
+  --ps-muted: #94adcb;
+  --ps-accent: var(--gold);
+  --ps-on-accent: #2b1800;
+}
 
 /* The engine paints each seat card from its own cast colour, written from script as an inline
    `--pColor`. A custom property with no declaration anywhere resolves to nothing, so the rule using
@@ -154,9 +168,10 @@
 
 /* The menu card is taller than a 320x568 screen and #app clips, so the card's own buttons went off
    the bottom of the phone: measured at 320x568, two saved names cut 20px off #menuSettingsBtn, three
-   put it off-screen entirely, and four or more cut 9px off #startPlayBtn — the button that starts the
-   game. The overlay is the box that has to scroll: it is `inset: 0` and #app above it is
-   `overflow: hidden`, so nothing outside it can.
+   put it off-screen entirely, and four or more cut 9px off #startPlayBtn — the button that started
+   the game until gh#264. The card now holds the shared player screen (ADR-0071), a list the owner
+   ruled may scroll (2026-10-15), so the same rule carries it. The overlay is the box that has to
+   scroll: it is `inset: 0` and #app above it is `overflow: hidden`, so nothing outside it can.
 
    `safe center` and not plain `center`: the lifted rule centres the card with `place-items: center`,
    and a centred item taller than its box overflows BOTH ends, which puts the top of the card above
@@ -175,96 +190,14 @@
   padding-inline: 10px;
 }
 
-.ob-players {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 34vh;
-  overflow-y: auto;
-}
-
-.ob-player {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ob-player-seat {
-  flex: 0 0 auto;
-  width: 34px;
-  font-size: 22px;
-  line-height: 1;
-  text-align: center;
-}
-
-/* 44px, not the 38px the mockup's stepper uses: a text field is a typing target and the tap floor
-   applies to it the same as to a button. */
-.ob-player-name {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 44px;
-  padding: 0 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  color: #e2effa;
-  font: inherit;
-  font-weight: 800;
-}
-
-.ob-reset {
-  width: 100%;
-  min-height: 44px;
-}
-
-.ob-reset-dialog {
-  width: min(360px, 88vw);
-  padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 18px;
-  background: #152230;
-  color: #e2effa;
-  text-align: center;
-}
-
-.ob-reset-dialog h2 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.ob-reset-dialog p {
-  margin: 0 0 16px;
-  font-size: 13px;
-  color: #94adcb;
-}
-
-.ob-reset-btns {
-  display: flex;
-  gap: 10px;
-}
-
-.ob-reset-btns button {
-  flex: 1 1 0;
-  min-height: 44px;
-}
-
 /* gh#79's 44px tap floor. The mockup sizes its own controls from padding and font size alone and
    sets no minimum anywhere, so every one of them resolved a floor of `auto` and eight rendered under
    44px: the two steppers at 38px, the HUD's round button at 40px, and the menu's two secondary
-   buttons at 43px. A floor rather than a fixed height, so a longer Thai label still grows the box. */
-.btnBase,
-.stepBtn {
+   buttons at 43px. A floor rather than a fixed height, so a longer Thai label still grows the box.
+   (The two steppers, and the square-target rule that went with them, left with the mockup's count
+   card in gh#264: the count is the shared player screen's now, ADR-0071.) */
+.btnBase {
   min-height: 44px;
-}
-
-/* The steppers are square icons: a 44px-tall box 38px wide is still not a 44px target. */
-.stepBtn {
-  min-width: 44px;
 }
 
 /* The HUD's own hide state scales the whole bar to 0.98, and a rect is measured AFTER transform — so

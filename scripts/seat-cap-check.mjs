@@ -280,6 +280,21 @@ function engineFileFor(routeId) {
   return null;
 }
 
+/** The route file that MOUNTS the shared player screen, which is not always the engine file above. A
+ *  route can ship both entry files (gh#264: one-bomb's main.js is the lifted engine and its main.ts
+ *  the site-side module that owns the round), and the mount and the handoff live where the round is
+ *  seated. Read for the shared-screen and handoff legs only; the engine reading is unchanged, so a
+ *  single-file route resolves to the same file it always did. */
+function mountingFileFor(routeId) {
+  for (const name of ['main.js', 'main.ts']) {
+    const candidate = path.join(root, 'src/play', routeId, name);
+    if (!fs.existsSync(candidate)) continue;
+    const source = fs.readFileSync(candidate, 'utf8');
+    if (MOUNT.test(source)) return { name, source };
+  }
+  return null;
+}
+
 function routeIdFor(game) {
   const match = /^\/game\/([^/]+)\/play\/$/.exec(game.playRoute ?? '');
   return match ? match[1] : null;
@@ -449,6 +464,16 @@ const HANDOFFS = {
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
     },
   },
+  'one-bomb': {
+    what: 'startWithPlayers() keeps the players the shared screen hands it as the seats the DOM round plays (main.ts)',
+    run: (source, _module, players) => {
+      const compiled = compileTsFunctions(source, ['startWithPlayers(players: Player[]): void']);
+      if (compiled.error) return compiled;
+      const env = { playing: [] };
+      compiled.make(env)(players);
+      return { seated: env.playing.length };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, module, declared, handoff }) {
@@ -503,21 +528,21 @@ async function audit() {
       engine.module = await import(pathToFileURL(path.join(root, driver.engineModule)).href);
     }
     results.push(auditGame({ id: game.id, declaredMax: game.players[1], routeId, engine, driver }));
-    if (engine && MOUNT.test(engine.source)) {
+    const mounting = engine && routeId ? mountingFileFor(routeId) : null;
+    if (mounting) {
       sharedCount += 1;
-      sharedFailures.push(...sharedScreenAudit({ id: game.id, routeId, source: engine.source, declared: game.players, screen }));
+      sharedFailures.push(...sharedScreenAudit({ id: game.id, routeId, source: mounting.source, declared: game.players, screen }));
       const handoff = HANDOFFS[routeId];
       const handoffModule = handoff?.engineModule
         ? await import(pathToFileURL(path.join(root, handoff.engineModule)).href)
         : undefined;
-      sharedFailures.push(...handoffAudit({ id: game.id, routeId, source: engine.source, module: handoffModule, declared: game.players, handoff }));
+      sharedFailures.push(...handoffAudit({ id: game.id, routeId, source: mounting.source, module: handoffModule, declared: game.players, handoff }));
       if (handoff) handoffCount += 1;
     }
   }
   const staleHandoffs = Object.keys(HANDOFFS).filter((routeId) => {
     const game = party.find((g) => routeIdFor(g) === routeId);
-    const engine = game ? engineFileFor(routeId) : null;
-    return !engine || !MOUNT.test(engine.source);
+    return !game || !mountingFileFor(routeId);
   });
   for (const routeId of staleHandoffs) {
     sharedFailures.push({ id: routeId, detail: `${routeId} has a handoff entry but no party route by that id mounts the shared player screen — delete or re-point the stale entry` });
@@ -672,7 +697,7 @@ async function selftest() {
     const game = games.find((g) => routeIdFor(g) === routeId);
     const handoff = HANDOFFS[routeId];
     const module = handoff.engineModule ? await import(pathToFileURL(path.join(root, handoff.engineModule)).href) : undefined;
-    return { id: game.id, routeId, source: engineFileFor(routeId).source, module, declared: game.players, handoff };
+    return { id: game.id, routeId, source: mountingFileFor(routeId).source, module, declared: game.players, handoff };
   };
   const mutate = (args, from, to) => {
     assert.ok(args.source.includes(from), `the gh#265 mutant no longer applies to ${args.routeId}: \`${from}\` is gone — re-point this leg to the route's current handoff`);

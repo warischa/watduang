@@ -16,6 +16,13 @@
 // re-extraction therefore fails this test on the day it lands, which is the property a hand-typed
 // list of receivers could not give this route.
 //
+// Since gh#264 (ADR-0071) a second half: the SHARED PLAYER SCREEN, mounted into #ob-player-screen in
+// the menu, replaced this route's own name rows, its reset-names confirm and that confirm's arming
+// paths. Its reveals are driven for real at the bottom of this file (revealPathCases): the shared
+// code over THIS route's markup.html with the real arm gate, read off #howToPlayBtn -- a menu control
+// outside the screen's root, directly under its start button. A screen mounted outside #app, or one
+// that armed only its own root, leaves that control live and reds here.
+//
 // ponytail: matched on source text, not on a parsed AST. Two stated ceilings, same as the other
 // eleven: (1) a receiver renamed later still surfaces as unexpected and still fails — it does not
 // slip through, it just reads worse; (2) this proves the observer and the call sites EXIST, never
@@ -25,8 +32,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { revealPathCases } from '../_player-screen/screen-harness.mjs';
 
 const here = import.meta.dirname;
+const MARKUP = fs.readFileSync(path.join(here, 'markup.html'), 'utf8');
 
 /** Whole-line comments are dropped: both files document their own reveal seams in prose, and a
  *  checker cannot tell use from mention. Only full-line comments go — a trailing `//` inside a string
@@ -46,8 +55,9 @@ const main = readCode('main.ts');
  *  list of DOM idioms — the two checks below share it so neither can be widened without the other.
  *  What main.ts actually uses: `classList.add('show')` (the toast and the result card),
  *  `classList.add('open')` (the two modals), `classList.remove('hidden')` (the HUD and the menu),
- *  `classList.remove('ob-away')` (the board wrapper) and `showModal()` (the reset confirm).
- *  `hidden = false` is carried because the sibling routes use it and a re-write here might.
+ *  `classList.remove('ob-away')` (the board wrapper). `showModal()` and `hidden = false` are carried
+ *  because the sibling routes use them and a re-write here might -- the reset confirm that used
+ *  `showModal()` here moved into the shared player screen (gh#264).
  *
  *  Their opposites are deliberately absent: `add('hidden')`, `add('ob-away')` and `remove('show')`
  *  are HIDES, and `add('active' | 'loser' | 'is-bomb' | 'is-open')` and `toggle('on')` restyle a
@@ -198,33 +208,39 @@ test('gh#215: the WebGL-loss path reveals nothing, which is the only reason it n
   );
 });
 
-test("the route's own reveals — the reset confirm — are armed at their call sites", () => {
-  // main.ts reveals exactly one thing of its own: the reset-names confirm dialog. It is not one of
-  // the engine's screens and no observer covers it, so it arms itself on open, and the screen behind
-  // it arms on every one of the three ways out (cancel, confirm, and the confirm's re-render).
-  assert.match(
-    main,
-    /dialog\?\.showModal\(\);\s*\n\s*if \(dialog\) armAllButtons\(dialog\);/,
-    'the reset confirm is revealed with no arming call next to it',
-  );
-  // ONE HANDLER PER SLICE, and that bound is the whole assertion. A fixed-length window starting at
-  // the control's id runs past the end of its own handler into the next one, and the sibling's
-  // armSetup() then satisfies the match — measured: deleting the cancel path's armSetup() left this
-  // test green until the slice was cut at the next `$('` instead. Each handler is now read alone.
-  const handler = (control) => {
-    const from = main.indexOf(`$('${control}')`);
-    assert.notEqual(from, -1, `${control} is no longer wired in main.ts`);
-    const next = main.indexOf("$('", from + 3);
-    return main.slice(from, next === -1 ? main.length : next);
+test('the shared player screen is mounted into #ob-player-screen, inside the menu of the #app it arms', () => {
+  assert.match(main, /mountPlayerScreen\(\{\s*root: playersRoot,/, 'main.ts no longer mounts the shared screen into its root');
+  assert.match(main, /getElementById\('ob-player-screen'\)|\$\('ob-player-screen'\)/, 'the mount root is no longer #ob-player-screen');
+  const at = (needle) => {
+    const i = MARKUP.indexOf(needle);
+    assert.notEqual(i, -1, `markup.html no longer has ${needle}`);
+    return i;
   };
-  for (const [control, why] of [
-    ['ob-reset-cancel', 'the cancel path'],
-    ['ob-reset-confirm', 'the confirm path'],
-  ]) {
+  // Inside #app, which is the surface the screen arms; inside the menu, which is where the hero sits
+  // before it (ADR-0071 ruling 1); before the menu's own buttons, which it must cover when it arms.
+  assert.ok(at('id="app"') < at('id="menuOverlay"'));
+  assert.ok(at('id="menuOverlay"') < at('id="ob-player-screen"'));
+  assert.ok(at('id="ob-player-screen"') < at('id="howToPlayBtn"'));
+  assert.ok(at('id="ob-player-screen"') < at('id="howModal"'), '#ob-player-screen must sit in the menu, not after it');
+  // The route's own reset confirm went with its name rows: the shared screen owns both now, and a
+  // second confirm here would be a reveal no case below drives.
+  assert.doesNotMatch(main, /showModal\(\)/, 'main.ts reveals a dialog of its own again');
+});
+
+// ADR-0071 ruling 6: every way back to the player screen goes through the shared screen's own
+// request, so a live match is asked about first and a finished one opens straight away. The HUD's
+// house icon and the result card's "back" both used to drop a live match on the menu silently.
+test('the house icon and the result card reach the player screen through its request, never a bare menu swap', () => {
+  for (const id of ['homeBtn', 'menuResultBtn']) {
+    const wired = main.match(new RegExp(`\\$\\('${id}'\\)\\?\\.addEventListener\\('click',\\s*([A-Za-z_$][\\w$]*)\\)`));
+    assert.ok(wired, `#${id} is no longer wired to a named handler in main.ts`);
+    const from = main.indexOf(`function ${wired[1]}`);
+    assert.notEqual(from, -1, `#${id} is wired to ${wired[1]}, which main.ts does not declare`);
+    const next = main.indexOf('\nfunction ', from + 1);
     assert.match(
-      handler(control),
-      /dialog\?\.close\(\);[\s\S]{0,160}armSetup\(\)/,
-      `${why} closes the confirm without arming the setup screen behind it (ADR-0057)`,
+      main.slice(from, next === -1 ? main.length : next),
+      /document\.dispatchEvent\(new CustomEvent\(EDIT_EVENT\)\)/,
+      `#${id} no longer asks the shared screen to open`,
     );
   }
 });
@@ -236,11 +252,8 @@ test('every reveal receiver in one-bomb/main.ts is a known one', () => {
   // screen appear that way far more often than it sets a property.
   const REVEAL_RE = new RegExp(`([\\w.?'"()$\\-]+?)\\.(?:${REVEAL_IDIOM})`, 'g');
   const EXPECTED = new Map([
-    [
-      'dialog?',
-      'the reset-names confirm, opened by its own trigger with no engine screen change to hang the ' +
-        'arming on. Armed on the next line via armAllButtons(dialog).',
-    ],
+    // (The reset-names confirm that sat here as `dialog?` moved into the shared player screen with
+    // gh#264; its arming is driven by revealPathCases below.)
     // The five screens the observer owns. main.ts writes the same class the engine writes, so its
     // own reveal raises the same rising edge and is armed by watchEngineReveals — the set equality
     // at the top of this file is what keeps that true.
@@ -275,3 +288,5 @@ test('every reveal receiver in one-bomb/main.ts is a known one', () => {
     'EXPECTED names reveal receivers that no longer exist',
   );
 });
+
+revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'ob-player-screen', headerId: 'howToPlayBtn', label: 'one-bomb' });

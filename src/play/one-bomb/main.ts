@@ -1,63 +1,35 @@
-// Name entry for the one-bomb play route, and the reset control that goes with it.
+// Site-side module for the one-bomb play route: the round the party plays, and the shared player
+// screen that seats it.
 //
-// WHY A SEPARATE MODULE INSTEAD OF A roster-bridge.ts. Every other lifted route ships a mockup whose
-// own setup screen already has one name field per seat, so its bridge only has to fill fields that
-// exist. This mockup has none: its setup card is a player-count stepper and nothing else, and the
-// engine labels every seat from its own fixed cast. There is nothing to seed, so this file BUILDS the
-// name entry the way timebomb and dice-loser build theirs — at runtime, from this file, which is not
-// one of the three basenames scripts/extract-mockup.mjs owns. Patching the lifted copy instead would
-// put site-side code inside a file a re-extraction overwrites.
+// WHY A SEPARATE MODULE. main.js is the lifted engine and scripts/extract-mockup.mjs owns it, so
+// everything this site adds to the route lives here, in a file a re-extraction does not overwrite.
 //
-// NAMES NEVER TOUCH innerHTML. The one HTML string below is a static scaffold with no interpolation
-// at all; every seat row, badge and field is built with createElement + textContent, so a player
+// PLAYERS (ADR-0071, gh#264). The shared player screen is mounted into #ob-player-screen in the
+// menu, under the hero: its stepper, saved rows, names and start button replaced the mockup's count
+// card and this file's own name rows, reset confirm and per-game list. The screen reads and writes
+// the shared roster; this file spells no storage key at all. Its start hands the chosen players to
+// startWithPlayers, and the round seats exactly those, in the order given. The one-time import of the
+// list this route used to keep is the shared screen's (LEGACY_LISTS), not this file's.
+//
+// NAMES NEVER TOUCH innerHTML. The two HTML strings below are static scaffolds with no interpolation
+// at all; every seat label, strip card and result line is written with textContent, so a player
 // called `<img onerror=...>` renders as exactly that text.
 //
-// WHERE THE NAMES REACH, and the ceiling that is left. On the no-3D path this file owns the board,
-// so a typed name reaches the turn banner, the live region, the player strip, every stone's label
-// and the result copy. On the 3D path it still does not: the lifted engine is a sealed IIFE whose
-// cast, turn banner and result copy are private to that closure, and it exposes no hook, so the
-// names persist to the shared roster and seed the next game while the 3D board keeps the mockup's
-// own animal labels. Closing THAT needs a hook in a file scripts/extract-mockup.mjs owns.
-import { MAX_PLAYERS, MIN_PLAYERS } from '../../games/one-bomb.ts';
+// WHERE THE NAMES REACH. This file owns the round on both lanes (owner ruling 2026-09-10), so a
+// player's name reaches the turn banner, the live region, the player strip, every stone's label and
+// the result copy. The 3D backdrop the engine still draws carries no names: the lifted engine is a
+// sealed IIFE parked in its menu state, and it is not handed the players.
+// The module's default export is read for one field, `players`: the range the player screen admits is
+// the one the manifest declares (ADR-0065), never a number restated here.
+import game from '../../games/one-bomb.ts';
 import { armAllButtons } from '../../games/_arm-gate.ts';
 // gh#227: the site-wide mute preference, which this route's fallback path also reads and writes.
 import { isMuted, setMuted } from '../../shell/audio.ts';
-import { loadGroup, loadRoster } from '../../shell/roster';
-import { saveOnSetupComplete, takeSetupEditRequest } from '../_setup-bridge';
-// gh#175 / ADR-0054: the party opens on the shared animal cast, never on a numbered placeholder.
-// resetCastNames is the reset control's wipe -- it reads only the array's length and keeps the count.
-import { mascotEmoji, mascotNames, resetCastNames } from '../_mascots.ts';
-
-const NAME_MAX = 12;
-
-/** Per-game seat names, so a rename made here does not travel to another game mid-sitting. The shared
- *  roster is still what SEEDS this list, and saveOnSetupComplete writes the finished group back
- *  through roster.ts — the roster key itself is spelled in src/shell/roster.ts and nowhere else
- *  (ADR-0010, enforced by text). */
-const STORE_KEY = 'watduang:one-bomb-players';
-
-type Saved = { names: string[] };
-
-/** The cast every seat opens on, kept as its own constant because a blanked field falls back to it
- *  at render time -- `names` itself is overwritten by the roster seed and by typing. */
-const CAST = mascotNames(MAX_PLAYERS);
-
-let names: string[] = [...CAST];
-
-// The static scaffold: a container for the seat rows, the reset trigger, and its confirm dialog. It
-// carries no player data, which is why it may be a string at all. The trigger's id is also what
-// src/play/reset-control-pin.test.mjs looks for, so it has to be literal text in a real opening tag.
-const SETUP_HTML = `
-<ul class="ob-players" id="ob-players"></ul>
-<button class="btnBase secondaryBtn ob-reset" id="ob-reset-names" type="button">รีเซ็ตเป็นชื่อสัตว์</button>
-<dialog class="ob-reset-dialog" id="ob-reset-dialog">
-  <h2>รีเซ็ตเป็นชื่อสัตว์</h2>
-  <p>ชื่อที่พิมพ์ไว้ทั้งหมดจะหายไป และกลับไปเป็นชื่อสัตว์ประจำที่นั่ง จำนวนผู้เล่นยังเท่าเดิม</p>
-  <div class="ob-reset-btns">
-    <button class="btnBase secondaryBtn" id="ob-reset-cancel" type="button">ไม่รีเซ็ต</button>
-    <button class="btnBase primaryBtn" id="ob-reset-confirm" type="button">รีเซ็ตเลย</button>
-  </div>
-</dialog>`;
+// ADR-0071: the one player screen every party route mounts. It owns the count, the names, the roster
+// and the group; this file gets the chosen players back through startWithPlayers().
+import { EDIT_EVENT, mountPlayerScreen, type Player } from '../_player-screen/player-screen.ts';
+// gh#209: a seat's animal glyph, the fallback for a seat the screen did not name an animal for.
+import { mascotEmoji } from '../_mascots.ts';
 
 // gh#170: the round's announcement channel. It ships EMPTY and lives outside the menu, because the
 // menu is visibility:hidden during play and a live region inside it would be announced to nobody.
@@ -65,110 +37,27 @@ const LIVE_HTML = '<p class="ob-live" id="ob-live" role="status" aria-live="poli
 
 const $ = <T extends HTMLElement>(id: string): T | null => document.getElementById(id) as T | null;
 
-// ---- persistence -------------------------------------------------------------------------------
+// ---- the seats -----------------------------------------------------------------------------------
 
-function load(): void {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (raw) {
-      // Validate before trusting: this blob was written by a past version of this file.
-      const saved = JSON.parse(raw) as Partial<Saved>;
-      if (Array.isArray(saved.names)) {
-        names = names.map((fallback, i) => {
-          const stored = saved.names?.[i];
-          return typeof stored === 'string' && stored.trim() !== '' ? stored.slice(0, NAME_MAX) : fallback;
-        });
-      }
-    }
-  } catch {
-    // Private mode, quota, or a corrupt blob — the cast defaults above are already playable.
-  }
-}
+/** Who this match plays with, in the order the shared screen handed them over (roster order). Each
+ *  seat keeps the animal the screen gave it, so a group with someone sitting out keeps every animal
+ *  on its owner. Empty until the first start. */
+let playing: Player[] = [];
 
-function save(): void {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify({ names } satisfies Saved));
-  } catch {
-    // A round that cannot be persisted still plays; nothing here is load-bearing for this round.
-  }
-}
-
-/** The group the device last played beats the full roster, and either beats the cast defaults. Only
- *  seats the seed actually names are overwritten, so a name typed here survives a shorter roster.
- *  Returns how many seats the seed covers, which is also the count the stepper is driven to. */
-function seedFromRoster(): number {
-  const group = loadGroup();
-  const seed = group.length >= MIN_PLAYERS ? group : loadRoster().names();
-  if (seed.length < MIN_PLAYERS) return 0;
-  names = names.map((current, i) => (seed[i] ? seed[i].slice(0, NAME_MAX) : current));
-  return Math.min(MAX_PLAYERS, seed.length);
-}
-
-// ---- the seat rows -----------------------------------------------------------------------------
-
-/** The engine owns the player count: the stepper's own display is the single reading of it, so this
- *  file never keeps a second copy that could disagree with the board. */
+/** The seat count, read off the seats themselves -- no second copy of it is kept anywhere. */
 function currentCount(): number {
-  const shown = Number.parseInt($('playerCountVal')?.textContent ?? '', 10);
-  if (!Number.isFinite(shown)) return MIN_PLAYERS;
-  return Math.min(MAX_PLAYERS, Math.max(MIN_PLAYERS, shown));
+  return playing.length;
 }
 
-function renderRows(): void {
-  const listEl = $('ob-players');
-  if (!listEl) return;
-  const count = currentCount();
-
-  listEl.replaceChildren();
-  for (let i = 0; i < count; i += 1) {
-    const row = document.createElement('li');
-    row.className = 'ob-player';
-
-    const badge = document.createElement('span');
-    badge.className = 'ob-player-seat';
-    // gh#209's animal glyph, not a seat number: this route builds its own setup rows, so the shared
-    // shell panel's badge never reaches it.
-    badge.textContent = mascotEmoji(i);
-    badge.setAttribute('aria-hidden', 'true');
-
-    // A native text input brings focus, caret, keyboard and the length cap for free — maxLength as an
-    // ATTRIBUTE so a paste is clamped too, not just typing.
-    const input = document.createElement('input');
-    input.className = 'ob-player-name';
-    input.type = 'text';
-    input.value = names[i];
-    input.maxLength = NAME_MAX;
-    // POSITIONAL, and deliberately numbered: this says which ROW the field is, not who the player is.
-    input.setAttribute('aria-label', `ชื่อผู้เล่นคนที่ ${i + 1}`);
-    input.addEventListener('input', () => {
-      names[i] = input.value;
-      save();
-    });
-
-    row.append(badge, input);
-    listEl.appendChild(row);
-  }
-}
-
-/** gh#175. The wipe the reset confirm guards: the cast goes back to its animal names, and the
- *  array's own length is untouched — resetCastNames reads only that length, never an entry, so a
- *  typed name cannot survive this call. The player count is not touched here and cannot be: this
- *  route reads it off the engine's stepper, and nothing in this file writes it. */
-function resetPlayerNames(): void {
-  names = resetCastNames(names);
+/** The engine entry the player screen starts (ADR-0071): every player it is handed is seated, in the
+ *  order given, and the match starts. The screen admits only the declared range, so the board table
+ *  below has a shape for every count it can be handed. */
+function startWithPlayers(players: Player[]): void {
+  playing = [...players];
+  startMatch();
 }
 
 // ---- wiring ------------------------------------------------------------------------------------
-
-/** Every reveal on this screen re-arms it, ADR-0014 and ADR-0057: a double-tap aimed at the control
- *  that caused the reveal must not fall through onto whatever now sits under the finger. Closing the
- *  confirm dialog counts as a reveal — the controls behind it are enabled and their arm window
- *  expired long ago, which is exactly why a second contact fires one. */
-function armSetup(): void {
-  const menu = document.querySelector<HTMLElement>('#menuOverlay .menuBox');
-  if (menu) armAllButtons(menu);
-}
-
 /** The lifted engine's own screens, and the class each one is hidden by. Three different spellings,
  *  read off the engine rather than normalised: #hud and #menuOverlay carry `hidden` while they are
  *  away, #resultCard carries `show` while it is present, and the two modals carry `open`. */
@@ -359,16 +248,26 @@ const round = {
   /** Taps are only a move while a round is live: not on the menu, not behind the result card. */
   accepting: false,
   loser: -1,
+  /** A match is in progress: from a round starting until the last round's result. Wider than
+   *  `accepting` on purpose -- the result card between two rounds still holds every score of a match
+   *  that is not over, so editing the players there asks first (ADR-0071 ruling 6, ADR-0008). */
+  live: false,
 };
 
 let disarmBoard: (() => void) | null = null;
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
-/** The name this seat plays under — the typed one, falling back to its cast name when the field is
- *  blank. This is the value that reaches the board, the banner and the strip. */
+/** The name this seat plays under, as the shared screen handed it over -- a row left blank there
+ *  already arrives as its mascot's name. This is the value that reaches the board, the banner and the
+ *  strip. */
 function seatName(index: number): string {
-  const typed = (names[index] ?? '').trim();
-  return typed === '' ? CAST[index % CAST.length] : typed;
+  return playing[index]?.name ?? '';
+}
+
+/** The animal this seat plays as: the one the shared screen gave the player, so it stays on its owner
+ *  when someone earlier in the roster sits the round out. */
+function seatEmoji(index: number): string {
+  return playing[index]?.emoji ?? mascotEmoji(index);
 }
 
 function showToast(message: string): void {
@@ -380,25 +279,8 @@ function showToast(message: string): void {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 900);
 }
 
-/** The stepper the engine would own. Everything downstream reads the count back off the display it
- *  writes here, so this file still keeps no second copy of the player count. */
-function setPlayerCount(next: number): void {
-  const count = Math.min(MAX_PLAYERS, Math.max(MIN_PLAYERS, next));
-  const display = $('playerCountVal');
-  if (display) display.textContent = String(count);
-  const minus = $<HTMLButtonElement>('playerMinus');
-  const plus = $<HTMLButtonElement>('playerPlus');
-  // The gate reads a control the CALLER disabled as intent and hands it back disabled, so a stepper
-  // parked at its bound stays parked across an arm window.
-  if (minus) minus.disabled = count <= MIN_PLAYERS;
-  if (plus) plus.disabled = count >= MAX_PLAYERS;
-  const [rows, cols] = BOARD_GRID[count] ?? [5, 5];
-  const desc = $('boardDimensionDesc');
-  if (desc) desc.textContent = `กระดาน ${rows} × ${cols} · แผ่นหิน ${rows * cols} แผ่น`;
-}
-
-/** The strip along the top of the HUD, rebuilt from typed names. Built node by node with textContent
- *  — a seat label is player-typed text and never reaches a markup sink (ADR-0026). */
+/** The strip along the top of the HUD, rebuilt from the seated names. Built node by node with
+ *  textContent — a seat label is player-typed text and never reaches a markup sink (ADR-0026). */
 function paintStrip(count: number): void {
   const strip = $('playerStrip');
   if (!strip) return;
@@ -411,7 +293,7 @@ function paintStrip(count: number): void {
 
     const badge = document.createElement('div');
     badge.className = 'avatarBadge';
-    badge.textContent = mascotEmoji(i);
+    badge.textContent = seatEmoji(i);
     badge.setAttribute('aria-hidden', 'true');
 
     const info = document.createElement('div');
@@ -437,7 +319,7 @@ function paintHud(): void {
   const who = $('turnPlayerName');
   if (who) who.textContent = seatName(round.current);
   const avatar = $('turnAvatarEmoji');
-  if (avatar) avatar.textContent = mascotEmoji(round.current);
+  if (avatar) avatar.textContent = seatEmoji(round.current);
   const label = $('roundLabel');
   if (label) label.textContent = `${round.n} / ${TOTAL_ROUNDS}`;
 
@@ -481,7 +363,7 @@ function renderBoard(): void {
     // reads it back off the rendered page and keys off no list of its own.
     tile.setAttribute('role', 'gridcell');
     tile.dataset.idx = String(i);
-    // POSITIONAL, like the setup rows': this names the stone, not the player. Who opened it is
+    // POSITIONAL, like the player screen's name fields: this names the stone, not the player. Who opened it is
     // written onto the label at the moment it is opened.
     tile.setAttribute('aria-label', `แผ่นหินที่ ${i + 1}`);
     (rowEl ?? host).appendChild(tile);
@@ -500,20 +382,22 @@ function finishRound(loser: number): void {
   paintHud();
 
   const isFinal = round.n >= TOTAL_ROUNDS;
+  // The last round settles the match: editing the players over its result loses nothing.
+  if (isFinal) round.live = false;
   const survivors = count - 1;
   const emoji = $('resultEmoji');
   if (emoji) emoji.textContent = isFinal ? '🏆' : '💥';
   const title = $('resultTitle');
   if (title) title.textContent = isFinal ? 'จบการแข่งขันแล้ว!' : `${seatName(loser)} โดนระเบิดตูม!`;
 
-  let desc = `${mascotEmoji(loser)} ${seatName(loser)} พลาดเหยียบระเบิด! ${
+  let desc = `${seatEmoji(loser)} ${seatName(loser)} พลาดเหยียบระเบิด! ${
     survivors === 1 ? 'อีกคนชนะในรอบนี้' : `อีก ${survivors} คนชนะในรอบนี้`
   }`;
   if (isFinal) {
     const best = Math.max(...round.scores.slice(0, count).map((s) => s ?? 0));
     const winners: string[] = [];
     for (let i = 0; i < count; i += 1) {
-      if ((round.scores[i] ?? 0) === best) winners.push(`${mascotEmoji(i)} ${seatName(i)}`);
+      if ((round.scores[i] ?? 0) === best) winners.push(`${seatEmoji(i)} ${seatName(i)}`);
     }
     desc += ` 🥇 แชมเปี้ยน: ${winners.join(' และ ')} ชนะไปทั้งหมด ${best} รอบ!`;
   }
@@ -549,7 +433,7 @@ function openTile(index: number): void {
 
   round.opened.set(index, player);
   tile.classList.add('is-open');
-  tile.textContent = mascotEmoji(player);
+  tile.textContent = seatEmoji(player);
   tile.setAttribute('aria-label', `แผ่นหินที่ ${index + 1} ปลอดภัย ${seatName(player)} เปิดไว้`);
   round.current = (round.current + 1) % currentCount();
   paintHud();
@@ -565,6 +449,7 @@ function startRound(keepTurn: boolean): void {
   round.loser = -1;
   if (!keepTurn) round.current = (round.n - 1) % count;
   round.accepting = true;
+  round.live = true;
   renderBoard();
   paintHud();
 }
@@ -591,12 +476,28 @@ function advanceRound(): void {
   startRound(false);
 }
 
-function backToMenu(): void {
+/** Puts the match away and brings the menu back, which is where the player screen lives. Used both
+ *  when the players confirm ending a live match and every time the screen opens (the screen calls
+ *  it as its onOpen), so whatever was up -- the board, the HUD, a result card -- is gone under it. */
+function putAwayRound(): void {
   round.accepting = false;
+  round.live = false;
   $('resultCard')?.classList.remove('show');
   $('hud')?.classList.add('hidden');
   $('ob-board-wrap')?.classList.add('ob-away');
   $('menuOverlay')?.classList.remove('hidden');
+}
+
+/** ADR-0071 ruling 6: a match in progress is asked about before the players change. */
+function roundActive(): boolean {
+  return round.live;
+}
+
+/** The house icon and the result card's way back. Both used to drop the match on the menu silently;
+ *  they now send the request the chrome's edit control sends, so the shared screen asks first while a
+ *  match is live and opens straight away once it is settled. */
+function requestPlayers(): void {
+  document.dispatchEvent(new CustomEvent(EDIT_EVENT));
 }
 
 /** The engine's leaf controls: every id main.js binds a listener to that is not a container. At
@@ -611,9 +512,6 @@ const ENGINE_LEAF_CONTROLS = [
   'newRoundBtn',
   'nextRoundBtn',
   'menuResultBtn',
-  'startPlayBtn',
-  'playerMinus',
-  'playerPlus',
   'soundToggle',
   'motionToggle',
   'particleToggle',
@@ -635,12 +533,12 @@ const ENGINE_LEAF_CONTROLS = [
  *  reads as caller-disabled. So it is cleared explicitly. Nothing else is copied: focus is not, and
  *  the engine sets no expando property on any of these nodes (it exposes nothing at all).
  *
- *  The stepper's bounds are the one `disabled` state this route OWNS rather than inherits, and they
- *  are re-asserted by installNoWebglRound's closing setPlayerCount call, which runs right after
- *  this. Read back off the display, so no second copy of the count is introduced.
+ *  The mockup's count stepper and start button were on this list until gh#264 removed them from the
+ *  page: the count and the start are the shared player screen's now (ADR-0071), whose controls the
+ *  engine never bound.
  *
  *  Idempotent on the no-3D lane: the engine bailed before binding anything there, so this replaces
- *  eleven nodes with eleven equivalent ones and severs nothing. One path, not two — a lane-dependent
+ *  every listed node with an equivalent one and severs nothing. One path, not two — a lane-dependent
  *  branch here would be a branch every browser claim then has to cover twice. */
 function severEngineLeafControls(): void {
   // ADR-0046, and this is the LAST MOMENT it can be honoured. The engine's motion state is private
@@ -689,13 +587,12 @@ function installNoWebglRound(): void {
     });
   }
 
-  $('playerMinus')?.addEventListener('click', () => setPlayerCount(currentCount() - 1));
-  $('playerPlus')?.addEventListener('click', () => setPlayerCount(currentCount() + 1));
-  $('startPlayBtn')?.addEventListener('click', startMatch);
+  // No start button here: the shared player screen's start begins the match, through
+  // startWithPlayers (ADR-0071).
   $('newRoundBtn')?.addEventListener('click', () => startRound(true));
   $('nextRoundBtn')?.addEventListener('click', advanceRound);
-  $('homeBtn')?.addEventListener('click', backToMenu);
-  $('menuResultBtn')?.addEventListener('click', backToMenu);
+  $('homeBtn')?.addEventListener('click', requestPlayers);
+  $('menuResultBtn')?.addEventListener('click', requestPlayers);
   $('howToPlayBtn')?.addEventListener('click', () => $('howModal')?.classList.add('open'));
   $('settingsBtn')?.addEventListener('click', () => $('settingsModal')?.classList.add('open'));
   $('menuSettingsBtn')?.addEventListener('click', () => $('settingsModal')?.classList.add('open'));
@@ -738,8 +635,6 @@ function installNoWebglRound(): void {
       paintSound();
     });
   }
-
-  setPlayerCount(currentCount());
 }
 
 /** gh#215's halt, retired by the owner ruling of 2026-09-11. What is left is the smallest honest
@@ -776,28 +671,12 @@ function onContextLost(): void {
 // ---- mount -------------------------------------------------------------------------------------
 
 function mount(): void {
-  // The chrome's "แก้ผู้เล่น" pill sets a session flag and reloads. This mockup boots to its own menu
-  // every time, so the request is honoured just by arriving — but the flag still has to be CONSUMED
-  // or the next party game opened in this tab reads a request that was never meant for it and drops
-  // that player onto a setup screen they did not ask for.
-  //
-  // UNCONDITIONAL, and above every element lookup on purpose: a clear that sits behind an `if (el)`
-  // is a clear that can be skipped on the real page too, and the tab keeps the stale flag.
-  takeSetupEditRequest();
+  const playersRoot = document.getElementById('ob-player-screen');
+  if (!playersRoot) return;
 
-  const card = document.querySelector('#menuOverlay .setupCard');
-  if (!card) return;
-  card.insertAdjacentHTML('afterend', SETUP_HTML);
-
-  load();
-  const seeded = seedFromRoster();
   // UNCONDITIONAL, per the owner ruling 2026-09-10: the DOM round is the play surface in both
   // lanes, so the install no longer asks whether the engine died. Severing comes FIRST — install
   // binds this file's listeners to these same nodes, and severing after it would clone them away.
-  //
-  // Both calls sit BEFORE the stepper is driven, and that order is load-bearing: the engine's own
-  // stepper listeners are gone by now, so this install is what makes #playerPlus move the count at
-  // all — and the seeding loop below reads the count back after every click.
   severEngineLeafControls();
   installNoWebglRound();
   // gh#215. Optional chaining is load-bearing, not defensive habit: on the no-3D path above the
@@ -805,25 +684,6 @@ function mount(): void {
   // with no context to lose cannot lose one. `once` because there is no second loss to handle; the
   // canvas is gone by the end of the handler.
   $('gameCanvas')?.addEventListener('webglcontextlost', onContextLost, { once: true });
-  // Driven through the mockup's OWN stepper rather than by writing the display: the engine keeps the
-  // count inside its closure, so clicking is the only way to move both readings together. Bounded by
-  // the seat range and by a no-progress guard, so a stepper that stops responding ends the loop
-  // instead of spinning.
-  const plus = $<HTMLButtonElement>('playerPlus');
-  for (let guard = 0; plus && currentCount() < seeded && guard < MAX_PLAYERS; guard += 1) {
-    const before = currentCount();
-    plus.click();
-    if (currentCount() === before) break;
-  }
-
-  renderRows();
-
-  // Bubble phase on document: the engine's own listeners sit on the stepper buttons themselves, so by
-  // the time this runs the count display already holds the new value.
-  document.addEventListener('click', (ev) => {
-    const target = ev.target as Element | null;
-    if (target?.closest('#playerMinus, #playerPlus')) renderRows();
-  });
 
   document.getElementById('app')?.insertAdjacentHTML('beforeend', LIVE_HTML);
   announceTurns();
@@ -855,28 +715,26 @@ function mount(): void {
   document.addEventListener('pointerdown', armBehindModal, true);
   document.addEventListener('click', armBehindModal);
 
-  const dialog = $<HTMLDialogElement>('ob-reset-dialog');
-  $('ob-reset-names')?.addEventListener('click', () => {
-    dialog?.showModal();
-    if (dialog) armAllButtons(dialog);
-  });
-  $('ob-reset-cancel')?.addEventListener('click', () => {
-    dialog?.close();
-    armSetup();
-  });
-  $('ob-reset-confirm')?.addEventListener('click', () => {
-    resetPlayerNames();
-    save();
-    dialog?.close();
-    renderRows();
-    armSetup();
-  });
+  // ADR-0017, the double-tap aimed at the game card that navigated here: the menu's own buttons are on
+  // screen from the first paint. The shared screen arms #app when it opens, but it opens only after it
+  // has read the roster, so the menu is armed here as well -- before the screen is mounted into it,
+  // so this gate holds only the menu's own controls and the screen's are left to the screen.
+  const menu = document.querySelector<HTMLElement>('#menuOverlay .menuBox');
+  if (menu) armAllButtons(menu);
 
-  // The roster write-back, shared with every other route: whatever is in the fields when the player
-  // starts the match becomes the device's group.
-  saveOnSetupComplete('#startPlayBtn', '.ob-player-name', MAX_PLAYERS);
-
-  armSetup();
+  // ADR-0071: the shared player screen, under the hero and above the game's own how-to and settings.
+  // Range from the module's own declared players field, so the screen can never offer a count the
+  // manifest does not claim; the screen clamps into it and owns the 20 ceiling. Read inline on
+  // purpose: scripts/seat-cap-check.mjs proves this hand-off structurally, and runs startWithPlayers.
+  const screen = mountPlayerScreen({
+    root: playersRoot,
+    range: game.players,
+    onStart: startWithPlayers,
+    roundActive,
+    abortRound: putAwayRound,
+    onOpen: putAwayRound,
+  });
+  screen.open();
 }
 
 mount();

@@ -228,6 +228,42 @@
         "deliberate": true,
         "owner": "gh#150",
         "why": "the CONNECTOR, and the one an adversarial review caught missing. The helper and the bias line above are both silent halves: a re-extraction that kept them and dropped the call that refreshes the cache would leave two recorded fragments present, this gate green, and the bias permanently zero — the board back under the banner with nothing red anywhere. That is the failure class gh#212 was filed on. Pinned on the counter name rather than the whole statement so changing the 30-frame interval does not red this entry for no reason"
+      },
+      {
+        "fragment": "document.getElementById('playerMinus')",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the engine's own stepper wiring and the DOM writes in its count setter; the stepper's nodes left markup.html with ADR-0071, and a re-extraction that put the lookups back would throw on the missing node before the rest of the engine binds"
+      },
+      {
+        "fragment": "document.getElementById('startPlayBtn')",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the engine's start-button wiring; the button left markup.html with ADR-0071 (the shared player screen's start begins the match), and the lookup of a missing node would throw before the rest of the engine binds"
+      }
+    ],
+    "markup.html": [
+      {
+        "fragment": "<section id=\"ob-player-screen\" class=\"ob-player-screen\" hidden></section>",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the shared player screen's root in the menu (ADR-0071); the mockup's own count card and start button it replaced are recorded absent below"
+      },
+      {
+        "fragment": "id=\"playerMinus\"",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own count stepper; the count belongs to the shared player screen (ADR-0071), and a re-extraction that put it back would give this route two count controls"
+      },
+      {
+        "fragment": "id=\"startPlayBtn\"",
+        "absent": true,
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the mockup's own start button; the shared player screen's start begins the match (ADR-0071), and a second start would begin one with no players chosen"
       }
     ]
   },

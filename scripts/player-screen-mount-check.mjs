@@ -60,7 +60,6 @@ export const PENDING = new Set([
   'dice-loser',
   'freeze-tap',
   'how-close-is-near',
-  'one-bomb',
   'pinocchio-luck',
   'power-meter',
   'short-stick',
