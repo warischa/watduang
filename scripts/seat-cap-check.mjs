@@ -58,6 +58,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import { stripTypeScriptTypes } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { sliceBlock } from '../src/play/_dom-stub.mjs';
 
@@ -374,6 +375,109 @@ export function sharedScreenAudit({ id, routeId, source, declared, screen }) {
   return failures;
 }
 
+// --- The handoff (gh#265) -----------------------------------------------------------------------
+// The readers above measure the surface that ADMITS a count: a clamp, a stepper, a guard, the shared
+// screen's clamp. None of them runs the HANDOFF -- the route's own function that receives the chosen
+// players and seats them. A handoff that keeps 2 of the 20 it was given passed every leg above
+// (gh#265: executed on cursed-number and timebomb, and on the base tree). Under ADR-0071 every party
+// route receives its players through exactly one such function, so that function is run here.
+// For every route that mounts the shared screen, its handoff bytes are sliced out and RUN with the
+// declared minimum and the declared maximum of distinct players; each must seat exactly what it was
+// handed. A mounting route with no entry below is RED, never skipped: a route converted later must
+// name its handoff here on the day it converts.
+const HANDOFF_SIZES = (declared) => [...new Set([declared[0], declared[1]])];
+
+function makePlayers(count) {
+  return Array.from({ length: count }, (_, i) => ({ name: `seat-${i + 1}`, emoji: '?', mascot: i }));
+}
+
+/** Slice one or more TypeScript functions, strip their types, and compile them in one tolerant scope. */
+function compileTsFunctions(source, headers) {
+  const parts = [];
+  for (const header of headers) {
+    const body = sliceBlock(source, header);
+    if (!body) return { error: `no surface answers to \`${header}\`` };
+    try {
+      parts.push(stripTypeScriptTypes(`function ${body}`));
+    } catch (error) { return { error: `\`${header}\` will not strip to JavaScript: ${error.message}` }; }
+  }
+  const [entry, ...helpers] = parts;
+  try {
+    const factory = new Function('__scope', '__env',
+      `with (__scope) { with (__env) { ${helpers.join('\n')}\n return ${entry} } }`);
+    return { make: (env) => factory(freeScope, env) };
+  } catch (error) { return { error: `slice will not compile: ${error.message}` }; }
+}
+
+const HANDOFFS = {
+  timebomb: {
+    what: 'begin() keeps the players the shared screen hands it, and buildContext() hands that list to the engine as session.players',
+    run: (source, _module, players) => {
+      const compiled = compileTsFunctions(source, ['begin(players: Player[]): void', 'buildContext(): GameContext']);
+      if (compiled.error) return compiled;
+      let mounted = null;
+      const env = {
+        playing: [],
+        stageEl: { hidden: true },
+        game: { dispose() {}, mount(_el, context) { mounted = context; } },
+      };
+      compiled.make(env)(players);
+      if (!mounted) return { error: 'begin() never mounted the engine, so no seated list could be read' };
+      return { seated: mounted.session?.players?.length };
+    },
+  },
+  'cursed-number': {
+    what: 'startWithPlayers() builds the CursedNumberGameModel the round is played on',
+    engineModule: 'src/games/cursed-number.ts',
+    run: (source, engineModule, players) => {
+      const Model = engineModule?.CursedNumberGameModel;
+      if (typeof Model !== 'function') return { error: 'src/games/cursed-number.ts no longer exports CursedNumberGameModel' };
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      const env = {
+        CursedNumberGameModel: Model,
+        seatColorVar: engineModule.seatColorVar,
+        window: {},
+        document: { getElementById: () => ({}) },
+      };
+      const receiver = tolerantReceiver({});
+      compiled.make(env).call(receiver, players);
+      const model = receiver.game;
+      if (!(model instanceof Model)) return { error: 'startWithPlayers() did not leave a CursedNumberGameModel on the route' };
+      // Both views of the seat count must agree with the hand: the count the round reads and the
+      // seats it iterates.
+      return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
+    },
+  },
+};
+
+export function handoffAudit({ id, routeId, source, module, declared, handoff }) {
+  const failures = [];
+  const say = (detail) => failures.push({ id, detail });
+  if (!handoff) {
+    say(`${routeId} mounts the shared player screen but has no handoff locator in seat-cap-check's HANDOFFS — the function that seats the players it is handed is unmeasured. Add an entry naming that function (gh#265)`);
+    return failures;
+  }
+  for (const count of HANDOFF_SIZES(declared)) {
+    let result;
+    try {
+      result = handoff.run(source, module, makePlayers(count));
+    } catch (error) {
+      result = { error: `the handoff threw: ${error.message}` };
+    }
+    if (result.error) {
+      say(`${routeId}: the handoff could not be run — ${result.error}. This gate is measuring nothing for this route's handoff until its locator is re-pointed (${handoff.what})`);
+      return failures;
+    }
+    if (!Number.isInteger(result.seated)) {
+      say(`${routeId}: running the handoff with ${count} players produced ${JSON.stringify(result.seated)}, which is not a seat count — the measurement did not happen`);
+    } else if (result.seated !== count) {
+      say(`${routeId}: the handoff was handed ${count} players and seated ${result.seated}. The shared screen admits up to the declared maximum, so the route must seat every player it is handed (${handoff.what})`);
+    }
+  }
+  return failures;
+}
+
 async function audit() {
   const { games } = await import(pathToFileURL(path.join(root, 'src/games/manifest.ts')).href);
   const screen = await import(pathToFileURL(path.join(root, 'src/play/_player-screen/player-screen.ts')).href);
@@ -390,6 +494,7 @@ async function audit() {
   const results = [];
   const sharedFailures = [];
   let sharedCount = 0;
+  let handoffCount = 0;
   for (const game of party) {
     const routeId = routeIdFor(game);
     const engine = routeId ? engineFileFor(routeId) : null;
@@ -401,7 +506,21 @@ async function audit() {
     if (engine && MOUNT.test(engine.source)) {
       sharedCount += 1;
       sharedFailures.push(...sharedScreenAudit({ id: game.id, routeId, source: engine.source, declared: game.players, screen }));
+      const handoff = HANDOFFS[routeId];
+      const handoffModule = handoff?.engineModule
+        ? await import(pathToFileURL(path.join(root, handoff.engineModule)).href)
+        : undefined;
+      sharedFailures.push(...handoffAudit({ id: game.id, routeId, source: engine.source, module: handoffModule, declared: game.players, handoff }));
+      if (handoff) handoffCount += 1;
     }
+  }
+  const staleHandoffs = Object.keys(HANDOFFS).filter((routeId) => {
+    const game = party.find((g) => routeIdFor(g) === routeId);
+    const engine = game ? engineFileFor(routeId) : null;
+    return !engine || !MOUNT.test(engine.source);
+  });
+  for (const routeId of staleHandoffs) {
+    sharedFailures.push({ id: routeId, detail: `${routeId} has a handoff entry but no party route by that id mounts the shared player screen — delete or re-point the stale entry` });
   }
 
   const failures = [...results.flatMap((result) => result.failures), ...sharedFailures];
@@ -424,7 +543,8 @@ async function audit() {
     `(${tally('measured')} measured by running the engine's own seat surface, ${tally('located')} read from a count guard, ` +
     `${tally('derived')} derived from the manifest so they cannot disagree); ` +
     `${sharedCount} route(s) mount the shared player screen, each handing it its own manifest range, ` +
-    'and its clamp admits exactly the declared maximum (run, not read). ' +
+    'and its clamp admits exactly the declared maximum (run, not read); ' +
+    `${handoffCount} handoff(s) run at the declared minimum and maximum, each seating every player it is handed. ` +
     'The MINIMUM is not covered here — scripts/validate-games.mjs owns it.',
   );
 }
@@ -531,6 +651,42 @@ async function selftest() {
   assert.match(sharedScreenAudit({ id: 'g', routeId: 'g', source: good, declared: [2, 10], screen: broken })[0].detail, /clamp admits 9999/,
     'a clamp that does not clamp must red');
   console.log('PASS shared screen: own range + real clamp is silent; a literal or foreign range, a maximum over the ceiling, and a non-clamping clamp each red');
+
+  // gh#265: the handoff, against fixtures first -- every class in both directions.
+  const seatsAll = { what: 'fixture', run: (_s, _m, players) => ({ seated: players.length }) };
+  const keepsTwo = { what: 'fixture', run: (_s, _m, players) => ({ seated: Math.min(players.length, 2) }) };
+  const goneSurface = { what: 'fixture', run: (source) => compileMethod(source, 'startWithPlayers(players)') };
+  const mintedSeat = { what: 'fixture', run: () => ({ seated: NaN }) };
+  const fixtureArgs = { id: 'g', routeId: 'r', source: '', module: undefined, declared: [2, 10] };
+  assert.deepEqual(handoffAudit({ ...fixtureArgs, handoff: seatsAll }), [], 'POSITIVE CONTROL: a handoff that seats every player is silent');
+  assert.match(handoffAudit({ ...fixtureArgs, handoff: keepsTwo })[0].detail, /handed 10 players and seated 2/, 'a handoff that drops seats must red, naming both numbers');
+  assert.match(handoffAudit({ ...fixtureArgs, handoff: goneSurface })[0].detail, /measuring nothing/, 'a handoff locator whose surface moved must say it measures nothing');
+  assert.match(handoffAudit({ ...fixtureArgs, handoff: mintedSeat })[0].detail, /the measurement did not happen/, 'a non-integer seat count must fail as a failed measurement');
+  assert.match(handoffAudit({ ...fixtureArgs, handoff: undefined })[0].detail, /has no handoff locator/, 'a mounting route with no locator must red, not skip');
+  console.log('PASS handoff fixtures: seats-all is silent; dropped seats, a moved surface, a minted count and a missing locator each red');
+
+  // gh#265: the REAL handoffs, run on the real route bytes, then on the two mutants the gap was
+  // found with. A mutant that no longer applies is itself a failure: a dead mutant proves nothing.
+  const { games } = await import(pathToFileURL(path.join(root, 'src/games/manifest.ts')).href);
+  const real = async (routeId) => {
+    const game = games.find((g) => routeIdFor(g) === routeId);
+    const handoff = HANDOFFS[routeId];
+    const module = handoff.engineModule ? await import(pathToFileURL(path.join(root, handoff.engineModule)).href) : undefined;
+    return { id: game.id, routeId, source: engineFileFor(routeId).source, module, declared: game.players, handoff };
+  };
+  const mutate = (args, from, to) => {
+    assert.ok(args.source.includes(from), `the gh#265 mutant no longer applies to ${args.routeId}: \`${from}\` is gone — re-point this leg to the route's current handoff`);
+    return { ...args, source: args.source.replace(from, to) };
+  };
+  const timebombArgs = await real('timebomb');
+  assert.deepEqual(handoffAudit(timebombArgs), [], 'POSITIVE CONTROL: the real timebomb handoff seats every player');
+  assert.match(handoffAudit(mutate(timebombArgs, 'playing = players.map((p) => p.name);', 'playing = players.slice(0, 2).map((p) => p.name);'))[0].detail,
+    /handed 10 players and seated 2/, 'a timebomb handoff keeping two players must red');
+  const cursedArgs = await real('cursed-number');
+  assert.deepEqual(handoffAudit(cursedArgs), [], 'POSITIVE CONTROL: the real cursed-number handoff seats every player');
+  assert.match(handoffAudit(mutate(cursedArgs, 'this.game.setPlayerCount(seats.length);', 'this.game.setPlayerCount(2);'))[0].detail,
+    /handed 20 players and seated 2/, 'a cursed-number handoff seating two of twenty must red');
+  console.log('PASS handoff (real): both pilot handoffs seat every player at min and max; each gh#265 mutant reds');
 
   console.log('seat-cap-check --selftest: all legs passed');
 }
