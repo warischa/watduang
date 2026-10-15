@@ -56,9 +56,11 @@ Found on gh#162 (wire-snip-panic), and it is a class, not one mockup. Measured 2
 - Of the mockups in the mockup-games tree, **4 do**: `wire-snip-panic`, `ZERO_TRIGGER`, `dice-loser`,
   `เข้งับ`. So roughly every third port meets this.
 
-The copied `roster-bridge.ts` pattern — a `document` listener plus an immediate-call else branch —
-then runs *before the mockup has created a single control*. Seeding clicks nothing. The route opens on
-the mockup's own menu with the group already saved, which looks like a plausible screen.
+*(Historical, pre-ADR-0071.)* The copied `roster-bridge.ts` pattern — a `document` listener plus an
+immediate-call else branch — then ran *before the mockup had created a single control*. Seeding clicked
+nothing. The route opened on the mockup's own menu with the group already saved, which looked like a
+plausible screen. The bridges are gone (gh#264); the same timing question now applies to where the
+route calls `mountPlayerScreen` and what its `onStart` handoff expects to exist.
 
 **The danger is not the bug, it is that nothing catches it.** On gh#162 every gate was green while the
 feature was dead: `tsc`, `validate-games`, `thai-comments`, `no-nav-in-stage`, `roster-lock`,

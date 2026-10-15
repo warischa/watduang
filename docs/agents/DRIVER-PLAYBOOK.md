@@ -114,24 +114,24 @@ reads identically to one that mounted and is closed — `allDialogIds` (every `<
 document) is what tells the two apart. Don't write "checked and found closed" for a selector you only
 probed with `.open` on a possibly-absent node.
 
-## Seeding roster-bridge.ts to skip a whole setup wizard
+## Seeding the shared player screen to skip typing names
 
-Every play route with a `roster-bridge.ts` file self-runs on `DOMContentLoaded` and drives that
-route's OWN setup controls (count steppers, name fields, confirm button) if it finds >=2 names in
-`localStorage['watduang:group']` (`src/shell/roster.ts` owns both keys — `watduang:roster` and
-`watduang:group`). Seed both, on-origin, before the load that should land past setup:
+Since gh#264 (ADR-0071) every party play route opens on the shared player screen; the per-route
+`roster-bridge.ts` files are gone. With >=2 names saved, the screen opens pre-filled (saved-roster mode)
+and one press on its start control (`[data-ps="start"]`) hands the ticked players to the route.
+`src/shell/roster.ts` owns both keys — `watduang:roster` and `watduang:group`. Seed both, on-origin,
+before the load that should open pre-filled:
 
 ```js
 localStorage.setItem('watduang:roster', JSON.stringify(['NAME1','NAME2','NAME3']));
 localStorage.setItem('watduang:group', JSON.stringify(['NAME1','NAME2','NAME3']));
 ```
 
-Then `nav()` again (the bridge runs on the NEXT `DOMContentLoaded`, not on a page already loaded).
-**Read the route's own `roster-bridge.ts` before assuming it drives all the way to the round** — some
-stop deliberately short by design, not by bug: `how-close-is-near`'s stops at the lose-condition screen
-("there is no right default to pick on their behalf... it never auto-starts the match" — its own
-comment), leaving one more real click for the walk to make. Grep for the route's own `START` constant
-in its `roster-bridge.ts` to find exactly where it stops.
+Then `nav()` again (the screen reads the roster when it opens), and press start with a real input event.
+**Start does not always land in the round**: a route's own non-player options come after the shared
+screen (ruling 1) — `how-close-is-near`'s lose-condition screen, dice-loser's scoring rule — leaving one
+more real click for the walk. Read the route's handoff (the function its `onStart` names) to see
+which screen it shows next.
 
 ## WebGL routes need swiftshader, not `--disable-gpu`, even for a 320px/fold probe
 
