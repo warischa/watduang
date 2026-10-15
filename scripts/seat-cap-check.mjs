@@ -1029,7 +1029,9 @@ async function selftest() {
   // run from its real bytes; the mutant goes inside the helper, never in the handoff, so a stub in
   // its place would leave it green.
   const helperMutants = [
-    ['short-stick', 'const lockFairCounts = () => {', 'const lockFairCounts = () => {\n game.players = game.players.slice(0, 2); game.avatars = game.avatars.slice(0, 2);'],
+    // Anchored inside lockFairCounts' body, not on its opening line: an unpaired brace in a string
+    // here would desync gate-selftest-coverage-check's brace-matched read of this function.
+    ['short-stick', 'game.stickCount = game.players.length;', 'game.players = game.players.slice(0, 2); game.avatars = game.avatars.slice(0, 2);\n game.stickCount = game.players.length;'],
     ['one-bomb', 'round.scores = Array.from({ length: currentCount() }, () => 0);', 'playing = playing.slice(0, 2);\n round.scores = Array.from({ length: currentCount() }, () => 0);'],
     ['bangkok-drift', 'round.results = [];', 'round.results = [];\n round.names = round.names.slice(0, 2); round.count = 2;'],
     ['zero-trigger', 'this.state.roundNumber = 1;', 'this.state.roundNumber = 1;\n this.state.players = this.state.players.slice(0, 2);'],
