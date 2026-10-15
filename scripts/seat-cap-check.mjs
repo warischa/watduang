@@ -687,6 +687,29 @@ const HANDOFFS = {
       return { seated: receiver.state.players.length };
     },
   },
+  // croc-bite's GameState is private to main.js, so it is sliced out of the same file -- with the
+  // constants and helpers above it -- and the REAL class is built, its own seat clamp included.
+  'croc-bite': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() sizes the engine GameState to the players handed over and names each seat',
+    run: (source, _module, players) => {
+      const from = source.indexOf('const SAFE_ACTIONS = {');
+      const to = source.indexOf('class GameState ');
+      const stateClass = sliceBlock(source, 'class GameState ');
+      if (from === -1 || to < from || !stateClass) return { error: 'main.js no longer declares its rules and GameState where this locator slices them' };
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      let state;
+      try {
+        const GameState = new Function('__scope', `with (__scope) { ${source.slice(from, to)}\n return (${stateClass}); }`)(freeScope);
+        state = new GameState();
+      } catch (error) { return { error: `the engine GameState would not build: ${error.message}` }; }
+      compiled.make({}).call(tolerantReceiver({ state }), players);
+      // Both views of the count must agree, and only a seat carrying the name it was handed counts.
+      const named = state.players.filter((seat, i) => seat.name === players[i]?.name).length;
+      return { seated: state.playerCount === state.players.length ? named : NaN };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, fileName = 'main.js', module, declared, handoff }) {

@@ -8,6 +8,34 @@
    the design record of what the mockup asked for. */
 :root {
   --font-thai: var(--font-sans);
+
+  /* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the
+     lifted palette. On :root, not #app: the screen's dialogs render in the top layer from outside
+     #app. Three have no token to point at in style.css and carry the route's own literal instead:
+     the page ink (`html, body`), the muted line the markup's own setting rows use, and the green the
+     primary button and the active seat pill were drawn in, with its white label. */
+  --ps-panel: var(--panel-bg);
+  --ps-panel-solid: var(--bg-dark);
+  --ps-edge: var(--panel-border);
+  --ps-ink: #fff;
+  --ps-muted: #8fa7bf;
+  --ps-accent: #2ecc71;
+  --ps-on-accent: #ffffff;
+}
+
+/* The shared player screen's root, an overlay over the 3D stage like the setup screen it comes
+   before: same inset box, same backdrop, and taps of its own inside a #ui-root that takes none.
+   Full-width so the backdrop covers the stage; the board's column (.ps, 420px) is centred by
+   padding rather than by the root's own width. Its own scroller, top-aligned: the list grows with
+   the roster (ADR-0071 lets this screen scroll), and #app clips at 100dvh. */
+#croc-players {
+  position: absolute;
+  inset: 0;
+  max-inline-size: none;
+  padding: 20px max(20px, calc((100% - 420px) / 2));
+  overflow-y: auto;
+  pointer-events: auto;
+  background: radial-gradient(circle at 50% 30%, rgba(18, 50, 48, 0.45) 0%, rgba(6, 17, 20, 0.88) 80%);
 }
 
 /* 100dvh, not the lifted 100vh. On a mobile browser 100vh is the viewport WITHOUT the retracted

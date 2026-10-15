@@ -34,13 +34,6 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 /** What each mockup boots on, and therefore what its bridge owes an edit request it cannot seed.
  *  `nav` is the selector that must be clicked to REACH setup; null means setup is already on screen. */
 const BOOTS_ON = {
-  // The five below render their name fields at load -- their bridges fill them with no navigation.
-  'freeze-tap': { nav: null },
-  // Boots straight onto #screen-setup: markup.html ships it without the `hidden` its two sibling
-  // screens carry, and the engine's own boot renders the seat fields into it. So there is nothing to
-  // click to reach setup, and what is pinned for this route is that the bridge navigates nowhere on
-  // an under-two roster -- an edit that made it auto-start would red here.
-  'croc-bite': { nav: null },
 };
 
 const EDIT_KEY = 'watduang:edit-players';
@@ -219,7 +212,12 @@ function loadMainRoute(route, sessionStorage) {
 
 /** gh#264 / ADR-0071: a route that mounts the shared player screen answers the flag from the screen
  *  itself, which takes it when it mounts. Detected from the route's own main file, never listed. */
-const mainFileOf = (route) => ['main.ts', 'main.js'].map((f) => path.join(here, route, f)).find((f) => fs.existsSync(f));
+// A route can ship BOTH files (croc-bite: a lifted engine in main.js, site glue in main.ts); the one
+// that mounts the screen is the one read, else the first that exists.
+const mainFileOf = (route) => {
+  const files = ['main.ts', 'main.js'].map((f) => path.join(here, route, f)).filter((f) => fs.existsSync(f));
+  return files.find((f) => /mountPlayerScreen\(\{/.test(fs.readFileSync(f, 'utf8'))) ?? files[0];
+};
 const mountsSharedScreen = (route) => {
   const file = mainFileOf(route);
   return !!file && /mountPlayerScreen\(\{/.test(fs.readFileSync(file, 'utf8'));
@@ -288,9 +286,19 @@ const partyGames = [...fs.readFileSync(path.join(GAMES_DIR, 'manifest.ts'), 'utf
   .filter((id) => /category:\s*'party'/.test(fs.readFileSync(path.join(GAMES_DIR, `${id}.ts`), 'utf8')));
 
 test('every play route has a gh#169 classification', () => {
+  // ADR-0071 retires the per-route bridges, so an EMPTY bridge set is the converted end state -- but
+  // only while every route that offers the edit control mounts the shared player screen instead,
+  // which the round trip below then executes. A route with neither is the vacuous pass this guards.
+  for (const id of mountingRoutes) {
+    assert.ok(routes.includes(id) || mountsSharedScreen(id),
+      `${id} neither ships a roster-bridge.ts nor mounts the shared player screen -- this file is measuring nothing for it`);
+  }
   // A new port with no entry is uncovered, and an uncovered bridge is where this defect came back.
-  assert.notEqual(routes.length, 0, 'no bridges found -- this file is measuring nothing');
   for (const route of routes) assert.ok(BOOTS_ON[route], `${route} is unclassified: does its mockup boot on setup, or does it need a control clicked?`);
+  // An entry for a route with no bridge is never read: it would pass for coverage while pinning nothing.
+  for (const route of Object.keys(BOOTS_ON)) {
+    assert.ok(routes.includes(route), `${route} is classified in BOOTS_ON but ships no roster-bridge.ts -- delete the stale entry`);
+  }
 });
 
 for (const route of routes) {
