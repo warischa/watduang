@@ -4,7 +4,9 @@
 //
 // Per-game selectors stay in each roster-bridge.ts — those genuinely differ (three mockups, three
 // setup DOMs) and are passed in here.
-import { loadGroup, loadRoster, saveGroup } from '../shell/roster';
+// .ts extension: the shared player screen (src/play/_player-screen/) imports this module and node
+// --test resolves that one directly, the way roster.ts imports name-list.ts below.
+import { loadGroup, loadRoster, saveGroup } from '../shell/roster.ts';
 // Same visible-character predicate the roster read uses, so a name that would be dropped on read is
 // never written into the group either (a group entry with no roster match is filtered by loadGroup,
 // which would silently shrink the group below 2 and fall back to the whole roster).

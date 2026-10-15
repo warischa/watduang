@@ -1,0 +1,384 @@
+---
+// The static half of the shared player screen (ADR-0071, gh#264): the markup player-screen.ts clones
+// into a route's root, plus the two dialogs it drives. Rendered by a converted route's play.astro
+// beside its own markup, never inside it -- a route's markup is a raw HTML string and cannot hold a
+// component.
+//
+// WHY A <template>. The route decides where the screen sits (its `root`), and that element lives in
+// the route's own markup. A template is inert until cloned, so this file can own every byte of the
+// screen's markup and copy without rendering a second, orphan copy of it.
+//
+// WHY THE DIALOGS ARE OUTSIDE THE TEMPLATE. The mid-round confirm must appear OVER THE ROUND, while
+// the screen's root is hidden, and a top-layer dialog whose ancestor carries `hidden` does not render
+// at all (the same reason timebomb kept its reset dialog outside its setup section).
+//
+// No <a href> anywhere here: this directory is inside src/play/, the play surface (ADR-0014, ADR-0055).
+//
+// Every value below is the board's (design/PlayerSetup.dc.html): structure and px from timebomb's
+// shipped setup screen, colour only through the --ps-* tokens, which each route maps onto its own
+// palette. Global, not scoped: the rows are built at run time and would not carry Astro's scope
+// attribute, so a scoped rule would never reach them.
+---
+
+<template id="ps-template">
+  <div class="ps-count" data-ps="count">
+    <button type="button" class="ps-step" data-ps="dec" aria-label="ลดจำนวนคนเล่น">−</button>
+    <span class="ps-count-read"><span data-ps="count-num">4</span> คน</span>
+    <button type="button" class="ps-step" data-ps="inc" aria-label="เพิ่มจำนวนคนเล่น">+</button>
+  </div>
+  <p class="ps-limit" data-ps="limit" hidden></p>
+  <ul class="ps-players" data-ps="list"></ul>
+  <button type="button" class="ps-add" data-ps="add" hidden>+ เพิ่มคน</button>
+  <p class="ps-hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อจะติดไปเกมถัดไปด้วย</p>
+  <button type="button" class="ps-sec" data-ps="reset">↺ รีเซ็ตเป็นชื่อสัตว์</button>
+  <button type="button" class="ps-go" data-ps="start">พร้อมเล่น</button>
+  <div class="ps-toast" data-ps="toast" role="status" hidden>
+    <span data-ps="toast-text"></span>
+    <button type="button" class="ps-undo" data-ps="undo">เลิกทำ</button>
+  </div>
+</template>
+
+<!-- Ruling 6: the edit control pressed during a round. Safe answer first in the markup; the guard is
+     the arm gate player-screen.ts installs on this card when it opens, not the order. -->
+<dialog class="ps-dialog" id="ps-edit-dialog" aria-labelledby="ps-edit-title">
+  <h2 class="ps-dialog-title" id="ps-edit-title">เปลี่ยนผู้เล่นตอนนี้?</h2>
+  <p class="ps-dialog-body">รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว</p>
+  <div class="ps-dialog-actions">
+    <button type="button" class="ps-sec" id="ps-edit-cancel">เล่นรอบนี้ต่อ</button>
+    <button type="button" class="ps-danger" id="ps-edit-confirm">จบรอบ แล้วแก้ผู้เล่น</button>
+  </div>
+</dialog>
+
+<!-- gh#177's reset confirm, moved here with the reset control. Copy is timebomb's shipped dialog,
+     unchanged; the box is the same dialog box the board draws for ruling 6. -->
+<dialog class="ps-dialog" id="ps-reset-dialog" aria-labelledby="ps-reset-title">
+  <h2 class="ps-dialog-title" id="ps-reset-title">รีเซ็ตเป็นชื่อสัตว์?</h2>
+  <p class="ps-dialog-body">ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่</p>
+  <div class="ps-dialog-actions">
+    <button type="button" class="ps-sec" id="ps-reset-cancel">เก็บชื่อเดิมไว้</button>
+    <button type="button" class="ps-danger" id="ps-reset-confirm">รีเซ็ตเป็นชื่อสัตว์</button>
+  </div>
+</dialog>
+
+<style is:global>
+  .ps {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    inline-size: 100%;
+    max-inline-size: 420px;
+    margin-inline: auto;
+    color: var(--ps-ink);
+  }
+
+  .ps[hidden],
+  .ps [hidden] {
+    display: none;
+  }
+
+  /* The host's tagline slot, for a route that has no tagline style of its own. */
+  .ps-tagline {
+    margin: 0;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ps-muted);
+  }
+
+  .ps-count {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .ps-step {
+    inline-size: 48px;
+    block-size: 48px;
+    border: 1px solid var(--ps-edge);
+    border-radius: 50%;
+    background: var(--ps-panel);
+    color: var(--ps-ink);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .ps-step:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .ps-count-read {
+    min-inline-size: 5ch;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 22px;
+  }
+
+  .ps-players {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    inline-size: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ps-p {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--ps-edge);
+    border-radius: 14px;
+    background: var(--ps-panel);
+  }
+
+  .ps-e {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .ps-n {
+    flex: 1;
+    min-inline-size: 0;
+    min-block-size: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--ps-ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    text-overflow: ellipsis;
+  }
+
+  .ps-n::placeholder {
+    color: var(--ps-muted);
+  }
+
+  .ps-n:focus {
+    outline: 2px solid var(--ps-accent);
+    outline-offset: 2px;
+  }
+
+  /* Saved-roster row (board frame 2): tick and remove are 44px targets, the visible tick box 26px. */
+  .ps-p.ps-saved {
+    gap: 8px;
+    padding: 6px 4px;
+  }
+
+  .ps-tick,
+  .ps-rm {
+    inline-size: 44px;
+    block-size: 44px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ps-ink);
+    cursor: pointer;
+  }
+
+  .ps-tick i {
+    inline-size: 26px;
+    block-size: 26px;
+    border-radius: 8px;
+    border: 2px solid var(--ps-edge);
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    font-style: normal;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .ps-tick[aria-pressed='true'] i {
+    background: var(--ps-accent);
+    border-color: var(--ps-accent);
+    color: var(--ps-on-accent);
+  }
+
+  .ps-rm {
+    color: var(--ps-muted);
+    font-size: 22px;
+  }
+
+  .ps-p.ps-out .ps-e,
+  .ps-p.ps-out .ps-n {
+    opacity: 0.45;
+  }
+
+  .ps-sit {
+    font-size: 12px;
+    color: var(--ps-muted);
+    border: 1px solid var(--ps-edge);
+    border-radius: 999px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  .ps-add {
+    inline-size: 100%;
+    min-block-size: 48px;
+    box-sizing: border-box;
+    border: 1px dashed var(--ps-edge);
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    color: var(--ps-ink);
+    font-family: var(--font-display);
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .ps-add:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .ps-limit {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ps-ink);
+    text-align: center;
+  }
+
+  .ps-limit b {
+    color: var(--ps-accent);
+    font-weight: 600;
+  }
+
+  .ps-hint {
+    margin: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ps-muted);
+  }
+
+  .ps-sec,
+  .ps-danger {
+    inline-size: 100%;
+    min-block-size: 48px;
+    box-sizing: border-box;
+    padding: 0 14px;
+    border: 1px solid var(--ps-edge);
+    border-radius: 16px;
+    background: var(--ps-panel);
+    color: var(--ps-ink);
+    font-family: var(--font-display);
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .ps-danger {
+    border-color: transparent;
+    background: var(--ps-accent);
+    color: var(--ps-on-accent);
+    font-weight: 500;
+  }
+
+  .ps-sec:disabled,
+  .ps-danger:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .ps-go {
+    inline-size: 100%;
+    min-block-size: 60px;
+    box-sizing: border-box;
+    border: 1px solid var(--ps-edge);
+    border-radius: 16px;
+    background: var(--ps-accent);
+    color: var(--ps-on-accent);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 21px;
+    cursor: pointer;
+  }
+
+  .ps-go:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .ps-dialog {
+    inline-size: min(340px, calc(100vw - 32px));
+    box-sizing: border-box;
+    padding: 20px;
+    border: 1px solid var(--ps-edge);
+    border-radius: 18px;
+    background: var(--ps-panel-solid);
+    color: var(--ps-ink);
+  }
+
+  .ps-dialog::backdrop {
+    background: rgba(7, 12, 20, 0.72);
+  }
+
+  .ps-dialog-title {
+    margin: 0 0 12px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 20px;
+  }
+
+  .ps-dialog-body {
+    margin: 0 0 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ps-muted);
+  }
+
+  .ps-dialog-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Board frame 8: the undo bar, fixed to the viewport foot. The page gains the foot room the frame
+     draws while the bar is up, so the bar never sits over the last control with no way past it. */
+  .ps-toast {
+    position: fixed;
+    inset-inline: 16px;
+    inset-block-end: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 4px 4px 16px;
+    border: 1px solid var(--ps-edge);
+    border-radius: 14px;
+    background: var(--ps-panel-solid);
+    color: var(--ps-ink);
+    font-size: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .ps-toast span {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  .ps-undo {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+    padding: 0 12px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: var(--ps-accent);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .ps.ps-toasting {
+    padding-block-end: 72px;
+  }
+</style>

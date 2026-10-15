@@ -259,3 +259,72 @@ test('gh#140 every default label, and every icon alone, survives hasVisibleChar'
     assert.equal(hasVisibleChar(rest.join(' ')), true, `name alone must be visible: ${rest.join(' ')}`);
   }
 });
+
+// ADR-0071: the shared player screen writes the roster through replaceRoster on start.
+const { replaceRoster, migrateLegacyList } = await import('./roster.ts');
+
+test('ADR-0071 replaceRoster keeps the screen order, drops a removed name, renames in place', async () => {
+  slots.clear();
+  const roster = loadRoster();
+  for (const n of ['เอ', 'บี', 'ซี', 'ดี']) await roster.add(n);
+  const base = loadRoster().names();
+  // The second name removed, the third renamed in its own seat, a new name appended.
+  await replaceRoster(base, ['เอ', 'ซีซี', 'ดี', 'อี']);
+  assert.deepEqual(loadRoster().names(), ['เอ', 'ซีซี', 'ดี', 'อี']);
+});
+
+test('ADR-0071 replaceRoster keeps a name another tab added after the screen opened', async () => {
+  slots.clear();
+  const roster = loadRoster();
+  for (const n of ['เอ', 'บี']) await roster.add(n);
+  const base = loadRoster().names();
+  await loadRoster().add('จากแท็บอื่น'); // lands while this screen is open
+  await replaceRoster(base, ['บี']); // this screen removed the first name
+  assert.deepEqual(loadRoster().names(), ['บี', 'จากแท็บอื่น']);
+});
+
+test('ADR-0071 replaceRoster drops blanks and duplicates before writing', async () => {
+  slots.clear();
+  await replaceRoster([], ['เอ', '  ', 'เอ', '​', 'บี']);
+  assert.deepEqual(loadRoster().names(), ['เอ', 'บี']);
+});
+
+const LEGACY = 'watduang:test-legacy-players';
+
+test('ADR-0071 migrateLegacyList: an EMPTY roster imports the legacy names, then the key is gone', async () => {
+  slots.clear();
+  slots.set(LEGACY, JSON.stringify({ names: ['ต้น', 'มายด์'] }));
+  await migrateLegacyList(LEGACY, (v) => v.names);
+  assert.deepEqual(loadRoster().names(), ['ต้น', 'มายด์']);
+  assert.equal(slots.has(LEGACY), false);
+});
+
+test('ADR-0071 migrateLegacyList: a NON-EMPTY roster wins, the legacy key is deleted unread', async () => {
+  slots.clear();
+  await loadRoster().add('แนน');
+  slots.set(LEGACY, JSON.stringify({ names: ['ต้น', 'มายด์'] }));
+  await migrateLegacyList(LEGACY, (v) => v.names);
+  assert.deepEqual(loadRoster().names(), ['แนน']);
+  assert.equal(slots.has(LEGACY), false);
+});
+
+test('ADR-0071 migrateLegacyList: idempotent -- a second call with the key gone changes nothing', async () => {
+  slots.clear();
+  slots.set(LEGACY, JSON.stringify({ names: ['ต้น'] }));
+  await migrateLegacyList(LEGACY, (v) => v.names);
+  await replaceRoster(['ต้น'], ['ต้น', 'บอส']);
+  await migrateLegacyList(LEGACY, (v) => v.names);
+  assert.deepEqual(loadRoster().names(), ['ต้น', 'บอส']);
+});
+
+test('ADR-0071 migrateLegacyList: a write that does not land keeps the legacy key for the next visit', async () => {
+  slots.clear();
+  slots.set(LEGACY, JSON.stringify({ names: ['ต้น'] }));
+  writesFail = true;
+  try {
+    await migrateLegacyList(LEGACY, (v) => v.names);
+  } finally {
+    writesFail = false;
+  }
+  assert.equal(slots.has(LEGACY), true);
+});

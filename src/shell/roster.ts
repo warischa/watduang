@@ -80,6 +80,64 @@ export function saveGroup(names: string[]): void {
   write(GROUP_KEY, names);
 }
 
+/** ADR-0071: the shared player screen's one roster write, issued when its start is pressed. `next`
+ *  is the list as the screen leaves it -- order kept, because turn order IS roster order (ruling 5),
+ *  and names the player removed with the remove control are simply absent. `base` is the roster the
+ *  screen opened on.
+ *
+ *  Not add(): add() appends, so it can neither remove a name nor keep a renamed one in its seat.
+ *  Not a blind overwrite either: a name another tab added AFTER this screen opened (in storage, not
+ *  in `base`) was never on this screen, so the player cannot have meant to remove it -- it is kept,
+ *  after the screen's own names. Same re-read-inside-the-lock shape as add(), for the same reason. */
+export async function replaceRoster(base: readonly string[], next: readonly string[]): Promise<void> {
+  const wanted = [...new Set(next.map((n) => n.trim()).filter((n) => hasVisibleChar(n)))];
+  await withLock(LOCK, () => {
+    const arrived = read(KEY).filter((n) => !base.includes(n) && !wanted.includes(n));
+    write(KEY, [...wanted, ...arrived]);
+  });
+}
+
+/** ADR-0071 "Data": the one-time import of a per-game player list that predates the shared roster.
+ *  An EMPTY roster imports what `extract` returns from the legacy value; a non-empty roster wins and
+ *  the legacy value is never read into it. Either way the legacy key is deleted, so this runs at most
+ *  once per key per device and is safe to call on every mount.
+ *
+ *  The legacy key is spelled by the caller, not here: this module owns the roster key and the group
+ *  key, and the per-game keys belong to the games that wrote them. Only the storage TOUCH lives here,
+ *  so a route never reaches localStorage itself.
+ *
+ *  One refusal to delete: if the import was attempted and the write did not land (quota, private
+ *  mode), the legacy key is kept so the next visit can try again -- deleting it would lose the names
+ *  in exactly the case the write path above already promises to survive. */
+export async function migrateLegacyList(legacyKey: string, extract: (value: unknown) => string[]): Promise<void> {
+  let raw: string | null;
+  try {
+    raw = localStorage.getItem(legacyKey);
+  } catch {
+    return;
+  }
+  if (raw === null) return;
+  let imported: string[] = [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    imported = [...new Set(extract(parsed).filter((n) => typeof n === 'string').map((n) => n.trim()).filter((n) => hasVisibleChar(n)))];
+  } catch {
+    imported = []; // a corrupt legacy value imports nothing and is still retired below
+  }
+  let landed = true;
+  await withLock(LOCK, () => {
+    if (read(KEY).length > 0 || imported.length === 0) return;
+    write(KEY, imported);
+    landed = read(KEY).length > 0;
+  });
+  if (!landed) return;
+  try {
+    localStorage.removeItem(legacyKey);
+  } catch {
+    // Nothing to do: the key stays and the next mount runs this again, which is harmless.
+  }
+}
+
 export function loadRoster(): Roster {
   let list = read(KEY);
 
