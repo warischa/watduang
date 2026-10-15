@@ -1633,8 +1633,11 @@ import { EDIT_EVENT, mountPlayerScreen } from '../_player-screen/player-screen.t
     }
 
     function releasePowerCharging(e) {
-      if (e && e.type === 'touchend') e.preventDefault();
+      // Only a touchend that ends a charge is cancelled. This listener sits on window, and cancelling
+      // every touchend cancelled the click after it, so no click-driven control on the route -- the
+      // shared player screen included -- activated under touch (gh#264 browser pass, 2026-10-16).
       if (!isChargingPower || isAimingLocked || !DOM) return;
+      if (e && e.type === 'touchend') e.preventDefault();
       isChargingPower = false;
       DOM.btnFireCannon.classList.remove('charging');
       sound.stopChargeHum();
