@@ -14,7 +14,6 @@ const src = readFileSync(new URL('./PlayExit.astro', import.meta.url), 'utf8');
 
 const PLAY_DIR = fileURLToPath(new URL('../play/', import.meta.url));
 const PAGES_DIR = fileURLToPath(new URL('../pages/game/', import.meta.url));
-const BRIDGE = 'roster-bridge.ts';
 
 /** Both sets are read off the filesystem, never typed in here. A hand-written list of route names
  *  stops covering what it names at the next rename and stays green while doing it: this test read
@@ -32,33 +31,24 @@ const dirsWith = (root, child) =>
     .map((e) => e.name)
     .sort();
 
-const bridgeRoutes = dirsWith(PLAY_DIR, BRIDGE);
 const playRoutes = dirsWith(PAGES_DIR, 'play.astro');
 
 /** The set that owes an answer to the edit request is the set that OFFERS the control: every route
  *  whose play.astro mounts PlayExit. That set is owned by the pages tree, so it is derived from it
- *  here and never hand-listed. It is strictly wider than the bridge set -- gh#185: timebomb and
- *  dice-loser carry no roster-bridge.ts, so a loop over `bridgeRoutes` excluded them BY CONSTRUCTION
- *  while a `>= 9` floor kept it green, and timebomb shipped writing the flag and never clearing it.
- *  The leak is cross-game: an unconsumed flag survives in sessionStorage and forces the NEXT play
- *  route opened in that tab onto its setup screen. */
+ *  here and never hand-listed (gh#185: a loop over a narrower, file-derived set once excluded two
+ *  routes by construction while a floor kept it green). */
 const mountingRoutes = playRoutes.filter((id) =>
   /PlayExit/.test(readFileSync(path.join(PAGES_DIR, id, 'play.astro'), 'utf8')),
 );
 
-/** A route answers the request from wherever its controller lives -- a bridge on the nine mockup
- *  ports, `main.ts` on the two routes that own their setup screen outright. So the surface is the
- *  route's whole shipped .ts, not one filename: reading only roster-bridge.ts is the exact mistake
- *  gh#185 is. Tests are excluded (see above), and comments are stripped by codeOf.
- *
- *  Since gh#188 this is read for EXISTENCE only -- whether the code answers the request is settled by
- *  running it, in src/play/setup-edit-request.test.mjs. Null means there is no controller at all. */
+/** A route's controller: its whole shipped .ts plus a lifted main.js. Tests are excluded (see above),
+ *  and comments are stripped by codeOf. Read for EXISTENCE only -- that the controller mounts the ONE
+ *  shared player screen, which answers the in-place request, is scripts/player-screen-mount-check.mjs's
+ *  verdict, by parser. Null means there is no controller at all. */
 const routeCode = (id) => {
   const dir = path.join(PLAY_DIR, id);
   if (!existsSync(dir)) return null;
   return readdirSync(dir)
-    // main.js too since gh#264: cursed-number's controller is its lifted main.js, which mounts the
-    // shared player screen now that its roster-bridge.ts is gone.
     .filter((f) => (f.endsWith('.ts') || f === 'main.js') && !f.endsWith('.test.ts'))
     .map((f) => codeOf(path.join(dir, f)))
     .join('\n');
@@ -83,81 +73,11 @@ function codeOf(file) {
     .join('\n');
 }
 
-// A bridge starts the match by clicking the mockup's own start control. `drive(` counts beside
-// `.click()` because it IS the click now: armAllButtons leaves controls `disabled` for 400ms and
-// `HTMLElement.click()` on a disabled control returns without dispatching, so every bridge routes
-// through drive() and src/play/roster-bridge-drive.test.mjs fails any that does not.
-const CLICK_SITE = /\.click\(\s*\)|\bdrive\(/g;
-
-/** ponytail: brace depth counted without a string/regex-literal parser -- a `{` inside a string
- *  would mis-pair. No bridge has one today; if that changes, parse instead of counting. */
-function blockEnd(code, openBrace) {
-  let depth = 0;
-  for (let i = openBrace; i < code.length; i += 1) {
-    if (code[i] === '{') depth += 1;
-    else if (code[i] === '}' && (depth -= 1) === 0) return i;
-  }
-  return -1;
-}
-
-/** Does this block leave the function unconditionally? Only a `return` that is a DIRECT child of the
- *  block counts, and only one that opens its own statement. `/return/` anywhere in the block is much
- *  weaker than it reads: it is satisfied by a `return` inside a nested callback (which returns from
- *  the callback, not the function), by a conditional `if (cond) return;`, and by a `return` in an
- *  unrelated function that happens to sit inside the braces. All three leave the start-click site
- *  reachable with `editing` true while the check stays green.
- *
- *  ponytail: brace-depth counting, not control-flow analysis, and that ceiling is REAL, not
- *  theoretical -- depth counting cannot see a `{` inside a string or a regex literal, cannot follow a
- *  brace-less arrow body, and cannot tell dead code from live code. A sound answer needs a parser
- *  (TypeScript's own, since these are .ts files). Not worth it while nine routes share four
- *  hand-written shapes; when a route needs a guard this cannot express, parse instead of widening. */
-function blockReturnsUnconditionally(code, openBrace, closeBrace) {
-  let depth = 0;
-  for (const raw of code.slice(openBrace, closeBrace).split('\n')) {
-    const line = raw.trim();
-    if (depth === 1 && /^return\b/.test(line)) return true;
-    for (const ch of raw) {
-      if (ch === '{') depth += 1;
-      else if (ch === '}') depth -= 1;
-    }
-  }
-  return false;
-}
-
-/** Is the LAST click site unreachable while `editing` is true? Reachability, not spelling: the nine
- *  bridges write this guard four different ways, and a regex per spelling is a list of names wearing
- *  a different hat. Two shapes count:
- *    - the click carries the flag itself, `if (!editing && ...) drive(start)`;
- *    - an earlier `if (editing)` BAILS OUT -- a one-line return, or a block that returns.
- *  The block form is brace-matched rather than line-counted because routes that boot on a menu open
- *  an `if (editing) { ... }` block earlier to honour the edit request, and that block does NOT
- *  return; accepting it would leave the start-click site unguarded under a green. */
-function startClickIsGuarded(code) {
-  let site = -1;
-  for (const m of code.matchAll(CLICK_SITE)) site = m.index;
-  if (site < 0) return false;
-
-  const line = code.slice(code.lastIndexOf('\n', site) + 1, code.indexOf('\n', site));
-  if (/!editing/.test(line)) return true;
-
-  for (const m of code.matchAll(/if \(editing\)\s*(return\s*;|\{)/g)) {
-    if (m[1].startsWith('return')) {
-      if (m.index + m[0].length < site) return true;
-      continue;
-    }
-    const open = m.index + m[0].length - 1;
-    const close = blockEnd(code, open);
-    if (close > 0 && close < site && blockReturnsUnconditionally(code, open, close)) return true;
-  }
-  return false;
-}
-
 test('the X renders disabled — inert until armed, never a live tap surface on load', () => {
   assert.match(src, /<button[^>]*id="play-exit"[^>]*\bdisabled\b/);
 });
 
-test('the edit-players control renders disabled AND hidden — same guard as the X, shown only once the script confirms a saved group', () => {
+test('the edit-players control renders disabled AND hidden — same guard as the X, shown only once the shared screen announces itself', () => {
   assert.match(src, /<button[^>]*id="play-edit-players"[^>]*\bdisabled\b[^>]*\bhidden\b/);
   // The player-visible label, verbatim Thai.
   assert.match(src, /แก้ผู้เล่น/);
@@ -171,12 +91,12 @@ test('one arm gate drives BOTH controls — a second control cannot arm on its o
   assert.match(src, /controls\.push\(\s*\{\s*el:\s*editBtn/);
 });
 
-// gh#264 / ADR-0071: the edit control now has TWO answers, chosen at tap time. A route that mounted
-// the shared player screen edits in place; every other route keeps the reload through the shared
-// bridge. Pinned on source here, and driven for real by the execution test below.
-test('the edit control re-enters the mockup setup through the shared bridge, never a second setup UI', () => {
-  assert.match(src, /import\s*\{[^}]*requestSetupEdit[^}]*\}\s*from\s*['"][^'"]*_setup-bridge/);
-  assert.match(src, /if \(sharedScreen\(\)\) document\.dispatchEvent\(new CustomEvent\('watduang:edit-players'\)\);\s*else requestSetupEdit\(\);/);
+// gh#264 / ADR-0071: every play route mounts the shared player screen, so the edit control has ONE
+// answer -- ask that screen, in place. The flag-then-reload path through the per-route bridges is
+// retired with the last bridge. Pinned on source here, and driven for real by the execution tests below.
+test('the edit control asks the shared screen in place -- no bridge, no flag, no reload', () => {
+  assert.doesNotMatch(src, /_setup-bridge|requestSetupEdit|sessionStorage|location\.reload/);
+  assert.match(src, /document\.dispatchEvent\(new CustomEvent\('watduang:edit-players'\)\)/);
 });
 
 test('every route that mounts the edit control has a controller to answer it', () => {
@@ -188,44 +108,18 @@ test('every route that mounts the edit control has a controller to answer it', (
     playRoutes.length,
     `${playRoutes.length} play routes but only ${mountingRoutes.length} mount PlayExit`,
   );
-  // WHAT THIS TEST NO LONGER DOES, gh#188. It used to assert `takeSetupEditRequest()` appears in each
-  // route's source. That was a source-shape match, and it is gone rather than kept alongside: it
-  // stayed green on a call that is dead code, on a call in a branch nothing reaches, and on a call
-  // whose result is discarded before the clear -- and being green is exactly what let timebomb ship
-  // writing the flag and never taking it. The consuming call is now proved by EXECUTION, on all
-  // eleven routes, in src/play/setup-edit-request.test.mjs: the flag is set, the route's controller
-  // is run, and the tab is read back. What stays here is the pair of facts that live in the pages
-  // tree, which that file does not own -- the mounting set equals the play-route set, and every
-  // mounted route has a controller at all.
+  // What stays here is the pair of facts that live in the pages tree -- the mounting set equals the
+  // play-route set, and every mounted route has a controller at all. That the controller mounts the
+  // shared screen, which answers the request, is the mount gate's (by parser, every route, no floor).
   for (const id of mountingRoutes) {
-    assert.ok(routeCode(id), `${id} mounts PlayExit but has no src/play/${id}/ controller to consume the flag`);
+    assert.ok(routeCode(id), `${id} mounts PlayExit but has no src/play/${id}/ controller to answer the edit request`);
   }
-  // The handoff is named, so deleting the file that took over reds HERE rather than silently
+  // The handoff is named, so deleting the gate that took over reds HERE rather than silently
   // dropping the invariant on the floor.
   assert.ok(
-    existsSync(path.join(PLAY_DIR, 'setup-edit-request.test.mjs')),
-    'the round trip that replaced the source match here is gone -- nothing executes the flag consumption now',
+    existsSync(fileURLToPath(new URL('../../scripts/player-screen-mount-check.mjs', import.meta.url))),
+    'the mount gate is gone -- nothing proves every route mounts the screen that answers the edit request',
   );
-});
-
-test('every roster bridge persists what its setup finishes with, and does not start the match while editing', () => {
-  assert.notEqual(bridgeRoutes.length, 0, 'no roster bridges found — this loop is measuring nothing');
-  for (const id of bridgeRoutes) {
-    const bridge = codeOf(path.join(PLAY_DIR, id, BRIDGE));
-    // Registrations, not prose: the write-back call and the flag read, plus the one thing that makes
-    // the edit flow different from the seeded flow (setup is left on screen, not started).
-    // The persisted control's constant is named per route (START on most, NAMES_DONE where the
-    // setup finishes on a names step), so the shape is pinned, not one route's vocabulary.
-    // The THIRD argument is the page's own seat ceiling, and it is pinned as a named constant rather
-    // than left optional: the write-back cannot know how many seats the page showed, and without it a
-    // route whose maximum is under the saved group's size trims that group out of every other game
-    // permanently. A bare literal reds here too, so the number stays next to the reason it holds.
-    assert.match(bridge, /saveOnSetupComplete\(\s*[A-Z][A-Z_0-9]*,\s*NAME_INPUT,\s*[A-Z][A-Z_0-9]*\s*\)/, `${id} does not persist its setup with the page's seat ceiling`);
-    assert.match(bridge, /takeSetupEditRequest\(\)/, `${id} ignores the edit request`);
-    // The guard's effect at the start-click site, not the identifier: a `const editing = ...`
-    // declaration, or a guard that bails somewhere else, must not satisfy this.
-    assert.ok(startClickIsGuarded(bridge), `${id} starts the match even when editing`);
-  }
 });
 
 test('the arm delay is the shared arm-gate constant, not a local copy that can drift', () => {
@@ -246,25 +140,24 @@ test('bfcache restore resets the exit state — the X works after browser back',
 });
 
 test('every play route mounts the shared PlayExit', () => {
-  // Derived from the pages tree, not from the bridge set: a play route with no saved group still
-  // needs the exit, so this set is the wider one and covers routes with no roster-bridge.ts.
-  assert.ok(playRoutes.length >= bridgeRoutes.length, `found ${playRoutes.length} play routes but ${bridgeRoutes.length} bridges`);
+  // Derived from the pages tree: an empty set would make the loop below measure nothing.
+  assert.notEqual(playRoutes.length, 0, 'no play routes found -- this loop is measuring nothing');
   for (const id of playRoutes) {
     const page = readFileSync(path.join(PAGES_DIR, id, 'play.astro'), 'utf8');
     assert.match(page, /PlayExit/, `${id} play route is missing PlayExit`);
   }
 });
 
-// ---- gh#264: the edit control's two answers, EXECUTED -------------------------------------------
+// ---- gh#264: the edit control's one answer, EXECUTED --------------------------------------------
 //
-// The component's script is run for real over a small fake page: its TypeScript stripped, its three
-// imports stubbed, its listeners driven by dispatching pointer events at the document. One run per
-// branch. What it proves: an unconverted route (no attribute on <html>) still reloads through the
-// bridge and latches `leaving`; a converted route (the attribute set by the shared screen) sends the
-// edit request instead, does NOT reload, and re-gates the controls rather than latching.
+// The component's script is run for real over a small fake page: its TypeScript stripped, its one
+// import stubbed (an import of anything else throws, so a bridge or roster import coming back reds),
+// its listeners driven by dispatching pointer events at the document. What it proves: with the shared
+// screen announced (the attribute on <html>) the control sends the edit request, does NOT reload, and
+// re-gates the controls rather than latching; with no screen announced it is never offered.
 import { stripTypeScriptTypes } from 'node:module';
 
-function runPlayExit({ sharedScreen, rosterNames = ['เอ', 'บี'] }) {
+function runPlayExit({ sharedScreen }) {
   const script = src.slice(src.indexOf('<script>') + '<script>'.length, src.indexOf('</script>'));
   const timers = [];
   const docListeners = {};
@@ -288,7 +181,7 @@ function runPlayExit({ sharedScreen, rosterNames = ['เอ', 'บี'] }) {
   };
   const window = {
     addEventListener() {},
-    location: { set href(v) { calls.navigated = v; } },
+    location: { set href(v) { calls.navigated = v; }, reload() { calls.reload += 1; } },
   };
   class CustomEvent { constructor(type, init) { this.type = type; this.detail = init?.detail; } }
   const modules = {
@@ -296,8 +189,6 @@ function runPlayExit({ sharedScreen, rosterNames = ['เอ', 'บี'] }) {
       ARM_DELAY_MS: 400,
       inputClockGate: () => ({ hold() {}, anchor() {}, isOpen: () => true }),
     },
-    './roster': { loadRoster: () => ({ names: () => rosterNames }) },
-    '../play/_setup-bridge': { requestSetupEdit: () => { calls.reload += 1; } },
   };
   const js = stripTypeScriptTypes(script, { mode: 'strip' })
     .replace(/^\s*import\s*\{([^}]*)\}\s*from\s*'([^']+)';/gm, (_m, names, spec) => `const {${names}} = __mod(${JSON.stringify(spec)});`);
@@ -314,26 +205,19 @@ function runPlayExit({ sharedScreen, rosterNames = ['เอ', 'บี'] }) {
   return { exit, edit, calls, events, flush, tap, document };
 }
 
-test('gh#264: an UNCONVERTED route keeps the reload path exactly -- shown on a saved group, reloads, latches', () => {
+test('gh#264: with no shared screen announced the control is never offered, and nothing reloads', () => {
   const page = runPlayExit({ sharedScreen: null });
-  assert.equal(page.edit.hidden, false, 'two saved names show the control, as before');
+  assert.equal(page.edit.hidden, true, 'nothing on this page answers the request, so it is not offered');
   page.flush();
-  assert.equal(page.edit.disabled, false, 'armed after the quiet window');
   page.tap(page.edit);
-  assert.equal(page.calls.reload, 1, 'the reload path ran');
-  assert.deepEqual(page.events, [], 'no in-place request was sent');
+  assert.equal(page.calls.reload, 0, 'the retired reload path is gone');
   page.flush();
   page.tap(page.exit);
-  assert.equal(page.calls.navigated, null, 'the one-way latch holds after a reload request, as before');
+  assert.equal(page.calls.navigated, '/', 'the X still leaves');
 });
 
-test('gh#264: an unconverted route with under two names keeps the control hidden, as before', () => {
-  const page = runPlayExit({ sharedScreen: null, rosterNames: ['เอ'] });
-  assert.equal(page.edit.hidden, true);
-});
-
-test('gh#264: a CONVERTED route edits in place -- the request goes to the screen, nothing reloads, the gate re-arms', () => {
-  const page = runPlayExit({ sharedScreen: 'closed', rosterNames: [] });
+test('gh#264: a route on the shared screen edits in place -- the request goes to the screen, nothing reloads, the gate re-arms', () => {
+  const page = runPlayExit({ sharedScreen: 'closed' });
   assert.equal(page.edit.hidden, false, 'shown while the shared screen is closed, saved names or not');
   page.flush();
   page.tap(page.edit);

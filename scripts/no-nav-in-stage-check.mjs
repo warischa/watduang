@@ -125,7 +125,7 @@ const PLAY_EXTS = new Set(['.html', '.js', '.ts']);
  *  ponytail: TWO disclosed ceilings, both fail-open, both cheap to lift if they ever bite.
  *  (1) Only files DIRECTLY inside src/play/<id>/ are scanned, and only .html/.js/.ts — a route
  *      shipping src/play/<id>/parts/foo.js is invisible here, and so is the shared _mascots.ts /
- *      _setup-bridge.ts sitting directly under src/play/ (they are not inside a route directory).
+ *      _strip-overflow.ts sitting directly under src/play/ (they are not inside a route directory).
  *      Both are pinned by the derivation selftest, so widening must update that case.
  *  (2) *.test.* files are skipped on purpose: src/play/name-escaping.test.mjs holds a hostile
  *      `<a href>` fixture BY DESIGN, and a test that plants an anchor to prove it gets escaped must
@@ -158,7 +158,7 @@ function listPlayFiles(dir) {
 // tokens in that whole set are the two ADR-0014 prose sentences inside HTML comments
 // (src/play/dice-loser/markup.html, src/play/timebomb/markup.html), which stripHtmlComments blanks.
 // Re-measure rather than trusting this paragraph:
-//   grep -rn 'href' src/games/*.ts src/play/*/markup.html src/play/*/main.* src/play/*/roster-bridge.ts
+//   grep -rn 'href' src/games/*.ts src/play/*/markup.html src/play/*/main.*
 //
 // The anchor pattern's trailing class is ` \t>` and deliberately NOT `\s`: with whole-text matching a
 // `\s` there spans the newline, so any line ENDING in `<a` — a comparison a formatter wrapped after
@@ -293,7 +293,7 @@ function stripHtmlComments(text) {
  *             directory carry one today — so stripping there can blank a live anchor out of the
  *             scan. Raw has no walk to desync. It is affordable because no play script contains an
  *             `<a` or an `href` in code OR in a comment (measured; re-measure with
- *             `grep -rnE '<a |href' src/play/<id>/main.js src/play/<id>/roster-bridge.ts`, globbing
+ *             `grep -rnE '<a |href' src/play/<id>/main.*`, globbing
  *             the id), and it fails CLOSED: the day one does, this reds. That is the correct outcome for a
  *             live anchor and a tolerable one for a commented-out anchor or an `href: string` type
  *             in a play bridge — which is exactly what would start it false-firing. Fix the comment,
