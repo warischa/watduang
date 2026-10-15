@@ -123,8 +123,11 @@ await sleep(600);
 
 const out = { url, reducedRequested: reduced };
 out.openSetup = (await evaluate(CLICK_WHEN_READY('#btn-start-setup'))).value;
+// gh#264: the hero opens the shared player screen (ADR-0071), mounted into #ssPlayers; its start
+// hands the players over and the game's own options come next.
+out.players = (await evaluate(CLICK_WHEN_READY('#ssPlayers [data-ps=start]'))).value;
 await sleep(400);
-out.begin = (await evaluate(CLICK_WHEN_READY('#btn-begin-game'))).value;
+out.begin =(await evaluate(CLICK_WHEN_READY('#btn-begin-game'))).value;
 // Fixed settle before the readback, calibrated to this machine, not a poll. Ceiling (gh#189 box 38):
 // on a slower machine this could still capture a frame before the board finishes painting -- the
 // same class of gap that once made a boom readback in timebomb's copy of this probe read as blank.

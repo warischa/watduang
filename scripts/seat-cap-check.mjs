@@ -264,10 +264,15 @@ function textCap(found) {
 // --- Routes whose bounds come from the manifest -------------------------------------------------
 // These cannot disagree with the declaration because they compute from it. The check is structural:
 // the route's own module must still read the maximum out of the manifest.
-const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb']);
+const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'short-stick', 'timebomb']);
 // Two shapes: the maximum read out (`= game.players[1]`, dice-loser), or the whole declared tuple
 // handed to the shared player screen (`range: game.players`, timebomb since gh#264) -- whose clamp
 // sharedScreenAudit below then runs against that same tuple.
+// short-stick (gh#264) is the second shape under another name -- `range: shortStick.players`, since
+// its main.js keeps its own state in a `game` object -- and its engine has no seat limit of its own
+// left (one stick per player, whatever the count). DERIVATION cannot tell that apart: it matches
+// `= game.players.length` in that file's fairness lock. Measured: a literal range there reds ONLY
+// sharedScreenAudit's structural leg, which is the leg that proves this route's derivation.
 const DERIVATION = /(?:=|range:)\s*(?:Math\.min\(\s*)?game\.players(?:\[1\]|(?![\w[]))/;
 
 // --- The audit ----------------------------------------------------------------------------------
@@ -447,6 +452,18 @@ const HANDOFFS = {
       // Both views of the seat count must agree with the hand: the count the round reads and the
       // seats it iterates.
       return { seated: model.playerCount === model.players.length ? model.playerCount : NaN };
+    },
+  },
+  'short-stick': {
+    what: 'startWithPlayers() seats the handed players as the round roster (game.players) and their glyphs (game.avatars)',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)');
+      if (compiled.error) return compiled;
+      const env = { game: { players: [], avatars: [] } };
+      compiled.make(env)(players);
+      // The names the turns walk and the glyphs the strip wears are one seat list; both must hold it.
+      const { players: seated, avatars } = env.game;
+      return { seated: Array.isArray(seated) && seated.length === avatars.length ? seated.length : NaN };
     },
   },
 };

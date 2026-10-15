@@ -63,7 +63,6 @@ export const PENDING = new Set([
   'one-bomb',
   'pinocchio-luck',
   'power-meter',
-  'short-stick',
   'wire-snip-panic',
   'zero-trigger',
 ]);

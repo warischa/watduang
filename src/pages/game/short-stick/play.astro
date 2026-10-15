@@ -18,6 +18,8 @@ import Base from '../../../layouts/Base.astro';
 // route; it brings its own style and its own arm gate.
 import PlayExit from '../../../shell/PlayExit.astro';
 import markup from '../../../play/short-stick/markup.html?raw';
+// ADR-0071: the shared player screen's markup and dialogs, rendered beside the route's raw markup.
+import PlayerScreen from '../../../play/_player-screen/PlayerScreen.astro';
 import '../../../play/short-stick/style.css';
 // AFTER style.css, always: overrides.css wins on equal specificity only if it comes second.
 import '../../../play/short-stick/overrides.css';
@@ -35,13 +37,15 @@ const description = game.seo.description;
 <Base title={title} description={description} ogImage="/og/short-stick.png" chrome>
   <PlayExit />
   <Fragment set:html={markup} />
+  <PlayerScreen />
 </Base>
 
 <script>
   // Bundled, never inline: ADR-0005 and the site CSP (`script-src 'self'`) mean an inline block of
-  // this size executes zero lines. Astro emits both of these as one external module.
+  // this size executes zero lines. Astro emits these as one external module. main.js mounts the
+  // shared player screen itself (ADR-0071); the roster bridge that drove the mockup's own name rows
+  // is gone with them.
   import '../../../play/short-stick/main.js';
-  import '../../../play/short-stick/roster-bridge.ts';
   // The drawn play surface. Imported LAST and it measures rather than drives: it reads the buttons
   // main.js has rendered and paints depth behind them, so the draw logic (and the fairness lock inside
   // it) has no code path into this renderer. See the header of that file.

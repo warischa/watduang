@@ -36,8 +36,6 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const BOOTS_ON = {
   // #screen-menu carries `class="screen active"` in markup.html -- setup is a click away.
   'zero-trigger': { nav: '#btn-goto-setup' },
-  // Opens on a marketing hero; its setup view does not exist until this control renders it.
-  'short-stick': { nav: '#btn-start-setup' },
   // The five below render their name fields at load -- their bridges fill them with no navigation.
   // bangkok-drift boots with #screen-setup already carrying `class="screen active"` and calls its own
   // renderRoster() on main.js's last line, so the seat fields exist before the bridge runs.

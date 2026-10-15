@@ -187,10 +187,14 @@ function assertAttributeIntact(root, selector, label) {
 
 /* ---- short-stick ---------------------------------------------------------------------------- */
 
-test('short-stick: setup inputs, draw strip and history escape roster names', () => {
+// gh#264 / ADR-0071: short-stick's name rows are the shared player screen's now, covered by the
+// shared-screen case at the foot of this file, and renderSetup renders no name any more. The draw
+// strip and the history still render names themselves.
+test('short-stick: draw strip and history escape roster names', () => {
   const document = makeDoc();
   const game = {
     players: [HOSTILE, HOSTILE],
+    avatars: ['🦊', '🐼'],
     penaltyMode: 'preset',
     selectedPenalty: 'x',
     turn: 0,
@@ -202,20 +206,12 @@ test('short-stick: setup inputs, draw strip and history escape roster names', ()
     loser: { player: HOSTILE, length: 10 },
     history: [{ player: HOSTILE, stickIndex: 0, length: 10, isShort: true }],
   };
-  const api = loadFrom('short-stick', ['escapeHtml', 'renderSetup', 'renderDraw', 'renderResult'], {
+  const api = loadFrom('short-stick', ['escapeHtml', 'renderDraw', 'renderResult'], {
     document,
     game,
     $: (id) => document.getElementById(id),
-    AVATARS: ['🦊', '🐼'],
     PENALTY_PRESETS: ['ก', 'ข'],
-    // gh#174 routed the seat default through mascotNames() in ../_mascots.ts. renderSetup prints it
-    // into the placeholder attribute, but this factory evals sliced text and cannot resolve that
-    // import, so the helper is stubbed like every other collaborator here. Benign on purpose: a
-    // default name is OURS, never the attacker's, and the channel this file guards is the roster
-    // value beside it. The real cast is pinned by ./mascot-defaults.test.mjs.
-    defaultName: (i) => `P${i + 1}`,
     sounds: noopProxy(),
-    saveDraft: () => {},
     handleDrawStick: () => {},
     lockFairCounts: () => {},
     // renderDraw re-arms the ghost-tap gate on every turn handover (ADR-0017). Stubbed like every
@@ -230,11 +226,6 @@ test('short-stick: setup inputs, draw strip and history escape roster names', ()
     mountStripOverflowCounter: () => {},
     calculateOdds: () => ({ remaining: 2, text: '50%', isCritical: false, isWarning: false }),
   }, ['escapeHtml']);
-
-  api.renderSetup();
-  const list = document.getElementById('player-inputs-container');
-  assertNoInjection(list, 'short-stick renderSetup');
-  assertAttributeIntact(list, '.player-input', 'short-stick renderSetup');
 
   api.renderDraw();
   assertNoInjection(document.getElementById('draw-player-strip'), 'short-stick renderDraw');
