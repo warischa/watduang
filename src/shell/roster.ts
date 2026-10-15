@@ -165,8 +165,9 @@ export async function applyRosterOps(ops: readonly RosterOp[], ceiling: number):
  *  the legacy value is never read into it. Either way the legacy key is deleted, so this runs at most
  *  once per key per device and is safe to call on every mount.
  *
- *  The legacy key is spelled by the caller, not here: this module owns the roster key and the group
- *  key, and the per-game keys belong to the games that wrote them. Only the storage TOUCH lives here,
+ *  The legacy key is spelled by the caller, not here: this module owns the roster key, the group key
+ *  and one bookkeeping key (RETIRED_KEY, the settings blobs already migrated -- gh#264 REFUTE round 5,
+ *  ADR-0071 Data), and the per-game keys belong to the games that wrote them. Only the storage TOUCH lives here,
  *  so a route never reaches localStorage itself.
  *
  *  One refusal to delete: if the import was attempted and the write did not land (quota, private
