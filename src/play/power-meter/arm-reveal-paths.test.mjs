@@ -4,25 +4,30 @@
 // once? power-meter did, from armRenderedView(), and stayed green for the whole time openModal()
 // revealed two modals with no arm at all -- the gate counts calls per DIRECTORY, not per reveal. The
 // real rule (ADR-0017) is per reveal: the second contact of a double-tap must not land on a control
-// the first contact just put under the finger.
+// the first contact just put under the finger -- and since ADR-0057, every close, cancel and confirm
+// path is a reveal too.
 //
-// So this test does not re-check the gate. It pins the SET of reveal sites, by the receiver each one
-// writes to, with a recorded decision for every member. A third receiver -- a new modal, a new panel
-// toggled by display -- fails this test on the day it is added, and whoever adds it decides whether
-// it needs a call and records that here. A receiver that no longer exists fails it too: a stale
-// EXPECTED is how a pinning test keeps passing while the code it describes moves on.
+// Two halves since gh#264 (ADR-0071):
+//   1. main.js's OWN reveals -- the views renderUI() draws into #view-root, the header modals and
+//      their closer -- pinned by the receiver each one writes to, on source text. A new receiver
+//      fails on the day it is added, and whoever adds it records the decision here.
+//   2. The SHARED PLAYER SCREEN mounted into #pmPlayers, which replaced the mockup's count view, its
+//      names view, the reset-names modal and that modal's arming paths. Its reveals are driven for
+//      real (revealPathCases): the shared code over THIS route's markup.html with the real arm gate,
+//      read off this route's own header control. A screen mounted outside #app-container, or one
+//      that armed only its own root, leaves #btn-help-modal live and reds here.
 //
-// ponytail: matched on source text, not on a parsed AST. Two stated ceilings:
-// (1) an inline reveal is recorded under its whole receiver expression, so it still surfaces as an
-//     unexpected receiver and still fails -- it does not slip through, it just reads worse;
-// (2) this proves the CALL SITE exists next to the reveal, never that the 400ms window really
-//     disables anything. Only a real browser proves that, and this test claims nothing about it.
+// ponytail, for half 1: matched on source text, not on a parsed AST, so (1) an inline reveal is
+// recorded under its whole receiver expression and still fails as unexpected, and (2) this proves
+// the CALL SITE exists next to the reveal, never the browser-level 400ms.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { revealPathCases } from '../_player-screen/screen-harness.mjs';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
 // Whole-line comments are dropped: main.js documents its own reveal seams in prose, and a checker
 // cannot tell use from mention. Only FULL-line comments go -- a trailing `//` inside a string would
 // take real code with it, and nothing here needs that.
@@ -43,8 +48,8 @@ const REVEAL_RE =
 const EXPECTED = new Map([
   [
     'modal',
-    'openModal(): #help-modal and #tests-modal from the header icons, plus gh#175 #reset-names-modal ' +
-      'from the setup-names view -- none go through renderUI(). Armed on its OWN slot.',
+    'openModal(): #help-modal and #tests-modal from the header icons -- neither goes through ' +
+      'renderUI(). Armed on its OWN slot.',
   ],
   ['toast', 'NOT a button reveal: #toast-msg is a transient text status line with no control in it.'],
 ]);
@@ -87,55 +92,58 @@ test('openModal arms on its own slot, not the view slot', () => {
 
 // The reveal REVEAL_RE cannot see at all: every view is written into #view-root by innerHTML, which
 // puts a fresh set of controls at the coordinates of the ones just pressed. renderUI() is the single
-// place that arms them, deliberately after the switch rather than inside each of the eight builders.
+// place that arms them, deliberately after the switch rather than inside each of the builders.
 test('renderUI arms the view it just drew', () => {
   assert.match(source, /function armRenderedView\(\) \{[\s\S]*?armAllButtons\(viewRoot/);
   assert.match(source, /armRenderedView\(\);\s*\n\s*\}\s*\n/);
 });
 
-// gh#175. The reset control overwrites every typed name, so it asks first -- and the confirm it
-// opens is itself a fresh pair of buttons appearing under the finger that just pressed reset. Both
-// halves are pinned: the trigger reaches the modal only through openModal (which arms), and the
-// wipe hangs off the confirm button, never the trigger.
-test('the reset-names modal is opened through the arming path', () => {
-  assert.match(
-    source,
-    /openResetNamesModal = \(\) => openModal\('reset-names-modal'\)/,
-    '#btn-reset-names must open its confirm through openModal — a raw classList.add reveals two ' +
-      'buttons with no ghost-tap window',
-  );
-  // The wipe hangs off the confirm button, never off the trigger: a reset that ran before the
-  // question was answered would make the confirm decorative.
-  assert.match(source, /confirmResetNames = \(\) => \{[\s\S]{0,240}?resetPlayerNames\(\)/);
-});
-
-// Found by adversarial review of gh#174, the pattern this ticket copies: the CLOSING of a reset
-// confirm is a reveal too, because the redraw rebuilds #view-root's name inputs through innerHTML.
-// Unlike short-stick, this route already centralises its re-arm inside renderUI() -- every state
-// change calls armRenderedView() once, after the switch (pinned above) -- so the guard here is that
-// the confirm routes its redraw through that same renderUI(), rather than a bespoke re-render that
-// would skip it and leave the rebuilt inputs live under a double-tap on the confirm.
-test('the reset confirm redraws through renderUI(), which re-arms the view it rebuilds', () => {
-  assert.match(
-    source,
-    /confirmResetNames = \(\) => \{[\s\S]{0,320}?resetPlayerNames\(\);[\s\S]{0,120}?renderUI\(\);/,
-    'confirmResetNames must call renderUI() after resetPlayerNames() — a bare re-render of the name ' +
-      'inputs would rebuild them live under the finger that just confirmed',
-  );
-});
-
 // gh#187, owner ruling 2026-09-01: closing a modal IS a reveal ADR-0017 gates, on its own, with no
-// rebuild involved. The test above only covers the confirm branch; #btn-close-help and every cancel
-// rebuild nothing, so they stayed green while the view under the card sat live. REVEAL_RE cannot see
-// a closer either -- it matches writes that SHOW. This is the only pin on that path.
-test('closeModal re-arms the view the modal was covering', () => {
+// rebuild involved. REVEAL_RE cannot see a closer -- it matches writes that SHOW -- so this is the
+// only pin on that path. Since gh#264 there are two surfaces a header modal can cover: a view in
+// #view-root, or the shared player screen while it is up (#view-root is empty and hidden then).
+// The closer must re-arm whichever is live, so both branches are pinned.
+test('closeModal re-arms the surface the modal was covering, the player screen included', () => {
   const at = source.indexOf('function closeModal(');
   assert.ok(at > -1, 'closeModal is gone — this test measures nothing');
   const body = source.slice(at, source.indexOf('\n    }', at));
   assert.match(
     body,
     /armRenderedView\(\)/,
-    'closeModal no longer re-arms #view-root: a double-tap on any close or cancel control puts the ' +
-      'second contact on whatever view button sits behind the card, its own arm window long expired',
+    'closeModal no longer re-arms #view-root: a double-tap on any close control puts the second ' +
+      'contact on whatever view button sits behind the card, its own arm window long expired',
   );
+  assert.match(
+    body,
+    /game\.state === GameState\.PLAYERS[\s\S]*armAllButtons\(playersRoot\b/,
+    'closeModal no longer re-arms the player screen while it is up: start, the ticks and the x ' +
+      'controls sit live under the help card',
+  );
+  // The player screen's state is the one onOpen sets; without it the branch above never runs.
+  assert.match(source, /onOpen: \(\) => \{[\s\S]{0,400}?game\.state = GameState\.PLAYERS;/,
+    'onOpen no longer marks the player screen as the live surface');
 });
+
+test('the shared player screen is mounted into #pmPlayers, inside the #app-container it arms', () => {
+  assert.match(source, /const playersRoot = document\.getElementById\('pmPlayers'\);/);
+  assert.match(source, /mountPlayerScreen\(\{\s*root: playersRoot,/);
+  const container = MARKUP.indexOf('id="app-container"');
+  const players = MARKUP.indexOf('id="pmPlayers"');
+  const view = MARKUP.indexOf('id="view-root"');
+  assert.ok(container > -1 && players > container, '#pmPlayers must sit inside #app-container');
+  // renderUI() replaces #view-root wholesale on every state change, so a root inside it would be
+  // wiped by the first view drawn after the screen closes.
+  assert.ok(view > -1 && players < view, '#pmPlayers must sit beside #view-root, never inside it');
+});
+
+// Every way back to the player screen goes through the shared screen: the game-over control that
+// used to re-render the count view opens it instead. The round is over there, so nothing is asked.
+test('the game-over setup control opens the player screen, never a bare state swap', () => {
+  const at = source.indexOf('function resetToSetup()');
+  assert.ok(at > -1, 'resetToSetup is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('\n    }', at));
+  assert.match(body, /playerScreen\.open\(\)/);
+  assert.doesNotMatch(body, /renderUI\(\)/, 'resetToSetup re-renders a view instead of opening the player screen');
+});
+
+revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'pmPlayers', headerId: 'btn-help-modal', label: 'power-meter' });

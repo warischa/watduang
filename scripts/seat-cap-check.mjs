@@ -644,6 +644,21 @@ const HANDOFFS = {
       return { seated: match.players.length === match.turnOrder?.length ? match.players.length : NaN };
     },
   },
+  'power-meter': {
+    fn: 'startWithPlayers',
+    what: 'startWithPlayers() seats the match state, and startNewMatch() opens a score slot for every seat',
+    run: (source, _module, players) => {
+      const compiled = compileMethod(source, 'startWithPlayers(players)', ['startNewMatch()']);
+      if (compiled.error) return compiled;
+      const env = { game: { players: [], activePlayerIds: [], roundResults: new Map() }, viewRoot: {} };
+      compiled.make(env)(players);
+      const { game } = env;
+      // Three views of the seat count must agree with the hand: the seats, the turn order the round
+      // walks, and the score slots the loser is computed from.
+      const seated = game.players.length;
+      return { seated: seated === game.activePlayerIds.length && seated === game.roundResults.size ? seated : NaN };
+    },
+  },
 };
 
 export function handoffAudit({ id, routeId, source, fileName = 'main.js', module, declared, handoff }) {

@@ -14,6 +14,40 @@
   display: none !important;
 }
 
+/* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the
+   mockup's own palette (style.css's :root tokens). On :root, not #app-container: the screen's two
+   dialogs render outside that element, in the top layer. Three carry the mockup's own literal
+   instead of a var(): the modal card's opaque ground (`.modal-content`) and the text its primary
+   button sets on the cyan (`.btn-primary`) have no token there, and the cyan itself is the value of
+   the mockup's cyan accent token, written out because this file may not name that token -- the
+   accent-source gate (gh#128) reserves every accent-prefixed custom property for tokens.css. */
+:root {
+  --ps-panel: var(--card-bg);
+  --ps-panel-solid: #121829;
+  --ps-edge: var(--card-border);
+  --ps-ink: var(--text-main);
+  --ps-muted: var(--text-muted);
+  --ps-accent: #00f2fe;
+  --ps-on-accent: #04101e;
+}
+
+/* The player screen's root sits in #app-container beside #view-root and takes that column's own
+   place in the layout: the rest of the container's height, scrolling inside itself (the container
+   clips) the way #view-root does in style.css. The padding is the board's page padding around the
+   screen column (design/PlayerSetup.dc.html, `.main`); #app-container adds none of its own. */
+.pm-players {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 16px 24px;
+}
+
+/* style.css sets `#view-root { display: flex }`, which beats the user-agent rule for [hidden], so
+   main.js hiding the view column while the player screen is up would do nothing without this. */
+#view-root[hidden] {
+  display: none;
+}
+
 /* Tap targets. `.icon-btn` is declared 40x40 in the mockup stylesheet (style.css, `.icon-btn`), under
    the 44px floor the rest of this site meets. The mockup was built to be looked at on a desktop; this
    site is a phone passed around a group, so the floor applies here and did not there.
@@ -94,10 +128,8 @@
     max-width: var(--pm-board-max-inline);
   }
 
-  /* The gap is load-bearing: the 744px above is computed from it. */
-  .count-grid {
-    gap: var(--pm-desktop-gap);
-  }
+  /* The `.count-grid` gap rule that sat here went with the count view in gh#264 (the count is the
+     shared player screen's now, ADR-0071). The 744px cap above is kept as computed. */
 
   .meter-arena {
     max-width: var(--pm-arena-max-inline);

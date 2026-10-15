@@ -45,7 +45,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 // The ten routes sharing the plain trigger id pattern differ only in the exact id string main.js/
-// markup.html happens to use; power-meter's trigger carries no id at all, only data-act. zero-trigger
+// markup.html happens to use; the routes on the shared player screen use its data-ps trigger. zero-trigger
 // keeps its own wider copy, because its confirm names avatars as well as names. No entry here for a
 // route the manifest ships is a red naming that route, not a vacuous pass over the rest.
 const RESET_TRIGGER = {
@@ -64,7 +64,7 @@ const RESET_TRIGGER = {
   'how-close-is-near': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'one-bomb': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'pinocchio-luck': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
-  'power-meter': { attr: 'data-act="openResetNamesModal"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  'power-meter': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'short-stick': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   timebomb: { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'wire-snip-panic': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
