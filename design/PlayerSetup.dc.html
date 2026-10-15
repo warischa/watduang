@@ -72,6 +72,9 @@
     .tick.on i { background: var(--ps-accent); border-color: var(--ps-accent); color: var(--ps-on-accent); }
     .rm { color: var(--ps-muted); font-size: 22px; }
     .p.out .e, .p.out .n { opacity: .45; }
+    /* NEW (owner rulings 2026-10-15, after approval): a name another row also shows. The row's edge takes
+       the accent; nothing else moves. */
+    .p.dup { border-color: var(--ps-accent); }
     .sit { font-size: 12px; color: var(--ps-muted); border: 1px solid var(--ps-edge); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
     .add { width: 100%; min-height: 48px; box-sizing: border-box; border: 1px dashed var(--ps-edge); border-radius: 14px; display: grid;
       place-items: center; font: 16px 'Mitr', sans-serif; color: var(--ps-ink); }
@@ -108,7 +111,7 @@
 <div class="sheet">
   <div class="head">
     <b>gh#264 · ADR-0071 · one player-setup screen for every party game</b>
-    <span>Base: timebomb's shipped setup screen. Eight frames, one per state the ADR names. Pink dashed outline = a slot the host game fills. Approved by the owner 2026-10-15 (frames 1-7 and their copy); frame 8, the undo bar, was ruled the same day and drawn after.</span>
+    <span>Base: timebomb's shipped setup screen. Ten frames, one per state the ADR names. Pink dashed outline = a slot the host game fills. Approved by the owner 2026-10-15 (frames 1-7 and their copy); frames 8-10 (undo bar, duplicate name, roster full) were ruled the same day and drawn after.</span>
   </div>
 
   <!-- Row 1: first visit + 20 seats -->
@@ -324,6 +327,48 @@
     </div>
   </div>
 
+  <!-- Row 4: rulings after approval -->
+  <div class="row">
+    <h2>(9) Two rows show the same name · (10) start refused: the roster filled to 20 elsewhere</h2>
+    <p class="why">NEW, owner rulings 2026-10-15. (9) The roster holds each name once, so a rename onto a name another row shows would silently merge two players. Instead both rows take the accent edge, the limit line names the problem, and start is disabled until one is changed. (10) Another tab added names and the roster reached 20 before this start; the start is refused, the screen re-reads the roster, the add row closes, and the limit line says why.</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">(9) duplicate name · start disabled · 390</span>
+        <div class="phone theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">ระเบิดเวลา</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
+            <p class="limit">มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม</p>
+            <ul class="players">
+              <li class="p saved dup"><span class="tick on"><i>✓</i></span><span class="e">🐱</span><span class="n">บอส</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐶</span><span class="n">มายด์</span><span class="rm">✕</span></li>
+              <li class="p saved dup"><span class="tick on"><i>✓</i></span><span class="e">🐰</span><span class="n">บอส</span><span class="rm">✕</span></li>
+            </ul>
+            <span class="add">+ เพิ่มคน</span>
+            <span class="go off">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">(10) roster now 20 after a refused start · add closed · 390 (rows 4-20 elided)</span>
+        <div class="phone theme-dark">
+          <div class="top"><span class="x">✕</span><p class="brand">เลขอาถรรพ์</p></div>
+          <div class="main"><div class="ps">
+            <p class="tagline slot">(host game's tagline)</p>
+            <p class="limit">วงเต็ม 20 คนแล้ว — ตรวจรายชื่อแล้วกดเริ่มอีกครั้ง</p>
+            <ul class="players">
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐱</span><span class="n">ต้น</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐶</span><span class="n">มายด์</span><span class="rm">✕</span></li>
+              <li class="p saved"><span class="tick on"><i>✓</i></span><span class="e">🐰</span><span class="n">บอส</span><span class="rm">✕</span></li>
+            </ul>
+            <span class="add off">+ เพิ่มคน</span>
+            <span class="go">พร้อมเล่น</span>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="copy">
     <b>Copy sources.</b> From timebomb's shipped setup (src/play/timebomb/markup.html): the tagline, "คน", "↺ รีเซ็ตเป็นชื่อสัตว์", "พร้อมเล่น", the −/+ steppers. Mascot names and emoji: ADR-0054's table. Player names (ต้น, มายด์, บอส, แนน, กอล์ฟ) are sample data, not copy.<br>
     <b>Agent-authored Thai, approved by the owner 2026-10-15 (7), plus the undo bar (1, drawn after approval):</b>
@@ -335,6 +380,8 @@
       <tr><td>row tag</td><td>นั่งพัก</td><td>unticked row; ✕ means "leave the วง", the tag means "this round only"</td></tr>
       <tr><td>add row</td><td>+ เพิ่มคน</td><td>disabled at 20 or at the roster ceiling</td></tr>
       <tr><td>dialog</td><td>เปลี่ยนผู้เล่นตอนนี้? · รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว · เล่นรอบนี้ต่อ · จบรอบ แล้วแก้ผู้เล่น</td><td>mid-round edit</td></tr>
+      <tr><td>duplicate line</td><td>มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม</td><td>frame 9; owner ruled block-until-fixed, sentence agent-authored</td></tr>
+      <tr><td>roster-full line</td><td>วงเต็ม 20 คนแล้ว — ตรวจรายชื่อแล้วกดเริ่มอีกครั้ง</td><td>frame 10; owner ruled a short message, sentence agent-authored</td></tr>
       <tr><td>undo bar</td><td>เอา NAME ออกจากวงแล้ว · เลิกทำ</td><td>4 s after a ✕; "เลิกทำ" is the owner's word from the ruling, the sentence is agent-authored</td></tr>
     </table>
     Accessible names (not drawn): tick "เล่นรอบนี้" + the player's name · ✕ "เอาออกจากวง" + the player's name · steppers keep timebomb's "ลดจำนวนคนเล่น" / "เพิ่มจำนวนคนเล่น".
