@@ -436,12 +436,12 @@
     },
     {
       "file": "PlayerSetup.dc.html",
-      "title": "Shared player setup · 8 states (gh#264)",
+      "title": "Shared player setup · 10 states (gh#264)",
       "page": "page-9",
       "x": 0,
       "y": 0,
       "w": 1800,
-      "h": 4248
+      "h": 5035
     }
   ],
   "annotations": [
