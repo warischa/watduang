@@ -17,6 +17,16 @@
     <!-- Main Screen Viewport -->
     <main id="mainContent"></main>
 
+    <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+         mountPlayerScreen as its root, and it is the first thing a load shows. A sibling of
+         #mainContent, never inside it: renderApp() replaces that container's markup wholesale. The
+         tagline is this game's slot on the board, copied from the module's own `tagline`. This
+         replaced the mockup's setup screen (count stepper, preset pills, name grid, reset control),
+         which main.js used to draw into #mainContent. -->
+    <section id="ftPlayers" class="ft-players" hidden>
+      <p class="ps-tagline">แตะให้ไวที่สุด แตะก่อนสัญญาณคือแพ้ทันที</p>
+    </section>
+
     <!-- Ships EMPTY on purpose: it is an announcement channel, not a message. main.js is the only
          thing that writes it, and it writes the round's state only (whose turn, this round's rule)
          — never the trigger, which would leak the timing the game is played on. -->
@@ -50,20 +60,6 @@
     </div>
   </div>
 
-  <!-- Reset Player Names Confirm (gh#177, pattern gh#174) — copy rationale and wiring in main.js. -->
-  <div id="resetNamesModal" class="modal-overlay" style="display: none;">
-    <div class="modal-dialog" style="text-align: center;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="font-size: 1.3rem; font-weight: 800;">รีเซ็ตเป็นชื่อสัตว์?</h3>
-        <button id="closeResetNamesModalBtn" class="icon-btn" aria-label="ปิด">✕</button>
-      </div>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">
-        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
-      </p>
-      <div style="display: flex; gap: 10px;">
-        <button id="cancelResetNamesBtn" class="btn-secondary" style="flex: 1;">เก็บชื่อเดิมไว้</button>
-        <button id="confirmResetNamesBtn" class="btn-primary" style="flex: 1;">รีเซ็ตเป็นชื่อสัตว์</button>
-      </div>
-    </div>
-  </div>
+  <!-- The reset-names modal that sat here (gh#177) moved into the shared player screen with the reset
+       control and the name rows it rewrote (ADR-0071, src/play/_player-screen/PlayerScreen.astro). -->
 </div>

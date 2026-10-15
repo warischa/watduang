@@ -7,6 +7,14 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 // actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
 // wrong value costs the player one tap needs neither a migration nor a collision guard.
 import { isMuted, setMuted } from '../../shell/audio.ts';
+// ADR-0071: the one player screen every party route mounts. It owns the count, the names, the roster
+// and the group; this file gets the chosen players back through FreezeTapEngine.startWithPlayers().
+// The mockup's own setup screen, its reset-names modal and the per-game name list they kept in storage
+// are gone with it (gh#264), and so is roster-bridge.ts, which drove those controls.
+import { EDIT_EVENT, mountPlayerScreen } from '../_player-screen/player-screen.ts';
+// Read for one field, `players`: the range the player screen admits is the one the manifest declares
+// (ADR-0065), never a number restated here.
+import freezeTap from '../../games/freeze-tap.ts';
 
 (() => {
   'use strict';
@@ -575,17 +583,9 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       this.interruptedState = null;
       this.activePointerHandled = false;
 
-      this.initDefaultPlayers();
-    }
-
-    initDefaultPlayers() {
-      const saved = this.loadSavedPlayers();
-      if (saved && saved.length >= 2 && saved.length <= 20 && saved[0].emoji) {
-        this.players = saved;
-        this.playerCount = saved.length;
-      } else {
-        this.setPlayerCount(4);
-      }
+      // Seats only until the player screen hands over the real ones: the in-app test runner builds
+      // engines of its own and expects a seated one.
+      this.setPlayerCount(4);
     }
 
     setPlayerCount(count) {
@@ -613,42 +613,26 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         }
       }
       this.players = newPlayers;
-      this.savePlayers();
     }
 
-    updatePlayerName(index, name) {
-      if (this.players[index]) {
-        const mascot = MASCOT_PLAYERS[index % MASCOT_PLAYERS.length];
-        this.players[index].name = name.trim() || mascot.defaultName;
-        this.savePlayers();
-      }
-    }
-
-    // gh#177 (pattern from gh#174). The wipe the reset confirm guards: every seat's name goes back
-    // to its mascot default and the roster keeps its size. Reads MASCOT_PLAYERS by index rather than
-    // calling setPlayerCount, because setPlayerCount also resizes the array and deliberately keeps a
-    // renamed player -- the opposite of what this reset promises.
-    resetPlayerNames() {
-      this.players = this.players.map((p, i) => ({
-        ...p,
-        name: MASCOT_PLAYERS[i % MASCOT_PLAYERS.length].defaultName
-      }));
-      this.savePlayers();
-    }
-
-    savePlayers() {
-      try {
-        localStorage.setItem('freeze_tap_players', JSON.stringify(this.players));
-      } catch (e) {}
-    }
-
-    loadSavedPlayers() {
-      try {
-        const raw = localStorage.getItem('freeze_tap_players');
-        return raw ? JSON.parse(raw) : null;
-      } catch (e) {
-        return null;
-      }
+    /** The engine entry the player screen starts (ADR-0071), handed the ticked players in roster
+     *  order. Seated THROUGH setPlayerCount, so the engine's one seat clamp stays the only one, then
+     *  seat i wears the identity the player screen gave it: name, glyph, and the colour of that
+     *  player's mascot -- by mascot, not by seat index, so a group with someone sitting out keeps
+     *  every animal's colour on its owner. No game option of its own follows on this route, so the
+     *  round starts at once. */
+    startWithPlayers(players) {
+      this.clearTimers();
+      this.setPlayerCount(players.length);
+      this.players.forEach((seat, i) => {
+        const p = players[i];
+        const mascot = MASCOT_PLAYERS[p.mascot % MASCOT_PLAYERS.length];
+        seat.name = p.name;
+        seat.emoji = p.emoji;
+        seat.color = mascot.color;
+        seat.defaultName = mascot.defaultName;
+      });
+      this.startNewRound();
     }
 
     clearTimers() {
@@ -907,28 +891,19 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
   const mainContent = document.getElementById('mainContent');
 
   // ADR-0017: every screen this route shows is mounted by replacing an existing container's
-  // innerHTML, so the gate has to be re-armed on each reveal — one call at init would arm the setup
+  // innerHTML, so the gate has to be re-armed on each reveal — one call at init would arm the first
   // screen's buttons and nothing after it. One canceller PER CONTAINER, because a container is
   // reused across screens: without it every render would leave another pointerdown listener on the
   // same node, each one still flipping `disabled` on buttons that are no longer in the document.
+  // The player screen in #ftPlayers is not armed from here: the shared screen arms every reveal,
+  // close and confirm of its own over the whole of #app (src/play/_player-screen/player-screen.ts),
+  // and its count steppers -- the one pair this route used to except -- are spared there.
   const disarmers = new Map();
   function armPanel(el, except = []) {
     if (!el) return;
     const cancel = disarmers.get(el);
     if (cancel) cancel();
     disarmers.set(el, armAllButtons(el, except));
-  }
-
-  // The controls a player deliberately taps twice in a row, so the 400ms window must never cover
-  // them. _arm-gate.ts records that ceiling as PER CONTROL, and the count steppers are the case it
-  // names: a group of eight presses + six times in a burst, and a gate that swallowed presses 2..6
-  // would take the setup away rather than protect it. Same list cannon-flag's rapidTapControls()
-  // keeps for its own steppers. Re-queried per call because renderSetupScreen() replaces
-  // #mainContent wholesale — a cached reference would name a detached node. Empty on every other
-  // screen, where neither id exists, so one unconditional call covers the whole route.
-  function rapidTapControls() {
-    return [document.getElementById('decPlayerBtn'), document.getElementById('incPlayerBtn')]
-      .filter(Boolean);
   }
 
   // The live region ships empty in markup.html; this is the only thing that writes it. Round state
@@ -957,8 +932,10 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     mainContent.innerHTML = '';
 
     switch (engine.state) {
+      // ADR-0071: setup IS the shared player screen. Every path that lands here -- the first load,
+      // and a round that ended with no valid attempt -- opens it; #mainContent stays empty behind it.
       case GameState.SETUP:
-        renderSetupScreen();
+        playerScreen.open();
         break;
       case GameState.RULE_REVEAL:
         renderRuleRevealScreen();
@@ -984,111 +961,15 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         break;
     }
 
-    // Every screen, setup included. Setup was excepted here until both of the reasons for it were
-    // answered: (1) roster-bridge.ts seeds a saved group by clicking the setup controls and
-    // .click() on a `disabled` button dispatches nothing — that bridge now routes every
-    // programmatic press through its drive() helper, which clears the flag for the one call and
-    // restores it, so seeding no longer depends on the screen being ungated; (2) nothing else in
-    // this file writes .disabled, so arming cannot fight a second owner of the flag. And the hazard
-    // is real rather than theoretical: #resetAppBtn calls renderApp() with no page reload, so the
-    // second contact of a double-tap on it lands on a setup screen that was painted between the two
-    // contacts — exactly the ghost tap ADR-0017 exists to stop.
-    armPanel(mainContent, rapidTapControls());
+    // Every screen, no state excepted: a game screen painted between the two contacts of a
+    // double-tap is exactly the ghost tap ADR-0017 exists to stop. Nothing else in this file writes
+    // .disabled on these buttons, so arming cannot fight a second owner of the flag. The except list
+    // that once spared the setup's count steppers went with the setup (gh#264).
+    armPanel(mainContent);
     announceForState();
   }
 
-  // 1. SETUP SCREEN
-  function renderSetupScreen() {
-    const presets = [2, 3, 4, 5, 8, 12, 16, 20];
-    
-    let rosterHtml = '';
-    engine.players.forEach((p, idx) => {
-      rosterHtml += `
-        <div class="roster-item" style="border-left: 4px solid ${p.color || '#38bdf8'};">
-          <span style="font-size: 1.3rem; line-height: 1;">${p.emoji || '🐱'}</span>
-          <input type="text" class="roster-input" data-index="${idx}" value="${escapeHtml(p.name)}" maxlength="15" />
-        </div>
-      `;
-    });
-
-    let presetsHtml = presets.map(num => `
-      <button class="preset-pill ${engine.playerCount === num ? 'active' : ''}" data-preset="${num}">${num} คน</button>
-    `).join('');
-
-    mainContent.innerHTML = `
-      <div class="setup-container">
-        <div class="setup-header">
-          <span class="badge badge-primary">⚡ เกมวัดปฏิกิริยาคัดคนแพ้</span>
-          <h1 style="margin-top: 8px;">ตั้งค่าผู้เล่น</h1>
-          <p>ส่งต่อเครื่องเล่นด้วยกัน 2–20 คน</p>
-        </div>
-
-        <div class="glass-card" style="display: flex; flex-direction: column; gap: 16px;">
-          <div class="player-count-bar">
-            <span style="font-weight: 700;">จำนวนผู้เล่น</span>
-            <div class="count-control">
-              <button id="decPlayerBtn" class="count-btn" aria-label="ลดจำนวนผู้เล่น">−</button>
-              <span class="count-display">${engine.playerCount}</span>
-              <button id="incPlayerBtn" class="count-btn" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
-            </div>
-          </div>
-
-          <div class="preset-pills">${presetsHtml}</div>
-
-          <div>
-            <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
-              มาสคอตและรายชื่อผู้เล่น (แตะเพื่อแก้ไขชื่อ)
-            </div>
-            <div class="roster-list">${rosterHtml}</div>
-          </div>
-
-          <!-- gh#177 — sits with the roster it acts on, same placement short-stick's reset uses. -->
-          <button id="resetNamesBtn" class="btn-secondary" type="button" style="width: 100%;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
-        </div>
-
-        <button id="startGameBtn" class="btn-primary" style="font-size: 1.25rem;">
-          🚀 เริ่มเกม (${engine.playerCount} คน)
-        </button>
-      </div>
-    `;
-
-    document.getElementById('decPlayerBtn').onclick = () => {
-      sound.playClick();
-      engine.setPlayerCount(engine.playerCount - 1);
-      renderApp();
-    };
-    document.getElementById('incPlayerBtn').onclick = () => {
-      sound.playClick();
-      engine.setPlayerCount(engine.playerCount + 1);
-      renderApp();
-    };
-
-    document.querySelectorAll('.preset-pill').forEach(btn => {
-      btn.onclick = () => {
-        sound.playClick();
-        engine.setPlayerCount(parseInt(btn.dataset.preset, 10));
-        renderApp();
-      };
-    });
-
-    document.querySelectorAll('.roster-input').forEach(input => {
-      input.oninput = (e) => {
-        const idx = parseInt(e.target.dataset.index, 10);
-        engine.updatePlayerName(idx, e.target.value);
-      };
-    });
-
-    document.getElementById('resetNamesBtn').onclick = () => {
-      sound.playClick();
-      resetNamesModal.style.display = 'flex';
-      armPanel(resetNamesModal);
-    };
-
-    document.getElementById('startGameBtn').onclick = () => {
-      sound.playClick(640);
-      engine.startNewRound();
-    };
-  }
+  // 1. SETUP -- the shared player screen in #ftPlayers since gh#264 (ADR-0071); see renderApp().
 
   // 2. RULE REVEAL SCREEN
   function renderRuleRevealScreen() {
@@ -1385,10 +1266,11 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       sound.playClick();
       engine.startNewRound();
     };
+    // ADR-0071: editing the players is the shared player screen's job. The round is over on this
+    // screen, so it opens straight away -- there is nothing to confirm losing.
     document.getElementById('editPlayersBtn').onclick = () => {
       sound.playClick();
-      engine.state = GameState.SETUP;
-      renderApp();
+      playerScreen.open();
     };
   }
 
@@ -1414,47 +1296,39 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     soundToggleBtn.textContent = isEnabled ? '🔊' : '🔇';
   });
 
-  // #resetAppBtn (above) only returns to the setup screen -- it keeps every typed name, it is not
-  // destructive, and no confirm guards it. #resetNamesBtn (inside renderSetupScreen) is the
-  // opposite: it overwrites every typed name with the mascot cast and cannot be undone, which is
-  // why it opens this modal and asks first, per gh#177 / gh#174.
+  // #resetAppBtn leads back to setup, which is the shared player screen since ADR-0071. Through the
+  // same request the chrome's edit control sends, so a live round is asked about first (ruling 6)
+  // instead of being dropped silently (ADR-0008), and an open player screen ignores it -- it is
+  // already the setup. The reset-names confirm (gh#177) lives in the shared screen now.
   const resetAppBtn = document.getElementById('resetAppBtn');
   resetAppBtn.addEventListener('click', () => {
     sound.playClick();
-    engine.clearTimers();
-    engine.state = GameState.SETUP;
-    renderApp();
+    document.dispatchEvent(new CustomEvent(EDIT_EVENT));
   });
 
-  // Reset Player Names Confirm (gh#177, pattern gh#174). #resetNamesBtn opens this; the button
-  // itself lives inside renderSetupScreen()'s template and is re-wired there each render, the same
-  // way decPlayerBtn and startGameBtn are. This modal is static markup (markup.html) that only
-  // toggles display, so its own three buttons are wired once, here.
-  //
-  // What protects a double-tap on #confirmResetNamesBtn is the 400ms armPanel window opened above,
-  // not the order the close/cancel/confirm buttons appear in -- armPanel disables every button it
-  // collects (including the autofocus target) until the window is quiet, so no button is a safe
-  // "first contact" to rely on. Confirming re-renders #mainContent through renderApp(), which arms
-  // it again unconditionally on its last line (see the comment at renderApp() for why setup is
-  // included).
-  //
-  // gh#187: the rebuild was never what made the confirm safe, and close/cancel rebuild nothing at
-  // all. HIDING this modal is itself a reveal -- #startGameBtn and the preset pills sit under the
-  // card, still enabled, their own arm window long expired, which is exactly why a second contact
-  // fires one. So the arming lives in the shared closer, where all three branches pass through it,
-  // and the rapid-tap steppers stay excepted the same way renderApp() excepts them.
-  const resetNamesModal = document.getElementById('resetNamesModal');
-  const closeResetNamesModal = () => {
-    resetNamesModal.style.display = 'none';
-    armPanel(mainContent, rapidTapControls());
+  // ADR-0071 mount. The screens a round is live on are every state but SETUP (the player screen
+  // itself) and FINAL_RESULTS (the round is over, editing there loses nothing), so the edit control
+  // asks first everywhere else.
+  const roundActive = () => engine.state !== GameState.SETUP && engine.state !== GameState.FINAL_RESULTS;
+  // Ending a round and opening the player screen put away the same things: the round's timers (a
+  // pending trigger would otherwise fire into a closed round), the interruption overlay, and the
+  // game screen behind the player screen. State goes to SETUP so roundActive reads false and a later
+  // renderApp() lands on the player screen. Never renderApp() here: its SETUP case opens the screen,
+  // and this runs inside the open.
+  const putAwayRound = () => {
+    engine.clearTimers();
+    engine.state = GameState.SETUP;
+    document.getElementById('interruptionModal').style.display = 'none';
+    mainContent.replaceChildren();
   };
-  document.getElementById('closeResetNamesModalBtn').addEventListener('click', closeResetNamesModal);
-  document.getElementById('cancelResetNamesBtn').addEventListener('click', closeResetNamesModal);
-  document.getElementById('confirmResetNamesBtn').addEventListener('click', () => {
-    sound.playClick(420);
-    engine.resetPlayerNames();
-    closeResetNamesModal();
-    renderApp();
+  const playersRoot = document.getElementById('ftPlayers');
+  const playerScreen = mountPlayerScreen({
+    root: playersRoot,
+    range: freezeTap.players,
+    onStart: (players) => engine.startWithPlayers(players),
+    roundActive,
+    abortRound: putAwayRound,
+    onOpen: putAwayRound,
   });
 
   /* ==========================================================================
