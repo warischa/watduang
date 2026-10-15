@@ -13,12 +13,12 @@
 //      motion, do not remove it). Both the amplitude and the cadence drop; the canvas keeps drawing.
 //   4. The losing rule moved to ./turn-rules.ts so a node test can reach it (gh#162 box 7).
 //   5. The mockup's player setup -- the add/remove name list, the reset-names control and its
-//      modal, and the `wire-panic-v1` storage that kept the list -- is GONE (ADR-0071, gh#264). The
-//      shared player screen mounts into #wspPlayers instead and hands its players to
+//      modal, and the player list inside the `wire-panic-v1` storage -- is GONE (ADR-0071, gh#264).
+//      The shared player screen mounts into #wspPlayers instead and hands its players to
 //      startWithPlayers(), the engine entry added for it. #screen-setup keeps only this game's own
 //      option, the penalty, which comes after the players. roster-bridge.ts, which drove the deleted
-//      controls, went with them. The penalty choice no longer survives a reload: that key held it
-//      beside the names, and a converted route keeps no storage of its own.
+//      controls, went with them. The key itself stays and keeps the penalty choice across a reload,
+//      and nothing else (loadSavedSettings, ADR-0071 § Data).
 //
 // The .ts extension is spelled out in full, the way manifest.ts does it.
 import { afterSurvivedTurn, loserOf } from './turn-rules.ts';
@@ -655,6 +655,31 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       if (screen) armAllButtons(screen);
     }
 
+    // --- SETTINGS STORAGE: this game's own options only (ADR-0071 § Data, owner ruling 2026-10-15) ---
+    // The mockup kept its player list beside them under the same key. The players are the shared
+    // roster's now, and the shared core moves an old blob's player list into the roster and rewrites
+    // the blob without it, so a player field still sitting here is ignored on read and never written
+    // back. ./settings-persistence.test.mjs runs both halves.
+    function loadSavedSettings() {
+      try {
+        const data = localStorage.getItem('wire-panic-v1');
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (parsed.penaltyMode) game.penaltyMode = parsed.penaltyMode;
+          if (parsed.selectedPenalty) game.selectedPenalty = parsed.selectedPenalty;
+        }
+      } catch (_) {}
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem('wire-panic-v1', JSON.stringify({
+          penaltyMode: game.penaltyMode,
+          selectedPenalty: game.selectedPenalty
+        }));
+      } catch (_) {}
+    }
+
     // --- ADR-0071: THE SHARED PLAYER SCREEN ---
     // Mounted once the page is wired (see the DOMContentLoaded handler at the bottom of this file);
     // null until then, and if #wspPlayers is ever missing, so every opener checks it.
@@ -1232,6 +1257,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         tab.addEventListener('click', (e) => {
           soundSynth.playClick();
           game.penaltyMode = e.currentTarget.dataset.mode;
+          saveSettings();
           renderPenaltyUI();
         });
       });
@@ -1241,12 +1267,14 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         chip.addEventListener('click', (e) => {
           soundSynth.playClick();
           game.selectedPenalty = e.currentTarget.dataset.text;
+          saveSettings();
           renderPenaltyUI();
         });
       });
 
       document.getElementById('input-custom-penalty').addEventListener('input', (e) => {
         game.selectedPenalty = e.target.value.trim();
+        saveSettings();
       });
 
       // Start Match CTA
@@ -1300,6 +1328,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     // live. It opens from #btn-menu-start, never on load: the menu is this game's intro and comes
     // first (ADR-0071 ruling 1).
     window.addEventListener('DOMContentLoaded', () => {
+      loadSavedSettings();
       attachEventListeners();
       const playersRoot = document.getElementById('wspPlayers');
       playerScreen = playersRoot

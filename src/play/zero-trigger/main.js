@@ -5,7 +5,8 @@
 //
 // THE PLAYERS ARE NOT THIS FILE'S (ADR-0071, gh#264). The mockup's own setup -- roster rows, add and
 // remove controls, the random-avatar button, the avatar picker, the reset-cast control and its modal,
-// and the per-route storage blob that kept the list -- is GONE. The shared player screen mounts into
+// and the player list inside the route's storage blob -- is GONE. The blob itself stays, holding this
+// game's own setting only (loadStorage, ADR-0071 § Data). The shared player screen mounts into
 // #zt-players, owns the count, the names and the shared roster, and hands the players it starts with
 // to startWithPlayers(), the engine entry added for it. Each seat's glyph is the mascot the screen
 // gave it (ADR-0054 ruling 1). #screen-setup keeps only this game's own option, the penalty, which
@@ -513,9 +514,8 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
           // Empty until the shared player screen starts: startWithPlayers() seats every player it is
           // handed, and no path reaches a round without passing through it.
           players: [],
-          // In memory only since gh#264. The mockup kept it in one storage blob beside its own player
-          // list; that blob went with the list, and this route touches no web storage at all
-          // (scripts/player-screen-mount-check.mjs reds a route that does).
+          // This game's own option, and the one thing loadStorage/saveStorage keep (ADR-0071 § Data:
+          // game settings are not players).
           penaltyMode: 'preset', // 'preset' | 'custom' | 'none'
           customPenaltyList: [...PRESET_PENALTIES],
           timer: {
@@ -537,7 +537,9 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         // options first (ADR-0071 ruling 1).
         this.skipOptions = false;
 
+        this.loadStorage();
         this.initUIBindings();
+        this.syncPenaltyButtons();
 
         // ADR-0071. The menu stays the first screen (ruling 1: the game's own intro comes first); the
         // player screen is mounted now -- hidden, with its edit-control listener live -- and opened
@@ -582,6 +584,43 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         this.skipOptions = false;
         if (skip) this.startNewMatch();
         else this.switchScreen('SETUP');
+      }
+
+      // The settings blob (ADR-0071 § Data, owner ruling 2026-10-15): this game's own option, under
+      // the key the mockup used, and NEVER a player. The players are the shared roster's; the shared
+      // core moves an old blob's player list into the roster and rewrites the blob without it, so a
+      // player field still sitting here is ignored on read and never written back.
+      // ./settings-persistence.test.mjs runs both halves.
+      loadStorage() {
+        try {
+          const saved = localStorage.getItem('ZERO_TRIGGER_DATA_V1');
+          if (saved) {
+            const data = JSON.parse(saved);
+            if (data.penaltyMode) {
+              this.state.penaltyMode = data.penaltyMode;
+            }
+          }
+        } catch (e) {
+          console.warn('LocalStorage error:', e);
+        }
+      }
+
+      saveStorage() {
+        try {
+          localStorage.setItem('ZERO_TRIGGER_DATA_V1', JSON.stringify({
+            penaltyMode: this.state.penaltyMode
+          }));
+        } catch (e) {
+          console.warn('LocalStorage save error:', e);
+        }
+      }
+
+      /** Marks the penalty button of the mode in force. The markup marks the default; a mode read
+       *  back from storage has to be shown, or the setup screen offers one choice and plays another. */
+      syncPenaltyButtons() {
+        document.querySelectorAll('.penalty-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mode === this.state.penaltyMode);
+        });
       }
 
       /** Ends whatever round is in progress: the clock stops and every delayed step that round
@@ -663,6 +702,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
             document.querySelectorAll('.penalty-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             this.state.penaltyMode = btn.dataset.mode;
+            this.saveStorage();
             this.synth.playClick(600);
           });
         });
