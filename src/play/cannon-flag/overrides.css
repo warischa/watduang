@@ -13,6 +13,35 @@
   display: none !important;
 }
 
+/* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the mockup's
+   own palette (style.css's :root tokens). On :root, not #app-container: the screen's two dialogs
+   render beside the markup, in the top layer, outside #app-container. Accent and the ink on it are
+   this route's primary action, .btn-primary's cyan #38bdf8 with its #070a13 label (= --bg-deep).
+   The cyan is written as its value, not through the mockup's own token for it: the site's accent
+   names are single-sourced from src/styles/tokens.css (gh#128), and a route-local accent name
+   outside that file reds there. The opaque dialog ground is the mockup's own opaque card literal
+   (.test-card); --bg-surface is translucent, and a top-layer dialog has no page under it. */
+:root {
+  --ps-panel: var(--bg-surface);
+  --ps-panel-solid: #0f172a;
+  --ps-edge: var(--border-glass);
+  --ps-ink: var(--text-primary);
+  --ps-muted: var(--text-secondary);
+  --ps-accent: #38bdf8;
+  --ps-on-accent: var(--bg-deep);
+}
+
+/* The player screen's root (#cf-players) sits in #screen-viewport beside the .game-screen sections.
+   That viewport, #app-container and the page are all overflow:hidden in style.css -- the mockup's
+   screens scroll INSIDE themselves (.game-screen's overflow-y: auto) -- so this list scrolls the same
+   way, or twenty rows would push start out of reach. The board's page padding around the column. */
+.cf-players {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 20px 16px 24px;
+}
+
 /* The round-start live region (#cf-live in markup.html). Off-screen for sighted players, present in
    the accessibility tree: display:none or visibility:hidden would take it out of that tree and the
    announcement would never be made. Prefixed cf- because style.css is a verbatim mockup lift and a
@@ -93,11 +122,8 @@
      screenshot once the frame fills 1440px. Each raise below is this route's own equivalent of the
      sizing doc's four items -- nothing invented, and the rail-inline/board-max-inline/track-inline
      items stay out of scope per the note above this media block.
-     .setup-title is this route's hero title (the setup screen is the first thing a player sees,
-     there being no separate menu screen): style.css ships 1.4rem (22.4px). */
-  .setup-title {
-    font-size: 32px;
-  }
+     (The setup screen's hero title this block also raised went with that screen in gh#264: the
+     first thing a player sees is the shared player screen now, ADR-0071.) */
 
   /* Header brand title, style.css 1.1rem (17.6px). */
   .brand-title {

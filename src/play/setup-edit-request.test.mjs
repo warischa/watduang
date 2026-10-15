@@ -42,7 +42,6 @@ const BOOTS_ON = {
   // bangkok-drift boots with #screen-setup already carrying `class="screen active"` and calls its own
   // renderRoster() on main.js's last line, so the seat fields exist before the bridge runs.
   'bangkok-drift': { nav: null },
-  'cannon-flag': { nav: null },
   'freeze-tap': { nav: null },
   'pinocchio-luck': { nav: null },
   // Opens on a menu whose #btn-menu-start is what renders the seat fields -- setup is a click away.

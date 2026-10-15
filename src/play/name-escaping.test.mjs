@@ -78,7 +78,7 @@ import { FakeElement, makeDocument } from '../games/_fake-dom.mjs';
 // broke when the cast moved to _mascots.ts and the losing rule moved to turn-rules.ts, and a stale
 // `PLAYER_AVATARS` stub kept it green until CI ran the suite. Node >=22.18 strips the TS types,
 // which package.json's check-node-version already requires.
-import { MASCOTS, mascotEmoji } from './_mascots.ts';
+import { MASCOTS } from './_mascots.ts';
 import { loserOf } from './wire-snip-panic/turn-rules.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -319,47 +319,32 @@ function cannonFlagHarness(standings) {
     return node;
   };
   const DOM = {
-    displayPlayerCount: el(''),
-    labelPlayerCount: el(''),
-    playerNamesContainer: el(''),
     leaderboardTbody: el(''),
     resultsVerdictContainer: el(''),
     screenResults: el(''),
     hudMatchSeed: el(''),
   };
-  const api = loadFrom('cannon-flag', ['escapeHtml', 'renderSetupPlayerInputs', 'showResultsScreen'], {
+  const api = loadFrom('cannon-flag', ['escapeHtml', 'showResultsScreen'], {
     document,
     DOM,
-    setupPlayerCount: 2,
     gameEngine: { calculateStandings: () => standings, startSuddenDeath: () => ({ seed: 1 }) },
     sound: noopProxy(),
     showScreen: () => {},
     showPassDeviceScreen: () => {},
-    // Same as power-meter above: gh#175 put the seat default behind ../_mascots.ts, which this
-    // factory cannot import. Benign by design — the attacker-controlled channel here is the typed
-    // name this route re-reads off its own live inputs, not the placeholder beside it.
-    defaultName: (i) => `P${i + 1}`,
-    // gh#140: the row badge's animal icon. The real lookup, not a stub -- it takes an index and
-    // returns a cast constant, so it carries no attacker-controlled channel for this file to model.
-    mascotEmoji,
   }, ['escapeHtml']);
   return { api, DOM };
 }
 
 const scored = (name) => ({ name, bestDistance: 1.5, shot1Distance: 1.5, shot2Distance: 2.5 });
 
-test('cannon-flag: setup inputs re-read a typed name and must re-emit it escaped', () => {
-  // The real path: renderSetupPlayerInputs reads the LIVE inputs' .value back and re-renders them
-  // into an attribute. That makes the typed name untrusted input to its own re-render.
-  const { api, DOM } = cannonFlagHarness({ sortedLeaderboard: [], worstDistance: 0, isTie: false, singleLoser: scored('x') });
-  const typed = new FakeElement('input', null);
-  typed.className = 'player-name-input';
-  typed.value = HOSTILE;
-  DOM.playerNamesContainer.appendChild(typed);
-
-  api.renderSetupPlayerInputs();
-  assertNoInjection(DOM.playerNamesContainer, 'cannon-flag renderSetupPlayerInputs');
-  assertAttributeIntact(DOM.playerNamesContainer, '.player-name-input', 'cannon-flag renderSetupPlayerInputs');
+// gh#264 / ADR-0071: the route's own setup inputs -- and renderSetupPlayerInputs, which re-emitted a
+// typed name into an attribute -- are gone. Names are typed into the SHARED player screen now, whose
+// sinks the shared-screen test in this file drives with the same hostile name. What stays this
+// route's is every place a seated name is rendered after start: the results below.
+test('cannon-flag: the setup-input sink is gone with the route\'s own setup', () => {
+  const main = fs.readFileSync(path.join(here, 'cannon-flag', 'main.js'), 'utf8');
+  assert.doesNotMatch(main, /renderSetupPlayerInputs|player-name-input/, 'a route-local name field came back -- give it a hostile-name case here');
+  assert.match(main, /mountPlayerScreen\(\{/, 'cannon-flag no longer mounts the shared screen, so the shared-screen case does not cover its names');
 });
 
 test('cannon-flag: leaderboard and both verdict banners escape player names', () => {

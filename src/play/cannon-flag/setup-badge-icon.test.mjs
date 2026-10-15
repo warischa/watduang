@@ -1,132 +1,73 @@
-// gh#140: the setup roster row opens with the seat's ANIMAL, not a seat number. The shared shell
-// panel already satisfied that ticket; this route builds its own setup screen, so its .player-tag
-// badge kept rendering `#1`, `#2`, `#3` beside the mascot placeholders until this test's subject was
-// fixed.
+// gh#140: this route's seat identity is the seat's ANIMAL, never a seat number -- on the setup rows
+// and on the seats the match is then played with.
 //
-// It runs the REAL bytes -- renderSetupPlayerInputs is sliced out of main.js and driven over the same
-// minimal container reset-names.test.mjs uses on it, reading the badge back out of the row markup the
-// real function writes. A rewrite of that function fails this file loudly instead of testing nothing.
+// Since gh#264 (ADR-0071) the setup rows are the shared player screen's, mounted into #cf-players.
+// The first half runs that real screen over THIS route's markup.html at THIS route's declared range
+// and reads the badges back off the rows it built.
 //
-// This route's row has NO aria-label to guard: the input carries only a placeholder, and the badge is
-// aria-hidden because it pictures the animal that placeholder already names. The seat's POSITION is a
-// separate channel and is deliberately not sourced from the cast -- see the sibling routes that do
-// carry a numbered label (gh#177).
+// The second half is the engine entry the screen starts, startWithPlayers, sliced out of main.js with
+// the real MatchEngine class beside it and run: every player handed over must be seated under the
+// name the player screen gave it -- with someone sitting out, a seat's index and its mascot differ,
+// and that is exactly the case a positional default (defaultName) gets wrong. setupMatch shuffles the
+// turn order on purpose (ADR-0071 ruling 5: a game that shuffles keeps shuffling), so the seated
+// names are compared as a set, never by position.
+//
+// Equality with the cast throughout, never a digit scan.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-// The real cast and the real icon lookup, imported rather than re-listed here.
-import { MASCOTS, mascotEmoji, mascotNames } from '../_mascots.ts';
+import { MASCOTS, mascotEmoji } from '../_mascots.ts';
+import { badgeCases } from '../_player-screen/screen-harness.mjs';
+import { sliceBlock } from '../_dom-stub.mjs';
+import game from '../../games/cannon-flag.ts';
 
-const source = fs.readFileSync(path.join(import.meta.dirname, 'main.js'), 'utf8');
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
+const MAIN = fs.readFileSync(path.join(import.meta.dirname, 'main.js'), 'utf8');
 
-/** Slices `function <name>(...)` out of main.js by matching braces from the first `{` of its body. */
-function sliceFunction(name) {
-  const decl = `function ${name}(`;
-  const start = source.indexOf(decl);
-  assert.notEqual(start, -1, `main.js no longer declares ${name} — this test is measuring nothing`);
-  const open = source.indexOf('{', start);
-  let depth = 0;
-  for (let i = open; i < source.length; i += 1) {
-    if (source[i] === '{') depth += 1;
-    else if (source[i] === '}') {
-      depth -= 1;
-      if (depth === 0) return source.slice(start, i + 1);
-    }
-  }
-  throw new Error(`unbalanced braces while slicing ${name}`);
+badgeCases({ test, assert, routeMarkup: MARKUP, rootId: 'cf-players', range: game.players, mascots: MASCOTS, label: 'cannon-flag' });
+
+const ENGINE = sliceBlock(MAIN, 'class MatchEngine');
+const HANDOFF = sliceBlock(MAIN, 'function startWithPlayers(players)');
+
+/** Runs the real startWithPlayers over a real MatchEngine; returns the engine and what it showed. */
+function seat(players) {
+  assert.ok(ENGINE, 'main.js no longer declares class MatchEngine — this test is measuring nothing');
+  assert.ok(HANDOFF, 'main.js no longer declares startWithPlayers(players) — this test is measuring nothing');
+  const shown = [];
+  const DOM = { hudMatchSeed: { textContent: '' } };
+  const run = new Function(
+    'DOM', 'sound', 'showPassDeviceScreen', 'generateEnvironment', 'defaultName',
+    `${ENGINE}\nconst gameEngine = new MatchEngine();\n${HANDOFF}\nreturn { gameEngine, startWithPlayers };`,
+  )(DOM, { init() {}, playClick() {} }, () => shown.push('pass-device'), () => ({ seed: 4242 }), (i) => `default-${i}`);
+  run.startWithPlayers(players);
+  return { engine: run.gameEngine, shown, DOM };
 }
 
-const escapeHtmlBody = sliceFunction('escapeHtml');
-const renderBody = sliceFunction('renderSetupPlayerInputs');
-// defaultName is the arrow renderSetupPlayerInputs closes over for the placeholder -- sliced too, so
-// the row this file sees is the whole row main.js writes, badge and placeholder together.
-const defaultNameDecl = 'const defaultName = ';
-const defaultNameDeclAt = source.indexOf(defaultNameDecl);
-assert.notEqual(defaultNameDeclAt, -1, 'main.js no longer declares defaultName — this test is measuring nothing');
-const defaultNameBody = source.slice(defaultNameDeclAt, source.indexOf(';', defaultNameDeclAt) + 1);
-
-/** One container that keeps the raw markup of every row the real function appends. */
-function makeContainer() {
-  let rows = [];
-  return {
-    querySelectorAll: () => [],
-    set innerHTML(_v) {
-      rows = [];
-    },
-    get innerHTML() {
-      return '';
-    },
-    appendChild(row) {
-      rows.push(row.innerHTML);
-    },
-    get rows() {
-      return rows;
-    },
-  };
-}
-
-const runRender = new Function(
-  'document',
-  'DOM',
-  'setupPlayerCount',
-  'mascotNames',
-  'mascotEmoji',
-  `${defaultNameBody}\n${escapeHtmlBody}\n${renderBody}\nrenderSetupPlayerInputs();`,
-);
-
-/** Drives the real function once and returns the raw markup of each rendered row, in seat order. */
-function render(count) {
-  const container = makeContainer();
-  const document_ = { createElement: () => ({ className: '', innerHTML: '' }) };
-  const DOM = {
-    displayPlayerCount: { textContent: '' },
-    labelPlayerCount: { textContent: '' },
-    playerNamesContainer: container,
-  };
-  runRender(document_, DOM, count, mascotNames, mascotEmoji);
-  return container.rows;
-}
-
-/** The text between the .player-tag span's own tags -- the badge a player actually reads. */
-function badgeText(rowHtml) {
-  const m = /<span class="player-tag"[^>]*>([\s\S]*?)<\/span>/.exec(rowHtml);
-  assert.ok(m, `no .player-tag badge in the rendered row: ${rowHtml}`);
-  return m[1].trim();
-}
-
-test('gh#140: every setup row badge is that seat mascot emoji', () => {
-  const rows = render(4);
-  assert.equal(rows.length, 4);
-  assert.deepEqual(
-    rows.map(badgeText),
-    MASCOTS.slice(0, 4).map((m) => m.emoji),
-  );
+test('cannon-flag gh#140: the seats played wear the player screen\'s names, sitting-out gap included', () => {
+  // Mascots 0, 2 and 5: the second and the fourth to fifth roster seats sat out.
+  const players = [0, 2, 5].map((m) => ({ name: MASCOTS[m].name, emoji: MASCOTS[m].emoji, mascot: m }));
+  const { engine, shown, DOM } = seat(players);
+  assert.equal(engine.players.length, 3);
+  assert.equal(engine.playerCount, 3);
+  assert.equal(engine.activePlayerPool.length, 3, 'every seated player takes a turn');
+  assert.deepEqual(engine.players.map((p) => p.name).sort(), players.map((p) => p.name).sort(),
+    'the seated names are the handed names -- no positional default replaced a mascot that sat in a gap');
+  assert.deepEqual(engine.players.map((p) => p.turnOrder).sort((a, b) => a - b), [1, 2, 3]);
+  assert.deepEqual(shown, ['pass-device'], 'play comes next: this route has no option screen after the players (ADR-0071 ruling 1)');
+  assert.equal(DOM.hudMatchSeed.textContent, 'SEED: #4242');
 });
 
-test('gh#140: no setup row badge is a seat number', () => {
-  render(6).forEach((row, i) => {
-    assert.doesNotMatch(badgeText(row), /\d/, `seat ${i} badge still renders a number: ${badgeText(row)}`);
-    // The `#` the old marker carried goes with it -- a bare `#` beside an animal reads as leftovers.
-    assert.doesNotMatch(badgeText(row), /#/, `seat ${i} badge still carries the seat marker`);
-  });
+test('cannon-flag: the handoff seats the declared maximum, one seat per handed player', () => {
+  const players = Array.from({ length: game.players[1] }, (_, i) => ({ name: MASCOTS[i].name, emoji: MASCOTS[i].emoji, mascot: i }));
+  const { engine } = seat(players);
+  assert.equal(engine.players.length, game.players[1]);
+  assert.equal(new Set(engine.players.map((p) => p.name)).size, game.players[1], 'no seat was duplicated or dropped');
 });
 
-test('gh#140: the badge is aria-hidden, because the placeholder already names that animal', () => {
-  for (const row of render(3)) {
-    assert.match(row, /<span class="player-tag" aria-hidden="true">/);
-  }
-  // The pairing itself: seat 0's badge is the cat icon and its placeholder is the cat's name.
-  assert.match(render(3)[0], new RegExp(`placeholder="${mascotNames(1)[0]}"`));
-});
-
-// Calibration, in the shape that can actually fail: the digits a broken badge would render are NOT
-// what the cast holds, so the harness above can tell the two apart. Asserted here rather than left
-// implicit, because a fixture that already satisfies the expectation is how a badge test passes on a
-// badge that was never fixed.
-test('RED CALIBRATION: a seat number is not a value the cast can produce', () => {
-  const digits = Array.from({ length: 6 }, (_, i) => `#${i + 1}`);
-  const icons = Array.from({ length: 6 }, (_, i) => mascotEmoji(i));
-  assert.notDeepEqual(icons, digits);
+test('RED CALIBRATION: no seat glyph is a digit, and a positional default differs from a gap mascot', () => {
+  const icons = Array.from({ length: 10 }, (_, i) => mascotEmoji(i));
+  assert.notDeepEqual(icons, Array.from({ length: 10 }, (_, i) => String(i + 1)));
   for (const icon of icons) assert.doesNotMatch(icon, /\d|#/);
+  assert.notEqual(MASCOTS[1].name, MASCOTS[2].name, 'seat 1 and mascot 2 must be distinguishable');
 });

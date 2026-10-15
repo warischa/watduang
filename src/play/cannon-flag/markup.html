@@ -21,67 +21,16 @@
     <!-- SCREEN VIEWPORT -->
     <main id="screen-viewport">
       
-      <!-- SCREEN 1: SETUP -->
-      <section id="screen-setup" class="game-screen active">
-        <div class="setup-card">
-          <h1 class="setup-title">ตั้งค่าผู้เล่น</h1>
-          <p class="setup-subtitle">เกมดวลปืนใหญ่ผลัดกันยิง หาผู้แพ้เพียง 1 เดียว</p>
-          
-          <div>
-            <div class="section-label">
-              <span>จำนวนผู้เล่น</span>
-              <span id="label-player-count">4 คน</span>
-            </div>
-            <div class="player-stepper" style="margin-top: 6px;">
-              <button id="btn-dec-players" class="step-btn" aria-label="ลดจำนวนผู้เล่น">-</button>
-              <div id="display-player-count" class="player-count-display">4</div>
-              <button id="btn-inc-players" class="step-btn" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
-            </div>
-          </div>
-
-          <div>
-            <div class="section-label" style="margin-bottom: 6px;">
-              <span>รายชื่อผู้เล่น (เว้นว่างได้)</span>
-            </div>
-            <div id="player-names-container" class="player-names-list">
-              <!-- Dynamically populated name inputs -->
-            </div>
-          </div>
-
-          <!-- gh#175 / ADR-0054 -- sits with the rows it resets. .btn-primary reused with the same
-               secondary look #btn-replay-match already uses; no new class. -->
-          <button id="btn-reset-names" class="btn-primary" type="button" style="width: 100%; margin-top: 10px; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-glass); box-shadow: none;">
-            <span>↺ รีเซ็ตเป็นชื่อสัตว์</span>
-          </button>
-
-          <div class="rules-hint">
-            📌 <strong>กติกา:</strong> ผู้เล่นแต่ละคนจะได้ยิง <strong>2 นัดติดต่อกัน</strong> (นัดละ 30 วินาที) โดยระบบจะนับผลจากนัดที่ <strong>ใกล้ฐานธงที่สุด</strong> ผู้ที่ทำผลงานแย่ที่สุดจะเป็นผู้แพ้
-          </div>
-
-          <button id="btn-start-match" class="btn-primary">
-            <span>🚀 เริ่มการแข่งขัน</span>
-          </button>
-        </div>
-
-        <!-- Reset Player Names Confirm (gh#175 / ADR-0054) -- copy rationale in main.js at the reset
-             handler. Reuses .shot-modal-overlay / .shot-result-box verbatim: same reveal shape
-             (opacity + pointer-events toggled by .active), no new CSS. -->
-        <div id="reset-names-confirm" class="shot-modal-overlay">
-          <div class="shot-result-box">
-            <div class="shot-result-title">รีเซ็ตเป็นชื่อสัตว์?</div>
-            <p class="shot-result-detail">
-              ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่
-            </p>
-            <div style="display: flex; gap: 10px; width: 100%; margin-top: 8px;">
-              <button id="btn-cancel-reset-names" class="btn-primary" type="button" style="flex: 1; background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-glass); box-shadow: none;">
-                <span>เก็บชื่อเดิมไว้</span>
-              </button>
-              <button id="btn-confirm-reset-names" class="btn-primary" type="button" style="flex: 1;">
-                <span>รีเซ็ตเป็นชื่อสัตว์</span>
-              </button>
-            </div>
-          </div>
-        </div>
+      <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+           mountPlayerScreen as its root, and it is the first thing a load shows. The tagline is this
+           game's slot on the board, copied from the module's own `tagline`. This replaced the
+           mockup's setup screen -- its count stepper, name rows, reset control and reset overlay, its
+           rules hint and its start button. This route has no non-player option, so the player
+           screen's start leads straight to the pass-device screen (ADR-0071 ruling 1). Not a
+           .game-screen: that class is opacity/pointer-events driven by .active, which would fight the
+           hidden attribute the shared screen toggles. -->
+      <section id="cf-players" class="cf-players" hidden>
+        <p class="ps-tagline">ดวลปืนใหญ่ผลัดกันยิง ใครห่างธงสุดคนนั้นโดน</p>
       </section>
 
       <!-- SCREEN 2: PASS DEVICE INTERSTITIAL -->
