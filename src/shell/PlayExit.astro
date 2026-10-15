@@ -158,14 +158,45 @@
   const exitBtn = document.getElementById('play-exit') as HTMLButtonElement | null;
   const editBtn = document.getElementById('play-edit-players') as HTMLButtonElement | null;
 
-  // One gate, a list of controls. `run` is what a completed, armed tap on that control does.
-  const controls: { el: HTMLButtonElement; run: () => void }[] = [];
+  // ADR-0071, gh#264. A route that mounted the shared player screen edits the players IN PLACE: the
+  // screen marks <html> with this attribute ('open' / 'closed') and answers EDIT_EVENT itself --
+  // confirming first when a round is live. Feature-detected at tap time, never at load: this script
+  // and the route's own can run in either order. The names are player-screen.ts's SCREEN_ATTR,
+  // STATE_EVENT and EDIT_EVENT, spelled here rather than imported so this chrome pulls no player
+  // screen code onto the routes that have not mounted it. Every such route keeps the reload path
+  // below byte-for-byte.
+  const SCREEN_ATTR = 'data-player-screen';
+  const sharedScreen = (): string | null => document.documentElement.getAttribute(SCREEN_ATTR);
+
+  // One gate, a list of controls. `run` is what a completed, armed tap on that control does;
+  // `stays` says the page is still here afterwards, so the one-way `leaving` latch must not close.
+  const controls: { el: HTMLButtonElement; run: () => void; stays?: () => boolean }[] = [];
   if (exitBtn) controls.push({ el: exitBtn, run: () => { window.location.href = '/'; } });
   // Two names is the threshold the bridges use to skip setup, so it is exactly the case where a
   // player has no other way back to the setup screen — and the only case this control is for.
   if (editBtn && loadRoster().names().length >= 2) {
     editBtn.hidden = false;
-    controls.push({ el: editBtn, run: requestSetupEdit });
+  }
+  if (editBtn) {
+    // Always in the gate's list: hidden it can take no contact, so an unconverted route that never
+    // shows it is unaffected, while a converted route can show it later without a second gate.
+    controls.push({
+      el: editBtn,
+      run: () => {
+        if (sharedScreen()) document.dispatchEvent(new CustomEvent('watduang:edit-players'));
+        else requestSetupEdit();
+      },
+      stays: () => sharedScreen() !== null,
+    });
+    // On a converted route the pill is offered exactly while the shared screen is closed: open, it
+    // would offer what is already on screen. Its state arrives as an event; the attribute covers a
+    // screen that announced itself before this script ran.
+    const syncEdit = (): void => {
+      const state = sharedScreen();
+      if (state !== null) editBtn.hidden = state === 'open';
+    };
+    document.addEventListener('watduang:player-screen', syncEdit);
+    syncEdit();
   }
 
   if (controls.length > 0) {
@@ -208,7 +239,7 @@
     // is about to dispatch (a button disabled between pointerdown and click fires no click at all).
     // Every other contact, including a burst landing on this button while it is disabled, restarts
     // the window — which is what stops a burst from arming the control under its own taps.
-    const hit = (ev: Event): { el: HTMLButtonElement; run: () => void } | undefined =>
+    const hit = (ev: Event): (typeof controls)[number] | undefined =>
       ev.target instanceof Node
         ? controls.find((c) => c.el.contains(ev.target as Node))
         : undefined;
@@ -216,7 +247,7 @@
     // The control the current press began on, while it was ALREADY ARMED. Activation requires it:
     // without this, a press that starts disabled and outlives the quiet window (hold on a control, or
     // a hold elsewhere arming it mid-gesture) would activate on release.
-    let pressed: { el: HTMLButtonElement; run: () => void } | undefined;
+    let pressed: (typeof controls)[number] | undefined;
 
     document.addEventListener(
       'pointerdown',
@@ -244,9 +275,18 @@
     // from navigating twice.
     // Both activations are one-way transitions off this page (navigate, or reload into setup), so one
     // flag stops either path from firing twice — including the pointerup and click paths racing.
+    // The one exception is the in-place edit on a converted route (ADR-0071): the page stays, so the
+    // latch stays open and the controls are re-gated instead -- the dialog or screen that just
+    // appeared is a reveal, and disabling the pill here is also what stops the click that trails a
+    // pointerup from firing it a second time (a disabled button dispatches no click).
     let leaving = false;
-    const activate = (control: { el: HTMLButtonElement; run: () => void }): void => {
+    const activate = (control: (typeof controls)[number]): void => {
       if (leaving || control.el.disabled) return;
+      if (control.stays?.()) {
+        control.run();
+        disarm();
+        return;
+      }
       leaving = true;
       control.run();
     };

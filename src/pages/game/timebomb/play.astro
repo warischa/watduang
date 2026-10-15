@@ -6,7 +6,7 @@
 // a different game), so ADR-0050 ruling 4's second branch applies: the SHIPPED ENGINE is kept and
 // reskinned to the freeze-tap dark reference. src/games/timebomb.ts still owns the round — the
 // absolute-deadline fuse, the wake lock, the arm gate, markPlayed — and src/play/timebomb/main.ts only
-// renders the player baseline screen and mounts it.
+// mounts the shared player screen (ADR-0071) and then the engine.
 //
 // ONE FILE PER GAME, not a [id] route: each play route's stylesheet styles bare `body` and shared
 // game-screen class names, so a dynamic route would load every game's sheet on every play page and let
@@ -20,6 +20,9 @@ import Base from '../../../layouts/Base.astro';
 // ADR-0014 puts a navigation target. It brings its own style and its own arm gate.
 import PlayExit from '../../../shell/PlayExit.astro';
 import markup from '../../../play/timebomb/markup.html?raw';
+// ADR-0071: the shared player screen's markup and dialogs. Rendered beside the route's markup, which
+// is a raw string and cannot hold a component; main.ts mounts it into #tb-setup.
+import PlayerScreen from '../../../play/_player-screen/PlayerScreen.astro';
 // play.css, not style.css: the thai-comments carve-out exempts the extractor's three basenames
 // (main.js / markup.html / style.css) inside a play folder as verbatim lifts. Nothing here IS a lift,
 // so the file is named off that exemption and stays under the full gate.
@@ -37,6 +40,7 @@ const description = game.seo.description;
 <Base title={title} description={description} ogImage="/og/timebomb.png" chrome>
   <PlayExit />
   <Fragment set:html={markup} />
+  <PlayerScreen />
 </Base>
 
 <script>

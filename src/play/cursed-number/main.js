@@ -14,6 +14,11 @@
 //      never blanks the page).
 //   4. A prefers-reduced-motion branch was added, because the mockup had none (ADR-0046: reduce the
 //      motion, do not remove it).
+//   5. The mockup's player setup -- count pills, stepper, mascot name rows, the reset-names control
+//      and its modal -- is GONE (ADR-0071, gh#264). The shared player screen mounts into #cnPlayers
+//      instead and hands its players to startWithPlayers(), the engine entry added for it.
+//      #screenSetup keeps only this game's own option, the penalty, which comes after the players.
+//      roster-bridge.ts, which drove the deleted controls, went with them.
 //
 // THE CAST IS SUPPLIED FROM HERE, not read by the engine. gh#140 keeps the shared animal list out of
 // src/games entirely -- a test in src/shell/player-setup.test.mjs scans every file under that folder
@@ -21,30 +26,29 @@
 // knowledge that a cast exists. This file is on the play side, where the import is allowed.
 //
 // The .ts extension is spelled out in full, the way manifest.ts does it.
-import { CursedNumberGameModel } from '../../games/cursed-number.ts';
+// The module's default export is read for one field, `players`: the range the player screen admits
+// is the one the manifest declares (ADR-0065), never a number restated here.
+import cursedNumber, { CursedNumberGameModel, seatColorVar } from '../../games/cursed-number.ts';
 import { MASCOTS } from '../_mascots.ts';
 // Ghost-tap gate (ADR-0014/ADR-0017). This route never rebuilds a stage: it reveals pre-existing
-// markup, and it does so on EIGHT paths, each wired to armAllButtons at the reveal itself.
+// markup, and it does so on FOUR paths, each wired to armAllButtons at the reveal itself.
 //   1. showScreen()  -- toggles `.screen.active`. Every screen-to-screen move.
-//   2. the constructor -- screenSetup ships `active` in markup.html and never passes showScreen.
-//   3. the rulesBtn handler -- `#rulesModal.classList.add('active')`, 2 buttons, no showScreen.
-//   4. setInputMode() -- shows #sliderModeContainer / #keypadModeContainer by `style.display`
+//   2. the rulesBtn handler -- `#rulesModal.classList.add('active')`, 2 buttons, no showScreen.
+//   3. setInputMode() -- shows #sliderModeContainer / #keypadModeContainer by `style.display`
 //      INSIDE a screen that is already up, so showScreen's call has long since armed and left.
-//   5. the resetNamesBtn handler (gh#177) -- `#resetNamesModal.classList.add('active')`, 3 buttons,
-//      and they land directly over the trigger that was just pressed.
-//   6. the reset CONFIRM handler -- not a reveal by a class or a display write, which is why the
-//      pattern in arm-reveal-paths.test.mjs cannot see it: closing the modal uncovers the setup
-//      screen, whose own arming fired and left when the screen was shown. #screenSetup is re-armed
-//      there. Two things need it: the count pills and #startGameBtn, which sit under the modal card,
-//      and the name rows the reset itself rebuilds through innerHTML.
-//   7. closeResetNames (gh#187) -- the close X and the cancel button. Same reveal as 6 without the
-//      rebuild, which is the point: the rebuild was never the hazard, the modal closing is.
-//   8. closeRules (gh#187) -- the same for #rulesModal, re-arming whichever screen is live.
-// A fifth display toggle, #penaltyResultBox, contains no button and needs no call.
+//   4. closeRules (gh#187) -- closing #rulesModal uncovers whichever screen is live, re-armed there.
+// The player screen's own reveals -- its opening, its dialogs, its undo bar -- are armed by the
+// shared screen itself (src/play/_player-screen/player-screen.ts), every one of them over #app. The
+// constructor's old arming of #screenSetup went with `active` leaving that section's markup: the
+// first screen is the player screen now, and it arms itself when it opens.
+// A display toggle, #penaltyResultBox, contains no button and needs no call.
 // This list is the coverage claim, and it is only true while it is complete: a new reveal path that
 // does not appear here ships ungated, and scripts/arm-gate-coverage-check.mjs CANNOT catch that --
 // it asks whether the route imports and calls armAllButtons at all, not whether every reveal does.
 import { armAllButtons } from '../../games/_arm-gate.ts';
+// ADR-0071: the one player screen every party route mounts. It owns the count, the names, the
+// roster and the group; this file gets the ticked players back through startWithPlayers().
+import { EDIT_EVENT, mountPlayerScreen } from '../_player-screen/player-screen.ts';
 // gh#227: the sound control on this route is a view of the SITE-WIDE mute preference, not a boolean
 // of its own -- muting here mutes every other route, and reopening this one shows what the device
 // actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
@@ -386,6 +390,10 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     }
 
 
+    /** The screens a round is live on. Game over is not one: editing the players there loses nothing,
+     *  so the player screen opens without asking (ADR-0071 ruling 6). */
+    const ROUND_SCREENS = ['screenHandoff', 'screenSelection', 'screenSafeResult', 'screenForcedReveal'];
+
     /**
      * UI Controller & State Coordinator
      */
@@ -394,17 +402,52 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         this.sound = new SoundSynth();
         this.fx = new ParticleEngine('particlesCanvas', 'app');
         this.game = new CursedNumberGameModel(MASCOTS);
-        
-        this.currentScreen = 'screenSetup';
+
+        // The player screen's root id while it is up, so closeRules re-arms the screen that is live.
+        this.currentScreen = 'cnPlayers';
         this.inputMode = 'slider'; // 'slider' | 'keypad'
         this.keypadBuffer = '';
 
         this.bindEvents();
-        this.renderCountPills();
-        this.renderMascotsList();
 
-        const first = document.getElementById(this.currentScreen);
-        if (first) armAllButtons(first);
+        // ADR-0071. The player screen opens first; its start hands the ticked players over, and this
+        // game's own option (the penalty, #screenSetup) comes next, then play.
+        const playersRoot = document.getElementById('cnPlayers');
+        this.players = playersRoot
+          ? mountPlayerScreen({
+              root: playersRoot,
+              range: cursedNumber.players,
+              onStart: (players) => this.startWithPlayers(players),
+              roundActive: () => ROUND_SCREENS.includes(this.currentScreen),
+              // Nothing of a round outlives its screens here -- no timer, no audio loop -- so ending
+              // it is putting its screens away, which onOpen does on every open anyway.
+              abortRound: () => {},
+              onOpen: () => {
+                document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
+                this.currentScreen = 'cnPlayers';
+              },
+            })
+          : null;
+        if (this.players) this.players.open();
+      }
+
+      /** The engine entry the player screen starts (ADR-0071): a fresh model seated with exactly
+       *  these players, in the order given. The model takes its seats at construction and they are
+       *  read-only, so a new player list is a new model -- the same way a new match is a new round.
+       *  Seat i wears the identity the player screen gave it (name, mascot glyph, and the mascot's
+       *  own colour token), so a group with someone sitting out keeps every animal on its owner. */
+      startWithPlayers(players) {
+        const seats = players.map((p) => ({ emoji: p.emoji, name: p.name }));
+        this.game = new CursedNumberGameModel(seats);
+        this.game.setPlayerCount(seats.length);
+        players.forEach((p, i) => {
+          const seat = this.game.players[i];
+          if (seat) seat.color = seatColorVar(p.mascot);
+        });
+        // Probes read the live model off window; it changed identity, so the handle follows it.
+        window.gameEngine = this.game;
+        document.getElementById('playerCountBadge').textContent = `${this.game.playerCount} คน`;
+        this.showScreen('screenSetup');
       }
 
       /** Speaks `text` into the route's live region. Nothing here may name the cursed number: the
@@ -435,7 +478,7 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
           modal.classList.add('active');
           armAllButtons(modal);
         });
-        // Reveal path 7 (gh#187). CLOSING #rulesModal is itself a reveal: the screen under it was
+        // Reveal path 4 (gh#187). CLOSING #rulesModal is itself a reveal: the screen under it was
         // armed when it was shown and its 400ms window expired long ago, so the second contact of a
         // double-tap on the close X -- which sits in the same top-right corner as rulesBtn -- lands
         // on whatever live control is there. Armed in one shared closer so neither branch can miss
@@ -451,80 +494,12 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
           closeRules();
         });
 
+        // The house icon leads back to the first screen, which is the player screen since ADR-0071.
+        // Through the same request the chrome's edit control sends, so a live round is asked about
+        // first (ruling 6) and an open player screen ignores it -- it is already the first screen.
         document.getElementById('homeResetBtn').addEventListener('click', () => {
           this.sound.playClick();
-          this.showScreen('screenSetup');
-        });
-
-        // Reset player names (gh#177). THREE controls on this route can be confused for one another,
-        // so the split is deliberate and a player has to be able to predict which one costs them a
-        // name. Two of them NAVIGATE and change nothing: #homeResetBtn above (the header house icon,
-        // on every screen) and #editPlayersBtn (game over) both just show #screenSetup with the
-        // roster intact. This one MUTATES. It is a third control rather than a behaviour bolted onto
-        // either of those, because:
-        //   - #homeResetBtn is an icon-only button reachable from mid-round on every screen. Wiping
-        //     names from there would put the destruction one tap away with nothing on the control
-        //     saying so, and its `Reset` is a mockup id no player ever sees -- the label they read is
-        //     `กลับหน้าแรก`. The id is left alone on purpose; renaming it changes no behaviour.
-        //   - #editPlayersBtn's label promises editing the names, which is the opposite of
-        //     discarding them, and it is exactly the path a group takes to fix ONE name after a round.
-        // What makes the three tellable apart is not the label alone: this is the only one that lives
-        // on the setup screen beside the rows it rewrites, the only one whose label names what happens
-        // to the names, and the only one that asks first. The control that asks is the control that
-        // destroys.
-        //
-        // The copy in markup.html is short-stick's, reused verbatim (gh#174): every clause of it is
-        // true here. Typed names go and do not come back -- updatePlayerName(i, '') clears rawName,
-        // which is the only place a typed name is kept. The count survives: nothing here touches
-        // playerCount, and renderMascotsList rebuilds only #mascotsListContainer. `กติกาที่ตั้งไว้`
-        // survives too -- the penalty select and #customPenaltyInput are read at handleStartGame and
-        // are outside everything this path writes.
-        // Stated ceiling, deliberately NOT put in the copy: the device roster from ADR-0010 is a
-        // different store. A reset leaves it alone, so a later visit can seed the old names back
-        // through roster-bridge.ts. That is not a loss this confirm causes, and the rule names losses.
-        // Shared closer, and the arming lives here rather than in the two listeners (gh#187):
-        // dismissing the card IS the reveal. The count pills and #startGameBtn sit under it, still
-        // enabled, their own gate long expired -- which is exactly why a second contact fires one.
-        const closeResetNames = () => {
-          document.getElementById('resetNamesModal').classList.remove('active');
-          const setup = document.getElementById('screenSetup');
-          if (setup) armAllButtons(setup);
-        };
-        document.getElementById('resetNamesBtn').addEventListener('click', () => {
-          this.sound.playClick();
-          // Reveal path 5: three buttons appear over the one just pressed, so the revealed card is
-          // armed here -- showScreen never runs on this path.
-          const resetModal = document.getElementById('resetNamesModal');
-          resetModal.classList.add('active');
-          armAllButtons(resetModal);
-        });
-        document.getElementById('closeResetNamesBtn').addEventListener('click', closeResetNames);
-        document.getElementById('cancelResetNamesBtn').addEventListener('click', closeResetNames);
-        document.getElementById('confirmResetNamesBtn').addEventListener('click', () => {
-          closeResetNames();
-          this.sound.playClick(420);
-          this.resetPlayerNames();
-          this.renderMascotsList();
-          // Reveal path 6. Dismissing the card uncovers a setup screen whose gate fired long ago, and
-          // renderMascotsList has just replaced the rows underneath it. The second contact of a
-          // double-tap on the confirm lands on whatever is now there -- a count pill would change the
-          // player count, which is the one thing this dialog's own copy promises survives.
-          const setup = document.getElementById('screenSetup');
-          if (setup) armAllButtons(setup);
-        });
-
-        // Setup Screen - Stepper buttons
-        document.getElementById('countMinusBtn').addEventListener('click', () => {
-          if (this.game.playerCount > 2) {
-            this.sound.playClick(480);
-            this.setPlayerCount(this.game.playerCount - 1);
-          }
-        });
-        document.getElementById('countPlusBtn').addEventListener('click', () => {
-          if (this.game.playerCount < 20) {
-            this.sound.playClick(580);
-            this.setPlayerCount(this.game.playerCount + 1);
-          }
+          document.dispatchEvent(new CustomEvent(EDIT_EVENT));
         });
 
         // Penalty Select
@@ -630,9 +605,11 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
           this.sound.playClick(580);
           this.handleStartGame();
         });
+        // ADR-0071: editing the players is the shared player screen's job now. The round is over on
+        // this screen, so it opens straight away -- there is nothing to confirm losing.
         document.getElementById('editPlayersBtn').addEventListener('click', () => {
           this.sound.playClick();
-          this.showScreen('screenSetup');
+          if (this.players) this.players.open();
         });
       }
 
@@ -674,84 +651,6 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         // per control: the 400ms is spent once per MODE SWITCH, not between two digits -- the gate
         // stops disabling as soon as it arms, so rapid entry after the first tap is untouched.
         armAllButtons(mode === 'slider' ? sliderCont : keypadCont);
-      }
-
-      setPlayerCount(count) {
-        this.game.setPlayerCount(count);
-        this.renderCountPills();
-        this.renderMascotsList();
-      }
-
-      renderCountPills() {
-        const container = document.getElementById('countPillsContainer');
-        container.innerHTML = '';
-        document.getElementById('playerCountBadge').textContent = `${this.game.playerCount} คน`;
-
-        const quickCounts = [2, 3, 4, 5, 6, 8, 10];
-        // Ensure current count is included in pills
-        const pillValues = Array.from(new Set([...quickCounts, this.game.playerCount])).sort((a,b) => a - b);
-
-        pillValues.forEach(n => {
-          const pill = document.createElement('button');
-          pill.type = 'button';
-          pill.className = `count-pill ${n === this.game.playerCount ? 'active' : ''}`;
-          pill.textContent = n;
-          pill.addEventListener('click', () => {
-            this.sound.playClick(520 + n * 15);
-            this.setPlayerCount(n);
-          });
-          container.appendChild(pill);
-        });
-      }
-
-      renderMascotsList() {
-        const container = document.getElementById('mascotsListContainer');
-        container.innerHTML = '';
-
-        this.game.players.forEach((p, idx) => {
-          const row = document.createElement('div');
-          row.className = 'mascot-row';
-          row.style.setProperty('--pColor', p.color);
-
-          // The aria-label below stays NUMBERED, and that is a decision, not a site gh#177 missed.
-          // It is the field's accessible name, not a player's default name: it answers "which row am
-          // I in", and no one ever reads it as an identity -- the visible default is the placeholder,
-          // which already comes from the cast through p.defaultName. Naming the field after the
-          // animal would make it drift from its own value the moment a row is renamed (the label
-          // would still say `แมวส้ม` while the box holds a typed name), and because an aria-label
-          // suppresses the placeholder as the accessible name, the seat ordinal would be the only
-          // positional cue lost. Numbered here is correct; numbered on a visible-name path is not.
-          row.innerHTML = `
-            <div class="mascot-avatar-badge">${p.avatar}</div>
-            <input type="text" class="mascot-name-input" value="${escapeHtml(p.rawName || '')}" placeholder="${escapeHtml(p.defaultName)}" maxlength="20" aria-label="ชื่อผู้เล่น ${idx + 1}">
-          `;
-
-          const input = row.querySelector('.mascot-name-input');
-          input.addEventListener('input', (e) => {
-            this.game.updatePlayerName(idx, e.target.value);
-          });
-
-          container.appendChild(row);
-        });
-      }
-
-      /** gh#177. The wipe the reset confirm guards: every seat goes back to its animal name and the
-       *  party keeps its size.
-       *
-       *  It writes an EMPTY string through the model's own updatePlayerName rather than pushing
-       *  resetCastNames() from _mascots.ts back over the roster, and that is the whole reason the
-       *  count cannot move: this route does not hold names in a flat array the way short-stick does.
-       *  A seat here carries rawName (what was typed) beside name (what is shown), and empty rawName
-       *  IS the untouched state -- the model then falls back to seat(i).name, which comes from the
-       *  MASCOTS handed to the constructor. Writing cast strings into rawName would restore the same
-       *  visible names while marking every seat as hand-typed, so the placeholder would vanish and
-       *  the next count change would treat an animal name as a name to preserve.
-       *
-       *  Deliberately free of DOM and storage: the redraw and the re-arm belong to the handler, which
-       *  leaves this a pure state move that reset-names.test.mjs can lift out and run without a
-       *  browser. */
-      resetPlayerNames() {
-        this.game.players.forEach((_, i) => this.game.updatePlayerName(i, ''));
       }
 
       renderPlayerStrip(containerId) {

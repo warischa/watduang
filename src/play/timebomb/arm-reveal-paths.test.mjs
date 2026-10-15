@@ -1,85 +1,51 @@
 // The hole scripts/arm-gate-coverage-check.mjs cannot see, pinned here for timebomb.
 //
 // That gate asks ONE question of a play route: does it import armAllButtons and call it at least
-// once? timebomb does, once for #tb-setup — and the gate would stay green even if that single call
-// were deleted, because it counts calls per DIRECTORY, not per reveal. The real rule (ADR-0017) is
-// per reveal: the second contact of a double-tap must not land on a control the first contact just
-// put under the finger.
+// once? It counts calls per DIRECTORY, not per reveal. The real rule (ADR-0017) is per reveal: the
+// second contact of a double-tap must not land on a control the first contact just put under the
+// finger. And since ADR-0057, every close, cancel and confirm path is a reveal too.
 //
-// timebomb is unlike the other ten routes: it has no game logic of its own. main.ts renders exactly
-// one screen (#tb-setup, the player baseline) and then hands off to the SHIPPED ENGINE
-// (src/games/timebomb.ts) via game.mount(). Every screen inside #tb-stage is drawn by that engine,
-// which arms its own stage once at mount time, through the `armAllButtons(stage)` call in
-// `games/timebomb.ts`. That call is NOT covered by a unit test: `grep -n armAllButtons
-// src/games/*.test.mjs` finds it only in the gate's own test, `_arm-gate.test.mjs`, never in a game's, so the only
-// thing watching it is `scripts/arm-gate-coverage-check.mjs`, which asks whether a route calls
-// `armAllButtons` at all and never whether every reveal is covered. Recorded here rather than fixed
-// because the engine is out of this file's scope — so this file pins what is actually THIS
-// file's job: the screen-swap main.ts performs, the controls it renders, and (since gh#177) the
-// confirm dialog it opens over them.
+// Since gh#264 (ADR-0071) this route has three kinds of surface, each armed by its owner:
+//   1. The SHARED PLAYER SCREEN mounted into #tb-setup, with its mid-round confirm, its reset confirm
+//      and its undo bar. Its reveal paths are driven for real below (revealPathCases): the shared
+//      screen's code over this route's own markup.html, with the real arm gate, reading this route's
+//      own header control. That is what makes them THIS route's cases: a screen mounted outside
+//      #app, or one that armed only its own root, leaves #tb-mute live and reds here.
+//   2. The engine's #tb-stage, armed by the engine itself at mount (src/games/timebomb.ts). Not this
+//      file's code, and pinned below as deliberately NOT armed a second time.
+//   3. The header (#tb-top), on screen from first paint, armed by main.ts at load.
 //
-// begin() is one-way: it hides #tb-setup and shows #tb-stage, and there is no control anywhere in
-// this route that reverses it (scout-confirmed, and re-confirmed here — see the "one-way" test
-// below). gh#177 did NOT change that: its reset control lives inside #tb-setup, so it goes away with
-// the setup screen instead of reaching back into it, and the way back mid-round stays the shared
-// "แก้ผู้เล่น" pill's reload (src/shell/PlayExit.astro), which is not this file's code at all.
-// One-wayness has no effect on how this file tests, though: like every arm-reveal-paths test in this
-// repo, this one matches source TEXT, not a running DOM, so it does not need to click through
-// begin() at all — it reads each reveal and its arming call as adjacent lines of source, the same
-// way for a one-way transition as for a repeatable one.
-//
-// ponytail: matched on source text, not on a parsed AST. Two stated ceilings, same as the other ten:
-// (1) an inline reveal is recorded under its whole receiver expression, so a receiver renamed later
-//     still surfaces as unexpected and still fails — it does not slip through, it just reads worse;
-// (2) this proves the CALL SITE exists next to the reveal, never that the 400ms window really
-//     disables anything in a browser — the runtime arm question is deliberately unmeasured
-//     (owner ruling on issue #232), and this test claims nothing about it.
+// The source-text cases keep the two stated ceilings of the other routes' tests: (1) matched on
+// text, not an AST; (2) a call site next to a reveal, never proof of a browser-level 400ms. The
+// driven cases are not text: they run the screen and read the gate's effect on real nodes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { revealPathCases } from '../_player-screen/screen-harness.mjs';
 
-// No compiled main.js exists for this route (unlike freeze-tap/cannon-flag, timebomb ships main.ts
-// straight from src/play — see astro.config for the play-route build). Reading the .ts source is
-// fine here: the regexes below match plain text, not parsed JS, so TypeScript syntax is inert to them.
 const MAIN = path.join(import.meta.dirname, 'main.ts');
-// Whole-line comments are dropped: main.ts documents its own reveal seams in prose (see above), and
-// a checker cannot tell use from mention. Only full-line comments go — a trailing `//` inside a
-// string would take real code with it, and nothing here needs that.
+const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
+// Whole-line comments are dropped: main.ts documents its own reveal seams in prose, and a checker
+// cannot tell use from mention.
 const source = fs
   .readFileSync(MAIN, 'utf8')
   .split('\n')
   .filter((line) => !line.trimStart().startsWith('//'))
   .join('\n');
 
-// The two ways this file makes something visible: unhiding an element, and putting a <dialog> in the
-// top layer. main.ts has no classList('active') toggle and no style.display write of its own.
-// `.hidden = true` (a HIDE) does not match; only the reveal direction does. showModal() is matched
-// rather than `.open = true` because a modal is the only dialog shape on this route — a non-modal
-// `.open` write would surface as an unexpected receiver and fail, which is the intended outcome.
+// The ways this file makes something visible: unhiding an element, or a modal dialog.
 const REVEAL_RE = /([\w.'"()\-]+?)\.(?:hidden\s*=\s*false|showModal\(\))/g;
 
 // receiver -> why it is or is not armed here. Every entry is a decision, not an observation.
 const EXPECTED = new Map([
   [
     'stageEl',
-    'begin(): the one screen-swap this file performs. Deliberately NOT armed by main.ts — the ' +
-      'engine it mounts into stageEl (src/games/timebomb.ts) arms the whole stage itself at mount ' +
-      'time via armAllButtons(stage), covered by src/games/timebomb.test.mjs. Arming it again here ' +
-      'would be a second, driftable copy of that gate, not a fix for a gap.',
-  ],
-  [
-    'resetDialogEl',
-    'gh#177 reset confirm: two buttons revealed in the top layer directly over the trigger that was ' +
-      'just pressed, which is the sharpest ghost-tap shape there is. ARMED, immediately after ' +
-      'showModal() — asserted by name below rather than left to this set, because the confirm is ' +
-      'destructive (it replaces every typed name) and a silent loss of its gate must be loud.',
+    'begin(): the stage the engine mounts into. Deliberately NOT armed by main.ts — the engine arms ' +
+      'the whole stage itself at mount time via armAllButtons(stage). Arming it again here would be ' +
+      'a second, driftable copy of that gate, not a fix for a gap.',
   ],
 ]);
-
-// Reveals whose arming call must name the receiver in this file's own source. Kept as a set so a
-// second dialog added later has somewhere to be recorded.
-const MUST_BE_ARMED = new Set(['resetDialogEl']);
 
 test('every reveal receiver in timebomb/main.ts is a known one', () => {
   const found = [...source.matchAll(REVEAL_RE)].map((m) => m[1]);
@@ -89,159 +55,57 @@ test('every reveal receiver in timebomb/main.ts is a known one', () => {
     unknown,
     [],
     `new reveal path(s) ${unknown.join(', ')}: decide whether each one puts a <button> under the ` +
-      'finger, arm the revealed element if it does, and add it to EXPECTED with the reason. The ' +
-      'arm-gate CI check will not tell you — it is already green.',
+      'finger, arm the revealed element if it does, and add it to EXPECTED with the reason.',
   );
   const stale = [...EXPECTED.keys()].filter((r) => !found.includes(r)).sort();
   assert.deepEqual(stale, [], `EXPECTED names reveal receivers that no longer exist: ${stale.join(', ')}`);
 });
 
-// stageEl is the one JS-written reveal in this file and it is deliberately unarmed here — pin the
-// absence, the same way EXPECTED records the decision above. A stray armAllButtons(stageEl call
-// would be a silent SECOND gate racing the engine's own.
 test('the play stage is not armed a second time by this file', () => {
   assert.doesNotMatch(
     source,
     /armAllButtons\(\s*stageEl\b/,
-    'stageEl now has its own armAllButtons call — the engine already arms the whole stage at mount ' +
-      '(the `armAllButtons(stage)` call in `games/timebomb.ts`); update the EXPECTED entry above ' +
-      'instead of double-arming it here.',
+    'stageEl now has its own armAllButtons call — the engine already arms the whole stage at mount.',
   );
 });
 
-// #tb-setup ships visible in markup.html (no `hidden` attribute), so it is never caught by
-// REVEAL_RE — there is no JS write that reveals it. It still needs arming: a double-tap aimed at
-// the game card that navigated here must not land on #tb-begin on arrival. That is the "first paint
-// is a transition too" case the other ten routes' tests also pin.
-// Anchored to the `if (setupEl && beginEl)` block rather than to a bare armAllButtons(setupEl match:
-// since gh#177 there are TWO such calls, and the other one is inside the reset confirm's handler. A
-// bare match would go green on the handler alone, i.e. it would stop seeing the case it is named for.
-test('the setup screen is armed at first paint, not just at a reveal', () => {
-  assert.match(
-    source,
-    /if \(setupEl && beginEl\) \{[\s\S]*?armAllButtons\(setupEl/,
-    'setupEl is visible from load with no reveal write of its own, so it needs an unconditional ' +
-      'armAllButtons call — the ghost-tap-on-arrival case main.ts documents just above this call.',
-  );
+// gh#264: the player screen is mounted into #tb-setup and nowhere else, and it is #tb-setup's ONLY
+// arming owner now -- a second arm of #tb-setup here would be a racing duplicate of the screen's own.
+test('the shared player screen is mounted into #tb-setup, which sits inside the #app it arms', () => {
+  assert.match(source, /const setupEl = document\.getElementById\('tb-setup'\)/);
+  assert.match(source, /mountPlayerScreen\(\{\s*root: setupEl,/);
+  assert.doesNotMatch(source, /armAllButtons\(\s*setupEl\b/, 'main.ts arms #tb-setup itself again');
+  assert.ok(MARKUP.indexOf('id="app"') < MARKUP.indexOf('id="tb-setup"'), '#tb-setup must sit inside #app');
 });
 
-test('each armed reveal receiver has an arming call naming it', () => {
-  for (const receiver of MUST_BE_ARMED) {
-    assert.match(
-      source,
-      new RegExp(`armAllButtons\\(\\s*${receiver}\\b`),
-      `${receiver} is revealed with no armAllButtons call naming it — the controls it reveals land ` +
-        'under the finger that revealed them.',
-    );
-  }
+// ADR-0071 ruling 6 needs the round to be put away when it is ended AND when the screen opens over a
+// finished one. Both go through putAwayRound, which is the only code that re-hides the stage.
+test('the stage is put away only through putAwayRound, wired to both abortRound and onOpen', () => {
+  assert.match(source, /abortRound: putAwayRound,/);
+  assert.match(source, /onOpen: putAwayRound,/);
+  const hides = [...source.matchAll(/stageEl\.hidden\s*=\s*true/g)];
+  assert.equal(hides.length, 1, 'one place re-hides the stage');
+  const at = source.indexOf('function putAwayRound');
+  assert.ok(at > -1 && hides[0].index > at && hides[0].index < source.indexOf('\n}', at), 'and it is putAwayRound');
 });
 
-// gh#177. Accepting the confirm closes the dialog, which puts the ENTIRE setup screen back under a
-// finger still resting on the confirm's coordinates, and the gate installed at first paint fired and
-// removed itself long ago. #tb-begin is right there: a ghost tap on it starts the round. This is the
-// same failure adversarial review found in the short-stick original (gh#174), where the second
-// contact landed on a rebuilt remove button and deleted a player.
-//
-// gh#188 box 23: that arm is the CLOSER's, and only the closer's. Since ADR-0057 every branch out of
-// the dialog routes through closeResetDialog, so the confirm's own copy was a second gate over the
-// same controls -- equivalent in effect (armAfterQuiet snapshots the caller's own disabled controls
-// at construction, so neither call clobbers page-owned state) and a lie about where the
-// responsibility lives. Both halves are pinned below: red if the handler stops routing through the
-// closer (the path would have NO arm), and red if the handler arms #tb-setup itself on top of it
-// (both calls restored). A test asserting only the first would pass with one call or two and would
-// measure nothing about this box.
-test('accepting the reset confirm re-arms the setup screen exactly once, via the shared closer', () => {
-  const handler = source.match(
-    /resetConfirmEl\.addEventListener\('click',[\s\S]*?\n {2}\}\);/,
-  );
-  assert.ok(handler, 'the reset confirm handler is no longer recognisable — this test measures nothing');
-  assert.match(
-    handler[0],
-    /closeResetDialog\(\)/,
-    'the confirm handler no longer routes through closeResetDialog, so nothing re-arms #tb-setup: ' +
-      'the second contact of a double-tap on the confirm lands live on #tb-begin and starts the round.',
-  );
-  assert.doesNotMatch(
-    handler[0],
-    /armAllButtons\(/,
-    'the confirm handler arms #tb-setup on top of closeResetDialog’s call — two gates over the same ' +
-      'controls, which is the double-arm gh#188 box 23 removed. Delete the call here; the closer ' +
-      'arms every branch out of the dialog, cancel and confirm alike.',
-  );
+// A live round is the fuse burning, not the result screen after the bang.
+test('roundActive reads the burning fuse, not merely a visible stage', () => {
+  const at = source.indexOf('function roundActive');
+  assert.ok(at > -1, 'roundActive is gone — this test measures nothing');
+  assert.match(source.slice(at, source.indexOf('\n}', at)), /querySelector\('#tb-fuse'\)/);
 });
 
-// gh#187, owner ruling 2026-09-01: the CANCEL branch is the same reveal. It rebuilds nothing, which
-// is precisely why it went unnoticed -- the confirm test above stays green while cancel dismisses
-// the dialog over a live #tb-begin. Pinned on the shared closer both branches now route through.
-test('cancelling the reset confirm re-arms the setup screen it uncovers', () => {
-  const at = source.indexOf('const closeResetDialog');
-  assert.ok(at > -1, 'closeResetDialog is gone — this test measures nothing');
-  const body = source.slice(at, source.indexOf('};', at));
-  assert.match(
-    body,
-    /if \(setupEl\) armAllButtons\(setupEl, steppers\(\)\);/,
-    'closeResetDialog no longer re-arms #tb-setup: a double-tap on cancel puts the second contact ' +
-      'on #tb-begin and starts the round with the phone still in one player’s hand',
-  );
-  assert.match(
-    source,
-    /resetCancelEl\.addEventListener\('click', closeResetDialog\)/,
-    'the cancel button no longer routes through closeResetDialog, so nothing re-arms #tb-setup',
-  );
-});
-
-// The scout's claim that begin() is one-way, re-checked here rather than trusted: no control in
-// this file's source sets #tb-setup's `.hidden` back to false or #tb-stage's back to true.
-test('begin() really is one-way — no control reverses the screen swap', () => {
-  assert.doesNotMatch(source, /setupEl\.hidden\s*=\s*false/, 'a control now un-hides #tb-setup');
-  assert.doesNotMatch(source, /stageEl\.hidden\s*=\s*true/, 'a control now re-hides #tb-stage');
-});
-
-// gh#165. The sound toggle is the third control on this route and the first one that lives OUTSIDE
-// both #tb-setup and #tb-stage — it sits in the page header so it survives begin(), which is the
-// whole point of it (a player mutes mid-round, with the phone already going round). That placement
-// puts it outside every arming call this file had: armAllButtons(setupEl) walks #tb-setup's
-// descendants and the header is not one of them.
-//
-// Two reveals reach it, and they are the same two ADR-0017 and ADR-0057 name:
-//   1. FIRST PAINT. The header is visible from load with no reveal write of its own, so the
-//      double-tap aimed at the game card that navigated here can land its second contact on the
-//      toggle. Same case as #tb-setup, different receiver.
-//   2. THE RESET DIALOG CLOSING. A modal <dialog> covers the viewport, header included; dismissing
-//      it uncovers the toggle whose arm window expired at load. ADR-0057: the close IS the reveal.
-//      Muting is not destructive, but "the gate is only for destructive controls" is not the rule
-//      and is exactly how the cancel branch went unnoticed in gh#187.
-// The block is SLICED before matching, and that is the whole point of this test rather than a
-// style choice. Matching `/if \(muteEl && topEl\) \{[\s\S]*?armAllButtons\(topEl/` over the whole
-// source reads as a pin on this block and is not one: `[\s\S]*?` is lazy but unbounded, so with the
-// arm deleted from THIS block the span simply runs 4033 chars forward and matches the call inside
-// closeResetDialog instead. Measured — the mutant that removes `armAllButtons(topEl);` from the
-// block below left that regex green. So the first-paint arm would have been pinned by nothing while
-// the close-path line existed, which is the ungated-reveal-behind-a-green class the per-route test
-// exists to close. Slice first, match second, exactly as the closeResetDialog test below does.
+// gh#165: the sound toggle sits in the page header with no reveal write of its own, so it needs an
+// unconditional arm at first paint. Sliced first, matched second: a lazy unbounded match over the
+// whole source would find some other armAllButtons(topEl) and stay green with this one deleted.
 test('gh#165: the sound toggle is armed at first paint, not just at a reveal', () => {
   const at = source.indexOf('if (muteEl && topEl) {');
   assert.ok(at > -1, 'the first-paint arm block is gone — this test measures nothing');
   const end = source.indexOf('\n}', at);
   assert.ok(end > at, 'the first-paint arm block has no top-level close — this test measures nothing');
-  const block = source.slice(at, end);
-  assert.match(
-    block,
-    /armAllButtons\(topEl\)/,
-    'the sound toggle sits in the page header with no reveal write of its own, so it needs an ' +
-      'unconditional armAllButtons call over its own region — armAllButtons(setupEl) does not ' +
-      'reach it, the header is not inside #tb-setup.',
-  );
+  assert.match(source.slice(at, end), /armAllButtons\(topEl\)/);
 });
 
-test('gh#165: closing the reset confirm re-arms the header the dialog covered', () => {
-  const at = source.indexOf('const closeResetDialog');
-  assert.ok(at > -1, 'closeResetDialog is gone — this test measures nothing');
-  const body = source.slice(at, source.indexOf('};', at));
-  assert.match(
-    body,
-    /if \(topEl\) armAllButtons\(topEl\);/,
-    'closeResetDialog re-arms #tb-setup but not the header: a double-tap on cancel or confirm puts ' +
-      'the second contact on the sound toggle, whose own arm window expired at page load.',
-  );
-});
+// The shared screen's reveal paths, driven over THIS route's markup and read off THIS route's header.
+revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'tb-setup', headerId: 'tb-mute', label: 'timebomb' });

@@ -57,7 +57,9 @@ const routeCode = (id) => {
   const dir = path.join(PLAY_DIR, id);
   if (!existsSync(dir)) return null;
   return readdirSync(dir)
-    .filter((f) => f.endsWith('.ts') && !f.endsWith('.test.ts'))
+    // main.js too since gh#264: cursed-number's controller is its lifted main.js, which mounts the
+    // shared player screen now that its roster-bridge.ts is gone.
+    .filter((f) => (f.endsWith('.ts') || f === 'main.js') && !f.endsWith('.test.ts'))
     .map((f) => codeOf(path.join(dir, f)))
     .join('\n');
 };
@@ -169,9 +171,12 @@ test('one arm gate drives BOTH controls — a second control cannot arm on its o
   assert.match(src, /controls\.push\(\s*\{\s*el:\s*editBtn/);
 });
 
+// gh#264 / ADR-0071: the edit control now has TWO answers, chosen at tap time. A route that mounted
+// the shared player screen edits in place; every other route keeps the reload through the shared
+// bridge. Pinned on source here, and driven for real by the execution test below.
 test('the edit control re-enters the mockup setup through the shared bridge, never a second setup UI', () => {
   assert.match(src, /import\s*\{[^}]*requestSetupEdit[^}]*\}\s*from\s*['"][^'"]*_setup-bridge/);
-  assert.match(src, /run:\s*requestSetupEdit/);
+  assert.match(src, /if \(sharedScreen\(\)\) document\.dispatchEvent\(new CustomEvent\('watduang:edit-players'\)\);\s*else requestSetupEdit\(\);/);
 });
 
 test('every route that mounts the edit control has a controller to answer it', () => {
@@ -248,4 +253,111 @@ test('every play route mounts the shared PlayExit', () => {
     const page = readFileSync(path.join(PAGES_DIR, id, 'play.astro'), 'utf8');
     assert.match(page, /PlayExit/, `${id} play route is missing PlayExit`);
   }
+});
+
+// ---- gh#264: the edit control's two answers, EXECUTED -------------------------------------------
+//
+// The component's script is run for real over a small fake page: its TypeScript stripped, its three
+// imports stubbed, its listeners driven by dispatching pointer events at the document. One run per
+// branch. What it proves: an unconverted route (no attribute on <html>) still reloads through the
+// bridge and latches `leaving`; a converted route (the attribute set by the shared screen) sends the
+// edit request instead, does NOT reload, and re-gates the controls rather than latching.
+import { stripTypeScriptTypes } from 'node:module';
+
+function runPlayExit({ sharedScreen, rosterNames = ['เอ', 'บี'] }) {
+  const script = src.slice(src.indexOf('<script>') + '<script>'.length, src.indexOf('</script>'));
+  const timers = [];
+  const docListeners = {};
+  const events = [];
+  const html = { attrs: new Map(sharedScreen ? [['data-player-screen', sharedScreen]] : []) };
+  html.getAttribute = (n) => (html.attrs.has(n) ? html.attrs.get(n) : null);
+  const button = (id) => ({
+    id, disabled: true, hidden: id === 'play-edit-players', listeners: {},
+    addEventListener(type, fn) { (this.listeners[type] ??= []).push(fn); },
+    contains(node) { return node === this; },
+    getBoundingClientRect: () => ({ left: 0, right: 44, top: 0, bottom: 44 }),
+  });
+  const exit = button('play-exit');
+  const edit = button('play-edit-players');
+  const calls = { reload: 0, navigated: null };
+  const document = {
+    documentElement: html,
+    getElementById: (id) => ({ 'play-exit': exit, 'play-edit-players': edit }[id] ?? null),
+    addEventListener: (type, fn) => { (docListeners[type] ??= []).push(fn); },
+    dispatchEvent: (ev) => { events.push(ev.type); for (const fn of docListeners[ev.type] ?? []) fn(ev); return true; },
+  };
+  const window = {
+    addEventListener() {},
+    location: { set href(v) { calls.navigated = v; } },
+  };
+  class CustomEvent { constructor(type, init) { this.type = type; this.detail = init?.detail; } }
+  const modules = {
+    '../games/_arm-gate': {
+      ARM_DELAY_MS: 400,
+      inputClockGate: () => ({ hold() {}, anchor() {}, isOpen: () => true }),
+    },
+    './roster': { loadRoster: () => ({ names: () => rosterNames }) },
+    '../play/_setup-bridge': { requestSetupEdit: () => { calls.reload += 1; } },
+  };
+  const js = stripTypeScriptTypes(script, { mode: 'strip' })
+    .replace(/^\s*import\s*\{([^}]*)\}\s*from\s*'([^']+)';/gm, (_m, names, spec) => `const {${names}} = __mod(${JSON.stringify(spec)});`);
+  new Function('__mod', 'document', 'window', 'CustomEvent', 'setTimeout', 'clearTimeout', 'Node', js)(
+    (spec) => { if (!(spec in modules)) throw new Error(`unstubbed import ${spec}`); return modules[spec]; },
+    document, window, CustomEvent,
+    (fn) => { timers.push(fn); return timers.length; }, () => {}, Object,
+  );
+  const flush = () => { while (timers.length) timers.shift()(); };
+  const fire = (type, target) => {
+    for (const fn of docListeners[type] ?? []) fn({ type, target, timeStamp: 1e6, clientX: 10, clientY: 10 });
+  };
+  const tap = (el) => { fire('pointerdown', el); fire('pointerup', el); };
+  return { exit, edit, calls, events, flush, tap, document };
+}
+
+test('gh#264: an UNCONVERTED route keeps the reload path exactly -- shown on a saved group, reloads, latches', () => {
+  const page = runPlayExit({ sharedScreen: null });
+  assert.equal(page.edit.hidden, false, 'two saved names show the control, as before');
+  page.flush();
+  assert.equal(page.edit.disabled, false, 'armed after the quiet window');
+  page.tap(page.edit);
+  assert.equal(page.calls.reload, 1, 'the reload path ran');
+  assert.deepEqual(page.events, [], 'no in-place request was sent');
+  page.flush();
+  page.tap(page.exit);
+  assert.equal(page.calls.navigated, null, 'the one-way latch holds after a reload request, as before');
+});
+
+test('gh#264: an unconverted route with under two names keeps the control hidden, as before', () => {
+  const page = runPlayExit({ sharedScreen: null, rosterNames: ['เอ'] });
+  assert.equal(page.edit.hidden, true);
+});
+
+test('gh#264: a CONVERTED route edits in place -- the request goes to the screen, nothing reloads, the gate re-arms', () => {
+  const page = runPlayExit({ sharedScreen: 'closed', rosterNames: [] });
+  assert.equal(page.edit.hidden, false, 'shown while the shared screen is closed, saved names or not');
+  page.flush();
+  page.tap(page.edit);
+  assert.deepEqual(page.events, ['watduang:edit-players'], 'the in-place request was sent once');
+  assert.equal(page.calls.reload, 0, 'and the page did not reload');
+  assert.equal(page.edit.disabled, true, 'the controls are re-gated over what just appeared');
+  page.flush();
+  page.tap(page.exit);
+  assert.equal(page.calls.navigated, '/', 'no one-way latch was left behind: the X still leaves');
+});
+
+test('gh#264: on a converted route the control follows the screen -- hidden while it is open', () => {
+  const page = runPlayExit({ sharedScreen: 'open' });
+  assert.equal(page.edit.hidden, true, 'open on load: the control would offer what is on screen');
+  page.document.documentElement.attrs.set('data-player-screen', 'closed');
+  page.document.dispatchEvent({ type: 'watduang:player-screen', detail: { open: false } });
+  assert.equal(page.edit.hidden, false, 'shown once the screen closes');
+});
+
+// The names are spelled in the component (it imports nothing of the screen's, on purpose); they must
+// stay the names the screen actually uses.
+test('gh#264: the component spells the shared screen\'s attribute and event names exactly', async () => {
+  const ps = await import('../play/_player-screen/player-screen.ts');
+  assert.ok(src.includes(`'${ps.SCREEN_ATTR}'`), 'SCREEN_ATTR drifted');
+  assert.ok(src.includes(`'${ps.EDIT_EVENT}'`), 'EDIT_EVENT drifted');
+  assert.ok(src.includes(`'${ps.STATE_EVENT}'`), 'STATE_EVENT drifted');
 });

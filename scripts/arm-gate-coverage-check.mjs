@@ -267,9 +267,19 @@ function findVacuousExceptions(dir, ungated = UNGATED_EXCEPTIONS, exceptArg = EX
  *  never scan — the exact shape of the hole gh#170 opened this ticket for. */
 function reconcilePlayRoutes(declared, onDisk) {
   return {
-    undeclared: onDisk.filter((id) => !declared.includes(id)),
+    undeclared: onDisk.filter((id) => !declared.includes(id) && !isSharedPlayDir(id)),
     missingDir: declared.filter((id) => !onDisk.includes(id)),
   };
+}
+
+/** gh#264 / ADR-0071: an underscore directory under src/play/ is SHARED play-surface code that
+ *  several routes mount (src/play/_player-screen/ is the first), not a route of its own -- the same
+ *  underscore rule the files directly under src/play/ already follow. It is never declared by a
+ *  manifest, so reconciliation must not demand that; and it renders buttons onto converted routes,
+ *  so it is SCANNED like a route rather than skipped. Exempt from the declaration, never from the
+ *  check. */
+function isSharedPlayDir(id) {
+  return id.startsWith('_');
 }
 
 /** One route -> its violations. `read` is injectable so the selftest can drive this from strings.
@@ -1284,6 +1294,9 @@ function selftest() {
   assert.deepEqual(reconcilePlayRoutes(['a', 'b'], ['a', 'b']), { undeclared: [], missingDir: [] }, 'matching sets must reconcile clean');
   assert.deepEqual(reconcilePlayRoutes(['a'], ['a', 'b']), { undeclared: ['b'], missingDir: [] }, 'a directory with no manifest declaration must be reported — it would never be scanned');
   assert.deepEqual(reconcilePlayRoutes(['a', 'c'], ['a']), { undeclared: [], missingDir: ['c'] }, 'a declared route with no directory must be reported — the derivation is stale');
+  // gh#264: a shared underscore directory needs no declaration, and a non-underscore one still does.
+  assert.deepEqual(reconcilePlayRoutes(['a'], ['_shared', 'a']), { undeclared: [], missingDir: [] }, 'a shared underscore directory must not be demanded of the manifest');
+  assert.deepEqual(reconcilePlayRoutes(['a'], ['shared', 'a']), { undeclared: ['shared'], missingDir: [] }, 'the underscore is the whole exemption — without it an undeclared directory still reds');
   console.log('PASS play route, manifest reconciliation: an undeclared directory and a declared-but-absent route are each reported, and matching sets reconcile clean');
 
   // The real derivation must resolve a non-empty route set, or every case above is calibrating a
@@ -1401,7 +1414,8 @@ async function main() {
 
   let playFail = false;
   let playFileCount = 0;
-  for (const id of declared) {
+  // Declared routes plus every shared underscore directory on disk: scanned, never skipped.
+  for (const id of [...declared, ...onDisk.filter((id) => isSharedPlayDir(id) && !declared.includes(id))]) {
     const route = checkPlayRoute(playDir, id);
     playFileCount += route.files.length;
     for (const v of route.violations) {
@@ -1460,7 +1474,7 @@ async function main() {
   // not point at an instrument that is not running or does not exist (docs/adr/0019).
   console.log(
     `arm-gate-coverage-check: ${scannedCount} module(s) in ${gamesDir} clean${overrideNote}` +
-    ` · ${declared.length} play route(s), ${playFileCount} file(s), under ${playDir} each syntactically import and call armAllButtons${playOverrideNote}` +
+    ` · ${declared.length} play route(s) + ${onDisk.filter(isSharedPlayDir).length} shared play dir(s), ${playFileCount} file(s), under ${playDir} each syntactically import and call armAllButtons${playOverrideNote}` +
     ` · recorded exceptions: ${UNGATED_EXCEPTIONS.size} ungated (${[...UNGATED_EXCEPTIONS].join(', ')}),` +
     ` ${EXCEPT_ARG_EXCEPTIONS.size} pinned except-arg` +
     ' · NOT covered here: this source scan detects only a syntactic import and call — it cannot prove the' +

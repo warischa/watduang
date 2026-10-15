@@ -145,6 +145,11 @@ const BASELINE_BASENAMES = [
   // (short-stick, wire-snip-panic, zero-trigger), so Rollup emits it as its own chunk rather than
   // inlining it into any one of them.
   '_strip-overflow.js',
+  // gh#264 / ADR-0071 — the shared player screen. Two play routes import it in the pilot (timebomb,
+  // cursed-number), so Rollup emits it as its own chunk rather than inlining it into either; the
+  // fan-out adds importers, not chunks. SET leg only: the TOTAL leg is left pinned, because a local
+  // build of the pilot tree measured 1,110,821 B, +0.52% against the pin, inside the band.
+  'player-screen.js',
   // gh#205, eighth port: the route's own chunk. The TOTAL leg WAS left pinned at the ONE-BOMB
   // tree's number -- not, as an earlier draft of this line said, at the pre-route number, which is
   // a different and larger figure for the reason the re-baseline note by the constant now gives.

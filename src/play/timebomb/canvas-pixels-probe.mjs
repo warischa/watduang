@@ -104,7 +104,8 @@ await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, devi
 await sleep(900);
 
 const out = { url, reducedRequested: reduced };
-out.begin = (await evaluate(CLICK_WHEN_ARMED('#tb-begin'))).value;
+// gh#264: the start button is the shared player screen's now (ADR-0071), mounted into #tb-setup.
+out.begin = (await evaluate(CLICK_WHEN_ARMED('#tb-setup [data-ps=start]'))).value;
 await sleep(700);
 out.start = (await evaluate(CLICK_WHEN_ARMED('#tb-start'))).value;
 // Fixed settle, calibrated to this machine, not a poll -- see the longer note on the boom settle

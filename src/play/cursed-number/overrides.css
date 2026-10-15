@@ -33,6 +33,25 @@
   --mascot-18: #57606F;
   --mascot-19: #70A1FF;
   --mascot-20: #2ED573;
+
+  /* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the
+     mockup's own palette (style.css's :root tokens). Two have no token to point at there, so they
+     carry the mockup's own literal: the modal card's opaque ground (the dialogs render in the top
+     layer, over no page to blend with) and the text its own primary button sets on the purple. */
+  --ps-panel: var(--surface-card);
+  --ps-panel-solid: #150e26;
+  --ps-edge: var(--surface-card-border);
+  --ps-ink: var(--text-main);
+  --ps-muted: var(--text-muted);
+  --ps-accent: var(--primary);
+  --ps-on-accent: #fff;
+}
+
+/* The player screen's root sits in .app-wrapper beside the .screen sections; the board's page
+   padding around the screen column. */
+.cn-players {
+  box-sizing: border-box;
+  padding: 20px 0 24px;
 }
 
 /* Tap target. `.icon-btn` is declared 38x38 in the mockup stylesheet, six pixels under the 44px floor
@@ -70,17 +89,15 @@
   max-width: min(520px, calc(100% - 20px));
 }
 
-/* Two horizontal scrollers that hide their own controls on a narrow phone. `.player-count-row` and
-   `.player-strip` are both `overflow-x: auto` in the mockup, which is fine at the desktop width it
-   was drawn at. Measured at a real 320px viewport (Emulation.setDeviceMetricsOverride, 2026-08-30):
-   the count row ran to 437px, putting the `+` stepper entirely off-screen behind a scrollbar this
-   site hides on purpose (`scrollbar-width: none`), and the player strip ran to 394px. `body` already
-   sets `overflow-x: hidden`, so the page never scrolls sideways — the controls were simply
-   unreachable, and a per-element overflow scan reads the rect, not the scroll.
-   Wrapping rather than shrinking: the strip has to hold up to twenty seats (ADR-0054 ruling 5) and
-   the count row nine controls, and no font size makes either fit on one 320px line while keeping the
-   44px tap floor below. Centred, so a part-full last row does not read as a broken grid. */
-.player-count-row,
+/* A horizontal scroller that hides its own content on a narrow phone. `.player-strip` is
+   `overflow-x: auto` in the mockup, which is fine at the desktop width it was drawn at. Measured at
+   a real 320px viewport (Emulation.setDeviceMetricsOverride, 2026-08-30): the strip ran to 394px
+   behind a scrollbar this site hides on purpose (`scrollbar-width: none`). `body` already sets
+   `overflow-x: hidden`, so the page never scrolls sideways — the seats were simply unreachable.
+   Wrapping rather than shrinking: the strip has to hold up to twenty seats (ADR-0054 ruling 5), and
+   no font size makes that fit on one 320px line. Centred, so a part-full last row does not read as a
+   broken grid. (The mockup's count row shared this rule until gh#264 removed the row: the count is
+   the shared player screen's now, ADR-0071.) */
 .player-strip {
   flex-wrap: wrap;
   justify-content: center;
@@ -88,15 +105,10 @@
 }
 
 /* The 44px tap floor, which the rest of this site meets and a desktop mockup had no reason to. Every
-   value below was measured in the same 320px run: the count pills and steppers render 38x38, the
-   step and quick buttons 35 and 31 tall (their `min-width: 44px` covers only one axis), and the
-   mode tabs 30. min-* raises what is too small and leaves everything already larger alone. */
-.count-pill,
-.count-stepper-btn {
-  min-inline-size: 44px;
-  min-block-size: 44px;
-}
-
+   value below was measured in the same 320px run: the step and quick buttons 35 and 31 tall (their
+   `min-width: 44px` covers only one axis), and the mode tabs 30. min-* raises what is too small and
+   leaves everything already larger alone. (The count pills and steppers this rule also raised went
+   with the mockup's setup in gh#264.) */
 .step-btn,
 .tab-btn {
   min-block-size: 44px;
@@ -112,15 +124,6 @@
   block-size: 44px;
   border-block: 16px solid transparent;
   background-clip: padding-box;
-}
-
-/* The pills sit in a nested flex box of their own, declared as a style ATTRIBUTE on the markup
-   (`display:flex; gap:6px`). The attribute wins only on the properties it names, so wrapping is
-   still ours to set — and it has to be set here as well as on the row, or the row wraps around a
-   child that never breaks and the last pill still crosses the viewport. */
-#countPillsContainer {
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 /* The modal close control renders 13x26 — the smallest tap target on the route by some way, and it

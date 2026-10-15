@@ -43,7 +43,6 @@ const BOOTS_ON = {
   // renderRoster() on main.js's last line, so the seat fields exist before the bridge runs.
   'bangkok-drift': { nav: null },
   'cannon-flag': { nav: null },
-  'cursed-number': { nav: null },
   'freeze-tap': { nav: null },
   'pinocchio-luck': { nav: null },
   // Opens on a menu whose #btn-menu-start is what renders the seat fields -- setup is a click away.
@@ -123,7 +122,7 @@ const flagIn = (tab) => (tab.store.has(EDIT_KEY) ? tab.store.get(EDIT_KEY) : nul
 /** The shared seam both loaders run against: the REAL _setup-bridge.ts, so takeSetupEditRequest's
  *  read-and-clear is the one under test and not a re-implementation of it. */
 const makeSeam = (globals) => evaluateModule(path.join(here, '_setup-bridge.ts'), (spec) => {
-  if (spec.endsWith('shell/roster')) return { loadRoster: () => ({ names: () => ['เอ'], add: async () => {} }), saveGroup: () => {} };
+  if (/shell\/roster(\.ts)?$/.test(spec)) return { loadRoster: () => ({ names: () => ['เอ'], add: async () => {} }), saveGroup: () => {} };
   if (spec.endsWith('name-list.ts')) return { hasVisibleChar: (s) => s.trim().length > 0 };
   throw new Error(`unstubbed import in _setup-bridge.ts: ${spec}`);
 }, globals);
@@ -232,10 +231,39 @@ function loadMainRoute(route, sessionStorage) {
   return { clicks: [], flag: flagIn(sessionStorage) };
 }
 
+/** gh#264 / ADR-0071: a route that mounts the shared player screen answers the flag from the screen
+ *  itself, which takes it when it mounts. Detected from the route's own main file, never listed. */
+const mainFileOf = (route) => ['main.ts', 'main.js'].map((f) => path.join(here, route, f)).find((f) => fs.existsSync(f));
+const mountsSharedScreen = (route) => {
+  const file = mainFileOf(route);
+  return !!file && /mountPlayerScreen\(\{/.test(fs.readFileSync(file, 'utf8'));
+};
+
+/** Runs the REAL shared screen over the route's REAL markup, in this tab. The root is read off the
+ *  route's own mount call -- `root: <name>` and that name's getElementById -- and a route whose call
+ *  this cannot read fails loudly rather than being skipped. */
+async function loadSharedScreenRoute(route, sessionStorage) {
+  const source = fs.readFileSync(mainFileOf(route), 'utf8');
+  const name = /mountPlayerScreen\(\{\s*root:\s*(\w+)/.exec(source)?.[1];
+  const rootId = name && new RegExp(`const ${name} = document\\.getElementById\\('([\\w-]+)'\\)`).exec(source)?.[1];
+  assert.ok(rootId, `${route}: cannot read which element its player screen mounts into`);
+  const { mountOnPage } = await import('./_player-screen/screen-harness.mjs');
+  globalThis.sessionStorage = sessionStorage;
+  try {
+    await mountOnPage({ routeMarkup: fs.readFileSync(path.join(here, route, 'markup.html'), 'utf8'), rootId });
+  } finally {
+    delete globalThis.sessionStorage;
+  }
+  return { clicks: [], flag: flagIn(sessionStorage) };
+}
+
 /** Loads one route's controller into a tab. Which file that is belongs to the route, not to this
- *  test: nine ports answer from roster-bridge.ts, two from main.ts. */
-const loadRoute = (route, tab) =>
-  (fs.existsSync(path.join(here, route, 'roster-bridge.ts')) ? runBridge : loadMainRoute)(route, tab);
+ *  test: the bridge ports answer from roster-bridge.ts, dice-loser from main.ts, and the routes that
+ *  mount the shared player screen from that screen. */
+const loadRoute = async (route, tab) => {
+  if (mountsSharedScreen(route)) return loadSharedScreenRoute(route, tab);
+  return (fs.existsSync(path.join(here, route, 'roster-bridge.ts')) ? runBridge : loadMainRoute)(route, tab);
+};
 
 const routes = fs
   .readdirSync(here, { withFileTypes: true })
@@ -316,7 +344,7 @@ test('the eleven routes that offer the edit control are derived, not listed', ()
   for (const id of mountingRoutes) {
     assert.ok(partyGames.includes(id), `${id} ships a play route but is not a registered party game`);
     assert.ok(
-      fs.existsSync(path.join(here, id, 'roster-bridge.ts')) || fs.existsSync(path.join(here, id, 'main.ts')),
+      fs.existsSync(path.join(here, id, 'roster-bridge.ts')) || fs.existsSync(path.join(here, id, 'main.ts')) || mountsSharedScreen(id),
       `${id} mounts the edit control but has no controller in src/play/${id}/ to answer it`,
     );
   }
@@ -326,9 +354,9 @@ test('the eleven routes that offer the edit control are derived, not listed', ()
 });
 
 for (const route of mountingRoutes) {
-  test(`${route}: an edit request is CLEARED by loading the route, not just mentioned in its source`, () => {
+  test(`${route}: an edit request is CLEARED by loading the route, not just mentioned in its source`, async () => {
     const tab = makeTab({ [EDIT_KEY]: '1' });
-    loadRoute(route, tab);
+    await loadRoute(route, tab);
     assert.equal(
       tab.store.has(EDIT_KEY) ? tab.store.get(EDIT_KEY) : null,
       null,
@@ -337,18 +365,18 @@ for (const route of mountingRoutes) {
   });
 }
 
-test('after ระเบิดเวลา, no other party game in the same tab sees the edit flag', () => {
+test('after ระเบิดเวลา, no other party game in the same tab sees the edit flag', async () => {
   // The Goal, executed end to end in one tab: the chrome's pill writes the flag, timebomb loads, and
   // then every other route is opened into the SAME store. `reads` is what each of those routes got
   // back from getItem -- an inference from the map would not distinguish "never set" from "cleared
   // after being seen", and only the second is honouring the request.
   const tab = makeTab({ [EDIT_KEY]: '1' });
-  loadRoute('timebomb', tab);
+  await loadRoute('timebomb', tab);
   assert.equal(tab.store.has(EDIT_KEY), false, 'timebomb ate the reload and left the flag behind');
 
   for (const next of mountingRoutes.filter((id) => id !== 'timebomb')) {
     const before = tab.reads.length;
-    loadRoute(next, tab);
+    await loadRoute(next, tab);
     const seen = tab.reads.slice(before);
     assert.ok(seen.length > 0, `${next} never read ${EDIT_KEY} at all -- it cannot be honouring or declining a request it does not look at`);
     assert.deepEqual(

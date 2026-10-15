@@ -197,18 +197,23 @@ const DRIVERS = {
       return saturate(() => handler(), () => env.game.count);
     },
   },
+  // gh#264 / ADR-0071: the route's own stepper is gone -- the count is the shared player screen's,
+  // whose clamp is proved once by sharedScreenAudit below. What is still this route's is the ENGINE
+  // the players are seated into, so that is what is run: the real CursedNumberGameModel, imported,
+  // asked to seat an absurd count. The route must still seat into that model, or the measurement is
+  // of a class the route no longer uses -- that is checked on the route's own source first.
   'cursed-number': {
-    what: 'the setup stepper increments only while the engine count is under its ceiling',
-    run: (source) => {
-      const compiled = compileListener(source, "document.getElementById('countPlusBtn').addEventListener('click', () =>");
-      if (compiled.error) return compiled;
-      const receiver = tolerantReceiver({
-        game: { playerCount: 2 },
-        setPlayerCount(next) { this.game.playerCount = next; },
-      });
-      const handler = compiled.make({}, receiver);
-      if (typeof handler !== 'function') return { error: 'the stepper registered no click handler' };
-      return saturate(() => handler(), () => receiver.game.playerCount);
+    what: 'the engine model the route seats its players into clamps the count (CursedNumberGameModel.setPlayerCount, imported and run)',
+    engineModule: 'src/games/cursed-number.ts',
+    run: (source, engineModule) => {
+      if (!/new CursedNumberGameModel\(/.test(source) || !/\.setPlayerCount\(/.test(source)) {
+        return { error: 'the route no longer seats its players through CursedNumberGameModel.setPlayerCount' };
+      }
+      const Model = engineModule?.CursedNumberGameModel;
+      if (typeof Model !== 'function') return { error: 'src/games/cursed-number.ts no longer exports CursedNumberGameModel' };
+      const model = new Model([]);
+      model.setPlayerCount(PROBE_COUNT);
+      return { cap: model.playerCount };
     },
   },
   'zero-trigger': {
@@ -259,7 +264,10 @@ function textCap(found) {
 // These cannot disagree with the declaration because they compute from it. The check is structural:
 // the route's own module must still read the maximum out of the manifest.
 const DERIVED_FROM_MANIFEST = new Set(['dice-loser', 'timebomb']);
-const DERIVATION = /=\s*(?:Math\.min\(\s*)?game\.players\[1\]/;
+// Two shapes: the maximum read out (`= game.players[1]`, dice-loser), or the whole declared tuple
+// handed to the shared player screen (`range: game.players`, timebomb since gh#264) -- whose clamp
+// sharedScreenAudit below then runs against that same tuple.
+const DERIVATION = /(?:=|range:)\s*(?:Math\.min\(\s*)?game\.players(?:\[1\]|(?![\w[]))/;
 
 // --- The audit ----------------------------------------------------------------------------------
 
@@ -301,7 +309,7 @@ export function auditGame({ id, declaredMax, routeId, engine, driver }) {
   let fromExecution = null;
 
   if (driver) {
-    const result = driver.run(engine.source);
+    const result = driver.run(engine.source, engine.module);
     if (result.error) {
       say(`${routeId}: the seat surface could not be driven — ${result.error}. This gate is measuring nothing for this route until its locator is re-pointed (${driver.what})`);
     } else if (!Number.isInteger(result.cap) || result.cap < 2) {
@@ -330,8 +338,45 @@ export function auditGame({ id, declaredMax, routeId, engine, driver }) {
   return { id, klass: fromExecution !== null ? 'measured' : 'located', cap, failures };
 }
 
+// --- The shared player screen (gh#264, ADR-0071) ------------------------------------------------
+// A converted route has no count control of its own: the shared screen's stepper and its clamp
+// admit the players, and they read the range the route hands over. So for every route that mounts
+// it, two facts are proved, and either failing is RED:
+//   STRUCTURAL -- the mount call's `range:` is `<x>.players`, where <x> is the route's DEFAULT import
+//     of its own game module (the object the manifest registers). A literal range, or a players
+//     field from any other module, is a second statement of the range and reds.
+//   EXECUTED -- the real clampCount, imported from the shared screen, asked for an absurd count
+//     against that game's declared tuple, returns the declared maximum; and the declared maximum
+//     sits under the shared ROSTER_CEILING (ADR-0071 ruling 7: above it reds the build).
+// The ENGINE's own seat limit is still the per-route audit above; this adds the admission side.
+const MOUNT = /mountPlayerScreen\(\{/;
+
+export function sharedScreenAudit({ id, routeId, source, declared, screen }) {
+  const failures = [];
+  const say = (detail) => failures.push({ id, detail });
+  const fed = /mountPlayerScreen\(\{[\s\S]*?range:\s*([A-Za-z_$][\w$]*)\.players\b(?!\s*\[)/.exec(source);
+  const importer = new RegExp(`import\\s+([A-Za-z_$][\\w$]*)\\s*(?:,\\s*\\{[^}]*\\})?\\s*from\\s*['"]\\.\\./\\.\\./games/${routeId}(?:\\.ts)?['"]`).exec(source);
+  if (!fed || !importer || fed[1] !== importer[1]) {
+    say(`${routeId} mounts the shared player screen but does not hand it its own manifest range (\`range: <its default game import>.players\`) — the screen would admit a range nothing checks`);
+  }
+  let clamped;
+  try {
+    clamped = screen.clampCount(PROBE_COUNT, declared);
+  } catch (error) {
+    clamped = `nothing (it refused the range: ${error.message})`;
+  }
+  if (clamped !== declared[1]) {
+    say(`${routeId}: the shared screen's clamp admits ${clamped} against a declared maximum of ${declared[1]}`);
+  }
+  if (declared[1] > screen.ROSTER_CEILING) {
+    say(`${id} declares a maximum of ${declared[1]}, above the shared roster ceiling of ${screen.ROSTER_CEILING} (ADR-0071 ruling 7)`);
+  }
+  return failures;
+}
+
 async function audit() {
   const { games } = await import(pathToFileURL(path.join(root, 'src/games/manifest.ts')).href);
+  const screen = await import(pathToFileURL(path.join(root, 'src/play/_player-screen/player-screen.ts')).href);
   if (!Array.isArray(games) || games.length === 0) {
     console.error('seat-cap-check: src/games/manifest.ts exported no games — an empty work set is a failure, not a pass');
     process.exit(1);
@@ -343,18 +388,23 @@ async function audit() {
   }
 
   const results = [];
+  const sharedFailures = [];
+  let sharedCount = 0;
   for (const game of party) {
     const routeId = routeIdFor(game);
-    results.push(auditGame({
-      id: game.id,
-      declaredMax: game.players[1],
-      routeId,
-      engine: routeId ? engineFileFor(routeId) : null,
-      driver: routeId ? DRIVERS[routeId] : null,
-    }));
+    const engine = routeId ? engineFileFor(routeId) : null;
+    const driver = routeId ? DRIVERS[routeId] : null;
+    if (engine && driver?.engineModule) {
+      engine.module = await import(pathToFileURL(path.join(root, driver.engineModule)).href);
+    }
+    results.push(auditGame({ id: game.id, declaredMax: game.players[1], routeId, engine, driver }));
+    if (engine && MOUNT.test(engine.source)) {
+      sharedCount += 1;
+      sharedFailures.push(...sharedScreenAudit({ id: game.id, routeId, source: engine.source, declared: game.players, screen }));
+    }
   }
 
-  const failures = results.flatMap((result) => result.failures);
+  const failures = [...results.flatMap((result) => result.failures), ...sharedFailures];
   const tally = (klass) => results.filter((result) => result.klass === klass).length;
 
   if (failures.length > 0) {
@@ -372,14 +422,16 @@ async function audit() {
   console.log(
     `seat-cap-check: ${party.length} party game(s), every declared maximum agrees with the seats its engine accepts ` +
     `(${tally('measured')} measured by running the engine's own seat surface, ${tally('located')} read from a count guard, ` +
-    `${tally('derived')} derived from the manifest so they cannot disagree). ` +
+    `${tally('derived')} derived from the manifest so they cannot disagree); ` +
+    `${sharedCount} route(s) mount the shared player screen, each handing it its own manifest range, ` +
+    'and its clamp admits exactly the declared maximum (run, not read). ' +
     'The MINIMUM is not covered here — scripts/validate-games.mjs owns it.',
   );
 }
 
 // --- Selftest -----------------------------------------------------------------------------------
 
-function selftest() {
+async function selftest() {
   const engine = (source) => ({ name: 'main.js', source });
 
   // Reader B must read a real guard and must NOT read a numeral out of copy.
@@ -455,8 +507,33 @@ function selftest() {
   assert.deepEqual(liveDerivation.failures, [], 'POSITIVE CONTROL: a live derivation must stay silent');
   console.log('PASS derived: a route that stops deriving from the manifest fails, one that still derives is silent');
 
+  // gh#264: the hand-off to the shared screen is a derivation too, in its tuple form.
+  const tupleDerivation = auditGame({ id: 'g', declaredMax: 10, routeId: 'timebomb', engine: { name: 'main.ts', source: 'mountPlayerScreen({ root, range: game.players, onStart });' }, driver: null });
+  assert.deepEqual(tupleDerivation.failures, [], 'POSITIVE CONTROL: handing the declared tuple over is a live derivation');
+  const indexed = auditGame({ id: 'g', declaredMax: 10, routeId: 'timebomb', engine: { name: 'main.ts', source: 'mountPlayerScreen({ root, range: game.players0, onStart });' }, driver: null });
+  assert.match(indexed.failures[0].detail, /no longer reads the declared maximum/, 'a different identifier must not read as the tuple');
+  console.log('PASS derived (tuple): handing game.players to the shared screen derives; a lookalike identifier does not');
+
+  // gh#264: the shared screen audit, against the REAL shared clamp, both directions.
+  const screen = await import(pathToFileURL(path.join(root, 'src/play/_player-screen/player-screen.ts')).href);
+  const good = "import game from '../../games/g.ts';\nmountPlayerScreen({ root, range: game.players, onStart });";
+  assert.deepEqual(sharedScreenAudit({ id: 'g', routeId: 'g', source: good, declared: [2, 10], screen }), [],
+    'POSITIVE CONTROL: a route handing its own manifest range to the real clamp is silent');
+  const literal = "import game from '../../games/g.ts';\nmountPlayerScreen({ root, range: [2, 99], onStart });";
+  assert.match(sharedScreenAudit({ id: 'g', routeId: 'g', source: literal, declared: [2, 10], screen })[0].detail, /does not hand it its own manifest range/,
+    'a literal range must red');
+  const foreign = "import game from '../../games/g.ts';\nimport other from '../../games/h.ts';\nmountPlayerScreen({ root, range: other.players, onStart });";
+  assert.match(sharedScreenAudit({ id: 'g', routeId: 'g', source: foreign, declared: [2, 10], screen })[0].detail, /does not hand it its own manifest range/,
+    'another module\'s range must red');
+  const tooMany = sharedScreenAudit({ id: 'g', routeId: 'g', source: good, declared: [2, 25], screen });
+  assert.ok(tooMany.some((f) => /above the shared roster ceiling/.test(f.detail)), 'a maximum above the ceiling must red');
+  const broken = { ...screen, clampCount: () => PROBE_COUNT };
+  assert.match(sharedScreenAudit({ id: 'g', routeId: 'g', source: good, declared: [2, 10], screen: broken })[0].detail, /clamp admits 9999/,
+    'a clamp that does not clamp must red');
+  console.log('PASS shared screen: own range + real clamp is silent; a literal or foreign range, a maximum over the ceiling, and a non-clamping clamp each red');
+
   console.log('seat-cap-check --selftest: all legs passed');
 }
 
-if (process.argv.includes('--selftest')) selftest();
+if (process.argv.includes('--selftest')) await selftest();
 else await audit();

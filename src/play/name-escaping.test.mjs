@@ -842,6 +842,39 @@ function auditRoute(id) {
   return { id, klass: perFile.length === 1 ? perFile[0].klass : perFile.map((r) => r.klass).join(' + ') };
 }
 
+// gh#264 / ADR-0071: on a converted route the player names reach the DOM through the SHARED player
+// screen, not through the route's own main file -- so the route's tier-2 class below says nothing
+// about them. Both tiers, for the shared module itself: tier 2 must class it NO_HTML_SINK, and
+// tier 1 drives the real screen with the hostile name through every place it renders a name (the
+// field, the two controls' accessible names, the undo bar). The harness's HTML sinks throw, so a
+// screen that built markup from a name would red here rather than render an empty element.
+test('shared player screen: a hostile roster name reaches the DOM only as text, on every sink it touches', async () => {
+  const shared = path.join(here, '_player-screen', 'player-screen.ts');
+  assert.equal(auditFile(shared).klass, 'NO_HTML_SINK', 'the shared player screen gained an HTML sink -- every name it renders must go through a text sink');
+  const before = { document: globalThis.document, localStorage: globalThis.localStorage };
+  try {
+    const { mountOnPage, settle } = await import('./_player-screen/screen-harness.mjs');
+    const SURFACE = '<div id="app"><section id="root" hidden></section></div>';
+    const page = await mountOnPage({ routeMarkup: SURFACE, rootId: 'root', roster: [HOSTILE, 'มายด์'] });
+    page.screen.open();
+    await settle();
+    const row = page.root.querySelectorAll('.ps-p')[0];
+    assert.equal(row.querySelector('.ps-n').value, HOSTILE, 'the field holds the name as a value');
+    assert.equal(row.querySelector('.ps-tick').getAttribute('aria-label'), `เล่นรอบนี้ ${HOSTILE}`);
+    assert.equal(row.querySelector('.ps-rm').getAttribute('aria-label'), `เอาออกจากวง ${HOSTILE}`);
+    assert.equal(page.root.querySelectorAll('a').length, 0, 'no element came out of the name');
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    row.querySelector('.ps-rm').click();
+    assert.equal(page.part('toast-text').textContent, `เอา ${HOSTILE} ออกจากวงแล้ว`);
+    assert.equal(page.part('toast-text').children.length, 0, 'the undo bar holds text, not markup');
+  } finally {
+    for (const [k, v] of Object.entries(before)) {
+      if (v === undefined) delete globalThis[k];
+      else globalThis[k] = v;
+    }
+  }
+});
+
 test('coverage: every play route in the manifest is either injection-tested or provably escaping', async () => {
   // Derived, not listed — the same dynamic-import idiom scripts/play-exit-guard-probe.mjs uses.
   const { games } = await import(`${pathToFileURL(path.join(repoRoot, 'src/games/manifest.ts')).href}`);

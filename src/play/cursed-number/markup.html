@@ -27,35 +27,23 @@
          handoff. Assistive tech is the only consumer -- .cn-visually-hidden keeps it off screen. -->
     <p id="cn-live" class="cn-visually-hidden" role="status" aria-live="polite"></p>
 
-    <!-- SCREEN 1: SETUP & PLAYER ROSTER -->
-    <section class="screen active" id="screenSetup">
+    <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
+         mountPlayerScreen as its root, and it is the first thing a load shows. The tagline is this
+         game's slot on the board, copied from the module's own `tagline`. This replaced the mockup's
+         count pills, stepper, mascot name rows and reset control, which sat in #screenSetup below. -->
+    <section id="cnPlayers" class="cn-players" hidden>
+      <p class="ps-tagline">ผลัดกันทายเลข ช่วงแคบลงทุกตา ใครทายโดนเลขอาถรรพ์คนนั้นแพ้</p>
+    </section>
+
+    <!-- SCREEN 1: THE GAME'S OWN OPTIONS. Shown after the player screen starts (ADR-0071 ruling 1:
+         the game's non-player options come after the shared screen, then play). No longer ships
+         `active`: the player screen is the first screen now. -->
+    <section class="screen" id="screenSetup">
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">👥 แก๊งสัตว์ปาร์ตี้</h2>
           <span style="font-size:0.85rem; color:var(--text-dim);" id="playerCountBadge">4 คน</span>
         </div>
-
-        <!-- Player Count Quick Pills & Stepper (เข้งับ Concept) -->
-        <div class="stepper-label-group">
-          <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700;">จำนวนผู้เล่น (2 - 20 คน):</label>
-        </div>
-        <div class="player-count-row">
-          <button type="button" class="count-stepper-btn" id="countMinusBtn" title="ลดจำนวนผู้เล่น" aria-label="ลดจำนวนผู้เล่น">-</button>
-          <div style="display:flex; gap:6px;" id="countPillsContainer">
-            <!-- Dynamically populated count pills -->
-          </div>
-          <button type="button" class="count-stepper-btn" id="countPlusBtn" title="เพิ่มจำนวนผู้เล่น" aria-label="เพิ่มจำนวนผู้เล่น">+</button>
-        </div>
-
-        <!-- Mascot Name Customization List -->
-        <div class="mascot-list" id="mascotsListContainer"></div>
-
-        <!-- gh#177 — the ONLY control on this route that destroys a typed name, and the only one that
-             sits with the rows it rewrites. The two controls that also lead back here (#homeResetBtn
-             in the header, #editPlayersBtn on game over) navigate and keep everything; the decision
-             and why it is a third control rather than a change to either of those is recorded in
-             main.js at the reset handler. `.btn` is already 48px tall: 44px floor met, no new rule. -->
-        <button class="btn btn-secondary" type="button" id="resetNamesBtn" style="width:100%; margin-top:10px;">↺ รีเซ็ตเป็นชื่อสัตว์</button>
 
         <div style="margin-top: 6px;">
           <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:6px; font-weight:600;">🎯 บทลงโทษผู้แพ้ (ไม่บังคับ):</label>
@@ -319,24 +307,8 @@
     </div>
   </div>
 
-  <!-- MODAL: RESET PLAYER NAMES (gh#177) — copy rationale in main.js at the reset handler. Built on
-       this route's own .modal-backdrop/.active pattern rather than <dialog>: #rulesModal above is the
-       idiom here, and a second mechanism would need its own arming path. Both non-destructive
-       branches come first in source order, which is worth keeping but is NOT the guard -- the guard
-       is the 400ms gate armAllButtons installs on this card when it is revealed. -->
-  <div class="modal-backdrop" id="resetNamesModal">
-    <div class="modal-card" style="position:relative;">
-      <button class="modal-close-btn" id="closeResetNamesBtn" aria-label="ปิด">&times;</button>
-      <h3 style="font-size:1.3rem; margin-bottom:16px; color:#fff;">รีเซ็ตเป็นชื่อสัตว์?</h3>
-      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px; line-height:1.6;">
-        ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นและกติกาที่ตั้งไว้จะยังคงอยู่
-      </p>
-      <div style="display:flex; gap:10px;">
-        <button class="btn btn-secondary" type="button" id="cancelResetNamesBtn" style="flex:1;">เก็บชื่อเดิมไว้</button>
-        <button class="btn btn-primary" type="button" id="confirmResetNamesBtn" style="flex:1;">รีเซ็ตเป็นชื่อสัตว์</button>
-      </div>
-    </div>
-  </div>
+  <!-- The reset-names modal that sat here (gh#177) moved into the shared player screen with the reset
+       control and the name rows it rewrote (ADR-0071, src/play/_player-screen/PlayerScreen.astro). -->
 
 
   <!-- JAVASCRIPT LOGIC & ENGINES -->

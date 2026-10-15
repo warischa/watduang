@@ -55,7 +55,10 @@ const RESET_TRIGGER = {
   // which is why the file loop below reads all three files and not just the markup. The attribute
   // still sits in a real opening tag in a template string, which is what findTriggerElement needs.
   'croc-bite': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
-  'cursed-number': { attr: 'id="resetNamesBtn"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  // gh#264 / ADR-0071: a route that mounts the shared player screen offers the shared screen's own
+  // trigger, which lives in src/play/_player-screen/PlayerScreen.astro. `shared` makes the loop below
+  // read that file -- and only for a route whose own main file really mounts the screen.
+  'cursed-number': { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'dice-loser': { attr: 'id="dl-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'freeze-tap': { attr: 'id="resetNamesBtn"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'how-close-is-near': { attr: 'id="btnResetNames"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
@@ -63,7 +66,7 @@ const RESET_TRIGGER = {
   'pinocchio-luck': { attr: 'id="reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'power-meter': { attr: 'data-act="openResetNamesModal"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'short-stick': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
-  timebomb: { attr: 'id="tb-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
+  timebomb: { attr: 'data-ps="reset"', copy: /รีเซ็ตเป็นชื่อสัตว์/, shared: true },
   'wire-snip-panic': { attr: 'id="btn-reset-names"', copy: /รีเซ็ตเป็นชื่อสัตว์/ },
   'zero-trigger': { attr: 'id="btn-open-reset-cast"', copy: /รีเซ็ตเป็นชื่อและรูปสัตว์/ },
 };
@@ -121,13 +124,24 @@ test("every play route's setup screen has the reset trigger", async () => {
 
   const missing = [];
   for (const id of routes) {
-    const { attr, copy } = RESET_TRIGGER[id];
+    const { attr, copy, shared } = RESET_TRIGGER[id];
     // The trigger can ship in markup.html (static routes) or main.js/main.ts (routes that inject
     // their setup screen), so all three are read and concatenated rather than picking one per route.
     let combined = '';
+    let mounts = false;
     for (const file of ['markup.html', 'main.js', 'main.ts']) {
       const p = path.join(here, id, file);
-      if (fs.existsSync(p)) combined += fs.readFileSync(p, 'utf8');
+      if (!fs.existsSync(p)) continue;
+      const text = fs.readFileSync(p, 'utf8');
+      combined += text;
+      if (/mountPlayerScreen\(\{/.test(text)) mounts = true;
+    }
+    if (shared) {
+      if (!mounts) {
+        missing.push(`${id}: claims the shared player screen's reset trigger but its main file mounts no player screen`);
+        continue;
+      }
+      combined += fs.readFileSync(path.join(here, '_player-screen', 'PlayerScreen.astro'), 'utf8');
     }
     const el = findTriggerElement(combined, attr);
     if (el === null) {

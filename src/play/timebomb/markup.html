@@ -1,8 +1,8 @@
 <!-- Full-screen play route for the timebomb game (gh#145, ADR-0050 ruling 1). NOT a lifted mockup: it
      has none, so the shipped engine (src/games/timebomb.ts) is kept and re-dressed to the freeze-tap
-     dark reference. This file is the static frame only — the player rows inside #tb-players and every
-     game screen inside #tb-stage are built at runtime (main.ts renders the first, the engine's own
-     render functions the second, unchanged).
+     dark reference. This file is the static frame only — the player screen inside #tb-setup and every
+     game screen inside #tb-stage are built at runtime (the shared player screen renders the first,
+     ADR-0071; the engine's own render functions the second, unchanged).
      No <a href> anywhere in here: ADR-0014 keeps navigation out of the play surface, and the one exit
      is <PlayExit />'s button, mounted by play.astro outside this root. -->
 <!-- id="app": the same game-root id the other play routes use. Not a cosmetic choice — the shared
@@ -34,27 +34,12 @@
   </header>
 
   <main class="tb-main">
-    <!-- The player baseline screen (ADR-0054): mascot defaults are already filled in, so the round
-         starts with one tap and typing a name is optional. -->
-    <section id="tb-setup" class="tb-setup">
+    <!-- The shared player screen mounts here (ADR-0071, gh#264): main.ts hands this section to
+         mountPlayerScreen as its root, and the screen appends its stepper or saved rows, the hint, the
+         reset control and the start button after the tagline. The tagline is this game's slot on the
+         board. Ships hidden: the screen shows itself once it has read the roster. -->
+    <section id="tb-setup" class="tb-setup" hidden>
       <p class="tb-tagline">ส่งมือถือวนรอบวง ใครถืออยู่ตอนระเบิด คนนั้นแพ้</p>
-
-      <div class="tb-count">
-        <button id="tb-count-dec" class="tb-step" type="button" aria-label="ลดจำนวนคนเล่น">−</button>
-        <span class="tb-count-read"><span id="tb-count-num">6</span> คน</span>
-        <button id="tb-count-inc" class="tb-step" type="button" aria-label="เพิ่มจำนวนคนเล่น">+</button>
-      </div>
-
-      <ul id="tb-players" class="tb-players"></ul>
-
-      <p class="tb-hint">แตะที่ชื่อเพื่อเปลี่ยน — ชื่อที่ตั้งไว้ใช้เฉพาะเกมนี้</p>
-
-      <!-- gh#177 — the reset control sits with the rows it acts on, INSIDE #tb-setup, so it is
-           unreachable the moment begin() hides this section. Why it is setup-only, and why the copy
-           in the dialog below says what it says, is argued in main.ts at the reset handler. -->
-      <button id="tb-reset-names" class="tb-secondary-btn" type="button">↺ รีเซ็ตเป็นชื่อสัตว์</button>
-
-      <button id="tb-begin" class="game-btn game-btn-primary" type="button">พร้อมเล่น</button>
     </section>
 
     <!-- The play surface (owner direction 2026-08-30): the bomb is DRAWN, in Canvas 2D, with the depth
@@ -79,20 +64,8 @@
     <!-- The engine mounts here. It replaces the children of this element wholesale on every screen
          change, so nothing static may live inside it. -->
     <section id="tb-stage" class="tb-stage" hidden></section>
-
-    <!-- The reset confirm (gh#177). Placed OUTSIDE both #tb-setup and #tb-stage, for two different
-         reasons: the engine calls replaceChildren() on the stage at every screen change and would
-         destroy anything left in it, and a top-layer dialog whose ancestor carries `hidden` is not
-         rendered at all — #tb-setup is exactly such an ancestor once begin() has run. Out of flow
-         either way: a closed <dialog> is display:none and adds nothing to .tb-main's column.
-         No <a href> here, as everywhere in this directory (ADR-0014, ADR-0055). -->
-    <dialog class="tb-dialog" id="tb-reset-dialog" aria-labelledby="tb-reset-title">
-      <h2 class="tb-dialog-title" id="tb-reset-title">รีเซ็ตเป็นชื่อสัตว์?</h2>
-      <p class="tb-dialog-body">ชื่อผู้เล่นที่พิมพ์ไว้จะถูกแทนด้วยชื่อสัตว์ทั้งหมด และเอากลับคืนไม่ได้ จำนวนผู้เล่นที่ตั้งไว้จะยังคงอยู่</p>
-      <div class="tb-dialog-actions">
-        <button id="tb-reset-cancel" class="tb-secondary-btn" type="button">เก็บชื่อเดิมไว้</button>
-        <button id="tb-reset-confirm" class="tb-danger-btn" type="button">รีเซ็ตเป็นชื่อสัตว์</button>
-      </div>
-    </dialog>
+    <!-- The reset confirm that sat here (gh#177) moved into the shared player screen with the reset
+         control, src/play/_player-screen/PlayerScreen.astro, outside this root for the same reason
+         it sat outside #tb-setup: a top-layer dialog under a `hidden` ancestor does not render. -->
   </main>
 </div>

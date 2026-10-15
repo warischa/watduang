@@ -281,6 +281,12 @@ jobs:
       - name: A declared player range agrees with the seats its engine accepts (gh#230)
         run: node scripts/seat-cap-check.mjs --selftest && node scripts/seat-cap-check.mjs
 
+      # gh#264 / ADR-0071: every party play route mounts the one shared player screen and keeps no
+      # player list of its own; the routes not yet converted are named, loudly, on every run. Reads
+      # the manifest and src/play source only, so it sits with the pre-build gates.
+      - name: Every party play route mounts the shared player screen (gh#264)
+        run: node scripts/player-screen-mount-check.mjs --selftest && node scripts/player-screen-mount-check.mjs
+
       # node --test <dir> doesn't work on node 22 (it treats dir as a module path) — must use a glob.
       # A glob that matches NOTHING is not an error: node prints "# tests 0" and exits 0. So a rename
       # (.test.mjs -> .test.ts) or a move out of src/ would leave this step green with every test

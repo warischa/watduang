@@ -91,7 +91,11 @@ export function reconcileRoutes(declared, onDisk) {
   return {
     routes: [...new Set([...declared, ...onDisk])].sort(),
     missingDirs: declared.filter((id) => !disk.has(id)),
-    undeclaredDirs: onDisk.filter((id) => !decl.has(id)),
+    // gh#264 / ADR-0071: an underscore directory is SHARED play-surface code several routes mount
+    // (src/play/_player-screen/ builds the seat rows every converted route shows), never declared by
+    // a manifest. It stays in `routes` above -- so it owes the test like any row builder -- and is
+    // only spared the demand for a declaration it can never have.
+    undeclaredDirs: onDisk.filter((id) => !decl.has(id) && !id.startsWith('_')),
   };
 }
 
@@ -233,6 +237,15 @@ function selftest() {
     assert.match(r.violations.join('\n'), /no game module declares/);
     r = audit({ dir: tmp, declared: ['covered'], onDisk: ['covered'], exempt: new Map([['deleted-route', 'was rosterless']]) });
     assert.match(r.violations.join('\n'), /GHOST exemption/);
+  });
+
+  // Leg 7 -- MUST-RED, gh#264: a shared underscore directory is spared the declaration but NOT the
+  // test. With no test it reds as untested; it never reds as undeclared.
+  leg(true, () => {
+    mkRoute('_shared');
+    r = audit({ dir: tmp, declared: ['covered'], onDisk: ['_shared', 'covered'] });
+    assert.equal(r.violations.length, 1, `a shared dir must red exactly once, for its missing test: ${JSON.stringify(r.violations)}`);
+    assert.match(r.violations[0], /^_shared: no src\/play\/_shared\//);
   });
 
   // Leg 7 -- buildsPerSeatRow both ways, including the createElement idiom two routes use.

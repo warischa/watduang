@@ -24,11 +24,8 @@
     "#btn-close-tests": "ปิด"
   },
   "cursed-number": {
-    "#countMinusBtn": "ลดจำนวนผู้เล่น",
-    "#countPlusBtn": "เพิ่มจำนวนผู้เล่น",
     "#keypadBackspaceBtn": "ลบตัวเลขตัวสุดท้าย",
-    "#closeRulesBtn": "ปิด",
-    "#closeResetNamesBtn": "ปิด"
+    "#closeRulesBtn": "ปิด"
   },
   "freeze-tap": {
     "#soundToggleBtn": "เปิด/ปิดเสียง",

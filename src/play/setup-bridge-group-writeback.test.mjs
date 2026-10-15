@@ -73,7 +73,7 @@ async function writeBack({ saved, max, typed, register = (fn, m) => fn(START, NA
   const added = [];
   const globals = { document, window: {}, sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} }, Element };
   const seam = evaluateModule(path.join(HERE, '_setup-bridge.ts'), (spec) => {
-    if (spec.endsWith('shell/roster')) {
+    if (/shell\/roster(\.ts)?$/.test(spec)) {
       return {
         loadGroup: () => saved,
         loadRoster: () => ({ names: () => saved, add: async (n) => { added.push(n); } }),

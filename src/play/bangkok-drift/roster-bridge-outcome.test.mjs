@@ -149,7 +149,7 @@ function run(groupNames) {
     }
     if (spec.endsWith('_setup-bridge')) {
       return evaluateModule(path.join(PLAY, '_setup-bridge.ts'), (setupSpec) => {
-        if (setupSpec.endsWith('shell/roster')) return { loadRoster: () => ({ add: async () => {} }), saveGroup: () => {} };
+        if (/shell\/roster(\.ts)?$/.test(setupSpec)) return { loadRoster: () => ({ add: async () => {} }), saveGroup: () => {} };
         if (setupSpec.endsWith('name-list.ts')) return { hasVisibleChar: (n) => n.trim().length > 0 };
         throw new Error(`unstubbed import in _setup-bridge.ts: ${setupSpec}`);
       }, globals);
