@@ -137,3 +137,12 @@
   pointer-events: none !important;
   transition: none !important;
 }
+
+/* gh#264: the no-3D board's hold, the same footprint and for the same span -- main.ts puts the class on
+   the board as it inserts it while the setup screen above is held, and takes it off when that hold goes. */
+#croc-fallback-board.held-for-players {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: none !important;
+}

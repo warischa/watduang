@@ -95,6 +95,11 @@
 //                                                           failed to leave it.
 //   NO_SEED=1 NO_PRESS=1 node scripts/...                -> the same stranding under the NORMAL
 //                                                           verdict: the loud red, naming every route.
+//   NO_WEBGL=1 node scripts/play-screen-fit-probe.mjs    -> gh#264, its own leg (no-webgl-first-screen in
+//                                                           ci-probes.sh): WebGL taken away before any page
+//                                                           script, then ONLY the first-screen order verdict,
+//                                                           every manifest route once at the narrow viewport.
+//                                                           See NO_WEBGL_CONTEXTS for what it proves.
 //   ROUTES_ONLY=a,b                                      -> narrow a hand-run debug pass. Never in CI.
 //   FIT_SHARD=i FIT_SHARDS=n                             -> CI ONLY, and it is NOT a narrowing: the walk
 //                                                           is split across n legs that between them walk
@@ -1259,10 +1264,18 @@ export async function awaitPlayerScreenSettled(evaluate, {
  * the page once the screen has settled (when .ps exists).
  *
  * THE MEASURE. An in-page sampler, installed before any of the page's own script, samples on every
- * frame, every 50ms, at DOMContentLoaded and at every change of the two player-screen attributes on
- * <html> -- the last is what makes it deterministic: open() sets the pending marker in the same task
- * that hid (or failed to hide) the route's screen, so that sample sees what the next frame paints even
- * when the open lands in a millisecond. Sampling stops the moment the screen announces itself open
+ * frame, every 50ms, at DOMContentLoaded and at EVERY DOM MUTATION under <html>, synchronously in the
+ * observer callback. That last one is what makes it deterministic: the callback runs at the microtask
+ * checkpoint right after the task or rAF callback that mutated, and before any rendering, so it reads
+ * every state a frame could paint. Frame and interval samples alone raced the open (gh#264 REFUTE:
+ * sampler rAF, then a route rAF inserting its board, then a rendering opportunity, then the open --
+ * no frame or task sample ever saw that board, and croc-bite's unheld no-3D board read green on a warm
+ * load). Mutations are coalesced per callback, so a node inserted and removed inside one callback is
+ * never seen, as no frame can show it (one-bomb removes its engine notice that way). The residual,
+ * fail-closed: a node inserted by one callback and removed by a later callback of the SAME task is
+ * counted although it never paints. The player-screen attributes are mutations too, which is why
+ * open() setting its pending marker in the task that hid (or failed to hide) the route's screen is
+ * sampled even when the open lands in a millisecond. Sampling stops the moment the screen announces itself open
  * (the screen is shown by then; the pending marker clears a microtask later, and a sample in that gap
  * would count a route whose menu legitimately frames the open screen, as one-bomb's does). A sample
  * counts only while the screen is not yet settled and only once every stylesheet has loaded (an
@@ -1302,7 +1315,8 @@ export const FIRST_SCREEN_SAMPLER = `(() => {
     return t.trim();
   };
   let timer;
-  const stop = () => { rec.stopped = true; clearInterval(timer); };
+  let tree;
+  const stop = () => { rec.stopped = true; clearInterval(timer); if (tree) tree.disconnect(); };
   const sample = () => {
     if (rec.stopped || !html()) return;
     if (html().getAttribute(A) === 'open') { rec.openAt = ms(); stop(); return; }
@@ -1332,7 +1346,8 @@ export const FIRST_SCREEN_SAMPLER = `(() => {
   const watch = () => {
     if (watching || !html()) return;
     watching = true;
-    new MutationObserver(sample).observe(html(), { attributes: true, attributeFilter: [A, P] });
+    tree = new MutationObserver(sample);
+    tree.observe(html(), { attributes: true, childList: true, characterData: true, subtree: true });
   };
   watch();
   document.addEventListener('readystatechange', watch);
@@ -1372,14 +1387,153 @@ export function firstScreenVerdict(read) {
   return `the route painted content of its own before the shared player screen opened, from +${v.firstOffenderAt}ms: ${JSON.stringify(v.offenders)}. Hold it until the open, or -- if it is header chrome meant to show first -- mark it ${SHOWS_BEFORE_PLAYERS_ATTR} in the route's markup.html (gh#264)`;
 }
 
-/** Reads the sampler after the settle wait and records the verdict on the row. true = row.error set. */
+/** Reads the sampler after the settle wait and records the verdict on the row. true = row.error set.
+ *  What the read observed rides on the row -- the screen's settled state and the styled samples taken
+ *  -- so a leg can count a row as judged, or as intro-first, only off a measurement (gh#264 REFUTE). */
 async function checkFirstScreen(session, row) {
   const read = await session.evaluate(FIRST_SCREEN_READ);
+  row.firstScreen = read.value ? { final: read.value.final ?? null, samples: read.value.samples ?? 0 } : null;
   const why = read.value && !Array.isArray(read.value.declarationFaults)
     ? 'the first-screen read returned no declaration audit, so a blanket declaration would pass unseen'
     : firstScreenVerdict(read);
   if (why) row.error = why;
   return Boolean(why);
+}
+
+/**
+ * gh#264 — THE FIRST-SCREEN ORDER ON THE NO-WEBGL PATH, as a leg of its own (NO_WEBGL=1).
+ *
+ * The runner's Chrome hands out WebGL, so every other leg here only ever walks a 3D route's 3D boot.
+ * The fallback a GPU-less phone takes is a different boot -- croc-bite inserts its DOM board at mount,
+ * pinocchio-luck reveals a notice -- and that boot is exactly where a route painted its own screen
+ * ahead of the shared player screen while every CI leg stayed green. So this leg takes WebGL away
+ * before any page script runs and judges the first screen of EVERY manifest play route there.
+ *
+ * THE PRECONDITION IS MEASURED, NEVER ASSUMED. An injection that silently failed to take would make
+ * this leg one more walk of the WebGL path under a no-WebGL label. So on the very document judged,
+ * each context kind is requested from a fresh canvas and a fresh OffscreenCanvas (a canvas that
+ * already holds a context answers null for any other kind, which would fake a pass) and must answer
+ * null, and a 2d context must still work -- an injection that broke every canvas would measure a page
+ * no device ever sees. Either failure reds that row before its verdict is read.
+ *
+ * COVERAGE IS RECONCILED, NOT ASSUMED: every route playRoutes() names has exactly one row, or the leg
+ * reds. One viewport (the binding narrow one) and one fresh-roster load per route: the order defect is
+ * a boot-order fact, not a layout one, and the full matrix is the clean leg's job.
+ *
+ * UNCOVERED: a route that reaches WebGL from a worker (the injection runs in the page only), or that
+ * decides on a capability probe other than getContext. No route here does either today.
+ */
+export const NO_WEBGL_CONTEXTS = ['webgl', 'webgl2', 'experimental-webgl'];
+export const NO_WEBGL_VP = VIEWPORTS.reduce((a, b) => (b.w < a.w ? b : a));
+const noWebgl = () => Boolean(process.env.NO_WEBGL);
+/** The leg is one thing: a sharded, stranded or control run under it would judge a different set. */
+const assertNoWebglAlone = () => {
+  const clash = ['FIT_SHARD', 'BREAK_WALK', 'NO_SEED', 'NO_PRESS'].filter((k) => process.env[k]?.trim());
+  if (clash.length) throw new Error(`NO_WEBGL is its own leg and cannot run with ${clash.join(', ')} -- it walks every manifest route once, with a fresh roster, and reconciles that set itself`);
+};
+/** Installed before any of the page's own script. Matches the context kinds exactly, as the browser does. */
+export const NO_WEBGL_INJECTION = `(() => {
+  const KINDS = ${JSON.stringify(NO_WEBGL_CONTEXTS)};
+  for (const C of [window.HTMLCanvasElement, window.OffscreenCanvas]) {
+    if (!C) continue;
+    const native = C.prototype.getContext;
+    C.prototype.getContext = function (kind, ...rest) {
+      return KINDS.includes(kind) ? null : native.call(this, kind, ...rest);
+    };
+  }
+})();`;
+/** In-page, on the document just judged: what each WebGL kind and a 2d request answer right now. */
+export const NO_WEBGL_CHECK = `
+  const KINDS = ${JSON.stringify(NO_WEBGL_CONTEXTS)};
+  const ask = (make, kind) => { try { return make().getContext(kind) === null; } catch (e) { return 'threw ' + e.message; } };
+  const canvas = {};
+  for (const k of KINDS) canvas[k] = ask(() => document.createElement('canvas'), k);
+  const offscreenPresent = typeof window.OffscreenCanvas === 'function';
+  const offscreen = {};
+  if (offscreenPresent) for (const k of KINDS) offscreen[k] = ask(() => new window.OffscreenCanvas(1, 1), k);
+  const c2d = document.createElement('canvas').getContext('2d');
+  return { canvas, offscreenPresent, offscreen, twoD: Boolean(c2d) && typeof c2d.fillRect === 'function' };
+`;
+
+/** The precondition verdict for one document: the reason the row reds, or null. */
+export function noWebglInjectionVerdict(read) {
+  if (read?.error) return `the no-WebGL check could not be read (${read.error}), so nothing says WebGL was off on the document judged`;
+  const v = read?.value;
+  if (!v || typeof v.canvas !== 'object') return 'the no-WebGL check returned nothing, so nothing says WebGL was off on the document judged';
+  const live = NO_WEBGL_CONTEXTS.filter((k) => v.canvas[k] !== true).map((k) => `canvas ${k} (${v.canvas[k]})`);
+  if (v.offscreenPresent) live.push(...NO_WEBGL_CONTEXTS.filter((k) => v.offscreen?.[k] !== true).map((k) => `OffscreenCanvas ${k} (${v.offscreen?.[k]})`));
+  if (live.length) return `forced no-WebGL did not take on the document judged: ${live.join(', ')} did not answer null -- this row would describe the WebGL path under a no-WebGL label`;
+  if (v.twoD !== true) return 'the no-WebGL injection took the 2d context away too -- the route was judged on a page no device sees';
+  return null;
+}
+
+/** A clean row counts only off what the first-screen read observed: an opened screen with at least one
+ *  styled sample before it (judged), or a screen the read saw still 'closed' (intro-first, not judged).
+ *  An absent read is neither -- counting it as intro-first would excuse a row nobody measured. */
+export function firstScreenEvidenceFault(fs) {
+  if (!fs || typeof fs !== 'object') return 'no first-screen measurement on this row, so it can be counted neither as judged nor as intro-first';
+  if (fs.final === 'open') return fs.samples > 0 ? null : 'the shared screen opened with no styled sample on record, so nothing was judged';
+  if (fs.final === 'closed') return null;
+  return `the first-screen read saw the shared screen ${JSON.stringify(fs.final)}, neither open nor closed, so the row is neither judged nor intro-first`;
+}
+
+/** Every reason the leg reds, over a whole run. `expected` is the route set it had to cover. */
+export function noWebglFaults(out, expected) {
+  const faults = [];
+  if (!out?.noWebgl) faults.push('these measurements are not from a forced-no-WebGL run (no noWebgl marker), so a WebGL-live walk would be judged as this leg');
+  const rows = out?.rows ?? [];
+  for (const r of rows) {
+    if (r.error) { faults.push(`${r.url} at ${r.vp} with WebGL forced off: ${r.error}`); continue; }
+    // Re-judged here off the row, so a driver path that skipped the check cannot hand over a clean row.
+    const pre = noWebglInjectionVerdict({ value: r.injection });
+    if (pre) faults.push(`${r.url} at ${r.vp}: ${pre}`);
+    const why = firstScreenEvidenceFault(r.firstScreen);
+    if (why) faults.push(`${r.url} at ${r.vp}: ${why}`);
+  }
+  const got = rows.map((r) => r.route);
+  const missing = expected.filter((id) => !got.includes(id));
+  const extra = [...new Set(got.filter((id) => !expected.includes(id)))];
+  const doubled = [...new Set(got.filter((id, i) => got.indexOf(id) !== i))];
+  if (missing.length) faults.push(`no row for ${missing.join(', ')} -- a route that never loaded reads exactly like a clean one`);
+  if (extra.length) faults.push(`rows for ${extra.join(', ')}, which this leg was not asked to walk`);
+  if (doubled.length) faults.push(`more than one row for ${doubled.join(', ')} -- the reconciliation counts routes, not rows`);
+  return faults;
+}
+
+/** driver.mjs half of the leg: one fresh load per route, precondition first, then the order verdict. */
+async function noWebglPass(session) {
+  assertNoWebglAlone();
+  await session.onNewDocument(NO_WEBGL_INJECTION);
+  await session.onNewDocument(FIRST_SCREEN_SAMPLER);
+  const routes = playRoutes();
+  const vp = NO_WEBGL_VP;
+  const rows = [];
+  for (const id of routes) {
+    const row = { route: id, url: `/game/${id}/play/`, vp: `${vp.w}x${vp.h}`, error: null, injection: null, screens: [] };
+    rows.push(row);
+    const notOpen = await load(session, `${BASE}${row.url}`, vp, false);
+    if (notOpen) { row.error = notOpen; continue; }
+    const check = await session.evaluate(NO_WEBGL_CHECK);
+    row.injection = check.value ?? null;
+    const pre = noWebglInjectionVerdict(check);
+    if (pre) { row.error = pre; continue; }
+    await checkFirstScreen(session, row);
+  }
+  return { base: BASE, noWebgl: true, routesWalked: routes.length, viewports: 1, rows };
+}
+
+/** main()'s half: the verdict over the whole run. */
+function noWebglMain(out, log) {
+  const expected = playRoutes();
+  const faults = noWebglFaults(out, expected);
+  for (const f of faults) console.error(`::error::${f}`);
+  if (faults.length) process.exit(1);
+  if (process.env.ROUTES_ONLY?.trim()) log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${expected.length} of ${games.filter((g) => g.playRoute).length} play route(s). This is a debug run, not a gate.`);
+  // Both counted off the observation, never one as the other's remainder: noWebglFaults has already
+  // refused a row that is neither.
+  const judged = out.rows.filter((r) => r.firstScreen.final === 'open').length;
+  const introFirst = out.rows.filter((r) => r.firstScreen.final === 'closed').length;
+  log(`OK no-WebGL first screen: ${out.rows.length} route row(s) at ${NO_WEBGL_VP.w}x${NO_WEBGL_VP.h}, reconciled one-to-one against the ${expected.length} play route(s) this leg was asked for; on every judged document WebGL was verified off (${NO_WEBGL_CONTEXTS.join(', ')} null on canvas and OffscreenCanvas, 2d live). ${judged} route(s) opened the shared screen by themselves and painted nothing undeclared before it; ${introFirst} were observed still closed once settled (they open it after their own intro) and are not judged.`);
 }
 
 /** driver.mjs probe: every play route x every viewport, fresh signature then the seeded walk. */
@@ -1489,6 +1643,7 @@ async function walkPass(session, id, url, vp, row, fresh, draw) {
 }
 
 export default async function (session) {
+  if (noWebgl()) return noWebglPass(session);
   // gh#239 — installed before the first navigation so it is in place ahead of every route's own
   // module. Registered once per session on purpose: it is inert unless load() wrote a forced value.
   await session.onNewDocument(DRAW_OVERRIDE);
@@ -1803,8 +1958,10 @@ export function main({
 } = {}) {
   if (process.argv.includes('--selftest')) return selftest();
 
+  if (noWebgl()) assertNoWebglAlone();
   let out = acquire();
   if (Array.isArray(out)) out = { rows: out };
+  if (noWebgl()) return noWebglMain(out, log);
 
   const broken = out.rows.filter((r) => r.error);
   for (const r of broken) console.error(`::error::${r.url} at ${r.vp} did not measure: ${r.error}`);

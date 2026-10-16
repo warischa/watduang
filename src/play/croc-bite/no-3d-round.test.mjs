@@ -43,11 +43,12 @@ import path from 'node:path';
 import { stripTypeScriptTypes } from 'node:module';
 import { sliceBlock } from '../_dom-stub.mjs';
 import { MASCOTS } from '../_mascots.ts';
-import { MAX_PLAYERS } from '../../games/croc-bite.ts';
+import crocBite, { MAX_PLAYERS } from '../../games/croc-bite.ts';
 
 const here = import.meta.dirname;
 const source = fs.readFileSync(path.join(here, 'main.js'), 'utf8');
 const markup = fs.readFileSync(path.join(here, 'markup.html'), 'utf8');
+const overrides = fs.readFileSync(path.join(here, 'overrides.css'), 'utf8');
 
 /** The source text between two markers, asserted present so a moved marker reds loudly. */
 function region(from, to) {
@@ -256,7 +257,7 @@ function makePage() {
  *  rather than merely true. `appendsCanvas` is the second, and it models the real scene's own order —
  *  the canvas goes into the container partway through setup, so a failure after that leaves the
  *  element on the page with nothing behind it. */
-function boot({ rendererThrows = true, appendsCanvas = false } = {}) {
+function boot({ rendererThrows = true, appendsCanvas = false, mount = null } = {}) {
   const page = makePage();
   const built = [];
   const errors = [];
@@ -307,6 +308,7 @@ function boot({ rendererThrows = true, appendsCanvas = false } = {}) {
   const GameApp = new Function(
     'document', 'window', 'localStorage', 'THREE', 'GameScene', 'Crocodile', 'PlayerHand',
     'InputHandler', 'audio', 'console', 'requestAnimationFrame', 'setTimeout',
+    'mountPlayerScreen', 'crocBite',
     `${RULES}${PHASE_CONSTS}${STATE}\n${UI}\n${APP}\n;return GameApp;`,
   )(
     page.document,
@@ -321,9 +323,30 @@ function boot({ rendererThrows = true, appendsCanvas = false } = {}) {
     consoleStub,
     () => 1,
     scheduler,
+    mount ?? (() => { throw new Error('this case mounts no player screen'); }),
+    crocBite,
   );
 
   const app = new GameApp();
+
+  // An attribute observer that delivers only what a browser would: a callback runs on flush() only
+  // when its target's class list really changed since the last delivery. Delivering on every flush
+  // would let a release that ignores the class it watches pass every case below.
+  const observers = new Set();
+  const classOf = (el) => [...el.classes].sort().join(' ');
+  class FakeObserver {
+    constructor(fn) { this.fn = fn; }
+    observe(target) { this.target = target; this.seen = classOf(target); observers.add(this); }
+    disconnect() { observers.delete(this); }
+  }
+  const flush = () => {
+    for (const o of [...observers]) {
+      const now = classOf(o.target);
+      if (now === o.seen) continue;
+      o.seen = now;
+      o.fn([]);
+    }
+  };
 
   // The route's own fallback, executed from main.ts rather than described: the same DOM tooth board
   // the mid-match loss cuts to, entered here through the no-context door.
@@ -331,7 +354,7 @@ function boot({ rendererThrows = true, appendsCanvas = false } = {}) {
   const code = stripTypeScriptTypes(`${PHASE_NAMES}${BOARD_SECTION}`, { mode: 'strip' });
   // eslint-disable-next-line no-new-func -- executing main.ts's own text is the whole point.
   const fallback = new Function(
-    'document', 'window', 'cancelAnimationFrame', 'armAllButtons', '$',
+    'document', 'window', 'cancelAnimationFrame', 'armAllButtons', '$', 'MutationObserver',
     `${code}\n;return { bootWithout3D, cutTo2D };`,
   )(
     page.document,
@@ -339,10 +362,11 @@ function boot({ rendererThrows = true, appendsCanvas = false } = {}) {
     () => {},
     (el) => { armed.push(el.id); return () => {}; },
     (id) => page.document.getElementById(id),
+    FakeObserver,
   );
 
   return {
-    app, page, built, errors, timers, armed, fallback,
+    app, page, built, errors, timers, armed, fallback, flush, observers,
     runTimers() {
       for (const t of timers.splice(0, timers.length)) t.fn();
     },
@@ -577,6 +601,95 @@ test('the home button on that result does not throw with no 3D stack to reset', 
   h.runTimers();
   h.app.returnToSetup();
   assert.equal(h.app.state.phase, 'SETUP');
+});
+
+// ---- gh#264: the board waits for the players, the way the setup screen does ----------------------
+//
+// ADR-0071 ruling 1 puts the shared player screen first. On a device with no context the board goes
+// up at mount, before that screen has opened, so for its first frames the board WAS the first screen
+// (the fit probe's first-screen sampler measured its notice, heading and jaw captions from +9ms). The
+// invariant: from insertion until the players are handed over, the board carries the hold class the
+// setup screen carries; it comes back on every path that ends the wait, and is armed as it does.
+// Ceiling: this proves the classes; that Chrome paints nothing under the hold rule is the fit probe's.
+
+const HELD = 'held-for-players';
+const boardHeld = (h) => h.page.board().classes.has(HELD);
+/** The player screen as main.js mounts it, with its start captured so a case can press it. */
+function screenThatOpens() {
+  const screen = { opts: null };
+  screen.mount = (opts) => {
+    screen.opts = opts;
+    return { open: () => Promise.resolve(), close() {}, arm() {} };
+  };
+  return screen;
+}
+
+test('gh#264: the board hold has a hidden state that needs no frame', () => {
+  const rule = new RegExp(`#${BOARD_ID}\\.${HELD}\\s*\\{([^}]*)\\}`).exec(overrides)?.[1];
+  assert.ok(rule, `overrides.css has no #${BOARD_ID}.${HELD} rule, so the class on the board holds nothing`);
+  assert.match(rule, /visibility:\s*hidden\s*!important/);
+  assert.match(rule, /opacity:\s*0\s*!important/);
+  assert.match(rule, /pointer-events:\s*none\s*!important/, 'a held board still takes presses');
+  assert.match(rule, /transition:\s*none\s*!important/, 'a transition here is a fade the first frames would paint');
+});
+
+test('MUST-RED gh#264: the board is held from insertion until start hands the players over, then is pressable', () => {
+  const screen = screenThatOpens();
+  const h = boot({ mount: screen.mount });
+  assert.ok(h.page.el('#screen-setup').classes.has(HELD), 'precondition: the markup no longer holds the setup screen');
+  h.app.mountPlayers();
+  h.fallback.bootWithout3D(h.app);
+  assert.ok(h.page.board(), 'no board was installed -- this case measures nothing');
+  assert.ok(boardHeld(h), 'the board was inserted paintable, ahead of the shared player screen');
+
+  // A class change on the setup screen that is NOT the handover (a re-render toggling hidden) is
+  // delivered and must not release the board.
+  h.app.ui.updateUI();
+  h.flush();
+  assert.ok(boardHeld(h), 'a setup re-render before the handover released the board');
+
+  const armedBefore = h.armed.length;
+  screen.opts.onStart(handed([0, 1, 2]));
+  h.flush();
+  assert.ok(!boardHeld(h), 'the players were handed over and the board stayed held: nobody can play the round');
+  assert.equal(h.armed.slice(armedBefore).filter((id) => id === BOARD_ID).length, 1,
+    'the board came back without the ghost-tap gate (a release is a reveal, ADR-0057)');
+  assert.equal(h.observers.size, 0, 'the release left its observer connected');
+
+  h.app.startNewMatch();
+  h.runTimers();
+  const safe = [...h.app.state.teeth.values()].find((t) => !t.isLosing);
+  h.page.teeth().find((n) => n.dataset.tooth === safe.id).click();
+  assert.notEqual(h.app.state.teeth.get(safe.id).state, 'unresolved', 'a press on the released board changed nothing');
+});
+
+test('MUST-RED gh#264: an open that fails later releases the board -- the error stays unhandled', async () => {
+  const failing = () => ({ open: () => Promise.reject(new Error('locks refused')), close() {}, arm() {} });
+  const h = boot({ mount: failing });
+  const runner = process.listeners('unhandledRejection');
+  const seen = [];
+  process.removeAllListeners('unhandledRejection');
+  process.on('unhandledRejection', (e) => seen.push(e.message));
+  try {
+    h.app.mountPlayers();
+    h.fallback.bootWithout3D(h.app);
+    assert.ok(boardHeld(h), 'the board went up paintable while the open was still pending');
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  } finally {
+    process.removeAllListeners('unhandledRejection');
+    for (const l of runner) process.on('unhandledRejection', l);
+  }
+  h.flush();
+  assert.ok(!boardHeld(h), 'the shared screen will never open and the board stayed held: nothing on the page is playable');
+  assert.deepEqual(seen, ['locks refused'], 'the failure was swallowed instead of staying one unhandled rejection');
+});
+
+test('gh#264: with no hold on the setup screen (a mount that threw) the board is never held', () => {
+  const h = boot({ mount: () => { throw new Error('mount failed'); } });
+  assert.throws(() => h.app.mountPlayers(), /mount failed/);
+  h.fallback.bootWithout3D(h.app);
+  assert.ok(!boardHeld(h), 'the board was held with nothing left to release it');
+  assert.equal(h.observers.size, 0, 'an observer is watching a hold that was never placed');
 });
 
 // ---- ADR-0051's other obligation: the canvas is not invisible to assistive technology -------------

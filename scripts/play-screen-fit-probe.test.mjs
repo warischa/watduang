@@ -988,7 +988,7 @@ function sampleFixture(root, { final = 'open', outer } = {}) {
   new Function('window', 'document', 'performance', 'getComputedStyle', 'setInterval', 'clearInterval', 'requestAnimationFrame', 'MutationObserver', fit.FIRST_SCREEN_SAMPLER)(
     window, document, { now: () => time }, () => ({ opacity: '1', visibility: 'visible', display: 'block' }),
     (fn) => { cb.interval = fn; return 1; }, () => {}, (fn) => { cb.frame = fn; },
-    class { constructor(fn) { cb.mutation = fn; } observe() {} });
+    class { constructor(fn) { cb.mutation = fn; } observe() {} disconnect() {} });
   attrs.set(fit.PLAYER_SCREEN_ATTR, 'closed');
   attrs.set(fit.PLAYER_SCREEN_PENDING_ATTR, '1');
   for (time = 0; time < 650; time += 50) { cb.interval(); cb.frame?.(); }
@@ -1050,4 +1050,205 @@ test('MUST-RED gh#264 r1: a missing sampler, or an opened screen with no styled 
   assert.match(fit.firstScreenVerdict({ value: null }) ?? '', /sampler/);
   assert.match(fit.firstScreenVerdict({ error: 'boom' }) ?? '', /boom/);
   assert.match(fit.firstScreenVerdict({ value: { samples: 0, offenders: [], final: 'open', declarationFaults: [] } }) ?? '', /no styled sample/);
+});
+
+// gh#264 — the forced-no-WebGL leg (NO_WEBGL=1). Every branch that reds it is driven red here, on the
+// probe's own source: the injection and the in-page check run over fake canvas classes, the run-level
+// faults over recorded rows, and the every-task sampler over the fake page above.
+
+/** A page whose canvases answer a context for every kind, the way a WebGL-live Chrome does --
+ *  OffscreenCanvas included, which throws on 'experimental-webgl' exactly as Chrome measured. */
+function canvasPage() {
+  const ctx = () => ({ fillRect() {} });
+  class HTMLCanvasElement { getContext() { return ctx(); } }
+  class OffscreenCanvas {
+    getContext(kind) {
+      if (kind === 'experimental-webgl') throw new TypeError(`The provided value '${kind}' is not a valid enum value`);
+      return ctx();
+    }
+  }
+  const window = { HTMLCanvasElement, OffscreenCanvas };
+  const document = { createElement: () => new HTMLCanvasElement() };
+  const check = () => ({ value: new Function('window', 'document', fit.NO_WEBGL_CHECK)(window, document) });
+  return { window, check, inject: () => new Function('window', fit.NO_WEBGL_INJECTION)(window) };
+}
+
+test('MUST-RED gh#264: the no-WebGL check reds a page the injection never reached, and passes once it has', () => {
+  const page = canvasPage();
+  const before = fit.noWebglInjectionVerdict(page.check());
+  assert.match(before ?? '', /forced no-WebGL did not take/, 'a WebGL-live page passed the precondition');
+  for (const k of fit.NO_WEBGL_CONTEXTS) assert.match(before, new RegExp(`canvas ${k} `));
+  page.inject();
+  assert.equal(fit.noWebglInjectionVerdict(page.check()), null, 'the injection took and the check still reds');
+});
+
+test('MUST-RED gh#264: an injection that also takes 2d away, or a check that never ran, reds', () => {
+  const allNull = Object.fromEntries(fit.NO_WEBGL_CONTEXTS.map((k) => [k, true]));
+  const ok = { canvas: allNull, offscreenPresent: true, offscreen: allNull, twoD: true };
+  assert.equal(fit.noWebglInjectionVerdict({ value: ok }), null);
+  assert.match(fit.noWebglInjectionVerdict({ value: { ...ok, twoD: false } }) ?? '', /2d context away/);
+  assert.match(fit.noWebglInjectionVerdict({ value: { ...ok, offscreen: { ...allNull, webgl2: false } } }) ?? '', /OffscreenCanvas webgl2/);
+  assert.match(fit.noWebglInjectionVerdict({ value: null }) ?? '', /returned nothing/);
+  assert.match(fit.noWebglInjectionVerdict({ error: 'target closed' }) ?? '', /target closed/);
+});
+
+/** A complete, clean no-WebGL run over `routes`. */
+function noWebglRun(routes) {
+  const allNull = Object.fromEntries(fit.NO_WEBGL_CONTEXTS.map((k) => [k, true]));
+  return {
+    noWebgl: true,
+    rows: routes.map((route) => ({
+      route, url: `/game/${route}/play/`, vp: '320x568', error: null, firstScreen: { final: 'open', samples: 3 },
+      injection: { canvas: allNull, offscreenPresent: true, offscreen: allNull, twoD: true }, screens: [],
+    })),
+  };
+}
+
+test('MUST-RED gh#264: the no-WebGL run reds a missing, doubled or extra route, a row error, an unchecked row, or a run that was not forced', () => {
+  const routes = playRoutes();
+  assert.deepEqual(fit.noWebglFaults(noWebglRun(routes), routes), [], 'a complete clean run reds');
+  const run = () => noWebglRun(routes);
+  const missing = run(); missing.rows.pop();
+  assert.match(fit.noWebglFaults(missing, routes).join('\n'), new RegExp(`no row for ${routes.at(-1)}`));
+  const doubled = run(); doubled.rows.push({ ...doubled.rows[0] });
+  assert.match(fit.noWebglFaults(doubled, routes).join('\n'), /more than one row/);
+  const extra = run(); extra.rows.push({ ...extra.rows[0], route: 'not-a-route' });
+  assert.match(fit.noWebglFaults(extra, routes).join('\n'), /not asked to walk/);
+  const broken = run(); broken.rows[0].error = 'painted content of its own';
+  assert.match(fit.noWebglFaults(broken, routes).join('\n'), /with WebGL forced off: painted content/);
+  const unchecked = run(); unchecked.rows[0].injection = null;
+  assert.match(fit.noWebglFaults(unchecked, routes).join('\n'), /returned nothing/);
+  const unforced = run(); delete unforced.noWebgl;
+  assert.match(fit.noWebglFaults(unforced, routes).join('\n'), /not from a forced-no-WebGL run/);
+});
+
+test('MUST-RED gh#264 REFUTE: rows with valid injection and no first-screen measurement RED -- intro-first is observed, never inferred', () => {
+  const routes = playRoutes();
+  const bare = noWebglRun(routes);
+  for (const r of bare.rows) delete r.firstScreen;
+  const faults = fit.noWebglFaults(bare, routes);
+  assert.equal(faults.length, routes.length, `every unmeasured row must red on its own, got: ${faults.join(' / ')}`);
+  assert.match(faults[0], /no first-screen measurement/);
+  const unsampled = noWebglRun(routes); unsampled.rows[0].firstScreen.samples = 0;
+  assert.match(fit.noWebglFaults(unsampled, routes).join('\n'), /no styled sample on record/);
+  const odd = noWebglRun(routes); odd.rows[0].firstScreen.final = null;
+  assert.match(fit.noWebglFaults(odd, routes).join('\n'), /neither open nor closed/);
+  const intro = noWebglRun(routes); intro.rows[0].firstScreen = { final: 'closed', samples: 0 };
+  assert.deepEqual(fit.noWebglFaults(intro, routes), [], 'an observed intro-first row reds');
+});
+
+test('MUST-RED gh#264: main() under NO_WEBGL gates on the run-level faults, and refuses to mix with a shard or a control', () => {
+  const routes = playRoutes();
+  const drive = (out, env = {}) => {
+    const logged = [];
+    const saved = { ...process.env };
+    const origExit = process.exit;
+    const origErr = console.error;
+    let code = null;
+    Object.assign(process.env, { NO_WEBGL: '1' }, env);
+    process.exit = (c) => { code = c; throw new Error(`PROCESS_EXIT_${c}`); };
+    console.error = () => {};
+    try {
+      main({ acquireMeasurements: () => out, emit: () => {}, log: (l) => logged.push(l) });
+    } catch (err) {
+      if (!err.message?.startsWith('PROCESS_EXIT_')) throw err;
+    } finally {
+      process.exit = origExit;
+      console.error = origErr;
+      for (const k of Object.keys(process.env)) if (!(k in saved)) delete process.env[k];
+      Object.assign(process.env, saved);
+    }
+    return { code, logged };
+  };
+  const clean = drive(noWebglRun(routes));
+  assert.equal(clean.code, null, 'a complete clean no-WebGL run exited');
+  assert.match(clean.logged.join('\n'), new RegExp(`OK no-WebGL first screen: ${routes.length} route row\\(s\\)`));
+  const short = noWebglRun(routes); short.rows.shift();
+  assert.equal(drive(short).code, 1, 'a run missing a route passed');
+  assert.throws(() => drive(noWebglRun(routes), { FIT_SHARD: '0', FIT_SHARDS: '3' }), /NO_WEBGL is its own leg/);
+  assert.throws(() => drive(noWebglRun(routes), { BREAK_WALK: '1' }), /NO_WEBGL is its own leg/);
+});
+
+/** The fake page above, driven through an explicit event-loop script. The observer double delivers a
+ *  record only to an observer whose options match it, and only at a checkpoint -- as the browser does
+ *  -- so a sampler watching the player-screen attributes alone never hears a board go in. A
+ *  MessageChannel double queues its message as a later task. `steps` runs in order:
+ *    tick      -- one interval sample          frame -- the sampler's own rAF sample
+ *    insert    -- a route callback appends the board under the root
+ *    remove    -- a route callback removes it  checkpoint -- the microtask checkpoint after a callback
+ *    open      -- the open task: pending cleared, screen open, then its checkpoint
+ *    tasks     -- every queued later task runs */
+function orderFixture(sampler, steps) {
+  const attrs = new Map();
+  const root = app(shared());
+  const html = el('html', {}, el('body', {}, root));
+  Object.assign(html, { hasAttribute: (a) => attrs.has(a), getAttribute: (a) => attrs.get(a) ?? null });
+  const document = {
+    documentElement: html,
+    querySelector: (sel) => html.querySelectorAll(sel)[0] ?? null,
+    querySelectorAll: (sel) => (sel.startsWith('link') ? [] : html.querySelectorAll(sel)),
+    addEventListener() {},
+  };
+  const window = {};
+  const observers = [];
+  let records = [];
+  const tasks = [];
+  const cb = {};
+  let time = 0;
+  const within = (node, top) => { for (let n = node; n; n = n.parentElement) if (n === top) return true; return false; };
+  class MutationObserver {
+    constructor(fn) { this.fn = fn; }
+    observe(target, o) { observers.push({ fn: this.fn, target, o, self: this }); }
+    disconnect() { for (let i = observers.length - 1; i >= 0; i--) if (observers[i].self === this) observers.splice(i, 1); }
+  }
+  class MessageChannel {
+    constructor() {
+      this.port1 = { onmessage: null };
+      this.port2 = { postMessage: () => tasks.push(() => this.port1.onmessage({})) };
+    }
+  }
+  new Function('window', 'document', 'performance', 'getComputedStyle', 'setInterval', 'clearInterval', 'requestAnimationFrame', 'MutationObserver', 'MessageChannel', sampler)(
+    window, document, { now: () => time }, () => ({ opacity: '1', visibility: 'visible', display: 'block' }),
+    (fn) => { cb.interval = fn; return 1; }, () => {}, (fn) => { cb.frame = fn; }, MutationObserver, MessageChannel);
+  const matches = (r, { target, o }) => (r.target === target || (o.subtree && within(r.target, target)))
+    && (r.type === 'attributes' ? (o.attributes || o.attributeFilter) && (!o.attributeFilter || o.attributeFilter.includes(r.name)) : o[r.type]);
+  const checkpoint = () => {
+    const due = records;
+    records = [];
+    for (const ob of [...observers]) { const mine = due.filter((r) => matches(r, ob)); if (mine.length) ob.fn(mine); }
+  };
+  const board = el('h1', { id: 'board', text: 'Board' });
+  const run = {
+    tick: () => { time += 50; cb.interval(); },
+    frame: () => { const f = cb.frame; cb.frame = null; f?.(); },
+    insert: () => { board.parentElement = root; root.kids.push(board); records.push({ type: 'childList', target: root }); },
+    remove: () => { root.kids.splice(root.kids.indexOf(board), 1); records.push({ type: 'childList', target: root }); },
+    checkpoint,
+    open: () => {
+      attrs.delete(fit.PLAYER_SCREEN_PENDING_ATTR);
+      attrs.set(fit.PLAYER_SCREEN_ATTR, 'open');
+      records.push({ type: 'attributes', target: html, name: fit.PLAYER_SCREEN_PENDING_ATTR }, { type: 'attributes', target: html, name: fit.PLAYER_SCREEN_ATTR });
+      checkpoint();
+    },
+    tasks: () => { for (const t of tasks.splice(0)) t(); },
+  };
+  attrs.set(fit.PLAYER_SCREEN_ATTR, 'closed');
+  attrs.set(fit.PLAYER_SCREEN_PENDING_ATTR, '1');
+  for (const s of steps) run[s]();
+  return fit.firstScreenVerdict({ value: new Function('window', 'document', fit.FIRST_SCREEN_READ)(window, document) });
+}
+
+test('MUST-RED gh#264 REFUTE: sampler rAF, then a route rAF inserting its board, then the open task -- the board REDS', () => {
+  // The judge's ordering: the board goes in during a route's rAF callback, after the sampler's own, so
+  // it is painted at that rendering opportunity; the open is a task queued before any later sample.
+  const why = orderFixture(fit.FIRST_SCREEN_SAMPLER, ['tick', 'frame', 'insert', 'checkpoint', 'open', 'tasks']);
+  assert.match(why ?? '', /h1#board\|Board/, 'a board painted before the open was never sampled');
+});
+
+test('MUST-RED gh#264 REFUTE: a board a task leaves standing before the open REDS', () => {
+  assert.match(orderFixture(fit.FIRST_SCREEN_SAMPLER, ['tick', 'insert', 'checkpoint', 'open']) ?? '', /h1#board\|Board/);
+});
+
+test('gh#264 REFUTE: a board inserted and removed inside one callback is never counted -- no frame can show it', () => {
+  assert.equal(orderFixture(fit.FIRST_SCREEN_SAMPLER, ['tick', 'frame', 'insert', 'remove', 'checkpoint', 'open', 'tasks']), null);
 });

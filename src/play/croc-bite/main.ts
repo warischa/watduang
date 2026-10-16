@@ -258,6 +258,33 @@ function renderBoard(app: KhengApp): void {
   disarmBoard = armAllButtons(host);
 }
 
+// gh#264: the class main.js's markup puts on the setup screen until the players are handed over. The
+// board wears the same name, under its own rule in overrides.css.
+const HELD = 'held-for-players';
+
+/** gh#264, ADR-0071 ruling 1: the shared player screen is the first screen. With no context the board
+ *  goes up at mount, before that screen has opened, so the board is held hidden from insertion until
+ *  the players are handed over, and armed as it comes back (a release is a reveal, ADR-0057).
+ *
+ *  The release follows the setup screen's own hold rather than a second signal: main.js lifts that on
+ *  exactly the paths that end the wait -- the screen's start (GameApp.startWithPlayers), a mount that
+ *  throws, an open that fails later, a page with no players root. Releasing on the OPEN instead would
+ *  show a pressable board behind a screen that has handed nobody over yet. No hold when setup is not
+ *  held (a context lost after the handover), and none where no observer could ever release it. */
+function holdUntilHandover(host: HTMLElement): void {
+  const setup = $('screen-setup');
+  if (!setup?.classList.contains(HELD) || typeof MutationObserver !== 'function') return;
+  host.classList.add(HELD);
+  const watch = new MutationObserver(() => {
+    if (setup.classList.contains(HELD)) return;
+    watch.disconnect();
+    host.classList.remove(HELD);
+    disarmBoard?.();
+    disarmBoard = armAllButtons(host);
+  });
+  watch.observe(setup, { attributes: true, attributeFilter: ['class'] });
+}
+
 /** Plays one press through the engine's own state machine, then settles it.
  *
  *  Settling is this file's job on this path and not a shortcut: the engine completes a press from the
@@ -309,6 +336,7 @@ function cutTo2D(app: KhengApp): void {
   const host = document.createElement('div');
   host.id = BOARD_ID;
   host.className = 'ui-screen';
+  holdUntilHandover(host);
   container.appendChild(host);
   host.addEventListener('click', (ev) => {
     const btn = (ev.target as Element | null)?.closest<HTMLButtonElement>('[data-tooth]');

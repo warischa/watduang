@@ -95,8 +95,8 @@ fi
 # (errexit, an OOM-killed Chrome) would otherwise read as FEWER GREENS and still exit 0 -- the exact
 # silent-skip shape docs/agents/ci-verification.md exists to kill. Re-record this number in the same
 # commit that adds or removes a leg. It is no longer one grep: fit_pair is written once and CALLED once
-# per shard, so the count is the 22 probe/standalone lines outside fit_pair plus 2 x FIT_SHARDS
-# (grep -cE '^  (probe|standalone) ' returns 24 -- the two lines inside fit_pair, counted once each).
+# per shard, so the count is the 23 probe/standalone lines outside fit_pair plus 2 x FIT_SHARDS
+# (grep -cE '^  (probe|standalone) ' returns 25 -- the two lines inside fit_pair, counted once each).
 # gh#179, 18 -> 20: play-screen-fit and its play-screen-fit-control joined lane3.
 # 20 -> 24: the fit pair became FIT_SHARDS pairs (2 legs per shard, labels suffixed with the shard index)
 # so the walk could be split across lanes. This number is a HUMAN-MAINTAINED pin and is blind to the one
@@ -116,7 +116,9 @@ fi
 # detector on the routes it can drive, not on the set. That gap is ADR-0063's own named flip-fact and
 # is reserved for the owner (gh#224); it is written here so the pair is not read as covering more
 # than it does.
-EXPECTED_LEGS=28
+# gh#264, 28 -> 29: no-webgl-first-screen joined lane4, a single leg (see its note there). The count is
+# now the 23 probe/standalone lines outside fit_pair, plus 2 x FIT_SHARDS.
+EXPECTED_LEGS=29
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -397,6 +399,16 @@ lane4() {
   standalone live-region-floor-control env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_GUARD=1 node scripts/live-region-floor-probe.mjs
   standalone control-floor             env BASE="$SITE" CDP_PORT="$CDP_4" node scripts/control-floor-probe.mjs
   standalone control-floor-control     env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_FLOOR=1 node scripts/control-floor-probe.mjs
+  # gh#264 -- the first screen on the NO-WEBGL path. This lane's Chrome hands out WebGL, so no other leg
+  # ever boots a 3D route's fallback, where a route painted its own screen ahead of the shared player
+  # screen while CI stayed green. The leg takes WebGL away before any page script runs, verifies that on
+  # every judged document, and reconciles one row per manifest play route itself. A single leg and not a
+  # pair: its calibration is in-file (play-screen-fit-probe.test.mjs drives every branch that reds it),
+  # and a precondition that did not take reds the row rather than passing it.
+  # WHY lane4: it was the shortest phase-one lane (213s on the 2026-10-16 CI run, against 274s for lane2)
+  # and it does not hold the phase-two barrier, so this leg can never delay the fit shards. Measured on
+  # this Mac, n=4: ~52s for the 14 routes, one 320x568 load each.
+  standalone no-webgl-first-screen     env BASE="$SITE" CDP_PORT="$CDP_4" NO_WEBGL=1 node scripts/play-screen-fit-probe.mjs
 }
 
 N_LANES=$((4 + FIT_SHARDS))
