@@ -540,7 +540,10 @@ export interface MountOptions {
 }
 
 export interface PlayerScreen {
-  open(): void;
+  /** Settles when the screen is open; rejects when it could not open (gh#264 REFUTE round 2), so a
+   *  route that holds its own screen for this one can put it back. A caller that ignores it leaves the
+   *  failure an unhandled rejection, as every open was before. */
+  open(): Promise<void>;
   close(): void;
   /** Re-arms the surface the screen sits on through the screen's OWN gate -- for a route's modal
    *  closed over the open screen (ADR-0057). A route gate over this root cannot do it: its window
@@ -554,6 +557,23 @@ export interface PlayerScreen {
  *  and the events carry the request and the changes. No import either way, so the twelve routes that
  *  have not mounted this screen keep PlayExit's reload path untouched. */
 export const SCREEN_ATTR = 'data-player-screen';
+/** Present on <html> while an open() is in flight (gh#264). open() first waits for the legacy-list
+ *  migration, which takes the roster lock, and on a slow device that gap lasts seconds with neither
+ *  this screen nor the route behind it showing -- a reader that has to tell that gap from a settled
+ *  page (the fit probe's fresh read) waits for this to go. Its own name, never a third SCREEN_ATTR
+ *  value: the chrome and a route stylesheet read SCREEN_ATTR's two values as they are.
+ *  Readers test presence only. The VALUE is the number of opens in flight across every screen on the
+ *  page, because the marker is the page's and not one mount's: two screens migrate independently, and
+ *  the first to land must not clear the other's (gh#264 REFUTE round 1). */
+export const PENDING_ATTR = 'data-player-screen-pending';
+
+/** Counts an open in (+1) or out (-1) on the page's marker; the attribute goes when the count does. */
+function countPendingOpen(delta: 1 | -1): void {
+  const html = document.documentElement;
+  const n = Math.max(0, (Number(html.getAttribute(PENDING_ATTR)) || 0) + delta);
+  if (n > 0) html.setAttribute(PENDING_ATTR, String(n));
+  else html.removeAttribute(PENDING_ATTR);
+}
 export const STATE_EVENT = 'watduang:player-screen';
 export const EDIT_EVENT = 'watduang:edit-players';
 
@@ -608,7 +628,17 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
 
   // Every legacy import runs once per mount; open() waits for them, or a timebomb-only device would
   // see the first-visit stepper on the very visit that imports its list.
-  const migrated = Promise.all(LEGACY_LISTS.map(({ key, extract, keep }) => migrateLegacyList(key, extract, keep)));
+  // Once per mount while it SUCCEEDS: a run that rejected is not kept, or every later open would
+  // chain on the same rejection and the screen could never open on this page (gh#264 REFUTE round
+  // 2). The next open runs it again; each import is safe to re-run (withLock's own contract).
+  let migrationFailed = false;
+  const migrate = (): Promise<unknown> => {
+    const run = Promise.all(LEGACY_LISTS.map(({ key, extract, keep }) => migrateLegacyList(key, extract, keep)));
+    // Records the failure only; the open chained on `run` still rejects and stays loud.
+    run.then(undefined, () => { migrationFailed = true; });
+    return run;
+  };
+  let migrated = migrate();
 
   /** The two steppers are tapped repeatedly on purpose, so no gate collects them (the premise
    *  ARM_DELAY_MS's comment says to check per control). Their `disabled` is this file's to own. */
@@ -905,15 +935,24 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   });
   window.addEventListener('pagehide', flushRemoval);
 
-  function open(): void {
-    void migrated.then(() => {
-      load();
-      onOpen?.();
-      root.hidden = false;
-      isOpen = true;
-      announce(true);
-      armSurface();
-    });
+  function open(): Promise<void> {
+    if (migrationFailed) {
+      migrationFailed = false;
+      migrated = migrate();
+    }
+    countPendingOpen(1);
+    // finally, so a failed open (a rejected migration, a throwing route hook) is uncounted too; the
+    // returned promise rejects with it, and stays the unhandled rejection it always was when ignored.
+    return migrated
+      .then(() => {
+        load();
+        onOpen?.();
+        root.hidden = false;
+        isOpen = true;
+        announce(true);
+        armSurface();
+      })
+      .finally(() => countPendingOpen(-1));
   }
 
   function close(): void {

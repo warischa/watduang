@@ -608,3 +608,189 @@ test('a ticked name another tab removed is not seated short: the screen re-reads
   await settle();
   assert.deepEqual(page.calls.started[0].map((p) => p.name), ['A', 'B']);
 });
+
+// gh#264: open() is async -- it waits for the legacy-list migration, which takes the roster lock --
+// and until it lands the page shows neither this screen nor what it replaces. PENDING_ATTR is the
+// page's own statement of that gap, so a reader (the fit probe's fresh read) can wait it out instead
+// of reading a page mid-boot as "the screen a device opens on". It is a SEPARATE attribute: SCREEN_ATTR
+// keeps its two values because the chrome's edit control and a route stylesheet read them.
+const { makePage, installStorage } = await import('./screen-harness.mjs');
+const LEGACY_KEY = ps.LEGACY_LISTS[0].key;
+
+/** Mounts the real screen with the hooks these cases need and mountOnPage does not take: a legacy
+ *  value present BEFORE mount (so the migration really reaches the lock) and a route onOpen. */
+function mountBare({ onOpen } = {}) {
+  installStorage().set(LEGACY_KEY, 'not json'); // corrupt still goes through the lock, then retires
+  const doc = makePage(SURFACE);
+  globalThis.document = doc;
+  globalThis.window = { addEventListener() {}, removeEventListener() {} };
+  const screen = ps.mountPlayerScreen({
+    root: doc.getElementById('root'),
+    range: [2, 10],
+    onStart() {},
+    roundActive: () => false,
+    abortRound() {},
+    onOpen,
+  });
+  const html = doc.documentElement;
+  return { screen, pending: () => html.hasAttribute(ps.PENDING_ATTR), shown: () => html.getAttribute(ps.SCREEN_ATTR) };
+}
+
+/** Node's navigator has no locks; these cases install one they control and put the real one back. */
+function withLocks(t, request) {
+  const real = globalThis.navigator;
+  Object.defineProperty(globalThis, 'navigator', { value: { locks: { request } }, configurable: true, writable: true });
+  t.after(() => Object.defineProperty(globalThis, 'navigator', { value: real, configurable: true, writable: true }));
+}
+
+/** An open that fails still surfaces as an unhandled rejection, exactly as it did before PENDING_ATTR
+ *  existed -- the attribute must clear without swallowing it. node:test reds any unhandled rejection,
+ *  so the runner's own listeners step aside while the expected one is collected. */
+async function collectRejections(fn) {
+  const runner = process.listeners('unhandledRejection');
+  const seen = [];
+  process.removeAllListeners('unhandledRejection');
+  process.on('unhandledRejection', (e) => seen.push(e));
+  try {
+    await fn();
+  } finally {
+    // Waited out even when fn threw, so a rejection still in flight is collected here and never
+    // lands in the next case's collector.
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    process.removeAllListeners('unhandledRejection');
+    for (const l of runner) process.on('unhandledRejection', l);
+  }
+  return seen;
+}
+
+test('gh#264: open() marks the page pending BEFORE the migration lands and clears it once the screen is open', async (t) => {
+  const held = [];
+  withLocks(t, (_name, fn) => new Promise((resolve) => { held.push(() => resolve(fn())); }));
+  const { screen, pending, shown } = mountBare();
+  assert.equal(shown(), 'closed', 'the mount announces a closed screen before anything opens it');
+  assert.equal(pending(), false, 'nothing is pending before open() is called');
+  screen.open();
+  assert.equal(pending(), true, 'open() did not mark the page pending synchronously');
+  await settle();
+  assert.ok(held.length > 0, 'the migration never reached the lock -- this case is not holding the open');
+  assert.equal(pending(), true, 'pending cleared while the migration was still waiting on the lock');
+  assert.equal(shown(), 'closed', 'the screen announced itself open before its migration landed');
+  // Every request the migrations queued, including any a granted one queues next.
+  while (held.length) {
+    held.shift()();
+    await settle();
+  }
+  assert.equal(pending(), false, 'the open completed and left the page marked pending');
+  assert.equal(shown(), 'open');
+});
+
+test('gh#264 REFUTE r1: pending is the page\'s, so it stays until EVERY open in flight has landed', async (t) => {
+  const held = [];
+  withLocks(t, (_name, fn) => new Promise((resolve) => { held.push(() => resolve(fn())); }));
+  const first = mountBare();
+  const firstRequests = held.splice(0);
+  // A second screen on the same page: its own migration, its own lock requests, one shared <html>.
+  const doc = globalThis.document;
+  const otherRoot = doc.createElement('section');
+  otherRoot.setAttribute('id', 'second-root');
+  doc.body.append(otherRoot);
+  const second = ps.mountPlayerScreen({ root: otherRoot, range: [2, 10], onStart() {}, roundActive: () => false, abortRound() {} });
+  first.screen.open();
+  second.open();
+  await settle();
+  assert.ok(firstRequests.length > 0 && held.length > 0, 'both migrations must be waiting on the lock, or this case holds nothing');
+  while (firstRequests.length) {
+    firstRequests.shift()();
+    await settle();
+  }
+  assert.equal(otherRoot.hidden, true, 'the second screen opened without its migration -- this case is not holding it');
+  assert.equal(first.pending(), true, 'the first open cleared the marker while the second was still waiting');
+  while (held.length) {
+    held.shift()();
+    await settle();
+  }
+  assert.equal(otherRoot.hidden, false);
+  assert.equal(first.pending(), false, 'every open landed and the page is still marked pending');
+});
+
+test('gh#264 REFUTE r1: two opens of ONE screen, closed before they land, leave nothing pending', async (t) => {
+  const held = [];
+  withLocks(t, (_name, fn) => new Promise((resolve) => { held.push(() => resolve(fn())); }));
+  const page = mountBare();
+  page.screen.open();
+  page.screen.open();
+  page.screen.close();
+  await settle();
+  assert.equal(page.pending(), true);
+  while (held.length) {
+    held.shift()();
+    await settle();
+  }
+  assert.equal(page.pending(), false);
+});
+
+test('gh#264: a migration that rejects still clears pending -- no page is left marked mid-open', async (t) => {
+  withLocks(t, () => { throw new Error('locks refused'); });
+  let page;
+  const seen = await collectRejections(async () => {
+    page = mountBare();
+    page.screen.open();
+    assert.equal(page.pending(), true);
+    await settle();
+  });
+  assert.equal(page.pending(), false, 'a rejected migration left the page marked pending forever');
+  assert.equal(page.shown(), 'closed', 'a rejected open must not announce the screen open');
+  assert.deepEqual(seen.map((e) => e.message), ['locks refused'], 'the failure was swallowed instead of surfacing');
+});
+
+test('gh#264 REFUTE r2: open() hands its caller the outcome -- a failed open rejects, so a route can recover', async (t) => {
+  withLocks(t, () => { throw new Error('locks refused'); });
+  const page = mountBare();
+  let caught;
+  const seen = await collectRejections(async () => {
+    const opening = page.screen.open();
+    assert.equal(typeof opening?.then, 'function', 'open() returns nothing: a route cannot tell its screen never came');
+    await opening.catch((e) => { caught = e; });
+  });
+  assert.equal(caught?.message, 'locks refused');
+  assert.deepEqual(seen, [], 'a caller that handled the failure still got an unhandled rejection');
+});
+
+test('gh#264 REFUTE r2: an open after a FAILED migration runs the migration again instead of reusing the rejection', async (t) => {
+  let refuse = true;
+  withLocks(t, (_name, fn) => { if (refuse) throw new Error('locks refused'); return Promise.resolve(fn()); });
+  const page = mountBare();
+  const seen = await collectRejections(async () => {
+    page.screen.open();
+    await settle();
+  });
+  assert.deepEqual(seen.map((e) => e.message), ['locks refused'], 'precondition: the first open failed loudly');
+  assert.equal(page.shown(), 'closed');
+  refuse = false;
+  await page.screen.open();
+  assert.equal(page.shown(), 'open', 'the retry reused the rejected migration, so the screen can never open on this page');
+  assert.equal(page.pending(), false);
+});
+
+test('gh#264: an open whose route hook throws still clears pending', async (t) => {
+  withLocks(t, (_name, fn) => Promise.resolve(fn()));
+  let page;
+  const seen = await collectRejections(async () => {
+    page = mountBare({ onOpen: () => { throw new Error('route hook broke'); } });
+    page.screen.open();
+    assert.equal(page.pending(), true, 'open() did not mark the page pending, so its clearing below proves nothing');
+    await settle();
+  });
+  assert.equal(page.pending(), false, 'a throwing onOpen left the page marked pending forever');
+  assert.deepEqual(seen.map((e) => e.message), ['route hook broke']);
+});
+
+// The fit probe reads these two names off <html> in the browser, where it cannot import this module.
+// Pinned here so a rename on either side reds instead of leaving the probe waiting on an attribute
+// nothing sets.
+test('gh#264: the fit probe waits on the same two attributes this screen writes', async () => {
+  const probe = await import('../../../scripts/play-screen-fit-probe.mjs');
+  assert.equal(probe.PLAYER_SCREEN_ATTR, ps.SCREEN_ATTR);
+  assert.equal(probe.PLAYER_SCREEN_PENDING_ATTR, ps.PENDING_ATTR);
+  assert.notEqual(ps.PENDING_ATTR, ps.SCREEN_ATTR);
+});
