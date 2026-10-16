@@ -233,9 +233,13 @@ const touch = (x, y) => Promise.all([
   send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] }),
   send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }),
 ]);
-// The transition trigger is driven with a MOUSE press/release, not a touch: cannon-flag dispatches
-// no compat click for synthetic touch (measured), so its own start button never fires under touch and
-// the "after a round transition" precondition would be void there. The X burst below is real touch.
+// The transition trigger is driven with a MOUSE press/release, not a touch. It was chosen when
+// cannon-flag cancelled every touchend, so no compat click followed a synthetic touch and its start
+// button never fired -- the "after a round transition" precondition would have been void there.
+// gh#264 narrowed that cancel to the touchend that ends a power charge, and cannon-flag's controls now
+// activate under CDP touch (gh#264 batch evidence, cannon-flag touch addendum). The trigger stays a
+// mouse press because every route's burst timing below was calibrated on it, and a touch trigger has
+// not been measured here. The X burst below is real touch.
 // gh#231 — both halves go on the wire together and only the PAIR is awaited, for the same reason the
 // touch pair above does, and this one is what the CI failure was made of. Awaiting the mouseReleased
 // ack put the whole transition INSIDE the interval the classifier gates on: Chrome acks an input
