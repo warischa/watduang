@@ -156,3 +156,11 @@ Order the batch so the suite runs ONCE, after the last commit that will be pushe
 included. Running a hand-picked subset over the late commits is not a substitute: the rule above is
 that a local green predicts CI only through `scripts/run-workflow-gates.sh`, and a docs commit still
 moves `.md` bytes that `check-citations` and `added-lineno-citation-check` police.
+
+## A runner-only failure is seen only by a runner — run CI on the branch before the main push (2026-10-16)
+
+Two local full lanes passed and the main push still went red: croc-bite's fit legs fail only under the
+runner's CPU pressure, which `scripts/ci-probes.sh`'s header predicts and no local lane reproduces. `on:
+push` is unfiltered and every deploy step is gated on `refs/heads/main`, so pushing the batch branch first
+buys the runner's verdict with no deploy and leaves `main` green. For a src batch: push the branch, read its
+run, then the main push.
