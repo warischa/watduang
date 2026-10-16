@@ -493,3 +493,36 @@ stops under reduce-motion, and nothing jumps.
 a jump.
 
 Record: device — OS version — PASS / FAIL — note.
+
+### Shared player screen — every party play route (gh#264, shipped 2026-10-16)
+
+All 14 party games now open the same player screen before play (ADR-0071). It was checked in headless
+Chrome under CDP touch on all 14 routes (`docs/verification/evidence/gh264-batch-2026-10-15/`). No
+real hand has touched it yet. Walk it on **two** routes, timebomb (dark) and short-stick (light), and on
+cannon-flag (step 6).
+
+1. **First visit.** Clear the site's data, then open a party game. Does the −/+ stepper start at 4,
+   and does it stop at the game's own minimum and maximum? Is every name row easy to type into
+   with the keyboard up?
+2. **Saved roster.** Start a round, then come back. Is the list pre-filled, with no stepper? Does
+   the tick on a row (`เล่นรอบนี้`) toggle on the first touch? Does a sitting-out row read clearly as
+   sitting out?
+3. **Remove and undo.** Tap × (`เอาออกจากวง`) on a row. Does the undo bar (`เอา <name> ออกจากวงแล้ว`)
+   appear? Can you reach its undo with a thumb before it goes, about 4 seconds later? After undo,
+   is the row back where it was?
+4. **Duplicate names.** Type the same name into two rows. Does start disable at once, with the line
+   `มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม`? Does renaming one row re-enable start?
+5. **Edit mid-round.** During a round, tap `แก้ผู้เล่น` and confirm. Do you land back on the player
+   screen with no round running? Cancel instead: is the round left untouched? Tap twice fast on
+   cancel or confirm: does the second tap do nothing?
+6. **cannon-flag under a real finger.** On the player screen, tap − / + and start; each should
+   register once. In the round, hold fire to charge, then release: exactly one shot, and no stray tap
+   lands on whatever sits under your finger when you lift it (the release that ends a charge is
+   cancelled; every other touch is not).
+
+**Pass:** every control answers the first touch once, the undo bar is reachable in time, duplicates
+block start, and cannon-flag fires once per release with no ghost tap.
+**Fail:** a dead or double tap, an undo bar gone before a thumb can reach it, a duplicate that
+starts, or a ghost tap after a cannon-flag release.
+
+Record: device — OS version — route — PASS / FAIL — note.
