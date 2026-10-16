@@ -1180,6 +1180,206 @@ async function load(session, url, vp, seeded, draw = null) {
   await session.nav(url);
   await session.setWidth(vp.w, vp.h);
   await sleep(1200); // main.js is an external module; give it a beat to build the first screen
+  return awaitPlayerScreenSettled((body) => session.evaluate(body));
+}
+
+/**
+ * gh#264 — THE FIXED BEAT ABOVE IS NOT ENOUGH ON ITS OWN. Every play route mounts the shared player
+ * screen (ADR-0071), and its open() first waits for a roster migration that takes a Web Lock. On a
+ * slow runner that open lands seconds after the beat, so a read taken at the beat saw a page mid-boot
+ * and the control leg reported the screen "changing on its own" when it was only finishing its open.
+ * So load() also waits until the page itself says the open is done: the screen is mounted (its
+ * attribute is on <html> -- set at mount, before anything opens it, so routes that open it only after
+ * their own intro satisfy this at boot) and no open is pending (the screen's separate pending
+ * attribute, set by open() before its migration and cleared on success AND failure).
+ *
+ * The two names are the screen's own (player-screen.ts SCREEN_ATTR / PENDING_ATTR) and are restated
+ * here because this read runs in the page; player-screen.test.mjs pins that they agree.
+ */
+export const PLAYER_SCREEN_ATTR = 'data-player-screen';
+export const PLAYER_SCREEN_PENDING_ATTR = 'data-player-screen-pending';
+/** The cap, measured from the first read after the beat. CI's red run showed the boot plus the open
+ *  taking 5s and more on the runner, so the cap is three times that: generous enough that a runner
+ *  slower than the worst one seen still settles, and short enough that a page whose open never ends
+ *  reds this row in seconds instead of hanging the leg. A settled page pays nothing -- the first read
+ *  returns. At the cap the row REDS by name; it never proceeds to a read of a page still booting. */
+export const PLAYER_SCREEN_SETTLE_CAP_MS = 15000;
+const PLAYER_SCREEN_POLL_MS = 100;
+const PLAYER_SCREEN_READ = `
+  const de = document.documentElement;
+  return { mounted: de.hasAttribute('${PLAYER_SCREEN_ATTR}'), pending: de.hasAttribute('${PLAYER_SCREEN_PENDING_ATTR}') };
+`;
+
+/** null once the player screen has finished any open; otherwise, at the cap, the reason the row reds. */
+export async function awaitPlayerScreenSettled(evaluate, {
+  capMs = PLAYER_SCREEN_SETTLE_CAP_MS, pollMs = PLAYER_SCREEN_POLL_MS, wait = sleep, now = Date.now,
+} = {}) {
+  const deadline = now() + capMs;
+  for (;;) {
+    const read = await evaluate(PLAYER_SCREEN_READ);
+    const v = read.error ? null : read.value;
+    if (v?.mounted && !v.pending) return null;
+    if (now() >= deadline) {
+      const why = read.error ? `the read itself failed (${read.error})`
+        : !v?.mounted ? `<html> never carried ${PLAYER_SCREEN_ATTR}, so the shared screen never mounted`
+          : `${PLAYER_SCREEN_PENDING_ATTR} was still set, so an open was still waiting on its migration`;
+      return `the player screen never finished opening within ${capMs}ms: ${why}. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)`;
+    }
+    await wait(pollMs);
+  }
+}
+
+/**
+ * gh#264 REFUTE rounds 1-2 — WHAT THE SETTLE WAIT GAVE UP, CHECKED ON ITS OWN. The wait above moves the
+ * fresh read past the open, and the open is exactly the window in which a route that paints its OWN
+ * screen first is visible: croc-bite's options screen showed there for seconds on a slow runner, and
+ * after the wait the control leg could no longer see it. So the order is its own invariant: on a route
+ * whose shared player screen opens by itself (ADR-0071 ruling 1, "the player screen first"), nothing
+ * the route owns is painted in the play surface between navigation and that open -- except what the
+ * route DECLARES may show first.
+ *
+ * AN ALLOW-LIST, FAIL-CLOSED. A route marks the elements it means to show before the shared screen --
+ * its header chrome, up from first paint by design -- with data-shows-before-players in its own
+ * markup.html. Everything else visible is an offender, named tag#id|text. A text count was tried first
+ * and was a heuristic: an 18-char "Options / Easy / Start" menu passed it (REFUTE round 2).
+ *
+ * A CONTENT LEAF is an element with its own non-whitespace text (its direct text nodes; an element
+ * with no element children reads its textContent, which is the same thing), or an img, svg, picture or
+ * video with a non-empty box. Empty styled boxes are not content and are ignored. canvas is allowed
+ * everywhere: the owner accepted a blank, canvas-only first second on a slow device (2026-10-16).
+ * EXCLUDED: anything inside the shared screen's root (.ps), a dialog, a template, a canvas, or a
+ * [data-shows-before-players] element. Page chrome (the exit X, the edit control) sits outside the root.
+ * VISIBLE means a non-empty box, not visibility:hidden or display:none, and no ancestor up to the root
+ * at opacity 0.
+ * UNCOVERED, by construction: a menu drawn into a canvas, a screen painted by a CSS background-image,
+ * and text from pseudo-element content -- none of them is a DOM content leaf.
+ *
+ * A DECLARATION MAY NOT BLANKET THE SCREEN. One attribute on the play-surface root, on an ancestor of
+ * it, or on any ancestor of .ps would allow everything, so each of those is a red of its own, read off
+ * the page once the screen has settled (when .ps exists).
+ *
+ * THE MEASURE. An in-page sampler, installed before any of the page's own script, samples on every
+ * frame, every 50ms, at DOMContentLoaded and at every change of the two player-screen attributes on
+ * <html> -- the last is what makes it deterministic: open() sets the pending marker in the same task
+ * that hid (or failed to hide) the route's screen, so that sample sees what the next frame paints even
+ * when the open lands in a millisecond. Sampling stops the moment the screen announces itself open
+ * (the screen is shown by then; the pending marker clears a microtask later, and a sample in that gap
+ * would count a route whose menu legitimately frames the open screen, as one-bomb's does). A sample
+ * counts only while the screen is not yet settled and only once every stylesheet has loaded (an
+ * unstyled read describes no frame: the sheets are render-blocking).
+ *
+ * THE SET judged = every route whose screen is open once settled; a route still 'closed' there opens
+ * the screen only after its own intro (short-stick, wire-snip-panic, zero-trigger), and its own screen
+ * IS meant to be first, so it is not judged.
+ */
+export const SHOWS_BEFORE_PLAYERS_ATTR = 'data-shows-before-players';
+const FIRST_SCREEN_KEY = '__watduangFirstScreen';
+const FIRST_SCREEN_ROOT_SEL = '#app, #app-container, #appRoot';
+export const FIRST_SCREEN_SAMPLER = `(() => {
+  const A = '${PLAYER_SCREEN_ATTR}';
+  const P = '${PLAYER_SCREEN_PENDING_ATTR}';
+  const EXCLUDED = '.ps, dialog, template, canvas, [${SHOWS_BEFORE_PLAYERS_ATTR}]';
+  const MEDIA = ['IMG', 'SVG', 'PICTURE', 'VIDEO'];
+  const t0 = performance.now();
+  const ms = () => Math.round(performance.now() - t0);
+  const rec = { samples: 0, unstyled: 0, offenders: [], firstOffenderAt: null, openAt: null, stopped: false };
+  window['${FIRST_SCREEN_KEY}'] = rec;
+  const html = () => document.documentElement;
+  const settled = () => html().hasAttribute(A) && !html().hasAttribute(P);
+  const styled = () => [...document.querySelectorAll('link[rel="stylesheet"]')].every((l) => l.sheet !== null);
+  const boxed = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+  const seen = (e, root) => {
+    if (!boxed(e)) return false;
+    const cs = getComputedStyle(e);
+    if (cs.visibility === 'hidden' || cs.display === 'none') return false;
+    for (let n = e; n && n !== root.parentElement; n = n.parentElement) if (Number(getComputedStyle(n).opacity) === 0) return false;
+    return true;
+  };
+  const ownText = (e) => {
+    if (!e.children.length) return (e.textContent || '').trim();
+    let t = '';
+    for (const n of e.childNodes || []) if (n.nodeType === 3) t += n.textContent;
+    return t.trim();
+  };
+  let timer;
+  const stop = () => { rec.stopped = true; clearInterval(timer); };
+  const sample = () => {
+    if (rec.stopped || !html()) return;
+    if (html().getAttribute(A) === 'open') { rec.openAt = ms(); stop(); return; }
+    if (settled()) return;
+    if (ms() > 30000) { stop(); return; }
+    const root = document.querySelector('${FIRST_SCREEN_ROOT_SEL}');
+    if (!root) return;
+    if (!styled()) { rec.unstyled += 1; return; }
+    rec.samples += 1;
+    for (const e of root.querySelectorAll('*')) {
+      if (e.closest(EXCLUDED)) continue;
+      const media = MEDIA.includes(String(e.tagName).toUpperCase());
+      const text = media ? '' : ownText(e);
+      if (!media && !text) continue;
+      if (!seen(e, root)) continue;
+      const name = String(e.tagName).toLowerCase() + (e.id ? '#' + e.id : '') + '|' + (media ? '[' + String(e.tagName).toLowerCase() + ']' : text.slice(0, 32));
+      if (!rec.offenders.includes(name)) {
+        if (rec.firstOffenderAt === null) rec.firstOffenderAt = ms();
+        if (rec.offenders.length < 12) rec.offenders.push(name);
+      }
+    }
+  };
+  timer = setInterval(sample, 50);
+  const frame = () => { sample(); if (!rec.stopped) requestAnimationFrame(frame); };
+  requestAnimationFrame(frame);
+  let watching = false;
+  const watch = () => {
+    if (watching || !html()) return;
+    watching = true;
+    new MutationObserver(sample).observe(html(), { attributes: true, attributeFilter: [A, P] });
+  };
+  watch();
+  document.addEventListener('readystatechange', watch);
+  document.addEventListener('DOMContentLoaded', sample);
+})();`;
+/** The record, plus the declaration audit: a [data-shows-before-players] that is the root, encloses
+ *  it, or encloses a .ps allows the whole screen, and is named here. Read after the settle wait, when
+ *  the shared screen has mounted and .ps exists. */
+export const FIRST_SCREEN_READ = `
+  const rec = window['${FIRST_SCREEN_KEY}'];
+  if (!rec) return null;
+  const D = '[${SHOWS_BEFORE_PLAYERS_ATTR}]';
+  const name = (e) => e.tagName.toLowerCase() + (e.id ? '#' + e.id : '');
+  const faults = [];
+  const root = document.querySelector('${FIRST_SCREEN_ROOT_SEL}');
+  const over = root && root.closest(D);
+  if (over) faults.push(name(over) + ' declares the play-surface root ' + name(root) + (over === root ? '' : ' (an ancestor)'));
+  for (const ps of document.querySelectorAll('.ps')) {
+    const wrap = ps.closest(D);
+    if (wrap && wrap !== over) faults.push(name(wrap) + ' encloses the shared screen ' + name(ps));
+  }
+  return { ...rec, final: document.documentElement.getAttribute('${PLAYER_SCREEN_ATTR}'), declarationFaults: faults };
+`;
+
+/** The order verdict for one load: the reason the row reds, or null. No route is excused and there is
+ *  no threshold: an undeclared visible leaf before the open is a red (gh#264 REFUTE round 2). A record
+ *  without the declaration audit (the sampler's own record, before the read adds it) audits nothing;
+ *  checkFirstScreen refuses a browser read that lacks it. */
+export function firstScreenVerdict(read) {
+  if (read?.error) return `the first-screen sampler could not be read (${read.error})`;
+  const v = read?.value;
+  if (!v) return 'the first-screen sampler was not installed on the document measured, so nothing here says what was painted before the player screen';
+  if (v.declarationFaults?.length) return `a ${SHOWS_BEFORE_PLAYERS_ATTR} declaration would allow the whole screen: ${v.declarationFaults.join('; ')} -- declare the header elements themselves (gh#264)`;
+  if (v.final !== 'open') return null;
+  if (!v.samples) return 'the shared screen opened with no styled sample taken before it, so this row cannot say what was painted first (gh#264)';
+  if (!v.offenders?.length) return null;
+  return `the route painted content of its own before the shared player screen opened, from +${v.firstOffenderAt}ms: ${JSON.stringify(v.offenders)}. Hold it until the open, or -- if it is header chrome meant to show first -- mark it ${SHOWS_BEFORE_PLAYERS_ATTR} in the route's markup.html (gh#264)`;
+}
+
+/** Reads the sampler after the settle wait and records the verdict on the row. true = row.error set. */
+async function checkFirstScreen(session, row) {
+  const read = await session.evaluate(FIRST_SCREEN_READ);
+  const why = read.value && !Array.isArray(read.value.declarationFaults)
+    ? 'the first-screen read returned no declaration audit, so a blanket declaration would pass unseen'
+    : firstScreenVerdict(read);
+  if (why) row.error = why;
+  return Boolean(why);
 }
 
 /** driver.mjs probe: every play route x every viewport, fresh signature then the seeded walk. */
@@ -1199,7 +1399,12 @@ async function walkPass(session, id, url, vp, row, fresh, draw) {
   // NO_SEED skips the seeding, so the walk is left on the fresh screen and every screen it
   // reaches must still carry the fresh signature. That is this probe's calibration, and it also
   // proves the signature is stable over the same elapsed time rather than drifting on its own.
-  await load(session, url, vp, !NO_SEED, draw);
+  const notOpen = await load(session, url, vp, !NO_SEED, draw);
+  if (notOpen) {
+    row.error = notOpen;
+    return { sigs: [] };
+  }
+  if (await checkFirstScreen(session, row)) return { sigs: [] };
   const sigs = [];
   if (draw !== null) {
     // The override has to be proved INSTALLED on the document just measured. Without this the whole
@@ -1287,6 +1492,8 @@ export default async function (session) {
   // gh#239 — installed before the first navigation so it is in place ahead of every route's own
   // module. Registered once per session on purpose: it is inert unless load() wrote a forced value.
   await session.onNewDocument(DRAW_OVERRIDE);
+  // gh#264 REFUTE round 1: the first-screen order sampler, registered the same once-per-session way.
+  await session.onNewDocument(FIRST_SCREEN_SAMPLER);
   const routes = playRoutes();
   const rows = [];
   for (const id of routes) {
@@ -1294,7 +1501,12 @@ export default async function (session) {
     for (const vp of VIEWPORTS) {
       const row = { route: id, url: `/game/${id}/play/`, vp: `${vp.w}x${vp.h}`, error: null, screens: [] };
       rows.push(row);
-      await load(session, url, vp, false);
+      const notOpen = await load(session, url, vp, false);
+      if (notOpen) {
+        row.error = notOpen;
+        continue;
+      }
+      if (await checkFirstScreen(session, row)) continue;
       const fresh = await session.evaluate(SIGNATURE);
       if (fresh.error || !fresh.value?.ok) {
         row.error = `fresh signature unreadable: ${fresh.error ?? fresh.value?.why}`;

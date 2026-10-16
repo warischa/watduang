@@ -873,3 +873,181 @@ test('the player-screen exception lives only on FITS_ROWS rows, and excepts only
   assert.equal(gatedWorstOf(row([player, play(12)])).overflowPx, 12, 'MUST-RED: a play screen that grows still reaches the gate');
   assert.equal(gatedWorstOf({ ...row([player]), route: 'one-bomb' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
 });
+
+// gh#264 — the fresh read waits out an unfinished player-screen open, and that wait can FAIL. The
+// page under the wait is faked by its <html> attributes alone, and the probe's own in-page read is
+// executed against it, so what is tested is the expression the browser runs, not a stand-in.
+const fit = await import('./play-screen-fit-probe.mjs');
+
+function fakePage(script) {
+  // script[i] is the <html> attribute set the i-th read sees; the last entry holds forever.
+  let reads = 0;
+  const clock = { now: 0 };
+  const evaluate = async (body) => {
+    const attrs = new Set(script[Math.min(reads, script.length - 1)]);
+    reads += 1;
+    const document = { documentElement: { hasAttribute: (n) => attrs.has(n) } };
+    return { value: new Function('document', body)(document) };
+  };
+  const opts = { wait: async (ms) => { clock.now += ms; }, now: () => clock.now };
+  return { evaluate, opts, reads: () => reads, clock };
+}
+
+test('gh#264: the settle wait exists and its cap clears the >=5s boot-plus-open a CI runner measured', () => {
+  assert.equal(typeof fit.awaitPlayerScreenSettled, 'function', 'the fresh read has no player-screen wait at all');
+  assert.ok(fit.PLAYER_SCREEN_SETTLE_CAP_MS > 5000, `cap ${fit.PLAYER_SCREEN_SETTLE_CAP_MS}ms is inside the latency the runner showed`);
+});
+
+test('gh#264: a settled page passes on the first read -- the wait costs nothing when nothing is pending', async () => {
+  const p = fakePage([[fit.PLAYER_SCREEN_ATTR]]);
+  assert.equal(await fit.awaitPlayerScreenSettled(p.evaluate, p.opts), null);
+  assert.equal(p.reads(), 1);
+  assert.equal(p.clock.now, 0, 'it slept on a page that was already settled');
+});
+
+test('gh#264: an open that lands inside the cap is waited for, not read mid-boot', async () => {
+  const pending = [fit.PLAYER_SCREEN_ATTR, fit.PLAYER_SCREEN_PENDING_ATTR];
+  const p = fakePage([[], pending, pending, [fit.PLAYER_SCREEN_ATTR]]);
+  assert.equal(await fit.awaitPlayerScreenSettled(p.evaluate, p.opts), null);
+  assert.equal(p.reads(), 4, 'it returned before the pending open had cleared');
+});
+
+test('MUST-RED gh#264: a pending that never clears REDS by name at the cap, and never waits past it', async () => {
+  const p = fakePage([[fit.PLAYER_SCREEN_ATTR, fit.PLAYER_SCREEN_PENDING_ATTR]]);
+  const why = await fit.awaitPlayerScreenSettled(p.evaluate, { ...p.opts, capMs: 1000 });
+  assert.match(why ?? '', /the player screen never finished opening/);
+  assert.match(why, new RegExp(fit.PLAYER_SCREEN_PENDING_ATTR), 'the reason does not say which half was missing');
+  assert.ok(p.reads() > 1, 'it gave up without polling');
+  assert.ok(p.clock.now <= 1000 + 200, `it waited ${p.clock.now}ms past a 1000ms cap`);
+});
+
+test('MUST-RED gh#264: a page where the shared screen never mounted REDS too -- an absent pending is not a settled page', async () => {
+  const p = fakePage([[]]);
+  const why = await fit.awaitPlayerScreenSettled(p.evaluate, { ...p.opts, capMs: 500 });
+  assert.match(why ?? '', /the player screen never finished opening/);
+  assert.match(why, new RegExp(fit.PLAYER_SCREEN_ATTR));
+});
+
+test('MUST-RED gh#264: a read that errors REDS with the error, never reads as settled', async () => {
+  const clock = { now: 0 };
+  const why = await fit.awaitPlayerScreenSettled(async () => ({ error: 'target closed' }), {
+    capMs: 300, wait: async (ms) => { clock.now += ms; }, now: () => clock.now,
+  });
+  assert.match(why ?? '', /target closed/);
+});
+
+// gh#264 REFUTE rounds 1-2 — the settle wait moved the fresh read past the window in which a route
+// that paints its own screen before the shared player screen is visible, so that order is its own
+// check: an in-page sampler records, from navigation until the screen has opened, every visible
+// content leaf the route did not declare (data-shows-before-players), and the verdict judges that.
+//
+// The sampler and the read are the probe's own source, run against a small fake page: just enough
+// DOM (ids, classes, attributes, a parent chain, closest, own text, boxes) for the expressions the
+// browser runs. Ceiling: computed style is fixed (everything opaque and visible); a browser decides
+// what is hidden, and the probe's browser runs carry that half.
+class FakeEl {
+  constructor(tag, { id = '', cls = [], attrs = {}, text = '', box = true } = {}, kids = []) {
+    Object.assign(this, { tagName: tag.toUpperCase(), id, cls, attrs, text, box, kids, parentElement: null });
+    for (const k of kids) k.parentElement = this;
+  }
+  get children() { return this.kids; }
+  get childNodes() { return [...(this.text ? [{ nodeType: 3, textContent: this.text }] : []), ...this.kids]; }
+  get textContent() { return this.text + this.kids.map((k) => k.textContent).join(''); }
+  matches(sel) {
+    return sel.split(',').map((s) => s.trim()).some((s) => (s.startsWith('.') ? this.cls.includes(s.slice(1))
+      : s.startsWith('#') ? this.id === s.slice(1) : s.startsWith('[') ? s.slice(1, -1) in this.attrs : this.tagName === s.toUpperCase()));
+  }
+  closest(sel) { for (let n = this; n; n = n.parentElement) if (n.matches(sel)) return n; return null; }
+  querySelectorAll(sel) {
+    const out = [];
+    const walk = (n) => { for (const k of n.kids) { if (sel === '*' || k.matches(sel)) out.push(k); walk(k); } };
+    walk(this);
+    return out;
+  }
+  getBoundingClientRect() { return this.box ? { width: 120, height: 24 } : { width: 0, height: 0 }; }
+}
+const el = (tag, opts, ...kids) => new FakeEl(tag, opts, kids);
+const DECL = { [fit.SHOWS_BEFORE_PLAYERS_ATTR]: '' };
+
+/** Runs the real sampler over `root` for 650ms of page time, opens (or closes) the screen, then runs
+ *  the real read. `root` is the play-surface root (#app); `outer` optionally wraps it. */
+function sampleFixture(root, { final = 'open', outer } = {}) {
+  const attrs = new Map();
+  const body = el('body', {}, outer ?? root);
+  const html = el('html', {}, body);
+  Object.assign(html, { hasAttribute: (a) => attrs.has(a), getAttribute: (a) => attrs.get(a) ?? null });
+  const document = {
+    documentElement: html,
+    querySelector: (sel) => html.querySelectorAll(sel)[0] ?? null,
+    querySelectorAll: (sel) => (sel.startsWith('link') ? [] : html.querySelectorAll(sel)),
+    addEventListener() {},
+  };
+  const window = {};
+  const cb = {};
+  let time = 0;
+  new Function('window', 'document', 'performance', 'getComputedStyle', 'setInterval', 'clearInterval', 'requestAnimationFrame', 'MutationObserver', fit.FIRST_SCREEN_SAMPLER)(
+    window, document, { now: () => time }, () => ({ opacity: '1', visibility: 'visible', display: 'block' }),
+    (fn) => { cb.interval = fn; return 1; }, () => {}, (fn) => { cb.frame = fn; },
+    class { constructor(fn) { cb.mutation = fn; } observe() {} });
+  attrs.set(fit.PLAYER_SCREEN_ATTR, 'closed');
+  attrs.set(fit.PLAYER_SCREEN_PENDING_ATTR, '1');
+  for (time = 0; time < 650; time += 50) { cb.interval(); cb.frame?.(); }
+  attrs.delete(fit.PLAYER_SCREEN_PENDING_ATTR);
+  attrs.set(fit.PLAYER_SCREEN_ATTR, final);
+  cb.mutation();
+  return { value: new Function('window', 'document', fit.FIRST_SCREEN_READ)(window, document) };
+}
+const app = (...kids) => el('div', { id: 'app' }, ...kids);
+const shared = () => el('section', { id: 'players', cls: ['ps'] }, el('button', { text: 'Start' }));
+const header = (attrs = DECL) => el('header', { id: 'top', attrs }, el('h1', { text: 'Brand' }), el('button', { id: 'mute', text: '🔊' }));
+
+test('gh#264 r2: the sampler and the read parse, and the text threshold is gone', () => {
+  assert.doesNotThrow(() => new Function(fit.FIRST_SCREEN_SAMPLER), 'the sampler would throw a SyntaxError in every page');
+  assert.doesNotThrow(() => new Function(fit.FIRST_SCREEN_READ));
+  assert.equal(fit.FIRST_SCREEN_ROUTE_TEXT_MAX, undefined, 'a character threshold is back: an 18-char menu passes one');
+  assert.equal(fit.FIRST_SCREEN_UNDECIDED, undefined, 'an exemption list is back: a route measured painting first is fixed, not listed');
+});
+
+test('MUST-RED gh#264 r2 (1): an 18-char options menu ("Options / Easy / Start") before the open REDS, naming its leaves', () => {
+  const read = sampleFixture(app(el('section', { id: 'options' }, el('h1', { text: 'Options' }), el('button', { text: 'Easy' }), el('button', { id: 'go', text: 'Start' })), shared()));
+  const why = fit.firstScreenVerdict(read);
+  assert.match(why ?? '', /painted content of its own before the shared player screen opened/);
+  assert.match(why, /h1\|Options/);
+  assert.match(why, /button#go\|Start/);
+});
+
+test('MUST-RED gh#264 r2: an image or svg before the open REDS -- text is not the only content', () => {
+  assert.match(fit.firstScreenVerdict(sampleFixture(app(el('svg', { id: 'logo' }), shared()))) ?? '', /svg#logo\|\[svg\]/);
+});
+
+test('gh#264 r2 (4): blank (a canvas, empty styled boxes) until the shared screen opens passes', () => {
+  const read = sampleFixture(app(el('canvas', { id: 'stage' }), el('div', { id: 'backdrop' }), shared()));
+  assert.ok(read.value.samples > 0, 'no sample was taken -- this case measures nothing');
+  assert.equal(fit.firstScreenVerdict(read), null);
+});
+
+test('MUST-RED gh#264 r2 (5): a declaration on the play-surface root, or on an ancestor of it or of .ps, REDS', () => {
+  const onRoot = el('div', { id: 'app', attrs: DECL }, el('section', { id: 'options' }, el('h1', { text: 'Options' })), shared());
+  assert.match(fit.firstScreenVerdict(sampleFixture(onRoot)) ?? '', /declares the play-surface root div#app/);
+  const inner = app(el('section', { id: 'options' }, el('h1', { text: 'Options' })), shared());
+  assert.match(fit.firstScreenVerdict(sampleFixture(inner, { outer: el('main', { id: 'shell', attrs: DECL }, inner) })) ?? '', /declares the play-surface root div#app \(an ancestor\)/);
+  const wrapPs = app(el('div', { id: 'menu', attrs: DECL }, el('h1', { text: 'Options' }), shared()));
+  assert.match(fit.firstScreenVerdict(sampleFixture(wrapPs)) ?? '', /div#menu encloses the shared screen section#players/);
+});
+
+test('MUST-RED gh#264 r2 (6): a declared header passes; the same header without its declaration REDS', () => {
+  assert.equal(fit.firstScreenVerdict(sampleFixture(app(header(), shared()))), null, 'a declared header was counted');
+  const why = fit.firstScreenVerdict(sampleFixture(app(header({}), shared())));
+  assert.match(why ?? '', /h1\|Brand/);
+  assert.match(why, /button#mute\|🔊/);
+});
+
+test('gh#264 r1: an intro-first route (screen still closed once settled) is not judged -- its own screen IS first', () => {
+  assert.equal(fit.firstScreenVerdict(sampleFixture(app(el('h1', { text: 'Intro screen' }), shared()), { final: 'closed' })), null);
+});
+
+test('MUST-RED gh#264 r1: a missing sampler, or an opened screen with no styled sample, REDS -- never reads as clean', () => {
+  assert.match(fit.firstScreenVerdict({ value: null }) ?? '', /sampler/);
+  assert.match(fit.firstScreenVerdict({ error: 'boom' }) ?? '', /boom/);
+  assert.match(fit.firstScreenVerdict({ value: { samples: 0, offenders: [], final: 'open', declarationFaults: [] } }) ?? '', /no styled sample/);
+});

@@ -194,6 +194,12 @@
         "deliberate": true,
         "owner": "gh#264",
         "why": "the mockup ships its setup screen active; the player screen is the first screen now, and an active setup would show over it with no players chosen"
+      },
+      {
+        "fragment": "<header id=\"top-nav\" data-shows-before-players>",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "declares the header chrome this route shows before the shared player screen opens (the fit probe's first-screen allow-list); a re-extraction drops it and every header leaf reds that check as the route painting its own screen first"
       }
     ],
     "main.js": [
@@ -246,6 +252,12 @@
         "deliberate": true,
         "owner": "gh#264",
         "why": "the mockup ships its setup screen active; the player screen is the first screen now, and an active setup would show over it with no players chosen"
+      },
+      {
+        "fragment": "<header class=\"top-bar\" data-shows-before-players>",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "declares the header chrome this route shows before the shared player screen opens (the fit probe's first-screen allow-list); a re-extraction drops it and every header leaf reds that check as the route painting its own screen first"
       }
     ],
     "main.js": [
@@ -286,6 +298,12 @@
         "deliberate": true,
         "owner": "gh#264",
         "why": "the shared player screen's root (ADR-0071); the mockup's own setup screen it replaced lived in main.js and is recorded absent there"
+      },
+      {
+        "fragment": "<header data-shows-before-players>",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "declares the header chrome this route shows before the shared player screen opens (the fit probe's first-screen allow-list); a re-extraction drops it and every header leaf reds that check as the route painting its own screen first"
       }
     ],
     "main.js": [
@@ -324,6 +342,12 @@
         "deliberate": true,
         "owner": "gh#264",
         "why": "the shared player screen's root (ADR-0071); the mockup's own count and names screens it replaced are recorded absent in main.js below"
+      },
+      {
+        "fragment": "<header class=\"app-header\" data-shows-before-players>",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "declares the header chrome this route shows before the shared player screen opens (the fit probe's first-screen allow-list); a re-extraction drops it and every header leaf reds that check as the route painting its own screen first"
       }
     ],
     "main.js": [
@@ -404,6 +428,12 @@
         "why": "the shared player screen's root in the menu (ADR-0071); the mockup's own count card and start button it replaced are recorded absent below"
       },
       {
+        "fragment": "<div class=\"menuOverlay held-for-players\" id=\"menuOverlay\">",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "the menu card's hold until the shared player screen inside it opens (overrides.css rule, released by main.ts releaseMenuHold); a re-extraction drops the class and the route's own menu paints for the whole open again, which the fit probe's first-screen check reds"
+      },
+      {
         "fragment": "id=\"playerMinus\"",
         "absent": true,
         "deliberate": true,
@@ -426,6 +456,12 @@
         "deliberate": true,
         "owner": "gh#264",
         "why": "the shared player screen's root (ADR-0071); the mockup's own setup views it replaced are recorded absent in main.js below"
+      },
+      {
+        "fragment": "<header class=\"top-nav\" data-shows-before-players>",
+        "deliberate": true,
+        "owner": "gh#264",
+        "why": "declares the header chrome this route shows before the shared player screen opens (the fit probe's first-screen allow-list); a re-extraction drops it and every header leaf reds that check as the route painting its own screen first"
       }
     ],
     "main.js": [
