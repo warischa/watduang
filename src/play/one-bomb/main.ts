@@ -486,6 +486,27 @@ function putAwayRound(): void {
   $('hud')?.classList.add('hidden');
   $('ob-board-wrap')?.classList.add('ob-away');
   $('menuOverlay')?.classList.remove('hidden');
+  releaseMenuHold();
+}
+
+/** gh#264: the menu card holds the shared player screen, so without the screen it is this game's own
+ *  menu painted first. markup.html ships #menuOverlay held (overrides.css), and it is released on the
+ *  screen's open -- putAwayRound is the onOpen, run in the task that shows the screen -- and on every
+ *  path where no screen will come (boot, below). Idempotent: every later open just finds it gone.
+ *
+ *  The release is NOT animated. The lifted `.menuOverlay` fades opacity and visibility over 0.35s, so a
+ *  plain class removal faded the menu -- and the player screen inside it -- in after the open, and
+ *  the fit probe's control leg read the screen changing on its own (measured 2026-10-16, one changed
+ *  screen per row, visible tab). So the release passes through `.ob-unheld` (overrides.css: no
+ *  transition), the style is flushed in that state, and the class goes: the values are already the
+ *  shown ones, so nothing is left to animate, and the menu's own later fades are untouched. */
+function releaseMenuHold(): void {
+  const menu = $('menuOverlay');
+  if (!menu?.classList.contains('held-for-players')) return;
+  menu.classList.add('ob-unheld');
+  menu.classList.remove('held-for-players');
+  void menu.offsetWidth; // forces the style of the shown, untransitioned state before the class goes
+  menu.classList.remove('ob-unheld');
 }
 
 /** ADR-0071 ruling 6: a match in progress is asked about before the players change. */
@@ -670,9 +691,11 @@ function onContextLost(): void {
 
 // ---- mount -------------------------------------------------------------------------------------
 
-function mount(): void {
+/** The screen's open, or false when there is no player-screen root and no screen will come (boot
+ *  releases the menu either way it ends without one). */
+function mount(): Promise<void> | false {
   const playersRoot = document.getElementById('ob-player-screen');
-  if (!playersRoot) return;
+  if (!playersRoot) return false;
 
   // UNCONDITIONAL, per the owner ruling 2026-09-10: the DOM round is the play surface in both
   // lanes, so the install no longer asks whether the engine died. Severing comes FIRST — install
@@ -734,7 +757,29 @@ function mount(): void {
     abortRound: putAwayRound,
     onOpen: putAwayRound,
   });
-  screen.open();
+  return screen.open();
 }
 
-mount();
+/** gh#264: the menu's hold is released by the screen's open, so every boot that ends with no screen
+ *  coming releases it here instead -- no root to mount into, a mount that threw, or an open that
+ *  failed later (a rejected migration, REFUTE round 2) -- and the menu shows as it did before the hold
+ *  existed. Both failures are rethrown, so each stays as loud as it was: the synchronous one throws,
+ *  the asynchronous one stays an unhandled rejection. */
+function boot(): void {
+  try {
+    const opening = mount();
+    if (!opening) {
+      releaseMenuHold();
+      return;
+    }
+    void opening.catch((err: unknown) => {
+      releaseMenuHold();
+      throw err;
+    });
+  } catch (err) {
+    releaseMenuHold();
+    throw err;
+  }
+}
+
+boot();

@@ -207,3 +207,20 @@
 .hud.hidden {
   transform: none;
 }
+
+/* gh#264: the menu card's hold until the shared player screen inside it opens (markup.html sets the
+   class, main.ts's releaseMenuHold removes it). The same hidden footprint as `.menuOverlay.hidden` --
+   visibility, not display, so the overlay stays in flow and no measured layout moves -- but with NO
+   transition: the hold has to be in force on the very first frame and must not fade out over frames
+   a slow boot or a background tab never produces. */
+.menuOverlay.held-for-players {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
+/* The one style flush the release passes through (main.ts, releaseMenuHold): shown values with no
+   transition, so leaving the hold is instant instead of the lifted 0.35s fade-in over the open screen. */
+.menuOverlay.ob-unheld {
+  transition: none !important;
+}

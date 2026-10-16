@@ -45,7 +45,10 @@
   </div>
 
   <!-- Main Menu Screen -->
-  <div class="menuOverlay" id="menuOverlay">
+  <!-- held-for-players (gh#264): the shared player screen mounts inside this card, so the card alone
+       is this game's own menu painted before the screen. Held unpainted from first paint until the
+       screen's open releases it in the task that shows the screen (main.ts, releaseMenuHold). -->
+  <div class="menuOverlay held-for-players" id="menuOverlay">
     <div class="menuBox">
       <div class="logoArea">
         <div class="gameTitle">ONE <span class="bombWord">B💣MB</span> 3D</div>

@@ -3103,19 +3103,39 @@ class GameApp {
    *  the boot, after the constructor, so a stub page that builds GameApp alone builds no screen. */
   mountPlayers() {
     const playersRoot = document.getElementById('croc-players');
-    if (!playersRoot) return;
-    this.players = mountPlayerScreen({
-      root: playersRoot,
-      range: crocBite.players,
-      onStart: (players) => this.startWithPlayers(players),
-      roundActive: () => this.roundActive(),
-      abortRound: () => this.clearForPlayers(),
-      onOpen: () => this.clearForPlayers(),
-    });
+    if (!playersRoot) {
+      // No player screen to come first: the setup screen is the first screen, so its hold goes.
+      this.ui.elSetup.classList.remove('held-for-players');
+      return;
+    }
+    try {
+      this.players = mountPlayerScreen({
+        root: playersRoot,
+        range: crocBite.players,
+        onStart: (players) => this.startWithPlayers(players),
+        roundActive: () => this.roundActive(),
+        abortRound: () => this.clearForPlayers(),
+        onOpen: () => this.clearForPlayers(),
+      });
+    } catch (err) {
+      // gh#264 REFUTE round 1: a screen that failed to mount will never come first, so the hold goes
+      // and the setup screen stays reachable -- the same screen this route showed before the hold
+      // existed. Rethrown: the failure stays loud.
+      this.ui.elSetup.classList.remove('held-for-players');
+      throw err;
+    }
     // Hidden now rather than when the screen opens: open() first waits for the roster migration, and
     // updateUI has just put the setup screen up for the SETUP phase.
     this.clearForPlayers();
-    this.players.open();
+    // gh#264 REFUTE round 2: an open that fails later (a rejected migration) never reaches
+    // startWithPlayers, so the setup screen would stay held and hidden behind a screen that is not
+    // coming. It is brought up instead -- the same first screen as the no-root branch above -- and
+    // the failure is rethrown, so it stays the unhandled rejection it always was.
+    void this.players.open().catch((err) => {
+      this.ui.elSetup.classList.remove('held-for-players');
+      this.ui.elSetup.classList.remove('hidden');
+      throw err;
+    });
   }
 
   /** The engine entry the player screen starts: the engine's own seats, sized by its own clamp to
@@ -3132,6 +3152,10 @@ class GameApp {
       if (seat) seat.emoji = p.emoji;
     });
     this.ui.updateTeethDescription(state.playerCount);
+    // gh#264: the hold the markup puts on the setup screen until this first reveal (overrides.css).
+    // Two calls, not one two-argument remove: the stub pages this engine's tests run on model
+    // classList.remove with a single class.
+    this.ui.elSetup.classList.remove('held-for-players');
     this.ui.elSetup.classList.remove('hidden');
   }
 

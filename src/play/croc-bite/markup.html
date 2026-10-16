@@ -15,7 +15,11 @@
       <!-- ========================================== -->
       <!-- SETUP / MAIN MENU SCREEN                   -->
       <!-- ========================================== -->
-      <div id="screen-setup" class="setup-overlay" role="region" aria-label="หน้าหลักและตั้งค่าเกม">
+      <!-- held-for-players (gh#264): the player screen comes first, so this screen is held unpainted
+           from first paint until GameApp.startWithPlayers reveals it (mountPlayers releases it when
+           no players root exists). Not `hidden`: the boot un-hides that for the SETUP phase, and its
+           fade needs frames a slow boot does not give. -->
+      <div id="screen-setup" class="setup-overlay held-for-players" role="region" aria-label="หน้าหลักและตั้งค่าเกม">
         <div class="setup-box">
           <div class="game-title-group">
             <h1 class="main-title">เข้<span class="goldWord">งับ!</span> 🐊</h1>

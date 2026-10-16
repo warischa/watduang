@@ -125,3 +125,15 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* gh#264: the setup screen's hold until the shared player screen's start reveals it (markup.html sets
+   the class, GameApp.startWithPlayers removes it). The same hidden footprint as `.setup-overlay.hidden`
+   -- visibility, not display, so the overlay stays in flow and no measured layout moves -- but with NO
+   transition: the hold has to be in force on the very first frame and must not fade out over frames
+   a slow boot or a background tab never produces. */
+.setup-overlay.held-for-players {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
