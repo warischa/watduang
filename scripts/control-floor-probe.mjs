@@ -147,6 +147,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { games } from '../src/games/manifest.ts';
 import { locationReadFailure } from './cdp-evaluate-result.mjs';
+import { awaitPlayerScreenSettled } from './play-screen-fit-probe.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const DIST = path.join(repoRoot, 'dist');
@@ -563,6 +564,12 @@ async function seed(session, page) {
     // controls on this site are.
     await session.nav(url); // reload ON-ORIGIN after the wipe (docs/agents/browser-verification.md)
     await session.setWidth(WIDTH, 1600);
+    // gh#264 — the shared player screen's open can hold this route's own screen invisible while it
+    // waits on a roster migration; reading or pressing in that gap measures a page still booting. Waits
+    // with the fit probe's own helper and cap, and a route that never settles reds by name.
+    // The returned reason becomes this page's error row, which the verdict reds.
+    const unsettled = await awaitPlayerScreenSettled((body) => session.evaluate(body));
+    if (unsettled) return `${page.id}: ${unsettled}`;
     await sleep(900); // main.js is an external module; give it a beat to build the first screen
     return null;
   }

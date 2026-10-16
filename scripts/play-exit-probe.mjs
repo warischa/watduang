@@ -220,6 +220,12 @@ const evaluate = async (body) => {
 // COVERAGE GAP, named rather than hidden: a returning player who already has a saved roster is a real
 // state, and this walk no longer visits it -- every route below is now measured as a first-time device
 // only. Nothing here covers the returning-player entry point of any route.
+// gh#264 — every play route mounts the shared player screen, whose open holds the route's own screen
+// invisible while it waits on a roster migration. A finder run in that gap reads every button 0x0
+// hidden and reports a finder miss that is not one. So each pass waits for the screen to settle with
+// the fit probe's own helper and cap (imported, never retyped), and a route that never settles is
+// UNMEASURED by name with the helper's reason -- never measured mid-boot.
+const { awaitPlayerScreenSettled } = await import('./play-screen-fit-probe.mjs');
 const nav = async (url) => { await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'local_storage' }); const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); };
 // Both halves of the contact go on the wire together and only the PAIR is awaited. Awaiting the
 // touchStart ack before writing the touchEnd put a CDP round trip INSIDE every contact, and a second
@@ -318,6 +324,7 @@ for (const g of ROUTES) {
   // --- M1: idle -> visible, armed, clickable, lands on /
   await nav(url);
   await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 1, mobile: true });
+  res.unsettledM1 = await awaitPlayerScreenSettled(evaluate);
   await sleep(800);
   const s1 = (await evaluate(XSTATE)).value;
   res.idle = s1;
@@ -358,6 +365,11 @@ for (const g of ROUTES) {
     attempt++;
     await nav(url);
     await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 1, mobile: true });
+    // An unsettled pass is retried on the finder-miss budget and never scanned: a trigger picked off a
+    // page still booting is not this route's trigger.
+    res.unsettledM2 = await awaitPlayerScreenSettled(evaluate);
+    res.m2Attempts = attempt;
+    if (res.unsettledM2) { if (retries < 1) { retries++; continue; } break; }
     await sleep(800);
     await evaluate(INSTRUMENT);
     const rect = (await evaluate(XSTATE)).value.rect;
@@ -575,6 +587,14 @@ const exempt = new Set();
 const unmeasuredSet = new Set();
 for (const [g, r] of Object.entries(out)) {
   if (!r.idle?.present) { fails.push(`${g}: no #play-exit on the play page at all`); continue; }
+  // gh#264 — outranks every leg below: a pass that never saw the player screen settle read a page
+  // still booting, so nothing it recorded is about this route's screen. UNMEASURED, and it blocks.
+  const unsettled = [r.unsettledM1 && `M1: ${r.unsettledM1}`, r.unsettledM2 && `M2 after ${r.m2Attempts ?? '?'} attempt(s): ${r.unsettledM2}`].filter(Boolean);
+  if (unsettled.length) {
+    unmeasuredSet.add(g);
+    unmeasured.push(`${g}: UNMEASURED -- ${unsettled.join('; ')}. Nothing on this route was measured; this is a failed MEASUREMENT and it blocks`);
+    continue;
+  }
   if (r.m1_pathname !== '/') fails.push(`${g}: M1 -- an idle deliberate tap on the X did not leave the round (pathname ${r.m1_pathname})`);
   // gh#199 — the fork the whole ticket is about. gh#193 sent BOTH halves of this down the skip path,
   // where an unexercised route was subtracted from the count and the run stayed green; the message
@@ -698,10 +718,11 @@ for (const v of voids) {
 //                            run; under PROBE_OUT_FIXTURE, the fixture's route set).
 //   fails.length             FAIL messages, NOT routes -- one route can emit several (M1 and M3 both).
 //   voids.length             routes whose burst was still undeliverable after its retry.
-//   unmeasuredIds.length     routes the finder could not resolve a trigger on after its retry. RED.
+//   unmeasuredIds.length     routes the finder could not resolve a trigger on after its retry, or
+//                            whose player screen never settled. RED.
 //   exemptIds.length         routes whose game root measured zero buttons this run. Not coverage,
 //                            not a red.
 // checked + exemptIds.length + unmeasuredIds.length === Object.keys(out).length, minus routes that
 // failed out on the first line of the loop (no #play-exit at all) -- those are already FAILs.
-console.log(`play-exit: ${checked} of ${Object.keys(out).length} route(s) fully checked, ${fails.length} failure(s), ${voids.length} burst leg(s) VOID after a retry, ${unmeasuredIds.length} route(s) UNMEASURED (finder resolved no trigger -- RED): ${unmeasuredIds.join(', ') || 'none'}, ${exemptIds.length} route(s) EXEMPT from the checked count (no button in the game root): ${exemptIds.join(', ') || 'none'}`);
+console.log(`play-exit: ${checked} of ${Object.keys(out).length} route(s) fully checked, ${fails.length} failure(s), ${voids.length} burst leg(s) VOID after a retry, ${unmeasuredIds.length} route(s) UNMEASURED (finder resolved no trigger, or the player screen never settled -- RED): ${unmeasuredIds.join(', ') || 'none'}, ${exemptIds.length} route(s) EXEMPT from the checked count (no button in the game root): ${exemptIds.join(', ') || 'none'}`);
 process.exit(legExitCode({ fails: fails.length, voids: voids.length, unmeasured: unmeasuredIds.length, checked }));

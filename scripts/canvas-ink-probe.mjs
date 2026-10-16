@@ -71,6 +71,7 @@
 // demonstrated rather than asserted).
 import { games } from '../src/games/manifest.ts';
 import { locationReadFailure } from './cdp-evaluate-result.mjs';
+import { awaitPlayerScreenSettled } from './play-screen-fit-probe.mjs';
 
 /** The renderer values src/games/types.ts allows. Exported so the reconcile test pins the set here
  *  rather than retyping it -- a fourth renderer added to the type and not here would otherwise pass
@@ -335,6 +336,12 @@ export default async function (session) {
     await session.evaluate(SEED);
     await session.nav(url);
     await session.setWidth(VP.w, VP.h);
+    // gh#264 — the shared player screen's open can hold this route's own screen invisible while it
+    // waits on a roster migration; reading or pressing in that gap measures a page still booting. Waits
+    // with the fit probe's own helper and cap, and a route that never settles reds by name.
+    // A throw, because judge() reads verdicts and only a throw is loud here (see the location read below).
+    const unsettled = await awaitPlayerScreenSettled((body) => session.evaluate(body));
+    if (unsettled) throw new Error(`${id}: ${unsettled}`);
     await sleep(1500); // main.js is an external module -- give it a beat to build the first screen
 
     let skip = 0;

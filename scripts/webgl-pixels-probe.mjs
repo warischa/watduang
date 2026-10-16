@@ -51,6 +51,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { evaluateResult } from './cdp-evaluate-result.mjs';
+import { awaitPlayerScreenSettled } from './play-screen-fit-probe.mjs';
 
 // ---- the verdict classifier ---------------------------------------------------------------------
 // Pure, and pinned by scripts/webgl-pixels-probe.test.mjs without a browser: this mapping is the
@@ -284,6 +285,11 @@ async function main() {
     const p = new Promise((r) => { loadResolve = r; });
     await send('Page.navigate', { url });
     await p;
+    // gh#264 — the shared player screen's open can hold this route's own screen invisible while it
+    // waits on a roster migration; reading or pressing in that gap measures a page still booting. Waits
+    // with the fit probe's own helper and cap, and a route that never settles reds by name.
+    const unsettled = await awaitPlayerScreenSettled(evaluate);
+    if (unsettled) { rows.push({ route, url, verdict: 'UNMEASURED', reason: `${route}: ${unsettled}` }); continue; }
     const read = await evaluate(READBACK(stubDraw));
     // An evaluate that did not answer is not a measurement of anything, least of all of this
     // runner's GPU: keep contextLive unset so classify reports the read as the cause.

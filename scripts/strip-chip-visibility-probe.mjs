@@ -84,6 +84,7 @@ const ALL_VIEWPORTS = [
 ];
 // Imported, never retyped: the walk waits out the same window the gate on every pressed control uses.
 const { ARM_DELAY_MS } = await import(new URL('../src/games/_arm-gate.ts', import.meta.url).href);
+const { awaitPlayerScreenSettled } = await import('./play-screen-fit-probe.mjs');
 if (!Number.isFinite(ARM_DELAY_MS) || ARM_DELAY_MS <= 0) {
   throw new Error(`read no usable ARM_DELAY_MS from the arm gate (got ${String(ARM_DELAY_MS)}) -- the walk cannot know how long to wait`);
 }
@@ -525,6 +526,11 @@ export default async function (session) {
       await session.nav(url);
       const check = await session.evaluate('return window.innerWidth;');
       if (check.value !== w) throw new Error(`${id} ${w}x${h}: innerWidth read ${check.value} after reload -- run is void`);
+      // gh#264 — the shared player screen's open can hold this route's own screen invisible while it
+      // waits on a roster migration; reading or pressing in that gap measures a page still booting. Waits
+      // with the fit probe's own helper and cap, and a route that never settles reds by name.
+      const unsettled = await awaitPlayerScreenSettled((body) => session.evaluate(body));
+      if (unsettled) throw new Error(`${id} ${w}x${h}: ${unsettled}`);
       await walkToStrip(session, route, w, h);
       // The counter mounts on the last press; give its first measure and the screen's own entrance
       // the same settle the boot-started round used to get.

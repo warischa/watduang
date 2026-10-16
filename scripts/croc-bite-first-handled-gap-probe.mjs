@@ -80,6 +80,12 @@ export default async function (session) {
     await session.wipe();
     await session.nav(URL);
     await session.setWidth(390, 844);
+    // gh#264 — the shared player screen's open can hold this route's own screen invisible while it
+    // waits on a roster migration; reading or pressing in that gap measures a page still booting. Waits
+    // with the fit probe's own helper and cap, and a route that never settles voids the run with the reason.
+    const { awaitPlayerScreenSettled } = await import('./play-screen-fit-probe.mjs');
+    const unsettled = await awaitPlayerScreenSettled((body) => session.evaluate(body));
+    if (unsettled) { runs.push({ run: i, void: true, reason: `croc-bite: ${unsettled}` }); continue; }
 
     const calib = await session.evaluate(CALIBRATE);
     const noWebgl = calib.value && calib.value.webgl2 === false && calib.value.webgl === false;
