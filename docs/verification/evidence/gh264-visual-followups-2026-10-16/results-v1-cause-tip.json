@@ -1,0 +1,212 @@
+{
+ "route": "short-stick",
+ "cw": 390,
+ "els": {
+  "[data-ps=reset]": {
+   "direct": [
+    {
+     "selector": "input, textarea, select, button",
+     "origin": "user-agent",
+     "sheet": "(inline/unknown)",
+     "props": [
+      "font-weight: ",
+      "font-size: ",
+      "font-family: "
+     ],
+     "range": null
+    },
+    {
+     "selector": "button, input, select",
+     "origin": "regular",
+     "sheet": "http://localhost:4331/_astro/play.CNta0IUI.css",
+     "isInline": false,
+     "props": [
+      "font: inherit",
+      "font-weight: inherit",
+      "font-size: inherit",
+      "font-family: inherit"
+     ],
+     "range": "0:1261"
+    },
+    {
+     "selector": ".ps-sec, .ps-danger",
+     "origin": "regular",
+     "sheet": "http://localhost:4331/_astro/play.DrLQdqXf.css",
+     "isInline": false,
+     "props": [
+      "font-family: var(--font-display)",
+      "font-size: 16px",
+      "font-family: var(--font-display)",
+      "font-size: 16px"
+     ],
+     "range": "0:3816"
+    }
+   ],
+   "inheritedFontFamily": [
+    {
+     "k": 2,
+     "rules": [
+      {
+       "selector": "body",
+       "sheet": "http://localhost:4331/_astro/play.CNta0IUI.css",
+       "ff": [
+        "var(--font-body)",
+        "var(--font-body)"
+       ]
+      }
+     ]
+    }
+   ],
+   "computed": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+  },
+  ".ps-count-read": {
+   "direct": [
+    {
+     "selector": ".ps-count-read",
+     "origin": "regular",
+     "sheet": "http://localhost:4331/_astro/play.DrLQdqXf.css",
+     "isInline": false,
+     "props": [
+      "font-family: var(--font-display)",
+      "font-size: 22px",
+      "font-family: var(--font-display)",
+      "font-size: 22px"
+     ],
+     "range": "0:1869"
+    }
+   ],
+   "inheritedFontFamily": [
+    {
+     "k": 3,
+     "rules": [
+      {
+       "selector": "body",
+       "sheet": "http://localhost:4331/_astro/play.CNta0IUI.css",
+       "ff": [
+        "var(--font-body)",
+        "var(--font-body)"
+       ]
+      }
+     ]
+    }
+   ],
+   "computed": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+  },
+  "[data-ps=start]": {
+   "direct": [
+    {
+     "selector": "input, textarea, select, button",
+     "origin": "user-agent",
+     "sheet": "(inline/unknown)",
+     "props": [
+      "font-weight: ",
+      "font-size: ",
+      "font-family: "
+     ],
+     "range": null
+    },
+    {
+     "selector": "button, input, select",
+     "origin": "regular",
+     "sheet": "http://localhost:4331/_astro/play.CNta0IUI.css",
+     "isInline": false,
+     "props": [
+      "font: inherit",
+      "font-weight: inherit",
+      "font-size: inherit",
+      "font-family: inherit"
+     ],
+     "range": "0:1261"
+    },
+    {
+     "selector": ".ps-go",
+     "origin": "regular",
+     "sheet": "http://localhost:4331/_astro/play.DrLQdqXf.css",
+     "isInline": false,
+     "props": [
+      "font-family: var(--font-display)",
+      "font-weight: 500",
+      "font-size: 21px",
+      "font-family: var(--font-display)",
+      "font-weight: 500",
+      "font-size: 21px"
+     ],
+     "range": "0:4226"
+    }
+   ],
+   "inheritedFontFamily": [
+    {
+     "k": 2,
+     "rules": [
+      {
+       "selector": "body",
+       "sheet": "http://localhost:4331/_astro/play.CNta0IUI.css",
+       "ff": [
+        "var(--font-body)",
+        "var(--font-body)"
+       ]
+      }
+     ]
+    }
+   ],
+   "computed": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+  },
+  "#ps-edit-dialog .ps-sec": {
+   "direct": [
+    {
+     "selector": "input, textarea, select, button",
+     "origin": "user-agent",
+     "sheet": "(inline/unknown)",
+     "props": [
+      "font-weight: ",
+      "font-size: ",
+      "font-family: "
+     ],
+     "range": null
+    },
+    {
+     "selector": "button, input, select",
+     "origin": "regular",
+     "sheet": "http://localhost:4331/_astro/play.CNta0IUI.css",
+     "isInline": false,
+     "props": [
+      "font: inherit",
+      "font-weight: inherit",
+      "font-size: inherit",
+      "font-family: inherit"
+     ],
+     "range": "0:1261"
+    },
+    {
+     "selector": ".ps-sec, .ps-danger",
+     "origin": "regular",
+     "sheet": "http://localhost:4331/_astro/play.DrLQdqXf.css",
+     "isInline": false,
+     "props": [
+      "font-family: var(--font-display)",
+      "font-size: 16px",
+      "font-family: var(--font-display)",
+      "font-size: 16px"
+     ],
+     "range": "0:3816"
+    }
+   ],
+   "inheritedFontFamily": [
+    {
+     "k": 2,
+     "rules": [
+      {
+       "selector": "body",
+       "sheet": "http://localhost:4331/_astro/play.CNta0IUI.css",
+       "ff": [
+        "var(--font-body)",
+        "var(--font-body)"
+       ]
+      }
+     ]
+    }
+   ],
+   "computed": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+  }
+ }
+}

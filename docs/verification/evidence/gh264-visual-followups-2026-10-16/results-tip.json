@@ -1,0 +1,4754 @@
+{
+  "tree": "tip",
+  "base_url": "http://localhost:4331",
+  "n": 3,
+  "notes": {
+    "V1": {
+      "runs": {
+        "short-stick": [
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [
+                [
+                  "#btn-start-setup",
+                  true
+                ]
+              ],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "\"Noto Sans Thai\", Sarabun, -apple-system, \"system-ui\", \"Segoe UI\", system-ui, sans-serif"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#btn-begin-game",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+                }
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [
+                [
+                  "#btn-start-setup",
+                  true
+                ]
+              ],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "\"Noto Sans Thai\", Sarabun, -apple-system, \"system-ui\", \"Segoe UI\", system-ui, sans-serif"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#btn-begin-game",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+                }
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [
+                [
+                  "#btn-start-setup",
+                  true
+                ]
+              ],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "\"Noto Sans Thai\", Sarabun, -apple-system, \"system-ui\", \"Segoe UI\", system-ui, sans-serif"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#btn-begin-game",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+                }
+              ]
+            }
+          }
+        ],
+        "one-bomb": [
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "Arial"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                }
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "Arial"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                }
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "Arial"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                }
+              ]
+            }
+          }
+        ],
+        "timebomb": [
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "Arial"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#tb-start",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                }
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "Arial"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#tb-start",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                }
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 390,
+              "ih": 844,
+              "cw": 390,
+              "sw": 390
+            },
+            "reach": {
+              "done": [],
+              "startSel": "[data-ps=start]",
+              "present": true
+            },
+            "first": {
+              "resetSel": true,
+              "reset": {
+                "fs": "16px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countNum": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "countRead": {
+                "fs": "22px",
+                "fw": "400",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "stepBtn": {
+                "fs": "24px",
+                "fw": "400",
+                "ff": "Arial"
+              },
+              "start": {
+                "fs": "21px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "resetText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+              "countText": "4 คน"
+            },
+            "legacy": {
+              "resetBtn": "button.ps-sec",
+              "startBtn": "button.ps-go"
+            },
+            "roundSteps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#tb-start",
+                true
+              ]
+            ],
+            "editOpened": true,
+            "dialog": {
+              "open": true,
+              "title": {
+                "fs": "20px",
+                "fw": "500",
+                "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+              },
+              "buttons": [
+                {
+                  "text": "เล่นรอบนี้ต่อ",
+                  "cls": "ps-sec",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "400",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                },
+                {
+                  "text": "จบรอบ แล้วแก้ผู้เล่น",
+                  "cls": "ps-danger",
+                  "vis": true,
+                  "fs": "16px",
+                  "fw": "500",
+                  "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "board": {
+        "vp": {
+          "iw": 1560,
+          "ih": 3376,
+          "cw": 980,
+          "sw": 1800
+        },
+        "sec": {
+          "fs": "16px",
+          "fw": "400",
+          "ff": "Mitr, sans-serif"
+        },
+        "secText": "↺ รีเซ็ตเป็นชื่อสัตว์",
+        "countRead": {
+          "fs": "22px",
+          "fw": "400",
+          "ff": "Mitr, sans-serif"
+        },
+        "step": {
+          "fs": "24px",
+          "fw": "400",
+          "ff": "Sarabun, \"Noto Sans Thai\", system-ui, sans-serif"
+        },
+        "go": {
+          "fs": "21px",
+          "fw": "500",
+          "ff": "Mitr, sans-serif"
+        },
+        "dlgSec": {
+          "fs": "16px",
+          "fw": "400",
+          "ff": "Mitr, sans-serif"
+        },
+        "dlgDanger": {
+          "fs": "16px",
+          "fw": "500",
+          "ff": "Mitr, sans-serif"
+        },
+        "dlgH3": {
+          "fs": "20px",
+          "fw": "500",
+          "ff": "Mitr, sans-serif"
+        }
+      }
+    },
+    "V2": {
+      "runs": {
+        "one-bomb": [
+          {
+            "vp": {
+              "iw": 320,
+              "ih": 568,
+              "cw": 320,
+              "sw": 320
+            },
+            "reach": {
+              "ok": true,
+              "steps": [
+                [
+                  "[data-ps=start]",
+                  true
+                ]
+              ]
+            },
+            "m": {
+              "editControl": {
+                "vis": true,
+                "r": {
+                  "l": 6,
+                  "t": 56,
+                  "r": 80.78,
+                  "b": 100,
+                  "w": 74.78,
+                  "h": 44
+                },
+                "pos": "fixed",
+                "z": "300"
+              },
+              "hudFound": true,
+              "hudVisible": true,
+              "chipCount": 37,
+              "overlaps": [
+                {
+                  "chip": "div.topSection",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 10,
+                    "r": 310,
+                    "b": 116,
+                    "w": 300,
+                    "h": 106
+                  },
+                  "area": 3114.32,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.topBar",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 10,
+                    "r": 310,
+                    "b": 60,
+                    "w": 300,
+                    "h": 50
+                  },
+                  "area": 283.12,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      58
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.leftTools",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 13,
+                    "r": 106,
+                    "b": 57,
+                    "w": 96,
+                    "h": 44
+                  },
+                  "area": 70.78,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      56.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "button#homeBtn.btnBase.iconBtn",
+                  "text": "🏠",
+                  "r": {
+                    "l": 10,
+                    "t": 13,
+                    "r": 54,
+                    "b": 57,
+                    "w": 44,
+                    "h": 44
+                  },
+                  "area": 44,
+                  "hit": {
+                    "at": [
+                      32,
+                      56.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "button#audioToggleBtn.btnBase.iconBtn",
+                  "text": "🔊",
+                  "r": {
+                    "l": 62,
+                    "t": 13,
+                    "r": 106,
+                    "b": 57,
+                    "w": 44,
+                    "h": 44
+                  },
+                  "area": 18.78,
+                  "hit": {
+                    "at": [
+                      71.4,
+                      56.5
+                    ],
+                    "el": "button#audioToggleBtn.btnBase.iconBtn",
+                    "isEdit": false,
+                    "isChip": true
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.statusTopRow",
+                  "text": "🐱 ตาของ ต้น",
+                  "r": {
+                    "l": 10,
+                    "t": 68,
+                    "r": 310,
+                    "b": 116,
+                    "w": 300,
+                    "h": 48
+                  },
+                  "area": 2264.96,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      84
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div#turnBanner.turnBanner",
+                  "text": "🐱 ตาของ ต้น",
+                  "r": {
+                    "l": 10,
+                    "t": 69,
+                    "r": 106,
+                    "b": 115,
+                    "w": 96,
+                    "h": 46
+                  },
+                  "area": 2194.18,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      84.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "span#turnAvatarEmoji",
+                  "text": "🐱",
+                  "r": {
+                    "l": 25,
+                    "t": 82,
+                    "r": 40,
+                    "b": 102,
+                    "w": 15,
+                    "h": 20
+                  },
+                  "area": 270,
+                  "hit": {
+                    "at": [
+                      32.5,
+                      91
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "strong#turnPlayerName",
+                  "text": "ต้น",
+                  "r": {
+                    "l": 75.86,
+                    "t": 83.5,
+                    "r": 91,
+                    "b": 100.5,
+                    "w": 15.14,
+                    "h": 17
+                  },
+                  "area": 81.18,
+                  "hit": {
+                    "at": [
+                      78.3,
+                      91.8
+                    ],
+                    "el": "strong#turnPlayerName",
+                    "isEdit": false,
+                    "isChip": true
+                  },
+                  "contains": false
+                }
+              ],
+              "allChips": [
+                [
+                  "div.topSection",
+                  10,
+                  10,
+                  310,
+                  116,
+                  3114.32
+                ],
+                [
+                  "div.topBar",
+                  10,
+                  10,
+                  310,
+                  60,
+                  283.12
+                ],
+                [
+                  "div.leftTools",
+                  10,
+                  13,
+                  106,
+                  57,
+                  70.78
+                ],
+                [
+                  "button#homeBtn.btnBase.iconBtn",
+                  10,
+                  13,
+                  54,
+                  57,
+                  44
+                ],
+                [
+                  "button#audioToggleBtn.btnBase.iconBtn",
+                  62,
+                  13,
+                  106,
+                  57,
+                  18.78
+                ],
+                [
+                  "div#playerStrip.playerStrip",
+                  112,
+                  10,
+                  131.67,
+                  60,
+                  0
+                ],
+                [
+                  "div.playerCard.active",
+                  -53.36,
+                  9.16,
+                  61.04,
+                  52.84,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  -44,
+                  15.4,
+                  -12.8,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  -4.48,
+                  15.4,
+                  27.13,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.pName",
+                  -4.48,
+                  15.4,
+                  27.13,
+                  32.04,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  -4.48,
+                  32.04,
+                  27.13,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.playerCard",
+                  66.84,
+                  12,
+                  176.84,
+                  54,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  75.84,
+                  18,
+                  105.84,
+                  48,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  113.84,
+                  18,
+                  144.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.pName",
+                  113.84,
+                  18,
+                  144.23,
+                  34,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  113.84,
+                  34,
+                  144.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.playerCard",
+                  184.84,
+                  12,
+                  294.84,
+                  54,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  193.84,
+                  18,
+                  223.84,
+                  48,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  231.84,
+                  18,
+                  262.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.pName",
+                  231.84,
+                  18,
+                  262.23,
+                  34,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  231.84,
+                  34,
+                  262.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.rightTools",
+                  137.67,
+                  13,
+                  310,
+                  57,
+                  0
+                ],
+                [
+                  "button#newRoundBtn.btnBase.secondaryBtn",
+                  137.67,
+                  13,
+                  258,
+                  57,
+                  0
+                ],
+                [
+                  "button#settingsBtn.btnBase.iconBtn",
+                  266,
+                  13,
+                  310,
+                  57,
+                  0
+                ],
+                [
+                  "div.statusTopRow",
+                  10,
+                  68,
+                  310,
+                  116,
+                  2264.96
+                ],
+                [
+                  "div#turnBanner.turnBanner",
+                  10,
+                  69,
+                  106,
+                  115,
+                  2194.18
+                ],
+                [
+                  "span#turnAvatarEmoji",
+                  25,
+                  82,
+                  40,
+                  102,
+                  270
+                ],
+                [
+                  "strong#turnPlayerName",
+                  75.86,
+                  83.5,
+                  91,
+                  100.5,
+                  81.18
+                ],
+                [
+                  "div.tensionPill",
+                  116,
+                  68,
+                  310,
+                  116,
+                  0
+                ],
+                [
+                  "span",
+                  131,
+                  75,
+                  184.47,
+                  109,
+                  0
+                ],
+                [
+                  "div.tensionMeter",
+                  192.47,
+                  89,
+                  230.73,
+                  95,
+                  0
+                ],
+                [
+                  "div#tensionFill.tensionFill",
+                  192.47,
+                  89,
+                  195.27,
+                  95,
+                  0
+                ],
+                [
+                  "strong#tensionLabel",
+                  238.73,
+                  77.5,
+                  295,
+                  106.5,
+                  0
+                ],
+                [
+                  "div.bottomBar",
+                  10,
+                  510.31,
+                  310,
+                  558,
+                  0
+                ],
+                [
+                  "div.roundBadge",
+                  10,
+                  510.31,
+                  88.81,
+                  558,
+                  0
+                ],
+                [
+                  "small",
+                  36.55,
+                  519.31,
+                  62.25,
+                  529.2,
+                  0
+                ],
+                [
+                  "strong#roundLabel",
+                  27,
+                  529.2,
+                  71.81,
+                  549,
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 320,
+              "ih": 568,
+              "cw": 320,
+              "sw": 320
+            },
+            "reach": {
+              "ok": true,
+              "steps": [
+                [
+                  "[data-ps=start]",
+                  true
+                ]
+              ]
+            },
+            "m": {
+              "editControl": {
+                "vis": true,
+                "r": {
+                  "l": 6,
+                  "t": 56,
+                  "r": 80.78,
+                  "b": 100,
+                  "w": 74.78,
+                  "h": 44
+                },
+                "pos": "fixed",
+                "z": "300"
+              },
+              "hudFound": true,
+              "hudVisible": true,
+              "chipCount": 37,
+              "overlaps": [
+                {
+                  "chip": "div.topSection",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 10,
+                    "r": 310,
+                    "b": 116,
+                    "w": 300,
+                    "h": 106
+                  },
+                  "area": 3114.32,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.topBar",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 10,
+                    "r": 310,
+                    "b": 60,
+                    "w": 300,
+                    "h": 50
+                  },
+                  "area": 283.12,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      58
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.leftTools",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 13,
+                    "r": 106,
+                    "b": 57,
+                    "w": 96,
+                    "h": 44
+                  },
+                  "area": 70.78,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      56.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "button#homeBtn.btnBase.iconBtn",
+                  "text": "🏠",
+                  "r": {
+                    "l": 10,
+                    "t": 13,
+                    "r": 54,
+                    "b": 57,
+                    "w": 44,
+                    "h": 44
+                  },
+                  "area": 44,
+                  "hit": {
+                    "at": [
+                      32,
+                      56.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "button#audioToggleBtn.btnBase.iconBtn",
+                  "text": "🔊",
+                  "r": {
+                    "l": 62,
+                    "t": 13,
+                    "r": 106,
+                    "b": 57,
+                    "w": 44,
+                    "h": 44
+                  },
+                  "area": 18.78,
+                  "hit": {
+                    "at": [
+                      71.4,
+                      56.5
+                    ],
+                    "el": "button#audioToggleBtn.btnBase.iconBtn",
+                    "isEdit": false,
+                    "isChip": true
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.statusTopRow",
+                  "text": "🐱 ตาของ ต้น",
+                  "r": {
+                    "l": 10,
+                    "t": 68,
+                    "r": 310,
+                    "b": 116,
+                    "w": 300,
+                    "h": 48
+                  },
+                  "area": 2264.96,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      84
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div#turnBanner.turnBanner",
+                  "text": "🐱 ตาของ ต้น",
+                  "r": {
+                    "l": 10,
+                    "t": 69,
+                    "r": 106,
+                    "b": 115,
+                    "w": 96,
+                    "h": 46
+                  },
+                  "area": 2194.18,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      84.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "span#turnAvatarEmoji",
+                  "text": "🐱",
+                  "r": {
+                    "l": 25,
+                    "t": 82,
+                    "r": 40,
+                    "b": 102,
+                    "w": 15,
+                    "h": 20
+                  },
+                  "area": 270,
+                  "hit": {
+                    "at": [
+                      32.5,
+                      91
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "strong#turnPlayerName",
+                  "text": "ต้น",
+                  "r": {
+                    "l": 75.86,
+                    "t": 83.5,
+                    "r": 91,
+                    "b": 100.5,
+                    "w": 15.14,
+                    "h": 17
+                  },
+                  "area": 81.18,
+                  "hit": {
+                    "at": [
+                      78.3,
+                      91.8
+                    ],
+                    "el": "strong#turnPlayerName",
+                    "isEdit": false,
+                    "isChip": true
+                  },
+                  "contains": false
+                }
+              ],
+              "allChips": [
+                [
+                  "div.topSection",
+                  10,
+                  10,
+                  310,
+                  116,
+                  3114.32
+                ],
+                [
+                  "div.topBar",
+                  10,
+                  10,
+                  310,
+                  60,
+                  283.12
+                ],
+                [
+                  "div.leftTools",
+                  10,
+                  13,
+                  106,
+                  57,
+                  70.78
+                ],
+                [
+                  "button#homeBtn.btnBase.iconBtn",
+                  10,
+                  13,
+                  54,
+                  57,
+                  44
+                ],
+                [
+                  "button#audioToggleBtn.btnBase.iconBtn",
+                  62,
+                  13,
+                  106,
+                  57,
+                  18.78
+                ],
+                [
+                  "div#playerStrip.playerStrip",
+                  112,
+                  10,
+                  131.67,
+                  60,
+                  0
+                ],
+                [
+                  "div.playerCard.active",
+                  -53.36,
+                  9.16,
+                  61.04,
+                  52.84,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  -44,
+                  15.4,
+                  -12.8,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  -4.48,
+                  15.4,
+                  27.13,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.pName",
+                  -4.48,
+                  15.4,
+                  27.13,
+                  32.04,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  -4.48,
+                  32.04,
+                  27.13,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.playerCard",
+                  66.84,
+                  12,
+                  176.84,
+                  54,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  75.84,
+                  18,
+                  105.84,
+                  48,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  113.84,
+                  18,
+                  144.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.pName",
+                  113.84,
+                  18,
+                  144.23,
+                  34,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  113.84,
+                  34,
+                  144.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.playerCard",
+                  184.84,
+                  12,
+                  294.84,
+                  54,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  193.84,
+                  18,
+                  223.84,
+                  48,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  231.84,
+                  18,
+                  262.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.pName",
+                  231.84,
+                  18,
+                  262.23,
+                  34,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  231.84,
+                  34,
+                  262.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.rightTools",
+                  137.67,
+                  13,
+                  310,
+                  57,
+                  0
+                ],
+                [
+                  "button#newRoundBtn.btnBase.secondaryBtn",
+                  137.67,
+                  13,
+                  258,
+                  57,
+                  0
+                ],
+                [
+                  "button#settingsBtn.btnBase.iconBtn",
+                  266,
+                  13,
+                  310,
+                  57,
+                  0
+                ],
+                [
+                  "div.statusTopRow",
+                  10,
+                  68,
+                  310,
+                  116,
+                  2264.96
+                ],
+                [
+                  "div#turnBanner.turnBanner",
+                  10,
+                  69,
+                  106,
+                  115,
+                  2194.18
+                ],
+                [
+                  "span#turnAvatarEmoji",
+                  25,
+                  82,
+                  40,
+                  102,
+                  270
+                ],
+                [
+                  "strong#turnPlayerName",
+                  75.86,
+                  83.5,
+                  91,
+                  100.5,
+                  81.18
+                ],
+                [
+                  "div.tensionPill",
+                  116,
+                  68,
+                  310,
+                  116,
+                  0
+                ],
+                [
+                  "span",
+                  131,
+                  75,
+                  184.47,
+                  109,
+                  0
+                ],
+                [
+                  "div.tensionMeter",
+                  192.47,
+                  89,
+                  230.73,
+                  95,
+                  0
+                ],
+                [
+                  "div#tensionFill.tensionFill",
+                  192.47,
+                  89,
+                  195.27,
+                  95,
+                  0
+                ],
+                [
+                  "strong#tensionLabel",
+                  238.73,
+                  77.5,
+                  295,
+                  106.5,
+                  0
+                ],
+                [
+                  "div.bottomBar",
+                  10,
+                  510.31,
+                  310,
+                  558,
+                  0
+                ],
+                [
+                  "div.roundBadge",
+                  10,
+                  510.31,
+                  88.81,
+                  558,
+                  0
+                ],
+                [
+                  "small",
+                  36.55,
+                  519.31,
+                  62.25,
+                  529.2,
+                  0
+                ],
+                [
+                  "strong#roundLabel",
+                  27,
+                  529.2,
+                  71.81,
+                  549,
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 320,
+              "ih": 568,
+              "cw": 320,
+              "sw": 320
+            },
+            "reach": {
+              "ok": true,
+              "steps": [
+                [
+                  "[data-ps=start]",
+                  true
+                ]
+              ]
+            },
+            "m": {
+              "editControl": {
+                "vis": true,
+                "r": {
+                  "l": 6,
+                  "t": 56,
+                  "r": 80.78,
+                  "b": 100,
+                  "w": 74.78,
+                  "h": 44
+                },
+                "pos": "fixed",
+                "z": "300"
+              },
+              "hudFound": true,
+              "hudVisible": true,
+              "chipCount": 37,
+              "overlaps": [
+                {
+                  "chip": "div.topSection",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 10,
+                    "r": 310,
+                    "b": 116,
+                    "w": 300,
+                    "h": 106
+                  },
+                  "area": 3114.32,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.topBar",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 10,
+                    "r": 310,
+                    "b": 60,
+                    "w": 300,
+                    "h": 50
+                  },
+                  "area": 283.12,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      58
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.leftTools",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 13,
+                    "r": 106,
+                    "b": 57,
+                    "w": 96,
+                    "h": 44
+                  },
+                  "area": 70.78,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      56.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "button#homeBtn.btnBase.iconBtn",
+                  "text": "🏠",
+                  "r": {
+                    "l": 10,
+                    "t": 13,
+                    "r": 54,
+                    "b": 57,
+                    "w": 44,
+                    "h": 44
+                  },
+                  "area": 44,
+                  "hit": {
+                    "at": [
+                      32,
+                      56.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "button#audioToggleBtn.btnBase.iconBtn",
+                  "text": "🔊",
+                  "r": {
+                    "l": 62,
+                    "t": 13,
+                    "r": 106,
+                    "b": 57,
+                    "w": 44,
+                    "h": 44
+                  },
+                  "area": 18.78,
+                  "hit": {
+                    "at": [
+                      71.4,
+                      56.5
+                    ],
+                    "el": "button#audioToggleBtn.btnBase.iconBtn",
+                    "isEdit": false,
+                    "isChip": true
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.statusTopRow",
+                  "text": "🐱 ตาของ ต้น",
+                  "r": {
+                    "l": 10,
+                    "t": 68,
+                    "r": 310,
+                    "b": 116,
+                    "w": 300,
+                    "h": 48
+                  },
+                  "area": 2264.96,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      84
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div#turnBanner.turnBanner",
+                  "text": "🐱 ตาของ ต้น",
+                  "r": {
+                    "l": 10,
+                    "t": 69,
+                    "r": 106,
+                    "b": 115,
+                    "w": 96,
+                    "h": 46
+                  },
+                  "area": 2194.18,
+                  "hit": {
+                    "at": [
+                      45.4,
+                      84.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "span#turnAvatarEmoji",
+                  "text": "🐱",
+                  "r": {
+                    "l": 25,
+                    "t": 82,
+                    "r": 40,
+                    "b": 102,
+                    "w": 15,
+                    "h": 20
+                  },
+                  "area": 270,
+                  "hit": {
+                    "at": [
+                      32.5,
+                      91
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "strong#turnPlayerName",
+                  "text": "ต้น",
+                  "r": {
+                    "l": 75.86,
+                    "t": 83.5,
+                    "r": 91,
+                    "b": 100.5,
+                    "w": 15.14,
+                    "h": 17
+                  },
+                  "area": 81.18,
+                  "hit": {
+                    "at": [
+                      78.3,
+                      91.8
+                    ],
+                    "el": "strong#turnPlayerName",
+                    "isEdit": false,
+                    "isChip": true
+                  },
+                  "contains": false
+                }
+              ],
+              "allChips": [
+                [
+                  "div.topSection",
+                  10,
+                  10,
+                  310,
+                  116,
+                  3114.32
+                ],
+                [
+                  "div.topBar",
+                  10,
+                  10,
+                  310,
+                  60,
+                  283.12
+                ],
+                [
+                  "div.leftTools",
+                  10,
+                  13,
+                  106,
+                  57,
+                  70.78
+                ],
+                [
+                  "button#homeBtn.btnBase.iconBtn",
+                  10,
+                  13,
+                  54,
+                  57,
+                  44
+                ],
+                [
+                  "button#audioToggleBtn.btnBase.iconBtn",
+                  62,
+                  13,
+                  106,
+                  57,
+                  18.78
+                ],
+                [
+                  "div#playerStrip.playerStrip",
+                  112,
+                  10,
+                  131.67,
+                  60,
+                  0
+                ],
+                [
+                  "div.playerCard.active",
+                  -53.36,
+                  9.16,
+                  61.04,
+                  52.84,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  -44,
+                  15.4,
+                  -12.8,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  -4.48,
+                  15.4,
+                  27.13,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.pName",
+                  -4.48,
+                  15.4,
+                  27.13,
+                  32.04,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  -4.48,
+                  32.04,
+                  27.13,
+                  46.6,
+                  0
+                ],
+                [
+                  "div.playerCard",
+                  66.84,
+                  12,
+                  176.84,
+                  54,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  75.84,
+                  18,
+                  105.84,
+                  48,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  113.84,
+                  18,
+                  144.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.pName",
+                  113.84,
+                  18,
+                  144.23,
+                  34,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  113.84,
+                  34,
+                  144.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.playerCard",
+                  184.84,
+                  12,
+                  294.84,
+                  54,
+                  0
+                ],
+                [
+                  "div.avatarBadge",
+                  193.84,
+                  18,
+                  223.84,
+                  48,
+                  0
+                ],
+                [
+                  "div.pInfo",
+                  231.84,
+                  18,
+                  262.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.pName",
+                  231.84,
+                  18,
+                  262.23,
+                  34,
+                  0
+                ],
+                [
+                  "div.pScore",
+                  231.84,
+                  34,
+                  262.23,
+                  48,
+                  0
+                ],
+                [
+                  "div.rightTools",
+                  137.67,
+                  13,
+                  310,
+                  57,
+                  0
+                ],
+                [
+                  "button#newRoundBtn.btnBase.secondaryBtn",
+                  137.67,
+                  13,
+                  258,
+                  57,
+                  0
+                ],
+                [
+                  "button#settingsBtn.btnBase.iconBtn",
+                  266,
+                  13,
+                  310,
+                  57,
+                  0
+                ],
+                [
+                  "div.statusTopRow",
+                  10,
+                  68,
+                  310,
+                  116,
+                  2264.96
+                ],
+                [
+                  "div#turnBanner.turnBanner",
+                  10,
+                  69,
+                  106,
+                  115,
+                  2194.18
+                ],
+                [
+                  "span#turnAvatarEmoji",
+                  25,
+                  82,
+                  40,
+                  102,
+                  270
+                ],
+                [
+                  "strong#turnPlayerName",
+                  75.86,
+                  83.5,
+                  91,
+                  100.5,
+                  81.18
+                ],
+                [
+                  "div.tensionPill",
+                  116,
+                  68,
+                  310,
+                  116,
+                  0
+                ],
+                [
+                  "span",
+                  131,
+                  75,
+                  184.47,
+                  109,
+                  0
+                ],
+                [
+                  "div.tensionMeter",
+                  192.47,
+                  89,
+                  230.73,
+                  95,
+                  0
+                ],
+                [
+                  "div#tensionFill.tensionFill",
+                  192.47,
+                  89,
+                  195.27,
+                  95,
+                  0
+                ],
+                [
+                  "strong#tensionLabel",
+                  238.73,
+                  77.5,
+                  295,
+                  106.5,
+                  0
+                ],
+                [
+                  "div.bottomBar",
+                  10,
+                  510.31,
+                  310,
+                  558,
+                  0
+                ],
+                [
+                  "div.roundBadge",
+                  10,
+                  510.31,
+                  88.81,
+                  558,
+                  0
+                ],
+                [
+                  "small",
+                  36.55,
+                  519.31,
+                  62.25,
+                  529.2,
+                  0
+                ],
+                [
+                  "strong#roundLabel",
+                  27,
+                  529.2,
+                  71.81,
+                  549,
+                  0
+                ]
+              ]
+            }
+          }
+        ],
+        "croc-bite": [
+          {
+            "vp": {
+              "iw": 320,
+              "ih": 568,
+              "cw": 320,
+              "sw": 320
+            },
+            "reach": {
+              "ok": true,
+              "steps": [
+                [
+                  "[data-ps=start]",
+                  true
+                ],
+                [
+                  "#btn-start-game",
+                  true
+                ]
+              ]
+            },
+            "m": {
+              "editControl": {
+                "vis": true,
+                "r": {
+                  "l": 6,
+                  "t": 56,
+                  "r": 80.27,
+                  "b": 100,
+                  "w": 74.27,
+                  "h": 44
+                },
+                "pos": "fixed",
+                "z": "300"
+              },
+              "hudFound": true,
+              "hudVisible": true,
+              "chipCount": 41,
+              "overlaps": [
+                {
+                  "chip": "div.hud-top-section",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 8,
+                    "r": 310,
+                    "b": 171,
+                    "w": 300,
+                    "h": 163
+                  },
+                  "area": 3091.88,
+                  "hit": {
+                    "at": [
+                      45.1,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div#hud-player-strip.player-strip",
+                  "text": "🐱ต้น🏆 0 แต",
+                  "r": {
+                    "l": 10,
+                    "t": 58,
+                    "r": 310,
+                    "b": 104,
+                    "w": 300,
+                    "h": 46
+                  },
+                  "area": 2951.34,
+                  "hit": {
+                    "at": [
+                      45.1,
+                      79
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.player-card",
+                  "text": "🐱ต้น🏆 0 แต",
+                  "r": {
+                    "l": 10,
+                    "t": 60,
+                    "r": 106,
+                    "b": 100,
+                    "w": 96,
+                    "h": 40
+                  },
+                  "area": 2810.8,
+                  "hit": {
+                    "at": [
+                      45.1,
+                      80
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-avatar",
+                  "text": "🐱",
+                  "r": {
+                    "l": 19,
+                    "t": 67,
+                    "r": 45,
+                    "b": 93,
+                    "w": 26,
+                    "h": 26
+                  },
+                  "area": 676,
+                  "hit": {
+                    "at": [
+                      32,
+                      80
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-info",
+                  "text": "ต้น🏆 0 แต้ม",
+                  "r": {
+                    "l": 51,
+                    "t": 65,
+                    "r": 88.73,
+                    "b": 95,
+                    "w": 37.73,
+                    "h": 30
+                  },
+                  "area": 878.1,
+                  "hit": {
+                    "at": [
+                      65.6,
+                      80
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-name",
+                  "text": "ต้น",
+                  "r": {
+                    "l": 51,
+                    "t": 65,
+                    "r": 88.73,
+                    "b": 80,
+                    "w": 37.73,
+                    "h": 15
+                  },
+                  "area": 439.05,
+                  "hit": {
+                    "at": [
+                      65.6,
+                      72.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-score",
+                  "text": "🏆 0 แต้ม",
+                  "r": {
+                    "l": 51,
+                    "t": 80,
+                    "r": 88.73,
+                    "b": 95,
+                    "w": 37.73,
+                    "h": 15
+                  },
+                  "area": 439.05,
+                  "hit": {
+                    "at": [
+                      65.6,
+                      87.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "strong",
+                  "text": "0",
+                  "r": {
+                    "l": 64.11,
+                    "t": 80,
+                    "r": 69.77,
+                    "b": 93,
+                    "w": 5.66,
+                    "h": 13
+                  },
+                  "area": 73.58,
+                  "hit": {
+                    "at": [
+                      66.9,
+                      86.5
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                }
+              ],
+              "allChips": [
+                [
+                  "div.hud-top-section",
+                  10,
+                  8,
+                  310,
+                  171,
+                  3091.88
+                ],
+                [
+                  "div.hud-top-bar",
+                  10,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "div.hud-tools-left",
+                  10,
+                  8,
+                  90,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-home.btnBase.iconBtn",
+                  10,
+                  8,
+                  46,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-sound.btnBase.iconBtn",
+                  54,
+                  8,
+                  90,
+                  52,
+                  0
+                ],
+                [
+                  "div.round-badge",
+                  104.33,
+                  9.25,
+                  171.36,
+                  50.73,
+                  0
+                ],
+                [
+                  "small",
+                  125.11,
+                  16.25,
+                  150.56,
+                  26.14,
+                  0
+                ],
+                [
+                  "strong#hud-round-label",
+                  121.33,
+                  26.14,
+                  154.36,
+                  43.73,
+                  0
+                ],
+                [
+                  "div.hud-tools-right",
+                  185.67,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-restart.btnBase.secondaryBtn",
+                  185.67,
+                  8,
+                  266,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-settings.btnBase.iconBtn",
+                  274,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "div#hud-player-strip.player-strip",
+                  10,
+                  58,
+                  310,
+                  104,
+                  2951.34
+                ],
+                [
+                  "div.player-card",
+                  10,
+                  60,
+                  106,
+                  100,
+                  2810.8
+                ],
+                [
+                  "div.card-avatar",
+                  19,
+                  67,
+                  45,
+                  93,
+                  676
+                ],
+                [
+                  "div.card-info",
+                  51,
+                  65,
+                  88.73,
+                  95,
+                  878.1
+                ],
+                [
+                  "div.card-name",
+                  51,
+                  65,
+                  88.73,
+                  80,
+                  439.05
+                ],
+                [
+                  "div.card-score",
+                  51,
+                  80,
+                  88.73,
+                  95,
+                  439.05
+                ],
+                [
+                  "strong",
+                  64.11,
+                  80,
+                  69.77,
+                  93,
+                  73.58
+                ],
+                [
+                  "div.player-card.active",
+                  109.6,
+                  57,
+                  210.4,
+                  99,
+                  0
+                ],
+                [
+                  "div.card-avatar",
+                  119.05,
+                  64.35,
+                  146.35,
+                  91.65,
+                  0
+                ],
+                [
+                  "div.card-info",
+                  152.65,
+                  62.25,
+                  192.27,
+                  93.75,
+                  0
+                ],
+                [
+                  "div.card-name",
+                  152.65,
+                  62.25,
+                  192.27,
+                  78,
+                  0
+                ],
+                [
+                  "div.card-score",
+                  152.65,
+                  78,
+                  192.27,
+                  93.75,
+                  0
+                ],
+                [
+                  "strong",
+                  166.41,
+                  78,
+                  172.35,
+                  91.65,
+                  0
+                ],
+                [
+                  "div.player-card",
+                  214,
+                  60,
+                  310,
+                  100,
+                  0
+                ],
+                [
+                  "div.card-avatar",
+                  223,
+                  67,
+                  249,
+                  93,
+                  0
+                ],
+                [
+                  "div.card-info",
+                  255,
+                  65,
+                  292.73,
+                  95,
+                  0
+                ],
+                [
+                  "div.card-name",
+                  255,
+                  65,
+                  292.73,
+                  80,
+                  0
+                ],
+                [
+                  "div.card-score",
+                  255,
+                  80,
+                  292.73,
+                  95,
+                  0
+                ],
+                [
+                  "strong",
+                  268.11,
+                  80,
+                  273.77,
+                  93,
+                  0
+                ],
+                [
+                  "div.status-top-row",
+                  10,
+                  110,
+                  310,
+                  171,
+                  0
+                ],
+                [
+                  "div#hud-turn-banner.turn-banner",
+                  104.78,
+                  110,
+                  215.2,
+                  138,
+                  0
+                ],
+                [
+                  "span#turn-avatar",
+                  117.78,
+                  115,
+                  131.78,
+                  133,
+                  0
+                ],
+                [
+                  "span",
+                  139.78,
+                  116.5,
+                  202.2,
+                  131.5,
+                  0
+                ],
+                [
+                  "strong#turn-player-name",
+                  175.28,
+                  116.5,
+                  202.2,
+                  131.5,
+                  0
+                ],
+                [
+                  "div#hud-tension-pill.tension-pill",
+                  35.98,
+                  144,
+                  284,
+                  171,
+                  0
+                ],
+                [
+                  "span",
+                  46.98,
+                  149,
+                  140.05,
+                  166,
+                  0
+                ],
+                [
+                  "div.tension-meter",
+                  148.05,
+                  155,
+                  196.05,
+                  160,
+                  0
+                ],
+                [
+                  "div#tension-fill-bar.tension-fill",
+                  148.05,
+                  155,
+                  150.73,
+                  160,
+                  0
+                ],
+                [
+                  "strong#tension-odds-text",
+                  204.05,
+                  151,
+                  273,
+                  164,
+                  0
+                ],
+                [
+                  "div#hud-toast.toast-msg.show",
+                  81.15,
+                  449,
+                  238.85,
+                  488,
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 320,
+              "ih": 568,
+              "cw": 320,
+              "sw": 320
+            },
+            "reach": {
+              "ok": true,
+              "steps": [
+                [
+                  "[data-ps=start]",
+                  true
+                ],
+                [
+                  "#btn-start-game",
+                  true
+                ]
+              ]
+            },
+            "m": {
+              "editControl": {
+                "vis": true,
+                "r": {
+                  "l": 6,
+                  "t": 56,
+                  "r": 80.27,
+                  "b": 100,
+                  "w": 74.27,
+                  "h": 44
+                },
+                "pos": "fixed",
+                "z": "300"
+              },
+              "hudFound": true,
+              "hudVisible": true,
+              "chipCount": 41,
+              "overlaps": [
+                {
+                  "chip": "div.hud-top-section",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 8,
+                    "r": 310,
+                    "b": 171,
+                    "w": 300,
+                    "h": 163
+                  },
+                  "area": 3091.88,
+                  "hit": {
+                    "at": [
+                      45.1,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div#hud-player-strip.player-strip",
+                  "text": "🐱ต้น🏆 0 แต",
+                  "r": {
+                    "l": 10,
+                    "t": 58,
+                    "r": 310,
+                    "b": 104,
+                    "w": 300,
+                    "h": 46
+                  },
+                  "area": 2951.34,
+                  "hit": {
+                    "at": [
+                      45.1,
+                      79
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.player-card.active",
+                  "text": "🐱ต้น🏆 0 แต",
+                  "r": {
+                    "l": 7.6,
+                    "t": 57,
+                    "r": 108.4,
+                    "b": 99,
+                    "w": 100.8,
+                    "h": 42
+                  },
+                  "area": 3052.14,
+                  "hit": {
+                    "at": [
+                      43.9,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-avatar",
+                  "text": "🐱",
+                  "r": {
+                    "l": 17.05,
+                    "t": 64.35,
+                    "r": 44.35,
+                    "b": 91.65,
+                    "w": 27.3,
+                    "h": 27.3
+                  },
+                  "area": 745.29,
+                  "hit": {
+                    "at": [
+                      30.7,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-info",
+                  "text": "ต้น🏆 0 แต้ม",
+                  "r": {
+                    "l": 50.65,
+                    "t": 62.25,
+                    "r": 90.27,
+                    "b": 93.75,
+                    "w": 39.62,
+                    "h": 31.5
+                  },
+                  "area": 933.03,
+                  "hit": {
+                    "at": [
+                      65.5,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-name",
+                  "text": "ต้น",
+                  "r": {
+                    "l": 50.65,
+                    "t": 62.25,
+                    "r": 90.27,
+                    "b": 78,
+                    "w": 39.62,
+                    "h": 15.75
+                  },
+                  "area": 466.51,
+                  "hit": {
+                    "at": [
+                      65.5,
+                      70.1
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-score",
+                  "text": "🏆 0 แต้ม",
+                  "r": {
+                    "l": 50.65,
+                    "t": 78,
+                    "r": 90.27,
+                    "b": 93.75,
+                    "w": 39.62,
+                    "h": 15.75
+                  },
+                  "area": 466.51,
+                  "hit": {
+                    "at": [
+                      65.5,
+                      85.9
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "strong",
+                  "text": "0",
+                  "r": {
+                    "l": 64.41,
+                    "t": 78,
+                    "r": 70.35,
+                    "b": 91.65,
+                    "w": 5.94,
+                    "h": 13.65
+                  },
+                  "area": 81.08,
+                  "hit": {
+                    "at": [
+                      67.4,
+                      84.8
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                }
+              ],
+              "allChips": [
+                [
+                  "div.hud-top-section",
+                  10,
+                  8,
+                  310,
+                  171,
+                  3091.88
+                ],
+                [
+                  "div.hud-top-bar",
+                  10,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "div.hud-tools-left",
+                  10,
+                  8,
+                  90,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-home.btnBase.iconBtn",
+                  10,
+                  8,
+                  46,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-sound.btnBase.iconBtn",
+                  54,
+                  8,
+                  90,
+                  52,
+                  0
+                ],
+                [
+                  "div.round-badge",
+                  104.33,
+                  9.25,
+                  171.36,
+                  50.73,
+                  0
+                ],
+                [
+                  "small",
+                  125.11,
+                  16.25,
+                  150.56,
+                  26.14,
+                  0
+                ],
+                [
+                  "strong#hud-round-label",
+                  121.33,
+                  26.14,
+                  154.36,
+                  43.73,
+                  0
+                ],
+                [
+                  "div.hud-tools-right",
+                  185.67,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-restart.btnBase.secondaryBtn",
+                  185.67,
+                  8,
+                  266,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-settings.btnBase.iconBtn",
+                  274,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "div#hud-player-strip.player-strip",
+                  10,
+                  58,
+                  310,
+                  104,
+                  2951.34
+                ],
+                [
+                  "div.player-card.active",
+                  7.6,
+                  57,
+                  108.4,
+                  99,
+                  3052.14
+                ],
+                [
+                  "div.card-avatar",
+                  17.05,
+                  64.35,
+                  44.35,
+                  91.65,
+                  745.29
+                ],
+                [
+                  "div.card-info",
+                  50.65,
+                  62.25,
+                  90.27,
+                  93.75,
+                  933.03
+                ],
+                [
+                  "div.card-name",
+                  50.65,
+                  62.25,
+                  90.27,
+                  78,
+                  466.51
+                ],
+                [
+                  "div.card-score",
+                  50.65,
+                  78,
+                  90.27,
+                  93.75,
+                  466.51
+                ],
+                [
+                  "strong",
+                  64.41,
+                  78,
+                  70.35,
+                  91.65,
+                  81.08
+                ],
+                [
+                  "div.player-card",
+                  112,
+                  60,
+                  208,
+                  100,
+                  0
+                ],
+                [
+                  "div.card-avatar",
+                  121,
+                  67,
+                  147,
+                  93,
+                  0
+                ],
+                [
+                  "div.card-info",
+                  153,
+                  65,
+                  190.73,
+                  95,
+                  0
+                ],
+                [
+                  "div.card-name",
+                  153,
+                  65,
+                  190.73,
+                  80,
+                  0
+                ],
+                [
+                  "div.card-score",
+                  153,
+                  80,
+                  190.73,
+                  95,
+                  0
+                ],
+                [
+                  "strong",
+                  166.11,
+                  80,
+                  171.77,
+                  93,
+                  0
+                ],
+                [
+                  "div.player-card",
+                  214,
+                  60,
+                  310,
+                  100,
+                  0
+                ],
+                [
+                  "div.card-avatar",
+                  223,
+                  67,
+                  249,
+                  93,
+                  0
+                ],
+                [
+                  "div.card-info",
+                  255,
+                  65,
+                  292.73,
+                  95,
+                  0
+                ],
+                [
+                  "div.card-name",
+                  255,
+                  65,
+                  292.73,
+                  80,
+                  0
+                ],
+                [
+                  "div.card-score",
+                  255,
+                  80,
+                  292.73,
+                  95,
+                  0
+                ],
+                [
+                  "strong",
+                  268.11,
+                  80,
+                  273.77,
+                  93,
+                  0
+                ],
+                [
+                  "div.status-top-row",
+                  10,
+                  110,
+                  310,
+                  171,
+                  0
+                ],
+                [
+                  "div#hud-turn-banner.turn-banner",
+                  110.89,
+                  110,
+                  209.09,
+                  138,
+                  0
+                ],
+                [
+                  "span#turn-avatar",
+                  123.89,
+                  115,
+                  137.89,
+                  133,
+                  0
+                ],
+                [
+                  "span",
+                  145.89,
+                  116.5,
+                  196.09,
+                  131.5,
+                  0
+                ],
+                [
+                  "strong#turn-player-name",
+                  181.39,
+                  116.5,
+                  196.09,
+                  131.5,
+                  0
+                ],
+                [
+                  "div#hud-tension-pill.tension-pill",
+                  35.98,
+                  144,
+                  284,
+                  171,
+                  0
+                ],
+                [
+                  "span",
+                  46.98,
+                  149,
+                  140.05,
+                  166,
+                  0
+                ],
+                [
+                  "div.tension-meter",
+                  148.05,
+                  155,
+                  196.05,
+                  160,
+                  0
+                ],
+                [
+                  "div#tension-fill-bar.tension-fill",
+                  148.05,
+                  155,
+                  150.73,
+                  160,
+                  0
+                ],
+                [
+                  "strong#tension-odds-text",
+                  204.05,
+                  151,
+                  273,
+                  164,
+                  0
+                ],
+                [
+                  "div#hud-toast.toast-msg.show",
+                  88.06,
+                  449,
+                  231.94,
+                  488,
+                  0
+                ]
+              ]
+            }
+          },
+          {
+            "vp": {
+              "iw": 320,
+              "ih": 568,
+              "cw": 320,
+              "sw": 320
+            },
+            "reach": {
+              "ok": true,
+              "steps": [
+                [
+                  "[data-ps=start]",
+                  true
+                ],
+                [
+                  "#btn-start-game",
+                  true
+                ]
+              ]
+            },
+            "m": {
+              "editControl": {
+                "vis": true,
+                "r": {
+                  "l": 6,
+                  "t": 56,
+                  "r": 80.27,
+                  "b": 100,
+                  "w": 74.27,
+                  "h": 44
+                },
+                "pos": "fixed",
+                "z": "300"
+              },
+              "hudFound": true,
+              "hudVisible": true,
+              "chipCount": 41,
+              "overlaps": [
+                {
+                  "chip": "div.hud-top-section",
+                  "text": "🏠\n         ",
+                  "r": {
+                    "l": 10,
+                    "t": 8,
+                    "r": 310,
+                    "b": 171,
+                    "w": 300,
+                    "h": 163
+                  },
+                  "area": 3091.88,
+                  "hit": {
+                    "at": [
+                      45.1,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div#hud-player-strip.player-strip",
+                  "text": "🐱ต้น🏆 0 แต",
+                  "r": {
+                    "l": 10,
+                    "t": 58,
+                    "r": 310,
+                    "b": 104,
+                    "w": 300,
+                    "h": 46
+                  },
+                  "area": 2951.34,
+                  "hit": {
+                    "at": [
+                      45.1,
+                      79
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.player-card.active",
+                  "text": "🐱ต้น🏆 0 แต",
+                  "r": {
+                    "l": 7.6,
+                    "t": 57,
+                    "r": 108.4,
+                    "b": 99,
+                    "w": 100.8,
+                    "h": 42
+                  },
+                  "area": 3052.14,
+                  "hit": {
+                    "at": [
+                      43.9,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-avatar",
+                  "text": "🐱",
+                  "r": {
+                    "l": 17.05,
+                    "t": 64.35,
+                    "r": 44.35,
+                    "b": 91.65,
+                    "w": 27.3,
+                    "h": 27.3
+                  },
+                  "area": 745.29,
+                  "hit": {
+                    "at": [
+                      30.7,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-info",
+                  "text": "ต้น🏆 0 แต้ม",
+                  "r": {
+                    "l": 50.65,
+                    "t": 62.25,
+                    "r": 90.27,
+                    "b": 93.75,
+                    "w": 39.62,
+                    "h": 31.5
+                  },
+                  "area": 933.03,
+                  "hit": {
+                    "at": [
+                      65.5,
+                      78
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-name",
+                  "text": "ต้น",
+                  "r": {
+                    "l": 50.65,
+                    "t": 62.25,
+                    "r": 90.27,
+                    "b": 78,
+                    "w": 39.62,
+                    "h": 15.75
+                  },
+                  "area": 466.51,
+                  "hit": {
+                    "at": [
+                      65.5,
+                      70.1
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "div.card-score",
+                  "text": "🏆 0 แต้ม",
+                  "r": {
+                    "l": 50.65,
+                    "t": 78,
+                    "r": 90.27,
+                    "b": 93.75,
+                    "w": 39.62,
+                    "h": 15.75
+                  },
+                  "area": 466.51,
+                  "hit": {
+                    "at": [
+                      65.5,
+                      85.9
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                },
+                {
+                  "chip": "strong",
+                  "text": "0",
+                  "r": {
+                    "l": 64.41,
+                    "t": 78,
+                    "r": 70.35,
+                    "b": 91.65,
+                    "w": 5.94,
+                    "h": 13.65
+                  },
+                  "area": 81.08,
+                  "hit": {
+                    "at": [
+                      67.4,
+                      84.8
+                    ],
+                    "el": "button#play-edit-players",
+                    "isEdit": true,
+                    "isChip": false
+                  },
+                  "contains": false
+                }
+              ],
+              "allChips": [
+                [
+                  "div.hud-top-section",
+                  10,
+                  8,
+                  310,
+                  171,
+                  3091.88
+                ],
+                [
+                  "div.hud-top-bar",
+                  10,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "div.hud-tools-left",
+                  10,
+                  8,
+                  90,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-home.btnBase.iconBtn",
+                  10,
+                  8,
+                  46,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-sound.btnBase.iconBtn",
+                  54,
+                  8,
+                  90,
+                  52,
+                  0
+                ],
+                [
+                  "div.round-badge",
+                  104.33,
+                  9.25,
+                  171.36,
+                  50.73,
+                  0
+                ],
+                [
+                  "small",
+                  125.11,
+                  16.25,
+                  150.56,
+                  26.14,
+                  0
+                ],
+                [
+                  "strong#hud-round-label",
+                  121.33,
+                  26.14,
+                  154.36,
+                  43.73,
+                  0
+                ],
+                [
+                  "div.hud-tools-right",
+                  185.67,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-restart.btnBase.secondaryBtn",
+                  185.67,
+                  8,
+                  266,
+                  52,
+                  0
+                ],
+                [
+                  "button#btn-hud-settings.btnBase.iconBtn",
+                  274,
+                  8,
+                  310,
+                  52,
+                  0
+                ],
+                [
+                  "div#hud-player-strip.player-strip",
+                  10,
+                  58,
+                  310,
+                  104,
+                  2951.34
+                ],
+                [
+                  "div.player-card.active",
+                  7.6,
+                  57,
+                  108.4,
+                  99,
+                  3052.14
+                ],
+                [
+                  "div.card-avatar",
+                  17.05,
+                  64.35,
+                  44.35,
+                  91.65,
+                  745.29
+                ],
+                [
+                  "div.card-info",
+                  50.65,
+                  62.25,
+                  90.27,
+                  93.75,
+                  933.03
+                ],
+                [
+                  "div.card-name",
+                  50.65,
+                  62.25,
+                  90.27,
+                  78,
+                  466.51
+                ],
+                [
+                  "div.card-score",
+                  50.65,
+                  78,
+                  90.27,
+                  93.75,
+                  466.51
+                ],
+                [
+                  "strong",
+                  64.41,
+                  78,
+                  70.35,
+                  91.65,
+                  81.08
+                ],
+                [
+                  "div.player-card",
+                  112,
+                  60,
+                  208,
+                  100,
+                  0
+                ],
+                [
+                  "div.card-avatar",
+                  121,
+                  67,
+                  147,
+                  93,
+                  0
+                ],
+                [
+                  "div.card-info",
+                  153,
+                  65,
+                  190.73,
+                  95,
+                  0
+                ],
+                [
+                  "div.card-name",
+                  153,
+                  65,
+                  190.73,
+                  80,
+                  0
+                ],
+                [
+                  "div.card-score",
+                  153,
+                  80,
+                  190.73,
+                  95,
+                  0
+                ],
+                [
+                  "strong",
+                  166.11,
+                  80,
+                  171.77,
+                  93,
+                  0
+                ],
+                [
+                  "div.player-card",
+                  214,
+                  60,
+                  310,
+                  100,
+                  0
+                ],
+                [
+                  "div.card-avatar",
+                  223,
+                  67,
+                  249,
+                  93,
+                  0
+                ],
+                [
+                  "div.card-info",
+                  255,
+                  65,
+                  292.73,
+                  95,
+                  0
+                ],
+                [
+                  "div.card-name",
+                  255,
+                  65,
+                  292.73,
+                  80,
+                  0
+                ],
+                [
+                  "div.card-score",
+                  255,
+                  80,
+                  292.73,
+                  95,
+                  0
+                ],
+                [
+                  "strong",
+                  268.11,
+                  80,
+                  273.77,
+                  93,
+                  0
+                ],
+                [
+                  "div.status-top-row",
+                  10,
+                  110,
+                  310,
+                  171,
+                  0
+                ],
+                [
+                  "div#hud-turn-banner.turn-banner",
+                  110.89,
+                  110,
+                  209.09,
+                  138,
+                  0
+                ],
+                [
+                  "span#turn-avatar",
+                  123.89,
+                  115,
+                  137.89,
+                  133,
+                  0
+                ],
+                [
+                  "span",
+                  145.89,
+                  116.5,
+                  196.09,
+                  131.5,
+                  0
+                ],
+                [
+                  "strong#turn-player-name",
+                  181.39,
+                  116.5,
+                  196.09,
+                  131.5,
+                  0
+                ],
+                [
+                  "div#hud-tension-pill.tension-pill",
+                  35.98,
+                  144,
+                  284,
+                  171,
+                  0
+                ],
+                [
+                  "span",
+                  46.98,
+                  149,
+                  140.05,
+                  166,
+                  0
+                ],
+                [
+                  "div.tension-meter",
+                  148.05,
+                  155,
+                  196.05,
+                  160,
+                  0
+                ],
+                [
+                  "div#tension-fill-bar.tension-fill",
+                  148.05,
+                  155,
+                  150.73,
+                  160,
+                  0
+                ],
+                [
+                  "strong#tension-odds-text",
+                  204.05,
+                  151,
+                  273,
+                  164,
+                  0
+                ],
+                [
+                  "div#hud-toast.toast-msg.show",
+                  88.06,
+                  449,
+                  231.94,
+                  488,
+                  0
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "V3": {
+      "runs": [
+        {
+          "vp": {
+            "iw": 320,
+            "ih": 568,
+            "cw": 320,
+            "sw": 320
+          },
+          "reach": {
+            "ok": true,
+            "steps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#btn-start-match",
+                true
+              ]
+            ]
+          },
+          "m": {
+            "badgeCount": 3,
+            "anyBadgeInDom": true,
+            "badges": [
+              {
+                "text": "🐱\n          ต้น\n   ",
+                "r": {
+                  "l": 14.11,
+                  "t": 182.32,
+                  "r": 112.37,
+                  "b": 217.68,
+                  "w": 98.26,
+                  "h": 35.36
+                },
+                "rightMinusIw": -207.63,
+                "visibleX": true
+              },
+              {
+                "text": "🐶\n          มายด์\n ",
+                "r": {
+                  "l": 118.48,
+                  "t": 183,
+                  "r": 226.17,
+                  "b": 217,
+                  "w": 107.69,
+                  "h": 34
+                },
+                "rightMinusIw": -93.83,
+                "visibleX": true
+              },
+              {
+                "text": "🐰\n          บอส\n   ",
+                "r": {
+                  "l": 234.17,
+                  "t": 183,
+                  "r": 335.39,
+                  "b": 217,
+                  "w": 101.22,
+                  "h": 34
+                },
+                "rightMinusIw": 15.39,
+                "visibleX": true
+              }
+            ],
+            "row": {
+              "el": "div#hud-player-strip.hud-player-strip",
+              "r": {
+                "l": 14,
+                "t": 181,
+                "r": 306,
+                "b": 221,
+                "w": 292,
+                "h": 40
+              },
+              "display": "flex",
+              "flexWrap": "nowrap",
+              "ox": "auto"
+            },
+            "clipAncestors": [
+              {
+                "el": "div#hud-player-strip.hud-player-strip",
+                "ox": "auto",
+                "oy": "auto",
+                "r": {
+                  "l": 14,
+                  "t": 181,
+                  "r": 306,
+                  "b": 221,
+                  "w": 292,
+                  "h": 40
+                }
+              },
+              {
+                "el": "div#screen-game.screen.active",
+                "ox": "auto",
+                "oy": "auto",
+                "r": {
+                  "l": 0,
+                  "t": 175,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 393
+                }
+              },
+              {
+                "el": "div#app",
+                "ox": "hidden",
+                "oy": "hidden",
+                "r": {
+                  "l": 0,
+                  "t": 0,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 568
+                }
+              },
+              {
+                "el": "body",
+                "ox": "hidden",
+                "oy": "hidden",
+                "r": {
+                  "l": 0,
+                  "t": 0,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 568
+                }
+              }
+            ],
+            "docScrollWidth": 320,
+            "bodyScrollWidth": 320,
+            "over": [
+              "div.player-card-badge:335",
+              "span:322"
+            ]
+          }
+        },
+        {
+          "vp": {
+            "iw": 320,
+            "ih": 568,
+            "cw": 320,
+            "sw": 320
+          },
+          "reach": {
+            "ok": true,
+            "steps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#btn-start-match",
+                true
+              ]
+            ]
+          },
+          "m": {
+            "badgeCount": 3,
+            "anyBadgeInDom": true,
+            "badges": [
+              {
+                "text": "🐱\n          ต้น\n   ",
+                "r": {
+                  "l": 14.11,
+                  "t": 182.32,
+                  "r": 112.37,
+                  "b": 217.68,
+                  "w": 98.26,
+                  "h": 35.36
+                },
+                "rightMinusIw": -207.63,
+                "visibleX": true
+              },
+              {
+                "text": "🐶\n          มายด์\n ",
+                "r": {
+                  "l": 118.48,
+                  "t": 183,
+                  "r": 226.17,
+                  "b": 217,
+                  "w": 107.69,
+                  "h": 34
+                },
+                "rightMinusIw": -93.83,
+                "visibleX": true
+              },
+              {
+                "text": "🐰\n          บอส\n   ",
+                "r": {
+                  "l": 234.17,
+                  "t": 183,
+                  "r": 335.39,
+                  "b": 217,
+                  "w": 101.22,
+                  "h": 34
+                },
+                "rightMinusIw": 15.39,
+                "visibleX": true
+              }
+            ],
+            "row": {
+              "el": "div#hud-player-strip.hud-player-strip",
+              "r": {
+                "l": 14,
+                "t": 181,
+                "r": 306,
+                "b": 221,
+                "w": 292,
+                "h": 40
+              },
+              "display": "flex",
+              "flexWrap": "nowrap",
+              "ox": "auto"
+            },
+            "clipAncestors": [
+              {
+                "el": "div#hud-player-strip.hud-player-strip",
+                "ox": "auto",
+                "oy": "auto",
+                "r": {
+                  "l": 14,
+                  "t": 181,
+                  "r": 306,
+                  "b": 221,
+                  "w": 292,
+                  "h": 40
+                }
+              },
+              {
+                "el": "div#screen-game.screen.active",
+                "ox": "auto",
+                "oy": "auto",
+                "r": {
+                  "l": 0,
+                  "t": 175,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 393
+                }
+              },
+              {
+                "el": "div#app",
+                "ox": "hidden",
+                "oy": "hidden",
+                "r": {
+                  "l": 0,
+                  "t": 0,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 568
+                }
+              },
+              {
+                "el": "body",
+                "ox": "hidden",
+                "oy": "hidden",
+                "r": {
+                  "l": 0,
+                  "t": 0,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 568
+                }
+              }
+            ],
+            "docScrollWidth": 320,
+            "bodyScrollWidth": 320,
+            "over": [
+              "div.player-card-badge:335",
+              "span:322"
+            ]
+          }
+        },
+        {
+          "vp": {
+            "iw": 320,
+            "ih": 568,
+            "cw": 320,
+            "sw": 320
+          },
+          "reach": {
+            "ok": true,
+            "steps": [
+              [
+                "[data-ps=start]",
+                true
+              ],
+              [
+                "#btn-start-match",
+                true
+              ]
+            ]
+          },
+          "m": {
+            "badgeCount": 3,
+            "anyBadgeInDom": true,
+            "badges": [
+              {
+                "text": "🐱\n          ต้น\n   ",
+                "r": {
+                  "l": 14.11,
+                  "t": 182.32,
+                  "r": 112.37,
+                  "b": 217.68,
+                  "w": 98.26,
+                  "h": 35.36
+                },
+                "rightMinusIw": -207.63,
+                "visibleX": true
+              },
+              {
+                "text": "🐶\n          มายด์\n ",
+                "r": {
+                  "l": 118.48,
+                  "t": 183,
+                  "r": 226.17,
+                  "b": 217,
+                  "w": 107.69,
+                  "h": 34
+                },
+                "rightMinusIw": -93.83,
+                "visibleX": true
+              },
+              {
+                "text": "🐰\n          บอส\n   ",
+                "r": {
+                  "l": 234.17,
+                  "t": 183,
+                  "r": 335.39,
+                  "b": 217,
+                  "w": 101.22,
+                  "h": 34
+                },
+                "rightMinusIw": 15.39,
+                "visibleX": true
+              }
+            ],
+            "row": {
+              "el": "div#hud-player-strip.hud-player-strip",
+              "r": {
+                "l": 14,
+                "t": 181,
+                "r": 306,
+                "b": 221,
+                "w": 292,
+                "h": 40
+              },
+              "display": "flex",
+              "flexWrap": "nowrap",
+              "ox": "auto"
+            },
+            "clipAncestors": [
+              {
+                "el": "div#hud-player-strip.hud-player-strip",
+                "ox": "auto",
+                "oy": "auto",
+                "r": {
+                  "l": 14,
+                  "t": 181,
+                  "r": 306,
+                  "b": 221,
+                  "w": 292,
+                  "h": 40
+                }
+              },
+              {
+                "el": "div#screen-game.screen.active",
+                "ox": "auto",
+                "oy": "auto",
+                "r": {
+                  "l": 0,
+                  "t": 175,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 393
+                }
+              },
+              {
+                "el": "div#app",
+                "ox": "hidden",
+                "oy": "hidden",
+                "r": {
+                  "l": 0,
+                  "t": 0,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 568
+                }
+              },
+              {
+                "el": "body",
+                "ox": "hidden",
+                "oy": "hidden",
+                "r": {
+                  "l": 0,
+                  "t": 0,
+                  "r": 320,
+                  "b": 568,
+                  "w": 320,
+                  "h": 568
+                }
+              }
+            ],
+            "docScrollWidth": 320,
+            "bodyScrollWidth": 320,
+            "over": [
+              "div.player-card-badge:335",
+              "span:322"
+            ]
+          }
+        }
+      ]
+    },
+    "V4": {
+      "runs": [
+        {
+          "vp": {
+            "iw": 320,
+            "ih": 568,
+            "cw": 320,
+            "sw": 320
+          },
+          "reach": {
+            "done": [],
+            "startSel": "[data-ps=start]",
+            "present": true
+          },
+          "m": {
+            "x": {
+              "r": {
+                "l": 6,
+                "t": 6,
+                "r": 50,
+                "b": 50,
+                "w": 44,
+                "h": 44
+              },
+              "vis": true,
+              "pos": "fixed",
+              "z": "300"
+            },
+            "brandMark": {
+              "r": {
+                "l": 8.02,
+                "t": 14.02,
+                "r": 51.98,
+                "b": 57.98,
+                "w": 43.96,
+                "h": 43.96
+              },
+              "text": "ย",
+              "vis": true
+            },
+            "brand": {
+              "r": {
+                "l": 10,
+                "t": 16,
+                "r": 151.28,
+                "b": 56,
+                "w": 141.28,
+                "h": 40
+              },
+              "text": "ย\n      พิน็อคคิอวย"
+            },
+            "intersectXBrandMark": 1510.44,
+            "intersectXBrand": 1360,
+            "centre": [
+              28,
+              28
+            ],
+            "topEl": "button#play-exit",
+            "topIsX": true,
+            "topIsBrandMark": false,
+            "stack": [
+              "button#play-exit",
+              "div.brand-mark",
+              "div.brand",
+              "header.topbar",
+              "main#app"
+            ],
+            "noWebglPresent": false,
+            "glContextInPage": true
+          }
+        },
+        {
+          "vp": {
+            "iw": 320,
+            "ih": 568,
+            "cw": 320,
+            "sw": 320
+          },
+          "reach": {
+            "done": [],
+            "startSel": "[data-ps=start]",
+            "present": true
+          },
+          "m": {
+            "x": {
+              "r": {
+                "l": 6,
+                "t": 6,
+                "r": 50,
+                "b": 50,
+                "w": 44,
+                "h": 44
+              },
+              "vis": true,
+              "pos": "fixed",
+              "z": "300"
+            },
+            "brandMark": {
+              "r": {
+                "l": 8.02,
+                "t": 14.02,
+                "r": 51.98,
+                "b": 57.98,
+                "w": 43.96,
+                "h": 43.96
+              },
+              "text": "ย",
+              "vis": true
+            },
+            "brand": {
+              "r": {
+                "l": 10,
+                "t": 16,
+                "r": 151.28,
+                "b": 56,
+                "w": 141.28,
+                "h": 40
+              },
+              "text": "ย\n      พิน็อคคิอวย"
+            },
+            "intersectXBrandMark": 1510.44,
+            "intersectXBrand": 1360,
+            "centre": [
+              28,
+              28
+            ],
+            "topEl": "button#play-exit",
+            "topIsX": true,
+            "topIsBrandMark": false,
+            "stack": [
+              "button#play-exit",
+              "div.brand-mark",
+              "div.brand",
+              "header.topbar",
+              "main#app"
+            ],
+            "noWebglPresent": false,
+            "glContextInPage": true
+          }
+        },
+        {
+          "vp": {
+            "iw": 320,
+            "ih": 568,
+            "cw": 320,
+            "sw": 320
+          },
+          "reach": {
+            "done": [],
+            "startSel": "[data-ps=start]",
+            "present": true
+          },
+          "m": {
+            "x": {
+              "r": {
+                "l": 6,
+                "t": 6,
+                "r": 50,
+                "b": 50,
+                "w": 44,
+                "h": 44
+              },
+              "vis": true,
+              "pos": "fixed",
+              "z": "300"
+            },
+            "brandMark": {
+              "r": {
+                "l": 8.02,
+                "t": 14.02,
+                "r": 51.98,
+                "b": 57.98,
+                "w": 43.96,
+                "h": 43.96
+              },
+              "text": "ย",
+              "vis": true
+            },
+            "brand": {
+              "r": {
+                "l": 10,
+                "t": 16,
+                "r": 151.28,
+                "b": 56,
+                "w": 141.28,
+                "h": 40
+              },
+              "text": "ย\n      พิน็อคคิอวย"
+            },
+            "intersectXBrandMark": 1510.44,
+            "intersectXBrand": 1360,
+            "centre": [
+              28,
+              28
+            ],
+            "topEl": "button#play-exit",
+            "topIsX": true,
+            "topIsBrandMark": false,
+            "stack": [
+              "button#play-exit",
+              "div.brand-mark",
+              "div.brand",
+              "header.topbar",
+              "main#app"
+            ],
+            "noWebglPresent": false,
+            "glContextInPage": true
+          }
+        }
+      ]
+    }
+  }
+}

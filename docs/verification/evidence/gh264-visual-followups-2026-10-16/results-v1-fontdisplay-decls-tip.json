@@ -1,0 +1,29 @@
+{
+  "short-stick": {
+    "cw": 390,
+    "rootComputed": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif",
+    "decl": [
+      {
+        "href": null,
+        "selector": ":root",
+        "value": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif"
+      },
+      {
+        "href": "http://localhost:4331/_astro/play.CNta0IUI.css",
+        "selector": ":root",
+        "value": "\"Noto Serif Thai\", \"Th Sarabun New\", \"Iowan Old Style\", Georgia, serif"
+      }
+    ]
+  },
+  "one-bomb": {
+    "cw": 390,
+    "rootComputed": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif",
+    "decl": [
+      {
+        "href": null,
+        "selector": ":root",
+        "value": "\"Mitr\", \"Noto Sans Thai\", \"Sarabun\", system-ui, sans-serif"
+      }
+    ]
+  }
+}
