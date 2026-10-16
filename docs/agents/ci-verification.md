@@ -140,6 +140,8 @@ swiftshader flags, and its own no-3D test asserts that path against a fake DOM. 
 you used whenever you report a browser measurement**, and confirm in-page that `getContext` returns
 null. A flag name is not a context state; only the read is.
 
+**A branch green can carry no probe at all.** `probe-scope` skips the browser lanes on a branch push that touches nothing under `src/`/`public/`, and that includes a push changing only the probes (gh#270). Read the step conclusions, never the run's. To force the probes, push the commit to a fresh branch: with no usable base, they run.
+
 ## The probe's own dispatch latency sits inside the number it gates (2026-09-09, gh#122)
 
 Moved to `docs/agents/ci-gate-calibration.md` (a further ADR-0012 task seam) — the runner-latency
