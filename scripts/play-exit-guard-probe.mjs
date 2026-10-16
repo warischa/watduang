@@ -100,6 +100,55 @@ const classifyBurst = (log, armDelayMs) => {
   };
 };
 
+// gh#264 — scenario 4's verdict, as one pure function of what the walk sent and what the page logged.
+// It used to assume the transition press was the log's FIRST `down` and drop it by position. On a run
+// where no transition was pressed at all (the finder ran while the shared player screen was still
+// opening, so the route's own controls were held invisible), that dropped a burst contact instead, and
+// the other four -- handled with the X legitimately ENABLED, because nothing had revealed anything --
+// scored as gate defects. So the walk's own presses are identified by WHERE it pressed them, not by
+// their position in the log and not by pointerType: the page can synthesise pointer events of either
+// type, and a stray mouse event once hid a real enabled-X contact behind a precondition red. The
+// transition is the one press at the point the walk pressed its trigger, the burst the presses at the
+// X's point (BURST_INSTRUMENT records each contact's client point). Every other event in the log is
+// someone else's and is ignored, for pairing AND for scoring -- each burst gap runs from the walk's own
+// previous release. Four facts, each its own outcome, in this order:
+//   trigger selected -> transition press sent -> that press OBSERVED in the log, before every burst
+//   contact -> every burst contact sent was logged, exactly once each.
+// The first three are PRECONDITIONS and outrank everything: without an observed transition, no
+// contact has a reveal to be judged against, so nothing is scored. After an observed transition the
+// per-contact defect check outranks pairing -- a contact the guard let through takes the page home
+// and the rest of the burst is never logged, so a real defect is ALWAYS unpaired -- then VOID, then
+// pairing. 'measured' is the only outcome the burst-wide path check may judge.
+const PRECONDITION_OUTCOMES = new Set(['no-trigger', 'transition-not-sent', 'transition-unobserved']);
+// Within 2px: CDP dispatches whole pixels and the page reads them back as client coordinates.
+const sentAtPoint = (e, p) => !!p && typeof e.x === 'number' && typeof e.y === 'number'
+  && Math.abs(e.x - p.x) <= 2 && Math.abs(e.y - p.y) <= 2;
+const judgeS4Burst = ({ log, sentCount, triggerSelected, transitionSent, transitionAt, burstAt }, armDelayMs) => {
+  // A trigger sitting on the X's own point makes the two press sets indistinguishable, so neither the
+  // transition nor any burst contact can be attributed -- that blocks as an unobserved transition.
+  const distinct = !!transitionAt && !sentAtPoint(transitionAt, burstAt);
+  const isTransition = (e) => distinct && sentAtPoint(e, transitionAt);
+  const isBurst = (e) => sentAtPoint(e, burstAt) && !isTransition(e);
+  const downs = log.filter((e) => e.kind === 'down');
+  const transitionDowns = downs.filter(isTransition);
+  const burstDowns = downs.filter(isBurst);
+  const transitionObserved = transitionDowns.length === 1;
+  const from = transitionObserved ? log.indexOf(transitionDowns[0]) : log.length;
+  // Scored from the transition press on, over the walk's own events only, so the first burst contact's
+  // gap runs from that press's own release; without one the slice is empty and nothing is scored.
+  const burst = classifyBurst(log.slice(from).filter((e) => isTransition(e) || isBurst(e)), armDelayMs);
+  const paired = transitionObserved && burstDowns.length === sentCount
+    && burstDowns.every((e) => log.indexOf(e) > from && typeof e.ti === 'number');
+  const outcome = !triggerSelected ? 'no-trigger'
+    : !transitionSent ? 'transition-not-sent'
+      : !transitionObserved ? 'transition-unobserved'
+        : burst.defectContacts.length ? 'defect'
+          : burst.isVoid ? 'void'
+            : !paired ? 'unpaired'
+              : 'measured';
+  return { ...burst, burstDowns, transitionObserved, paired, outcome };
+};
+
 // gh#231 — did this pass stay on the route it was measuring? Asked POSITIVELY, because the two legs
 // below used to ask `pathAfterBurst !== '/'` and a CDP evaluate that lands mid-navigation resolves as
 // a plain null here: `null !== '/'` is TRUE, so the burst that really did leave the round scored its
@@ -151,6 +200,66 @@ const assert = (await import('node:assert')).default;
   assert.strictEqual(mixed.isVoid, false);
   // The same burst without that contact IS void.
   assert.strictEqual(classifyBurst([{ kind: 'up', t: 0, ti: 0, disabled: true }, { kind: 'down', t: 500, ti: 500, disabled: false }], 400).isVoid, true);
+
+  // Scenario 4's verdict seam. One contact = a down and its up 10ms later at one point, both clocks
+  // equal. TRIG is where the walk pressed its transition, X where it sent its burst, ELSE anywhere else.
+  const TRIG = { x: 160, y: 522 }, X = { x: 28, y: 28 }, ELSE = { x: 200, y: 300 };
+  const contact = (ti, at, disabled, pointerType = 'touch') => [
+    { kind: 'down', t: ti, ti, pointerType, disabled, ...at }, { kind: 'up', t: ti + 10, ti: ti + 10, pointerType, disabled, ...at },
+  ];
+  const press = (ti, disabled = false) => contact(ti, TRIG, disabled, 'mouse');
+  const taps = (from, n, disabled) => Array.from({ length: n }, (_, i) => contact(from + i * 90, X, disabled)).flat();
+  // The CI shape: no transition press in the log, five taps 80ms apart on an X that was legitimately
+  // enabled because nothing revealed anything. The classifier alone scores four of them as defects --
+  // that reproduction is asserted first, so the verdict below is known to be judging the real shape.
+  const noTransition = taps(0, 5, false);
+  assert.strictEqual(classifyBurst(noTransition, 400).defectContacts.length, 4);
+  for (const [facts, outcome] of [
+    [{ triggerSelected: false, transitionSent: false, transitionAt: null }, 'no-trigger'],
+    [{ triggerSelected: true, transitionSent: false, transitionAt: TRIG }, 'transition-not-sent'],
+    [{ triggerSelected: true, transitionSent: true, transitionAt: TRIG }, 'transition-unobserved'],
+  ]) {
+    const j = judgeS4Burst({ log: noTransition, sentCount: 5, burstAt: X, ...facts }, 400);
+    assert.strictEqual(j.outcome, outcome, 'missing transition evidence outranks the defect check');
+    assert.strictEqual(j.burstDowns.length, 5, 'no burst contact is dropped as a presumed transition');
+    assert.strictEqual(j.defectContacts.length, 0, 'no contact is scored without an observed transition before it');
+  }
+  const observed = { sentCount: 5, triggerSelected: true, transitionSent: true, transitionAt: TRIG, burstAt: X };
+  const judge = (log, sentCount = 5) => judgeS4Burst({ log, ...observed, sentCount }, 400);
+  // Positive control: the transition is observed, every burst contact is disabled and paired.
+  const healthy = judge([...press(0), ...taps(90, 5, true)]);
+  assert.strictEqual(healthy.outcome, 'measured');
+  assert.strictEqual(healthy.paired, true);
+  assert.deepStrictEqual(healthy.inputGaps, [80, 80, 80, 80, 80]);
+  // A transition press logged AFTER a burst contact is not the press that preceded the burst.
+  assert.strictEqual(judge([...taps(0, 1, true), ...press(90), ...taps(180, 4, true)]).outcome, 'unpaired');
+  // The per-contact grain survives: a late neighbour, then one ENABLED contact 60ms after it, which
+  // took the page home so only two of five contacts were logged. The defect outranks the pairing.
+  const mixedS4 = judge([...press(0), ...contact(510, X, true), ...contact(580, X, false)]);
+  assert.strictEqual(mixedS4.outcome, 'defect');
+  assert.deepStrictEqual(mixedS4.defectContacts, [{ inputGap: 60, disabled: false }]);
+  assert.strictEqual(mixedS4.paired, false);
+  // A log holding fewer burst contacts than were sent pairs nothing and blocks.
+  const short = judge([...press(0), ...taps(90, 4, true)]);
+  assert.strictEqual(short.outcome, 'unpaired');
+  assert.strictEqual(short.paired, false);
+  // The walk's own presses are identified by WHERE it pressed them, never by pointerType alone. A
+  // page-synthesised mouse down elsewhere, 1ms after the transition's release, must not hide the
+  // enabled X contact that follows: it is still a defect, scored from the transition's release.
+  const synthMouse = judge([...press(0), { kind: 'down', t: 11, ti: 11, pointerType: 'mouse', disabled: true, ...ELSE }, ...contact(90, X, false)]);
+  assert.strictEqual(synthMouse.outcome, 'defect', 'an unrelated mouse event does not unobserve the transition');
+  assert.deepStrictEqual(synthMouse.defectContacts, [{ inputGap: 80, disabled: false }]);
+  // An unrelated touch contact between the transition and the burst is neither a burst contact nor
+  // the anchor the burst's gaps are measured from.
+  const strayTouch = judge([...press(0), ...contact(40, ELSE, true), ...taps(90, 5, true)]);
+  assert.strictEqual(strayTouch.outcome, 'measured', 'an unrelated touch contact does not unpair the burst');
+  assert.strictEqual(strayTouch.paired, true);
+  const strayTouchDefect = judge([...press(0), ...contact(40, ELSE, true), ...contact(90, X, false)]);
+  assert.strictEqual(strayTouchDefect.outcome, 'defect');
+  assert.deepStrictEqual(strayTouchDefect.defectContacts, [{ inputGap: 80, disabled: false }]);
+  // A transition pressed by touch is the same transition.
+  assert.strictEqual(judge([...contact(0, TRIG, false), ...contact(90, X, false)]).outcome, 'defect', 'a touch transition is still observed');
+  assert.strictEqual(judge([...contact(0, TRIG, false), ...taps(90, 5, true)]).outcome, 'measured');
 }
 
 const api = async (p, m = 'GET') => (await fetch(`http://127.0.0.1:${PORT}${p}`, { method: m })).json();
@@ -212,13 +321,23 @@ const XSTATE = `
   const r = b.getBoundingClientRect();
   return { present: true, disabled: b.disabled, rect: { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) } };`;
 
+// gh#264 — every play route is a party route and mounts the shared player screen, whose open can hold
+// the route's own screen invisible while it waits on a roster migration. A walk that reads the page in
+// that gap finds nothing to press, so it waits for the screen to settle first, with the SAME settle
+// definition and cap the fit probe uses (imported, never retyped): the attribute present (open or
+// closed) and the pending marker absent. Nothing is lost by waiting -- the fit probe reds anything
+// actionable painted in that gap. At the cap the reason comes back and the caller reds by route name.
+const { awaitPlayerScreenSettled } = await import('./play-screen-fit-probe.mjs');
+const settleFails = [];
+
 const gotoIdleArmed = async (s, route) => {
   const url = `${BASE}/game/${route}/play/`;
   await s.nav(url);
   await s.setup320();
+  const why = await awaitPlayerScreenSettled(s.evaluate);
   await sleep(800); // > ARM_DELAY_MS (400ms), so the X is armed and idle at the start of each scenario
   const st = (await s.evaluate(XSTATE)).value;
-  return { url, rect: st.rect, disabledAtStart: st.disabled };
+  return { url, rect: st.rect, disabledAtStart: st.disabled, unsettled: why && `${route}: ${why}` };
 };
 
 const findTransitionTrigger = async (s) => (await s.evaluate(`
@@ -318,7 +437,8 @@ for (const route of ROUTES_ALL) {
         if (ev.target instanceof Node && b.contains(ev.target)) window.__s1.push(b.disabled);
       }, true);`,
   });
-  const { rect } = await gotoIdleArmed(s, route);
+  const { rect, unsettled } = await gotoIdleArmed(s, route);
+  if (unsettled) settleFails.push(`s1/${unsettled}`);
   const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
   await s.touchDown(GAME_X, GAME_Y, 0); // finger 1: pins the X disabled with no timer pending
   await sleep(200);
@@ -344,7 +464,8 @@ for (const route of ROUTES_ALL) {
 out.s2 = {};
 for (const route of ROUTE_ONLY_CANNON) {
   const s = await openTab();
-  const { rect } = await gotoIdleArmed(s, route);
+  const { rect, unsettled } = await gotoIdleArmed(s, route);
+  if (unsettled) settleFails.push(`s2/${unsettled}`);
   const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
   // finger 1 down in the game area, held
   await s.touchDown(GAME_X, GAME_Y, 0);
@@ -379,7 +500,8 @@ for (const route of ROUTE_ONLY_CANNON) {
 out.s3 = {};
 for (const route of ROUTE_ONLY_CANNON) {
   const s = await openTab();
-  const { rect } = await gotoIdleArmed(s, route);
+  const { rect, unsettled } = await gotoIdleArmed(s, route);
+  if (unsettled) settleFails.push(`s3/${unsettled}`);
   const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
   // Instrument BEFORE the exit tap: a global that only survives if this exact page object survives
   // (bfcache), and is gone after any fresh script execution (a real reload).
@@ -445,7 +567,8 @@ const BURST_INSTRUMENT = `
   window.__pdlog = [];
   sessionStorage.removeItem(${JSON.stringify(CONTACT_KEY)});
   const mark = (ev, kind) => {
-    window.__pdlog.push({ kind, t: Math.round((performance.timeOrigin + performance.now()) * 10) / 10,
+    // The client point tells the walk's own presses from anything else on the page; see judgeS4Burst.
+    window.__pdlog.push({ kind, pointerType: ev.pointerType ?? null, x: ev.clientX, y: ev.clientY, t: Math.round((performance.timeOrigin + performance.now()) * 10) / 10,
                           ti: typeof ev.timeStamp === 'number' ? Math.round((performance.timeOrigin + ev.timeStamp) * 10) / 10 : null,
                           // gh#231 — who is on top at the X's hit point, observed PER CONTACT from
                           // inside the page. It replaces one awaited round trip that sat between the
@@ -467,14 +590,18 @@ for (const route of ROUTES_ALL) {
   // runner could not dispatch inside the arm window measured nothing, and this block is self-contained
   // (fresh tab, fresh navigation, fresh transition), so one retry costs one route walk and clears a
   // one-off latency spike. A burst still VOID after the retry is NOT relaxed into a pass -- it is
-  // reported as UNMEASURED and it blocks, see the verdict.
+  // reported as UNMEASURED and it blocks, see the verdict. A pass that never observed its transition
+  // press retries on the same budget (gh#264): a fresh tab is a fresh boot, and the precondition red
+  // still stands if the second walk misses it too.
   for (let attempt = 1; attempt <= 2; attempt++) {
   const s = await openTab();
   if (CPU_THROTTLE > 1) await s.send('Emulation.setCPUThrottlingRate', { rate: CPU_THROTTLE });
-  const { rect } = await gotoIdleArmed(s, route);
+  const { rect, unsettled } = await gotoIdleArmed(s, route);
   const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
   await s.evaluate(BURST_INSTRUMENT);
-  const startBtn = await findTransitionTrigger(s);
+  // An unsettled page is not searched: whatever the finder picked there would be a control of a screen
+  // still booting, and the verdict reds this pass by the settle reason instead.
+  const startBtn = unsettled ? null : await findTransitionTrigger(s);
   // gh#231 — the transition tap and the burst are ONE dispatch stream: nothing between the release and
   // the first contact is awaited, because everything that was (the release's own ack, and a topAtX
   // evaluate that Chrome cannot answer until the renderer is free) put the transition's handling time
@@ -483,7 +610,8 @@ for (const route of ROUTES_ALL) {
   // Who was on top at the X is now observed per contact by BURST_INSTRUMENT instead, which needs no
   // round trip and sees an overlay that opens DURING the burst -- see `top` there.
   const acks = [];
-  if (startBtn) acks.push(s.mouseClick(startBtn.x, startBtn.y));
+  const transitionAck = startBtn ? s.mouseClick(startBtn.x, startBtn.y) : null;
+  if (transitionAck) acks.push(transitionAck);
   // Send time per contact, in the same epoch-millisecond frame the page stamps in, so the runner's own
   // dispatch latency is RECORDED rather than inferred from its consequences.
   const sentAt = [];
@@ -495,9 +623,12 @@ for (const route of ROUTES_ALL) {
   // burst's last release, so a log read after it carries an input gap that is over ARM_DELAY_MS by
   // design and would classify every healthy route as VOID.
   const contactLog = (await s.evaluate(`return JSON.parse(sessionStorage.getItem(${JSON.stringify(CONTACT_KEY)}) || '[]');`)).value ?? [];
-  const burst = classifyBurst(contactLog, ARM_DELAY_MS);
-  // The burst's own contacts: the transition tap's press is the first `down` in the log and is dropped.
-  const burstDowns = contactLog.filter((e) => e.kind === 'down' && typeof e.ti === 'number').slice(1);
+  // Sent = both halves of the press were acknowledged without a protocol error; observed is the log's.
+  const transitionSent = transitionAck ? (await transitionAck).every((r) => !r.error) : false;
+  const { burstDowns, ...burst } = judgeS4Burst({
+    log: contactLog, sentCount: sentAt.length, triggerSelected: !!startBtn, transitionSent,
+    transitionAt: startBtn, burstAt: { x: cx, y: cy },
+  }, ARM_DELAY_MS);
   // What the FIRST burst contact itself saw at the X's hit point, in place of the pre-burst read. A
   // pass whose log holds no burst contact at all says so rather than inheriting a stale 'play-exit'.
   const topBeforeBurst = burstDowns[0]?.top ?? 'NO CONTACT OBSERVED';
@@ -505,8 +636,8 @@ for (const route of ROUTES_ALL) {
   const topsDuringBurst = burstDowns.map((e) => e.top ?? null);
   // Send-to-stamp per contact, null rather than guessed if the log and the send list disagree -- a lag
   // computed off a mispaired contact is a number about nothing.
-  const dispatchLags = burstDowns.length === sentAt.length ? burstDowns.map((e, i) => Math.round(e.ti - sentAt[i])) : null;
-  if (burst.isVoid && attempt < 2) { await s.close(); continue; }
+  const dispatchLags = burst.paired ? burstDowns.map((e, i) => Math.round(e.ti - sentAt[i])) : null;
+  if ((burst.outcome === 'void' || PRECONDITION_OUTCOMES.has(burst.outcome)) && attempt < 2) { await s.close(); continue; }
   await sleep(600);
   const { before: overlayAtX, after: topBeforeDeliberate } = await clearOverlayAtX(s);
   const disabledBeforeDeliberate = await s.disabledState();
@@ -514,7 +645,7 @@ for (const route of ROUTES_ALL) {
   await sleep(900);
   const pathAfterDeliberate = await s.pathname();
   out.s4[route] = {
-    transitionTriggered: !!startBtn, topBeforeBurst, topsDuringBurst, pathAfterBurst,
+    unsettled, triggerSelected: !!startBtn, transitionSent, sentCount: sentAt.length, burstDownCount: burstDowns.length, topBeforeBurst, topsDuringBurst, pathAfterBurst,
     // gh#231 — recorded once, positively, and read by both legs below.
     stillInRound: inRound(pathAfterBurst, route), dispatchLags,
     maxDispatchLagMs: dispatchLags?.length ? Math.max(...dispatchLags) : null,
@@ -524,7 +655,7 @@ for (const route of ROUTES_ALL) {
     // "the burst did not exit" only means something if the burst was landing ON the X -- and only if
     // this pass is still ON the route it measured. `!== '/'` was ALSO true for a pathname that never
     // came back, which scored a burst that left the round as a pass; see inRound at the top.
-    passNoNav: !!startBtn && topBeforeBurst === 'play-exit' && inRound(pathAfterBurst, route),
+    passNoNav: burst.outcome === 'measured' && topBeforeBurst === 'play-exit' && inRound(pathAfterBurst, route),
     // Gated on the burst NOT having navigated. Measured on short-stick: the burst left the round, so
     // this tap landed on the home page and asserted '/' === '/' -- a leg that passes by measuring the
     // wrong page is worse than a missing leg. A burst that already exited fails BOTH legs, which is
@@ -596,12 +727,33 @@ for (const [g, r] of Object.entries(out.s3)) {
   else if (!r.exercisable) skip(`s3/${g}`, r.reason);
   else check(`s3/${g}`, r.pass, `s3/${g}: after a bfcache restore the X no longer exits (pathname ${r.pathAfterTap})`);
 }
+// gh#264 — a page that never settled was read mid-boot, whatever the leg did next. Named by route.
+for (const m of settleFails) fails.push(`${m} -- this leg read a page still booting, so it measured nothing`);
+// A missing precondition is a FAIL, not UNMEASURED. UNMEASURED is for a runner that could not deliver
+// the burst in time, and whether it keeps blocking is an open owner decision; a transition the walk
+// never observed is not latency -- every time it has been seen it was the finder or the settle wait --
+// so it must not ride a bucket that may one day stop blocking. Worded so it can never be read as a
+// guard defect: no contact was scored.
+const PRECONDITION_WHY = {
+  'no-trigger': 'findTransitionTrigger found nothing to press on the settled page, so no transition was pressed -- fix the finder, do not skip the leg',
+  'transition-not-sent': 'the transition press was selected but its dispatch returned a protocol error, so no transition was pressed',
+  'transition-unobserved': 'the transition press was sent but the contact log holds no single press at the point the walk pressed its trigger, so no reveal is known to have happened',
+};
 for (const [g, r] of Object.entries(out.s4)) {
-  // The defect check outranks VOID, and both outrank the burst-wide path check: ONE contact dispatched
-  // inside the window and handled with the X already ENABLED is the regression this leg exists for,
-  // whatever its neighbours did, and a slow neighbour must not void it away.
+  // Preconditions outrank everything (see judgeS4Burst): without an observed transition no contact had
+  // a reveal to be judged against, and scoring the X as ENABLED there would report the guard working
+  // as designed as a defect. After that, the defect check outranks VOID, and both outrank pairing and
+  // the burst-wide path check: ONE contact dispatched inside the window and handled with the X already
+  // ENABLED is the regression this leg exists for, whatever its neighbours did, and a slow neighbour
+  // must not void it away.
+  const why = r.unsettled ? `the player screen never settled (${r.unsettled})` : PRECONDITION_WHY[r.outcome];
+  if (why) {
+    check(`s4/${g}/burst`, false, `s4/${g}: PRECONDITION NOT MET after ${r.attempts} attempt(s), NOT a guard defect -- ${why}; no burst contact was scored (presses logged ${r.timeline.filter((e) => e.kind === 'down').length}, pathname after burst ${r.pathAfterBurst})`);
+    check(`s4/${g}/deliberate`, false, `s4/${g}: PRECONDITION NOT MET -- its precondition is a burst after an observed transition, and this pass had none`);
+    continue;
+  }
   const dc = r.defectContacts ?? [];
-  if (!dc.length && r.isVoid) {
+  if (r.outcome === 'void') {
     // Both legs, not just the burst. The deliberate leg's own precondition is a burst that stayed in
     // the round, and after a void burst nothing established it -- scoring it FAIL would report the
     // runner's latency as a dead exit control.
@@ -617,12 +769,12 @@ for (const [g, r] of Object.entries(out.s4)) {
   // No skip here any more, and that is the point. Every play route has a control big enough to press;
   // "no transition trigger found" was never a property of a route, only of the finder above, and a
   // skip whose stated reason can be false reads as coverage while measuring nothing.
-  if (dc.length) {
-    check(`s4/${g}/burst`, false, `s4/${g}: ${dc.length} burst contact(s) DISPATCHED inside the arm window were handled with the X ENABLED (input gaps ${dc.map((d) => d.inputGap).join(', ')}ms vs ARM_DELAY_MS ${ARM_DELAY_MS}; pathname after burst ${r.pathAfterBurst}) -- ${gapNote(r)}`);
+  if (r.outcome === 'defect') {
+    check(`s4/${g}/burst`, false, `s4/${g}: ${dc.length} burst contact(s) DISPATCHED inside the arm window after an OBSERVED transition press were handled with the X ENABLED (input gaps ${dc.map((d) => d.inputGap).join(', ')}ms vs ARM_DELAY_MS ${ARM_DELAY_MS}; pathname after burst ${r.pathAfterBurst}) -- ${gapNote(r)}`);
     continue;
   }
-  check(`s4/${g}/burst`, r.passNoNav, !r.transitionTriggered
-    ? `s4/${g}: findTransitionTrigger found nothing to press on this route, so no transition disarmed the X and this burst measured nothing -- fix the finder, do not skip the leg`
+  check(`s4/${g}/burst`, r.passNoNav, r.outcome === 'unpaired'
+    ? `s4/${g}: the log holds ${r.burstDownCount} touch contact(s) for ${r.sentCount} sent (or one before the transition press), so the burst cannot be paired 1:1 and this pass measured nothing it can stand behind (pathname after burst ${r.pathAfterBurst}) -- ${gapNote(r)}`
     : r.topBeforeBurst !== 'play-exit'
       ? `s4/${g}: ${r.topBeforeBurst} was on top of the X at (${X_HIT},${X_HIT}) when the burst started, so "the burst did not exit" measured that overlay, not the guard`
       : `s4/${g}: the 5-tap burst after a transition LEFT THE ROUND (pathname ${r.pathAfterBurst}) -- ${gapNote(r)}`);
