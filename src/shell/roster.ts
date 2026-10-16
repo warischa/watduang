@@ -235,8 +235,16 @@ const RETIRED_KEY = 'watduang:roster-retired-settings';
 /** migrateLegacyList's `keep: 'settings'` half. The read, the import and the rewrite all sit inside
  *  ONE synchronous lock callback, so the route's own settings write cannot land between the read
  *  and the rewrite and be overwritten by a stale copy. A stale write that lands AFTER it is what the
- *  retired record above answers. */
+ *  retired record above answers.
+ *
+ *  A key that holds nothing to migrate takes no lock (gh#264): every grant waits for a gap between
+ *  frames, and a software-rendered 3D route starved three of them for over 14 seconds on a device
+ *  that had nothing to move. hasNoSettingsPlayers is that check, and it only ever authorizes the
+ *  skip -- its value is never imported, stripped or recorded. Everything else goes through the
+ *  locked re-read below, unchanged. A legacy write landing after the check is only an old deployed
+ *  tab's, and the next mount migrates it. */
 async function migrateSettingsPlayers(legacyKey: string, extract: (value: unknown) => string[]): Promise<void> {
+  if (hasNoSettingsPlayers(legacyKey)) return;
   await withLock(LOCK, () => {
     let raw: string | null;
     try {
@@ -294,6 +302,20 @@ async function migrateSettingsPlayers(legacyKey: string, extract: (value: unknow
       // The blob keeps its players field; the key is already recorded, so the next mount strips it.
     }
   });
+}
+
+/** True only when the key is absent, or holds a JSON object with no `players` field -- the two
+ *  values the locked path above leaves untouched. A storage error, corrupt JSON or any other shape
+ *  is false, so it fails safe to the locked path. */
+function hasNoSettingsPlayers(legacyKey: string): boolean {
+  try {
+    const raw = localStorage.getItem(legacyKey);
+    if (raw === null) return true;
+    const blob: unknown = JSON.parse(raw);
+    return !!blob && typeof blob === 'object' && !Array.isArray(blob) && !('players' in blob);
+  } catch {
+    return false;
+  }
 }
 
 export function loadRoster(): Roster {

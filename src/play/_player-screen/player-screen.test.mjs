@@ -619,8 +619,9 @@ const LEGACY_KEY = ps.LEGACY_LISTS[0].key;
 
 /** Mounts the real screen with the hooks these cases need and mountOnPage does not take: a legacy
  *  value present BEFORE mount (so the migration really reaches the lock) and a route onOpen. */
-function mountBare({ onOpen } = {}) {
-  installStorage().set(LEGACY_KEY, 'not json'); // corrupt still goes through the lock, then retires
+function mountBare({ onOpen, seed = (s) => s.set(LEGACY_KEY, 'not json') } = {}) {
+  const storage = installStorage();
+  seed(storage); // default: corrupt still goes through the lock, then retires
   const doc = makePage(SURFACE);
   globalThis.document = doc;
   globalThis.window = { addEventListener() {}, removeEventListener() {} };
@@ -633,7 +634,7 @@ function mountBare({ onOpen } = {}) {
     onOpen,
   });
   const html = doc.documentElement;
-  return { screen, pending: () => html.hasAttribute(ps.PENDING_ATTR), shown: () => html.getAttribute(ps.SCREEN_ATTR) };
+  return { screen, storage, pending: () => html.hasAttribute(ps.PENDING_ATTR), shown: () => html.getAttribute(ps.SCREEN_ATTR) };
 }
 
 /** Node's navigator has no locks; these cases install one they control and put the real one back. */
@@ -783,6 +784,129 @@ test('gh#264: an open whose route hook throws still clears pending', async (t) =
   });
   assert.equal(page.pending(), false, 'a throwing onOpen left the page marked pending forever');
   assert.deepEqual(seen.map((e) => e.message), ['route hook broke']);
+});
+
+// gh#264: a device with nothing to migrate must open without queueing on the roster lock. Every
+// grant waits for a gap between frames, and a software-rendered 3D route starved three of them for
+// over 14 seconds. These hold every grant forever: an open that needs one never lands.
+const SETTINGS_KEYS = ps.LEGACY_LISTS.filter((l) => l.keep === 'settings').map((l) => l.key);
+const neverGrant = (t) => {
+  const requests = [];
+  withLocks(t, (name) => { requests.push(name); return new Promise(() => {}); });
+  return requests;
+};
+/** Another tab's roster write, through roster.ts's own add(): with no lock to wait on, add() runs
+ *  its critical section synchronously, so the names are stored before this returns. */
+const writeRosterUnlocked = (names) => {
+  const nav = globalThis.navigator;
+  Object.defineProperty(globalThis, 'navigator', { value: {}, configurable: true, writable: true });
+  try {
+    const roster = loadRoster();
+    for (const name of names) roster.add(name);
+  } finally {
+    Object.defineProperty(globalThis, 'navigator', { value: nav, configurable: true, writable: true });
+  }
+};
+
+const NOTHING_TO_MIGRATE = {
+  'empty storage': () => {},
+  'a saved roster': () => {
+    writeRosterUnlocked(['A', 'B']);
+    assert.deepEqual(loadRoster().names(), ['A', 'B'], 'the seed stored no roster, so this case is the empty one');
+  },
+  'settings blobs with no players field': (s) => {
+    for (const key of SETTINGS_KEYS) s.set(key, withoutPlayers(BLOBS[key](['A', 'B'])));
+  },
+};
+for (const [label, seed] of Object.entries(NOTHING_TO_MIGRATE)) {
+  test(`gh#264: nothing to migrate (${label}) -- open() takes no lock and lands with every grant withheld`, async (t) => {
+    const requests = neverGrant(t);
+    const page = mountBare({ seed });
+    page.screen.open();
+    await settle();
+    assert.deepEqual(requests, [], 'the migration queued on the lock with nothing to migrate');
+    assert.equal(page.shown(), 'open', 'the open waited on a grant it did not need');
+    assert.equal(page.pending(), false);
+  });
+}
+
+// The outside read only ever authorizes a skip: any value it cannot prove empty goes through the
+// lock exactly as before, and the locked re-read decides what happens to it.
+for (const raw of ['{not json', '[]', '"players"', JSON.stringify({ players: null, penaltyMode: 'custom' })]) {
+  test(`gh#264: a settings value the outside read cannot prove empty (${raw}) still takes the lock`, async (t) => {
+    const requests = neverGrant(t);
+    const page = mountBare({ seed: (s) => s.set(SETTINGS_KEYS[0], raw) });
+    page.screen.open();
+    await settle();
+    assert.equal(requests.length, 1, 'that value never reached the locked path');
+    assert.equal(page.shown(), 'closed');
+  });
+}
+
+/** Holds every grant until the caller releases them, oldest first. */
+const holdGrants = (t) => {
+  const held = [];
+  withLocks(t, (_name, fn) => new Promise((resolve) => { held.push(() => resolve(fn())); }));
+  return async () => {
+    while (held.length) {
+      held.shift()();
+      await settle();
+    }
+  };
+};
+const LEGACY_SEEDS = {
+  'watduang:timebomb-players': { count: 2, names: ['Tb1', 'Tb2'] },
+  'watduang:dice-loser-players': { count: 2, names: ['Dl1', 'Dl2'] },
+  'watduang:one-bomb-players': { names: ['Ob1', 'Ob2'] },
+  freeze_tap_players: [freezeSeat('Ft1', 0), freezeSeat('Ft2', 1)],
+};
+const changed = (key, names) => ({ ...BLOBS[key](names), penaltyMode: `changed-${key}` });
+
+test('gh#264: every legacy list seeded, the roster written while the grants are held -- the locked path sees it and imports nothing', async (t) => {
+  const grant = holdGrants(t);
+  const page = mountBare({
+    seed: (s) => {
+      for (const [key, value] of Object.entries(LEGACY_SEEDS)) s.set(key, JSON.stringify(value));
+      for (const key of SETTINGS_KEYS) s.set(key, JSON.stringify(BLOBS[key](['A', 'B'])));
+    },
+  });
+  assert.deepEqual(ps.LEGACY_LISTS.map((l) => l.key).sort(), [...Object.keys(LEGACY_SEEDS), ...SETTINGS_KEYS].sort(), 'a listed key is not seeded');
+  page.screen.open();
+  await settle();
+  // Another tab, while every grant is held: a roster of its own, and new settings in every blob.
+  writeRosterUnlocked(['Other']);
+  for (const key of SETTINGS_KEYS) page.storage.set(key, JSON.stringify(changed(key, ['A', 'B'])));
+  await grant();
+  assert.equal(page.shown(), 'open');
+  assert.deepEqual(loadRoster().names(), ['Other'], 'a migration imported over a roster written before its grant');
+  for (const key of Object.keys(LEGACY_SEEDS)) assert.equal(page.storage.has(key), false, `${key} was not retired`);
+  for (const key of SETTINGS_KEYS) {
+    assert.equal(page.storage.get(key), withoutPlayers(changed(key, ['A', 'B'])), `${key}: the newer settings were lost or the players kept`);
+  }
+});
+
+test('gh#264: a settings blob stripped while the grants are held stays stripped; the next blob imports, every setting kept', async (t) => {
+  const grant = holdGrants(t);
+  const [first, second, third] = SETTINGS_KEYS;
+  const page = mountBare({
+    seed: (s) => {
+      s.set(first, JSON.stringify(BLOBS[first](['F1', 'F2'])));
+      s.set(second, JSON.stringify(BLOBS[second](['S1', 'S2'])));
+      s.set(third, JSON.stringify(BLOBS[third](['T1', 'T2'])));
+    },
+  });
+  page.screen.open();
+  await settle();
+  const strippedFirst = withoutPlayers(changed(first, ['F1', 'F2']));
+  page.storage.set(first, strippedFirst);
+  page.storage.set(second, JSON.stringify(changed(second, ['S1', 'S2'])));
+  page.storage.set(third, JSON.stringify(changed(third, ['T1', 'T2'])));
+  await grant();
+  assert.equal(page.shown(), 'open');
+  assert.deepEqual(loadRoster().names(), ['S1', 'S2'], 'the import did not come from the blob as it stood at the grant');
+  assert.equal(page.storage.get(first), strippedFirst, 'a players list stripped before the grant came back');
+  assert.equal(page.storage.get(second), withoutPlayers(changed(second, ['S1', 'S2'])));
+  assert.equal(page.storage.get(third), withoutPlayers(changed(third, ['T1', 'T2'])));
 });
 
 // The fit probe reads these two names off <html> in the browser, where it cannot import this module.
