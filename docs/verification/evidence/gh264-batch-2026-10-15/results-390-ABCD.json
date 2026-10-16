@@ -1,0 +1,2503 @@
+{
+  "timebomb": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|tb-mute=🔊|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-start=เริ่มจับเวลา",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#tb-start:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-pass=ส่งต่อ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|tb-mute=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 681.5,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-start=เริ่มจับเวลา",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-pass=ส่งต่อ",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-pass=ส่งต่อ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|tb-mute=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "cursed-number": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        20
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        20
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|startGameBtn=🎮 เริ่มประล",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#startGameBtn:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|readyBtn=👁️ ฉันพร้อม",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม",
+        "ชิบะ",
+        "บันนี่",
+        "ฟร็อกกี้"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,20 (file [2,20]), rows 4 emoji true, names shown แมวส้ม/ชิบะ/บันนี่/ฟร็อกกี้, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 692,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|startGameBtn=🎮 เริ่มประล",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|rulesBtn=❓|homeResetB",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|readyBtn=👁️ ฉันพร้อม",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "dice-loser": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-mode-high=🔥\n         |dl-mode-low=❄️\n         |dl-begin=เริ่มเกมเลย",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#dl-begin:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-roll=ทอยลูกเต๋าเล",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม",
+        "ชิบะ",
+        "บันนี่",
+        "ฟร็อกกี้"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม/ชิบะ/บันนี่/ฟร็อกกี้, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 680.296875,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-mode-high=🔥\n         |dl-mode-low=❄️\n         |dl-begin=เริ่มเกมเลย",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-roll=ทอยลูกเต๋าเล",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-roll=ทอยลูกเต๋าเล",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "one-bomb": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น|howToPlayBtn=📖 วิธีเล่น|menuSettingsBtn=⚙️ ตั้งค่าเก",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม",
+        "ชิบะ",
+        "บันนี่",
+        "ฟร็อกกี้"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม/ชิบะ/บันนี่/ฟร็อกกี้, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️|add=+ เพิ่มคน|start=พร้อมเล่น|howToPlayBtn=📖 วิธีเล่น|menuSettingsBtn=⚙️ ตั้งค่าเก",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 194.9921875,
+          "y": 608.6084594726562,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️|add=+ เพิ่มคน|start=พร้อมเล่น|howToPlayBtn=📖 วิธีเล่น|menuSettingsBtn=⚙️ ตั้งค่าเก",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "freeze-tap": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        20
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        20
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|ruleReadyBtn=รับทราบ! เริ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#ruleReadyBtn:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|playerReadyBtn=⚡ พร้อมแล้ว ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,20 (file [2,20]), rows 4 emoji true, names shown แมวส้ม, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 561,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|ruleReadyBtn=รับทราบ! เริ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|playerReadyBtn=⚡ พร้อมแล้ว ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "cannon-flag": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        20
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-sound-toggle=🔊|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        20
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊|btn-ready-to-aim=🎯 พร้อมแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊|btn-ready-to-aim=🎯 พร้อมแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,20 (file [2,20]), rows 4 emoji true, names shown แมวส้ม, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-sound-toggle=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 544,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊|btn-ready-to-aim=🎯 พร้อมแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊|btn-ready-to-aim=🎯",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊|btn-ready-to-aim=🎯 พร้อมแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-sound-toggle=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "mouse (touch dead, see note)"
+  },
+  "bangkok-drift": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกตัว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกตัว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 650,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกตัว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกตัว",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกตัว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "how-close-is-near": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|btnAudioToggle=🔊|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|btnStartGame=ยืนยันกติกา |btnBackToNames=ย้อนกลับ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#btnStartGame:true",
+        "#btnAckSecrecy:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|btnReadyForTurn=พร้อมแล้ว ➔",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btnAudioToggle=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 684,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|btnStartGame=ยืนยันกติกา |btnBackToNames=ย้อนกลับ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|btnReadyForTurn=พร้อม",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|btnReadyForTurn=พร้อมแล้ว ➔",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btnAudioToggle=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "pinocchio-luck": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundBtn=♪|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|ready=พร้อมแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#ready:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|=A\n        โค|=B\n        แม|=C\n        ตู",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundBtn=♪|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 778.234375,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|ready=พร้อมแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|=A\n        ตอ|=B\n        เม|",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|=A\n        ตอ|=B\n        เม|=C\n        พร",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|soundBtn=♪|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "power-meter": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-audio-toggle=🔊|btn-help-modal=❓|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น|=เข้าใจแล้ว",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-help-modal=❓|btn-primary-action=แตะเพื่อเริ่|=เข้าใจแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#btn-primary-action:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-help-modal=❓|main-tap-btn=🚀 แตะเพื่อเ|=เข้าใจแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-audio-toggle=🔊|btn-help-modal=❓|add=+ เพิ่มคน|start=พร้อมเล่น|=เข้าใจแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 498.390625,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-help-modal=❓|btn-primary-action=แตะเพื่อเริ่|=เข้าใจแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-help-modal=❓|ma",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-help-modal=❓|main-tap-btn=🚀 แตะเพื่อเ|=เข้าใจแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-audio-toggle=🔊|btn-help-modal=❓|add=+ เพิ่มคน|start=พร้อมเล่น|=เข้าใจแล้ว",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "short-stick": {
+    "A": {
+      "intro": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 357.90625,
+          "dis": false
+        }
+      },
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|audio-toggle=🔊|rules-nav-button=กติกา|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rules-nav-button=กติกา|btn-begin-game=เริ่มรอบนี้ |btn-setup-back=กลับ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#btn-begin-game:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rules-nav-button=กติกา|=|=|=|=",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม",
+        "ชิบะ",
+        "บันนี่",
+        "ฟร็อกกี้"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม/ชิบะ/บันนี่/ฟร็อกกี้, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|audio-toggle=🔊|rules-nav-button=กติกา|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 610,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rules-nav-button=กติกา|btn-begin-game=เริ่มรอบนี้ |btn-setup-back=กลับ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rules-nav-button=กติกา|",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rules-nav-button=กติกา|=|=|=|=",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|audio-toggle=🔊|rules-nav-button=กติกา|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "wire-snip-panic": {
+    "A": {
+      "intro": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 730,
+          "dis": false
+        }
+      },
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|btn-start-match=🚀 เริ่มเกมต|btn-setup-back=↩ ย้อนกลับ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#btn-start-match:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|btn-trigger-scan=⚡ กดเพื่อเริ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม",
+        "ชิบะ",
+        "บันนี่",
+        "ฟร็อกกี้"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม/ชิบะ/บันนี่/ฟร็อกกี้, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 687,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|btn-start-match=🚀 เริ่มเกมต|btn-setup-back=↩ ย้อนกลับ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลัก|btn-sound-toggle=\ud83d",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|btn-trigger-scan=⚡ กดเพื่อเริ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "zero-trigger": {
+    "A": {
+      "intro": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 772.5,
+          "dis": false
+        }
+      },
+      "rangeFile": [
+        2,
+        10
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        10
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|=🎯 สุ่มอัตโน|=✏️ กำหนดเอง|=🚫 ไม่เปิดใช|btn-confirm-start-game=🎮 เข้าสู่เก",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#btn-confirm-start-game:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|btn-big-action=START\n      ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม",
+        "ชิบะ",
+        "บันนี่",
+        "ฟร็อกกี้"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,10 (file [2,10]), rows 4 emoji true, names shown แมวส้ม/ชิบะ/บันนี่/ฟร็อกกี้, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 618,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|=🎯 สุ่มอัตโน|=✏️ กำหนดเอง|=🚫 ไม่เปิดใช|btn-confirm-start-game=🎮 เข้าสู่เก",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-open-rules=📖|b",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|btn-big-action=START\n      ",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  },
+  "croc-bite": {
+    "A": {
+      "intro": null,
+      "rangeFile": [
+        2,
+        6
+      ],
+      "first": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "-:แมวส้ม,-:ชิบะ,-:บันนี่,-:ฟร็อกกี้",
+        "btns": "play-exit=✕|dec=−|inc=+|reset=↺ รีเซ็ตเป็น|start=พร้อมเล่น",
+        "cnt": "4",
+        "iw": 390,
+        "sw": 390
+      },
+      "rows": [
+        {
+          "e": "🐱",
+          "v": "แมวส้ม",
+          "ph": "แมวส้ม"
+        },
+        {
+          "e": "🐶",
+          "v": "ชิบะ",
+          "ph": "ชิบะ"
+        },
+        {
+          "e": "🐰",
+          "v": "บันนี่",
+          "ph": "บันนี่"
+        },
+        {
+          "e": "🐸",
+          "v": "ฟร็อกกี้",
+          "ph": "ฟร็อกกี้"
+        }
+      ],
+      "bounds": [
+        2,
+        6
+      ],
+      "startTap": true,
+      "afterStart": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-start-game=🎮 เริ่มประล|btn-how-to-play=📖 วิธีเล่น|btn-open-settings=⚙️ ตั้งค่า",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "chain": [
+        "#btn-start-game:true"
+      ],
+      "afterChain": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-hud-home=🏠|btn-hud-sound=🔊|btn-hud-restart=↻ รอบใหม่|btn-hud-settings=⚙️",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "names": [
+        "แมวส้ม",
+        "ชิบะ",
+        "บันนี่",
+        "ฟร็อกกี้"
+      ],
+      "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]",
+      "pass": true,
+      "detail": "stepper 4, bounds 2,6 (file [2,6]), rows 4 emoji true, names shown แมวส้ม/ชิบะ/บันนี่/ฟร็อกกี้, group [\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\"]"
+    },
+    "B": {
+      "screen": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "rowsInfo": [
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "แมวส้ม"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ชิบะ"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "บันนี่"
+        },
+        {
+          "t": "true",
+          "out": false,
+          "x": true,
+          "v": "ฟร็อกกี้"
+        }
+      ],
+      "start": {
+        "ok": true,
+        "p": {
+          "x": 195,
+          "y": 492,
+          "dis": false
+        }
+      },
+      "after": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-start-game=🎮 เริ่มประล|btn-how-to-play=📖 วิธีเล่น|btn-open-settings=⚙️ ตั้งค่า",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "pass": true,
+      "detail": "ps=open stepper=null rows=4 ticks=true,true,true,true; next-screen buttons same as A: true"
+    },
+    "C": {
+      "before": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-hud-home=🏠|btn-hud-sound=🔊|btn-hu",
+      "edit1": true,
+      "dlg1": "ps-edit-dialog",
+      "text": "เปลี่ยนผู้เล่นตอนนี้? รอบที่เล่นอยู่จะจบลงทันที แล้วเริ่มรอบใหม่กับวงที่แก้แล้ว เล่นรอบนี้ต่อ จบรอบ แล้วแก้ผู้เล่น",
+      "copyOk": true,
+      "afterCancel": {
+        "ps": "closed",
+        "dlg": "",
+        "rows": "",
+        "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-hud-home=🏠|btn-hud-sound=🔊|btn-hud-restart=↻ รอบใหม่|btn-hud-settings=⚙️",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "cancelOk": true,
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": "",
+        "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้",
+        "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+        "cnt": null,
+        "iw": 390,
+        "sw": 390
+      },
+      "confirmOk": true,
+      "pass": true,
+      "detail": "dialog on edit: ps-edit-dialog; copy matches board: true; cancel(+50ms 2nd tap) kept round, screen unchanged: true; confirm(+50ms 2nd tap) -> ps=open rows=true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "D": {
+      "dup": {
+        "startDisabled": true,
+        "limit": "มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม",
+        "dupRows": [
+          0,
+          1
+        ]
+      },
+      "fixed": {
+        "startDisabled": false,
+        "limit": "เล่นรอบนี้ 4 คน",
+        "dupRows": 0
+      },
+      "pass": true,
+      "detail": "dup: start disabled=true, line=\"มีชื่อซ้ำกัน — แก้ชื่อให้ไม่ซ้ำก่อนเริ่ม\", dup rows 0,1; fixed: start disabled=false, dup rows 0"
+    },
+    "w320": {},
+    "input": "touch"
+  }
+}

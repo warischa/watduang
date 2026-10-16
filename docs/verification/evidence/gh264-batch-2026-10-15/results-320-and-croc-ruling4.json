@@ -1,0 +1,866 @@
+{
+  "timebomb": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|tb-mute=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 583,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 484,
+      "bottom": 544,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 15
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-start=เริ่มจับเวลา",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-pass=ส่งต่อ",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "cursed-number": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 736,
+      "over": []
+    },
+    "startReach": {
+      "x": 26,
+      "right": 294,
+      "top": 428,
+      "bottom": 488,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 168
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|startGameBtn=🎮 เริ่มประล",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|rulesBtn=❓|homeResetBtn=🏠|readyBtn=👁️ ฉันพร้อม",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 760,
+      "over": []
+    }
+  },
+  "dice-loser": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 582,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 484,
+      "bottom": 544,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 14
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-mode-high=🔥\n         |dl-mode-low=❄️\n         |dl-begin=เริ่มเกมเลย",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-roll=ทอยลูกเต๋าเล",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "one-bomb": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️|add=+ เพิ่มคน|start=พร้อมเล่น|howToPlayBtn=📖 วิธีเล่น|menuSettingsBtn=⚙️ ตั้งค่าเก",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    },
+    "startReach": {
+      "x": 13,
+      "right": 307,
+      "top": 368,
+      "bottom": 428,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 0
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|=|homeBtn=🏠|audioToggleBtn=🔊|newRoundBtn=↻ เริ่มรอบให|settingsBtn=⚙️",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "freeze-tap": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 465,
+      "bottom": 525,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 0
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|ruleReadyBtn=รับทราบ! เริ",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|resetAppBtn=↺ ตั้งค่า|playerReadyBtn=⚡ พร้อมแล้ว ",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "cannon-flag": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|btn-sound-toggle=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 448,
+      "bottom": 508,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 0
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊|btn-ready-to-aim=🎯 พร้อมแล้ว",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊|btn-ready-to-aim=🎯 พร้อมแล้ว",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "bangkok-drift": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 484,
+      "bottom": 544,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 0
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกตัว",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกตัว",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "how-close-is-near": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|btnAudioToggle=🔊|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 660,
+      "over": []
+    },
+    "startReach": {
+      "x": 10,
+      "right": 310,
+      "top": 478,
+      "bottom": 538,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 92
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|btnStartGame=ยืนยันกติกา |btnBackToNames=ย้อนกลับ",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|btnReadyForTurn=พร้อมแล้ว ➔",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "pinocchio-luck": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|soundBtn=♪|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 780,
+      "over": []
+    },
+    "startReach": {
+      "x": 32,
+      "right": 288,
+      "top": 474,
+      "bottom": 534,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 212
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|ready=พร้อมแล้ว",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|=A\n        ฉล|=B\n        ลิ|=C\n        ได",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 647,
+      "over": []
+    }
+  },
+  "power-meter": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|btn-audio-toggle=🔊|btn-help-modal=❓|add=+ เพิ่มคน|start=พร้อมเล่น|=เข้าใจแล้ว",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 402,
+      "bottom": 462,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 0
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-help-modal=❓|btn-primary-action=แตะเพื่อเริ่|=เข้าใจแล้ว",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-help-modal=❓|main-tap-btn=🚀 แตะเพื่อเ|=เข้าใจแล้ว",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "short-stick": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|audio-toggle=🔊|rules-nav-button=กติกา|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 622,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 460,
+      "bottom": 520,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 54
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rules-nav-button=กติกา|btn-begin-game=เริ่มรอบนี้ |btn-setup-back=กลับ",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rules-nav-button=กติกา|=|=|=",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 724,
+      "over": []
+    }
+  },
+  "wire-snip-panic": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 484,
+      "bottom": 544,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 0
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|btn-start-match=🚀 เริ่มเกมต|btn-setup-back=↩ ย้อนกลับ",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลัก|btn-sound-toggle=🔊|btn-rules=❓|btn-trigger-scan=⚡ กดเพื่อเริ",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": [
+        "player-card-badge :335",
+        "SPAN:322"
+      ]
+    }
+  },
+  "zero-trigger": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    },
+    "startReach": {
+      "x": 16,
+      "right": 304,
+      "top": 464,
+      "bottom": 524,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 0
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|=🎯 สุ่มอัตโน|=✏️ กำหนดเอง|=🚫 ไม่เปิดใช|btn-confirm-start-game=🎮 เข้าสู่เก",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊|btn-open-rules=📖|btn-home-menu=🏠|btn-big-action=START\n      ",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "croc-bite": {
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:ต้น,true:มายด์,true:บอส",
+      "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m1": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    },
+    "startReach": {
+      "x": 20,
+      "right": 300,
+      "top": 396,
+      "bottom": 456,
+      "inView": true,
+      "hitIsStart": true,
+      "dis": false,
+      "scrollY": 0
+    },
+    "rows": 3,
+    "startTap": true,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-start-game=🎮 เริ่มประล|btn-how-to-play=📖 วิธีเล่น|btn-open-settings=⚙️ ตั้งค่า",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "round": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-hud-home=🏠|btn-hud-sound=🔊|btn-hud-restart=↻ รอบใหม่|btn-hud-settings=⚙️",
+      "cnt": null,
+      "iw": 320,
+      "sw": 320
+    },
+    "m2": {
+      "iw": 320,
+      "ih": 568,
+      "sw": 320,
+      "cw": 320,
+      "sh": 568,
+      "over": []
+    }
+  },
+  "crocRuling4": {
+    "cursedCount": "8",
+    "roster": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\",\"หมีทอง\",\"แพนด้า\",\"เพนกวิน\",\"ลูกเจี๊ยบ\"]",
+    "screen": {
+      "ps": "open",
+      "dlg": "",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้,true:หมีทอง,true:แพนด้า,false:เพนกวิน,false:ลูกเจี๊ยบ",
+      "btns": "play-exit=✕|add=+ เพิ่มคน|start=พร้อมเล่น",
+      "cnt": null,
+      "iw": 390,
+      "sw": 390
+    },
+    "rowsInfo": [
+      {
+        "t": "true",
+        "out": false
+      },
+      {
+        "t": "true",
+        "out": false
+      },
+      {
+        "t": "true",
+        "out": false
+      },
+      {
+        "t": "true",
+        "out": false
+      },
+      {
+        "t": "true",
+        "out": false
+      },
+      {
+        "t": "true",
+        "out": false
+      },
+      {
+        "t": "false",
+        "out": true,
+        "sit": "นั่งพัก"
+      },
+      {
+        "t": "false",
+        "out": true,
+        "sit": "นั่งพัก"
+      }
+    ],
+    "limit": "เกมนี้เล่นได้สูงสุด 6 คน · เลือกแล้ว 6",
+    "startDis": false,
+    "afterStart": {
+      "ps": "closed",
+      "dlg": "",
+      "rows": "",
+      "btns": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-start-game=🎮 เริ่มประล|btn-how-to-play=📖 วิธีเล่น|btn-open-settings=⚙️ ตั้งค่า",
+      "cnt": null,
+      "iw": 390,
+      "sw": 390
+    },
+    "group": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\",\"หมีทอง\",\"แพนด้า\"]",
+    "rosterAfter": "[\"แมวส้ม\",\"ชิบะ\",\"บันนี่\",\"ฟร็อกกี้\",\"หมีทอง\",\"แพนด้า\",\"เพนกวิน\",\"ลูกเจี๊ยบ\"]",
+    "names": []
+  }
+}

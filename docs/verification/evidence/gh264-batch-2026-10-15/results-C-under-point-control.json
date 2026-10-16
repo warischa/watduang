@@ -1,0 +1,282 @@
+{
+  "timebomb": {
+    "cancelUnder": "tb-canvas/CANVAS",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-pass=",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|tb-mute=🔊|tb-pass=",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "ps-n/INPUT",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "cursed-number": {
+    "cancelUnder": "handoffPlayerName/H2",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|r",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|r",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "ps-n/INPUT",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "dice-loser": {
+    "cancelUnder": "dl-pip is-on/SPAN",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-roll=ทอยลูกเต๋าเ",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|dl-roll=ทอยลูกเต๋าเ",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "ps-n/INPUT",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "one-bomb": {
+    "cancelUnder": "ob-board/DIV",
+    "cancelDelayed": {
+      "changed": true,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|=|=|=|=|=|=|=|=|=|=",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "add/button",
+    "confirmDelayed": {
+      "changed": true,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้,true:หมีทอง"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "freeze-tap": {
+    "cancelUnder": "pass-target-badge/DIV",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|r",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundToggleBtn=🔊|r",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "ps-hint/P",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "cannon-flag": {
+    "cancelUnder": "pass-turn-order/DIV",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-sound-toggle=🔊",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "cf-players/SECTION",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "bangkok-drift": {
+    "cancelUnder": "muted/P",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกต",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|readyBtn=พร้อม ออกต",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "ps-p ps-saved/LI",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "how-close-is-near": {
+    "cancelUnder": "card/DIV",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|b",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btnAudioToggle=🔊|b",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "ps-n/INPUT",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "pinocchio-luck": {
+    "cancelUnder": "panel/SECTION",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|=A\n     ",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|soundBtn=♪|=A\n     ",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "ps-tagline/P",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "power-meter": {
+    "cancelUnder": "gauge-track/DIV",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "start/button",
+    "confirmDelayed": {
+      "changed": true,
+      "ps": "closed",
+      "rows": ""
+    },
+    "pt": [
+      195,
+      505
+    ]
+  },
+  "short-stick": {
+    "cancelUnder": "stick-grid/DIV",
+    "cancelDelayed": {
+      "changed": true,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rul",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|audio-toggle=🔊|rul",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "add/button",
+    "confirmDelayed": {
+      "changed": true,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้,true:หมีทอง"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "wire-snip-panic": {
+    "cancelUnder": "[object SVGAnimatedString]/svg",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลั",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-home=🏠 หน้าหลั",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "ps-n/INPUT",
+    "confirmDelayed": {
+      "changed": false,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "zero-trigger": {
+    "cancelUnder": "stopwatch-stage-box/DIV",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-audio-toggle=🔊",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "add/button",
+    "confirmDelayed": {
+      "changed": true,
+      "ps": "open",
+      "rows": "true:แมวส้ม,true:ชิบะ,true:บันนี่,true:ฟร็อกกี้,true:หมีทอง"
+    },
+    "pt": [
+      195,
+      506
+    ]
+  },
+  "croc-bite": {
+    "cancelUnder": "CANVAS/CANVAS",
+    "cancelDelayed": {
+      "changed": false,
+      "from": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-hud-home=🏠|btn",
+      "to": "play-exit=✕|play-edit-players=แก้ผู้เล่น|btn-hud-home=🏠|btn",
+      "dlg": "",
+      "ps": "closed"
+    },
+    "confirmUnder": "start/button",
+    "confirmDelayed": {
+      "changed": true,
+      "ps": "closed",
+      "rows": ""
+    },
+    "pt": [
+      195,
+      506
+    ]
+  }
+}

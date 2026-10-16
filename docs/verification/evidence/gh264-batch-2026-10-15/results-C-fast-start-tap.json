@@ -1,0 +1,184 @@
+{
+  "timebomb": {
+    "gapMs": 33,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "cursed-number": {
+    "gapMs": 33,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "dice-loser": {
+    "gapMs": 16,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "one-bomb": {
+    "gapMs": 90,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "freeze-tap": {
+    "gapMs": 31,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "cannon-flag": {
+    "gapMs": 3,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "bangkok-drift": {
+    "gapMs": 18,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "how-close-is-near": {
+    "gapMs": 32,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "pinocchio-luck": {
+    "gapMs": 88,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "power-meter": {
+    "gapMs": 32,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "short-stick": {
+    "gapMs": 36,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "wire-snip-panic": {
+    "gapMs": 32,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "zero-trigger": {
+    "gapMs": 64,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  },
+  "croc-bite": {
+    "gapMs": 131,
+    "startFound": true,
+    "startDisabledAtGap": true,
+    "afterFast": {
+      "ps": "open",
+      "dlg": ""
+    },
+    "afterLate": {
+      "ps": "closed"
+    },
+    "pass": true
+  }
+}

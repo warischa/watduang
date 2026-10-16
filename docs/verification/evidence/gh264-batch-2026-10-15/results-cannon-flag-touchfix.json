@@ -1,0 +1,300 @@
+{
+  "320": {
+    "step1": {
+      "counts": [
+        "4",
+        "5",
+        "4"
+      ],
+      "clicks": [
+        "inc@1248",
+        "dec@1783"
+      ],
+      "after": {
+        "ps": "closed",
+        "act": [],
+        "b": [
+          "play-exit",
+          "play-edit-players",
+          "btn-sound-toggle",
+          "btn-ready-to-aim",
+          "btn-modal-next-shot",
+          "btn-angle-dec",
+          "btn-angle-inc",
+          "btn-fire-cannon",
+          "btn-replay-match",
+          "btn-new-setup"
+        ],
+        "m": [
+          "shot-modal-overlay"
+        ],
+        "sw": 320,
+        "iw": 320,
+        "dlg": []
+      },
+      "clicks2": [
+        "start@2364"
+      ],
+      "pass": true
+    },
+    "step2": {
+      "readyHit": true,
+      "clicksReady": [
+        "btn-ready-to-aim@3297"
+      ],
+      "angles": [
+        "27.5",
+        "29.5",
+        "28.5"
+      ],
+      "clicksAngle": [
+        "btn-angle-inc@4260",
+        "btn-angle-inc@4829",
+        "btn-angle-dec@5399"
+      ],
+      "scr": "screen-gameplay",
+      "fireHit": true,
+      "afterFire": {
+        "ang": "28.5",
+        "title": "ผลการยิงนัดที่ 1",
+        "modal": "shot-modal-overlay active",
+        "scr": "screen-gameplay"
+      },
+      "shotModalTitles": [
+        "ผลการยิงนัดที่ 1"
+      ],
+      "pass": true
+    },
+    "step3": {
+      "releasePt": [
+        160,
+        533
+      ],
+      "under": "SPAN",
+      "clicksWithin120ms": [],
+      "clicksWithin1s": [],
+      "pass": true
+    },
+    "step4": {
+      "log": [
+        "ready:btn-ready-to-aim",
+        "fire:0",
+        "next:btn-modal-next-shot",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "ready:btn-ready-to-aim",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "ready:btn-ready-to-aim",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "fire:0",
+        "next:btn-modal-next-shot",
+        "ready:btn-ready-to-aim",
+        "fire:0",
+        "next:btn-modal-next-shot",
+        "fire:0",
+        "next:btn-modal-next-shot"
+      ],
+      "doubles": 0,
+      "reachedResults": true,
+      "summary": {
+        "next:btn-modal-next-shot": 8,
+        "fire:0": 7,
+        "next:": 6,
+        "ready:btn-ready-to-aim": 3
+      },
+      "replay": {
+        "clicks": [
+          "btn-replay-match@44962"
+        ],
+        "after": {
+          "ang": "69.5",
+          "title": "ผลการยิงนัดที่ 2",
+          "modal": "shot-modal-overlay",
+          "scr": "screen-pass-device"
+        }
+      },
+      "newSetup": {
+        "hit": true,
+        "clicks": [
+          "btn-new-setup@85561"
+        ],
+        "ps": "open"
+      },
+      "pass": true
+    },
+    "step5": {
+      "edit": true,
+      "dlg": [
+        "ps-edit-dialog"
+      ],
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": []
+      },
+      "clicks": [
+        "start@1242",
+        "ps-edit-dialog@2977",
+        "ps-edit-confirm@3793"
+      ],
+      "pass": true
+    }
+  },
+  "390": {
+    "step1": {
+      "counts": [
+        "4",
+        "5",
+        "4"
+      ],
+      "clicks": [
+        "inc@1260",
+        "dec@1793"
+      ],
+      "after": {
+        "ps": "closed",
+        "act": [],
+        "b": [
+          "play-exit",
+          "play-edit-players",
+          "btn-sound-toggle",
+          "btn-ready-to-aim",
+          "btn-modal-next-shot",
+          "btn-angle-dec",
+          "btn-angle-inc",
+          "btn-fire-cannon",
+          "btn-replay-match",
+          "btn-new-setup"
+        ],
+        "m": [
+          "shot-modal-overlay"
+        ],
+        "sw": 390,
+        "iw": 390,
+        "dlg": []
+      },
+      "clicks2": [
+        "start@2376"
+      ],
+      "pass": true
+    },
+    "step2": {
+      "readyHit": true,
+      "clicksReady": [
+        "btn-ready-to-aim@3309"
+      ],
+      "angles": [
+        "55.0",
+        "57.0",
+        "56.0"
+      ],
+      "clicksAngle": [
+        "btn-angle-inc@4244",
+        "btn-angle-inc@4809",
+        "btn-angle-dec@5376"
+      ],
+      "scr": "screen-gameplay",
+      "fireHit": true,
+      "afterFire": {
+        "ang": "56.0",
+        "title": "ผลการยิงนัดที่ 1",
+        "modal": "shot-modal-overlay active",
+        "scr": "screen-gameplay"
+      },
+      "shotModalTitles": [
+        "ผลการยิงนัดที่ 1"
+      ],
+      "pass": true
+    },
+    "step3": {
+      "releasePt": [
+        195,
+        809
+      ],
+      "under": "SPAN",
+      "clicksWithin120ms": [],
+      "clicksWithin1s": [],
+      "pass": true
+    },
+    "step4": {
+      "log": [
+        "ready:btn-ready-to-aim",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "ready:btn-ready-to-aim",
+        "fire:0",
+        "next:btn-modal-next-shot",
+        "fire:0",
+        "next:btn-modal-next-shot",
+        "ready:btn-ready-to-aim",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "ready:btn-ready-to-aim",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot",
+        "fire:0",
+        "next:",
+        "next:btn-modal-next-shot"
+      ],
+      "doubles": 0,
+      "reachedResults": true,
+      "summary": {
+        "next:": 4,
+        "next:btn-modal-next-shot": 8,
+        "fire:0": 7,
+        "ready:btn-ready-to-aim": 3
+      },
+      "replay": {
+        "clicks": [
+          "btn-replay-match@46491"
+        ],
+        "after": {
+          "ang": "71.5",
+          "title": "ผลการยิงนัดที่ 2",
+          "modal": "shot-modal-overlay",
+          "scr": "screen-pass-device"
+        }
+      },
+      "newSetup": {
+        "hit": true,
+        "clicks": [
+          "btn-new-setup@86855"
+        ],
+        "ps": "open"
+      },
+      "pass": true
+    },
+    "step5": {
+      "edit": true,
+      "dlg": [
+        "ps-edit-dialog"
+      ],
+      "afterConfirm": {
+        "ps": "open",
+        "dlg": []
+      },
+      "clicks": [
+        "start@1245",
+        "ps-edit-dialog@2979",
+        "ps-edit-confirm@3795"
+      ],
+      "pass": true
+    }
+  }
+}
