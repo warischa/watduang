@@ -494,7 +494,7 @@ a jump.
 
 Record: device — OS version — PASS / FAIL — note.
 
-### Shared player screen — every party play route (gh#264, shipped 2026-10-16)
+### Shared player screen — every party play route (gh#264, shipped 2026-10-17)
 
 All 14 party games now open the same player screen before play (ADR-0071). It was checked in headless
 Chrome under CDP touch on all 14 routes (`docs/verification/evidence/gh264-batch-2026-10-15/`). No
