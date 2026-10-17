@@ -1,0 +1,492 @@
+{
+  "verdict": "FAIL",
+  "stubDraw": true,
+  "routes": [
+    "bangkok-drift",
+    "cannon-flag",
+    "croc-bite",
+    "cursed-number",
+    "dice-loser",
+    "freeze-tap",
+    "how-close-is-near",
+    "one-bomb",
+    "pinocchio-luck",
+    "power-meter",
+    "short-stick",
+    "timebomb",
+    "wire-snip-panic",
+    "zero-trigger"
+  ],
+  "rows": [
+    {
+      "route": "bangkok-drift",
+      "url": "http://127.0.0.1:4351/game/bangkok-drift/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "cannon-flag",
+      "url": "http://127.0.0.1:4351/game/cannon-flag/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "croc-bite",
+      "url": "http://127.0.0.1:4351/game/croc-bite/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 291,
+        "heldDraws": 0,
+        "webglContexts": 1,
+        "contextArgs": [
+          "webgl2"
+        ],
+        "extensionRequests": {
+          "ext_color_buffer_float": 1,
+          "webgl_clip_cull_distance": 1,
+          "oes_texture_float_linear": 1,
+          "ext_color_buffer_half_float": 1,
+          "webgl_multisampled_render_to_texture": 1,
+          "webgl_render_shared_exponent": 1,
+          "ext_texture_filter_anisotropic": 1,
+          "khr_parallel_shader_compile": 1
+        },
+        "probeExtensionRequests": {
+          "webgl_debug_renderer_info": 1
+        },
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "contextLive": true,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+      "contextLost": false,
+      "twoDContextOnSameCanvas": null,
+      "canvasWidthAtFirstPoll": 390,
+      "backingStore": {
+        "w": 390,
+        "h": 844
+      },
+      "drawingBuffer": {
+        "w": 390,
+        "h": 844
+      },
+      "stubbed": true,
+      "frames": [
+        {
+          "w": 390,
+          "h": 844,
+          "distinctColours": 1,
+          "coverage": 0
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "distinctColours": 1,
+          "coverage": 0
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "distinctColours": 1,
+          "coverage": 0
+        }
+      ],
+      "outOfFrameDistinctColours": 1,
+      "best": {
+        "w": 390,
+        "h": 844,
+        "distinctColours": 1,
+        "coverage": 0
+      },
+      "nonBlank": false,
+      "verdict": "FAIL",
+      "reason": "live context, and the canvas is blank"
+    },
+    {
+      "route": "cursed-number",
+      "url": "http://127.0.0.1:4351/game/cursed-number/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "dice-loser",
+      "url": "http://127.0.0.1:4351/game/dice-loser/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "freeze-tap",
+      "url": "http://127.0.0.1:4351/game/freeze-tap/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "how-close-is-near",
+      "url": "http://127.0.0.1:4351/game/how-close-is-near/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "one-bomb",
+      "url": "http://127.0.0.1:4351/game/one-bomb/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 372,
+        "heldDraws": 0,
+        "webglContexts": 1,
+        "contextArgs": [
+          "webgl"
+        ],
+        "extensionRequests": {},
+        "probeExtensionRequests": {
+          "webgl_debug_renderer_info": 1
+        },
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "contextLive": true,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+      "contextLost": false,
+      "twoDContextOnSameCanvas": null,
+      "canvasWidthAtFirstPoll": 390,
+      "backingStore": {
+        "w": 390,
+        "h": 844
+      },
+      "drawingBuffer": {
+        "w": 390,
+        "h": 844
+      },
+      "stubbed": true,
+      "frames": [
+        {
+          "w": 390,
+          "h": 844,
+          "distinctColours": 1,
+          "coverage": 0
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "distinctColours": 1,
+          "coverage": 0
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "distinctColours": 1,
+          "coverage": 0
+        }
+      ],
+      "outOfFrameDistinctColours": 1,
+      "best": {
+        "w": 390,
+        "h": 844,
+        "distinctColours": 1,
+        "coverage": 0
+      },
+      "nonBlank": false,
+      "verdict": "FAIL",
+      "reason": "live context, and the canvas is blank"
+    },
+    {
+      "route": "pinocchio-luck",
+      "url": "http://127.0.0.1:4351/game/pinocchio-luck/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 752,
+        "heldDraws": 0,
+        "webglContexts": 1,
+        "contextArgs": [
+          "webgl"
+        ],
+        "extensionRequests": {},
+        "probeExtensionRequests": {
+          "webgl_debug_renderer_info": 1
+        },
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "contextLive": true,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+      "contextLost": false,
+      "twoDContextOnSameCanvas": null,
+      "canvasWidthAtFirstPoll": 376,
+      "backingStore": {
+        "w": 376,
+        "h": 388
+      },
+      "drawingBuffer": {
+        "w": 376,
+        "h": 388
+      },
+      "stubbed": true,
+      "frames": [
+        {
+          "w": 376,
+          "h": 388,
+          "distinctColours": 1,
+          "coverage": 0
+        },
+        {
+          "w": 376,
+          "h": 388,
+          "distinctColours": 1,
+          "coverage": 0
+        },
+        {
+          "w": 376,
+          "h": 388,
+          "distinctColours": 1,
+          "coverage": 0
+        }
+      ],
+      "outOfFrameDistinctColours": 1,
+      "best": {
+        "w": 376,
+        "h": 388,
+        "distinctColours": 1,
+        "coverage": 0
+      },
+      "nonBlank": false,
+      "verdict": "FAIL",
+      "reason": "live context, and the canvas is blank"
+    },
+    {
+      "route": "power-meter",
+      "url": "http://127.0.0.1:4351/game/power-meter/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "short-stick",
+      "url": "http://127.0.0.1:4351/game/short-stick/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "timebomb",
+      "url": "http://127.0.0.1:4351/game/timebomb/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "wire-snip-panic",
+      "url": "http://127.0.0.1:4351/game/wire-snip-panic/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    },
+    {
+      "route": "zero-trigger",
+      "url": "http://127.0.0.1:4351/game/zero-trigger/play/",
+      "hold": {
+        "seenHeld": true,
+        "heldEnded": true,
+        "transitions": [
+          "held",
+          "free"
+        ],
+        "draws": 0,
+        "heldDraws": 0,
+        "webglContexts": 0,
+        "contextArgs": [],
+        "extensionRequests": {},
+        "probeExtensionRequests": {},
+        "webgpuRequests": 0,
+        "workers": 0
+      },
+      "verdict": "PASS",
+      "reason": "no WebGL context created, and no draw while held"
+    }
+  ]
+}
+webgl-pixels: bangkok-drift PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: cannon-flag PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: croc-bite FAIL -- live context, and the canvas is blank [held: 0 draw call(s); WebGL contexts: 1; extensions requested: 8; hold held>free]
+webgl-pixels: cursed-number PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: dice-loser PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: freeze-tap PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: how-close-is-near PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: one-bomb FAIL -- live context, and the canvas is blank [held: 0 draw call(s); WebGL contexts: 1; extensions requested: 0; hold held>free]
+webgl-pixels: pinocchio-luck FAIL -- live context, and the canvas is blank [held: 0 draw call(s); WebGL contexts: 1; extensions requested: 0; hold held>free]
+webgl-pixels: power-meter PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: short-stick PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: timebomb PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: wire-snip-panic PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: zero-trigger PASS -- no WebGL context created, and no draw while held [held: 0 draw call(s); WebGL contexts: 0; extensions requested: 0; hold held>free]
+webgl-pixels: 14 party play route(s) checked for WebGL contexts and draws while held, 3 adapter surface(s) read, verdict FAIL (exit 1)

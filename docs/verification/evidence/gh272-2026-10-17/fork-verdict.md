@@ -1,0 +1,26 @@
+Result: PASS
+Choose **B as an early render-suspension lifecycle, including A’s deferred first boot**. Keep roster writes serialized; A alone misses mid-round reopen and saves.
+
+- **READ — scope:** `/Users/waris.c/claude/free-game` HEAD predates `c7ac65d`; I also read that commit through `git show`. Its additional tests were read, not executed.
+- **RAN — disk enumeration:** `rg -l -g '*.js' -g '*.ts' 'requestAnimationFrame|setAnimationLoop|getContext\(' src/play`.
+- **READ — WebGL:** croc-bite (`main.js::GameScene`), one-bomb (`main.js::loop`), pinocchio-luck (`main.js::frame`) all continue rendering while the player screen is open.
+- **READ — 2D:** short-stick’s `stick-canvas.ts` and timebomb’s `bomb-canvas.ts` are Canvas2D; their rAF chains remain scheduled while their boards are hidden.
+- **READ — broader B membership:** ambient loops also remain in short-stick, how-close-is-near, cannon-flag, power-meter, freeze-tap, cursed-number, wire-snip-panic, and zero-trigger. Bangkok-drift already cancels its loop in `main.js::putAwayRound`; dice-loser has no rAF render loop.
+- **Ownership:** enumerate project-owned play routes and their render producers, using `src/pages/game/*/play.astro` as the route inventory. Each declares a suspension adapter or an explicit no-render policy. Grep seeds the audit; it cannot prove completeness.
+- **READ — A:** `croc-bite/main.js::GameApp.startRenderLoop` runs synchronously before `mountPlayers`. Deferring it fixes initial competition, but restarting at handover leaves subsequent opens and `roster.ts::applyRosterOps` exposed.
+- **READ — B timing:** `player-screen.ts::mountPlayerScreen` starts migration during mount; `announce(true)` follows migration. Subscribing only to existing `STATE_EVENT` is too late.
+- **Required mechanism:** hold rendering before migration starts, throughout pending/open states and save settlement; defer expensive first initialization too. Expose current suspension state for late subscribers.
+- **Lifecycle:** cancel scheduling and drawing, compose suspension with visibility/context state, reset frame clocks on resume, and prevent duplicate chains or stale opens from restarting rendering.
+- **READ — C:** `ifAvailable` still requires asynchronous delivery; unlocked fallback loses cross-tab atomicity. A single-writer design requires real coordination. Preserve `roster.ts::withLock` and the swallowed-write/tombstone constraint in `games/types.ts::Roster`.
+- **Fallback hazard:** `croc-bite/main.ts::mount` currently interprets `animationFrameId === null` as failed initialization. Deferred or suspended initialization needs a distinct state; otherwise a healthy deferred renderer enters the fallback.
+- **Preserve:** UI/lifecycle before failed GL initialization, players before setup/board, and failure releases in `no-3d-round.test.mjs` and `setup-held-for-players.test.mjs`.
+- **Context loss:** preserve croc-bite’s `cutTo2D` and one-bomb’s `onContextLost`; closing the screen must never resurrect a lost renderer or reset the surviving round.
+- **Arming:** suspension is separate from input gating. Every close/cancel/confirm and handover reveal must retain ADR-0057/0059 arming; retain every route’s `arm-reveal-paths.test.mjs`.
+- **RAN — source/stub probe:** `/Users/waris.c/.nvm/versions/node/v22.22.1/bin/node --input-type=module` against sliced `c7ac65d` sources produced `grants:3, state:"closed", pending:"1"` before grants, then `"open"`; croc’s loop still produced `renders:2, queued:1` with the screen open.
+- **RAN — baseline:** selected current-tree arm, fallback, context-loss, roster, and screen tests passed under Node 22. Node 25 exposed their pre-existing “no Web Locks” assumption.
+- **Measurement, not yet run:** compare baseline/candidate on the stated SwiftShader/slow-core/burner profile at 1440×900. Seed genuine legacy settings; measure navigation→interactive screen, mid-round edit→interactive screen, and save activation→durable commit/handover.
+- Record worst observed latency against an owner-approved numeric budget, lock request→callback times, long tasks/readbacks, and render calls during suspension. Repeat no-WebGL, partial-init failure, and context loss before/during suspension and after resume; verify cross-tab edits survive.
+- **Must-red:** independently restore initial rendering, remove mid-round suspension, and resume before save settlement. Each mutant must fail its corresponding latency/zero-render assertion; removing a close-path arm must fail its reveal test.
+- **Owner forecast:** if frozen backgrounds are acceptable, proceed; if motion is required, choose static artwork or an off-main-thread alternative. If paused canvases still trigger expensive readbacks, consider hiding them. If delayed first appearance needs a loading surface, approve that visual and arm its reveal.
+- **Bound limitation:** B removes project-owned starvation, not arbitrary browser stalls or foreign lock holders. A hard completion deadline needs an explicit retryable refusal contract; abort must not reach `lock.ts::withLock`’s catch-and-run-unlocked fallback.
+would change if: measured readbacks persist with producers suspended, the owner requires uninterrupted main-thread 3D, or “bounded” requires successful completion despite arbitrary scheduler stalls or foreign lock ownership.

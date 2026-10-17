@@ -151,6 +151,10 @@ Both demand a re-record **with the reason**. Attribute the delta before changing
 can hide a +2 with something else silently dropping to 0. Name which game contributes what, and confirm
 no other game's module and none of the shell changed in the same commit.
 
+A new party play route also needs its own entry in `src/play/_render-suspension.json`. Without it,
+`render-suspension-check` reds, and the CI WebGL lane reds on any WebGL context or extension the entry
+does not admit (ADR-0072).
+
 7. All three verification commands. Then the pre-merge adversarial pass. Then commit.
 
 ## Constraints that are real, and one that is not

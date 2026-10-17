@@ -1,0 +1,21 @@
+== before 19:30:53
+19:30  up  3:13, 1 user, load averages: 3.64 2.92 3.47
+ 33.7 86209 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 24.5 91913 npm exec serve dist -l 4413     
+ 23.9 91915 npm exec serve dist -l 4414     
+ 18.5   404 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 15.7  1324 /Applications/Claude.app/Contents/Frameworks/Claude Helper (Renderer).app/Contents/MacOS
+== midway 19:37:36
+19:37  up  3:20, 1 user, load averages: 11.90 9.90 6.75
+ 25.2 86209 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+  7.2 90166 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
+  7.0  6690 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+  5.4  6000 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
+  5.1   335 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framewo
+== after 19:42:39
+19:42  up  3:25, 1 user, load averages: 11.41 10.28 7.84
+237.2 86209 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+161.2   757 /usr/libexec/spotlightknowledged.updater -u
+113.2   697 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framewo
+ 31.4 57020 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
+ 21.6 56961 /Applications/Docker.app/Contents/MacOS/com.docker.backend services

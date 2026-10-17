@@ -1,0 +1,7 @@
+start: 19:00:11
+19:00  up  2:42, 1 user, load averages: 6.27 6.21 5.93
+ 88.8 64446 /Applications/OneDrive.app/Contents/PlugIns/OneDrive File Provider.appex/Contents/MacOS/OneDrive F
+ 68.5   832 /Applications/OneDrive.app/Contents/MacOS/OneDrive
+ 10.8   656 /System/Library/PrivateFrameworks/FileProvider.framework/Support/fileproviderd
+  9.9 10463 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claude.app/Cont
+  5.9  1324 /Applications/Claude.app/Contents/Frameworks/Claude Helper (Renderer).app/Contents/MacOS/Claude He

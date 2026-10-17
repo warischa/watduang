@@ -1,0 +1,45 @@
+B#1: standin-B P1#1: ok {"p":25405,"lw":97} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 92021 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 92022 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+F#1: standin-F P1#1: ok {"p":14652,"lw":5505} standin-F H#1: ok {} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 92673 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 92674 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+B#2: standin-B P1#1: ok {"p":24116,"lw":105} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 94301 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 94302 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+F#2: standin-F P1#1: ok {"p":12670,"lw":4556} standin-F H#1: ok {} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 94896 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 94897 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+B#3: standin-B P1#1: ok {"p":27420,"lw":114} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 96365 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 96366 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+F#3: standin-F P1#1: ok {"p":5437,"lw":4728} standin-F H#1: ok {} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  2422 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  2423 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+B#4: standin-B P1#1: ok {"p":27034,"lw":144} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  4668 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  4669 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+F#4: standin-F P1#1: ok {"p":12726,"lw":4371} standin-F H#1: ok {} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  5699 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  5700 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+B#5: standin-B P1#1: ok {"p":25504,"lw":432} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  7089 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  7090 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+F#5: standin-F P1#1: ok {"p":13728,"lw":4305} standin-F H#1: ok {} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  8562 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  8563 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+B#6: standin-B P1#1: ok {"p":23185,"lw":100} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  9737 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9:  9738 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+F#6: standin-F P1#1: ok {"p":9044,"lw":4381} standin-F H#1: ok {} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 11825 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 11826 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+B#7: standin-B P1#1: ok {"p":25649,"lw":195} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 13133 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 13134 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+F#7: standin-F P1#1: ok {"p":8707,"lw":2951} standin-F H#1: ok {} 
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 13823 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 13824 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 91911 Terminated: 15          ( cd "$BASE_DIST/.." && npx serve dist -l 4413 > "$HERE/serve-$TAG-base.log" 2>&1 )
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/interleave.sh: line 9: 91912 Terminated: 15          ( cd "$FIX_DIST/.." && npx serve dist -l 4414 > "$HERE/serve-$TAG-fix.log" 2>&1 )
+teardown: 162 pids killed, leftovers=0; ports listening: 0

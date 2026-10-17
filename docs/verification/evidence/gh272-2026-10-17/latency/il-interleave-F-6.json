@@ -1,0 +1,169 @@
+{
+ "cond": "standin-F",
+ "base": "http://localhost:4414",
+ "route": "croc-bite",
+ "viewport": "1440x900",
+ "browser": "Chrome/155.0.8059.82",
+ "when": "2026-10-17T12:40:49.790Z",
+ "summary": {
+  "P1": {
+   "n": 1,
+   "voids": 0,
+   "pressableMs": {
+    "each": [
+     9044
+    ],
+    "median": 9044,
+    "max": 9044
+   },
+   "pressableFrameMs": {
+    "each": [
+     10283
+    ],
+    "median": 10283,
+    "max": 10283
+   },
+   "pendingWindowMs": {
+    "each": [
+     4405
+    ],
+    "median": 4405,
+    "max": 4405
+   },
+   "lockWaitMaxMs": {
+    "each": [
+     4381
+    ],
+    "median": 4381,
+    "max": 4381
+   }
+  },
+  "P2": {
+   "n": 0,
+   "voids": 0,
+   "commitMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   },
+   "settleClosedMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   },
+   "lockWaitMaxMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   }
+  },
+  "H": {
+   "n": 1,
+   "voids": 0,
+   "getContextMs": {
+    "each": [
+     574
+    ]
+   },
+   "liveMs": {
+    "each": [
+     1972
+    ],
+    "median": 1972,
+    "max": 1972
+   },
+   "firstFrameMs": {
+    "each": [
+     1979
+    ],
+    "median": 1979,
+    "max": 1979
+   }
+  },
+  "C": {
+   "n": 0,
+   "framesPerSec": {
+    "each": [],
+    "median": null
+   },
+   "rafGapMaxMs": {
+    "each": [],
+    "max": null
+   },
+   "longtaskMaxMs": {
+    "each": [],
+    "max": null
+   },
+   "longtaskSumMs": {
+    "each": []
+   }
+  }
+ },
+ "runs": [
+  {
+   "path": "P1",
+   "run": 1,
+   "reached": true,
+   "openAtMs": 8642,
+   "pressableMs": 9044,
+   "pressableFrameMs": 10283,
+   "pendingSetMs": 4236,
+   "pendingClearMs": 8642,
+   "pendingWindowMs": 4405,
+   "locks": [
+    {
+     "name": "watduang:roster",
+     "reqT": 4236,
+     "grantT": 8616,
+     "waitMs": 4381
+    }
+   ],
+   "lockWaitMaxMs": 4381,
+   "migrationLanded": true,
+   "legacyPlayersStripped": true,
+   "gl": {
+    "calls": 1,
+    "live": true,
+    "probe": true
+   },
+   "frames": {
+    "longtasks": 3,
+    "longtaskMaxMs": 809,
+    "longtaskSumMs": 954,
+    "rafGapsOver100": 3,
+    "rafGapMaxMs": 4200,
+    "hbGapMaxMs": 4045,
+    "rafFramesTotal": 9
+   },
+   "iw": 1440
+  },
+  {
+   "path": "H",
+   "run": 1,
+   "pre": {
+    "render3D": "deferred",
+    "ctxBeforeClick": 0
+   },
+   "clickAtMs": 2031,
+   "getContextAfterClickMs": 574,
+   "liveMs": 1972,
+   "firstFrameMs": 1979,
+   "finalRender3D": "live",
+   "gl": {
+    "calls": 2,
+    "live": true,
+    "probe": true
+   },
+   "frames": {
+    "longtasks": 1,
+    "longtaskMaxMs": 1963,
+    "longtaskSumMs": 1963,
+    "rafGapsOver100": 3,
+    "rafGapMaxMs": 17333,
+    "hbGapMaxMs": 1971,
+    "rafFramesTotal": 10
+   },
+   "iw": 1440
+  }
+ ]
+}

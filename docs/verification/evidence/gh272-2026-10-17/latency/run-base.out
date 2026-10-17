@@ -1,0 +1,303 @@
+serve http=200
+"Browser": "Chrome/155.0.8059.82"
+chrome pid=29893 burners=none
+reference P1#1: ok {"p":4150,"lw":578}
+reference P1#2: ok {"p":2244,"lw":429}
+reference P1#3: ok {"p":1870,"lw":388}
+reference P1#4: ok {"p":1878,"lw":349}
+reference P1#5: ok {"p":1861,"lw":251}
+reference P2#1: ok {"c":1,"lw":0}
+reference P2#2: ok {"c":1,"lw":1}
+reference P2#3: ok {"c":1,"lw":1}
+reference P2#4: ok {"c":1,"lw":1}
+reference P2#5: ok {"c":2,"lw":2}
+reference C#1: ok {"fps":12.92}
+reference C#2: ok {"fps":12.71}
+reference C#3: ok {"fps":12.66}
+reference C#4: ok {"fps":13.4}
+reference C#5: ok {"fps":13.28}
+{
+ "cond": "reference",
+ "summary": {
+  "P1": {
+   "n": 5,
+   "voids": 0,
+   "pressableMs": {
+    "each": [
+     4150,
+     2244,
+     1870,
+     1878,
+     1861
+    ],
+    "median": 1878,
+    "max": 4150
+   },
+   "pressableFrameMs": {
+    "each": [
+     4628,
+     2248,
+     1923,
+     1908,
+     1894
+    ],
+    "median": 1923,
+    "max": 4628
+   },
+   "pendingWindowMs": {
+    "each": [
+     578,
+     430,
+     388,
+     350,
+     252
+    ],
+    "median": 388,
+    "max": 578
+   },
+   "lockWaitMaxMs": {
+    "each": [
+     578,
+     429,
+     388,
+     349,
+     251
+    ],
+    "median": 388,
+    "max": 578
+   }
+  },
+  "P2": {
+   "n": 5,
+   "voids": 0,
+   "commitMs": {
+    "each": [
+     1,
+     1,
+     1,
+     1,
+     2
+    ],
+    "median": 1,
+    "max": 2
+   },
+   "settleClosedMs": {
+    "each": [
+     1,
+     1,
+     1,
+     1,
+     2
+    ],
+    "median": 1,
+    "max": 2
+   },
+   "lockWaitMaxMs": {
+    "each": [
+     0,
+     1,
+     1,
+     1,
+     2
+    ],
+    "median": 1,
+    "max": 2
+   }
+  },
+  "C": {
+   "n": 5,
+   "framesPerSec": {
+    "each": [
+     12.92,
+     12.71,
+     12.66,
+     13.4,
+     13.28
+    ],
+    "median": 12.92
+   },
+   "rafGapMaxMs": {
+    "each": [
+     1133,
+     917,
+     917,
+     983,
+     883
+    ],
+    "max": 1133
+   },
+   "longtaskMaxMs": {
+    "each": [
+     1151,
+     929,
+     924,
+     1005,
+     898
+    ],
+    "max": 1151
+   },
+   "longtaskSumMs": {
+    "each": [
+     1347,
+     1132,
+     1233,
+     1192,
+     1099
+    ]
+   }
+  }
+ }
+}
+"Browser": "Chrome/155.0.8059.82"
+chrome pid=30991 burners=30993 30994
+standin P1#1: ok {"p":26247,"lw":134}
+standin P1#2: ok {"p":13076,"lw":1370}
+standin P1#3: ok {"p":11295,"lw":1752}
+standin P1#4: ok {"p":12419,"lw":2273}
+standin P1#5: ok {"p":13075,"lw":3338}
+standin P2#1: ok {"c":6,"lw":4}
+standin P2#2: ok {"c":5,"lw":2}
+standin P2#3: ok {"c":29,"lw":28}
+standin P2#4: ok {"c":3,"lw":2}
+standin P2#5: ok {"c":9,"lw":7}
+standin C#1: ok {"fps":0.43}
+standin C#2: ok {"fps":0.5}
+standin C#3: ok {"fps":0.57}
+standin C#4: ok {"fps":0.57}
+standin C#5: ok {"fps":0.5}
+{
+ "cond": "standin",
+ "summary": {
+  "P1": {
+   "n": 5,
+   "voids": 0,
+   "pressableMs": {
+    "each": [
+     26247,
+     13076,
+     11295,
+     12419,
+     13075
+    ],
+    "median": 13075,
+    "max": 26247
+   },
+   "pressableFrameMs": {
+    "each": [
+     29662,
+     14550,
+     12427,
+     13429,
+     14187
+    ],
+    "median": 14187,
+    "max": 29662
+   },
+   "pendingWindowMs": {
+    "each": [
+     137,
+     1376,
+     1755,
+     2274,
+     3344
+    ],
+    "median": 1755,
+    "max": 3344
+   },
+   "lockWaitMaxMs": {
+    "each": [
+     134,
+     1370,
+     1752,
+     2273,
+     3338
+    ],
+    "median": 1752,
+    "max": 3338
+   }
+  },
+  "P2": {
+   "n": 5,
+   "voids": 0,
+   "commitMs": {
+    "each": [
+     6,
+     5,
+     29,
+     3,
+     9
+    ],
+    "median": 6,
+    "max": 29
+   },
+   "settleClosedMs": {
+    "each": [
+     7,
+     6,
+     34,
+     5,
+     9
+    ],
+    "median": 7,
+    "max": 34
+   },
+   "lockWaitMaxMs": {
+    "each": [
+     4,
+     2,
+     28,
+     2,
+     7
+    ],
+    "median": 4,
+    "max": 28
+   }
+  },
+  "C": {
+   "n": 5,
+   "framesPerSec": {
+    "each": [
+     0.43,
+     0.5,
+     0.57,
+     0.57,
+     0.5
+    ],
+    "median": 0.5
+   },
+   "rafGapMaxMs": {
+    "each": [
+     8650,
+     8650,
+     6616,
+     2333,
+     7966
+    ],
+    "max": 8650
+   },
+   "longtaskMaxMs": {
+    "each": [
+     8593,
+     8664,
+     6610,
+     71,
+     8065
+    ],
+    "max": 8664
+   },
+   "longtaskSumMs": {
+    "each": [
+     8805,
+     8851,
+     6665,
+     121,
+     8255
+    ]
+   }
+  }
+ }
+}
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/run.sh: line 14: 30993 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/run.sh: line 14: 30994 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/run.sh: line 14: 29820 Terminated: 15          ( cd "$DIST/.." && npx serve dist -l $PORT > "$HERE/serve-$TAG.log" 2>&1 )
+teardown: 21 pids killed, leftovers=0; ports: 0 listening
