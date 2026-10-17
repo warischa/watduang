@@ -19,7 +19,8 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 // ADR-0071 (gh#264): the one player screen every party route mounts. It owns the count, the names,
 // the roster and the group; this engine gets the ticked players back through startWithPlayers(). The
 // mockup's own seat pills and name rows are gone with it.
-import { EDIT_EVENT, mountPlayerScreen } from '../_player-screen/player-screen.ts';
+// gh#272: the same screen's render hold -- the 3D loop stops while the screen is up (GameApp.applyRenderHold).
+import { EDIT_EVENT, isRenderHeld, mountPlayerScreen, onRenderHold } from '../_player-screen/player-screen.ts';
 // The module's default export is read for one field, `players`: the range the player screen admits
 // is the one the manifest declares (ADR-0065), never a number restated here.
 import crocBite from '../../games/croc-bite.ts';
@@ -2962,6 +2963,11 @@ class UIManager {
  * A party route: the phone is passed around a roster of seats, one turn at a time.
  */
 class GameApp {
+  // gh#272: set by the page's boot only, so a test that builds GameApp alone boots its 3D at once,
+  // exactly as before. When set, the first 3D boot waits for the player screen's handover
+  // (applyRenderHold).
+  static defer3D = false;
+
   constructor() {
     this.canvasContainer = document.getElementById('canvas-container');
     this.uiRoot = document.getElementById('ui-root');
@@ -2972,6 +2978,11 @@ class GameApp {
 
     this.clock = new THREE.Clock();
     this.animationFrameId = null;
+    // gh#272. 'deferred' until the first 3D boot runs, then 'live' or 'off' -- 'off' for a boot that
+    // failed and for a context the route cut to 2D (main.ts cutTo2D). A distinct state, because
+    // main.ts reads a null frame id as a FAILED boot. `renderPaused`: the hold cancelled the loop.
+    this.render3D = 'deferred';
+    this.renderPaused = false;
 
     // The UI is built BEFORE the try, and the 3D inside it. GameScene throws
     // WEBGL_NOT_SUPPORTED when a context request comes back null, and with the UI assigned inside
@@ -3000,6 +3011,13 @@ class GameApp {
     // instead, so this runs on a route with no scene and wires the same round the fallback board plays.
     this.setupLifecycleEvents();
 
+    if (!GameApp.defer3D) this.boot3D();
+  }
+
+  /** The 3D half of the boot, run once: from the constructor, or at the player screen's handover when
+   *  the page deferred it (gh#272) -- building the scene and drawing its first frame are the heaviest
+   *  main-thread work this route does, and they would compete with the screen's roster lock. */
+  boot3D() {
     // 3D engine and components. Everything in here needs a live WebGL context.
     try {
       this.scene = new GameScene(this.canvasContainer);
@@ -3021,6 +3039,8 @@ class GameApp {
         this.ui.showWebGLError();
       }
     }
+    // The same predicate main.ts reads: a frame id means the loop is running.
+    this.render3D = this.animationFrameId === null ? 'off' : 'live';
   }
 
   setupLifecycleEvents() {
@@ -3285,6 +3305,32 @@ class GameApp {
     }
   }
 
+  /** gh#272: the shared player screen's render hold, applied. Held: the queued frame is cancelled,
+   *  so nothing is scheduled and nothing is drawn. Released: a deferred first boot runs now -- then
+   *  main.ts's after3DBoot takes the fallback or watches the new canvas -- or a paused loop resumes
+   *  as ONE chain, its clock reset on its first frame so the scene does not jump by the time it was
+   *  held. A loop that is 'off' never restarts: a release must not resurrect a lost context.
+   *  Separate from the visibility pause, which only skips frames, and from every arm gate. */
+  applyRenderHold(held) {
+    if (held) {
+      if (this.render3D !== 'live' || this.renderPaused) return;
+      cancelAnimationFrame(this.animationFrameId);
+      this.renderPaused = true;
+      return;
+    }
+    if (this.render3D === 'deferred') {
+      this.boot3D();
+      this.after3DBoot?.();
+      return;
+    }
+    if (this.render3D !== 'live' || !this.renderPaused) return;
+    this.renderPaused = false;
+    this.animationFrameId = requestAnimationFrame(() => {
+      this.clock.getDelta();
+      this.startRenderLoop();
+    });
+  }
+
   startRenderLoop() {
     const loop = () => {
       this.animationFrameId = requestAnimationFrame(loop);
@@ -3311,6 +3357,18 @@ class GameApp {
 
 // Bootstrap when DOM is ready
 window.addEventListener('DOMContentLoaded', () => {
-  window.__khengApp = new GameApp();
-  window.__khengApp.mountPlayers();
+  // gh#272: the 3D boot waits for the player screen. Followed in `finally`, so a page whose mount
+  // threw, or that has no player screen, has nothing holding it and boots its 3D right here --
+  // before main.ts's mount reads the outcome, as it did before the hold existed.
+  GameApp.defer3D = true;
+  try {
+    window.__khengApp = new GameApp();
+    window.__khengApp.mountPlayers();
+  } finally {
+    const app = window.__khengApp;
+    if (app) {
+      onRenderHold((held) => app.applyRenderHold(held));
+      app.applyRenderHold(isRenderHeld());
+    }
+  }
 });

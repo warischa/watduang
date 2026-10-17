@@ -33,7 +33,8 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 import { isMuted, setMuted } from '../../shell/audio.ts';
 // ADR-0071: the one player screen every party route mounts. It owns the count, the names, the roster
 // and the group; this file gets the ticked players back through startWithPlayers().
-import { mountPlayerScreen } from '../_player-screen/player-screen.ts';
+// gh#272: and its render hold -- the stage stops drawing while the screen is up (holdRendering).
+import { isRenderHeld, mountPlayerScreen, onRenderHold } from '../_player-screen/player-screen.ts';
 
 (()=>{'use strict';
 const panel=document.querySelector('#panel'),roundTag=document.querySelector('#roundTag'),announcer=document.querySelector('#announcer'),app=document.querySelector('#app'),stageFrame=document.querySelector('#stageFrame');
@@ -891,7 +892,8 @@ function drawScene(time,dt){
   gl.disable(gl.BLEND);
 }
 
-let last=performance.now();
+// gh#272: frameId is the one queued frame, or 0 when no chain is running.
+let last=performance.now(),frameId=0;
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);
   last=now;
@@ -915,9 +917,30 @@ function frame(now){
   }
 
   drawScene(now/1000,dt);
-  requestAnimationFrame(frame);
+  frameId=requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
+
+/** gh#272: the shared player screen's render hold, applied. Held: the queued frame is cancelled, so
+ *  nothing is scheduled and nothing is drawn. Released: ONE chain starts, its clock reset on its first
+ *  frame, unless one is already running. This route has no context-loss handler of its own, and the
+ *  loop also carries the stage shake and the particles, so a release resumes it whatever the context
+ *  is doing -- the loop it was before the hold, nothing restored. Separate from every arm gate. */
+function holdRendering(held){
+  if(held){
+    cancelAnimationFrame(frameId);
+    frameId=0;
+    return;
+  }
+  if(frameId)return;
+  frameId=requestAnimationFrame(now=>{
+    last=now;
+    frame(now);
+  });
+}
+// The first chain starts here, through the hold: the player screen is mounted below, and its hold then
+// cancels the frame before it is drawn.
+onRenderHold(holdRendering);
+holdRendering(isRenderHeld());
 
 // The mockup's in-page self-test runner was removed on lift: it ran on every page load, and its
 // assertions now live in src/games/pinocchio-luck.test.mjs, against the same exported functions.

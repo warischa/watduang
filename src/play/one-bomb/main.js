@@ -3,6 +3,8 @@
 // actually is. No migration off any older per-route value: ADR-0064 records that a preference whose
 // wrong value costs the player one tap needs neither a migration nor a collision guard.
 import { isMuted, setMuted } from '../../shell/audio.ts';
+// gh#272: the shared player screen's render hold -- the backdrop stops drawing while it is up.
+import { isRenderHeld, onRenderHold } from '../_player-screen/player-screen.ts';
 
 (() => {
   'use strict';
@@ -1334,12 +1336,33 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
     }
   }
 
+  // gh#272: the one queued frame, or 0 when no chain is running.
+  let frameId = 0;
+
   function loop(now) {
     const dt = clamp((now - game.lastTime) / 1000, 0, 0.033);
     game.lastTime = now;
     update(dt);
     renderScene();
-    requestAnimationFrame(loop);
+    frameId = requestAnimationFrame(loop);
+  }
+
+  /** gh#272: the shared player screen's render hold, applied. Held: the queued frame is cancelled, so
+   *  nothing is scheduled and nothing is drawn. Released: ONE chain starts, its clock reset on its
+   *  first frame, unless one is already running. Never on a lost context -- main.ts's onContextLost has
+   *  removed the canvas, and a release must not bring a loop back to draw into it. Separate from the
+   *  visibility reset below and from every arm gate. */
+  function holdRendering(held) {
+    if (held) {
+      cancelAnimationFrame(frameId);
+      frameId = 0;
+      return;
+    }
+    if (frameId || gl.isContextLost()) return;
+    frameId = requestAnimationFrame((now) => {
+      game.lastTime = now;
+      loop(now);
+    });
   }
 
   function handleResize() {
@@ -1426,5 +1449,8 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
   setPlayerCount(2);
   handleResize();
   updateUI();
-  requestAnimationFrame(loop);
+  // The first chain starts here, through the hold: main.ts mounts the player screen after this file
+  // runs, and its hold then cancels the frame before it is drawn.
+  onRenderHold(holdRendering);
+  holdRendering(isRenderHeld());
 })();

@@ -22,6 +22,11 @@ type PressPayload = { token: number; isLosing: boolean };
  *  route, and nothing outside this file needs the type. */
 type KhengApp = {
   animationFrameId: number | null;
+  /** gh#272: main.js's 3D state. 'deferred' = the first boot waits for the player screen's handover,
+   *  which a null frame id must not be read as a failed boot. */
+  render3D: 'deferred' | 'live' | 'off';
+  /** Called by main.js once a deferred first boot has run, whichever way it ended. */
+  after3DBoot?: () => void;
   /** The shared player screen's handle, set by main.js's mountPlayers (gh#264). */
   players?: { arm(): void };
   audio: { setMuted(muted: boolean): void };
@@ -321,6 +326,9 @@ function settle(app: KhengApp, token: number, isLosing: boolean): void {
 function cutTo2D(app: KhengApp): void {
   // The loop first: it reschedules at the top of every frame, so the id always holds a pending
   // request, and a frame that runs after the container below is gone reads a null clientWidth.
+  // Marked off as well, so the player screen's render hold releasing later never restarts it
+  // (gh#272, main.js applyRenderHold).
+  app.render3D = 'off';
   if (app.animationFrameId !== null) cancelAnimationFrame(app.animationFrameId);
 
   // A SHALLOW clone, which is what severs the tooth input path: the engine's pointer and keyboard
@@ -381,6 +389,26 @@ function bootWithout3D(app: KhengApp): void {
 
 // ---- mount -------------------------------------------------------------------------------------
 
+/** gh#215. The engine's canvas, not the container: `webglcontextlost` is dispatched at the canvas.
+ *  Optional chaining is load-bearing rather than defensive habit -- with no context at all the engine
+ *  never created a canvas, and a route with no context to lose cannot lose one. `once`, because the
+ *  canvas is gone by the end of the handler. */
+function watchContextLoss(app: KhengApp): void {
+  document
+    .querySelector('#canvas-container canvas')
+    ?.addEventListener('webglcontextlost', () => cutTo2D(app), { once: true });
+}
+
+/** gh#272: the first 3D boot ran at the player screen's handover rather than before mount, so the two
+ *  things mount does with its outcome happen here instead: a boot that never reached its first frame
+ *  takes the no-3D board, and one that did gets its loss handler. It runs inside the screen's close,
+ *  before the handover reaches the engine, so the board is inserted while the setup screen is still
+ *  held and comes up with it -- the same order as the no-context path at mount. */
+function afterDeferredBoot(app: KhengApp): void {
+  if (app.animationFrameId === null) bootWithout3D(app);
+  else watchContextLoss(app);
+}
+
 function mount(): void {
   const app = engine();
   if (!app) return;
@@ -402,7 +430,8 @@ function mount(): void {
   // and its optional chain registers nothing.
   // Ahead of BOTH the observer install and the arming block, so the observer's baseline and the
   // block below read the screens as the fallback leaves them.
-  if (app.animationFrameId === null) bootWithout3D(app);
+  // gh#272: a boot still DEFERRED to the player screen's handover is not a failed one.
+  if (app.animationFrameId === null && app.render3D !== 'deferred') bootWithout3D(app);
 
   watchEngineReveals();
 
@@ -420,13 +449,10 @@ function mount(): void {
   document.addEventListener('pointerdown', guardToothInput, true);
   document.addEventListener('pointerup', guardToothInput, true);
 
-  // gh#215. The engine's canvas, not the container: `webglcontextlost` is dispatched at the canvas.
-  // Optional chaining is load-bearing rather than defensive habit — with no context at all the engine
-  // never created a canvas, and a route with no context to lose cannot lose one. `once`, because the
-  // canvas is gone by the end of the handler.
-  document
-    .querySelector('#canvas-container canvas')
-    ?.addEventListener('webglcontextlost', () => cutTo2D(app), { once: true });
+  // gh#215, on the canvas a boot at construction made. A deferred boot has no canvas yet: its
+  // registration, or its fallback, waits for the boot (afterDeferredBoot).
+  watchContextLoss(app);
+  app.after3DBoot = (): void => afterDeferredBoot(app);
 
   // A setup screen already up at mount was never revealed, so no observer will arm it. Since ADR-0071
   // it is normally hidden here -- the player screen comes first and its start reveals setup, which the

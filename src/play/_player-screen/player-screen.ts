@@ -527,8 +527,9 @@ export interface MountOptions {
   root: HTMLElement;
   /** The game's manifest `players` tuple. */
   range: Range;
-  /** Pressed start: the ticked players, in roster order. The screen has already closed itself. */
-  onStart: (players: Player[]) => void;
+  /** Pressed start: the ticked players, in roster order. The screen has already closed itself. A
+   *  route may return a promise; the handover is acknowledged (HANDOVER_ATTR) once it resolves. */
+  onStart: (players: Player[]) => void | Promise<unknown>;
   /** Is a round in progress right now? Decides whether the edit control asks first (ruling 6). */
   roundActive: () => boolean;
   /** End the round in progress. Called only after the players confirmed it. */
@@ -576,6 +577,69 @@ function countPendingOpen(delta: 1 | -1): void {
 }
 export const STATE_EVENT = 'watduang:player-screen';
 export const EDIT_EVENT = 'watduang:edit-players';
+
+// ---- the render hold (gh#272) -------------------------------------------------------------------
+//
+// A WebGL route that keeps drawing behind this screen starves the roster lock's grant on a slow
+// device: the migration at mount and every save wait seconds for their callback. So this screen
+// HOLDS rendering, and every WebGL route stops drawing while it is held (owner ruling 2026-10-17: a
+// frozen background is acceptable). STATE_EVENT is no substitute: the migration starts during the
+// mount, well before the first announce, and the hold has to be up before that.
+//
+// One holder per mount, never a page-wide count: a mount releases only its own entry, so one screen
+// handing over cannot end another screen's hold, and each mount's own counters (mountPlayerScreen)
+// keep an older open that lands late from releasing a newer one.
+
+/** gh#272: the hold, observable on <html> -- 'held' or 'free', written on every change, from the same
+ *  value isRenderHeld() returns. A probe in the page counts draws while it reads 'held'; absent means
+ *  no screen has ever held, which is not the same as 'free'. */
+export const RENDER_HOLD_ATTR = 'data-render-hold';
+
+/** gh#272: written only after a route's onStart has RETURNED -- and its promise resolved, if it gave
+ *  one -- so "the screen closed" and "the route took the players" cannot be confused. The value counts
+ *  the page's acknowledged handovers, so a reader can tell a new one from the last. A throwing onStart
+ *  leaves it untouched. */
+export const HANDOVER_ATTR = 'data-player-screen-handover';
+
+const renderHolders = new Set<object>();
+const renderListeners = new Set<(held: boolean) => void>();
+let renderHeld = false;
+
+/** Is rendering held right now? The current state, for a route that subscribes after a hold began. */
+export function isRenderHeld(): boolean {
+  return renderHeld;
+}
+
+/** Calls `listener` on every CHANGE of the hold, with the new value, never with a repeat. Returns the
+ *  unsubscribe. Not called with the current state: read isRenderHeld() for that. */
+export function onRenderHold(listener: (held: boolean) => void): () => void {
+  renderListeners.add(listener);
+  return () => {
+    renderListeners.delete(listener);
+  };
+}
+
+function setRenderHold(holder: object, on: boolean): void {
+  if (on) renderHolders.add(holder);
+  else renderHolders.delete(holder);
+  const held = renderHolders.size > 0;
+  if (held === renderHeld) return;
+  renderHeld = held;
+  document.documentElement.setAttribute(RENDER_HOLD_ATTR, held ? 'held' : 'free');
+  for (const listener of [...renderListeners]) {
+    // A listener that changed the hold itself has already told everyone the newer value.
+    if (renderHeld !== held) return;
+    // A failing listener must not stop the others, nor the close it runs inside -- that close is
+    // followed by the handover. Rethrown on its own job, so it stays loud.
+    try {
+      listener(held);
+    } catch (err) {
+      queueMicrotask(() => {
+        throw err;
+      });
+    }
+  }
+}
 
 /** The game root the dialogs and the undo bar cover: the same id set the shared chrome probes use. */
 function surfaceOf(root: HTMLElement): HTMLElement {
@@ -626,6 +690,29 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   let isOpen = false;
   let undoTimer: ReturnType<typeof setTimeout> | undefined;
 
+  // gh#272: what holds rendering on this mount. Counters, not flags: two opens in flight, or a
+  // removal written while a start save is still waiting, each release only their own count.
+  const renderHolder = {};
+  let migrating = 0;
+  let opening = 0;
+  let saving = 0;
+  const syncRenderHold = (): void => {
+    setRenderHold(renderHolder, migrating > 0 || opening > 0 || isOpen || saving > 0);
+  };
+
+  /** Every roster write this screen starts. Holds rendering until the write settles, whichever way. */
+  const writeRoster = (ops: RosterOp[]): ReturnType<typeof applyRosterOps> => {
+    saving += 1;
+    syncRenderHold();
+    const run = applyRosterOps(ops, ROSTER_CEILING);
+    const settled = (): void => {
+      saving -= 1;
+      syncRenderHold();
+    };
+    run.then(settled, settled);
+    return run;
+  };
+
   // Every legacy import runs once per mount; open() waits for them, or a timebomb-only device would
   // see the first-visit stepper on the very visit that imports its list.
   // Once per mount while it SUCCEEDS: a run that rejected is not kept, or every later open would
@@ -633,9 +720,19 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   // 2). The next open runs it again; each import is safe to re-run (withLock's own contract).
   let migrationFailed = false;
   const migrate = (): Promise<unknown> => {
+    // Held BEFORE the first import asks for the lock (gh#272).
+    migrating += 1;
+    syncRenderHold();
     const run = Promise.all(LEGACY_LISTS.map(({ key, extract, keep }) => migrateLegacyList(key, extract, keep)));
+    const settled = (): void => {
+      migrating -= 1;
+      syncRenderHold();
+    };
     // Records the failure only; the open chained on `run` still rejects and stays loud.
-    run.then(undefined, () => { migrationFailed = true; });
+    run.then(settled, () => {
+      migrationFailed = true;
+      settled();
+    });
     return run;
   };
   let migrated = migrate();
@@ -799,7 +896,7 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   function commitRemoval(): void {
     const pending = state.undo;
     state = dropUndo(state);
-    if (pending?.row.origin) void applyRosterOps([{ op: 'remove', name: pending.row.origin }], ROSTER_CEILING);
+    if (pending?.row.origin) void writeRoster([{ op: 'remove', name: pending.row.origin }]);
   }
 
   function removeAt(index: number): void {
@@ -894,7 +991,7 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     //     stands, the refused name absent, the add row closed (gh#264 REFUTE finding 2);
     //   - collision (frame 9): another tab stored a name this screen also wants. The re-read keeps
     //     this screen's edits (rebase), so both colliding rows show, marked, with start off.
-    void applyRosterOps(ops, ROSTER_CEILING).then((result) => {
+    void writeRoster(ops).then((result) => {
       starting = false;
       if (result.status === 'ceiling') {
         // rebase, not a bare re-read: renames and a pending x survive; the adds that no longer fit
@@ -911,7 +1008,12 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
           // written before its names reach the roster reads back empty.
           saveGroup(players.map((p) => p.name));
           close();
-          onStart(players);
+          // Acknowledged only once the route took them: a throw skips this and stays as loud as it was.
+          const taken = onStart(players);
+          void Promise.resolve(taken).then(() => {
+            const html = document.documentElement;
+            html.setAttribute(HANDOVER_ATTR, String((Number(html.getAttribute(HANDOVER_ATTR)) || 0) + 1));
+          });
           return;
         }
         // A seated name another tab removed: show the roster as it stands, this screen's ticks kept.
@@ -941,6 +1043,9 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
       migrated = migrate();
     }
     countPendingOpen(1);
+    // gh#272: every open holds, the first and every reopen alike, from the call until it lands.
+    opening += 1;
+    syncRenderHold();
     // finally, so a failed open (a rejected migration, a throwing route hook) is uncounted too; the
     // returned promise rejects with it, and stays the unhandled rejection it always was when ignored.
     return migrated
@@ -952,7 +1057,11 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
         announce(true);
         armSurface();
       })
-      .finally(() => countPendingOpen(-1));
+      .finally(() => {
+        countPendingOpen(-1);
+        opening -= 1;
+        syncRenderHold();
+      });
   }
 
   function close(): void {
@@ -961,6 +1070,8 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     root.hidden = true;
     isOpen = false;
     announce(false);
+    // Last, after commitRemoval: a removal it started keeps the hold until that write settles.
+    syncRenderHold();
   }
 
   // Ruling 6, the edit control mid-round. Asks only when a round is really running; otherwise there
