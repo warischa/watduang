@@ -247,6 +247,12 @@ jobs:
       - name: Accent colour single-sourced across its surfaces (gh#128)
         run: node scripts/accent-single-source-check.mjs --selftest && node scripts/accent-single-source-check.mjs
 
+      # gh#267 — the shared player screen paints the board's type on every route. Every font-family
+      # in PlayerScreen.astro must equal a site stack read from tokens.css, never a custom property a
+      # route stylesheet can redeclare (short-stick's serif --font-display reached it through one).
+      - name: Shared player screen type bound to the site stacks (gh#267)
+        run: node scripts/ps-font-binding-check.mjs --selftest && node scripts/ps-font-binding-check.mjs
+
       # gh#134 — a per-game stylesheet is imported if and only if its game is registered. Both
       # directions ship silently: an import with no registration pushed page-global bytes no page
       # consumed (601d498), and a registration with no import ships the page unstyled. Reads source
@@ -440,8 +446,11 @@ jobs:
       # Two of the 7 pass on "nothing moved", so the script runs positive controls that must go RED;
       # a probe that silently stopped measuring cannot report a green.
       # These probes are 88% of this workflow's wall clock — 698s of 794s, measured on run
-      # 33236941662. Every input they read comes from dist/, and dist/ is a pure function of src/
-      # and public/, so a push that touches neither cannot move a single byte they measure.
+      # 33236941662. They read dist/, which is a pure function of src/ and public/ — and they ARE
+      # the lane scripts and every file those execute (gh#270). Deriving that set by parsing shell
+      # and JS never converged, so the rule is inverted: the probes run unless EVERY changed path
+      # is on a project-owned inert allowlist (docs/, any *.md, .claude/, design/ — see
+      # `node scripts/probe-scope.mjs --inert`). Deletions are just paths; an unlisted path runs them.
       # THREE THINGS KEEP THIS FROM BECOMING A SKIP THAT HIDES WORK:
       #   - main is never skipped. That run is the one that gates Deploy.
       #   - anything this step cannot diff (a new branch, a pull_request event with no `before`,
@@ -462,15 +471,21 @@ jobs:
             echo "run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          changed=$(git diff --name-only "$base" "$GITHUB_SHA")
+          # The decision is scripts/probe-scope.mjs: skip only when the diff is non-empty and every
+          # path is inert. Its selftest is chained in front of the decision, so a broken matcher can
+          # never answer "skip": it lands in the fail-safe branch below and the probes run. The
+          # `probe-scope-check` aggregate entry in package.json reds the same breakage locally.
+          changed_file="$RUNNER_TEMP/probe-scope-changed.txt"
+          git diff --name-only --no-renames "$base" "$GITHUB_SHA" > "$changed_file"
           echo "probe-scope: files changed since ${base}:"
-          echo "$changed" | sed 's/^/  /'
-          if printf '%s\n' "$changed" | grep -qE '^(src/|public/)'; then
-            echo "probe-scope: touches src/ or public/ — dist/ can differ, probes run"
-            echo "run=true" >> "$GITHUB_OUTPUT"
+          sed 's/^/  /' "$changed_file"
+          if decision=$(node scripts/probe-scope.mjs --selftest && node scripts/probe-scope.mjs --changed "$changed_file" 2>&1); then
+            printf '%s\n' "$decision" | sed 's/^/probe-scope: /'
+            printf '%s\n' "$decision" | grep '^run=' >> "$GITHUB_OUTPUT"
           else
-            echo "probe-scope: nothing under src/ or public/ — dist/ is unchanged, probes SKIPPED"
-            echo "run=false" >> "$GITHUB_OUTPUT"
+            printf '%s\n' "$decision"
+            echo "probe-scope: the resolver crashed — failing safe, probes run"
+            echo "run=true" >> "$GITHUB_OUTPUT"
           fi
 
       # PROBE_OUT_DIR is set here only so the upload step below has a path it can name. Left to its
