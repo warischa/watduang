@@ -65,12 +65,12 @@ export function loadGroup(): string[] {
  *  (gh#51 F4, closed won't-fix). Two tabs on this key are last-write-wins: a tab that loaded before
  *  another added a name writes its own ticked set back and the newer name drops out of the prefill.
  *  Every fix that changes that is worse. A union with the stored group resurrects a name the player
- *  unticked on this page (PlayerSetup unticks by `selected.delete`), which is the ghost tick
+ *  unticked on this page (PlayerSetup unticked by `selected.delete`), which is the ghost tick
  *  loadGroup()'s filter above exists to prevent — a wrong group actually played, in place of a prefill
  *  the player re-ticks. Refusing on a CAS mismatch stores a group that is not the one being played. A
  *  lock alone protects nothing: there is no read inside the critical section to protect, and a single
  *  setItem of the whole value cannot interleave. What this key means is "the group the player last
- *  ticked" — PlayerSetup.astro's `saveGroup([...selected])` stores it BEFORE the live-round question
+ *  ticked" — PlayerSetup.astro's `saveGroup([...selected])` stored it BEFORE the live-round question
  *  is asked, deliberately, so it is NOT "the group that started a round": tick a group, then choose
  *  resume, and the stored group never started one. Last writer is still the correct writer, because
  *  the player really did tick it.

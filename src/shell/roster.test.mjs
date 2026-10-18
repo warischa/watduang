@@ -159,7 +159,7 @@ test('#data-loss the re-read is inside the critical section — a write landing 
 
 // request() rejects on an opaque origin (sandboxed iframe, file://) — a real browser case, not a Node
 // one. The name must still be stored: a rejected lock that swallowed the write would look exactly like
-// a working fix while losing every name, and the await in PlayerSetup would reject on top of it.
+// a working fix while losing every name, and the await in PlayerSetup would have rejected on top of it.
 test('a lock request that rejects still stores the name, and add() does not reject', async () => {
   slots.clear();
   setLocks({ request: () => Promise.reject(new DOMException('opaque origin', 'SecurityError')) });
@@ -175,7 +175,7 @@ test('a lock request that rejects still stores the name, and add() does not reje
 // watduang:group wholesale with no lock, no re-read and no CAS while add() in this same file has both,
 // but the two keys do not carry the same semantics. add() is a read-modify-write over a list every tab
 // appends to, and the name it used to drop was one nobody removed. The group is the set the player
-// ticked on THIS page — PlayerSetup unticks by selected.delete(name) — so unioning it with the stored
+// ticked on THIS page — PlayerSetup unticked by selected.delete(name) — so unioning it with the stored
 // group would resurrect a name the player had just removed: the ghost tick loadGroup()'s own filter
 // exists to prevent, and a wrong group actually played is a worse loss than a prefill the player
 // re-ticks. A lock alone buys nothing here either: there is no read to protect inside it, and one

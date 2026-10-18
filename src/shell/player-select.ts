@@ -1,10 +1,11 @@
-// Pure logic — no DOM/localStorage — called by PlayerSetup.astro when the start button is pressed (#21)
+// Pure logic — no DOM/localStorage — called by PlayerSetup.astro when its start button was pressed (#21;
+// that panel retired in gh#273)
 // Always takes in the full ticked group, never the pool left after clamping (ADR-0004 fixed this)
 import type { Checkpoint } from '../games/types.ts';
 import type { WriteRefusal } from './session';
 // The ONE mascot cast (gh#152, ADR-0054 rulings 1-2). Imported, never re-typed: a second copy of
 // these 20 rows is the exact failure gh#140 exists to prevent, and _mascots.ts is already the file
-// the play routes read. The direction is new but the seam is not — PlayerSetup already imports
+// the play routes read. The direction is new but the seam is not — PlayerSetup already imported
 // ../games/_arm-gate, and the play routes import this folder's roster. No cycle: _mascots.ts imports
 // nothing. It is also already an emitted reachable chunk (`_mascots.js`), so bundle-freeze-check's
 // basename set is unchanged by this import; only the byte total moves, and by one import line.
@@ -107,8 +108,8 @@ export function planStart(
  *
  * #data-loss — the checkpoint alone was never the liveness test. Only siamsi writes a checkpoint, alone
  * among the live games, and it empties the slot the moment a round ends, so "slot is empty" covered a
- * live round of every other game and every fresh session. roundLive is the shell's own bit: PlayerSetup sets
- * root.hidden = true when a round starts, and asked nothing about it here. Either signal alone is
+ * live round of every other game and every fresh session. roundLive is the shell's own bit: PlayerSetup set
+ * root.hidden = true when a round started, and asked nothing about it here. Either signal alone is
  * enough — a stranded blob is a round someone can still go back to, and a round on screen is one they
  * are inside right now.
  *

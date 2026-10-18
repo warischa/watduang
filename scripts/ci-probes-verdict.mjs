@@ -213,7 +213,7 @@ const V = {
     const s = out.summary;
     if (!s) return 'no summary in probe output -- nothing was measured';
     if (s.breakGuard !== false) return `clean leg ran with BREAK_GUARD set (breakGuard=${JSON.stringify(s.breakGuard)})`;
-    if (s.pagesScanned !== 3) return `scanned ${s.pagesScanned} PlayerSetup page(s), expected 3`;
+    if (s.pagesScanned !== 3) return `scanned ${s.pagesScanned} #leave-confirm game page(s), expected 3`;
     // Two-way calibration, per page: assertion A passes on "no stray buttons", which is also what a
     // scan that found no buttons at all looks like. detectorCalibrated is that page's own proof it
     // CAN see the buttons while the dialog is open.

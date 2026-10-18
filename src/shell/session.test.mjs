@@ -127,8 +127,8 @@ test('a checkpoint writer landing between a closure\'s creation and its own setP
 // F1 (ADR-0010, open finding S2026-08-15#2) — the sibling caller 65d3d3c did not cover. siamsi.ts mountInto()
 // is a SECOND setPlayers on the closure the start handler built, and on first mount `await load()`
 // (game/[id].astro:56) separates it from that closure's creation. The panel is live in that gap:
-// Clear group → requestClear() in PlayerSetup.astro empties the record through clear() and its
-// location.reload() is a macrotask away, so the module's continuation can land first. Same detector as the test above —
+// Clear group → requestClear() in PlayerSetup.astro emptied the record through clear() and its
+// location.reload() was a macrotask away, so the module's continuation can land first. Same detector as the test above —
 // slots.size is raw record presence — plus planStart as the symptom the player actually meets.
 test('F1: the resume path\'s late setPlayers must not rebuild a record that was discarded meanwhile', () => {
   slots.clear();
@@ -189,7 +189,7 @@ test('a discard is final — a write racing in through a stale session closure m
   assert.equal(slots.size, 1);
   assert.equal(loadSession().checkpoint.phase, 'drawn');
 
-  // Clear-and-drop-pending-round — PlayerSetup.requestClear(true) loads a FRESH snapshot and clears through it
+  // Clear-and-drop-pending-round — PlayerSetup.requestClear(true) loaded a FRESH snapshot and cleared through it
   loadSession().clear();
   assert.equal(slots.size, 0);
 
@@ -343,7 +343,7 @@ test('once a new record exists, a stale closure cannot write its discarded snaps
 // Preserved behaviour, now pinned: identity decides WHICH record a closure may write, and setPlayers
 // is still the only writer allowed to bring one into being. games/_template.ts:29-31 documents that
 // contract to every future game ("a checkpoint saved before setPlayers silently does nothing"), and
-// requestStart()'s discard-then-start branch in PlayerSetup.astro leans on it — it calls
+// requestStart()'s discard-then-start branch in PlayerSetup.astro leaned on it — it called
 // saveCheckpoint(null) on a panel closure before any round exists, and that must not leave
 // an empty record behind.
 test('only setPlayers creates: a checkpoint or markPlayed before any start writes nothing', () => {
@@ -503,7 +503,7 @@ test('gh#49 legacy: a gen-less record writes through its own closure and refuses
 });
 
 // The too-strict direction, at the one site that could have met it. PlayerSetup.astro's
-// discard-then-start calls saveCheckpoint(null) on a closure loadSession() built a few synchronous
+// discard-then-start called saveCheckpoint(null) on a closure loadSession() built a few synchronous
 // lines earlier inside the same requestStart() call — fresh by construction, not a page-load closure.
 // If that discard ever failed silently the next start would resume the round the player just threw
 // away, which is an ADR-0008 violation. Pinned here so the guard cannot drift into refusing it.
@@ -687,7 +687,7 @@ test('gh#51 F1: a round tapped past the 6h window still saves — its own closur
 // compare-and-swap rather than carrying a copy of it, so the two cannot drift apart.
 //
 // The anti-over-fix control is already pinned twice above ('negative control: a clean discard...' and
-// 'discard-then-start...'), both on a fresh closure — PlayerSetup calls loadSession() inside
+// 'discard-then-start...'), both on a fresh closure — PlayerSetup called loadSession() inside
 // requestClear(), a few synchronous lines before clear(), which is why a real press cannot be refused.
 test('gh#51 F2: a stale closure cannot clear the round the newer document is playing', () => {
   slots.clear();
@@ -728,8 +728,8 @@ test('gh#51 F2: a stale closure cannot clear the round the newer document is pla
 // over). The pair below is the whole fix: the same stale tap, one discarded round and one carried-on
 // round, and the reason has to differ. Testing only the first would move the bug rather than close it.
 //
-// The discriminator is the start kind the panel sends: requestStart() in PlayerSetup.astro knows which
-// branch the player took — it calls saveCheckpoint(null) on the discard branch — and puts the answer on
+// The discriminator is the start kind the panel sends: requestStart() in PlayerSetup.astro knew which
+// branch the player took — it called saveCheckpoint(null) on the discard branch — and put the answer on
 // the watduang:start event, which game/[id].astro hands to setPlayers. Cited by function name, not by
 // line: the line the first fix quoted here had already moved by the time it was written.
 test('gh#53: a round replaced over the slot is reported as another round, not a newer version', () => {

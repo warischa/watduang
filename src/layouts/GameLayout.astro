@@ -1,6 +1,5 @@
 ---
 import Base from './Base.astro';
-import PlayerSetup from '../shell/PlayerSetup.astro';
 import LeaveConfirm from '../shell/LeaveConfirm.astro';
 import PassPhone from '../shell/PassPhone.astro';
 import GameNav from '../components/GameNav.astro';
@@ -76,9 +75,10 @@ const howToJsonLd = {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
         {categories[game.category].label}
       </a>
-      {/* roster pill: the count is the live player count. Filled by src/pages/game/[id].astro from the
-           panel's answer on every start, and from the persisted session on load; hidden while no group
-           exists yet. Text changes never change its height (fixed padding), so the topbar stays put. */}
+      {/* roster pill: the count is the live player count. The game page script filled it from the
+           panel's answer on every start and from the persisted session on load; both writers went with
+           the panel in gh#273, so on every page built today it stays hidden. Text changes never change
+           its height (fixed padding), so the topbar stays put. */}
       <span id="roster-count" class="game-topbar-pill" hidden>วง 6 คน</span>
     </header>
 
@@ -101,21 +101,8 @@ const howToJsonLd = {
     <div class="play-area">
       <h1 class="game-title">{game.names.th}</h1>
 
-      {/* gh#96 / ADR-0040 — a page declaring [1, 1] has no "วง" and no party to set up, so the panel is
-           not rendered for it at all. The guard keys on the module's own declared range — the
-           validator closes the shape to [1, 1] or a party range, so nothing else can land here —
-           never on a page-id list, which grows with every solo page and never converges. With the
-           panel absent the page mounts its module itself (the solo branch in the game page script),
-           never through the start event the panel alone dispatches.
-           gameId lets the panel on a party page know whether a stranded checkpoint belongs to this
-           page or another game (#23). Tool pages don't pass this prop, so there's no round to ask
-           about there at all. */}
-      {(game.players[0] !== 1 || game.players[1] !== 1) && (
-        <PlayerSetup min={game.players[0]} max={game.players[1]} gameId={game.id} />
-      )}
-
       {/* gh#106 — UNCONDITIONAL, and the absence of a condition here is the fix. ADR-0015's guard used
-           to ride on PlayerSetup, so the guard inherited the panel's render condition above and every
+           to ride on PlayerSetup, so the guard inherited the panel's render condition and every
            [1, 1] page shipped with no leave-confirm at all — while ADR-0040, the ADR that made [1, 1]
            legal, says in the same breath: "a page declaring [1, 1] skips the setup panel. Nothing else
            about the shell's start contract moves — ... and so do ADR-0014 and ADR-0015."
@@ -137,7 +124,7 @@ const howToJsonLd = {
            a new tap surface. Outside #stage (ADR-0014) and AFTER it — never before, or a notice appearing
            mid-round would push #stage's own buttons down under a player's finger (the gh#37/#39/#42 mis-tap
            family); after the stage it only reflows what is already below. hidden by default; role="alert"
-           announces only once hidden drops, same ordering as PlayerSetup.astro's showError. */}
+           announces only once hidden drops, the same ordering the retired setup panel's showError used. */}
       <p id="write-refused" role="alert" hidden></p>
 
       <PassPhone />

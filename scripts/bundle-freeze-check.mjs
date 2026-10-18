@@ -118,16 +118,20 @@ const BASELINE_BASENAMES = [
   // last importer and was deleted. SET leg only, as the notes below.
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'PlayExit.astro_astro_type_script_index_0_lang.js',
-  // gh#149 — PlayerSetup.astro_astro_type_script_index_0_lang.js is NOT in this inventory. The setup
-  // island only mounts for a party player range (GameLayout guards it), and the party landing pages
-  // are deleted (ADR-0050 ruling 2), so the only pages this route still builds are the two solo
-  // fortune ones and nothing seeds the chunk. The component and its island are untouched on disk.
+  // gh#273 -- the setup panel island is deleted, component and GameLayout mount both. gh#149 had
+  // already kept its chunk out of this inventory: no built page rendered the panel once the party
+  // landing pages went (ADR-0050 ruling 2), yet the chunk still shipped unreferenced until gh#273.
   'ToolNameEntry.astro_astro_type_script_index_0_lang.js',
   '_arm-gate.js',
   '_el.js',
   '_id_.astro_astro_type_script_index_0_lang.js',
-  // gh#152 — the single-sourced animal cast, previously copied per play route.
-  '_mascots.js',
+  // gh#273 -- _mascots.js and player-select.js REMOVED as chunks, not as code, and roster.js is BACK
+  // (see the gh#264 note at the end of this list). With the setup panel gone, player-select has one
+  // importing chunk (the game page script, which keeps only refusalCopy), so Rollup inlines it there
+  // and tree-shakes its MASCOTS use; the cast is then left with one importing chunk (player-screen)
+  // and is inlined there too; and the roster module, no longer folded into _mascots, ships as its own
+  // shared chunk. SET leg only: the BYTES and pair legs stayed green on the measured build. Re-check
+  // with `grep -l watduang:roster dist/_astro/*.js` rather than trusting this note.
   // gh#154 — _pick-index.js is NOT in this inventory. pickLoser() was split into its own chunk as
   // prep for deleting the party game that shared it; with that game gone short-stick is its only
   // importer, so Rollup inlines the helper back into short-stick.js and no separate chunk ships.
@@ -218,7 +222,6 @@ const BASELINE_BASENAMES = [
   'love-match.js',
   'name-list.js',
   'number.astro_astro_type_script_index_0_lang.js',
-  'player-select.js',
   'power-meter.js',
   'short-stick.js',
   'siamsi.js',
@@ -229,8 +232,12 @@ const BASELINE_BASENAMES = [
   // src/shell/roster.ts (its roster-size check fed only the retired reload path), and with that
   // importer gone Rollup folds the module into the _mascots chunk: the roster key's code ships there
   // in the build this was measured on (`grep -l watduang:roster dist/_astro/*.js`). Re-check with the
-  // same grep rather than trusting this line.
-  'session.js',
+  // same grep rather than trusting this line. gh#273 reversed it: the gh#273 note near the top.
+  'roster.js',
+  // gh#273 -- session.js REMOVED as a chunk, not as code. The game page script lost its dead start
+  // listener (and with it refusalCopy and every session import), leaving timebomb's play route the
+  // only importer of src/shell/session.ts, so Rollup inlines it there. SET leg only. Re-check with
+  // `grep -l watduang:session dist/_astro/*.js` rather than trusting this line.
   'wheel.astro_astro_type_script_index_0_lang.js',
 ].sort();
 // Re-baselined 2026-08-30, 232716 -> 323013 (+90297, +38.8%). Attribution, one cause per group:

@@ -109,8 +109,8 @@ export type WriteRefusal = 'record-gone' | 'other-round' | 'stale-version';
  * because both call sites read as a sentence — `setPlayers(names, 'new-round')` cannot be mistaken for
  * a flag whose polarity you have to go and look up.
  *
- * The panel is the only place that knows which of the two happened: requestStart() in PlayerSetup.astro
- * put the question to the player (#resume-choice) or established there was nothing to ask about. It is
+ * The panel was the only place that knew which of the two happened: requestStart() in PlayerSetup.astro
+ * (retired in gh#273) put the question to the player (#resume-choice) or established there was nothing to ask about. It is
  * threaded here from there, through the watduang:start event — session.ts must NOT infer it. See the
  * comment on the id line in write() for the inference that was tried and what it got wrong.
  *
@@ -269,7 +269,7 @@ export function loadSession(): ShellSession {
       //
       // Threaded in, never inferred. The first fix inferred it from the slot — "the slot holds no
       // checkpoint" was read as "the player took the discard branch", because ADR-0008 makes that branch
-      // clear the round before it starts (requestStart() in PlayerSetup.astro calls saveCheckpoint(null)
+      // clear the round before it starts (requestStart() in PlayerSetup.astro called saveCheckpoint(null)
       // before dispatching watduang:start). That proxy is owned by the PANEL, not by this file, and it
       // is wrong wherever the panel reaches a start without going through either labelled branch: a
       // start placed over a checkpoint belonging to ANOTHER game takes planStart's plain 'start' path,

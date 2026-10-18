@@ -96,6 +96,23 @@ test('gh#140 defaultPlayers: past the end of the cast the labels stay unique', (
   assert.equal(new Set(labels).size, 45, 'every default player is distinct');
 });
 
+// The icon reaching a player is the whole point of the label form: games are handed a string[], so an
+// icon outside the string reaches no game at all.
+test('gh#140 defaultPlayers: a default player carries its icon and its mascot name in the one string', () => {
+  assert.match(defaultPlayers(2, 2, 10)[0], /^\p{Extended_Pictographic} /u, 'a default player carries its icon');
+  assert.equal(defaultPlayers(2, 2, 10)[0].includes(MASCOTS[0].name), true, 'and its mascot name');
+});
+
+// 0 players ticked: a caller substitutes the synthesized default set for the empty selection before
+// resolveStart runs. defaultPlayers always clamps up to at least min, so belowMin can never fire from
+// that path — proven with the real functions for any min/max the zero-selected branch might run under.
+test('#22 defaultPlayers fed straight into resolveStart never trips belowMin', () => {
+  for (const [min, max] of [[1, 4], [2, 6], [3, 3]]) {
+    const r = resolveStart(defaultPlayers(0, min, max), min, max, false);
+    assert.equal(r.belowMin, false, `min=${min} max=${max}: belowMin fired from the substituted set`);
+  }
+});
+
 // ---- #23: a live round in progress is a question, never a silent choice ----
 const cp = (game) => ({ game, players: ['เอ', 'บี'] });
 

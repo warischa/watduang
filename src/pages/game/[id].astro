@@ -44,10 +44,8 @@ const { game } = Astro.props as { game: GameModule };
 <GameLayout game={game} />
 
 <script>
-  import type { GameContext, GameModule, GameSession } from '../../games/types';
+  import type { GameModule, GameSession } from '../../games/types';
   import { loadRoster } from '../../shell/roster';
-  import { loadSession, type StartKind } from '../../shell/session';
-  import { refusalCopy } from '../../shell/player-select';
 
   // negative-glob lazy loader — must not import manifest.ts/game module here (CONTRACT.md)
   const mods = import.meta.glob<{ default: GameModule }>([
@@ -61,13 +59,12 @@ const { game } = Astro.props as { game: GameModule };
   const stage = document.getElementById('stage') as HTMLElement;
   const id = stage.dataset.gameId!;
   const load = mods[`../../games/${id}.ts`];
-  const writeRefusedEl = document.getElementById('write-refused') as HTMLElement;
 
   let game: GameModule | null = null;
 
-  // gh#96 / ADR-0040 — a page declaring [1, 1] renders no setup panel (GameLayout guards the mount),
-  // so the one dispatcher of "watduang:start" — requestStart in PlayerSetup — does not exist and this
-  // page would never mount. The solo branch at the foot of this script mounts the module itself,
+  // gh#96 / ADR-0040 — a page declaring [1, 1] has no setup panel to start it (and since gh#273 no page
+  // has one: the panel, its "watduang:start" dispatch and this script's listener for it are deleted).
+  // The solo branch at the foot of this script mounts the module itself,
   // straight into the stage, and never through a synthesize start event: a fake one-person roster
   // would push a non-"เกม" through the round machinery (setPlayers, planStart, the roster pill) that
   // ADR-0040 just removed "ดูดวง" from. The written shape is the same dataset channel data-game-id uses,
@@ -89,20 +86,6 @@ const { game } = Astro.props as { game: GameModule };
     clear(): void {},
   };
 
-  // gh#76 — the topbar roster pill. The count is the group's own: updated from the panel's answer on
-  // every start, and seeded from the persisted session on load so a reload keeps it. Hidden while no
-  // group exists yet; the pill's fixed padding keeps its height constant, so filling it never moves
-  // the topbar (the property the stable-exit link above the stage relies on).
-  function showRosterCount(n: number): void {
-    const pill = document.getElementById('roster-count');
-    if (!pill) return;
-    pill.hidden = n < 1;
-    pill.textContent = `วง ${n} คน`;
-  }
-  // A solo page starts no round, so no "วง" exists to count — the pill must not seed from the
-  // site-wide party session (a persisted party group is not this page's "วง").
-  if (!isSolo) showRosterCount(loadSession().players.length);
-
   function dispose(): void {
     game?.dispose();
   }
@@ -123,108 +106,7 @@ const { game } = Astro.props as { game: GameModule };
     if (!event.persisted) dispose();
   });
 
-  document.addEventListener('watduang:start', async (event) => {
-    const { players, start } = (event as CustomEvent<{ players: string[]; start: StartKind }>).detail;
-
-    const roster = loadRoster();
-    // gh#50 — clear any notice from a previous round. Belt-and-braces, NOT load-bearing today:
-    // watduang:start is dispatched from exactly one place (PlayerSetup.astro), and every game play-again
-    // button ("เล่นอีกรอบ") remounts via mountInto without it (grepped all five, per that file own
-    // instruction not to
-    // trust a comment here), and the panel only re-shows after a reload, which starts with the notice
-    // already hidden. Kept because nothing else ever re-hides it, so if a future start path does fire
-    // this event, a stale notice would otherwise outlive the round it describes.
-    writeRefusedEl.hidden = true;
-    writeRefusedEl.textContent = '';
-    showRosterCount(players.length);
-
-    const session = loadSession();
-    // gh#50 — drop hidden first, then set the text: role="alert" announces only once hidden drops.
-    session.onWriteRefused = (reason) => {
-      writeRefusedEl.hidden = false;
-      writeRefusedEl.textContent = refusalCopy(reason);
-    };
-    session.setPlayers(players, start); // gh#53 — the panel's own answer, never inferred from the slot
-
-    const ctx: GameContext = { roster, session };
-
-    try {
-      if (!game) {
-        game = (await load()).default;
-      }
-      // Always close the previous round cleanly before mount — mounting again without disposing leaks an
-      // AudioContext (iOS caps how many exist), leaks the wake lock, and stacks visibilitychange listeners;
-      // no matter how many times this event fires, only one round survives, because the dispose+mount pair
-      // runs sync back-to-back (no await between them) and dispose before any mount is a no-op.
-      game.dispose();
-      game.mount(stage, ctx);
-      settleStage('mounted');
-    } catch {
-      settleStage('failed');
-      // gh#54 — neither the import nor the mount had any handling, and requestStart sets root.hidden =
-      // true the moment it dispatches. root.hidden IS the liveness bit the panel reads later (it is what
-      // planClear is handed as roundLive), so a failed mount left the panel believing a round was
-      // running while the stage stayed empty. The player's only remaining control was Clear group, which
-      // then asked about a round that did not exist and, on confirm, ran saveGroup([]) — wiping the group
-      // they had just ticked. Putting the panel back is what makes the failure non-destructive: the
-      // ticked names are still on screen, Start round is pressable again, and Clear group means what its
-      // label says.
-      //
-      // gh#25 — no longer silent. The site owner has written the copy for this case and chosen where it
-      // goes: #setup-error, the panel's own pre-start notice node, reached through the panel's showError.
-      // NOT #write-refused — that is the node this handler clears and fills above, and it belongs to a
-      // refused WRITE. None of refusalCopy's three strings may stand in for it either, and for the same
-      // reason: all three name a refused write and this is a mount that never ran, and naming the wrong
-      // loss is the defect gh#53 exists to close. showError is module-scoped inside the setup island, so
-      // the notice goes back the way the start came — a CustomEvent on document, the mirror of
-      // "watduang:start" (PlayerSetup.astro owns the listener and the string). Nothing is logged: this
-      // repo has no console calls in src/, so the failure is the panel coming back with that line on it.
-      //
-      // Deferred to a microtask because the two failure paths unwind at different times, and only one
-      // of them has already had root.hidden = true applied by the time this runs. First load: `await
-      // load()` suspends, so the catch resumes in a microtask long after requestStart returned — the
-      // panel restores over a hidden root and stays up. Second start of the same page: `game` is
-      // cached, nothing in the try block awaits, so the throw is caught SYNCHRONOUSLY inside
-      // dispatchEvent — the stack is still inside requestStart, which then runs its own
-      // `root.hidden = true` (PlayerSetup.astro) on the way out and re-hides the panel this line just
-      // restored. That leaves gh#54's exact state one retry deep: no round, panel gone, root.hidden
-      // true, so planClear reads roundLive and Clear group wipes the group. queueMicrotask makes the
-      // restore outlive the dispatcher in BOTH paths — microtasks run after the stack unwinds, so it
-      // always lands after requestStart has finished hiding. Do not "normalise" this by awaiting
-      // before dispose()/mount() instead: that pair must stay sync back-to-back (see above).
-      // The notice rides that same microtask, and lands after the un-hide: showError announces by
-      // dropping the alert node's hidden attribute, and a panel still hidden at that instant — or one
-      // requestStart is about to re-hide on the synchronous path above — announces to nobody. One
-      // dispatch site, inside this callback, is what makes both unwind paths behave identically.
-      const panel = document.getElementById('player-setup');
-      if (panel) queueMicrotask(() => {
-        panel.hidden = false;
-        document.dispatchEvent(new CustomEvent('watduang:mount-failed', { bubbles: true }));
-      });
-    }
-  });
-
-  // gh#76 — the shell's "put the setup panel back so the group can re-tick" contract. A game module
-  // tears itself down and then dispatches this on document; the page owns the panel restore, the same
-  // split gh#54's failed-mount path uses. Showing the panel drops the live-round bit (root.hidden),
-  // which is only correct for a game that keeps no checkpoint — a dispatcher that does keep one must
-  // clear it before dispatching. The stale write-refused notice is cleared too, on the same reasoning
-  // as the start path above.
-  //
-  // gh#154 — ZERO DISPATCHERS TODAY. The only one was the change-players secondary control on the
-  // party game deleted by that ticket. Kept as shell API (_fake-dom.mjs records this event type for
-  // every game test), not because anything currently fires it: `git grep "watduang:change-players"
-  // src/games` returns only the fake DOM. A future game wiring such a control gets the restore free.
-  document.addEventListener('watduang:change-players', () => {
-    const panel = document.getElementById('player-setup');
-    if (panel) {
-      panel.hidden = false;
-      writeRefusedEl.hidden = true;
-      writeRefusedEl.textContent = '';
-    }
-  });
-
-  // The solo counterpart of the start listener above: no event, no round write, the module mounts
+  // The solo mount: no event, no round write, the module mounts
   // directly into the stage. A failed mount has no panel to restore and no round to lose — there is
   // nothing to say and nothing to save, so the only recovery is the reload any crashed page leaves
   // the player. The bfcache pagehide pair above disposes this mount like any other.
@@ -232,7 +114,7 @@ const { game } = Astro.props as { game: GameModule };
     (async () => {
       try {
         if (!game) game = (await load()).default;
-        game.dispose(); // no-op before the first mount, as on the party path
+        game.dispose(); // no-op before the first mount
         game.mount(stage, { roster: loadRoster(), session: soloSession });
         settleStage('mounted');
       } catch {

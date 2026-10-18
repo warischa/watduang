@@ -47,8 +47,9 @@
   --shadow-pop: 0.25rem 0.25rem 0 0 var(--color-line-strong);
 }
 
-/* #39 — leave-confirm's dialog. Not scoped in PlayerSetup.astro on purpose: a scoped <style> block
-   stamps data-astro-cid on every element PlayerSetup renders, across all 9 pages that render it.
+/* #39 — leave-confirm's dialog. Not scoped in its owning island on purpose: a scoped <style> block
+   stamps data-astro-cid on every element that island renders (written when the dialog still lived in
+   PlayerSetup.astro, which gh#106 split it out of and gh#273 deleted).
    max-block-size is load-bearing, not cosmetic: without it, clearance from a tap under #leave-go
    depends on Thai copy length crossed with the layout engine — exactly the unowned set ADR-0014
    already rejected measuring. It is also what makes the anchoring below provable rather than
@@ -72,7 +73,7 @@
   font-family: var(--font-sans);
 }
 
-/* Anchored to the viewport half the tap was NOT in (toggled from PlayerSetup.astro's click guard), and
+/* Anchored to the viewport half the tap was NOT in (toggled from LeaveConfirm.astro's click guard), and
    flex-direction flips with it so #leave-go — last in DOM order — renders at the dialog's own edge
    furthest from the tap: at-bottom keeps DOM order (go at the dialog's bottom, itself already the
    bottom of the screen); at-top reverses it (go rises to the dialog's top, itself already the top of
