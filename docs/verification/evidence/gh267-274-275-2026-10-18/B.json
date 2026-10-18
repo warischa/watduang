@@ -1,0 +1,720 @@
+{
+ "rows": [
+  {
+   "vp": 390,
+   "rep": 1,
+   "iw": 390,
+   "label": "enabled",
+   "text": "พร้อมเล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#090610",
+   "backdropMid": "#08050f",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    20.08,
+    20.25
+   ],
+   "rect": {
+    "x": 26,
+    "y": 692,
+    "w": 338,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 390,
+   "rep": 2,
+   "iw": 390,
+   "label": "enabled",
+   "text": "พร้อมเล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#090610",
+   "backdropMid": "#08050f",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    20.08,
+    20.25
+   ],
+   "rect": {
+    "x": 26,
+    "y": 692,
+    "w": 338,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 390,
+   "rep": 3,
+   "iw": 390,
+   "label": "enabled",
+   "text": "พร้อมเล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#090610",
+   "backdropMid": "#08050f",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    20.08,
+    20.25
+   ],
+   "rect": {
+    "x": 26,
+    "y": 692,
+    "w": 338,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 390,
+   "rep": 1,
+   "via": "real UI (duplicate name typed into row 2)",
+   "label": "disabled",
+   "text": "พร้อมเล่น",
+   "disabled": true,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "0.5",
+   "effOpacity": 0.5,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#080510",
+   "backdropMid": "#07050f",
+   "fillFinalMid": "#4d1c7d",
+   "textFinalMid": "#838287",
+   "ratioTextVsFill": [
+    3.1,
+    3.11
+   ],
+   "ratioTextVsBackdrop": [
+    5.3,
+    5.31
+   ],
+   "rect": {
+    "x": 26,
+    "y": 726,
+    "w": 338,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 390,
+   "rep": 1,
+   "via": "saved mode, enough ticked",
+   "label": "enabled-saved",
+   "text": "พร้อมเล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#090611",
+   "backdropMid": "#080511",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    20.04,
+    20.21
+   ],
+   "rect": {
+    "x": 26,
+    "y": 662,
+    "w": 338,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 390,
+   "rep": 1,
+   "via": "saved mode, unticked below min",
+   "label": "disabled-under-min",
+   "text": "พร้อมเล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#090611",
+   "backdropMid": "#080511",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    20.04,
+    20.21
+   ],
+   "rect": {
+    "x": 26,
+    "y": 662,
+    "w": 338,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 320,
+   "rep": 1,
+   "iw": 320,
+   "label": "enabled",
+   "text": "พร้อมเล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#08050f",
+   "backdropMid": "#07050f",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    20.09,
+    20.33
+   ],
+   "rect": {
+    "x": 26,
+    "y": 692,
+    "w": 268,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 320,
+   "rep": 1,
+   "via": "real UI (duplicate name typed into row 2)",
+   "label": "disabled",
+   "text": "พร้อมเล่น",
+   "disabled": true,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "0.5",
+   "effOpacity": 0.5,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#07050f",
+   "backdropMid": "#07040e",
+   "fillFinalMid": "#4d1c7c",
+   "textFinalMid": "#838287",
+   "ratioTextVsFill": [
+    3.1,
+    3.11
+   ],
+   "ratioTextVsBackdrop": [
+    5.3,
+    5.31
+   ],
+   "rect": {
+    "x": 26,
+    "y": 726,
+    "w": 268,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 320,
+   "rep": 1,
+   "via": "saved mode, enough ticked",
+   "label": "enabled-saved",
+   "text": "พร้อมเล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#08050f",
+   "backdropMid": "#07050f",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    20.08,
+    20.33
+   ],
+   "rect": {
+    "x": 26,
+    "y": 662,
+    "w": 268,
+    "h": 60
+   },
+   "inDialog": false
+  },
+  {
+   "vp": 320,
+   "rep": 1,
+   "via": "saved mode, unticked below min",
+   "label": "disabled-under-min",
+   "text": "พร้อมเล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "21px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#08050f",
+   "backdropMid": "#07050f",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    20.08,
+    20.33
+   ],
+   "rect": {
+    "x": 26,
+    "y": 662,
+    "w": 268,
+    "h": 60
+   },
+   "inDialog": false
+  }
+ ],
+ "accents": {
+  "dupLimit@390": {
+   "label": "dup-limit-line",
+   "text": "มีชื่อซ้ำกัน — แก้ชื",
+   "disabled": false,
+   "bg": "rgba(0, 0, 0, 0)",
+   "color": "rgb(248, 250, 252)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "14px",
+   "fw": "400",
+   "backdropSampleN": 45,
+   "backdropFirst": "#120a21",
+   "backdropMid": "#120a21",
+   "fillFinalMid": "#120a21",
+   "textFinalMid": "#f8fafc",
+   "ratioTextVsFill": [
+    18.27,
+    18.45
+   ],
+   "ratioTextVsBackdrop": [
+    18.27,
+    18.45
+   ],
+   "rect": {
+    "x": 95.59375,
+    "y": 302,
+    "w": 198.8125,
+    "h": 18
+   },
+   "inDialog": false
+  },
+  "danger@390": {
+   "label": "danger",
+   "text": "จบรอบ แล้วแก้ผู้เล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "16px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#0a0c17",
+   "backdropMid": "#0a0c17",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    19.48,
+    19.48
+   ],
+   "rect": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0
+   },
+   "inDialog": true
+  },
+  "ticksPresent@390": 4,
+  "tick-i@390": {
+   "label": "tick-i",
+   "text": "✓",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "16px",
+   "fw": "700",
+   "backdropSampleN": 45,
+   "backdropFirst": "#171129",
+   "backdropMid": "#171129",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    18.24,
+    18.28
+   ],
+   "rect": {
+    "x": 40,
+    "y": 310,
+    "w": 26,
+    "h": 26
+   },
+   "inDialog": false
+  },
+  "limitB-count@390": {
+   "label": "limit-b (saved, enough ticked)",
+   "text": "4",
+   "disabled": false,
+   "bg": "rgba(0, 0, 0, 0)",
+   "color": "rgb(168, 85, 247)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "14px",
+   "fw": "600",
+   "backdropSampleN": 45,
+   "backdropFirst": "#140c25",
+   "backdropMid": "#140b24",
+   "fillFinalMid": "#140b24",
+   "textFinalMid": "#a855f7",
+   "ratioTextVsFill": [
+    4.79,
+    4.83
+   ],
+   "ratioTextVsBackdrop": [
+    4.79,
+    4.83
+   ],
+   "rect": {
+    "x": 208.84375,
+    "y": 261,
+    "w": 9.265625,
+    "h": 17
+   },
+   "inDialog": false
+  },
+  "limitB-under@390": {
+   "label": "limit-b (under minimum)",
+   "text": "3",
+   "disabled": false,
+   "bg": "rgba(0, 0, 0, 0)",
+   "color": "rgb(168, 85, 247)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "14px",
+   "fw": "600",
+   "backdropSampleN": 45,
+   "backdropFirst": "#140b24",
+   "backdropMid": "#140b24",
+   "fillFinalMid": "#140b24",
+   "textFinalMid": "#a855f7",
+   "ratioTextVsFill": [
+    4.79,
+    4.83
+   ],
+   "ratioTextVsBackdrop": [
+    4.79,
+    4.83
+   ],
+   "rect": {
+    "x": 208.953125,
+    "y": 261,
+    "w": 9.03125,
+    "h": 17
+   },
+   "inDialog": false
+  },
+  "undo@390": {
+   "label": "undo",
+   "text": "เลิกทำ",
+   "disabled": false,
+   "bg": "rgba(0, 0, 0, 0)",
+   "color": "rgb(168, 85, 247)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "16px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#110a1f",
+   "backdropMid": "#110a1f",
+   "fillFinalMid": "#110a1f",
+   "textFinalMid": "#a855f7",
+   "ratioTextVsFill": [
+    4.88,
+    4.88
+   ],
+   "ratioTextVsBackdrop": [
+    4.88,
+    4.88
+   ],
+   "rect": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0
+   },
+   "inDialog": false
+  },
+  "dupLimit@320": {
+   "label": "dup-limit-line",
+   "text": "มีชื่อซ้ำกัน — แก้ชื",
+   "disabled": false,
+   "bg": "rgba(0, 0, 0, 0)",
+   "color": "rgb(248, 250, 252)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "14px",
+   "fw": "400",
+   "backdropSampleN": 45,
+   "backdropFirst": "#110a20",
+   "backdropMid": "#120a21",
+   "fillFinalMid": "#120a21",
+   "textFinalMid": "#f8fafc",
+   "ratioTextVsFill": [
+    15.45,
+    18.45
+   ],
+   "ratioTextVsBackdrop": [
+    15.45,
+    18.45
+   ],
+   "rect": {
+    "x": 60.59375,
+    "y": 26,
+    "w": 198.8125,
+    "h": 18
+   },
+   "inDialog": false
+  },
+  "danger@320": {
+   "label": "danger",
+   "text": "จบรอบ แล้วแก้ผู้เล่น",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "16px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#0a0c17",
+   "backdropMid": "#0a0c17",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    19.48,
+    19.48
+   ],
+   "rect": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0
+   },
+   "inDialog": true
+  },
+  "ticksPresent@320": 4,
+  "tick-i@320": {
+   "label": "tick-i",
+   "text": "✓",
+   "disabled": false,
+   "bg": "rgb(147, 51, 234)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "16px",
+   "fw": "700",
+   "backdropSampleN": 45,
+   "backdropFirst": "#171129",
+   "backdropMid": "#171129",
+   "fillFinalMid": "#9333ea",
+   "textFinalMid": "#ffffff",
+   "ratioTextVsFill": [
+    5.38,
+    5.38
+   ],
+   "ratioTextVsBackdrop": [
+    18.24,
+    18.28
+   ],
+   "rect": {
+    "x": 40,
+    "y": 310,
+    "w": 26,
+    "h": 26
+   },
+   "inDialog": false
+  },
+  "limitB-count@320": {
+   "label": "limit-b (saved, enough ticked)",
+   "text": "4",
+   "disabled": false,
+   "bg": "rgba(0, 0, 0, 0)",
+   "color": "rgb(168, 85, 247)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "14px",
+   "fw": "600",
+   "backdropSampleN": 45,
+   "backdropFirst": "#140c24",
+   "backdropMid": "#130b23",
+   "fillFinalMid": "#130b23",
+   "textFinalMid": "#a855f7",
+   "ratioTextVsFill": [
+    4.79,
+    4.83
+   ],
+   "ratioTextVsBackdrop": [
+    4.79,
+    4.83
+   ],
+   "rect": {
+    "x": 173.84375,
+    "y": 222,
+    "w": 9.265625,
+    "h": 17
+   },
+   "inDialog": false
+  },
+  "limitB-under@320": {
+   "label": "limit-b (under minimum)",
+   "text": "3",
+   "disabled": false,
+   "bg": "rgba(0, 0, 0, 0)",
+   "color": "rgb(168, 85, 247)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "14px",
+   "fw": "600",
+   "backdropSampleN": 45,
+   "backdropFirst": "#130b23",
+   "backdropMid": "#130b23",
+   "fillFinalMid": "#130b23",
+   "textFinalMid": "#a855f7",
+   "ratioTextVsFill": [
+    4.79,
+    4.83
+   ],
+   "ratioTextVsBackdrop": [
+    4.79,
+    4.83
+   ],
+   "rect": {
+    "x": 173.953125,
+    "y": 27,
+    "w": 9.03125,
+    "h": 17
+   },
+   "inDialog": false
+  },
+  "undo@320": {
+   "label": "undo",
+   "text": "เลิกทำ",
+   "disabled": false,
+   "bg": "rgba(0, 0, 0, 0)",
+   "color": "rgb(168, 85, 247)",
+   "opacity": "1",
+   "effOpacity": 1,
+   "fs": "16px",
+   "fw": "500",
+   "backdropSampleN": 45,
+   "backdropFirst": "#120a20",
+   "backdropMid": "#120a20",
+   "fillFinalMid": "#120a20",
+   "textFinalMid": "#a855f7",
+   "ratioTextVsFill": [
+    4.87,
+    4.87
+   ],
+   "ratioTextVsBackdrop": [
+    4.87,
+    4.87
+   ],
+   "rect": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0
+   },
+   "inDialog": false
+  }
+ }
+}

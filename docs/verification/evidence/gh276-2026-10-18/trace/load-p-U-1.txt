@@ -1,0 +1,14 @@
+== before 09:36:38
+ 9:36  up  1:38, 1 user, load averages: 15.58 11.56 11.01
+ 75.2 63541 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 71.8 64066 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 33.2 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 29.1 64118 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 28.3 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
+== after 09:36:58
+ 9:36  up  1:39, 1 user, load averages: 12.50 11.12 10.87
+146.1 64106 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 97.9 66978 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 35.5   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 24.8 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 15.5 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De

@@ -1,0 +1,14 @@
+== before 09:15:18
+ 9:15  up  1:17, 1 user, load averages: 17.65 12.08 13.01
+123.5 99664 claude -p Regenerate the PoC-01 evidence: run tests/scenarios/test_06_real_providers.py 
+ 94.6 99628 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 85.0 98308 /Applications/OneDrive.app/Contents/PlugIns/OneDrive File Provider.appex/Contents/MacOS/
+ 39.4 98886 bash -c while :; do :; done
+ 38.7 98885 bash -c while :; do :; done
+== after 09:15:39
+ 9:15  up  1:17, 1 user, load averages: 16.03 12.19 13.02
+ 70.8 98885 bash -c while :; do :; done
+ 70.3 98886 bash -c while :; do :; done
+ 63.6   660 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framewo
+ 21.5   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 18.5   814 /Applications/OneDrive.app/Contents/MacOS/OneDrive

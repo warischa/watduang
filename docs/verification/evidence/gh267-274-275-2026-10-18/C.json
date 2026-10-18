@@ -1,0 +1,307 @@
+{
+ "320": {
+  "vp": 320,
+  "iw": 320,
+  "state": {
+   "cls": "big-trigger-btn",
+   "bgImage": "linear-gradient(135deg, rgb(7, 89, 133), rgb(3, 105, 161))",
+   "bgColor": "rgba(0, 0, 0, 0)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "main": {
+    "text": "START",
+    "color": "rgb(255, 255, 255)",
+    "fs": "22.4px",
+    "fw": "900"
+   },
+   "sub": {
+    "text": "แตะเพื่อเริ่ม",
+    "color": "rgb(255, 255, 255)",
+    "fs": "10.4px",
+    "fw": "700"
+   },
+   "rBtn": [
+    90,
+    372.59375,
+    140,
+    140
+   ],
+   "rMain": [
+    121,
+    420.59375,
+    78,
+    26
+   ],
+   "rSub": [
+    135.890625,
+    450.59375,
+    48.21875,
+    14
+   ],
+   "iw": 320
+  },
+  "ratios": {
+   "buttonDiagonal60": {
+    "n": 60,
+    "min": 6.21,
+    "max": 7.21
+   },
+   "buttonInteriorGrid": {
+    "n": 66,
+    "min": 3.77,
+    "max": 7.11
+   },
+   "startLabelRect": {
+    "n": 66,
+    "min": 6.5,
+    "max": 7
+   },
+   "subtextRect": {
+    "n": 66,
+    "min": 6.49,
+    "max": 6.71
+   }
+  },
+  "bgFirstLast": [
+   [
+    8,
+    93,
+    140
+   ],
+   [
+    4,
+    102,
+    155
+   ]
+  ],
+  "locked": {
+   "cls": "big-trigger-btn state-locked",
+   "bgImage": "none",
+   "bgColor": "rgb(51, 65, 85)",
+   "color": "rgb(148, 163, 184)",
+   "opacity": "1",
+   "main": {
+    "text": "🔒 รอ...",
+    "color": "rgb(148, 163, 184)",
+    "fs": "22.4px",
+    "fw": "900"
+   },
+   "sub": {
+    "text": "ระบบล็อก 1.0s",
+    "color": "rgb(148, 163, 184)",
+    "fs": "10.4px",
+    "fw": "700"
+   },
+   "rBtn": [
+    90,
+    372.59375,
+    140,
+    140
+   ],
+   "rMain": [
+    120.71875,
+    418.09375,
+    78.546875,
+    31
+   ],
+   "rSub": [
+    127.75,
+    453.09375,
+    64.5,
+    14
+   ],
+   "iw": 320
+  },
+  "stop": {
+   "cls": "big-trigger-btn state-stop",
+   "bgImage": "linear-gradient(135deg, rgb(220, 38, 38), rgb(239, 68, 68))",
+   "bgColor": "rgba(0, 0, 0, 0)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "main": {
+    "text": "STOP",
+    "color": "rgb(255, 255, 255)",
+    "fs": "22.4px",
+    "fw": "900"
+   },
+   "sub": {
+    "text": "แตะเพื่อหยุด!",
+    "color": "rgb(255, 255, 255)",
+    "fs": "10.4px",
+    "fw": "700"
+   },
+   "rBtn": [
+    90,
+    372.59375,
+    140,
+    140
+   ],
+   "rMain": [
+    127.703125,
+    420.59375,
+    64.59375,
+    26
+   ],
+   "rSub": [
+    131.8125,
+    450.59375,
+    56.359375,
+    14
+   ],
+   "iw": 320
+  }
+ },
+ "390": {
+  "vp": 390,
+  "iw": 390,
+  "state": {
+   "cls": "big-trigger-btn",
+   "bgImage": "linear-gradient(135deg, rgb(7, 89, 133), rgb(3, 105, 161))",
+   "bgColor": "rgba(0, 0, 0, 0)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "main": {
+    "text": "START",
+    "color": "rgb(255, 255, 255)",
+    "fs": "22.4px",
+    "fw": "900"
+   },
+   "sub": {
+    "text": "แตะเพื่อเริ่ม",
+    "color": "rgb(255, 255, 255)",
+    "fs": "10.4px",
+    "fw": "700"
+   },
+   "rBtn": [
+    125,
+    631.59375,
+    140,
+    140
+   ],
+   "rMain": [
+    156,
+    679.59375,
+    78,
+    26
+   ],
+   "rSub": [
+    170.890625,
+    709.59375,
+    48.21875,
+    14
+   ],
+   "iw": 390
+  },
+  "ratios": {
+   "buttonDiagonal60": {
+    "n": 60,
+    "min": 6.21,
+    "max": 7.21
+   },
+   "buttonInteriorGrid": {
+    "n": 66,
+    "min": 3.77,
+    "max": 7.11
+   },
+   "startLabelRect": {
+    "n": 66,
+    "min": 6.5,
+    "max": 7
+   },
+   "subtextRect": {
+    "n": 66,
+    "min": 6.49,
+    "max": 6.71
+   }
+  },
+  "bgFirstLast": [
+   [
+    8,
+    93,
+    140
+   ],
+   [
+    4,
+    102,
+    155
+   ]
+  ],
+  "locked": {
+   "cls": "big-trigger-btn state-locked",
+   "bgImage": "none",
+   "bgColor": "rgb(51, 65, 85)",
+   "color": "rgb(148, 163, 184)",
+   "opacity": "1",
+   "main": {
+    "text": "🔒 รอ...",
+    "color": "rgb(148, 163, 184)",
+    "fs": "22.4px",
+    "fw": "900"
+   },
+   "sub": {
+    "text": "ระบบล็อก 1.0s",
+    "color": "rgb(148, 163, 184)",
+    "fs": "10.4px",
+    "fw": "700"
+   },
+   "rBtn": [
+    125,
+    631.59375,
+    140,
+    140
+   ],
+   "rMain": [
+    155.71875,
+    677.09375,
+    78.546875,
+    31
+   ],
+   "rSub": [
+    162.75,
+    712.09375,
+    64.5,
+    14
+   ],
+   "iw": 390
+  },
+  "stop": {
+   "cls": "big-trigger-btn state-stop",
+   "bgImage": "linear-gradient(135deg, rgb(220, 38, 38), rgb(239, 68, 68))",
+   "bgColor": "rgba(0, 0, 0, 0)",
+   "color": "rgb(255, 255, 255)",
+   "opacity": "1",
+   "main": {
+    "text": "STOP",
+    "color": "rgb(255, 255, 255)",
+    "fs": "22.4px",
+    "fw": "900"
+   },
+   "sub": {
+    "text": "แตะเพื่อหยุด!",
+    "color": "rgb(255, 255, 255)",
+    "fs": "10.4px",
+    "fw": "700"
+   },
+   "rBtn": [
+    125,
+    631.59375,
+    140,
+    140
+   ],
+   "rMain": [
+    162.703125,
+    679.59375,
+    64.59375,
+    26
+   ],
+   "rSub": [
+    166.8125,
+    709.59375,
+    56.359375,
+    14
+   ],
+   "iw": 390
+  }
+ },
+ "quick": "ok"
+}

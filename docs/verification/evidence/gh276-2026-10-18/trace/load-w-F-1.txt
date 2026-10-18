@@ -1,0 +1,14 @@
+== before 09:11:40
+ 9:11  up  1:13, 1 user, load averages: 3.18 7.61 12.14
+ 68.1 94984 bash -c while :; do :; done
+ 67.7 94985 bash -c while :; do :; done
+ 57.7 94982 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 30.6   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 23.7 95024 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+== after 09:12:12
+ 9:12  up  1:14, 1 user, load averages: 6.73 8.02 12.13
+ 84.9 94984 bash -c while :; do :; done
+ 84.7 94985 bash -c while :; do :; done
+ 75.2 94982 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 25.7   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+  9.1 41827 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve

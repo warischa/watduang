@@ -1,0 +1,14 @@
+== before 09:18:17
+ 9:18  up  1:20, 1 user, load averages: 10.86 11.02 12.37
+109.6 12447 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 98.8 12926 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 68.7 12436 bash -c while :; do :; done
+ 66.7 12435 bash -c while :; do :; done
+ 61.5 41827 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+== after 09:18:37
+ 9:18  up  1:20, 1 user, load averages: 10.35 10.92 12.30
+ 82.5 12435 bash -c while :; do :; done
+ 81.9 12436 bash -c while :; do :; done
+ 59.3 41827 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 56.0 13316 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 54.4 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De

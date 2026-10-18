@@ -1,0 +1,14 @@
+== before 09:31:00
+ 9:31  up  1:33, 1 user, load averages: 12.15 9.20 10.20
+134.2 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+123.5 51023 claude -p Owner: go M-bM^@M^T one temporary firewall window approved for this run. --mod
+119.7 41067 /Users/waris.c/.nvm/versions/node/v22.22.1/bin/node --experimental-import-meta-resolve -
+ 83.8 49490 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 48.8 50969 bash -c while :; do :; done
+== after 09:31:21
+ 9:31  up  1:33, 1 user, load averages: 13.08 9.58 10.31
+104.1 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 98.8 52351 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 78.3 51995 /Applications/OneDrive.app/Contents/PlugIns/OneDrive File Provider.appex/Contents/MacOS/
+ 58.2   814 /Applications/OneDrive.app/Contents/MacOS/OneDrive
+ 41.6   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon

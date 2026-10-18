@@ -1,0 +1,14 @@
+== before 08:23:48
+ 8:23  up 26 mins, 1 user, load averages: 5.31 4.16 5.38
+ 49.6 41059 bash -c while :; do :; done
+ 47.8 41056 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 46.8 41058 bash -c while :; do :; done
+ 28.8   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 23.6 41108 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+== after 08:24:10
+ 8:24  up 26 mins, 1 user, load averages: 9.44 5.15 5.69
+ 97.8 41454 /usr/bin/tar -xJf node-runtime.tar.xz -C /Users/waris.c/.cache/codex-runtimes/codex-runt
+ 80.4 41428 /Applications/Microsoft Teams.app/Contents/Helpers/Microsoft Teams WebView.app/Contents/
+ 54.7 41066 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 48.9 41058 bash -c while :; do :; done
+ 48.1 41059 bash -c while :; do :; done

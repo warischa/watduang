@@ -1,0 +1,165 @@
+{
+ "cond": "standin-H",
+ "base": "http://localhost:4421",
+ "route": "croc-bite",
+ "viewport": "1440x900",
+ "browser": "Chrome/155.0.8059.82",
+ "when": "2026-10-18T01:38:32.573Z",
+ "summary": {
+  "P1": {
+   "n": 1,
+   "voids": 0,
+   "pressableMs": {
+    "each": [
+     18000
+    ],
+    "median": 18000,
+    "max": 18000
+   },
+   "pressableFrameMs": {
+    "each": [
+     22697
+    ],
+    "median": 22697,
+    "max": 22697
+   },
+   "pendingWindowMs": {
+    "each": [
+     6419
+    ],
+    "median": 6419,
+    "max": 6419
+   },
+   "lockWaitMaxMs": {
+    "each": [
+     6404
+    ],
+    "median": 6404,
+    "max": 6404
+   }
+  },
+  "P2": {
+   "n": 0,
+   "voids": 0,
+   "commitMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   },
+   "settleClosedMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   },
+   "lockWaitMaxMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   }
+  },
+  "H": {
+   "n": 0,
+   "voids": 0,
+   "getContextMs": {
+    "each": []
+   },
+   "liveMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   },
+   "firstFrameMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   }
+  },
+  "C": {
+   "n": 0,
+   "framesPerSec": {
+    "each": [],
+    "median": null
+   },
+   "rafGapMaxMs": {
+    "each": [],
+    "max": null
+   },
+   "longtaskMaxMs": {
+    "each": [],
+    "max": null
+   },
+   "longtaskSumMs": {
+    "each": []
+   }
+  }
+ },
+ "runs": [
+  {
+   "path": "P1",
+   "run": 1,
+   "reached": true,
+   "openAtMs": 16013,
+   "pressableMs": 18000,
+   "pressableFrameMs": 22697,
+   "pendingSetMs": 9594,
+   "pendingClearMs": 16013,
+   "pendingWindowMs": 6419,
+   "locks": [
+    {
+     "name": "watduang:roster",
+     "reqT": 9588,
+     "grantT": 15992,
+     "waitMs": 6404
+    }
+   ],
+   "lockWaitMaxMs": 6404,
+   "migrationLanded": true,
+   "legacyPlayersStripped": true,
+   "gl": {
+    "calls": 1,
+    "live": true,
+    "probe": true
+   },
+   "frames": {
+    "longtasks": 7,
+    "longtaskMaxMs": 658,
+    "longtaskSumMs": 1076,
+    "rafGapsOver100": 2,
+    "rafGapMaxMs": 6666,
+    "hbGapMaxMs": 3999,
+    "rafFramesTotal": 8
+   },
+   "iw": 1440,
+   "lt": [
+    {
+     "s": 9491.5,
+     "d": 658
+    },
+    {
+     "s": 10156.299999999814,
+     "d": 67
+    },
+    {
+     "s": 15566.899999999907,
+     "d": 55
+    },
+    {
+     "s": 16012.899999999907,
+     "d": 112
+    },
+    {
+     "s": 18177,
+     "d": 75
+    },
+    {
+     "s": 20699.200000000186,
+     "d": 58
+    },
+    {
+     "s": 21744.399999999907,
+     "d": 51
+    }
+   ]
+  }
+ ]
+}

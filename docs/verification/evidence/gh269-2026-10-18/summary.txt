@@ -1,0 +1,38 @@
+synth-webgl.json Chrome/155.0.8059.82 error= none runs= 65
+ pos/insert    n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=18,18,18,17,18
+ pos/adopt     n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=18,18,18,18,18
+ pos/media     n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=18,18,18,18,18
+ neg/insert    n=5 ok=5 gl=live painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ neg/adopt     n=5 ok=5 gl=live painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ neg/media     n=5 ok=5 gl=live painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ real/insert   n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=5/5 hole=5/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ real/adopt    n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=5/5 hole=5/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ real/media    n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=5/5 hole=5/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ real/attr     n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=5 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ task/insert   n=5 ok=5 gl=live painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ task/adopt    n=5 ok=5 gl=live painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ task/media    n=5 ok=5 gl=live painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+synth-nogl.json Chrome/155.0.8059.82 error= none runs= 65
+ pos/insert    n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=18,18,18,18,18
+ pos/adopt     n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=18,18,18,18,18
+ pos/media     n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=18,18,18,18,18
+ neg/insert    n=5 ok=5 gl=null painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ neg/adopt     n=5 ok=5 gl=null painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ neg/media     n=5 ok=5 gl=null painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ real/insert   n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=5/5 hole=5/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ real/adopt    n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=5/5 hole=5/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ real/media    n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=4/5 hole=4/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ real/attr     n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=5 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ task/insert   n=5 ok=5 gl=null painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ task/adopt    n=5 ok=5 gl=null painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+ task/media    n=5 ok=5 gl=null painted=0/5 paint<openTask=0/5 samplerGreen=5/5 hole=0/5 mutInWindow=0 entriesMissing=0 iw=390 vis=visible hold= framesBetween=0,0,0,0,0
+route-webgl.json Chrome/155.0.8059.82 error= none runs= 20
+ pos/insert    n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=n/a entriesMissing=0 iw=390 vis=visible hold=held->held framesBetween=3,18,18,18,18
+ pos/adopt     n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=n/a entriesMissing=0 iw=390 vis=visible hold=held->held framesBetween=18,18,18,18,18
+ real/insert   n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=3/5 hole=3/5 mutInWindow=n/a entriesMissing=0 iw=390 vis=visible hold=held->held framesBetween=0,0,0,0,0
+ real/adopt    n=5 ok=5 gl=live painted=5/5 paint<openTask=5/5 samplerGreen=4/5 hole=4/5 mutInWindow=n/a entriesMissing=0 iw=390 vis=visible hold=held->held framesBetween=0,0,0,0,0
+route-nogl.json Chrome/155.0.8059.82 error= none runs= 20
+ pos/insert    n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=n/a entriesMissing=0 iw=390 vis=visible hold=held->held framesBetween=18,18,18,18,18
+ pos/adopt     n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=0/5 hole=0/5 mutInWindow=n/a entriesMissing=0 iw=390 vis=visible hold=held->held framesBetween=18,18,18,18,18
+ real/insert   n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=2/5 hole=2/5 mutInWindow=n/a entriesMissing=0 iw=390 vis=visible hold=held->held framesBetween=0,0,0,0,0
+ real/adopt    n=5 ok=5 gl=null painted=5/5 paint<openTask=5/5 samplerGreen=2/5 hole=2/5 mutInWindow=n/a entriesMissing=0 iw=390 vis=visible hold=held->held framesBetween=0,0,0,0,0

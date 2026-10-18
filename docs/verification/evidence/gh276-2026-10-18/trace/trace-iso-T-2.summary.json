@@ -1,0 +1,741 @@
+{
+ "raw": "trace-iso-T-2.json",
+ "renderer": {
+  "pid": 71808,
+  "tid": 282643,
+  "thread": "CrRendererMain"
+ },
+ "windowMs": 1255.5,
+ "inPageWaitMs": 1255,
+ "pressableRelReqMs": 1665.9,
+ "mainThread": {
+  "busyMs": 482.8,
+  "busyPct": 38.5,
+  "idleMs": 772.6,
+  "cpuMsOfBusy": 160.7,
+  "topLevelTasks": 83
+ },
+ "attribution": [
+  {
+   "occupant": "style/layout/paint",
+   "ms": 433.3,
+   "pct": 34.5
+  },
+  {
+   "occupant": "other(task glue, mojo, scheduler)",
+   "ms": 27.1,
+   "pct": 2.2
+  },
+  {
+   "occupant": "script | /_astro/play.astro_astro_type_script_index_0_lang.CAh1j2nv.js",
+   "ms": 10.8,
+   "pct": 0.9
+  },
+  {
+   "occupant": "script | /_astro/play.astro_astro_type_script_index_0_lang.CAh1j2nv.js rl",
+   "ms": 5.9,
+   "pct": 0.5
+  },
+  {
+   "occupant": "script | EventDispatch:DOMContentLoaded",
+   "ms": 1.6,
+   "pct": 0.1
+  },
+  {
+   "occupant": "script | /_astro/PlayExit.astro_astro_type_script_index_0_lang.D164b04-.js",
+   "ms": 1.2,
+   "pct": 0.1
+  },
+  {
+   "occupant": "script | EventDispatch:load",
+   "ms": 1,
+   "pct": 0.1
+  },
+  {
+   "occupant": "script",
+   "ms": 0.6,
+   "pct": 0
+  },
+  {
+   "occupant": "script |  check",
+   "ms": 0.3,
+   "pct": 0
+  },
+  {
+   "occupant": "script |  PerformanceObserver.observe.type",
+   "ms": 0.3,
+   "pct": 0
+  },
+  {
+   "occupant": "script | EventDispatch:watduang:player-screen",
+   "ms": 0.2,
+   "pct": 0
+  },
+  {
+   "occupant": "script | EventDispatch:pageshow",
+   "ms": 0.2,
+   "pct": 0
+  },
+  {
+   "occupant": "script | /_astro/_arm-gate.BLhE0BYk.js f",
+   "ms": 0.2,
+   "pct": 0
+  },
+  {
+   "occupant": "script |  wrapped",
+   "ms": 0.1,
+   "pct": 0
+  },
+  {
+   "occupant": "script | EventDispatch:readystatechange",
+   "ms": 0,
+   "pct": 0
+  },
+  {
+   "occupant": "script | EventDispatch:pagereveal",
+   "ms": 0,
+   "pct": 0
+  },
+  {
+   "occupant": "idle (no task on the main thread)",
+   "ms": 772.6,
+   "pct": 61.5
+  }
+ ],
+ "attributedPct": 99.9,
+ "selfTimeByEventName": [
+  {
+   "event": "Layout",
+   "ms": 359.1
+  },
+  {
+   "event": "UpdateLayoutTree",
+   "ms": 69.1
+  },
+  {
+   "event": "FunctionCall",
+   "ms": 19.7
+  },
+  {
+   "event": "BeginRemoteFontLoad",
+   "ms": 11.3
+  },
+  {
+   "event": "Receive mojo reply",
+   "ms": 7
+  },
+  {
+   "event": "ThreadControllerImpl::RunTask",
+   "ms": 6.1
+  },
+  {
+   "event": "PrePaint",
+   "ms": 3.3
+  },
+  {
+   "event": "v8.callFunction",
+   "ms": 1.8
+  },
+  {
+   "event": "RunTask",
+   "ms": 1.2
+  },
+  {
+   "event": "Commit",
+   "ms": 0.7
+  },
+  {
+   "event": "Paint",
+   "ms": 0.7
+  },
+  {
+   "event": "Receive mojo message",
+   "ms": 0.5
+  },
+  {
+   "event": "Layerize",
+   "ms": 0.4
+  },
+  {
+   "event": "SimpleWatcher::OnHandleReady",
+   "ms": 0.4
+  },
+  {
+   "event": "RunMicrotasks",
+   "ms": 0.3
+  },
+  {
+   "event": "EventDispatch",
+   "ms": 0.3
+  },
+  {
+   "event": "EvaluateScript",
+   "ms": 0.3
+  },
+  {
+   "event": "BlinkScheduler_PerformMicrotaskCheckpoint",
+   "ms": 0.2
+  },
+  {
+   "event": "PageTimingMetricsSender::SendNow",
+   "ms": 0.1
+  },
+  {
+   "event": "v8.produceModuleCache",
+   "ms": 0.1
+  }
+ ],
+ "tasksOver50ms": [
+  {
+   "startRelReqMs": -70.3,
+   "wallMs": 169.1,
+   "inWindowMs": 98.7,
+   "cpuMs": 30.3,
+   "name": "RunTask",
+   "top": [
+    {
+     "k": "style/layout/paint",
+     "ms": 68.1
+    },
+    {
+     "k": "other(task glue, mojo, scheduler)",
+     "ms": 12.1
+    },
+    {
+     "k": "script | /_astro/play.astro_astro_type_script_index_0_lang.CAh1j2nv.js",
+     "ms": 10.8
+    },
+    {
+     "k": "script | /_astro/play.astro_astro_type_script_index_0_lang.CAh1j2nv.js rl",
+     "ms": 5.9
+    },
+    {
+     "k": "script | EventDispatch:DOMContentLoaded",
+     "ms": 1.6
+    }
+   ]
+  },
+  {
+   "startRelReqMs": 159.2,
+   "wallMs": 362.2,
+   "inWindowMs": 362.2,
+   "cpuMs": 131,
+   "name": "RunTask",
+   "top": [
+    {
+     "k": "style/layout/paint",
+     "ms": 359.3
+    },
+    {
+     "k": "other(task glue, mojo, scheduler)",
+     "ms": 1.1
+    },
+    {
+     "k": "script | EventDispatch:load",
+     "ms": 1
+    },
+    {
+     "k": "script | /_astro/PlayExit.astro_astro_type_script_index_0_lang.D164b04-.js",
+     "ms": 0.7
+    },
+    {
+     "k": "script | EventDispatch:pageshow",
+     "ms": 0.2
+    }
+   ]
+  }
+ ],
+ "positiveControl": {
+  "inPageLongTaskMsInWindow": 460,
+  "traceTasksOver50msInWindow": 461
+ },
+ "otherThreadsBusy": [
+  {
+   "process": "GPU Process",
+   "thread": "CrGpuMain",
+   "busyMs": 1254.3,
+   "pct": 99.9
+  },
+  {
+   "process": "Browser",
+   "thread": "CrBrowserMain",
+   "busyMs": 1232.6,
+   "pct": 98.2
+  },
+  {
+   "process": "GPU Process",
+   "thread": "VizCompositorThread",
+   "busyMs": 1147.8,
+   "pct": 91.4
+  },
+  {
+   "process": "Renderer",
+   "thread": "Compositor",
+   "busyMs": 387.6,
+   "pct": 30.9
+  },
+  {
+   "process": "Renderer",
+   "thread": "CrRendererMain",
+   "busyMs": 385.9,
+   "pct": 30.7
+  },
+  {
+   "process": "Extension Renderer",
+   "thread": "CrRendererMain",
+   "busyMs": 128.1,
+   "pct": 10.2
+  },
+  {
+   "process": "Browser",
+   "thread": "ThreadPoolForegroundWorker",
+   "busyMs": 94.8,
+   "pct": 7.6
+  },
+  {
+   "process": "Extension Renderer",
+   "thread": "CrRendererMain",
+   "busyMs": 53.3,
+   "pct": 4.2
+  },
+  {
+   "process": "Renderer",
+   "thread": "CrRendererMain",
+   "busyMs": 41.4,
+   "pct": 3.3
+  },
+  {
+   "process": "Renderer",
+   "thread": "ThreadPoolForegroundWorker",
+   "busyMs": 40.7,
+   "pct": 3.2
+  },
+  {
+   "process": "Extension Renderer",
+   "thread": "ThreadPoolForegroundWorker",
+   "busyMs": 40.1,
+   "pct": 3.2
+  },
+  {
+   "process": "Browser",
+   "thread": "ThreadPoolForegroundWorker",
+   "busyMs": 37.9,
+   "pct": 3
+  }
+ ],
+ "peerMainThreads": {
+  "Browser/CrBrowserMain": {
+   "busyMs": 1232.6,
+   "busyPct": 98.2,
+   "cpuMs": 58.8,
+   "tasks": 799,
+   "byPostingSite": [
+    {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "ms": 1078.9,
+     "cpuMs": 8,
+     "n": 1,
+     "pct": 85.9
+    },
+    {
+     "site": "ipc_mojo_bootstrap.cc:Accept",
+     "ms": 39.4,
+     "cpuMs": 13,
+     "n": 141,
+     "pct": 3.1
+    },
+    {
+     "site": "process_manager.cc:OnSuspendAck",
+     "ms": 29.2,
+     "cpuMs": 4.6,
+     "n": 1,
+     "pct": 2.3
+    },
+    {
+     "site": "single_thread_proxy.cc:ScheduledActionSendBeginMainFrame",
+     "ms": 19.7,
+     "cpuMs": 8.2,
+     "n": 1,
+     "pct": 1.6
+    },
+    {
+     "site": "simple_watcher.cc:ArmOrNotify",
+     "ms": 15.7,
+     "cpuMs": 3.8,
+     "n": 82,
+     "pct": 1.2
+    },
+    {
+     "site": "connector.cc:PostDispatchNextMessageFromPipe",
+     "ms": 13.9,
+     "cpuMs": 2.4,
+     "n": 111,
+     "pct": 1.1
+    },
+    {
+     "site": "omnibox_popup_webui_base_content.cc:OnLocationBarBoundsChanged",
+     "ms": 4.6,
+     "cpuMs": 1.3,
+     "n": 2,
+     "pct": 0.4
+    },
+    {
+     "site": "browser_ui_controller.cc:ScheduleUIUpdate",
+     "ms": 4.4,
+     "cpuMs": 3.2,
+     "n": 1,
+     "pct": 0.4
+    },
+    {
+     "site": "simple_watcher.cc:Notify",
+     "ms": 4,
+     "cpuMs": 2.7,
+     "n": 84,
+     "pct": 0.3
+    },
+    {
+     "site": "in_flight_io.cc:OnIOComplete",
+     "ms": 3.3,
+     "cpuMs": 1.8,
+     "n": 105,
+     "pct": 0.3
+    },
+    {
+     "site": "render_process_host_impl.cc:Cleanup",
+     "ms": 2.1,
+     "cpuMs": 0.2,
+     "n": 1,
+     "pct": 0.2
+    },
+    {
+     "site": "partitioned_lock_manager.cc:AcquireNextLockOrPostCompletion",
+     "ms": 2,
+     "cpuMs": 1.7,
+     "n": 1,
+     "pct": 0.2
+    }
+   ],
+   "longest": [
+    {
+     "startRelReqMs": 45.1,
+     "wallMs": 1078.9,
+     "inWindowMs": 1078.9,
+     "cpuMs": 8,
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow"
+    },
+    {
+     "startRelReqMs": 1161.5,
+     "wallMs": 29.2,
+     "inWindowMs": 29.2,
+     "cpuMs": 4.6,
+     "site": "process_manager.cc:OnSuspendAck"
+    },
+    {
+     "startRelReqMs": 1222.4,
+     "wallMs": 19.7,
+     "inWindowMs": 19.7,
+     "cpuMs": 8.2,
+     "site": "single_thread_proxy.cc:ScheduledActionSendBeginMainFrame"
+    },
+    {
+     "startRelReqMs": 16.7,
+     "wallMs": 15,
+     "inWindowMs": 15,
+     "cpuMs": 1.8,
+     "site": "ipc_mojo_bootstrap.cc:Accept"
+    },
+    {
+     "startRelReqMs": 1196.5,
+     "wallMs": 7.3,
+     "inWindowMs": 7.3,
+     "cpuMs": 0,
+     "site": "connector.cc:PostDispatchNextMessageFromPipe"
+    },
+    {
+     "startRelReqMs": 1208.3,
+     "wallMs": 4.6,
+     "inWindowMs": 4.6,
+     "cpuMs": 0.1,
+     "site": "simple_watcher.cc:ArmOrNotify"
+    }
+   ]
+  },
+  "GPU Process/CrGpuMain": {
+   "busyMs": 1254.3,
+   "busyPct": 99.9,
+   "cpuMs": 37.1,
+   "tasks": 99,
+   "byPostingSite": [
+    {
+     "site": "scheduler.cc:RunNextTask",
+     "ms": 1251.3,
+     "cpuMs": 35,
+     "n": 73,
+     "pct": 99.7
+    },
+    {
+     "site": "gpu_service_impl.cc:EstablishGpuChannel",
+     "ms": 1.7,
+     "cpuMs": 0.8,
+     "n": 2,
+     "pct": 0.1
+    },
+    {
+     "site": "ipc_channel_proxy.cc:OnChannelError",
+     "ms": 0.9,
+     "cpuMs": 0.9,
+     "n": 1,
+     "pct": 0.1
+    },
+    {
+     "site": "gpu_channel.cc:CreateCommandBuffer",
+     "ms": 0.3,
+     "cpuMs": 0.3,
+     "n": 3,
+     "pct": 0
+    },
+    {
+     "site": "gpu_service_impl.cc:GetPeakMemoryUsage",
+     "ms": 0,
+     "cpuMs": 0,
+     "n": 3,
+     "pct": 0
+    },
+    {
+     "site": "ca_layer_tree_coordinator.mm:CommitPresentedFrameToCA",
+     "ms": 0,
+     "cpuMs": 0,
+     "n": 4,
+     "pct": 0
+    },
+    {
+     "site": "gpu_service_impl.cc:SetChannelDiskCacheHandle",
+     "ms": 0,
+     "cpuMs": 0,
+     "n": 6,
+     "pct": 0
+    },
+    {
+     "site": "gpu_service_impl.cc:StartPeakMemoryMonitor",
+     "ms": 0,
+     "cpuMs": 0,
+     "n": 2,
+     "pct": 0
+    },
+    {
+     "site": "graphite_cache_controller.cc:ScheduleCleanUpAllResources",
+     "ms": 0,
+     "cpuMs": 0,
+     "n": 1,
+     "pct": 0
+    },
+    {
+     "site": "ipc_channel_proxy.cc:OnChannelConnected",
+     "ms": 0,
+     "cpuMs": 0,
+     "n": 2,
+     "pct": 0
+    },
+    {
+     "site": "gpu_service_impl.cc:SetChannelClientPid",
+     "ms": 0,
+     "cpuMs": 0,
+     "n": 2,
+     "pct": 0
+    }
+   ],
+   "longest": [
+    {
+     "startRelReqMs": 28.3,
+     "wallMs": 385.6,
+     "inWindowMs": 385.6,
+     "cpuMs": 1.3,
+     "site": "scheduler.cc:RunNextTask"
+    },
+    {
+     "startRelReqMs": 449.5,
+     "wallMs": 316.9,
+     "inWindowMs": 316.9,
+     "cpuMs": 3.9,
+     "site": "scheduler.cc:RunNextTask"
+    },
+    {
+     "startRelReqMs": 768,
+     "wallMs": 91,
+     "inWindowMs": 91,
+     "cpuMs": 2.2,
+     "site": "scheduler.cc:RunNextTask"
+    },
+    {
+     "startRelReqMs": 860.3,
+     "wallMs": 72.7,
+     "inWindowMs": 72.7,
+     "cpuMs": 1.8,
+     "site": "scheduler.cc:RunNextTask"
+    },
+    {
+     "startRelReqMs": 1187.8,
+     "wallMs": 148.1,
+     "inWindowMs": 67.7,
+     "cpuMs": 1.3,
+     "site": "scheduler.cc:RunNextTask"
+    },
+    {
+     "startRelReqMs": 934,
+     "wallMs": 65.4,
+     "inWindowMs": 65.4,
+     "cpuMs": 1.5,
+     "site": "scheduler.cc:RunNextTask"
+    }
+   ]
+  }
+ },
+ "lockRelatedEvents": [
+  {
+   "relReqMs": 1255,
+   "process": "Browser",
+   "thread": "CrBrowserMain",
+   "name": "SimpleWatcher::OnHandleReady",
+   "durMs": 0.1,
+   "args": "{\"chrome_mojo_event_info\":{\"watcher_notify_interface_tag\":\"blink.mojom.LockManager\"}}"
+  },
+  {
+   "relReqMs": 1255,
+   "process": "Browser",
+   "thread": "CrBrowserMain",
+   "name": "Receive mojo message",
+   "durMs": 0.1,
+   "args": "{\"chrome_mojo_event_info\":{\"data_num_bytes\":128,\"ipc_hash\":3822249396,\"mojo_interface_method\":{\"native_symbol\":{\"mapping_id\":6,\"rel_pc\":89152104}},\"mojo_interface_tag\":\"blink.mojom.LockManager\",\"paylo"
+  },
+  {
+   "relReqMs": 1255.1,
+   "process": "Renderer",
+   "thread": "CrRendererMain",
+   "name": "SimpleWatcher::OnHandleReady",
+   "durMs": 0,
+   "args": "{\"chrome_mojo_event_info\":{\"watcher_notify_interface_tag\":\"blink.mojom.LockManager\"}}"
+  },
+  {
+   "relReqMs": 1255.2,
+   "process": "Renderer",
+   "thread": "CrRendererMain",
+   "name": "Receive mojo message",
+   "durMs": 1.6,
+   "args": "{\"chrome_mojo_event_info\":{\"data_num_bytes\":88,\"ipc_hash\":451182233,\"mojo_interface_method\":{\"native_symbol\":{\"mapping_id\":6,\"rel_pc\":89151752}},\"mojo_interface_tag\":\"blink.mojom.LockRequest\",\"payload"
+  },
+  {
+   "relReqMs": 1257.5,
+   "process": "Browser",
+   "thread": "CrBrowserMain",
+   "name": "SimpleWatcher::OnHandleReady",
+   "durMs": 0,
+   "args": "{\"chrome_mojo_event_info\":{\"watcher_notify_interface_tag\":\"blink.mojom.LockManager\"}}"
+  },
+  {
+   "relReqMs": 1261.7,
+   "process": "Browser",
+   "thread": "CrBrowserMain",
+   "name": "Closed mojo endpoint",
+   "durMs": 0,
+   "args": "{\"chrome_mojo_event_info\":{\"mojo_interface_tag\":\"blink.mojom.LockHandle\"}}"
+  },
+  {
+   "relReqMs": 0.7,
+   "process": "Renderer",
+   "thread": "v8:ProfEvntProc",
+   "name": "ProfileChunk",
+   "durMs": null,
+   "args": "{\"data\":{\"columns\":[95731,95949,138528,141217,96213,7652,7704,57],\"cpuProfile\":{\"nodes\":[{\"callFrame\":{\"codeType\":\"JS\",\"columnNumber\":96490,\"functionName\":\"loadPref\",\"lineNumber\":3827,\"scriptId\":7,\"ur"
+  }
+ ],
+ "profilerTopInWindow": [
+  {
+   "fn": "(idle)",
+   "ms": 759.3
+  },
+  {
+   "fn": "(program)",
+   "ms": 472.3
+  },
+  {
+   "fn": "(anonymous)",
+   "ms": 2.6
+  },
+  {
+   "fn": "navigator.locks.request",
+   "ms": 2.1
+  },
+  {
+   "fn": "(anonymous) /_astro/play.astro_astro_type_script_index_0_lang.CAh1j2nv.js",
+   "ms": 1.6
+  },
+  {
+   "fn": "Mn /_astro/player-screen.Z61nFwe8.js",
+   "ms": 1.1
+  },
+  {
+   "fn": "h /_astro/player-screen.Z61nFwe8.js",
+   "ms": 0.1
+  }
+ ],
+ "milestones": [
+  {
+   "name": "navigationStart",
+   "relReqMs": -266.8
+  },
+  {
+   "name": "navigationStart",
+   "relReqMs": -266.6
+  },
+  {
+   "name": "domContentLoadedEventStart",
+   "relReqMs": -266
+  },
+  {
+   "name": "unloadEventStart",
+   "relReqMs": -229.4
+  },
+  {
+   "name": "domContentLoadedEventStart",
+   "relReqMs": -34.1
+  },
+  {
+   "name": "MarkDOMContent",
+   "relReqMs": 18.7
+  },
+  {
+   "name": "loadEventStart",
+   "relReqMs": 159.6
+  },
+  {
+   "name": "MarkLoad",
+   "relReqMs": 160.7
+  }
+ ],
+ "mainThreadScriptAndEvents": [
+  {
+   "name": "v8.compileModule",
+   "relReqMs": -127.1,
+   "wallMs": 13.7,
+   "what": "/_astro/play.astro_astro_type_script_index_0_lang.CAh1j2nv.js"
+  },
+  {
+   "name": "v8.evaluateModule",
+   "relReqMs": -103,
+   "wallMs": 1.1,
+   "what": null
+  },
+  {
+   "name": "v8.evaluateModule",
+   "relReqMs": -70.3,
+   "wallMs": 36.1,
+   "what": null
+  },
+  {
+   "name": "EventDispatch",
+   "relReqMs": -34.1,
+   "wallMs": 52.6,
+   "what": "EventDispatch:DOMContentLoaded"
+  }
+ ]
+}

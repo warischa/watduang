@@ -1,0 +1,110 @@
+{
+ "short-stick@390": {
+  "iw": 390,
+  "resetOpen": true,
+  "editOpen": false,
+  "editForced": true,
+  "goClick": "ok",
+  "mustRed": {
+   "before": [
+    "Mitr Medium|Mitr-Medium|9"
+   ],
+   "beforeFF": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+   "after": [
+    "Mitr Medium|Mitr-Medium|9"
+   ],
+   "afterFF": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+   "controlFlipsOnGeorgia": "Georgia, serif",
+   "controlPainted": []
+  },
+  "faces": [
+   "screen|ps-tagline|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "screen|ps-step|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "screen|ps-count-read|Mitr|Mitr-Regular",
+   "screen|ps-e|\"Noto Sans Thai\"|AppleColorEmoji",
+   "screen|ps-n|Sarabun|Sarabun-Regular",
+   "screen|ps-hint|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "screen|ps-sec|Mitr|Mitr-Regular+.SFNS-Regular",
+   "screen|ps-go|Mitr|Mitr-Medium",
+   "resetDialog|ps-dialog-title|Mitr|Mitr-Medium",
+   "resetDialog|ps-dialog-body|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "resetDialog|ps-sec|Mitr|Mitr-Regular",
+   "resetDialog|ps-danger|Mitr|Mitr-Medium",
+   "editDialog|ps-dialog-title|Mitr|Mitr-Medium",
+   "editDialog|ps-dialog-body|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "editDialog|ps-sec|Mitr|Mitr-Regular",
+   "editDialog|ps-danger|Mitr|Mitr-Medium"
+  ]
+ },
+ "short-stick@320": {
+  "iw": 320,
+  "resetOpen": true,
+  "editOpen": false,
+  "editForced": true,
+  "goClick": "ok",
+  "faces": [
+   "screen|ps-tagline|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "screen|ps-step|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "screen|ps-count-read|Mitr|Mitr-Regular",
+   "screen|ps-e|\"Noto Sans Thai\"|AppleColorEmoji",
+   "screen|ps-n|Sarabun|Sarabun-Regular",
+   "screen|ps-hint|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "screen|ps-sec|Mitr|Mitr-Regular+.SFNS-Regular",
+   "screen|ps-go|Mitr|Mitr-Medium",
+   "resetDialog|ps-dialog-title|Mitr|Mitr-Medium",
+   "resetDialog|ps-dialog-body|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "resetDialog|ps-sec|Mitr|Mitr-Regular",
+   "resetDialog|ps-danger|Mitr|Mitr-Medium",
+   "editDialog|ps-dialog-title|Mitr|Mitr-Medium",
+   "editDialog|ps-dialog-body|\"Noto Sans Thai\"|NotoSansThai-Regular",
+   "editDialog|ps-sec|Mitr|Mitr-Regular",
+   "editDialog|ps-danger|Mitr|Mitr-Medium"
+  ]
+ },
+ "one-bomb@390": {
+  "iw": 390,
+  "resetOpen": true,
+  "editOpen": true,
+  "goClick": "ok",
+  "faces": [
+   "screen|ps-step|Arial|ArialMT",
+   "screen|ps-count-read|Mitr|Mitr-Regular",
+   "screen|ps-e|system-ui|AppleColorEmoji",
+   "screen|ps-n|Sarabun|Sarabun-Regular",
+   "screen|ps-hint|system-ui|.ThonburiUI-Regular+.SFNS-Regular",
+   "screen|ps-sec|Mitr|Mitr-Regular+.SFNS-Regular",
+   "screen|ps-go|Mitr|Mitr-Medium",
+   "resetDialog|ps-dialog-title|Mitr|Mitr-Medium",
+   "resetDialog|ps-dialog-body|system-ui|.ThonburiUI-Regular+.SFNS-Regular",
+   "resetDialog|ps-sec|Mitr|Mitr-Regular",
+   "resetDialog|ps-danger|Mitr|Mitr-Medium",
+   "editDialog|ps-dialog-title|Mitr|Mitr-Medium",
+   "editDialog|ps-dialog-body|system-ui|.ThonburiUI-Regular+.SFNS-Regular",
+   "editDialog|ps-sec|Mitr|Mitr-Regular",
+   "editDialog|ps-danger|Mitr|Mitr-Medium"
+  ]
+ },
+ "one-bomb@320": {
+  "iw": 320,
+  "resetOpen": true,
+  "editOpen": true,
+  "goClick": "ok",
+  "faces": [
+   "screen|ps-step|Arial|ArialMT",
+   "screen|ps-count-read|Mitr|Mitr-Regular",
+   "screen|ps-e|system-ui|AppleColorEmoji",
+   "screen|ps-n|Sarabun|Sarabun-Regular",
+   "screen|ps-hint|system-ui|.ThonburiUI-Regular+.SFNS-Regular",
+   "screen|ps-sec|Mitr|Mitr-Regular+.SFNS-Regular",
+   "screen|ps-go|Mitr|Mitr-Medium",
+   "resetDialog|ps-dialog-title|Mitr|Mitr-Medium",
+   "resetDialog|ps-dialog-body|system-ui|.ThonburiUI-Regular+.SFNS-Regular",
+   "resetDialog|ps-sec|Mitr|Mitr-Regular",
+   "resetDialog|ps-danger|Mitr|Mitr-Medium",
+   "editDialog|ps-dialog-title|Mitr|Mitr-Medium",
+   "editDialog|ps-dialog-body|system-ui|.ThonburiUI-Regular+.SFNS-Regular",
+   "editDialog|ps-sec|Mitr|Mitr-Regular",
+   "editDialog|ps-danger|Mitr|Mitr-Medium"
+  ]
+ }
+}

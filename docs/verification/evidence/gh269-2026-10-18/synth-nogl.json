@@ -1,0 +1,7830 @@
+{
+ "env": "nogl",
+ "phase": "synth",
+ "flags": [
+  "--headless=new",
+  "--remote-debugging-port=9451",
+  "--user-data-dir=/private/tmp/claude-501/-Users-waris-c-claude-free-game/a738e8dc-4664-427f-971b-6f882c925cdf/scratchpad/gh269-YVHmfh",
+  "--no-first-run",
+  "--no-default-browser-check",
+  "--window-size=390,844",
+  "--disable-gpu"
+ ],
+ "chromePid": 21142,
+ "runs": [
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 664,
+   "leafPaint": 347.90000000037253,
+   "openPaint": 660.7000000001863,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 343.5,
+   "revealSamples": 29,
+   "openAt": 643.8000000007451,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 641,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 347.90000000037253,
+     "presentationTime": 352,
+     "seenAt": 360.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 664,
+     "loadTime": 0,
+     "startTime": 664,
+     "paintTime": 660.7000000001863,
+     "presentationTime": 664,
+     "seenAt": 677.1000000005588
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 326.70000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 343.40000000037253,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 343.5,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 643.8000000007451,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 643.9000000003725,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 644.1000000005588,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 644.1000000005588,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 644.3000000007451,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 676,
+   "leafPaint": 358.5,
+   "openPaint": 674.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +369ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 357.8999999994412,
+   "revealSamples": 30,
+   "openAt": 659,
+   "samplesAtOpen": 54,
+   "samplerOpenAt": 654,
+   "samplerSamples": 54,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 358.5,
+     "presentationTime": 364,
+     "seenAt": 375.29999999981374
+    },
+    {
+     "id": "open",
+     "renderTime": 676,
+     "loadTime": 0,
+     "startTime": 676,
+     "paintTime": 674.5,
+     "presentationTime": 676,
+     "seenAt": 691
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 341.3999999994412,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 357.79999999981374,
+     "seq": 7,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 357.8999999994412,
+     "seq": 8,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 659,
+     "seq": 9,
+     "samples": 54,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 659.1999999992549,
+     "seq": 10,
+     "samples": 54,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 659.1999999992549,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 659.1999999992549,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 659.2999999998137,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 360,
+   "openRender": 676,
+   "leafPaint": 357.09999999962747,
+   "openPaint": 673.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 356.5,
+   "revealSamples": 29,
+   "openAt": 657,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 650,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 360,
+     "loadTime": 0,
+     "startTime": 360,
+     "paintTime": 357.09999999962747,
+     "presentationTime": 360,
+     "seenAt": 373.8999999994412
+    },
+    {
+     "id": "open",
+     "renderTime": 676,
+     "loadTime": 0,
+     "startTime": 676,
+     "paintTime": 673.5,
+     "presentationTime": 676,
+     "seenAt": 689.8999999994412
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 339.79999999981374,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 356.3999999994412,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 356.5,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 657,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 657,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 657,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 657,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 657.2000000001863,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 668,
+   "leafPaint": 349.70000000018626,
+   "openPaint": 666,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +352ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 349.1000000005588,
+   "revealSamples": 29,
+   "openAt": 650.2000000001863,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 645,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 349.70000000018626,
+     "presentationTime": 356,
+     "seenAt": 366.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 668,
+     "loadTime": 0,
+     "startTime": 668,
+     "paintTime": 666,
+     "presentationTime": 668,
+     "seenAt": 682.6000000005588
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 332.40000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 349,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 349.1000000005588,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 650.2000000001863,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 650.3000000007451,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 650.3000000007451,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 650.3000000007451,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 650.4000000003725,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 672,
+   "leafPaint": 354.5,
+   "openPaint": 670.7999999998137,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 354.19999999925494,
+   "revealSamples": 29,
+   "openAt": 655.0999999996275,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 649,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 354.5,
+     "presentationTime": 356,
+     "seenAt": 371.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 672,
+     "loadTime": 0,
+     "startTime": 672,
+     "paintTime": 670.7999999998137,
+     "presentationTime": 672,
+     "seenAt": 686.5999999996275
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 337,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 354.09999999962747,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 354.19999999925494,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 655.0999999996275,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 655.1999999992549,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 655.1999999992549,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 655.1999999992549,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 655.1999999992549,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 672,
+   "leafPaint": 351.5,
+   "openPaint": 667.6000000005588,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 351,
+   "revealSamples": 29,
+   "openAt": 651.8000000007451,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 646,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 351.5,
+     "presentationTime": 356,
+     "seenAt": 368.1000000005588
+    },
+    {
+     "id": "open",
+     "renderTime": 672,
+     "loadTime": 0,
+     "startTime": 672,
+     "paintTime": 667.6000000005588,
+     "presentationTime": 672,
+     "seenAt": 683.4000000003725
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 334.1000000005588,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 350.6000000005588,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 351,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 651.8000000007451,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 652,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 652,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 652,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 652,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 348,
+   "openRender": 664,
+   "leafPaint": 343.8999999994412,
+   "openPaint": 660.5999999996275,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +352ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 343.79999999981374,
+   "revealSamples": 29,
+   "openAt": 643.8999999994412,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 641,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 348,
+     "loadTime": 0,
+     "startTime": 348,
+     "paintTime": 343.8999999994412,
+     "presentationTime": 348,
+     "seenAt": 360.79999999981374
+    },
+    {
+     "id": "open",
+     "renderTime": 664,
+     "loadTime": 0,
+     "startTime": 664,
+     "paintTime": 660.5999999996275,
+     "presentationTime": 664,
+     "seenAt": 677.3999999994412
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 327.09999999962747,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 343.79999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 343.79999999981374,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 643.8999999994412,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 643.8999999994412,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 643.8999999994412,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 643.8999999994412,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 644,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 676,
+   "leafPaint": 354.5,
+   "openPaint": 671.2000000001863,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +350ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 354.40000000037253,
+   "revealSamples": 29,
+   "openAt": 654.4000000003725,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 650,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 354.5,
+     "presentationTime": 356,
+     "seenAt": 371
+    },
+    {
+     "id": "open",
+     "renderTime": 676,
+     "loadTime": 0,
+     "startTime": 676,
+     "paintTime": 671.2000000001863,
+     "presentationTime": 676,
+     "seenAt": 687.4000000003725
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 337.40000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 354.30000000074506,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 354.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 654.4000000003725,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 654.5,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 654.5,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 654.5,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 654.5,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 668,
+   "leafPaint": 348.8999999994412,
+   "openPaint": 665.3999999994412,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 348.59999999962747,
+   "revealSamples": 29,
+   "openAt": 649.7000000001863,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 646,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 348.8999999994412,
+     "presentationTime": 352,
+     "seenAt": 365.70000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 668,
+     "loadTime": 0,
+     "startTime": 668,
+     "paintTime": 665.3999999994412,
+     "presentationTime": 668,
+     "seenAt": 681.5999999996275
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 332,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 348.5,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 348.59999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 649.7000000001863,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 649.7999999998137,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 649.7999999998137,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 649.7999999998137,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 649.7999999998137,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 668,
+   "leafPaint": 347.5,
+   "openPaint": 663.7999999998137,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 347.40000000037253,
+   "revealSamples": 29,
+   "openAt": 648.5,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 646,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 347.5,
+     "presentationTime": 352,
+     "seenAt": 363.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 668,
+     "loadTime": 0,
+     "startTime": 668,
+     "paintTime": 663.7999999998137,
+     "presentationTime": 668,
+     "seenAt": 680
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 330.20000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 347.29999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 347.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 648.5,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 648.5999999996275,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 648.5999999996275,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 648.5999999996275,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 648.5999999996275,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "media",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 360,
+   "openRender": 676,
+   "leafPaint": 354.09999999962747,
+   "openPaint": 669.7000000001863,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 353.40000000037253,
+   "revealSamples": 29,
+   "openAt": 654.2000000001863,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 651,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 360,
+     "loadTime": 0,
+     "startTime": 360,
+     "paintTime": 354.09999999962747,
+     "presentationTime": 360,
+     "seenAt": 369.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 676,
+     "loadTime": 0,
+     "startTime": 676,
+     "paintTime": 669.7000000001863,
+     "presentationTime": 676,
+     "seenAt": 686.2000000001863
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 336.29999999981374,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 352.70000000018626,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 353.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 654.2000000001863,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 654.2999999998137,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 654.2999999998137,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 654.2999999998137,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 654.5,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "media",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 672,
+   "leafPaint": 350.70000000018626,
+   "openPaint": 666.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 350,
+   "revealSamples": 29,
+   "openAt": 651,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 645,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 350.70000000018626,
+     "presentationTime": 356,
+     "seenAt": 367.1000000005588
+    },
+    {
+     "id": "open",
+     "renderTime": 672,
+     "loadTime": 0,
+     "startTime": 672,
+     "paintTime": 666.5,
+     "presentationTime": 672,
+     "seenAt": 682.4000000003725
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 333.40000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 349.80000000074506,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 350,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 651,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 651,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 651,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 651,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 651.1000000005588,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "media",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 360,
+   "openRender": 676,
+   "leafPaint": 355.6000000005588,
+   "openPaint": 671.7000000001863,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +351ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 355.1000000005588,
+   "revealSamples": 29,
+   "openAt": 655.3000000007451,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 649,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 360,
+     "loadTime": 0,
+     "startTime": 360,
+     "paintTime": 355.6000000005588,
+     "presentationTime": 360,
+     "seenAt": 372.1000000005588
+    },
+    {
+     "id": "open",
+     "renderTime": 676,
+     "loadTime": 0,
+     "startTime": 676,
+     "paintTime": 671.7000000001863,
+     "presentationTime": 676,
+     "seenAt": 688.3000000007451
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 338.6000000005588,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 354.90000000037253,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 355.1000000005588,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 655.3000000007451,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 655.4000000003725,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 655.4000000003725,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 655.4000000003725,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 655.5,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "media",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 668,
+   "leafPaint": 347.40000000037253,
+   "openPaint": 663,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +352ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 346.80000000074506,
+   "revealSamples": 29,
+   "openAt": 647.1000000005588,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 642,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 347.40000000037253,
+     "presentationTime": 352,
+     "seenAt": 364.1000000005588
+    },
+    {
+     "id": "open",
+     "renderTime": 668,
+     "loadTime": 0,
+     "startTime": 668,
+     "paintTime": 663,
+     "presentationTime": 668,
+     "seenAt": 680.5
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 330.30000000074506,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 346.6000000005588,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 346.80000000074506,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 647.1000000005588,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 647.2000000001863,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 647.3000000007451,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 647.3000000007451,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 647.3000000007451,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "media",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 668,
+   "leafPaint": 348.19999999925494,
+   "openPaint": 665,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +352ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 347.59999999962747,
+   "revealSamples": 29,
+   "openAt": 647.7999999998137,
+   "samplesAtOpen": 53,
+   "samplerOpenAt": 645,
+   "samplerSamples": 53,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 18,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 348.19999999925494,
+     "presentationTime": 352,
+     "seenAt": 365.19999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 668,
+     "loadTime": 0,
+     "startTime": 668,
+     "paintTime": 665,
+     "presentationTime": 668,
+     "seenAt": 681.5999999996275
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 331.5,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 347.29999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 347.59999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 647.7999999998137,
+     "seq": 9,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    },
+    {
+     "name": "open",
+     "at": 647.7999999998137,
+     "seq": 10,
+     "samples": 53,
+     "stopped": false,
+     "frames": 39
+    }
+   ],
+   "mutations": [
+    {
+     "at": 647.8999999994412,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 647.8999999994412,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 648,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "insert",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 376,
+   "openRender": 376,
+   "leafPaint": 370.3999999994412,
+   "openPaint": 370.3999999994412,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 354.09999999962747,
+   "revealSamples": 29,
+   "openAt": 353.59999999962747,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 348,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 370.3999999994412,
+     "presentationTime": 376,
+     "seenAt": 387.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 370.3999999994412,
+     "presentationTime": 376,
+     "seenAt": 387.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 336,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 353.59999999962747,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 353.59999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 353.8999999994412,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 354.09999999962747,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 353.70000000018626,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 353.70000000018626,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 353.8999999994412,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "insert",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 376,
+   "openRender": 376,
+   "leafPaint": 372.40000000037253,
+   "openPaint": 372.40000000037253,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 354.90000000037253,
+   "revealSamples": 29,
+   "openAt": 354.70000000018626,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 349,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 372.40000000037253,
+     "presentationTime": 376,
+     "seenAt": 389.20000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 372.40000000037253,
+     "presentationTime": 376,
+     "seenAt": 389.20000000018626
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 338.70000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 354.70000000018626,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 354.70000000018626,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 354.80000000074506,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 354.90000000037253,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 354.70000000018626,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 354.70000000018626,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 354.80000000074506,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "insert",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 368,
+   "openRender": 368,
+   "leafPaint": 364.8999999994412,
+   "openPaint": 364.8999999994412,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 348.79999999981374,
+   "revealSamples": 29,
+   "openAt": 348.3999999994412,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 345,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 364.8999999994412,
+     "presentationTime": 368,
+     "seenAt": 381.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 364.8999999994412,
+     "presentationTime": 368,
+     "seenAt": 381.70000000018626
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 332.09999999962747,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 348.3999999994412,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 348.3999999994412,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 348.59999999962747,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 348.79999999981374,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 348.5,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 348.5,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 348.59999999962747,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "insert",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 364,
+   "leafPaint": 361.90000000037253,
+   "openPaint": 361.90000000037253,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 345.1000000005588,
+   "revealSamples": 29,
+   "openAt": 345,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 340,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.90000000037253,
+     "presentationTime": 364,
+     "seenAt": 378.5
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.90000000037253,
+     "presentationTime": 364,
+     "seenAt": 378.5
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 328.5,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 345,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 345,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 345,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 345.1000000005588,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 345,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 345,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 345,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "insert",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 368.79999999981374,
+   "openPaint": 368.79999999981374,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 351.79999999981374,
+   "revealSamples": 29,
+   "openAt": 351.5,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 345,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 368.79999999981374,
+     "presentationTime": 372,
+     "seenAt": 385.5
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 368.79999999981374,
+     "presentationTime": 372,
+     "seenAt": 385.5
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 335.20000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 351.5,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 351.59999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 351.70000000018626,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 351.79999999981374,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 351.59999999962747,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 351.59999999962747,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 351.70000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "adopt",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 368,
+   "openRender": 368,
+   "leafPaint": 364.29999999981374,
+   "openPaint": 364.29999999981374,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 347.29999999981374,
+   "revealSamples": 29,
+   "openAt": 347,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 345,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 364.29999999981374,
+     "presentationTime": 368,
+     "seenAt": 381.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 364.29999999981374,
+     "presentationTime": 368,
+     "seenAt": 381.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 330.5,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 347,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 347,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 347.09999999962747,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 347.29999999981374,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 347,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 347,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 347.09999999962747,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "adopt",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 368.79999999981374,
+   "openPaint": 368.79999999981374,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 352.29999999981374,
+   "revealSamples": 29,
+   "openAt": 351.79999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 348,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 368.79999999981374,
+     "presentationTime": 372,
+     "seenAt": 386.20000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 368.79999999981374,
+     "presentationTime": 372,
+     "seenAt": 386.29999999981374
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 335.70000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 351.79999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 351.90000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 352.09999999962747,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 352.29999999981374,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 351.90000000037253,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 351.90000000037253,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 352.09999999962747,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "adopt",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 369.20000000018626,
+   "openPaint": 369.20000000018626,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 352.6000000005588,
+   "revealSamples": 29,
+   "openAt": 352.29999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 348,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.20000000018626,
+     "presentationTime": 372,
+     "seenAt": 385.79999999981374
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.20000000018626,
+     "presentationTime": 372,
+     "seenAt": 385.79999999981374
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 335.29999999981374,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 352.29999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 352.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 352.5,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 352.6000000005588,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 352.40000000037253,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 352.40000000037253,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 352.5,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "adopt",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 364,
+   "leafPaint": 359.29999999981374,
+   "openPaint": 359.29999999981374,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 344.29999999981374,
+   "revealSamples": 29,
+   "openAt": 344.09999999962747,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 340,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 359.29999999981374,
+     "presentationTime": 364,
+     "seenAt": 376.20000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 359.29999999981374,
+     "presentationTime": 364,
+     "seenAt": 376.20000000018626
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 326.70000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 344.09999999962747,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 344.09999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 344.20000000018626,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 344.29999999981374,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 344.09999999962747,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 344.09999999962747,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 344.20000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "adopt",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 369.09999999962747,
+   "openPaint": 369.09999999962747,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 350.90000000037253,
+   "revealSamples": 29,
+   "openAt": 350.59999999962747,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 346,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.09999999962747,
+     "presentationTime": 372,
+     "seenAt": 385.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.09999999962747,
+     "presentationTime": 372,
+     "seenAt": 385.90000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 334.20000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 350.59999999962747,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 350.59999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 350.70000000018626,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 350.90000000037253,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 350.59999999962747,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 350.59999999962747,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 350.70000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "media",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 364,
+   "leafPaint": 359.8999999994412,
+   "openPaint": 359.8999999994412,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 344.29999999981374,
+   "revealSamples": 29,
+   "openAt": 343.79999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 339,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 359.8999999994412,
+     "presentationTime": 364,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 359.8999999994412,
+     "presentationTime": 364,
+     "seenAt": 378.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 327.29999999981374,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 343.79999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 344,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 344.09999999962747,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 344.29999999981374,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 344,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 344,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 344.09999999962747,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "media",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 380,
+   "openRender": 380,
+   "leafPaint": 376.6000000005588,
+   "openPaint": 376.6000000005588,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 359.1000000005588,
+   "revealSamples": 30,
+   "openAt": 358.6000000005588,
+   "samplesAtOpen": 30,
+   "samplerOpenAt": 353,
+   "samplerSamples": 30,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 376.6000000005588,
+     "presentationTime": 380,
+     "seenAt": 392.1000000005588
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 376.6000000005588,
+     "presentationTime": 380,
+     "seenAt": 392.1000000005588
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 342.6000000005588,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 358.6000000005588,
+     "seq": 7,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 358.70000000018626,
+     "seq": 8,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 358.79999999981374,
+     "seq": 12,
+     "samples": 30,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 359.1000000005588,
+     "seq": 13,
+     "samples": 30,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 358.70000000018626,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 358.70000000018626,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 358.79999999981374,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "media",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 376,
+   "openRender": 376,
+   "leafPaint": 372.70000000018626,
+   "openPaint": 372.70000000018626,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 356.40000000037253,
+   "revealSamples": 29,
+   "openAt": 356.1000000005588,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 349,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 372.70000000018626,
+     "presentationTime": 376,
+     "seenAt": 390.5
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 372.70000000018626,
+     "presentationTime": 376,
+     "seenAt": 390.5
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 340.1000000005588,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 356.1000000005588,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 356.20000000018626,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 356.20000000018626,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 356.40000000037253,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 356.20000000018626,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 356.20000000018626,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 356.20000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "media",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 367.79999999981374,
+   "openPaint": 367.79999999981374,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 351.59999999962747,
+   "revealSamples": 29,
+   "openAt": 351.09999999962747,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 345,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 367.79999999981374,
+     "presentationTime": 372,
+     "seenAt": 383.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 367.79999999981374,
+     "presentationTime": 372,
+     "seenAt": 383.69999999925494
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 334.59999999962747,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 351.09999999962747,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 351.19999999925494,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 351.29999999981374,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 351.59999999962747,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 351.19999999925494,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 351.19999999925494,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 351.29999999981374,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "neg",
+   "mech": "media",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 364,
+   "leafPaint": 361.59999999962747,
+   "openPaint": 361.59999999962747,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 344.90000000037253,
+   "revealSamples": 29,
+   "openAt": 344.70000000018626,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 339,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.59999999962747,
+     "presentationTime": 364,
+     "seenAt": 377.70000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.59999999962747,
+     "presentationTime": 364,
+     "seenAt": 377.70000000018626
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 328.09999999962747,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "open-start",
+     "at": 344.70000000018626,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 344.70000000018626,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal-start",
+     "at": 344.79999999981374,
+     "seq": 12,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 344.90000000037253,
+     "seq": 13,
+     "samples": 29,
+     "stopped": true,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 344.79999999981374,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 344.79999999981374,
+     "seq": 10,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 344.79999999981374,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 380,
+   "leafPaint": 360.5,
+   "openPaint": 376.20000000018626,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 360,
+   "revealSamples": 30,
+   "openAt": 360.8999999994412,
+   "samplesAtOpen": 30,
+   "samplerOpenAt": 355,
+   "samplerSamples": 30,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 360.5,
+     "presentationTime": 364,
+     "seenAt": 377.79999999981374
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 376.20000000018626,
+     "presentationTime": 380,
+     "seenAt": 393.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 343.29999999981374,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 359.79999999981374,
+     "seq": 7,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 360,
+     "seq": 8,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 360.8999999994412,
+     "seq": 9,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 361,
+     "seq": 10,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 361,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 361,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 361.09999999962747,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 364,
+   "leafPaint": 346.6000000005588,
+   "openPaint": 361.6000000005588,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 346,
+   "revealSamples": 29,
+   "openAt": 347.1000000005588,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 343,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 346.6000000005588,
+     "presentationTime": 352,
+     "seenAt": 362.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.6000000005588,
+     "presentationTime": 364,
+     "seenAt": 379.80000000074506
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 328.90000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 345.90000000037253,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 346,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 347.1000000005588,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 347.20000000018626,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 347.20000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 347.20000000018626,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 347.30000000074506,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 360,
+   "openRender": 372,
+   "leafPaint": 355,
+   "openPaint": 369.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 354.5,
+   "revealSamples": 29,
+   "openAt": 355.5,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 350,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 360,
+     "loadTime": 0,
+     "startTime": 360,
+     "paintTime": 355,
+     "presentationTime": 360,
+     "seenAt": 371.20000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.5,
+     "presentationTime": 372,
+     "seenAt": 387.90000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 337.90000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 354.30000000074506,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 354.5,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 355.5,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 355.5,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 355.5,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 355.5,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 355.6000000005588,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 360,
+   "openRender": 372,
+   "leafPaint": 354.59999999962747,
+   "openPaint": 369.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 354.09999999962747,
+   "revealSamples": 29,
+   "openAt": 355,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 350,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 360,
+     "loadTime": 0,
+     "startTime": 360,
+     "paintTime": 354.59999999962747,
+     "presentationTime": 360,
+     "seenAt": 370.79999999981374
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.5,
+     "presentationTime": 372,
+     "seenAt": 387.59999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 337.8999999994412,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 353.8999999994412,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 354.09999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 355,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 355.09999999962747,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 355.09999999962747,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 355.09999999962747,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 355.09999999962747,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 376,
+   "leafPaint": 353.90000000037253,
+   "openPaint": 372.40000000037253,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 353.40000000037253,
+   "revealSamples": 29,
+   "openAt": 354.29999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 349,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 353.90000000037253,
+     "presentationTime": 356,
+     "seenAt": 374.29999999981374
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 372.40000000037253,
+     "presentationTime": 376,
+     "seenAt": 387.6000000005588
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 338.79999999981374,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 353.29999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 353.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 354.29999999981374,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 354.40000000037253,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 354.40000000037253,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 354.40000000037253,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 354.40000000037253,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 380,
+   "leafPaint": 361.29999999981374,
+   "openPaint": 375.79999999981374,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 360.79999999981374,
+   "revealSamples": 31,
+   "openAt": 361.79999999981374,
+   "samplesAtOpen": 31,
+   "samplerOpenAt": 357,
+   "samplerSamples": 31,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.29999999981374,
+     "presentationTime": 364,
+     "seenAt": 377.3999999994412
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 375.79999999981374,
+     "presentationTime": 380,
+     "seenAt": 392.70000000018626
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 344.20000000018626,
+     "seq": 6,
+     "samples": 29,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 360.59999999962747,
+     "seq": 7,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 360.79999999981374,
+     "seq": 8,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 361.79999999981374,
+     "seq": 9,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 361.79999999981374,
+     "seq": 10,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 361.8999999994412,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 361.8999999994412,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 362,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 372,
+   "leafPaint": 353.29999999981374,
+   "openPaint": 369.90000000037253,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 353,
+   "revealSamples": 29,
+   "openAt": 353.59999999962747,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 351,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 353.29999999981374,
+     "presentationTime": 356,
+     "seenAt": 370.70000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.90000000037253,
+     "presentationTime": 372,
+     "seenAt": 385.90000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 334.59999999962747,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 352.90000000037253,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 353,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 353.59999999962747,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 353.59999999962747,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 353.59999999962747,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 353.59999999962747,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 353.59999999962747,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 364,
+   "leafPaint": 346.70000000018626,
+   "openPaint": 361.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 346.40000000037253,
+   "revealSamples": 29,
+   "openAt": 347.1000000005588,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 343,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 346.70000000018626,
+     "presentationTime": 352,
+     "seenAt": 362.70000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.5,
+     "presentationTime": 364,
+     "seenAt": 379.70000000018626
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 328.5,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 346.30000000074506,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 346.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 347.1000000005588,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 347.20000000018626,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 347.20000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 347.20000000018626,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 347.30000000074506,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 372,
+   "leafPaint": 351.70000000018626,
+   "openPaint": 367.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 351.30000000074506,
+   "revealSamples": 29,
+   "openAt": 352,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 347,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 351.70000000018626,
+     "presentationTime": 356,
+     "seenAt": 368.70000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 367.5,
+     "presentationTime": 372,
+     "seenAt": 384
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 332.90000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 351.20000000018626,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 351.30000000074506,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 352,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 352,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 352.1000000005588,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 352.1000000005588,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 352.1000000005588,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 360,
+   "openRender": 380,
+   "leafPaint": 357.90000000037253,
+   "openPaint": 375.09999999962747,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 357.59999999962747,
+   "revealSamples": 30,
+   "openAt": 358.29999999981374,
+   "samplesAtOpen": 30,
+   "samplerOpenAt": 354,
+   "samplerSamples": 30,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 360,
+     "loadTime": 0,
+     "startTime": 360,
+     "paintTime": 357.90000000037253,
+     "presentationTime": 360,
+     "seenAt": 376.20000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 375.09999999962747,
+     "presentationTime": 380,
+     "seenAt": 392.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 342.20000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 357.5,
+     "seq": 7,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 357.59999999962747,
+     "seq": 8,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 358.29999999981374,
+     "seq": 9,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 358.29999999981374,
+     "seq": 10,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 358.29999999981374,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 358.29999999981374,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 358.29999999981374,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "media",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 384,
+   "leafPaint": 361,
+   "openPaint": 378.29999999981374,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +354ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 360.29999999981374,
+   "revealSamples": 29,
+   "openAt": 361.70000000018626,
+   "samplesAtOpen": 30,
+   "samplerOpenAt": 354,
+   "samplerSamples": 30,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361,
+     "presentationTime": 364,
+     "seenAt": 380
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "startTime": 384,
+     "paintTime": 378.29999999981374,
+     "presentationTime": 384,
+     "seenAt": 393.70000000018626
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 344.90000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 360,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 360.29999999981374,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 361.70000000018626,
+     "seq": 9,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 361.70000000018626,
+     "seq": 10,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 361.70000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 361.70000000018626,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 361.70000000018626,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "media",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 368,
+   "openRender": 380,
+   "leafPaint": 362.40000000037253,
+   "openPaint": 377,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 361.79999999981374,
+   "revealSamples": 31,
+   "openAt": 362.90000000037253,
+   "samplesAtOpen": 31,
+   "samplerOpenAt": 356,
+   "samplerSamples": 31,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 362.40000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.70000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 377,
+     "presentationTime": 380,
+     "seenAt": 394.1000000005588
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 343.90000000037253,
+     "seq": 6,
+     "samples": 29,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 361.5,
+     "seq": 7,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 361.79999999981374,
+     "seq": 8,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 362.90000000037253,
+     "seq": 9,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 362.90000000037253,
+     "seq": 10,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 363,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 363,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 363,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "media",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 356,
+   "openRender": 376,
+   "leafPaint": 353.59999999962747,
+   "openPaint": 371.20000000018626,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 353.09999999962747,
+   "revealSamples": 29,
+   "openAt": 354.09999999962747,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 351,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 356,
+     "loadTime": 0,
+     "startTime": 356,
+     "paintTime": 353.59999999962747,
+     "presentationTime": 356,
+     "seenAt": 372.5
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 371.20000000018626,
+     "presentationTime": 376,
+     "seenAt": 387.79999999981374
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 336.20000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 352.70000000018626,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 353.09999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 354.09999999962747,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 354.20000000018626,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 354.20000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 354.20000000018626,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 354.29999999981374,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "media",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 368,
+   "openRender": 384,
+   "leafPaint": 362.09999999962747,
+   "openPaint": 378.8999999994412,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 361.3999999994412,
+   "revealSamples": 31,
+   "openAt": 362.59999999962747,
+   "samplesAtOpen": 31,
+   "samplerOpenAt": 356,
+   "samplerSamples": 31,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 362.09999999962747,
+     "presentationTime": 368,
+     "seenAt": 380.20000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "startTime": 384,
+     "paintTime": 378.8999999994412,
+     "presentationTime": 384,
+     "seenAt": 394.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 345.29999999981374,
+     "seq": 6,
+     "samples": 29,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 361.09999999962747,
+     "seq": 7,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 361.3999999994412,
+     "seq": 8,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 362.59999999962747,
+     "seq": 9,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 362.59999999962747,
+     "seq": 10,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 362.59999999962747,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 362.59999999962747,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 362.79999999981374,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "media",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 360,
+   "openRender": 376,
+   "leafPaint": 357,
+   "openPaint": 374.1000000005588,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 356.5,
+   "revealSamples": 29,
+   "openAt": 357.40000000037253,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 351,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 360,
+     "loadTime": 0,
+     "startTime": 360,
+     "paintTime": 357,
+     "presentationTime": 360,
+     "seenAt": 375.1000000005588
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 374.1000000005588,
+     "presentationTime": 376,
+     "seenAt": 390
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 340.90000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 356.30000000074506,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 356.5,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 357.40000000037253,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 357.40000000037253,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 357.5,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 357.5,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 357.6000000005588,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "attr",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 368,
+   "leafPaint": 347.59999999962747,
+   "openPaint": 363.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +342ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 347.09999999962747,
+   "revealSamples": 29,
+   "openAt": 348,
+   "samplesAtOpen": 30,
+   "samplerOpenAt": 342,
+   "samplerSamples": 30,
+   "mutationsInWindow": 1,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 347.59999999962747,
+     "presentationTime": 352,
+     "seenAt": 364.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 363.5,
+     "presentationTime": 368,
+     "seenAt": 380.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 331.70000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 347.09999999962747,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 347.09999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 348,
+     "seq": 10,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 348.09999999962747,
+     "seq": 11,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 347.20000000018626,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "data-reveal",
+     "target": "HTML"
+    },
+    {
+     "at": 348.09999999962747,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 348.09999999962747,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 348.09999999962747,
+     "seq": 14,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "attr",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 380,
+   "leafPaint": 360.09999999962747,
+   "openPaint": 375.79999999981374,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +354ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 359.29999999981374,
+   "revealSamples": 30,
+   "openAt": 360.59999999962747,
+   "samplesAtOpen": 31,
+   "samplerOpenAt": 355,
+   "samplerSamples": 31,
+   "mutationsInWindow": 1,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 360.09999999962747,
+     "presentationTime": 364,
+     "seenAt": 377.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 375.79999999981374,
+     "presentationTime": 380,
+     "seenAt": 391.40000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 342.40000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 359.29999999981374,
+     "seq": 7,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 359.29999999981374,
+     "seq": 8,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 360.59999999962747,
+     "seq": 10,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 360.59999999962747,
+     "seq": 11,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 359.29999999981374,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "data-reveal",
+     "target": "HTML"
+    },
+    {
+     "at": 360.70000000018626,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 360.70000000018626,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 360.70000000018626,
+     "seq": 14,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "attr",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 352,
+   "openRender": 368,
+   "leafPaint": 346.70000000018626,
+   "openPaint": 364.09999999962747,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +341ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 346.20000000018626,
+   "revealSamples": 29,
+   "openAt": 347.20000000018626,
+   "samplesAtOpen": 30,
+   "samplerOpenAt": 342,
+   "samplerSamples": 30,
+   "mutationsInWindow": 1,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 352,
+     "loadTime": 0,
+     "startTime": 352,
+     "paintTime": 346.70000000018626,
+     "presentationTime": 352,
+     "seenAt": 365.20000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 364.09999999962747,
+     "presentationTime": 368,
+     "seenAt": 379.5
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 330.59999999962747,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 346.09999999962747,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 346.20000000018626,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 347.20000000018626,
+     "seq": 10,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 347.29999999981374,
+     "seq": 11,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 346.29999999981374,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "data-reveal",
+     "target": "HTML"
+    },
+    {
+     "at": 347.29999999981374,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 347.29999999981374,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 347.40000000037253,
+     "seq": 14,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "attr",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 380,
+   "leafPaint": 358.40000000037253,
+   "openPaint": 375.29999999981374,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +352ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 357.70000000018626,
+   "revealSamples": 29,
+   "openAt": 359.09999999962747,
+   "samplesAtOpen": 31,
+   "samplerOpenAt": 353,
+   "samplerSamples": 31,
+   "mutationsInWindow": 1,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 358.40000000037253,
+     "presentationTime": 364,
+     "seenAt": 377.20000000018626
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 375.29999999981374,
+     "presentationTime": 380,
+     "seenAt": 391.90000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 341.20000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 357.70000000018626,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 357.70000000018626,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 359.09999999962747,
+     "seq": 10,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 359.09999999962747,
+     "seq": 11,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 357.70000000018626,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "data-reveal",
+     "target": "HTML"
+    },
+    {
+     "at": 359.09999999962747,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 359.09999999962747,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 359.09999999962747,
+     "seq": 14,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "attr",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 376,
+   "leafPaint": 358.20000000018626,
+   "openPaint": 373.20000000018626,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +350ms: [\"div#leaf|LEAF REVEALED BY STYLESHEET\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "div#leaf|LEAF REVEALED BY STYLESHEET"
+   ],
+   "revealAt": 357.59999999962747,
+   "revealSamples": 29,
+   "openAt": 358.59999999962747,
+   "samplesAtOpen": 30,
+   "samplerOpenAt": 351,
+   "samplerSamples": 30,
+   "mutationsInWindow": 1,
+   "leafPaintBeforeOpenTask": true,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 358.20000000018626,
+     "presentationTime": 364,
+     "seenAt": 374.5
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 373.20000000018626,
+     "presentationTime": 376,
+     "seenAt": 390.5
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 341.79999999981374,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 357.5,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 357.59999999962747,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 358.59999999962747,
+     "seq": 10,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 358.70000000018626,
+     "seq": 11,
+     "samples": 30,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 357.59999999962747,
+     "seq": 9,
+     "type": "attributes",
+     "attr": "data-reveal",
+     "target": "HTML"
+    },
+    {
+     "at": 358.70000000018626,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 358.70000000018626,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 358.70000000018626,
+     "seq": 14,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "insert",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 366.70000000018626,
+   "openPaint": 366.70000000018626,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 349.5,
+   "revealSamples": 29,
+   "openAt": 349.6000000005588,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 341,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 366.70000000018626,
+     "presentationTime": 372,
+     "seenAt": 382.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 366.70000000018626,
+     "presentationTime": 372,
+     "seenAt": 382.90000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 331.90000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 349.40000000037253,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 349.5,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 349.6000000005588,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 349.6000000005588,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 349.6000000005588,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 349.6000000005588,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 349.6000000005588,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "insert",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 380,
+   "openRender": 380,
+   "leafPaint": 374.1000000005588,
+   "openPaint": 374.1000000005588,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 357.70000000018626,
+   "revealSamples": 29,
+   "openAt": 357.70000000018626,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 350,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 374.1000000005588,
+     "presentationTime": 380,
+     "seenAt": 390.1000000005588
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 374.1000000005588,
+     "presentationTime": 380,
+     "seenAt": 390.1000000005588
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 340.70000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 357.6000000005588,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 357.70000000018626,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 357.70000000018626,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 357.80000000074506,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 357.80000000074506,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 357.80000000074506,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 357.90000000037253,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "insert",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 369.09999999962747,
+   "openPaint": 369.09999999962747,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 351.40000000037253,
+   "revealSamples": 29,
+   "openAt": 351.40000000037253,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 345,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.09999999962747,
+     "presentationTime": 372,
+     "seenAt": 386.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 369.09999999962747,
+     "presentationTime": 372,
+     "seenAt": 386.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 334.90000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 351.29999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 351.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 351.40000000037253,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 351.40000000037253,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 351.40000000037253,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 351.40000000037253,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 351.59999999962747,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "insert",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 370.5,
+   "openPaint": 370.5,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 353.79999999981374,
+   "revealSamples": 29,
+   "openAt": 353.79999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 349,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 370.5,
+     "presentationTime": 372,
+     "seenAt": 386.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 370.5,
+     "presentationTime": 372,
+     "seenAt": 386.59999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 337.09999999962747,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 353.69999999925494,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 353.79999999981374,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 353.79999999981374,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 353.8999999994412,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 353.8999999994412,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 353.8999999994412,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 353.8999999994412,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "insert",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 364,
+   "leafPaint": 363.19999999925494,
+   "openPaint": 363.19999999925494,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 345.29999999981374,
+   "revealSamples": 29,
+   "openAt": 345.29999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 341,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 363.19999999925494,
+     "presentationTime": 364,
+     "seenAt": 378.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 363.19999999925494,
+     "presentationTime": 364,
+     "seenAt": 378.59999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 328.5,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 345.29999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 345.29999999981374,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 345.29999999981374,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 345.29999999981374,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 345.29999999981374,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 345.29999999981374,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 345.3999999994412,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "adopt",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 364,
+   "leafPaint": 361.1000000005588,
+   "openPaint": 361.1000000005588,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 345.40000000037253,
+   "revealSamples": 29,
+   "openAt": 345.40000000037253,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 341,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.1000000005588,
+     "presentationTime": 364,
+     "seenAt": 377.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 361.1000000005588,
+     "presentationTime": 364,
+     "seenAt": 377.90000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 328.29999999981374,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 345.20000000018626,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 345.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 345.40000000037253,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 345.5,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 345.5,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 345.5,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 345.6000000005588,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "adopt",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 380,
+   "openRender": 380,
+   "leafPaint": 374.90000000037253,
+   "openPaint": 374.90000000037253,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 359.40000000037253,
+   "revealSamples": 31,
+   "openAt": 359.5,
+   "samplesAtOpen": 31,
+   "samplerOpenAt": 355,
+   "samplerSamples": 31,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 374.90000000037253,
+     "presentationTime": 380,
+     "seenAt": 392.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 374.90000000037253,
+     "presentationTime": 380,
+     "seenAt": 392.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 342.70000000018626,
+     "seq": 6,
+     "samples": 29,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 359.29999999981374,
+     "seq": 7,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 359.40000000037253,
+     "seq": 8,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 359.5,
+     "seq": 9,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 359.5,
+     "seq": 10,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 359.5,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 359.5,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 359.59999999962747,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "adopt",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 368,
+   "openRender": 368,
+   "leafPaint": 365.20000000018626,
+   "openPaint": 365.20000000018626,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 350,
+   "revealSamples": 29,
+   "openAt": 350,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 344,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 365.20000000018626,
+     "presentationTime": 368,
+     "seenAt": 383.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 365.20000000018626,
+     "presentationTime": 368,
+     "seenAt": 383.59999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 333.09999999962747,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 349.79999999981374,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 350,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 350,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 350,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 350,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 350,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 350,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "adopt",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 368,
+   "openRender": 368,
+   "leafPaint": 362.20000000018626,
+   "openPaint": 362.20000000018626,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 345.29999999981374,
+   "revealSamples": 29,
+   "openAt": 345.29999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 343,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 362.20000000018626,
+     "presentationTime": 368,
+     "seenAt": 378.79999999981374
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "startTime": 368,
+     "paintTime": 362.20000000018626,
+     "presentationTime": 368,
+     "seenAt": 378.79999999981374
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 328.40000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 345.09999999962747,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 345.29999999981374,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 345.29999999981374,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 345.40000000037253,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 345.40000000037253,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 345.40000000037253,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 345.40000000037253,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "adopt",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 364,
+   "openRender": 364,
+   "leafPaint": 359.6000000005588,
+   "openPaint": 359.6000000005588,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 342.79999999981374,
+   "revealSamples": 29,
+   "openAt": 342.79999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 340,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 359.6000000005588,
+     "presentationTime": 364,
+     "seenAt": 374.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 364,
+     "loadTime": 0,
+     "startTime": 364,
+     "paintTime": 359.6000000005588,
+     "presentationTime": 364,
+     "seenAt": 374.40000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 325.90000000037253,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 342.5,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 342.79999999981374,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 342.79999999981374,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 342.90000000037253,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 342.90000000037253,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 342.90000000037253,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 342.90000000037253,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "media",
+   "i": 0,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 367.70000000018626,
+   "openPaint": 367.70000000018626,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 351.40000000037253,
+   "revealSamples": 29,
+   "openAt": 351.40000000037253,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 345,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 367.70000000018626,
+     "presentationTime": 372,
+     "seenAt": 383.6000000005588
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 367.70000000018626,
+     "presentationTime": 372,
+     "seenAt": 383.6000000005588
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 335.20000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 351,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 351.40000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 351.40000000037253,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 351.40000000037253,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 351.40000000037253,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 351.40000000037253,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 351.5,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "media",
+   "i": 1,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 376,
+   "openRender": 376,
+   "leafPaint": 370,
+   "openPaint": 370,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 351.70000000018626,
+   "revealSamples": 29,
+   "openAt": 351.79999999981374,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 346,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 370,
+     "presentationTime": 376,
+     "seenAt": 385
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 370,
+     "presentationTime": 376,
+     "seenAt": 385
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 336.20000000018626,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 351.40000000037253,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 351.70000000018626,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 351.79999999981374,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 351.79999999981374,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 351.79999999981374,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 351.79999999981374,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 352,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "media",
+   "i": 2,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 376,
+   "openRender": 376,
+   "leafPaint": 371.80000000074506,
+   "openPaint": 371.80000000074506,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 354.90000000037253,
+   "revealSamples": 29,
+   "openAt": 355,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 349,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 371.80000000074506,
+     "presentationTime": 376,
+     "seenAt": 387.5
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "startTime": 376,
+     "paintTime": 371.80000000074506,
+     "presentationTime": 376,
+     "seenAt": 387.5
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 336.80000000074506,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 354.6000000005588,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 354.90000000037253,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 355,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 355,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 355,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 355,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 355.1000000005588,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "media",
+   "i": 3,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 372,
+   "openRender": 372,
+   "leafPaint": 368.79999999981374,
+   "openPaint": 368.79999999981374,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 352,
+   "revealSamples": 29,
+   "openAt": 352,
+   "samplesAtOpen": 29,
+   "samplerOpenAt": 346,
+   "samplerSamples": 29,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 368.79999999981374,
+     "presentationTime": 372,
+     "seenAt": 385.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 372,
+     "loadTime": 0,
+     "startTime": 372,
+     "paintTime": 368.79999999981374,
+     "presentationTime": 372,
+     "seenAt": 385.90000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 334.5,
+     "seq": 6,
+     "samples": 28,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 351.70000000018626,
+     "seq": 7,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 352,
+     "seq": 8,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 352,
+     "seq": 9,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 352.09999999962747,
+     "seq": 10,
+     "samples": 29,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 352.20000000018626,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 352.20000000018626,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 352.20000000018626,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  },
+  {
+   "order": "task",
+   "mech": "media",
+   "i": 4,
+   "ok": true,
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 380,
+   "openRender": 380,
+   "leafPaint": 374.5,
+   "openPaint": 374.5,
+   "paintedBeforeOpen": false,
+   "samplerVerdict": null,
+   "samplerGreen": true,
+   "holeReached": false,
+   "offenders": [],
+   "revealAt": 357.5,
+   "revealSamples": 31,
+   "openAt": 357.5,
+   "samplesAtOpen": 31,
+   "samplerOpenAt": 355,
+   "samplerSamples": 31,
+   "mutationsInWindow": 0,
+   "leafPaintBeforeOpenTask": false,
+   "framesBetween": 0,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 374.5,
+     "presentationTime": 380,
+     "seenAt": 391
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "startTime": 380,
+     "paintTime": 374.5,
+     "presentationTime": 380,
+     "seenAt": 391
+    }
+   ],
+   "events": [
+    {
+     "name": "start",
+     "at": 340.69999999925494,
+     "seq": 6,
+     "samples": 29,
+     "stopped": false,
+     "frames": 20
+    },
+    {
+     "name": "reveal-start",
+     "at": 357.29999999981374,
+     "seq": 7,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "reveal",
+     "at": 357.5,
+     "seq": 8,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open-start",
+     "at": 357.5,
+     "seq": 9,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    },
+    {
+     "name": "open",
+     "at": 357.59999999962747,
+     "seq": 10,
+     "samples": 31,
+     "stopped": false,
+     "frames": 21
+    }
+   ],
+   "mutations": [
+    {
+     "at": 357.59999999962747,
+     "seq": 11,
+     "type": "attributes",
+     "attr": "hidden",
+     "target": "DIV"
+    },
+    {
+     "at": 357.59999999962747,
+     "seq": 12,
+     "type": "attributes",
+     "attr": "data-player-screen",
+     "target": "HTML"
+    },
+    {
+     "at": 357.59999999962747,
+     "seq": 13,
+     "type": "attributes",
+     "attr": "data-player-screen-pending",
+     "target": "HTML"
+    }
+   ]
+  }
+ ],
+ "browser": "Chrome/155.0.8059.82",
+ "chromeExit": 0
+}

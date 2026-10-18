@@ -1,0 +1,14 @@
+== before 08:56:10
+ 8:56  up 58 mins, 1 user, load averages: 5.04 8.12 8.13
+102.3   814 /Applications/OneDrive.app/Contents/MacOS/OneDrive
+ 72.7 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
+ 56.5 74948 bash -c while :; do :; done
+ 54.7 74949 bash -c while :; do :; done
+ 51.5 74946 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+== after 08:58:50
+ 8:58  up  1:01, 1 user, load averages: 47.81 27.25 16.02
+154.2   558 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framewo
+ 66.0   742 /usr/libexec/duetexpertd
+ 30.3 74949 bash -c while :; do :; done
+ 29.9 74948 bash -c while :; do :; done
+ 27.9 74946 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang

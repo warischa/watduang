@@ -1,0 +1,14 @@
+== before 09:37:28
+ 9:37  up  1:39, 1 user, load averages: 9.72 10.59 10.69
+ 71.6 69084 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 47.9 69077 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 34.9   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 22.2 69090 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 22.2 69088 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+== after 09:37:48
+ 9:37  up  1:40, 1 user, load averages: 7.93 10.13 10.52
+240.1 69084 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 95.1 69659 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 19.1 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 13.0   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+  5.8 69077 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang

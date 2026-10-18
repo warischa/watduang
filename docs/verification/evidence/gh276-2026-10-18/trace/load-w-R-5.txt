@@ -1,0 +1,14 @@
+== before 09:19:51
+ 9:19  up  1:22, 1 user, load averages: 10.02 10.66 12.08
+210.2 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 90.6 14459 bash -c while :; do :; done
+ 90.3 14458 bash -c while :; do :; done
+ 26.5   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+  8.1 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
+== after 09:20:11
+ 9:20  up  1:22, 1 user, load averages: 9.66 10.53 12.00
+ 87.6   742 /usr/libexec/duetexpertd
+ 84.6 14459 bash -c while :; do :; done
+ 84.2 14458 bash -c while :; do :; done
+ 62.2 41827 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 44.0   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon

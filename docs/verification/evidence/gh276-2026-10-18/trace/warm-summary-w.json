@@ -1,0 +1,556 @@
+{
+ "summary": {
+  "F": {
+   "n": 7,
+   "voids": 0,
+   "lockWaitMs": {
+    "n": 7,
+    "median": 590,
+    "min": 293,
+    "max": 4320
+   },
+   "waitUnder1s": 6,
+   "navToPressableMs": {
+    "n": 7,
+    "median": 1478,
+    "min": 891,
+    "max": 8210
+   },
+   "pressableWithin1s": 2,
+   "load1Before": {
+    "n": 7,
+    "median": 9.61,
+    "min": 3.18,
+    "max": 15.15
+   },
+   "browserMainBusyPct": {
+    "n": 7,
+    "median": 70.5,
+    "min": 58.4,
+    "max": 96.8
+   }
+  },
+  "R": {
+   "n": 7,
+   "voids": 0,
+   "lockWaitMs": {
+    "n": 7,
+    "median": 523,
+    "min": 206,
+    "max": 3680
+   },
+   "waitUnder1s": 5,
+   "navToPressableMs": {
+    "n": 7,
+    "median": 1084,
+    "min": 793,
+    "max": 4236
+   },
+   "pressableWithin1s": 2,
+   "load1Before": {
+    "n": 7,
+    "median": 11.07,
+    "min": 10.02,
+    "max": 17.65
+   },
+   "browserMainBusyPct": {
+    "n": 7,
+    "median": 99.3,
+    "min": 61.2,
+    "max": 99.9
+   }
+  },
+  "U": {
+   "n": 3,
+   "voids": 0,
+   "lockWaitMs": {
+    "n": 3,
+    "median": 1664,
+    "min": 857,
+    "max": 1759
+   },
+   "waitUnder1s": 1,
+   "navToPressableMs": {
+    "n": 3,
+    "median": 2088,
+    "min": 1283,
+    "max": 2192
+   },
+   "pressableWithin1s": 0,
+   "load1Before": {
+    "n": 3,
+    "median": 6.92,
+    "min": 6.36,
+    "max": 9.35
+   },
+   "browserMainBusyPct": {
+    "n": 3,
+    "median": 98.2,
+    "min": 98,
+    "max": 98.5
+   }
+  }
+ },
+ "rows": [
+  {
+   "tag": "w-F-1",
+   "arm": "F",
+   "k": 1,
+   "void": null,
+   "lockWaitMs": 293,
+   "navToLockReqMs": 213,
+   "navToPressableMs": 930,
+   "load1": {
+    "before": 3.18,
+    "after": 6.73
+   },
+   "trace": {
+    "windowMs": 292.3,
+    "rendererBusyPct": 89.8,
+    "browserMainBusyPct": 70.5,
+    "browserMainCpuMs": 28.8,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 139.7,
+     "wallMs": 300.2,
+     "cpuMs": 3.9
+    }
+   }
+  },
+  {
+   "tag": "w-R-1",
+   "arm": "R",
+   "k": 1,
+   "void": null,
+   "lockWaitMs": 1914,
+   "navToLockReqMs": 180,
+   "navToPressableMs": 2501,
+   "load1": {
+    "before": 16.57,
+    "after": 13.75
+   },
+   "warmup": {
+    "void": null,
+    "lockWaitMs": 3830,
+    "navToPressableMs": 6059
+   },
+   "trace": {
+    "windowMs": 1917.5,
+    "rendererBusyPct": 97.9,
+    "browserMainBusyPct": 99.7,
+    "browserMainCpuMs": 20,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 1855.9,
+     "wallMs": 1988.8,
+     "cpuMs": 2.1
+    }
+   }
+  },
+  {
+   "tag": "w-U-1",
+   "arm": "U",
+   "k": 1,
+   "void": null,
+   "lockWaitMs": 857,
+   "navToLockReqMs": 24,
+   "navToPressableMs": 1283,
+   "load1": {
+    "before": 9.35,
+    "after": 7.44
+   },
+   "trace": {
+    "windowMs": 856.6,
+    "rendererBusyPct": 4.2,
+    "browserMainBusyPct": 98,
+    "browserMainCpuMs": 8.3,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 831.5,
+     "wallMs": 847,
+     "cpuMs": 1.7
+    }
+   }
+  },
+  {
+   "tag": "w-F-2",
+   "arm": "F",
+   "k": 2,
+   "void": null,
+   "lockWaitMs": 4320,
+   "navToLockReqMs": 166,
+   "navToPressableMs": 4896,
+   "load1": {
+    "before": 12.89,
+    "after": 12.77
+   },
+   "trace": {
+    "windowMs": 4320.1,
+    "rendererBusyPct": 40.9,
+    "browserMainBusyPct": 80.6,
+    "browserMainCpuMs": 131,
+    "browserMainBusiestTask": {
+     "site": "web_app_command_manager.cc:OnCommandComplete",
+     "inWindowMs": 1717.7,
+     "wallMs": 1717.7,
+     "cpuMs": 4.3
+    }
+   }
+  },
+  {
+   "tag": "w-R-2",
+   "arm": "R",
+   "k": 2,
+   "void": null,
+   "lockWaitMs": 991,
+   "navToLockReqMs": 1480,
+   "navToPressableMs": 2877,
+   "load1": {
+    "before": 17.65,
+    "after": 16.03
+   },
+   "warmup": {
+    "void": null,
+    "lockWaitMs": 2031,
+    "navToPressableMs": 37461
+   },
+   "trace": {
+    "windowMs": 991,
+    "rendererBusyPct": 24.8,
+    "browserMainBusyPct": 99.6,
+    "browserMainCpuMs": 16.1,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 968,
+     "wallMs": 1050.2,
+     "cpuMs": 3.5
+    }
+   }
+  },
+  {
+   "tag": "w-U-2",
+   "arm": "U",
+   "k": 2,
+   "void": null,
+   "lockWaitMs": 1759,
+   "navToLockReqMs": 31,
+   "navToPressableMs": 2192,
+   "load1": {
+    "before": 6.92,
+    "after": 6.82
+   },
+   "trace": {
+    "windowMs": 1758.6,
+    "rendererBusyPct": 88.9,
+    "browserMainBusyPct": 98.5,
+    "browserMainCpuMs": 10.6,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 1721.9,
+     "wallMs": 1742.2,
+     "cpuMs": 3.1
+    }
+   }
+  },
+  {
+   "tag": "w-F-3",
+   "arm": "F",
+   "k": 3,
+   "void": null,
+   "lockWaitMs": 829,
+   "navToLockReqMs": 157,
+   "navToPressableMs": 1397,
+   "load1": {
+    "before": 15.15,
+    "after": 11.36
+   },
+   "trace": {
+    "windowMs": 829.2,
+    "rendererBusyPct": 36.9,
+    "browserMainBusyPct": 96.8,
+    "browserMainCpuMs": 34.4,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 696,
+     "wallMs": 732.8,
+     "cpuMs": 5.7
+    }
+   }
+  },
+  {
+   "tag": "w-R-3",
+   "arm": "R",
+   "k": 3,
+   "void": null,
+   "lockWaitMs": 3680,
+   "navToLockReqMs": 148,
+   "navToPressableMs": 4236,
+   "load1": {
+    "before": 11.07,
+    "after": 10.09
+   },
+   "warmup": {
+    "void": null,
+    "lockWaitMs": 254,
+    "navToPressableMs": 4396
+   },
+   "trace": {
+    "windowMs": 3680,
+    "rendererBusyPct": 9.5,
+    "browserMainBusyPct": 99.9,
+    "browserMainCpuMs": 13.5,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 3658.6,
+     "wallMs": 3761.5,
+     "cpuMs": 2.9
+    }
+   }
+  },
+  {
+   "tag": "w-U-3",
+   "arm": "U",
+   "k": 3,
+   "void": null,
+   "lockWaitMs": 1664,
+   "navToLockReqMs": 23,
+   "navToPressableMs": 2088,
+   "load1": {
+    "before": 6.36,
+    "after": 5.3
+   },
+   "trace": {
+    "windowMs": 1663.9,
+    "rendererBusyPct": 86.4,
+    "browserMainBusyPct": 98.2,
+    "browserMainCpuMs": 10.2,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 1620.9,
+     "wallMs": 1636.9,
+     "cpuMs": 1.6
+    }
+   }
+  },
+  {
+   "tag": "w-F-4",
+   "arm": "F",
+   "k": 4,
+   "void": null,
+   "lockWaitMs": 590,
+   "navToLockReqMs": 6531,
+   "navToPressableMs": 7559,
+   "load1": {
+    "before": 9.61,
+    "after": 10.4
+   },
+   "trace": {
+    "windowMs": 590.5,
+    "rendererBusyPct": 93.5,
+    "browserMainBusyPct": 62.9,
+    "browserMainCpuMs": 55.2,
+    "browserMainBusiestTask": {
+     "site": "web_app_command_manager.cc:OnCommandComplete",
+     "inWindowMs": 172.5,
+     "wallMs": 2719,
+     "cpuMs": 4.4
+    }
+   }
+  },
+  {
+   "tag": "w-R-4",
+   "arm": "R",
+   "k": 4,
+   "void": null,
+   "lockWaitMs": 464,
+   "navToLockReqMs": 147,
+   "navToPressableMs": 1020,
+   "load1": {
+    "before": 10.86,
+    "after": 10.35
+   },
+   "warmup": {
+    "void": null,
+    "lockWaitMs": 3018,
+    "navToPressableMs": 11410
+   },
+   "trace": {
+    "windowMs": 463.5,
+    "rendererBusyPct": 97.2,
+    "browserMainBusyPct": 96.7,
+    "browserMainCpuMs": 13.9,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 431.3,
+     "wallMs": 531.1,
+     "cpuMs": 2.6
+    }
+   }
+  },
+  {
+   "tag": "w-F-5",
+   "arm": "F",
+   "k": 5,
+   "void": null,
+   "lockWaitMs": 883,
+   "navToLockReqMs": 191,
+   "navToPressableMs": 1478,
+   "load1": {
+    "before": 10.12,
+    "after": 10.26
+   },
+   "trace": {
+    "windowMs": 882.7,
+    "rendererBusyPct": 97.7,
+    "browserMainBusyPct": 69,
+    "browserMainCpuMs": 68.2,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 238.6,
+     "wallMs": 238.6,
+     "cpuMs": 5.5
+    }
+   }
+  },
+  {
+   "tag": "w-R-5",
+   "arm": "R",
+   "k": 5,
+   "void": null,
+   "lockWaitMs": 523,
+   "navToLockReqMs": 152,
+   "navToPressableMs": 1084,
+   "load1": {
+    "before": 10.02,
+    "after": 9.66
+   },
+   "warmup": {
+    "void": null,
+    "lockWaitMs": 5878,
+    "navToPressableMs": 6907
+   },
+   "trace": {
+    "windowMs": 522.7,
+    "rendererBusyPct": 95.8,
+    "browserMainBusyPct": 99.3,
+    "browserMainCpuMs": 12.9,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 498.1,
+     "wallMs": 610.2,
+     "cpuMs": 2.2
+    }
+   }
+  },
+  {
+   "tag": "w-F-6",
+   "arm": "F",
+   "k": 6,
+   "void": null,
+   "lockWaitMs": 449,
+   "navToLockReqMs": 7352,
+   "navToPressableMs": 8210,
+   "load1": {
+    "before": 9.26,
+    "after": 11.94
+   },
+   "trace": {
+    "windowMs": 448.5,
+    "rendererBusyPct": 95.4,
+    "browserMainBusyPct": 58.4,
+    "browserMainCpuMs": 37,
+    "browserMainBusiestTask": {
+     "site": "web_app_command_manager.cc:OnCommandComplete",
+     "inWindowMs": 143.6,
+     "wallMs": 4663,
+     "cpuMs": 1.9
+    }
+   }
+  },
+  {
+   "tag": "w-R-6",
+   "arm": "R",
+   "k": 6,
+   "void": null,
+   "lockWaitMs": 206,
+   "navToLockReqMs": 179,
+   "navToPressableMs": 793,
+   "load1": {
+    "before": 11.35,
+    "after": 11.44
+   },
+   "warmup": {
+    "void": null,
+    "lockWaitMs": 285,
+    "navToPressableMs": 8830
+   },
+   "trace": {
+    "windowMs": 206.2,
+    "rendererBusyPct": 95.6,
+    "browserMainBusyPct": 81.3,
+    "browserMainCpuMs": 18.9,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 140.6,
+     "wallMs": 250.3,
+     "cpuMs": 3.7
+    }
+   }
+  },
+  {
+   "tag": "w-F-7",
+   "arm": "F",
+   "k": 7,
+   "void": null,
+   "lockWaitMs": 306,
+   "navToLockReqMs": 174,
+   "navToPressableMs": 891,
+   "load1": {
+    "before": 9.41,
+    "after": 9.99
+   },
+   "trace": {
+    "windowMs": 306,
+    "rendererBusyPct": 95.5,
+    "browserMainBusyPct": 93.3,
+    "browserMainCpuMs": 12.4,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 271.9,
+     "wallMs": 390.1,
+     "cpuMs": 3.4
+    }
+   }
+  },
+  {
+   "tag": "w-R-7",
+   "arm": "R",
+   "k": 7,
+   "void": null,
+   "lockWaitMs": 293,
+   "navToLockReqMs": 171,
+   "navToPressableMs": 888,
+   "load1": {
+    "before": 10.2,
+    "after": 10.07
+   },
+   "warmup": {
+    "void": null,
+    "lockWaitMs": 2356,
+    "navToPressableMs": 7647
+   },
+   "trace": {
+    "windowMs": 292.6,
+    "rendererBusyPct": 95.9,
+    "browserMainBusyPct": 61.2,
+    "browserMainCpuMs": 22.3,
+    "browserMainBusiestTask": {
+     "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+     "inWindowMs": 148.2,
+     "wallMs": 236.4,
+     "cpuMs": 3
+    }
+   }
+  }
+ ]
+}

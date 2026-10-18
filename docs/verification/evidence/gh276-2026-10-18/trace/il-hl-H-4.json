@@ -1,0 +1,185 @@
+{
+ "cond": "standin-H",
+ "base": "http://localhost:4421",
+ "route": "croc-bite",
+ "viewport": "1440x900",
+ "browser": "Chrome/155.0.8059.82",
+ "when": "2026-10-18T01:37:17.957Z",
+ "summary": {
+  "P1": {
+   "n": 1,
+   "voids": 0,
+   "pressableMs": {
+    "each": [
+     7921
+    ],
+    "median": 7921,
+    "max": 7921
+   },
+   "pressableFrameMs": {
+    "each": [
+     13838
+    ],
+    "median": 13838,
+    "max": 13838
+   },
+   "pendingWindowMs": {
+    "each": [
+     7295
+    ],
+    "median": 7295,
+    "max": 7295
+   },
+   "lockWaitMaxMs": {
+    "each": [
+     7284
+    ],
+    "median": 7284,
+    "max": 7284
+   }
+  },
+  "P2": {
+   "n": 0,
+   "voids": 0,
+   "commitMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   },
+   "settleClosedMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   },
+   "lockWaitMaxMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   }
+  },
+  "H": {
+   "n": 0,
+   "voids": 0,
+   "getContextMs": {
+    "each": []
+   },
+   "liveMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   },
+   "firstFrameMs": {
+    "each": [],
+    "median": null,
+    "max": null
+   }
+  },
+  "C": {
+   "n": 0,
+   "framesPerSec": {
+    "each": [],
+    "median": null
+   },
+   "rafGapMaxMs": {
+    "each": [],
+    "max": null
+   },
+   "longtaskMaxMs": {
+    "each": [],
+    "max": null
+   },
+   "longtaskSumMs": {
+    "each": []
+   }
+  }
+ },
+ "runs": [
+  {
+   "path": "P1",
+   "run": 1,
+   "reached": true,
+   "openAtMs": 7520,
+   "pressableMs": 7921,
+   "pressableFrameMs": 13838,
+   "pendingSetMs": 225,
+   "pendingClearMs": 7520,
+   "pendingWindowMs": 7295,
+   "locks": [
+    {
+     "name": "watduang:roster",
+     "reqT": 222,
+     "grantT": 7506,
+     "waitMs": 7284
+    }
+   ],
+   "lockWaitMaxMs": 7284,
+   "migrationLanded": true,
+   "legacyPlayersStripped": true,
+   "gl": {
+    "calls": 1,
+    "live": true,
+    "probe": true
+   },
+   "frames": {
+    "longtasks": 12,
+    "longtaskMaxMs": 641,
+    "longtaskSumMs": 2229,
+    "rafGapsOver100": 2,
+    "rafGapMaxMs": 9016,
+    "hbGapMaxMs": 642,
+    "rafFramesTotal": 11
+   },
+   "iw": 1440,
+   "lt": [
+    {
+     "s": 190,
+     "d": 301
+    },
+    {
+     "s": 4561.100000000093,
+     "d": 130
+    },
+    {
+     "s": 4719.100000000093,
+     "d": 122
+    },
+    {
+     "s": 4877,
+     "d": 52
+    },
+    {
+     "s": 4963.199999999721,
+     "d": 282
+    },
+    {
+     "s": 5325.100000000093,
+     "d": 641
+    },
+    {
+     "s": 6243.799999999814,
+     "d": 75
+    },
+    {
+     "s": 6329.799999999814,
+     "d": 81
+    },
+    {
+     "s": 7546,
+     "d": 58
+    },
+    {
+     "s": 15704.19999999972,
+     "d": 332
+    },
+    {
+     "s": 16972.799999999814,
+     "d": 82
+    },
+    {
+     "s": 17325.600000000093,
+     "d": 73
+    }
+   ]
+  }
+ ]
+}

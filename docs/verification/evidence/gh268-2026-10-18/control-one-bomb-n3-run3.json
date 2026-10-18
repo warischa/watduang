@@ -1,0 +1,427 @@
+{
+ "one-bomb": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/one-bomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "div#menuOverlay > div.menuBox > div.logoArea",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1279.69,
+       "share": 0.661,
+       "at": [
+        31.4,
+        32.8
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#menuOverlay > div.menuBox > div.logoArea > div.gameTitle",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 1279.69,
+       "share": 0.661,
+       "at": [
+        31.4,
+        32.8
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.661
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/one-bomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "div#menuOverlay > div.menuBox > div.logoArea",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1299.04,
+       "share": 0.671,
+       "at": [
+        31.4,
+        32.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#menuOverlay > div.menuBox > div.logoArea > div.gameTitle",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 1299.04,
+       "share": 0.671,
+       "at": [
+        31.4,
+        32.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.671
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/one-bomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "div#hud > div.topSection",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1600,
+       "share": 0.8264,
+       "at": [
+        30,
+        30
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.topBar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1600,
+       "share": 0.8264,
+       "at": [
+        30,
+        30
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.topBar > div.leftTools",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1480,
+       "share": 0.7645,
+       "at": [
+        30,
+        31.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "button#homeBtn",
+       "content": true,
+       "text": "🏠",
+       "interactive": true,
+       "px2": 1480,
+       "share": 0.7645,
+       "at": [
+        30,
+        31.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.7645
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.78,
+      "b": 100,
+      "w": 74.78,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3290.38,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "div#hud > div.topSection",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 3114.38,
+       "share": 0.9465,
+       "at": [
+        45.4,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.statusTopRow",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2265,
+       "share": 0.6884,
+       "at": [
+        45.4,
+        84
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#turnBanner",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 2194.22,
+       "share": 0.6669,
+       "at": [
+        45.4,
+        84.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.topBar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 283.13,
+       "share": 0.086,
+       "at": [
+        45.4,
+        58
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "span#turnAvatarEmoji",
+       "content": true,
+       "text": "🐱",
+       "interactive": false,
+       "px2": 270,
+       "share": 0.0821,
+       "at": [
+        32.5,
+        91
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "strong#turnPlayerName",
+       "content": true,
+       "text": "ต้น",
+       "interactive": false,
+       "px2": 81.21,
+       "share": 0.0247,
+       "at": [
+        78.3,
+        91.8
+       ],
+       "winner": "strong#turnPlayerName",
+       "controlWins": false,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.topBar > div.leftTools",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 70.78,
+       "share": 0.0215,
+       "at": [
+        45.4,
+        56.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "button#homeBtn",
+       "content": true,
+       "text": "🏠",
+       "interactive": true,
+       "px2": 44,
+       "share": 0.0134,
+       "at": [
+        32,
+        56.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "button#audioToggleBtn",
+       "content": true,
+       "text": "🔊",
+       "interactive": true,
+       "px2": 18.78,
+       "share": 0.0057,
+       "at": [
+        71.4,
+        56.5
+       ],
+       "winner": "button#audioToggleBtn",
+       "controlWins": false,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 5,
+     "maxContentShare": 0.6669
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn homeBtn audioToggleBtn newRoundBtn settingsBtn"
+  }
+ }
+}

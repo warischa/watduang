@@ -1,0 +1,51 @@
+{
+ "mode": "plain",
+ "browser": "Chrome/155.0.8059.82",
+ "when": "2026-10-18T02:29:37.217Z",
+ "url": "http://localhost:4421/game/croc-bite/play/",
+ "viewport": "1440x900",
+ "seedPrecondition": {
+  "roster": null,
+  "legacy": true
+ },
+ "reached": true,
+ "migrationLanded": true,
+ "iw": 1440,
+ "lockReqMs": 6118,
+ "lockGrantMs": 8536,
+ "lockWaitMs": 2417,
+ "pressableMs": 9034,
+ "rawTraceBytes": 0,
+ "categories": null,
+ "diag": {
+  "ev": [
+   {
+    "k": "dcl",
+    "t": 6113.899999999441
+   },
+   {
+    "k": "lock-req",
+    "t": 6118.399999999441,
+    "name": "watduang:roster",
+    "id": 1
+   },
+   {
+    "k": "load",
+    "t": 6132
+   },
+   {
+    "k": "lock-grant",
+    "t": 8535.699999999255,
+    "name": "watduang:roster",
+    "id": 1
+   }
+  ],
+  "lt": [],
+  "pressT": 9034.299999999814,
+  "now": 12540.299999999814,
+  "timeOrigin": 1792290577227.3,
+  "iw": 1440,
+  "roster": "[\"Ann\",\"Bob\",\"Cat\",\"Dan\"]"
+ },
+ "void": null
+}

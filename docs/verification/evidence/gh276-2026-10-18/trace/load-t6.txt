@@ -1,0 +1,14 @@
+== before 08:48:37
+ 8:48  up 50 mins, 1 user, load averages: 10.80 9.68 8.06
+ 59.2 68466 bash -c while :; do :; done
+ 58.8 68465 bash -c while :; do :; done
+ 58.7 68463 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 30.5 68484 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 23.6 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+== after 08:49:16
+ 8:49  up 51 mins, 1 user, load averages: 9.41 9.52 8.08
+ 93.7 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 93.6 68466 bash -c while :; do :; done
+ 93.0 68465 bash -c while :; do :; done
+ 84.3 68463 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 28.0 68996 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us

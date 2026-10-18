@@ -1,0 +1,86 @@
+{
+ "mode": "trace",
+ "browser": "Chrome/155.0.8059.82",
+ "when": "2026-10-18T01:47:17.271Z",
+ "url": "http://localhost:4421/game/croc-bite/play/",
+ "viewport": "1440x900",
+ "seedPrecondition": {
+  "roster": null,
+  "legacy": true
+ },
+ "reached": true,
+ "migrationLanded": true,
+ "iw": 1440,
+ "lockReqMs": 2747,
+ "lockGrantMs": 3338,
+ "lockWaitMs": 591,
+ "pressableMs": 3771,
+ "rawTraceBytes": 57040664,
+ "categories": [
+  "devtools.timeline",
+  "disabled-by-default-devtools.timeline",
+  "v8.execute",
+  "v8",
+  "blink.user_timing",
+  "disabled-by-default-v8.cpu_profiler",
+  "disabled-by-default-v8.gc",
+  "loading",
+  "toplevel",
+  "toplevel.flow",
+  "mojom",
+  "ipc",
+  "__metadata"
+ ],
+ "diag": {
+  "ev": [
+   {
+    "k": "dcl",
+    "t": 2736.5
+   },
+   {
+    "k": "lock-req",
+    "t": 2747.100000000093,
+    "name": "watduang:roster",
+    "id": 1
+   },
+   {
+    "k": "load",
+    "t": 2778
+   },
+   {
+    "k": "query-at-req",
+    "t": 3338.3000000002794,
+    "askedT": 2747.100000000093,
+    "held": [],
+    "pending": []
+   },
+   {
+    "k": "lock-grant",
+    "t": 3338.4000000003725,
+    "name": "watduang:roster",
+    "id": 1
+   },
+   {
+    "k": "query-at-grant",
+    "t": 3343.600000000093,
+    "askedT": 3338.4000000003725,
+    "held": [
+     "watduang:roster/exclusive"
+    ],
+    "pending": []
+   }
+  ],
+  "lt": [
+   {
+    "s": 2777.7000000001863,
+    "d": 418
+   }
+  ],
+  "pressT": 3770.8000000002794,
+  "now": 6436.800000000279,
+  "timeOrigin": 1792288044357.6,
+  "iw": 1440,
+  "roster": "[\"Ann\",\"Bob\",\"Cat\",\"Dan\"]"
+ },
+ "void": null
+}

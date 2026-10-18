@@ -1,0 +1,4182 @@
+{
+ "env": "nogl",
+ "phase": "route",
+ "flags": [
+  "--headless=new",
+  "--remote-debugging-port=9451",
+  "--user-data-dir=/private/tmp/claude-501/-Users-waris-c-claude-free-game/a738e8dc-4664-427f-971b-6f882c925cdf/scratchpad/gh269-NFbOfK",
+  "--no-first-run",
+  "--no-default-browser-check",
+  "--window-size=390,844",
+  "--disable-gpu"
+ ],
+ "chromePid": 22805,
+ "runs": [
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 0,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 100,
+   "openRender": 424,
+   "leafPaint": 94.20000000111759,
+   "openPaint": 416.30000000074506,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +102ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 94.09999999962747,
+   "revealSamples": 11,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 397.5,
+   "samplerOpenAt": 395,
+   "samplerSamples": 35,
+   "samplesAtOpen": 35,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 100,
+     "loadTime": 0,
+     "paintTime": 94.20000000111759,
+     "presentationTime": 100,
+     "seenAt": 110.70000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 424,
+     "loadTime": 0,
+     "paintTime": 416.30000000074506,
+     "presentationTime": 424,
+     "seenAt": 429.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 44.80000000074506,
+     "samples": 3,
+     "stopped": false,
+     "hold": null,
+     "screen": null,
+     "pending": null,
+     "frames": 2
+    },
+    {
+     "name": "reveal-start",
+     "at": 93.80000000074506,
+     "samples": 11,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 5,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 94.09999999962747,
+     "samples": 11,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 5,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 94.09999999962747,
+     "samples": 11,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 5
+    },
+    {
+     "name": "open-seen",
+     "at": 397.5,
+     "samples": 35,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 23
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 1,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 60,
+   "openRender": 380,
+   "leafPaint": 52.40000000037253,
+   "openPaint": 372,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +51ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 52.30000000074506,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 354.09999999962747,
+   "samplerOpenAt": 349,
+   "samplerSamples": 33,
+   "samplesAtOpen": 33,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 52.40000000037253,
+     "presentationTime": 60,
+     "seenAt": 67.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 372,
+     "presentationTime": 380,
+     "seenAt": 383.40000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 18.800000000745058,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 51.90000000037253,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 52.30000000074506,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 52.30000000074506,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 354.09999999962747,
+     "samples": 33,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 2,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 56,
+   "openRender": 376,
+   "leafPaint": 50.5,
+   "openPaint": 368.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +52ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 50.5,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 353,
+   "samplerOpenAt": 345,
+   "samplerSamples": 33,
+   "samplesAtOpen": 33,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 56,
+     "loadTime": 0,
+     "paintTime": 50.5,
+     "presentationTime": 56,
+     "seenAt": 66.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.59999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 19.399999998509884,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 50.09999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 50.5,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 50.5,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 353,
+     "samples": 33,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 3,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 52,
+   "openRender": 368,
+   "leafPaint": 45.59999999962747,
+   "openPaint": 363.90000000037253,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +53ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 45.40000000037253,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 347.40000000037253,
+   "samplerOpenAt": 340,
+   "samplerSamples": 33,
+   "samplesAtOpen": 33,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 52,
+     "loadTime": 0,
+     "paintTime": 45.59999999962747,
+     "presentationTime": 52,
+     "seenAt": 61.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 368,
+     "loadTime": 0,
+     "paintTime": 363.90000000037253,
+     "presentationTime": 368,
+     "seenAt": 378.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 19.09999999962747,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 45.09999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 45.40000000037253,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 45.40000000037253,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 347.40000000037253,
+     "samples": 33,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "insert",
+   "i": 4,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 56,
+   "openRender": 376,
+   "leafPaint": 48.70000000111759,
+   "openPaint": 368.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +52ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 48.5,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 351.5,
+   "samplerOpenAt": 347,
+   "samplerSamples": 33,
+   "samplesAtOpen": 33,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 56,
+     "loadTime": 0,
+     "paintTime": 48.70000000111759,
+     "presentationTime": 56,
+     "seenAt": 64.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 376,
+     "loadTime": 0,
+     "paintTime": 368.5,
+     "presentationTime": 376,
+     "seenAt": 382.30000000074506
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 15.5,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 48.20000000111759,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 48.5,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 48.5,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 351.5,
+     "samples": 33,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 0,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 68,
+   "openRender": 392,
+   "leafPaint": 60.899999998509884,
+   "openPaint": 381.7999999988824,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +70ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 60.79999999888241,
+   "revealSamples": 10,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 363.8999999985099,
+   "samplerOpenAt": 357,
+   "samplerSamples": 34,
+   "samplesAtOpen": 34,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 68,
+     "loadTime": 0,
+     "paintTime": 60.899999998509884,
+     "presentationTime": 68,
+     "seenAt": 77.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.7999999988824,
+     "presentationTime": 392,
+     "seenAt": 395.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 18.799999998882413,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 60.399999998509884,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 60.79999999888241,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 60.79999999888241,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 363.8999999985099,
+     "samples": 34,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 1,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 60,
+   "openRender": 384,
+   "leafPaint": 54.70000000111759,
+   "openPaint": 373.80000000074506,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +51ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 54.59999999962747,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 357.2000000011176,
+   "samplerOpenAt": 351,
+   "samplerSamples": 33,
+   "samplesAtOpen": 33,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 54.70000000111759,
+     "presentationTime": 60,
+     "seenAt": 72.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    },
+    {
+     "id": "open",
+     "renderTime": 384,
+     "loadTime": 0,
+     "paintTime": 373.80000000074506,
+     "presentationTime": 384,
+     "seenAt": 388.5
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 18.09999999962747,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 54.30000000074506,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 54.59999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 54.59999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 357.30000000074506,
+     "samples": 33,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 2,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 60,
+   "openRender": 380,
+   "leafPaint": 54.80000000074506,
+   "openPaint": 374,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +50ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 54.69999999925494,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 357.40000000037253,
+   "samplerOpenAt": 353,
+   "samplerSamples": 34,
+   "samplesAtOpen": 34,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 54.80000000074506,
+     "presentationTime": 60,
+     "seenAt": 71.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 374,
+     "presentationTime": 380,
+     "seenAt": 389.30000000074506
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 13.599999999627471,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 54.5,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 54.69999999925494,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 54.69999999925494,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 357.40000000037253,
+     "samples": 34,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 3,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 56,
+   "openRender": 380,
+   "leafPaint": 52,
+   "openPaint": 370.8999999985099,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +51ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 51.899999998509884,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 353.3999999985099,
+   "samplerOpenAt": 349,
+   "samplerSamples": 33,
+   "samplesAtOpen": 33,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 56,
+     "loadTime": 0,
+     "paintTime": 52,
+     "presentationTime": 56,
+     "seenAt": 68.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    },
+    {
+     "id": "open",
+     "renderTime": 380,
+     "loadTime": 0,
+     "paintTime": 370.8999999985099,
+     "presentationTime": 380,
+     "seenAt": 385.8999999985099
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 11.799999998882413,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 51.69999999925494,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 51.899999998509884,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 51.899999998509884,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 353.3999999985099,
+     "samples": 33,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "pos",
+   "mech": "adopt",
+   "i": 4,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 68,
+   "openRender": 392,
+   "leafPaint": 61.20000000111759,
+   "openPaint": 381.80000000074506,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +71ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 61.09999999962747,
+   "revealSamples": 10,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 364.59999999962747,
+   "samplerOpenAt": 358,
+   "samplerSamples": 34,
+   "samplesAtOpen": 34,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 18,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 68,
+     "loadTime": 0,
+     "paintTime": 61.20000000111759,
+     "presentationTime": 68,
+     "seenAt": 77.70000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    },
+    {
+     "id": "open",
+     "renderTime": 392,
+     "loadTime": 0,
+     "paintTime": 381.80000000074506,
+     "presentationTime": 392,
+     "seenAt": 395.5
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 17.800000000745058,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 60.80000000074506,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 61.09999999962747,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 61.09999999962747,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 364.59999999962747,
+     "samples": 34,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 22
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 0,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 64,
+   "openRender": 80,
+   "leafPaint": 58.80000000074506,
+   "openPaint": 75,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +52ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 58.600000001490116,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 59.90000000037253,
+   "samplerOpenAt": 53,
+   "samplerSamples": 10,
+   "samplesAtOpen": 10,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 64,
+     "loadTime": 0,
+     "paintTime": 58.80000000074506,
+     "presentationTime": 64,
+     "seenAt": 77.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75,
+     "presentationTime": 80,
+     "seenAt": 92.60000000149012
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 18.600000001490116,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 58.20000000111759,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 58.600000001490116,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 58.600000001490116,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 59.90000000037253,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 1,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 56,
+   "openRender": 72,
+   "leafPaint": 48.5,
+   "openPaint": 65.59999999962747,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerFinal": "open",
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 48.40000000037253,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 49.30000000074506,
+   "samplerOpenAt": 43,
+   "samplerSamples": 9,
+   "samplesAtOpen": 9,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 56,
+     "loadTime": 0,
+     "paintTime": 48.5,
+     "presentationTime": 56,
+     "seenAt": 67.70000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.70000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.70000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 65.59999999962747,
+     "presentationTime": 72,
+     "seenAt": 81.80000000074506
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 18.300000000745058,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 48.09999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 48.40000000037253,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 48.40000000037253,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 49.30000000074506,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 2,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 64,
+   "openRender": 80,
+   "leafPaint": 56.80000000074506,
+   "openPaint": 73.70000000111759,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +51ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 56.59999999962747,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 57.70000000111759,
+   "samplerOpenAt": 51,
+   "samplerSamples": 10,
+   "samplesAtOpen": 10,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 64,
+     "loadTime": 0,
+     "paintTime": 56.80000000074506,
+     "presentationTime": 64,
+     "seenAt": 76
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73.70000000111759,
+     "presentationTime": 80,
+     "seenAt": 89.5
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 18.59999999962747,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 56.30000000074506,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 56.59999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 56.59999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 57.70000000111759,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 3,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 64,
+   "openRender": 80,
+   "leafPaint": 57.30000000074506,
+   "openPaint": 74.09999999962747,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +50ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 57.09999999962747,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 58.20000000111759,
+   "samplerOpenAt": 51,
+   "samplerSamples": 10,
+   "samplesAtOpen": 10,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 64,
+     "loadTime": 0,
+     "paintTime": 57.30000000074506,
+     "presentationTime": 64,
+     "seenAt": 76.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.09999999962747,
+     "presentationTime": 80,
+     "seenAt": 90.09999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 18.5,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 56.90000000037253,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 57.09999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 57.09999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 58.20000000111759,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "insert",
+   "i": 4,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 56,
+   "openRender": 72,
+   "leafPaint": 51.09999999962747,
+   "openPaint": 68.5,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerFinal": "open",
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 51.09999999962747,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 51.90000000037253,
+   "samplerOpenAt": 47,
+   "samplerSamples": 9,
+   "samplesAtOpen": 9,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 56,
+     "loadTime": 0,
+     "paintTime": 51.09999999962747,
+     "presentationTime": 56,
+     "seenAt": 70.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 72,
+     "loadTime": 0,
+     "paintTime": 68.5,
+     "presentationTime": 72,
+     "seenAt": 83.79999999888241
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 15.199999999254942,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 50.69999999925494,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 51.09999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 51.09999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 51.90000000037253,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 0,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 60,
+   "openRender": 80,
+   "leafPaint": 56.30000000074506,
+   "openPaint": 73,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +51ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 56.100000001490116,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 57.20000000111759,
+   "samplerOpenAt": 51,
+   "samplerSamples": 10,
+   "samplesAtOpen": 10,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 56.30000000074506,
+     "presentationTime": 60,
+     "seenAt": 75
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 73,
+     "presentationTime": 80,
+     "seenAt": 87.90000000037253
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 16.800000000745058,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 55.90000000037253,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 56.100000001490116,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 56.100000001490116,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 57.20000000111759,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 1,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 60,
+   "openRender": 76,
+   "leafPaint": 55.90000000037253,
+   "openPaint": 72.90000000037253,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +50ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 55.80000000074506,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 56.600000001490116,
+   "samplerOpenAt": 51,
+   "samplerSamples": 10,
+   "samplesAtOpen": 10,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 55.90000000037253,
+     "presentationTime": 60,
+     "seenAt": 74.40000000037253
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    },
+    {
+     "id": "open",
+     "renderTime": 76,
+     "loadTime": 0,
+     "paintTime": 72.90000000037253,
+     "presentationTime": 76,
+     "seenAt": 89.20000000111759
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 15.400000000372529,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 55.5,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 55.80000000074506,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 55.80000000074506,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 56.600000001490116,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 2,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 64,
+   "openRender": 80,
+   "leafPaint": 57.90000000037253,
+   "openPaint": 74.40000000037253,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": "the route painted content of its own before the shared player screen opened, from +54ms: [\"h1|เข้ 🐊\",\"span|งับ!\",\"div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ\",\"strong|แก๊งสัตว์ปาร์ตี้\",\"small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8\",\"span|🎮 เริ่มประลองความเสี่ยง!\",\"span|📖 วิธีเล่น\",\"span|⚙️ ตั้งค่า\"]. Hold it until the open, or -- if it is header chrome meant to show first -- mark it data-shows-before-players in the route's markup.html (gh#264)",
+   "samplerFinal": "open",
+   "samplerGreen": false,
+   "holeReached": false,
+   "offenders": [
+    "h1|เข้ 🐊",
+    "span|งับ!",
+    "div|เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผ",
+    "strong|แก๊งสัตว์ปาร์ตี้",
+    "small#setup-teeth-desc|ฟันทั้งหมด 16 ซี่ (บน 8 / ล่าง 8",
+    "span|🎮 เริ่มประลองความเสี่ยง!",
+    "span|📖 วิธีเล่น",
+    "span|⚙️ ตั้งค่า"
+   ],
+   "revealAt": 57.79999999888241,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 58.59999999962747,
+   "samplerOpenAt": 54,
+   "samplerSamples": 10,
+   "samplesAtOpen": 10,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 64,
+     "loadTime": 0,
+     "paintTime": 57.90000000037253,
+     "presentationTime": 64,
+     "seenAt": 75.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 74.40000000037253,
+     "presentationTime": 80,
+     "seenAt": 90.5
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 11.799999998882413,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 57.59999999962747,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 57.79999999888241,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 57.79999999888241,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 58.59999999962747,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 3,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 44,
+   "openRender": 60,
+   "leafPaint": 40.79999999888241,
+   "openPaint": 57.29999999888241,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerFinal": "open",
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 40.69999999925494,
+   "revealSamples": 9,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 41.399999998509884,
+   "samplerOpenAt": 39,
+   "samplerSamples": 9,
+   "samplesAtOpen": 9,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 44,
+     "loadTime": 0,
+     "paintTime": 40.79999999888241,
+     "presentationTime": 44,
+     "seenAt": 58.79999999888241
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 60,
+     "loadTime": 0,
+     "paintTime": 57.29999999888241,
+     "presentationTime": 60,
+     "seenAt": 72.59999999962747
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 9.399999998509884,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 40.5,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 40.69999999925494,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 40.79999999888241,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 41.399999998509884,
+     "samples": 9,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  },
+  {
+   "order": "real",
+   "mech": "adopt",
+   "i": 4,
+   "ok": true,
+   "seed": {
+    "origin": "http://127.0.0.1:4451",
+    "keys": [
+     "watduang:timebomb-players"
+    ]
+   },
+   "gl": {
+    "webgl": "null",
+    "webgl2": "null",
+    "2d": "live"
+   },
+   "page": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "visibility": "visible"
+   },
+   "leafRender": 64,
+   "openRender": 80,
+   "leafPaint": 59.40000000037253,
+   "openPaint": 75.90000000037253,
+   "paintedBeforeOpen": true,
+   "samplerVerdict": null,
+   "samplerFinal": "open",
+   "samplerGreen": true,
+   "holeReached": true,
+   "offenders": [],
+   "revealAt": 59.29999999888241,
+   "revealSamples": 10,
+   "tagged": {
+    "leaf": 1,
+    "open": 16
+   },
+   "openAt": 60.09999999962747,
+   "samplerOpenAt": 54,
+   "samplerSamples": 10,
+   "samplesAtOpen": 10,
+   "holdAtReveal": "held",
+   "holdAtOpen": "held",
+   "setupOpacityBefore": "0",
+   "setupOpacityAfter": "1",
+   "framesBetween": 0,
+   "leafPaintBeforeOpenTask": true,
+   "remainingLegacy": null,
+   "entries": [
+    {
+     "id": "leaf",
+     "renderTime": 64,
+     "loadTime": 0,
+     "paintTime": 59.40000000037253,
+     "presentationTime": 64,
+     "seenAt": 78.09999999962747
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    },
+    {
+     "id": "open",
+     "renderTime": 80,
+     "loadTime": 0,
+     "paintTime": 75.90000000037253,
+     "presentationTime": 80,
+     "seenAt": 91.69999999925494
+    }
+   ],
+   "events": [
+    {
+     "name": "lock-held",
+     "at": 16.5,
+     "samples": 6,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 1
+    },
+    {
+     "name": "reveal-start",
+     "at": 58.90000000037253,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "0"
+    },
+    {
+     "name": "reveal",
+     "at": 59.29999999888241,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4,
+     "setupOpacity": "1"
+    },
+    {
+     "name": "released-or-scheduled",
+     "at": 59.29999999888241,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "closed",
+     "pending": "1",
+     "frames": 4
+    },
+    {
+     "name": "open-seen",
+     "at": 60.09999999962747,
+     "samples": 10,
+     "stopped": false,
+     "hold": "held",
+     "screen": "open",
+     "pending": "1",
+     "frames": 4
+    }
+   ]
+  }
+ ],
+ "browser": "Chrome/155.0.8059.82",
+ "chromeExit": 0
+}

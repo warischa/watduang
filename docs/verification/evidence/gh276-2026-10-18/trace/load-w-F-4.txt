@@ -1,0 +1,14 @@
+== before 09:17:20
+ 9:17  up  1:19, 1 user, load averages: 9.61 10.96 12.44
+ 55.0  9624 bash -c while :; do :; done
+ 54.4  9625 bash -c while :; do :; done
+ 43.6  9622 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 42.3   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 40.3  2932 claude -p Regenerate the PoC-01 evidence: run tests/scenarios/test_06_real_providers.py 
+== after 09:17:46
+ 9:17  up  1:20, 1 user, load averages: 10.40 11.03 12.42
+ 77.1  9624 bash -c while :; do :; done
+ 76.8  9625 bash -c while :; do :; done
+ 69.9  9622 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 43.0   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 40.4 41827 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve

@@ -1,0 +1,14 @@
+== before 08:53:49
+ 8:53  up 56 mins, 1 user, load averages: 9.37 9.64 8.55
+100.0 72982 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 81.6 72693 /Applications/OneDrive.app/Contents/PlugIns/OneDrive File Provider.appex/Contents/MacOS/
+ 52.8 73084 bash -c while :; do :; done
+ 52.3 73083 bash -c while :; do :; done
+ 33.8 73081 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+== after 08:54:10
+ 8:54  up 56 mins, 1 user, load averages: 10.08 9.77 8.63
+ 77.6 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
+ 45.0 73091 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 40.3 73081 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 31.8 73083 bash -c while :; do :; done
+ 30.5 73084 bash -c while :; do :; done

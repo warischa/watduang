@@ -1,0 +1,14 @@
+== before 08:50:48
+ 8:50  up 53 mins, 1 user, load averages: 10.66 10.06 8.44
+114.5 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 58.8 70224 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 54.7 70227 bash -c while :; do :; done
+ 53.0 70226 bash -c while :; do :; done
+ 15.7 70251 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+== after 08:51:25
+ 8:51  up 53 mins, 1 user, load averages: 9.64 9.90 8.44
+ 84.6 70226 bash -c while :; do :; done
+ 84.2 70227 bash -c while :; do :; done
+ 76.8 70224 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 47.4 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 41.5   814 /Applications/OneDrive.app/Contents/MacOS/OneDrive

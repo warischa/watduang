@@ -1,0 +1,14 @@
+== before 08:51:33
+ 8:51  up 53 mins, 1 user, load averages: 9.15 9.79 8.42
+ 61.5 70778 bash -c while :; do :; done
+ 60.1 70777 bash -c while :; do :; done
+ 58.7 70775 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 30.5 70798 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 16.9 70795 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+== after 08:52:02
+ 8:52  up 54 mins, 1 user, load averages: 9.12 9.73 8.44
+ 95.5 70778 bash -c while :; do :; done
+ 95.4 70777 bash -c while :; do :; done
+ 24.0 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+  9.0 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
+  8.5  2300 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud

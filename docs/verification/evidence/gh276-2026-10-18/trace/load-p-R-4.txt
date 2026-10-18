@@ -1,0 +1,14 @@
+== before 09:33:27
+ 9:33  up  1:35, 1 user, load averages: 14.76 11.73 11.07
+ 99.4 55655 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 42.0 55415 bash -c while :; do :; done
+ 41.2 55416 bash -c while :; do :; done
+ 39.8 55425 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 38.2   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+== after 09:33:48
+ 9:33  up  1:36, 1 user, load averages: 11.70 11.23 10.91
+ 76.4 55416 bash -c while :; do :; done
+ 76.3 55415 bash -c while :; do :; done
+ 53.4 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
+ 25.6   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 15.2 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir

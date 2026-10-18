@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gh269 calibration: stylesheet-only reveal vs the open task</title>
+<style id="base">
+  body { margin: 0; font: 28px/1.3 sans-serif; background: #fff; }
+  #app { position: relative; min-height: 400px; }
+  /* The leaf every mechanism reveals. Hidden from first paint, so its element-timing entry can only
+     come from the frame that first paints it after the reveal. */
+  #leaf { display: none; background: #f0f; color: #000; padding: 20px; }
+  /* Mechanism "media": this rule never applies until the harness flips mediaText through CSSOM. */
+  @media not all { #leaf { display: block; } }
+  html[data-reveal] #leaf { display: block; }
+  .ps { background: #00f; color: #fff; padding: 20px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="leaf" elementtiming="leaf">LEAF REVEALED BY STYLESHEET</div>
+  <div class="ps" hidden><div id="openel" elementtiming="open">SHARED SCREEN OPEN</div></div>
+</div>
+<script src="calib.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+== before 08:52:40
+ 8:52  up 54 mins, 1 user, load averages: 9.46 9.74 8.50
+ 63.8 71768 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 62.2 71770 bash -c while :; do :; done
+ 61.7 71771 bash -c while :; do :; done
+ 30.5 10182 node /Users/waris.c/.claude/plugins/cache/context-mode/context-mode/1.0.169/start.mjs
+ 21.1 71806 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+== after 08:53:13
+ 8:53  up 55 mins, 1 user, load averages: 9.32 9.65 8.51
+ 90.7 72200 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 86.9 71770 bash -c while :; do :; done
+ 86.3 71771 bash -c while :; do :; done
+ 80.2 71768 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 20.4   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon

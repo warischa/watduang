@@ -1,0 +1,14 @@
+== before 09:29:36
+ 9:29  up  1:31, 1 user, load averages: 7.77 7.58 9.78
+134.8 40821 node /Users/waris.c/claude/kaopanwa-web/.scratch/a286-gate-wt2/node_modules/.bin/astro b
+ 53.7 40829 bash -c while :; do :; done
+ 52.9 40828 bash -c while :; do :; done
+ 49.4 40826 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 24.8 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+== after 09:29:56
+ 9:29  up  1:32, 1 user, load averages: 9.38 7.96 9.87
+125.9 41067 /Users/waris.c/.nvm/versions/node/v22.22.1/bin/node --experimental-import-meta-resolve -
+120.5 40839 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 82.9 40829 bash -c while :; do :; done
+ 82.7 40828 bash -c while :; do :; done
+ 15.3 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir

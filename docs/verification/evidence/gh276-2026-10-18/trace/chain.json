@@ -1,0 +1,288 @@
+{
+ "w-R-1": {
+  "windowMs": 1917.5,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -132.9,
+   "wallMs": 1988.7,
+   "cpuMs": 2,
+   "inWindowMs": 1855.8,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 1983.4
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 1870,
+   "cpuMs": 1.6
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 1902.4,
+   "cpuMs": 26.5
+  }
+ },
+ "w-R-2": {
+  "windowMs": 991,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -82.2,
+   "wallMs": 1050.1,
+   "cpuMs": 3.4,
+   "inWindowMs": 967.9,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 1045.2
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 967.5,
+   "cpuMs": 1
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 979.9,
+   "cpuMs": 13.3
+  }
+ },
+ "w-R-3": {
+  "windowMs": 3680,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -103,
+   "wallMs": 3761.5,
+   "cpuMs": 2.8,
+   "inWindowMs": 3658.5,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 3748.8
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 3658.3,
+   "cpuMs": 0.8
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 3655.5,
+   "cpuMs": 28.9
+  }
+ },
+ "w-R-4": {
+  "windowMs": 463.5,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -99.7,
+   "wallMs": 531,
+   "cpuMs": 2.5,
+   "inWindowMs": 431.3,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 521.2
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 20.7,
+   "cpuMs": 0.7
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 77,
+   "cpuMs": 2.5
+  }
+ },
+ "w-R-5": {
+  "windowMs": 522.7,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -112.1,
+   "wallMs": 610.1,
+   "cpuMs": 2.1,
+   "inWindowMs": 498,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 604.9
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 0.7,
+   "cpuMs": 0.5
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 52.5,
+   "cpuMs": 4.7
+  }
+ },
+ "w-R-6": {
+  "windowMs": 206.2,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -109.7,
+   "wallMs": 250.1,
+   "cpuMs": 3.5,
+   "inWindowMs": 140.5,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 232.1
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 140.4,
+   "cpuMs": 1.5
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 173.6,
+   "cpuMs": 6
+  }
+ },
+ "w-R-7": {
+  "windowMs": 292.6,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -88.1,
+   "wallMs": 236.2,
+   "cpuMs": 2.9,
+   "inWindowMs": 148,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 226.4
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 148.5,
+   "cpuMs": 1.5
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 188.2,
+   "cpuMs": 8.5
+  }
+ },
+ "w-U-1": {
+  "windowMs": 856.6,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -15.4,
+   "wallMs": 846.9,
+   "cpuMs": 1.7,
+   "inWindowMs": 831.5,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 846
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 832.3,
+   "cpuMs": 1
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 850.2,
+   "cpuMs": 13.7
+  }
+ },
+ "w-U-2": {
+  "windowMs": 1758.6,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -20.3,
+   "wallMs": 1742.2,
+   "cpuMs": 3.1,
+   "inWindowMs": 1721.9,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 1740.9
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 1721.9,
+   "cpuMs": 1
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 1637.6,
+   "cpuMs": 33.2
+  }
+ },
+ "w-U-3": {
+  "windowMs": 1663.9,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -16,
+   "wallMs": 1636.8,
+   "cpuMs": 1.6,
+   "inWindowMs": 1620.9,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 1635.9
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 0.5,
+   "cpuMs": 0.4
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 1657.3,
+   "cpuMs": 28.4
+  }
+ },
+ "w-F-2": {
+  "windowMs": 4320.1,
+  "browserMainBusiest": {
+   "site": "web_app_command_manager.cc:OnCommandComplete",
+   "startRelReqMs": 1115.8,
+   "wallMs": 1717.4,
+   "cpuMs": 4,
+   "inWindowMs": 1717.4,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 1710.1
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 3800.6,
+   "cpuMs": 10.5
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 4248.1,
+   "cpuMs": 46.6
+  }
+ },
+ "iso-T-3": {
+  "windowMs": 3853.2,
+  "browserMainBusiest": {
+   "site": "web_app_command_manager.cc:OnCommandComplete",
+   "startRelReqMs": -270.3,
+   "wallMs": 3939.1,
+   "cpuMs": 6.1,
+   "inWindowMs": 3668.8,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 3934.2
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 3664.9,
+   "cpuMs": 4
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 3848.3,
+   "cpuMs": 32
+  }
+ },
+ "t8": {
+  "windowMs": 2795.4,
+  "browserMainBusiest": {
+   "site": "native_widget_ns_window_bridge.mm:CloseWindow",
+   "startRelReqMs": -787.1,
+   "wallMs": 3037.7,
+   "cpuMs": 4.2,
+   "inWindowMs": 2250.6,
+   "longestMojoInside": {
+    "name": "FrameSinkManager::DestroyCompositorFrameSink",
+    "wallMs": 2987.9
+   }
+  },
+  "vizCompositorTopLevel": {
+   "wallMs": 2684.4,
+   "cpuMs": 4.7
+  },
+  "gpuMainGPUTask": {
+   "wallMs": 2779,
+   "cpuMs": 15.5
+  }
+ }
+}

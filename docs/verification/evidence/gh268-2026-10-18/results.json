@@ -1,0 +1,3728 @@
+{
+ "timebomb": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#tb-start:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/timebomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [
+      {
+       "sel": "header#tb-top",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "relative"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/timebomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "header#tb-top",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "relative"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/timebomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "header#tb-top",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "relative"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.13,
+      "b": 100,
+      "w": 74.13,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3261.5,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app > main.tb-main",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2001.38,
+       "share": 0.6136,
+       "at": [
+        43.1,
+        86.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "header#tb-top",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1260.13,
+       "share": 0.3864,
+       "at": [
+        43.1,
+        64.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "relative"
+      },
+      {
+       "sel": "canvas#tb-canvas",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 448.88,
+       "share": 0.1376,
+       "at": [
+        48.1,
+        96.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.1376
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players tb-mute tb-pass"
+  }
+ },
+ "one-bomb": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/one-bomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "div#menuOverlay > div.menuBox > div.logoArea",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1281.25,
+       "share": 0.6618,
+       "at": [
+        31.4,
+        32.8
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#menuOverlay > div.menuBox > div.logoArea > div.gameTitle",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 1281.25,
+       "share": 0.6618,
+       "at": [
+        31.4,
+        32.8
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.6618
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/one-bomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "div#menuOverlay > div.menuBox > div.logoArea",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1299.58,
+       "share": 0.6713,
+       "at": [
+        31.4,
+        32.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#menuOverlay > div.menuBox > div.logoArea > div.gameTitle",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 1299.58,
+       "share": 0.6713,
+       "at": [
+        31.4,
+        32.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.6713
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/one-bomb/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "div#hud > div.topSection",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1600,
+       "share": 0.8264,
+       "at": [
+        30,
+        30
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.topBar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1600,
+       "share": 0.8264,
+       "at": [
+        30,
+        30
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.topBar > div.leftTools",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1480,
+       "share": 0.7645,
+       "at": [
+        30,
+        31.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "button#homeBtn",
+       "content": true,
+       "text": "🏠",
+       "interactive": true,
+       "px2": 1480,
+       "share": 0.7645,
+       "at": [
+        30,
+        31.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.7645
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.78,
+      "b": 100,
+      "w": 74.78,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3290.38,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "div#hud > div.topSection",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 3114.38,
+       "share": 0.9465,
+       "at": [
+        45.4,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.statusTopRow",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2265,
+       "share": 0.6884,
+       "at": [
+        45.4,
+        84
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#turnBanner",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 2194.22,
+       "share": 0.6669,
+       "at": [
+        45.4,
+        84.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.topBar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 283.13,
+       "share": 0.086,
+       "at": [
+        45.4,
+        58
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "span#turnAvatarEmoji",
+       "content": true,
+       "text": "🐱",
+       "interactive": false,
+       "px2": 270,
+       "share": 0.0821,
+       "at": [
+        32.5,
+        91
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "strong#turnPlayerName",
+       "content": true,
+       "text": "ต้น",
+       "interactive": false,
+       "px2": 81.21,
+       "share": 0.0247,
+       "at": [
+        78.3,
+        91.8
+       ],
+       "winner": "strong#turnPlayerName",
+       "controlWins": false,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud > div.topSection > div.topBar > div.leftTools",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 70.78,
+       "share": 0.0215,
+       "at": [
+        45.4,
+        56.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "button#homeBtn",
+       "content": true,
+       "text": "🏠",
+       "interactive": true,
+       "px2": 44,
+       "share": 0.0134,
+       "at": [
+        32,
+        56.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "button#audioToggleBtn",
+       "content": true,
+       "text": "🔊",
+       "interactive": true,
+       "px2": 18.78,
+       "share": 0.0057,
+       "at": [
+        71.4,
+        56.5
+       ],
+       "winner": "button#audioToggleBtn",
+       "controlWins": false,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 5,
+     "maxContentShare": 0.6669
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn btn homeBtn audioToggleBtn newRoundBtn settingsBtn"
+  }
+ },
+ "short-stick": {
+  "notes": [
+   "#btn-start-setup:clicked",
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#btn-begin-game:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/short-stick/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 5,
+     "hits": [
+      {
+       "sel": "header#topnav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "40",
+       "pos": "sticky"
+      },
+      {
+       "sel": "header#topnav > div.container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80,
+      "b": 100,
+      "w": 74,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3256,
+     "ignoredFullScreen": 5,
+     "hits": [
+      {
+       "sel": "header#topnav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 74,
+       "share": 0.0227,
+       "at": [
+        43,
+        56.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "40",
+       "pos": "sticky"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "sharedScreenOpen": false
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/short-stick/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [
+      {
+       "sel": "header#topnav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "40",
+       "pos": "sticky"
+      },
+      {
+       "sel": "header#topnav > div.container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/short-stick/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "header#topnav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "40",
+       "pos": "sticky"
+      },
+      {
+       "sel": "header#topnav > div.container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80,
+      "b": 100,
+      "w": 74,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3256,
+     "ignoredFullScreen": 4,
+     "hits": [
+      {
+       "sel": "header#topnav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 74,
+       "share": 0.0227,
+       "at": [
+        43,
+        56.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "40",
+       "pos": "sticky"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players audio-toggle rules-nav-button btn btn btn"
+  }
+ },
+ "freeze-tap": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#ruleReadyBtn:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/freeze-tap/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "div#shakeRoot > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "20",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#shakeRoot > header > div.header-left",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 952,
+       "share": 0.4917,
+       "at": [
+        33,
+        34
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/freeze-tap/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "div#shakeRoot > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "20",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#shakeRoot > header > div.header-left",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 952,
+       "share": 0.4917,
+       "at": [
+        33,
+        34
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/freeze-tap/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "div#shakeRoot > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "20",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#shakeRoot > header > div.header-left",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 952,
+       "share": 0.4917,
+       "at": [
+        33,
+        34
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.27,
+      "b": 100,
+      "w": 74.27,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3267.69,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "main#mainContent",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2302.23,
+       "share": 0.7045,
+       "at": [
+        43.1,
+        84.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "15",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#shakeRoot > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 965.45,
+       "share": 0.2955,
+       "at": [
+        43.1,
+        62.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "20",
+       "pos": "relative"
+      },
+      {
+       "sel": "main#mainContent > div.pass-container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 610.52,
+       "share": 0.1868,
+       "at": [
+        48.1,
+        95.3
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players soundToggleBtn resetAppBtn playerReadyBtn"
+  }
+ },
+ "cannon-flag": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#btn-ready-to-aim:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/cannon-flag/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "header#top-nav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "50",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/cannon-flag/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "header#top-nav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "50",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/cannon-flag/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "header#top-nav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "50",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.27,
+      "b": 100,
+      "w": 74.27,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3267.69,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "div#canvas-container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 3267.69,
+       "share": 1,
+       "at": [
+        43.1,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "relative"
+      },
+      {
+       "sel": "canvas#game-canvas",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 3267.69,
+       "share": 1,
+       "at": [
+        43.1,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 1
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players btn-sound-toggle btn-modal-next-shot btn-angle-dec btn-angle-inc btn-fire-cannon"
+  }
+ },
+ "power-meter": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#btn-primary-action:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/power-meter/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "div#app-container > header.top-nav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "50",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/power-meter/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "div#app-container > header.top-nav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "50",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/power-meter/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "div#app-container > header.top-nav",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "50",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.27,
+      "b": 100,
+      "w": 74.27,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3267.69,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "main#view-root > div.glass-card",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2594.72,
+       "share": 0.7941,
+       "at": [
+        48.1,
+        79.8
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "main#view-root > div.glass-card > div",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 665.21,
+       "share": 0.2036,
+       "at": [
+        58.6,
+        92.3
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "main#view-root > div.glass-card > div > span",
+       "content": true,
+       "text": "รอบที่ 1",
+       "interactive": false,
+       "px2": 614.75,
+       "share": 0.1881,
+       "at": [
+        58.6,
+        92.9
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.1881
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players btn-audio-toggle btn-help-modal main-tap-btn btn"
+  }
+ },
+ "dice-loser": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#dl-begin:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/dice-loser/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [
+      {
+       "sel": "div#app > header.dl-top",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/dice-loser/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app > header.dl-top",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/dice-loser/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app > header.dl-top",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.13,
+      "b": 100,
+      "w": 74.13,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3261.5,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app > main.dl-main",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2001.38,
+       "share": 0.6136,
+       "at": [
+        43.1,
+        86.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#app > header.dl-top",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1260.13,
+       "share": 0.3864,
+       "at": [
+        43.1,
+        64.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players dl-roll"
+  }
+ },
+ "how-close-is-near": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#btnStartGame:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/how-close-is-near/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/how-close-is-near/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/how-close-is-near/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.27,
+      "b": 100,
+      "w": 74.27,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3267.69,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players btnAudioToggle btnAckSecrecy"
+  }
+ },
+ "pinocchio-luck": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#ready:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/pinocchio-luck/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 3,
+     "hits": [
+      {
+       "sel": "main#app > header.topbar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "6",
+       "pos": "relative"
+      },
+      {
+       "sel": "main#app > header.topbar > div.brand > div.brand-mark",
+       "content": true,
+       "text": "ย",
+       "interactive": false,
+       "px2": 1510.52,
+       "share": 0.7802,
+       "at": [
+        29,
+        32
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "main#app > header.topbar > div.brand",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1360,
+       "share": 0.7025,
+       "at": [
+        30,
+        33
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "main#app > div.curtain-top",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 792,
+       "share": 0.4091,
+       "at": [
+        28,
+        15
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "3",
+       "pos": "absolute"
+      }
+     ],
+     "contentHits": 2,
+     "maxContentShare": 0.7802
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/pinocchio-luck/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "main#app > header.topbar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "6",
+       "pos": "relative"
+      },
+      {
+       "sel": "main#app > header.topbar > div.brand > div.brand-mark",
+       "content": true,
+       "text": "ย",
+       "interactive": false,
+       "px2": 1510.52,
+       "share": 0.7802,
+       "at": [
+        29,
+        32
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "main#app > header.topbar > div.brand",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1360,
+       "share": 0.7025,
+       "at": [
+        30,
+        33
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "main#app > div.curtain-top",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 792,
+       "share": 0.4091,
+       "at": [
+        28,
+        15
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "3",
+       "pos": "absolute"
+      }
+     ],
+     "contentHits": 2,
+     "maxContentShare": 0.7802
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/pinocchio-luck/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "main#app > header.topbar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1936,
+       "share": 1,
+       "at": [
+        28,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "6",
+       "pos": "relative"
+      },
+      {
+       "sel": "main#app > header.topbar > div.brand > div.brand-mark",
+       "content": true,
+       "text": "ย",
+       "interactive": false,
+       "px2": 1510.52,
+       "share": 0.7802,
+       "at": [
+        29,
+        32
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "main#app > header.topbar > div.brand",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1360,
+       "share": 0.7025,
+       "at": [
+        30,
+        33
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "main#app > div.curtain-top",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 792,
+       "share": 0.4091,
+       "at": [
+        28,
+        15
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "3",
+       "pos": "absolute"
+      }
+     ],
+     "contentHits": 2,
+     "maxContentShare": 0.7802
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 81.31,
+      "b": 100,
+      "w": 75.31,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3313.75,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "section#stageFrame",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2526.63,
+       "share": 0.7625,
+       "at": [
+        44.2,
+        83
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "1",
+       "pos": "relative"
+      },
+      {
+       "sel": "canvas#gameCanvas",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 2526.63,
+       "share": 0.7625,
+       "at": [
+        44.2,
+        83
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "section#stageFrame > div.stage-vignette",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 2526.63,
+       "share": 0.7625,
+       "at": [
+        44.2,
+        83
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "absolute"
+      },
+      {
+       "sel": "section#stageFrame > div.stage-spotlight",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 2220.63,
+       "share": 0.6701,
+       "at": [
+        48.7,
+        83
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "absolute"
+      },
+      {
+       "sel": "main#app > header.topbar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 753.13,
+       "share": 0.2273,
+       "at": [
+        43.7,
+        61
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "6",
+       "pos": "relative"
+      },
+      {
+       "sel": "main#app > header.topbar > div.brand > div.brand-mark",
+       "content": true,
+       "text": "ย",
+       "interactive": false,
+       "px2": 87.09,
+       "share": 0.0263,
+       "at": [
+        30,
+        57
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 4,
+     "maxContentShare": 0.7625
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players soundBtn btn btn btn"
+  }
+ },
+ "cursed-number": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#startGameBtn:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/cursed-number/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/cursed-number/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/cursed-number/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.27,
+      "b": 100,
+      "w": 74.27,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3267.69,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players soundToggleBtn rulesBtn homeResetBtn readyBtn"
+  }
+ },
+ "wire-snip-panic": {
+  "notes": [
+   "#btn-menu-start:clicked",
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#btn-start-match:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/wire-snip-panic/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.78,
+      "b": 100,
+      "w": 74.78,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3290.38,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "sharedScreenOpen": false
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/wire-snip-panic/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/wire-snip-panic/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.78,
+      "b": 100,
+      "w": 74.78,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3290.38,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players btn-home btn-sound-toggle btn-rules btn-trigger-scan"
+  }
+ },
+ "zero-trigger": {
+  "notes": [
+   "#btn-quick-start:clicked",
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#btn-big-action:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/zero-trigger/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app-container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1496,
+       "share": 0.7727,
+       "at": [
+        33,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "10",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#app-container > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 204,
+       "share": 0.1054,
+       "at": [
+        33,
+        47
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.78,
+      "b": 100,
+      "w": 74.78,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3290.38,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app-container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2850.38,
+       "share": 0.8663,
+       "at": [
+        48.4,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "10",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#app-container > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2850.38,
+       "share": 0.8663,
+       "at": [
+        48.4,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "sharedScreenOpen": false
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/zero-trigger/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app-container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1496,
+       "share": 0.7727,
+       "at": [
+        33,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "10",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#app-container > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 204,
+       "share": 0.1054,
+       "at": [
+        33,
+        47
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/zero-trigger/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app-container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1496,
+       "share": 0.7727,
+       "at": [
+        33,
+        28
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "10",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#app-container > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 204,
+       "share": 0.1054,
+       "at": [
+        33,
+        47
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.78,
+      "b": 100,
+      "w": 74.78,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3290.38,
+     "ignoredFullScreen": 1,
+     "hits": [
+      {
+       "sel": "div#app-container",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2850.38,
+       "share": 0.8663,
+       "at": [
+        48.4,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "10",
+       "pos": "relative"
+      },
+      {
+       "sel": "div#app-container > header",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2850.38,
+       "share": 0.8663,
+       "at": [
+        48.4,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players btn-audio-toggle btn-open-rules btn-home-menu btn-big-action"
+  }
+ },
+ "bangkok-drift": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#readyBtn:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/bangkok-drift/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/bangkok-drift/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 2,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/bangkok-drift/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 5,
+     "hits": [
+      {
+       "sel": "div#stage > div.hud",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 874,
+       "share": 0.4514,
+       "at": [
+        31,
+        23.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "absolute"
+      },
+      {
+       "sel": "span#hud-name",
+       "content": true,
+       "text": "ต้น",
+       "interactive": false,
+       "px2": 459.28,
+       "share": 0.2372,
+       "at": [
+        22,
+        23.5
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.2372
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.27,
+      "b": 100,
+      "w": 74.27,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3267.69,
+     "ignoredFullScreen": 5,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players"
+  }
+ },
+ "croc-bite": {
+  "notes": [
+   "S2a=shared screen open with saved roster of 3",
+   "ps-start:clicked",
+   "#btn-start-game:clicked"
+  ],
+  "S1": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/croc-bite/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2a": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/croc-bite/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 4,
+     "hits": [],
+     "contentHits": 0,
+     "maxContentShare": 0
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 0,
+      "t": 0,
+      "r": 0,
+      "b": 0,
+      "w": 0,
+      "h": 0
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": true,
+     "display": "none",
+     "shown": false
+    }
+   },
+   "sharedScreenOpen": true
+  },
+  "S2": {
+   "innerWidth": 320,
+   "innerHeight": 568,
+   "clientWidth": 320,
+   "url": "/game/croc-bite/play/",
+   "controls": {
+    "play-exit": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 6,
+      "r": 50,
+      "b": 50,
+      "w": 44,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 1936,
+     "ignoredFullScreen": 5,
+     "hits": [
+      {
+       "sel": "div#screen-hud > div.hud-top-section",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1680,
+       "share": 0.8678,
+       "at": [
+        30,
+        29
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#screen-hud > div.hud-top-section > div.hud-top-bar",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1680,
+       "share": 0.8678,
+       "at": [
+        30,
+        29
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#screen-hud > div.hud-top-section > div.hud-top-bar > div.hud-tools-left",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 1680,
+       "share": 0.8678,
+       "at": [
+        30,
+        29
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "button#btn-hud-home",
+       "content": true,
+       "text": "🏠",
+       "interactive": true,
+       "px2": 1512,
+       "share": 0.781,
+       "at": [
+        28,
+        29
+       ],
+       "winner": "button#play-exit",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 1,
+     "maxContentShare": 0.781
+    },
+    "play-edit-players": {
+     "present": true,
+     "rect": {
+      "l": 6,
+      "t": 56,
+      "r": 80.27,
+      "b": 100,
+      "w": 74.27,
+      "h": 44
+     },
+     "z": "300",
+     "position": "fixed",
+     "hiddenAttr": false,
+     "display": "grid",
+     "shown": true,
+     "area": 3267.69,
+     "ignoredFullScreen": 5,
+     "hits": [
+      {
+       "sel": "div#screen-hud > div.hud-top-section",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 3091.69,
+       "share": 0.9461,
+       "at": [
+        45.1,
+        78
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud-player-strip",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2951.16,
+       "share": 0.9031,
+       "at": [
+        45.1,
+        79
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud-player-strip > div.player-card",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 2810.63,
+       "share": 0.8601,
+       "at": [
+        45.1,
+        80
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud-player-strip > div.player-card > div.card-info",
+       "content": false,
+       "text": "",
+       "interactive": false,
+       "px2": 877.97,
+       "share": 0.2687,
+       "at": [
+        65.6,
+        80
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud-player-strip > div.player-card > div.card-avatar",
+       "content": true,
+       "text": "🐱",
+       "interactive": false,
+       "px2": 676,
+       "share": 0.2069,
+       "at": [
+        32,
+        80
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud-player-strip > div.player-card > div.card-info > div.card-name",
+       "content": true,
+       "text": "ต้น",
+       "interactive": false,
+       "px2": 438.98,
+       "share": 0.1343,
+       "at": [
+        65.6,
+        72.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud-player-strip > div.player-card > div.card-info > div.card-score",
+       "content": true,
+       "text": "",
+       "interactive": false,
+       "px2": 438.98,
+       "share": 0.1343,
+       "at": [
+        65.6,
+        87.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      },
+      {
+       "sel": "div#hud-player-strip > div.player-card > div.card-info > div.card-score > strong",
+       "content": true,
+       "text": "0",
+       "interactive": false,
+       "px2": 73.53,
+       "share": 0.0225,
+       "at": [
+        66.9,
+        86.5
+       ],
+       "winner": "button#play-edit-players",
+       "controlWins": true,
+       "z": "auto",
+       "pos": "static"
+      }
+     ],
+     "contentHits": 4,
+     "maxContentShare": 0.2069
+    }
+   },
+   "visibleButtons": "play-exit play-edit-players btn-hud-home btn-hud-sound btn-hud-restart btn-hud-settings"
+  }
+ }
+}

@@ -1,0 +1,14 @@
+== before 09:12:53
+ 9:12  up  1:15, 1 user, load averages: 16.57 10.09 12.68
+ 73.2 97171 /Applications/OneDrive.app/Contents/PlugIns/OneDrive File Provider.appex/Contents/MacOS/
+ 53.6   814 /Applications/OneDrive.app/Contents/MacOS/OneDrive
+ 46.9 96025 bash -c while :; do :; done
+ 46.3 96024 bash -c while :; do :; done
+ 41.1 96047 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+== after 09:13:14
+ 9:13  up  1:15, 1 user, load averages: 13.75 9.99 12.57
+ 88.9 96024 bash -c while :; do :; done
+ 88.6 96025 bash -c while :; do :; done
+ 29.4   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 12.3   814 /Applications/OneDrive.app/Contents/MacOS/OneDrive
+  8.6 41827 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve

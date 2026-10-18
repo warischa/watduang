@@ -9,9 +9,9 @@ kids() { local p; for p in $(pgrep -P "$1" 2>/dev/null); do echo "$p"; kids "$p"
 killtree() { local a; a="$(echo "$1"; kids "$1")"; kill $a 2>/dev/null; sleep 1; kill -9 $a 2>/dev/null; echo "$a" >> "$ALL"; }
 cleanup() { for p in "${PIDS[@]}"; do killtree "$p"; done; sleep 1; left=0
   for p in $(cat "$ALL" 2>/dev/null); do ps -p "$p" >/dev/null 2>&1 && { echo "LEFTOVER $p"; left=1; }; done
-  echo "teardown: $(sort -u "$ALL" 2>/dev/null | wc -l | tr -d ' ') pids killed, leftovers=$left; ports listening: $(lsof -ti tcp:4413,tcp:4414,tcp:9413,tcp:9414 2>/dev/null | wc -l | tr -d ' ')"; rm -f "$ALL"; }
+  echo "teardown: $(sort -u "$ALL" 2>/dev/null | wc -l | tr -d ' ') pids killed, leftovers=$left; ports listening: $(lsof -nP -ti tcp:4413,4414,9413,9414 2>/dev/null | wc -l | tr -d ' ')"; rm -f "$ALL"; }
 trap cleanup EXIT
-lsof -ti tcp:4413,tcp:4414,tcp:9413,tcp:9414 >/dev/null 2>&1 && { echo "ports in use: refusing"; exit 2; }
+lsof -nP -ti tcp:4413,4414,9413,9414 >/dev/null 2>&1 && { echo "ports in use: refusing"; exit 2; }
 ps -eo command | grep -E "remote-debugging-port|run-workflow-gates" | grep -v grep | grep -q . && { echo "another headless Chrome / gate lane running: wait"; exit 2; }
 load() { { echo "== $1 $(date +%T)"; uptime; ps -eo pcpu,pid,command | sort -rn | head -5 | cut -c1-100; } >> "$HERE/load-$TAG.txt"; }
 : > "$HERE/load-$TAG.txt"

@@ -1,0 +1,14 @@
+== before 08:47:51
+ 8:47  up 50 mins, 1 user, load averages: 14.48 9.89 8.03
+170.5 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
+ 96.6 67895 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 62.2 67908 bash -c while :; do :; done
+ 59.5 67907 bash -c while :; do :; done
+ 54.4   911 /Applications/Claude.app/Contents/Frameworks/Claude Helper (Renderer).app/Contents/MacOS
+== after 08:48:29
+ 8:48  up 50 mins, 1 user, load averages: 11.84 9.84 8.10
+ 84.0 67908 bash -c while :; do :; done
+ 83.3 67907 bash -c while :; do :; done
+ 76.1 67905 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
+ 49.7 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
+ 38.3 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir

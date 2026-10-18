@@ -1,0 +1,4645 @@
+{
+ "short-stick@390": {
+  "route": "short-stick",
+  "vp": 390,
+  "iw": 390,
+  "rootClass": "SECTION.ss-players ps < MAIN.",
+  "screen": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-tagline",
+    "text": "ส่งมือถือวนจับไม้ทีละคน ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "−",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "NotoSansThai-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 2,
+    "tag": "SPAN",
+    "cls": "ps-count-read",
+    "text": "คน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "4",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 4,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "+",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 6,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 7,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 9,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 10,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 11,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular",
+     ".SFNS-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "mustRed": {
+   "controlComputed": [
+    "Georgia, serif",
+    "Georgia, serif"
+   ],
+   "elements": 16,
+   "identical": true,
+   "flipped": []
+  },
+  "dupScreen": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-tagline",
+    "text": "ส่งมือถือวนจับไม้ทีละคน ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "−",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "NotoSansThai-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 2,
+    "tag": "SPAN",
+    "cls": "ps-count-read",
+    "text": "คน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "4",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 4,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "+",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 6,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 8,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 9,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 10,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 12,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 13,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 15,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular",
+     ".SFNS-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": false
+   },
+   {
+    "n": 16,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "resetOpen": true,
+  "resetDialog": [
+   {
+    "n": 0,
+    "tag": "H2",
+    "cls": "ps-dialog-title",
+    "text": "รีเซ็ตเป็นชื่อสัตว์?",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-dialog-body",
+    "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "เก็บชื่อเดิมไว้",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-danger",
+    "text": "รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "editOpen": false,
+  "editForced": true,
+  "editDialog": [
+   {
+    "n": 0,
+    "tag": "H2",
+    "cls": "ps-dialog-title",
+    "text": "เปลี่ยนผู้เล่นตอนนี้?",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-dialog-body",
+    "text": "รอบที่เล่นอยู่จะจบลงทันท",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "เล่นรอบนี้ต่อ",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-danger",
+    "text": "จบรอบ แล้วแก้ผู้เล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "savedScreen": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-tagline",
+    "text": "ส่งมือถือวนจับไม้ทีละคน ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "เล่นรอบนี้คน",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular",
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "B",
+    "cls": null,
+    "text": "4",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "600",
+    "painted": [
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 4,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 5,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 6,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 9,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 10,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 13,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 16,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 17,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 18,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 19,
+    "tag": "BUTTON",
+    "cls": "ps-add",
+    "text": "+ เพิ่มคน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 20,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 21,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "savedUndo": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-tagline",
+    "text": "ส่งมือถือวนจับไม้ทีละคน ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "เล่นรอบนี้คน",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular",
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "B",
+    "cls": null,
+    "text": "3",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "600",
+    "painted": [
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 4,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 5,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 6,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 9,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 10,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 13,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "BUTTON",
+    "cls": "ps-add",
+    "text": "+ เพิ่มคน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 16,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 17,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 18,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "เอา แมวส้ม ออกจากวงแล้ว",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 19,
+    "tag": "BUTTON",
+    "cls": "ps-undo",
+    "text": "เลิกทำ",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ]
+ },
+ "short-stick@320": {
+  "route": "short-stick",
+  "vp": 320,
+  "iw": 320,
+  "rootClass": "SECTION.ss-players ps < MAIN.",
+  "screen": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-tagline",
+    "text": "ส่งมือถือวนจับไม้ทีละคน ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "−",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "NotoSansThai-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 2,
+    "tag": "SPAN",
+    "cls": "ps-count-read",
+    "text": "คน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "4",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 4,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "+",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 6,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 7,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 9,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 10,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 11,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular",
+     ".SFNS-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "dupScreen": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-tagline",
+    "text": "ส่งมือถือวนจับไม้ทีละคน ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "−",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "NotoSansThai-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 2,
+    "tag": "SPAN",
+    "cls": "ps-count-read",
+    "text": "คน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "4",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 4,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "+",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 6,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 8,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 9,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 10,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 12,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 13,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 15,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular",
+     ".SFNS-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": false
+   },
+   {
+    "n": 16,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "resetOpen": true,
+  "resetDialog": [
+   {
+    "n": 0,
+    "tag": "H2",
+    "cls": "ps-dialog-title",
+    "text": "รีเซ็ตเป็นชื่อสัตว์?",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-dialog-body",
+    "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "เก็บชื่อเดิมไว้",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-danger",
+    "text": "รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "editOpen": false,
+  "editForced": true,
+  "editDialog": [
+   {
+    "n": 0,
+    "tag": "H2",
+    "cls": "ps-dialog-title",
+    "text": "เปลี่ยนผู้เล่นตอนนี้?",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-dialog-body",
+    "text": "รอบที่เล่นอยู่จะจบลงทันท",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "เล่นรอบนี้ต่อ",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-danger",
+    "text": "จบรอบ แล้วแก้ผู้เล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "savedScreen": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-tagline",
+    "text": "ส่งมือถือวนจับไม้ทีละคน ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "เล่นรอบนี้คน",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular",
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "B",
+    "cls": null,
+    "text": "4",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "600",
+    "painted": [
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 4,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 5,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 6,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 9,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 10,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 13,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 16,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 17,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 18,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 19,
+    "tag": "BUTTON",
+    "cls": "ps-add",
+    "text": "+ เพิ่มคน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 20,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 21,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "savedUndo": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-tagline",
+    "text": "ส่งมือถือวนจับไม้ทีละคน ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "เล่นรอบนี้คน",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular",
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "B",
+    "cls": null,
+    "text": "3",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "600",
+    "painted": [
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 4,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 5,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 6,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 9,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 10,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 13,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "BUTTON",
+    "cls": "ps-add",
+    "text": "+ เพิ่มคน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 16,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 17,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 18,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "เอา แมวส้ม ออกจากวงแล้ว",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 19,
+    "tag": "BUTTON",
+    "cls": "ps-undo",
+    "text": "เลิกทำ",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ]
+ },
+ "one-bomb@390": {
+  "route": "one-bomb",
+  "vp": 390,
+  "iw": 390,
+  "rootClass": "SECTION.ob-player-screen ps < DIV.menuBox < DIV.menuOverlay < DIV.",
+  "screen": [
+   {
+    "n": 0,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "−",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "NotoSansThai-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 1,
+    "tag": "SPAN",
+    "cls": "ps-count-read",
+    "text": "คน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "4",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "+",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 4,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 5,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 6,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 8,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 9,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 10,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 12,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular",
+     ".SFNS-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": false
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "dupScreen": [
+   {
+    "n": 0,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "−",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "NotoSansThai-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 1,
+    "tag": "SPAN",
+    "cls": "ps-count-read",
+    "text": "คน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "4",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "+",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 4,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 6,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 7,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 9,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 10,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 11,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular",
+     ".SFNS-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "resetOpen": true,
+  "resetDialog": [
+   {
+    "n": 0,
+    "tag": "H2",
+    "cls": "ps-dialog-title",
+    "text": "รีเซ็ตเป็นชื่อสัตว์?",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-dialog-body",
+    "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "เก็บชื่อเดิมไว้",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-danger",
+    "text": "รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "editOpen": true,
+  "editDialog": [
+   {
+    "n": 0,
+    "tag": "H2",
+    "cls": "ps-dialog-title",
+    "text": "เปลี่ยนผู้เล่นตอนนี้?",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-dialog-body",
+    "text": "รอบที่เล่นอยู่จะจบลงทันท",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "เล่นรอบนี้ต่อ",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-danger",
+    "text": "จบรอบ แล้วแก้ผู้เล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "savedScreen": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "เล่นรอบนี้คน",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular",
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "B",
+    "cls": null,
+    "text": "4",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "600",
+    "painted": [
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 3,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 4,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 6,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 9,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 10,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 14,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 16,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 17,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 18,
+    "tag": "BUTTON",
+    "cls": "ps-add",
+    "text": "+ เพิ่มคน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 19,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 20,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "savedUndo": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "เล่นรอบนี้คน",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular",
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "B",
+    "cls": null,
+    "text": "3",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "600",
+    "painted": [
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 3,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 4,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 6,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 9,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 10,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-add",
+    "text": "+ เพิ่มคน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 15,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 16,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 17,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "เอา แมวส้ม ออกจากวงแล้ว",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 18,
+    "tag": "BUTTON",
+    "cls": "ps-undo",
+    "text": "เลิกทำ",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ]
+ },
+ "one-bomb@320": {
+  "route": "one-bomb",
+  "vp": 320,
+  "iw": 320,
+  "rootClass": "SECTION.ob-player-screen ps < DIV.menuBox < DIV.menuOverlay < DIV.",
+  "screen": [
+   {
+    "n": 0,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "−",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "NotoSansThai-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 1,
+    "tag": "SPAN",
+    "cls": "ps-count-read",
+    "text": "คน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "4",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "+",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 4,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 5,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 6,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 8,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 9,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 10,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 12,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular",
+     ".SFNS-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": false
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "dupScreen": [
+   {
+    "n": 0,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "−",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "NotoSansThai-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 1,
+    "tag": "SPAN",
+    "cls": "ps-count-read",
+    "text": "คน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "4",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-step",
+    "text": "+",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 4,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 6,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 7,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 9,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 10,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 11,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular",
+     ".SFNS-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "resetOpen": true,
+  "resetDialog": [
+   {
+    "n": 0,
+    "tag": "H2",
+    "cls": "ps-dialog-title",
+    "text": "รีเซ็ตเป็นชื่อสัตว์?",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-dialog-body",
+    "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "เก็บชื่อเดิมไว้",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-danger",
+    "text": "รีเซ็ตเป็นชื่อสัตว์",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "editOpen": true,
+  "editDialog": [
+   {
+    "n": 0,
+    "tag": "H2",
+    "cls": "ps-dialog-title",
+    "text": "เปลี่ยนผู้เล่นตอนนี้?",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "P",
+    "cls": "ps-dialog-body",
+    "text": "รอบที่เล่นอยู่จะจบลงทันท",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "BUTTON",
+    "cls": "ps-sec",
+    "text": "เล่นรอบนี้ต่อ",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 3,
+    "tag": "BUTTON",
+    "cls": "ps-danger",
+    "text": "จบรอบ แล้วแก้ผู้เล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "savedScreen": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "เล่นรอบนี้คน",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular",
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "B",
+    "cls": null,
+    "text": "4",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "600",
+    "painted": [
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 3,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐱",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 4,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "แมวส้ม",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 6,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 9,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 10,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 14,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 15,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 16,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 17,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 18,
+    "tag": "BUTTON",
+    "cls": "ps-add",
+    "text": "+ เพิ่มคน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 19,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 20,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ],
+  "savedUndo": [
+   {
+    "n": 0,
+    "tag": "P",
+    "cls": "ps-limit",
+    "text": "เล่นรอบนี้คน",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular",
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 1,
+    "tag": "B",
+    "cls": null,
+    "text": "3",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "600",
+    "painted": [
+     "Sarabun-Bold"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 2,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 3,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐶",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 4,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ชิบะ",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 5,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 6,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 7,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐰",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 8,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "บันนี่",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 9,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 10,
+    "tag": "I",
+    "cls": null,
+    "text": "✓",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "700",
+    "painted": [
+     ".SFNS-Bold"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 11,
+    "tag": "SPAN",
+    "cls": "ps-e",
+    "text": "🐸",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "AppleColorEmoji"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 12,
+    "tag": "INPUT",
+    "cls": "ps-n",
+    "text": "ฟร็อกกี้",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 13,
+    "tag": "BUTTON",
+    "cls": "ps-rm",
+    "text": "✕",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "ZapfDingbatsITC"
+    ],
+    "symbolChars": true,
+    "first": "Sarabun",
+    "pass": false
+   },
+   {
+    "n": 14,
+    "tag": "BUTTON",
+    "cls": "ps-add",
+    "text": "+ เพิ่มคน",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Mitr-Regular"
+    ],
+    "symbolChars": true,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 15,
+    "tag": "P",
+    "cls": "ps-hint",
+    "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 16,
+    "tag": "BUTTON",
+    "cls": "ps-go",
+    "text": "พร้อมเล่น",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   },
+   {
+    "n": 17,
+    "tag": "SPAN",
+    "cls": null,
+    "text": "เอา แมวส้ม ออกจากวงแล้ว",
+    "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+    "fw": "400",
+    "painted": [
+     "Sarabun-Regular"
+    ],
+    "symbolChars": false,
+    "first": "Sarabun",
+    "pass": true
+   },
+   {
+    "n": 18,
+    "tag": "BUTTON",
+    "cls": "ps-undo",
+    "text": "เลิกทำ",
+    "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+    "fw": "500",
+    "painted": [
+     "Mitr-Medium"
+    ],
+    "symbolChars": false,
+    "first": "Mitr",
+    "pass": true
+   }
+  ]
+ }
+}

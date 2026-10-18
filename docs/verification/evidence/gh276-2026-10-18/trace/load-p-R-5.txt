@@ -1,0 +1,14 @@
+== before 09:34:48
+ 9:34  up  1:37, 1 user, load averages: 11.95 11.22 10.92
+ 80.4 56626 bash -c while :; do :; done
+ 80.1 56625 bash -c while :; do :; done
+ 52.7   911 /Applications/Claude.app/Contents/Frameworks/Claude Helper (Renderer).app/Contents/MacOS
+ 38.9 56640 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
+ 16.8  2300 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
+== after 09:35:08
+ 9:35  up  1:37, 1 user, load averages: 10.22 10.87 10.80
+ 93.9 57056 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 90.3 56625 bash -c while :; do :; done
+ 90.0 56626 bash -c while :; do :; done
+ 28.9   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
+ 16.9 95584 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
