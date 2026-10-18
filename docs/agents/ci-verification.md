@@ -114,7 +114,7 @@ not on every routine verify.
 
 Routed from `CLAUDE.md` 2026-09-08 (ADR-0012 seam; that file keeps the heading as its trigger). One line, unwrapped, so the bytes are verbatim. 88% above is CI's clock, 542/577 below is this machine's — two scopes, not a conflict.
 
-`SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh` drops the two browser lanes and **always exits non-zero** (they count as not-executed), so a fast run can never be misread as a pass. CI decides the same thing by itself in `ci.yml`'s `probe-scope` step: on `main` probes always run because that run gates Deploy · no usable base commit → fail safe, run · diff touches `src/` or `public/` → run · otherwise skip. Use the fast lane while iterating; the full suite still runs once before a push. Two things that are NOT true: "the suite is slow" as a reason to cut scope — the runner now times every step, and FOUR local runs (n=4, this machine, not CI) put ~542s of the suite's ~577s in ONE step, the gh#122 browser probe — the 542s reproduced exactly all four times, next slowest step 7s — so a broad cut is aimed at the wrong thing; and a small diff is not a small blast radius — a one-line `--font-sans` edit changes text metrics on every page, which is exactly the shape a by-eye subset lets through.
+`SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh` drops the two browser lanes and **always exits non-zero** (they count as not-executed), so a fast run can never be misread as a pass. CI decides the same thing by itself in `ci.yml`'s `probe-scope` step: on `main` probes always run because that run gates Deploy · no usable base commit → fail safe, run · skip only when every changed path is inert (`scripts/probe-scope.mjs`, gh#270) · otherwise run. Use the fast lane while iterating; the full suite still runs once before a push. Two things that are NOT true: "the suite is slow" as a reason to cut scope — the runner now times every step, and FOUR local runs (n=4, this machine, not CI) put ~542s of the suite's ~577s in ONE step, the gh#122 browser probe — the 542s reproduced exactly all four times, next slowest step 7s — so a broad cut is aimed at the wrong thing; and a small diff is not a small blast radius — a one-line `--font-sans` edit changes text metrics on every page, which is exactly the shape a by-eye subset lets through.
 
 ## A local browser green can be blind to the path CI actually tests (2026-09-09, gh#213)
 
@@ -140,7 +140,7 @@ swiftshader flags, and its own no-3D test asserts that path against a fake DOM. 
 you used whenever you report a browser measurement**, and confirm in-page that `getContext` returns
 null. A flag name is not a context state; only the read is.
 
-**A branch green can carry no probe at all.** `probe-scope` skips the browser lanes on a branch push that touches nothing under `src/`/`public/`, and that includes a push changing only the probes (gh#270). Read the step conclusions, never the run's. To force the probes, push the commit to a fresh branch: with no usable base, they run.
+**A branch green can carry no probe at all.** `probe-scope` skips the browser lanes on a branch push whose every changed path is inert (docs, design, `.claude/`). Read the step conclusions, never the run's. To force the probes, push the commit to a fresh branch: with no usable base, they run.
 
 ## The probe's own dispatch latency sits inside the number it gates (2026-09-09, gh#122)
 
