@@ -399,3 +399,11 @@
   inline-size: var(--strip-chip-cap);
   background: linear-gradient(to left, var(--bg-deep), rgba(8, 12, 22, 0));
 }
+
+/* gh#275 owner decision 2026-10-18: the start control's fill takes darker stops so the white label holds
+   4.5:1 across the whole gradient. Lives here, not in style.css, which the extractor rewrites. The two
+   :not() terms keep the stop and locked fills (state-stop, state-locked) on their own rules; without them
+   the id selector would outrank those and paint the start gradient over a red or greyed control. */
+#btn-big-action.big-trigger-btn:not(.state-stop):not(.state-locked) {
+  background: linear-gradient(135deg, #075985, #0369a1);
+}

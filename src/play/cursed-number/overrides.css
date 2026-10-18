@@ -44,6 +44,10 @@
   --ps-ink: var(--text-main);
   --ps-muted: var(--text-muted);
   --ps-accent: var(--primary);
+  /* gh#274 owner decision 2026-10-18: the fill under the white label on the start control, the selected
+     tick and the danger button is this literal. Fill only: the accent used as text or outline stays on
+     the route's own primary, which reads on the dark panel where this purple does not. */
+  --ps-accent-fill: #9333ea;
   --ps-on-accent: #fff;
 }
 
