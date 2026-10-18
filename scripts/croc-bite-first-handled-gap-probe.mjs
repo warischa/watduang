@@ -86,6 +86,20 @@ export default async function (session) {
     const { awaitPlayerScreenSettled } = await import('./play-screen-fit-probe.mjs');
     const unsettled = await awaitPlayerScreenSettled((body) => session.evaluate(body));
     if (unsettled) { runs.push({ run: i, void: true, reason: `croc-bite: ${unsettled}` }); continue; }
+    // gh#264 / gh#272 — the order is player screen, handover, the game's own setup screen, board. The
+    // setup screen (and #btn-start-game on it) stays held until the handover, so a tap on it before the
+    // handover lands on nothing. Walks the handover with the shared helper, the way a player does.
+    const { walkHandover } = await import('./player-screen-handover.mjs');
+    const { ARM_DELAY_MS } = await import('../src/games/_arm-gate.ts');
+    const walked = await walkHandover({
+      evaluate: (body) => session.evaluate(body),
+      tap: (x, y) => session.tap(x, y),
+      armDelayMs: ARM_DELAY_MS,
+    });
+    if (walked) { runs.push({ run: i, void: true, reason: `croc-bite: ${walked}` }); continue; }
+    // The setup screen is revealed by the handover and arms its own buttons; a start tap inside that
+    // window is dropped, so wait it out before the start is pressed below.
+    await new Promise((r) => setTimeout(r, ARM_DELAY_MS + 100));
 
     const calib = await session.evaluate(CALIBRATE);
     const noWebgl = calib.value && calib.value.webgl2 === false && calib.value.webgl === false;
@@ -141,6 +155,14 @@ export default async function (session) {
     const contactAt = p?.contactAt ?? null;
     const playerTurnAt = p?.playerTurnAt ?? null;
     const phaseLog = p?.phaseLog ?? [];
+    // Every outcome below is read off these three stamps. A trial missing any of them never measured
+    // the thing, so it is void by name -- both outcome flags reading false would pass for a result.
+    const missing = [['roundReset', roundResetAt], ['contact', contactAt], ['playerTurn', playerTurnAt]]
+      .filter(([, t]) => !Number.isFinite(t)).map(([n]) => n);
+    if (missing.length > 0) {
+      runs.push({ run: i, void: true, reason: `no usable timestamp for: ${missing.join(', ')}`, roundResetAt, contactAt, playerTurnAt });
+      continue;
+    }
 
     const contactOffset = contactAt !== null && roundResetAt !== null ? contactAt - roundResetAt : null;
     const contactLandedInIntro = p?.introContact?.phaseAtContact === 'ROUND_INTRO';
