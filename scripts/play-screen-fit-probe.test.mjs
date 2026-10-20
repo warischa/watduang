@@ -891,7 +891,7 @@ test('the player-screen exception lives only on FITS_ROWS rows, and excepts only
   const play = (px) => ({ press: 1, overflowPx: px, scrollPx: px, clippedPx: 0, widthFillPct: 90, playerScreen: false });
   assert.equal(gatedWorstOf(row([player, play(0)])).overflowPx, 0, 'the player screen alone overflowing is excepted');
   assert.equal(gatedWorstOf(row([player, play(12)])).overflowPx, 12, 'MUST-RED: a play screen that grows still reaches the gate');
-  assert.equal(gatedWorstOf({ ...row([player]), route: 'croc-bite' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
+  assert.equal(gatedWorstOf({ ...row([player]), route: 'one-bomb' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
 });
 
 // gh#284 — a KNOWN_OVERFLOW row must keep grading the screen CLASS its ruling was made on. The real
