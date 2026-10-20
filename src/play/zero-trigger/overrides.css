@@ -407,3 +407,12 @@
 #btn-big-action.big-trigger-btn:not(.state-stop):not(.state-locked) {
   background: linear-gradient(135deg, #075985, #0369a1);
 }
+
+/* gh#278 owner decision 2026-10-18: every `.btn-primary` (quick start, confirm start, next round, close rules)
+   takes the same darker stops as the start control above, so its white label holds 4.5:1 across the whole
+   gradient; style.css's #0284c7 -> #06b6d4 reads 2.4:1 at the light end. Same reason as that rule for living
+   here and not in style.css. No state class is ever set on a `.btn-primary`, so there is no fill to protect with
+   :not() terms; the class selector keeps the base rule's specificity and wins by coming later. */
+.btn-primary {
+  background: linear-gradient(135deg, #075985, #0369a1);
+}
