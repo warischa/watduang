@@ -118,7 +118,12 @@ fi
 # than it does.
 # gh#264, 28 -> 29: no-webgl-first-screen joined lane4, a single leg (see its note there). The count is
 # now the 23 probe/standalone lines outside fit_pair, plus 2 x FIT_SHARDS.
-EXPECTED_LEGS=29
+# gh#277 gh#269, 29 -> 30: player-screen-face joined lane4, a single self-calibrating leg (see its note
+# there). The count is now the 24 probe/standalone lines outside fit_pair, plus 2 x FIT_SHARDS.
+# gh#268, 30 -> 32: play-top-band joined lane2 and play-top-band-control joined lane4 (a pair split
+# across lanes for balance; see the notes there). The count is now the 26 probe/standalone lines
+# outside fit_pair, plus 2 x FIT_SHARDS.
+EXPECTED_LEGS=32
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -345,6 +350,12 @@ lane2() {
   # boot offset answered 0 to a chip deliberately widened past the band's reach.
   probe strip-chip-visibility          strip-chip-visibility-probe.mjs    "$CDP_2"
   probe strip-chip-visibility-control  strip-chip-visibility-probe.mjs    "$CDP_2" CONTROL=1
+  # gh#268 -- the reserved 56px top band on every manifest party play route: the band paints, both
+  # controls sit inside it, and no visible route-content box (nor any fixed/sticky box, hidden or not)
+  # reaches above it, across first visit, seeded roster, in-round and desktop 1280x800. Its control leg
+  # runs in lane4 so the ~161s clean walk does not land on one lane with it. WHY lane2: no phase-two
+  # barrier waits on it.
+  standalone play-top-band             env BASE="$SITE" CDP_PORT="$CDP_2" node scripts/play-top-band-probe.mjs
 }
 lane3() {
   LANE=lane3
@@ -409,6 +420,20 @@ lane4() {
   # and it does not hold the phase-two barrier, so this leg can never delay the fit shards. Measured on
   # this Mac, n=4: ~52s for the 14 routes, one 320x568 load each.
   standalone no-webgl-first-screen     env BASE="$SITE" CDP_PORT="$CDP_4" NO_WEBGL=1 node scripts/play-screen-fit-probe.mjs
+  # gh#277 + gh#269 -- the shared player screen's painted face and the render hold, read on the same open
+  # state. Per manifest party play route: every text row of the screen and both dialogs computes a loaded
+  # self-hosted first family, and every declared gameplay root is held (hidden, 0, none) while the screen
+  # is open. A single leg and not a pair: each document load also injects hostile sheets (mount-root
+  # face, dialog face, an id-specific lift of one held root) and the leg reds when any of them is NOT
+  # seen, so a blind probe cannot pass. Under this lane's flags one-bomb drops its WebGL canvas, which the
+  # leg reports as missing rather than failing; the strict count applies whenever WebGL is live.
+  # WHY lane4: no phase-two barrier waits on it. Measured on this Mac, n=1 per flag set: ~95s.
+  standalone player-screen-face        env BASE="$SITE" CDP_PORT="$CDP_4" node scripts/player-screen-face-probe.mjs
+  # gh#268 -- the control half of play-top-band (its clean leg runs in lane2). BREAK_BAND zeroes the band
+  # and its variable; the leg walks only the 320 first-visit screen, one row per manifest play route, and
+  # passes only when content reds on every route -- a band check that cannot see a missing band fails here.
+  # ~56s measured on this Mac, n=1.
+  standalone play-top-band-control     env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_BAND=1 node scripts/play-top-band-probe.mjs
 }
 
 N_LANES=$((4 + FIT_SHARDS))

@@ -137,6 +137,11 @@ jobs:
       - name: Leave-confirm stays inert while closed (static check)
         run: node scripts/leave-confirm-check.mjs --selftest && node scripts/leave-confirm-check.mjs
 
+      # gh#279 / ADR-0024: the shared player screen's reset and edit dialogs are real <dialog> elements.
+      # The fail-safe half (no showModal, no destructive action) is a behaviour test under npm test.
+      - name: Shared player screen dialogs are real dialog elements (static check)
+        run: node scripts/player-screen-dialog-check.mjs --selftest && node scripts/player-screen-dialog-check.mjs
+
       # gh#121 — the leave-confirm above is only as good as the signal that arms it. GameModule now
       # requires startsRound, so a new module cannot silently skip the question (astro check reds on
       # a missing field); this gate enforces the consequence of the answer, including the bypass leg
@@ -292,6 +297,12 @@ jobs:
       # the manifest and src/play source only, so it sits with the pre-build gates.
       - name: Every party play route mounts the shared player screen (gh#264)
         run: node scripts/player-screen-mount-check.mjs --selftest && node scripts/player-screen-mount-check.mjs
+
+      # gh#269: every party play route declares its first-screen roots in its game entry, and every
+      # gameplay root carries the hold mark the shared player screen's CSS keys on. The cascade itself
+      # is read in the browser lane (player-screen-face in scripts/ci-probes.sh), never parsed here.
+      - name: Every party play route declares and marks its first-screen roots (gh#269)
+        run: node scripts/first-screen-roots-check.mjs --selftest && node scripts/first-screen-roots-check.mjs
 
       # gh#272: every party play route follows the shared player screen's render hold or declares, with
       # a reason, why it does not -- and a route that draws with WebGL must follow it. Reads the
