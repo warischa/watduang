@@ -1,0 +1,8640 @@
+{
+ "probe": "player-screen-face-probe",
+ "leg": "clean",
+ "base": "http://localhost:4611",
+ "viewport": "390x844",
+ "chromeFlags": "--headless --disable-gpu --no-sandbox (the ci-probes.sh lane flags; Chrome/155.0.8059.85, macOS, 390x844 mobile emulation; no WebGL context on this machine, read in-page as hold.read.webgl)",
+ "routes": [
+  "bangkok-drift",
+  "cannon-flag",
+  "croc-bite",
+  "cursed-number",
+  "dice-loser",
+  "freeze-tap",
+  "how-close-is-near",
+  "one-bomb",
+  "pinocchio-luck",
+  "power-meter",
+  "short-stick",
+  "timebomb",
+  "wire-snip-panic",
+  "zero-trigger"
+ ],
+ "routeCount": 14,
+ "narrowed": false,
+ "n": 574,
+ "verdict": "GREEN",
+ "problems": [],
+ "rows": [
+  {
+   "route": "bangkok-drift",
+   "rootId": "bd-players",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:loaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H1",
+       "id": null,
+       "cls": null,
+       "text": "บางกอกดริฟต์",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "700",
+       "anchors": [],
+       "platform": [
+        "Sarabun|12"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "muted",
+       "text": "ผลัดกันขับคนละตา ทุกคนได",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|151"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H1",
+       "id": null,
+       "cls": null,
+       "text": "บางกอกดริฟต์",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "700",
+       "anchors": [],
+       "platform": [
+        "Sarabun|12"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "muted",
+       "text": "ผลัดกันขับคนละตา ทุกคนได",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|151"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 17,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "cannon-flag",
+   "rootId": "cf-players",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:loaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ดวลปืนใหญ่ผลัดกันยิง ใคร",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|42"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ดวลปืนใหญ่ผลัดกันยิง ใคร",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|42"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "croc-bite",
+   "rootId": "croc-players",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:loaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "เกมปาร์ตี้ 3D · ผลัดกันก",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|38"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "เกมปาร์ตี้ 3D · ผลัดกันก",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|38"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "cursed-number",
+   "rootId": "cnPlayers",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:loaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ผลัดกันทายเลข ช่วงแคบลงท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ผลัดกันทายเลข ช่วงแคบลงท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "dice-loser",
+   "rootId": "dl-players",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:unloaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "dl-tagline",
+       "text": "ผลัดกันทอยเต๋าคนละ 3 ลูก",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|49"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "dl-tagline",
+       "text": "ผลัดกันทอยเต๋าคนละ 3 ลูก",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|49"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "freeze-tap",
+   "rootId": "ftPlayers",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:loaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "แตะให้ไวที่สุด แตะก่อนสั",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|39"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "แตะให้ไวที่สุด แตะก่อนสั",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|39"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "how-close-is-near",
+   "rootId": "hcPlayers",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:loaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "แอบทายเลขลับคนละ 1 ตัว ร",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|63"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "แอบทายเลขลับคนละ 1 ตัว ร",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|63"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "one-bomb",
+   "rootId": "ob-player-screen",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:unloaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "pinocchio-luck",
+   "rootId": "plPlayers",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:unloaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ตอบคำถามคนละข้อ ตอบผิดจม",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|49"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ตอบคำถามคนละข้อ ตอบผิดจม",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|49"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "power-meter",
+   "rootId": "pmPlayers",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:loaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "แตะหยุดเกจพลังคนละ 3 ครั",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "แตะหยุดเกจพลังคนละ 3 ครั",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "short-stick",
+   "rootId": "ssPlayers",
+   "openedBy": "edit-event",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:loaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ส่งมือถือวนจับไม้ทีละคน ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|46"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ส่งมือถือวนจับไม้ทีละคน ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|46"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "timebomb",
+   "rootId": "tb-setup",
+   "openedBy": "itself",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:unloaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "tb-tagline",
+       "text": "ส่งมือถือวนรอบวง ใครถืออ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|46"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "tb-tagline",
+       "text": "ส่งมือถือวนรอบวง ใครถืออ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|46"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "wire-snip-panic",
+   "rootId": "wspPlayers",
+   "openedBy": "edit-event",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:unloaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "จำลำดับไฟที่กระพริบ แล้ว",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|71"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "จำลำดับไฟที่กระพริบ แล้ว",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|71"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  },
+  {
+   "route": "zero-trigger",
+   "rootId": "zt-players",
+   "openedBy": "edit-event",
+   "error": null,
+   "allowed": [
+    "Sarabun",
+    "Mitr"
+   ],
+   "fontReport": {
+    "loaded": [
+     "Sarabun",
+     "Mitr"
+    ],
+    "declared": [
+     "Sarabun:loaded",
+     "Sarabun:unloaded",
+     "Mitr:loaded",
+     "Mitr:loaded",
+     "Mitr:unloaded",
+     "Mitr:unloaded"
+    ],
+    "remote": []
+   },
+   "states": {
+    "screen": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ผลัดกันแตะหยุดนาฬิกา ใคร",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|60"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-count-read"
+       ],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "Alex Morgan",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|11"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-hint"
+       ],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        ".ps-go"
+       ],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "limit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-tagline",
+       "text": "ผลัดกันแตะหยุดนาฬิกา ใคร",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|60"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "−",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Noto Sans Thai|1"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-count-read",
+       "text": "คน",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|4"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "SPAN",
+       "id": null,
+       "cls": null,
+       "text": "4",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|1"
+       ]
+      },
+      {
+       "n": 4,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-step",
+       "text": "+",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|1"
+       ]
+      },
+      {
+       "n": 5,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-limit",
+       "text": "มีชื่อซ้ำกัน — แก้ชื่อให",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-limit"
+       ],
+       "platform": [
+        "Sarabun|40"
+       ]
+      },
+      {
+       "n": 6,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐱",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 7,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 8,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐶",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 9,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "สมชาย ใจดี",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|10"
+       ]
+      },
+      {
+       "n": 10,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐰",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 11,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "บันนี่",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|6"
+       ]
+      },
+      {
+       "n": 12,
+       "tag": "SPAN",
+       "id": null,
+       "cls": "ps-e",
+       "text": "🐸",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Apple Color Emoji|1"
+       ]
+      },
+      {
+       "n": 13,
+       "tag": "INPUT",
+       "id": null,
+       "cls": "ps-n",
+       "text": "ฟร็อกกี้",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [
+        ".ps-n"
+       ],
+       "platform": [
+        "Sarabun|8"
+       ]
+      },
+      {
+       "n": 14,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-hint",
+       "text": "แตะที่ชื่อเพื่อเปลี่ยน —",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|48"
+       ]
+      },
+      {
+       "n": 15,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-sec",
+       "text": "↺ รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|20",
+        ".SF NS|1"
+       ]
+      },
+      {
+       "n": 16,
+       "tag": "BUTTON",
+       "id": null,
+       "cls": "ps-go",
+       "text": "พร้อมเล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [],
+       "platform": [
+        "Mitr Medium|9"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "reset": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-reset-title",
+       "cls": "ps-dialog-title",
+       "text": "รีเซ็ตเป็นชื่อสัตว์?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-title"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "ชื่อผู้เล่นที่พิมพ์ไว้จะ",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|105"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-reset-cancel",
+       "cls": "ps-sec",
+       "text": "เก็บชื่อเดิมไว้",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|15"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-reset-confirm",
+       "cls": "ps-danger",
+       "text": "รีเซ็ตเป็นชื่อสัตว์",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-reset-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|19"
+       ]
+      }
+     ],
+     "open": true
+    },
+    "edit": {
+     "rows": [
+      {
+       "n": 0,
+       "tag": "H2",
+       "id": "ps-edit-title",
+       "cls": "ps-dialog-title",
+       "text": "เปลี่ยนผู้เล่นตอนนี้?",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-title"
+       ],
+       "platform": [
+        "Mitr Medium|21"
+       ]
+      },
+      {
+       "n": 1,
+       "tag": "P",
+       "id": null,
+       "cls": "ps-dialog-body",
+       "text": "รอบที่เล่นอยู่จะจบลงทันท",
+       "ff": "Sarabun, \"Noto Sans Thai\", system-ui, -apple-system, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Sarabun|57"
+       ]
+      },
+      {
+       "n": 2,
+       "tag": "BUTTON",
+       "id": "ps-edit-cancel",
+       "cls": "ps-sec",
+       "text": "เล่นรอบนี้ต่อ",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "400",
+       "anchors": [],
+       "platform": [
+        "Mitr|13"
+       ]
+      },
+      {
+       "n": 3,
+       "tag": "BUTTON",
+       "id": "ps-edit-confirm",
+       "cls": "ps-danger",
+       "text": "จบรอบ แล้วแก้ผู้เล่น",
+       "ff": "Mitr, \"Noto Sans Thai\", Sarabun, system-ui, sans-serif",
+       "fw": "500",
+       "anchors": [
+        "#ps-edit-confirm"
+       ],
+       "platform": [
+        "Mitr Medium|20"
+       ]
+      }
+     ],
+     "open": true
+    }
+   },
+   "faults": []
+  }
+ ]
+}
