@@ -272,6 +272,65 @@ html[data-player-screen='open'] #mainContent {
 }
 
 /* ================================================================================================
+   gh#281 — pass screen under the reserved top band (gh#268), "A squeeze". The band takes 56px of the
+   568px phone viewport and the block above no longer leaves #playerReadyBtn on screen: measured at a
+   real 320x568 on every forced draw of TRIGGER_CONDITIONS, the button showed 39 visible px of 60 on
+   seven draws and 12 on the two symbol draws, whose prompts wrap to three lines.
+
+   Values are copied from variant A of design/Gh281FreezeTapReady.dc.html, the owner-approved pick
+   (owner approval 2026-10-20, popup, batch S2026-10-20#2); the board is the source (ADR-0033) and
+   nothing here is invented. Spacing and type steps are trimmed on the pass screen only; nothing is
+   removed or moved. This block supersedes the matching values in the block above, which stays for the
+   history of gh#182. The owner approved variant A as painted at 320x568 only, so this block is scoped
+   to <=359px, narrower than the 639px phone split above: 390x844 and 1440x900 keep their own layout
+   (computed styles compared against the base build, docs/verification/evidence/gh281-2026-10-20).
+   The header is shared by every screen on this route, so its trim is scoped
+   with :has() to loads where the pass screen is the one mounted; the 44px icon floor above holds.
+
+   main.js writes the name line's emoji size as an inline style, which a stylesheet rule loses to
+   unless it carries !important: that one selector does, for the same reason #playerReadyBtn does. */
+@media (max-width: 359px) {
+  #app:has(.pass-player-card) header {
+    padding-block: 4px;
+  }
+
+  .pass-container {
+    gap: 6px;
+  }
+
+  .pass-player-card {
+    padding-block: 8px;
+  }
+
+  .player-name-huge {
+    font-size: 2.2rem;
+    margin-block: 0;
+  }
+
+  .player-name-huge > span {
+    font-size: 2rem !important;
+  }
+
+  .pass-condition-box {
+    margin-top: 2px;
+    padding-block: 6px;
+    gap: 2px;
+  }
+
+  .pass-target-badge {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+    margin-bottom: 0;
+  }
+
+  .pass-condition-prompt {
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+}
+
+/* ================================================================================================
    gh#182 — rule-reveal screen (press 0), primary control below the fold at 320x568. Owner ruling
    2026-09-15 closes the fold rule for this route; the pass-screen block above already fixed
    #playerReadyBtn and explicitly left this screen open. Recorded baseline (both this block's own
