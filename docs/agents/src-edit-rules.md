@@ -152,3 +152,11 @@ Note this section deliberately contains no example of the banned form. A checker
 mention, so a document explaining a pattern gate is the easiest way to trip it — that has happened
 here twice.
 
+
+## A layout fix the owner approved at one viewport names its media-query bound
+
+When the board was painted and approved at one viewport, the brief states the media query's bound and
+its Verify proves that every other probe viewport's computed styles equal the base build's. Run that
+proof as a must-red too: a wider query must show a difference. An unchanged fit-probe number is not
+that proof, because a screen can be restyled and still fit. In gh#281 the worker chose a 639px phone
+split, so 390x844 got the 320-only squeeze. The fit probe read 0px both ways, and only review caught it.
