@@ -108,8 +108,12 @@ export const playRoutes = () => {
 
 // The in-page measurement. Returns the band, both controls and every content box that reaches the
 // band strip; the verdict is computed outside the page from these numbers.
+// WIDTH IS THE LAYOUT VIEWPORT, clientWidth, never innerWidth: a position:fixed full-width band spans
+// the layout viewport, which a classic scrollbar (CI's Linux Chrome, ~15px) narrows while innerWidth
+// still counts it; a Mac's overlay scrollbar takes nothing, so the two agree there and hide the gap.
+// Both are recorded per row.
 const MEASURE = `
-const BAND = ${BAND_PX}, VW = innerWidth, VH = innerHeight, CHROME = ${JSON.stringify(CHROME_IDS)};
+const BAND = ${BAND_PX}, VW = innerWidth, CW = document.documentElement.clientWidth, VH = innerHeight, CHROME = ${JSON.stringify(CHROME_IDS)};
 const r2 = (n) => +n.toFixed(2);
 const box = (r) => ({ l: r2(r.left), t: r2(r.top), r: r2(r.right), b: r2(r.bottom) });
 const sel = (e) => { const p = []; for (let n = e; n && n.nodeType === 1 && p.length < 4; n = n.parentElement) {
@@ -166,7 +170,7 @@ for (const e of document.body.querySelectorAll('*')) {
     const c = getComputedStyle(a);
     if (c.overflowX !== 'visible' || c.overflowY !== 'visible') { const q = a.getBoundingClientRect();
       L = Math.max(L, q.left); T = Math.max(T, q.top); R = Math.min(R, q.right); B = Math.min(B, q.bottom); } }
-  const w = Math.min(R, VW) - Math.max(L, 0), h = Math.min(B, BAND) - Math.max(T, 0);
+  const w = Math.min(R, CW) - Math.max(L, 0), h = Math.min(B, BAND) - Math.max(T, 0);
   if (w > ${TOL} && h > ${TOL}) hits.push({ sel: sel(e), ...box(r), overlapPx: r2(h), pos: s.position });
 }
 hits.sort((a, b) => b.overlapPx - a.overlapPx);
@@ -179,7 +183,7 @@ for (const e of document.body.querySelectorAll('*')) {
   const q = e.getBoundingClientRect(); if (q.width <= 0 || q.height <= 0) continue;
   sigSrc += (e.id || e.tagName) + (e.disabled ? '!' : '') + ':' + (e.children.length ? '' : (e.textContent || '').trim()) + '|'; }
 let sig = 0; for (let i = 0; i < sigSrc.length; i++) sig = (Math.imul(sig, 31) + sigSrc.charCodeAt(i)) | 0;
-return { sig, renderHold: document.documentElement.getAttribute('data-render-hold'), handover: document.documentElement.getAttribute('data-player-screen-handover'), vw: VW, vh: VH, clientWidth: document.documentElement.clientWidth, bodyPaddingTop: getComputedStyle(document.body).paddingTop,
+return { sig, renderHold: document.documentElement.getAttribute('data-render-hold'), handover: document.documentElement.getAttribute('data-player-screen-handover'), vw: VW, vh: VH, clientWidth: CW, bodyPaddingTop: getComputedStyle(document.body).paddingTop,
   sharedScreenOpen: document.documentElement.getAttribute('data-player-screen'), band, exit, edit, checked, skippedTiny,
   hitCount: hits.length, hits: hits.slice(0, 12), anchoredAbove };`;
 
@@ -241,7 +245,7 @@ const r2 = (n) => +n.toFixed(2);
 // control is expected at this level and an enabled one at full; anything below its level is a fault.
 const DISABLED_OPACITY = 0.55;
 const OPACITY_SLACK = 0.02;
-const inside = (b, vw) => b.t >= -TOL && b.b <= BAND_PX + TOL && b.l >= -TOL && b.r <= vw + TOL;
+const inside = (b, cw) => b.t >= -TOL && b.b <= BAND_PX + TOL && b.l >= -TOL && b.r <= cw + TOL;
 const overlap = (a, b) => Math.min(a.r, b.r) - Math.max(a.l, b.l) > TOL && Math.min(a.b, b.b) - Math.max(a.t, b.t) > TOL;
 
 export function judge(out) {
@@ -279,11 +283,11 @@ export function judge(out) {
       const b = r.band;
       if (!b?.present) failures.push(`${tag}: no #play-band element`);
       else {
-        if (Math.abs(b.t) > TOL || Math.abs(b.b - b.t - BAND_PX) > TOL || Math.abs(b.l) > TOL || Math.abs(b.r - r.vw) > TOL) failures.push(`${tag}: band box ${JSON.stringify(b)} is not 0..${BAND_PX} x 0..${r.vw}`);
+        if (Math.abs(b.t) > TOL || Math.abs(b.b - b.t - BAND_PX) > TOL || Math.abs(b.l) > TOL || Math.abs(b.r - r.clientWidth) > TOL) failures.push(`${tag}: band box ${JSON.stringify(b)} is not 0..${BAND_PX} x 0..${r.clientWidth} (innerWidth ${r.vw}, clientWidth ${r.clientWidth})`);
         if (b.ground !== BAND_GROUND) failures.push(`${tag}: band ground ${b.ground}, expected ${BAND_GROUND}`);
       }
       if (!r.exit?.present || !r.exit.visible || r.exit.forced) failures.push(`${tag}: close X not shown`);
-      else if (!inside(r.exit, r.vw)) failures.push(`${tag}: close X ${JSON.stringify(r.exit)} is not inside the band`);
+      else if (!inside(r.exit, r.clientWidth)) failures.push(`${tag}: close X ${JSON.stringify(r.exit)} is not inside the band`);
       // PAINTED, not just placed: a box with a position and a size can still be fully transparent.
       if (b?.present && !(b.visibility === 'visible' && b.opacity >= 1 - OPACITY_SLACK)) failures.push(`${tag}: band not painted (visibility ${b.visibility}, effective opacity ${b.opacity})`);
       for (const [name, c] of [['close X', r.exit], ['edit control', r.edit]]) {
@@ -293,7 +297,7 @@ export function judge(out) {
       }
       if (!r.edit?.present) failures.push(`${tag}: no #play-edit-players`);
       else {
-        if (!inside(r.edit, r.vw)) failures.push(`${tag}: edit control ${JSON.stringify(r.edit)}${r.edit.forced ? ' (forced read)' : ''} is not inside the band`);
+        if (!inside(r.edit, r.clientWidth)) failures.push(`${tag}: edit control ${JSON.stringify(r.edit)}${r.edit.forced ? ' (forced read)' : ''} is not inside the band`);
         if (r.exit?.present && overlap(r.exit, r.edit)) failures.push(`${tag}: edit control overlaps the close X`);
       }
       if (r.anchoredAbove?.length) failures.push(`${tag}: ${r.anchoredAbove.length} fixed/sticky route box(es) anchored above the band: ${r.anchoredAbove.slice(0, 4).map((a) => `${a.sel} (${a.position} top ${a.top}${a.display === 'none' ? ', hidden now' : ''})`).join('; ')}`);
